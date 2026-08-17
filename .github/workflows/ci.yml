@@ -317,7 +317,6 @@ jobs:
     openapi-lint:
         name: OpenAPI lint
         runs-on: ubuntu-latest
-        needs: data
         steps:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
@@ -357,13 +356,40 @@ jobs:
                     exit 1
                   fi
 
+    apps-web:
+        name: Apps web
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+              with:
+                  persist-credentials: false
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+              with:
+                  version: 10.33.0
+                  run_install: false
+                  standalone: true
+            - name: Setup Node.js
+              uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+
+            - name: Restore lockfile (guard setup-node cache mutation)
+              run: git checkout -- pnpm-lock.yaml
+
+            - name: Install dependencies
+              run: corepack pnpm install --frozen-lockfile
+
+            - name: Web validation
+              run: pnpm --filter @phaseo/web exec next build --experimental-build-mode compile
+
     apps:
         name: Apps ${{ matrix.app }}
         runs-on: ubuntu-latest
-        needs: openapi-lint
         strategy:
             matrix:
-                app: [api, docs, web, web-api, mcp]
+                app: [api, docs, web-api, mcp]
         steps:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
@@ -394,10 +420,6 @@ jobs:
             - name: Docs validation
               if: matrix.app == 'docs'
               run: pnpm run validate:docs
-
-            - name: Web validation
-              if: matrix.app == 'web'
-              run: pnpm --filter @phaseo/web exec next build --experimental-build-mode compile
 
             - name: Web API lint, test & build
               if: matrix.app == 'web-api'
@@ -894,7 +916,7 @@ jobs:
     deploy-preview-web:
         name: Deploy Web (Preview)
         runs-on: ubuntu-latest
-        needs: apps
+        needs: apps-web
         concurrency:
             group: deploy-preview-web-${{ github.event.pull_request.number || github.ref }}
             cancel-in-progress: true
@@ -930,7 +952,7 @@ jobs:
               run: corepack pnpm install --frozen-lockfile
 
             - name: Install Vercel CLI
-              run: npm install --global vercel@latest
+              run: npm install --global vercel@58.9.4
 
             - name: Deploy web to Vercel (preview)
               id: deploy
@@ -979,15 +1001,77 @@ jobs:
                       })
                     }
 
+    deploy-web:
+        name: deploy (web, Deploy Web)
+        runs-on: ubuntu-latest
+        needs:
+            - data
+            - openapi-lint
+            - apps-web
+            - check-paths
+            - migrate-production
+        if: >-
+            always() &&
+            github.ref == 'refs/heads/main' &&
+            needs.data.result == 'success' &&
+            needs.openapi-lint.result == 'success' &&
+            needs.apps-web.result == 'success' &&
+            needs.check-paths.result == 'success' &&
+            ((github.event_name == 'push' &&
+            (needs.check-paths.outputs.migrations-changed != 'true' ||
+            needs.migrate-production.result == 'success')) ||
+            (github.event_name == 'workflow_dispatch' &&
+            inputs.deploy_production == true))
+        permissions:
+            contents: read
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+              with:
+                  persist-credentials: false
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+              with:
+                  version: 10.33.0
+                  run_install: false
+                  standalone: true
+            - name: Setup Node.js
+              uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+
+            - name: Restore lockfile (guard setup-node cache mutation)
+              run: git checkout -- pnpm-lock.yaml
+
+            - name: Install dependencies
+              run: corepack pnpm install --frozen-lockfile
+
+            - name: Install Vercel CLI
+              run: npm install --global vercel@58.9.4
+
+            - name: Deploy web to Vercel (production)
+              env:
+                  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+                  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+                  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+              if: ${{ env.VERCEL_PROJECT_ID != '' }}
+              run: |
+                  vercel pull --yes --environment=production --token=$VERCEL_TOKEN
+                  vercel deploy --yes --archive=tgz --prod --logs --token=$VERCEL_TOKEN
+
     deploy:
         runs-on: ubuntu-latest
         needs:
+            - data
+            - openapi-lint
             - apps
             - check-paths
             - migrate-production
         if: >-
             always() &&
             github.ref == 'refs/heads/main' &&
+            needs.data.result == 'success' &&
+            needs.openapi-lint.result == 'success' &&
             needs.apps.result == 'success' &&
             needs.check-paths.result == 'success' &&
             ((github.event_name == 'push' &&
@@ -1001,8 +1085,6 @@ jobs:
             fail-fast: false
             matrix:
                 include:
-                    - target: web
-                      name: Deploy Web
                     - target: api
                       name: Deploy API
                     - target: web-api
@@ -1025,28 +1107,8 @@ jobs:
               with:
                   node-version: ${{ env.NODE_VERSION }}
 
-            # ---------- WEB (Vercel) ----------
-
             - name: Restore lockfile (guard setup-node cache mutation)
               run: git checkout -- pnpm-lock.yaml
-
-            - name: Install dependencies
-              if: matrix.target == 'web'
-              run: corepack pnpm install --frozen-lockfile
-
-            - name: Install Vercel CLI
-              if: matrix.target == 'web'
-              run: npm install --global vercel@latest
-
-            - name: Deploy web to Vercel (production)
-              env:
-                  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-                  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-                  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-              if: ${{ matrix.target == 'web' && env.VERCEL_PROJECT_ID != '' }}
-              run: |
-                  vercel pull --yes --environment=production --token=$VERCEL_TOKEN
-                  vercel deploy --yes --archive=tgz --prod --logs --token=$VERCEL_TOKEN
             # ---------- API (Cloudflare Workers) ----------
             # Install deps so wrangler can resolve imports
 
@@ -1213,6 +1275,7 @@ jobs:
             - sdk-lifecycle-tests
             - agent-sdk-tests
             - apps
+            - apps-web
         if: github.ref == 'refs/heads/main' && github.event_name != 'workflow_dispatch'
         env:
             NPM_CONFIG_PROVENANCE: true
@@ -1454,3 +1517,4 @@ jobs:
                   PHASEO_GH_RELEASE_MODE: all
               run: |
                   pnpm run release-from-changelogs
+
