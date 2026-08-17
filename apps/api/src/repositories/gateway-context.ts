@@ -1,5 +1,5 @@
 import { byokKeys, keys, presets, v2ModelAliases, v2ModelProviderRoutes, v2Models, v2Providers, v2RouteCapabilities, wallets, workspaceSettings, workspaces } from "@phaseo/db/schema";
-import { and, eq, inArray, sql } from "@phaseo/db/query";
+import { and, eq, inArray, or, sql } from "@phaseo/db/query";
 
 import { createDatabase } from "@/runtime/db";
 import { getBindings } from "@/runtime/env";
@@ -143,13 +143,25 @@ export async function loadWorkspaceEnrichment(workspaceId: string, providerIds: 
 
 function number(value: unknown): number { const parsed = Number(value); return Number.isFinite(parsed) ? parsed : 0; }
 
+export function presetAccessPredicate(apiKeyCreatorId: string) {
+	return or(
+		inArray(presets.visibility, ["public", "team"]),
+		eq(presets.createdBy, apiKeyCreatorId),
+	);
+}
+
 export async function fetchRequestContext(args: { workspaceId: string; model: string; endpoint: string; apiKeyId: string }) {
 	return withDatabase(async (db) => {
+		const [key] = await db.select().from(keys).where(eq(keys.id, args.apiKeyId)).limit(1);
+		if (!key) throw new Error("api_key_not_found");
+		if (key.workspaceId !== args.workspaceId) throw new Error("api_key_wrong_team");
+		if (key.status !== "active") throw new Error("api_key_inactive");
+
 		let baseModel = args.model;
 		let preset: Record<string, unknown> | null = null;
 		if (baseModel.startsWith("@")) {
 			const slug = baseModel.slice(1);
-			const [row] = await db.select({ id: presets.id, name: presets.name, slug: presets.slug, description: presets.description, config: presets.config, visibility: presets.visibility }).from(presets).where(and(eq(presets.workspaceId, args.workspaceId), sql`coalesce(nullif(${presets.slug},''),regexp_replace(${presets.name},'^@',''))=${slug}`, sql`${presets.archivedAt} is null`)).limit(1);
+			const [row] = await db.select({ id: presets.id, name: presets.name, slug: presets.slug, description: presets.description, config: presets.config, visibility: presets.visibility }).from(presets).where(and(eq(presets.workspaceId, args.workspaceId), sql`coalesce(nullif(${presets.slug},''),regexp_replace(${presets.name},'^@',''))=${slug}`, sql`${presets.archivedAt} is null`, presetAccessPredicate(key.createdBy))).limit(1);
 			if (!row) throw new Error("preset_not_found");
 			preset = row;
 			const config = row.config && typeof row.config === "object" && !Array.isArray(row.config) ? row.config as Record<string, any> : {};
@@ -171,10 +183,6 @@ export async function fetchRequestContext(args: { workspaceId: string; model: st
 			if (route?.model) resolvedModel = route.model;
 		}
 
-		const [key] = await db.select().from(keys).where(eq(keys.id, args.apiKeyId)).limit(1);
-		if (!key) throw new Error("api_key_not_found");
-		if (key.workspaceId !== args.workspaceId) throw new Error("api_key_wrong_team");
-		if (key.status !== "active") throw new Error("api_key_inactive");
 		const [wallet] = await db.select().from(wallets).where(eq(wallets.workspaceId, args.workspaceId)).limit(1);
 		const [workspace] = await db.select({ createdAt: workspaces.createdAt, tier: workspaces.tier }).from(workspaces).where(eq(workspaces.id, args.workspaceId)).limit(1);
 		const [usage] = await db.execute<Record<string, unknown>>(sql`select

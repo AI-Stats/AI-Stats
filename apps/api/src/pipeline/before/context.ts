@@ -76,6 +76,19 @@ const MIN_GATEWAY_CREDIT_NANOS = 1_000_000_000;
 
 const contextInflight = new Map<string, Promise<GatewayContextData>>();
 
+export function gatewayStaticContextCacheKey(args: {
+	testingModeCacheSegment: "default" | "testing";
+	workspaceId: string;
+	apiKeyId: string;
+	versionToken: string;
+	model: string;
+	endpoint: string;
+}): string {
+	return args.model.startsWith("@")
+		? `${PRESET_CACHE_PREFIX}:${args.testingModeCacheSegment}:${args.workspaceId}:${args.apiKeyId}:${args.versionToken}:${args.model}:${args.endpoint}`
+		: `${STATIC_CACHE_PREFIX}:${args.testingModeCacheSegment}:${args.workspaceId}:${args.endpoint}:${args.model}`;
+}
+
 type CreditContextSnapshot = Pick<
 	GatewayContextData,
 	"workspaceId" | "credit" | "teamEnrichment"
@@ -858,9 +871,14 @@ export async function fetchGatewayContext(args: {
     const testingModeCacheSegment = args.includeTestingMode ? "testing" : "default";
     const dynamicCacheKey = `${DYNAMIC_CACHE_PREFIX}:${testingModeCacheSegment}:${args.workspaceId}:${args.apiKeyId}:${versionToken}`;
     const creditCacheKey = gatewayCreditCacheKey(args.workspaceId);
-    const staticCacheKey = isPreset
-        ? `${PRESET_CACHE_PREFIX}:${testingModeCacheSegment}:${args.workspaceId}:${args.model}:${args.endpoint}`
-        : `${STATIC_CACHE_PREFIX}:${testingModeCacheSegment}:${args.workspaceId}:${args.endpoint}:${args.model}`;
+    const staticCacheKey = gatewayStaticContextCacheKey({
+        testingModeCacheSegment,
+        workspaceId: args.workspaceId,
+        apiKeyId: args.apiKeyId,
+        versionToken,
+        model: args.model,
+        endpoint: args.endpoint,
+    });
     const compositionCacheKey = `${CONTEXT_CACHE_PREFIX}:compose:${testingModeCacheSegment}:${args.workspaceId}:${args.apiKeyId}:${versionToken}:${args.endpoint}:${args.model}`;
 
     // Try split cache first (parallel read of dynamic and static segments).
@@ -1617,7 +1635,6 @@ export async function fetchGatewayContext(args: {
         }
     }
 }
-
 
 
 
