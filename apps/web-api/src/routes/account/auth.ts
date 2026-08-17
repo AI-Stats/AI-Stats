@@ -41,6 +41,10 @@ function isMissingCountryColumn(error: unknown) {
 
 export const accountAuthRouter = new Hono<{ Bindings: Env }>();
 
+export function isGatewayApiKey(value: string): boolean {
+	return /^(?:phaseo_v1|aistats(?:_v\d+)?)_sk_[A-Za-z0-9_-]{16,}$/.test(value);
+}
+
 accountAuthRouter.get("/status", async (c) => {
 	const user = await requireUser(c.req.raw, c.env);
 	if (!user) {
@@ -108,7 +112,7 @@ accountAuthRouter.post("/test-key", async (c) => {
 	if (!user) return c.json({ ok: false, message: "Sign in to test API keys." }, 401, PRIVATE_NO_STORE_HEADERS);
 	const body: { apiKey?: unknown } = await c.req.json().catch(() => ({}));
 	const apiKey = typeof body.apiKey === "string" ? body.apiKey.trim() : "";
-	if (!/^aistats(_v\d+)?_sk_[A-Za-z0-9_-]{16,}$/.test(apiKey)) return c.json({ ok: false, message: "This does not look like an AI Stats API key." }, 400, PRIVATE_NO_STORE_HEADERS);
+	if (!isGatewayApiKey(apiKey)) return c.json({ ok: false, message: "This does not look like a Phaseo API key." }, 400, PRIVATE_NO_STORE_HEADERS);
 	const raw = c.env.NEXT_PUBLIC_GATEWAY_API_URL ?? c.env.NEXT_PUBLIC_API_URL ?? c.env.AI_STATS_GATEWAY_URL ?? "https://api.phaseo.app";
 	const base = raw.replace(/\/+$/, ""); const gateway = base.endsWith("/v1") ? base : `${base}/v1`;
 	try {

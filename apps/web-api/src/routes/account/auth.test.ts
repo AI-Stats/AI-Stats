@@ -5,6 +5,7 @@ const account = vi.hoisted(() => ({ getAccountProfile: vi.fn(), listAccountWorks
 vi.mock("@/repositories/identity", () => identity);
 vi.mock("@/repositories/account-auth", () => account);
 import app from "@/index";
+import { isGatewayApiKey } from "./auth";
 
 const env = {
 	ENV: "development" as const,
@@ -109,3 +110,20 @@ describe("account auth routes", () => {
 		});
 	});
 });
+
+describe("isGatewayApiKey", () => {
+	it("accepts current Phaseo keys", () => {
+		expect(isGatewayApiKey("phaseo_v1_sk_primary_1234567890123456")).toBe(true);
+	});
+
+	it("keeps legacy keys testable during rotation", () => {
+		expect(isGatewayApiKey("aistats_sk_1234567890123456")).toBe(true);
+		expect(isGatewayApiKey("aistats_v2_sk_1234567890123456")).toBe(true);
+	});
+
+	it("rejects malformed and management keys", () => {
+		expect(isGatewayApiKey("phaseo_v1_mk_primary_1234567890123456")).toBe(false);
+		expect(isGatewayApiKey("phaseo_v1_sk_short")).toBe(false);
+	});
+});
+
