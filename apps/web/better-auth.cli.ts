@@ -14,6 +14,7 @@ export const auth = createBetterAuth(
 	new Pool({
 		connectionString: connectionString.toString(),
 		max: 1,
+		options: "-c search_path=auth,public",
 		ssl: localDatabase ? false : { rejectUnauthorized: true },
 	}),
 );

@@ -44,3 +44,20 @@ export function planetScaleConnectionConfig(): PoolConfig {
 		ssl: { rejectUnauthorized: true },
 	};
 }
+
+export function betterAuthConnectionConfig(): PoolConfig {
+	const config = planetScaleConnectionConfig();
+	const url = new URL(config.connectionString!);
+
+	// PgBouncer rejects search_path as a startup option. Better Auth uses
+	// canonical unqualified table names, so its bounded pool connects directly
+	// and selects the dedicated auth schema at connection startup.
+	url.port = "5432";
+
+	return {
+		...config,
+		connectionString: url.toString(),
+		max: 1,
+		options: "-c search_path=auth,public",
+	};
+}

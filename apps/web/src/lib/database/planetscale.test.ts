@@ -1,4 +1,4 @@
-import { planetScaleConnectionConfig } from "./planetscaleConfig";
+import { betterAuthConnectionConfig, planetScaleConnectionConfig } from "./planetscaleConfig";
 
 describe("planetScaleConnectionConfig", () => {
 	const originalEnv = process.env;
@@ -25,6 +25,15 @@ describe("planetScaleConnectionConfig", () => {
 		expect(config.max).toBe(1);
 		expect(config.idleTimeoutMillis).toBe(5_000);
 		expect(config.allowExitOnIdle).toBe(true);
+	});
+
+	it("uses a direct auth-schema connection for Better Auth", () => {
+		const config = betterAuthConnectionConfig();
+		const url = new URL(config.connectionString!);
+
+		expect(url.port).toBe("5432");
+		expect(config.max).toBe(1);
+		expect(config.options).toBe("-c search_path=auth,public");
 	});
 
 	it("supports direct connections and bounded pool overrides", () => {

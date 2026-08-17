@@ -1,7 +1,7 @@
 import "server-only";
 
 import { createBetterAuth, type PhaseoBetterAuth } from "@/lib/auth/betterAuthConfig";
-import { getPlanetScalePool } from "@/lib/database/planetscale";
+import { getBetterAuthPool } from "@/lib/database/planetscale";
 
 let instance: PhaseoBetterAuth | undefined;
 
@@ -11,6 +11,6 @@ export function isBetterAuthEnabled(): boolean {
 
 export function getBetterAuth(): PhaseoBetterAuth {
 	if (instance) return instance;
-	instance = createBetterAuth(getPlanetScalePool());
+	instance = createBetterAuth(getBetterAuthPool());
 	return instance;
 }
