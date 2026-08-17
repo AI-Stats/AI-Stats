@@ -100,6 +100,7 @@ import { useChatAuth } from "@/components/(chat)/playground/use-chat-auth";
 import { useGroupedChatThreads } from "@/components/(chat)/playground/use-grouped-chat-threads";
 import {
 	createChatStreamTextError,
+	isChatSessionAuthenticationError,
 	parseChatErrorResponse,
 	parseChatStreamErrorFrame,
 	type ChatErrorPayload,
@@ -2566,9 +2567,7 @@ function ChatPlaygroundContent({
 					typeof structuredError?.code === "string"
 						? structuredError.code
 						: "";
-				const authRequired =
-					structuredError?.status === 401 ||
-					["unauthorized", "unauthenticated"].includes(errorCode.toLowerCase());
+				const authRequired = isChatSessionAuthenticationError(structuredError);
 				if (authRequired) {
 					setError(null);
 					setRequestError(null);

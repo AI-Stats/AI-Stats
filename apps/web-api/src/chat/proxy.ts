@@ -131,7 +131,7 @@ export function resolveGatewayBaseUrlForEnvironment(args: { configuredBaseUrl?: 
 	const staging = normalizeGatewayBaseUrl(args.stagingBaseUrl);
 	const requested = normalizeGatewayBaseUrl(args.requestedBaseUrl);
 	if (args.environment === "production") {
-		return requested && staging && requested === staging ? staging : configured ?? null;
+		return configured ?? null;
 	}
 	if (requested && (requested === PUBLIC_GATEWAY_BASE_URL || requested === configured || requested === staging || isDevelopmentLocalGatewayBaseUrl(requested, args.environment))) return requested;
 	return configured ?? staging ?? PUBLIC_GATEWAY_BASE_URL;
@@ -166,6 +166,14 @@ export async function proxyGateway(request: Request, env: Env, waitUntil: (promi
 			headers: { ...(args.method === "GET" ? {} : { "Content-Type": "application/json" }), ...sanitizeAppHeaders(args.appHeaders), ...CANONICAL_CHAT_APP_HEADERS, Authorization: `Bearer ${auth.apiKey}`, ...(args.debug ? { "x-gateway-debug": "true" } : {}), ...(args.stream ? { Accept: "text/event-stream" } : {}) },
 			...(args.method === "GET" ? {} : { body: JSON.stringify(args.requestBody ?? {}) }),
 		});
+		if (!upstream.ok) {
+			const payload = await upstream.clone().json<Record<string, unknown>>().catch(() => null);
+			console.warn("[web-api/chat] gateway rejected request", {
+				status: upstream.status,
+				host: new URL(baseUrl).host,
+				code: typeof payload?.error === "string" ? payload.error : undefined,
+			});
+		}
 		return privateResponse(upstream);
 	} catch {
 		return jsonError(502, "gateway_unreachable", "The gateway is temporarily unavailable. Please try again.");
