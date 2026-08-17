@@ -13,7 +13,7 @@ const state = vi.hoisted(() => ({
 	fileMeta: new Map<string, Record<string, unknown>>(),
 	uploadClaim: { ok: true, reason: null as string | null },
 	finishClaimError: null as Error | null,
-	fallbackClaimUpdates: [] as Array<Record<string, unknown>>,
+	finishClaimCalls: [] as Array<Record<string, unknown>>,
 	batchApiEnabled: true,
 	fetchCalls: [] as Array<{
 		url: string;
@@ -27,7 +27,7 @@ function resetState() {
 	state.fileMeta.clear();
 	state.uploadClaim = { ok: true, reason: null };
 	state.finishClaimError = null;
-	state.fallbackClaimUpdates = [];
+	state.finishClaimCalls = [];
 	state.batchApiEnabled = true;
 	state.fetchCalls = [];
 }
@@ -63,26 +63,13 @@ vi.mock("@/runtime/env", () => ({
 		MOONSHOT_AI_BASE_URL: "https://api.moonshot.example",
 		BATCH_API_PREVIEW_PROVIDERS: "openai,anthropic,google-ai-studio,mistral,moonshotai,x-ai,groq,together",
 	}),
-	getSupabaseAdmin: () => ({
-		rpc: vi.fn(async (name: string) => {
-			if (name === "gateway_finish_batch_file_upload" && state.finishClaimError) {
-				return { data: null, error: state.finishClaimError };
-			}
-			return {
-				data: name === "gateway_claim_batch_file_upload" ? [state.uploadClaim] : null,
-				error: null,
-			};
-		}),
-		from: vi.fn(() => ({
-			update: (patch: Record<string, unknown>) => ({
-				eq: (workspaceColumn: string, workspaceId: string) => ({
-					eq: async (uploadColumn: string, uploadId: string) => {
-						state.fallbackClaimUpdates.push({ patch, workspaceColumn, workspaceId, uploadColumn, uploadId });
-						return { error: null };
-					},
-				}),
-			}),
-		})),
+}));
+
+vi.mock("@/repositories/batch-file-uploads", () => ({
+	claimUpload: vi.fn(async () => state.uploadClaim),
+	finishUpload: vi.fn(async (args: Record<string, unknown>) => {
+		state.finishClaimCalls.push(args);
+		if (state.finishClaimError) throw state.finishClaimError;
 	}),
 }));
 
@@ -154,26 +141,32 @@ describe("filesRoutes", () => {
 		expect(fetchMock).not.toHaveBeenCalled();
 	});
 
-	it("falls back to a scoped update when upload-claim finalization RPC fails", async () => {
-		state.finishClaimError = new Error("rpc unavailable");
-		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+	it("removes the provider file when upload-claim finalization fails", async () => {
+		state.finishClaimError = new Error("database unavailable");
+		const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
 			if (String(input) === "https://api.openai.example/v1/files") {
 				return jsonResponse({ id: "file_fallback_123", purpose: "batch", status: "uploaded" });
 			}
+			if (String(input) === "https://api.openai.example/v1/files/file_fallback_123") {
+				return jsonResponse({ deleted: true });
+			}
 			throw new Error(`Unexpected fetch ${String(input)}`);
-		}));
+		});
+		vi.stubGlobal("fetch", fetchMock);
 		const { filesRoutes } = await import("./files");
 		const response = await filesRoutes.request("https://example.com/?provider=openai", {
 			method: "POST",
 			body: new Blob(['{"ok":true}\n'], { type: "application/jsonl" }),
 		});
-		expect(response.status).toBe(200);
-		expect(state.fallbackClaimUpdates).toEqual([expect.objectContaining({
-			workspaceColumn: "workspace_id",
-			workspaceId: "ws_files_test",
-			uploadColumn: "upload_id",
-			patch: expect.objectContaining({ status: "completed", provider_file_id: "file_fallback_123" }),
-		})]);
+		expect(response.status).toBe(500);
+		expect(state.finishClaimCalls).toEqual([
+			expect.objectContaining({ workspaceId: "ws_files_test", status: "completed", providerFileId: "file_fallback_123" }),
+			expect.objectContaining({ workspaceId: "ws_files_test", status: "failed", providerFileId: "file_fallback_123" }),
+		]);
+		expect(fetchMock).toHaveBeenCalledWith(
+			"https://api.openai.example/v1/files/file_fallback_123",
+			expect.objectContaining({ method: "DELETE" }),
+		);
 	});
 
 	it("rejects workspace upload quota exhaustion before shared provider storage is used", async () => {

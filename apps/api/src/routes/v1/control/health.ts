@@ -6,7 +6,8 @@
 import { Hono } from "hono";
 import type { Env } from "@/runtime/types";
 import type { Endpoint } from "@/core/types";
-import { getBindings, getSupabaseAdmin } from "@/runtime/env";
+import { getBindings } from "@/runtime/env";
+import { listRecentProviderRequestTuples } from "@/repositories/provider-health";
 import { readHealth } from "@/pipeline/execute/health";
 import { guardAuth, type GuardErr } from "@/pipeline/before/guards";
 import { cacheHeaders, json, withRuntime } from "@/routes/utils";
@@ -151,20 +152,11 @@ async function handleProviderDerank(req: Request) {
 	const sinceIso = new Date(nowMs - windowHours * 60 * 60 * 1000).toISOString();
 
 	try {
-		const supabase = getSupabaseAdmin();
-		const { data, error } = await supabase
-			.from("v2_web_gateway_requests")
-			.select("model_id, endpoint, created_at")
-			.eq("provider", providerId)
-			.gte("created_at", sinceIso)
-			.order("created_at", { ascending: false })
-			.limit(fetchLimit);
-
-		if (error) {
-			throw new Error(error.message || "Failed to load provider request tuples");
-		}
-
-		const rows = (data ?? []) as RecentRequestRow[];
+		const rows = await listRecentProviderRequestTuples({
+			providerId,
+			since: sinceIso,
+			limit: fetchLimit,
+		}) as RecentRequestRow[];
 		const seen = new Set<string>();
 		const tuples: Array<{ model: string; endpoint: Endpoint; last_seen_at: string | null }> = [];
 
@@ -246,7 +238,6 @@ async function handleProviderDerank(req: Request) {
 }
 
 healthRoutes.get("/providers/:providerId/derank", withRuntime(handleProviderDerank));
-
 
 
 

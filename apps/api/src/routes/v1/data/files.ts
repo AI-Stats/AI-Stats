@@ -9,7 +9,8 @@ import { authenticate } from "@pipeline/before/auth";
 import type { AuthFailure, AuthSuccess } from "@pipeline/before/auth";
 import { err } from "@pipeline/before/http";
 import { generatePublicId } from "@pipeline/before/genId";
-import { getBindings, getSupabaseAdmin } from "@/runtime/env";
+import * as batchFileUploadRepository from "@/repositories/batch-file-uploads";
+import { getBindings } from "@/runtime/env";
 import { getBatchFileMeta, saveBatchFileMeta } from "@core/batch-jobs";
 import { getBatchApiFeatureGateName, isBatchApiAccessEnabled } from "@core/feature-flags";
 import {
@@ -163,13 +164,7 @@ async function finishUploadClaim(args: {
 	providerFileId?: string | null;
 }): Promise<void> {
 	try {
-		const { error } = await getSupabaseAdmin().rpc("gateway_finish_batch_file_upload", {
-			p_workspace_id: args.workspaceId,
-			p_upload_id: args.uploadId,
-			p_status: args.status,
-			p_provider_file_id: args.providerFileId ?? null,
-		});
-		if (error) throw error;
+		await batchFileUploadRepository.finishUpload(args);
 	} catch (error) {
 		console.error("batch_file_upload_claim_finalize_failed", {
 			error,
@@ -177,16 +172,7 @@ async function finishUploadClaim(args: {
 			uploadId: args.uploadId,
 			status: args.status,
 		});
-		const fallback = await getSupabaseAdmin()
-			.from("gateway_batch_file_uploads")
-			.update({
-				status: args.status,
-				provider_file_id: args.providerFileId ?? null,
-				updated_at: new Date().toISOString(),
-			})
-			.eq("workspace_id", args.workspaceId)
-			.eq("upload_id", args.uploadId);
-		if (fallback.error) throw new AggregateError([error, fallback.error], "batch_file_upload_claim_finalize_failed");
+		throw error;
 	}
 }
 
@@ -236,13 +222,9 @@ async function handleUpload(req: Request) {
 			return jsonPayload({ error: { type: "validation_error", reason: "moonshot_batch_file_invalid" } }, 400);
 		}
 	}
-	const claim = await getSupabaseAdmin().rpc("gateway_claim_batch_file_upload", {
-		p_workspace_id: auth.workspaceId,
-		p_upload_id: requestId,
-		p_bytes: uploadBody.byteLength,
+	const claimRow = await batchFileUploadRepository.claimUpload({
+		workspaceId: auth.workspaceId, uploadId: requestId, bytes: uploadBody.byteLength,
 	});
-	if (claim.error) throw claim.error;
-	const claimRow = Array.isArray(claim.data) ? claim.data[0] : claim.data;
 	if (!claimRow?.ok) {
 		const reason = toText(claimRow?.reason) ?? "batch_file_quota_exceeded";
 		const status = reason === "batch_file_too_large" ? 413 : reason === "insufficient_funds" ? 402 : 429;

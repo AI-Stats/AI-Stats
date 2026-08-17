@@ -66,6 +66,6 @@ describe("team SSO settings helpers", () => {
 				ssoProviderIdentifier: null,
 				ssoDomains: [],
 			}),
-		).toThrow("Add the Supabase SSO provider ID before enabling single sign-on.");
+		).toThrow("Add the Better Auth SSO provider ID before enabling single sign-on.");
 	});
 });

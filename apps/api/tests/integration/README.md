@@ -200,8 +200,7 @@ Required environment:
 - `LIVE_BATCH_PROVIDER_MATRIX_RUN=1`
 - `GATEWAY_URL=https://api.phaseo.app/v1`
 - `GATEWAY_API_KEY` for a workspace in the Statsig Batch API admin segment
-- `SUPABASE_URL` or `NEXT_PUBLIC_SUPABASE_URL`
-- `SUPABASE_SERVICE_ROLE_KEY`
+- `PLANETSCALE_DATABASE_URL` for the least-privilege application role
 - `ASYNC_WEBHOOK_SECRET_ENCRYPTION_KEY` matching the deployed Worker secret
 
 Run all five sequentially:

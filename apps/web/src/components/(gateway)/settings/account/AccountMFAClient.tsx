@@ -31,10 +31,12 @@ export default function AccountMFAClient({
 	hasPassword,
 	mfaEnabled,
 	mfaFactorId,
+	useBetterAuth = false,
 }: {
 	hasPassword: boolean;
 	mfaEnabled: boolean;
 	mfaFactorId: string | null;
+	useBetterAuth?: boolean;
 }) {
 	const router = useRouter();
 
@@ -156,8 +158,7 @@ export default function AccountMFAClient({
 				onSuccess={handleMFASuccess}
 			/>
 			<Separator />
-			<PasskeyManager hasPassword={hasPassword} />
+			<PasskeyManager hasPassword={hasPassword} useBetterAuth={useBetterAuth} />
 		</div>
 	);
 }
-

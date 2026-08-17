@@ -2,13 +2,13 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { ShieldCheck, Terminal } from "lucide-react";
 import { approveDeviceAction, denyDeviceAction, lookupDeviceRequest } from "./actions";
-import { createClient } from "@/utils/supabase/server";
 import { fetchAccountWebApi } from "@/lib/web-api/client";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { AuthSuspenseFallback } from "../AuthSuspenseFallback";
 import { WorkspaceSelectField } from "./WorkspaceSelectField";
+import { getServerIdentity } from "@/lib/auth/serverIdentity";
 
 export const metadata = {
 	title: "Activate Phaseo CLI",
@@ -33,10 +33,8 @@ export default function ActivatePage({ searchParams }: ActivatePageProps) {
 
 async function ActivatePageContent({ searchParams }: ActivatePageProps) {
 	const params = await searchParams;
-	const supabase = await createClient();
-	const {
-		data: { user },
-	} = await supabase.auth.getUser();
+	const identity = await getServerIdentity();
+	const user = identity?.user;
 	if (!user) {
 		const query = new URLSearchParams();
 		if (params.user_code) query.set("user_code", params.user_code);
@@ -52,10 +50,9 @@ async function ActivatePageContent({ searchParams }: ActivatePageProps) {
 
 	const userCode = String(params.user_code ?? "").trim();
 	const request = userCode ? await lookupDeviceRequest(userCode).catch((error) => ({ error: String(error?.message ?? error) })) : null;
-	const { data: sessionData } = await supabase.auth.getSession();
 	const { workspaces } = await fetchAccountWebApi<{
 		workspaces: Array<{ id: string; name: string; role: string }>;
-	}>("/api/account/auth/workspaces", sessionData.session?.access_token);
+	}>("/api/account/auth/workspaces", identity?.session.token);
 
 	return (
 		<div className="container mx-auto flex min-h-[70vh] max-w-2xl items-center justify-center py-12">

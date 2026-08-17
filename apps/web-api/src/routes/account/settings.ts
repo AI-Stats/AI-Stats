@@ -1,7 +1,18 @@
 import { Hono } from "hono";
 import { notifyAccountDeleted } from "@/auth/accountLifecycleDiscord";
 import { requireUser } from "@/auth/requireUser";
-import { getAuthenticatedDataClient, getDataClient } from "@/data/supabase";
+import { findAccountApp, findAccountApps, listWorkspaceApps, mergeAppHistory, updateAccountApp } from "@/repositories/apps";
+import { findUserOAuthAuthorization, listUserOAuthAuthorizations, listWorkspaceOAuthApps, loadOAuthAppDetails, revokeUserOAuthAuthorization } from "@/repositories/oauth-apps";
+import { getPreviousMonthSpendCents, getWorkspaceKeyUsage } from "@/repositories/settings-summary";
+import { listAccountApiKeys, listManagementKeys } from "@/repositories/settings-keys";
+import { loadWorkspaceByokSettings } from "@/repositories/byok";
+import { getWorkspaceName, listWorkspaceAccess } from "@/repositories/workspace-access";
+import { getAccountObfuscation, getWorkspaceBillingStatus, loadWorkspaceBillingTransactions, loadWorkspaceCreditSettings } from "@/repositories/billing-settings";
+import { getAccountProfile, listAccountWorkspaces, saveAccountBetaProfile } from "@/repositories/account-auth";
+import { getPrivacyPolicies, loadPrivacySettings } from "@/repositories/guardrails";
+import { listBroadcastDestinations } from "@/repositories/broadcast";
+import { loadObservabilityDestinationOptions } from "@/repositories/observability-settings";
+import { deleteIdentityUser } from "@/data/identity";
 import type { Env } from "@/env";
 import { PRIVATE_NO_STORE_HEADERS } from "@/http/cache";
 import { requireAccountWorkspace } from "./context";
@@ -124,20 +135,15 @@ accountSettingsRouter.get("/layout", async (c) => {
 		workspaceId,
 	});
 	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
-	const { data, error } = await context.client
-		.from("workspaces")
-		.select("name,tier,billing_mode")
-		.eq("id", context.workspaceId)
-		.maybeSingle();
-	if (error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	let workspace;
+	try { workspace = await getWorkspaceBillingStatus(c.env, context.workspaceId); }
+	catch { return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
 	return c.json({
-		isEnterpriseInvoiceMode:
-			String(data?.tier ?? "").toLowerCase() === "enterprise" &&
-			String(data?.billing_mode ?? "wallet").toLowerCase() === "invoice",
-		showBroadcast: context.role.toLowerCase() === "admin",
+		isEnterpriseInvoiceMode: false,
+		showBroadcast: ["owner", "admin"].includes(context.role.toLowerCase()),
 		signedIn: true,
 		workspaceId: context.workspaceId,
-		workspaceName: data?.name ?? null,
+		workspaceName: workspace?.name ?? null,
 	}, 200, PRIVATE_NO_STORE_HEADERS);
 });
 
@@ -150,11 +156,11 @@ accountSettingsRouter.get("/contact-personalization", async (c) => {
 	const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId });
 	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
 	const [spendResult, workspaceResult] = await Promise.all([
-		context.client.rpc("monthly_spend_prev_cents", { p_team: workspaceId }).single(),
-		context.client.from("workspaces").select("slug").eq("id", workspaceId).maybeSingle(),
+		getPreviousMonthSpendCents(c.env, workspaceId).then((data) => ({ data, error: null })).catch((error) => ({ data: 0, error })),
+		getWorkspaceBillingStatus(c.env, workspaceId).then((data) => ({ data, error: null })).catch((error) => ({ data: null, error })),
 	]);
 	if (spendResult.error || workspaceResult.error) return c.json(base, 200, PRIVATE_NO_STORE_HEADERS);
-	const lastMonthUsd = Number(spendResult.data ?? 0) / 1_000_000_000;
+	const lastMonthUsd = Number(spendResult.data ?? 0) / 100;
 	return c.json({ ...base, defaultInternalId: workspaceResult.data?.slug ?? workspaceId, tierLabel: lastMonthUsd >= 10_000 ? "Enterprise" : "Basic" }, 200, PRIVATE_NO_STORE_HEADERS);
 });
 
@@ -167,19 +173,16 @@ accountSettingsRouter.get("/beta", async (c) => {
 			signedIn: false,
 		}, 200, PRIVATE_NO_STORE_HEADERS);
 	}
-	const { data, error } = await getDataClient(c.env)
-		.from("users")
-		.select("beta_opt_in,beta_features,role")
-		.eq("user_id", user.id)
-		.maybeSingle();
-	if (error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	let data;
+	try { data = await getAccountProfile(c.env, user.id); }
+	catch { return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
 	const isAdmin = String(data?.role ?? "").toLowerCase() === "admin";
-	const betaFeatures = normalizeBetaFeatures(data?.beta_features);
+	const betaFeatures = normalizeBetaFeatures(data?.betaFeatures);
 	if (isAdmin) betaFeatures.chat_realtime_voice = true;
 	else delete betaFeatures.chat_realtime_voice;
 	return c.json({
 		profile: {
-			betaOptIn: Boolean(data?.beta_opt_in) || isAdmin,
+			betaOptIn: Boolean(data?.betaOptIn) || isAdmin,
 			betaFeatures,
 		},
 		isAdmin,
@@ -190,17 +193,17 @@ accountSettingsRouter.get("/beta", async (c) => {
 accountSettingsRouter.put("/beta", async (c) => {
 	const user = await requireUser(c.req.raw, c.env);
 	if (!user) return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
-	const client = getDataClient(c.env);
-	const roleResult = await client.from("users").select("role").eq("user_id", user.id).maybeSingle();
-	if (roleResult.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	let account;
+	try { account = await getAccountProfile(c.env, user.id); }
+	catch { return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
 	const body: { beta_features?: unknown } = await c.req.json<{ beta_features?: unknown }>().catch(() => ({}));
 	const requested = normalizeBetaFeatures(body.beta_features);
-	const isAdmin = String(roleResult.data?.role ?? "").toLowerCase() === "admin";
+	const isAdmin = String(account?.role ?? "").toLowerCase() === "admin";
 	const betaFeatures: Record<string, boolean> = isAdmin && requested.models_catalogue_v2 === true ? { models_catalogue_v2: true } : {};
 	if (isAdmin) betaFeatures.chat_realtime_voice = true;
 	const profile = { betaOptIn: Object.keys(betaFeatures).length > 0, betaFeatures };
-	const result = await client.from("users").upsert({ user_id: user.id, beta_opt_in: profile.betaOptIn, beta_features: profile.betaFeatures }, { onConflict: "user_id" });
-	if (result.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	try { await saveAccountBetaProfile(c.env, user.id, profile); }
+	catch { return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
 	return c.json({ ok: true, profile }, 200, PRIVATE_NO_STORE_HEADERS);
 });
 
@@ -232,86 +235,89 @@ accountSettingsRouter.get("/privacy", async (c) => {
 		workspaceId,
 	});
 	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
-	let [teamResult, settingsResult, providersResult, modelsResult, contributionGatewayResult, accountPolicyResult] = await Promise.all([
-		context.client.from("workspaces").select("id,name").eq("id", workspaceId).maybeSingle(),
-		context.client.from("workspace_settings").select("privacy_enable_paid_may_train,privacy_enable_free_may_train,privacy_enable_free_may_publish_prompts,privacy_enable_input_output_logging,privacy_zdr_only,io_logging_enabled,io_logging_retention_days,io_logging_include_provider_payloads,provider_restriction_mode,provider_restriction_provider_ids,provider_restriction_enforce_allowed,model_restriction_mode,model_restriction_model_ids,response_healing_enabled,response_healing_locked,response_healing_mode").eq("workspace_id", workspaceId).maybeSingle(),
-		context.client.from("v2_providers").select("api_provider_id:provider_slug,api_provider_name:name,provider_family_id:provider_family_slug,offer_label,offer_scope,routable,routing_enabled,status").eq("routable", true).eq("routing_enabled", true).in("status", ["active", "degraded"]).order("name", { ascending: true }),
-		context.client.from("v2_model_provider_routes").select("provider_id:provider_slug,api_model_id:model_slug,internal_model_id:model_slug,is_active_gateway:routing_enabled").eq("routing_enabled", true).in("status", ["active", "degraded"]),
-		callDataContributionGateway({ env: c.env, request: c.req.raw, workspaceId: context.workspaceId }),
-		context.client.from("account_guardrail_settings").select("privacy_enable_paid_may_train,privacy_enable_free_may_train,privacy_enable_input_output_logging,privacy_zdr_only,provider_restriction_mode,provider_restriction_provider_ids,model_restriction_mode,model_restriction_model_ids").eq("user_id", context.user.id).maybeSingle(),
-	]);
-	if (settingsResult.error && /model_restriction_(mode|model_ids)/i.test(settingsResult.error.message)) {
-		settingsResult = await context.client.from("workspace_settings")
-			.select("privacy_enable_paid_may_train,privacy_enable_free_may_train,privacy_enable_free_may_publish_prompts,privacy_enable_input_output_logging,privacy_zdr_only,io_logging_enabled,io_logging_retention_days,io_logging_include_provider_payloads,provider_restriction_mode,provider_restriction_provider_ids,provider_restriction_enforce_allowed,response_healing_enabled,response_healing_locked,response_healing_mode")
-			.eq("workspace_id", workspaceId)
-			.maybeSingle();
-	}
-	for (const result of [teamResult, settingsResult, providersResult, modelsResult, accountPolicyResult]) {
-		if (result.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-	}
-	const routableProviderIds = new Set((modelsResult.data ?? []).map((row) => String(row.provider_id ?? "")).filter(Boolean));
-	const routableModelIds = [...new Set((modelsResult.data ?? []).map((row) => String(row.api_model_id ?? "")).filter(Boolean))];
-	const modelCatalogResult = routableModelIds.length
-		? await context.client.from("v2_models").select("id:model_slug,name,organisation:v2_labs(lab_slug,name)").in("model_slug", routableModelIds).order("name")
-		: { data: [], error: null };
-	if (modelCatalogResult.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	let privacy;
+	let contributionGatewayResult;
+	try {
+		[privacy, contributionGatewayResult] = await Promise.all([
+			loadPrivacySettings(c.env, { workspaceId, userId: context.user.id }),
+			callDataContributionGateway({ env: c.env, request: c.req.raw, workspaceId: context.workspaceId }),
+		]);
+	} catch { return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
+	const routableProviderIds = new Set(privacy.routes.map((row) => String(row.providerSlug)).filter(Boolean));
 	const providerIdsByModel = new Map<string, Set<string>>();
-	for (const route of modelsResult.data ?? []) {
-		const modelId = String(route.api_model_id ?? "").trim();
-		const providerId = String(route.provider_id ?? "").trim();
+	for (const route of privacy.routes) {
+		const modelId = String(route.modelSlug ?? "").trim();
+		const providerId = String(route.providerSlug ?? "").trim();
 		if (!modelId || !providerId) continue;
 		const ids = providerIdsByModel.get(modelId) ?? new Set<string>();
 		ids.add(providerId);
 		providerIdsByModel.set(modelId, ids);
 	}
-	const settings = settingsResult.data as Record<string, any> | null;
+	const settings = privacy.settings;
 	const restrictionMode = (value: unknown) => value === "allowlist" || value === "blocklist" ? value : "none";
 	const stringList = (value: unknown) => Array.isArray(value) ? [...new Set(value.map(String).filter(Boolean))] : [];
 	const contributionData = contributionGatewayResult.status === 200
 		? contributionGatewayResult.payload?.data ?? null
 		: null;
 	return c.json({
-		activeProviderModels: (modelsResult.data ?? []).map((row) => ({
-			apiModelId: row.api_model_id,
-			internalModelId: row.internal_model_id ?? null,
-			providerId: row.provider_id,
+		activeProviderModels: privacy.routes.map((row) => ({
+			apiModelId: row.modelSlug,
+			internalModelId: row.modelSlug,
+			providerId: row.providerSlug,
 		})),
-		initialGlobal: settingsResult.data ?? null,
-		accountPolicy: accountPolicyResult.data ? {
-			privacyEnablePaidMayTrain: accountPolicyResult.data.privacy_enable_paid_may_train !== false,
-			privacyEnableFreeMayTrain: accountPolicyResult.data.privacy_enable_free_may_train !== false,
-			privacyEnableInputOutputLogging: accountPolicyResult.data.privacy_enable_input_output_logging !== false,
-			privacyZdrOnly: accountPolicyResult.data.privacy_zdr_only === true,
-			providerRestrictionMode: restrictionMode(accountPolicyResult.data.provider_restriction_mode),
-			providerRestrictionProviderIds: stringList(accountPolicyResult.data.provider_restriction_provider_ids).filter((id) => routableProviderIds.has(id)),
-			modelRestrictionMode: restrictionMode(accountPolicyResult.data.model_restriction_mode),
-			modelRestrictionModelIds: stringList(accountPolicyResult.data.model_restriction_model_ids).filter((id) => providerIdsByModel.has(id)),
+		initialGlobal: settings ? {
+			privacy_enable_paid_may_train: settings.privacyEnablePaidMayTrain,
+			privacy_enable_free_may_train: settings.privacyEnableFreeMayTrain,
+			privacy_enable_free_may_publish_prompts: settings.privacyEnableFreeMayPublishPrompts,
+			privacy_enable_input_output_logging: settings.privacyEnableInputOutputLogging,
+			privacy_zdr_only: settings.privacyZdrOnly,
+			io_logging_enabled: settings.ioLoggingEnabled,
+			io_logging_retention_days: settings.ioLoggingRetentionDays,
+			io_logging_include_provider_payloads: settings.ioLoggingIncludeProviderPayloads,
+			provider_restriction_mode: settings.providerRestrictionMode,
+			provider_restriction_provider_ids: settings.providerRestrictionProviderIds,
+			provider_restriction_enforce_allowed: settings.providerRestrictionEnforceAllowed,
+			model_restriction_mode: settings.modelRestrictionMode,
+			model_restriction_model_ids: settings.modelRestrictionModelIds,
+			response_healing_enabled: settings.responseHealingEnabled,
+			response_healing_locked: settings.responseHealingLocked,
+			response_healing_mode: settings.responseHealingMode,
+		} : null,
+		accountPolicy: privacy.account ? {
+			privacyEnablePaidMayTrain: privacy.account.privacyEnablePaidMayTrain !== false,
+			privacyEnableFreeMayTrain: privacy.account.privacyEnableFreeMayTrain !== false,
+			privacyEnableInputOutputLogging: privacy.account.privacyEnableInputOutputLogging !== false,
+			privacyZdrOnly: privacy.account.privacyZdrOnly === true,
+			providerRestrictionMode: restrictionMode(privacy.account.providerRestrictionMode),
+			providerRestrictionProviderIds: stringList(privacy.account.providerRestrictionProviderIds).filter((id) => routableProviderIds.has(id)),
+			modelRestrictionMode: restrictionMode(privacy.account.modelRestrictionMode),
+			modelRestrictionModelIds: stringList(privacy.account.modelRestrictionModelIds).filter((id) => providerIdsByModel.has(id)),
 		} : null,
 		policy: {
-			privacyEnablePaidMayTrain: settings?.privacy_enable_paid_may_train !== false,
-			privacyEnableFreeMayTrain: settings?.privacy_enable_free_may_train !== false,
-			privacyEnableInputOutputLogging: settings?.privacy_enable_input_output_logging !== false,
-			privacyZdrOnly: settings?.privacy_zdr_only === true,
-			providerRestrictionMode: restrictionMode(settings?.provider_restriction_mode),
-			providerRestrictionProviderIds: stringList(settings?.provider_restriction_provider_ids).filter((id) => routableProviderIds.has(id)),
-			modelRestrictionMode: restrictionMode(settings?.model_restriction_mode),
-			modelRestrictionModelIds: stringList(settings?.model_restriction_model_ids).filter((id) => providerIdsByModel.has(id)),
+			privacyEnablePaidMayTrain: settings?.privacyEnablePaidMayTrain !== false,
+			privacyEnableFreeMayTrain: settings?.privacyEnableFreeMayTrain !== false,
+			privacyEnableInputOutputLogging: settings?.privacyEnableInputOutputLogging !== false,
+			privacyZdrOnly: settings?.privacyZdrOnly === true,
+			providerRestrictionMode: restrictionMode(settings?.providerRestrictionMode),
+			providerRestrictionProviderIds: stringList(settings?.providerRestrictionProviderIds).filter((id) => routableProviderIds.has(id)),
+			modelRestrictionMode: restrictionMode(settings?.modelRestrictionMode),
+			modelRestrictionModelIds: stringList(settings?.modelRestrictionModelIds).filter((id) => providerIdsByModel.has(id)),
 		},
-		providers: (providersResult.data ?? []).filter((provider) => routableProviderIds.has(String(provider.api_provider_id))).map((provider) => ({
-			id: provider.api_provider_id,
-			name: providerDisplayName(provider),
-			provider_family_id: provider.provider_family_id ?? null,
-			offer_label: provider.offer_label ?? null,
-			offer_scope: provider.offer_scope ?? null,
+		providers: privacy.providers.filter((provider) => routableProviderIds.has(provider.providerSlug)).map((provider) => ({
+			id: provider.providerSlug,
+			name: providerDisplayName({ api_provider_id: provider.providerSlug, api_provider_name: provider.name, offer_label: provider.offerLabel, offer_scope: provider.offerScope }),
+			provider_family_id: provider.providerFamilySlug ?? null,
+			offer_label: provider.offerLabel ?? null,
+			offer_scope: provider.offerScope ?? null,
 		})),
-		models: (modelCatalogResult.data ?? []).map((model: any) => ({
-			id: model.id,
-			name: model.name ?? model.id,
-			organisationId: model.organisation?.lab_slug ?? null,
-			organisationName: model.organisation?.name ?? "Other",
-			providerIds: [...(providerIdsByModel.get(String(model.id)) ?? [])],
+		models: privacy.models.map(({ model, lab }) => ({
+			id: model.modelSlug,
+			name: model.name ?? model.modelSlug,
+			organisationId: lab?.labSlug ?? model.labSlug ?? null,
+			organisationName: lab?.name ?? "Other",
+			providerIds: [...(providerIdsByModel.get(model.modelSlug) ?? [])],
 		})),
-		teamName: teamResult.data?.name ?? null,
+		teamName: privacy.workspace?.name ?? null,
 		workspaceId,
 		dataContribution: {
 			available: contributionData !== null,
@@ -334,31 +340,26 @@ accountSettingsRouter.get("/workspace/privacy-settings", async (c) => {
 	if (!workspaceId) return c.json(null, 200, PRIVATE_NO_STORE_HEADERS);
 	const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId });
 	if (!context) return c.json(null, 200, PRIVATE_NO_STORE_HEADERS);
-	const [workspaceResult, accountResult] = await Promise.all([
-		context.client.from("workspace_settings")
-			.select("privacy_enable_paid_may_train,privacy_enable_free_may_train,privacy_zdr_only,provider_restriction_mode,provider_restriction_provider_ids")
-			.eq("workspace_id", workspaceId).maybeSingle(),
-		context.client.from("account_guardrail_settings")
-			.select("provider_restriction_mode,provider_restriction_provider_ids")
-			.eq("user_id", context.user.id).maybeSingle(),
-	]);
-	const data = workspaceResult.data;
-	if (workspaceResult.error || accountResult.error || !data) return c.json(null, 200, PRIVATE_NO_STORE_HEADERS);
-	const mode = String(data.provider_restriction_mode ?? "").trim().toLowerCase();
+	let policies;
+	try { policies = await getPrivacyPolicies(c.env, { workspaceId, userId: context.user.id }); }
+	catch { return c.json(null, 200, PRIVATE_NO_STORE_HEADERS); }
+	const data = policies.workspace;
+	if (!data) return c.json(null, 200, PRIVATE_NO_STORE_HEADERS);
+	const mode = String(data.providerRestrictionMode ?? "").trim().toLowerCase();
 	return c.json({
 		isAuthenticated: true,
-		privacyEnablePaidMayTrain: Boolean(data.privacy_enable_paid_may_train ?? true),
-		privacyEnableFreeMayTrain: Boolean(data.privacy_enable_free_may_train ?? true),
-		privacyZdrOnly: Boolean(data.privacy_zdr_only ?? false),
+		privacyEnablePaidMayTrain: Boolean(data.privacyEnablePaidMayTrain ?? true),
+		privacyEnableFreeMayTrain: Boolean(data.privacyEnableFreeMayTrain ?? true),
+		privacyZdrOnly: Boolean(data.privacyZdrOnly ?? false),
 		providerRestrictionMode: ["none", "allowlist", "blocklist"].includes(mode) ? mode : "none",
-		providerRestrictionProviderIds: Array.isArray(data.provider_restriction_provider_ids)
-			? data.provider_restriction_provider_ids.map((value) => String(value ?? "").trim()).filter(Boolean)
+		providerRestrictionProviderIds: Array.isArray(data.providerRestrictionProviderIds)
+			? data.providerRestrictionProviderIds.map((value) => String(value ?? "").trim()).filter(Boolean)
 			: [],
-		accountProviderRestrictionMode: ["none", "allowlist", "blocklist"].includes(String(accountResult.data?.provider_restriction_mode))
-			? accountResult.data?.provider_restriction_mode
+		accountProviderRestrictionMode: ["none", "allowlist", "blocklist"].includes(String(policies.account?.providerRestrictionMode))
+			? policies.account?.providerRestrictionMode
 			: "none",
-		accountProviderRestrictionProviderIds: Array.isArray(accountResult.data?.provider_restriction_provider_ids)
-			? accountResult.data.provider_restriction_provider_ids.map((value) => String(value ?? "").trim()).filter(Boolean)
+		accountProviderRestrictionProviderIds: Array.isArray(policies.account?.providerRestrictionProviderIds)
+			? policies.account.providerRestrictionProviderIds.map((value) => String(value ?? "").trim()).filter(Boolean)
 			: [],
 	}, 200, PRIVATE_NO_STORE_HEADERS);
 });
@@ -371,7 +372,7 @@ accountSettingsRouter.get("/account/danger", async (c) => {
 accountSettingsRouter.delete("/account", async (c) => {
 	const user = await requireUser(c.req.raw, c.env);
 	if (!user) return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
-	const { error } = await getDataClient(c.env).auth.admin.deleteUser(user.id);
+	const { error } = await deleteIdentityUser(c.env, user.id);
 	if (error) return c.json({ error: "account_delete_failed" }, 503, PRIVATE_NO_STORE_HEADERS);
 	const avatarKey = ownedProfileAvatarKey(c.env, c.req.raw, user.userMetadata.avatar_url, user.id);
 	if (avatarKey && c.env.PROFILE_AVATARS_BUCKET) {
@@ -388,55 +389,30 @@ accountSettingsRouter.get("/account/details", async (c) => {
 	if (!user) {
 		return c.json({ hasPassword: false, teams: [], user: null }, 200, PRIVATE_NO_STORE_HEADERS);
 	}
-	const client = getDataClient(c.env);
-	const [userResult, teamsResult, countryResult] = await Promise.all([
-		client
-			.from("users")
-			.select("user_id,display_name,default_workspace_id,obfuscate_info,created_at")
-			.eq("user_id", user.id)
-			.maybeSingle(),
-		client
-			.from("workspace_members")
-			.select("workspace_id,teams:workspaces(id,name)")
-			.eq("user_id", user.id),
-		client
-			.from("users")
-			.select("declared_country_code")
-			.eq("user_id", user.id)
-			.maybeSingle(),
-	]);
-	const countryStorageAvailable = !countryResult.error;
-	const countryColumnMissing =
-		countryResult.error?.code === "42703" ||
-		String(countryResult.error?.message ?? "").includes("declared_country_code");
-	if (userResult.error || teamsResult.error || (countryResult.error && !countryColumnMissing)) {
-		return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-	}
+	let profile;
+	let accountWorkspaces;
+	try { [profile, accountWorkspaces] = await Promise.all([getAccountProfile(c.env, user.id), listAccountWorkspaces(c.env, user.id)]); }
+	catch { return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
 	const cookieOverride = c.req.query("obfuscateInfo");
 	const obfuscateInfo = cookieOverride === "1"
 		? true
 		: cookieOverride === "0"
 			? false
-			: Boolean(userResult.data?.obfuscate_info);
+			: Boolean(profile?.obfuscateInfo);
 	const provider = String(user.appMetadata.provider ?? "").trim();
-	const teams = (teamsResult.data ?? []).flatMap((membership) => {
-		const team = Array.isArray(membership.teams)
-			? membership.teams[0]
-			: membership.teams;
-		return team?.id && team?.name ? [{ id: team.id, name: team.name }] : [];
-	});
+	const teams = accountWorkspaces.map(({ id, name }) => ({ id, name }));
 	return c.json({
 		hasPassword: !provider || provider === "email",
 		teams,
 		user: {
 			id: user.id,
-			displayName: userResult.data?.display_name ?? null,
+			displayName: profile?.displayName ?? null,
 			email: user.email,
-			defaultWorkspaceId: userResult.data?.default_workspace_id ?? null,
-			declaredCountryCode: countryResult.data?.declared_country_code ?? null,
-			countryStorageAvailable,
+			defaultWorkspaceId: profile?.defaultWorkspaceId ?? null,
+			declaredCountryCode: profile?.declaredCountryCode ?? null,
+			countryStorageAvailable: true,
 			obfuscateInfo,
-			createdAt: userResult.data?.created_at ?? user.createdAt,
+			createdAt: profile?.createdAt ?? user.createdAt,
 		},
 	}, 200, PRIVATE_NO_STORE_HEADERS);
 });
@@ -478,31 +454,21 @@ accountSettingsRouter.get("/broadcast", async (c) => {
 		workspaceId,
 	});
 	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
-	const [teamResult, configuredResult] = await Promise.all([
-		context.client.from("workspaces").select("id,name").eq("id", workspaceId).maybeSingle(),
-		context.client
-			.from("workspace_broadcast_destinations")
-			.select("id,destination_id,name,enabled,sampling_rate,updated_at")
-			.eq("workspace_id", workspaceId)
-			.order("created_at", { ascending: false }),
-	]);
-	if (teamResult.error) {
-		return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-	}
-	if (configuredResult.error && !configuredResult.error.message.includes("workspace_broadcast_destinations")) {
-		return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-	}
+	let teamName;
+	let configured;
+	try { [teamName, configured] = await Promise.all([getWorkspaceName(c.env, workspaceId), listBroadcastDestinations(c.env, workspaceId)]); }
+	catch { return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
 	return c.json({
-		configuredDestinations: (configuredResult.data ?? []).map((row) => ({
+		configuredDestinations: configured.map((row) => ({
 			id: row.id,
-			destinationId: row.destination_id,
+			destinationId: row.destinationId,
 			name: row.name,
 			enabled: Boolean(row.enabled),
-			samplingRate: Number(row.sampling_rate ?? 1),
+			samplingRate: Number(row.samplingRate ?? 1),
 			destinationConfig: null,
-			updatedAt: row.updated_at ?? null,
+			updatedAt: row.updatedAt ?? null,
 		})),
-		teamName: teamResult.data?.name ?? null,
+		teamName,
 		workspaceId,
 	}, 200, PRIVATE_NO_STORE_HEADERS);
 });
@@ -512,38 +478,23 @@ accountSettingsRouter.get("/apps", async (c) => {
 	if (!workspaceId) return c.json({ apps: [] }, 200, PRIVATE_NO_STORE_HEADERS);
 	const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId });
 	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
-	const selectApps = (columns: string) => context.client
-		.from("api_apps")
-		.select(columns)
-		.eq("workspace_id", workspaceId)
-		.order("last_seen", { ascending: false });
-	const initial = await selectApps("id,title,app_key,category,docs_url,url,image_url,is_public,is_active,last_seen,created_at");
-	let data = initial.data as unknown as Array<Record<string, unknown>> | null;
-	let error = initial.error as { message: string } | null;
-	if (error && /category|docs_url/i.test(error.message)) {
-		const fallback = await selectApps("id,title,app_key,url,image_url,is_public,is_active,last_seen,created_at");
-		data = (fallback.data as unknown as Array<Record<string, unknown>> | null)?.map((app) => ({
-			...app,
-			category: null,
-			docs_url: null,
-		})) ?? null;
-		error = fallback.error as { message: string } | null;
-	}
-	if (error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-	const apps = (data ?? [])
-		.filter((app) => !isInternalApp(app.title, app.app_key))
+	let data;
+	try { data = await listWorkspaceApps(c.env, workspaceId); }
+	catch { return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
+	const apps = data
+		.filter((app) => !isInternalApp(app.title, app.appKey))
 		.map((app) => ({
-			app_key: String(app.app_key ?? ""),
-			category: normalizeAppCategories(app.category),
-			created_at: typeof app.created_at === "string" ? app.created_at : null,
-			docs_url: typeof app.docs_url === "string" ? app.docs_url : null,
-			id: String(app.id ?? ""),
-			image_url: typeof app.image_url === "string" ? app.image_url : null,
-			is_active: app.is_active === true,
-			is_public: app.is_public === true,
-			last_seen: typeof app.last_seen === "string" ? app.last_seen : null,
-			title: String(app.title ?? ""),
-			url: typeof app.url === "string" ? app.url : null,
+			app_key: app.appKey,
+			category: normalizeAppCategories((app.meta as Record<string, unknown> | null)?.category),
+			created_at: app.createdAt,
+			docs_url: typeof (app.meta as Record<string, unknown> | null)?.docs_url === "string" ? (app.meta as Record<string, unknown>).docs_url : null,
+			id: app.id,
+			image_url: app.imageUrl,
+			is_active: app.isActive,
+			is_public: app.isPublic,
+			last_seen: app.lastSeen,
+			title: app.title,
+			url: app.url,
 		}));
 	return c.json({ apps }, 200, PRIVATE_NO_STORE_HEADERS);
 });
@@ -551,48 +502,40 @@ accountSettingsRouter.get("/apps", async (c) => {
 accountSettingsRouter.put("/apps/:appId", async (c) => {
 	const user = await requireUser(c.req.raw, c.env);
 	if (!user) return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
-	const client = getDataClient(c.env);
 	const appId = c.req.param("appId");
-	const existing = await client.from("api_apps").select("id,workspace_id,title,app_key").eq("id", appId).maybeSingle();
-	if (existing.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-	if (!existing.data?.workspace_id) return c.json({ error: "not_found" }, 404, PRIVATE_NO_STORE_HEADERS);
-	const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId: existing.data.workspace_id });
+	let existing;
+	try { existing = await findAccountApp(c.env, appId); }
+	catch { return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
+	if (!existing?.workspaceId) return c.json({ error: "not_found" }, 404, PRIVATE_NO_STORE_HEADERS);
+	const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId: existing.workspaceId });
 	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
-	if (isInternalApp(existing.data.title, existing.data.app_key)) return c.json({ error: "managed_app" }, 403, PRIVATE_NO_STORE_HEADERS);
+	if (isInternalApp(existing.title, existing.appKey)) return c.json({ error: "managed_app" }, 403, PRIVATE_NO_STORE_HEADERS);
 	const body: Record<string, unknown> = await c.req.json<Record<string, unknown>>().catch(() => ({}));
-	const update: Record<string, unknown> = {};
+	const update: Parameters<typeof updateAccountApp>[1]["values"] = {};
+	let category: string | null | undefined;
+	let docsUrl: string | null | undefined;
 	if (typeof body.title === "string") { const value = body.title.trim(); if (!value) return c.json({ error: "invalid_title" }, 400, PRIVATE_NO_STORE_HEADERS); update.title = value; }
 	if (body.url === null) update.url = "about:blank"; else if (typeof body.url === "string") update.url = body.url.trim() || "about:blank";
 	for (const field of ["docs_url", "image_url"] as const) {
-		if (body[field] === null) update[field] = null;
+		if (body[field] === null) {
+			if (field === "docs_url") docsUrl = null; else update.imageUrl = null;
+		}
 		else if (typeof body[field] === "string") {
 			const value = body[field].trim();
-			if (!value) update[field] = null;
-			else { try { const url = new URL(value); if (!["http:", "https:"].includes(url.protocol)) throw new Error(); update[field] = url.toString(); } catch { return c.json({ error: `invalid_${field}` }, 400, PRIVATE_NO_STORE_HEADERS); } }
+			if (!value) { if (field === "docs_url") docsUrl = null; else update.imageUrl = null; }
+			else { try { const url = new URL(value); if (!["http:", "https:"].includes(url.protocol)) throw new Error(); if (field === "docs_url") docsUrl = url.toString(); else update.imageUrl = url.toString(); } catch { return c.json({ error: `invalid_${field}` }, 400, PRIVATE_NO_STORE_HEADERS); } }
 		}
 	}
-	if (typeof body.is_public === "boolean") update.is_public = body.is_public;
-	if (typeof body.is_active === "boolean") update.is_active = body.is_active;
-	if (Object.prototype.hasOwnProperty.call(body, "category")) update.category = normalizeAppCategories(body.category);
+	if (typeof body.is_public === "boolean") update.isPublic = body.is_public;
+	if (typeof body.is_active === "boolean") update.isActive = body.is_active;
+	if (Object.prototype.hasOwnProperty.call(body, "category")) category = normalizeAppCategories(body.category);
 	let updatedApp: Record<string, unknown> | null = null;
-	if (Object.keys(update).length) {
-		const updateApp = (values: Record<string, unknown>) => context.client
-			.from("api_apps")
-			.update(values)
-			.eq("id", appId)
-			.eq("workspace_id", context.workspaceId)
-			.select("id,is_public,is_active,image_url")
-			.maybeSingle();
-		let result = await updateApp(update);
-		if (result.error && /category|docs_url/i.test(result.error.message)) {
-			const compatibleUpdate = { ...update };
-			delete compatibleUpdate.category;
-			delete compatibleUpdate.docs_url;
-			if (Object.keys(compatibleUpdate).length) result = await updateApp(compatibleUpdate);
-		}
-		if (result.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-		if (!result.data) return c.json({ error: "app_not_updated" }, 409, PRIVATE_NO_STORE_HEADERS);
-		updatedApp = result.data as Record<string, unknown>;
+	if (Object.keys(update).length || category !== undefined || docsUrl !== undefined) {
+		let result;
+		try { result = await updateAccountApp(c.env, { appId, workspaceId: context.workspaceId, values: update, category, docsUrl }); }
+		catch { return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
+		if (!result) return c.json({ error: "app_not_updated" }, 409, PRIVATE_NO_STORE_HEADERS);
+		updatedApp = { id: result.id, is_public: result.isPublic, is_active: result.isActive, image_url: result.imageUrl };
 	}
 	const cache = await purgeWorkerCacheTags(c.executionCtx, ["web-api-apps", "web-api-app-ids", "web-api-app-images", "web-api-app-rankings", "web-api-landing", `web-api-app-${encodeURIComponent(appId).replace(/%/g, "")}`]);
 	return c.json({ success: true, app: updatedApp, cache }, 200, PRIVATE_NO_STORE_HEADERS);
@@ -605,23 +548,25 @@ accountSettingsRouter.post("/apps/:sourceAppId/merge", async (c) => {
 	const body: { targetAppId?: string } = await c.req.json<{ targetAppId?: string }>().catch(() => ({}));
 	const targetAppId = String(body.targetAppId ?? "").trim();
 	if (!targetAppId || targetAppId === sourceAppId) return c.json({ error: "invalid_target" }, 400, PRIVATE_NO_STORE_HEADERS);
-	const client = getDataClient(c.env);
-	const apps = await client.from("api_apps").select("id,workspace_id,title,app_key").in("id", [sourceAppId, targetAppId]);
-	if (apps.error || (apps.data?.length ?? 0) !== 2) return c.json({ error: "not_found" }, 404, PRIVATE_NO_STORE_HEADERS);
-	const workspaceId = apps.data![0].workspace_id;
-	if (!workspaceId || !apps.data!.every((app) => app.workspace_id === workspaceId)) return c.json({ error: "invalid_target" }, 400, PRIVATE_NO_STORE_HEADERS);
+	let apps;
+	try { apps = await findAccountApps(c.env, [sourceAppId, targetAppId]); }
+	catch { return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
+	if (apps.length !== 2) return c.json({ error: "not_found" }, 404, PRIVATE_NO_STORE_HEADERS);
+	const workspaceId = apps[0].workspaceId;
+	if (!workspaceId || !apps.every((app) => app.workspaceId === workspaceId)) return c.json({ error: "invalid_target" }, 400, PRIVATE_NO_STORE_HEADERS);
 	const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId });
 	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
-	if (apps.data!.some((app) => isInternalApp(app.title, app.app_key))) return c.json({ error: "managed_app" }, 403, PRIVATE_NO_STORE_HEADERS);
-	const merged = await context.client.rpc("merge_v2_gateway_app_history", {
-		p_workspace_id: workspaceId,
-		p_source_app_id: sourceAppId,
-		p_target_app_id: targetAppId,
-	});
-	if (merged.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	if (apps.some((app) => isInternalApp(app.title, app.appKey))) return c.json({ error: "managed_app" }, 403, PRIVATE_NO_STORE_HEADERS);
+	let merged;
+	try {
+		merged = await mergeAppHistory(c.env, { workspaceId, sourceAppId, targetAppId });
+	} catch (error) {
+		console.error("[web-api/account/settings] app history merge failed", { workspaceId, sourceAppId, targetAppId, error });
+		return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	}
 	const dynamic = [sourceAppId, targetAppId].map((id) => `web-api-app-${encodeURIComponent(id).replace(/%/g, "")}`);
 	const cache = await purgeWorkerCacheTags(c.executionCtx, ["web-api-apps", "web-api-app-ids", "web-api-app-images", "web-api-app-rankings", "web-api-landing", ...dynamic]);
-	return c.json({ success: true, merge: merged.data ?? null, cache }, 200, PRIVATE_NO_STORE_HEADERS);
+	return c.json({ success: true, merge: merged, cache }, 200, PRIVATE_NO_STORE_HEADERS);
 });
 
 accountSettingsRouter.get("/authorized-apps", async (c) => {
@@ -629,47 +574,23 @@ accountSettingsRouter.get("/authorized-apps", async (c) => {
 	if (!user) {
 		return c.json({ authorizedApps: [], signedIn: false, userId: null }, 200, PRIVATE_NO_STORE_HEADERS);
 	}
-	const client = getDataClient(c.env);
-	const authorizationsResult = await client
-		.from("oauth_authorizations")
-		.select("id,client_id,workspace_id,scopes,created_at,last_used_at")
-		.eq("user_id", user.id)
-		.is("revoked_at", null)
-		.order("last_used_at", { ascending: false, nullsFirst: false });
-	if (authorizationsResult.error) {
-		return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-	}
-	const authorizations = authorizationsResult.data ?? [];
-	const clientIds = Array.from(new Set(authorizations.map((row) => String(row.client_id ?? "")).filter(Boolean)));
-	const workspaceIds = Array.from(new Set(authorizations.map((row) => String(row.workspace_id ?? "")).filter(Boolean)));
-	const [appsResult, workspacesResult] = await Promise.all([
-		clientIds.length
-			? client.from("oauth_app_metadata").select("client_id,name,description,logo_url,homepage_url,allowed_scopes").in("client_id", clientIds)
-			: Promise.resolve({ data: [], error: null }),
-		workspaceIds.length
-			? client.from("workspaces").select("id,name").in("id", workspaceIds)
-			: Promise.resolve({ data: [], error: null }),
-	]);
-	if (appsResult.error || workspacesResult.error) {
-		return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-	}
-	const appsById = new Map((appsResult.data ?? []).map((app) => [app.client_id, app]));
-	const workspacesById = new Map((workspacesResult.data ?? []).map((workspace) => [workspace.id, workspace]));
+	let authorizations;
+	try { authorizations = await listUserOAuthAuthorizations(c.env, user.id); }
+	catch { return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
 	const authorizedApps = authorizations.map((authorization) => {
-		const app = appsById.get(authorization.client_id);
 		const grantedScopes = Array.isArray(authorization.scopes) ? authorization.scopes.map(String) : [];
-		const allowedScopes = Array.isArray(app?.allowed_scopes) ? app.allowed_scopes.map(String) : [];
+		const allowedScopes = Array.isArray(authorization.allowedScopes) ? authorization.allowedScopes.map(String) : [];
 		return {
 			authorization_id: authorization.id,
-			app_name: app?.name ?? "OAuth application",
-			app_description: app?.description ?? null,
-			app_logo_url: app?.logo_url ?? null,
-			app_homepage_url: app?.homepage_url ?? null,
+			app_name: authorization.appName ?? "OAuth application",
+			app_description: authorization.appDescription,
+			app_logo_url: authorization.appLogoUrl,
+			app_homepage_url: authorization.appHomepageUrl,
 			scopes: grantedScopes,
 			additional_scopes: allowedScopes.filter((scope) => !grantedScopes.includes(scope)),
-			team_name: workspacesById.get(authorization.workspace_id)?.name ?? "Unknown workspace",
-			authorized_at: authorization.created_at,
-			last_used_at: authorization.last_used_at,
+			team_name: authorization.workspaceName ?? "Unknown workspace",
+			authorized_at: authorization.createdAt,
+			last_used_at: authorization.lastUsedAt,
 		};
 	});
 	return c.json({ authorizedApps, signedIn: true, userId: user.id }, 200, PRIVATE_NO_STORE_HEADERS);
@@ -678,17 +599,18 @@ accountSettingsRouter.get("/authorized-apps", async (c) => {
 accountSettingsRouter.get("/authorized-apps/:authorizationId", async (c) => {
 	const user = await requireUser(c.req.raw, c.env);
 	if (!user) return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
-	const result = await getDataClient(c.env).from("oauth_authorizations").select("id,client_id,workspace_id,scopes,created_at,last_used_at").eq("id", c.req.param("authorizationId")).eq("user_id", user.id).maybeSingle();
-	if (result.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-	if (!result.data) return c.json({ error: "not_found" }, 404, PRIVATE_NO_STORE_HEADERS);
-	return c.json({ authorization: result.data }, 200, PRIVATE_NO_STORE_HEADERS);
+	let result;
+	try { result = await findUserOAuthAuthorization(c.env, c.req.param("authorizationId"), user.id); }
+	catch { return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
+	if (!result) return c.json({ error: "not_found" }, 404, PRIVATE_NO_STORE_HEADERS);
+	return c.json({ authorization: { id: result.id, client_id: result.clientId, workspace_id: result.workspaceId, scopes: result.scopes, created_at: result.createdAt, last_used_at: result.lastUsedAt } }, 200, PRIVATE_NO_STORE_HEADERS);
 });
 
 accountSettingsRouter.delete("/authorized-apps/:authorizationId", async (c) => {
 	const user = await requireUser(c.req.raw, c.env);
 	if (!user) return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
-	const result = await getDataClient(c.env).from("oauth_authorizations").update({ revoked_at: new Date().toISOString() }).eq("id", c.req.param("authorizationId")).eq("user_id", user.id);
-	if (result.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	try { await revokeUserOAuthAuthorization(c.env, c.req.param("authorizationId"), user.id); }
+	catch { return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
 	return c.json({ success: true }, 200, PRIVATE_NO_STORE_HEADERS);
 });
 
@@ -703,43 +625,24 @@ accountSettingsRouter.get("/oauth-apps", async (c) => {
 	}
 	const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId });
 	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
-	const { data, error } = await context.client
-		.from("oauth_apps_with_stats")
-		.select("*")
-		.eq("workspace_id", workspaceId)
-		.order("created_at", { ascending: false });
-	if (error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-	return c.json({ initialTeamId: workspaceId, oauthApps: data ?? [], signedIn: true }, 200, PRIVATE_NO_STORE_HEADERS);
+	let oauthApps;
+	try { oauthApps = await listWorkspaceOAuthApps(c.env, workspaceId); }
+	catch { return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
+	return c.json({ initialTeamId: workspaceId, oauthApps, signedIn: true }, 200, PRIVATE_NO_STORE_HEADERS);
 });
 
 accountSettingsRouter.get("/oauth-apps/:clientId", async (c) => {
 	const user = await requireUser(c.req.raw, c.env);
 	if (!user) return c.json({ authorizations: [], currentUserId: null, oauthApp: null, recentRequests: [], signedIn: false, usageStats: [], userDirectory: [] }, 200, PRIVATE_NO_STORE_HEADERS);
 	const clientId = c.req.param("clientId");
-	const client = getDataClient(c.env);
-	const appResult = await client.from("oauth_apps_with_stats").select("*").eq("client_id", clientId).maybeSingle();
-	if (appResult.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-	if (!appResult.data) return c.json({ authorizations: [], currentUserId: user.id, oauthApp: null, recentRequests: [], signedIn: true, usageStats: [], userDirectory: [] }, 200, PRIVATE_NO_STORE_HEADERS);
-	const workspaceId = String(appResult.data.workspace_id ?? "").trim();
+	let details;
+	try { details = await loadOAuthAppDetails(c.env, clientId); }
+	catch { return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
+	if (!details) return c.json({ authorizations: [], currentUserId: user.id, oauthApp: null, recentRequests: [], signedIn: true, usageStats: [], userDirectory: [] }, 200, PRIVATE_NO_STORE_HEADERS);
+	const workspaceId = String(details.oauthApp.workspace_id ?? "").trim();
 	const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId });
 	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
-	const thirtyDaysAgo = new Date();
-	thirtyDaysAgo.setUTCDate(thirtyDaysAgo.getUTCDate() - 30);
-	const [authorizationsResult, usageResult, recentResult, usersResult] = await Promise.all([
-		client.from("oauth_authorizations").select("*,users:user_id(user_id,full_name,email),teams:workspaces(id,name)").eq("client_id", clientId).is("revoked_at", null).order("last_used_at", { ascending: false, nullsFirst: false }).limit(10),
-		client.from("gateway_requests").select("created_at,success,cost_nanos").eq("oauth_client_id", clientId).eq("auth_method", "oauth").gte("created_at", thirtyDaysAgo.toISOString()).order("created_at", { ascending: true }),
-		client.from("gateway_requests").select("request_id,created_at,oauth_user_id,endpoint,model_id,provider,success,status_code,error_code,cost_nanos,latency_ms").eq("oauth_client_id", clientId).eq("auth_method", "oauth").order("created_at", { ascending: false }).limit(250),
-		client.from("oauth_authorizations").select("user_id,users:user_id(user_id,full_name,email)").eq("client_id", clientId).order("last_used_at", { ascending: false, nullsFirst: false }),
-	]);
-	if ([authorizationsResult, usageResult, recentResult, usersResult].some((result) => result.error)) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-	const userDirectory = new Map<string, { user_id: string; full_name: string | null; email: string | null }>();
-	for (const entry of usersResult.data ?? []) {
-		const directoryUser = Array.isArray(entry.users) ? entry.users[0] : entry.users;
-		const userId = String(entry.user_id ?? directoryUser?.user_id ?? "").trim();
-		if (!userId || userDirectory.has(userId)) continue;
-		userDirectory.set(userId, { user_id: userId, full_name: typeof directoryUser?.full_name === "string" ? directoryUser.full_name : null, email: typeof directoryUser?.email === "string" ? directoryUser.email : null });
-	}
-	return c.json({ authorizations: authorizationsResult.data ?? [], currentUserId: user.id, oauthApp: appResult.data, recentRequests: recentResult.data ?? [], signedIn: true, usageStats: usageResult.data ?? [], userDirectory: Array.from(userDirectory.values()) }, 200, PRIVATE_NO_STORE_HEADERS);
+	return c.json({ authorizations: details.authorizations, currentUserId: user.id, oauthApp: details.oauthApp, recentRequests: details.recentRequests, signedIn: true, usageStats: details.usageStats, userDirectory: details.userDirectory }, 200, PRIVATE_NO_STORE_HEADERS);
 });
 
 accountSettingsRouter.get("/management-api-keys", async (c) => {
@@ -752,20 +655,17 @@ accountSettingsRouter.get("/management-api-keys", async (c) => {
 	if (!context || !["owner", "admin"].includes(context.role.toLowerCase())) {
 		return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
 	}
-	const [workspaceResult, keysResult] = await Promise.all([
-		context.client.from("workspaces").select("id,name").eq("id", workspaceId).maybeSingle(),
-		context.client.from("management_keys").select("*").eq("workspace_id", workspaceId).order("created_at", { ascending: false }),
-	]);
-	if (workspaceResult.error || keysResult.error) {
-		return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-	}
+	let workspaceName: string | null;
+	let managementKeys;
+	try { [workspaceName, managementKeys] = await Promise.all([getWorkspaceName(c.env, workspaceId), listManagementKeys(c.env, workspaceId)]); }
+	catch { return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
 	const workspace = {
 		id: workspaceId,
-		name: String(workspaceResult.data?.name ?? "").trim() || "Current Workspace",
+		name: String(workspaceName ?? "").trim() || "Current Workspace",
 	};
 	return c.json({
 		currentUserId: context.user.id,
-		teamsWithKeys: [{ ...workspace, keys: keysResult.data ?? [] }],
+		teamsWithKeys: [{ ...workspace, keys: managementKeys }],
 		workspace,
 	}, 200, PRIVATE_NO_STORE_HEADERS);
 });
@@ -788,45 +688,29 @@ accountSettingsRouter.get("/byok", async (c) => {
 	const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId });
 	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
 	const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
-	const [keysResult, usageResult, settingsResult] = await Promise.all([
-		context.client.from("byok_keys")
-			.select("id,provider_id,name,prefix,suffix,created_at,last_used_at,enabled,always_use,routing_mode,sort_order,verification_status,error_message,allowed_model_slugs,allowed_api_key_ids")
-			.eq("workspace_id", workspaceId)
-			.order("routing_mode", { ascending: true })
-			.order("sort_order", { ascending: true })
-			.order("created_at", { ascending: true }),
-		context.client.from("workspace_byok_monthly_usage")
-			.select("month_start,request_count").eq("workspace_id", workspaceId)
-			.gte("month_start", monthStart.toISOString()).lt("month_start", nextMonthStart.toISOString())
-			.order("month_start", { ascending: false }).limit(1),
-		context.client.from("workspace_settings")
-			.select("byok_fallback_enabled")
-			.eq("workspace_id", workspaceId)
-			.maybeSingle(),
-	]);
-	if (keysResult.error || usageResult.error || settingsResult.error) {
-		return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-	}
-	const keyEntries = (keysResult.data ?? []).map((row) => ({
+	let byok;
+	try { byok = await loadWorkspaceByokSettings(c.env, { workspaceId, monthStart: monthStart.toISOString(), nextMonthStart: nextMonthStart.toISOString() }); }
+	catch { return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
+	const keyEntries = byok.keyEntries.map((row) => ({
 			id: row.id,
-			providerId: row.provider_id,
+			providerId: row.providerId,
 			name: row.name,
 			...(row.prefix ? { prefix: row.prefix } : {}),
 			...(row.suffix ? { suffix: row.suffix } : {}),
-			createdAt: row.created_at,
-			lastUsedAt: typeof row.last_used_at === "string" ? row.last_used_at : null,
+			createdAt: row.createdAt,
+			lastUsedAt: row.lastUsedAt,
 			enabled: row.enabled,
-			alwaysUse: row.always_use,
-			routingMode: row.routing_mode === "priority" ? "priority" : "fallback",
-			sortOrder: Number(row.sort_order ?? 0),
-			verificationStatus: typeof row.verification_status === "string" ? row.verification_status : null,
-			errorMessage: typeof row.error_message === "string" ? row.error_message : null,
-			allowedModelSlugs: Array.isArray(row.allowed_model_slugs) ? row.allowed_model_slugs.map(String) : [],
-			allowedApiKeyIds: Array.isArray(row.allowed_api_key_ids) ? row.allowed_api_key_ids.map(String) : [],
+			alwaysUse: row.alwaysUse,
+			routingMode: row.routingMode === "priority" ? "priority" : "fallback",
+			sortOrder: Number(row.sortOrder ?? 0),
+			verificationStatus: row.verificationStatus,
+			errorMessage: row.errorMessage,
+			allowedModelSlugs: Array.isArray(row.allowedModelSlugs) ? row.allowedModelSlugs.map(String) : [],
+			allowedApiKeyIds: Array.isArray(row.allowedApiKeyIds) ? row.allowedApiKeyIds.map(String) : [],
 		}));
-	const monthlyRequestCount = Number(usageResult.data?.[0]?.request_count ?? 0);
+	const monthlyRequestCount = byok.monthlyRequestCount;
 	return c.json({
-		fallbackEnabled: settingsResult.data?.byok_fallback_enabled === true,
+		fallbackEnabled: byok.fallbackEnabled,
 		freeRemaining: Math.max(0, 100_000 - monthlyRequestCount),
 		keyEntries,
 		legacyHiddenTotal: 0,
@@ -847,30 +731,11 @@ accountSettingsRouter.get("/keys", async (c) => {
 			workspaces: [],
 		}, 200, PRIVATE_NO_STORE_HEADERS);
 	}
-	const client = getDataClient(c.env);
-	const userClient = getAuthenticatedDataClient(c.env, c.req.raw);
-	if (!userClient) return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
-	const [membershipsResult, ownedResult] = await Promise.all([
-		client.from("workspace_members").select("workspace_id").eq("user_id", user.id),
-		client.from("workspaces").select("id").eq("owner_user_id", user.id),
-	]);
-	if (membershipsResult.error || ownedResult.error) {
-		return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-	}
-	const accessibleIds = Array.from(new Set([
-		...(membershipsResult.data ?? []).map((row) => String(row.workspace_id ?? "").trim()),
-		...(ownedResult.data ?? []).map((row) => String(row.id ?? "").trim()),
-	].filter(Boolean)));
-	let workspaces: Array<{ id: string; name: string }> = [];
-	if (accessibleIds.length) {
-		const workspacesResult = await client.from("workspaces").select("id,name").in("id", accessibleIds);
-		if (workspacesResult.error) {
-			return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-		}
-		workspaces = (workspacesResult.data ?? [])
-			.map((row) => ({ id: String(row.id ?? "").trim(), name: String(row.name ?? "").trim() }))
-			.filter((row) => row.id && row.name);
-	}
+	let accessibleWorkspaces;
+	try { accessibleWorkspaces = await listWorkspaceAccess(c.env, user.id); }
+	catch { return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
+	const workspaces = accessibleWorkspaces.map(({ id, name }) => ({ id, name })).filter((row) => row.id && row.name);
+	const accessibleIds = workspaces.map((workspace) => workspace.id);
 	const requestedWorkspaceId = c.req.query("workspaceId")?.trim();
 	const initialWorkspaceId = requestedWorkspaceId && accessibleIds.includes(requestedWorkspaceId)
 		? requestedWorkspaceId
@@ -879,17 +744,14 @@ accountSettingsRouter.get("/keys", async (c) => {
 	if (initialWorkspaceId) {
 		const dayStart = new Date();
 		dayStart.setUTCHours(0, 0, 0, 0);
-		const [keysResult, usageResult] = await Promise.all([
-			client.from("keys").select("*").eq("workspace_id", initialWorkspaceId)
-				.neq("status", "deleted").neq("name", "__chat_route_managed_key__"),
-			userClient.rpc("get_workspace_key_usage", {
-				p_workspace_id: initialWorkspaceId,
-				p_day_start: dayStart.toISOString(),
-			}),
-		]);
-		if (keysResult.error) {
-			return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-		}
+		let keyRows: Array<Record<string, unknown>>;
+		let usageResult: { data: Array<Record<string, unknown>>; error: unknown };
+		try {
+			[keyRows, usageResult] = await Promise.all([
+				listAccountApiKeys(c.env, initialWorkspaceId),
+				getWorkspaceKeyUsage(c.env, initialWorkspaceId, dayStart.toISOString()).then((data) => ({ data, error: null })).catch((error) => ({ data: [], error })),
+			]);
+		} catch { return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
 		const usageByKey = new Map<string, Record<string, unknown>>();
 		if (!usageResult.error) {
 			for (const row of usageResult.data ?? []) {
@@ -906,7 +768,7 @@ accountSettingsRouter.get("/keys", async (c) => {
 				});
 			}
 		}
-		keys = (keysResult.data as unknown as Array<Record<string, unknown>> ?? []).map((key) => {
+		keys = keyRows.map((key) => {
 			const usage = usageByKey.get(String(key.id ?? "")) ?? {};
 			const usageLastUsed = usage.usage_last_used_at;
 			const { usage_last_used_at: _ignored, ...usageFields } = usage;
@@ -955,32 +817,24 @@ accountSettingsRouter.get("/credits/onboarding", async (c) => {
 	if (!user || !workspaceId) return c.json(empty, 200, PRIVATE_NO_STORE_HEADERS);
 	const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId });
 	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
-	const [teamResult, profileResult] = await Promise.all([
-		context.client.from("workspaces")
-			.select("name,tier,billing_mode,invoice_onboarding_status")
-			.eq("id", workspaceId).maybeSingle(),
-		context.client.from("workspace_invoice_profiles")
-			.select("enabled,billing_day,payment_terms_days")
-			.eq("workspace_id", workspaceId).maybeSingle(),
-	]);
-	if (teamResult.error || profileResult.error) {
-		return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-	}
-	if (!teamResult.data) return c.json(empty, 200, PRIVATE_NO_STORE_HEADERS);
-	const billingMode = teamResult.data.billing_mode === "invoice" ? "invoice" : "wallet";
-	const onboardingStatus = String(teamResult.data.invoice_onboarding_status ?? "none").toLowerCase();
+	let workspace;
+	try { workspace = await getWorkspaceBillingStatus(c.env, workspaceId); }
+	catch { return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
+	if (!workspace) return c.json(empty, 200, PRIVATE_NO_STORE_HEADERS);
+	// Invoice onboarding and invoice-profile tables were removed from the canonical
+	// schema. Keep the endpoint stable while exposing the only supported wallet flow.
 	return c.json({
-		canAccessOnboarding: billingMode === "invoice" || onboardingStatus === "pre_invoice",
+		canAccessOnboarding: false,
 		canManageBilling: ["owner", "admin"].includes(context.role.toLowerCase()),
-		currentBillingMode: billingMode,
-		initialBillingDay: Math.min(28, Math.max(1, Number(profileResult.data?.billing_day ?? 1) || 1)),
-		initialPaymentTermsDays: Number(profileResult.data?.payment_terms_days) === 14 ? 14 : 30,
-		invoiceProfileEnabled: Boolean(profileResult.data?.enabled),
+		currentBillingMode: "wallet",
+		initialBillingDay: 1,
+		initialPaymentTermsDays: 30,
+		invoiceProfileEnabled: false,
 		signedIn: true,
 		signerName,
 		team: {
-			name: String(teamResult.data.name ?? "Workspace"),
-			tier: String(teamResult.data.tier ?? "basic"),
+			name: String(workspace.name ?? "Workspace"),
+			tier: String(workspace.tier ?? "basic"),
 		},
 		workspaceId,
 	}, 200, PRIVATE_NO_STORE_HEADERS);
@@ -1000,57 +854,29 @@ accountSettingsRouter.get("/credits/transactions", async (c) => {
 	if (!workspaceId) return c.json(empty, 200, PRIVATE_NO_STORE_HEADERS);
 	const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId });
 	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
-	const teamResult = await context.client.from("workspaces")
-		.select("tier,billing_mode").eq("id", workspaceId).maybeSingle();
-	if (teamResult.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-	const teamTier = String(teamResult.data?.tier ?? "basic").toLowerCase();
-	const billingMode = String(teamResult.data?.billing_mode ?? "wallet").toLowerCase() === "invoice" ? "invoice" : "wallet";
-	const isEnterpriseInvoiceMode = teamTier === "enterprise" && billingMode === "invoice";
-	if (isEnterpriseInvoiceMode) {
-		const invoicesResult = await context.client.from("workspace_invoices")
-			.select("id,period_start,period_end,amount_nanos,currency,status,stripe_invoice_id,stripe_invoice_number,due_at,issued_at,paid_at,created_at,updated_at")
-			.eq("workspace_id", workspaceId).order("period_end", { ascending: false }).limit(250);
-		if (invoicesResult.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-		const invoices = (invoicesResult.data ?? []).map((row) => ({
-			...row,
-			id: String(row.id),
-			period_start: String(row.period_start),
-			period_end: String(row.period_end),
-			amount_nanos: Number(row.amount_nanos ?? 0),
-			currency: row.currency ?? "USD",
-			status: String(row.status ?? "draft"),
-		}));
-		return c.json({
-			billingMode, invoices, isEnterpriseInvoiceMode, stripeCustomerId: null,
-			teamTier, transactions: [], workspaceId,
-		}, 200, PRIVATE_NO_STORE_HEADERS);
-	}
-	const [walletResult, transactionsResult] = await Promise.all([
-		context.client.from("wallets").select("stripe_customer_id").eq("workspace_id", workspaceId).maybeSingle(),
-		context.client.from("credit_ledger")
-			.select("id,event_time,kind,amount_nanos,before_balance_nanos,after_balance_nanos,status,ref_type,ref_id,source_ref_type,source_ref_id,created_at")
-			.eq("workspace_id", workspaceId).order("event_time", { ascending: false }).limit(250),
-	]);
-	if (walletResult.error || transactionsResult.error) {
-		return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-	}
-	const transactions = (transactionsResult.data ?? []).map((row) => ({
+	let billing;
+	try { billing = await loadWorkspaceBillingTransactions(c.env, workspaceId); }
+	catch { return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
+	const teamTier = String(billing.workspace?.tier ?? "basic").toLowerCase();
+	const billingMode = "wallet" as const;
+	const isEnterpriseInvoiceMode = false;
+	const transactions = billing.transactions.map((row) => ({
 		id: row.id,
-		amount_nanos: Number(row.amount_nanos ?? 0),
-		description: row.kind ?? (row.ref_type ? `${row.ref_type}:${row.ref_id}` : "Purchase"),
-		created_at: row.event_time ?? row.created_at ?? null,
+		amount_nanos: Number(row.amountNanos ?? 0),
+		description: row.kind ?? (row.refType ? `${row.refType}:${row.refId}` : "Purchase"),
+		created_at: row.eventTime ?? row.createdAt ?? null,
 		status: row.status ?? null,
 		kind: row.kind ?? null,
-		ref_type: row.ref_type ?? null,
-		ref_id: row.ref_id ?? null,
-		source_ref_type: row.source_ref_type ?? null,
-		source_ref_id: row.source_ref_id ?? null,
-		before_balance_nanos: row.before_balance_nanos == null ? null : Number(row.before_balance_nanos),
-		after_balance_nanos: row.after_balance_nanos == null ? null : Number(row.after_balance_nanos),
+		ref_type: row.refType ?? null,
+		ref_id: row.refId ?? null,
+		source_ref_type: row.sourceRefType ?? null,
+		source_ref_id: row.sourceRefId ?? null,
+		before_balance_nanos: row.beforeBalanceNanos == null ? null : Number(row.beforeBalanceNanos),
+		after_balance_nanos: row.afterBalanceNanos == null ? null : Number(row.afterBalanceNanos),
 	}));
 	return c.json({
 		billingMode, invoices: [], isEnterpriseInvoiceMode,
-		stripeCustomerId: walletResult.data?.stripe_customer_id ?? null,
+		stripeCustomerId: billing.stripeCustomerId,
 		teamTier, transactions, workspaceId,
 	}, 200, PRIVATE_NO_STORE_HEADERS);
 });
@@ -1076,46 +902,36 @@ accountSettingsRouter.get("/credits", async (c) => {
 	}, 200, PRIVATE_NO_STORE_HEADERS);
 	const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId });
 	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
-	const [walletResult, initialSettingsResult, latestPaymentResult, userResult] = await Promise.all([
-		context.client.from("wallets")
-			.select("workspace_id,stripe_customer_id,balance_nanos,reserved_nanos,auto_top_up_enabled,low_balance_threshold,auto_top_up_amount,auto_top_up_account_id")
-			.eq("workspace_id", workspaceId).maybeSingle(),
-		context.client.from("workspace_settings")
-			.select("low_balance_email_enabled,low_balance_email_threshold_nanos,auto_top_up_failure_email_enabled,payment_method_expiring_email_enabled")
-			.eq("workspace_id", workspaceId).maybeSingle(),
-		context.client.from("credit_ledger").select("event_time,status,amount_nanos")
-			.eq("workspace_id", workspaceId).eq("ref_type", "Stripe_Payment_Intent")
-			.or("status.ilike.paid,status.ilike.succeeded").gt("amount_nanos", 0)
-			.order("event_time", { ascending: false }).limit(1).maybeSingle(),
-		context.client.from("users").select("obfuscate_info,declared_country_code").eq("user_id", context.user.id).maybeSingle(),
-	]);
-	let settingsResult = initialSettingsResult;
-	if (settingsResult.error?.code === "42703") {
-		// Low-balance settings were introduced after some existing deployments.
-		// Treat their absence as the default disabled state while the schema rolls out.
-		settingsResult = await context.client.from("workspace_settings").select().eq("workspace_id", workspaceId).maybeSingle();
-	}
-	if (walletResult.error || settingsResult.error || latestPaymentResult.error || userResult.error) {
-		return c.json({ error: "billing_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-	}
-	const thresholdNanos = Number(settingsResult.data?.low_balance_email_threshold_nanos ?? 0);
+	let billing;
+	try { billing = await loadWorkspaceCreditSettings(c.env, workspaceId, context.user.id); }
+	catch { return c.json({ error: "billing_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
+	const thresholdNanos = Number(billing.settings?.lowBalanceEmailThresholdNanos ?? 0);
 	const cookieOverride = c.req.query("obfuscateInfo");
 	return c.json({
-		declaredCountryCode: userResult.data?.declared_country_code ?? null,
-		initialBalance: Number(walletResult.data?.balance_nanos ?? 0) / 1_000_000_000,
-		latestPaymentSuccessAt: latestPaymentResult.data?.event_time ?? null,
-		autoTopUpFailureEmailEnabled: settingsResult.data?.auto_top_up_failure_email_enabled !== false,
-		lowBalanceEmailEnabled: Boolean(settingsResult.data?.low_balance_email_enabled),
+		declaredCountryCode: billing.profile?.declaredCountryCode ?? null,
+		initialBalance: Number(billing.wallet?.balanceNanos ?? 0) / 1_000_000_000,
+		latestPaymentSuccessAt: billing.latestPaymentAt,
+		autoTopUpFailureEmailEnabled: billing.settings?.autoTopUpFailureEmailEnabled !== false,
+		lowBalanceEmailEnabled: Boolean(billing.settings?.lowBalanceEmailEnabled),
 		lowBalanceEmailThresholdUsd: thresholdNanos > 0 ? Number((thresholdNanos / 1_000_000_000).toFixed(2)) : null,
-		paymentMethodExpiringEmailEnabled: settingsResult.data?.payment_method_expiring_email_enabled !== false,
-		obfuscateInfo: cookieOverride === "1" ? true : cookieOverride === "0" ? false : Boolean(userResult.data?.obfuscate_info),
+		paymentMethodExpiringEmailEnabled: billing.settings?.paymentMethodExpiringEmailEnabled !== false,
+		obfuscateInfo: cookieOverride === "1" ? true : cookieOverride === "0" ? false : Boolean(billing.profile?.obfuscateInfo),
 		stripeInfo: {
 			customer: { id: null, email: null },
 			defaultPaymentMethodId: null,
 			hasPaymentMethod: false,
 			paymentMethods: [],
 		},
-		wallet: walletResult.data ?? null,
+		wallet: billing.wallet ? {
+			workspace_id: billing.wallet.workspaceId,
+			stripe_customer_id: billing.wallet.stripeCustomerId,
+			balance_nanos: billing.wallet.balanceNanos,
+			reserved_nanos: billing.wallet.reservedNanos,
+			auto_top_up_enabled: billing.wallet.autoTopUpEnabled,
+			low_balance_threshold: billing.wallet.lowBalanceThreshold,
+			auto_top_up_amount: billing.wallet.autoTopUpAmount,
+			auto_top_up_account_id: billing.wallet.autoTopUpAccountId,
+		} : null,
 	}, 200, PRIVATE_NO_STORE_HEADERS);
 });
 
@@ -1132,8 +948,9 @@ accountSettingsRouter.get("/payment-methods", async (c) => {
 	}, 200, PRIVATE_NO_STORE_HEADERS);
 	const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId });
 	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
-	const userResult = await context.client.from("users").select("obfuscate_info").eq("user_id", context.user.id).maybeSingle();
-	if (userResult.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	let storedObfuscation;
+	try { storedObfuscation = await getAccountObfuscation(c.env, context.user.id); }
+	catch { return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
 	const cookieOverride = c.req.query("obfuscateInfo");
 	return c.json({
 		customerId: null,
@@ -1142,7 +959,7 @@ accountSettingsRouter.get("/payment-methods", async (c) => {
 			defaultPaymentMethodId: null,
 			paymentMethods: [],
 		},
-		obfuscateInfo: cookieOverride === "1" ? true : cookieOverride === "0" ? false : Boolean(userResult.data?.obfuscate_info),
+		obfuscateInfo: cookieOverride === "1" ? true : cookieOverride === "0" ? false : storedObfuscation,
 	}, 200, PRIVATE_NO_STORE_HEADERS);
 });
 
@@ -1157,38 +974,26 @@ accountSettingsRouter.get("/observability/destinations/new/:provider", async (c)
 	}
 	const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId });
 	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
-	const [teamResult, keysResult, providersResult, providerModelsResult] = await Promise.all([
-		context.client.from("workspaces").select("id,name").eq("id", workspaceId).maybeSingle(),
-		context.client.from("keys").select("id,name,prefix").eq("workspace_id", workspaceId)
-			.neq("status", "deleted").neq("name", "__chat_route_managed_key__").order("created_at", { ascending: false }),
-		context.client.from("v2_providers").select("api_provider_id:provider_slug,api_provider_name:name").order("name", { ascending: true }),
-		context.client.from("v2_model_provider_routes").select("provider_id:provider_slug,api_model_id:model_slug,model_id:model_slug,is_active_gateway:routing_enabled").eq("routing_enabled", true).in("status", ["active", "degraded"]),
-	]);
-	if ([teamResult, keysResult, providersResult, providerModelsResult].some((result) => result.error)) {
-		return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-	}
-	const modelIds = Array.from(new Set((providerModelsResult.data ?? []).map((row) => String(row.model_id ?? "").trim()).filter(Boolean)));
-	const modelsResult = modelIds.length
-		? await context.client.from("v2_models").select("model_id:model_slug,name,organisation_id:lab_slug").in("model_slug", modelIds)
-		: { data: [], error: null };
-	if (modelsResult.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-	const modelsById = new Map((modelsResult.data ?? []).map((row) => [row.model_id, row]));
+	let options;
+	try { options = await loadObservabilityDestinationOptions(c.env, workspaceId); }
+	catch { return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
+	const modelsById = new Map<string, (typeof options.models)[number]>(options.models.map((row) => [row.id, row] as const));
 	const modelOptionsById = new Map<string, { value: string; label: string; logoId: string | null; subtitle: string | null }>();
-	for (const row of providerModelsResult.data ?? []) {
-		const apiModelId = String(row.api_model_id ?? "").trim();
+	for (const row of options.routes) {
+		const apiModelId = String(row.modelId ?? "").trim();
 		if (!apiModelId) continue;
-		const model = modelsById.get(row.model_id);
+		const model = modelsById.get(row.modelId);
 		const label = String(model?.name ?? apiModelId);
-		const option = { value: apiModelId, label, logoId: model?.organisation_id ?? null, subtitle: label === apiModelId ? null : apiModelId };
+		const option = { value: apiModelId, label, logoId: model?.organisationId ?? null, subtitle: label === apiModelId ? null : apiModelId };
 		const existing = modelOptionsById.get(apiModelId);
 		if (!existing || existing.label === apiModelId) modelOptionsById.set(apiModelId, option);
 	}
 	return c.json({
 		destinationFound: true,
-		keys: (keysResult.data ?? []).map((key) => ({ id: key.id, name: key.name ?? null, prefix: key.prefix ?? null })),
+		keys: options.keys.map((key) => ({ id: key.id, name: key.name ?? null, prefix: key.prefix ?? null })),
 		modelOptions: Array.from(modelOptionsById.values()).sort((left, right) => left.label.localeCompare(right.label)),
-		providerOptions: (providersResult.data ?? []).map((item) => ({ value: item.api_provider_id, label: item.api_provider_name ?? item.api_provider_id, logoId: item.api_provider_id })),
-		teamName: teamResult.data?.name ?? null,
+		providerOptions: options.providers.map((item) => ({ value: item.id, label: item.name ?? item.id, logoId: item.id })),
+		teamName: options.workspaceName,
 		workspaceId,
 	}, 200, PRIVATE_NO_STORE_HEADERS);
 });

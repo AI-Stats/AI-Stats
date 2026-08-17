@@ -2,7 +2,6 @@ import { Hono } from "hono";
 import type { Env } from "@/env";
 import { PRIVATE_NO_STORE_HEADERS } from "@/http/cache";
 import { requireUser } from "@/auth/requireUser";
-import { getDataClient } from "@/data/supabase";
 import { validateCompatibility, type CompatibilityTarget } from "@/compatibility/validators";
 import { internalGatewayBenchmarkRouter } from "@/routes/internal-gateway-benchmark";
 import {
@@ -11,6 +10,8 @@ import {
 	listCacheScopes,
 	resolveCacheScope,
 } from "@/cache/scopes";
+import { getAccountProfile } from "@/repositories/account-auth";
+import { bumpCacheGeneration, loadCacheAdminState, recordCachePurge } from "@/repositories/cache-admin";
 
 const ALLOWED_TAGS = LEGACY_ALLOWED_CACHE_TAGS;
 
@@ -28,12 +29,8 @@ type WorkersCacheContext = {
 async function getAdminUser(request: Request, env: Env) {
 	const user = await requireUser(request, env);
 	if (!user) return null;
-	const role = await getDataClient(env)
-		.from("users")
-		.select("role")
-		.eq("user_id", user.id)
-		.maybeSingle();
-	if (role.error || String(role.data?.role ?? "").toLowerCase() !== "admin") return null;
+	const profile = await getAccountProfile(env, user.id);
+	if (String(profile?.role ?? "").toLowerCase() !== "admin") return null;
 	return user;
 }
 
@@ -52,30 +49,15 @@ internalRouter.get("/cache", async (c) => {
 	const user = await getAdminUser(c.req.raw, c.env);
 	if (!user) return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
 
-	const db = getDataClient(c.env);
-	const [generationResult, eventsResult] = await Promise.all([
-		db.from("web_cache_generations").select("scope,generation,updated_at,updated_by").order("scope"),
-		db
-			.from("web_cache_purge_events")
-			.select("id,scope,target_id,tags,browser_generation_bumped,generation,actor_user_id,purge_succeeded,purge_error,created_at")
-			.order("created_at", { ascending: false })
-			.limit(25),
-	]);
-	if (generationResult.error || eventsResult.error) {
-		console.error("cache_control_state_failed", {
-			generationError: generationResult.error,
-			eventsError: eventsResult.error,
-		});
-		return c.json({ error: "cache_control_state_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-	}
+	let state; try { state = await loadCacheAdminState(c.env); } catch (error) { console.error("cache_control_state_failed", error); return c.json({ error: "cache_control_state_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
 
 	return c.json({
 		scopes: listCacheScopes().map((scope) => ({
 			...scope,
 			tagCount: new Set(scope.tags).size,
 		})),
-		generations: generationResult.data ?? [],
-		events: eventsResult.data ?? [],
+		generations: state.generations,
+		events: state.events,
 	}, 200, PRIVATE_NO_STORE_HEADERS);
 });
 
@@ -119,7 +101,6 @@ internalRouter.post("/cache/purge", async (c) => {
 		return c.json({ error: "workers_cache_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	}
 
-	const db = getDataClient(c.env);
 	let purgeResult: Awaited<ReturnType<WorkersCacheContext["purge"]>>;
 	try {
 		purgeResult = await workersCache.purge({ tags: resolved.tags });
@@ -131,26 +112,13 @@ internalRouter.post("/cache/purge", async (c) => {
 	let generation: number | null = null;
 	let generationWarning: string | null = null;
 	if (purgeResult.success && shouldBumpGeneration) {
-		const result = await db.rpc("bump_web_cache_generation", {
-			p_scope: "search",
-			p_actor_user_id: user.id,
-		});
-		if (result.error) generationWarning = "Edge cache was purged, but browser generation could not be advanced.";
-		else generation = Number(result.data);
+		try { generation = await bumpCacheGeneration(c.env, "search", user.id); }
+		catch { generationWarning = "Edge cache was purged, but browser generation could not be advanced."; }
 	}
 
 	const auditError = purgeResult.success ? null : JSON.parse(JSON.stringify(purgeResult.errors ?? "unknown"));
-	const auditResult = await db.from("web_cache_purge_events").insert({
-		scope,
-		target_id: resolved.targetId,
-		tags: resolved.tags,
-		browser_generation_bumped: generation !== null,
-		generation,
-		actor_user_id: user.id,
-		purge_succeeded: purgeResult.success,
-		purge_error: auditError,
-	});
-	if (auditResult.error) console.error("cache_purge_audit_failed", auditResult.error);
+	try { await recordCachePurge(c.env, { scope, targetId: resolved.targetId, tags: resolved.tags, browserGenerationBumped: generation !== null, generation, actorUserId: user.id, purgeSucceeded: purgeResult.success, purgeError: auditError }); }
+	catch (error) { console.error("cache_purge_audit_failed", error); }
 
 	if (!purgeResult.success) {
 		return c.json({ error: "cache_purge_failed", details: purgeResult.errors }, 502, PRIVATE_NO_STORE_HEADERS);
@@ -171,8 +139,8 @@ internalRouter.post("/cache/purge", async (c) => {
 internalRouter.post("/compatibility/validate", async (c) => {
 	const user = await requireUser(c.req.raw, c.env);
 	if (!user) return c.json({ error: "Unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
-	const role = await getDataClient(c.env).from("users").select("role").eq("user_id", user.id).maybeSingle();
-	if (role.error || String(role.data?.role ?? "").toLowerCase() !== "admin") return c.json({ error: "Unauthorized" }, 403, PRIVATE_NO_STORE_HEADERS);
+	const profile = await getAccountProfile(c.env, user.id);
+	if (String(profile?.role ?? "").toLowerCase() !== "admin") return c.json({ error: "Unauthorized" }, 403, PRIVATE_NO_STORE_HEADERS);
 	const body: { target?: unknown; payload?: unknown } = await c.req.json().catch(() => ({}));
 	const target = body.target as CompatibilityTarget;
 	if (!["openai.responses", "openai.chat.completions", "anthropic.messages"].includes(String(target))) return c.json({ error: "Invalid target" }, 400, PRIVATE_NO_STORE_HEADERS);
@@ -191,8 +159,8 @@ internalRouter.post("/revalidate", async (c) => {
 	if (!authorized) {
 		const user = await requireUser(c.req.raw, c.env);
 		if (user) {
-			const role = await getDataClient(c.env).from("users").select("role").eq("user_id", user.id).maybeSingle();
-			authorized = !role.error && String(role.data?.role ?? "").toLowerCase() === "admin";
+			const profile = await getAccountProfile(c.env, user.id);
+			authorized = String(profile?.role ?? "").toLowerCase() === "admin";
 		}
 	}
 	if (!authorized) {

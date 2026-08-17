@@ -4,7 +4,7 @@
 
 import { Hono } from "hono";
 import type { Env } from "@/runtime/types";
-import { getSupabaseAdmin } from "@/runtime/env";
+import { listProviders } from "@/repositories/catalogue";
 import { guardAuth, type GuardErr } from "@pipeline/before/guards";
 import { CAPABILITIES } from "@/lib/authz/capabilities";
 import { json, withRuntime, cacheHeaders, cacheResponse } from "@/routes/utils";
@@ -38,6 +38,12 @@ type Provider = {
     country_code: string | null;
 };
 
+function metadataString(metadata: unknown, key: string): string | null {
+    if (!metadata || typeof metadata !== "object" || Array.isArray(metadata)) return null;
+    const value = (metadata as Record<string, unknown>)[key];
+    return typeof value === "string" ? value : null;
+}
+
 async function handleProviders(req: Request) {
     const auth = await guardAuth(req, { allowOAuthJwt: true });
     if (!auth.ok) {
@@ -51,34 +57,13 @@ async function handleProviders(req: Request) {
     const offset = parseOffsetParam(url.searchParams.get("offset"));
 
     try {
-        const supabase = getSupabaseAdmin();
-
-        // Get total count
-        const { count, error: countError } = await supabase
-            .from("v2_providers")
-            .select("*", { count: "exact", head: true });
-
-        if (countError) {
-            throw new Error(countError.message || "Failed to count providers");
-        }
-
-        // Get paginated data
-        const { data: providers, error: dataError } = await supabase
-            .from("v2_providers")
-            .select("api_provider_id:provider_slug, api_provider_name:name, metadata, country_code")
-            .order("name", { ascending: true })
-            .range(offset, offset + limit - 1);
-
-        if (dataError) {
-            throw new Error(dataError.message || "Failed to load providers");
-        }
-
-        const mapped: Provider[] = (providers ?? []).map((provider) => ({
-            api_provider_id: provider.api_provider_id,
-            api_provider_name: provider.api_provider_name ?? null,
-            description: typeof provider.metadata?.description === "string" ? provider.metadata.description : null,
-            link: typeof provider.metadata?.link === "string" ? provider.metadata.link : null,
-            country_code: provider.country_code ?? null,
+        const { total, rows } = await listProviders(limit, offset);
+        const mapped: Provider[] = rows.map((provider) => ({
+            api_provider_id: provider.apiProviderId,
+            api_provider_name: provider.apiProviderName ?? null,
+            description: metadataString(provider.metadata, "description"),
+            link: metadataString(provider.metadata, "link"),
+            country_code: provider.countryCode ?? null,
         }));
 
         const cacheOptions = {
@@ -91,7 +76,7 @@ async function handleProviders(req: Request) {
                 ok: true,
                 limit,
                 offset,
-                total: count ?? 0,
+                total,
                 providers: mapped,
             },
             200,
@@ -110,5 +95,3 @@ async function handleProviders(req: Request) {
 export const providersRoutes = new Hono<Env>();
 
 providersRoutes.get("/", withRuntime(handleProviders));
-
-

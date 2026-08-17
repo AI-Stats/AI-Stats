@@ -1,6 +1,8 @@
 import { Hono } from "hono";
 import type { Env } from "@/runtime/types";
-import { getBindings, getCache, getSupabaseAdmin } from "@/runtime/env";
+import { getBindings, getCache } from "@/runtime/env";
+import { insertSecurityEmails, insertSecurityReport, loadSecurityKeyCandidates, loadSecurityNotificationRecipients, revokeSecurityKey } from "@/repositories/security";
+import { getIdentityUserById } from "@/runtime/identity";
 import { json, withRuntime } from "@/routes/utils";
 import { setKeyVersion } from "@/core/kv";
 import {
@@ -226,15 +228,8 @@ async function findMatchingPepperCandidate(args: {
 }
 
 async function loadKeyCandidates(table: KeyTableName, kid: string): Promise<KeyCandidate[]> {
-	const supabase = getSupabaseAdmin();
-	const { data, error } = await supabase
-		.from(table)
-		.select("id, workspace_id, name, prefix, status, hash, kid, soft_blocked, revoked_at, revoked_reason")
-		.eq("kid", kid);
-	if (error) {
-		throw new Error(error.message || `Failed to load ${table}`);
-	}
-	return ((data ?? []) as any[]).map((row) => ({
+	const data = await loadSecurityKeyCandidates(table, kid);
+	return data.map((row) => ({
 		table,
 		id: String(row.id),
 		workspace_id: String(row.workspace_id),
@@ -285,20 +280,7 @@ async function invalidateGatewayKeyCache(candidate: KeyCandidate): Promise<void>
 }
 
 async function applyLeakedKeyRevocation(candidate: KeyCandidate): Promise<void> {
-	const supabase = getSupabaseAdmin();
-	const { error } = await supabase
-		.from(candidate.table)
-		.update({
-			status: "compromised",
-			soft_blocked: true,
-			revoked_at: new Date().toISOString(),
-			revoked_reason: "public_leak_report",
-		})
-		.eq("id", candidate.id)
-		.eq("workspace_id", candidate.workspace_id);
-	if (error) {
-		throw new Error(error.message || `Failed to revoke leaked ${candidate.table} entry`);
-	}
+	await revokeSecurityKey(candidate.table, candidate.id, candidate.workspace_id, new Date().toISOString());
 	await invalidateGatewayKeyCache(candidate);
 }
 
@@ -311,31 +293,21 @@ async function enqueueOwnerNotifications(args: {
 	evidenceUrl: string | null;
 	autoRevoked: boolean;
 }): Promise<void> {
-	const supabase = getSupabaseAdmin();
-	const { data: workspaceRow } = await supabase
-		.from("workspaces")
-		.select("id, name, owner_user_id")
-		.eq("id", args.workspaceId)
-		.maybeSingle();
+	const { workspace: workspaceRow, members: membershipRows } = await loadSecurityNotificationRecipients(args.workspaceId);
 
 	const workspaceName =
-		typeof (workspaceRow as any)?.name === "string" && (workspaceRow as any).name.trim()
-			? (workspaceRow as any).name.trim()
+		typeof workspaceRow?.name === "string" && workspaceRow.name.trim()
+			? workspaceRow.name.trim()
 			: "your workspace";
 	const ownerUserId =
-		typeof (workspaceRow as any)?.owner_user_id === "string" && (workspaceRow as any).owner_user_id.trim()
-			? (workspaceRow as any).owner_user_id.trim()
+		typeof workspaceRow?.ownerUserId === "string" && workspaceRow.ownerUserId.trim()
+			? workspaceRow.ownerUserId.trim()
 			: null;
 
-	const { data: membershipRows } = await supabase
-		.from("workspace_members")
-		.select("user_id, role")
-		.eq("workspace_id", args.workspaceId);
-
 	const recipientIds = new Set<string>();
-	for (const row of (membershipRows ?? []) as any[]) {
+	for (const row of membershipRows) {
 		const role = String(row?.role ?? "").trim().toLowerCase();
-		const userId = String(row?.user_id ?? "").trim();
+		const userId = String(row?.userId ?? "").trim();
 		if (!userId) continue;
 		if (role === "owner" || role === "admin") {
 			recipientIds.add(userId);
@@ -344,22 +316,22 @@ async function enqueueOwnerNotifications(args: {
 	if (ownerUserId) recipientIds.add(ownerUserId);
 	if (!recipientIds.size) return;
 
-	const outboxRows: Array<Record<string, unknown>> = [];
+	const outboxRows: Parameters<typeof insertSecurityEmails>[0] = [];
 	for (const userId of recipientIds) {
 		try {
-			const userRes = await (supabase as any).auth.admin.getUserById(userId);
+			const userRes = await getIdentityUserById(userId);
 			const email = String(userRes?.data?.user?.email ?? "").trim();
 			if (!email) continue;
-			const metadata = (userRes?.data?.user?.user_metadata ?? null) as Record<string, unknown> | null;
+			const metadata = userRes?.data?.user?.name ? { name: userRes.data.user.name } : null;
 			outboxRows.push({
 				kind: "security_leaked_key",
 				template: "security_leaked_key",
-				to_email: email,
+				toEmail: email,
 				subject: args.autoRevoked
 					? "Security alert: exposed API key revoked"
 					: "Security alert: exposed API key reported",
-				workspace_id: args.workspaceId,
-				user_id: userId,
+				workspaceId: args.workspaceId,
+				userId,
 				payload: {
 					user_first_name: deriveFirstNameFromMetadata(metadata) || "there",
 					workspace_name: workspaceName,
@@ -377,12 +349,12 @@ async function enqueueOwnerNotifications(args: {
 	}
 
 	if (!outboxRows.length) return;
-	await supabase.from("email_outbox").insert(outboxRows as any);
+	await insertSecurityEmails(outboxRows);
 }
 
 async function persistSecurityReport(payload: Record<string, unknown>): Promise<void> {
 	try {
-		await getSupabaseAdmin().from("security_key_reports").insert(payload as any);
+		await insertSecurityReport(payload);
 	} catch (error) {
 		console.error("security_key_report_persist_failed", {
 			message: error instanceof Error ? error.message : String(error),

@@ -86,7 +86,7 @@ describe("before context warm-cache latency", () => {
 
 		const versionKey = `gateway:keyver:id:${apiKeyId}`;
 		const dynamicKey = `gateway:dynamic:default:${teamId}:${apiKeyId}:v${version}`;
-		const staticKey = `gateway:static:default:${teamId}:${endpoint}:${model}`;
+		const staticKey = `gateway:static:v2:default:${teamId}:${endpoint}:${model}`;
 
 		await kv.put(versionKey, String(version));
 		await kv.put(
@@ -99,6 +99,7 @@ describe("before context warm-cache latency", () => {
 				teamSettings: { routingMode: null, byokFallbackEnabled: null, betaChannelEnabled: false, billingMode: "wallet" },
 			}),
 		);
+		await kv.put(`gateway:credit:${teamId}`, JSON.stringify({ workspaceId: teamId, credit: { ok: true, reason: null, resetAt: null, balanceNanos: 10_000_000_000 } }));
 		await kv.put(
 			staticKey,
 			JSON.stringify({
@@ -146,7 +147,7 @@ describe("before context warm-cache latency", () => {
 
 		const versionKey = `gateway:keyver:id:${apiKeyId}`;
 		const dynamicKey = `gateway:dynamic:default:${teamId}:${apiKeyId}:v${version}`;
-		const staticKey = `gateway:static:default:${teamId}:${endpoint}:${model}`;
+		const staticKey = `gateway:static:v2:default:${teamId}:${endpoint}:${model}`;
 
 		await kv.put(versionKey, String(version));
 		await kv.put(
@@ -159,6 +160,7 @@ describe("before context warm-cache latency", () => {
 				teamSettings: { routingMode: null, byokFallbackEnabled: null, betaChannelEnabled: false, billingMode: "wallet" },
 			}),
 		);
+		await kv.put(`gateway:credit:${teamId}`, JSON.stringify({ workspaceId: teamId, credit: { ok: true, reason: null, resetAt: null, balanceNanos: 10_000_000_000 } }));
 		await kv.put(
 			staticKey,
 			JSON.stringify({
@@ -217,8 +219,8 @@ describe("before context warm-cache latency", () => {
 
 		const versionKey = `gateway:keyver:id:${apiKeyId}`;
 		const dynamicKey = `gateway:dynamic:default:${teamId}:${apiKeyId}:v${version}`;
-		const staticKeyA = `gateway:static:default:${teamId}:${endpoint}:${modelA}`;
-		const staticKeyB = `gateway:static:default:${teamId}:${endpoint}:${modelB}`;
+		const staticKeyA = `gateway:static:v2:default:${teamId}:${endpoint}:${modelA}`;
+		const staticKeyB = `gateway:static:v2:default:${teamId}:${endpoint}:${modelB}`;
 
 		await kv.put(versionKey, String(version));
 		await kv.put(
@@ -231,6 +233,7 @@ describe("before context warm-cache latency", () => {
 				teamSettings: { routingMode: null, byokFallbackEnabled: null, betaChannelEnabled: false, billingMode: "wallet" },
 			}),
 		);
+		await kv.put(`gateway:credit:${teamId}`, JSON.stringify({ workspaceId: teamId, credit: { ok: true, reason: null, resetAt: null, balanceNanos: 10_000_000_000 } }));
 		await kv.put(
 			staticKeyA,
 			JSON.stringify({

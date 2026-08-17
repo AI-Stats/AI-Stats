@@ -4,7 +4,7 @@
 
 import { Hono } from "hono";
 import type { Env } from "@/runtime/types";
-import { getSupabaseAdmin } from "@/runtime/env";
+import { listOrganisations } from "@/repositories/catalogue";
 import { guardAuth, type GuardErr } from "@pipeline/before/guards";
 import { CAPABILITIES } from "@/lib/authz/capabilities";
 import { json, withRuntime, cacheHeaders } from "@/routes/utils";
@@ -38,6 +38,12 @@ type Organisation = {
     colour: string | null;
 };
 
+function metadataString(metadata: unknown, key: string): string | null {
+    if (!metadata || typeof metadata !== "object" || Array.isArray(metadata)) return null;
+    const value = (metadata as Record<string, unknown>)[key];
+    return typeof value === "string" ? value : null;
+}
+
 async function handleOrganisations(req: Request) {
     const auth = await guardAuth(req, { useKvCache: false, allowOAuthJwt: true });
     if (!auth.ok) {
@@ -51,34 +57,13 @@ async function handleOrganisations(req: Request) {
     const offset = parseOffsetParam(url.searchParams.get("offset"));
 
     try {
-        const supabase = getSupabaseAdmin();
-
-        // Get total count
-        const { count, error: countError } = await supabase
-            .from("v2_labs")
-            .select("*", { count: "exact", head: true });
-
-        if (countError) {
-            throw new Error(countError.message || "Failed to count organisations");
-        }
-
-        // Get paginated data
-        const { data: organisations, error: dataError } = await supabase
-            .from("v2_labs")
-            .select("organisation_id:lab_slug, name, country_code, description, metadata")
-            .order("name", { ascending: true })
-            .range(offset, offset + limit - 1);
-
-        if (dataError) {
-            throw new Error(dataError.message || "Failed to load organisations");
-        }
-
-        const mapped: Organisation[] = (organisations ?? []).map((org) => ({
-            organisation_id: org.organisation_id,
+        const { total, rows } = await listOrganisations(limit, offset);
+        const mapped: Organisation[] = rows.map((org) => ({
+            organisation_id: org.organisationId,
             name: org.name ?? null,
-            country_code: org.country_code ?? null,
+            country_code: org.countryCode ?? null,
             description: org.description ?? null,
-            colour: typeof org.metadata?.colour === "string" ? org.metadata.colour : null,
+            colour: metadataString(org.metadata, "colour"),
         }));
 
         const cacheOptions = {
@@ -91,7 +76,7 @@ async function handleOrganisations(req: Request) {
                 ok: true,
                 limit,
                 offset,
-                total: count ?? 0,
+                total,
                 organisations: mapped,
             },
             200,
@@ -110,5 +95,3 @@ async function handleOrganisations(req: Request) {
 export const organisationsRoutes = new Hono<Env>();
 
 organisationsRoutes.get("/", withRuntime(handleOrganisations));
-
-

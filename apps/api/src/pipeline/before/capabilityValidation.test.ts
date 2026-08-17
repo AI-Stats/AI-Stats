@@ -115,7 +115,7 @@ describe("validateCapabilities", () => {
 		}
 	});
 
-	it("prefers providers that support more requested params", () => {
+	it("retains providers with unknown optional-parameter support", () => {
 		const result = validateCapabilities({
 			endpoint: "chat.completions",
 			rawBody: {
@@ -141,16 +141,11 @@ describe("validateCapabilities", () => {
 
 		expect(result.ok).toBe(true);
 		if (result.ok) {
-			expect(result.providers.map((p: any) => p.providerId)).toEqual(["openai"]);
+			expect(result.providers.map((p: any) => p.providerId)).toEqual(["openai", "cerebras"]);
 			expect(result.requestedParams).toEqual(["max_tokens", "presence_penalty"]);
 			expect(result.paramRoutingDiagnostics.providerCountBefore).toBe(2);
-			expect(result.paramRoutingDiagnostics.providerCountAfter).toBe(1);
-			expect(result.paramRoutingDiagnostics.droppedProviders).toEqual([
-				{
-					providerId: "cerebras",
-					unsupportedParams: ["presence_penalty"],
-				},
-			]);
+			expect(result.paramRoutingDiagnostics.providerCountAfter).toBe(2);
+			expect(result.paramRoutingDiagnostics.droppedProviders).toEqual([]);
 		}
 	});
 

@@ -14,91 +14,18 @@ type ManagementKeyRow = {
 const runtime = vi.hoisted(() => {
 	const backgroundTasks: Promise<unknown>[] = [];
 	const dbRow = { value: null as ManagementKeyRow | null };
-	const oauthAuthorizationRow = {
-		value: null as { revoked_at: string | null } | null,
-	};
 	const updatePayloads: Array<Record<string, unknown>> = [];
 
 	const maybeSingle = vi.fn(async () => ({
 		data: dbRow.value,
 		error: null,
 	}));
-	const oauthMaybeSingle = vi.fn(async () => ({
-		data: oauthAuthorizationRow.value,
-		error: null,
-	}));
-	const updateEq = vi.fn(async () => ({ error: null }));
-	const oauthUpdateEq = vi.fn(() => ({
-		eq: vi.fn(() => ({
-			eq: vi.fn(async () => ({ error: null })),
-		})),
-	}));
-
-	const supabase = {
-		from: vi.fn((table: string) => {
-			if (table === "keys") {
-				return {
-					select: () => ({
-						eq: () => ({
-							maybeSingle,
-						}),
-					}),
-					update: (payload: Record<string, unknown>) => {
-						updatePayloads.push(payload);
-						return { eq: updateEq };
-					},
-				};
-			}
-			if (table === "oauth_authorizations") {
-				return {
-					select: () => ({
-						eq: () => ({
-							eq: () => ({
-								eq: () => ({
-									maybeSingle: oauthMaybeSingle,
-								}),
-							}),
-						}),
-					}),
-					update: (payload: Record<string, unknown>) => {
-						updatePayloads.push(payload);
-						return {
-							eq: oauthUpdateEq,
-						};
-					},
-				};
-			}
-			if (table === "management_keys") {
-				return {
-					select: () => ({
-						eq: () => ({
-							maybeSingle,
-						}),
-					}),
-					update: (payload: Record<string, unknown>) => {
-						updatePayloads.push(payload);
-						return {
-							eq: updateEq,
-						};
-					},
-				};
-			}
-			throw new Error(`Unexpected table: ${table}`);
-		}),
-	};
-
 	return {
 		backgroundTasks,
 		dbRow,
 		maybeSingle,
-		oauthAuthorizationRow,
-		oauthMaybeSingle,
-		updateEq,
-		supabase,
 		updatePayloads,
 		bindings: {
-			SUPABASE_URL: "https://example.supabase.co",
-			SUPABASE_SERVICE_ROLE_KEY: "test-service-role-key",
 			GATEWAY_CACHE: {} as KVNamespace,
 			KEY_PEPPER_ACTIVE: "pepper_test_value",
 			KEY_PEPPER_PREVIOUS: undefined as string | undefined,
@@ -109,12 +36,22 @@ const runtime = vi.hoisted(() => {
 vi.mock("@/runtime/env", () => ({
 	getBindings: () => runtime.bindings,
 	getCache: () => ({}) as KVNamespace,
-	getSupabaseAdmin: () => runtime.supabase,
 	dispatchBackground: (promise: Promise<unknown>) => {
 		runtime.backgroundTasks.push(promise.catch(() => undefined));
 	},
 	configureRuntime: () => undefined,
 	clearRuntime: () => undefined,
+}));
+
+vi.mock("@/repositories/auth-keys", () => ({
+	findGatewayKeyByKid: async () => (await runtime.maybeSingle()).data,
+	findManagementKeyByKid: async () => (await runtime.maybeSingle()).data,
+	touchGatewayKey: async (_id: string, lastUsedAt: string, hash?: string | null) => {
+		runtime.updatePayloads.push({ last_used_at: lastUsedAt, ...(hash ? { hash } : {}) });
+	},
+	touchManagementKey: async (_id: string, lastUsedAt: string, hash?: string | null) => {
+		runtime.updatePayloads.push({ last_used_at: lastUsedAt, ...(hash ? { hash } : {}) });
+	},
 }));
 
 vi.mock("@/lib/oauth/service", () => ({
@@ -129,6 +66,12 @@ vi.mock("@/lib/oauth/service", () => ({
 			scope: "keys:read keys:write",
 		},
 	})),
+}));
+
+vi.mock("@/repositories/oauth", () => ({
+	touchOAuthAuthorization: vi.fn(async () => {
+		runtime.updatePayloads.push({ last_used_at: new Date().toISOString() });
+	}),
 }));
 
 function buildRequest(token: string): Request {
@@ -155,14 +98,10 @@ describe("authenticateManagement", () => {
 	beforeEach(() => {
 		runtime.backgroundTasks.length = 0;
 		runtime.dbRow.value = null;
-		runtime.oauthAuthorizationRow.value = null;
 		runtime.updatePayloads.length = 0;
 		runtime.bindings.KEY_PEPPER_ACTIVE = "pepper_test_value";
 		runtime.bindings.KEY_PEPPER_PREVIOUS = undefined;
-		runtime.supabase.from.mockClear();
 		runtime.maybeSingle.mockClear();
-		runtime.oauthMaybeSingle.mockClear();
-		runtime.updateEq.mockClear();
 		vi.resetModules();
 	});
 
@@ -223,13 +162,12 @@ describe("authenticateManagement", () => {
 		});
 		await flushBackground();
 
-		runtime.supabase.from.mockClear();
 		const gatewayResult = await authenticate(buildRequest(`phaseo_v1_mk_${kid}_${secret}`));
 		expect(gatewayResult).toEqual({
 			ok: false,
 			reason: "management_key_not_valid_for_gateway",
 		});
-		expect(runtime.supabase.from).not.toHaveBeenCalled();
+		expect(runtime.maybeSingle).toHaveBeenCalledTimes(1);
 	});
 
 	it("rejects user-created inference and legacy management key formats", async () => {
@@ -254,8 +192,7 @@ describe("authenticateManagement", () => {
 			expect(result).toEqual({ ok: false, reason: "management_key_required" });
 		}
 
-		expect(runtime.supabase.from).toHaveBeenCalledTimes(2);
-		expect(runtime.supabase.from).toHaveBeenNthCalledWith(1, "keys");
+		expect(runtime.maybeSingle).toHaveBeenCalledTimes(1);
 	});
 
 	it("rejects soft-blocked management keys", async () => {
@@ -317,7 +254,6 @@ describe("authenticateManagement", () => {
 
 	it("accepts active OAuth bearer tokens for management auth", async () => {
 		const jwt = "eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoidTEiLCJ3b3Jrc3BhY2VfaWQiOiJ3MSIsImNsaWVudF9pZCI6ImMxIn0.sig";
-		runtime.oauthAuthorizationRow.value = { revoked_at: null };
 		const { authenticateManagement } = await import("./auth");
 		const result = await authenticateManagement(buildRequest(jwt));
 		await flushBackground();
@@ -339,7 +275,6 @@ describe("authenticateManagement", () => {
 
 	it("accepts CLI OAuth JWTs only when a control route opts in", async () => {
 		const jwt = "eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoidTEiLCJ3b3Jrc3BhY2VfaWQiOiJ3MSIsImNsaWVudF9pZCI6ImMxIn0.sig";
-		runtime.oauthAuthorizationRow.value = { revoked_at: null };
 		const { guardAuth } = await import("./guards");
 		const rejected = await guardAuth(buildRequest(jwt));
 		expect(rejected.ok).toBe(false);

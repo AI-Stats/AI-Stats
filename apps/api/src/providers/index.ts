@@ -17,7 +17,7 @@ import { ElevenLabsAdapter } from "./elevenlabs/index";
 import { SunoAdapter } from "./suno/index";
 import { createOpenAICompatibleAdapter } from "./openai-compatible/index";
 import { createUnsupportedAdapter } from "./unsupported";
-import { getSupabaseAdmin } from "@/runtime/env";
+import { listActiveProviderSlugsForCapability } from "@/repositories/gateway-context";
 
 // NOTE: All adapters are legacy and unused - the IR pipeline uses executors instead
 // These are kept for backward compatibility but are never called in production
@@ -142,57 +142,12 @@ const ADAPTERS_BY_CAPABILITY: Partial<Record<Endpoint, Record<string, ProviderAd
 type CapabilityRow = { provider_id: string };
 
 async function loadCapsFromDB(model: string, endpoint: Endpoint): Promise<CapabilityRow[]> {
-    const supabase = getSupabaseAdmin();
-    const nowISO = new Date().toISOString();
-    const { data: providerModels, error: pmError }: { data: any[] | null; error: any } = await supabase
-        .from("v2_model_provider_routes")
-        .select("provider_api_model_id:provider_model_id, provider_id:provider_slug, effective_from, effective_to")
-        .eq("model_slug", model)
-        .eq("routing_enabled", true)
-        .in("status", ["active", "degraded"])
-        .or([
-            "and(effective_from.is.null,effective_to.is.null)",
-            `and(effective_from.is.null,effective_to.gt.${nowISO})`,
-            `and(effective_from.lte.${nowISO},effective_to.is.null)`,
-            `and(effective_from.lte.${nowISO},effective_to.gt.${nowISO})`,
-        ].join(","));
-    if (pmError) {
-        console.error("Error loading provider models from DB:", pmError);
-        return [];
-    }
-    const providerModelIds = (providerModels ?? [])
-        .map((row) => row.provider_api_model_id)
-        .filter((id): id is string => Boolean(id));
-    if (!providerModelIds.length) return [];
-
-    const { data: caps, error }: { data: any[] | null; error: any } = await supabase
-        .from("v2_route_capabilities")
-        .select("provider_api_model_id:provider_model_id, capability_id, effective_from, effective_to")
-        .eq("capability_id", endpoint)
-        .eq("status", "active")
-        .in("provider_model_id", providerModelIds)
-        .or([
-            "and(effective_from.is.null,effective_to.is.null)",
-            `and(effective_from.is.null,effective_to.gt.${nowISO})`,
-            `and(effective_from.lte.${nowISO},effective_to.is.null)`,
-            `and(effective_from.lte.${nowISO},effective_to.gt.${nowISO})`,
-        ].join(","));
-    if (error) {
-        console.error("Error loading capabilities from DB:", error);
-        return [];
-    }
-    const providerById = new Map<string, string>();
-    for (const row of providerModels ?? []) {
-        if (row.provider_api_model_id && row.provider_id) {
-            providerById.set(row.provider_api_model_id, row.provider_id);
-        }
-    }
-    const rows: CapabilityRow[] = [];
-    for (const cap of caps ?? []) {
-        const provider_id = providerById.get(cap.provider_api_model_id);
-        if (provider_id) rows.push({ provider_id });
-    }
-    return rows;
+	try {
+		return await listActiveProviderSlugsForCapability({ modelSlug: model, capabilityId: endpoint });
+	} catch (error) {
+		console.error("Error loading provider capabilities from DB:", error);
+		return [];
+	}
 }
 
 export async function providersFor(model: string, endpoint: Endpoint): Promise<ProviderAdapter[]> {

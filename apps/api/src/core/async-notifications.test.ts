@@ -259,8 +259,6 @@ describe("toAsyncLifecycleStatus", () => {
 describe("buildAsyncNotificationData", () => {
 	beforeEach(() => {
 		configureRuntime({
-			SUPABASE_URL: "https://example.supabase.co",
-			SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
 			GATEWAY_CACHE: {} as KVNamespace,
 			NODE_ENV: "test",
 			GATEWAY_PUBLIC_BASE_URL: "https://api.phaseo.app",

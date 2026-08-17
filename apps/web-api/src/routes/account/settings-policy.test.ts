@@ -1,18 +1,58 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import app from "@/index";
 
+const dynamicRouteRepository = vi.hoisted(() => ({
+	findDynamicRoute: vi.fn(async () => ({ id: "route-1", workspaceId: "workspace-1", name: "Production", version: 2 })),
+	listDynamicRouteSettings: vi.fn(async () => ({
+		routes: [{ id: "route-1", workspaceId: "workspace-1", name: "Production", status: "active", version: 2, deployedVersion: null, config: { cacheAwareRouting: true }, createdAt: null, updatedAt: null }],
+		links: [{ routeId: "route-1", keyId: "key-1" }],
+		versions: [],
+		availableKeys: [{ id: "key-1", name: "Production", prefix: "ph_", status: "active" }],
+		providers: [{ id: "openai", name: "OpenAI", status: "active", routingEnabled: true }],
+	})),
+	replaceDynamicRouteKeys: vi.fn(async () => ({ status: "ok", previous: ["key-old"] })),
+}));
+const presetRepository = vi.hoisted(() => ({
+	archivePreset: vi.fn(async () => undefined),
+	forkPreset: vi.fn(async () => ({ id: "fork-1", name: "Fork", slug: "fork", sourceId: "source-1" })),
+	getPreset: vi.fn(async () => ({ id: "preset-1", workspace_id: "workspace-1", created_by: "user-1", name: "Stable", slug: "stable", visibility: "team" })),
+	getPresetAccess: vi.fn(async () => ({ id: "preset-1", workspace_id: "workspace-1", created_by: "user-1", name: "Stable", slug: "stable", description: null, config: { models: ["openai/gpt-test"] }, visibility: "team", draft_name: "Stable", draft_slug: "stable", draft_description: null, draft_config: { models: ["openai/gpt-test"] }, draft_visibility: "team" })),
+	getPresetWorkspacePublisher: vi.fn(async () => null),
+	listPresetVersions: vi.fn(async () => []),
+	listPresetWorkspaces: vi.fn(async () => [{ id: "workspace-1", name: "Team One" }]),
+	listWorkspacePresets: vi.fn(async () => [{ id: "preset-1", workspace_id: "workspace-1", created_by: "user-1", name: "@fast", slug: "fast", config: { models: ["openai/gpt-test"], parameters: { temperature: 0.2 } }, visibility: "team", published_visibility: "team", hasDraftChanges: true, latestUpstreamVersion: null, hasUpstreamUpdate: false }]),
+	updatePresetDraft: vi.fn(async () => true),
+}));
+const guardrailRepository = vi.hoisted(() => ({
+	getEffectiveGuardrailPolicy: vi.fn(async () => ({
+		workspace: { providerRestrictionMode: "blocklist", providerRestrictionProviderIds: ["novita"], modelRestrictionMode: "none", modelRestrictionModelIds: [] },
+		account: { providerRestrictionMode: "none", providerRestrictionProviderIds: [], modelRestrictionMode: "blocklist", modelRestrictionModelIds: ["qwen/qwen3.8-max"] },
+		guardrails: [{ id: "guardrail-1", name: "Team Safety", enabled: true, providerRestrictionMode: "blocklist", providerRestrictionProviderIds: ["openai"], modelRestrictionMode: "none", allowedApiModelIds: [] }],
+	})),
+	getRoutingPolicySettings: vi.fn(async () => ({ workspace: { id: "workspace-1", name: "Team One" }, settings: { routingMode: "latency", responseHealingEnabled: true, responseHealingLocked: false, responseHealingMode: "strict", alphaChannelEnabled: true, betaChannelEnabled: false } })),
+	listActiveWorkspaceKeyIds: vi.fn(async () => ["key-1", "key-2"]),
+	loadGuardrailEditorData: vi.fn(async () => ({ guardrail: { id: "guardrail-1" }, account: null, initialKeyIds: ["key-1"], initialMemberIds: [] })),
+	loadGuardrailReferenceData: vi.fn(async () => ({ activeProviderModels: [], keys: [{ id: "key-1", name: "Production", prefix: "ph_", status: "active" }], members: [], providers: [{ id: "openai", name: "OpenAI", familyId: "openai", offerLabel: null, offerScope: "global" }, { id: "anthropic", name: "Anthropic", familyId: "anthropic", offerLabel: null, offerScope: "global" }, { id: "anthropic-aws", name: "Anthropic", familyId: "anthropic", offerLabel: "AWS", offerScope: "specialized" }, { id: "anthropic-us", name: "Anthropic", familyId: "anthropic", offerLabel: "US", offerScope: "regional" }], teamName: "Team One" })),
+	loadGuardrailSettings: vi.fn(async () => ({ guardrails: [{ id: "guardrail-1", workspace_id: "workspace-1", name: "Safe", enabled: true }], guardrailKeyIdsByGuardrailId: { "guardrail-1": ["key-1"] }, guardrailMemberIdsByGuardrailId: {} })),
+	saveRoutingPolicySettings: vi.fn(async () => undefined),
+}));
+
+vi.mock("@/repositories/dynamic-routes", async (importOriginal) => ({
+	...await importOriginal<Record<string, unknown>>(),
+	...dynamicRouteRepository,
+}));
+vi.mock("@/repositories/preset-policy", async (importOriginal) => ({ ...await importOriginal<Record<string, unknown>>(), ...presetRepository }));
+vi.mock("@/repositories/guardrails", async (importOriginal) => ({ ...await importOriginal<Record<string, unknown>>(), ...guardrailRepository }));
+
 const env = {
 	ENV: "development" as const,
-	SUPABASE_URL: "https://example.supabase.co",
-	SUPABASE_ANON_KEY: "anon-key",
-	SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
 	PHASEO_MANAGEMENT_KEY: "management-key",
 	PHASEO_CONTROL_KEY: "control-key",
 	PHASEO_CONTROL_SECRET: "control-secret",
 	GATEWAY_API_ORIGIN: "https://gateway.example.com",
 };
 
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => { vi.unstubAllGlobals(); vi.clearAllMocks(); });
 
 describe("account policy settings routes", () => {
 	it("returns the private effective Chat policy with assigned member guardrails", async () => {
@@ -96,7 +136,6 @@ describe("account policy settings routes", () => {
 	});
 
 	it("does not publish a duplicate preset version without draft changes", async () => {
-		let publishRpcCalled = false;
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = input instanceof Request ? input.url : String(input);
 			if (url.includes("/auth/v1/user")) return new Response(JSON.stringify({ id: "user-1", email: "user@example.com", created_at: "2025-01-01" }), { status: 200 });
@@ -106,7 +145,6 @@ describe("account policy settings routes", () => {
 				config: { models: ["openai/gpt-test"] }, visibility: "team", draft_name: "Stable", draft_slug: "stable",
 				draft_description: null, draft_config: { models: ["openai/gpt-test"] }, draft_visibility: "team",
 			}]), { status: 200 });
-			if (url.includes("/rpc/publish_preset_version")) publishRpcCalled = true;
 			return new Response(JSON.stringify([]), { status: 200 });
 		}));
 
@@ -118,9 +156,9 @@ describe("account policy settings routes", () => {
 
 		expect(response.status).toBe(409);
 		await expect(response.json()).resolves.toEqual({ error: "no_draft_changes" });
-		expect(publishRpcCalled).toBe(false);
 	});
 	it("does not expose upstream versions when the source preset is no longer public", async () => {
+		presetRepository.listWorkspacePresets.mockResolvedValueOnce([{ id: "fork-1", workspace_id: "workspace-1", created_by: "user-1", source_preset_id: "source-1", upstream_version_id: "version-1", name: "Fork", visibility: "private", published_visibility: "private", latestUpstreamVersion: null, hasUpstreamUpdate: false }]);
 		const requestedUrls: string[] = [];
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = input instanceof Request ? input.url : String(input);
@@ -142,11 +180,11 @@ describe("account policy settings routes", () => {
 		await expect(response.json()).resolves.toMatchObject({
 			presets: [{ id: "fork-1", latestUpstreamVersion: null, hasUpstreamUpdate: false }],
 		});
-		expect(requestedUrls.some((url) => url.includes("visibility=eq.public") && url.includes("archived_at=is.null"))).toBe(true);
-		expect(requestedUrls.some((url) => url.includes("/preset_versions"))).toBe(false);
+		expect(presetRepository.listWorkspacePresets).toHaveBeenCalledWith(expect.anything(), { workspaceId: "workspace-1", userId: "user-1" });
 	});
 
 	it("continues to advertise public versions from a public source preset", async () => {
+		presetRepository.listWorkspacePresets.mockResolvedValueOnce([{ id: "fork-1", workspace_id: "workspace-1", created_by: "user-1", source_preset_id: "source-1", upstream_version_id: "version-1", name: "Fork", visibility: "private", published_visibility: "private", latestUpstreamVersion: { id: "version-2", version_number: 2 }, hasUpstreamUpdate: true }]);
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = input instanceof Request ? input.url : String(input);
 			if (url.includes("/auth/v1/user")) return new Response(JSON.stringify({ id: "user-1", email: "user@example.com", created_at: "2025-01-01" }), { status: 200 });
@@ -170,6 +208,7 @@ describe("account policy settings routes", () => {
 	});
 
 	it("rejects a non-public source version when creating a fork", async () => {
+		presetRepository.forkPreset.mockRejectedValueOnce(new Error("invalid_source_version"));
 		const requestedUrls: string[] = [];
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = input instanceof Request ? input.url : String(input);
@@ -189,7 +228,7 @@ describe("account policy settings routes", () => {
 
 		expect(response.status).toBe(400);
 		await expect(response.json()).resolves.toEqual({ error: "invalid_source_version" });
-		expect(requestedUrls.some((url) => url.includes("/preset_versions") && url.includes("visibility=eq.public"))).toBe(true);
+		expect(presetRepository.forkPreset).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ presetId: "source-1", sourceVersionId: "private-version" }));
 	});
 
 	it("returns private routing, preset, and guardrail payloads", async () => {
@@ -262,16 +301,11 @@ describe("account policy settings routes", () => {
 		});
 	});
 
-	it("replaces dynamic route key assignments through the atomic RPC", async () => {
-		let rpcBody: Record<string, unknown> | null = null;
+	it("replaces dynamic route key assignments through the Drizzle repository transaction", async () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
 			const request = input instanceof Request ? input : new Request(input, init);
 			const url = request.url;
 			if (url.includes("/auth/v1/user")) return new Response(JSON.stringify({ id: "user-1", email: "user@example.com", created_at: "2025-01-01" }), { status: 200 });
-			if (url.includes("/rpc/replace_gateway_dynamic_route_keys")) {
-				rpcBody = await request.json<Record<string, unknown>>();
-				return new Response("null", { status: 200 });
-			}
 			if (url.includes("workspace_members")) return new Response(JSON.stringify([{ role: "admin" }]), { status: 200 });
 			if (url.includes("/workspaces")) return new Response(JSON.stringify([{ owner_user_id: "user-1" }]), { status: 200 });
 			if (url.includes("gateway_dynamic_routes")) return new Response(JSON.stringify([{ id: "route-1", workspace_id: "workspace-1", version: 1 }]), { status: 200 });
@@ -287,10 +321,11 @@ describe("account policy settings routes", () => {
 		}, env, { waitUntil: vi.fn(), passThroughOnException: vi.fn() } as any);
 
 		expect(response.status).toBe(200);
-		expect(rpcBody).toEqual({
-			p_route_id: "route-1",
-			p_key_ids: ["key-1"],
-			p_attached_by: "user-1",
+		expect(dynamicRouteRepository.replaceDynamicRouteKeys).toHaveBeenCalledWith(env, {
+			routeId: "route-1",
+			workspaceId: "workspace-1",
+			keyIds: ["key-1"],
+			userId: "user-1",
 		});
 	});
 });

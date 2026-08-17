@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 
 import { requireUser } from "@/auth/requireUser";
-import { getDataClient } from "@/data/supabase";
+import { updateIdentityUser } from "@/data/identity";
 import type { Env } from "@/env";
 import { PRIVATE_NO_STORE_HEADERS } from "@/http/cache";
 
@@ -141,8 +141,9 @@ accountSettingsProfileAvatarRouter.post("/profile/avatar", async (c) => {
 
 	const avatarUrl = publicAvatarUrl(c.env, key);
 	const previousKey = ownedProfileAvatarKey(c.env, c.req.raw, user.userMetadata.avatar_url, user.id);
-	const { error } = await getDataClient(c.env).auth.admin.updateUserById(user.id, {
-		user_metadata: { ...user.userMetadata, avatar_url: avatarUrl },
+	const { error } = await updateIdentityUser(c.env, user.id, {
+		image: avatarUrl,
+		userMetadata: user.userMetadata,
 	});
 	if (error) {
 		await bucket.delete(key).catch(() => undefined);

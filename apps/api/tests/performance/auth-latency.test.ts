@@ -18,13 +18,6 @@ function percentile(values: number[], p: number): number {
 const runtime = vi.hoisted(() => {
 	const store = new Map<string, string>();
 	const backgroundTasks: Promise<unknown>[] = [];
-	const dbRow = { value: null as KeyRow | null };
-
-	const maybeSingle = vi.fn(async () => ({
-		data: dbRow.value,
-		error: null,
-	}));
-
 	const cache = {
 		get: vi.fn(async (key: string, type?: "text" | "json" | "arrayBuffer" | "stream") => {
 			const value = store.get(key);
@@ -40,34 +33,11 @@ const runtime = vi.hoisted(() => {
 		}),
 	};
 
-	const supabase = {
-		from: vi.fn((table: string) => {
-			if (table !== "keys") {
-				throw new Error(`Unexpected table: ${table}`);
-			}
-			return {
-				select: () => ({
-					eq: () => ({
-						maybeSingle,
-					}),
-				}),
-				update: () => ({
-					eq: vi.fn(async () => ({ error: null })),
-				}),
-			};
-		}),
-	};
-
 	return {
 		store,
 		backgroundTasks,
-		dbRow,
-		maybeSingle,
 		cache,
-		supabase,
 		bindings: {
-			SUPABASE_URL: "https://example.supabase.co",
-			SUPABASE_SERVICE_ROLE_KEY: "test-service-role-key",
 			GATEWAY_CACHE: cache as unknown as KVNamespace,
 			KEY_PEPPER_ACTIVE: "pepper_test_value",
 			KEY_PEPPER_PREVIOUS: undefined as string | undefined,
@@ -78,7 +48,6 @@ const runtime = vi.hoisted(() => {
 vi.mock("@/runtime/env", () => ({
 	getBindings: () => runtime.bindings,
 	getCache: () => runtime.cache as unknown as KVNamespace,
-	getSupabaseAdmin: () => runtime.supabase,
 	dispatchBackground: (promise: Promise<unknown>) => {
 		runtime.backgroundTasks.push(promise.catch(() => undefined));
 	},
@@ -106,12 +75,9 @@ describe("authenticate warm-cache latency", () => {
 	beforeEach(() => {
 		runtime.store.clear();
 		runtime.backgroundTasks.length = 0;
-		runtime.dbRow.value = null;
 		runtime.cache.get.mockClear();
 		runtime.cache.put.mockClear();
 		runtime.cache.delete.mockClear();
-		runtime.supabase.from.mockClear();
-		runtime.maybeSingle.mockClear();
 		__resetKeyVersionL1ForTests();
 		__resetAuthCachesForTests();
 	});
@@ -141,8 +107,6 @@ describe("authenticate warm-cache latency", () => {
 		expect(warm.ok).toBe(true);
 
 		runtime.cache.get.mockClear();
-		runtime.supabase.from.mockClear();
-		runtime.maybeSingle.mockClear();
 
 		const samples: number[] = [];
 		const iterations = 300;
@@ -164,6 +128,5 @@ describe("authenticate warm-cache latency", () => {
 
 		expect(p95).toBeLessThan(10);
 		expect(runtime.cache.get).toHaveBeenCalledTimes(0);
-		expect(runtime.maybeSingle).not.toHaveBeenCalled();
 	});
 });

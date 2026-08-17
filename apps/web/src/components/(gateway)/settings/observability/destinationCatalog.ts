@@ -518,28 +518,6 @@ export const COMING_SOON_DESTINATIONS: ComingSoonDestination[] = [
 		],
 	},
 	{
-		label: "Supabase",
-		fields: [
-			{
-				key: "project_url",
-				label: "Project URL",
-				placeholder: "https://<project>.supabase.co",
-			},
-			{
-				key: "service_role_key",
-				label: "Service Role Key",
-				placeholder: "eyJ...",
-				type: "password",
-			},
-			{
-				key: "table",
-				label: "Table (Optional)",
-				placeholder: "broadcast_traces",
-				required: false,
-			},
-		],
-	},
-	{
 		label: "WhyLabs",
 		fields: [
 			{ key: "api_key", label: "API Key", placeholder: "whylabs_...", type: "password" },

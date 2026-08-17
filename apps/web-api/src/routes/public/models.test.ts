@@ -1,14 +1,147 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+
+vi.mock("@/repositories/page-catalogue", () => ({
+	listPublicModelsPageRows: vi.fn(async () => []),
+	listPublicModelWeeklyMetrics: vi.fn(async () => []),
+}));
+
+vi.mock("@/repositories/model-aliases", () => ({
+	listActiveModelAliases: vi.fn(async () => []),
+}));
+vi.mock("@/repositories/free-router", () => ({
+	listFreeRouterRows: vi.fn(async () => [
+		{ model_slug: "openai/gpt-test", name: "GPT Test", lab_slug: "openai", organisation_name: "OpenAI", provider_slug: "provider-a", provider_model_slug: "gpt-test-a", input_modalities: ["text"], output_modalities: ["text"], model_input_modalities: ["text", "image"], model_output_modalities: ["text"], requests_30d: 1, total_cost_nanos_30d: 125, last_routed_at: "2026-07-26T00:00:00Z" },
+		{ model_slug: "openai/gpt-test", name: "GPT Test", lab_slug: "openai", organisation_name: "OpenAI", provider_slug: "provider-b", provider_model_slug: "gpt-test-b", input_modalities: ["image"], output_modalities: ["text"], model_input_modalities: ["text", "image"], model_output_modalities: ["text"], requests_30d: 1, total_cost_nanos_30d: 125, last_routed_at: "2026-07-26T00:00:00Z" },
+	]),
+}));
+vi.mock("@/repositories/model-pricing", () => ({ loadModelPricingSources: vi.fn(async (_env, variants: string[]) => variants.some((id) => id.includes("gpt-5.6-sol")) ? ({
+	providerRows: [{ provider_api_model_id: "pm-1", provider_id: "openai", api_model_id: "openai/gpt-5.6-sol", model_id: "openai/gpt-5.6-sol", provider_model_slug: "gpt-5.6-sol", is_active_gateway: true, routing_status: "active", data_api_provider_model_capabilities: [{ capability_id: "text.generate", status: "active", params: {} }], data_api_providers: { api_provider_name: "OpenAI", routing_status: "active" } }],
+	pricingRows: [{ rule_id: "standard-price", model_key: "openai:openai/gpt-5.6-sol:text.generate", capability_id: "text.generate", pricing_plan: "standard", meter: "input_text_tokens", unit: "token", unit_size: 1000000, price_per_unit: 1, currency: "USD" }, { rule_id: "batch-price", model_key: "openai:openai/gpt-5.6-sol:text.generate", capability_id: "text.generate", pricing_plan: "batch", meter: "input_text_tokens", unit: "token", unit_size: 1000000, price_per_unit: .5, currency: "USD" }],
+}) : ({ providerRows: [], pricingRows: [
+		{ rule_id: "old-input", model_key: "deepseek:deepseek/deepseek-v4-flash-0731:text.generate", capability_id: "text.generate", pricing_plan: "standard", meter: "input_text_tokens", unit: "token", unit_size: 1_000_000, price_per_unit: 0.14, currency: "USD", priority: 100, effective_from: "2026-07-01T00:00:00Z", effective_to: "2026-08-01T00:00:00Z", match: [], time_windows: [] },
+		{ rule_id: "new-input", model_key: "deepseek:deepseek/deepseek-v4-flash-0731:text.generate", capability_id: "text.generate", pricing_plan: "standard", meter: "input_text_tokens", unit: "token", unit_size: 1_000_000, price_per_unit: 0.22, currency: "USD", priority: 100, effective_from: "2026-08-01T00:00:00Z", effective_to: null, match: [], time_windows: [{ label: "peak", timezone: "UTC", start_time: "01:00", end_time: "04:00", price_per_unit: 0.44 }] },
+	] })) }));
+
+vi.mock("@/repositories/model-usage", () => ({
+	listModelUsageDaily: vi.fn(async () => []),
+	listModelApps: vi.fn(async () => [{ app_id: "app-1", title: "Example", image_url: "https://example.com/app.png", url: "https://example.com", last_seen: "2026-07-17T00:00:00Z", requests: 4, success_requests: 3, total_tokens: 100 }]),
+	getModelRealtimeStats: vi.fn(async () => ({ requestsInWindow: 2, latencyP50Ms: 200, throughputP50TokPerSec: 30 })),
+	getModelTokenTrajectory: vi.fn(async () => ({ release_date: "2026-01-01T00:00:00.000Z", deprecation_date: null, points: [], token_milestones: [], successor_milestones: [] })),
+	listModelPerformanceColos: vi.fn(async () => []),
+}));
+vi.mock("@/repositories/model-performance", () => ({
+	getModelProviderHealthRows: vi.fn(async () => []),
+	getModelPerformanceBundle: vi.fn(async () => ({
+		performance: { last_24h: { total_requests: 12, successful_requests: 11 }, hourly_24h: [], provider_uptime_24h: [{ provider: "poolside", provider_name: "Poolside", requests: 11 }], provider_daily_7d: [{ day: "2026-07-23", provider: "poolside", provider_name: "Poolside", requests: 11 }], time_of_day_5d: [], quality_series: [] },
+		health: [], cachedInput: { hourly_24h: [], provider_daily_7d: [{ day: "2026-07-23", provider: "poolside", cached_input_pct: 62.5, cached_input_tokens: 625, effective_input_tokens: 1000, telemetry_requests: 11 }] },
+		percentileSeries: [50, 75, 90, 95, 99].map((percentile) => ({ usage_day: "2026-07-23", provider_id: "poolside", provider_name: "Poolside", percentile, gateway_ttft_ms: percentile === 95 ? 900 : 230, provider_duration_ms: percentile === 95 ? 1200 : 500, effective_throughput_tps: percentile === 95 ? 13.4 : 8.5, cached_input_pct: percentile === 95 ? 88.5 : 62.5, requests: 11 })),
+	})),
+}));
+vi.mock("@/repositories/model-monitor", () => ({ listGatewayMonitorRows: vi.fn(async () => []) }));
+
+vi.mock("@/repositories/models", () => ({
+	findPublicModelIdentity: vi.fn(async () => ({
+		model_slug: "openai/gpt-test",
+		name: "GPT Test", description: null, status: "active", catalogue_status: "available", hidden: false, variant_kind: "standard", base_model_slug: null, previous_model_slug: null, replacement_model_slug: null, announced_at: null, released_at: null, deprecated_at: null, retired_at: null, removal_date: null, family_slug: null,
+		license: "MIT",
+		license_url: null,
+		input_modalities: ["text"], output_modalities: ["text"], lab_slug: "openai", lab_name: "OpenAI", lab_country_code: "US",
+	})),
+	resolvePublicModel: vi.fn(async (_env, requestedModelId: string) => ({
+		requestedModelId,
+		canonicalModelId: requestedModelId,
+		internalModelId: requestedModelId,
+		source: "direct",
+	})),
+	listPublicModelVariants: vi.fn(async () => [
+		{ model_id: "openai/gpt-test", name: "GPT Test", variant_kind: "standard" },
+		{ model_id: "openai/gpt-test:free", name: "GPT Test (Free)", variant_kind: "free" },
+	]),
+	getModelAvailability: vi.fn(async () => ({
+		is_gateway_active: true,
+		active_provider_count: 1,
+		active_route_count: 1,
+		regions: [],
+		service_tiers: [],
+	})),
+	listModelBenchmarks: vi.fn(async () => [{
+		result_id: "result-1",
+		benchmark_id: "mmlu",
+		score: "0.85",
+		score_numeric: "0.85",
+		is_self_reported: false,
+		other_info: null,
+		source_link: "https://example.com",
+		result_rank: 2,
+		occur_idx: null,
+		variant: null,
+		result_key: null,
+		benchmark_name: "MMLU",
+		category: null,
+		link: null,
+		total_models: 50,
+		ascending_order: true,
+		benchmark_type: "percentage",
+		created_at: null,
+		updated_at: null,
+	}]),
+	getModelTimeline: vi.fn(async () => [
+		{ date: "2026-08-01", eventType: "FutureModel", modelId: "openai/gpt-next", modelName: "GPT Next" },
+		{ date: "2026-07-01", eventType: "ModelEvent", eventName: "Released" },
+	]),
+	listModelSubscriptionPlans: vi.fn(async () => [{
+		plan_uuid: "plan-uuid",
+		plan_id: "pro",
+		name: "Pro",
+		lab_slug: "phaseo",
+		description: null,
+		link: null,
+		other_info: {},
+		created_at: null,
+		updated_at: null,
+		model_info: { note: "included" },
+		rate_limit: { rpm: 10 },
+		model_other_info: null,
+		price: "20",
+		currency: "USD",
+		frequency: "month",
+	}]),
+	listModelIdentifiers: vi.fn(async (_env, modelId: string) => [modelId]),
+	getModelNotice: vi.fn(async () => ({
+		apiModelId: "openai/gpt-test",
+		tone: "warning",
+		markdown: "This model is changing.",
+	})),
+	getProviderStatuses: vi.fn(async (_env, providerIds: string[]) => new Map(providerIds.map((id) => [id, id.toLowerCase() === "openrouter" ? "external" : "active"]))),
+	getProviderMetadata: vi.fn(async (_env, providerIds: string[]) => new Map(providerIds.map((id) => [id, { colour: "#12AB78" }]))),
+	getProviderRegions: vi.fn(async (_env, providerIds: string[]) => new Map(providerIds.map((id) => [id, id === "provider-a" ? ["us", "eu"] : ["us"]]))),
+	listRecentProviderHealthStates: vi.fn(async () => [
+		{ provider_id: "openai", breaker_state: "open", is_deranked: false, open_until_ms: Date.now() + 60_000, updated_at: new Date().toISOString() },
+		{ provider_id: "openai", breaker_state: "half_open", is_deranked: false, open_until_ms: 0, updated_at: new Date().toISOString() },
+	]),
+	listCatalogPricingRules: vi.fn(async () => []),
+	listPublicCatalogueModels: vi.fn(async () => ({
+		rows: [{ model_slug: "openai/gpt-test", lab_slug: "openai", name: "GPT Test", description: null, status: "active", released_at: null, announced_at: null, updated_at: null, input_modalities: ["text"], output_modalities: ["text"], organisation: { name: "OpenAI", metadata: {} } }],
+		total: 1,
+	})),
+}));
+
 import app from "@/index";
+import { getModelTokenTrajectory } from "@/repositories/model-usage";
+import { loadModelPricingSources } from "@/repositories/model-pricing";
+import { getModelPerformanceBundle } from "@/repositories/model-performance";
+import { listGatewayMonitorRows } from "@/repositories/model-monitor";
+import { getProviderRegions, listPublicCatalogueModels } from "@/repositories/models";
+import { listPublicModelsPageRows } from "@/repositories/page-catalogue";
 
 const env = {
 	ENV: "development" as const,
-	SUPABASE_URL: "https://example.supabase.co",
-	SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
 };
 
 afterEach(() => {
 	vi.unstubAllGlobals();
+	vi.clearAllMocks();
+	vi.mocked(listGatewayMonitorRows).mockResolvedValue([]);
 });
 
 describe("public model routes", () => {
@@ -50,12 +183,12 @@ describe("public model routes", () => {
 	});
 
 	it("includes the database-composed free router in page projection 5", async () => {
+		vi.mocked(listPublicModelsPageRows).mockResolvedValueOnce([{
+			model_id: "openai/gpt-test", name: "GPT Test", organisation_id: "openai", gateway_status: "active",
+			gateway_input_modalities: ["text"], gateway_output_modalities: ["text"], gateway_features: [], gateway_tiers: [],
+		}]);
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
-			if (url.includes("get_public_models_page_rows")) return new Response(JSON.stringify([{
-				model_id: "openai/gpt-test", name: "GPT Test", organisation_id: "openai", gateway_status: "active",
-				gateway_input_modalities: ["text"], gateway_output_modalities: ["text"], gateway_features: [], gateway_tiers: [],
-			}]), { status: 200 });
 			if (url.includes("v2_models")) return new Response(JSON.stringify([{ model_slug: "openai/gpt-test", name: "GPT Test", lab_slug: "openai", input_modalities: ["text", "image"], output_modalities: ["text"], lab: { name: "OpenAI" } }]), { status: 200 });
 			if (url.includes("v2_model_provider_routes")) return new Response(JSON.stringify([
 				{ provider_slug: "provider-a", provider_model_slug: "gpt-test-a", model_slug: "openai/gpt-test", input_modalities: ["text"], output_modalities: ["text"], routing_enabled: true, status: "active", effective_from: null, effective_to: null },
@@ -86,25 +219,13 @@ describe("public model routes", () => {
 	});
 
 	it("uses the complete V2 public catalogue projection by default", async () => {
+		vi.mocked(listPublicModelsPageRows).mockResolvedValueOnce([
+			{ model_id: "openai/gpt-test", name: "GPT Test", organisation_id: "openai", organisation_name: "OpenAI", primary_date: "2026-01-02", gateway_status: "active", gateway_provider_count: 1, gateway_active_provider_count: 1, gateway_endpoints: ["responses"], gateway_input_modalities: ["text"], gateway_output_modalities: ["text"], gateway_features: ["tools"], gateway_tiers: ["standard"], gateway_execution_regions: ["us"], gateway_provider_names: ["OpenAI"] },
+			{ model_id: "openai/gpt-coming-soon", name: "GPT Coming Soon", organisation_id: "openai", organisation_name: "OpenAI", gateway_status: "coming_soon" },
+			{ model_id: "openai/gpt-inactive", name: "GPT Inactive", organisation_id: "openai", organisation_name: "OpenAI", gateway_status: "not_active" },
+		]);
 		const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
-			if (url.includes("get_public_models_page_rows")) return new Response(JSON.stringify([
-				{
-					model_id: "openai/gpt-test", name: "GPT Test", organisation_id: "openai", organisation_name: "OpenAI",
-					primary_date: "2026-01-02", gateway_status: "active",
-					gateway_provider_count: 1, gateway_active_provider_count: 1, gateway_endpoints: ["responses"],
-					gateway_input_modalities: ["text"], gateway_output_modalities: ["text"], gateway_features: ["tools"],
-					gateway_tiers: ["standard"], gateway_execution_regions: ["us"], gateway_provider_names: ["OpenAI"],
-				},
-				{
-					model_id: "openai/gpt-coming-soon", name: "GPT Coming Soon", organisation_id: "openai",
-					organisation_name: "OpenAI", gateway_status: "coming_soon",
-				},
-				{
-					model_id: "openai/gpt-inactive", name: "GPT Inactive", organisation_id: "openai",
-					organisation_name: "OpenAI", gateway_status: "not_active",
-				},
-			]), { status: 200 });
 			if (url.includes("get_public_model_catalogue_rows")) return new Response(JSON.stringify([{
 				model_id: "openai/gpt-test", name: "Gateway name", organisation_id: "openai", organisation_name: "OpenAI",
 				gateway_status: "active", gateway_provider_count: 1, gateway_active_provider_count: 1,
@@ -134,12 +255,12 @@ describe("public model routes", () => {
 			facets: { statusCounts: { active: 1, coming_soon: 1, not_active: 1 } },
 		});
 		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("get_monitor_model_rows"))).toBe(false);
-		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("get_public_models_page_rows"))).toBe(true);
-		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("get_v2_public_models_page_rows"))).toBe(false);
+		expect(listPublicModelsPageRows).toHaveBeenCalledWith(env, { region: null, serviceTier: null });
 		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("get_public_model_catalogue_rows"))).toBe(false);
 	});
 
 	it("uses the route-scoped V2 projection for explicit region and service-tier filters", async () => {
+		vi.mocked(listPublicModelsPageRows).mockResolvedValueOnce([{ model_id: "openai/gpt-test", name: "GPT Test", organisation_id: "openai", organisation_name: "OpenAI", gateway_status: "active" }]);
 		const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
 			if (url.includes("get_v2_public_models_page_rows")) {
@@ -159,18 +280,13 @@ describe("public model routes", () => {
 		);
 
 		expect(response.status).toBe(200);
-		const scopedCall = fetchMock.mock.calls.find(([input]) =>
-			String(input).includes("get_v2_public_models_page_rows")
-		);
-		expect(scopedCall).toBeDefined();
-		expect(JSON.parse(String(scopedCall?.[1]?.body))).toMatchObject({
-			p_region: "ca",
-			p_service_tier: "priority",
-		});
-		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("get_public_models_page_rows"))).toBe(false);
+		expect(listPublicModelsPageRows).toHaveBeenCalledWith(env, { region: "ca", serviceTier: "priority" });
 	});
 
 	it("serves the V2 models page from the compact page projection", async () => {
+		vi.mocked(listPublicModelsPageRows).mockResolvedValueOnce([{
+			model_id: "openai/gpt-test", name: "GPT Test", organisation_id: "openai", organisation_name: "OpenAI", primary_date: "2026-01-02", gateway_status: "active", gateway_provider_count: 1, gateway_active_provider_count: 1, gateway_endpoints: ["responses"], gateway_input_modalities: ["text"], gateway_output_modalities: ["text"], gateway_features: ["tools"], gateway_tiers: ["standard"], gateway_execution_regions: ["us"], gateway_provider_names: ["OpenAI"], lowest_standard_input_price: 0.3, lowest_standard_input_price_unit: "billing unit", lowest_standard_output_price: 1.2, lowest_standard_output_price_unit: "billing unit", pricing_detail_rows: [{ meter_key: "input_text_tokens", price: 0.3, display_unit: "1M tokens", unit_quantity: 1_000_000 }, { meter_key: "output_text_tokens", price: 1.2, display_unit: "1M tokens", unit_quantity: 1_000_000 }],
+		}]);
 		const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
 			if (url.includes("get_public_models_page_rows")) return new Response(JSON.stringify([{
@@ -224,10 +340,12 @@ describe("public model routes", () => {
 		});
 		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("get_monitor_model_rows"))).toBe(false);
 		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("data_models?"))).toBe(false);
-		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("get_public_models_page_rows"))).toBe(true);
+		expect(listPublicModelsPageRows).toHaveBeenCalled();
 	});
 
 	it("serves compact table rows without loading the nested model catalogue", async () => {
+		const monitorRow = { model_id: "openai/gpt-test", api_model_id: "openai/gpt-test", model_name: "GPT Test", organisation_id: "openai", organisation_name: "OpenAI", provider_id: "openai", api_provider_name: "OpenAI", capability_id: "responses", capability_status: "active", is_active_gateway: true, input_modalities: ["text"], output_modalities: ["text"], capability_params: { properties: { temperature: { type: "number" } } }, input_price: 1, output_price: 2, context_length: 128000, provider_max_output_tokens: 4096, weekly_tokens_model: 100, weekly_tokens_model_provider: 250, model_release_date: "2026-01-02" };
+		vi.mocked(listGatewayMonitorRows).mockResolvedValue([{ ...monitorRow, provider_api_model_id: "provider-model-a" }, { ...monitorRow, provider_api_model_id: "provider-model-b", input_price: .5 }]);
 		const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
 			if (url.includes("get_monitor_model_rows")) {
@@ -308,6 +426,7 @@ describe("public model routes", () => {
 	});
 
 	it("keeps free provider offers separate in the compact table projection", async () => {
+		vi.mocked(listGatewayMonitorRows).mockResolvedValueOnce([{ model_id: "poolside/laguna-s-2.1", api_model_id: "poolside/laguna-s-2.1:free", model_name: "Laguna S 2.1", organisation_id: "poolside", organisation_name: "Poolside", provider_id: "poolside", provider_api_model_id: "poolside:poolside/laguna-s-2.1:free", api_provider_name: "Poolside", capability_id: "text.generate", capability_status: "active", is_active_gateway: true, is_free_variant: true, input_modalities: ["text"], output_modalities: ["text"] }]);
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
 			if (url.includes("get_monitor_model_rows")) return new Response(JSON.stringify([{
@@ -349,12 +468,10 @@ describe("public model routes", () => {
 		});
 	});
 
-	it("does not fall back to the V1 catalogue when the complete V2 page RPC is unavailable", async () => {
+	it("does not fall back to the V1 catalogue when the Drizzle projection is unavailable", async () => {
+		vi.mocked(listPublicModelsPageRows).mockRejectedValueOnce(new Error("database unavailable"));
 		const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
-			if (url.includes("get_public_models_page_rows")) {
-				return new Response(JSON.stringify({ code: "PGRST202", message: "Could not find the function public.get_public_models_page_rows" }), { status: 404 });
-			}
 			if (url.includes("get_public_model_catalogue_rows")) return new Response(JSON.stringify([{
 				model_id: "openai/gpt-test", name: "GPT Test", organisation_id: "openai", gateway_status: "inactive",
 				gateway_provider_details: [], gateway_api_model_ids: ["openai/gpt-test"], gateway_features: [],
@@ -403,12 +520,14 @@ describe("public model routes", () => {
 			total: 1,
 		});
 		expect(v2.headers.get("cache-tag")).toBe("web-api-models,web-api-models-v2");
-		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("v2_models"))).toBe(true);
-		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("status=neq.disabled"))).toBe(true);
+		expect(listPublicCatalogueModels).toHaveBeenCalled();
+		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("v2_models"))).toBe(false);
 		expect(invalid.status).toBe(400);
 	});
 
 	it("preserves provider execution regions in gateway monitor rows", async () => {
+		vi.mocked(listGatewayMonitorRows).mockResolvedValueOnce([{ model_id: "openai/gpt-test", api_model_id: "gpt-test", provider_id: "openai", provider_api_model_id: "pm-1", capability_id: "chat/completions", capability_status: "active", is_active_gateway: true }]);
+		vi.mocked(getProviderRegions).mockResolvedValueOnce(new Map([["openai", ["us", "eu"]]]));
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
 			if (url.includes("get_monitor_model_rows")) {
@@ -459,6 +578,11 @@ describe("public model routes", () => {
 	});
 
 	it("excludes external providers from models-page monitor rows", async () => {
+		vi.mocked(listGatewayMonitorRows).mockResolvedValueOnce([{ model_id: "google/gemini-3.5-flash", api_model_id: "google/gemini-3.5-flash", provider_id: " OpenRouter ", provider_api_model_id: "pm-openrouter", capability_id: "text.generate", capability_status: "active", is_active_gateway: false }]);
+		vi.mocked(listPublicCatalogueModels).mockResolvedValueOnce({
+			rows: [{ model_slug: "google/gemini-3.5-flash", lab_slug: "google", name: "Gemini 3.5 Flash", description: null, status: "active", released_at: null, announced_at: null, updated_at: null, input_modalities: ["text"], output_modalities: ["text"], organisation: { name: "Google", metadata: {} } }],
+			total: 1,
+		});
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
 			if (url.includes("get_monitor_model_rows")) {
@@ -504,23 +628,6 @@ describe("public model routes", () => {
 	});
 
 	it("applies a distinct cache profile to the catalogue, benchmarks, and performance", async () => {
-		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
-			const url = String(input);
-			if (url.includes("/rpc/get_v2_model_benchmarks")) {
-				return new Response(JSON.stringify([{ result_id: "result-1", benchmark_id: "mmlu", score: "0.85", score_numeric: 0.85, is_self_reported: false, other_info: null, source_link: "https://example.com", result_rank: 2, benchmark_name: "MMLU", total_models: 50, ascending_order: true, benchmark_type: "percentage" }]), { status: 200 });
-			}
-			if (url.includes("/rpc/get_v2_model_performance_metrics")) {
-				return new Response(JSON.stringify({ last_24h: { total_requests: 42 }, hourly_24h: [], provider_uptime_24h: [], provider_daily_7d: [] }), { status: 200 });
-			}
-			if (url.includes("benchmark_results")) {
-				return new Response(JSON.stringify([{ model_id: "openai/gpt-test", benchmark_results: [{ id: "result-1", benchmark_id: "mmlu", score: "0.85", is_self_reported: false, other_info: null, source_link: "https://example.com", rank: 2, benchmark: { id: "mmlu", name: "MMLU", total_models: 50, ascending_order: true, type: "percentage" } }] }]), { status: 200 });
-			}
-			return new Response(JSON.stringify([{ model_id: "openai/gpt-test", name: "GPT Test" }]), {
-				status: 200,
-				headers: { "content-range": "0-0/1" },
-			});
-		}));
-
 		const [catalogue, benchmarks, performance] = await Promise.all([
 			app.request("https://phaseo.app/api/_web/models", {}, env),
 			app.request("https://phaseo.app/api/_web/models/openai%2Fgpt-test/benchmarks", {}, env),
@@ -537,58 +644,6 @@ describe("public model routes", () => {
 	});
 
 	it("never exposes a synthetic unknown provider in performance data", async () => {
-		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
-			const url = String(input);
-			if (url.includes("/v2_providers?")) {
-				return new Response(JSON.stringify([
-					{ provider_slug: "poolside", metadata: { colour: "#12AB78" } },
-				]), { status: 200 });
-			}
-			if (url.includes("/rpc/get_v2_model_cached_input_metrics")) {
-				return new Response(JSON.stringify({
-					hourly_24h: [],
-					provider_daily_7d: [
-						{ day: "2026-07-23", provider: "poolside", cached_input_pct: 62.5, cached_input_tokens: 625, effective_input_tokens: 1000, telemetry_requests: 11 },
-					],
-				}), { status: 200 });
-			}
-			if (url.includes("/rpc/get_v2_model_performance_metrics")) {
-				return new Response(JSON.stringify({
-					last_24h: { total_requests: 12, successful_requests: 11 },
-					hourly_24h: [],
-					provider_uptime_24h: [
-						{ provider: "poolside", provider_name: "Poolside", requests: 11 },
-						{ provider: "unknown", provider_name: "unknown", requests: 1 },
-					],
-					provider_daily_7d: [
-						{ day: "2026-07-23", provider: "poolside", provider_name: "Poolside", requests: 11 },
-						{ day: "2026-07-23", provider: "unknown", provider_name: "unknown", requests: 1 },
-					],
-				}), { status: 200 });
-			}
-			if (url.includes("/rpc/get_v2_model_provider_health_metrics")) {
-				return new Response(JSON.stringify([]), { status: 200 });
-			}
-			if (url.includes("/rpc/get_v2_model_provider_percentile_series_v2")) {
-				return new Response(JSON.stringify([50, 75, 90, 95, 99].map((percentile) => ({
-					usage_day: "2026-07-23",
-					provider_id: "poolside",
-					provider_name: "Poolside",
-					requests: 11,
-					percentile,
-					gateway_ttft_ms: percentile === 95 ? 900 : 230,
-					provider_duration_ms: percentile === 95 ? 1200 : 500,
-					effective_throughput_tps: percentile === 95 ? 13.4 : 8.5,
-					output_speed_tps: percentile === 95 ? 15.2 : 9.1,
-					phaseo_overhead_ms: percentile === 95 ? 45 : 20,
-					tpot_ms: percentile === 95 ? 65 : 110,
-					itl_ms: percentile === 95 ? 65 : 110,
-					cached_input_pct: percentile === 95 ? 88.5 : 62.5,
-				}))), { status: 200 });
-			}
-			return new Response(JSON.stringify([]), { status: 200 });
-		}));
-
 		const response = await app.request(
 			"https://phaseo.app/api/_web/models/poolside%2Flaguna-s-2.1/performance",
 			{},
@@ -631,31 +686,8 @@ describe("public model routes", () => {
 		expect(JSON.stringify(payload)).not.toContain('"unknown"');
 	});
 
-	it("does not request single-provider percentiles when seven-day traffic has multiple providers", async () => {
-		let percentileRpcCalls = 0;
-		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
-			const url = String(input);
-			if (url.includes("/rpc/get_v2_model_performance_metrics")) {
-				return new Response(JSON.stringify({
-					last_24h: { total_requests: 12, successful_requests: 11 },
-					hourly_24h: [],
-					provider_uptime_24h: [
-						{ provider: "poolside", provider_name: "Poolside", requests: 11 },
-					],
-					provider_daily_7d: [
-						{ day: "2026-07-23", provider: "poolside", provider_name: "Poolside", requests: 11 },
-						{ day: "2026-07-20", provider: "openai", provider_name: "OpenAI", requests: 4 },
-					],
-				}), { status: 200 });
-			}
-			if (url.includes("/rpc/get_v2_model_provider_health_metrics")) {
-				return new Response(JSON.stringify([]), { status: 200 });
-			}
-			if (url.includes("/rpc/get_v2_model_provider_percentile_series_v2")) {
-				percentileRpcCalls += 1;
-			}
-			return new Response(JSON.stringify([]), { status: 200 });
-		}));
+	it("does not expose single-provider percentiles when seven-day traffic has multiple providers", async () => {
+		vi.mocked(getModelPerformanceBundle).mockResolvedValueOnce({ performance: { last_24h: { total_requests: 12, successful_requests: 11 }, hourly_24h: [], provider_uptime_24h: [{ provider: "poolside", provider_name: "Poolside", requests: 11 }], provider_daily_7d: [{ day: "2026-07-23", provider: "poolside", requests: 11 }, { day: "2026-07-20", provider: "openai", requests: 4 }] }, health: [], cachedInput: {}, percentileSeries: [] });
 
 		const response = await app.request(
 			"https://phaseo.app/api/_web/models/test%2Fmodel/performance",
@@ -665,28 +697,11 @@ describe("public model routes", () => {
 		const payload = await response.json() as any;
 
 		expect(response.status).toBe(200);
-		expect(percentileRpcCalls).toBe(0);
 		expect(payload.metrics.providerPercentileDaily7d).toEqual([]);
 	});
 
 	it("does not replace a filtered cohort with all-traffic provider health", async () => {
-		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
-			const url = String(input);
-			if (url.includes("/rpc/get_v2_model_performance_metrics")) {
-				return new Response(JSON.stringify({
-					last_24h: { total_requests: 1, successful_requests: 1 },
-					hourly_24h: [],
-					provider_uptime_24h: [{ provider: "filtered", requests: 1 }],
-					provider_daily_7d: [],
-				}), { status: 200 });
-			}
-			if (url.includes("/rpc/get_v2_model_provider_health_metrics")) {
-				return new Response(JSON.stringify([
-					{ provider_id: "all-traffic", health_requests: 100 },
-				]), { status: 200 });
-			}
-			return new Response(JSON.stringify([]), { status: 200 });
-		}));
+		vi.mocked(getModelPerformanceBundle).mockResolvedValueOnce({ performance: { last_24h: { total_requests: 1, successful_requests: 1 }, hourly_24h: [], provider_uptime_24h: [{ provider: "filtered", requests: 1 }], provider_daily_7d: [] }, health: [{ provider_id: "all-traffic", health_requests: 100 }], cachedInput: {}, percentileSeries: [] });
 
 		const response = await app.request(
 			"https://phaseo.app/api/_web/models/test%2Fmodel/performance?stream=stream",
@@ -704,7 +719,7 @@ describe("public model routes", () => {
 		);
 	});
 
-	it("returns compact gateway availability without loading full metadata", async () => {
+	it("returns compact gateway availability without calling the legacy RPC", async () => {
 		const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
 			if (!url.includes("get_v2_model_availability")) return new Response(JSON.stringify([]), { status: 200 });
@@ -717,42 +732,10 @@ describe("public model routes", () => {
 		await expect(response.json()).resolves.toEqual({
 			availability: { isGatewayActive: true, activeProviderCount: 1 },
 		});
-		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("get_v2_model_availability"))).toBe(true);
+		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("get_v2_model_availability"))).toBe(false);
 	});
 
 	it("uses standard-tier availability without dropping alternate pricing plans", async () => {
-		const fetchMock = vi.fn(async (
-			input: RequestInfo | URL,
-			init?: RequestInit,
-		) => {
-			if (String(input).includes("/rpc/get_v2_model_pricing")) {
-				const body = JSON.parse(String(init?.body));
-				const isStandard = body.p_service_tier === "standard";
-				return new Response(JSON.stringify([{
-					provider: {
-						api_provider_id: "openai",
-						status: "active",
-						routing_status: isStandard ? "active" : "disabled",
-					},
-					provider_models: [{
-						id: "openai:openai/gpt-5.6-sol",
-						endpoint: "text.generate",
-						is_active_gateway: isStandard,
-						routing_status: "active",
-						capability_status: "active",
-					}],
-					pricing_rules: isStandard
-						? [{ id: "standard-price", pricing_plan: "standard" }]
-						: [
-							{ id: "standard-price", pricing_plan: "standard" },
-							{ id: "batch-price", pricing_plan: "batch" },
-						],
-				}]), { status: 200 });
-			}
-			return new Response(JSON.stringify([]), { status: 200 });
-		});
-		vi.stubGlobal("fetch", fetchMock);
-
 		const response = await app.request(
 			"https://phaseo.app/api/_web/models/openai%2Fgpt-5.6-sol/pricing",
 			{},
@@ -770,11 +753,7 @@ describe("public model routes", () => {
 				],
 			}],
 		});
-		const pricingCalls = fetchMock.mock.calls.filter(([input]) =>
-			String(input).includes("/rpc/get_v2_model_pricing")
-		);
-		expect(pricingCalls.map((call) => JSON.parse(String(call[1]?.body)).p_service_tier))
-			.toEqual([null, "standard"]);
+		expect(loadModelPricingSources).toHaveBeenCalled();
 	});
 
 	it("returns the overview shape used by the model page", async () => {
@@ -829,59 +808,6 @@ describe("public model routes", () => {
 	});
 
 	it("returns parity-shaped timeline and subscription-plan sections", async () => {
-		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
-			const url = decodeURIComponent(String(input));
-			if (url.includes("/rpc/get_v2_model_subscription_plans")) {
-				return new Response(JSON.stringify([{ plan_uuid: "plan-uuid", plan_id: "pro", name: "Pro", lab_slug: "phaseo", price: 20, currency: "USD", frequency: "month", model_info: { note: "included" }, rate_limit: { rpm: 10 }, model_other_info: null }]), { status: 200 });
-			}
-			if (url.includes("data_subscription_plan_models")) {
-				return new Response(JSON.stringify([{
-					plan_uuid: "plan-uuid",
-					model_info: { note: "included" },
-					rate_limit: { rpm: 10 },
-					other_info: null,
-				}]), { status: 200 });
-			}
-			if (url.includes("data_subscription_plans")) {
-				return new Response(JSON.stringify([{
-					plan_uuid: "plan-uuid",
-					plan_id: "pro",
-					name: "Pro",
-					organisation_id: "phaseo",
-					price: 20,
-					currency: "USD",
-					frequency: "month",
-					organisation: { organisation_id: "phaseo", name: "Phaseo" },
-				}]), { status: 200 });
-			}
-			if (url.includes("previous_model_slug=eq.openai/gpt-test")) {
-				return new Response(JSON.stringify([{
-					model_slug: "openai/gpt-next",
-					name: "GPT Next",
-					released_at: "2026-08-01",
-				}]), { status: 200 });
-			}
-			if (url.includes("model_slug=eq.openai/gpt-old")) {
-				return new Response(JSON.stringify([{
-					model_slug: "openai/gpt-old",
-					name: "GPT Old",
-					released_at: "2026-01-01",
-				}]), { status: 200 });
-			}
-			if (url.includes("model_slug=eq.openai/gpt-test")) {
-				return new Response(JSON.stringify([{
-					model_slug: "openai/gpt-test",
-					name: "GPT Test",
-					previous_model_slug: "openai/gpt-old",
-					announced_at: "2026-06-01",
-					released_at: "2026-07-01",
-				}]), { status: 200 });
-			}
-			return new Response(JSON.stringify([{
-				model_id: "openai/gpt-test",
-			}]), { status: 200 });
-		}));
-
 		const [timeline, subscriptions] = await Promise.all([
 			app.request("https://phaseo.app/api/_web/models/openai%2Fgpt-test/timeline", {}, env),
 			app.request("https://phaseo.app/api/_web/models/openai%2Fgpt-test/subscription-plans", {}, env),
@@ -979,7 +905,14 @@ describe("public model routes", () => {
 		} });
 	});
 
-	it("maps token trajectory RPC output behind its independent cache", async () => {
+	it("maps token trajectory repository output behind its independent cache", async () => {
+		vi.mocked(getModelTokenTrajectory).mockResolvedValueOnce({
+			release_date: "2026-01-01",
+			deprecation_date: "2026-01-03T00:00:00Z",
+			points: [{ date: "2026-01-03", tokens: 25, cumulativeTokens: 100, daysSinceRelease: 2 }],
+			token_milestones: [{ threshold: 100, reachedOn: "2026-01-03", daysSinceRelease: 2 }],
+			successor_milestones: [],
+		});
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
 			if (url.includes("get_model_token_trajectory")) {

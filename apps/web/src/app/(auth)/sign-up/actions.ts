@@ -1,9 +1,10 @@
 'use server'
 
+import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { createClient } from '@/utils/supabase/server'
 import { resolveAuthCallbackUrl } from '@/lib/auth/authOrigin'
 import { sanitizeReturnUrl } from '@/lib/auth/return-url'
+import { getBetterAuth } from '@/lib/auth/betterAuth'
 
 function buildRedirect(pathname: string, params: Record<string, string | undefined>) {
 	const url = new URL(pathname, 'http://localhost')
@@ -24,70 +25,48 @@ function buildCallbackPath(params: {
 }
 
 export async function handleOAuthRedirect(formData: FormData) {
-	const supabase = await createClient()
 	const provider = String(formData.get('provider') ?? 'google').toLowerCase()
 	const returnUrl = sanitizeReturnUrl(formData.get('returnUrl'), '/')
 	const safeReturnUrl = returnUrl === '/' ? undefined : returnUrl
-	const redirectTo = await resolveAuthCallbackUrl(safeReturnUrl)
-
-	const { data, error } = await supabase.auth.signInWithOAuth({
-		provider: provider as any,
-		options: { redirectTo },
-	})
-
-	if (error || !data?.url) {
-		console.error('OAuth redirect initialization failed', {
-			provider,
-			message: error?.message ?? null,
-			status: (error as { status?: number } | null)?.status ?? null,
-			code: (error as { code?: string } | null)?.code ?? null,
+	const result = await getBetterAuth().api.signInSocial({
+			body: { callbackURL: safeReturnUrl ?? '/', provider },
+			headers: await headers(),
 		})
-		redirect('/error?message=Authentication failed')
-	}
-	redirect(data.url as any)
+	if (!result.url) redirect('/error?message=Authentication failed')
+	redirect(result.url)
 }
 
 export async function handleEmailSignup(formData: FormData) {
-	const supabase = await createClient()
 	const email = String(formData.get('email') ?? '')
 	const password = String(formData.get('password') ?? '')
 	const returnUrl = sanitizeReturnUrl(formData.get('returnUrl'), '/')
 	const safeReturnUrl = returnUrl === '/' ? undefined : returnUrl
 	const callbackUrl = await resolveAuthCallbackUrl(safeReturnUrl)
-
-	// Supabase signUp may return "User already registered" for duplicate emails.
-	const { data, error } = await supabase.auth.signUp({
-		email,
-		password,
-		options: { emailRedirectTo: callbackUrl },
-	})
-	if (error) {
-		console.error('Email signup failed', {
-			message: error.message,
-			status: (error as { status?: number }).status,
-			code: (error as { code?: string }).code,
-			emailDomain: email.includes('@') ? email.split('@')[1] : null,
-		})
-		const message = (error.message ?? '').toLowerCase()
-		if (message.includes('already registered') || message.includes('already exists')) {
-			// Keep outward response identical to avoid account enumeration.
-			redirect(
-				buildRedirect('/sign-in', {
-					signup: 'check-email',
-					returnUrl: safeReturnUrl,
-				})
-			)
+	const verificationCallbackUrl = new URL(callbackUrl)
+		verificationCallbackUrl.searchParams.set('type', 'better-auth')
+		try {
+			await getBetterAuth().api.signUpEmail({
+				body: {
+					email,
+					password,
+					name: email.split('@')[0] || 'Phaseo user',
+					callbackURL: verificationCallbackUrl.toString(),
+				},
+				headers: await headers(),
+			})
+		} catch (error) {
+			const message = error instanceof Error ? error.message : ''
+			if (message.toLowerCase().includes('disabled')) {
+				redirect('/error?message=Sign up is currently disabled')
+			}
+			// Keep duplicate-account responses indistinguishable.
+			redirect(buildRedirect('/sign-in', {
+				signup: 'check-email',
+				returnUrl: safeReturnUrl,
+			}))
 		}
-		redirect(`/error?message=${encodeURIComponent(error.message || 'Authentication failed')}`)
-	}
-
-	if (data?.session) {
-		redirect(buildCallbackPath({ returnUrl: safeReturnUrl, type: 'email' }))
-	}
-	redirect(
-		buildRedirect('/sign-in', {
+	redirect(buildRedirect('/sign-in', {
 			signup: 'check-email',
 			returnUrl: safeReturnUrl,
-		})
-	)
+		}))
 }

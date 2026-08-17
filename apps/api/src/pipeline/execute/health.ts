@@ -2,9 +2,10 @@
 // Why: Keeps stage-specific logic isolated and testable.
 // How: Exposes helpers used by before/execute/after orchestration.
 
-import { dispatchBackground, getCache, getSupabaseAdmin } from "@/runtime/env";
+import { dispatchBackground, getCache } from "@/runtime/env";
 import { HEALTH_CONSTANTS, HEALTH_KEYS } from "./health.config";
 import type { Endpoint } from "@core/types";
+import { upsertProviderHealthState } from "@/repositories/provider-health";
 
 export type BreakerState = "closed" | "open" | "half_open";
 export type HealthImpact = "success" | "failure" | "neutral";
@@ -166,35 +167,20 @@ function persistBreakerState(payload: BreakerPersistPayload) {
 			: null;
 
 	const row = {
-		provider_id: payload.provider,
-		model_id: payload.model,
+		providerId: payload.provider,
+		modelId: payload.model,
 		endpoint: payload.endpoint,
-		breaker_state: payload.breaker,
-		is_deranked: payload.breaker === "open" && payload.breakerUntilMs > Date.now(),
-		open_until_ms: payload.breakerUntilMs,
-		open_until: openUntilIso,
-		last_transition_at: nowIso,
-		updated_at: nowIso,
-		last_reason: payload.reason,
+		breakerState: payload.breaker,
+		isDeranked: payload.breaker === "open" && payload.breakerUntilMs > Date.now(),
+		openUntilMs: payload.breakerUntilMs,
+		openUntil: openUntilIso,
+		lastTransitionAt: nowIso,
+		updatedAt: nowIso,
+		lastReason: payload.reason,
 	};
 
 	dispatchBackground(
-		Promise.resolve(
-			getSupabaseAdmin()
-			.from("gateway_provider_health_states")
-			.upsert(row, { onConflict: "provider_id,model_id,endpoint" }),
-		)
-			.then(({ error }) => {
-				if (error) {
-					console.error("[health] persist breaker state failed", {
-						provider: payload.provider,
-						model: payload.model,
-						endpoint: payload.endpoint,
-						breaker: payload.breaker,
-						error: error.message,
-					});
-				}
-			})
+		upsertProviderHealthState(row)
 			.catch((error) => {
 				console.error("[health] persist breaker state exception", {
 					provider: payload.provider,

@@ -3,7 +3,8 @@
 // Why: Keeps pre-execution logic centralized and consistent.
 // How: Calls RPC/SQL to fetch provider, pricing, and gating context.
 
-import { dispatchBackground, getSupabaseAdmin, getCache } from "@/runtime/env";
+import { dispatchBackground, getCache } from "@/runtime/env";
+import * as contextRepository from "@/repositories/gateway-context";
 import { getProviderResidencyMetadata } from "@/lib/config/providerResidency";
 import { parseRouteAvailabilityPolicy } from "@/lib/config/routeAvailability";
 import { getTextMany, keyVersionToken } from "@/core/kv";
@@ -89,14 +90,7 @@ async function fetchFreshCreditContext(args: {
 	workspaceId: string;
 	teamEnrichment?: GatewayContextData["teamEnrichment"];
 }): Promise<CreditContextSnapshot> {
-	const { data, error } = await getSupabaseAdmin()
-		.from("wallets")
-		.select("balance_nanos,reserved_nanos")
-		.eq("workspace_id", args.workspaceId)
-		.maybeSingle();
-	if (error) {
-		throw new Error(`gateway_credit_refresh_failed:${error.message ?? "unknown"}`);
-	}
+	const data = await contextRepository.findWallet(args.workspaceId);
 
 	if (!data) {
 		return {
@@ -151,20 +145,11 @@ async function hydrateByokKeys(
 			(provider.byokMeta ?? []).map((key) => key.id).filter(Boolean),
 		),
 	));
-	// The cached/RPC context contains only metadata. Avoid a Supabase read entirely
+	// The cached context contains only metadata. Avoid an additional database read
 	// for the overwhelmingly common no-BYOK path.
 	if (!keyIds.length) return context;
 
-	const { data, error } = await getSupabaseAdmin()
-		.from("byok_keys")
-		.select("*")
-		.eq("workspace_id", workspaceId)
-		.eq("enabled", true)
-		.in("id", keyIds)
-		.in("provider_id", providerIds);
-	if (error) {
-		throw new Error(`byok_hydration_failed:${error.message ?? "unknown"}`);
-	}
+	const data = await contextRepository.listByokKeys({ workspaceId, keyIds, providerIds });
 	if (!data?.length) {
 		return {
 			...context,
@@ -443,21 +428,8 @@ async function backfillProviderModalities(args: {
     );
     if (!providerIds.length) return parsed;
 
-    const supabase = getSupabaseAdmin();
     const nowMs = Date.now();
-    const byApiModelResult = await supabase
-        .from("v2_model_provider_routes")
-        .select(
-            "provider_id:provider_slug,provider_model_slug,input_modalities,output_modalities,effective_from,effective_to"
-        )
-        .eq("routing_enabled", true)
-        .in("provider_slug", providerIds)
-        .in("model_slug", modelCandidates)
-        .in("status", ["active", "degraded"]);
-
-    if (byApiModelResult.error) return parsed;
-
-    const rows = (byApiModelResult.data ?? []) as ProviderModalitiesRow[];
+    const rows = await contextRepository.listRoutes({ providerIds, modelIds: modelCandidates }) as ProviderModalitiesRow[];
     if (!rows.length) return parsed;
 
     const rowsByProviderId = new Map<string, ProviderModalitiesRow[]>();
@@ -515,16 +487,9 @@ async function resolveProviderScopedModelToApiModel(args: {
     const split = splitProviderScopedModel(args.model);
     if (!split) return null;
 
-    const supabase = getSupabaseAdmin();
     const nowMs = Date.now();
-    const { data: rows, error } = await supabase
-        .from("v2_model_provider_routes")
-        .select("provider_api_model_id:provider_model_id,api_model_id:model_slug,effective_from,effective_to")
-        .eq("provider_slug", split.providerId)
-        .eq("provider_model_slug", split.providerModelSlug)
-        .eq("routing_enabled", true)
-        .in("status", ["active", "degraded"]);
-    if (error || !rows?.length) return null;
+    const rows = await contextRepository.listRoutes({ providerId: split.providerId, providerModelSlug: split.providerModelSlug });
+    if (!rows.length) return null;
 
     const inWindow = (rows as ProviderScopedModelRow[])
         .filter((row) => typeof row.provider_api_model_id === "string" && typeof row.api_model_id === "string")
@@ -544,13 +509,8 @@ async function resolveProviderScopedModelToApiModel(args: {
         args.endpoint,
         args.model,
     );
-    const { data: capabilityRows, error: capabilityError } = await supabase
-        .from("v2_route_capabilities")
-        .select("provider_api_model_id:provider_model_id")
-        .in("capability_id", capabilityCandidates)
-        .in("status", [...ROUTABLE_CAPABILITY_STATUSES])
-        .in("provider_model_id", providerApiModelIds);
-    if (capabilityError || !capabilityRows?.length) return null;
+    const capabilityRows = await contextRepository.listCapabilities({ providerModelIds: providerApiModelIds, capabilityIds: capabilityCandidates, statuses: [...ROUTABLE_CAPABILITY_STATUSES] });
+    if (!capabilityRows.length) return null;
 
     const supportedIds = new Set(
         capabilityRows
@@ -573,7 +533,6 @@ async function fetchTestingProviderSnapshots(args: {
     endpoint: string;
     existingProviders: GatewayProviderSnapshot[];
 }): Promise<GatewayProviderSnapshot[]> {
-    const supabase = getSupabaseAdmin();
     const nowMs = Date.now();
     const existingSupportByKey = new Map<string, boolean>();
     for (const provider of args.existingProviders) {
@@ -591,21 +550,10 @@ async function fetchTestingProviderSnapshots(args: {
     );
     if (!modelCandidates.length) return [];
 
-    const byApiModelResult = await supabase
-        .from("v2_model_provider_routes")
-        .select(
-            "provider_api_model_id:provider_model_id,provider_id:provider_slug,provider_model_slug,is_active_gateway:routing_enabled,routing_status:status,provider_availability_status,phaseo_status,access_scope,effective_from,effective_to,input_modalities,output_modalities,metadata"
-        )
-        .in("model_slug", modelCandidates)
-        .eq("access_scope", "internal")
-        .in("phaseo_status", ["testing", "enabled"])
-        .in("provider_availability_status", ["available", "preview", "limited_access"])
-        .in("status", ["active", "degraded"]);
-
-    if (byApiModelResult.error) return [];
+    const testingRouteRows = await contextRepository.listRoutes({ modelIds: modelCandidates, testingOnly: true });
 
     const providerRowById = new Map<string, any>();
-    for (const row of byApiModelResult.data ?? []) {
+    for (const row of testingRouteRows) {
         const key = typeof row?.provider_api_model_id === "string" ? row.provider_api_model_id : null;
         if (!key) continue;
         providerRowById.set(key, row);
@@ -627,15 +575,7 @@ async function fetchTestingProviderSnapshots(args: {
     );
     if (!providerModelIds.length) return [];
 
-    const { data: capabilityRows, error: capabilityError } = await supabase
-        .from("v2_route_capabilities")
-        .select(
-            "provider_api_model_id:provider_model_id,params,max_input_tokens,max_output_tokens,status,updated_at,created_at"
-        )
-        .in("capability_id", getContextCapabilityCandidates(args.endpoint, args.model))
-        .in("status", [...ROUTABLE_CAPABILITY_STATUSES_WITH_TESTING])
-        .in("provider_model_id", providerModelIds);
-    if (capabilityError) return [];
+    const capabilityRows = await contextRepository.listCapabilities({ providerModelIds, capabilityIds: getContextCapabilityCandidates(args.endpoint, args.model), statuses: [...ROUTABLE_CAPABILITY_STATUSES_WITH_TESTING] });
 
     const latestCapabilityByProviderModel = new Map<
         string,
@@ -677,13 +617,8 @@ async function fetchTestingProviderSnapshots(args: {
     );
     const byokByProvider = new Map<string, ByokKeyMeta[]>();
     if (providerIds.length) {
-        const { data: byokRows, error: byokError } = await supabase
-            .from("byok_keys")
-            .select("id,provider_id,fingerprint_sha256,key_version,always_use")
-            .eq("workspace_id", args.workspaceId)
-            .eq("enabled", true)
-            .in("provider_id", providerIds);
-        if (!byokError && byokRows?.length) {
+        const byokRows = await contextRepository.listByokKeys({ workspaceId: args.workspaceId, providerIds, metadataOnly: true });
+        if (byokRows.length) {
             for (const row of byokRows as any[]) {
                 if (!row?.id || !row?.provider_id || !row?.fingerprint_sha256) continue;
                 const entry: ByokKeyMeta = {
@@ -761,17 +696,9 @@ async function fetchTestingProviderSnapshots(args: {
 async function fetchFreeRouterProviderPool(args: {
     endpoint: string;
 }): Promise<Pick<GatewayContextData, "providers" | "pricing">> {
-    const supabase = getSupabaseAdmin();
     const nowMs = Date.now();
-    const { data: rows, error } = await supabase
-        .from("v2_model_provider_routes")
-        .select(
-            "provider_api_model_id:provider_model_id,provider_id:provider_slug,provider_model_slug,api_model_id:model_slug,model_id:model_slug,is_active_gateway:routing_enabled,routing_status:status,effective_from,effective_to,input_modalities,output_modalities,metadata"
-        )
-        .eq("routing_enabled", true)
-        .in("status", ["active", "degraded"])
-        .like("model_slug", "%:free");
-    if (error || !rows?.length) return { providers: [], pricing: {} };
+    const rows = await contextRepository.listRoutes({ freeOnly: true });
+    if (!rows.length) return { providers: [], pricing: {} };
 
     const inWindowRows = (rows as FreeRouterProviderModelRow[])
         .filter((row) => typeof row.provider_api_model_id === "string" && row.provider_api_model_id.length > 0)
@@ -789,11 +716,7 @@ async function fetchFreeRouterProviderPool(args: {
     );
     if (!modelIds.length) return { providers: [], pricing: {} };
 
-    const { data: modelRows, error: modelError } = await supabase
-        .from("v2_models")
-        .select("model_id:model_slug,hidden,status,deprecation_date:deprecated_at,retirement_date:retired_at")
-        .in("model_slug", modelIds);
-    if (modelError) return { providers: [], pricing: {} };
+    const modelRows = await contextRepository.listModels(modelIds);
 
     const activeModelIds = new Set(
         (modelRows ?? [])
@@ -812,13 +735,7 @@ async function fetchFreeRouterProviderPool(args: {
         )
     );
     const capabilityId = getContextCapabilityCandidates(args.endpoint, FREE_ROUTER_MODEL_ID)[0] ?? args.endpoint;
-    const { data: capabilityRows, error: capabilityError } = await supabase
-        .from("v2_route_capabilities")
-        .select("provider_api_model_id:provider_model_id,params,max_input_tokens,max_output_tokens,status,updated_at,created_at")
-        .eq("capability_id", capabilityId)
-        .in("status", [...ROUTABLE_CAPABILITY_STATUSES])
-        .in("provider_model_id", providerModelIds);
-    if (capabilityError) return { providers: [], pricing: {} };
+    const capabilityRows = await contextRepository.listCapabilities({ providerModelIds, capabilityIds: [capabilityId], statuses: [...ROUTABLE_CAPABILITY_STATUSES] });
 
     const capabilityByProviderModel = new Map<string, any>();
     for (const row of capabilityRows ?? []) {
@@ -834,11 +751,7 @@ async function fetchFreeRouterProviderPool(args: {
                 .filter((providerId): providerId is string => typeof providerId === "string" && providerId.length > 0)
         )
     );
-    const { data: providerRows, error: providerError } = await supabase
-        .from("v2_providers")
-        .select("api_provider_id:provider_slug,status,routing_status:routing_enabled")
-        .in("provider_slug", providerIds);
-    if (providerError) return { providers: [], pricing: {} };
+    const providerRows = await contextRepository.listProviders(providerIds);
 
     const providerStatusById = new Map<string, { status: ProviderRolloutStatus; routingStatus: RoutingStatus }>();
     for (const row of providerRows ?? []) {
@@ -916,7 +829,6 @@ export async function fetchGatewayContext(args: {
     includeTestingMode?: boolean;
     disableCache?: boolean;
 }): Promise<GatewayContextData> {
-    const supabase = getSupabaseAdmin();
     const cache = getCache();
     const fetchStartedAt = performance.now();
     const telemetry: ContextFetchTelemetry = {
@@ -1051,12 +963,7 @@ export async function fetchGatewayContext(args: {
                 api_key_id: args.apiKeyId,
             };
 
-            const { data, error } = await supabase.rpc(
-                "gateway_fetch_request_context_with_reservations",
-                rpcArgs,
-            );
-            if (error) throw new Error(`gateway_context_rpc_error:${error.message ?? "unknown"}`);
-            const payload = Array.isArray(data) ? (data.length ? data[0] : null) : data;
+			const payload = await contextRepository.fetchRequestContext({ workspaceId: rpcArgs.workspace_id, model: rpcArgs.model, endpoint: rpcArgs.endpoint, apiKeyId: rpcArgs.api_key_id });
             if (!payload) throw new Error("gateway_context_rpc_empty");
 
             try {
@@ -1330,58 +1237,16 @@ export async function fetchGatewayContext(args: {
                 )
             );
 
-            const providerStatusQuery = providerIds.length
-                ? supabase
-                    .from("v2_providers")
-                    .select("provider_slug,status,routing_enabled,provider_family_slug,offer_scope,offer_label,residency_mode,default_execution_regions,default_data_regions,zero_data_retention,prompt_training_policy,data_policy_tier,data_policy_confidence,data_policy_contract_mode,data_policy_variant,stream_cancellation_support,stream_cancellation_stops_provider_billing,stream_cancellation_usage_recovery,stream_cancellation_evidence_kind,stream_cancellation_source_url,metadata")
-                    .in("provider_slug", providerIds)
-                : Promise.resolve({ data: [], error: null } as any);
-
-            const settingsQuery = (async () => {
-                const columns = "routing_mode,byok_fallback_enabled,beta_channel_enabled,alpha_channel_enabled,privacy_zdr_only,privacy_enable_paid_may_train,privacy_enable_free_may_train,privacy_enable_input_output_logging,io_logging_enabled,io_logging_include_provider_payloads,data_contribution_enabled,data_contribution_policy_version,data_contribution_sample_rate_bps,data_contribution_classifier_sample_rate_bps,data_contribution_discount_bps,response_healing_enabled,response_healing_locked,response_healing_mode";
-                const withCacheAwareRouting = await supabase
-                    .from("workspace_settings")
-                    .select(`${columns},cache_aware_routing_enabled`)
-                    .eq("workspace_id", args.workspaceId)
-                    .maybeSingle();
-                if (!withCacheAwareRouting.error) return withCacheAwareRouting;
-
-                const code = String(withCacheAwareRouting.error.code ?? "").trim();
-                const message = String(withCacheAwareRouting.error.message ?? "").toLowerCase();
-                const isMissingCacheAwareRouting =
-                    (code === "PGRST204" || code === "42703") &&
-                    message.includes("cache_aware_routing_enabled");
-                if (!isMissingCacheAwareRouting) return withCacheAwareRouting;
-
-                return supabase
-                    .from("workspace_settings")
-                    .select(columns)
-                    .eq("workspace_id", args.workspaceId)
-                    .maybeSingle();
-            })();
-
-            const [settingsResult, providerStatusResult, teamResult] = await Promise.all([
-                settingsQuery,
-                providerStatusQuery,
-                supabase
-                    .from("workspaces")
-                    .select("billing_mode")
-                    .eq("id", args.workspaceId)
-                    .maybeSingle(),
-            ]);
-
-            if (settingsResult?.error) {
-                throw new Error(`workspace_settings_enrichment_failed:${settingsResult.error.message ?? "unknown"}`);
-            }
-            if (!settingsResult?.data) {
+            const enrichment = await contextRepository.loadWorkspaceEnrichment(args.workspaceId, providerIds);
+            if (!enrichment.settings) {
                 throw new Error("workspace_settings_enrichment_missing");
             }
-            if (providerStatusResult?.error) {
-                throw new Error(`provider_status_enrichment_failed:${providerStatusResult.error.message ?? "unknown"}`);
+            if (!enrichment.workspace) {
+                throw new Error("workspace_billing_enrichment_failed:missing");
             }
-            if (teamResult?.error || !teamResult?.data) {
-                throw new Error(`workspace_billing_enrichment_failed:${teamResult?.error?.message ?? "missing"}`);
-            }
+            const settingsResult: { data: any } = { data: enrichment.settings };
+            const providerStatusResult = { data: enrichment.providers };
+            const teamResult = { data: enrichment.workspace };
 
             const rawBillingMode = String(teamResult.data.billing_mode ?? "").trim().toLowerCase();
             if (rawBillingMode !== "wallet" && rawBillingMode !== "invoice") {
@@ -1466,7 +1331,7 @@ export async function fetchGatewayContext(args: {
 				Array.isArray(value)
 					? value.map(String).map((region) => region.trim().toLowerCase()).filter(Boolean)
 					: null;
-            if (!providerStatusResult?.error) {
+            {
                 for (const row of providerStatusResult.data ?? []) {
                     const providerId = typeof row?.provider_slug === "string"
                         ? row.provider_slug
@@ -1752,14 +1617,6 @@ export async function fetchGatewayContext(args: {
         }
     }
 }
-
-
-
-
-
-
-
-
 
 
 

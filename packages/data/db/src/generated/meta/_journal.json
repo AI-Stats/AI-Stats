@@ -1,0 +1,41 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1786832800726,
+      "tag": "0000_closed_kree",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1786904093333,
+      "tag": "0001_special_network",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1786913668706,
+      "tag": "0002_remove-legacy-rls",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1786914382365,
+      "tag": "0003_align-legacy-rls-snapshot",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1786916159315,
+      "tag": "0004_remove-supabase-context-functions",
+      "breakpoints": true
+    }
+  ]
+}

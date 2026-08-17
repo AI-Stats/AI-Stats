@@ -7,8 +7,7 @@ const runtime = vi.hoisted(() => {
         delete: vi.fn(async () => undefined),
     };
 
-    const rpc = vi.fn(async () => ({
-        data: [
+    const fetchRequestContext = vi.fn(async () => (
             {
                 workspace_id: "team_free",
                 resolved_model: "phaseo/free",
@@ -17,10 +16,8 @@ const runtime = vi.hoisted(() => {
                 credit_ok: { ok: true, reason: null },
                 providers: [],
                 pricing: {},
-            },
-        ],
-        error: null,
-    }));
+            }
+    ));
 
     const freeProviderModels = [
         {
@@ -115,7 +112,7 @@ const runtime = vi.hoisted(() => {
         },
     ];
 
-    const from = vi.fn((table: string) => {
+    const legacyQuery = vi.fn((table: string) => {
         if (table === "v2_model_provider_routes") {
             return {
                 select: () => ({
@@ -202,7 +199,11 @@ const runtime = vi.hoisted(() => {
 
     return {
         cache,
-        supabase: { rpc, from },
+        fetchRequestContext,
+        legacyQuery,
+        freeProviderModels,
+        dataModels,
+        capabilityRows,
     };
 });
 
@@ -210,7 +211,19 @@ const loadPriceCardMock = vi.hoisted(() => vi.fn());
 
 vi.mock("@/runtime/env", () => ({
     getCache: () => runtime.cache as unknown as KVNamespace,
-    getSupabaseAdmin: () => runtime.supabase,
+}));
+
+vi.mock("@/repositories/gateway-context", () => ({
+    fetchRequestContext: (args: Record<string, unknown>) => runtime.fetchRequestContext(args),
+    listRoutes: async (args: { freeOnly?: boolean }) => args.freeOnly ? runtime.freeProviderModels : [],
+    listModels: async () => runtime.dataModels,
+    listCapabilities: async () => runtime.capabilityRows,
+    listProviders: async () => [
+        { api_provider_id: "openai", provider_slug: "openai", status: "active", routing_status: true, routing_enabled: true },
+        { api_provider_id: "google-ai-studio", provider_slug: "google-ai-studio", status: "active", routing_status: true, routing_enabled: true },
+    ],
+    loadWorkspaceEnrichment: async () => ({ settings: { routing_mode: null, byok_fallback_enabled: false, beta_channel_enabled: false, alpha_channel_enabled: false, cache_aware_routing_enabled: true }, workspace: { billing_mode: "wallet" }, providers: [] }),
+    findWallet: async () => null, listByokKeys: async () => [],
 }));
 
 vi.mock("@pipeline/pricing", () => ({
@@ -222,8 +235,8 @@ describe("fetchGatewayContext free router", () => {
         runtime.cache.get.mockClear();
         runtime.cache.put.mockClear();
         runtime.cache.delete.mockClear();
-        runtime.supabase.rpc.mockClear();
-        runtime.supabase.from.mockClear();
+        runtime.fetchRequestContext.mockClear();
+        runtime.legacyQuery.mockClear();
         loadPriceCardMock.mockReset();
         loadPriceCardMock.mockImplementation(async (providerId: string, model: string, endpoint: string) => ({
             provider: providerId,

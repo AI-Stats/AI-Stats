@@ -6,7 +6,7 @@ import { Hono } from "hono";
 import type { Env } from "@/runtime/types";
 import { authenticate } from "@pipeline/before/auth";
 import type { AuthFailure, AuthSuccess } from "@pipeline/before/auth";
-import { getSupabaseAdmin } from "@/runtime/env";
+import { findGeneration, findGenerationIoLog } from "@/repositories/generations";
 import { readGatewayIoLogObject } from "@pipeline/audit/io-logging";
 import { isGatewayIoLoggingFeatureEnabled } from "@core/feature-flags";
 import { CAPABILITIES } from "@/lib/authz/capabilities";
@@ -28,19 +28,6 @@ function resolveReplayRequest(value: unknown): Record<string, unknown> | null {
     return Object.fromEntries(entries);
 }
 
-async function fetchGenerationIoLog(
-	supabase: ReturnType<typeof getSupabaseAdmin>,
-	workspaceId: string,
-	requestId: string,
-) {
-	return supabase
-		.from("gateway_io_logs")
-		.select("io_log_status,io_log_storage_provider,io_log_bucket,io_log_object_key,io_log_bytes,io_log_sha256,io_log_content_type,io_log_retention_until,io_log_error")
-		.eq("workspace_id", workspaceId)
-		.eq("request_id", requestId)
-		.maybeSingle();
-}
-
 async function handleGeneration(req: Request) {
     const url = new URL(req.url);
     const id = url.searchParams.get("id");
@@ -59,17 +46,9 @@ async function handleGeneration(req: Request) {
 		if (scopeError) return scopeError;
 	}
 
-    const supabase = getSupabaseAdmin();
-    const { data, error } = await supabase
-        .from("gateway_requests")
-        .select("*")
-        .eq("workspace_id", auth.workspaceId)
-        .eq("request_id", id)
-        .maybeSingle();
-
-    if (error) {
-        return json({ ok: false, error: "db_error", message: error.message }, 500, { "Cache-Control": "no-store" });
-    }
+    let data;
+    try { data = await findGeneration(auth.workspaceId, id); }
+    catch (error) { return json({ ok: false, error: "db_error", message: error instanceof Error ? error.message : String(error) }, 500, { "Cache-Control": "no-store" }); }
 
     if (!data) {
         return json({ ok: false, error: "not_found" }, 404, { "Cache-Control": "no-store" });
@@ -83,13 +62,9 @@ async function handleGeneration(req: Request) {
 		userId: auth.userId,
 		internal: auth.internal,
 	});
-	const { data: ioLogData, error: ioLogError } = ioLoggingFeatureEnabled
-		? await fetchGenerationIoLog(supabase, auth.workspaceId, id)
-		: { data: null, error: null };
-
-    if (ioLogError) {
-        return json({ ok: false, error: "db_error", message: ioLogError.message }, 500, { "Cache-Control": "no-store" });
-    }
+	let ioLogData = null;
+	try { ioLogData = ioLoggingFeatureEnabled ? await findGenerationIoLog(auth.workspaceId, id) : null; }
+	catch (error) { return json({ ok: false, error: "db_error", message: error instanceof Error ? error.message : String(error) }, 500, { "Cache-Control": "no-store" }); }
 
     const ioLog = ioLogData as Record<string, any> | null;
     let ioLogPayload: Record<string, unknown> | null = null;
@@ -128,4 +103,3 @@ async function handleGeneration(req: Request) {
 export const generationsRoutes = new Hono<Env>();
 
 generationsRoutes.get("/", withRuntime(handleGeneration));
-

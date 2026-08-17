@@ -35,11 +35,10 @@ vi.mock("@/runtime/env", () => ({
         runtime.backgroundTasks.push(promise.catch(() => undefined));
     },
     getCache: () => runtime.cache as unknown as KVNamespace,
-    getSupabaseAdmin: () => ({
-        from: () => ({
-            upsert: async () => ({ error: null }),
-        }),
-    }),
+}));
+
+vi.mock("@/repositories/provider-health", () => ({
+    upsertProviderHealthState: vi.fn(async () => undefined),
 }));
 
 async function flushBackground() {

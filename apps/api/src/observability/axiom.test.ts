@@ -32,8 +32,6 @@ describe("sendAxiomWideEvent", () => {
 		const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
 		configureRuntime({
-			SUPABASE_URL: "https://example.supabase.co",
-			SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
 			GATEWAY_CACHE: {} as KVNamespace,
 			ENV: "local",
 			AXIOM_API_KEY: "axiom_test_key",
@@ -65,8 +63,6 @@ describe("sendAxiomWideEvent", () => {
 		const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
 		configureRuntime({
-			SUPABASE_URL: "https://example.supabase.co",
-			SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
 			GATEWAY_CACHE: {} as KVNamespace,
 			ENV: "prod",
 			AXIOM_API_KEY: "axiom_test_key",
@@ -100,8 +96,6 @@ describe("sendAxiomWideEvent", () => {
 		const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
 		configureRuntime({
-			SUPABASE_URL: "https://example.supabase.co",
-			SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
 			GATEWAY_CACHE: {} as KVNamespace,
 			AXIOM_API_KEY: "axiom_test_key",
 			AXIOM_DATASET: "gateway-wide",
@@ -127,8 +121,6 @@ describe("sendAxiomWideEvent", () => {
 		vi.stubGlobal("fetch", fetchMock);
 
 		configureRuntime({
-			SUPABASE_URL: "https://example.supabase.co",
-			SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
 			GATEWAY_CACHE: {} as KVNamespace,
 			AXIOM_API_KEY: "axiom_test_key",
 			AXIOM_DATASET: "gateway-default",

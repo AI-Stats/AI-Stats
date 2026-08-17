@@ -1,10 +1,23 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+
+vi.mock("@/repositories/apps", () => ({
+	listPublicAppIds: vi.fn(async () => ["app-1"]),
+	getPublicAppImages: vi.fn(async () => new Map()),
+	listProviderModelMappings: vi.fn(async () => []),
+	getPublicAppNames: vi.fn(async () => new Map()),
+	findPublicApp: vi.fn(async () => ({ id: "app-1", appKey: "my-app", slug: "my-app", title: "My App", isPublic: true })),
+	listAppUsage: vi.fn(async () => [{ created_at: "2026-07-14", model_id: "openai/gpt-test", requests: 10, successful_requests: 9, total_tokens: 1_000, cost_nanos: 500 }]),
+	listRecentAppRequests: vi.fn(async () => [{ created_at: "2026-07-14T12:00:00.000Z", usage: { total_tokens: 100 }, cost_nanos: 50, model_id: "openai/gpt-test", provider: "openai", success: true }]),
+	getAppUsageSummary: vi.fn(async () => ({ totalTokens: 1_000, totalRequests: 9 })),
+	listTopApps: vi.fn(async () => []),
+	listTrendingApps: vi.fn(async () => []),
+}));
+
 import app from "@/index";
+import { findPublicApp } from "@/repositories/apps";
 
 const env = {
 	ENV: "development" as const,
-	SUPABASE_URL: "https://example.supabase.co",
-	SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
 };
 
 afterEach(() => vi.unstubAllGlobals());
@@ -28,16 +41,6 @@ describe("public app routes", () => {
 					requests: 10,
 					success_requests: 9,
 					total_tokens: 1_000,
-				}]), { status: 200 });
-			}
-			if (url.includes("v2_web_gateway_requests")) {
-				return new Response(JSON.stringify([{
-					created_at: "2026-07-14T12:00:00.000Z",
-					usage: { total_tokens: 100 },
-					cost_nanos: 50,
-					model_id: "openai/gpt-test",
-					provider: "openai",
-					success: true,
 				}]), { status: 200 });
 			}
 			if (url.includes("api_apps") && url.includes("select=id")) {
@@ -86,6 +89,7 @@ describe("public app routes", () => {
 	});
 
 	it("does not cache missing or private app references", async () => {
+		vi.mocked(findPublicApp).mockResolvedValueOnce(null);
 		vi.stubGlobal("fetch", vi.fn(async () =>
 			new Response(JSON.stringify([]), { status: 200 }),
 		));

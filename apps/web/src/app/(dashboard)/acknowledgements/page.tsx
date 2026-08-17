@@ -119,10 +119,16 @@ const groups: Array<{
 				href: "https://www.cloudflare.com/",
 			},
 			{
-				name: "Supabase",
-				description: "A Postgres platform with authentication, storage, realtime capabilities, and developer tooling.",
-				usedFor: "Phaseo relies on Supabase for account identity and durable relational data such as workspaces, usage, credits, and gateway configuration.",
-				href: "https://supabase.com/",
+				name: "PlanetScale",
+				description: "A managed Postgres platform designed for reliable, scalable production databases.",
+				usedFor: "Phaseo stores account, workspace, usage, credit, and gateway configuration data in PlanetScale Postgres.",
+				href: "https://planetscale.com/",
+			},
+			{
+				name: "Better Auth",
+				description: "An authentication framework for TypeScript applications.",
+				usedFor: "Phaseo uses Better Auth for account sessions, social sign-in, passkeys, MFA, and enterprise SSO.",
+				href: "https://better-auth.com/",
 			},
 			{
 				name: "Vercel",

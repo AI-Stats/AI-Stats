@@ -35,4 +35,8 @@ describe("resolveGatewayBaseUrlForEnvironment", () => {
 		expect(resolveGatewayBaseUrlForEnvironment({ configuredBaseUrl: "https://private-gateway.example.com", requestedBaseUrl: "http://localhost:8787", environment: "development" })).toBe("http://localhost:8787/v1");
 		expect(resolveGatewayBaseUrlForEnvironment({ configuredBaseUrl: "https://private-gateway.example.com", requestedBaseUrl: "https://attacker.example.com/v1", environment: "development" })).toBe("https://private-gateway.example.com/v1");
 	});
+
+	it("defaults staging traffic to the configured staging gateway", () => {
+		expect(resolveGatewayBaseUrlForEnvironment({ stagingBaseUrl: "https://api-staging.phaseo.app", environment: "staging" })).toBe("https://api-staging.phaseo.app/v1");
+	});
 });

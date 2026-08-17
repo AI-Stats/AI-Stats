@@ -14,8 +14,6 @@ import {
 describe("webhook endpoint helpers", () => {
 	beforeEach(() => {
 		configureRuntime({
-			SUPABASE_URL: "https://example.supabase.co",
-			SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
 			GATEWAY_CACHE: {} as KVNamespace,
 			NODE_ENV: "test",
 			ASYNC_WEBHOOK_SECRET_ENCRYPTION_KEY: "test-webhook-encryption-key",
@@ -41,8 +39,6 @@ describe("webhook endpoint helpers", () => {
 		const original = await encryptWebhookSecret("whsec_rotating");
 		clearRuntime();
 		configureRuntime({
-			SUPABASE_URL: "https://example.supabase.co",
-			SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
 			GATEWAY_CACHE: {} as KVNamespace,
 			NODE_ENV: "test",
 			ASYNC_WEBHOOK_SECRET_ENCRYPTION_KEY: "new-key",
@@ -56,8 +52,6 @@ describe("webhook endpoint helpers", () => {
 	it("refuses to encrypt new secrets without a dedicated key", async () => {
 		clearRuntime();
 		configureRuntime({
-			SUPABASE_URL: "https://example.supabase.co",
-			SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
 			GATEWAY_CACHE: {} as KVNamespace,
 			KEY_PEPPER_ACTIVE: "legacy-only",
 		} as any);

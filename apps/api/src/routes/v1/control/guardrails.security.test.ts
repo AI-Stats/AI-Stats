@@ -16,73 +16,18 @@ function json(body: unknown, status = 200, headers: Record<string, string> = {})
 	});
 }
 
-function rowMatchesFilters(row: Record<string, unknown> | null, filters: Array<{ column: string; value: unknown }>) {
-	return Boolean(row) && filters.every((filter) => row?.[filter.column] === filter.value);
-}
-
-function buildSupabaseMock() {
-	return {
-		from(table: string) {
-			if (table === "workspace_guardrails") {
-				const filters: Array<{ column: string; value: unknown }> = [];
-				return {
-					select: () => ({
-						eq: (column: string, value: unknown) => {
-							filters.push({ column, value });
-							return {
-								eq: (nextColumn: string, nextValue: unknown) => {
-									filters.push({ column: nextColumn, value: nextValue });
-									return {
-										maybeSingle: async () => {
-											const index = state.guardrailRows.findIndex((row) => rowMatchesFilters(row, filters));
-											return {
-												data: index >= 0 ? state.guardrailRows.splice(index, 1)[0] : null,
-												error: null,
-											};
-										},
-									};
-								},
-							};
-						},
-					}),
-					delete: () => {
-						const deleteFilters: Array<{ column: string; value: unknown }> = [];
-						state.deleteCalls.push({ table, filters: deleteFilters });
-						const query: any = {
-							eq: (column: string, value: unknown) => {
-								deleteFilters.push({ column, value });
-								return deleteFilters.length >= 2 ? Promise.resolve({ error: null }) : query;
-							},
-						};
-						return query;
-					},
-				};
-			}
-
-			if (table === "key_guardrails" || table === "workspace_member_guardrails") {
-				return {
-					delete: () => {
-						const filters: Array<{ column: string; value: unknown }> = [];
-						state.deleteCalls.push({ table, filters });
-						const query: any = {
-							eq: (column: string, value: unknown) => {
-								filters.push({ column, value });
-								return query;
-							},
-							then: (resolve: (value: { error: null }) => unknown) => resolve({ error: null }),
-						};
-						return query;
-					},
-				};
-			}
-
-			throw new Error(`Unexpected table: ${table}`);
-		},
-	};
-}
-
-vi.mock("@/runtime/env", () => ({
-	getSupabaseAdmin: () => buildSupabaseMock(),
+vi.mock("@/repositories/guardrails", () => ({
+	findGuardrail: vi.fn(async (workspaceId: string, id: string) => {
+		const index = state.guardrailRows.findIndex((row) => row?.workspace_id === workspaceId && row?.id === id);
+		return index >= 0 ? state.guardrailRows.splice(index, 1)[0] : null;
+	}),
+	deleteGuardrail: vi.fn(async (workspaceId: string, id: string) => {
+		state.deleteCalls.push({ table: "workspace_guardrails", filters: [{ column: "workspace_id", value: workspaceId }, { column: "id", value: id }] });
+		return true;
+	}),
+	listGuardrails: vi.fn(), createGuardrail: vi.fn(), updateGuardrail: vi.fn(), listGuardrailKeyIds: vi.fn(),
+	validWorkspaceKeyIds: vi.fn(), replaceGuardrailKeys: vi.fn(), addGuardrailKeys: vi.fn(), removeGuardrailKeys: vi.fn(),
+	validWorkspaceMemberIds: vi.fn(), addGuardrailMembers: vi.fn(), removeGuardrailMembers: vi.fn(),
 }));
 
 vi.mock("@/pipeline/before/guards", () => ({
@@ -136,12 +81,8 @@ describe("guardrail management security", () => {
 		const response = await guardrailsRoutes.request("https://example.com/gr_owned", { method: "DELETE" });
 
 		expect(response.status).toBe(200);
-		expect(state.deleteCalls.map((call) => call.table)).toEqual([
-			"key_guardrails",
-			"workspace_member_guardrails",
-			"workspace_guardrails",
-		]);
-		expect(state.deleteCalls[2].filters).toEqual([
+		expect(state.deleteCalls.map((call) => call.table)).toEqual(["workspace_guardrails"]);
+		expect(state.deleteCalls[0].filters).toEqual([
 			{ column: "workspace_id", value: "ws_attacker" },
 			{ column: "id", value: "gr_owned" },
 		]);

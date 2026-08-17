@@ -1,6 +1,6 @@
-import { createClient } from "@/utils/supabase/client";
+import { betterAuthClient } from "@/lib/auth/betterAuthClient";
 
 export async function postClientAuthSignOut() {
-	const { error } = await createClient().auth.signOut();
+	const { error } = await betterAuthClient.signOut();
 	if (error) throw error;
 }

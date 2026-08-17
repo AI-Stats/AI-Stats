@@ -1,7 +1,34 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import app from "@/index";
 
-const env = { ENV: "development" as const, SUPABASE_URL: "https://example.supabase.co", SUPABASE_ANON_KEY: "anon-key", SUPABASE_SERVICE_ROLE_KEY: "service-role-key" };
+const usageObservability = vi.hoisted(() => ({
+	getAvailableUsageKeys: vi.fn(async () => [{ id: "key-1", name: "Production", prefix: "ph_" }]),
+	getLifecycleIdMappings: vi.fn(async () => new Map([["gpt-old-api", "openai/gpt-old"]])),
+	getLifecycleModels: vi.fn(async () => [{ model_id: "openai/gpt-old", name: "GPT Old", organisation_id: "openai", deprecation_date: null, retirement_date: new Date(Date.now() + 5 * 86_400_000).toISOString().slice(0, 10), previous_model_id: null }]),
+	getReplacementModels: vi.fn(async () => new Map([["openai/gpt-old", "openai/gpt-new"]])),
+	getUsageMetadata: vi.fn(async (_env, args: { models?: string[]; providers?: string[]; apps?: string[] }) => ({
+		modelMetadataEntries: (args.models ?? []).map((id) => [id, { organisationId: "openai", organisationName: "OpenAI", organisationColour: null, modelName: "GPT Test" }]),
+		providerNameEntries: (args.providers ?? []).map((id) => [id, id === "openai" ? "OpenAI" : id]),
+		providerMetadataEntries: (args.providers ?? []).map((id) => [id, { id, name: id === "openai" ? "OpenAI" : id }]),
+		appMetadataEntries: (args.apps ?? []).map((id) => [id, { id, title: "Example App", appKey: "example", imageUrl: null }]),
+		appNameEntries: (args.apps ?? []).map((id) => [id, "Example App"]),
+	})),
+	getUsageRollupDimensions: vi.fn(async () => [{ canonical_model_id: "openai/gpt-test", provider: "openai", app_id: "app-1" }]),
+	loadObservabilityWindow: vi.fn(async () => ({ rows: [{ created_at: "2026-07-17T00:00:00Z", model_id: "openai/gpt-test", app_id: "app-1", key_id: "key-1", usage: { total_tokens: 12 }, cost_nanos: 1000, success: true }], isSampled: false, limit: 5000 })),
+	loadRecentJobs: vi.fn(async () => [{ kind: "video", internal_id: "job-1", request_id: "request-1", app_id: "app-1", provider: "openai", model: "openai/gpt-test", status: "completed", created_at: "2026-07-17T00:00:00Z", updated_at: "2026-07-17T00:01:00Z", webhook: { status: "delivered" } }]),
+	loadUpstreamAttempts: vi.fn(async () => [{ id: "upstream-1", created_at: "2026-07-17T00:00:01Z", gateway_request_id: "gateway-1", request_id: "G-test", sequence: 1, round_number: 1, attempt_number: 1, stage: "upstream", endpoint: "chat/completions", model_id: "openai/gpt-test", provider: "openai", status_code: 200, success: true, outcome: "success", key_source: "gateway", key_id: "key-1", latency_ms: 120, generation_ms: 80, usage: {}, metadata: {} }]),
+	loadUsageRequestPage: vi.fn(async () => [{ id: "row-1", request_id: "request-1", created_at: "2026-07-17T00:00:00Z", endpoint: "chat/completions", model_id: "openai/gpt-test", provider: "openai", app_id: "app-1", success: true, cost_nanos: 1000 }]),
+	loadRequestInvestigation: vi.fn(async () => ({ request: { request_id: "request-1", created_at: "2026-07-17T00:00:00Z", endpoint: "chat/completions", model_id: "openai/gpt-test", provider: "openai", app_id: "app-1", app_title: "Example App", success: true, cost_nanos: 1000, provider_attempts: [] }, ioLog: null })),
+}));
+vi.mock("@/repositories/usage-observability", () => usageObservability);
+vi.mock("@/repositories/usage-rollups", async (importOriginal) => ({ ...await importOriginal<Record<string,unknown>>(), getSessionRollups: vi.fn(async () => [{ session_id: "session-1", request_count: 1, total_cost_nanos: 1000, total_cost_usd: 0.000001, first_request_at: "2026-07-17T00:00:00Z", last_request_at: "2026-07-17T00:00:00Z", app_ids: ["app-1"], model_ids: ["openai/gpt-test"], provider_ids: ["openai"], end_user_ids: ["end-user-1"] }]) }));
+
+vi.mock("@/repositories/usage-settings", () => ({
+	getPrivateGeographyUsage: vi.fn(async () => []),
+	getWorkspaceModelLastUsed: vi.fn(async () => [{ model_id: "gpt-old-api", last_used_at: new Date().toISOString() }]),
+}));
+
+const env = { ENV: "development" as const };
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -13,7 +40,6 @@ describe("account usage settings routes", () => {
 			if (url.includes("/auth/v1/user")) return new Response(JSON.stringify({ id: "user-1", created_at: "2025-01-01" }), { status: 200 });
 			if (url.includes("workspace_members")) return new Response(JSON.stringify([{ role: "admin" }]), { status: 200 });
 			if (url.includes("/workspaces")) return new Response(JSON.stringify([{ owner_user_id: "user-1" }]), { status: 200 });
-			if (url.includes("/rpc/get_workspace_model_last_used")) return new Response(JSON.stringify([{ model_id: "gpt-old-api", last_used_at: new Date().toISOString() }]), { status: 200 });
 			if (url.includes("v2_model_provider_routes")) return new Response(JSON.stringify([{ api_model_id: "gpt-old-api", provider_api_model_id: "provider-model-1", internal_model_id: "openai/gpt-old" }]), { status: 200 });
 			if (url.includes("v2_models") && url.includes("previous_model_slug=in")) return new Response(JSON.stringify([{ model_id: "openai/gpt-new", previous_model_id: "openai/gpt-old" }]), { status: 200 });
 			if (url.includes("v2_models")) return new Response(JSON.stringify([{ model_id: "openai/gpt-old", name: "GPT Old", organisation_id: "openai", deprecation_date: null, retirement_date: retirementDate, previous_model_id: null }]), { status: 200 });
@@ -35,10 +61,8 @@ describe("account usage settings routes", () => {
 	});
 
 	it("returns private logs, upstream, jobs, and session views with metadata", async () => {
-		let requestedExactFacets = false;
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = input instanceof Request ? input.url : String(input);
-			if (url.includes("/rpc/get_gateway_request_facets")) requestedExactFacets = true;
 			if (url.includes("/auth/v1/user")) return new Response(JSON.stringify({ id: "user-1", created_at: "2025-01-01" }), { status: 200 });
 			if (url.includes("workspace_members")) return new Response(JSON.stringify([{ role: "admin" }]), { status: 200 });
 			if (url.includes("/workspaces")) return new Response(JSON.stringify([{ owner_user_id: "user-1" }]), { status: 200 });
@@ -73,7 +97,6 @@ describe("account usage settings routes", () => {
 			expect(response.headers.get("cache-control")).toBe("private, no-store");
 		}
 		await expect(logs.json()).resolves.toMatchObject({ view: "logs", data: { dedupedModels: ["openai/gpt-test"], initialRequestsPage: { data: [{ request_id: "request-1" }], pageSize: 50, hasMore: false, nextCursor: null }, providerNameEntries: [["openai", "OpenAI"]] } });
-		expect(requestedExactFacets).toBe(false);
 		await expect(upstream.json()).resolves.toMatchObject({ view: "upstream", data: { availableKeys: [{ id: "key-1", name: "Production" }], upstreamRequests: [{ id: "upstream-1", request_id: "G-test", key_id: "key-1", key_source: "gateway" }], providerMetadataEntries: [["openai", { name: "OpenAI" }]], providerNameEntries: [["openai", "OpenAI"]] } });
 		await expect(jobs.json()).resolves.toMatchObject({ view: "jobs", data: { recentJobs: [{ internal_id: "job-1", webhook: { status: "delivered" } }], jobProviders: ["openai"] } });
 		await expect(sessions.json()).resolves.toMatchObject({ view: "sessions", data: { sessions: [{ session_id: "session-1", request_count: 1, total_cost_nanos: 1000 }], sessionAppIds: ["app-1"] } });

@@ -1,5 +1,7 @@
-import { getBindings, getSupabaseAdmin } from "@/runtime/env";
+import { getBindings } from "@/runtime/env";
 import { isGatewayIoLoggingFeatureEnabled } from "@/core/feature-flags";
+import { findWorkspaceSettings } from "@/repositories/workspace-settings";
+import { upsertGenerationIoLog } from "@/repositories/generations";
 
 export type GatewayIoLogStatus = "not_enabled" | "stored" | "missing_bucket" | "too_large" | "error" | "deleted";
 
@@ -32,11 +34,6 @@ type GatewayIoLogInput = {
     metadata?: unknown;
 };
 
-type GatewayIoLogMetadataRow = GatewayIoLogColumns & {
-    workspace_id: string;
-    request_id: string;
-};
-
 export type WorkspaceIoLoggingSettings = {
     enabled: boolean;
     retentionDays: number;
@@ -58,13 +55,6 @@ function normalizeMaxBytes(value: unknown): number {
     const numeric = typeof value === "number" ? value : typeof value === "string" ? Number(value) : NaN;
     if (!Number.isFinite(numeric) || numeric <= 0) return DEFAULT_MAX_BYTES;
     return Math.max(64 * 1024, Math.min(100 * 1024 * 1024, Math.trunc(numeric)));
-}
-
-function isMissingColumnError(error: unknown, column: string): boolean {
-    const record = error && typeof error === "object" ? error as Record<string, unknown> : null;
-    const code = String(record?.code ?? "");
-    const message = String(record?.message ?? "").toLowerCase();
-    return (code === "PGRST204" || code === "42703") && message.includes(column.toLowerCase());
 }
 
 function sanitizeJsonValue(value: unknown): unknown {
@@ -113,41 +103,23 @@ export async function getWorkspaceIoLoggingSettings(workspaceId: string): Promis
     };
 
     try {
-        const client = getSupabaseAdmin();
-        const primary = await client
-            .from("workspace_settings")
-            .select("io_logging_enabled,io_logging_retention_days,io_logging_include_provider_payloads,io_logging_billing_status")
-            .eq("workspace_id", workspaceId)
-            .maybeSingle();
-        let data: Record<string, any> | null = primary.data as Record<string, any> | null;
-        let error = primary.error;
-
-        if (error && isMissingColumnError(error, "io_logging_billing_status")) {
-            const fallback = await client
-                .from("workspace_settings")
-                .select("io_logging_enabled,io_logging_retention_days,io_logging_include_provider_payloads")
-                .eq("workspace_id", workspaceId)
-                .maybeSingle();
-            data = fallback.data as Record<string, any> | null;
-            error = fallback.error;
-        }
-
-        if (error || !data) {
+		const data = await findWorkspaceSettings(workspaceId);
+		if (!data) {
             settingsCache.set(workspaceId, { value: disabled, expiresAt: now + 60_000 });
             return disabled;
         }
 
         const row = data;
-        const billingStatus =
-            row.io_logging_billing_status === "grace" || row.io_logging_billing_status === "suspended"
-                ? row.io_logging_billing_status
+		const billingStatus: WorkspaceIoLoggingSettings["billingStatus"] =
+			row.ioLoggingBillingStatus === "grace" || row.ioLoggingBillingStatus === "suspended"
+				? row.ioLoggingBillingStatus
                 : "active";
         const value = {
-            enabled: row.io_logging_enabled === true,
+			enabled: row.ioLoggingEnabled === true,
             retentionDays: billingStatus === "suspended"
                 ? DEFAULT_RETENTION_DAYS
-                : normalizeRetentionDays(row.io_logging_retention_days),
-            includeProviderPayloads: row.io_logging_include_provider_payloads !== false,
+				: normalizeRetentionDays(row.ioLoggingRetentionDays),
+			includeProviderPayloads: row.ioLoggingIncludeProviderPayloads !== false,
             billingStatus,
         };
         settingsCache.set(workspaceId, { value, expiresAt: now + 60_000 });
@@ -186,17 +158,19 @@ async function persistGatewayIoLogMetadata(
     input: GatewayIoLogInput,
     columns: GatewayIoLogColumns,
 ): Promise<void> {
-    const row: GatewayIoLogMetadataRow = {
-        workspace_id: input.workspaceId,
-        request_id: input.requestId,
-        ...columns,
-    };
-    const { error } = await getSupabaseAdmin()
-        .from("gateway_io_logs")
-        .upsert(row, { onConflict: "workspace_id,request_id" });
-    if (error) {
-        throw new Error(`gateway_io_log_metadata_upsert_error:${error.message ?? "unknown"}`);
-    }
+	await upsertGenerationIoLog({
+		workspaceId: input.workspaceId,
+		requestId: input.requestId,
+		ioLogStatus: columns.io_log_status,
+		ioLogStorageProvider: columns.io_log_storage_provider ?? null,
+		ioLogBucket: columns.io_log_bucket ?? null,
+		ioLogObjectKey: columns.io_log_object_key ?? null,
+		ioLogBytes: columns.io_log_bytes ?? null,
+		ioLogSha256: columns.io_log_sha256 ?? null,
+		ioLogContentType: columns.io_log_content_type ?? null,
+		ioLogRetentionUntil: columns.io_log_retention_until ?? null,
+		ioLogError: columns.io_log_error ?? null,
+	});
 }
 
 async function finalizeGatewayIoLog(

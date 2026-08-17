@@ -1,0 +1,36 @@
+{
+  "name": "@phaseo/db",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./schema": "./src/schema.ts",
+    "./node": "./src/node.ts",
+    "./node-core": "./src/node-core.ts",
+    "./billing-schema": "./src/billing-schema.ts",
+    "./account-schema": "./src/account-schema.ts",
+    "./preset-schema": "./src/preset-schema.ts",
+    "./oauth-schema": "./src/oauth-schema.ts",
+    "./monitoring-schema": "./src/monitoring-schema.ts",
+    "./import-service": "./src/import-service.ts",
+    "./hyperdrive": "./src/hyperdrive.ts",
+    "./query": "./src/query.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:pull": "drizzle-kit pull",
+    "db:check": "drizzle-kit check"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.45.2",
+    "pg": "^8.22.0",
+    "postgres": "^3.4.9"
+  },
+  "devDependencies": {
+    "@types/node": "^25",
+    "@types/pg": "^8.20.0",
+    "drizzle-kit": "^0.31.10",
+    "typescript": "^6"
+  }
+}

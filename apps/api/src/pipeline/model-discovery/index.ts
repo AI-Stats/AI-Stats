@@ -1,8 +1,9 @@
-// Purpose: Run model discovery on a schedule and persist compact state in Supabase.
+// Purpose: Run model discovery on a schedule and persist compact state in PostgreSQL.
 // Why: Replace filesystem snapshots with durable DB state for Cloudflare Worker cron runs.
 // How: Poll provider model endpoints, diff against DB, notify on changes, and prune stale rows.
 
-import { getBindings, getSupabaseAdmin } from "@/runtime/env";
+import { getBindings } from "@/runtime/env";
+import * as modelDiscoveryRepository from "@/repositories/model-discovery";
 import {
 	asRecord,
 	assertSafeDiscoverySnapshot,
@@ -206,7 +207,7 @@ type DiscoveryRunSummary = {
 	notificationFingerprint: string | null;
 };
 
-type SupabaseSeenModelRow = {
+type SeenModelRow = {
 	provider_id: string;
 	model_id: string;
 	model_details?: unknown;
@@ -339,16 +340,14 @@ function selectProvidersForShard(args: RunArgs): ProviderConfig[] {
 }
 
 async function insertRunStart(runId: string, args: RunArgs, startedAt: string): Promise<void> {
-	const supabase = getSupabaseAdmin();
-	const { error } = await supabase.from("model_discovery_runs").insert({
+	await modelDiscoveryRepository.insertRun({
 		id: runId,
 		trigger: args.trigger,
 		source: args.source,
-		scheduled_at: args.scheduledAtIso ?? null,
+		scheduledAt: args.scheduledAtIso ?? null,
 		status: "running",
-		started_at: startedAt,
+		startedAt,
 	});
-	if (error) throw new Error(error.message || "Failed to insert model discovery run row");
 }
 
 function compactSummary(summary: DiscoveryRunSummary, extra: { notificationError?: string | null; error?: string | null } = {}): Record<string, unknown> {
@@ -444,23 +443,18 @@ function compactSummary(summary: DiscoveryRunSummary, extra: { notificationError
 }
 
 async function updateRunFinish(summary: DiscoveryRunSummary, status: RunStatus, extra: { notificationError?: string | null; error?: string | null } = {}): Promise<void> {
-	const supabase = getSupabaseAdmin();
-	const { error } = await supabase
-		.from("model_discovery_runs")
-		.update({
+	await modelDiscoveryRepository.finishRun(summary.runId, {
 			status,
-			finished_at: summary.finishedAt,
-			providers_total: summary.providersTotal,
-			providers_success: summary.providersSuccess,
-			providers_skipped: summary.providersSkipped,
-			providers_error: summary.providersError,
-			changes_count: summary.changesDetected,
-			stale_models_deleted: summary.staleModelsDeleted,
+			finishedAt: summary.finishedAt,
+			providersTotal: summary.providersTotal,
+			providersSuccess: summary.providersSuccess,
+			providersSkipped: summary.providersSkipped,
+			providersError: summary.providersError,
+			changesCount: summary.changesDetected,
+			staleModelsDeleted: summary.staleModelsDeleted,
 			summary: compactSummary(summary, extra),
 			error: extra.error ?? null,
-		})
-		.eq("id", summary.runId);
-	if (error) throw new Error(error.message || "Failed to update model discovery run row");
+	});
 }
 
 type SeenModelUpsertRow = {
@@ -507,25 +501,7 @@ export async function fetchPreviousModelsByProviders(providerIds: string[]): Pro
 		return { byProvider: map, providerApiSnapshotReadyByProvider: new Set<string>() };
 	}
 
-	const supabase = getSupabaseAdmin();
-	const rows: SupabaseSeenModelRow[] = [];
-	for (let offset = 0; ; offset += SEEN_MODELS_PAGE_SIZE) {
-		const { data, error } = await supabase
-			.from("model_discovery_seen_models")
-			.select("provider_id,model_id,model_details,pricing_details,removal_pending")
-			.in("provider_id", providerIds)
-			.order("provider_id", { ascending: true })
-			.order("model_id", { ascending: true })
-			.range(offset, offset + SEEN_MODELS_PAGE_SIZE - 1);
-
-		if (error) {
-			throw new Error(error.message || "Failed to load previous discovered models");
-		}
-
-		const page = (data ?? []) as SupabaseSeenModelRow[];
-		rows.push(...page);
-		if (page.length < SEEN_MODELS_PAGE_SIZE) break;
-	}
+	const rows = await modelDiscoveryRepository.listSeenModels(providerIds) as SeenModelRow[];
 
 	const providerApiSnapshotReadyByProvider = new Set<string>();
 
@@ -556,21 +532,15 @@ export async function fetchPreviousModelsByProviders(providerIds: string[]): Pro
 
 async function upsertCurrentModels(rows: SeenModelUpsertRow[]): Promise<void> {
 	if (rows.length === 0) return;
-	const supabase = getSupabaseAdmin();
-
 	for (let i = 0; i < rows.length; i += UPSERT_BATCH_SIZE) {
 		const batch = rows.slice(i, i + UPSERT_BATCH_SIZE);
-		const { error } = await supabase
-			.from("model_discovery_seen_models")
-			.upsert(batch, { onConflict: "provider_id,model_id" });
-		if (error) throw new Error(error.message || "Failed to persist discovered models");
+		await modelDiscoveryRepository.upsertSeenModels(batch.map((row) => ({ providerId: row.provider_id, providerName: row.provider_name, modelId: row.model_id, modelDetails: row.model_details, pricingDetails: row.pricing_details, lastSeenAt: row.last_seen_at, lastRunId: row.last_run_id, removalPending: row.removal_pending })));
 	}
 }
 
 async function deleteRemovedModels(rows: SeenModelDeleteRow[]): Promise<number> {
 	if (rows.length === 0) return 0;
 
-	const supabase = getSupabaseAdmin();
 	const modelIdsByProvider = new Map<string, string[]>();
 
 	for (const row of rows) {
@@ -583,18 +553,7 @@ async function deleteRemovedModels(rows: SeenModelDeleteRow[]): Promise<number> 
 	for (const [providerId, modelIds] of modelIdsByProvider.entries()) {
 		for (let index = 0; index < modelIds.length; index += UPSERT_BATCH_SIZE) {
 			const batch = modelIds.slice(index, index + UPSERT_BATCH_SIZE);
-			const { data, error } = await supabase
-				.from("model_discovery_seen_models")
-				.delete()
-				.eq("provider_id", providerId)
-				.in("model_id", batch)
-				.select("model_id");
-
-			if (error) {
-				throw new Error(error.message || "Failed to remove deleted discovered models");
-			}
-
-			deletedCount += Array.isArray(data) ? data.length : 0;
+			deletedCount += await modelDiscoveryRepository.deleteSeenModels(providerId, batch);
 		}
 	}
 
@@ -603,7 +562,6 @@ async function deleteRemovedModels(rows: SeenModelDeleteRow[]): Promise<number> 
 
 export async function markPendingModelRemovals(rows: SeenModelPendingRemovalRow[]): Promise<void> {
 	if (rows.length === 0) return;
-	const supabase = getSupabaseAdmin();
 	const modelIdsByProvider = new Map<string, string[]>();
 	for (const row of rows) {
 		const modelIds = modelIdsByProvider.get(row.provider_id) ?? [];
@@ -612,34 +570,17 @@ export async function markPendingModelRemovals(rows: SeenModelPendingRemovalRow[
 	}
 	for (const [providerId, modelIds] of modelIdsByProvider) {
 		for (let index = 0; index < modelIds.length; index += UPSERT_BATCH_SIZE) {
-			const { error } = await supabase
-				.from("model_discovery_seen_models")
-				.update({ removal_pending: true, last_seen_at: new Date().toISOString() })
-				.eq("provider_id", providerId)
-				.in("model_id", modelIds.slice(index, index + UPSERT_BATCH_SIZE));
-			if (error) throw new Error(error.message || "Failed to mark provisional model removals");
+			await modelDiscoveryRepository.markPendingRemovals(providerId, modelIds.slice(index, index + UPSERT_BATCH_SIZE), new Date().toISOString());
 		}
 	}
 }
 
 async function pruneOldRows(cutoffIso: string): Promise<number> {
-	const supabase = getSupabaseAdmin();
-	const { data, error } = await supabase
-		.from("model_discovery_seen_models")
-		.delete()
-		.lt("last_seen_at", cutoffIso)
-		.select("provider_id");
-	if (error) throw new Error(error.message || "Failed to prune stale discovered models");
-	return Array.isArray(data) ? data.length : 0;
+	return modelDiscoveryRepository.pruneSeenModels(cutoffIso);
 }
 
 async function pruneOldRuns(cutoffIso: string): Promise<void> {
-	const supabase = getSupabaseAdmin();
-	const { error } = await supabase
-		.from("model_discovery_runs")
-		.delete()
-		.lt("started_at", cutoffIso);
-	if (error) throw new Error(error.message || "Failed to prune old model discovery runs");
+	await modelDiscoveryRepository.pruneRuns(cutoffIso);
 }
 
 function shouldPruneRunsDaily(args: RunArgs, startedAt: Date): boolean {
@@ -1235,4 +1176,3 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 		throw error;
 	}
 }
-

@@ -1,8 +1,9 @@
 // Purpose: Runtime environment type definitions.
 
 export type GatewayBindings = {
-    SUPABASE_URL: string;
-    SUPABASE_SERVICE_ROLE_KEY: string;
+    CUTOVER_WRITE_FREEZE?: string;
+    BETTER_AUTH_URL?: string;
+    PLANETSCALE_HYPERDRIVE?: { connectionString: string };
     GATEWAY_CACHE: KVNamespace;
 	GATEWAY_IO_LOGS_BUCKET?: R2Bucket;
 	GATEWAY_IO_LOGS_BUCKET_NAME?: string;
@@ -293,7 +294,6 @@ export type GatewayBindings = {
     PHASEO_OAUTH_TOKEN_PEPPER_PREVIOUS?: string;
     PHASEO_THIRD_PARTY_OAUTH_ENABLED?: string;
     PHASEO_MCP_RESOURCE_SERVER_SECRET?: string;
-    PHASEO_LEGACY_OAUTH_EXCHANGE_ENABLED?: string;
     KEY_PEPPER_ACTIVE?: string;
     KEY_PEPPER_PREVIOUS?: string;
 	ASYNC_WEBHOOK_SECRET_ENCRYPTION_KEY?: string;
@@ -345,7 +345,6 @@ export type GatewayBindings = {
     VIDEO_API_ENABLED?: string;
     PRICING_MONITOR_ENABLED?: string;
     WORKSPACE_INVOICING_ENABLED?: string;
-    ENTERPRISE_INVOICING_ENABLED?: string;
     STRIPE_SECRET_KEY?: string;
     TEST_STRIPE_SECRET_KEY?: string;
     NODE_ENV?: string;

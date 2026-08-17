@@ -13,11 +13,12 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card'
-import { createClient } from '@/utils/supabase/client'
 import { toast } from 'sonner'
-import { Loader2, Lock, CheckCircle2 } from 'lucide-react'
+import { Loader2, Lock } from 'lucide-react'
 import { PasswordStrengthIndicator } from '@/components/(gateway)/settings/account/PasswordStrengthIndicator'
 import { z } from 'zod'
+import { useSearchParams } from 'next/navigation'
+import { betterAuthClient } from '@/lib/auth/betterAuthClient'
 
 const passwordSchema = z
     .object({
@@ -36,27 +37,12 @@ const passwordSchema = z
 
 export default function ResetPasswordPage() {
     const router = useRouter()
+    const searchParams = useSearchParams()
+    const betterAuthToken = searchParams.get('token')
     const [password, setPassword] = React.useState('')
     const [confirmPassword, setConfirmPassword] = React.useState('')
     const [loading, setLoading] = React.useState(false)
-    const [isRecoveryMode, setIsRecoveryMode] = React.useState(false)
-
-    React.useEffect(() => {
-        // Listen for password recovery event
-        const supabase = createClient()
-
-        const {
-            data: { subscription },
-        } = supabase.auth.onAuthStateChange((event, session) => {
-            if (event === 'PASSWORD_RECOVERY') {
-                setIsRecoveryMode(true)
-            }
-        })
-
-        return () => {
-            subscription.unsubscribe()
-        }
-    }, [])
+    const isRecoveryMode = Boolean(betterAuthToken)
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -73,22 +59,15 @@ export default function ResetPasswordPage() {
         setLoading(true)
 
         try {
-            const supabase = createClient()
-
-            const { error } = await supabase.auth.updateUser({
-                password,
-            })
-
-            if (error) {
-                throw error
-            }
-
-            toast.success('Password reset successfully!')
-
-            // Redirect to home or settings page
-            setTimeout(() => {
-                router.push('/settings/account')
-            }, 1500)
+            if (!betterAuthToken) throw new Error('This password reset link is invalid or expired')
+            const result = await betterAuthClient.resetPassword({
+                    newPassword: password,
+                    token: betterAuthToken,
+                })
+                if (result.error) throw new Error(result.error.message)
+                toast.success('Password reset successfully!')
+                setTimeout(() => router.push('/sign-in'), 1500)
+			return
         } catch (error: any) {
             toast.error(error.message || 'Failed to reset password')
         } finally {
@@ -134,7 +113,7 @@ export default function ResetPasswordPage() {
                         Set new password
                     </CardTitle>
                     <CardDescription>
-                        Enter your new password below. Make sure it's strong and
+                        Enter your new password below. Make sure it&apos;s strong and
                         secure.
                     </CardDescription>
                 </CardHeader>

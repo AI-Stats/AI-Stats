@@ -1,12 +1,16 @@
+import { headers } from "next/headers";
+
 import type { InternalAuthStatus } from "@/lib/fetchers/internal/authTypes";
-import { createClient } from "@/utils/supabase/server";
+import { getPhaseoAuthSession } from "@/lib/auth/sessionProvider";
 import { fetchAccountWebApi } from "@/lib/web-api/client";
 
 export async function fetchInternalAuthStatus(): Promise<InternalAuthStatus> {
-	const supabase = await createClient();
-	const { data } = await supabase.auth.getSession();
+	const session = await getPhaseoAuthSession();
+	const requestHeaders = await headers();
+	const cookie = requestHeaders.get("cookie");
 	return fetchAccountWebApi<InternalAuthStatus>(
 		"/api/account/auth/status",
-		data.session?.access_token,
+		session?.accessToken ?? undefined,
+		cookie ? { headers: { Cookie: cookie } } : undefined,
 	);
 }

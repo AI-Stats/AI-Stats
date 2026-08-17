@@ -1,4 +1,4 @@
-import { getSupabaseAdmin } from "@/runtime/env";
+import { loadTierSiblingRows } from "@/repositories/service-tier-routing";
 import { loadPriceCard } from "@pipeline/pricing";
 import { normalizeTextServiceTier, readRequestedServiceTier } from "@core/serviceTiers";
 import type { PriceCard } from "../pricing/types";
@@ -178,15 +178,9 @@ async function remapToTierSibling(
         return null;
     }
 
-    const supabase = getSupabaseAdmin();
-    const { data: providerRows, error: providerError } = await supabase
-        .from("v2_model_provider_routes")
-        .select("provider_model_id,provider_model_slug,routing_enabled,effective_from,effective_to,metadata")
-        .eq("provider_slug", candidate.providerId)
-        .or(`model_slug.eq.${siblingApiModelId},provider_model_slug.eq.${siblingApiModelId}`)
-        .in("status", ["active", "degraded"])
-        .eq("routing_enabled", true);
-    if (providerError || !providerRows?.length) return null;
+	const loaded = await loadTierSiblingRows({ providerId: candidate.providerId, modelId: siblingApiModelId, capability, routingEnabled: true, capabilityStatuses: [...ROUTABLE_CAPABILITY_STATUSES] });
+	const providerRows = loaded.routes;
+	if (!providerRows.length) return null;
 
     const nowMs = Date.now();
     const activeProviderRows = (providerRows as TierSiblingProviderRow[])
@@ -204,13 +198,8 @@ async function remapToTierSibling(
         .filter((value): value is string => typeof value === "string" && value.length > 0);
     if (!providerApiModelIds.length) return null;
 
-    const { data: capabilityRows, error: capabilityError } = await supabase
-        .from("v2_route_capabilities")
-        .select("provider_model_id,params,max_input_tokens,max_output_tokens,status,updated_at,created_at")
-        .eq("capability_id", capability)
-        .in("status", [...ROUTABLE_CAPABILITY_STATUSES])
-        .in("provider_model_id", providerApiModelIds);
-    if (capabilityError || !capabilityRows?.length) return null;
+	const capabilityRows = loaded.capabilities;
+	if (!capabilityRows.length) return null;
 
     const capabilityByProviderModelId = new Map<string, TierSiblingCapabilityRow>();
     for (const row of capabilityRows as TierSiblingCapabilityRow[]) {
@@ -282,14 +271,9 @@ async function remapToHiddenTierSibling(
     );
     if (!apiModelId || !siblingLookupApiModelId) return null;
 
-    const supabase = getSupabaseAdmin();
-    const { data: providerRows, error: providerError } = await supabase
-        .from("v2_model_provider_routes")
-        .select("provider_model_id,provider_model_slug,routing_enabled,effective_from,effective_to,metadata")
-        .eq("provider_slug", candidate.providerId)
-        .or(`model_slug.eq.${siblingLookupApiModelId},provider_model_slug.eq.${siblingLookupApiModelId}`)
-        .eq("routing_enabled", false);
-    if (providerError || !providerRows?.length) return null;
+	const loaded = await loadTierSiblingRows({ providerId: candidate.providerId, modelId: siblingLookupApiModelId, capability, routingEnabled: false, capabilityStatuses: [...ROUTABLE_CAPABILITY_STATUSES] });
+	const providerRows = loaded.routes;
+	if (!providerRows.length) return null;
 
     const nowMs = Date.now();
     const hiddenProviderRows = (providerRows as TierSiblingProviderRow[])
@@ -308,13 +292,8 @@ async function remapToHiddenTierSibling(
         .filter((value): value is string => typeof value === "string" && value.length > 0);
     if (!providerApiModelIds.length) return null;
 
-    const { data: capabilityRows, error: capabilityError } = await supabase
-        .from("v2_route_capabilities")
-        .select("provider_model_id,params,max_input_tokens,max_output_tokens,status,updated_at,created_at")
-        .eq("capability_id", capability)
-        .in("status", [...ROUTABLE_CAPABILITY_STATUSES])
-        .in("provider_model_id", providerApiModelIds);
-    if (capabilityError || !capabilityRows?.length) return null;
+	const capabilityRows = loaded.capabilities;
+	if (!capabilityRows.length) return null;
 
     const capabilityByProviderModelId = new Map<string, TierSiblingCapabilityRow>();
     for (const row of capabilityRows as TierSiblingCapabilityRow[]) {

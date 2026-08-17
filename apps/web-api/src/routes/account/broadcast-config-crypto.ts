@@ -43,10 +43,10 @@ export async function encryptBroadcastConfig(env: Env, config: Record<string, st
 }
 
 export async function decryptBroadcastConfig(env: Env, row: Record<string, unknown>): Promise<Record<string, any>> {
-	const ciphertext = String(row.destination_config_ciphertext ?? "").trim();
-	const iv = String(row.destination_config_iv ?? "").trim();
+	const ciphertext = String(row.destinationConfigCiphertext ?? row.destination_config_ciphertext ?? "").trim();
+	const iv = String(row.destinationConfigIv ?? row.destination_config_iv ?? "").trim();
 	if (!ciphertext || !iv) {
-		const legacy = row.destination_config;
+		const legacy = row.destinationConfig ?? row.destination_config;
 		return legacy && typeof legacy === "object" && !Array.isArray(legacy) ? legacy as Record<string, any> : {};
 	}
 	const candidates = [
@@ -54,7 +54,7 @@ export async function decryptBroadcastConfig(env: Env, row: Record<string, unkno
 		{ value: env.ASYNC_WEBHOOK_SECRET_ENCRYPTION_KEY_PREVIOUS, version: env.ASYNC_WEBHOOK_SECRET_ENCRYPTION_KEY_PREVIOUS_VERSION ?? "previous" },
 		{ value: env.WEBHOOK_SECRET_ENCRYPTION_KEY, version: "v1" },
 	].filter((candidate): candidate is { value: string; version: string } => Boolean(candidate.value?.trim()));
-	const preferred = String(row.destination_config_key_version ?? "").trim();
+	const preferred = String(row.destinationConfigKeyVersion ?? row.destination_config_key_version ?? "").trim();
 	candidates.sort((left, right) => Number(right.version === preferred) - Number(left.version === preferred));
 	for (const candidate of candidates) {
 		try {

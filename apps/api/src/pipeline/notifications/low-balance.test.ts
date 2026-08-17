@@ -6,62 +6,28 @@ const state = vi.hoisted(() => ({
 	updateCalls: [] as Array<{ table: string; payload: Record<string, unknown> }>,
 }));
 
-function buildSupabaseMock() {
-	return {
-		auth: {
-			admin: {
-				getUserById: async () => ({
-					data: {
-						user: {
-							email: "owner@example.com",
-							user_metadata: { first_name: "Ada" },
-						},
-					},
-				}),
-			},
-		},
-		from(table: string) {
-			if (table === "workspaces") {
-				return {
-					select: () => ({
-						eq: () => ({
-							maybeSingle: async () => ({
-								data: { id: "ws_1", name: "Research", owner_user_id: "user_1" },
-								error: null,
-							}),
-						}),
-					}),
-				};
-			}
-			if (table === "email_outbox") {
-				return {
-					insert: async (payload: Record<string, unknown>) => {
-						state.insertCalls.push({ table, payload });
-						return { error: null };
-					},
-				};
-			}
-			if (table === "workspace_settings") {
-				return {
-					update: (payload: Record<string, unknown>) => ({
-						eq: async () => {
-							state.updateCalls.push({ table, payload });
-							return { error: null };
-						},
-					}),
-				};
-			}
-			throw new Error(`Unexpected table: ${table}`);
-		},
-	};
-}
-
 vi.mock("@/runtime/env", () => ({
 	getBindings: () => ({
 		RESEND_API_KEY: "resend_key",
 		RESEND_ONBOARDING_AUTOMATIONS_ENABLED: state.automationsEnabled,
 	}),
-	getSupabaseAdmin: () => buildSupabaseMock(),
+}));
+
+vi.mock("@/runtime/identity", () => ({
+	getIdentityUserById: async () => ({
+		data: { user: { id: "user_1", email: "owner@example.com", name: "Ada Lovelace", image: null } },
+		error: null,
+	}),
+}));
+
+vi.mock("@/repositories/billing-notifications", () => ({
+	getWorkspaceOwner: async () => ({ name: "Research", owner_user_id: "user_1" }),
+	enqueueUnique: async (payload: Record<string, unknown>) => {
+		state.insertCalls.push({ table: "email_outbox", payload });
+	},
+	markLowBalanceEmailSent: async (payload: Record<string, unknown>) => {
+		state.updateCalls.push({ table: "workspace_settings", payload });
+	},
 }));
 
 describe("low-balance notifications", () => {
@@ -189,8 +155,8 @@ describe("low-balance notifications", () => {
 		expect(state.insertCalls[0]?.payload).toMatchObject({
 			kind: "low_balance",
 			template: "low_balance",
-			to_email: "owner@example.com",
-			workspace_id: "ws_1",
+			toEmail: "owner@example.com",
+			workspaceId: "ws_1",
 		});
 	});
 });

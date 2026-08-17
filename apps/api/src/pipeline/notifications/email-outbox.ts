@@ -1,6 +1,7 @@
-import { getSupabaseAdmin } from "@/runtime/env";
+import { getIdentityUserById } from "@/runtime/identity";
 import { sendEmail } from "@/lib/email/resend";
 import { getBindings } from "@/runtime/env";
+import { listPendingEmails, markEmailFailed, markEmailSent } from "@/repositories/billing-notifications";
 
 type OutboxRow = {
 	id: string;
@@ -331,24 +332,8 @@ export async function drainEmailOutbox(limit = 25): Promise<{
 	sent: number;
 	failed: number;
 }> {
-	const supabase = getSupabaseAdmin();
 	const bindings = getBindings();
-
-	const { data, error } = await supabase
-		.from("email_outbox")
-		.select(
-			"id,created_at,dedupe_key,kind,template,to_email,subject,workspace_id,user_id,payload,attempts,last_error,sent_at",
-		)
-		.is("sent_at", null)
-		.lt("attempts", 5)
-		.order("created_at", { ascending: true })
-		.limit(limit);
-
-	if (error) {
-		throw new Error(`email_outbox_fetch_error:${error.message ?? "unknown"}`);
-	}
-
-	const rows = (data ?? []) as unknown as OutboxRow[];
+	const rows = await listPendingEmails(limit) as OutboxRow[];
 	let sent = 0;
 	let failed = 0;
 
@@ -367,14 +352,8 @@ export async function drainEmailOutbox(limit = 25): Promise<{
 				if (!row.payload) row.payload = {};
 				if (!row.payload.user_first_name && row.user_id) {
 					try {
-						const userRes = await (supabase as any).auth.admin.getUserById(row.user_id);
-						const meta = userRes?.data?.user?.user_metadata ?? {};
-						const first =
-							(typeof meta?.first_name === "string" && meta.first_name.trim()) ||
-							(typeof meta?.given_name === "string" && meta.given_name.trim()) ||
-							(typeof meta?.full_name === "string" && meta.full_name.trim().split(/\s+/)[0]) ||
-							(typeof meta?.name === "string" && meta.name.trim().split(/\s+/)[0]) ||
-							"";
+						const userRes = await getIdentityUserById(row.user_id);
+						const first = userRes?.data?.user?.name?.trim().split(/\s+/)[0] ?? "";
 						if (first) {
 							(row.payload as any).user_first_name = first;
 						}
@@ -402,32 +381,15 @@ export async function drainEmailOutbox(limit = 25): Promise<{
 				});
 			}
 
-			const { error: updateErr } = await supabase
-				.from("email_outbox")
-				.update({
-					sent_at: new Date().toISOString(),
-					last_error: null,
-				})
-				.eq("id", row.id);
-
-			if (updateErr) {
-				throw new Error(`email_outbox_update_error:${updateErr.message ?? "unknown"}`);
-			}
+			await markEmailSent(row.id, new Date().toISOString());
 
 			sent += 1;
 		} catch (err) {
 			failed += 1;
 			const message = err instanceof Error ? err.message : String(err);
-			await supabase
-				.from("email_outbox")
-				.update({
-					attempts: (row.attempts ?? 0) + 1,
-					last_error: message.slice(0, 2000),
-				})
-				.eq("id", row.id);
+			await markEmailFailed(row.id, (row.attempts ?? 0) + 1, message.slice(0, 2000));
 		}
 	}
 
 	return { processed: rows.length, sent, failed };
 }
-

@@ -6,10 +6,6 @@ import { execute } from "../index";
 import { installFetchMock } from "../../../../../tests/helpers/mock-fetch";
 import { setupTestRuntime, teardownTestRuntime } from "../../../../../tests/helpers/runtime";
 
-vi.mock("@supabase/supabase-js", () => ({
-	createClient: () => ({}),
-}));
-
 beforeAll(() => setupTestRuntime());
 afterAll(() => teardownTestRuntime());
 
@@ -210,4 +206,3 @@ describe("google-vertex geminiToIR", () => {
 		});
 	});
 });
-

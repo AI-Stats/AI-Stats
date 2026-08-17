@@ -36,7 +36,7 @@ jobs:
         if: >-
             needs.check-paths.outputs.migrations-changed == 'true'
         steps:
-            - run: node scripts/validate-supabase-migrations.mjs
+            - run: pnpm --filter @phaseo/db db:check
 
     migrate-production:
         needs:
@@ -49,14 +49,12 @@ ${migrationCondition}
             group: production-database-migrations
             cancel-in-progress: false
         env:
-            SUPABASE_ACCESS_TOKEN: \${{ secrets.SUPABASE_ACCESS_TOKEN }}
-            SUPABASE_DB_PASSWORD: \${{ secrets.SUPABASE_DB_PASSWORD }}
-            SUPABASE_PROJECT_ID: \${{ secrets.SUPABASE_PROJECT_ID }}
+            PLANETSCALE_MIGRATION_DATABASE_URL: \${{ secrets.PLANETSCALE_MIGRATION_DATABASE_URL }}
         steps:
-            - name: Preview pending production migrations
-              run: supabase db push --dry-run
+            - name: Validate Drizzle migration history
+              run: pnpm --filter @phaseo/db db:check
             - name: Apply pending production migrations
-              run: supabase db push
+              run: pnpm --filter @phaseo/db exec drizzle-kit migrate
 
     deploy-preview-web:
         if: >

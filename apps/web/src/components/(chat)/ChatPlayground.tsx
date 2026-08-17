@@ -112,6 +112,7 @@ import {
 	ChatSidebar,
 } from "@/components/(chat)/ChatSidebar";
 import { ChatShortcutHelpDialog } from "@/components/(chat)/ChatShortcutReference";
+import { ChatSignInDialog } from "@/components/(chat)/ChatSignInDialog";
 
 type ChatPlaygroundProps = {
 	models: GatewaySupportedModel[];
@@ -443,6 +444,7 @@ function ChatPlaygroundContent({
 	const [, setError] = useState<string | null>(null);
 	const [requestError, setRequestError] =
 		useState<ChatRequestErrorDetails | null>(null);
+	const [signInOpen, setSignInOpen] = useState(false);
 	const [apiTarget, setApiTarget] = useState<ChatApiTarget>("default");
 	const [baseUrl, setBaseUrl] = useState("");
 	const {
@@ -2564,6 +2566,30 @@ function ChatPlaygroundContent({
 					typeof structuredError?.code === "string"
 						? structuredError.code
 						: "";
+				const authRequired =
+					structuredError?.status === 401 ||
+					["unauthorized", "unauthenticated"].includes(errorCode.toLowerCase());
+				if (authRequired) {
+					setError(null);
+					setRequestError(null);
+					setSignInOpen(true);
+					if (latestThread) {
+						const pending = latestThread.messages.find(
+							(message) => message.id === streamingMessageId,
+						);
+						if (pending && !pending.content.trim()) {
+							latestThread = {
+								...latestThread,
+								messages: latestThread.messages.filter(
+									(message) => message.id !== streamingMessageId,
+								),
+								updatedAt: nowIso(),
+							};
+							await updateThreadState(latestThread, !temporaryMode);
+						}
+					}
+					return;
+				}
 				setError(message);
 				const nextRequestError: ChatRequestErrorDetails = {
 					status:
@@ -4521,6 +4547,7 @@ function ChatPlaygroundContent({
 				canApplyToAll={selectedModelIds.length > 1}
 				/>
 			) : null}
+			<ChatSignInDialog open={signInOpen} onOpenChange={setSignInOpen} />
 			<ChatSearchDialog
 				open={searchOpen}
 				onOpenChange={setSearchOpen}

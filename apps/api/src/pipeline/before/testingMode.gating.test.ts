@@ -4,7 +4,6 @@ const getBindingsMock = vi.fn();
 
 vi.mock("@/runtime/env", () => ({
 	getBindings: () => getBindingsMock(),
-	getSupabaseAdmin: vi.fn(),
 }));
 
 import { isPerfGatewayEndpointAllowed, resolvePerfGatewayAccess, resolveTestingMode } from "./testingMode";

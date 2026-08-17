@@ -14,7 +14,7 @@ import {
 	requireAuthenticatedUser,
 	requireWorkspaceMembership,
 } from "@/utils/serverActionAuth";
-import { createAdminClient } from "@/utils/supabase/admin";
+import { updateUserDeclaredCountry } from "@/lib/database/repositories/accounts";
 import { normaliseCountryCode } from "@/lib/countryCodes";
 
 type PurchaseLocationPreview = {
@@ -33,17 +33,14 @@ export async function ReviewPurchaseLocation(args: {
 }) {
 	const countryCode = normaliseCountryCode(args.countryCode);
 	if (!countryCode) throw new Error("Select a valid country or region");
-	const { supabase, user } = await requireAuthenticatedUser();
+	const { user } = await requireAuthenticatedUser();
 	const workspaceId = args.workspaceId ?? await resolveWorkspaceIdFromActiveCookie();
-	await requireWorkspaceMembership(supabase, user.id, workspaceId, ["owner", "admin"]);
+	await requireWorkspaceMembership(user.id, workspaceId, ["owner", "admin"]);
 
-	const admin = createAdminClient();
 	const confirmedAt = new Date().toISOString();
-	const countryUpdate = await admin
-		.from("users")
-		.update({ declared_country_code: countryCode, country_declared_at: confirmedAt })
-		.eq("user_id", user.id);
-	if (countryUpdate.error) throw new Error("Could not save your country");
+	await updateUserDeclaredCountry(user.id, countryCode, new Date(confirmedAt)).catch(() => {
+		throw new Error("Could not save your country");
+	});
 
 	const preview = await fetchPublicWebApi<PurchaseLocationPreview>(
 		`/api/_web/credits/model-availability?country=${encodeURIComponent(countryCode)}`,
@@ -168,16 +165,14 @@ function resolveInternalBaseUrl(): string {
 const INTERNAL_HEADER = "x-internal-payments-token";
 
 export async function ChargeSavedPayment(args: ChargeSavedPaymentArgs) {
-	const { supabase, user } = await requireAuthenticatedUser();
+	const { user } = await requireAuthenticatedUser();
 	const workspaceId = args.workspace_id ?? (await resolveWorkspaceIdFromActiveCookie());
-	await requireWorkspaceMembership(supabase, user.id, workspaceId, ["owner", "admin"]);
+	await requireWorkspaceMembership(user.id, workspaceId, ["owner", "admin"]);
 	const countryCode = normaliseCountryCode(args.country_code);
 	if (!countryCode) throw new Error("Country is required before purchasing credits");
-	const { error: countryError } = await createAdminClient()
-		.from("users")
-		.update({ declared_country_code: countryCode, country_declared_at: new Date().toISOString() })
-		.eq("user_id", user.id);
-	if (countryError) throw new Error("Could not confirm purchase location");
+	await updateUserDeclaredCountry(user.id, countryCode).catch(() => {
+		throw new Error("Could not confirm purchase location");
+	});
 
 	const token = process.env.INTERNAL_PAYMENTS_TOKEN ?? process.env.INTERNAL_API_TOKEN;
 	if (!token) throw new Error("Internal payments token not configured");

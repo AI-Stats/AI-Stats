@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { getStripe } from "@/lib/stripe";
-import { createAdminClient } from "@/utils/supabase/admin";
-import { createClient } from "@/utils/supabase/server";
-import { getWorkspaceIdFromCookie } from "@/utils/workspaceCookie";
+import { requireActiveTeamStripeCustomer } from "@/lib/server/activeTeamStripe";
 
 function parseStripeInvoiceId(body: any): string | null {
 	const raw = body?.stripeInvoiceId ?? body?.stripe_invoice_id ?? null;
@@ -20,45 +18,14 @@ export async function POST(req: NextRequest) {
 			return NextResponse.json({ error: "Invalid stripe invoice id" }, { status: 400 });
 		}
 
-		const supabase = await createClient();
-		const {
-			data: { user },
-			error: userErr,
-		} = await supabase.auth.getUser();
-		if (userErr || !user?.id) {
-			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-		}
-
-		const workspaceId = await getWorkspaceIdFromCookie();
-		if (!workspaceId) {
-			return NextResponse.json({ error: "Missing active team" }, { status: 400 });
-		}
-
-		const { data: membership, error: membershipErr } = await supabase
-			.from("workspace_members")
-			.select("role")
-			.eq("workspace_id", workspaceId)
-			.eq("user_id", user.id)
-			.maybeSingle();
-		if (membershipErr || !membership) {
-			return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
-		}
-
-		const admin = createAdminClient();
-		const { data: invoiceRow, error: invoiceErr } = await admin
-			.from("workspace_invoices")
-			.select("workspace_id,stripe_invoice_id")
-			.eq("workspace_id", workspaceId)
-			.eq("stripe_invoice_id", stripeInvoiceId)
-			.maybeSingle();
-
-		if (invoiceErr) throw invoiceErr;
-		if (!invoiceRow) {
-			return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
-		}
+		const { customerId } = await requireActiveTeamStripeCustomer();
 
 		const stripe = getStripe();
 		const invoice = await stripe.invoices.retrieve(stripeInvoiceId);
+		const invoiceCustomerId = typeof invoice.customer === "string" ? invoice.customer : invoice.customer?.id ?? null;
+		if (!invoiceCustomerId || invoiceCustomerId !== customerId) {
+			return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
+		}
 		const invoiceUrl = invoice.hosted_invoice_url ?? invoice.invoice_pdf ?? null;
 		if (!invoiceUrl) {
 			return NextResponse.json({ error: "Invoice document unavailable" }, { status: 404 });

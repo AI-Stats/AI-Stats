@@ -9,34 +9,20 @@ const queryState = vi.hoisted(() => ({
 
 const loadPriceCardMock = vi.hoisted(() => vi.fn());
 
-vi.mock("@/runtime/env", () => ({
-    getSupabaseAdmin: () => ({
-        from: (table: string) => {
-            if (table === "v2_model_provider_routes" || table === "v2_route_capabilities") {
-                const rows = table === "v2_model_provider_routes"
-                    ? queryState.providerRows.map((row) => ({
-                        ...row,
-                        provider_model_id: row.provider_model_id ?? row.provider_api_model_id,
-                        model_slug: row.model_slug ?? row.api_model_id,
-                        routing_enabled: row.routing_enabled ?? row.is_active_gateway,
-                    }))
-                    : queryState.capabilityRows.map((row) => ({
-                        ...row,
-                        provider_model_id: row.provider_model_id ?? row.provider_api_model_id,
-                    }));
-                const builder: any = {
-                    select: () => builder,
-                    eq: () => builder,
-                    in: () => builder,
-                    or: () => builder,
-                    then: (resolve: (value: unknown) => unknown) => resolve({ data: rows, error: null }),
-                };
-                return builder;
-            }
-
-            throw new Error(`Unexpected table: ${table}`);
-        },
-    }),
+vi.mock("@/repositories/service-tier-routing", () => ({
+	loadTierSiblingRows: vi.fn(async () => ({
+		routes: queryState.providerRows.map((row) => ({
+			...row,
+			provider_model_id: row.provider_model_id ?? row.provider_api_model_id,
+			provider_model_slug: row.provider_model_slug,
+			model_slug: row.model_slug ?? row.api_model_id,
+			routing_enabled: row.routing_enabled ?? row.is_active_gateway,
+		})),
+		capabilities: queryState.capabilityRows.map((row) => ({
+			...row,
+			provider_model_id: row.provider_model_id ?? row.provider_api_model_id,
+		})),
+	})),
 }));
 
 vi.mock("@pipeline/pricing", () => ({

@@ -2,7 +2,7 @@
 // Why: Makes retries and failover queryable without inflating the parent request row.
 
 import type { Endpoint } from "@core/types";
-import { getSupabaseAdmin } from "@/runtime/env";
+import { insertGatewayUpstreamRequests } from "@/repositories/upstream-requests";
 
 let tableAvailable: boolean | null = null;
 let warnedMissingTable = false;
@@ -53,7 +53,7 @@ function isMissingTableError(error: unknown): boolean {
         : null;
     const code = String(cause?.code ?? candidate?.code ?? "");
     const message = String(cause?.message ?? candidate?.message ?? "").toLowerCase();
-    return (code === "PGRST205" || code === "42P01")
+    return code === "42P01"
         && message.includes("gateway_upstream_requests");
 }
 
@@ -209,16 +209,7 @@ export async function persistGatewayUpstreamRequests(
     const rows = buildRows(args);
     if (rows.length === 0) return;
     try {
-        const { error } = await getSupabaseAdmin()
-            .from("gateway_upstream_requests")
-            .insert(rows);
-        if (error) {
-            const wrapped = new Error(
-                `[audit] insert gateway_upstream_requests error: ${error.message ?? "unknown"}`,
-            );
-            (wrapped as Error & { cause?: unknown }).cause = error;
-            throw wrapped;
-        }
+		await insertGatewayUpstreamRequests(rows);
         tableAvailable = true;
     } catch (error) {
         if (isMissingTableError(error)) {

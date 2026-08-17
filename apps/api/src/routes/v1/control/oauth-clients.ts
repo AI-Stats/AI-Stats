@@ -18,15 +18,23 @@
 
 import { Hono } from "hono";
 import type { Env } from "@/runtime/types";
-import { getSupabaseAdmin, configureRuntime, clearRuntime } from "@/runtime/env";
+import { configureRuntime, clearRuntime } from "@/runtime/env";
 import { z } from "zod";
 import { guardManagementAuth, type GuardErr } from "@/pipeline/before/guards";
 import { CAPABILITIES, GATEWAY_ACCESS_SCOPE, normalizeScopeList } from "@/lib/authz/capabilities";
 import { requireCapability, requireOAuthWorkspaceRole } from "./route-helpers";
 import { createOpaqueCode, hashOAuthClientSecret, isThirdPartyOAuthEnabled } from "@/lib/oauth/service";
+import {
+	createOAuthAppMetadata,
+	deleteOAuthAppAndRevokeAuthorizations,
+	findOAuthAppWithStats,
+	findOwnedOAuthApp,
+	listOAuthAppsWithStats,
+	resolveWorkspaceOwnerUserId,
+	updateOAuthAppMetadata,
+} from "@/repositories/oauth";
 
 const app = new Hono<Env>();
-const PAGE_SIZE = 5000;
 const DEFAULT_THIRD_PARTY_ALLOWED_SCOPES = [
 	"openid",
 	"profile",
@@ -129,124 +137,8 @@ const updateOAuthClientSchema = z.object({
 	redirect_uris: z.array(oauthRedirectSchema).min(1).optional(),
 });
 
-async function attachOAuthAppStats(
-	supabase: ReturnType<typeof getSupabaseAdmin>,
-	apps: any[],
-): Promise<any[]> {
-	if (!Array.isArray(apps) || apps.length === 0) return [];
-
-	const clientIds = apps
-		.map((row) => String(row?.client_id ?? "").trim())
-		.filter(Boolean);
-	if (!clientIds.length) return apps;
-
-	const statsByClientId = new Map<
-		string,
-		{
-			active_authorizations: number;
-			total_authorizations: number;
-			last_used_at: string | null;
-			requests_last_30d: number;
-		}
-	>();
-
-	for (const clientId of clientIds) {
-		statsByClientId.set(clientId, {
-			active_authorizations: 0,
-			total_authorizations: 0,
-			last_used_at: null,
-			requests_last_30d: 0,
-		});
-	}
-
-	for (let offset = 0; ; offset += PAGE_SIZE) {
-		const { data, error } = await supabase
-			.from("oauth_authorizations")
-			.select("client_id, revoked_at, last_used_at")
-			.in("client_id", clientIds)
-			.order("created_at", { ascending: true })
-			.range(offset, offset + PAGE_SIZE - 1);
-
-		if (error) {
-			throw new Error(error.message ?? "Failed to load OAuth authorization stats");
-		}
-		if (!Array.isArray(data) || data.length === 0) break;
-
-		for (const row of data) {
-			const clientId = String((row as any)?.client_id ?? "").trim();
-			if (!clientId) continue;
-			const stats = statsByClientId.get(clientId);
-			if (!stats) continue;
-
-			stats.total_authorizations += 1;
-			if ((row as any)?.revoked_at == null) {
-				stats.active_authorizations += 1;
-			}
-
-			const lastUsedAt = String((row as any)?.last_used_at ?? "").trim();
-			if (!lastUsedAt) continue;
-			if (!stats.last_used_at || lastUsedAt > stats.last_used_at) {
-				stats.last_used_at = lastUsedAt;
-			}
-		}
-
-		if (data.length < PAGE_SIZE) break;
-	}
-
-	const thirtyDaysAgo = new Date();
-	thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-	const fromIso = thirtyDaysAgo.toISOString();
-	for (let offset = 0; ; offset += PAGE_SIZE) {
-		const { data, error } = await supabase
-			.from("gateway_requests")
-			.select("oauth_client_id")
-			.in("oauth_client_id", clientIds)
-			.gte("created_at", fromIso)
-			.order("created_at", { ascending: true })
-			.range(offset, offset + PAGE_SIZE - 1);
-
-		if (error) {
-			throw new Error(error.message ?? "Failed to load OAuth usage stats");
-		}
-		if (!Array.isArray(data) || data.length === 0) break;
-
-		for (const row of data) {
-			const clientId = String((row as any)?.oauth_client_id ?? "").trim();
-			if (!clientId) continue;
-			const stats = statsByClientId.get(clientId);
-			if (!stats) continue;
-			stats.requests_last_30d += 1;
-		}
-
-		if (data.length < PAGE_SIZE) break;
-	}
-
-	return apps.map((appRow) => {
-		const clientId = String(appRow?.client_id ?? "").trim();
-		const stats = statsByClientId.get(clientId);
-		return {
-			...appRow,
-			active_authorizations: stats?.active_authorizations ?? 0,
-			total_authorizations: stats?.total_authorizations ?? 0,
-			last_used_at: stats?.last_used_at ?? null,
-			requests_last_30d: stats?.requests_last_30d ?? 0,
-		};
-	});
-}
-
 async function resolveCreatorUserId(workspaceId: string): Promise<string> {
-	const supabase = getSupabaseAdmin();
-	const { data, error } = await supabase
-		.from("workspaces")
-		.select("owner_user_id")
-		.eq("id", workspaceId)
-		.maybeSingle();
-
-	if (error) {
-		throw new Error(error.message ?? "Failed to resolve workspace owner");
-	}
-
-	const ownerUserId = String((data as { owner_user_id?: unknown } | null)?.owner_user_id ?? "").trim();
+	const ownerUserId = await resolveWorkspaceOwnerUserId(workspaceId);
 	if (!ownerUserId) {
 		throw new Error("Workspace owner is required to create OAuth apps");
 	}
@@ -335,18 +227,10 @@ app.post("/", async (c) => {
 			return c.json({ error: allowedScopes.message }, 400);
 		}
 
-		// Create OAuth client using Supabase Admin SDK
-		const supabase = getSupabaseAdmin();
-		const oauthAdmin = (supabase.auth.admin as any).oauth;
-		const { data: oauthClient, error: clientError } = await oauthAdmin.createClient({
-			name: input.name,
-			redirect_uris: input.redirect_uris,
-		});
-
-		if (clientError || !oauthClient) {
-			console.error("Error creating OAuth client:", clientError);
-			return c.json({ error: "Failed to create OAuth client" }, 500);
-		}
+		const oauthClient = {
+			client_id: crypto.randomUUID(),
+			client_secret: clientType === "confidential" ? createOpaqueCode() : null,
+		};
 
 		const clientSecretHash =
 			typeof oauthClient.client_secret === "string" && oauthClient.client_secret.trim().length > 0
@@ -354,31 +238,26 @@ app.post("/", async (c) => {
 				: null;
 
 		// Store metadata in database
-		const { data: metadata, error: metadataError } = await supabase
-			.from("oauth_app_metadata")
-			.insert({
-				client_id: oauthClient.client_id,
-				workspace_id: authCtx.workspaceId,
+		let metadata;
+		try {
+			metadata = await createOAuthAppMetadata({
+				clientId: oauthClient.client_id,
+				workspaceId: authCtx.workspaceId,
 				name: input.name,
 				description: input.description,
-				redirect_uris: input.redirect_uris,
-				homepage_url: input.homepage_url,
-				logo_url: input.logo_url,
-				privacy_policy_url: input.privacy_policy_url,
-				terms_of_service_url: input.terms_of_service_url,
-				client_type: clientType,
-				allowed_scopes: allowedScopes.value,
-				client_secret_hash: clientType === "confidential" ? clientSecretHash : null,
-				created_by: createdBy,
+				redirectUris: input.redirect_uris,
+				homepageUrl: input.homepage_url,
+				logoUrl: input.logo_url,
+				privacyPolicyUrl: input.privacy_policy_url,
+				termsOfServiceUrl: input.terms_of_service_url,
+				clientType,
+				allowedScopes: allowedScopes.value,
+				clientSecretHash: clientType === "confidential" ? clientSecretHash : null,
+				createdBy,
 				status: "active",
-			})
-			.select()
-			.single();
-
-		if (metadataError) {
-			// Rollback: delete OAuth client if metadata insert failed
-			await oauthAdmin.deleteClient(oauthClient.client_id);
-			console.error("Error storing OAuth metadata:", metadataError);
+			});
+		} catch (error) {
+			console.error("Error storing OAuth metadata:", error);
 			return c.json({ error: "Failed to create OAuth app" }, 500);
 		}
 
@@ -416,19 +295,7 @@ app.get("/", async (c) => {
 		if (!isThirdPartyOAuthEnabled()) return thirdPartyOAuthComingSoon();
 
 		// Fetch OAuth apps for workspace and attach derived stats
-		const supabase = getSupabaseAdmin();
-		const { data: appMetadataRows, error: appsError } = await supabase
-			.from("oauth_app_metadata")
-			.select("*")
-			.eq("workspace_id", authCtx.workspaceId)
-			.eq("status", "active")
-			.order("created_at", { ascending: false });
-
-		if (appsError) {
-			console.error("Error fetching OAuth apps:", appsError);
-			return c.json({ error: "Failed to fetch OAuth apps" }, 500);
-		}
-		const apps = await attachOAuthAppStats(supabase, appMetadataRows ?? []);
+		const apps = await listOAuthAppsWithStats(authCtx.workspaceId);
 
 		return c.json({
 			data: (apps || []).map((entry) =>
@@ -466,21 +333,10 @@ app.get("/:clientId", async (c) => {
 		const clientId = c.req.param("clientId");
 
 		// Fetch OAuth app metadata and attach derived stats
-		const supabase = getSupabaseAdmin();
-		const { data: appMetadata, error: appError } = await supabase
-			.from("oauth_app_metadata")
-			.select("*")
-			.eq("client_id", clientId)
-			.eq("workspace_id", authCtx.workspaceId)
-			.eq("status", "active")
-			.maybeSingle();
-
-		if (appError || !appMetadata) {
-			console.error("Error fetching OAuth app:", appError);
+		const app = await findOAuthAppWithStats(clientId, authCtx.workspaceId);
+		if (!app) {
 			return c.json({ error: "OAuth app not found" }, 404);
 		}
-		const withStats = await attachOAuthAppStats(supabase, [appMetadata]);
-		const app = withStats[0];
 
 		return c.json(serializeOAuthClientRecord(app as Record<string, unknown>));
 	} catch (error: any) {
@@ -522,9 +378,7 @@ app.patch("/:clientId", async (c) => {
 			);
 		}
 
-		const supabase = getSupabaseAdmin();
 		const updates = parsed.data;
-		const oauthAdmin = (supabase.auth.admin as any).oauth;
 		const allowedScopes =
 			updates.allowed_scopes === undefined
 				? { ok: true as const, value: undefined }
@@ -533,58 +387,24 @@ app.patch("/:clientId", async (c) => {
 			return c.json({ error: allowedScopes.message }, 400);
 		}
 
-		const { data: existingApp, error: fetchError } = await supabase
-			.from("oauth_app_metadata")
-			.select("client_id")
-			.eq("client_id", clientId)
-			.eq("workspace_id", authCtx.workspaceId)
-			.maybeSingle();
-
-		if (fetchError) {
-			console.error("Error loading OAuth metadata:", fetchError);
-			return c.json({ error: "Failed to update OAuth app" }, 500);
-		}
+		const existingApp = await findOwnedOAuthApp(clientId, authCtx.workspaceId);
 		if (!existingApp) {
 			return c.json({ error: "OAuth app not found" }, 404);
 		}
 
-		// If updating redirect URIs, update in Supabase OAuth client
-		if (updates.redirect_uris) {
-			const { error: updateError } = await oauthAdmin.updateClient(clientId, {
-				redirect_uris: updates.redirect_uris,
-			});
-
-			if (updateError) {
-				console.error("Error updating OAuth client redirect URIs:", updateError);
-				return c.json({ error: "Failed to update redirect URIs" }, 500);
-			}
-		}
-
 		// Update metadata in database
-		const metadataUpdates: Record<string, unknown> = {
+		const metadataUpdates = {
 			name: updates.name,
 			description: updates.description,
-			homepage_url: updates.homepage_url,
-			logo_url: updates.logo_url,
-			privacy_policy_url: updates.privacy_policy_url,
-			terms_of_service_url: updates.terms_of_service_url,
-			redirect_uris: updates.redirect_uris,
-			updated_at: new Date().toISOString(),
+			homepageUrl: updates.homepage_url,
+			logoUrl: updates.logo_url,
+			privacyPolicyUrl: updates.privacy_policy_url,
+			termsOfServiceUrl: updates.terms_of_service_url,
+			redirectUris: updates.redirect_uris,
+			allowedScopes: allowedScopes.value,
 		};
-		if (allowedScopes.value !== undefined) {
-			metadataUpdates.allowed_scopes = allowedScopes.value;
-		}
-
-		const { data: updated, error: metadataError } = await supabase
-			.from("oauth_app_metadata")
-			.update(metadataUpdates)
-			.eq("client_id", clientId)
-			.eq("workspace_id", authCtx.workspaceId)
-			.select()
-			.single();
-
-		if (metadataError || !updated) {
-			console.error("Error updating OAuth metadata:", metadataError);
+		const updated = await updateOAuthAppMetadata(clientId, authCtx.workspaceId, metadataUpdates);
+		if (!updated) {
 			return c.json({ error: "Failed to update OAuth app" }, 500);
 		}
 
@@ -614,51 +434,8 @@ app.delete("/:clientId", async (c) => {
 
 		const clientId = c.req.param("clientId");
 
-		const supabase = getSupabaseAdmin();
-
-		// Verify ownership before deleting
-		const { data: app, error: fetchError } = await supabase
-			.from("oauth_app_metadata")
-			.select("client_id")
-			.eq("client_id", clientId)
-			.eq("workspace_id", authCtx.workspaceId)
-			.single();
-
-		if (fetchError || !app) {
+		if (!(await deleteOAuthAppAndRevokeAuthorizations(clientId, authCtx.workspaceId))) {
 			return c.json({ error: "OAuth app not found" }, 404);
-		}
-
-		// The OAuth authorization table is not protected by a database foreign-key
-		// cascade in every deployed schema. Revoke first so an already-issued
-		// delegated gateway key stops working even if a later delete step fails.
-		const { error: revokeError } = await supabase
-			.from("oauth_authorizations")
-			.update({ revoked_at: new Date().toISOString() })
-			.eq("client_id", clientId)
-			.is("revoked_at", null);
-		if (revokeError) {
-			console.error("Error revoking OAuth authorizations for client deletion:", revokeError);
-			return c.json({ error: "Failed to revoke OAuth app authorizations" }, 500);
-		}
-
-		// Delete from Supabase OAuth after delegated access has been revoked.
-		const oauthAdmin = (supabase.auth.admin as any).oauth;
-		const { error: clientError } = await oauthAdmin.deleteClient(clientId);
-		if (clientError) {
-			console.error("Error deleting OAuth client:", clientError);
-			return c.json({ error: "Failed to delete OAuth client" }, 500);
-		}
-
-		// Delete metadata after all authorizations have been explicitly revoked.
-		const { error: deleteError } = await supabase
-			.from("oauth_app_metadata")
-			.delete()
-			.eq("client_id", clientId)
-			.eq("workspace_id", authCtx.workspaceId);
-
-		if (deleteError) {
-			console.error("Error deleting OAuth metadata:", deleteError);
-			return c.json({ error: "Failed to delete OAuth app metadata" }, 500);
 		}
 
 		return c.json({
@@ -690,36 +467,17 @@ app.post("/:clientId/regenerate-secret", async (c) => {
 
 		const clientId = c.req.param("clientId");
 
-		const supabase = getSupabaseAdmin();
-
-		// Verify ownership
-		const { data: app, error: fetchError } = await supabase
-			.from("oauth_app_metadata")
-			.select("client_id, client_type")
-			.eq("client_id", clientId)
-			.eq("workspace_id", authCtx.workspaceId)
-			.single();
-
-		if (fetchError || !app) {
+		const ownedApp = await findOwnedOAuthApp(clientId, authCtx.workspaceId);
+		if (!ownedApp) {
 			return c.json({ error: "OAuth app not found" }, 404);
 		}
-		if (String((app as any).client_type ?? "confidential") !== "confidential") {
+		if (ownedApp.client_type !== "confidential") {
 			return c.json({ error: "Public OAuth apps do not use client secrets" }, 400);
 		}
 
 		const nextSecret = createOpaqueCode();
 		const nextSecretHash = await hashOAuthClientSecret(nextSecret);
-		const { error: secretError } = await supabase
-			.from("oauth_app_metadata")
-			.update({
-				client_secret_hash: nextSecretHash,
-				updated_at: new Date().toISOString(),
-			})
-			.eq("client_id", clientId)
-			.eq("workspace_id", authCtx.workspaceId);
-
-		if (secretError) {
-			console.error("Error regenerating OAuth secret:", secretError);
+		if (!(await updateOAuthAppMetadata(clientId, authCtx.workspaceId, { clientSecretHash: nextSecretHash }))) {
 			return c.json({ error: "Failed to regenerate secret" }, 500);
 		}
 
@@ -735,4 +493,3 @@ app.post("/:clientId/regenerate-secret", async (c) => {
 });
 
 export default app;
-

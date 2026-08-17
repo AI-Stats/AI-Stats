@@ -10,7 +10,7 @@ The gateway lets developers access models from OpenAI, Anthropic, Google, Mistra
 
 - Routes requests across supported providers.
 - Tracks latency, tokens, cost, and request metadata.
-- Syncs events and analytics into Supabase-backed product views.
+- Persists requests through typed Drizzle repositories and maintains PlanetScale-native analytics grains.
 - Supports model metadata, pricing, benchmarks, and provider coverage.
 - Exposes OpenAI-compatible endpoints plus Phaseo-specific controls.
 
@@ -18,7 +18,7 @@ The gateway lets developers access models from OpenAI, Anthropic, Google, Mistra
 
 - Runtime: Cloudflare Workers
 - Framework: Hono and TypeScript
-- Database: Supabase
+- Database: PlanetScale Postgres through Cloudflare Hyperdrive and Drizzle ORM
 - Logging: Axiom
 - Monitoring: server timing, structured events, and dashboards
 

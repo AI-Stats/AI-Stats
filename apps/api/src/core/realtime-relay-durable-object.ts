@@ -1115,7 +1115,7 @@ export class RealtimeRelayDurableObject {
 				reason,
 			});
 			this.settled = true;
-			// The authoritative unresolved record now lives in Supabase and this
+			// The authoritative unresolved record now lives in PostgreSQL and this
 			// terminal session is not retried through the Durable Object.
 			await this.state.storage.deleteAll();
 			await this.state.storage.deleteAlarm();

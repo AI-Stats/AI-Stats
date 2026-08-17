@@ -1,12 +1,19 @@
-import { assertOk, client, isDryRun, logWrite } from "./supa";
+import { isDryRun, logWrite } from "./runtime";
+import {
+	deleteImportRows,
+	executeImportQuery,
+	selectImportRows,
+	upsertImportRows,
+} from "./database";
 import { chunk } from "./util";
 import { deleteStaleModels } from "./stale-models";
 import { DATA_ROOT, DIR_ALIASES } from "./paths";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { createHash } from "node:crypto";
+import { sql } from "@phaseo/db/query";
 
-type DbClient = ReturnType<typeof client>;
+type DbClient = undefined;
 
 const PAGE_SIZE = 1_000;
 let catalogueOverrideIndex: Map<string, Set<string>> | null = null;
@@ -399,10 +406,10 @@ export function preflightV2Benchmarks(
 }
 
 async function fetchAll(supa: DbClient, table: string, columns = "*"): Promise<Record<string, any>[]> {
+    void supa;
     const rows: Record<string, any>[] = [];
     for (let offset = 0; ; offset += PAGE_SIZE) {
-        const result = await supa.from(table).select(columns).range(offset, offset + PAGE_SIZE - 1);
-        const page = assertOk(result, `v2 sync select ${table}`) as Record<string, any>[];
+        const page = await selectImportRows({ table, columns, offset, limit: PAGE_SIZE });
         rows.push(...page);
         if (page.length < PAGE_SIZE) return rows;
     }
@@ -435,10 +442,7 @@ async function upsertChunks(
         filteredRows.splice(0, filteredRows.length, ...rows.filter(row => !rule.sourceTypes.some(sourceType => overrides.get(sourceType)?.has(String(row[rule.key])))));
     }
     for (const group of chunk(filteredRows, 500)) {
-        assertOk(
-            await supa.from(table).upsert(group, { onConflict }),
-            `v2 sync upsert ${table}`,
-        );
+        await upsertImportRows(table, group, onConflict.split(",").map((column) => column.trim()));
     }
 }
 
@@ -449,10 +453,7 @@ async function deleteByIds(
     ids: string[],
 ) {
     for (const group of chunk(ids, 200)) {
-        assertOk(
-            await supa.from(table).delete().in(idColumn, group),
-            `v2 sync delete stale ${table}`,
-        );
+        await deleteImportRows({ table, inFilter: { column: idColumn, values: group } });
     }
 }
 
@@ -463,9 +464,10 @@ async function deleteByCompositeRows(
     rows: Record<string, any>[],
 ) {
     for (const row of rows) {
-        let query = supa.from(table).delete();
-        for (const field of identityFields) query = query.eq(field, row[field]);
-        assertOk(await query, `v2 sync delete stale ${table}`);
+        await deleteImportRows({
+            table,
+            filters: identityFields.map((column) => ({ column, value: row[column] })),
+        });
     }
 }
 
@@ -685,7 +687,7 @@ function uniqueRows(rows: Record<string, any>[], key: (row: Record<string, any>)
 }
 
 export async function syncV2Catalogue(): Promise<void> {
-    const supa = client();
+    const supa = undefined;
     const source = sourceJsonMaps();
 
     const organisations = source.organisations;
@@ -1324,6 +1326,7 @@ export async function syncV2Catalogue(): Promise<void> {
             const global = [{
                 provider_model_id: route.provider_model_id,
                 variant_key: `global:${tier}`,
+                execution_region: null,
                 service_tier_slug: tier,
                 status: route.status,
                 routing_enabled: Boolean(route.routing_enabled),
@@ -1361,10 +1364,17 @@ export async function syncV2Catalogue(): Promise<void> {
             .filter(row => !desiredVariantKeys.has(`${String(row.provider_model_id)}:${String(row.variant_key)}`))
             .map(row => String(row.variant_id)),
     );
-    assertOk(
-        await supa.rpc("refresh_v2_pricing_variant_links"),
-        "v2 sync refresh pricing variant links",
-    );
+    if (!isDryRun()) {
+        await executeImportQuery(sql`
+            update v2_pricing_skus sku
+            set route_variant_id=variant.variant_id,updated_at=now()
+            from v2_route_variants variant
+            where variant.provider_model_id=sku.provider_model_id
+              and variant.service_tier_slug=coalesce(sku.service_tier_slug,'standard')
+              and variant.variant_key='global:' || coalesce(sku.service_tier_slug,'standard')
+              and sku.route_variant_id is distinct from variant.variant_id
+        `);
+    }
 
     const skuRows = await fetchAll(supa, "v2_pricing_skus", "sku_id,provider_model_id,sku_code,version,metadata");
     const skuByCode = new Map(skuRows.map(row => [`${row.provider_model_id}:${row.sku_code}:${row.version}`, row.sku_id]));
@@ -1436,10 +1446,10 @@ export async function syncV2Catalogue(): Promise<void> {
         .map(row => String(row.sku_id));
     await deleteByIds(supa, "v2_pricing_skus", "sku_id", staleSkuIds);
 
-    assertOk(
-        await supa.from("v2_catalogue_backfill_issues").delete().eq("source_type", "pricing_rule"),
-        "v2 sync clear resolved pricing issues",
-    );
+    await deleteImportRows({
+        table: "v2_catalogue_backfill_issues",
+        filters: [{ column: "source_type", value: "pricing_rule" }],
+    });
     if (unresolved.length) {
         await upsertChunks(supa, "v2_catalogue_backfill_issues", unresolved, "source_type,source_key,issue_code");
     }

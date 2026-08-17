@@ -3,8 +3,6 @@
 // How: Reads bindings and exposes initialized clients.
 
 // apps/api/src/runtime/env.ts
-import type { SupabaseClient } from "@supabase/supabase-js";
-import { createClient } from "@supabase/supabase-js";
 import type { ResponseCacheStore } from "@/core/response-cache";
 
 import { BINDING_KEYS } from "./env.binding-keys";
@@ -15,7 +13,6 @@ export type { GatewayBindings, GatewayRuntime } from "./env.types";
 type RuntimeState = {
     bindings: GatewayBindings;
     cache: KVNamespace;
-    supabase: SupabaseClient;
 };
 
 let runtimeState: RuntimeState | null = null;
@@ -60,14 +57,7 @@ export function configureRuntime(env: GatewayBindings) {
     const bindings = snapshotBindings(env);
     lastBindingsSnapshot = bindings;
 
-    const globalFetch: typeof fetch = (input, init) => fetch(input, init);
-
-    const supabaseAdmin = createClient(bindings.SUPABASE_URL, bindings.SUPABASE_SERVICE_ROLE_KEY, {
-        auth: { autoRefreshToken: false, persistSession: false },
-        global: { fetch: globalFetch },
-    });
-
-    runtimeState = { bindings, cache: bindings.GATEWAY_CACHE, supabase: supabaseAdmin };
+    runtimeState = { bindings, cache: bindings.GATEWAY_CACHE };
 }
 
 export function clearRuntime() {
@@ -142,10 +132,6 @@ export function getCache(): KVNamespace {
     return ensureRuntime().cache;
 }
 
-export function getSupabaseAdmin(): SupabaseClient {
-    return ensureRuntime().supabase;
-}
-
 export function getResponseCache(): ResponseCacheStore | null {
     return null;
 }
@@ -161,6 +147,3 @@ export function getByokKey(version: number): string {
     const s = String(raw).trim().replace(/^["']|["']$/g, "");
     return s.startsWith("base64:") ? s.slice(7) : s;
 }
-
-
-

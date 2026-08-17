@@ -78,8 +78,7 @@ pnpm run data:check-new-models:test
 - Watched Hugging Face orgs for the GitHub Actions scheduled runner are currently passed in `.github/workflows/huggingface-model-discovery.yml`
 - `HF_TOKEN` (optional Hugging Face token for orgs/models that require authenticated API access)
 - `GITHUB_TOKEN` or `GH_TOKEN` (enables provider-catalog repository dispatches; also enables legacy issue sync when `MODEL_DISCOVERY_ISSUE_SYNC_ENABLED=true`)
-- `NEXT_PUBLIC_SUPABASE_URL` (required for known provider model DB allowlist)
-- `SUPABASE_SERVICE_ROLE_KEY` (required for known provider model DB allowlist)
+- `PLANETSCALE_DATABASE_URL` (required when a discovery run reads the known-provider allowlist directly)
 - Provider-specific API keys declared in each provider module.
 
 For local runs, the runner also auto-loads env files (without overriding already-exported shell vars) in this order:

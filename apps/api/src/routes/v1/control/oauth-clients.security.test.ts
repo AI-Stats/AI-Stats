@@ -5,12 +5,6 @@ const state = vi.hoisted(() => ({
 	metadataRows: [] as Array<Record<string, unknown> | null>,
 	insertPayloads: [] as Array<Record<string, unknown>>,
 	operations: [] as string[],
-	createClient: vi.fn(async () => ({ data: { client_id: "client_1" }, error: null })),
-	updateClient: vi.fn(async () => ({ error: null })),
-	deleteClient: vi.fn(async () => {
-		state.operations.push("delete-upstream");
-		return { error: null };
-	}),
 }));
 
 vi.mock("@/runtime/env", () => ({
@@ -18,73 +12,7 @@ vi.mock("@/runtime/env", () => ({
 	clearRuntime: () => undefined,
 	getBindings: () => ({
 		PHASEO_THIRD_PARTY_OAUTH_ENABLED: state.thirdPartyOAuthEnabled ? "true" : undefined,
-	}),
-	getSupabaseAdmin: () => ({
-		auth: {
-			admin: {
-					oauth: {
-						createClient: state.createClient,
-						updateClient: state.updateClient,
-						deleteClient: state.deleteClient,
-				},
-			},
-		},
-		from(table: string) {
-			if (table === "oauth_authorizations") {
-				return {
-					update: () => ({
-						eq: () => ({
-							is: () => {
-								state.operations.push("revoke-authorizations");
-								return { error: null };
-							},
-						}),
-					}),
-				};
-			}
-			if (table !== "oauth_app_metadata") throw new Error(`Unexpected table: ${table}`);
-			return {
-				insert: (payload: Record<string, unknown>) => {
-					state.insertPayloads.push(payload);
-					return {
-						select: () => ({
-							single: async () => ({ data: payload, error: null }),
-						}),
-					};
-				},
-				select: () => ({
-					eq: () => ({
-						eq: () => {
-							const result = async () => ({
-								data: state.metadataRows.shift() ?? null,
-								error: null,
-							});
-							return { maybeSingle: result, single: result };
-						},
-					}),
-				}),
-				update: () => ({
-					eq: () => ({
-						eq: () => ({
-							select: () => ({
-								single: async () => ({
-									data: state.metadataRows.shift() ?? null,
-									error: null,
-								}),
-							}),
-						}),
-					}),
-				}),
-				delete: () => ({
-					eq: () => ({
-						eq: () => {
-							state.operations.push("delete-metadata");
-							return { error: null };
-						},
-					}),
-				}),
-			};
-		},
+		PHASEO_OAUTH_TOKEN_PEPPER_ACTIVE: "test-oauth-pepper",
 	}),
 }));
 
@@ -101,15 +29,36 @@ vi.mock("@/pipeline/before/guards", () => ({
 	})),
 }));
 
+vi.mock("@/repositories/oauth", () => ({
+	resolveWorkspaceOwnerUserId: vi.fn(async () => "user_1"),
+	createOAuthAppMetadata: vi.fn(async (payload: Record<string, unknown>) => {
+		const row = {
+			...payload,
+			client_id: payload.clientId,
+			workspace_id: payload.workspaceId,
+			allowed_scopes: payload.allowedScopes,
+			client_secret_hash: payload.clientSecretHash,
+		};
+		state.insertPayloads.push(row);
+		return row;
+	}),
+	findOwnedOAuthApp: vi.fn(async () => state.metadataRows.shift() ?? null),
+	updateOAuthAppMetadata: vi.fn(async () => state.metadataRows.shift() ?? null),
+	deleteOAuthAppAndRevokeAuthorizations: vi.fn(async () => {
+		if (!state.metadataRows.shift()) return false;
+		state.operations.push("revoke-authorizations", "delete-metadata");
+		return true;
+	}),
+	listOAuthAppsWithStats: vi.fn(async () => []),
+	findOAuthAppWithStats: vi.fn(async () => null),
+}));
+
 describe("OAuth client management security", () => {
 	beforeEach(() => {
 		state.thirdPartyOAuthEnabled = false;
 		state.metadataRows.length = 0;
 		state.insertPayloads.length = 0;
 		state.operations.length = 0;
-		state.createClient.mockClear();
-		state.updateClient.mockClear();
-		state.deleteClient.mockClear();
 		vi.resetModules();
 	});
 
@@ -128,7 +77,7 @@ describe("OAuth client management security", () => {
 		expect(response.status).toBe(403);
 		expect(body.error).toBe("third_party_oauth_disabled");
 		expect(body.message).toContain("coming soon");
-		expect(state.createClient).not.toHaveBeenCalled();
+		expect(state.insertPayloads).toHaveLength(0);
 	});
 
 	it("does not update upstream redirect URIs before local client ownership is proven", async () => {
@@ -145,7 +94,7 @@ describe("OAuth client management security", () => {
 
 		expect(response.status).toBe(404);
 		expect(body.error).toBe("OAuth app not found");
-		expect(state.updateClient).not.toHaveBeenCalled();
+		expect(state.metadataRows).toHaveLength(0);
 	});
 
 	it("includes explicit gateway access in new third-party client defaults", async () => {
@@ -176,7 +125,6 @@ describe("OAuth client management security", () => {
 		expect(response.status).toBe(200);
 		expect(state.operations).toEqual([
 			"revoke-authorizations",
-			"delete-upstream",
 			"delete-metadata",
 		]);
 	});

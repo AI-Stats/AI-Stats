@@ -1,5 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+const { findWorkspaceOwnerUserIdMock } = vi.hoisted(() => ({
+	findWorkspaceOwnerUserIdMock: vi.fn(),
+}));
+
+vi.mock("@/repositories/management", () => ({
+	findWorkspaceOwnerUserId: (...args: unknown[]) => findWorkspaceOwnerUserIdMock(...args),
+}));
+
 import {
 	getBatchApiFeatureGateName,
 	getGatewayIoLoggingFeatureGateName,
@@ -27,6 +35,7 @@ const auth: AuthSuccess = {
 describe("batch API feature gate", () => {
 	beforeEach(() => {
 		vi.unstubAllGlobals();
+		findWorkspaceOwnerUserIdMock.mockReset();
 	});
 
 	it("uses the configured Statsig gate name", () => {
@@ -174,6 +183,23 @@ describe("batch API feature gate", () => {
 			STATSIG_SERVER_KEY: "secret-statsig-key",
 			STATSIG_ENVIRONMENT_TIER: "staging",
 		})).resolves.toBe(true);
+	});
+
+	it("resolves a missing user identity from the Drizzle workspace repository", async () => {
+		findWorkspaceOwnerUserIdMock.mockResolvedValue("workspace_owner_from_db");
+		const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+			const body = JSON.parse(String(init?.body));
+			expect(body.user.userID).toBe("workspace_owner_from_db");
+			return new Response(JSON.stringify({ value: true }));
+		});
+		vi.stubGlobal("fetch", fetchMock);
+
+		await expect(isGatewayIoLoggingFeatureEnabled({
+			workspaceId: "ws_repository_owner",
+		}, {
+			STATSIG_SERVER_KEY: "secret-statsig-key",
+		})).resolves.toBe(true);
+		expect(findWorkspaceOwnerUserIdMock).toHaveBeenCalledWith("ws_repository_owner");
 	});
 
 	it("fails data contribution closed unless its independent gate is enabled", async () => {

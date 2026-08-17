@@ -1,22 +1,19 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const fromMock = vi.fn();
+const insertGatewayUpstreamRequestsMock = vi.fn();
 
-vi.mock("@/runtime/env", () => ({
-    getSupabaseAdmin: () => ({ from: fromMock }),
+vi.mock("@/repositories/upstream-requests", () => ({
+    insertGatewayUpstreamRequests: (...args: unknown[]) => insertGatewayUpstreamRequestsMock(...args),
 }));
 
 import { persistGatewayUpstreamRequests } from "./upstream-requests";
 
 describe("persistGatewayUpstreamRequests", () => {
     beforeEach(() => {
-        fromMock.mockReset();
+		insertGatewayUpstreamRequestsMock.mockReset().mockResolvedValue(undefined);
     });
 
     it("persists ordered retry and failover rows with the parent total on the final success", async () => {
-        const insertMock = vi.fn().mockResolvedValue({ error: null });
-        fromMock.mockReturnValue({ insert: insertMock });
-
         await persistGatewayUpstreamRequests({
             insertedRow: {
                 id: "request-row-id",
@@ -65,9 +62,8 @@ describe("persistGatewayUpstreamRequests", () => {
             context: "test",
         });
 
-        expect(fromMock).toHaveBeenCalledWith("gateway_upstream_requests");
-        expect(insertMock).toHaveBeenCalledTimes(1);
-        const rows = insertMock.mock.calls[0][0];
+		expect(insertGatewayUpstreamRequestsMock).toHaveBeenCalledTimes(1);
+		const rows = insertGatewayUpstreamRequestsMock.mock.calls[0][0];
         expect(rows).toHaveLength(2);
         expect(rows[0]).toMatchObject({
             sequence: 1,
@@ -95,9 +91,6 @@ describe("persistGatewayUpstreamRequests", () => {
     });
 
     it("creates a synthetic final row when routing attempts are unavailable", async () => {
-        const insertMock = vi.fn().mockResolvedValue({ error: null });
-        fromMock.mockReturnValue({ insert: insertMock });
-
         await persistGatewayUpstreamRequests({
             insertedRow: {
                 id: "request-row-id",
@@ -116,7 +109,7 @@ describe("persistGatewayUpstreamRequests", () => {
             context: "test",
         });
 
-        expect(insertMock.mock.calls[0][0]).toEqual([
+		expect(insertGatewayUpstreamRequestsMock.mock.calls[0][0]).toEqual([
             expect.objectContaining({
                 sequence: 1,
                 attempt_number: 1,
@@ -130,9 +123,6 @@ describe("persistGatewayUpstreamRequests", () => {
     });
 
     it("does not turn missing metrics or a gateway error status into upstream observations", async () => {
-        const insertMock = vi.fn().mockResolvedValue({ error: null });
-        fromMock.mockReturnValue({ insert: insertMock });
-
         await persistGatewayUpstreamRequests({
             insertedRow: {
                 id: "request-row-id",
@@ -161,7 +151,7 @@ describe("persistGatewayUpstreamRequests", () => {
             context: "test",
         });
 
-        expect(insertMock.mock.calls[0][0]).toEqual([
+		expect(insertGatewayUpstreamRequestsMock.mock.calls[0][0]).toEqual([
             expect.objectContaining({
                 status_code: null,
                 duration_ms: null,

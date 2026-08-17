@@ -15,8 +15,8 @@ export async function setActiveWorkspaceAction(workspaceId: string): Promise<Wor
         if (!workspaceId || typeof workspaceId !== 'string') {
             return { ok: false, error: 'workspaceId required' };
         }
-        const { supabase, user } = await requireAuthenticatedUser();
-        await requireWorkspaceMembership(supabase, user.id, workspaceId);
+        const { user } = await requireAuthenticatedUser();
+        await requireWorkspaceMembership(user.id, workspaceId);
         await setActiveWorkspaceCookie(workspaceId);
 
         return { ok: true };

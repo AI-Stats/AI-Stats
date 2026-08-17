@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { getStripe } from "@/lib/stripe";
 import { requireActiveTeamStripeCustomer } from "@/lib/server/activeTeamStripe";
-import { createAdminClient } from "@/utils/supabase/admin";
+import { findPaymentIntentPurchase } from "@/lib/database/repositories/billing";
 
 const TOP_UP_KINDS = new Set(["top_up", "top_up_one_off", "auto_top_up"]);
 type ChargeWithInvoice = Stripe.Charge & {
@@ -45,16 +45,7 @@ export async function POST(req: NextRequest) {
         }
 
         const { workspaceId, customerId } = await requireActiveTeamStripeCustomer();
-        const supabase = createAdminClient();
-
-        const { data: purchase, error: purchaseErr } = await supabase
-            .from("credit_ledger")
-            .select("ref_type,ref_id,kind,status")
-            .eq("workspace_id", workspaceId)
-            .eq("ref_type", "Stripe_Payment_Intent")
-            .eq("ref_id", paymentIntentId)
-            .maybeSingle();
-        if (purchaseErr) throw purchaseErr;
+        const purchase = await findPaymentIntentPurchase(workspaceId, paymentIntentId);
         if (!purchase || !TOP_UP_KINDS.has(String(purchase.kind ?? ""))) {
             return NextResponse.json({ error: "Purchase not found" }, { status: 404 });
         }

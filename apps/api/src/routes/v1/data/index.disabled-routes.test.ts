@@ -3,8 +3,6 @@ import { describe, expect, it } from "vitest";
 import { inferenceRouter } from "./index";
 
 const testEnv = {
-	SUPABASE_URL: "https://example.supabase.co",
-	SUPABASE_SERVICE_ROLE_KEY: "test-service-role-key",
 	KEY_PEPPER_ACTIVE: "test-pepper",
 	OPENAI_API_KEY: "test-openai-key",
 	VIDEO_API_ENABLED: "true",

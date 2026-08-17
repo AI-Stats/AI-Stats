@@ -55,6 +55,7 @@ async function SignInPageContent({ searchParams }: SignInPageProps) {
 						authError={authError}
 						returnUrl={returnUrl}
 						ssoEnabled={ssoEnabled}
+						useBetterAuth
 					/>
 				</div>
 			</div>

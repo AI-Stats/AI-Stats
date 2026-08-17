@@ -1,4 +1,5 @@
-import { getBindings, getSupabaseAdmin } from "@/runtime/env";
+import * as classificationRepository from "@/repositories/classification";
+import { getBindings } from "@/runtime/env";
 
 type ContributionRow = {
 	id: string;
@@ -67,11 +68,14 @@ export function starterClassifierRow(workspaceId: string, createdBy?: string | n
 }
 
 export async function ensureStarterClassifier(workspaceId: string, createdBy?: string | null): Promise<void> {
-	const { error } = await getSupabaseAdmin().from("workspace_classifiers").upsert(
-		starterClassifierRow(workspaceId, createdBy),
-		{ onConflict: "workspace_id,slug", ignoreDuplicates: true },
-	);
-	if (error) throw new Error(error.message || "Failed to create starter classifier");
+	const row = starterClassifierRow(workspaceId, createdBy);
+	await classificationRepository.ensureClassifier({
+		workspaceId: row.workspace_id, slug: row.slug, name: row.name,
+		description: row.description, kind: row.kind, instructions: row.instructions,
+		categories: row.categories, model: row.model, serviceTier: row.service_tier,
+		sampleRateBps: row.sample_rate_bps, enabled: row.enabled,
+		createdBy: row.created_by, updatedAt: row.updated_at,
+	});
 }
 
 function flattenCategories(categories: Record<string, unknown>): string[] {
@@ -153,67 +157,46 @@ async function classify(payload: unknown, classifier: ClassifierRow): Promise<{ 
 }
 
 async function completeContribution(contribution: ContributionRow, classifiers: ClassifierRow[], payload: unknown): Promise<void> {
-	const client = getSupabaseAdmin();
-	const existingResult = await client.from("request_classifications")
-		.select("classifier_id")
-		.eq("contribution_id", contribution.id);
-	if (existingResult.error) throw new Error(existingResult.error.message || "classification state read failed");
-	const completedClassifierIds = new Set((existingResult.data ?? []).map((row) => String(row.classifier_id)));
+	const completedClassifierIds = new Set(await classificationRepository.listCompletedClassifierIds(contribution.id));
 	for (const classifier of classifiers) {
 		if (await classifierSampleBucket(contribution.id, classifier.id) >= classifier.sample_rate_bps) continue;
 		if (!completedClassifierIds.has(classifier.id)) {
 			const result = await classify(payload, classifier);
-			const { error: resultError } = await client.from("request_classifications").upsert({
-				contribution_id: contribution.id,
-				workspace_id: contribution.workspace_id,
-				classifier_id: classifier.id,
-				primary_category: result.value.primary_category,
+			await classificationRepository.upsertClassification({
+				contributionId: contribution.id,
+				workspaceId: contribution.workspace_id,
+				classifierId: classifier.id,
+				primaryCategory: result.value.primary_category,
 				labels: result.value.labels,
-				confidence: result.value.confidence,
+				confidence: result.value.confidence == null ? null : String(result.value.confidence),
 				model: classifier.model,
-				service_tier: classifier.service_tier,
-				latency_ms: result.latencyMs,
-			}, { onConflict: "contribution_id,classifier_id" });
-			if (resultError) throw new Error(resultError.message || "classification upsert failed");
+				serviceTier: classifier.service_tier,
+				latencyMs: result.latencyMs,
+			});
 		}
 
-		const { error: rollupError } = await client.rpc("refresh_request_classification_rollup", {
-			p_contribution_id: contribution.id,
-			p_classifier_id: classifier.id,
-		});
-		if (rollupError) throw new Error(rollupError.message || "classification rollup refresh failed");
+		await classificationRepository.refreshClassificationRollup(contribution.id, classifier.id);
 	}
 	const now = new Date().toISOString();
-	const { error } = await client.from("data_contributions").update({
-		status: "complete",
-		completed_at: now,
-		lease_expires_at: null,
-		last_error: null,
-		updated_at: now,
-	}).eq("id", contribution.id).eq("status", "processing");
-	if (error) throw new Error(error.message || "contribution completion failed");
+	await classificationRepository.completeContribution(contribution.id, now);
 }
 
 async function failContribution(contribution: ContributionRow, error: unknown): Promise<void> {
 	const terminal = contribution.attempt_count >= 8;
 	const backoffSeconds = Math.min(3600, 30 * (2 ** Math.min(contribution.attempt_count, 7)));
-	await getSupabaseAdmin().from("data_contributions").update({
-		status: "failed",
-		available_at: new Date(Date.now() + (terminal ? 86_400 : backoffSeconds) * 1000).toISOString(),
-		lease_expires_at: null,
-		last_error: (error instanceof Error ? error.message : String(error)).slice(0, 1000),
-		updated_at: new Date().toISOString(),
-	}).eq("id", contribution.id).eq("status", "processing");
+	await classificationRepository.failContribution(
+		contribution.id,
+		new Date(Date.now() + (terminal ? 86_400 : backoffSeconds) * 1000).toISOString(),
+		(error instanceof Error ? error.message : String(error)).slice(0, 1000),
+		new Date().toISOString(),
+	);
 }
 
 export async function runDataContributionClassifierJob(args?: { limit?: number; concurrency?: number }) {
 	const bindings = getBindings();
 	const limit = Math.max(1, Math.min(250, Math.trunc(args?.limit ?? 25)));
 	const concurrency = Math.max(1, Math.min(16, Math.trunc(args?.concurrency ?? 4)));
-	const client = getSupabaseAdmin();
-	const claimed = await client.rpc("claim_data_contributions", { p_limit: limit, p_lease_seconds: 600 });
-	if (claimed.error) throw new Error(claimed.error.message || "Failed to claim contributions");
-	const rows = (claimed.data ?? []) as ContributionRow[];
+	const rows = await classificationRepository.claimContributions(limit, 600) as ContributionRow[];
 	let completed = 0;
 	let failed = 0;
 	let cursor = 0;
@@ -223,15 +206,13 @@ export async function runDataContributionClassifierJob(args?: { limit?: number; 
 			try {
 				const [object, classifiersResult] = await Promise.all([
 					bindings.DATA_CONTRIBUTIONS_BUCKET?.get(contribution.object_key),
-					client.from("workspace_classifiers").select("id,workspace_id,slug,name,instructions,categories,model,service_tier,sample_rate_bps")
-						.eq("workspace_id", contribution.workspace_id).eq("enabled", true),
+					classificationRepository.listEnabledClassifiers(contribution.workspace_id),
 				]);
 				if (!object) throw new Error("contribution_object_missing");
-				if (classifiersResult.error) throw new Error(classifiersResult.error.message || "classifier list failed");
 				const storedPayload = JSON.parse(await object.text()) as Record<string, unknown>;
 				await completeContribution(
 					contribution,
-					(classifiersResult.data ?? []) as ClassifierRow[],
+					classifiersResult as ClassifierRow[],
 					{ request: storedPayload.request ?? null, response: storedPayload.response ?? null },
 				);
 				completed += 1;
@@ -242,9 +223,8 @@ export async function runDataContributionClassifierJob(args?: { limit?: number; 
 		}
 	});
 	await Promise.all(workers);
-	const publicRollup = await client.rpc("refresh_public_model_task_daily", {
-		p_since: new Date(Date.now() - 86_400_000).toISOString().slice(0, 10),
-	});
-	if (publicRollup.error) throw new Error(publicRollup.error.message || "public classification rollup refresh failed");
+	await classificationRepository.refreshPublicModelTaskDaily(
+		new Date(Date.now() - 86_400_000).toISOString().slice(0, 10),
+	);
 	return { claimed: rows.length, completed, failed };
 }

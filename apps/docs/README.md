@@ -29,5 +29,5 @@ To improve it, just edit or add a page and submit a pull request.
 ### 💡 Powered By
 
 -   [Mintlify](https://mintlify.com) — for modern docs
--   [Supabase](https://supabase.com) — for live data
+-   [PlanetScale](https://planetscale.com) — for live Postgres data
 -   The **Phaseo Community** — for ideas, words, and effort

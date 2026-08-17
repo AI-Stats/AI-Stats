@@ -1,7 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { createClient } from "@supabase/supabase-js";
+import { getPlanetScalePool } from "../../src/lib/database/planetscale";
 import { normalizeProviderModelPricing } from "../../../api/src/pipeline/model-discovery/pricing-normalizers";
 import { getProviderSyncProvider, getProviderSyncProviderIds } from "./provider-sync/providers";
 import { parseProviderModelList } from "./provider-sync/provider";
@@ -277,29 +277,14 @@ async function fetchLiveDiscoveryRows(): Promise<{ rows: DiscoveryRow[]; errors:
 }
 
 async function fetchDiscoveryRows(): Promise<DiscoveryRow[]> {
-	const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
-	const key = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
-	if (!url || !key) throw new Error("NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required");
-	const supabase = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
-	const output: DiscoveryRow[] = [];
-	let from = 0;
-	while (true) {
-		let query = supabase
-			.from("model_discovery_seen_models")
-			.select("provider_id,model_id,model_details,last_seen_at")
-			.order("provider_id", { ascending: true })
-			.order("model_id", { ascending: true })
-			.range(from, from + 999);
-		if (PROVIDER_FILTERS?.length === 1) query = query.eq("provider_id", PROVIDER_FILTERS[0]);
-		else if (PROVIDER_FILTERS && PROVIDER_FILTERS.length > 1) query = query.in("provider_id", PROVIDER_FILTERS);
-		const { data, error } = await query;
-		if (error) throw new Error(error.message || "Failed to load model discovery state");
-		const rows = (data ?? []) as DiscoveryRow[];
-		output.push(...rows);
-		if (rows.length < 1_000) break;
-		from += 1_000;
-	}
-	return output;
+	const filters = PROVIDER_FILTERS?.filter(Boolean) ?? [];
+	const result = await getPlanetScalePool().query<DiscoveryRow>(`
+		select provider_id,model_id,model_details,last_seen_at
+		from model_discovery_seen_models
+		where ($1::text[] is null or provider_id=any($1::text[]))
+		order by provider_id,model_id
+	`, [filters.length ? filters : null]);
+	return result.rows;
 }
 
 async function loadCanonicalModelIndex(): Promise<{ ids: Set<string>; aliases: Map<string, string>; uniqueTails: Map<string, string> }> {

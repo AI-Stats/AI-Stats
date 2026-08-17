@@ -15,11 +15,28 @@ function json(body: unknown, status = 200, headers: Record<string, string> = {})
 }
 
 vi.mock("@/runtime/env", () => ({
-	getSupabaseAdmin: () => {
+	getBindings: () => ({ KEY_PEPPER_ACTIVE: "pepper" }),
+}));
+
+vi.mock("@/repositories/management-keys", () => {
+	const databaseShouldNotBeTouched = () => {
+		state.dbTouched = true;
+		throw new Error("database should not be touched");
+	};
+	return {
+		createManagementKey: databaseShouldNotBeTouched,
+		deleteManagementKey: databaseShouldNotBeTouched,
+		findManagementKey: databaseShouldNotBeTouched,
+		listManagementKeys: databaseShouldNotBeTouched,
+		updateManagementKey: databaseShouldNotBeTouched,
+	};
+});
+
+vi.mock("@/repositories/management", () => ({
+	findWorkspaceOwnerUserId: () => {
 		state.dbTouched = true;
 		throw new Error("database should not be touched");
 	},
-	getBindings: () => ({ KEY_PEPPER_ACTIVE: "pepper" }),
 }));
 
 vi.mock("@/pipeline/before/guards", () => ({

@@ -2,7 +2,6 @@ import { capabilityToEndpoints } from "@/lib/config/capabilityToEndpoints";
 import { normalizeQuantizationScheme } from "@/lib/quantization";
 import { extractSupportedParameters } from "@/lib/fetchers/models/table-view/helpers";
 import { fetchPublicWebApi } from "@/lib/web-api/client";
-import { fetchAdminModelSource } from "@/lib/fetchers/internal/fetchAdminModelSource";
 
 export interface GatewayProviderDetails {
     api_provider_id: string;
@@ -380,6 +379,7 @@ export default async function getModelGatewayMetadata(
 			`/api/_web/models/${encodeURIComponent(modelId)}/gateway-metadata`,
 		)).metadata;
 	}
+	const { fetchAdminModelSource } = await import("@/lib/fetchers/internal/fetchAdminModelSource");
 	const source = await fetchAdminModelSource(modelId).then((source) => ({
 		providerModels: source.providerRows,
 		caps: source.providerRows.flatMap((row) =>

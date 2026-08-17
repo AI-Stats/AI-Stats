@@ -1,9 +1,28 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+vi.mock("@/repositories/provider-index", () => ({ listProviderIndexRows: vi.fn(async () => [{
+	provider_slug: "openai", provider_name: "OpenAI", colour: "#000", country_code: "US", provider_family_id: "openai", offer_label: null, offer_scope: "global", is_gateway_provider: true, prompt_training_policy: "no_train", data_policy_tier: "private", zero_data_retention: "optional", data_retention_days: 30, privacy_policy_url: "https://openai.com/policies/privacy-policy/", terms_of_service_url: "https://openai.com/policies/services-agreement/", total_model_ids: ["openai/gpt-test:free"], active_model_ids: ["openai/gpt-test:free"], free_model_ids: ["openai/gpt-test:free"], requests_24h: 10, tokens_24h: 100, tokens_30d: 100, last_updated_at: "2026-01-01T00:00:00Z", text_input_model_ids: ["openai/gpt-test:free"], text_output_model_ids: ["openai/gpt-test:free"], image_input_model_ids: ["openai/gpt-test:free"], image_output_model_ids: [], video_input_model_ids: [], video_output_model_ids: [], audio_input_model_ids: [], audio_output_model_ids: [], moderation_input_model_ids: [], moderation_output_model_ids: [], embedding_input_model_ids: [], embedding_output_model_ids: [],
+}]) }));
+vi.mock("@/repositories/provider-telemetry", () => ({
+	listProviderTopModels: vi.fn(async () => [{ model_id: "openai/gpt-test", model_name: "GPT Test", request_count: "4", total_tokens: "120", median_latency_ms: "12.6", median_throughput: "3.456" }]),
+	listProviderTopApps: vi.fn(async () => [{ app_id: "app-1", title: "Example", url: "https://example.com", image_url: "https://example.com/app.png", total_tokens: "99" }]),
+	getProviderRecentTokens: vi.fn(async () => 500),
+	listProviderRecentModels: vi.fn(async () => [{ model_id: "openai/gpt-test", api_model_id: "gpt-test", created_at: new Date().toISOString(), is_active_gateway: true, data_models: { name: "GPT Test", release_date: new Date().toISOString() } }]),
+	listProviderRollups: vi.fn(async () => [{ bucket_15m: new Date().toISOString(), canonical_model_id: "openai/gpt-test", app_id: "app-1", requests: 10, success_requests: 9, total_tokens: 20, latency_sum_ms: 500, latency_samples: 10, throughput_sum: 200, throughput_samples: 10 }]),
+	getProviderModelNames: vi.fn(async () => new Map([["openai/gpt-test", "GPT Test"]])),
+	getProviderAppMetadata: vi.fn(async () => new Map([["app-1", { id: "app-1", title: "Example", url: "https://example.com", image_url: "https://example.com/app.png" }]])),
+	loadProviderModelCatalogue: vi.fn(async () => ({
+		routes: [{ provider_model_id: "pm-1", provider_model_slug: "gpt-test", model_slug: "openai/gpt-test", routing_enabled: true, status: "active", input_modalities: ["text"], output_modalities: ["text"], created_at: "2026-07-01T00:00:00Z", model: { name: "GPT Test", released_at: "2026-06-01", announced_at: null } }],
+		capabilities: [{ provider_model_id: "pm-1", capability_id: "chat/completions", params: { temperature: true }, status: "active" }],
+		skus: [{ sku_id: "sku-1", provider_model_id: "pm-1", service_tier_slug: "standard", status: "active", effective_from: "2026-01-01T00:00:00Z", effective_to: null }],
+		meters: [{ sku_id: "sku-1", meter_key: "input_text_tokens", unit: "token", unit_quantity: 1000000, price_nanos: 2000000000, meter_order: 0 }, { sku_id: "sku-1", meter_key: "output_text_tokens", unit: "token", unit_quantity: 1000000, price_nanos: 6000000000, meter_order: 1 }],
+	})),
+}));
 import app from "@/index";
+import { listProviderIndexRows } from "@/repositories/provider-index";
 
-const env = { ENV: "development" as const, SUPABASE_URL: "https://example.supabase.co", SUPABASE_SERVICE_ROLE_KEY: "service-role-key" };
+const env = { ENV: "development" as const };
 
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => { vi.unstubAllGlobals(); vi.clearAllMocks(); });
 
 describe("public provider routes", () => {
 	it("returns the enriched provider index with stable caching", async () => {
@@ -29,7 +48,7 @@ describe("public provider routes", () => {
 		await expect(response.json()).resolves.toMatchObject({ providers: [{ api_provider_id: "openai", api_provider_name: "OpenAI", prompt_training_policy: "no_train", zero_data_retention: "optional", data_retention_days: 30, privacy_policy_url: "https://openai.com/policies/privacy-policy/", terms_of_service_url: "https://openai.com/policies/services-agreement/", total_models: 1, active_models: 1, free_models: 1, total_daily_tokens: 100, total_monthly_tokens: 100, modality_support: { text: { input: 1, output: 1 }, image: { input: 1, output: 0 } } }] });
 	});
 
-	it("loads the provider index through one aggregate RPC without raw catalogue reads", async () => {
+	it("loads the provider index through one aggregate Drizzle repository", async () => {
 		const requestedUrls: string[] = [];
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = input instanceof Request ? input.url : String(input);
@@ -39,8 +58,8 @@ describe("public provider routes", () => {
 
 		const response = await app.request("https://phaseo.app/api/_web/api-providers", {}, env);
 		expect(response.status).toBe(200);
-		expect(requestedUrls.filter((url) => url.includes("get_public_provider_index"))).toHaveLength(1);
-		expect(requestedUrls.some((url) => url.includes("v2_model_provider_routes") || url.includes("v2_models") || url.includes("v2_providers"))).toBe(false);
+		expect(listProviderIndexRows).toHaveBeenCalledOnce();
+		expect(requestedUrls).toHaveLength(0);
 	});
 
 	it("returns parity-shaped top model and app telemetry with the short edge policy", async () => {
@@ -124,8 +143,8 @@ describe("public provider routes", () => {
 		const appPayload = await appResponse.json() as { apps: unknown[]; points: unknown[] };
 		expect(modelPayload.models).toEqual([{ modelId: "openai/gpt-test", modelName: "GPT Test", totalTokens: 20 }]);
 		expect(modelPayload.points).toContainEqual(expect.objectContaining({ modelId: "openai/gpt-test", tokens: 20 }));
-		expect(appPayload.apps).toEqual([{ appId: "app-1", title: "Example", url: "https://example.com", imageUrl: "https://example.com/app.png", totalTokens: 15 }]);
-		expect(appPayload.points).toContainEqual(expect.objectContaining({ appId: "app-1", tokens: 15 }));
+		expect(appPayload.apps).toEqual([{ appId: "app-1", title: "Example", url: "https://example.com", imageUrl: "https://example.com/app.png", totalTokens: 20 }]);
+		expect(appPayload.points).toContainEqual(expect.objectContaining({ appId: "app-1", tokens: 20 }));
 	});
 
 	it("returns the provider model list with merged capabilities and current pricing", async () => {

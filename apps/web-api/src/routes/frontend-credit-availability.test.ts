@@ -1,10 +1,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+const loadModelAvailabilitySources = vi.hoisted(() => vi.fn());
+vi.mock("@/repositories/model-availability", () => ({ loadModelAvailabilitySources }));
 import app from "@/index";
 
 const env = {
 	ENV: "development" as const,
-	SUPABASE_URL: "https://example.supabase.co",
-	SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
 };
 
 afterEach(() => {
@@ -13,20 +13,16 @@ afterEach(() => {
 
 describe("credit model availability route", () => {
 	it("returns creator logos with an edge-cached country preview", async () => {
-		const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
-			const url = String(input);
-			let rows: unknown[] = [];
-			if (url.includes("v2_model_provider_routes")) {
-				rows = [{
+		loadModelAvailabilitySources.mockResolvedValue({
+			routes: [{
 					provider_model_id: "openai:gpt-test",
 					provider_slug: "openai",
 					model_slug: "openai/gpt-test",
 					metadata: {},
 					effective_from: null,
 					effective_to: null,
-				}];
-			} else if (url.includes("v2_providers")) {
-				rows = [{
+				}],
+			providers: [{
 					provider_slug: "openai",
 					metadata: {
 						availability: {
@@ -34,21 +30,14 @@ describe("credit model availability route", () => {
 							countries: ["US"],
 						},
 					},
-				}];
-			} else if (url.includes("v2_models")) {
-				rows = [{
+				}],
+			models: [{
 					model_slug: "openai/gpt-test",
 					name: "GPT Test",
 					lab_slug: "openai",
-					lab: { name: "OpenAI" },
-				}];
-			}
-			return new Response(JSON.stringify(rows), {
-				status: 200,
-				headers: { "content-type": "application/json" },
-			});
+					lab_name: "OpenAI",
+				}],
 		});
-		vi.stubGlobal("fetch", fetchMock);
 
 		const response = await app.request(
 			"https://phaseo.app/api/_web/credits/model-availability?country=CN",

@@ -1,7 +1,8 @@
 import "dotenv/config";
 
 import { compareBenchmarkScoresForBenchmark } from "../../src/lib/benchmarks/scoreFormat";
-import { assertOk, client, isDryRun, logWrite } from "./supa";
+import { isDryRun, logWrite } from "./runtime";
+import { selectImportRows, updateImportRows } from "./database";
 import { chunk } from "./util";
 
 type BenchmarkResultRow = {
@@ -48,7 +49,6 @@ function parseScore(value: string | number | null): number | null {
 async function fetchAllBenchmarkRows(
 	benchmarkIds: string[] | null,
 ): Promise<BenchmarkResultRow[]> {
-	const supa = client();
 	const out: BenchmarkResultRow[] = [];
 
 	if (benchmarkIds && benchmarkIds.length === 0) return out;
@@ -60,23 +60,14 @@ async function fetchAllBenchmarkRows(
 
 	for (const ids of idGroups) {
 		for (let offset = 0; ; offset += PAGE_SIZE) {
-			let query = supa
-				.from("v2_benchmark_results")
-				.select(
-					"result_id,result_key,model_slug,benchmark_id,score,is_self_reported,other_info,source_link,occur_idx,variant,rank",
-				)
-				.order("benchmark_id", { ascending: true })
-				.order("id", { ascending: true })
-				.range(offset, offset + PAGE_SIZE - 1);
-
-			if (ids) {
-				query = query.in("benchmark_id", ids);
-			}
-
-			const rawRows = assertOk(
-				await query,
-				"select v2 benchmark results for rank recompute",
-			) as Array<Omit<BenchmarkResultRow, "id" | "model_id"> & { result_id: string; model_slug: string }>;
+			const rawRows = await selectImportRows({
+				table: "v2_benchmark_results",
+				columns: "result_id,result_key,model_slug,benchmark_id,score,is_self_reported,other_info,source_link,occur_idx,variant,rank",
+				inFilter: ids ? { column: "benchmark_id", values: ids } : undefined,
+				orderBy: [{ column: "benchmark_id" }, { column: "id" }],
+				offset,
+				limit: PAGE_SIZE,
+			}) as Array<Omit<BenchmarkResultRow, "id" | "model_id"> & { result_id: string; model_slug: string }>;
 
 			if (!rawRows.length) break;
 			out.push(...rawRows.map((row) => ({ ...row, id: row.result_id, model_id: row.model_slug })));
@@ -90,18 +81,15 @@ async function fetchAllBenchmarkRows(
 async function fetchBenchmarkMeta(
 	benchmarkIds: string[],
 ): Promise<Map<string, boolean | null>> {
-	const supa = client();
 	const out = new Map<string, boolean | null>();
 	if (!benchmarkIds.length) return out;
 
 	for (const ids of chunk(Array.from(new Set(benchmarkIds)), 200)) {
-		const rows = assertOk(
-			await supa
-				.from("v2_benchmarks")
-				.select("benchmark_id,ascending_order")
-				.in("benchmark_id", ids),
-			"select v2 benchmarks for rank recompute",
-		) as BenchmarkMetaRow[];
+		const rows = await selectImportRows({
+			table: "v2_benchmarks",
+			columns: "benchmark_id,ascending_order",
+			inFilter: { column: "benchmark_id", values: ids },
+		}) as BenchmarkMetaRow[];
 
 		for (const row of rows) {
 			const benchmarkId = row.id ?? row.benchmark_id;
@@ -113,20 +101,17 @@ async function fetchBenchmarkMeta(
 }
 
 async function benchmarkIdsForModel(modelId: string): Promise<string[]> {
-	const supa = client();
 	const rows: Array<{ benchmark_id: string | null }> = [];
 
 	for (let offset = 0; ; offset += PAGE_SIZE) {
-		const page = assertOk(
-			await supa
-				.from("v2_benchmark_results")
-				.select("result_id,benchmark_id")
-				.eq("model_slug", modelId)
-				.order("benchmark_id", { ascending: true })
-				.order("id", { ascending: true })
-				.range(offset, offset + PAGE_SIZE - 1),
-			`select benchmark ids for model ${modelId}`,
-		) as Array<{ benchmark_id: string | null }>;
+		const page = await selectImportRows({
+			table: "v2_benchmark_results",
+			columns: "result_id,benchmark_id",
+			filters: [{ column: "model_slug", value: modelId }],
+			orderBy: [{ column: "benchmark_id" }, { column: "id" }],
+			offset,
+			limit: PAGE_SIZE,
+		}) as Array<{ benchmark_id: string | null }>;
 
 		if (!page.length) break;
 		rows.push(...page);
@@ -207,12 +192,12 @@ async function writeRankedRows(rows: BenchmarkResultRow[]): Promise<void> {
 		return;
 	}
 
-	const supa = client();
 	for (const batch of chunk(rows, 500)) {
 		for (const row of batch) {
-			assertOk(
-				await supa.from("v2_benchmark_results").update({ rank: row.rank }).eq("result_id", row.id),
-				"update ranked v2_benchmark_results",
+			await updateImportRows(
+				"v2_benchmark_results",
+				{ rank: row.rank },
+				[{ column: "result_id", value: row.id }],
 			);
 		}
 	}

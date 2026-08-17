@@ -49,6 +49,7 @@
 		"validate:pricing": "cd apps/web && pnpm run validate:pricing",
 		"validate:gateway": "cd apps/web && pnpm run validate:gateway",
 		"validate:ci-security": "node --test scripts/validate-ci-secret-boundaries.test.mjs && node scripts/validate-ci-secret-boundaries.mjs",
+		"validate:no-supabase-runtime": "node scripts/validate-no-supabase-runtime.mjs",
 		"validate:domains": "node scripts/check-canonical-domain.mjs",
 		"data:update-statuses": "tsx scripts/update-model-statuses.ts",
 		"data:recompute-benchmark-ranks": "pnpm --filter @phaseo/web run catalog:recompute-benchmark-ranks",
@@ -140,7 +141,6 @@
 		"js-yaml": "^4.2.0",
 		"knip": "^6.6.1",
 		"rimraf": "^6.0.0",
-		"supabase": "^2.89.1",
 		"tsx": "^4.21.0",
 		"turbo": "^2.10.8"
 	},

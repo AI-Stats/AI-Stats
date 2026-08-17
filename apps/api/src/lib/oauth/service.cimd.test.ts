@@ -2,15 +2,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/runtime/env", () => ({
 	getBindings: () => ({ PHASEO_THIRD_PARTY_OAUTH_ENABLED: true }),
-	getSupabaseAdmin: () => ({
-		from: () => ({
-			select: () => ({
-				eq: () => ({
-					eq: () => ({ maybeSingle: async () => ({ data: null, error: null }) }),
-				}),
-			}),
-		}),
-	}),
+}));
+
+vi.mock("@/repositories/oauth", () => ({
+	findActiveOAuthClient: vi.fn(async () => null),
 }));
 
 import { loadOAuthClient } from "./service";

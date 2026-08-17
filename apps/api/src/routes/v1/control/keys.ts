@@ -4,7 +4,18 @@
 
 import { Hono } from "hono";
 import type { Env } from "@/runtime/types";
-import { getSupabaseAdmin, getCache, getBindings } from "@/runtime/env";
+import { getCache, getBindings } from "@/runtime/env";
+import {
+	createApiKey,
+	findApiKey,
+	findApiKeyByIdAndWorkspace,
+	findApiKeyForInvalidation,
+	listApiKeys,
+	tombstoneApiKey,
+	updateApiKey,
+	type ApiKeyUpdate,
+} from "@/repositories/api-keys";
+import { findWorkspaceOwnerUserId as loadWorkspaceOwnerUserId, findWorkspaceRole } from "@/repositories/management";
 import { guardAuth, guardManagementAuth, type GuardErr } from "@/pipeline/before/guards";
 import { json, withRuntime } from "@/routes/utils";
 import { setKeyVersion } from "@/core/kv";
@@ -67,12 +78,6 @@ function parsePathId(url: URL): string | null {
 		return null;
 	}
 	return decodeURIComponent(candidate).trim() || null;
-}
-
-function resolveKeyLookupColumn(identifier: string): "id" | "hash" {
-	return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(identifier)
-		? "id"
-		: "hash";
 }
 
 function nanosToUsd(value: unknown): number | null {
@@ -221,17 +226,10 @@ async function requireOAuthWorkspaceAdmin(auth: ManagementRouteAuth, workspaceId
 	if (!userId) {
 		return json({ error: "forbidden", message: "OAuth user is required" }, 403, { "Cache-Control": "no-store" });
 	}
-	const supabase = getSupabaseAdmin();
-	const { data, error } = await supabase
-		.from("workspace_members")
-		.select("role")
-		.eq("workspace_id", workspaceId)
-		.eq("user_id", userId)
-		.maybeSingle();
-	if (error || !data) {
+	const role = (await findWorkspaceRole(userId, workspaceId))?.toLowerCase();
+	if (!role) {
 		return json({ error: "forbidden", message: "Workspace membership is required" }, 403, { "Cache-Control": "no-store" });
 	}
-	const role = String((data as { role?: unknown }).role ?? "").toLowerCase();
 	if (role !== "owner" && role !== "admin") {
 		return json(
 			{ error: "forbidden", message: "Workspace owner or admin role is required" },
@@ -255,16 +253,7 @@ function rejectApiKeyScopes(body: Record<string, unknown>): Response | null {
 }
 
 async function resolveWorkspaceOwnerUserId(workspaceId: string): Promise<string> {
-	const supabase = getSupabaseAdmin();
-	const { data, error } = await supabase
-		.from("workspaces")
-		.select("owner_user_id")
-		.eq("id", workspaceId)
-		.maybeSingle();
-	if (error) {
-		throw new Error(error.message || "Failed to resolve workspace owner");
-	}
-	const ownerUserId = String((data as { owner_user_id?: unknown } | null)?.owner_user_id ?? "").trim();
+	const ownerUserId = (await loadWorkspaceOwnerUserId(workspaceId))?.trim() ?? "";
 	if (!ownerUserId) {
 		throw new Error("Workspace owner not found");
 	}
@@ -337,16 +326,7 @@ async function handleGetCurrentKey(req: Request) {
 			);
 		}
 
-		const supabase = getSupabaseAdmin();
-		const { data, error } = await supabase
-			.from("keys")
-			.select("id, hash, workspace_id, name, prefix, status, created_by, created_at, last_used_at, soft_blocked, expires_at, daily_limit_cost_nanos, weekly_limit_cost_nanos, monthly_limit_cost_nanos")
-			.eq("id", auth.value.apiKeyId)
-			.eq("workspace_id", auth.value.workspaceId)
-			.maybeSingle();
-		if (error) {
-			throw new Error(error.message || "Failed to fetch current API key");
-		}
+		const data = await findApiKeyByIdAndWorkspace(auth.value.apiKeyId, auth.value.workspaceId);
 		if (!data) {
 			return json({ error: "not_found", message: "API key not found" }, 404, { "Cache-Control": "no-store" });
 		}
@@ -388,40 +368,12 @@ async function handleListKeys(req: Request) {
 	const limit = parsePositiveInt(url.searchParams.get("limit"), DEFAULT_LIMIT, MAX_LIMIT);
 
 	try {
-		const supabase = getSupabaseAdmin();
-		let query = supabase
-			.from("keys")
-			.select("id, hash, workspace_id, name, prefix, status, created_by, created_at, last_used_at, soft_blocked, expires_at, daily_limit_cost_nanos, weekly_limit_cost_nanos, monthly_limit_cost_nanos")
-			.eq("workspace_id", workspaceScope.workspaceId)
-			.neq("name", CHAT_MANAGED_KEY_NAME)
-			.order("created_at", { ascending: false })
-			.range(offset, offset + limit - 1);
-		if (!includeDisabled) {
-			query = query.eq("status", "active").eq("soft_blocked", false);
-		}
-
-		const { data, error } = await query;
-		if (error) {
-			throw new Error(error.message || "Failed to list API keys");
-		}
-
-		let countQuery = supabase
-			.from("keys")
-			.select("id", { count: "exact", head: true })
-			.eq("workspace_id", workspaceScope.workspaceId)
-			.neq("name", CHAT_MANAGED_KEY_NAME);
-		if (!includeDisabled) {
-			countQuery = countQuery.eq("status", "active").eq("soft_blocked", false);
-		}
-		const { count, error: countError } = await countQuery;
-		if (countError) {
-			throw new Error(countError.message || "Failed to count API keys");
-		}
+		const { rows, total } = await listApiKeys({ workspaceId: workspaceScope.workspaceId, excludedName: CHAT_MANAGED_KEY_NAME, includeDisabled, limit, offset });
 
 		return json(
 			{
-				data: (data ?? []).map((row) => formatApiKey(row as KeyRow)),
-				total_count: count ?? 0,
+				data: rows.map((row) => formatApiKey(row as KeyRow)),
+				total_count: total,
 			},
 			200,
 			{ "Cache-Control": "no-store" },
@@ -505,38 +457,29 @@ async function handleCreateKey(req: Request) {
 		const hash = await hmacSecret(generated.secret, pepper);
 		const status = body.disabled === true ? "paused" : "active";
 		const softBlocked = Boolean(body.soft_blocked);
-		const insertPayload: Record<string, unknown> = {
-			workspace_id: workspaceScope.workspaceId,
+		const costFields: Record<string, unknown> = {};
+		applyCostLimitFields(costFields, {
+			limit: limit.value,
+			limitReset: limitReset.value,
+		});
+		const data = await createApiKey({
+			workspaceId: workspaceScope.workspaceId,
 			name,
 			scopes: "[]",
 			kid: generated.kid,
 			hash,
 			prefix: generated.prefix,
 			status,
-			created_by: creatorUserId,
-			daily_limit_requests: 0,
-			weekly_limit_requests: 0,
-			monthly_limit_requests: 0,
-			daily_limit_cost_nanos: 0,
-			weekly_limit_cost_nanos: 0,
-			monthly_limit_cost_nanos: 0,
-			soft_blocked: softBlocked,
-			...(expiresAt.value !== undefined ? { expires_at: expiresAt.value } : {}),
-		};
-		applyCostLimitFields(insertPayload, {
-			limit: limit.value,
-			limitReset: limitReset.value,
+			createdBy: creatorUserId,
+			dailyLimitRequests: 0,
+			weeklyLimitRequests: 0,
+			monthlyLimitRequests: 0,
+			dailyLimitCostNanos: Number(costFields.daily_limit_cost_nanos ?? 0),
+			weeklyLimitCostNanos: Number(costFields.weekly_limit_cost_nanos ?? 0),
+			monthlyLimitCostNanos: Number(costFields.monthly_limit_cost_nanos ?? 0),
+			softBlocked,
+			...(expiresAt.value !== undefined ? { expiresAt: expiresAt.value } : {}),
 		});
-
-		const supabase = getSupabaseAdmin();
-		const { data, error } = await supabase
-			.from("keys")
-			.insert(insertPayload)
-			.select("id, hash, workspace_id, name, prefix, status, created_by, created_at, last_used_at, soft_blocked, expires_at, daily_limit_cost_nanos, weekly_limit_cost_nanos, monthly_limit_cost_nanos")
-			.maybeSingle();
-		if (error) {
-			throw new Error(error.message || "Failed to create API key");
-		}
 
 		return json(
 			{
@@ -570,18 +513,7 @@ async function handleGetKey(req: Request) {
 	if (roleError) return roleError;
 
 	try {
-		const supabase = getSupabaseAdmin();
-		const lookupColumn = resolveKeyLookupColumn(keyId);
-		const { data, error } = await supabase
-			.from("keys")
-			.select("id, hash, workspace_id, name, prefix, status, created_by, created_at, last_used_at, soft_blocked, expires_at, daily_limit_cost_nanos, weekly_limit_cost_nanos, monthly_limit_cost_nanos")
-			.eq("workspace_id", auth.value.workspaceId)
-			.neq("name", CHAT_MANAGED_KEY_NAME)
-			.eq(lookupColumn, keyId)
-			.maybeSingle();
-		if (error) {
-			throw new Error(error.message || "Failed to fetch API key");
-		}
+		const data = await findApiKey(keyId, auth.value.workspaceId, CHAT_MANAGED_KEY_NAME);
 		if (!data) {
 			return json({ error: "not_found", message: "API key not found" }, 404, { "Cache-Control": "no-store" });
 		}
@@ -634,18 +566,7 @@ async function handleUpdateKey(req: Request) {
 	if (roleError) return roleError;
 
 	try {
-		const supabase = getSupabaseAdmin();
-		const lookupColumn = resolveKeyLookupColumn(keyId);
-		const { data: existing, error: fetchError } = await supabase
-			.from("keys")
-			.select("id, hash, workspace_id, kid, name, prefix, status, created_by, created_at, last_used_at, soft_blocked, expires_at, daily_limit_cost_nanos, weekly_limit_cost_nanos, monthly_limit_cost_nanos")
-			.eq("workspace_id", auth.value.workspaceId)
-			.neq("name", CHAT_MANAGED_KEY_NAME)
-			.eq(lookupColumn, keyId)
-			.maybeSingle();
-		if (fetchError) {
-			throw new Error(fetchError.message || "Failed to fetch API key");
-		}
+		const existing = await findApiKey(keyId, auth.value.workspaceId, CHAT_MANAGED_KEY_NAME);
 		if (!existing) {
 			return json({ error: "not_found", message: "API key not found" }, 404, { "Cache-Control": "no-store" });
 		}
@@ -675,26 +596,19 @@ async function handleUpdateKey(req: Request) {
 			limitReset: limitReset.value,
 		});
 
-		const { error: updateError } = await supabase
-			.from("keys")
-			.update(updatePayload)
-			.eq("id", existing.id)
-			.eq("workspace_id", auth.value.workspaceId);
-		if (updateError) {
-			throw new Error(updateError.message || "Failed to update API key");
-		}
+		const databasePatch: ApiKeyUpdate = {
+			name: typeof updatePayload.name === "string" ? updatePayload.name : undefined,
+			status: typeof updatePayload.status === "string" ? updatePayload.status : undefined,
+			softBlocked: typeof updatePayload.soft_blocked === "boolean" ? updatePayload.soft_blocked : undefined,
+			expiresAt: typeof updatePayload.expires_at === "string" ? updatePayload.expires_at : updatePayload.expires_at === null ? null : undefined,
+			dailyLimitCostNanos: typeof updatePayload.daily_limit_cost_nanos === "number" ? updatePayload.daily_limit_cost_nanos : undefined,
+			weeklyLimitCostNanos: typeof updatePayload.weekly_limit_cost_nanos === "number" ? updatePayload.weekly_limit_cost_nanos : undefined,
+			monthlyLimitCostNanos: typeof updatePayload.monthly_limit_cost_nanos === "number" ? updatePayload.monthly_limit_cost_nanos : undefined,
+		};
+		const updated = await updateApiKey(existing.id, auth.value.workspaceId, databasePatch);
+		if (!updated) throw new Error("Failed to update API key");
 
 		await invalidateKeyCache({ id: existing.id, kid: existing.kid ?? null });
-
-		const { data: updated, error: refetchError } = await supabase
-			.from("keys")
-			.select("id, hash, workspace_id, name, prefix, status, created_by, created_at, last_used_at, soft_blocked, expires_at, daily_limit_cost_nanos, weekly_limit_cost_nanos, monthly_limit_cost_nanos")
-			.eq("workspace_id", auth.value.workspaceId)
-			.eq("id", existing.id)
-			.maybeSingle();
-		if (refetchError) {
-			throw new Error(refetchError.message || "Failed to fetch updated API key");
-		}
 
 		return json({ data: formatApiKey(updated as KeyRow) }, 200, { "Cache-Control": "no-store" });
 	} catch (error: any) {
@@ -719,18 +633,7 @@ async function handleDeleteKey(req: Request) {
 	if (roleError) return roleError;
 
 	try {
-		const supabase = getSupabaseAdmin();
-		const lookupColumn = resolveKeyLookupColumn(keyId);
-		const { data: existing, error: fetchError } = await supabase
-			.from("keys")
-			.select("id, workspace_id, kid, name, status")
-			.eq("workspace_id", auth.value.workspaceId)
-			.neq("name", CHAT_MANAGED_KEY_NAME)
-			.eq(lookupColumn, keyId)
-			.maybeSingle();
-		if (fetchError) {
-			throw new Error(fetchError.message || "Failed to fetch API key");
-		}
+		const existing = await findApiKey(keyId, auth.value.workspaceId, CHAT_MANAGED_KEY_NAME);
 		if (!existing) {
 			return json({ error: "not_found", message: "API key not found" }, 404, { "Cache-Control": "no-store" });
 		}
@@ -741,23 +644,7 @@ async function handleDeleteKey(req: Request) {
 		await invalidateKeyCache({ id: existing.id, kid: existing.kid ?? null });
 
 		const deletedAtIso = new Date().toISOString();
-		const tombstoneHash = `deleted:${existing.id}`;
-		const { error: updateError } = await supabase
-			.from("keys")
-			.update({
-				status: "deleted",
-				expires_at: deletedAtIso,
-				soft_blocked: true,
-				hash: tombstoneHash,
-			})
-			.eq("id", existing.id)
-			.eq("workspace_id", auth.value.workspaceId);
-		if (updateError) {
-			throw new Error(updateError.message || "Failed to delete API key");
-		}
-
-		await supabase.from("key_guardrails").delete().eq("key_id", existing.id);
-		await supabase.from("broadcast_destination_keys").delete().eq("key_id", existing.id);
+		await tombstoneApiKey(existing.id, auth.value.workspaceId, deletedAtIso);
 
 		return json({ deleted: true }, 200, { "Cache-Control": "no-store" });
 	} catch (error: any) {
@@ -803,15 +690,7 @@ async function handleInvalidateKey(req: Request) {
 	}
 
 	try {
-		const supabase = getSupabaseAdmin();
-		const { data, error } = await supabase
-			.from("keys")
-			.select("id, kid, status, workspace_id")
-			.eq("id", keyId)
-			.maybeSingle();
-		if (error) {
-			throw new Error(error.message || "Failed to fetch key");
-		}
+		const data = await findApiKeyForInvalidation(keyId);
 		if (!data) {
 			return json({ ok: false, error: "Key not found" }, 404);
 		}
