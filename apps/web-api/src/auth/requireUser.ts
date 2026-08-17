@@ -74,7 +74,8 @@ function betterAuthSessionUrl(env: Env): string | null {
   if (!configured) return null;
   try {
     const url = new URL(configured);
-    if (url.protocol !== "https:" && url.hostname !== "localhost") return null;
+    const isLoopback = url.hostname === "localhost" || url.hostname === "127.0.0.1" || url.hostname === "[::1]";
+    if (url.protocol !== "https:" && !isLoopback) return null;
     url.pathname = `${url.pathname.replace(/\/+$/, "")}/api/auth/get-session`;
     url.search = "";
     url.hash = "";
@@ -105,8 +106,8 @@ async function betterAuthUser(request: Request, env: Env): Promise<Authenticated
 			console.warn("[auth/require-user] Better Auth session endpoint rejected request", { status: response.status });
 			return null;
 		}
-    const payload = await response.json<BetterAuthSessionResponse>();
-    const user = payload.user;
+    const payload = await response.json<BetterAuthSessionResponse | null>();
+    const user = payload?.user;
 		if (!user?.id) {
 			authenticationFailures.set(request, "better_auth_session_missing_user");
 			console.warn("[auth/require-user] Better Auth session response had no user");
@@ -148,5 +149,10 @@ export async function requireUser(request: Request, env: Env): Promise<Authentic
 	if (directBetterAuthSession) { authenticationFailures.delete(request); return directBetterAuthSession; }
 	const betterAuthSession = await betterAuthUser(request, env);
 	if (betterAuthSession) { authenticationFailures.delete(request); return betterAuthSession; }
+	console.warn("[auth/require-user] authentication failed", {
+		reason: getAuthenticationFailure(request),
+		hasAuthorization: Boolean(request.headers.get("authorization")),
+		hasCookie: Boolean(request.headers.get("cookie")),
+	});
 	return null;
 }

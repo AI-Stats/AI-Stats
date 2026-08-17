@@ -34,18 +34,22 @@ async function main() {
 				order by srsubstate
 			`),
 			pool.query<{
+				enabled: boolean;
 				subname: string;
 				received_lsn: string | null;
 				latest_end_lsn: string | null;
 				last_msg_receipt_time: Date | null;
 			}>(`
-				select subname, received_lsn::text, latest_end_lsn::text, last_msg_receipt_time
-				from pg_stat_subscription
-				where subname = 'phaseo_from_supabase'
-				order by pid nulls last
+				select subscription.subname, subscription.subenabled as enabled,
+					status.received_lsn::text, status.latest_end_lsn::text, status.last_msg_receipt_time
+				from pg_subscription subscription
+				left join pg_stat_subscription status on status.subid = subscription.oid
+				where subscription.subname = 'phaseo_from_supabase'
+				order by status.pid nulls last
 			`),
 		]);
-		const ready = states.rows.length === 1 && states.rows[0]?.state === "ready";
+		const ready = states.rows.length === 1 && states.rows[0]?.state === "ready"
+			&& status.rows.length === 1 && status.rows[0]?.enabled === true;
 		console.log(JSON.stringify({ ready, states: states.rows, workers: status.rows }, null, 2));
 		if (!ready) process.exitCode = 2;
 	} finally {

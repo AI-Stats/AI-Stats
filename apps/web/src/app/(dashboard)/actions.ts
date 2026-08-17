@@ -4,7 +4,7 @@ import {
     requireAuthenticatedUser,
     requireWorkspaceMembership,
 } from "@/utils/serverActionAuth";
-import { setActiveWorkspaceCookie } from "@/utils/workspaceCookie";
+import { clearActiveWorkspaceCookie, setActiveWorkspaceCookie } from "@/utils/workspaceCookie";
 
 export type WorkspaceSwitchResult =
     | { ok: true }
@@ -34,3 +34,7 @@ export async function setActiveWorkspaceAction(workspaceId: string): Promise<Wor
 }
 
 export const SwapTeam = setActiveWorkspaceAction;
+
+export async function clearActiveWorkspaceAction(): Promise<void> {
+    await clearActiveWorkspaceCookie();
+}

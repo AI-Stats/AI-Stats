@@ -27,9 +27,18 @@ export async function requireAccountWorkspace(args: {
 	const workspaceId = String(
 		args.workspaceId ?? cookieValue(args.request, "activeWorkspaceId") ?? "",
 	).trim();
-	if (!user || !workspaceId) return null;
+	if (!user || !workspaceId) {
+		console.warn("[account/workspace] context incomplete", {
+			hasUser: Boolean(user),
+			hasWorkspaceId: Boolean(workspaceId),
+		});
+		return null;
+	}
 	const access = await getWorkspaceAccess(args.env, user.id, workspaceId);
-	if (!access) return null;
+	if (!access) {
+		console.warn("[account/workspace] membership not found");
+		return null;
+	}
 	return {
 		user,
 		workspaceId,

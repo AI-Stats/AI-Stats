@@ -69,6 +69,8 @@ function safeEmailText(value: string): string {
 
 export function createBetterAuth(database: Pool) {
 	const baseURL = requiredEnvironment("BETTER_AUTH_URL");
+	const requireEmailVerification =
+		process.env.BETTER_AUTH_REQUIRE_EMAIL_VERIFICATION !== "false";
 	return betterAuth({
 		appName: "Phaseo",
 		baseURL,
@@ -105,7 +107,7 @@ export function createBetterAuth(database: Pool) {
 		emailAndPassword: {
 			disableSignUp: process.env.BETTER_AUTH_ALLOW_SIGN_UP !== "true",
 			enabled: true,
-			requireEmailVerification: true,
+			requireEmailVerification,
 			sendResetPassword: async ({ user, url }) => {
 				await sendAuthEmail({
 					to: user.email,
@@ -120,8 +122,8 @@ export function createBetterAuth(database: Pool) {
 		},
 		emailVerification: {
 			autoSignInAfterVerification: true,
-			sendOnSignIn: true,
-			sendOnSignUp: true,
+			sendOnSignIn: requireEmailVerification,
+			sendOnSignUp: requireEmailVerification,
 			sendVerificationEmail: async ({ user, url }) => {
 				await sendAuthEmail({
 					to: user.email,

@@ -17,6 +17,20 @@ const REPOSITORY_MANAGED_RELATIONS = new Set([
 	"catalog.v2_subscription_plans",
 ]);
 
+// These relations are now written or rebuilt by PlanetScale-backed production
+// jobs. Supabase is a rollback source for them, not the post-cutover authority.
+const TARGET_MANAGED_RELATIONS = new Set([
+	"billing.wallets",
+	"catalog.model_discovery_runs", "catalog.model_discovery_seen_models",
+	"internal.monitor_history_sync_state", "internal.v2_analytics_outbox",
+	"internal.v2_rollup_refresh_state",
+	"observability.public_model_task_daily", "observability.public_model_user_usage_daily",
+	"observability.v2_private_usage_daily", "observability.v2_private_usage_daily_meters",
+	"observability.v2_public_provider_health_daily", "observability.v2_public_usage_daily",
+	"observability.v2_public_usage_daily_meters", "observability.v2_public_usage_hourly",
+	"observability.v2_public_usage_hourly_meters",
+]);
+
 function requiredEnvironment(name: string): string {
 	const value = process.env[name]?.trim();
 	if (!value) throw new Error(`${name} is required`);
@@ -41,11 +55,13 @@ function identifier(value: string): string {
 	return `"${value.replaceAll('"', '""')}"`;
 }
 
-async function relationCounts(pool: Pool): Promise<RelationCount[]> {
+async function relationCounts(pool: Pool, target = false): Promise<RelationCount[]> {
 	const relations = await pool.query<{ schema_name: string; table_name: string }>(`
 		select schemaname as schema_name, tablename as table_name
 		from pg_catalog.pg_tables
-		where schemaname = 'public' or (schemaname = 'auth' and tablename = 'users')
+		where ${target
+			? "schemaname = any (array['auth', 'app', 'billing', 'catalog', 'content', 'gateway', 'internal', 'observability', 'public'])"
+			: "schemaname = 'public' or (schemaname = 'auth' and tablename = 'users')"}
 		order by schemaname, tablename
 	`);
 	const counts: RelationCount[] = [];
@@ -58,12 +74,14 @@ async function relationCounts(pool: Pool): Promise<RelationCount[]> {
 	return counts;
 }
 
-async function sequenceStates(pool: Pool): Promise<SequenceState[]> {
+async function sequenceStates(pool: Pool, target = false): Promise<SequenceState[]> {
 	const sequences = await pool.query<SequenceState>(`
 		select schemaname as schema_name, sequencename as sequence_name,
 			last_value::text as last_value
 		from pg_catalog.pg_sequences
-		where schemaname = 'public'
+		where ${target
+			? "schemaname = any (array['auth', 'app', 'billing', 'catalog', 'content', 'gateway', 'internal', 'observability', 'public'])"
+			: "schemaname = 'public'"}
 		order by schemaname, sequencename
 	`);
 	return sequences.rows;
@@ -82,10 +100,10 @@ async function rowHashCounts(pool: Pool, schema: string, table: string) {
 	return new Map(result.rows.map((row) => [row.row_hash, Number(row.occurrences)]));
 }
 
-async function sourceSubset(source: Pool, target: Pool, relation: RelationCount) {
+async function sourceSubset(source: Pool, target: Pool, sourceRelation: RelationCount, targetRelation: RelationCount) {
 	const [sourceHashes, targetHashes] = await Promise.all([
-		rowHashCounts(source, relation.schema_name, relation.table_name),
-		rowHashCounts(target, relation.schema_name, relation.table_name),
+		rowHashCounts(source, sourceRelation.schema_name, sourceRelation.table_name),
+		rowHashCounts(target, targetRelation.schema_name, targetRelation.table_name),
 	]);
 	let sourceRowsMissingOrChanged = 0;
 	let matchedRows = 0;
@@ -101,13 +119,14 @@ async function sourceSubset(source: Pool, target: Pool, relation: RelationCount)
 	};
 }
 
-async function semanticSourceSubset(source: Pool, target: Pool, relation: RelationCount) {
-	const keys = await primaryKeyColumns(source, relation.schema_name, relation.table_name);
-	if (!keys.length) return sourceSubset(source, target, relation);
-	const query = `select to_jsonb(row_value) as row from ${identifier(relation.schema_name)}.${identifier(relation.table_name)} row_value`;
+async function semanticSourceSubset(source: Pool, target: Pool, sourceRelation: RelationCount, targetRelation: RelationCount) {
+	const keys = await primaryKeyColumns(source, sourceRelation.schema_name, sourceRelation.table_name);
+	if (!keys.length) return sourceSubset(source, target, sourceRelation, targetRelation);
+	const sourceQuery = `select to_jsonb(row_value) as row from ${identifier(sourceRelation.schema_name)}.${identifier(sourceRelation.table_name)} row_value`;
+	const targetQuery = `select to_jsonb(row_value) as row from ${identifier(targetRelation.schema_name)}.${identifier(targetRelation.table_name)} row_value`;
 	const [sourceRows, targetRows] = await Promise.all([
-		source.query<{ row: Record<string, unknown> }>(query),
-		target.query<{ row: Record<string, unknown> }>(query),
+		source.query<{ row: Record<string, unknown> }>(sourceQuery),
+		target.query<{ row: Record<string, unknown> }>(targetQuery),
 	]);
 	const rowKey = (row: Record<string, unknown>) => JSON.stringify(keys.map((key) => row[key] ?? null));
 	const targetByKey = new Map(targetRows.rows.map(({ row }) => [rowKey(row), row]));
@@ -120,7 +139,7 @@ async function semanticSourceSubset(source: Pool, target: Pool, relation: Relati
 		}
 		const comparableSource = { ...sourceRow };
 		const comparableTarget = { ...targetRow };
-		if (relation.table_name === "api_apps") {
+		if (sourceRelation.table_name === "api_apps") {
 			for (const column of ["last_seen", "updated_at"]) {
 				const sourceTime = Date.parse(String(sourceRow[column] ?? ""));
 				const targetTime = Date.parse(String(targetRow[column] ?? ""));
@@ -129,7 +148,7 @@ async function semanticSourceSubset(source: Pool, target: Pool, relation: Relati
 				}
 			}
 		}
-		if (relation.table_name === "monitor_history_events") {
+		if (sourceRelation.table_name === "monitor_history_events") {
 			for (const row of [comparableSource, comparableTarget]) {
 				if (typeof row.percent_change === "number" && Number.isFinite(row.percent_change)) {
 					row.percent_change = Number(row.percent_change.toPrecision(12));
@@ -155,13 +174,14 @@ async function primaryKeyColumns(pool: Pool, schema: string, table: string): Pro
 	return result.rows.map((row) => row.column_name);
 }
 
-async function changedRowSamples(source: Pool, target: Pool, relation: RelationCount) {
-	const keys = await primaryKeyColumns(source, relation.schema_name, relation.table_name);
+async function changedRowSamples(source: Pool, target: Pool, sourceRelation: RelationCount, targetRelation: RelationCount) {
+	const keys = await primaryKeyColumns(source, sourceRelation.schema_name, sourceRelation.table_name);
 	if (!keys.length) return [];
-	const query = `select to_jsonb(row_value) as row from ${identifier(relation.schema_name)}.${identifier(relation.table_name)} row_value`;
+	const sourceQuery = `select to_jsonb(row_value) as row from ${identifier(sourceRelation.schema_name)}.${identifier(sourceRelation.table_name)} row_value`;
+	const targetQuery = `select to_jsonb(row_value) as row from ${identifier(targetRelation.schema_name)}.${identifier(targetRelation.table_name)} row_value`;
 	const [sourceRows, targetRows] = await Promise.all([
-		source.query<{ row: Record<string, unknown> }>(query),
-		target.query<{ row: Record<string, unknown> }>(query),
+		source.query<{ row: Record<string, unknown> }>(sourceQuery),
+		target.query<{ row: Record<string, unknown> }>(targetQuery),
 	]);
 	const rowKey = (row: Record<string, unknown>) => JSON.stringify(keys.map((key) => row[key] ?? null));
 	const targetByKey = new Map(targetRows.rows.map(({ row }) => [rowKey(row), row]));
@@ -196,35 +216,42 @@ async function main() {
 	const target = new Pool(postgresConfig(requiredEnvironment("PLANETSCALE_MIGRATION_DATABASE_URL"), true));
 	try {
 		const [sourceCounts, targetCounts, sourceSequences, targetSequences] = await Promise.all([
-			relationCounts(source), relationCounts(target), sequenceStates(source), sequenceStates(target),
+				relationCounts(source), relationCounts(target, true), sequenceStates(source), sequenceStates(target, true),
 		]);
 		const sourceByTable = keyed(sourceCounts, (row) => row.table_name);
-		const targetByTable = keyed(targetCounts, (row) => row.table_name);
 		// Better Auth adds target-only tables. Source relations must all exist and
 		// match; target-only relations are assessed by the auth-specific checks.
 		const sourceTables = [...sourceByTable.keys()].sort();
 		const tableMismatches = [];
 		for (const table of sourceTables) {
 			const relation = sourceByTable.get(table)!;
+			const targetRelation = targetCounts.find((candidate) =>
+				candidate.table_name === relation.table_name
+				&& (relation.schema_name === "auth" ? candidate.schema_name === "auth" : candidate.schema_name !== "auth"),
+			);
 			const sourceCount = relation.row_count;
-			const targetCount = targetByTable.get(table)?.row_count ?? "missing";
-			const authority = table === "auth.users" ? "identity" : REPOSITORY_MANAGED_RELATIONS.has(table) ? "repository" : "source";
+			const targetCount = targetRelation?.row_count ?? "missing";
+			const targetName = targetRelation ? `${targetRelation.schema_name}.${targetRelation.table_name}` : table;
+			const authority = table === "auth.users"
+				? "identity"
+				: REPOSITORY_MANAGED_RELATIONS.has(targetName)
+					? "repository"
+					: TARGET_MANAGED_RELATIONS.has(targetName) ? "target" : "source";
 			if (targetCount === "missing") {
 				tableMismatches.push({ table, authority, sourceCount, targetCount, sourceRowsMissingOrChanged: Number(sourceCount) || 0, targetOnlyRows: 0 });
 				continue;
 			}
-			const comparison = ["gateway.api_apps", "internal.monitor_history_events"].includes(table)
-				? await semanticSourceSubset(source, target, relation)
-				: await sourceSubset(source, target, relation);
+			const comparison = ["api_apps", "monitor_history_events"].includes(relation.table_name)
+				? await semanticSourceSubset(source, target, relation, targetRelation!)
+				: await sourceSubset(source, target, relation, targetRelation!);
 			if (comparison.sourceRowsMissingOrChanged || comparison.targetOnlyRows) {
 				tableMismatches.push({ table, authority, sourceCount, targetCount, ...comparison });
 			}
 		}
 
 		const sourceBySequence = keyed(sourceSequences, (row) => row.sequence_name);
-		const targetBySequence = keyed(targetSequences, (row) => row.sequence_name);
 		const sequenceMismatches = [...sourceBySequence.entries()].flatMap(([sequence, sourceState]) => {
-			const targetState = targetBySequence.get(sequence);
+			const targetState = targetSequences.find((candidate) => candidate.sequence_name === sourceState.sequence_name);
 			const sourceValue = sourceState.last_value === null ? null : BigInt(sourceState.last_value);
 			const targetValue = targetState?.last_value == null ? null : BigInt(targetState.last_value);
 			if (!targetState) {
@@ -250,15 +277,19 @@ async function main() {
 		]);
 		const sourceIdentityCounts = sourceIdentity.rows[0];
 		const targetIdentityCounts = targetIdentity.rows[0];
-		const identityMismatch = sourceIdentityCounts?.users !== targetIdentityCounts?.users
-			|| sourceIdentityCounts?.accounts !== targetIdentityCounts?.accounts
+		const identityMismatch = Number(sourceIdentityCounts?.users ?? 0) > Number(targetIdentityCounts?.users ?? 0)
+			|| Number(sourceIdentityCounts?.accounts ?? 0) > Number(targetIdentityCounts?.accounts ?? 0)
 			|| Number(targetIdentityCounts?.mfa_protected ?? 0) < Number(sourceIdentityCounts?.mfa_protected ?? 0);
 		const diagnosedTableMismatches = [];
 		for (const mismatch of tableMismatches) {
 			const relation = sourceByTable.get(mismatch.table);
+			const targetRelation = relation && targetCounts.find((candidate) =>
+				candidate.table_name === relation.table_name
+				&& (relation.schema_name === "auth" ? candidate.schema_name === "auth" : candidate.schema_name !== "auth"),
+			);
 			const samples = mismatch.authority === "source" && mismatch.sourceRowsMissingOrChanged > 0
-				&& mismatch.table !== "auth.users" && relation
-				? await changedRowSamples(source, target, relation)
+				&& mismatch.table !== "auth.users" && relation && targetRelation
+				? await changedRowSamples(source, target, relation, targetRelation)
 				: [];
 			diagnosedTableMismatches.push({ ...mismatch, ...(samples.length ? { samples } : {}) });
 		}
