@@ -24,7 +24,11 @@ export default function ModelsTablePageClient({
 		catalogueVersion === "v2"
 			? fetchModelsTableDataV2
 			: fetchModelsTableData;
-	const { data, error } = useSWR(swrKey, fetcher);
+	const { data, error } = useSWR(swrKey, fetcher, {
+		dedupingInterval: 60 * 60 * 1_000,
+		revalidateIfStale: false,
+		revalidateOnFocus: false,
+	});
 
 	if (error) throw error;
 	if (!data) return <ModelsTablePageSkeleton />;

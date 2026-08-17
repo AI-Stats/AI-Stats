@@ -20,7 +20,11 @@ export default function ModelsPageClient({
 		catalogueVersion === "v2" ? publicSWRKeys.modelsV2 : publicSWRKeys.models;
 	const fetcher =
 		catalogueVersion === "v2" ? fetchModelsPageDataV2 : fetchModelsPageData;
-	const { data, error } = useSWR(swrKey, fetcher);
+	const { data, error } = useSWR(swrKey, fetcher, {
+		dedupingInterval: 60 * 60 * 1_000,
+		revalidateIfStale: false,
+		revalidateOnFocus: false,
+	});
 
 	if (error) throw error;
 	if (!data) return <ModelsPageSkeleton />;
