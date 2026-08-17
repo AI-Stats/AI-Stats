@@ -2,7 +2,7 @@ import { createNodeDatabaseForSchema } from "./node-core";
 import { sql, type SQL } from "./query";
 import { Pool } from "pg";
 
-const IMPORT_TABLES = new Set([
+const CATALOG_IMPORT_TABLES = [
 	"v2_benchmark_results", "v2_benchmarks", "v2_catalogue_backfill_issues",
 	"v2_catalogue_source_overrides", "v2_lab_links", "v2_labs", "v2_meter_definitions",
 	"v2_model_aliases", "v2_model_details", "v2_model_families", "v2_model_links",
@@ -11,7 +11,11 @@ const IMPORT_TABLES = new Set([
 	"v2_route_variants", "v2_service_tiers", "v2_subscription_plan_features",
 	"v2_subscription_plan_models", "v2_subscription_plans",
 	"model_discovery_runs", "model_discovery_seen_models",
-]);
+] as const;
+
+const IMPORT_TABLE_SCHEMAS = new Map<string, string>(
+	CATALOG_IMPORT_TABLES.map((table) => [table, "catalog"]),
+);
 
 const JSON_COLUMNS = new Map<string, ReadonlySet<string>>([
 	["v2_benchmark_results", new Set(["metadata"])],
@@ -49,8 +53,9 @@ function identifier(value: string) {
 }
 
 function tableIdentifier(table: string) {
-	if (!IMPORT_TABLES.has(table)) throw new Error(`Importer table is not allowed: ${table}`);
-	return identifier(table);
+	const schema = IMPORT_TABLE_SCHEMAS.get(table);
+	if (!schema) throw new Error(`Importer table is not allowed: ${table}`);
+	return sql`${identifier(schema)}.${identifier(table)}`;
 }
 
 function database() {
