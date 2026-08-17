@@ -209,11 +209,13 @@ export default function AccountSettingsClient({
 
 		setSaving(true);
 		try {
-			await toast.promise(updateAccount(updatePayload), {
+			const savePromise = updateAccount(updatePayload);
+			toast.promise(savePromise, {
 				loading: "Saving your settings...",
 				success: "Saved [PASS]",
 				error: (err: any) => err?.message || "Could not save settings",
 			});
+			await savePromise;
 			applyObfuscationMode(Boolean(parsed.data.obfuscate_info));
 		} catch (e) {
 			void e;
@@ -283,8 +285,9 @@ export default function AccountSettingsClient({
 
 		setChangingPassword(true);
 		try {
-			await toast.promise(
-				changePasswordAction(currentPassword, newPassword),
+			const changePromise = changePasswordAction(currentPassword, newPassword);
+			toast.promise(
+				changePromise,
 				{
 					loading: "Changing your password...",
 					success: "Password changed successfully!",
@@ -292,6 +295,7 @@ export default function AccountSettingsClient({
 						err?.message || "Could not change password",
 				}
 			);
+			await changePromise;
 			// Reset form
 			setCurrentPassword("");
 			setNewPassword("");
@@ -320,8 +324,9 @@ export default function AccountSettingsClient({
 
 		setChangingEmail(true);
 		try {
-			const result = await toast.promise(
-				changeEmailAction(newEmail, emailPassword),
+			const changePromise = changeEmailAction(newEmail, emailPassword);
+			toast.promise(
+				changePromise,
 				{
 					loading: "Changing your email...",
 					success:
@@ -329,6 +334,7 @@ export default function AccountSettingsClient({
 					error: (err: any) => err?.message || "Could not change email",
 				}
 			);
+			await changePromise;
 			// Reset form
 			setNewEmail("");
 			setEmailPassword("");

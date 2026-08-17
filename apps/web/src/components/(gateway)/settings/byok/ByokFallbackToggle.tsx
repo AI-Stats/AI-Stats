@@ -17,11 +17,13 @@ export default function ByokFallbackToggle({
 		setEnabled(next);
 		setSaving(true);
 		try {
-			await toast.promise(updateByokFallbackAction(next), {
+			const updatePromise = updateByokFallbackAction(next);
+			toast.promise(updatePromise, {
 				loading: "Saving fallback setting...",
 				success: "Fallback setting updated",
 				error: (err) => err?.message ?? "Failed to update setting",
 			});
+			await updatePromise;
 		} finally {
 			setSaving(false);
 		}

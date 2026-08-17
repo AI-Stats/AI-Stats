@@ -51,11 +51,13 @@ export default function AccountMFAClient({
 
 		setDisablingMFA(true);
 		try {
-			await toast.promise(unenrollMFAAction(mfaFactorId), {
+			const unenrollPromise = unenrollMFAAction(mfaFactorId);
+			toast.promise(unenrollPromise, {
 				loading: "Disabling MFA...",
 				success: "Two-factor authentication disabled",
 				error: (err: any) => err?.message || "Could not disable MFA",
 			});
+			await unenrollPromise;
 			router.refresh();
 		} catch (e) {
 			void e;

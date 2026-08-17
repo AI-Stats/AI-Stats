@@ -210,8 +210,9 @@ export default function RoutingSettingsClient({
 				if (!result.ok) throw new Error(result.error);
 				return result;
 			};
-			await toast.promise(
-				save(),
+			const savePromise = save();
+			toast.promise(
+				savePromise,
 				{
 					loading: "Updating routing policy...",
 					success: (result) =>
@@ -222,8 +223,9 @@ export default function RoutingSettingsClient({
 							error instanceof Error && error.message
 								? `Failed to update routing policy: ${error.message}`
 								: "Failed to update routing policy",
-					},
-				);
+				},
+			);
+			await savePromise;
 				if (saveSequence === saveSequenceRef.current) {
 					setSavedMode(mode);
 					setSavedBeta(betaChannelEnabled);

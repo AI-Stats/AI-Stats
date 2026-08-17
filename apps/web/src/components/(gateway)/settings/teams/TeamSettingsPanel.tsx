@@ -130,8 +130,7 @@ export default function TeamSettingsPanel({
 
 		setSaving(true);
 		try {
-			await toast.promise(
-				(async () => {
+			const savePromise = (async () => {
 					const normalizedName = settings.teamName.trim();
 					const initialName = initial.teamName.trim();
 
@@ -145,7 +144,9 @@ export default function TeamSettingsPanel({
 					const normalized = { teamName: normalizedName, publisherHandle: normalizedPublisherHandle };
 					setSettings(normalized);
 					setInitial(normalized);
-				})(),
+				})();
+			toast.promise(
+				savePromise,
 				{
 					loading: "Saving workspace settings...",
 					success: "Saved.",
@@ -153,6 +154,7 @@ export default function TeamSettingsPanel({
 						error?.message || "Could not save settings",
 				},
 			);
+			await savePromise;
 		} finally {
 			setSaving(false);
 		}
@@ -170,11 +172,13 @@ export default function TeamSettingsPanel({
 		}
 		setDeleting(true);
 		try {
-			await toast.promise(deleteTeamAction(workspaceId), {
+			const deletePromise = deleteTeamAction(workspaceId);
+			toast.promise(deletePromise, {
 				loading: "Deleting workspace...",
 				success: "Workspace deleted",
 				error: (error: any) => error?.message || "Could not delete workspace",
 			});
+			await deletePromise;
 			setDeleteDialogOpen(false);
 		} finally {
 			setDeleting(false);

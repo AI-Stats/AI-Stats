@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { getServerAccountContext } from "@/lib/fetchers/internal/serverAccountContext";
 import { fetchAccountWebApi } from "@/lib/web-api/client";
 import type { ManagementKeyTemplate } from "@/lib/managementKeyScopes";
@@ -38,9 +37,6 @@ async function accessToken(): Promise<string> {
 	return accessToken;
 }
 
-function refreshManagementKeys(): void {
-	revalidatePath("/settings/management-api-keys");
-}
 
 export async function createManagementKeyAction(input: CreateManagementKeyInput) {
 	if (!input.name?.trim() || !input.creatorUserId || !input.workspaceId) {
@@ -56,7 +52,6 @@ export async function createManagementKeyAction(input: CreateManagementKeyInput)
 		method: "POST",
 		body: JSON.stringify(input),
 	});
-	refreshManagementKeys();
 	return result;
 }
 
@@ -70,7 +65,6 @@ export async function updateManagementKeyAction(
 		await accessToken(),
 		{ method: "PUT", body: JSON.stringify(updates) },
 	);
-	refreshManagementKeys();
 	return result;
 }
 
@@ -84,7 +78,6 @@ export async function updateManagementKeyScopesAction(
 		await accessToken(),
 		{ method: "PUT", body: JSON.stringify({ template }) },
 	);
-	refreshManagementKeys();
 	return result;
 }
 
@@ -98,7 +91,6 @@ export async function updateManagementKeyLimitsAction(
 		await accessToken(),
 		{ method: "PUT", body: JSON.stringify({ limits: payload }) },
 	);
-	refreshManagementKeys();
 	return result;
 }
 
@@ -110,7 +102,6 @@ export async function deleteManagementKeyAction(id: string, confirmName?: string
 		await accessToken(),
 		{ method: "DELETE" },
 	);
-	refreshManagementKeys();
 	return result;
 }
 

@@ -41,7 +41,7 @@ export default function BetaSettingsClient({
 				beta_features: nextBetaFeatures,
 			});
 
-			await toast.promise(savePromise, {
+			toast.promise(savePromise, {
 				loading: "Saving beta preferences...",
 				success: "Beta preferences updated",
 				error: (error: unknown) =>
@@ -49,6 +49,7 @@ export default function BetaSettingsClient({
 						? error.message
 						: "Could not save beta preferences",
 			});
+			await savePromise;
 
 			const result = await savePromise;
 			writeStoredBetaProfile(result.profile);

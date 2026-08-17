@@ -47,7 +47,7 @@ export default function ManagementKeyLimitsItem({ k }: any) {
 
 		const promise = updateManagementKeyLimitsAction(k.id, payload);
 		try {
-			await toast.promise(promise, {
+			toast.promise(promise, {
 				loading: "Saving limits...",
 				success: "Limits updated",
 				error: (err) => {
@@ -56,6 +56,7 @@ export default function ManagementKeyLimitsItem({ k }: any) {
 					return message;
 				},
 			});
+			await promise;
 			setOpen(false);
 		} finally {
 			setLoading(false);
@@ -128,4 +129,3 @@ export default function ManagementKeyLimitsItem({ k }: any) {
 		</Dialog>
 	);
 }
-

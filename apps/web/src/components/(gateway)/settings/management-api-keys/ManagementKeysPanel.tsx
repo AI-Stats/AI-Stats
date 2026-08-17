@@ -39,6 +39,9 @@ import {
 } from "lucide-react";
 import EditManagementKeyItem from "./EditManagementKeyItem";
 import DeleteManagementKeyItem from "./DeleteManagementKeyItem";
+import type { SettingsManagementApiKeysInitialData } from "@/lib/fetchers/internal/settingsTypes";
+import { accountSWRFetcher } from "@/lib/swr/accountFetcher";
+import { managementKeysSWRKey, useManagementKeys } from "./useManagementKeys";
 
 type ManagementKeyState = "active" | "paused" | "expired" | "unknown";
 type ManagementKeyDialogType = "edit" | "delete";
@@ -137,7 +140,15 @@ function formatKeyReference(prefix?: string | null) {
 	return ref ? `Management key · …${ref}` : "Management key";
 }
 
-export default function ManagementKeysPanel({ teamsWithKeys }: any) {
+export default function ManagementKeysPanel({ initialData }: { initialData: SettingsManagementApiKeysInitialData }) {
+	const { data, mutate } = useManagementKeys(initialData.workspace?.id, initialData);
+	const teamsWithKeys = data?.teamsWithKeys ?? initialData.teamsWithKeys;
+	const revalidateKeys = async () => {
+		const freshData = await accountSWRFetcher<SettingsManagementApiKeysInitialData>(
+			managementKeysSWRKey(initialData.workspace?.id),
+		);
+		return mutate(freshData, { revalidate: false });
+	};
 	const [activeDialog, setActiveDialog] =
 		useState<ActiveManagementKeyDialog>(null);
 	const rows = useMemo(() => {
@@ -274,6 +285,7 @@ export default function ManagementKeysPanel({ teamsWithKeys }: any) {
 					k={activeDialog.key}
 					trigger={false}
 					open
+					onChanged={revalidateKeys}
 					onOpenChange={(next) => {
 						if (!next) setActiveDialog(null);
 					}}
@@ -285,6 +297,7 @@ export default function ManagementKeysPanel({ teamsWithKeys }: any) {
 					k={activeDialog.key}
 					trigger={false}
 					open
+					onChanged={revalidateKeys}
 					onOpenChange={(next) => {
 						if (!next) setActiveDialog(null);
 					}}
