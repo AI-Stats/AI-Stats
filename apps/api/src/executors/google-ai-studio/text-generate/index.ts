@@ -1042,6 +1042,24 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 			bill: { cost_cents: 0, currency: "USD" },
 		};
 	}
+	if (ir.background === true) {
+		return {
+			kind: "completed",
+			ir: undefined,
+			upstream: new Response(JSON.stringify({
+				error: {
+					code: "google_interactions_background_unsupported",
+					message: "Background execution is unavailable because Google AI Studio interactions are always stateless.",
+					type: "invalid_request_error",
+					param: "background",
+				},
+			}), {
+				status: 400,
+				headers: { "Content-Type": "application/json" },
+			}),
+			bill: { cost_cents: 0, currency: "USD" },
+		};
+	}
 
 	// Resolve API key: prefer decrypted BYOK for this provider, else use gateway keys.
 	const keyInfo = resolveProviderKey(args, () => {

@@ -44,6 +44,23 @@ afterAll(() => {
 });
 
 describe("google-ai-studio execute usage fallback", () => {
+	it("rejects background execution instead of enabling provider storage", async () => {
+		const result = await executor(buildArgs({
+			model: "google/gemini-3.7-flash",
+			background: true,
+		}));
+
+		expect(result.kind).toBe("completed");
+		if (result.kind !== "completed") return;
+		expect(result.upstream?.status).toBe(400);
+		expect(await result.upstream?.json()).toMatchObject({
+			error: {
+				code: "google_interactions_background_unsupported",
+				param: "background",
+			},
+		});
+	});
+
 	it("rejects explicit cached content instead of sending an invalid Interactions field", async () => {
 		const result = await executor(buildArgs({
 			model: "google/gemini-2.5-flash",
