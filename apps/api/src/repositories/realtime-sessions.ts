@@ -8,6 +8,10 @@ type Row = Record<string, any>;
 const activeStatuses = ["created", "connecting", "connected", "ending", "billing_unresolved"];
 const terminalStatuses = ["completed", "failed", "cancelled", "expired"];
 
+export function realtimeStatusPredicate(statuses: string[]) {
+	return inArray(sql.raw("status"), statuses);
+}
+
 async function withDatabase<T>(operation: (db: ReturnType<typeof createDatabase>["db"]) => Promise<T>): Promise<T> {
 	const { db, client } = createDatabase(getBindings());
 	try { return await operation(db); } finally { await client.end({ timeout: 1 }); }
@@ -23,9 +27,9 @@ export async function createSessionWithHold(args: {
 		const [wallet] = await tx.execute<Row>(sql`select * from ${wallets} where workspace_id=${args.workspaceId}::uuid for update`);
 		if (!wallet) throw new Error("wallet_not_found");
 		const [counts] = await tx.execute<Row>(sql`select
-			count(*) filter(where status=any(${activeStatuses}::text[]))::int workspace_count,
-			count(*) filter(where key_id=${args.keyId}::uuid and status=any(${activeStatuses}::text[]))::int key_count,
-			count(*) filter(where user_id=${args.userId} and status=any(${activeStatuses}::text[]))::int user_count,
+			count(*) filter(where ${realtimeStatusPredicate(activeStatuses)})::int workspace_count,
+			count(*) filter(where key_id=${args.keyId}::uuid and ${realtimeStatusPredicate(activeStatuses)})::int key_count,
+			count(*) filter(where user_id=${args.userId} and ${realtimeStatusPredicate(activeStatuses)})::int user_count,
 			count(*) filter(where created_at >= now()-interval '1 minute')::int minute_count
 			from ${gatewayRealtimeSessions} where workspace_id=${args.workspaceId}::uuid`);
 		if (Number(counts?.workspace_count ?? 0) >= Math.max(1, args.maxWorkspaceSessions)) throw new Error("realtime_workspace_concurrency_limit");
@@ -96,12 +100,12 @@ export async function updateUsage(args: { workspaceId: string; sessionId: string
 		status=case when ${args.endingReason}::text is null then status else 'ending' end,
 		disconnect_reason=coalesce(${args.endingReason},disconnect_reason),error_code=coalesce(${args.endingReason},error_code),
 		usage=${JSON.stringify(args.usage)}::jsonb,pricing_lines=${JSON.stringify(args.pricingLines)}::jsonb,estimated_cost_nanos=${args.estimatedCostNanos},last_event_at=now(),updated_at=now()
-		where workspace_id=${args.workspaceId}::uuid and session_id=${args.sessionId} and status=any(${["connecting", "connected", "ending"]}::text[]) returning *`))[0] ?? null);
+		where workspace_id=${args.workspaceId}::uuid and session_id=${args.sessionId} and ${realtimeStatusPredicate(["connecting", "connected", "ending"])} returning *`))[0] ?? null);
 }
 
 export async function markBillingUnresolved(workspaceId: string, sessionId: string, usage: Record<string, unknown>, reason: string): Promise<Row> {
 	return withDatabase((db) => db.transaction(async (tx) => {
-		let [session] = await tx.execute<Row>(sql`update ${gatewayRealtimeSessions} set status='billing_unresolved',usage=${JSON.stringify(usage)}::jsonb,disconnect_reason=${reason.slice(0, 240)},error_code='realtime_authoritative_usage_missing',last_event_at=now(),updated_at=now() where workspace_id=${workspaceId}::uuid and session_id=${sessionId} and status=any(${activeStatuses}::text[]) returning *`);
+		let [session] = await tx.execute<Row>(sql`update ${gatewayRealtimeSessions} set status='billing_unresolved',usage=${JSON.stringify(usage)}::jsonb,disconnect_reason=${reason.slice(0, 240)},error_code='realtime_authoritative_usage_missing',last_event_at=now(),updated_at=now() where workspace_id=${workspaceId}::uuid and session_id=${sessionId} and ${realtimeStatusPredicate(activeStatuses)} returning *`);
 		if (!session) [session] = await tx.execute<Row>(sql`select * from ${gatewayRealtimeSessions} where workspace_id=${workspaceId}::uuid and session_id=${sessionId}`);
 		if (!session) throw new Error("realtime_session_not_found");
 		if (terminalStatuses.includes(session.status)) return session;
@@ -118,7 +122,7 @@ export async function settleOnce(args: { workspaceId: string; sessionId: string;
 		let [session] = await tx.execute<Row>(sql`select * from ${gatewayRealtimeSessions} where workspace_id=${args.workspaceId}::uuid and session_id=${args.sessionId} for update`);
 		if (!session) return { applied: false, already_applied: false, status: "not_found", final_cost_nanos: 0, reserved_nanos: 0, captured_nanos: 0, released_nanos: 0, before_balance_nanos: null, after_balance_nanos: null, before_reserved_nanos: null, after_reserved_nanos: null };
 		if (terminalStatuses.includes(session.status)) return { applied: false, already_applied: true, status: session.status, final_cost_nanos: Number(session.final_cost_nanos ?? 0), reserved_nanos: Number(session.reserved_nanos ?? 0), captured_nanos: Number(session.captured_nanos ?? 0), released_nanos: Number(session.released_nanos ?? 0), before_balance_nanos: null, after_balance_nanos: null, before_reserved_nanos: null, after_reserved_nanos: null };
-		const reservations = [...await tx.execute<Row>(sql`select * from ${gatewayWalletReservations} where workspace_id=${args.workspaceId}::uuid and status=any(${["held", "reserved"]}::text[]) and (hold_ref_id=${args.sessionId} or reservation_id like ${`${session.reservation_prefix}%`}) order by created_at,reservation_id for update`)];
+		const reservations = [...await tx.execute<Row>(sql`select * from ${gatewayWalletReservations} where workspace_id=${args.workspaceId}::uuid and ${realtimeStatusPredicate(["held", "reserved"])} and (hold_ref_id=${args.sessionId} or reservation_id like ${`${session.reservation_prefix}%`}) order by created_at,reservation_id for update`)];
 		const [wallet] = await tx.execute<Row>(sql`select * from ${wallets} where workspace_id=${args.workspaceId}::uuid for update`);
 		if (!wallet) throw new Error("wallet_not_found");
 		const held = reservations.reduce((sum, row) => sum + Number(row.amount_nanos ?? 0), 0);
@@ -141,7 +145,7 @@ export async function findRequestSummary(sessionId: string, startedAt: string): 
 }
 
 export async function listExpiredActiveSessions(now: string, idleCutoff: string, limit: number): Promise<Row[]> {
-	return withDatabase(async (db) => [...await db.execute<Row>(sql`select * from ${gatewayRealtimeSessions} where status=any(${["created", "connecting", "connected", "ending"]}::text[]) and (expires_at <= ${now}::timestamptz or last_event_at <= ${idleCutoff}::timestamptz) order by updated_at asc limit ${limit}`)]);
+	return withDatabase(async (db) => [...await db.execute<Row>(sql`select * from ${gatewayRealtimeSessions} where ${realtimeStatusPredicate(["created", "connecting", "connected", "ending"])} and (expires_at <= ${now}::timestamptz or last_event_at <= ${idleCutoff}::timestamptz) order by updated_at asc limit ${limit}`)]);
 }
 
 export async function countUnresolvedSessions(updatedBefore: string): Promise<number> {

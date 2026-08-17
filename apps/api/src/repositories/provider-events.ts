@@ -1,5 +1,5 @@
 import { gatewayProviderEvents } from "@phaseo/db/schema";
-import { and, eq, isNull, lte, or, sql } from "@phaseo/db/query";
+import { and, eq, inArray, isNull, lte, or, sql } from "@phaseo/db/query";
 
 import { createDatabase } from "@/runtime/db";
 import { getBindings } from "@/runtime/env";
@@ -18,6 +18,10 @@ async function withDatabase<T>(operation: (db: ReturnType<typeof createDatabase>
 	try { return await operation(db); } finally { await client.end({ timeout: 1 }); }
 }
 
+export function providerEventsPredicate(providers: string[]) {
+	return inArray(sql.raw("provider"), providers);
+}
+
 export async function insertProviderEvent(values: typeof gatewayProviderEvents.$inferInsert) {
 	return withDatabase(async (db) => (await db.insert(gatewayProviderEvents).values(values).onConflictDoNothing({
 		target: [gatewayProviderEvents.provider, gatewayProviderEvents.providerEventId],
@@ -32,7 +36,7 @@ export async function claimProviderEvents(args: { providers: string[]; limit: nu
 	return withDatabase(async (db) => [...await db.execute(sql`
 		with candidates as (
 			select id from ${gatewayProviderEvents}
-			where provider=any(${args.providers}::text[]) and processed_at is null and dead_lettered_at is null
+			where ${providerEventsPredicate(args.providers)} and processed_at is null and dead_lettered_at is null
 			and (next_attempt_at is null or next_attempt_at <= now())
 			and (replay_locked_at is null or replay_locked_at < now() - (${args.leaseSeconds} * interval '1 second'))
 			order by created_at asc for update skip locked limit ${args.limit}
