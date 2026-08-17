@@ -875,6 +875,13 @@ export async function runTextGeneratePipeline(args: PipelineRunnerArgs): Promise
 			let aggregateUsage = (exec.result.ir as IRChatResponse).usage;
 			let latestIrResponse = exec.result.ir as IRChatResponse;
 			let nextIrRequest = irForExecution;
+			const googleStatelessStepGroups: unknown[][] = [];
+			if (
+				latestIrResponse.provider === "google-ai-studio" &&
+				Array.isArray((exec.result.rawResponse as any)?.steps)
+			) {
+				googleStatelessStepGroups.push((exec.result.rawResponse as any).steps);
+			}
 			let searchObservability = pre.ctx.searchObservability ?? null;
 			let webFetchObservability = pre.ctx.webFetchObservability ?? null;
 
@@ -1010,16 +1017,13 @@ export async function runTextGeneratePipeline(args: PipelineRunnerArgs): Promise
 					...nextIrRequest,
 					stream: true,
 					toolChoice: "auto",
-					...(latestIrResponse.provider === "google-ai-studio" &&
-						latestIrResponse.nativeId &&
-						latestIrResponse.nativeId !== pre.ctx.requestId &&
-						nextIrRequest.store !== false
+					...(googleStatelessStepGroups.length > 0
 						? {
 							vendor: {
 								...(nextIrRequest.vendor ?? {}),
 								google: {
 									...((nextIrRequest.vendor as any)?.google ?? {}),
-									previous_interaction_id: latestIrResponse.nativeId,
+									stateless_interaction_step_groups: googleStatelessStepGroups,
 								},
 							},
 						}
@@ -1132,6 +1136,12 @@ export async function runTextGeneratePipeline(args: PipelineRunnerArgs): Promise
 
 				exec.result = followUpResult;
 				latestIrResponse = followUpResult.ir as IRChatResponse;
+				if (
+					latestIrResponse.provider === "google-ai-studio" &&
+					Array.isArray((followUpResult.rawResponse as any)?.steps)
+				) {
+					googleStatelessStepGroups.push((followUpResult.rawResponse as any).steps);
+				}
 				aggregateUsage = mergeIRUsageTotals(aggregateUsage, latestIrResponse.usage);
 				latestIrResponse = {
 					...latestIrResponse,
