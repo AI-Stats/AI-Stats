@@ -18,7 +18,7 @@ export async function getTeamsDashboard(env: Env, userId: string) {
 			db.select({ id: workspaces.id, name: workspaces.name, publisherHandle: workspaces.publisherHandle }).from(workspaces).where(inArray(workspaces.id, accessibleIds)),
 			db.select({ workspaceId: workspaceMembers.workspaceId, userId: workspaceMembers.userId, role: workspaceMembers.role, displayName: users.displayName }).from(workspaceMembers).leftJoin(users, eq(users.userId, workspaceMembers.userId)).where(inArray(workspaceMembers.workspaceId, accessibleIds)),
 			db.select({ invite: workspaceInvites, creatorDisplayName: users.displayName }).from(workspaceInvites).leftJoin(users, eq(users.userId, workspaceInvites.creatorUserId)).where(and(inArray(workspaceInvites.workspaceId, accessibleIds), or(isNull(workspaceInvites.expiresAt), gte(workspaceInvites.expiresAt, sevenDaysAgo)))),
-			db.execute<Record<string, unknown>>(sql`select request.*, workspace.name team_name, requester.display_name requester_display_name, decider.display_name decider_display_name from ${workspaceJoinRequests} request join ${workspaces} workspace on workspace.id=request.workspace_id left join ${users} requester on requester.user_id=request.requester_user_id left join ${users} decider on decider.user_id=request.decided_by where request.workspace_id = any(${accessibleIds}::uuid[]) and (request.decided_at is null or request.decided_at>=${sevenDaysAgo}::timestamptz)`),
+			db.execute<Record<string, unknown>>(sql`select request.*, workspace.name team_name, requester.display_name requester_display_name, decider.display_name decider_display_name from ${workspaceJoinRequests} request join ${workspaces} workspace on workspace.id=request.workspace_id left join ${users} requester on requester.user_id=request.requester_user_id left join ${users} decider on decider.user_id=request.decided_by where ${inArray(sql.raw("request.workspace_id"), accessibleIds)} and (request.decided_at is null or request.decided_at>=${sevenDaysAgo}::timestamptz)`),
 			db.select({ workspaceId: wallets.workspaceId, balanceNanos: wallets.balanceNanos }).from(wallets).where(inArray(wallets.workspaceId, accessibleIds)),
 			db.select().from(workspaceSettings).where(inArray(workspaceSettings.workspaceId, accessibleIds)),
 		]);
@@ -37,7 +37,7 @@ export async function canCreateWorkspace(env: Env, userId: string) {
 			db.execute<{ relation: string | null }>(sql`select to_regclass('public.workspace_invoices')::text as relation`),
 		]);
 		const [invoices] = invoiceTable?.relation
-			? await db.execute<{ count: number }>(sql`select count(*)::int as count from workspace_invoices where workspace_id = any(${ids}::uuid[]) and status = 'paid' and amount_nanos > 0`)
+			? await db.execute<{ count: number }>(sql`select count(*)::int as count from workspace_invoices where ${inArray(sql.identifier("workspace_id"), ids)} and status = 'paid' and amount_nanos > 0`)
 			: [];
 		return Number(paid?.count ?? 0) > 0 || Number(invoices?.count ?? 0) > 0 || Number(enterprise?.count ?? 0) > 0;
 	} finally { await client.end({ timeout: 1 }); }
