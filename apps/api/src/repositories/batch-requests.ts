@@ -1,5 +1,5 @@
 import { gatewayBatchRequests } from "@phaseo/db/schema";
-import { and, asc, eq } from "@phaseo/db/query";
+import { and, asc, eq, sql } from "@phaseo/db/query";
 
 import { createDatabase } from "@/runtime/db";
 import { getBindings } from "@/runtime/env";
@@ -26,22 +26,22 @@ export async function upsertBatchRequestRows(rows: BatchRequestInsert[]): Promis
 				gatewayBatchRequests.customId,
 			],
 			set: {
-				provider: gatewayBatchRequests.provider,
-				nativeBatchId: gatewayBatchRequests.nativeBatchId,
-				requestIndex: gatewayBatchRequests.requestIndex,
-				method: gatewayBatchRequests.method,
-				endpoint: gatewayBatchRequests.endpoint,
-				model: gatewayBatchRequests.model,
-				status: gatewayBatchRequests.status,
-				requestBodyHash: gatewayBatchRequests.requestBodyHash,
-				responseStatus: gatewayBatchRequests.responseStatus,
-				responseBody: gatewayBatchRequests.responseBody,
-				errorBody: gatewayBatchRequests.errorBody,
-				usage: gatewayBatchRequests.usage,
-				costNanos: gatewayBatchRequests.costNanos,
-				costUsd: gatewayBatchRequests.costUsd,
-				meta: gatewayBatchRequests.meta,
-				completedAt: gatewayBatchRequests.completedAt,
+				provider: sql`excluded.provider`,
+				nativeBatchId: sql`excluded.native_batch_id`,
+				requestIndex: sql`excluded.request_index`,
+				method: sql`excluded.method`,
+				endpoint: sql`excluded.endpoint`,
+				model: sql`excluded.model`,
+				status: sql`excluded.status`,
+				requestBodyHash: sql`excluded.request_body_hash`,
+				responseStatus: sql`excluded.response_status`,
+				responseBody: sql`excluded.response_body`,
+				errorBody: sql`excluded.error_body`,
+				usage: sql`excluded.usage`,
+				costNanos: sql`excluded.cost_nanos`,
+				costUsd: sql`excluded.cost_usd`,
+				meta: sql`excluded.meta`,
+				completedAt: sql`excluded.completed_at`,
 				updatedAt: new Date().toISOString(),
 			},
 		});

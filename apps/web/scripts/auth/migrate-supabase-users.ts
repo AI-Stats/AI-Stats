@@ -215,11 +215,6 @@ async function main(): Promise<void> {
 		const users = usersResult.rows;
 		const identities = identitiesResult.rows;
 		const providerMappings = ssoProviderMappings();
-		const passwordUsers = users.filter((user) => Boolean(user.encrypted_password)).length;
-		const socialIdentities = identities.filter((identity) => identity.provider !== "email").length;
-		console.log(
-			`Assessed ${users.length} users: ${passwordUsers} password accounts and ${socialIdentities} social accounts.`,
-		);
 
 		const client = await target.connect();
 		try {
@@ -254,12 +249,10 @@ async function main(): Promise<void> {
 
 			if (apply) {
 				await client.query("commit");
-				console.log(`${sync ? "Reconciled" : "Imported"} ${counts.users} users and ${counts.accounts} accounts.`);
+				console.log(`${sync ? "Identity reconciliation" : "Identity import"} committed.`);
 			} else {
 				await client.query("rollback");
-				console.log(
-					`Dry run validated ${counts?.users ?? 0} users and ${counts?.accounts ?? 0} accounts; transaction rolled back.`,
-				);
+				console.log("Identity migration dry run passed; transaction rolled back.");
 			}
 		} catch (error) {
 			await client.query("rollback");

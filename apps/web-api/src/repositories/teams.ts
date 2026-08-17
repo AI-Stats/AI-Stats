@@ -31,11 +31,15 @@ export async function canCreateWorkspace(env: Env, userId: string) {
 	try {
 		const memberships = await db.select({ workspaceId: workspaceMembers.workspaceId }).from(workspaceMembers).where(and(eq(workspaceMembers.userId, userId), inArray(workspaceMembers.role, ["owner", "admin"])));
 		const ids = memberships.map((row) => String(row.workspaceId)); if (!ids.length) return false;
-		const [[paid], [enterprise]] = await Promise.all([
+		const [[paid], [enterprise], [invoiceTable]] = await Promise.all([
 			db.select({ count: sql<number>`count(*)::int` }).from(creditLedger).where(and(inArray(creditLedger.workspaceId, ids), inArray(creditLedger.kind, ["top_up", "top_up_one_off", "auto_top_up"]), inArray(creditLedger.status, ["Succeeded", "succeeded", "paid", "Paid"]), gt(creditLedger.amountNanos, 0))),
 			db.select({ count: sql<number>`count(*)::int` }).from(workspaces).where(and(inArray(workspaces.id, ids), eq(workspaces.tier, "enterprise"))),
+			db.execute<{ relation: string | null }>(sql`select to_regclass('public.workspace_invoices')::text as relation`),
 		]);
-		return Number(paid?.count ?? 0) > 0 || Number(enterprise?.count ?? 0) > 0;
+		const [invoices] = invoiceTable?.relation
+			? await db.execute<{ count: number }>(sql`select count(*)::int as count from workspace_invoices where workspace_id = any(${ids}::uuid[]) and status = 'paid' and amount_nanos > 0`)
+			: [];
+		return Number(paid?.count ?? 0) > 0 || Number(invoices?.count ?? 0) > 0 || Number(enterprise?.count ?? 0) > 0;
 	} finally { await client.end({ timeout: 1 }); }
 }
 

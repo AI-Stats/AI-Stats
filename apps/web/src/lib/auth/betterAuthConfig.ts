@@ -49,7 +49,7 @@ async function sendAuthEmail(input: {
 }): Promise<void> {
 	const apiKey = process.env.RESEND_API_KEY?.trim();
 	if (!apiKey) throw new Error("RESEND_API_KEY is required for authentication email");
-	const from = process.env.RESEND_FROM_EMAIL?.trim() || "Phaseo <support@phaseo.ai>";
+	const from = process.env.RESEND_FROM_EMAIL?.trim() || "Phaseo <support@phaseo.app>";
 	const { error } = await new Resend(apiKey).emails.send({ from, ...input });
 	if (error) throw new Error(error.message);
 }
