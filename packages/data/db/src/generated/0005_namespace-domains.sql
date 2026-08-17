@@ -177,11 +177,6 @@ alter table public.v2_rollup_refresh_state set schema internal;
 alter table public.web_cache_generations set schema internal;
 alter table public.web_cache_purge_events set schema internal;
 
--- Sequences do not move with their owning tables.
-alter sequence public.v2_control_plane_releases_sequence_seq set schema internal;
-alter sequence public.v2_request_routing_decisions_routing_decision_id_seq set schema observability;
-alter sequence public.web_cache_purge_events_id_seq set schema internal;
-
 -- Views retain their dependencies while gaining explicit domain ownership.
 alter view public.oauth_apps_with_stats set schema gateway;
 alter view public.v2_rpc_gateway_activity_rollup_daily set schema observability;
