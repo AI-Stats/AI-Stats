@@ -33,7 +33,7 @@ export function listModelPerformance(env: Env, hours: number) {
 			round(sum(usage.successful_requests)::numeric / nullif(sum(usage.requests), 0), 4) success_rate
 		from observability.v2_public_usage_hourly usage
 		left join catalog.v2_model_provider_routes route on route.provider_model_id = usage.provider_model_id
-		where usage.bucket_start >= now() - (${hours} * interval '1 hour')
+		where usage.bucket_start >= now() - (${hours}::integer * interval '1 hour')
 			and lower(usage.model_slug) not in ('unknown', 'other')
 		group by usage.model_slug, coalesce(route.provider_slug, 'unknown')
 		order by requests desc
@@ -50,7 +50,7 @@ export async function listFastestModels(env: Env, days: number, limit: number) {
 			round(sum(usage.successful_requests)::numeric / nullif(sum(usage.requests), 0), 4) success_rate
 		from observability.v2_public_usage_daily usage
 		left join catalog.v2_model_provider_routes route on route.provider_model_id = usage.provider_model_id
-		where usage.usage_date >= current_date - ${days}
+		where usage.usage_date >= current_date - ${days}::integer
 			and lower(usage.model_slug) not in ('unknown', 'other')
 		group by usage.model_slug, coalesce(route.provider_slug, 'unknown')
 		having sum(usage.throughput_count) > 0 or sum(usage.latency_count) > 0
@@ -70,7 +70,7 @@ export function listUsageTimeseries(env: Env, timeRange: string, bucketSize: str
 			select ${bucket} bucket, usage.model_slug model_id, sum(usage.requests)::bigint requests,
 				sum(coalesce(meter.tokens, 0))::numeric tokens
 			from observability.v2_public_usage_hourly usage left join meter using (rollup_id)
-			where usage.bucket_start >= now() - (${days} * interval '1 day')
+			where usage.bucket_start >= now() - (${days}::integer * interval '1 day')
 				and lower(usage.model_slug) not in ('unknown','other')
 			group by 1, 2
 		), ranked as (
@@ -97,7 +97,7 @@ export function listModalityTimeseries(env: Env, metric: string, timeRange: stri
 			select date_trunc('week', usage.usage_date::timestamp) bucket, usage.model_slug model_id,
 				sum(usage.requests)::bigint requests, sum(meter.quantity)::numeric tokens
 			from observability.v2_public_usage_daily usage join observability.v2_public_usage_daily_meters meter using (rollup_id)
-			where usage.usage_date >= current_date - ${days} and ${meterPredicate}
+			where usage.usage_date >= current_date - ${days}::integer and ${meterPredicate}
 				and lower(usage.model_slug) not in ('unknown','other')
 			group by 1,2
 		), ranked as (
@@ -119,7 +119,7 @@ export function listUniqueUsers(env: Env, timeRange: string, bucketSize: string,
 			select ${bucket} bucket, usage.model_id, sum(usage.requests)::bigint requests,
 				sum(usage.tokens)::bigint tokens, count(distinct usage.actor_hash)::bigint users
 			from observability.public_model_user_usage_daily usage
-			where usage.day_bucket >= current_date - ${days} and lower(usage.model_id) not in ('unknown','other')
+			where usage.day_bucket >= current_date - ${days}::integer and lower(usage.model_id) not in ('unknown','other')
 			group by 1,2
 		), ranked as (
 			select *, dense_rank() over (partition by bucket order by users desc, tokens desc, requests desc, model_id) bucket_rank from base
@@ -141,7 +141,7 @@ export function listToolCalls(env: Env, timeRange: string, bucketSize: string, t
 				sum(usage.tool_call_count)::bigint tool_calls, sum(usage.tool_call_requests)::bigint tool_call_requests,
 				sum(usage.tool_call_successes)::bigint tool_call_successes
 			from observability.v2_public_usage_daily usage
-			where usage.usage_date >= current_date - ${days} and lower(usage.model_slug) not in ('unknown','other')
+			where usage.usage_date >= current_date - ${days}::integer and lower(usage.model_slug) not in ('unknown','other')
 			group by 1,2
 		), ranked as (
 			select *, dense_rank() over (partition by bucket order by tool_calls desc, requests desc, model_id) bucket_rank from base
@@ -187,7 +187,7 @@ export function listModelRankings(env: Env, timeRange: string, metric: string, l
 				round(sum(usage.successful_requests)::numeric/nullif(sum(usage.requests),0),4) success_rate
 			from observability.v2_public_usage_daily usage left join meters using(rollup_id)
 			left join catalog.v2_model_provider_routes route on route.provider_model_id=usage.provider_model_id
-			where usage.usage_date >= current_date-${days} and lower(usage.model_slug) not in ('unknown','other')
+			where usage.usage_date >= current_date-${days}::integer and lower(usage.model_slug) not in ('unknown','other')
 			group by usage.model_slug,coalesce(route.provider_slug,'unknown')
 		), ranked as (select *,row_number() over(order by ${score} desc,model_id,provider)::integer rank from base where requests>0)
 		select *,null::integer prev_rank,'same'::text trend from ranked order by rank limit ${limit}
@@ -236,7 +236,7 @@ export function listMarketShare(env: Env, dimension: "provider" | "organization"
 			left join catalog.v2_model_provider_routes route on route.provider_model_id=usage.provider_model_id
 			left join catalog.v2_providers provider on provider.provider_slug=route.provider_slug
 			left join catalog.v2_models model on model.model_slug=usage.model_slug left join catalog.v2_labs lab on lab.lab_slug=model.lab_slug
-			where usage.usage_date>=current_date-${days} and lower(usage.model_slug) not in ('unknown','other') group by ${key}
+			where usage.usage_date>=current_date-${days}::integer and lower(usage.model_slug) not in ('unknown','other') group by ${key}
 		)
 		select *,round(tokens/nullif(sum(tokens) over(),0)*100,2) share_percent from base where id<>'unknown' order by tokens desc
 	`);
@@ -253,7 +253,7 @@ export function listMarketShareTimeseries(env: Env, dimension: "provider" | "org
 			from observability.v2_public_usage_daily usage left join meters using(rollup_id)
 			left join catalog.v2_model_provider_routes route on route.provider_model_id=usage.provider_model_id
 			left join catalog.v2_models model on model.model_slug=usage.model_slug
-			where usage.usage_date>=current_date-${days} and lower(usage.model_slug) not in ('unknown','other') group by 1,2
+			where usage.usage_date>=current_date-${days}::integer and lower(usage.model_slug) not in ('unknown','other') group by 1,2
 		),ranked as(select *,dense_rank() over(partition by bucket order by tokens desc,requests desc,id) bucket_rank from base)
 		select ranked.bucket,ranked.id,ranked.requests,ranked.tokens,round(ranked.tokens/nullif(sum(ranked.tokens) over(partition by ranked.bucket),0)*100,2) share_percent
 		from ranked where id<>'unknown' and bucket_rank<=${topN} order by bucket,tokens desc
@@ -266,7 +266,7 @@ export function listMultimodalBreakdown(env: Env, timeRange: string) {
 		select meter.modality, meter.meter_key, meter.unit, sum(meter.quantity)::numeric tokens,
 			sum(usage.requests)::bigint requests, round(sum(meter.quantity)/nullif(sum(sum(meter.quantity)) over(),0)*100,2) share_percent
 		from observability.v2_public_usage_daily usage join observability.v2_public_usage_daily_meters meter using(rollup_id)
-		where usage.usage_date>=current_date-${days} and lower(usage.model_slug) not in ('unknown','other')
+		where usage.usage_date>=current_date-${days}::integer and lower(usage.model_slug) not in ('unknown','other')
 		group by meter.modality,meter.meter_key,meter.unit order by tokens desc
 	`);
 }
@@ -282,7 +282,7 @@ export function listGeography(env: Env, from: Date, to: Date) {
 
 export function listContextLengths(env: Env, days: number) {
 	return rows(env, sql`
-		with scoped as materialized(select request_event_id,workspace_id from observability.v2_request_facts where occurred_at>=now()-(${days}*interval '1 day')),
+		with scoped as materialized(select request_event_id,workspace_id from observability.v2_request_facts where occurred_at>=now()-(${days}::integer*interval '1 day')),
 		per_request as(select scoped.request_event_id,scoped.workspace_id,coalesce(sum(usage.quantity) filter(where usage.meter_key in ('input_tokens','input_text_tokens','prompt_tokens')),0)::bigint input_tokens from scoped left join observability.v2_request_usage usage using(request_event_id) group by 1,2),
 		bucketed as(select workspace_id,case when input_tokens<4096 then 'under_4k' when input_tokens<16384 then '4k_16k' when input_tokens<32768 then '16k_32k' when input_tokens<65536 then '32k_64k' when input_tokens<131072 then '64k_128k' else '128k_plus' end bucket_key from per_request where input_tokens>0),
 		buckets(bucket_key,bucket_label,bucket_order,min_tokens,max_tokens) as(values ('under_4k','Under 4K',1,0::bigint,4095::bigint),('4k_16k','4K–16K',2,4096::bigint,16383::bigint),('16k_32k','16K–32K',3,16384::bigint,32767::bigint),('32k_64k','32K–64K',4,32768::bigint,65535::bigint),('64k_128k','64K–128K',5,65536::bigint,131071::bigint),('128k_plus','128K+',6,131072::bigint,null::bigint)),

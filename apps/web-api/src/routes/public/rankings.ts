@@ -50,7 +50,9 @@ publicRankingsRouter.get("/rankings/fastest-models", async (c) => {
 		const data = await listFastestModels(c.env, bounded(c.req.query("days"), 30, 365), bounded(c.req.query("limit"), 20, 100));
 		return withPublicCache(c.json({ data }), LIVE_CACHE);
 	} catch (error) {
-		console.error("[web-api/rankings] fastest models failed", error);
+		console.error("[web-api/rankings] fastest models failed", error, {
+			cause: error instanceof Error && "cause" in error ? error.cause : undefined,
+		});
 		return c.json({ error: "ranking_fastest_models_unavailable" }, 503);
 	}
 });
