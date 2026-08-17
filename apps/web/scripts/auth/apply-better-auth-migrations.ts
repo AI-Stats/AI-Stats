@@ -32,7 +32,7 @@ async function main() {
 		}>(`
 			select current_user as role_name,
 				(select count(*)::int from pg_catalog.pg_tables where schemaname = 'public' and tablename in ('user','session','account','verification','twoFactor','passkey')) as foundation_tables,
-				to_regclass('auth.ssoProvider') is not null as has_sso,
+				to_regclass('auth."ssoProvider"') is not null as has_sso,
 				exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'user' and column_name = 'mfaReenrollmentRequired') as has_mfa_marker,
 				(select count(*)::int from auth.user) + (select count(*)::int from auth.account) as identity_rows
 		`);

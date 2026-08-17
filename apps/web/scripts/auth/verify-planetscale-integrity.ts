@@ -32,7 +32,7 @@ async function main() {
 				(select count(*)::text from auth.account a left join auth.user u on u.id = a."userId" where u.id is null) as orphan_accounts,
 				(select count(*)::text from auth.session s left join auth.user u on u.id = s."userId" where u.id is null) as orphan_sessions,
 				(select count(*)::text from auth.passkey p left join auth.user u on u.id = p."userId" where u.id is null) as orphan_passkeys,
-				(select count(*)::text from auth.twoFactor f left join auth.user u on u.id = f."userId" where u.id is null) as orphan_two_factor,
+				(select count(*)::text from auth."twoFactor" f left join auth.user u on u.id = f."userId" where u.id is null) as orphan_two_factor,
 				(select count(*)::text from app.workspaces w left join app.users u on u.user_id = w.owner_user_id where u.user_id is null) as orphan_workspace_owners,
 				(select count(*)::text from app.workspace_members m left join app.workspaces w on w.id = m.workspace_id where w.id is null) as orphan_memberships_workspaces,
 				(select count(*)::text from app.workspace_members m left join app.users u on u.user_id = m.user_id where u.user_id is null) as orphan_memberships_users,
