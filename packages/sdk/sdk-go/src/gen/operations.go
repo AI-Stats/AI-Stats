@@ -77,6 +77,21 @@ func CancelVideoAlias(client *Client, path map[string]string, query map[string]s
 	return out, nil
 }
 
+func ConnectRealtimeSessionRelay(client *Client, path map[string]string, query map[string]string, headers map[string]string, body any) (interface{}, error) {
+	resolvedPath := "/audio/realtime/sessions/" + url.PathEscape(path["session_id"]) + "/relay"
+	data, err := client.Request("GET", resolvedPath, query, headers, body)
+	if err != nil {
+		var zero interface{}
+		return zero, err
+	}
+	var out interface{}
+	if err := DecodeJSON(data, &out); err != nil {
+		var zero interface{}
+		return zero, err
+	}
+	return out, nil
+}
+
 func CreateAnthropicMessage(client *Client, path map[string]string, query map[string]string, headers map[string]string, body any) (map[string]interface{}, error) {
 	resolvedPath := "/messages"
 	data, err := client.Request("POST", resolvedPath, query, headers, body)
@@ -222,6 +237,21 @@ func CreateOcr(client *Client, path map[string]string, query map[string]string, 
 	var out map[string]interface{}
 	if err := DecodeJSON(data, &out); err != nil {
 		var zero map[string]interface{}
+		return zero, err
+	}
+	return out, nil
+}
+
+func CreateRealtimeSession(client *Client, path map[string]string, query map[string]string, headers map[string]string, body any) (interface{}, error) {
+	resolvedPath := "/audio/realtime/sessions"
+	data, err := client.Request("POST", resolvedPath, query, headers, body)
+	if err != nil {
+		var zero interface{}
+		return zero, err
+	}
+	var out interface{}
+	if err := DecodeJSON(data, &out); err != nil {
+		var zero interface{}
 		return zero, err
 	}
 	return out, nil
@@ -432,6 +462,36 @@ func DeleteWorkspace(client *Client, path map[string]string, query map[string]st
 	var out map[string]interface{}
 	if err := DecodeJSON(data, &out); err != nil {
 		var zero map[string]interface{}
+		return zero, err
+	}
+	return out, nil
+}
+
+func ExtendRealtimeSessionReservation(client *Client, path map[string]string, query map[string]string, headers map[string]string, body any) (interface{}, error) {
+	resolvedPath := "/audio/realtime/sessions/" + url.PathEscape(path["session_id"]) + "/extend"
+	data, err := client.Request("POST", resolvedPath, query, headers, body)
+	if err != nil {
+		var zero interface{}
+		return zero, err
+	}
+	var out interface{}
+	if err := DecodeJSON(data, &out); err != nil {
+		var zero interface{}
+		return zero, err
+	}
+	return out, nil
+}
+
+func FinalizeRealtimeSession(client *Client, path map[string]string, query map[string]string, headers map[string]string, body any) (interface{}, error) {
+	resolvedPath := "/audio/realtime/sessions/" + url.PathEscape(path["session_id"]) + "/finalize"
+	data, err := client.Request("POST", resolvedPath, query, headers, body)
+	if err != nil {
+		var zero interface{}
+		return zero, err
+	}
+	var out interface{}
+	if err := DecodeJSON(data, &out); err != nil {
+		var zero interface{}
 		return zero, err
 	}
 	return out, nil
@@ -1067,6 +1127,21 @@ func ListWorkspaces(client *Client, path map[string]string, query map[string]str
 	return out, nil
 }
 
+func MarkRealtimeSessionConnected(client *Client, path map[string]string, query map[string]string, headers map[string]string, body any) (interface{}, error) {
+	resolvedPath := "/audio/realtime/sessions/" + url.PathEscape(path["session_id"]) + "/connected"
+	data, err := client.Request("POST", resolvedPath, query, headers, body)
+	if err != nil {
+		var zero interface{}
+		return zero, err
+	}
+	var out interface{}
+	if err := DecodeJSON(data, &out); err != nil {
+		var zero interface{}
+		return zero, err
+	}
+	return out, nil
+}
+
 func OpenAsyncJobWebSocket(client *Client, path map[string]string, query map[string]string, headers map[string]string, body any) (interface{}, error) {
 	resolvedPath := "/async/" + url.PathEscape(path["kind"]) + "/" + url.PathEscape(path["id"]) + "/ws"
 	data, err := client.Request("GET", resolvedPath, query, headers, body)
@@ -1212,6 +1287,21 @@ func UpdateApiKey(client *Client, path map[string]string, query map[string]strin
 	var out map[string]interface{}
 	if err := DecodeJSON(data, &out); err != nil {
 		var zero map[string]interface{}
+		return zero, err
+	}
+	return out, nil
+}
+
+func UpdateRealtimeSessionUsage(client *Client, path map[string]string, query map[string]string, headers map[string]string, body any) (interface{}, error) {
+	resolvedPath := "/audio/realtime/sessions/" + url.PathEscape(path["session_id"]) + "/usage"
+	data, err := client.Request("POST", resolvedPath, query, headers, body)
+	if err != nil {
+		var zero interface{}
+		return zero, err
+	}
+	var out interface{}
+	if err := DecodeJSON(data, &out); err != nil {
+		var zero interface{}
 		return zero, err
 	}
 	return out, nil

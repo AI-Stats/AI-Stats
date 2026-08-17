@@ -66,6 +66,18 @@ public static class Operations
 		return client.SendAsync<object>("POST", resolvedPath, query, headers, body);
 	}
 
+	public static Task<object?> ConnectRealtimeSessionRelayAsync(
+		Client client,
+		Dictionary<string, string>? path = null,
+		Dictionary<string, string>? query = null,
+		Dictionary<string, string>? headers = null,
+		object? body = null
+	)
+	{
+		var resolvedPath = "/audio/realtime/sessions/" + (path != null && path.ContainsKey("session_id") ? path["session_id"] : "") + "/relay";
+		return client.SendAsync<object>("GET", resolvedPath, query, headers, body);
+	}
+
 	public static Task<Dictionary<string, object>?> CreateAnthropicMessageAsync(
 		Client client,
 		Dictionary<string, string>? path = null,
@@ -184,6 +196,18 @@ public static class Operations
 	{
 		var resolvedPath = "/ocr";
 		return client.SendAsync<Dictionary<string, object>>("POST", resolvedPath, query, headers, body);
+	}
+
+	public static Task<object?> CreateRealtimeSessionAsync(
+		Client client,
+		Dictionary<string, string>? path = null,
+		Dictionary<string, string>? query = null,
+		Dictionary<string, string>? headers = null,
+		object? body = null
+	)
+	{
+		var resolvedPath = "/audio/realtime/sessions";
+		return client.SendAsync<object>("POST", resolvedPath, query, headers, body);
 	}
 
 	public static Task<Dictionary<string, object>?> CreateRerankAsync(
@@ -352,6 +376,30 @@ public static class Operations
 	{
 		var resolvedPath = "/workspaces/" + (path != null && path.ContainsKey("id") ? path["id"] : "");
 		return client.SendAsync<Dictionary<string, object>>("DELETE", resolvedPath, query, headers, body);
+	}
+
+	public static Task<object?> ExtendRealtimeSessionReservationAsync(
+		Client client,
+		Dictionary<string, string>? path = null,
+		Dictionary<string, string>? query = null,
+		Dictionary<string, string>? headers = null,
+		object? body = null
+	)
+	{
+		var resolvedPath = "/audio/realtime/sessions/" + (path != null && path.ContainsKey("session_id") ? path["session_id"] : "") + "/extend";
+		return client.SendAsync<object>("POST", resolvedPath, query, headers, body);
+	}
+
+	public static Task<object?> FinalizeRealtimeSessionAsync(
+		Client client,
+		Dictionary<string, string>? path = null,
+		Dictionary<string, string>? query = null,
+		Dictionary<string, string>? headers = null,
+		object? body = null
+	)
+	{
+		var resolvedPath = "/audio/realtime/sessions/" + (path != null && path.ContainsKey("session_id") ? path["session_id"] : "") + "/finalize";
+		return client.SendAsync<object>("POST", resolvedPath, query, headers, body);
 	}
 
 	public static Task<Dictionary<string, object>?> GenerateMusicAsync(
@@ -858,6 +906,18 @@ public static class Operations
 		return client.SendAsync<Dictionary<string, object>>("GET", resolvedPath, query, headers, body);
 	}
 
+	public static Task<object?> MarkRealtimeSessionConnectedAsync(
+		Client client,
+		Dictionary<string, string>? path = null,
+		Dictionary<string, string>? query = null,
+		Dictionary<string, string>? headers = null,
+		object? body = null
+	)
+	{
+		var resolvedPath = "/audio/realtime/sessions/" + (path != null && path.ContainsKey("session_id") ? path["session_id"] : "") + "/connected";
+		return client.SendAsync<object>("POST", resolvedPath, query, headers, body);
+	}
+
 	public static Task<object?> OpenAsyncJobWebSocketAsync(
 		Client client,
 		Dictionary<string, string>? path = null,
@@ -976,6 +1036,18 @@ public static class Operations
 	{
 		var resolvedPath = "/keys/" + (path != null && path.ContainsKey("id") ? path["id"] : "");
 		return client.SendAsync<Dictionary<string, object>>("PATCH", resolvedPath, query, headers, body);
+	}
+
+	public static Task<object?> UpdateRealtimeSessionUsageAsync(
+		Client client,
+		Dictionary<string, string>? path = null,
+		Dictionary<string, string>? query = null,
+		Dictionary<string, string>? headers = null,
+		object? body = null
+	)
+	{
+		var resolvedPath = "/audio/realtime/sessions/" + (path != null && path.ContainsKey("session_id") ? path["session_id"] : "") + "/usage";
+		return client.SendAsync<object>("POST", resolvedPath, query, headers, body);
 	}
 
 	public static Task<Dictionary<string, object>?> UpdateWorkspaceAsync(
