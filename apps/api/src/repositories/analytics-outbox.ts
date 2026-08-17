@@ -1,4 +1,4 @@
-import { sql } from "@phaseo/db/query";
+import { inArray, sql } from "@phaseo/db/query";
 
 import { createDatabase } from "@/runtime/db";
 import { getBindings } from "@/runtime/env";
@@ -21,6 +21,21 @@ export type AnalyticsOutboxSummary = {
 	public_daily_grains: number;
 	public_hourly_grains: number;
 };
+
+export function pendingAnalyticsOutboxPredicate() {
+	return inArray(sql.raw("outbox.status"), ["pending", "failed"]);
+}
+
+export function analyticsOutboxRequestIdsPredicate(ids: string[]) {
+	return inArray(sql.raw("request_event_id"), ids);
+}
+
+export function analyticsOutboxMeterTable(kind: "private" | "daily" | "hourly") {
+	const tableName = kind === "private"
+		? "v2_private_usage_daily_meters"
+		: kind === "daily" ? "v2_public_usage_daily_meters" : "v2_public_usage_hourly_meters";
+	return sql.raw(`observability.${tableName}`);
+}
 
 type Grain = Pick<ClaimedFact, "app_id" | "model_slug" | "provider_model_id" | "cloudflare_colo"> & {
 	workspace_id?: string;
@@ -127,9 +142,7 @@ async function rebuildGrain(tx: any, grain: Grain, kind: "private" | "daily" | "
 		rollupId = (row as { rollup_id: string }).rollup_id;
 	}
 
-	const meterTable = sql.raw(kind === "private"
-		? "v2_private_usage_daily_meters"
-		: kind === "daily" ? "v2_public_usage_daily_meters" : "v2_public_usage_hourly_meters");
+	const meterTable = analyticsOutboxMeterTable(kind);
 	await tx.execute(sql`insert into ${meterTable} (rollup_id,meter_key,modality,unit,quantity)
 		select ${rollupId}::uuid,meter.meter_key,meter.modality,meter.unit,sum(meter.quantity)
 		from observability.v2_request_usage meter join observability.v2_request_facts fact on fact.request_event_id=meter.request_event_id
@@ -147,13 +160,13 @@ export async function processAnalyticsOutbox(requestedLimit = 250): Promise<Anal
 					fact.app_id,coalesce(fact.routed_model_slug,fact.requested_model_slug) model_slug,
 					fact.provider_model_id,fact.cloudflare_colo
 				from internal.v2_analytics_outbox outbox join observability.v2_request_facts fact on fact.request_event_id=outbox.request_event_id
-				where outbox.status=any(${["pending", "failed"]}::text[]) and outbox.available_at<=now()
+				where ${pendingAnalyticsOutboxPredicate()} and outbox.available_at<=now()
 				order by outbox.occurred_at,outbox.request_event_id for update of outbox skip locked limit ${limit}`)];
 			if (!claimed.length) return { selected: 0, private_grains: 0, public_daily_grains: 0, public_hourly_grains: 0 };
 
 			const ids = claimed.map((row) => row.request_event_id);
 			await tx.execute(sql`update internal.v2_analytics_outbox set status='processing',updated_at=now()
-				where request_event_id=any(${ids}::uuid[])`);
+				where ${analyticsOutboxRequestIdsPredicate(ids)}`);
 			const privateGrains = distinctGrains(claimed, "private");
 			const dailyGrains = distinctGrains(claimed, "daily");
 			const hourlyGrains = distinctGrains(claimed, "hourly");
@@ -164,17 +177,17 @@ export async function processAnalyticsOutbox(requestedLimit = 250): Promise<Anal
 			await tx.execute(sql`insert into internal.v2_rollup_refresh_state
 				(rollup_name,bucket_start,last_started_at,last_completed_at,source_watermark,status,error_message,updated_at)
 				select 'private_daily',date_trunc('day',occurred_at),now(),now(),max(occurred_at),'complete',null,now()
-				from observability.v2_request_facts where request_event_id=any(${ids}::uuid[]) group by date_trunc('day',occurred_at)
+				from observability.v2_request_facts where ${analyticsOutboxRequestIdsPredicate(ids)} group by date_trunc('day',occurred_at)
 				on conflict (rollup_name,bucket_start) do update set last_started_at=excluded.last_started_at,
 				last_completed_at=excluded.last_completed_at,source_watermark=excluded.source_watermark,status='complete',error_message=null,updated_at=now()`);
 			await tx.execute(sql`insert into internal.v2_rollup_refresh_state
 				(rollup_name,bucket_start,last_started_at,last_completed_at,source_watermark,status,error_message,updated_at)
 				select 'public_hourly',date_trunc('hour',occurred_at),now(),now(),max(occurred_at),'complete',null,now()
-				from observability.v2_request_facts where request_event_id=any(${ids}::uuid[]) group by date_trunc('hour',occurred_at)
+				from observability.v2_request_facts where ${analyticsOutboxRequestIdsPredicate(ids)} group by date_trunc('hour',occurred_at)
 				on conflict (rollup_name,bucket_start) do update set last_started_at=excluded.last_started_at,
 				last_completed_at=excluded.last_completed_at,source_watermark=excluded.source_watermark,status='complete',error_message=null,updated_at=now()`);
 			await tx.execute(sql`update internal.v2_analytics_outbox set status='complete',last_error=null,updated_at=now()
-				where request_event_id=any(${ids}::uuid[])`);
+				where ${analyticsOutboxRequestIdsPredicate(ids)}`);
 			return {
 				selected: claimed.length,
 				private_grains: privateGrains.length,
