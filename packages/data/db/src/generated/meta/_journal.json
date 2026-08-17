@@ -57,6 +57,13 @@
       "when": 1786959000000,
       "tag": "0007_repair_function_namespaces",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1786962600000,
+      "tag": "0008_create_gateway_io_retention_billing_runs",
+      "breakpoints": true
     }
   ]
 }

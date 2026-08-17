@@ -157,17 +157,19 @@ async function ensureReusablePaymentMethod(
     }
 }
 
-function getWebhookSecret(): string {
-    const raw = process.env.STRIPE_WEBHOOK_SECRET;
-    const secret = typeof raw === "string" ? raw.trim().replace(/^["']|["']$/g, "") : "";
-    if (!secret) throw new Error("Stripe webhook signing secret missing");
-    return secret;
+function getWebhookSecrets(): string[] {
+    const secrets = [process.env.STRIPE_WEBHOOK_SECRET, process.env.STRIPE_TEST_WEBHOOK_SECRET]
+        .map((raw) => typeof raw === "string" ? raw.trim().replace(/^["']|["']$/g, "") : "")
+        .filter(Boolean);
+    const uniqueSecrets = [...new Set(secrets)];
+    if (uniqueSecrets.length === 0) throw new Error("Stripe webhook signing secret missing");
+    return uniqueSecrets;
 }
 
-function redactSecret(secret: string): string {
-    if (!secret) return "<empty>";
-    if (secret.length <= 12) return `${secret.slice(0, 4)}...`;
-    return `${secret.slice(0, 7)}...${secret.slice(-4)}`;
+function getConfiguredWebhookSecretCount(): number {
+    return [process.env.STRIPE_WEBHOOK_SECRET, process.env.STRIPE_TEST_WEBHOOK_SECRET]
+        .map((raw) => typeof raw === "string" ? raw.trim().replace(/^["']|["']$/g, "") : "")
+        .filter(Boolean).length;
 }
 
 function summarizeStripeSignatureHeader(signature: string) {
@@ -224,7 +226,7 @@ function mapStripeRefundStatus(status?: string | null): "Pending" | "Succeeded" 
 const MAX_STRIPE_WEBHOOK_BYTES = 1024 * 1024;
 
 export async function POST(req: Request) {
-    const stripe = getStripe();
+    const defaultStripe = getStripe();
 
     // IMPORTANT: read raw body for signature verification
     const boundedBody = await readBoundedTextBody(req, MAX_STRIPE_WEBHOOK_BYTES);
@@ -237,28 +239,36 @@ export async function POST(req: Request) {
 
     let event: Stripe.Event;
     try {
-        const webhookSecret = getWebhookSecret();
-        event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
+        let verificationError: unknown;
+        let verifiedEvent: Stripe.Event | undefined;
+        for (const webhookSecret of getWebhookSecrets()) {
+            try {
+                verifiedEvent = defaultStripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
+                break;
+            } catch (error) {
+                verificationError = error;
+            }
+        }
+        if (!verifiedEvent) throw verificationError ?? new Error("Stripe signature verification failed");
+        event = verifiedEvent;
     } catch (err: any) {
-        const configuredSecret = process.env.STRIPE_WEBHOOK_SECRET ?? "";
-        const normalizedSecret =
-            typeof configuredSecret === "string"
-                ? configuredSecret.trim().replace(/^["']|["']$/g, "")
-                : "";
         console.error("[stripe-webhook] Signature verification failed", {
             error: err?.message ?? String(err),
             bodyLength: rawBody.length,
             hasStripeSignatureHeader: signatureSummary.present,
             signatureTimestamp: signatureSummary.timestamp,
             signatureV1Count: signatureSummary.v1Count,
-            configuredSecretLength: normalizedSecret.length,
-            configuredSecretPreview: redactSecret(normalizedSecret),
+            configuredSecretCount: getConfiguredWebhookSecretCount(),
         });
         return NextResponse.json(
             { message: `Webhook Error: ${err?.message || String(err)}` },
             { status: 400 }
         );
     }
+
+    const stripe = event.livemode === false && process.env.TEST_STRIPE_SECRET_KEY
+        ? getStripe({ testMode: true })
+        : defaultStripe;
 
     try {
         switch (event.type) {
