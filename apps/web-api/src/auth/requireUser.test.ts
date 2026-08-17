@@ -63,7 +63,7 @@ describe("requireUser Better Auth", () => {
 			"https://phaseo.app/api/auth/get-session",
 			expect.objectContaining({
 				headers: expect.objectContaining({ Cookie: "better-auth.session_token=signed-token" }),
-				redirect: "error",
+				redirect: "manual",
 			}),
 		);
 	});

@@ -97,7 +97,7 @@ async function betterAuthUser(request: Request, env: Env): Promise<Authenticated
         ...(cookie ? { Cookie: cookie } : {}),
         ...(authorization ? { Authorization: authorization } : {}),
       },
-      redirect: "error",
+      redirect: "manual",
       signal: AbortSignal.timeout(3_000),
     });
 		if (!response.ok) {

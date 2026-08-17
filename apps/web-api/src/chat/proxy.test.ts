@@ -1,5 +1,21 @@
 import { describe, expect, it } from "vitest";
-import { deriveChatGatewayKey, resolveGatewayBaseUrlForEnvironment } from "@/chat/proxy";
+import { deriveChatGatewayKey, forwardChatStream, resolveGatewayBaseUrlForEnvironment } from "@/chat/proxy";
+
+describe("forwardChatStream", () => {
+	it("forwards every chunk and closes the response body", async () => {
+		const source = new Response(new ReadableStream<Uint8Array>({
+			start(controller) {
+				controller.enqueue(new TextEncoder().encode("data: first\n\n"));
+				controller.enqueue(new TextEncoder().encode("data: [DONE]\n\n"));
+				controller.close();
+			},
+		}), { headers: { "Content-Type": "text/event-stream" } });
+
+		const forwarded = forwardChatStream(source);
+		expect(forwarded.headers.get("content-type")).toContain("text/event-stream");
+		await expect(forwarded.text()).resolves.toBe("data: first\n\ndata: [DONE]\n\n");
+	});
+});
 
 describe("deriveChatGatewayKey", () => {
 	it("creates a stable, distinct managed key for each user in a workspace", async () => {

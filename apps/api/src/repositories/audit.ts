@@ -10,7 +10,7 @@ async function withDatabase<T>(operation: (db: ReturnType<typeof createDatabase>
 
 const identifier = /^[a-z_][a-z0-9_]*$/;
 
-function insertStatement(table: "gateway_requests", row: Record<string, unknown>, returning = false) {
+function insertStatement(table: "observability.gateway_requests", row: Record<string, unknown>, returning = false) {
 	const entries = Object.entries(row).filter(([key, value]) => value !== undefined && identifier.test(key));
 	if (!entries.length) throw new Error(`audit_${table}_empty_insert`);
 	const columns = sql.join(entries.map(([key]) => sql.raw(`"${key}"`)), sql`, `);
@@ -22,7 +22,7 @@ function insertStatement(table: "gateway_requests", row: Record<string, unknown>
 
 export async function insertGatewayRequest(row: Record<string, unknown>) {
 	return withDatabase(async (db) => ([...await db.execute<{ id: string; created_at: string; workspace_id: string }>(
-		insertStatement("gateway_requests", row, true),
+		insertStatement("observability.gateway_requests", row, true),
 	)])[0]);
 }
 

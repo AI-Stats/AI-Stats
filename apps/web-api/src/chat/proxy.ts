@@ -143,6 +143,36 @@ function privateResponse(response: Response): Response {
 	return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
 }
 
+export function forwardChatStream(response: Response): Response {
+	if (!response.body) return response;
+	const reader = response.body.getReader();
+	let bytes = 0;
+	let chunks = 0;
+	const body = new ReadableStream<Uint8Array>({
+		async pull(controller) {
+			try {
+				const { done, value } = await reader.read();
+				if (done) {
+					controller.close();
+					return;
+				}
+				if (value) {
+					bytes += value.byteLength;
+					chunks += 1;
+					controller.enqueue(value);
+				}
+			} catch (error) {
+				console.warn("[web-api/chat] gateway stream failed", { bytes, chunks, error: error instanceof Error ? error.message : "unknown" });
+				controller.error(error);
+			}
+		},
+		async cancel(reason) {
+			await reader.cancel(reason).catch(() => undefined);
+		},
+	});
+	return new Response(body, { status: response.status, statusText: response.statusText, headers: response.headers });
+}
+
 function jsonError(status: number, code: string, message: string): Response {
 	return new Response(JSON.stringify({ error: code, message }), { status, headers: { "Content-Type": "application/json", ...PRIVATE_NO_STORE_HEADERS } });
 }
@@ -174,7 +204,7 @@ export async function proxyGateway(request: Request, env: Env, waitUntil: (promi
 				code: typeof payload?.error === "string" ? payload.error : undefined,
 			});
 		}
-		return privateResponse(upstream);
+		return privateResponse(args.stream && upstream.ok ? forwardChatStream(upstream) : upstream);
 	} catch {
 		return jsonError(502, "gateway_unreachable", "The gateway is temporarily unavailable. Please try again.");
 	}
