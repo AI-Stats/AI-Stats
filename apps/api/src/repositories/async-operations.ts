@@ -16,6 +16,12 @@ const operationSelection = {
 	created_at: gatewayAsyncOperations.createdAt, updated_at: gatewayAsyncOperations.updatedAt,
 };
 
+export function reconciliationStatusPredicate(statuses: string[] | null) {
+	return statuses
+		? inArray(sql.raw("coalesce(status, '')"), statuses)
+		: sql`true`;
+}
+
 export type OperationRow = typeof operationSelection extends infer T ? { [K in keyof T]: T[K] extends { _: { data: infer D } } ? D : unknown } : never;
 
 async function withDatabase<T>(operation: (db: ReturnType<typeof createDatabase>["db"]) => Promise<T>): Promise<T> {
@@ -140,12 +146,13 @@ export async function updateWebhookDelivery(args: Omit<DeliveryIdentity, "claimT
 }
 
 export async function claimOperationsForReconciliation(args: { kind: string; limit: number; statuses: string[] | null; workerId: string; leaseSeconds: number; shardCount: number; shardIndex: number }) {
+	const statusPredicate = reconciliationStatusPredicate(args.statuses);
 	return withDatabase(async (db) => [...await db.execute(sql`
 		with candidates as (
 			select id from ${gatewayAsyncOperations}
 			where kind=${args.kind} and billed_at is null and (next_reconcile_at is null or next_reconcile_at <= now())
 			and (reconcile_locked_at is null or reconcile_locked_at < now() - (${args.leaseSeconds} * interval '1 second'))
-			and (${args.statuses}::text[] is null or coalesce(status, '') = any(${args.statuses}::text[]))
+			and ${statusPredicate}
 			and not (kind='batch' and meta->>'resource'='file')
 			and (${args.shardCount}=1 or mod(mod(hashtextextended(workspace_id::text || ':' || internal_id, 0), ${args.shardCount}::bigint)+${args.shardCount}::bigint, ${args.shardCount}::bigint)=${args.shardIndex}::bigint)
 			order by next_reconcile_at asc nulls first, updated_at asc limit ${args.limit} for update skip locked

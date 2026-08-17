@@ -10,6 +10,10 @@ type ReservationResult = {
 	before_reserved_nanos: number | null; after_reserved_nanos: number | null;
 };
 
+export function activeBatchReservationPredicate() {
+	return inArray(sql.raw("reservation.status"), ["held", "reserved"]);
+}
+
 async function withDatabase<T>(operation: (db: ReturnType<typeof createDatabase>["db"]) => Promise<T>): Promise<T> {
 	const { db, client } = createDatabase(getBindings());
 	try { return await operation(db); } finally { await client.end({ timeout: 1 }); }
@@ -156,7 +160,7 @@ export async function releaseStaleOrphanBatches(olderThanSeconds: number, limit:
 		const rows = [...await tx.execute<Row>(sql`
 			select reservation.workspace_id::text,reservation.reservation_id,reservation.amount_nanos
 			from ${gatewayWalletReservations} reservation
-			where reservation.reservation_id like 'batch_hold:%' and reservation.status=any(${["held", "reserved"]}::text[])
+			where reservation.reservation_id like 'batch_hold:%' and ${activeBatchReservationPredicate()}
 				and reservation.created_at < now() - (${Math.max(300, olderThanSeconds)} * interval '1 second')
 				and not exists (select 1 from ${gatewayAsyncOperations} operation where operation.workspace_id=reservation.workspace_id
 					and operation.kind='batch' and (operation.request_id=reservation.hold_ref_id
