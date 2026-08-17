@@ -23,11 +23,13 @@ export default function DeleteKeyItem({
 	trigger = true,
 	open: controlledOpen,
 	onOpenChange,
+	onChanged,
 }: {
 	k: any;
 	trigger?: boolean;
 	open?: boolean;
 	onOpenChange?: (open: boolean) => void;
+	onChanged?: () => Promise<unknown> | unknown;
 }) {
 	const [internalOpen, setInternalOpen] = useState(false);
 	const open = controlledOpen ?? internalOpen;
@@ -41,7 +43,7 @@ export default function DeleteKeyItem({
 		setLoading(true);
 		const promise = deleteApiKeyAction(k.id, confirm);
 		try {
-			await toast.promise(promise, {
+			toast.promise(promise, {
 				loading: `Deleting key...`,
 				success: `Key deleted`,
 				error: (err) => {
@@ -50,6 +52,8 @@ export default function DeleteKeyItem({
 					);
 				},
 			});
+			await promise;
+			await onChanged?.();
 			setOpen(false);
 		} finally {
 			setLoading(false);

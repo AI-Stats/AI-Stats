@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -67,6 +66,10 @@ import {
 	updateApiKeyAction,
 } from "@/app/(dashboard)/settings/keys/actions";
 import { toast } from "sonner";
+import type { SettingsKeysInitialData } from "@/lib/fetchers/internal/settingsTypes";
+import { useSettingsKeys } from "./useSettingsKeys";
+import { settingsKeysSWRKey } from "./useSettingsKeys";
+import { accountSWRFetcher } from "@/lib/swr/accountFetcher";
 
 type KeyState = "active" | "disabled" | "limited" | "expired";
 type KeyDialogType = "details" | "edit" | "rotate" | "delete";
@@ -490,8 +493,18 @@ function LimitPillStack({
 	);
 }
 
-export default function KeysPanel({ teamsWithKeys }: any) {
-	const router = useRouter();
+export default function KeysPanel({ initialData }: { initialData: SettingsKeysInitialData }) {
+	const { data, mutate } = useSettingsKeys(
+		initialData.initialWorkspaceId,
+		initialData,
+	);
+	const revalidateKeys = async () => {
+		const freshData = await accountSWRFetcher<SettingsKeysInitialData>(
+			settingsKeysSWRKey(initialData.initialWorkspaceId),
+		);
+		return mutate(freshData, { revalidate: false });
+	};
+	const teamsWithKeys = data?.teamsWithKeys ?? initialData.teamsWithKeys;
 	// Ensure teams that have keys are shown first. Within each workspace, keys are
 	// ordered by most recent use; keys without a valid last-used timestamp come last.
 	const sortedTeams = useMemo(() => {
@@ -571,12 +584,13 @@ export default function KeysPanel({ teamsWithKeys }: any) {
 		if (selectedKeys.length === 0) return;
 		setBulkBusy(true);
 		try {
-			await toast.promise(
-				Promise.all(
+			const updatePromise = Promise.all(
 					selectedKeys.map((key: any) =>
 						updateApiKeyAction(String(key.id), { paused })
 					)
-				),
+				);
+			toast.promise(
+				updatePromise,
 				{
 					loading: paused ? "Pausing selected keys..." : "Activating selected keys...",
 					success: paused ? "Selected keys paused" : "Selected keys activated",
@@ -584,8 +598,9 @@ export default function KeysPanel({ teamsWithKeys }: any) {
 						(error && (error as any).message) || "Failed to update selected keys",
 				}
 			);
+			await updatePromise;
 			setSelectedIds(new Set());
-			router.refresh();
+			await revalidateKeys();
 		} finally {
 			setBulkBusy(false);
 		}
@@ -595,12 +610,13 @@ export default function KeysPanel({ teamsWithKeys }: any) {
 		if (selectedKeys.length === 0) return;
 		setBulkBusy(true);
 		try {
-			await toast.promise(
-				Promise.all(
+			const deletePromise = Promise.all(
 					selectedKeys.map((key: any) =>
 						deleteApiKeyAction(String(key.id), String(key.name ?? ""))
 					)
-				),
+				);
+			toast.promise(
+				deletePromise,
 				{
 					loading: "Deleting selected keys...",
 					success: "Selected keys deleted",
@@ -608,9 +624,10 @@ export default function KeysPanel({ teamsWithKeys }: any) {
 						(error && (error as any).message) || "Failed to delete selected keys",
 				}
 			);
+			await deletePromise;
 			setBulkDeleteOpen(false);
 			setSelectedIds(new Set());
-			router.refresh();
+			await revalidateKeys();
 		} finally {
 			setBulkBusy(false);
 		}
@@ -996,6 +1013,7 @@ export default function KeysPanel({ teamsWithKeys }: any) {
 						k={activeDialog.key}
 						trigger={false}
 						open
+						onChanged={revalidateKeys}
 						onOpenChange={(next) => {
 							if (!next) closeKeyDialog();
 						}}
@@ -1007,6 +1025,7 @@ export default function KeysPanel({ teamsWithKeys }: any) {
 						k={activeDialog.key}
 						trigger={false}
 						open
+						onChanged={revalidateKeys}
 						onOpenChange={(next) => {
 							if (!next) closeKeyDialog();
 						}}
@@ -1018,6 +1037,7 @@ export default function KeysPanel({ teamsWithKeys }: any) {
 						k={activeDialog.key}
 						trigger={false}
 						open
+						onChanged={revalidateKeys}
 						onOpenChange={(next) => {
 							if (!next) closeKeyDialog();
 						}}
