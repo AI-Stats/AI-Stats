@@ -238,11 +238,11 @@ export async function irToGemini(
 	const input: any[] = [];
 	const systemInstructionParts: string[] = [];
 	const toolNamesById = new Map<string, string>();
-	const previousInteractionId = resolvePreviousInteractionId(ir);
-
-	const messagesToMap = previousInteractionId && ir.messages.length > 0
-		? [ir.messages[ir.messages.length - 1]]
-		: ir.messages;
+	const messagesToMap = ir.messages;
+	const statelessStepGroups = Array.isArray((ir.vendor as any)?.google?.stateless_interaction_step_groups)
+		? (ir.vendor as any).google.stateless_interaction_step_groups.filter(Array.isArray)
+		: [];
+	let assistantMessageIndex = 0;
 
 	for (const msg of ir.messages) {
 		if (msg.role !== "assistant" || !Array.isArray(msg.toolCalls)) continue;
@@ -262,6 +262,13 @@ export async function irToGemini(
 				content: await irPartsToInteractionContent(msg.content, upstreamTiming),
 			});
 		} else if (msg.role === "assistant") {
+			const providerSteps = statelessStepGroups[assistantMessageIndex++];
+			if (providerSteps) {
+				// Stateless Interactions follow-ups must replay every model-generated
+				// step exactly as Google returned it, including thought signatures.
+				input.push(...providerSteps);
+				continue;
+			}
 			const outputContent = await irPartsToInteractionContent(
 				msg.content.filter((part) => part.type !== "reasoning_text"),
 				upstreamTiming,
@@ -309,12 +316,8 @@ export async function irToGemini(
 	const request: any = {
 		model: modelOverride ?? ir.model,
 		input,
-		store: Boolean(ir.store === true || previousInteractionId || ir.background),
+		store: false,
 	};
-
-	if (previousInteractionId) {
-		request.previous_interaction_id = previousInteractionId;
-	}
 	if (ir.background !== undefined) {
 		request.background = ir.background;
 	}
@@ -580,17 +583,6 @@ function parseToolCallArguments(value: string): Record<string, any> {
 	} catch {
 		return { value };
 	}
-}
-
-function resolvePreviousInteractionId(ir: IRChatRequest): string | undefined {
-	const vendorGoogle = (ir.vendor as any)?.google;
-	const candidates = [
-		vendorGoogle?.previous_interaction_id,
-		vendorGoogle?.previousInteractionId,
-		vendorGoogle?.interaction_id,
-		vendorGoogle?.interactionId,
-	];
-	return candidates.find((value): value is string => typeof value === "string" && value.length > 0);
 }
 
 /**
@@ -1042,6 +1034,24 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 					message: "Explicit cached content is not supported by the Google Interactions API.",
 					type: "invalid_request_error",
 					param: "cached_content",
+				},
+			}), {
+				status: 400,
+				headers: { "Content-Type": "application/json" },
+			}),
+			bill: { cost_cents: 0, currency: "USD" },
+		};
+	}
+	if (ir.background === true) {
+		return {
+			kind: "completed",
+			ir: undefined,
+			upstream: new Response(JSON.stringify({
+				error: {
+					code: "google_interactions_background_unsupported",
+					message: "Background execution is unavailable because Google AI Studio interactions are always stateless.",
+					type: "invalid_request_error",
+					param: "background",
 				},
 			}), {
 				status: 400,
