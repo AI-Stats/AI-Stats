@@ -50,6 +50,13 @@
       "when": 1786957200000,
       "tag": "0006_consolidate_gateway_requests",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1786959000000,
+      "tag": "0007_repair_function_namespaces",
+      "breakpoints": true
     }
   ]
 }
