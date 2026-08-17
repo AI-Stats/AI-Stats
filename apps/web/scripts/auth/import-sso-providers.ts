@@ -42,7 +42,7 @@ async function main() {
 		await client.query("begin");
 		for (const provider of providers) {
 			await client.query(`
-				insert into "ssoProvider" (
+				insert into auth.ssoProvider (
 					"id", "issuer", "oidcConfig", "samlConfig", "userId", "providerId", "domain"
 				) values ($1, $2, $3, $4, $5, $6, $7)
 				on conflict ("providerId") do update set

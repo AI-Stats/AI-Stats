@@ -1,6 +1,7 @@
+import { gatewaySchema } from "./namespaces";
 import { boolean, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
-export const oauthAppMetadata = pgTable("oauth_app_metadata", {
+export const oauthAppMetadata = gatewaySchema.table("oauth_app_metadata", {
 	id: uuid().primaryKey().notNull(),
 	clientId: text("client_id").notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
@@ -22,7 +23,7 @@ export const oauthAppMetadata = pgTable("oauth_app_metadata", {
 	betaStatus: text("beta_status").notNull(),
 });
 
-export const oauthAuthorizations = pgTable("oauth_authorizations", {
+export const oauthAuthorizations = gatewaySchema.table("oauth_authorizations", {
 	id: uuid().primaryKey().notNull(),
 	userId: uuid("user_id").notNull(),
 	revokedAt: timestamp("revoked_at", { withTimezone: true, mode: "string" }),

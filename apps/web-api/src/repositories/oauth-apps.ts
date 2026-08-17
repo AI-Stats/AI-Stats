@@ -86,16 +86,16 @@ const oauthAppSummarySql = sql`
 	select app.id, app.client_id, app.workspace_id, app.name, app.description,
 		app.homepage_url, app.logo_url, app.privacy_policy_url, app.terms_of_service_url,
 		app.created_by, app.created_at, app.updated_at, app.status, app.redirect_uris,
-		(select count(*) from oauth_authorizations authorization
+		(select count(*) from gateway.oauth_authorizations authorization
 			where authorization.client_id=app.client_id and authorization.revoked_at is null)::integer as active_authorizations,
-		(select count(*) from oauth_authorizations authorization
+		(select count(*) from gateway.oauth_authorizations authorization
 			where authorization.client_id=app.client_id)::integer as total_authorizations,
-		(select max(authorization.last_used_at) from oauth_authorizations authorization
+		(select max(authorization.last_used_at) from gateway.oauth_authorizations authorization
 			where authorization.client_id=app.client_id) as last_used_at,
-		(select count(*) from gateway_requests request
+		(select count(*) from observability.gateway_requests request
 			where request.oauth_client_id=app.client_id and request.auth_method='oauth'
 				and request.created_at >= now() - interval '30 days')::integer as requests_last_30d
-	from oauth_app_metadata app
+	from gateway.oauth_app_metadata app
 `;
 
 export async function listWorkspaceOAuthApps(env: Env, workspaceId: string) {
@@ -122,25 +122,25 @@ export async function loadOAuthAppDetails(env: Env, clientId: string) {
 				user_name: string | null; user_email: string | null; workspace_name: string | null;
 			}>(sql`select authorization.*, identity.name as user_name, identity.email as user_email,
 				workspace.name as workspace_name
-				from oauth_authorizations authorization
-				left join "user" identity on identity.id=authorization.user_id::text
-				left join workspaces workspace on workspace.id=authorization.workspace_id
+				from gateway.oauth_authorizations authorization
+				left join auth.user identity on identity.id=authorization.user_id::text
+				left join app.workspaces workspace on workspace.id=authorization.workspace_id
 				where authorization.client_id=${clientId} and authorization.revoked_at is null
 				order by authorization.last_used_at desc nulls last limit 10`),
 			db.execute<{ created_at: string; success: boolean; cost_nanos: number | string | null }>(sql`
-				select created_at, success, cost_nanos from gateway_requests
+				select created_at, success, cost_nanos from observability.gateway_requests
 				where oauth_client_id=${clientId} and auth_method='oauth'
 					and created_at >= now() - interval '30 days' order by created_at asc`),
 			db.execute<{ request_id: string; created_at: string; oauth_user_id: string | null; endpoint: string; model_id: string | null; provider: string | null; success: boolean; status_code: number | null; error_code: string | null; cost_nanos: number | string | null; latency_ms: number | null }>(sql`
 				select request_id, created_at, oauth_user_id, endpoint, model_id, provider, success,
-					status_code, error_code, cost_nanos, latency_ms from gateway_requests
+					status_code, error_code, cost_nanos, latency_ms from observability.gateway_requests
 				where oauth_client_id=${clientId} and auth_method='oauth'
 				order by created_at desc limit 250`),
 			db.execute<{ user_id: string; full_name: string | null; email: string | null }>(sql`
 				select distinct on (authorization.user_id) authorization.user_id,
 					identity.name as full_name, identity.email
-				from oauth_authorizations authorization
-				left join "user" identity on identity.id=authorization.user_id::text
+				from gateway.oauth_authorizations authorization
+				left join auth.user identity on identity.id=authorization.user_id::text
 				where authorization.client_id=${clientId}
 				order by authorization.user_id, authorization.last_used_at desc nulls last`),
 		]);

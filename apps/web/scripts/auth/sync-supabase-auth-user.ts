@@ -68,7 +68,7 @@ async function main() {
 	try {
 		await client.query("begin");
 		await client.query(`
-			insert into public."user" (
+			insert into auth.user (
 				"id", "name", "email", "emailVerified", "createdAt", "updatedAt",
 				"appMetadata", "invitedAt", "lastSignInAt", "mfaReenrollmentRequired", "userMetadata"
 			) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, true, $10)
@@ -89,7 +89,7 @@ async function main() {
 			const accountId = identity.identity_data?.sub;
 			if (!identity.id || !accountId) throw new Error(`Incomplete ${identity.provider} identity`);
 			await client.query(`
-				insert into public."account" (
+				insert into auth.account (
 					"id", "accountId", "providerId", "userId", "createdAt", "updatedAt"
 				) values ($1, $2, $3, $4, $5, $6)
 				on conflict ("id") do update set
@@ -104,8 +104,8 @@ async function main() {
 
 		const verification = await client.query<{ accounts: string; users: string }>(`
 			select
-				(select count(*)::text from public."user" where id = $1) as users,
-				(select count(*)::text from public."account" where "userId" = $1) as accounts
+				(select count(*)::text from auth.user where id = $1) as users,
+				(select count(*)::text from auth.account where "userId" = $1) as accounts
 		`, [user.id]);
 		if (verification.rows[0]?.users !== "1" || Number(verification.rows[0]?.accounts ?? 0) < socialAccounts) {
 			throw new Error("Target identity verification failed");

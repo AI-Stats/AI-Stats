@@ -1,6 +1,7 @@
+import { appSchema, billingSchema, gatewaySchema, internalSchema, observabilitySchema } from "./namespaces";
 import { bigint, boolean, integer, jsonb, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
-export const creditLedger = pgTable("credit_ledger", {
+export const creditLedger = billingSchema.table("credit_ledger", {
   id: uuid().defaultRandom().primaryKey().notNull(),
   workspaceId: uuid("workspace_id").notNull(),
   eventTime: timestamp("event_time", { withTimezone: true, mode: "string" }).defaultNow().notNull(),
@@ -19,7 +20,7 @@ export const creditLedger = pgTable("credit_ledger", {
   refundClaimedByUserId: uuid("refund_claimed_by_user_id"),
 });
 
-export const wallets = pgTable("wallets", {
+export const wallets = billingSchema.table("wallets", {
   workspaceId: uuid("workspace_id").primaryKey().notNull(),
   stripeCustomerId: text("stripe_customer_id").notNull(),
   balanceNanos: bigint("balance_nanos", { mode: "number" }).default(0).notNull(),
@@ -28,10 +29,10 @@ export const wallets = pgTable("wallets", {
   updatedAt: timestamp("updated_at", { withTimezone: true, mode: "string" }).defaultNow().notNull(),
 });
 
-export const workspaceMembers = pgTable("workspace_members", {
+export const workspaceMembers = appSchema.table("workspace_members", {
   workspaceId: uuid("workspace_id").notNull(), userId: uuid("user_id").notNull(), role: text().notNull(),
 });
-export const workspaces = pgTable("workspaces", {
+export const workspaces = appSchema.table("workspaces", {
   id: uuid().primaryKey().notNull(),
   name: text().notNull(),
   slug: text().notNull(),
@@ -39,19 +40,19 @@ export const workspaces = pgTable("workspaces", {
   createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).defaultNow().notNull(),
   tier: text(),
 });
-export const keys = pgTable("keys", {
+export const keys = gatewaySchema.table("keys", {
   id: uuid().primaryKey().notNull(), workspaceId: uuid("workspace_id").notNull(), name: text().notNull(), status: text().notNull(),
 });
-export const managementKeys = pgTable("management_keys", {
+export const managementKeys = gatewaySchema.table("management_keys", {
   id: uuid().primaryKey().notNull(), workspaceId: uuid("workspace_id").notNull(),
 });
 
-export const workspaceSettings = pgTable("workspace_settings", {
+export const workspaceSettings = appSchema.table("workspace_settings", {
 	workspaceId: uuid("workspace_id").primaryKey().notNull(),
 	autoTopUpFailureEmailEnabled: boolean("auto_top_up_failure_email_enabled").default(true).notNull(),
 });
 
-export const emailOutbox = pgTable("email_outbox", {
+export const emailOutbox = internalSchema.table("email_outbox", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).defaultNow().notNull(),
 	kind: text().notNull(),
@@ -65,7 +66,7 @@ export const emailOutbox = pgTable("email_outbox", {
 	dedupeKey: text("dedupe_key"),
 });
 
-export const gatewayRequests = pgTable("gateway_requests", {
+export const gatewayRequests = observabilitySchema.table("gateway_requests", {
 	createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
 	success: boolean().notNull(),

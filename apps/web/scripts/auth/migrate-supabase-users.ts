@@ -75,8 +75,8 @@ function ssoProviderMappings(): Map<string, string> {
 async function assertEmptyTarget(client: PoolClient): Promise<void> {
 	const result = await client.query<{ accounts: string; users: string }>(
 		`select
-			(select count(*) from "user")::text as users,
-			(select count(*) from "account")::text as accounts`,
+			(select count(*) from auth.user)::text as users,
+			(select count(*) from auth.account)::text as accounts`,
 	);
 	const counts = result.rows[0];
 	if (!counts || counts.users !== "0" || counts.accounts !== "0") {
@@ -89,7 +89,7 @@ async function assertEmptyTarget(client: PoolClient): Promise<void> {
 async function upsertUsers(client: PoolClient, users: SupabaseUser[]): Promise<void> {
 	for (const user of users) {
 		await client.query(
-			`insert into "user" (
+			`insert into auth.user (
 				"id", "name", "email", "emailVerified", "createdAt", "updatedAt",
 				"appMetadata", "invitedAt", "lastSignInAt", "mfaReenrollmentRequired", "userMetadata"
 			) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
@@ -136,7 +136,7 @@ async function upsertAccounts(
 			throw new Error(`Unsupported password hash for user ${user.id}`);
 		}
 		await client.query(
-			`insert into "account" (
+			`insert into auth.account (
 				"id", "accountId", "providerId", "userId", "password", "createdAt", "updatedAt"
 			) values ($1, $2, 'credential', $3, $4, $5, $6)
 			on conflict ("id") do update set
@@ -160,7 +160,7 @@ async function upsertAccounts(
 	for (const identity of identities) {
 		if (identity.provider === "email") continue;
 		await client.query(
-			`insert into "account" (
+			`insert into auth.account (
 				"id", "accountId", "providerId", "userId", "createdAt", "updatedAt"
 			) values ($1, $2, $3, $4, $5, $6)
 			on conflict ("id") do update set
@@ -229,18 +229,18 @@ async function main(): Promise<void> {
 					...identities.filter((identity) => identity.provider !== "email").map((identity) => `oauth:${identity.id}`),
 				];
 				await client.query(
-					`delete from "account"
+					`delete from auth.account
 					 where ("id" like 'credential:%' or "id" like 'oauth:%')
 					   and not ("id" = any($1::text[]))`,
 					[expectedAccountIds],
 				);
-				await client.query(`delete from "user" where not ("id" = any($1::text[]))`, [expectedUserIds]);
+				await client.query(`delete from auth.user where not ("id" = any($1::text[]))`, [expectedUserIds]);
 			}
 
 			const verification = await client.query<{ accounts: string; users: string }>(
 				`select
-					(select count(*) from "user")::text as users,
-					(select count(*) from "account")::text as accounts`,
+					(select count(*) from auth.user)::text as users,
+					(select count(*) from auth.account)::text as accounts`,
 			);
 			const counts = verification.rows[0];
 			if (counts?.users !== String(users.length) || counts.accounts !== String(accounts)) {

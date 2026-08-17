@@ -21,7 +21,7 @@ export async function updateAccount(payload: {
 	const countryCode = payload.declared_country_code === undefined ? undefined : normaliseCountryCode(payload.declared_country_code);
 	if (payload.declared_country_code !== undefined && !countryCode) throw new Error("Select a valid country");
 	await getPlanetScalePool().query(`
-		insert into users (user_id,display_name,default_workspace_id,declared_country_code,country_declared_at,obfuscate_info)
+		insert into app.users (user_id,display_name,default_workspace_id,declared_country_code,country_declared_at,obfuscate_info)
 		values ($1::uuid,$2,$3::uuid,$4,case when $4::text is null then null else now() end,$5)
 		on conflict (user_id) do update set
 			display_name=case when $6 then excluded.display_name else users.display_name end,
@@ -41,7 +41,7 @@ export async function updateAccount(payload: {
 
 export async function deleteAccount() {
 	const { user } = await requireServerIdentity();
-	await getPlanetScalePool().query(`with legacy_identity as (delete from auth.users where id=$1::uuid returning id) delete from public."user" where id=$1`, [user.id]);
+	await getPlanetScalePool().query(`with legacy_identity as (delete from auth.users where id=$1::uuid returning id) delete from auth.user where id=$1`, [user.id]);
 	void sendAccountLifecycleDiscordWebhook({ event: "account_deleted", userId: user.id, email: user.email ?? null, timestampIso: new Date().toISOString() }).catch((error) => {
 		console.error("Failed sending account deletion Discord webhook", { userId: user.id, error: error instanceof Error ? error.message : String(error) });
 	});
@@ -92,7 +92,7 @@ export async function verifyMFAEnrollmentAction(_factorId: string, code: string)
 	}
 	const current = await getBetterAuth().api.getSession({ headers: requestHeaders });
 	if (!current?.user.id) throw new Error("MFA session is unavailable");
-	const cleared = await getPlanetScalePool().query('update "user" set "mfaReenrollmentRequired"=false,"updatedAt"=now() where id=$1', [current.user.id]);
+	const cleared = await getPlanetScalePool().query('update auth.user set "mfaReenrollmentRequired"=false,"updatedAt"=now() where id=$1', [current.user.id]);
 	if (cleared.rowCount !== 1) throw new Error("MFA was enabled, but the migration lock could not be cleared");
 	revalidatePath("/settings/account");
 	revalidatePath("/settings/account/mfa");

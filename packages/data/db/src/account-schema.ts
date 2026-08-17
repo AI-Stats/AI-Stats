@@ -1,6 +1,7 @@
+import { appSchema, authSchema } from "./namespaces";
 import { boolean, text, timestamp, uuid, pgTable } from "drizzle-orm/pg-core";
 
-export const authUsers = pgTable("user", {
+export const authUsers = authSchema.table("user", {
 	id: text().primaryKey().notNull(),
 	name: text().notNull(),
 	email: text().notNull(),
@@ -8,7 +9,7 @@ export const authUsers = pgTable("user", {
 	image: text(),
 });
 
-export const users = pgTable("users", {
+export const users = appSchema.table("users", {
 	userId: uuid("user_id").primaryKey().notNull(),
 	displayName: text("display_name"),
 	defaultWorkspaceId: uuid("default_workspace_id"),

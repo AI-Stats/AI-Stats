@@ -1,13 +1,14 @@
+import { internalSchema } from "./namespaces";
 import { doublePrecision, integer, jsonb, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
-export const monitorHistoryCommits = pgTable("monitor_history_commits", {
+export const monitorHistoryCommits = internalSchema.table("monitor_history_commits", {
 	commitSha: text("commit_sha").primaryKey().notNull(),
 	committedAt: timestamp("committed_at", { withTimezone: true, mode: "string" }).notNull(),
 	entryCount: integer("entry_count").default(0).notNull(),
 	updatedAt: timestamp("updated_at", { withTimezone: true, mode: "string" }).defaultNow().notNull(),
 });
 
-export const monitorHistoryEvents = pgTable("monitor_history_events", {
+export const monitorHistoryEvents = internalSchema.table("monitor_history_events", {
 	eventId: text("event_id").primaryKey().notNull(),
 	commitSha: text("commit_sha").notNull(),
 	committedAt: timestamp("committed_at", { withTimezone: true, mode: "string" }).notNull(),
@@ -30,7 +31,7 @@ export const monitorHistoryEvents = pgTable("monitor_history_events", {
 	updatedAt: timestamp("updated_at", { withTimezone: true, mode: "string" }).defaultNow().notNull(),
 });
 
-export const monitorHistorySyncState = pgTable("monitor_history_sync_state", {
+export const monitorHistorySyncState = internalSchema.table("monitor_history_sync_state", {
 	syncKey: text("sync_key").primaryKey().notNull(),
 	sourceBase: text("source_base"),
 	sourceHead: text("source_head"),

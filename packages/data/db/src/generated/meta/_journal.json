@@ -36,6 +36,13 @@
       "when": 1786916159315,
       "tag": "0004_remove-supabase-context-functions",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1786952927758,
+      "tag": "0005_namespace-domains",
+      "breakpoints": true
     }
   ]
 }

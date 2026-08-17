@@ -185,7 +185,7 @@ async function writeRankedRows(rows: BenchmarkResultRow[]): Promise<void> {
 
 	if (isDryRun()) {
 		for (const row of rows) {
-			logWrite("public.v2_benchmark_results", "UPDATE_RANK", { result_id: row.id, rank: row.rank }, {
+			logWrite("catalog.v2_benchmark_results", "UPDATE_RANK", { result_id: row.id, rank: row.rank }, {
 				onConflict: "result_id",
 			});
 		}

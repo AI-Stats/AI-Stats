@@ -1,6 +1,7 @@
+import { contentSchema } from "./namespaces";
 import { jsonb, numeric, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
-export const presets = pgTable("presets", {
+export const presets = contentSchema.table("presets", {
 	id: uuid().primaryKey().notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
 	name: text().notNull(),
@@ -9,7 +10,7 @@ export const presets = pgTable("presets", {
 	config: jsonb().notNull(),
 });
 
-export const gatewayFeedback = pgTable("gateway_feedback", {
+export const gatewayFeedback = contentSchema.table("gateway_feedback", {
 	id: uuid().primaryKey().notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
 	requestId: text("request_id"),

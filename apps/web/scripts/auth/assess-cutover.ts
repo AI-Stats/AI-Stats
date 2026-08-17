@@ -6,15 +6,15 @@ type SequenceState = { schema_name: string; sequence_name: string; last_value: s
 type RowHashCount = { occurrences: number; row_hash: string };
 
 const REPOSITORY_MANAGED_RELATIONS = new Set([
-	"public.v2_benchmark_results", "public.v2_benchmarks", "public.v2_catalogue_backfill_issues",
-	"public.v2_catalogue_source_overrides", "public.v2_lab_links", "public.v2_labs",
-	"public.v2_meter_definitions", "public.v2_model_aliases", "public.v2_model_details",
-	"public.v2_model_families", "public.v2_model_links", "public.v2_model_page_notices",
-	"public.v2_model_provider_routes", "public.v2_models", "public.v2_pricing_sku_meters",
-	"public.v2_pricing_skus", "public.v2_provider_regions", "public.v2_providers",
-	"public.v2_route_capabilities", "public.v2_route_variants", "public.v2_service_tiers",
-	"public.v2_subscription_plan_features", "public.v2_subscription_plan_models",
-	"public.v2_subscription_plans",
+	"catalog.v2_benchmark_results", "catalog.v2_benchmarks", "catalog.v2_catalogue_backfill_issues",
+	"catalog.v2_catalogue_source_overrides", "catalog.v2_lab_links", "catalog.v2_labs",
+	"catalog.v2_meter_definitions", "catalog.v2_model_aliases", "catalog.v2_model_details",
+	"catalog.v2_model_families", "catalog.v2_model_links", "catalog.v2_model_page_notices",
+	"catalog.v2_model_provider_routes", "catalog.v2_models", "catalog.v2_pricing_sku_meters",
+	"catalog.v2_pricing_skus", "catalog.v2_provider_regions", "catalog.v2_providers",
+	"catalog.v2_route_capabilities", "catalog.v2_route_variants", "catalog.v2_service_tiers",
+	"catalog.v2_subscription_plan_features", "catalog.v2_subscription_plan_models",
+	"catalog.v2_subscription_plans",
 ]);
 
 function requiredEnvironment(name: string): string {
@@ -213,7 +213,7 @@ async function main() {
 				tableMismatches.push({ table, authority, sourceCount, targetCount, sourceRowsMissingOrChanged: Number(sourceCount) || 0, targetOnlyRows: 0 });
 				continue;
 			}
-			const comparison = ["public.api_apps", "public.monitor_history_events"].includes(table)
+			const comparison = ["gateway.api_apps", "internal.monitor_history_events"].includes(table)
 				? await semanticSourceSubset(source, target, relation)
 				: await sourceSubset(source, target, relation);
 			if (comparison.sourceRowsMissingOrChanged || comparison.targetOnlyRows) {
@@ -242,9 +242,9 @@ async function main() {
 				from auth.users
 			`),
 			target.query<{ accounts: string; mfa_protected: string; users: string }>(`
-				select (select count(*) from public."user")::text as users,
-					(select count(*) from public."account")::text as accounts,
-					(select count(*) from public."user"
+				select (select count(*) from auth.user)::text as users,
+					(select count(*) from auth.account)::text as accounts,
+					(select count(*) from auth.user
 					 where "twoFactorEnabled" is true or "mfaReenrollmentRequired" is true)::text as mfa_protected
 			`),
 		]);

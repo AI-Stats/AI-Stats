@@ -21,7 +21,7 @@ WITH base AS (
         r.requests,
         r.total_tokens,
         r.total_cost_nanos
-    FROM public.v2_web_private_usage_daily r
+    FROM observability.v2_web_private_usage_daily r
     WHERE r.workspace_id = p_team
       AND r.bucket_15m >= p_from
       AND r.bucket_15m <= p_to

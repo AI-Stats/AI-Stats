@@ -1366,9 +1366,9 @@ export async function syncV2Catalogue(): Promise<void> {
     );
     if (!isDryRun()) {
         await executeImportQuery(sql`
-            update v2_pricing_skus sku
+            update catalog.v2_pricing_skus sku
             set route_variant_id=variant.variant_id,updated_at=now()
-            from v2_route_variants variant
+            from catalog.v2_route_variants variant
             where variant.provider_model_id=sku.provider_model_id
               and variant.service_tier_slug=coalesce(sku.service_tier_slug,'standard')
               and variant.variant_key='global:' || coalesce(sku.service_tier_slug,'standard')

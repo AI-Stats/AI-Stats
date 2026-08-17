@@ -63,7 +63,7 @@ export async function reserve(args: {
 					coalesce(sum(cost_nanos) filter (where created_at >= date_trunc('day', now() at time zone 'utc') at time zone 'utc'),0)::bigint day_cost,
 					coalesce(sum(cost_nanos) filter (where created_at >= date_trunc('week', now() at time zone 'utc') at time zone 'utc'),0)::bigint week_cost,
 					coalesce(sum(cost_nanos) filter (where created_at >= date_trunc('month', now() at time zone 'utc') at time zone 'utc'),0)::bigint month_cost
-				from gateway_requests where workspace_id=${args.workspaceId}::uuid and key_id=${args.keyId}::uuid and success=true
+				from observability.gateway_requests where workspace_id=${args.workspaceId}::uuid and key_id=${args.keyId}::uuid and success=true
 			`)];
 			const usage = usageRows[0] ?? {};
 			const n = (value: unknown) => Number(value ?? 0);
@@ -84,7 +84,7 @@ export async function reserve(args: {
 			keyId: args.keyId ?? null, requestCount: requestedCount || null, createdAt: now, updatedAt: now });
 		await tx.update(wallets).set({ reservedNanos: wallet.reservedNanos + args.amountNanos, updatedAt: now }).where(eq(wallets.workspaceId, args.workspaceId));
 		if (args.keyId) await tx.execute(sql`
-			insert into gateway_requests (workspace_id,request_id,endpoint,model_id,provider,status_code,success,usage,cost_nanos,currency,key_id)
+			insert into observability.gateway_requests (workspace_id,request_id,endpoint,model_id,provider,status_code,success,usage,cost_nanos,currency,key_id)
 			select ${args.workspaceId}::uuid, 'batch_hold_usage:' || ${args.reservationId} || ':' || item::text,
 				'batch','batch/reserved',null,202,true,'{"batch_reserved":true}'::jsonb,
 				(${args.amountNanos} / ${requestedCount}) + case when item <= (${args.amountNanos} % ${requestedCount}) then 1 else 0 end,

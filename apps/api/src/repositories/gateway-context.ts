@@ -192,7 +192,7 @@ export async function fetchRequestContext(args: { workspaceId: string; model: st
 			coalesce(sum(cost_nanos) filter(where success and created_at>=now()-interval '30 days'),0)::bigint team_cost_30d,
 			count(*) filter(where success and created_at>=now()-interval '1 hour')::bigint team_reqs_1h,
 			count(*) filter(where success and created_at>=now()-interval '24 hours')::bigint team_reqs_24h
-			from gateway_requests where workspace_id=${args.workspaceId}::uuid`);
+			from observability.gateway_requests where workspace_id=${args.workspaceId}::uuid`);
 
 		const routeRows = await db.select(routeSelection).from(v2ModelProviderRoutes).where(and(eq(v2ModelProviderRoutes.modelSlug, resolvedModel), eq(v2ModelProviderRoutes.routingEnabled, true), inArray(v2ModelProviderRoutes.status, ["active", "degraded"]), sql`(${v2ModelProviderRoutes.effectiveFrom} is null or ${v2ModelProviderRoutes.effectiveFrom}<=now())`, sql`(${v2ModelProviderRoutes.effectiveTo} is null or ${v2ModelProviderRoutes.effectiveTo}>now())`));
 		const routeIds = routeRows.map((row) => row.provider_api_model_id);

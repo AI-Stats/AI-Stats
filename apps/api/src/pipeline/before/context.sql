@@ -92,7 +92,7 @@ begin
         'visibility', p.visibility
       )
     into preset_data
-    from public.presets p
+    from content.presets p
     where coalesce(nullif(p.slug, ''), regexp_replace(p.name, '^@', '')) = preset_name
       and p.workspace_id = gateway_fetch_request_context.workspace_id
       and (
@@ -100,7 +100,7 @@ begin
         or p.visibility = 'team'
         or p.created_by in (
           select u.user_id
-          from public.users u
+          from app.users u
           where u.id = gateway_fetch_request_context.workspace_id
         )
       )
@@ -139,7 +139,7 @@ begin
       select a.api_model_id
       from (
         select alias_slug, model_slug as api_model_id, enabled as is_enabled
-        from public.v2_model_aliases
+        from catalog.v2_model_aliases
       ) a
       where a.alias_slug = base_model
         and a.is_enabled = true
@@ -152,7 +152,7 @@ begin
         select provider_model_id as provider_api_model_id, provider_slug as provider_id,
           model_slug as api_model_id, provider_model_slug,
           routing_enabled as is_active_gateway, effective_from, effective_to
-        from public.v2_model_provider_routes
+        from catalog.v2_model_provider_routes
       ) m
       where position('/' in base_model) > 0
         and m.provider_id = split_part(base_model, '/', 1)
@@ -179,7 +179,7 @@ begin
     v_soft_blocked,
     v_day_req_limit, v_wk_req_limit, v_mo_req_limit,
     v_day_cost_limit, v_wk_cost_limit, v_mo_cost_limit
-  from public.keys k
+  from gateway.keys k
   where k.id = gateway_fetch_request_context.api_key_id
   limit 1;
 
@@ -217,7 +217,7 @@ begin
             'available_nanos', greatest(coalesce(w.balance_nanos, 0)::bigint - coalesce(w.reserved_nanos, 0)::bigint, 0)
           )
       end
-      from public.wallets w
+      from billing.wallets w
       where w.workspace_id = gateway_fetch_request_context.workspace_id
       limit 1
     ), jsonb_build_object('ok', false, 'reason', 'wallet_missing'));
@@ -233,7 +233,7 @@ begin
   into
     used_day_reqs, used_wk_reqs, used_mo_reqs,
     used_day_cost, used_wk_cost, used_mo_cost
-  from public.gateway_requests gr
+  from observability.gateway_requests gr
   where gr.key_id  = gateway_fetch_request_context.api_key_id
     and gr.workspace_id = gateway_fetch_request_context.workspace_id
     and gr.success is true;
@@ -348,8 +348,8 @@ begin
     team_tier,
     team_balance_nanos,
     team_reserved_nanos
-  from public.workspaces t
-  left join public.wallets w on w.workspace_id = t.id
+  from app.workspaces t
+  left join billing.wallets w on w.workspace_id = t.id
   where t.id = gateway_fetch_request_context.workspace_id
   limit 1;
 
@@ -370,7 +370,7 @@ begin
     team_spend_30d_nanos,
     team_requests_1h,
     team_requests_24h
-  from public.gateway_requests gr
+  from observability.gateway_requests gr
   where gr.workspace_id = gateway_fetch_request_context.workspace_id
     and gr.success is true;
 
@@ -407,7 +407,7 @@ begin
   into
     key_name,
     key_created_at
-  from public.keys k
+  from gateway.keys k
   where k.id = gateway_fetch_request_context.api_key_id
   limit 1;
 
@@ -417,7 +417,7 @@ begin
   into
     key_total_requests,
     key_total_spend_nanos
-  from public.gateway_requests gr
+  from observability.gateway_requests gr
   where gr.key_id = gateway_fetch_request_context.api_key_id
     and gr.success is true;
 
@@ -466,18 +466,18 @@ begin
         model_slug as api_model_id, model_slug as model_id, provider_model_slug,
         routing_enabled as is_active_gateway, status as routing_status,
         input_modalities, output_modalities, effective_from, effective_to
-      from public.v2_model_provider_routes
+      from catalog.v2_model_provider_routes
     ) m
     join (
       select model_slug as model_id, status, hidden, retired_at as retirement_date
-      from public.v2_models
+      from catalog.v2_models
     ) dm on dm.model_id = coalesce(m.model_id, m.api_model_id)
-    join public.v2_providers p
+    join catalog.v2_providers p
       on p.provider_slug = m.provider_id
     join (
       select provider_model_id as provider_api_model_id, capability_id, status,
         params, max_input_tokens, max_output_tokens, created_at, updated_at
-      from public.v2_route_capabilities
+      from catalog.v2_route_capabilities
     ) c on c.provider_api_model_id = m.provider_api_model_id
     where m.api_model_id = resolved_model
       and coalesce(dm.hidden, false) = false
@@ -528,7 +528,7 @@ begin
                 'always_use', bk.always_use
               )
             )
-            from public.byok_keys bk
+            from gateway.byok_keys bk
             where bk.workspace_id    = gateway_fetch_request_context.workspace_id
               and bk.provider_id = pr.provider_id
               and bk.enabled     = true
@@ -558,10 +558,10 @@ begin
                 coalesce(sku.metadata->'match', meter.metadata->'match', '[]'::jsonb) as match,
                 coalesce(sku.metadata->>'billing_timestamp_basis', 'request_start') as billing_timestamp_basis,
                 coalesce(sku.metadata->'time_windows', '[]'::jsonb) as time_windows
-              from public.v2_pricing_skus sku
-              join public.v2_model_provider_routes route
+              from catalog.v2_pricing_skus sku
+              join catalog.v2_model_provider_routes route
                 on route.provider_model_id = sku.provider_model_id
-              join public.v2_pricing_sku_meters meter on meter.sku_id = sku.sku_id
+              join catalog.v2_pricing_sku_meters meter on meter.sku_id = sku.sku_id
               where sku.status = 'active' and meter.billable
             ) r
             -- TODO: Redesign pricing selection to key on provider_api_model_id or

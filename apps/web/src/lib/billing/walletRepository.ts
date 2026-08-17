@@ -7,7 +7,7 @@ export type PaymentIntentCreditResult = WalletDeltaResult & { applied: boolean; 
 
 export async function applyWalletDelta(workspaceId: string, deltaNanos: number): Promise<WalletDeltaResult> {
 	const result = await getPlanetScalePool().query<WalletDeltaResult>(`
-		update wallets set balance_nanos=balance_nanos+$2::bigint,updated_at=now()
+		update billing.wallets set balance_nanos=balance_nanos+$2::bigint,updated_at=now()
 		where workspace_id=$1::uuid
 		returning (balance_nanos-$2::bigint)::bigint before_balance_nanos,balance_nanos::bigint after_balance_nanos
 	`, [workspaceId, deltaNanos]);
@@ -33,7 +33,7 @@ export async function applyPaymentIntentCredit(args: {
 			status: string | null;
 			before_balance_nanos: number | null;
 			after_balance_nanos: number | null;
-		}>(`select workspace_id,status,before_balance_nanos,after_balance_nanos from credit_ledger
+		}>(`select workspace_id,status,before_balance_nanos,after_balance_nanos from billing.credit_ledger
 			where ref_type='Stripe_Payment_Intent' and ref_id=$1 for update`, [args.paymentIntentId])).rows[0];
 		if (existing?.workspace_id && existing.workspace_id !== args.workspaceId) throw new Error("payment_intent_workspace_mismatch");
 		if (["paid", "succeeded"].includes(String(existing?.status ?? "").toLowerCase())) {
@@ -41,17 +41,17 @@ export async function applyPaymentIntentCredit(args: {
 			return { applied: false, before_balance_nanos: Number(existing?.before_balance_nanos ?? 0), after_balance_nanos: Number(existing?.after_balance_nanos ?? 0), status: existing?.status ?? "Paid" };
 		}
 		if (!existing) {
-			await client.query(`insert into credit_ledger
+			await client.query(`insert into billing.credit_ledger
 				(workspace_id,kind,amount_nanos,before_balance_nanos,after_balance_nanos,ref_type,ref_id,status,event_time)
 				values ($1::uuid,$2,0,0,0,'Stripe_Payment_Intent',$3,'Applying',$4::timestamptz)`,
 				[args.workspaceId, kind, args.paymentIntentId, args.eventTime]);
 		}
-		const wallet = (await client.query<WalletDeltaResult>(`update wallets
+		const wallet = (await client.query<WalletDeltaResult>(`update billing.wallets
 			set balance_nanos=balance_nanos+$2::bigint,updated_at=now() where workspace_id=$1::uuid
 			returning (balance_nanos-$2::bigint)::bigint before_balance_nanos,balance_nanos::bigint after_balance_nanos`,
 			[args.workspaceId, args.amountNanos])).rows[0];
 		if (!wallet) throw new Error("wallet_not_found");
-		await client.query(`update credit_ledger set workspace_id=$1::uuid,kind=$2,amount_nanos=$3::bigint,
+		await client.query(`update billing.credit_ledger set workspace_id=$1::uuid,kind=$2,amount_nanos=$3::bigint,
 			before_balance_nanos=$4::bigint,after_balance_nanos=$5::bigint,status='Paid',event_time=$6::timestamptz
 			where ref_type='Stripe_Payment_Intent' and ref_id=$7`,
 			[args.workspaceId, kind, args.amountNanos, wallet.before_balance_nanos, wallet.after_balance_nanos, args.eventTime, args.paymentIntentId]);

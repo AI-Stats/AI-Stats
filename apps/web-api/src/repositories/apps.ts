@@ -278,17 +278,17 @@ export async function mergeAppHistory(env: Env, input: { workspaceId: string; so
 
 			const [counts] = await tx.execute<{ gateway_requests: number | string; request_facts: number | string }>(sql`
 				with moved_gateway as (
-					update gateway_requests
+					update observability.gateway_requests
 					set app_id=${input.targetAppId}::uuid
 					where workspace_id=${input.workspaceId}::uuid and app_id=${input.sourceAppId}::uuid
 					returning 1
 				), moved_facts as (
-					update v2_request_facts
+					update observability.v2_request_facts
 					set app_id=${input.targetAppId}::uuid
 					where workspace_id=${input.workspaceId}::uuid and app_id=${input.sourceAppId}::uuid
 					returning request_event_id, workspace_id, occurred_at
 				), queued as (
-					insert into v2_analytics_outbox (
+					insert into internal.v2_analytics_outbox (
 						request_event_id, workspace_id, occurred_at, status,
 						attempt_count, available_at, last_error, updated_at
 					)
@@ -305,9 +305,9 @@ export async function mergeAppHistory(env: Env, input: { workspaceId: string; so
 
 			// Meter rows cascade from their rollup parent rows. The outbox recreates
 			// target-app grains from the now-authoritative request facts.
-			await tx.execute(sql`delete from v2_private_usage_daily where workspace_id=${input.workspaceId}::uuid and app_id=${input.sourceAppId}::uuid`);
-			await tx.execute(sql`delete from v2_public_usage_daily where app_id=${input.sourceAppId}::uuid`);
-			await tx.execute(sql`delete from v2_public_usage_hourly where app_id=${input.sourceAppId}::uuid`);
+			await tx.execute(sql`delete from observability.v2_private_usage_daily where workspace_id=${input.workspaceId}::uuid and app_id=${input.sourceAppId}::uuid`);
+			await tx.execute(sql`delete from observability.v2_public_usage_daily where app_id=${input.sourceAppId}::uuid`);
+			await tx.execute(sql`delete from observability.v2_public_usage_hourly where app_id=${input.sourceAppId}::uuid`);
 			await tx.delete(apiApps).where(and(eq(apiApps.workspaceId, input.workspaceId), eq(apiApps.id, input.sourceAppId)));
 
 			return { gateway_requests: Number(counts?.gateway_requests ?? 0), request_facts: Number(counts?.request_facts ?? 0), rollup_rebuild: "queued" as const };

@@ -14,7 +14,8 @@
     "./monitoring-schema": "./src/monitoring-schema.ts",
     "./import-service": "./src/import-service.ts",
     "./hyperdrive": "./src/hyperdrive.ts",
-    "./query": "./src/query.ts"
+    "./query": "./src/query.ts",
+    "./namespaces": "./src/namespaces.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

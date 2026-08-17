@@ -18,7 +18,7 @@ async function withDatabase<T>(operation: (db: ReturnType<typeof createDatabase>
 export async function findLatestVideoGatewayRequest(workspaceId: string, requestId: string): Promise<VideoGatewayRequestRow | null> {
 	return withDatabase(async (db) => (await db.execute<VideoGatewayRequestRow>(sql`
 		select id,created_at,usage,pricing_lines
-		from gateway_requests
+		from observability.gateway_requests
 		where workspace_id=${workspaceId}::uuid and request_id=${requestId}
 		order by created_at desc
 		limit 1
@@ -35,7 +35,7 @@ export async function updateVideoGatewayRequest(args: {
 }): Promise<boolean> {
 	return withDatabase(async (db) => {
 		const rows = await db.execute<{ id: string }>(sql`
-			update gateway_requests set
+			update observability.gateway_requests set
 				usage=${JSON.stringify(args.usage)}::jsonb,
 				cost_nanos=case when ${args.costNanos}::bigint is null then cost_nanos else ${args.costNanos}::bigint end,
 				generation_ms=case when ${args.generationMs}::integer is null then generation_ms else ${args.generationMs}::integer end,

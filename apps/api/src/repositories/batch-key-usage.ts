@@ -33,12 +33,12 @@ export async function recordBatchKeyUsage(args: {
 			if (!ownedKey) throw new Error("batch_key_not_owned_by_workspace");
 
 			await tx.execute(sql`
-				delete from gateway_requests request
+				delete from observability.gateway_requests request
 				where request.workspace_id = ${args.workspaceId}::uuid
 					and request.key_id = ${args.keyId}::uuid
 					and request.request_id like 'batch_hold_usage:%'
 					and exists (
-						select 1 from gateway_wallet_reservations reservation
+						select 1 from billing.gateway_wallet_reservations reservation
 						where reservation.workspace_id = ${args.workspaceId}::uuid
 							and reservation.key_id = ${args.keyId}::uuid
 							and reservation.capture_ref_id = ${args.batchId}
@@ -70,7 +70,7 @@ export async function recordBatchKeyUsage(args: {
 
 			if (claimed.length > 0) {
 				await tx.execute(sql`
-					insert into gateway_requests (
+					insert into observability.gateway_requests (
 						workspace_id,request_id,endpoint,model_id,provider,status_code,success,usage,cost_nanos,currency,key_id
 					)
 					select ${args.workspaceId}::uuid,'batch_usage:' || ${args.batchId} || ':' || row.custom_id,

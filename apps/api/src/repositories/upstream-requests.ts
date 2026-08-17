@@ -8,7 +8,7 @@ export async function insertGatewayUpstreamRequests(rows: Array<Record<string, u
 	const { db, client } = createDatabase(getBindings());
 	try {
 		await db.execute(sql`
-			insert into gateway_upstream_requests (
+			insert into observability.gateway_upstream_requests (
 				created_at,gateway_request_id,gateway_request_created_at,request_id,workspace_id,app_id,key_id,
 				sequence,round_number,attempt_number,internal_attempt_number,stage,endpoint,model_id,provider,
 				api_model_id,provider_model_slug,upstream_route,upstream_url,status_code,status_text,success,outcome,

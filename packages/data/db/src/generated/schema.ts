@@ -1,3 +1,4 @@
+import { appSchema, authSchema, billingSchema, catalogSchema, contentSchema, gatewaySchema, internalSchema, observabilitySchema } from "../namespaces";
 import { pgTable, index, foreignKey, unique, check, uuid, text, boolean, integer, timestamp, date, jsonb, bigint, uniqueIndex, numeric, doublePrecision, type AnyPgColumn, smallint, primaryKey, pgView, pgEnum, customType } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 
@@ -10,7 +11,7 @@ export const userRole = pgEnum("user_role", ['admin', 'editor', 'user'])
 export const workspaceRole = pgEnum("workspace_role", ['owner', 'admin', 'member'])
 
 
-export const byokKeys = pgTable("byok_keys", {
+export const byokKeys = gatewaySchema.table("byok_keys", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
 	providerId: text("provider_id").notNull(),
@@ -55,7 +56,7 @@ export const byokKeys = pgTable("byok_keys", {
 	check("byok_keys_routing_mode_check", sql`routing_mode = ANY (ARRAY['priority'::text, 'fallback'::text])`),
 ]);
 
-export const catalogueInteractionPuzzles = pgTable("catalogue_interaction_puzzles", {
+export const catalogueInteractionPuzzles = contentSchema.table("catalogue_interaction_puzzles", {
 	puzzleId: uuid("puzzle_id").defaultRandom().primaryKey().notNull(),
 	gameKey: text("game_key").notNull(),
 	puzzleDate: date("puzzle_date").notNull(),
@@ -68,7 +69,7 @@ export const catalogueInteractionPuzzles = pgTable("catalogue_interaction_puzzle
 	check("catalogue_interaction_puzzles_game_key_check", sql`game_key = ANY (ARRAY['modele'::text, 'timeline'::text, 'pricele'::text, 'head-to-head'::text, 'sprint'::text])`),
 ]);
 
-export const creditGrantRedemptions = pgTable("credit_grant_redemptions", {
+export const creditGrantRedemptions = billingSchema.table("credit_grant_redemptions", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	grantId: uuid("grant_id").notNull(),
 	userId: uuid("user_id").notNull(),
@@ -98,7 +99,7 @@ export const creditGrantRedemptions = pgTable("credit_grant_redemptions", {
 	check("credit_grant_redemptions_amount_nanos_check", sql`amount_nanos > 0`),
 ]);
 
-export const creditGrants = pgTable("credit_grants", {
+export const creditGrants = billingSchema.table("credit_grants", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	code: text().notNull(),
 	codeNormalized: text("code_normalized").notNull(),
@@ -126,7 +127,7 @@ export const creditGrants = pgTable("credit_grants", {
 	check("credit_grants_redemptions_count_check", sql`redemptions_count >= 0`),
 ]);
 
-export const creditLedger = pgTable("credit_ledger", {
+export const creditLedger = billingSchema.table("credit_ledger", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
 	eventTime: timestamp("event_time", { withTimezone: true, mode: 'string' }).default(sql`(now() AT TIME ZONE 'utc'::text)`).notNull(),
@@ -163,7 +164,7 @@ export const creditLedger = pgTable("credit_ledger", {
 		}).onDelete("cascade"),
 ]);
 
-export const dataContributionConsentEvents = pgTable("data_contribution_consent_events", {
+export const dataContributionConsentEvents = contentSchema.table("data_contribution_consent_events", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
 	actorType: text("actor_type").notNull(),
@@ -198,7 +199,7 @@ export const dataContributionConsentEvents = pgTable("data_contribution_consent_
 	check("data_contribution_consent_events_sample_rate_bps_check", sql`(sample_rate_bps >= 0) AND (sample_rate_bps <= 10000)`),
 ]);
 
-export const dataContributions = pgTable("data_contributions", {
+export const dataContributions = contentSchema.table("data_contributions", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
 	requestId: text("request_id").notNull(),
@@ -258,7 +259,7 @@ CASE
 	check("data_contributions_status_check", sql`status = ANY (ARRAY['retained'::text, 'pending'::text, 'processing'::text, 'complete'::text, 'failed'::text, 'deleted'::text])`),
 ]);
 
-export const emailOutbox = pgTable("email_outbox", {
+export const emailOutbox = internalSchema.table("email_outbox", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 	kind: text().notNull(),
@@ -289,7 +290,7 @@ export const emailOutbox = pgTable("email_outbox", {
 		}).onDelete("set null"),
 ]);
 
-export const gatewayAsyncOperations = pgTable("gateway_async_operations", {
+export const gatewayAsyncOperations = gatewaySchema.table("gateway_async_operations", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
 	kind: text().notNull(),
@@ -338,7 +339,7 @@ export const gatewayAsyncOperations = pgTable("gateway_async_operations", {
 	check("gateway_async_operations_kind_check", sql`kind = ANY (ARRAY['video'::text, 'batch'::text, 'music'::text])`),
 ]);
 
-export const gatewayBatchRequests = pgTable("gateway_batch_requests", {
+export const gatewayBatchRequests = gatewaySchema.table("gateway_batch_requests", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
 	batchId: text("batch_id").notNull(),
@@ -373,7 +374,7 @@ export const gatewayBatchRequests = pgTable("gateway_batch_requests", {
 		}).onDelete("cascade"),
 ]);
 
-export const gatewayDynamicRouteVersions = pgTable("gateway_dynamic_route_versions", {
+export const gatewayDynamicRouteVersions = gatewaySchema.table("gateway_dynamic_route_versions", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	routeId: uuid("route_id").notNull(),
 	version: integer().notNull(),
@@ -397,7 +398,7 @@ export const gatewayDynamicRouteVersions = pgTable("gateway_dynamic_route_versio
 	check("gateway_dynamic_route_versions_version_check", sql`version > 0`),
 ]);
 
-export const gatewayDynamicRoutes = pgTable("gateway_dynamic_routes", {
+export const gatewayDynamicRoutes = gatewaySchema.table("gateway_dynamic_routes", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
 	name: text().notNull(),
@@ -432,7 +433,7 @@ export const gatewayDynamicRoutes = pgTable("gateway_dynamic_routes", {
 	check("gateway_dynamic_routes_version_check", sql`version > 0`),
 ]);
 
-export const gatewayIoLogs = pgTable("gateway_io_logs", {
+export const gatewayIoLogs = observabilitySchema.table("gateway_io_logs", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
 	requestId: text("request_id").notNull(),
@@ -459,7 +460,7 @@ export const gatewayIoLogs = pgTable("gateway_io_logs", {
 	check("gateway_io_logs_status_check", sql`io_log_status = ANY (ARRAY['not_enabled'::text, 'stored'::text, 'missing_bucket'::text, 'too_large'::text, 'error'::text, 'deleted'::text])`),
 ]);
 
-export const gatewayObservabilityEvents = pgTable("gateway_observability_events", {
+export const gatewayObservabilityEvents = observabilitySchema.table("gateway_observability_events", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
 	requestId: text("request_id"),
@@ -506,7 +507,7 @@ export const gatewayObservabilityEvents = pgTable("gateway_observability_events"
 	check("gateway_observability_events_target_check", sql`(request_id IS NOT NULL) OR (session_id IS NOT NULL) OR (preset_id IS NOT NULL) OR (test_run_id IS NOT NULL)`),
 ]);
 
-export const gatewayPresetTestRunItems = pgTable("gateway_preset_test_run_items", {
+export const gatewayPresetTestRunItems = gatewaySchema.table("gateway_preset_test_run_items", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
 	testRunId: uuid("test_run_id").notNull(),
@@ -545,7 +546,7 @@ export const gatewayPresetTestRunItems = pgTable("gateway_preset_test_run_items"
 	check("gateway_preset_test_run_items_status_check", sql`status = ANY (ARRAY['pending'::text, 'running'::text, 'passed'::text, 'failed'::text, 'error'::text, 'skipped'::text])`),
 ]);
 
-export const gatewayPresetTestRuns = pgTable("gateway_preset_test_runs", {
+export const gatewayPresetTestRuns = gatewaySchema.table("gateway_preset_test_runs", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
 	presetId: uuid("preset_id"),
@@ -582,7 +583,7 @@ export const gatewayPresetTestRuns = pgTable("gateway_preset_test_runs", {
 	check("gateway_preset_test_runs_status_check", sql`status = ANY (ARRAY['pending'::text, 'running'::text, 'completed'::text, 'failed'::text, 'cancelled'::text])`),
 ]);
 
-export const gatewayProviderEvents = pgTable("gateway_provider_events", {
+export const gatewayProviderEvents = observabilitySchema.table("gateway_provider_events", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	provider: text().notNull(),
 	providerEventId: text("provider_event_id").notNull(),
@@ -612,7 +613,7 @@ export const gatewayProviderEvents = pgTable("gateway_provider_events", {
 	unique("gateway_provider_events_provider_event_unique").on(table.provider, table.providerEventId),
 ]);
 
-export const gatewayRealtimeSessions = pgTable("gateway_realtime_sessions", {
+export const gatewayRealtimeSessions = gatewaySchema.table("gateway_realtime_sessions", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	sessionId: text("session_id").notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
@@ -673,7 +674,7 @@ export const gatewayRealtimeSessions = pgTable("gateway_realtime_sessions", {
 	check("gateway_realtime_sessions_status_check", sql`status = ANY (ARRAY['created'::text, 'connecting'::text, 'connected'::text, 'ending'::text, 'billing_unresolved'::text, 'completed'::text, 'failed'::text, 'cancelled'::text, 'expired'::text])`),
 ]);
 
-export const v2Models = pgTable("v2_models", {
+export const v2Models = catalogSchema.table("v2_models", {
 	modelSlug: text("model_slug").primaryKey().notNull(),
 	labSlug: text("lab_slug").notNull(),
 	name: text().notNull(),
@@ -726,7 +727,7 @@ export const v2Models = pgTable("v2_models", {
 	check("v2_models_variant_kind_check", sql`variant_kind = ANY (ARRAY['standard'::text, 'free'::text])`),
 ]);
 
-export const apiApps = pgTable("api_apps", {
+export const apiApps = gatewaySchema.table("api_apps", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
 	appKey: text("app_key").notNull(),
@@ -753,7 +754,7 @@ export const apiApps = pgTable("api_apps", {
 	unique("api_apps_workspace_appkey_unique").on(table.appKey, table.workspaceId),
 ]);
 
-export const broadcastDestinationRules = pgTable("broadcast_destination_rules", {
+export const broadcastDestinationRules = gatewaySchema.table("broadcast_destination_rules", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	ruleGroupId: uuid("rule_group_id").notNull(),
 	field: text().notNull(),
@@ -773,7 +774,7 @@ export const broadcastDestinationRules = pgTable("broadcast_destination_rules", 
 	check("broadcast_destination_rules_field_check", sql`field = ANY (ARRAY['model'::text, 'provider'::text, 'session_id'::text, 'user_id'::text, 'api_key_name'::text, 'finish_reason'::text, 'input'::text, 'output'::text, 'token_cost'::text, 'total_cost'::text, 'total_tokens'::text, 'prompt_tokens'::text, 'completion_tokens'::text])`),
 ]);
 
-export const gatewayWebhookEndpoints = pgTable("gateway_webhook_endpoints", {
+export const gatewayWebhookEndpoints = gatewaySchema.table("gateway_webhook_endpoints", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
 	name: text().notNull(),
@@ -804,7 +805,7 @@ export const gatewayWebhookEndpoints = pgTable("gateway_webhook_endpoints", {
 	check("gateway_webhook_endpoints_status_check", sql`status = ANY (ARRAY['active'::text, 'disabled'::text, 'deleted'::text])`),
 ]);
 
-export const keys = pgTable("keys", {
+export const keys = gatewaySchema.table("keys", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
 	name: text().notNull(),
@@ -866,7 +867,7 @@ export const keys = pgTable("keys", {
 	check("keys_key_kind_check", sql`key_kind = ANY (ARRAY['standard'::text, 'oauth_delegated'::text])`),
 ]);
 
-export const managementKeys = pgTable("management_keys", {
+export const managementKeys = gatewaySchema.table("management_keys", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
 	name: text().notNull(),
@@ -900,7 +901,7 @@ export const managementKeys = pgTable("management_keys", {
 	unique("provisioning_keys_hash_key").on(table.hash),
 ]);
 
-export const monitorHistoryCommits = pgTable("monitor_history_commits", {
+export const monitorHistoryCommits = internalSchema.table("monitor_history_commits", {
 	commitSha: text("commit_sha").primaryKey().notNull(),
 	committedAt: timestamp("committed_at", { withTimezone: true, mode: 'string' }).notNull(),
 	entryCount: integer("entry_count").default(0).notNull(),
@@ -910,7 +911,7 @@ export const monitorHistoryCommits = pgTable("monitor_history_commits", {
 	index("monitor_history_commits_committed_at_idx").using("btree", table.committedAt.desc().nullsFirst().op("text_ops"), table.commitSha.desc().nullsFirst().op("text_ops")),
 ]);
 
-export const monitorHistoryEvents = pgTable("monitor_history_events", {
+export const monitorHistoryEvents = internalSchema.table("monitor_history_events", {
 	eventId: text("event_id").primaryKey().notNull(),
 	commitSha: text("commit_sha").notNull(),
 	committedAt: timestamp("committed_at", { withTimezone: true, mode: 'string' }).notNull(),
@@ -945,7 +946,7 @@ export const monitorHistoryEvents = pgTable("monitor_history_events", {
 		}).onDelete("cascade"),
 ]);
 
-export const monitorHistorySyncState = pgTable("monitor_history_sync_state", {
+export const monitorHistorySyncState = internalSchema.table("monitor_history_sync_state", {
 	syncKey: text("sync_key").primaryKey().notNull(),
 	sourceBase: text("source_base"),
 	sourceHead: text("source_head"),
@@ -957,7 +958,7 @@ export const monitorHistorySyncState = pgTable("monitor_history_sync_state", {
 }, (table) => [
 ]);
 
-export const oauthAppMetadata = pgTable("oauth_app_metadata", {
+export const oauthAppMetadata = gatewaySchema.table("oauth_app_metadata", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	clientId: text("client_id").notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
@@ -999,7 +1000,7 @@ export const oauthAppMetadata = pgTable("oauth_app_metadata", {
 	check("oauth_app_metadata_status_check", sql`status = ANY (ARRAY['active'::text, 'suspended'::text, 'deleted'::text])`),
 ]);
 
-export const oauthAuthorizationCodes = pgTable("oauth_authorization_codes", {
+export const oauthAuthorizationCodes = gatewaySchema.table("oauth_authorization_codes", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	codeHash: text("code_hash").notNull(),
 	clientId: text("client_id").notNull(),
@@ -1029,7 +1030,7 @@ export const oauthAuthorizationCodes = pgTable("oauth_authorization_codes", {
 	unique("oauth_authorization_codes_code_hash_key").on(table.codeHash),
 ]);
 
-export const gatewayFeedback = pgTable("gateway_feedback", {
+export const gatewayFeedback = contentSchema.table("gateway_feedback", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
 	requestId: text("request_id"),
@@ -1078,7 +1079,7 @@ export const gatewayFeedback = pgTable("gateway_feedback", {
 	check("gateway_feedback_target_check", sql`(request_id IS NOT NULL) OR (session_id IS NOT NULL) OR (preset_id IS NOT NULL) OR (test_run_id IS NOT NULL)`),
 ]);
 
-export const oauthAuthorizations = pgTable("oauth_authorizations", {
+export const oauthAuthorizations = gatewaySchema.table("oauth_authorizations", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	userId: uuid("user_id").notNull(),
 	clientId: text("client_id").notNull(),
@@ -1106,7 +1107,7 @@ export const oauthAuthorizations = pgTable("oauth_authorizations", {
 	unique("oauth_authorizations_user_client_workspace_unique").on(table.clientId, table.userId, table.workspaceId),
 ]);
 
-export const oauthClients = pgTable("oauth_clients", {
+export const oauthClients = gatewaySchema.table("oauth_clients", {
 	id: text().primaryKey().notNull(),
 	name: text().notNull(),
 	description: text(),
@@ -1128,7 +1129,7 @@ export const oauthClients = pgTable("oauth_clients", {
 	check("oauth_clients_status_check", sql`status = ANY (ARRAY['active'::text, 'suspended'::text, 'deleted'::text])`),
 ]);
 
-export const oauthDeviceCodes = pgTable("oauth_device_codes", {
+export const oauthDeviceCodes = gatewaySchema.table("oauth_device_codes", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	deviceCodeHash: text("device_code_hash").notNull(),
 	userCodeHash: text("user_code_hash").notNull(),
@@ -1162,7 +1163,7 @@ export const oauthDeviceCodes = pgTable("oauth_device_codes", {
 	check("oauth_device_codes_status_check", sql`status = ANY (ARRAY['pending'::text, 'approved'::text, 'denied'::text, 'expired'::text])`),
 ]);
 
-export const oauthRefreshTokens = pgTable("oauth_refresh_tokens", {
+export const oauthRefreshTokens = gatewaySchema.table("oauth_refresh_tokens", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	tokenHash: text("token_hash").notNull(),
 	userId: uuid("user_id").notNull(),
@@ -1198,7 +1199,7 @@ export const oauthRefreshTokens = pgTable("oauth_refresh_tokens", {
 	unique("oauth_refresh_tokens_token_hash_key").on(table.tokenHash),
 ]);
 
-export const otelExportOutbox = pgTable("otel_export_outbox", {
+export const otelExportOutbox = internalSchema.table("otel_export_outbox", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
 	destinationId: uuid("destination_id").notNull(),
@@ -1229,7 +1230,7 @@ export const otelExportOutbox = pgTable("otel_export_outbox", {
 	check("otel_export_outbox_status_check", sql`status = ANY (ARRAY['pending'::text, 'processing'::text, 'delivered'::text, 'failed'::text])`),
 ]);
 
-export const passkey = pgTable("passkey", {
+export const passkey = authSchema.table("passkey", {
 	id: text().primaryKey().notNull(),
 	name: text(),
 	publicKey: text().notNull(),
@@ -1251,7 +1252,7 @@ export const passkey = pgTable("passkey", {
 		}).onDelete("cascade"),
 ]);
 
-export const presetVersions = pgTable("preset_versions", {
+export const presetVersions = contentSchema.table("preset_versions", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	presetId: uuid("preset_id").notNull(),
 	versionNumber: integer("version_number").notNull(),
@@ -1279,7 +1280,7 @@ export const presetVersions = pgTable("preset_versions", {
 	check("preset_versions_visibility_check", sql`visibility = ANY (ARRAY['private'::text, 'team'::text, 'public'::text])`),
 ]);
 
-export const presets = pgTable("presets", {
+export const presets = contentSchema.table("presets", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
 	name: text().notNull(),
@@ -1354,7 +1355,7 @@ export const presets = pgTable("presets", {
 	check("presets_visibility_check", sql`visibility = ANY (ARRAY['private'::text, 'team'::text, 'public'::text])`),
 ]);
 
-export const requestClassifications = pgTable("request_classifications", {
+export const requestClassifications = observabilitySchema.table("request_classifications", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	contributionId: uuid("contribution_id").notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
@@ -1390,7 +1391,7 @@ export const requestClassifications = pgTable("request_classifications", {
 	check("request_classifications_latency_ms_check", sql`(latency_ms IS NULL) OR (latency_ms >= 0)`),
 ]);
 
-export const securityKeyReports = pgTable("security_key_reports", {
+export const securityKeyReports = gatewaySchema.table("security_key_reports", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	receivedAt: timestamp("received_at", { withTimezone: true, mode: 'string' }).default(sql`(now() AT TIME ZONE 'utc'::text)`).notNull(),
 	source: text(),
@@ -1429,7 +1430,7 @@ export const securityKeyReports = pgTable("security_key_reports", {
 		}).onDelete("set null"),
 ]);
 
-export const session = pgTable("session", {
+export const session = authSchema.table("session", {
 	id: text().primaryKey().notNull(),
 	expiresAt: timestamp({ withTimezone: true, mode: 'string' }).notNull(),
 	token: text().notNull(),
@@ -1449,7 +1450,7 @@ export const session = pgTable("session", {
 	unique("session_token_key").on(table.token),
 ]);
 
-export const twoFactor = pgTable("twoFactor", {
+export const twoFactor = authSchema.table("twoFactor", {
 	id: text().primaryKey().notNull(),
 	secret: text().notNull(),
 	backupCodes: text().notNull(),
@@ -1467,7 +1468,7 @@ export const twoFactor = pgTable("twoFactor", {
 		}).onDelete("cascade"),
 ]);
 
-export const updates = pgTable("updates", {
+export const updates = internalSchema.table("updates", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	type: text().notNull(),
 	who: text().notNull(),
@@ -1478,7 +1479,7 @@ export const updates = pgTable("updates", {
 	unique("updates_link_key").on(table.link),
 ]);
 
-export const user = pgTable("user", {
+export const user = authSchema.table("user", {
 	id: text().primaryKey().notNull(),
 	name: text().notNull(),
 	email: text().notNull(),
@@ -1501,7 +1502,7 @@ export const user = pgTable("user", {
 	unique("user_email_key").on(table.email),
 ]);
 
-export const users = pgTable("users", {
+export const users = appSchema.table("users", {
 	userId: uuid("user_id").primaryKey().notNull(),
 	displayName: text("display_name"),
 	defaultWorkspaceId: uuid("default_workspace_id"),
@@ -1525,7 +1526,7 @@ export const users = pgTable("users", {
 	check("users_declared_country_code_check", sql`(declared_country_code IS NULL) OR (declared_country_code ~ '^[A-Z]{2}$'::text)`),
 ]);
 
-export const v2AdapterPrimitives = pgTable("v2_adapter_primitives", {
+export const v2AdapterPrimitives = catalogSchema.table("v2_adapter_primitives", {
 	primitiveKey: text("primitive_key").primaryKey().notNull(),
 	primitiveKind: text("primitive_kind").notNull(),
 	codeVersion: integer("code_version").default(1).notNull(),
@@ -1541,7 +1542,7 @@ export const v2AdapterPrimitives = pgTable("v2_adapter_primitives", {
 	check("v2_adapter_primitives_status_check", sql`status = ANY (ARRAY['active'::text, 'deprecated'::text, 'disabled'::text])`),
 ]);
 
-export const v2AnalyticsOutbox = pgTable("v2_analytics_outbox", {
+export const v2AnalyticsOutbox = internalSchema.table("v2_analytics_outbox", {
 	requestEventId: uuid("request_event_id").primaryKey().notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
 	occurredAt: timestamp("occurred_at", { withTimezone: true, mode: 'string' }).notNull(),
@@ -1568,7 +1569,7 @@ export const v2AnalyticsOutbox = pgTable("v2_analytics_outbox", {
 	check("v2_analytics_outbox_status_check", sql`status = ANY (ARRAY['pending'::text, 'processing'::text, 'complete'::text, 'failed'::text])`),
 ]);
 
-export const v2BenchmarkResults = pgTable("v2_benchmark_results", {
+export const v2BenchmarkResults = catalogSchema.table("v2_benchmark_results", {
 	resultId: uuid("result_id").defaultRandom().primaryKey().notNull(),
 	modelSlug: text("model_slug").notNull(),
 	benchmarkId: text("benchmark_id").notNull(),
@@ -1598,7 +1599,7 @@ export const v2BenchmarkResults = pgTable("v2_benchmark_results", {
 		}).onDelete("cascade"),
 ]);
 
-export const v2Benchmarks = pgTable("v2_benchmarks", {
+export const v2Benchmarks = catalogSchema.table("v2_benchmarks", {
 	benchmarkId: text("benchmark_id").primaryKey().notNull(),
 	name: text().notNull(),
 	category: text(),
@@ -1611,7 +1612,7 @@ export const v2Benchmarks = pgTable("v2_benchmarks", {
 }, (table) => [
 ]);
 
-export const v2CapabilityAdapters = pgTable("v2_capability_adapters", {
+export const v2CapabilityAdapters = catalogSchema.table("v2_capability_adapters", {
 	capabilityAdapterId: uuid("capability_adapter_id").defaultRandom().primaryKey().notNull(),
 	capabilityId: text("capability_id").notNull(),
 	adapterKey: text("adapter_key").notNull(),
@@ -1632,7 +1633,7 @@ export const v2CapabilityAdapters = pgTable("v2_capability_adapters", {
 	check("v2_capability_adapters_version_check", sql`adapter_version > 0`),
 ]);
 
-export const v2CapabilityConstraints = pgTable("v2_capability_constraints", {
+export const v2CapabilityConstraints = catalogSchema.table("v2_capability_constraints", {
 	constraintId: uuid("constraint_id").defaultRandom().primaryKey().notNull(),
 	providerSlug: text("provider_slug"),
 	providerModelId: text("provider_model_id"),
@@ -1669,7 +1670,7 @@ export const v2CapabilityConstraints = pgTable("v2_capability_constraints", {
 	check("v2_capability_constraints_status_check", sql`status = ANY (ARRAY['draft'::text, 'active'::text, 'deprecated'::text, 'disabled'::text])`),
 ]);
 
-export const v2CapabilityEvidence = pgTable("v2_capability_evidence", {
+export const v2CapabilityEvidence = catalogSchema.table("v2_capability_evidence", {
 	evidenceId: uuid("evidence_id").defaultRandom().primaryKey().notNull(),
 	providerSlug: text("provider_slug"),
 	providerModelId: text("provider_model_id"),
@@ -1705,7 +1706,7 @@ export const v2CapabilityEvidence = pgTable("v2_capability_evidence", {
 	check("v2_capability_evidence_type_check", sql`source_type = ANY (ARRAY['official_docs'::text, 'official_sdk'::text, 'live_test'::text, 'provider_support'::text, 'inference'::text])`),
 ]);
 
-export const v2CatalogueAdminChanges = pgTable("v2_catalogue_admin_changes", {
+export const v2CatalogueAdminChanges = catalogSchema.table("v2_catalogue_admin_changes", {
 	changeId: uuid("change_id").defaultRandom().primaryKey().notNull(),
 	actorUserId: uuid("actor_user_id").notNull(),
 	resourceType: text("resource_type").notNull(),
@@ -1726,7 +1727,7 @@ export const v2CatalogueAdminChanges = pgTable("v2_catalogue_admin_changes", {
 	check("v2_catalogue_admin_changes_resource_type_check", sql`resource_type = ANY (ARRAY['pricing_sku'::text, 'organisations'::text, 'providers'::text, 'benchmarks'::text, 'subscription-plans'::text, 'models'::text, 'model_graph'::text, 'provider_route'::text])`),
 ]);
 
-export const v2CatalogueBackfillIssues = pgTable("v2_catalogue_backfill_issues", {
+export const v2CatalogueBackfillIssues = catalogSchema.table("v2_catalogue_backfill_issues", {
 	issueId: uuid("issue_id").defaultRandom().primaryKey().notNull(),
 	sourceType: text("source_type").notNull(),
 	sourceKey: text("source_key").notNull(),
@@ -1738,7 +1739,7 @@ export const v2CatalogueBackfillIssues = pgTable("v2_catalogue_backfill_issues",
 	unique("v2_catalogue_backfill_issues_key").on(table.issueCode, table.sourceKey, table.sourceType),
 ]);
 
-export const v2ControlPlaneReleases = pgTable("v2_control_plane_releases", {
+export const v2ControlPlaneReleases = internalSchema.table("v2_control_plane_releases", {
 	releaseId: uuid("release_id").defaultRandom().primaryKey().notNull(),
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	sequence: bigint({ mode: "number" }).generatedAlwaysAsIdentity({ name: "v2_control_plane_releases_sequence_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 9223372036854775807, cache: 1 }),
@@ -1776,7 +1777,7 @@ export const v2ControlPlaneReleases = pgTable("v2_control_plane_releases", {
 	check("v2_control_plane_releases_status_check", sql`status = ANY (ARRAY['draft'::text, 'validated'::text, 'published'::text, 'superseded'::text, 'rejected'::text])`),
 ]);
 
-export const v2CreditReservations = pgTable("v2_credit_reservations", {
+export const v2CreditReservations = billingSchema.table("v2_credit_reservations", {
 	reservationId: uuid("reservation_id").defaultRandom().primaryKey().notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
 	purpose: text().notNull(),
@@ -1813,7 +1814,7 @@ export const v2CreditReservations = pgTable("v2_credit_reservations", {
 	check("v2_credit_reservations_status_check", sql`status = ANY (ARRAY['held'::text, 'partially_captured'::text, 'captured'::text, 'partially_released'::text, 'released'::text, 'expired'::text, 'cancelled'::text])`),
 ]);
 
-export const v2ExecutionPlans = pgTable("v2_execution_plans", {
+export const v2ExecutionPlans = catalogSchema.table("v2_execution_plans", {
 	executionPlanId: uuid("execution_plan_id").defaultRandom().primaryKey().notNull(),
 	releaseId: uuid("release_id").notNull(),
 	providerModelId: text("provider_model_id").notNull(),
@@ -1850,7 +1851,7 @@ export const v2ExecutionPlans = pgTable("v2_execution_plans", {
 	check("v2_execution_plans_version_check", sql`plan_version > 0`),
 ]);
 
-export const v2Labs = pgTable("v2_labs", {
+export const v2Labs = catalogSchema.table("v2_labs", {
 	labSlug: text("lab_slug").primaryKey().notNull(),
 	name: text().notNull(),
 	countryCode: text("country_code").default('xx').notNull(),
@@ -1867,7 +1868,7 @@ export const v2Labs = pgTable("v2_labs", {
 	check("v2_labs_status_check", sql`status = ANY (ARRAY['active'::text, 'deprecated'::text, 'disabled'::text])`),
 ]);
 
-export const v2MeterDefinitions = pgTable("v2_meter_definitions", {
+export const v2MeterDefinitions = catalogSchema.table("v2_meter_definitions", {
 	meterKey: text("meter_key").primaryKey().notNull(),
 	displayName: text("display_name").notNull(),
 	modality: text().notNull(),
@@ -1887,7 +1888,7 @@ export const v2MeterDefinitions = pgTable("v2_meter_definitions", {
 	check("v2_meter_definitions_status_check", sql`status = ANY (ARRAY['active'::text, 'deprecated'::text, 'disabled'::text])`),
 ]);
 
-export const v2ModelAliases = pgTable("v2_model_aliases", {
+export const v2ModelAliases = catalogSchema.table("v2_model_aliases", {
 	aliasSlug: text("alias_slug").primaryKey().notNull(),
 	modelSlug: text("model_slug").notNull(),
 	aliasType: text("alias_type").default('public').notNull(),
@@ -1909,7 +1910,7 @@ export const v2ModelAliases = pgTable("v2_model_aliases", {
 	check("v2_model_aliases_window_check", sql`(effective_to IS NULL) OR (effective_from IS NULL) OR (effective_to > effective_from)`),
 ]);
 
-export const v2ModelFamilies = pgTable("v2_model_families", {
+export const v2ModelFamilies = catalogSchema.table("v2_model_families", {
 	familySlug: text("family_slug").primaryKey().notNull(),
 	labSlug: text("lab_slug").notNull(),
 	name: text().notNull(),
@@ -1925,7 +1926,7 @@ export const v2ModelFamilies = pgTable("v2_model_families", {
 	unique("v2_model_families_lab_slug_family_slug_key").on(table.familySlug, table.labSlug),
 ]);
 
-export const v2ModelPageNotices = pgTable("v2_model_page_notices", {
+export const v2ModelPageNotices = catalogSchema.table("v2_model_page_notices", {
 	modelSlug: text("model_slug").primaryKey().notNull(),
 	tone: text().notNull(),
 	markdown: text().notNull(),
@@ -1940,7 +1941,7 @@ export const v2ModelPageNotices = pgTable("v2_model_page_notices", {
 	check("v2_model_page_notices_tone_check", sql`tone = ANY (ARRAY['info'::text, 'warning'::text, 'critical'::text])`),
 ]);
 
-export const v2ModelProviderRoutes = pgTable("v2_model_provider_routes", {
+export const v2ModelProviderRoutes = catalogSchema.table("v2_model_provider_routes", {
 	providerModelId: text("provider_model_id").primaryKey().notNull(),
 	modelSlug: text("model_slug").notNull(),
 	providerSlug: text("provider_slug").notNull(),
@@ -1989,7 +1990,7 @@ export const v2ModelProviderRoutes = pgTable("v2_model_provider_routes", {
 	check("v2_model_provider_routes_window_check", sql`(effective_to IS NULL) OR (effective_from IS NULL) OR (effective_to > effective_from)`),
 ]);
 
-export const v2PricingSkuMeters = pgTable("v2_pricing_sku_meters", {
+export const v2PricingSkuMeters = catalogSchema.table("v2_pricing_sku_meters", {
 	skuMeterId: uuid("sku_meter_id").defaultRandom().primaryKey().notNull(),
 	skuId: uuid("sku_id").notNull(),
 	meterKey: text("meter_key").notNull(),
@@ -2025,7 +2026,7 @@ export const v2PricingSkuMeters = pgTable("v2_pricing_sku_meters", {
 	check("v2_pricing_sku_meters_unit_quantity_check", sql`unit_quantity > (0)::numeric`),
 ]);
 
-export const v2PricingSkus = pgTable("v2_pricing_skus", {
+export const v2PricingSkus = catalogSchema.table("v2_pricing_skus", {
 	skuId: uuid("sku_id").defaultRandom().primaryKey().notNull(),
 	providerModelId: text("provider_model_id").notNull(),
 	skuCode: text("sku_code").notNull(),
@@ -2070,7 +2071,7 @@ export const v2PricingSkus = pgTable("v2_pricing_skus", {
 	check("v2_pricing_skus_window_check", sql`(effective_to IS NULL) OR (effective_to > effective_from)`),
 ]);
 
-export const v2PrivateUsageDaily = pgTable("v2_private_usage_daily", {
+export const v2PrivateUsageDaily = observabilitySchema.table("v2_private_usage_daily", {
 	rollupId: uuid("rollup_id").defaultRandom().primaryKey().notNull(),
 	usageDate: date("usage_date").notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
@@ -2153,7 +2154,7 @@ export const v2PrivateUsageDaily = pgTable("v2_private_usage_daily", {
 	check("v2_private_usage_daily_observability_counts_check", sql`(tool_call_requests >= 0) AND (tool_call_successes >= 0) AND (tool_call_successes <= tool_call_requests) AND (cached_input_tokens >= (0)::numeric) AND (input_tokens >= (0)::numeric) AND (gateway_total_sum_ms >= (0)::numeric) AND (gateway_total_count >= 0) AND (internal_dispatch_sum_ms >= (0)::numeric) AND (internal_dispatch_count >= 0) AND (upstream_attempts >= 0) AND (failed_upstream_attempts >= 0) AND (failed_upstream_attempts <= upstream_attempts) AND (cost_nanos >= (0)::numeric)`),
 ]);
 
-export const v2ProviderAuthProfiles = pgTable("v2_provider_auth_profiles", {
+export const v2ProviderAuthProfiles = catalogSchema.table("v2_provider_auth_profiles", {
 	authProfileId: uuid("auth_profile_id").defaultRandom().primaryKey().notNull(),
 	providerSlug: text("provider_slug").notNull(),
 	profileKey: text("profile_key").notNull(),
@@ -2180,7 +2181,7 @@ export const v2ProviderAuthProfiles = pgTable("v2_provider_auth_profiles", {
 	check("v2_provider_auth_profiles_status_check", sql`status = ANY (ARRAY['active'::text, 'deprecated'::text, 'disabled'::text])`),
 ]);
 
-export const v2ProviderCapabilityAdapters = pgTable("v2_provider_capability_adapters", {
+export const v2ProviderCapabilityAdapters = catalogSchema.table("v2_provider_capability_adapters", {
 	providerCapabilityAdapterId: uuid("provider_capability_adapter_id").defaultRandom().primaryKey().notNull(),
 	providerSlug: text("provider_slug").notNull(),
 	capabilityId: text("capability_id").notNull(),
@@ -2215,7 +2216,7 @@ export const v2ProviderCapabilityAdapters = pgTable("v2_provider_capability_adap
 	check("v2_provider_capability_adapters_window_check", sql`(effective_to IS NULL) OR (effective_from IS NULL) OR (effective_to > effective_from)`),
 ]);
 
-export const v2ProviderCountryRestrictions = pgTable("v2_provider_country_restrictions", {
+export const v2ProviderCountryRestrictions = catalogSchema.table("v2_provider_country_restrictions", {
 	restrictionId: uuid("restriction_id").defaultRandom().primaryKey().notNull(),
 	providerSlug: text("provider_slug").notNull(),
 	countryCode: text("country_code").notNull(),
@@ -2238,7 +2239,7 @@ export const v2ProviderCountryRestrictions = pgTable("v2_provider_country_restri
 	check("v2_provider_country_restrictions_window_check", sql`(expires_at IS NULL) OR (expires_at > effective_at)`),
 ]);
 
-export const v2ProviderEndpoints = pgTable("v2_provider_endpoints", {
+export const v2ProviderEndpoints = catalogSchema.table("v2_provider_endpoints", {
 	providerEndpointId: uuid("provider_endpoint_id").defaultRandom().primaryKey().notNull(),
 	providerSlug: text("provider_slug").notNull(),
 	endpointKey: text("endpoint_key").notNull(),
@@ -2279,7 +2280,7 @@ export const v2ProviderEndpoints = pgTable("v2_provider_endpoints", {
 	check("v2_provider_endpoints_timeout_check", sql`(timeout_ms > 0) AND (timeout_ms <= 900000)`),
 ]);
 
-export const v2ProviderRegions = pgTable("v2_provider_regions", {
+export const v2ProviderRegions = catalogSchema.table("v2_provider_regions", {
 	providerRegionId: uuid("provider_region_id").defaultRandom().primaryKey().notNull(),
 	providerSlug: text("provider_slug").notNull(),
 	regionCode: text("region_code").notNull(),
@@ -2303,7 +2304,7 @@ export const v2ProviderRegions = pgTable("v2_provider_regions", {
 	check("v2_provider_regions_status_check", sql`status = ANY (ARRAY['active'::text, 'deprecated'::text, 'disabled'::text])`),
 ]);
 
-export const v2Providers = pgTable("v2_providers", {
+export const v2Providers = catalogSchema.table("v2_providers", {
 	providerSlug: text("provider_slug").primaryKey().notNull(),
 	labSlug: text("lab_slug"),
 	name: text().notNull(),
@@ -2360,7 +2361,7 @@ export const v2Providers = pgTable("v2_providers", {
 	check("v2_providers_zero_data_retention_check", sql`zero_data_retention = ANY (ARRAY['unknown'::text, 'unsupported'::text, 'optional'::text, 'default'::text])`),
 ]);
 
-export const modelDiscoveryRuns = pgTable("model_discovery_runs", {
+export const modelDiscoveryRuns = catalogSchema.table("model_discovery_runs", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	trigger: text().notNull(),
 	source: text().notNull(),
@@ -2388,7 +2389,7 @@ export const modelDiscoveryRuns = pgTable("model_discovery_runs", {
 	check("model_discovery_runs_trigger_check", sql`trigger = ANY (ARRAY['scheduled'::text, 'manual'::text])`),
 ]);
 
-export const v2RouteVariants = pgTable("v2_route_variants", {
+export const v2RouteVariants = catalogSchema.table("v2_route_variants", {
 	variantId: uuid("variant_id").defaultRandom().primaryKey().notNull(),
 	providerModelId: text("provider_model_id").notNull(),
 	variantKey: text("variant_key").notNull(),
@@ -2427,7 +2428,7 @@ export const v2RouteVariants = pgTable("v2_route_variants", {
 	check("v2_route_variants_status_check", sql`status = ANY (ARRAY['active'::text, 'degraded'::text, 'disabled'::text, 'retired'::text])`),
 ]);
 
-export const v2ServiceTiers = pgTable("v2_service_tiers", {
+export const v2ServiceTiers = catalogSchema.table("v2_service_tiers", {
 	serviceTierSlug: text("service_tier_slug").primaryKey().notNull(),
 	displayName: text("display_name").notNull(),
 	description: text(),
@@ -2440,7 +2441,7 @@ export const v2ServiceTiers = pgTable("v2_service_tiers", {
 	check("v2_service_tiers_status_check", sql`status = ANY (ARRAY['active'::text, 'deprecated'::text, 'disabled'::text])`),
 ]);
 
-export const v2SubscriptionPlans = pgTable("v2_subscription_plans", {
+export const v2SubscriptionPlans = catalogSchema.table("v2_subscription_plans", {
 	planUuid: uuid("plan_uuid").primaryKey().notNull(),
 	planId: text("plan_id").notNull(),
 	name: text().notNull(),
@@ -2456,7 +2457,7 @@ export const v2SubscriptionPlans = pgTable("v2_subscription_plans", {
 }, (table) => [
 ]);
 
-export const verification = pgTable("verification", {
+export const verification = authSchema.table("verification", {
 	id: text().primaryKey().notNull(),
 	identifier: text().notNull(),
 	value: text().notNull(),
@@ -2467,7 +2468,7 @@ export const verification = pgTable("verification", {
 	index("verification_identifier_idx").using("btree", table.identifier.asc().nullsLast().op("text_ops")),
 ]);
 
-export const wallets = pgTable("wallets", {
+export const wallets = billingSchema.table("wallets", {
 	workspaceId: uuid("workspace_id").primaryKey().notNull(),
 	stripeCustomerId: text("stripe_customer_id").notNull(),
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
@@ -2490,7 +2491,7 @@ export const wallets = pgTable("wallets", {
 		}).onDelete("cascade"),
 ]);
 
-export const webCacheGenerations = pgTable("web_cache_generations", {
+export const webCacheGenerations = internalSchema.table("web_cache_generations", {
 	scope: text().primaryKey().notNull(),
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	generation: bigint({ mode: "number" }).default(1).notNull(),
@@ -2506,7 +2507,7 @@ export const webCacheGenerations = pgTable("web_cache_generations", {
 	check("web_cache_generations_scope_check", sql`scope ~ '^[a-z0-9-]{1,64}$'::text`),
 ]);
 
-export const webCachePurgeEvents = pgTable("web_cache_purge_events", {
+export const webCachePurgeEvents = internalSchema.table("web_cache_purge_events", {
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	id: bigint({ mode: "number" }).primaryKey().generatedAlwaysAsIdentity({ name: "web_cache_purge_events_id_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 9223372036854775807, cache: 1 }),
 	scope: text().notNull(),
@@ -2531,7 +2532,7 @@ export const webCachePurgeEvents = pgTable("web_cache_purge_events", {
 	check("web_cache_purge_events_target_id_check", sql`(target_id IS NULL) OR (length(target_id) <= 200)`),
 ]);
 
-export const workspaceBroadcastDestinations = pgTable("workspace_broadcast_destinations", {
+export const workspaceBroadcastDestinations = gatewaySchema.table("workspace_broadcast_destinations", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
 	enabled: boolean().default(false).notNull(),
@@ -2563,7 +2564,7 @@ export const workspaceBroadcastDestinations = pgTable("workspace_broadcast_desti
 	check("workspace_broadcast_destinations_sampling_rate_check", sql`(sampling_rate >= (0)::numeric) AND (sampling_rate <= (1)::numeric)`),
 ]);
 
-export const workspaceClassifiers = pgTable("workspace_classifiers", {
+export const workspaceClassifiers = gatewaySchema.table("workspace_classifiers", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
 	slug: text().notNull(),
@@ -2599,7 +2600,7 @@ export const workspaceClassifiers = pgTable("workspace_classifiers", {
 	check("workspace_classifiers_service_tier_check", sql`service_tier = ANY (ARRAY['standard'::text, 'flex'::text])`),
 ]);
 
-export const workspaceGuardrails = pgTable("workspace_guardrails", {
+export const workspaceGuardrails = gatewaySchema.table("workspace_guardrails", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
 	enabled: boolean().default(true).notNull(),
@@ -2647,7 +2648,7 @@ export const workspaceGuardrails = pgTable("workspace_guardrails", {
 	check("workspace_guardrails_sensitive_info_default_action_check", sql`sensitive_info_default_action = ANY (ARRAY['flag'::text, 'redact'::text, 'block'::text])`),
 ]);
 
-export const workspaceInvites = pgTable("workspace_invites", {
+export const workspaceInvites = appSchema.table("workspace_invites", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
 	creatorUserId: uuid("creator_user_id").notNull(),
@@ -2679,7 +2680,7 @@ export const workspaceInvites = pgTable("workspace_invites", {
 	check("workspace_invites_uses_ck", sql`(max_uses IS NULL) OR (uses_count <= max_uses)`),
 ]);
 
-export const workspaceJoinRequests = pgTable("workspace_join_requests", {
+export const workspaceJoinRequests = appSchema.table("workspace_join_requests", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
 	inviteId: uuid("invite_id"),
@@ -2715,7 +2716,7 @@ export const workspaceJoinRequests = pgTable("workspace_join_requests", {
 		}).onDelete("cascade"),
 ]);
 
-export const ssoProvider = pgTable("ssoProvider", {
+export const ssoProvider = authSchema.table("ssoProvider", {
 	id: text().primaryKey().notNull(),
 	issuer: text().notNull(),
 	oidcConfig: text(),
@@ -2734,7 +2735,7 @@ export const ssoProvider = pgTable("ssoProvider", {
 	unique("ssoProvider_providerId_key").on(table.providerId),
 ]);
 
-export const v2CreditLedger = pgTable("v2_credit_ledger", {
+export const v2CreditLedger = billingSchema.table("v2_credit_ledger", {
 	entryId: uuid("entry_id").defaultRandom().primaryKey().notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
 	eventTime: timestamp("event_time", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
@@ -2762,7 +2763,7 @@ export const v2CreditLedger = pgTable("v2_credit_ledger", {
 	check("v2_credit_ledger_type_check", sql`entry_type = ANY (ARRAY['payment'::text, 'grant'::text, 'refund'::text, 'charge'::text, 'reservation_capture'::text, 'reservation_release'::text, 'adjustment'::text, 'expiration'::text])`),
 ]);
 
-export const v2PublicUsageDaily = pgTable("v2_public_usage_daily", {
+export const v2PublicUsageDaily = observabilitySchema.table("v2_public_usage_daily", {
 	rollupId: uuid("rollup_id").defaultRandom().primaryKey().notNull(),
 	usageDate: date("usage_date").notNull(),
 	appId: uuid("app_id"),
@@ -2840,7 +2841,7 @@ export const v2PublicUsageDaily = pgTable("v2_public_usage_daily", {
 	check("v2_public_usage_daily_observability_counts_check", sql`(tool_call_requests >= 0) AND (tool_call_successes >= 0) AND (tool_call_successes <= tool_call_requests) AND (cached_input_tokens >= (0)::numeric) AND (input_tokens >= (0)::numeric) AND (gateway_total_sum_ms >= (0)::numeric) AND (gateway_total_count >= 0) AND (internal_dispatch_sum_ms >= (0)::numeric) AND (internal_dispatch_count >= 0) AND (upstream_attempts >= 0) AND (failed_upstream_attempts >= 0) AND (failed_upstream_attempts <= upstream_attempts)`),
 ]);
 
-export const v2PublicUsageHourly = pgTable("v2_public_usage_hourly", {
+export const v2PublicUsageHourly = observabilitySchema.table("v2_public_usage_hourly", {
 	rollupId: uuid("rollup_id").defaultRandom().primaryKey().notNull(),
 	bucketStart: timestamp("bucket_start", { withTimezone: true, mode: 'string' }).notNull(),
 	appId: uuid("app_id"),
@@ -2918,7 +2919,7 @@ export const v2PublicUsageHourly = pgTable("v2_public_usage_hourly", {
 	check("v2_public_usage_hourly_observability_counts_check", sql`(tool_call_requests >= 0) AND (tool_call_successes >= 0) AND (tool_call_successes <= tool_call_requests) AND (cached_input_tokens >= (0)::numeric) AND (input_tokens >= (0)::numeric) AND (gateway_total_sum_ms >= (0)::numeric) AND (gateway_total_count >= 0) AND (internal_dispatch_sum_ms >= (0)::numeric) AND (internal_dispatch_count >= 0) AND (upstream_attempts >= 0) AND (failed_upstream_attempts >= 0) AND (failed_upstream_attempts <= upstream_attempts)`),
 ]);
 
-export const v2RequestArtifacts = pgTable("v2_request_artifacts", {
+export const v2RequestArtifacts = observabilitySchema.table("v2_request_artifacts", {
 	artifactId: uuid("artifact_id").defaultRandom().primaryKey().notNull(),
 	requestEventId: uuid("request_event_id").notNull(),
 	attemptId: uuid("attempt_id"),
@@ -2952,7 +2953,7 @@ export const v2RequestArtifacts = pgTable("v2_request_artifacts", {
 	check("v2_request_artifacts_size_check", sql`(byte_size IS NULL) OR (byte_size >= 0)`),
 ]);
 
-export const v2RequestAttempts = pgTable("v2_request_attempts", {
+export const v2RequestAttempts = observabilitySchema.table("v2_request_attempts", {
 	attemptId: uuid("attempt_id").defaultRandom().primaryKey().notNull(),
 	requestEventId: uuid("request_event_id").notNull(),
 	attemptNumber: smallint("attempt_number").notNull(),
@@ -2989,7 +2990,7 @@ export const v2RequestAttempts = pgTable("v2_request_attempts", {
 	check("v2_request_attempts_window_check", sql`(completed_at IS NULL) OR (started_at IS NULL) OR (completed_at >= started_at)`),
 ]);
 
-export const v2RequestFacts = pgTable("v2_request_facts", {
+export const v2RequestFacts = observabilitySchema.table("v2_request_facts", {
 	requestEventId: uuid("request_event_id").defaultRandom().primaryKey().notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
 	requestId: text("request_id").notNull(),
@@ -3156,7 +3157,7 @@ export const v2RequestFacts = pgTable("v2_request_facts", {
 	check("v2_request_facts_tool_count_check", sql`tool_call_count >= 0`),
 ]);
 
-export const v2RequestFeedback = pgTable("v2_request_feedback", {
+export const v2RequestFeedback = observabilitySchema.table("v2_request_feedback", {
 	feedbackId: uuid("feedback_id").defaultRandom().primaryKey().notNull(),
 	requestEventId: uuid("request_event_id").notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
@@ -3182,7 +3183,7 @@ export const v2RequestFeedback = pgTable("v2_request_feedback", {
 	check("v2_request_feedback_score_check", sql`(score IS NULL) OR ((score >= ('-1'::integer)::numeric) AND (score <= (1)::numeric))`),
 ]);
 
-export const v2RequestPricingLines = pgTable("v2_request_pricing_lines", {
+export const v2RequestPricingLines = observabilitySchema.table("v2_request_pricing_lines", {
 	pricingLineId: uuid("pricing_line_id").defaultRandom().primaryKey().notNull(),
 	requestEventId: uuid("request_event_id").notNull(),
 	skuId: uuid("sku_id"),
@@ -3218,7 +3219,7 @@ export const v2RequestPricingLines = pgTable("v2_request_pricing_lines", {
 	check("v2_request_pricing_lines_unit_price_check", sql`unit_price_nanos >= (0)::numeric`),
 ]);
 
-export const v2RequestRoutingDecisions = pgTable("v2_request_routing_decisions", {
+export const v2RequestRoutingDecisions = observabilitySchema.table("v2_request_routing_decisions", {
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	routingDecisionId: bigint("routing_decision_id", { mode: "number" }).primaryKey().generatedAlwaysAsIdentity({ name: "v2_request_routing_decisions_routing_decision_id_seq", startWith: 1, increment: 1, minValue: 1, maxValue: 9223372036854775807, cache: 1 }),
 	requestEventId: uuid("request_event_id").notNull(),
@@ -3263,7 +3264,7 @@ export const v2RequestRoutingDecisions = pgTable("v2_request_routing_decisions",
 	check("v2_request_routing_decisions_score_check", sql`(score IS NULL) OR (score >= (0)::numeric)`),
 ]);
 
-export const v2RequestUsage = pgTable("v2_request_usage", {
+export const v2RequestUsage = observabilitySchema.table("v2_request_usage", {
 	usageId: uuid("usage_id").defaultRandom().primaryKey().notNull(),
 	requestEventId: uuid("request_event_id").notNull(),
 	skuMeterId: uuid("sku_meter_id"),
@@ -3295,7 +3296,7 @@ export const v2RequestUsage = pgTable("v2_request_usage", {
 	check("v2_request_usage_sequence_check", sql`sequence >= 0`),
 ]);
 
-export const account = pgTable("account", {
+export const account = authSchema.table("account", {
 	id: text().primaryKey().notNull(),
 	accountId: text().notNull(),
 	providerId: text().notNull(),
@@ -3318,7 +3319,7 @@ export const account = pgTable("account", {
 		}).onDelete("cascade"),
 ]);
 
-export const accountGuardrailSettings = pgTable("account_guardrail_settings", {
+export const accountGuardrailSettings = appSchema.table("account_guardrail_settings", {
 	userId: uuid("user_id").primaryKey().notNull(),
 	privacyEnablePaidMayTrain: boolean("privacy_enable_paid_may_train").default(true).notNull(),
 	privacyEnableFreeMayTrain: boolean("privacy_enable_free_may_train").default(true).notNull(),
@@ -3344,7 +3345,7 @@ export const accountGuardrailSettings = pgTable("account_guardrail_settings", {
 	check("account_guardrail_settings_provider_mode_valid", sql`provider_restriction_mode = ANY (ARRAY['none'::text, 'allowlist'::text, 'blocklist'::text])`),
 ]);
 
-export const broadcastDestinationRuleGroups = pgTable("broadcast_destination_rule_groups", {
+export const broadcastDestinationRuleGroups = gatewaySchema.table("broadcast_destination_rule_groups", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	destinationId: uuid("destination_id").notNull(),
 	name: text().notNull(),
@@ -3362,7 +3363,7 @@ export const broadcastDestinationRuleGroups = pgTable("broadcast_destination_rul
 	check("broadcast_destination_rule_groups_match_operator_check", sql`match_operator = ANY (ARRAY['and'::text, 'or'::text])`),
 ]);
 
-export const workspacePublisherHandleAliases = pgTable("workspace_publisher_handle_aliases", {
+export const workspacePublisherHandleAliases = appSchema.table("workspace_publisher_handle_aliases", {
 	handle: text().primaryKey().notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
@@ -3376,7 +3377,7 @@ export const workspacePublisherHandleAliases = pgTable("workspace_publisher_hand
 	check("workspace_publisher_handle_alias_format", sql`handle ~ '^[a-z0-9][a-z0-9_-]{2,39}$'::text`),
 ]);
 
-export const workspaceSettings = pgTable("workspace_settings", {
+export const workspaceSettings = appSchema.table("workspace_settings", {
 	workspaceId: uuid("workspace_id").primaryKey().notNull(),
 	routingMode: text("routing_mode").default('balanced').notNull(),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).default(sql`(now() AT TIME ZONE 'utc'::text)`).notNull(),
@@ -3457,7 +3458,7 @@ export const workspaceSettings = pgTable("workspace_settings", {
 	check("workspace_settings_sso_mode_check", sql`sso_mode = ANY (ARRAY['none'::text, 'saml'::text, 'custom_oidc'::text])`),
 ]);
 
-export const workspaces = pgTable("workspaces", {
+export const workspaces = appSchema.table("workspaces", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	name: text().notNull(),
 	slug: text().notNull(),
@@ -3480,7 +3481,7 @@ export const workspaces = pgTable("workspaces", {
 	check("workspaces_publisher_handle_format", sql`publisher_handle ~ '^[a-z0-9][a-z0-9_-]{2,39}$'::text`),
 ]);
 
-export const keyGuardrails = pgTable("key_guardrails", {
+export const keyGuardrails = gatewaySchema.table("key_guardrails", {
 	keyId: uuid("key_id").notNull(),
 	guardrailId: uuid("guardrail_id").notNull(),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).default(sql`(now() AT TIME ZONE 'utc'::text)`).notNull(),
@@ -3499,7 +3500,7 @@ export const keyGuardrails = pgTable("key_guardrails", {
 	primaryKey({ columns: [table.guardrailId, table.keyId], name: "key_guardrails_pkey"}),
 ]);
 
-export const presetLineage = pgTable("preset_lineage", {
+export const presetLineage = contentSchema.table("preset_lineage", {
 	ancestorPresetId: uuid("ancestor_preset_id").notNull(),
 	descendantPresetId: uuid("descendant_preset_id").notNull(),
 	depth: integer().notNull(),
@@ -3519,7 +3520,7 @@ export const presetLineage = pgTable("preset_lineage", {
 	check("preset_lineage_depth_check", sql`depth >= 0`),
 ]);
 
-export const gatewayDynamicRouteKeys = pgTable("gateway_dynamic_route_keys", {
+export const gatewayDynamicRouteKeys = gatewaySchema.table("gateway_dynamic_route_keys", {
 	routeId: uuid("route_id").notNull(),
 	keyId: uuid("key_id").notNull(),
 	attachedBy: uuid("attached_by"),
@@ -3545,7 +3546,7 @@ export const gatewayDynamicRouteKeys = pgTable("gateway_dynamic_route_keys", {
 	unique("gateway_dynamic_route_keys_one_route_per_key").on(table.keyId),
 ]);
 
-export const modelDiscoveryHfSeenModels = pgTable("model_discovery_hf_seen_models", {
+export const modelDiscoveryHfSeenModels = catalogSchema.table("model_discovery_hf_seen_models", {
 	orgId: text("org_id").notNull(),
 	modelId: text("model_id").notNull(),
 	firstSeenAt: timestamp("first_seen_at", { withTimezone: true, mode: 'string' }).default(sql`(now() AT TIME ZONE 'utc'::text)`).notNull(),
@@ -3555,7 +3556,7 @@ export const modelDiscoveryHfSeenModels = pgTable("model_discovery_hf_seen_model
 	primaryKey({ columns: [table.modelId, table.orgId], name: "model_discovery_hf_seen_models_pkey"}),
 ]);
 
-export const v2CapabilityParameters = pgTable("v2_capability_parameters", {
+export const v2CapabilityParameters = catalogSchema.table("v2_capability_parameters", {
 	capabilityId: text("capability_id").notNull(),
 	parameterKey: text("parameter_key").notNull(),
 	valueSchema: jsonb("value_schema").default({}).notNull(),
@@ -3566,7 +3567,7 @@ export const v2CapabilityParameters = pgTable("v2_capability_parameters", {
 	check("v2_capability_parameters_schema_check", sql`jsonb_typeof(value_schema) = 'object'::text`),
 ]);
 
-export const broadcastDestinationKeys = pgTable("broadcast_destination_keys", {
+export const broadcastDestinationKeys = gatewaySchema.table("broadcast_destination_keys", {
 	destinationId: uuid("destination_id").notNull(),
 	keyId: uuid("key_id").notNull(),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).default(sql`(now() AT TIME ZONE 'utc'::text)`).notNull(),
@@ -3587,7 +3588,7 @@ export const broadcastDestinationKeys = pgTable("broadcast_destination_keys", {
 	check("broadcast_destination_keys_filter_mode_check", sql`filter_mode = ANY (ARRAY['include'::text, 'exclude'::text])`),
 ]);
 
-export const workspaceMemberGuardrails = pgTable("workspace_member_guardrails", {
+export const workspaceMemberGuardrails = gatewaySchema.table("workspace_member_guardrails", {
 	workspaceId: uuid("workspace_id").notNull(),
 	userId: uuid("user_id").notNull(),
 	guardrailId: uuid("guardrail_id").notNull(),
@@ -3613,7 +3614,7 @@ export const workspaceMemberGuardrails = pgTable("workspace_member_guardrails", 
 	primaryKey({ columns: [table.guardrailId, table.userId, table.workspaceId], name: "workspace_member_guardrails_pkey"}),
 ]);
 
-export const workspaceMembers = pgTable("workspace_members", {
+export const workspaceMembers = appSchema.table("workspace_members", {
 	workspaceId: uuid("workspace_id").notNull(),
 	userId: uuid("user_id").notNull(),
 	role: workspaceRole().notNull(),
@@ -3634,7 +3635,7 @@ export const workspaceMembers = pgTable("workspace_members", {
 	primaryKey({ columns: [table.userId, table.workspaceId], name: "workspace_members_pkey"}),
 ]);
 
-export const v2SubscriptionPlanFeatures = pgTable("v2_subscription_plan_features", {
+export const v2SubscriptionPlanFeatures = catalogSchema.table("v2_subscription_plan_features", {
 	planUuid: uuid("plan_uuid").notNull(),
 	featureName: text("feature_name").notNull(),
 	featureValue: text("feature_value"),
@@ -3649,7 +3650,7 @@ export const v2SubscriptionPlanFeatures = pgTable("v2_subscription_plan_features
 	primaryKey({ columns: [table.featureName, table.planUuid], name: "v2_subscription_plan_features_pkey"}),
 ]);
 
-export const v2LabLinks = pgTable("v2_lab_links", {
+export const v2LabLinks = catalogSchema.table("v2_lab_links", {
 	labSlug: text("lab_slug").notNull(),
 	platform: text().notNull(),
 	url: text().notNull(),
@@ -3664,7 +3665,7 @@ export const v2LabLinks = pgTable("v2_lab_links", {
 	primaryKey({ columns: [table.labSlug, table.platform, table.url], name: "v2_lab_links_pkey"}),
 ]);
 
-export const v2SubscriptionPlanModels = pgTable("v2_subscription_plan_models", {
+export const v2SubscriptionPlanModels = catalogSchema.table("v2_subscription_plan_models", {
 	planUuid: uuid("plan_uuid").notNull(),
 	modelSlug: text("model_slug").notNull(),
 	modelInfo: jsonb("model_info").default({}).notNull(),
@@ -3685,7 +3686,7 @@ export const v2SubscriptionPlanModels = pgTable("v2_subscription_plan_models", {
 	primaryKey({ columns: [table.modelSlug, table.planUuid], name: "v2_subscription_plan_models_pkey"}),
 ]);
 
-export const workspaceByokMonthlyUsage = pgTable("workspace_byok_monthly_usage", {
+export const workspaceByokMonthlyUsage = gatewaySchema.table("workspace_byok_monthly_usage", {
 	workspaceId: uuid("workspace_id").notNull(),
 	monthStart: timestamp("month_start", { withTimezone: true, mode: 'string' }).notNull(),
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
@@ -3702,7 +3703,7 @@ export const workspaceByokMonthlyUsage = pgTable("workspace_byok_monthly_usage",
 	primaryKey({ columns: [table.monthStart, table.workspaceId], name: "workspace_byok_monthly_usage_pkey"}),
 ]);
 
-export const v2CatalogueSourceOverrides = pgTable("v2_catalogue_source_overrides", {
+export const v2CatalogueSourceOverrides = catalogSchema.table("v2_catalogue_source_overrides", {
 	sourceType: text("source_type").notNull(),
 	sourceKey: text("source_key").notNull(),
 	disposition: text().notNull(),
@@ -3720,7 +3721,7 @@ export const v2CatalogueSourceOverrides = pgTable("v2_catalogue_source_overrides
 	check("v2_catalogue_source_overrides_type_check", sql`source_type = ANY (ARRAY['pricing_rule'::text, 'organisations'::text, 'providers'::text, 'benchmarks'::text, 'subscription-plans'::text, 'models'::text, 'model'::text, 'provider_route'::text])`),
 ]);
 
-export const v2ModelDetails = pgTable("v2_model_details", {
+export const v2ModelDetails = catalogSchema.table("v2_model_details", {
 	modelSlug: text("model_slug").notNull(),
 	detailName: text("detail_name").notNull(),
 	detailValue: jsonb("detail_value").default(null).notNull(),
@@ -3736,7 +3737,7 @@ export const v2ModelDetails = pgTable("v2_model_details", {
 	primaryKey({ columns: [table.detailName, table.modelSlug], name: "v2_model_details_pkey"}),
 ]);
 
-export const gatewayBatchFileUploads = pgTable("gateway_batch_file_uploads", {
+export const gatewayBatchFileUploads = gatewaySchema.table("gateway_batch_file_uploads", {
 	workspaceId: uuid("workspace_id").notNull(),
 	uploadId: text("upload_id").notNull(),
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
@@ -3756,7 +3757,7 @@ export const gatewayBatchFileUploads = pgTable("gateway_batch_file_uploads", {
 	check("gateway_batch_file_uploads_status_check", sql`status = ANY (ARRAY['claimed'::text, 'completed'::text, 'failed'::text])`),
 ]);
 
-export const publicModelUserUsageDaily = pgTable("public_model_user_usage_daily", {
+export const publicModelUserUsageDaily = observabilitySchema.table("public_model_user_usage_daily", {
 	dayBucket: date("day_bucket").notNull(),
 	modelId: text("model_id").notNull(),
 	providerId: text("provider_id").notNull(),
@@ -3772,7 +3773,7 @@ export const publicModelUserUsageDaily = pgTable("public_model_user_usage_daily"
 	primaryKey({ columns: [table.actorHash, table.dayBucket, table.modelId, table.providerId], name: "public_model_user_usage_daily_pkey"}),
 ]);
 
-export const v2ModelLinks = pgTable("v2_model_links", {
+export const v2ModelLinks = catalogSchema.table("v2_model_links", {
 	modelSlug: text("model_slug").notNull(),
 	linkKind: text("link_kind").notNull(),
 	title: text().notNull(),
@@ -3789,7 +3790,7 @@ export const v2ModelLinks = pgTable("v2_model_links", {
 	primaryKey({ columns: [table.linkKind, table.modelSlug, table.url], name: "v2_model_links_pkey"}),
 ]);
 
-export const v2PrivateUsageDailyMeters = pgTable("v2_private_usage_daily_meters", {
+export const v2PrivateUsageDailyMeters = observabilitySchema.table("v2_private_usage_daily_meters", {
 	rollupId: uuid("rollup_id").notNull(),
 	meterKey: text("meter_key").notNull(),
 	modality: text().notNull(),
@@ -3808,7 +3809,7 @@ export const v2PrivateUsageDailyMeters = pgTable("v2_private_usage_daily_meters"
 	check("v2_private_usage_daily_meters_quantity_check", sql`quantity >= (0)::numeric`),
 ]);
 
-export const v2PublicUsageDailyMeters = pgTable("v2_public_usage_daily_meters", {
+export const v2PublicUsageDailyMeters = observabilitySchema.table("v2_public_usage_daily_meters", {
 	rollupId: uuid("rollup_id").notNull(),
 	meterKey: text("meter_key").notNull(),
 	modality: text().notNull(),
@@ -3827,7 +3828,7 @@ export const v2PublicUsageDailyMeters = pgTable("v2_public_usage_daily_meters", 
 	check("v2_public_usage_daily_meters_quantity_check", sql`quantity >= (0)::numeric`),
 ]);
 
-export const v2PublicUsageHourlyMeters = pgTable("v2_public_usage_hourly_meters", {
+export const v2PublicUsageHourlyMeters = observabilitySchema.table("v2_public_usage_hourly_meters", {
 	rollupId: uuid("rollup_id").notNull(),
 	meterKey: text("meter_key").notNull(),
 	modality: text().notNull(),
@@ -3846,7 +3847,7 @@ export const v2PublicUsageHourlyMeters = pgTable("v2_public_usage_hourly_meters"
 	check("v2_public_usage_hourly_meters_quantity_check", sql`quantity >= (0)::numeric`),
 ]);
 
-export const v2RollupRefreshState = pgTable("v2_rollup_refresh_state", {
+export const v2RollupRefreshState = internalSchema.table("v2_rollup_refresh_state", {
 	rollupName: text("rollup_name").notNull(),
 	bucketStart: timestamp("bucket_start", { withTimezone: true, mode: 'string' }).notNull(),
 	lastStartedAt: timestamp("last_started_at", { withTimezone: true, mode: 'string' }),
@@ -3861,7 +3862,7 @@ export const v2RollupRefreshState = pgTable("v2_rollup_refresh_state", {
 	check("v2_rollup_refresh_state_status_check", sql`status = ANY (ARRAY['pending'::text, 'running'::text, 'complete'::text, 'failed'::text])`),
 ]);
 
-export const v2RouteParameterSupport = pgTable("v2_route_parameter_support", {
+export const v2RouteParameterSupport = catalogSchema.table("v2_route_parameter_support", {
 	providerModelId: text("provider_model_id").notNull(),
 	capabilityId: text("capability_id").notNull(),
 	parameterKey: text("parameter_key").notNull(),
@@ -3887,7 +3888,7 @@ export const v2RouteParameterSupport = pgTable("v2_route_parameter_support", {
 	check("v2_route_parameter_support_level_check", sql`support_level = ANY (ARRAY['native'::text, 'emulated'::text, 'ignored'::text, 'unsupported'::text, 'unknown'::text])`),
 ]);
 
-export const gatewayRequestCharges = pgTable("gateway_request_charges", {
+export const gatewayRequestCharges = billingSchema.table("gateway_request_charges", {
 	workspaceId: uuid("workspace_id").notNull(),
 	requestId: text("request_id").notNull(),
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
@@ -3910,7 +3911,7 @@ export const gatewayRequestCharges = pgTable("gateway_request_charges", {
 	check("gateway_request_charges_status_check", sql`status = ANY (ARRAY['applying'::text, 'applied'::text, 'failed'::text])`),
 ]);
 
-export const modelDiscoverySeenModels = pgTable("model_discovery_seen_models", {
+export const modelDiscoverySeenModels = catalogSchema.table("model_discovery_seen_models", {
 	providerId: text("provider_id").notNull(),
 	modelId: text("model_id").notNull(),
 	providerName: text("provider_name").notNull(),
@@ -3931,7 +3932,7 @@ export const modelDiscoverySeenModels = pgTable("model_discovery_seen_models", {
 	primaryKey({ columns: [table.modelId, table.providerId], name: "model_discovery_seen_models_pkey"}),
 ]);
 
-export const catalogueGameResults = pgTable("catalogue_game_results", {
+export const catalogueGameResults = contentSchema.table("catalogue_game_results", {
 	userId: uuid("user_id").notNull(),
 	gameKey: text("game_key").notNull(),
 	puzzleId: uuid("puzzle_id").notNull(),
@@ -3960,7 +3961,7 @@ export const catalogueGameResults = pgTable("catalogue_game_results", {
 	check("catalogue_game_results_score_check", sql`score >= 0`),
 ]);
 
-export const gatewayProviderHealthStates = pgTable("gateway_provider_health_states", {
+export const gatewayProviderHealthStates = gatewaySchema.table("gateway_provider_health_states", {
 	providerId: text("provider_id").notNull(),
 	modelId: text("model_id").notNull(),
 	endpoint: text().notNull(),
@@ -3979,7 +3980,7 @@ export const gatewayProviderHealthStates = pgTable("gateway_provider_health_stat
 	check("gateway_provider_health_states_breaker_state_chk", sql`breaker_state = ANY (ARRAY['closed'::text, 'open'::text, 'half_open'::text])`),
 ]);
 
-export const modelDiscoveryIssueSignals = pgTable("model_discovery_issue_signals", {
+export const modelDiscoveryIssueSignals = catalogSchema.table("model_discovery_issue_signals", {
 	source: text().notNull(),
 	providerId: text("provider_id").notNull(),
 	action: text().notNull(),
@@ -3997,7 +3998,7 @@ export const modelDiscoveryIssueSignals = pgTable("model_discovery_issue_signals
 	check("model_discovery_issue_signals_consecutive_sweeps_check", sql`consecutive_sweeps > 0`),
 ]);
 
-export const publicModelTaskDaily = pgTable("public_model_task_daily", {
+export const publicModelTaskDaily = observabilitySchema.table("public_model_task_daily", {
 	usageDate: date("usage_date").notNull(),
 	taxonomySlug: text("taxonomy_slug").notNull(),
 	primaryCategory: text("primary_category").notNull(),
@@ -4021,7 +4022,7 @@ export const publicModelTaskDaily = pgTable("public_model_task_daily", {
 	check("public_model_task_daily_workspace_count_check", sql`workspace_count >= 0`),
 ]);
 
-export const requestClassificationDaily = pgTable("request_classification_daily", {
+export const requestClassificationDaily = observabilitySchema.table("request_classification_daily", {
 	usageDate: date("usage_date").notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
 	classifierId: uuid("classifier_id").notNull(),
@@ -4055,7 +4056,7 @@ export const requestClassificationDaily = pgTable("request_classification_daily"
 	check("request_classification_daily_request_count_check", sql`request_count >= 0`),
 ]);
 
-export const gatewayBatchKeyUsageRecords = pgTable("gateway_batch_key_usage_records", {
+export const gatewayBatchKeyUsageRecords = gatewaySchema.table("gateway_batch_key_usage_records", {
 	workspaceId: uuid("workspace_id").notNull(),
 	batchId: text("batch_id").notNull(),
 	customId: text("custom_id").notNull(),
@@ -4082,7 +4083,7 @@ export const gatewayBatchKeyUsageRecords = pgTable("gateway_batch_key_usage_reco
 	check("gateway_batch_key_usage_records_cost_nanos_check", sql`cost_nanos >= 0`),
 ]);
 
-export const v2RouteCapabilities = pgTable("v2_route_capabilities", {
+export const v2RouteCapabilities = catalogSchema.table("v2_route_capabilities", {
 	providerModelId: text("provider_model_id").notNull(),
 	capabilityId: text("capability_id").notNull(),
 	status: text().default('active').notNull(),
@@ -4106,7 +4107,7 @@ export const v2RouteCapabilities = pgTable("v2_route_capabilities", {
 	check("v2_route_capabilities_window_check", sql`(effective_to IS NULL) OR (effective_from IS NULL) OR (effective_to > effective_from)`),
 ]);
 
-export const v2PublicProviderHealthDaily = pgTable("v2_public_provider_health_daily", {
+export const v2PublicProviderHealthDaily = observabilitySchema.table("v2_public_provider_health_daily", {
 	usageDate: date("usage_date").notNull(),
 	modelSlug: text("model_slug").notNull(),
 	providerModelId: text("provider_model_id").notNull(),
@@ -4138,7 +4139,7 @@ export const v2PublicProviderHealthDaily = pgTable("v2_public_provider_health_da
 	primaryKey({ columns: [table.modelSlug, table.providerModelId, table.providerSlug, table.usageDate], name: "v2_public_provider_health_daily_pkey"}),
 ]);
 
-export const gatewayAsyncWebhookDeliveries = pgTable("gateway_async_webhook_deliveries", {
+export const gatewayAsyncWebhookDeliveries = gatewaySchema.table("gateway_async_webhook_deliveries", {
 	workspaceId: uuid("workspace_id").notNull(),
 	kind: text().notNull(),
 	internalId: text("internal_id").notNull(),
@@ -4161,7 +4162,7 @@ export const gatewayAsyncWebhookDeliveries = pgTable("gateway_async_webhook_deli
 	check("gateway_async_webhook_delivery_status_check", sql`status = ANY (ARRAY['claimed'::text, 'pending'::text, 'delivered'::text, 'failed'::text])`),
 ]);
 
-export const gatewayWalletReservations = pgTable("gateway_wallet_reservations", {
+export const gatewayWalletReservations = billingSchema.table("gateway_wallet_reservations", {
 	workspaceId: uuid("workspace_id").notNull(),
 	reservationId: text("reservation_id").notNull(),
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
@@ -4203,7 +4204,7 @@ export const gatewayWalletReservations = pgTable("gateway_wallet_reservations", 
 	check("gateway_wallet_reservations_status_check", sql`status = ANY (ARRAY['held'::text, 'reserved'::text, 'captured'::text, 'released'::text])`),
 ]);
 
-export const gatewayUpstreamRequests202607 = pgTable("gateway_upstream_requests_2026_07", {
+export const gatewayUpstreamRequests202607 = observabilitySchema.table("gateway_upstream_requests_2026_07", {
 	id: uuid().defaultRandom().notNull(),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).notNull(),
 	gatewayRequestId: uuid("gateway_request_id").notNull(),
@@ -4287,7 +4288,7 @@ export const gatewayUpstreamRequests202607 = pgTable("gateway_upstream_requests_
 	check("gateway_upstream_requests_status_ck", sql`(status_code IS NULL) OR ((status_code >= 100) AND (status_code <= 599))`),
 ]);
 
-export const gatewayUpstreamRequests202608 = pgTable("gateway_upstream_requests_2026_08", {
+export const gatewayUpstreamRequests202608 = observabilitySchema.table("gateway_upstream_requests_2026_08", {
 	id: uuid().defaultRandom().notNull(),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).notNull(),
 	gatewayRequestId: uuid("gateway_request_id").notNull(),
@@ -4371,7 +4372,7 @@ export const gatewayUpstreamRequests202608 = pgTable("gateway_upstream_requests_
 	check("gateway_upstream_requests_status_ck", sql`(status_code IS NULL) OR ((status_code >= 100) AND (status_code <= 599))`),
 ]);
 
-export const gatewayUpstreamRequests202609 = pgTable("gateway_upstream_requests_2026_09", {
+export const gatewayUpstreamRequests202609 = observabilitySchema.table("gateway_upstream_requests_2026_09", {
 	id: uuid().defaultRandom().notNull(),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).notNull(),
 	gatewayRequestId: uuid("gateway_request_id").notNull(),
@@ -4455,7 +4456,7 @@ export const gatewayUpstreamRequests202609 = pgTable("gateway_upstream_requests_
 	check("gateway_upstream_requests_status_ck", sql`(status_code IS NULL) OR ((status_code >= 100) AND (status_code <= 599))`),
 ]);
 
-export const gatewayUpstreamRequestsDefault = pgTable("gateway_upstream_requests_default", {
+export const gatewayUpstreamRequestsDefault = observabilitySchema.table("gateway_upstream_requests_default", {
 	id: uuid().defaultRandom().notNull(),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).notNull(),
 	gatewayRequestId: uuid("gateway_request_id").notNull(),
@@ -4539,7 +4540,7 @@ export const gatewayUpstreamRequestsDefault = pgTable("gateway_upstream_requests
 	check("gateway_upstream_requests_status_ck", sql`(status_code IS NULL) OR ((status_code >= 100) AND (status_code <= 599))`),
 ]);
 
-export const gatewayRequests202603 = pgTable("gateway_requests_2026_03", {
+export const gatewayRequests202603 = observabilitySchema.table("gateway_requests_2026_03", {
 	id: uuid().defaultRandom().notNull(),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
@@ -4744,7 +4745,7 @@ export const gatewayRequests202603 = pgTable("gateway_requests_2026_03", {
 	check("gateway_requests_performance_metrics_nonnegative", sql`((provider_ttft_ms IS NULL) OR (provider_ttft_ms >= 0)) AND ((gateway_ttft_ms IS NULL) OR (gateway_ttft_ms >= 0)) AND ((output_speed_tps IS NULL) OR (output_speed_tps >= (0)::numeric)) AND ((tpot_ms IS NULL) OR (tpot_ms >= (0)::numeric)) AND ((itl_ms IS NULL) OR (itl_ms >= (0)::numeric)) AND ((phaseo_overhead_ms IS NULL) OR (phaseo_overhead_ms >= 0))`),
 ]);
 
-export const gatewayRequests202604 = pgTable("gateway_requests_2026_04", {
+export const gatewayRequests202604 = observabilitySchema.table("gateway_requests_2026_04", {
 	id: uuid().defaultRandom().notNull(),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
@@ -4949,7 +4950,7 @@ export const gatewayRequests202604 = pgTable("gateway_requests_2026_04", {
 	check("gateway_requests_performance_metrics_nonnegative", sql`((provider_ttft_ms IS NULL) OR (provider_ttft_ms >= 0)) AND ((gateway_ttft_ms IS NULL) OR (gateway_ttft_ms >= 0)) AND ((output_speed_tps IS NULL) OR (output_speed_tps >= (0)::numeric)) AND ((tpot_ms IS NULL) OR (tpot_ms >= (0)::numeric)) AND ((itl_ms IS NULL) OR (itl_ms >= (0)::numeric)) AND ((phaseo_overhead_ms IS NULL) OR (phaseo_overhead_ms >= 0))`),
 ]);
 
-export const gatewayRequests202605 = pgTable("gateway_requests_2026_05", {
+export const gatewayRequests202605 = observabilitySchema.table("gateway_requests_2026_05", {
 	id: uuid().defaultRandom().notNull(),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
@@ -5154,7 +5155,7 @@ export const gatewayRequests202605 = pgTable("gateway_requests_2026_05", {
 	check("gateway_requests_performance_metrics_nonnegative", sql`((provider_ttft_ms IS NULL) OR (provider_ttft_ms >= 0)) AND ((gateway_ttft_ms IS NULL) OR (gateway_ttft_ms >= 0)) AND ((output_speed_tps IS NULL) OR (output_speed_tps >= (0)::numeric)) AND ((tpot_ms IS NULL) OR (tpot_ms >= (0)::numeric)) AND ((itl_ms IS NULL) OR (itl_ms >= (0)::numeric)) AND ((phaseo_overhead_ms IS NULL) OR (phaseo_overhead_ms >= 0))`),
 ]);
 
-export const gatewayRequests202606 = pgTable("gateway_requests_2026_06", {
+export const gatewayRequests202606 = observabilitySchema.table("gateway_requests_2026_06", {
 	id: uuid().defaultRandom().notNull(),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
@@ -5359,7 +5360,7 @@ export const gatewayRequests202606 = pgTable("gateway_requests_2026_06", {
 	check("gateway_requests_performance_metrics_nonnegative", sql`((provider_ttft_ms IS NULL) OR (provider_ttft_ms >= 0)) AND ((gateway_ttft_ms IS NULL) OR (gateway_ttft_ms >= 0)) AND ((output_speed_tps IS NULL) OR (output_speed_tps >= (0)::numeric)) AND ((tpot_ms IS NULL) OR (tpot_ms >= (0)::numeric)) AND ((itl_ms IS NULL) OR (itl_ms >= (0)::numeric)) AND ((phaseo_overhead_ms IS NULL) OR (phaseo_overhead_ms >= 0))`),
 ]);
 
-export const gatewayRequests202607 = pgTable("gateway_requests_2026_07", {
+export const gatewayRequests202607 = observabilitySchema.table("gateway_requests_2026_07", {
 	id: uuid().defaultRandom().notNull(),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
@@ -5564,7 +5565,7 @@ export const gatewayRequests202607 = pgTable("gateway_requests_2026_07", {
 	check("gateway_requests_performance_metrics_nonnegative", sql`((provider_ttft_ms IS NULL) OR (provider_ttft_ms >= 0)) AND ((gateway_ttft_ms IS NULL) OR (gateway_ttft_ms >= 0)) AND ((output_speed_tps IS NULL) OR (output_speed_tps >= (0)::numeric)) AND ((tpot_ms IS NULL) OR (tpot_ms >= (0)::numeric)) AND ((itl_ms IS NULL) OR (itl_ms >= (0)::numeric)) AND ((phaseo_overhead_ms IS NULL) OR (phaseo_overhead_ms >= 0))`),
 ]);
 
-export const gatewayRequests202608 = pgTable("gateway_requests_2026_08", {
+export const gatewayRequests202608 = observabilitySchema.table("gateway_requests_2026_08", {
 	id: uuid().defaultRandom().notNull(),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
@@ -5769,7 +5770,7 @@ export const gatewayRequests202608 = pgTable("gateway_requests_2026_08", {
 	check("gateway_requests_performance_metrics_nonnegative", sql`((provider_ttft_ms IS NULL) OR (provider_ttft_ms >= 0)) AND ((gateway_ttft_ms IS NULL) OR (gateway_ttft_ms >= 0)) AND ((output_speed_tps IS NULL) OR (output_speed_tps >= (0)::numeric)) AND ((tpot_ms IS NULL) OR (tpot_ms >= (0)::numeric)) AND ((itl_ms IS NULL) OR (itl_ms >= (0)::numeric)) AND ((phaseo_overhead_ms IS NULL) OR (phaseo_overhead_ms >= 0))`),
 ]);
 
-export const gatewayRequests202609 = pgTable("gateway_requests_2026_09", {
+export const gatewayRequests202609 = observabilitySchema.table("gateway_requests_2026_09", {
 	id: uuid().defaultRandom().notNull(),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
@@ -5974,7 +5975,7 @@ export const gatewayRequests202609 = pgTable("gateway_requests_2026_09", {
 	check("gateway_requests_performance_metrics_nonnegative", sql`((provider_ttft_ms IS NULL) OR (provider_ttft_ms >= 0)) AND ((gateway_ttft_ms IS NULL) OR (gateway_ttft_ms >= 0)) AND ((output_speed_tps IS NULL) OR (output_speed_tps >= (0)::numeric)) AND ((tpot_ms IS NULL) OR (tpot_ms >= (0)::numeric)) AND ((itl_ms IS NULL) OR (itl_ms >= (0)::numeric)) AND ((phaseo_overhead_ms IS NULL) OR (phaseo_overhead_ms >= 0))`),
 ]);
 
-export const gatewayRequestsDefault = pgTable("gateway_requests_default", {
+export const gatewayRequestsDefault = observabilitySchema.table("gateway_requests_default", {
 	id: uuid().defaultRandom().notNull(),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
@@ -6178,7 +6179,7 @@ export const gatewayRequestsDefault = pgTable("gateway_requests_default", {
 	check("gateway_requests_model_id_present_ck", sql`NULLIF(btrim(model_id), ''::text) IS NOT NULL`),
 	check("gateway_requests_performance_metrics_nonnegative", sql`((provider_ttft_ms IS NULL) OR (provider_ttft_ms >= 0)) AND ((gateway_ttft_ms IS NULL) OR (gateway_ttft_ms >= 0)) AND ((output_speed_tps IS NULL) OR (output_speed_tps >= (0)::numeric)) AND ((tpot_ms IS NULL) OR (tpot_ms >= (0)::numeric)) AND ((itl_ms IS NULL) OR (itl_ms >= (0)::numeric)) AND ((phaseo_overhead_ms IS NULL) OR (phaseo_overhead_ms >= 0))`),
 ]);
-export const oauthAppsWithStats = pgView("oauth_apps_with_stats", {	id: uuid(),
+export const oauthAppsWithStats = gatewaySchema.view("oauth_apps_with_stats", {	id: uuid(),
 	clientId: text("client_id"),
 	workspaceId: uuid("workspace_id"),
 	name: text(),
@@ -6199,9 +6200,9 @@ export const oauthAppsWithStats = pgView("oauth_apps_with_stats", {	id: uuid(),
 	lastUsedAt: timestamp("last_used_at", { withTimezone: true, mode: 'string' }),
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	requestsLast30D: bigint("requests_last_30d", { mode: "number" }),
-}).with({"securityInvoker":true}).as(sql`SELECT oam.id, oam.client_id, oam.workspace_id, oam.name, oam.description, oam.homepage_url, oam.logo_url, oam.privacy_policy_url, oam.terms_of_service_url, oam.created_by, oam.created_at, oam.updated_at, oam.status, oam.redirect_uris, count(DISTINCT oa.id) FILTER (WHERE oa.revoked_at IS NULL) AS active_authorizations, count(DISTINCT oa.id) AS total_authorizations, max(oa.last_used_at) AS last_used_at, count(DISTINCT gr.id) AS requests_last_30d FROM oauth_app_metadata oam LEFT JOIN oauth_authorizations oa ON oa.client_id = oam.client_id LEFT JOIN gateway_requests gr ON gr.oauth_client_id = oam.client_id AND gr.created_at > (now() - '30 days'::interval) WHERE oam.status = 'active'::text GROUP BY oam.id`);
+}).with({"securityInvoker":true}).as(sql`SELECT oam.id, oam.client_id, oam.workspace_id, oam.name, oam.description, oam.homepage_url, oam.logo_url, oam.privacy_policy_url, oam.terms_of_service_url, oam.created_by, oam.created_at, oam.updated_at, oam.status, oam.redirect_uris, count(DISTINCT oa.id) FILTER (WHERE oa.revoked_at IS NULL) AS active_authorizations, count(DISTINCT oa.id) AS total_authorizations, max(oa.last_used_at) AS last_used_at, count(DISTINCT gr.id) AS requests_last_30d FROM gateway.oauth_app_metadata oam LEFT JOIN gateway.oauth_authorizations oa ON oa.client_id = oam.client_id LEFT JOIN observability.gateway_requests gr ON gr.oauth_client_id = oam.client_id AND gr.created_at > (now() - '30 days'::interval) WHERE oam.status = 'active'::text GROUP BY oam.id`);
 
-export const v2RpcGatewayActivityRollupDaily = pgView("v2_rpc_gateway_activity_rollup_daily", {	dayBucket: date("day_bucket"),
+export const v2RpcGatewayActivityRollupDaily = observabilitySchema.view("v2_rpc_gateway_activity_rollup_daily", {	dayBucket: date("day_bucket"),
 	teamId: uuid("team_id"),
 	modelId: text("model_id"),
 	endpoint: text(),
@@ -6219,9 +6220,9 @@ export const v2RpcGatewayActivityRollupDaily = pgView("v2_rpc_gateway_activity_r
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	reasoningTokens: bigint("reasoning_tokens", { mode: "number" }),
 	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }),
-}).with({"securityInvoker":true}).as(sql`SELECT usage.usage_date AS day_bucket, usage.workspace_id AS team_id, usage.model_slug AS model_id, 'unknown'::text AS endpoint, route.provider_slug AS provider, 0::bigint AS usage_nanos, 0::bigint AS byok_usage_nanos, usage.requests, 0::bigint AS prompt_tokens, 0::bigint AS completion_tokens, 0::bigint AS reasoning_tokens, usage.updated_at FROM v2_private_usage_daily usage LEFT JOIN v2_model_provider_routes route ON route.provider_model_id = usage.provider_model_id`);
+}).with({"securityInvoker":true}).as(sql`SELECT usage.usage_date AS day_bucket, usage.workspace_id AS team_id, usage.model_slug AS model_id, 'unknown'::text AS endpoint, route.provider_slug AS provider, 0::bigint AS usage_nanos, 0::bigint AS byok_usage_nanos, usage.requests, 0::bigint AS prompt_tokens, 0::bigint AS completion_tokens, 0::bigint AS reasoning_tokens, usage.updated_at FROM observability.v2_private_usage_daily usage LEFT JOIN catalog.v2_model_provider_routes route ON route.provider_model_id = usage.provider_model_id`);
 
-export const v2RpcGatewayModelUsageDaily = pgView("v2_rpc_gateway_model_usage_daily", {	dayBucket: date("day_bucket"),
+export const v2RpcGatewayModelUsageDaily = observabilitySchema.view("v2_rpc_gateway_model_usage_daily", {	dayBucket: date("day_bucket"),
 	modelId: text("model_id"),
 	providerId: text("provider_id"),
 	endpoint: text(),
@@ -6338,9 +6339,9 @@ export const v2RpcGatewayModelUsageDaily = pgView("v2_rpc_gateway_model_usage_da
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	embeddingTokens: bigint("embedding_tokens", { mode: "number" }),
 	videoSeconds: numeric("video_seconds"),
-}).with({"securityInvoker":true}).as(sql`WITH meters AS ( SELECT meter.rollup_id, jsonb_object_agg(meter.meter_key, meter.quantity) AS "values" FROM v2_public_usage_daily_meters meter GROUP BY meter.rollup_id ) SELECT usage.usage_date AS day_bucket, usage.model_slug AS model_id, route.provider_slug AS provider_id, 'unknown'::text AS endpoint, usage.requests, usage.successful_requests AS success_requests, usage.failed_requests, 0::bigint AS neutral_requests, usage.rate_limited_requests, COALESCE((meters."values" ->> 'total_tokens'::text)::numeric, ((meters."values" ->> 'input_tokens'::text)::numeric) + ((meters."values" ->> 'output_tokens'::text)::numeric), ((meters."values" ->> 'input_text_tokens'::text)::numeric) + ((meters."values" ->> 'output_text_tokens'::text)::numeric), 0::numeric)::bigint AS total_tokens, COALESCE((meters."values" ->> 'input_tokens'::text)::numeric, (meters."values" ->> 'input_text_tokens'::text)::numeric, 0::numeric)::bigint AS input_tokens, COALESCE((meters."values" ->> 'output_tokens'::text)::numeric, (meters."values" ->> 'output_text_tokens'::text)::numeric, 0::numeric)::bigint AS output_tokens, COALESCE((meters."values" ->> 'reasoning_tokens'::text)::numeric, 0::numeric)::bigint AS reasoning_tokens, COALESCE((meters."values" ->> 'input_text_tokens'::text)::numeric, 0::numeric)::bigint AS input_text_tokens, COALESCE((meters."values" ->> 'output_text_tokens'::text)::numeric, 0::numeric)::bigint AS output_text_tokens, COALESCE((meters."values" ->> 'input_image_tokens'::text)::numeric, 0::numeric)::bigint AS input_image_tokens, COALESCE((meters."values" ->> 'output_image_tokens'::text)::numeric, 0::numeric)::bigint AS output_image_tokens, COALESCE((meters."values" ->> 'input_audio_tokens'::text)::numeric, 0::numeric)::bigint AS input_audio_tokens, COALESCE((meters."values" ->> 'output_audio_tokens'::text)::numeric, 0::numeric)::bigint AS output_audio_tokens, COALESCE((meters."values" ->> 'input_video_tokens'::text)::numeric, 0::numeric)::bigint AS input_video_tokens, COALESCE((meters."values" ->> 'output_video_tokens'::text)::numeric, 0::numeric)::bigint AS output_video_tokens, COALESCE((meters."values" ->> 'image_inputs'::text)::numeric, (meters."values" ->> 'input_images'::text)::numeric, 0::numeric)::bigint AS image_inputs, COALESCE((meters."values" ->> 'image_outputs'::text)::numeric, (meters."values" ->> 'output_images'::text)::numeric, 0::numeric)::bigint AS image_outputs, COALESCE((meters."values" ->> 'audio_inputs'::text)::numeric, 0::numeric)::bigint AS audio_inputs, COALESCE((meters."values" ->> 'audio_outputs'::text)::numeric, 0::numeric)::bigint AS audio_outputs, COALESCE((meters."values" ->> 'video_inputs'::text)::numeric, 0::numeric)::bigint AS video_inputs, COALESCE((meters."values" ->> 'video_outputs'::text)::numeric, 0::numeric)::bigint AS video_outputs, COALESCE((meters."values" ->> 'cached_read_tokens'::text)::numeric, (meters."values" ->> 'cached_input_tokens'::text)::numeric, 0::numeric)::bigint AS cached_read_tokens, COALESCE((meters."values" ->> 'cached_write_tokens'::text)::numeric, 0::numeric)::bigint AS cached_write_tokens, COALESCE((meters."values" ->> 'cached_read_text_tokens'::text)::numeric, 0::numeric)::bigint AS cached_read_text_tokens, COALESCE((meters."values" ->> 'cached_write_text_tokens'::text)::numeric, 0::numeric)::bigint AS cached_write_text_tokens, COALESCE((meters."values" ->> 'cached_read_image_tokens'::text)::numeric, 0::numeric)::bigint AS cached_read_image_tokens, COALESCE((meters."values" ->> 'cached_write_image_tokens'::text)::numeric, 0::numeric)::bigint AS cached_write_image_tokens, COALESCE((meters."values" ->> 'cached_read_audio_tokens'::text)::numeric, 0::numeric)::bigint AS cached_read_audio_tokens, COALESCE((meters."values" ->> 'cached_write_audio_tokens'::text)::numeric, 0::numeric)::bigint AS cached_write_audio_tokens, COALESCE((meters."values" ->> 'cached_read_video_tokens'::text)::numeric, 0::numeric)::bigint AS cached_read_video_tokens, COALESCE((meters."values" ->> 'cached_write_video_tokens'::text)::numeric, 0::numeric)::bigint AS cached_write_video_tokens, 0::bigint AS total_cost_nanos, usage.latency_sum_ms, usage.latency_count AS latency_samples, usage.generation_sum_ms, usage.generation_count AS generation_samples, usage.throughput_sum, usage.throughput_count AS throughput_samples, usage.updated_at AS last_request_at, usage.updated_at AS refreshed_at, COALESCE((meters."values" ->> 'input_quad_tokens'::text)::numeric, 0::numeric)::bigint AS input_quad_tokens, COALESCE((meters."values" ->> 'output_quad_tokens'::text)::numeric, 0::numeric)::bigint AS output_quad_tokens, COALESCE((meters."values" ->> 'total_quad_tokens'::text)::numeric, 0::numeric)::bigint AS total_quad_tokens, COALESCE((meters."values" ->> 'cached_write_text_tokens_5m'::text)::numeric, 0::numeric)::bigint AS cached_write_text_tokens_5m, COALESCE((meters."values" ->> 'cached_write_text_tokens_1h'::text)::numeric, 0::numeric)::bigint AS cached_write_text_tokens_1h, COALESCE((meters."values" ->> 'text_quad_tokens'::text)::numeric, 0::numeric)::bigint AS text_quad_tokens, COALESCE((meters."values" ->> 'rerank_quad_tokens'::text)::numeric, 0::numeric)::bigint AS rerank_quad_tokens, COALESCE((meters."values" ->> 'embedding_quad_tokens'::text)::numeric, 0::numeric)::bigint AS embedding_quad_tokens, COALESCE((meters."values" ->> 'moderation_quad_tokens'::text)::numeric, 0::numeric)::bigint AS moderation_quad_tokens, COALESCE((meters."values" ->> 'ocr_quad_tokens'::text)::numeric, 0::numeric)::bigint AS ocr_quad_tokens, COALESCE((meters."values" ->> 'image_megapixels'::text)::numeric, 0::numeric) AS image_megapixels, COALESCE((meters."values" ->> 'audio_seconds'::text)::numeric, 0::numeric) AS audio_seconds, COALESCE((meters."values" ->> 'video_pixel_seconds'::text)::numeric, 0::numeric) AS video_pixel_seconds, COALESCE((meters."values" ->> 'input_characters'::text)::numeric, 0::numeric)::bigint AS input_characters, COALESCE((meters."values" ->> 'output_characters'::text)::numeric, 0::numeric)::bigint AS output_characters, COALESCE((meters."values" ->> 'total_characters'::text)::numeric, 0::numeric)::bigint AS total_characters, COALESCE((meters."values" ->> 'embedding_tokens'::text)::numeric, 0::numeric)::bigint AS embedding_tokens, COALESCE((meters."values" ->> 'video_seconds'::text)::numeric, 0::numeric) AS video_seconds FROM v2_public_usage_daily usage LEFT JOIN v2_model_provider_routes route ON route.provider_model_id = usage.provider_model_id LEFT JOIN meters ON meters.rollup_id = usage.rollup_id`);
+}).with({"securityInvoker":true}).as(sql`WITH meters AS ( SELECT meter.rollup_id, jsonb_object_agg(meter.meter_key, meter.quantity) AS "values" FROM observability.v2_public_usage_daily_meters meter GROUP BY meter.rollup_id ) SELECT usage.usage_date AS day_bucket, usage.model_slug AS model_id, route.provider_slug AS provider_id, 'unknown'::text AS endpoint, usage.requests, usage.successful_requests AS success_requests, usage.failed_requests, 0::bigint AS neutral_requests, usage.rate_limited_requests, COALESCE((meters."values" ->> 'total_tokens'::text)::numeric, ((meters."values" ->> 'input_tokens'::text)::numeric) + ((meters."values" ->> 'output_tokens'::text)::numeric), ((meters."values" ->> 'input_text_tokens'::text)::numeric) + ((meters."values" ->> 'output_text_tokens'::text)::numeric), 0::numeric)::bigint AS total_tokens, COALESCE((meters."values" ->> 'input_tokens'::text)::numeric, (meters."values" ->> 'input_text_tokens'::text)::numeric, 0::numeric)::bigint AS input_tokens, COALESCE((meters."values" ->> 'output_tokens'::text)::numeric, (meters."values" ->> 'output_text_tokens'::text)::numeric, 0::numeric)::bigint AS output_tokens, COALESCE((meters."values" ->> 'reasoning_tokens'::text)::numeric, 0::numeric)::bigint AS reasoning_tokens, COALESCE((meters."values" ->> 'input_text_tokens'::text)::numeric, 0::numeric)::bigint AS input_text_tokens, COALESCE((meters."values" ->> 'output_text_tokens'::text)::numeric, 0::numeric)::bigint AS output_text_tokens, COALESCE((meters."values" ->> 'input_image_tokens'::text)::numeric, 0::numeric)::bigint AS input_image_tokens, COALESCE((meters."values" ->> 'output_image_tokens'::text)::numeric, 0::numeric)::bigint AS output_image_tokens, COALESCE((meters."values" ->> 'input_audio_tokens'::text)::numeric, 0::numeric)::bigint AS input_audio_tokens, COALESCE((meters."values" ->> 'output_audio_tokens'::text)::numeric, 0::numeric)::bigint AS output_audio_tokens, COALESCE((meters."values" ->> 'input_video_tokens'::text)::numeric, 0::numeric)::bigint AS input_video_tokens, COALESCE((meters."values" ->> 'output_video_tokens'::text)::numeric, 0::numeric)::bigint AS output_video_tokens, COALESCE((meters."values" ->> 'image_inputs'::text)::numeric, (meters."values" ->> 'input_images'::text)::numeric, 0::numeric)::bigint AS image_inputs, COALESCE((meters."values" ->> 'image_outputs'::text)::numeric, (meters."values" ->> 'output_images'::text)::numeric, 0::numeric)::bigint AS image_outputs, COALESCE((meters."values" ->> 'audio_inputs'::text)::numeric, 0::numeric)::bigint AS audio_inputs, COALESCE((meters."values" ->> 'audio_outputs'::text)::numeric, 0::numeric)::bigint AS audio_outputs, COALESCE((meters."values" ->> 'video_inputs'::text)::numeric, 0::numeric)::bigint AS video_inputs, COALESCE((meters."values" ->> 'video_outputs'::text)::numeric, 0::numeric)::bigint AS video_outputs, COALESCE((meters."values" ->> 'cached_read_tokens'::text)::numeric, (meters."values" ->> 'cached_input_tokens'::text)::numeric, 0::numeric)::bigint AS cached_read_tokens, COALESCE((meters."values" ->> 'cached_write_tokens'::text)::numeric, 0::numeric)::bigint AS cached_write_tokens, COALESCE((meters."values" ->> 'cached_read_text_tokens'::text)::numeric, 0::numeric)::bigint AS cached_read_text_tokens, COALESCE((meters."values" ->> 'cached_write_text_tokens'::text)::numeric, 0::numeric)::bigint AS cached_write_text_tokens, COALESCE((meters."values" ->> 'cached_read_image_tokens'::text)::numeric, 0::numeric)::bigint AS cached_read_image_tokens, COALESCE((meters."values" ->> 'cached_write_image_tokens'::text)::numeric, 0::numeric)::bigint AS cached_write_image_tokens, COALESCE((meters."values" ->> 'cached_read_audio_tokens'::text)::numeric, 0::numeric)::bigint AS cached_read_audio_tokens, COALESCE((meters."values" ->> 'cached_write_audio_tokens'::text)::numeric, 0::numeric)::bigint AS cached_write_audio_tokens, COALESCE((meters."values" ->> 'cached_read_video_tokens'::text)::numeric, 0::numeric)::bigint AS cached_read_video_tokens, COALESCE((meters."values" ->> 'cached_write_video_tokens'::text)::numeric, 0::numeric)::bigint AS cached_write_video_tokens, 0::bigint AS total_cost_nanos, usage.latency_sum_ms, usage.latency_count AS latency_samples, usage.generation_sum_ms, usage.generation_count AS generation_samples, usage.throughput_sum, usage.throughput_count AS throughput_samples, usage.updated_at AS last_request_at, usage.updated_at AS refreshed_at, COALESCE((meters."values" ->> 'input_quad_tokens'::text)::numeric, 0::numeric)::bigint AS input_quad_tokens, COALESCE((meters."values" ->> 'output_quad_tokens'::text)::numeric, 0::numeric)::bigint AS output_quad_tokens, COALESCE((meters."values" ->> 'total_quad_tokens'::text)::numeric, 0::numeric)::bigint AS total_quad_tokens, COALESCE((meters."values" ->> 'cached_write_text_tokens_5m'::text)::numeric, 0::numeric)::bigint AS cached_write_text_tokens_5m, COALESCE((meters."values" ->> 'cached_write_text_tokens_1h'::text)::numeric, 0::numeric)::bigint AS cached_write_text_tokens_1h, COALESCE((meters."values" ->> 'text_quad_tokens'::text)::numeric, 0::numeric)::bigint AS text_quad_tokens, COALESCE((meters."values" ->> 'rerank_quad_tokens'::text)::numeric, 0::numeric)::bigint AS rerank_quad_tokens, COALESCE((meters."values" ->> 'embedding_quad_tokens'::text)::numeric, 0::numeric)::bigint AS embedding_quad_tokens, COALESCE((meters."values" ->> 'moderation_quad_tokens'::text)::numeric, 0::numeric)::bigint AS moderation_quad_tokens, COALESCE((meters."values" ->> 'ocr_quad_tokens'::text)::numeric, 0::numeric)::bigint AS ocr_quad_tokens, COALESCE((meters."values" ->> 'image_megapixels'::text)::numeric, 0::numeric) AS image_megapixels, COALESCE((meters."values" ->> 'audio_seconds'::text)::numeric, 0::numeric) AS audio_seconds, COALESCE((meters."values" ->> 'video_pixel_seconds'::text)::numeric, 0::numeric) AS video_pixel_seconds, COALESCE((meters."values" ->> 'input_characters'::text)::numeric, 0::numeric)::bigint AS input_characters, COALESCE((meters."values" ->> 'output_characters'::text)::numeric, 0::numeric)::bigint AS output_characters, COALESCE((meters."values" ->> 'total_characters'::text)::numeric, 0::numeric)::bigint AS total_characters, COALESCE((meters."values" ->> 'embedding_tokens'::text)::numeric, 0::numeric)::bigint AS embedding_tokens, COALESCE((meters."values" ->> 'video_seconds'::text)::numeric, 0::numeric) AS video_seconds FROM observability.v2_public_usage_daily usage LEFT JOIN catalog.v2_model_provider_routes route ON route.provider_model_id = usage.provider_model_id LEFT JOIN meters ON meters.rollup_id = usage.rollup_id`);
 
-export const v2WebPublicUsageDaily = pgView("v2_web_public_usage_daily", {	dayBucket: date("day_bucket"),
+export const v2WebPublicUsageDaily = observabilitySchema.view("v2_web_public_usage_daily", {	dayBucket: date("day_bucket"),
 	canonicalModelId: text("canonical_model_id"),
 	provider: text(),
 	appId: uuid("app_id"),
@@ -6362,9 +6363,9 @@ export const v2WebPublicUsageDaily = pgView("v2_web_public_usage_daily", {	dayBu
 	generationSumMs: bigint("generation_sum_ms", { mode: "number" }),
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	generationSamples: bigint("generation_samples", { mode: "number" }),
-}).with({"securityInvoker":true}).as(sql`WITH meters AS ( SELECT meter.rollup_id, COALESCE(max(meter.quantity) FILTER (WHERE meter.meter_key = 'total_tokens'::text), sum(meter.quantity) FILTER (WHERE meter.meter_key = ANY (ARRAY['input_tokens'::text, 'output_tokens'::text])), sum(meter.quantity) FILTER (WHERE meter.meter_key = ANY (ARRAY['input_text_tokens'::text, 'output_text_tokens'::text])), 0::numeric) AS total_tokens FROM v2_public_usage_daily_meters meter GROUP BY meter.rollup_id ) SELECT usage.usage_date AS day_bucket, usage.model_slug AS canonical_model_id, route.provider_slug AS provider, usage.app_id, usage.requests, usage.successful_requests AS success_requests, COALESCE(meters.total_tokens, 0::numeric) AS total_tokens, usage.cost_nanos::bigint AS total_cost_nanos, usage.latency_sum_ms, usage.latency_count AS latency_samples, usage.throughput_sum, usage.throughput_count AS throughput_samples, usage.generation_sum_ms, usage.generation_count AS generation_samples FROM v2_public_usage_daily usage LEFT JOIN v2_model_provider_routes route ON route.provider_model_id = usage.provider_model_id LEFT JOIN meters ON meters.rollup_id = usage.rollup_id`);
+}).with({"securityInvoker":true}).as(sql`WITH meters AS ( SELECT meter.rollup_id, COALESCE(max(meter.quantity) FILTER (WHERE meter.meter_key = 'total_tokens'::text), sum(meter.quantity) FILTER (WHERE meter.meter_key = ANY (ARRAY['input_tokens'::text, 'output_tokens'::text])), sum(meter.quantity) FILTER (WHERE meter.meter_key = ANY (ARRAY['input_text_tokens'::text, 'output_text_tokens'::text])), 0::numeric) AS total_tokens FROM observability.v2_public_usage_daily_meters meter GROUP BY meter.rollup_id ) SELECT usage.usage_date AS day_bucket, usage.model_slug AS canonical_model_id, route.provider_slug AS provider, usage.app_id, usage.requests, usage.successful_requests AS success_requests, COALESCE(meters.total_tokens, 0::numeric) AS total_tokens, usage.cost_nanos::bigint AS total_cost_nanos, usage.latency_sum_ms, usage.latency_count AS latency_samples, usage.throughput_sum, usage.throughput_count AS throughput_samples, usage.generation_sum_ms, usage.generation_count AS generation_samples FROM observability.v2_public_usage_daily usage LEFT JOIN catalog.v2_model_provider_routes route ON route.provider_model_id = usage.provider_model_id LEFT JOIN meters ON meters.rollup_id = usage.rollup_id`);
 
-export const v2RpcGatewayUsageRollupDailyApp = pgView("v2_rpc_gateway_usage_rollup_daily_app", {	dayBucket: timestamp("day_bucket", { withTimezone: true, mode: 'string' }),
+export const v2RpcGatewayUsageRollupDailyApp = observabilitySchema.view("v2_rpc_gateway_usage_rollup_daily_app", {	dayBucket: timestamp("day_bucket", { withTimezone: true, mode: 'string' }),
 	appId: uuid("app_id"),
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	requests: bigint({ mode: "number" }),
@@ -6375,9 +6376,9 @@ export const v2RpcGatewayUsageRollupDailyApp = pgView("v2_rpc_gateway_usage_roll
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	totalCostNanos: bigint("total_cost_nanos", { mode: "number" }),
 	uniqueModels: integer("unique_models"),
-}).with({"securityInvoker":true}).as(sql`SELECT day_bucket::timestamp with time zone AS day_bucket, app_id, sum(requests)::bigint AS requests, sum(success_requests)::bigint AS success_requests, sum(total_tokens)::bigint AS total_tokens, sum(total_cost_nanos)::bigint AS total_cost_nanos, count(DISTINCT canonical_model_id)::integer AS unique_models FROM v2_web_public_usage_daily usage WHERE app_id IS NOT NULL GROUP BY day_bucket, app_id`);
+}).with({"securityInvoker":true}).as(sql`SELECT day_bucket::timestamp with time zone AS day_bucket, app_id, sum(requests)::bigint AS requests, sum(success_requests)::bigint AS success_requests, sum(total_tokens)::bigint AS total_tokens, sum(total_cost_nanos)::bigint AS total_cost_nanos, count(DISTINCT canonical_model_id)::integer AS unique_models FROM observability.v2_web_public_usage_daily usage WHERE app_id IS NOT NULL GROUP BY day_bucket, app_id`);
 
-export const v2RpcPublicAppModelUsageDaily = pgView("v2_rpc_public_app_model_usage_daily", {	dayBucket: date("day_bucket"),
+export const v2RpcPublicAppModelUsageDaily = observabilitySchema.view("v2_rpc_public_app_model_usage_daily", {	dayBucket: date("day_bucket"),
 	appId: text("app_id"),
 	modelId: text("model_id"),
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
@@ -6385,9 +6386,9 @@ export const v2RpcPublicAppModelUsageDaily = pgView("v2_rpc_public_app_model_usa
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	tokens: bigint({ mode: "number" }),
 	refreshedAt: timestamp("refreshed_at", { withTimezone: true, mode: 'string' }),
-}).with({"securityInvoker":true}).as(sql`SELECT usage.day_bucket, usage.app_id::text AS app_id, usage.canonical_model_id AS model_id, usage.requests, usage.total_tokens::bigint AS tokens, now() AS refreshed_at FROM v2_web_public_usage_daily usage JOIN api_apps app ON app.id = usage.app_id AND app.is_public = true`);
+}).with({"securityInvoker":true}).as(sql`SELECT usage.day_bucket, usage.app_id::text AS app_id, usage.canonical_model_id AS model_id, usage.requests, usage.total_tokens::bigint AS tokens, now() AS refreshed_at FROM observability.v2_web_public_usage_daily usage JOIN gateway.api_apps app ON app.id = usage.app_id AND app.is_public = true`);
 
-export const v2WebPrivateUsageDaily = pgView("v2_web_private_usage_daily", {	bucket15M: timestamp("bucket_15m", { withTimezone: true, mode: 'string' }),
+export const v2WebPrivateUsageDaily = observabilitySchema.view("v2_web_private_usage_daily", {	bucket15M: timestamp("bucket_15m", { withTimezone: true, mode: 'string' }),
 	workspaceId: uuid("workspace_id"),
 	canonicalModelId: text("canonical_model_id"),
 	provider: text(),
@@ -6406,9 +6407,9 @@ export const v2WebPrivateUsageDaily = pgView("v2_web_private_usage_daily", {	buc
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	throughputSamples: bigint("throughput_samples", { mode: "number" }),
 	totalTokens: numeric("total_tokens"),
-}).with({"securityInvoker":true}).as(sql`WITH meters AS ( SELECT meter.rollup_id, COALESCE(max(meter.quantity) FILTER (WHERE meter.meter_key = 'total_tokens'::text), sum(meter.quantity) FILTER (WHERE meter.meter_key = ANY (ARRAY['input_tokens'::text, 'output_tokens'::text, 'input_text_tokens'::text, 'output_text_tokens'::text])), 0::numeric) AS total_tokens FROM v2_private_usage_daily_meters meter GROUP BY meter.rollup_id ) SELECT usage.usage_date::timestamp with time zone AS bucket_15m, usage.workspace_id, usage.model_slug AS canonical_model_id, route.provider_slug AS provider, usage.app_id, usage.requests, usage.successful_requests AS success_requests, usage.cost_nanos::bigint AS total_cost_nanos, usage.latency_sum_ms, usage.latency_count AS latency_samples, usage.throughput_sum, usage.throughput_count AS throughput_samples, COALESCE(meters.total_tokens, 0::numeric) AS total_tokens FROM v2_private_usage_daily usage LEFT JOIN v2_model_provider_routes route ON route.provider_model_id = usage.provider_model_id LEFT JOIN meters ON meters.rollup_id = usage.rollup_id`);
+}).with({"securityInvoker":true}).as(sql`WITH meters AS ( SELECT meter.rollup_id, COALESCE(max(meter.quantity) FILTER (WHERE meter.meter_key = 'total_tokens'::text), sum(meter.quantity) FILTER (WHERE meter.meter_key = ANY (ARRAY['input_tokens'::text, 'output_tokens'::text, 'input_text_tokens'::text, 'output_text_tokens'::text])), 0::numeric) AS total_tokens FROM observability.v2_private_usage_daily_meters meter GROUP BY meter.rollup_id ) SELECT usage.usage_date::timestamp with time zone AS bucket_15m, usage.workspace_id, usage.model_slug AS canonical_model_id, route.provider_slug AS provider, usage.app_id, usage.requests, usage.successful_requests AS success_requests, usage.cost_nanos::bigint AS total_cost_nanos, usage.latency_sum_ms, usage.latency_count AS latency_samples, usage.throughput_sum, usage.throughput_count AS throughput_samples, COALESCE(meters.total_tokens, 0::numeric) AS total_tokens FROM observability.v2_private_usage_daily usage LEFT JOIN catalog.v2_model_provider_routes route ON route.provider_model_id = usage.provider_model_id LEFT JOIN meters ON meters.rollup_id = usage.rollup_id`);
 
-export const v2WebPublicUsageHourly = pgView("v2_web_public_usage_hourly", {	bucket15M: timestamp("bucket_15m", { withTimezone: true, mode: 'string' }),
+export const v2WebPublicUsageHourly = observabilitySchema.view("v2_web_public_usage_hourly", {	bucket15M: timestamp("bucket_15m", { withTimezone: true, mode: 'string' }),
 	canonicalModelId: text("canonical_model_id"),
 	provider: text(),
 	appId: uuid("app_id"),
@@ -6430,4 +6431,4 @@ export const v2WebPublicUsageHourly = pgView("v2_web_public_usage_hourly", {	buc
 	generationSumMs: bigint("generation_sum_ms", { mode: "number" }),
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	generationSamples: bigint("generation_samples", { mode: "number" }),
-}).with({"securityInvoker":true}).as(sql`WITH meters AS ( SELECT meter.rollup_id, COALESCE(max(meter.quantity) FILTER (WHERE meter.meter_key = 'total_tokens'::text), sum(meter.quantity) FILTER (WHERE meter.meter_key = ANY (ARRAY['input_tokens'::text, 'output_tokens'::text])), sum(meter.quantity) FILTER (WHERE meter.meter_key = ANY (ARRAY['input_text_tokens'::text, 'output_text_tokens'::text])), 0::numeric) AS total_tokens FROM v2_public_usage_hourly_meters meter GROUP BY meter.rollup_id ) SELECT usage.bucket_start AS bucket_15m, usage.model_slug AS canonical_model_id, route.provider_slug AS provider, usage.app_id, usage.requests, usage.successful_requests AS success_requests, COALESCE(meters.total_tokens, 0::numeric) AS total_tokens, usage.cost_nanos::bigint AS total_cost_nanos, usage.latency_sum_ms, usage.latency_count AS latency_samples, usage.throughput_sum, usage.throughput_count AS throughput_samples, usage.generation_sum_ms, usage.generation_count AS generation_samples FROM v2_public_usage_hourly usage LEFT JOIN v2_model_provider_routes route ON route.provider_model_id = usage.provider_model_id LEFT JOIN meters ON meters.rollup_id = usage.rollup_id`);
+}).with({"securityInvoker":true}).as(sql`WITH meters AS ( SELECT meter.rollup_id, COALESCE(max(meter.quantity) FILTER (WHERE meter.meter_key = 'total_tokens'::text), sum(meter.quantity) FILTER (WHERE meter.meter_key = ANY (ARRAY['input_tokens'::text, 'output_tokens'::text])), sum(meter.quantity) FILTER (WHERE meter.meter_key = ANY (ARRAY['input_text_tokens'::text, 'output_text_tokens'::text])), 0::numeric) AS total_tokens FROM observability.v2_public_usage_hourly_meters meter GROUP BY meter.rollup_id ) SELECT usage.bucket_start AS bucket_15m, usage.model_slug AS canonical_model_id, route.provider_slug AS provider, usage.app_id, usage.requests, usage.successful_requests AS success_requests, COALESCE(meters.total_tokens, 0::numeric) AS total_tokens, usage.cost_nanos::bigint AS total_cost_nanos, usage.latency_sum_ms, usage.latency_count AS latency_samples, usage.throughput_sum, usage.throughput_count AS throughput_samples, usage.generation_sum_ms, usage.generation_count AS generation_samples FROM observability.v2_public_usage_hourly usage LEFT JOIN catalog.v2_model_provider_routes route ON route.provider_model_id = usage.provider_model_id LEFT JOIN meters ON meters.rollup_id = usage.rollup_id`);

@@ -1,3 +1,4 @@
+import { billingSchema, observabilitySchema } from "./namespaces";
 // Generated from the live PlanetScale Postgres schema with `pnpm db:pull`.
 export * from "./generated/schema";
 
@@ -7,7 +8,7 @@ import { bigint, boolean, check, date, index, integer, jsonb, numeric, pgTable, 
 // Drizzle Kit omits the partitioned parent from generated schema output.
 // Declare the authoritative request table explicitly so runtime repositories
 // query the parent instead of depending on a compatibility view.
-export const gatewayRequests = pgTable("gateway_requests", {
+export const gatewayRequests = observabilitySchema.table("gateway_requests", {
 	id: uuid().defaultRandom().notNull(),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).defaultNow().notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
@@ -53,7 +54,7 @@ export const gatewayRequests = pgTable("gateway_requests", {
 
 // This table is part of the source schema but was not present when the initial
 // PlanetScale pull was taken. Keep it declared here until the next live pull.
-export const gatewayIoRetentionBillingRuns = pgTable("gateway_io_retention_billing_runs", {
+export const gatewayIoRetentionBillingRuns = billingSchema.table("gateway_io_retention_billing_runs", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	workspaceId: uuid("workspace_id").notNull(),
 	billingDate: date("billing_date").notNull(),

@@ -29,7 +29,7 @@ export async function loadRequestInvestigation(env: Env, input: { workspaceId: s
 		`);
 		if (!rows[0]) return null;
 		const ioLogs = await db.execute<Record<string, unknown>>(sql`
-			select * from gateway_io_logs
+			select * from observability.gateway_io_logs
 			where workspace_id=${input.workspaceId}::uuid and request_id=${input.requestId}
 			order by created_at desc limit 1
 		`);
@@ -105,8 +105,8 @@ export async function loadUpstreamAttempts(env:Env,input:{workspaceId:string;fro
 		null::text provider_finish_reason,null::text finish_reason,attempt.latency_ms duration_ms,attempt.latency_ms,fact.generation_ms,fact.gateway_total_ms total_ms,
 		'{}'::jsonb usage,fact.cost_nanos,fact.currency,coalesce(attempt.error_code,fact.error_code) error_code,attempt.failure_class error_type,null::text error_message,
 		null::jsonb request_payload,null::jsonb response_payload,coalesce(attempt.safe_metadata,'{}'::jsonb)||jsonb_build_object('throughput',fact.throughput) metadata
-	from v2_request_facts fact join v2_request_attempts attempt on attempt.request_event_id=fact.request_event_id
-	left join v2_model_provider_routes route on route.provider_model_id=coalesce(attempt.provider_model_id,fact.provider_model_id)
+	from observability.v2_request_facts fact join observability.v2_request_attempts attempt on attempt.request_event_id=fact.request_event_id
+	left join catalog.v2_model_provider_routes route on route.provider_model_id=coalesce(attempt.provider_model_id,fact.provider_model_id)
 	where fact.workspace_id=${input.workspaceId}::uuid and fact.occurred_at>=${input.from}::timestamptz and fact.occurred_at<=${input.to}::timestamptz
 	order by fact.occurred_at desc,attempt.attempt_number asc limit 500
 `);return[...rows];}finally{await client.end({timeout:1});}}

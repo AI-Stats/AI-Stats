@@ -66,10 +66,10 @@ export async function cleanupExpiredOAuthArtifacts(): Promise<void> {
 		await tx.delete(oauthDeviceCodes)
 			.where(sql`${oauthDeviceCodes.expiresAt} < now() - interval '1 hour'`);
 		await tx.execute(sql`
-			delete from oauth_refresh_tokens token
+			delete from gateway.oauth_refresh_tokens token
 			where token.expires_at < now() - interval '1 day'
 				and not exists (
-					select 1 from oauth_refresh_tokens child
+					select 1 from gateway.oauth_refresh_tokens child
 					where child.rotated_from = token.id
 				)
 		`);
@@ -147,7 +147,7 @@ async function loadOAuthAppStats(db: ReturnType<typeof createDatabase>["db"], cl
 	const clientIdValues = sql.join(clientIds.map((clientId) => sql`${clientId}`), sql`, `);
 	const requestRows = await db.execute<{ oauth_client_id: string; request_count: number }>(sql`
 		select oauth_client_id, count(*)::int as request_count
-		from gateway_requests
+		from observability.gateway_requests
 		where oauth_client_id in (${clientIdValues}) and created_at >= now() - interval '30 days'
 		group by oauth_client_id
 	`);
@@ -291,7 +291,7 @@ export async function enforceOAuthDevicePollInterval(deviceId: string): Promise<
 	return withDatabase((db) => db.transaction(async (tx) => {
 		const rows = await tx.execute<{ last_polled_at: string | null; interval_seconds: number }>(sql`
 			select last_polled_at, interval_seconds
-			from oauth_device_codes
+			from gateway.oauth_device_codes
 			where id = ${deviceId}
 			for update
 		`);
@@ -321,13 +321,13 @@ export async function consumeOAuthGrantAndIssueRefreshToken(input: {
 }): Promise<"issued" | "invalid"> {
 	return withDatabase((db) => db.transaction(async (tx) => {
 		const membership = await tx.execute<{ workspace_id: string }>(sql`
-			select workspace_id from workspace_members
+			select workspace_id from app.workspace_members
 			where user_id = ${input.userId} and workspace_id = ${input.workspaceId}
 			for key share
 		`);
 		if (!membership.length) return "invalid";
 		const authorization = await tx.execute<{ id: string }>(sql`
-			select id from oauth_authorizations
+			select id from gateway.oauth_authorizations
 			where user_id = ${input.userId} and workspace_id = ${input.workspaceId}
 				and client_id = ${input.clientId} and revoked_at is null
 			for update
@@ -383,19 +383,19 @@ export async function rotateOAuthRefreshToken(input: {
 			client_id: string;
 		}>(sql`
 			select id, user_id, workspace_id, client_id
-			from oauth_refresh_tokens where token_hash = ${input.currentTokenHash}
+			from gateway.oauth_refresh_tokens where token_hash = ${input.currentTokenHash}
 		`);
 		const identity = identities[0];
 		if (!identity) return "invalid";
 
 		const membership = await tx.execute<{ workspace_id: string }>(sql`
-			select workspace_id from workspace_members
+			select workspace_id from app.workspace_members
 			where user_id = ${identity.user_id} and workspace_id = ${identity.workspace_id}
 			for key share
 		`);
 		if (!membership.length) return "invalid";
 		const authorizations = await tx.execute<{ scopes: string[] }>(sql`
-			select scopes from oauth_authorizations
+			select scopes from gateway.oauth_authorizations
 			where user_id = ${identity.user_id} and workspace_id = ${identity.workspace_id}
 				and client_id = ${identity.client_id} and revoked_at is null
 			for update
@@ -413,7 +413,7 @@ export async function rotateOAuthRefreshToken(input: {
 			family_id: string;
 		}>(sql`
 			select id, user_id, workspace_id, client_id, expires_at, revoked_at, family_id
-			from oauth_refresh_tokens where token_hash = ${input.currentTokenHash}
+			from gateway.oauth_refresh_tokens where token_hash = ${input.currentTokenHash}
 			for update
 		`);
 		const current = tokens[0];
@@ -468,13 +468,13 @@ export async function consumeOAuthCodeAndIssueDelegatedKey(input: {
 
 	return withDatabase((db) => db.transaction(async (tx) => {
 		const membership = await tx.execute<{ workspace_id: string }>(sql`
-			select workspace_id from workspace_members
+			select workspace_id from app.workspace_members
 			where user_id = ${input.userId} and workspace_id = ${input.workspaceId}
 			for key share
 		`);
 		if (!membership.length) return "invalid";
 		const authorizations = await tx.execute<{ scopes: string[] }>(sql`
-			select scopes from oauth_authorizations
+			select scopes from gateway.oauth_authorizations
 			where user_id = ${input.userId} and workspace_id = ${input.workspaceId}
 				and client_id = ${input.clientId} and revoked_at is null
 			for update
@@ -484,7 +484,7 @@ export async function consumeOAuthCodeAndIssueDelegatedKey(input: {
 		if ((!resource || isGatewayResource) && !authorization.scopes.includes("gateway:access")) return "invalid";
 
 		const codes = await tx.execute<{ id: string; scopes: string[]; resource: string | null }>(sql`
-			select id, scopes, resource from oauth_authorization_codes
+			select id, scopes, resource from gateway.oauth_authorization_codes
 			where id = ${input.codeId} and used_at is null and expires_at > now()
 				and user_id = ${input.userId} and workspace_id = ${input.workspaceId}
 				and client_id = ${input.clientId}
@@ -501,7 +501,7 @@ export async function consumeOAuthCodeAndIssueDelegatedKey(input: {
 		if (!consumed) return "invalid";
 
 		await tx.execute(sql`
-			update keys set status = 'revoked'
+			update gateway.keys set status = 'revoked'
 			where key_kind = 'oauth_delegated' and oauth_user_id = ${input.userId}
 				and workspace_id = ${input.workspaceId} and oauth_client_id = ${input.clientId}
 				and oauth_resource is not distinct from ${resource} and status = 'active'

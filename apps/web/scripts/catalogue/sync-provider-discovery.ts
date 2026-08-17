@@ -280,7 +280,7 @@ async function fetchDiscoveryRows(): Promise<DiscoveryRow[]> {
 	const filters = PROVIDER_FILTERS?.filter(Boolean) ?? [];
 	const result = await getPlanetScalePool().query<DiscoveryRow>(`
 		select provider_id,model_id,model_details,last_seen_at
-		from model_discovery_seen_models
+		from catalog.model_discovery_seen_models
 		where ($1::text[] is null or provider_id=any($1::text[]))
 		order by provider_id,model_id
 	`, [filters.length ? filters : null]);

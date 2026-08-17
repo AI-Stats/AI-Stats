@@ -73,16 +73,16 @@ function aggregateSelect(grain: Grain, kind: "private" | "daily" | "hourly") {
 		coalesce(sum(attempts.attempts), 0), coalesce(sum(attempts.failed_attempts), 0),
 		coalesce(sum(usage.cached_input_tokens), 0), coalesce(sum(usage.input_tokens), 0),
 		coalesce(sum(fact.cost_nanos), 0)
-		from v2_request_facts fact
+		from observability.v2_request_facts fact
 		left join lateral (
 			select count(*)::bigint attempts,
 				count(*) filter (where not attempt.success)::bigint failed_attempts
-			from v2_request_attempts attempt where attempt.request_event_id = fact.request_event_id
+			from observability.v2_request_attempts attempt where attempt.request_event_id = fact.request_event_id
 		) attempts on true
 		left join lateral (
 			select coalesce(sum(meter.quantity) filter (where meter.meter_key='cached_input_tokens'),0) cached_input_tokens,
 				coalesce(sum(meter.quantity) filter (where meter.meter_key='input_tokens'),0) input_tokens
-			from v2_request_usage meter where meter.request_event_id = fact.request_event_id
+			from observability.v2_request_usage meter where meter.request_event_id = fact.request_event_id
 		) usage on true
 		where ${grainFactPredicate(grain, kind)}`;
 }
@@ -96,31 +96,31 @@ const aggregateColumns = sql.raw(`requests, successful_requests, failed_requests
 async function rebuildGrain(tx: any, grain: Grain, kind: "private" | "daily" | "hourly") {
 	let rollupId: string;
 	if (kind === "private") {
-		await tx.execute(sql`delete from v2_private_usage_daily where workspace_id=${grain.workspace_id}::uuid
+		await tx.execute(sql`delete from observability.v2_private_usage_daily where workspace_id=${grain.workspace_id}::uuid
 			and usage_date=${grain.usage_date}::date and app_id is not distinct from ${grain.app_id}::uuid
 			and model_slug=${grain.model_slug} and provider_model_id is not distinct from ${grain.provider_model_id}
 			and cloudflare_colo is not distinct from ${grain.cloudflare_colo}`);
-		const [row] = await tx.execute(sql`insert into v2_private_usage_daily
+		const [row] = await tx.execute(sql`insert into observability.v2_private_usage_daily
 			(usage_date,workspace_id,app_id,model_slug,provider_model_id,cloudflare_colo,${aggregateColumns})
 			select ${grain.usage_date}::date,${grain.workspace_id}::uuid,${grain.app_id}::uuid,${grain.model_slug},${grain.provider_model_id},${grain.cloudflare_colo},
 			${aggregateSelect(grain, kind)} returning rollup_id`);
 		rollupId = (row as { rollup_id: string }).rollup_id;
 	} else if (kind === "daily") {
-		await tx.execute(sql`delete from v2_public_usage_daily where usage_date=${grain.usage_date}::date
+		await tx.execute(sql`delete from observability.v2_public_usage_daily where usage_date=${grain.usage_date}::date
 			and app_id is not distinct from ${grain.app_id}::uuid and model_slug=${grain.model_slug}
 			and provider_model_id is not distinct from ${grain.provider_model_id}
 			and cloudflare_colo is not distinct from ${grain.cloudflare_colo}`);
-		const [row] = await tx.execute(sql`insert into v2_public_usage_daily
+		const [row] = await tx.execute(sql`insert into observability.v2_public_usage_daily
 			(usage_date,app_id,model_slug,provider_model_id,cloudflare_colo,${aggregateColumns})
 			select ${grain.usage_date}::date,${grain.app_id}::uuid,${grain.model_slug},${grain.provider_model_id},${grain.cloudflare_colo},
 			${aggregateSelect(grain, kind)} returning rollup_id`);
 		rollupId = (row as { rollup_id: string }).rollup_id;
 	} else {
-		await tx.execute(sql`delete from v2_public_usage_hourly where bucket_start=${grain.bucket_start}::timestamptz
+		await tx.execute(sql`delete from observability.v2_public_usage_hourly where bucket_start=${grain.bucket_start}::timestamptz
 			and app_id is not distinct from ${grain.app_id}::uuid and model_slug=${grain.model_slug}
 			and provider_model_id is not distinct from ${grain.provider_model_id}
 			and cloudflare_colo is not distinct from ${grain.cloudflare_colo}`);
-		const [row] = await tx.execute(sql`insert into v2_public_usage_hourly
+		const [row] = await tx.execute(sql`insert into observability.v2_public_usage_hourly
 			(bucket_start,app_id,model_slug,provider_model_id,cloudflare_colo,${aggregateColumns})
 			select ${grain.bucket_start}::timestamptz,${grain.app_id}::uuid,${grain.model_slug},${grain.provider_model_id},${grain.cloudflare_colo},
 			${aggregateSelect(grain, kind)} returning rollup_id`);
@@ -132,7 +132,7 @@ async function rebuildGrain(tx: any, grain: Grain, kind: "private" | "daily" | "
 		: kind === "daily" ? "v2_public_usage_daily_meters" : "v2_public_usage_hourly_meters");
 	await tx.execute(sql`insert into ${meterTable} (rollup_id,meter_key,modality,unit,quantity)
 		select ${rollupId}::uuid,meter.meter_key,meter.modality,meter.unit,sum(meter.quantity)
-		from v2_request_usage meter join v2_request_facts fact on fact.request_event_id=meter.request_event_id
+		from observability.v2_request_usage meter join observability.v2_request_facts fact on fact.request_event_id=meter.request_event_id
 		where ${grainFactPredicate(grain, kind)} group by meter.meter_key,meter.modality,meter.unit`);
 }
 
@@ -146,13 +146,13 @@ export async function processAnalyticsOutbox(requestedLimit = 250): Promise<Anal
 					fact.occurred_at::date::text usage_date,date_trunc('hour',fact.occurred_at)::text bucket_start,
 					fact.app_id,coalesce(fact.routed_model_slug,fact.requested_model_slug) model_slug,
 					fact.provider_model_id,fact.cloudflare_colo
-				from v2_analytics_outbox outbox join v2_request_facts fact on fact.request_event_id=outbox.request_event_id
+				from internal.v2_analytics_outbox outbox join observability.v2_request_facts fact on fact.request_event_id=outbox.request_event_id
 				where outbox.status=any(${["pending", "failed"]}::text[]) and outbox.available_at<=now()
 				order by outbox.occurred_at,outbox.request_event_id for update of outbox skip locked limit ${limit}`)];
 			if (!claimed.length) return { selected: 0, private_grains: 0, public_daily_grains: 0, public_hourly_grains: 0 };
 
 			const ids = claimed.map((row) => row.request_event_id);
-			await tx.execute(sql`update v2_analytics_outbox set status='processing',updated_at=now()
+			await tx.execute(sql`update internal.v2_analytics_outbox set status='processing',updated_at=now()
 				where request_event_id=any(${ids}::uuid[])`);
 			const privateGrains = distinctGrains(claimed, "private");
 			const dailyGrains = distinctGrains(claimed, "daily");
@@ -161,19 +161,19 @@ export async function processAnalyticsOutbox(requestedLimit = 250): Promise<Anal
 			for (const grain of dailyGrains) await rebuildGrain(tx, grain, "daily");
 			for (const grain of hourlyGrains) await rebuildGrain(tx, grain, "hourly");
 
-			await tx.execute(sql`insert into v2_rollup_refresh_state
+			await tx.execute(sql`insert into internal.v2_rollup_refresh_state
 				(rollup_name,bucket_start,last_started_at,last_completed_at,source_watermark,status,error_message,updated_at)
 				select 'private_daily',date_trunc('day',occurred_at),now(),now(),max(occurred_at),'complete',null,now()
-				from v2_request_facts where request_event_id=any(${ids}::uuid[]) group by date_trunc('day',occurred_at)
+				from observability.v2_request_facts where request_event_id=any(${ids}::uuid[]) group by date_trunc('day',occurred_at)
 				on conflict (rollup_name,bucket_start) do update set last_started_at=excluded.last_started_at,
 				last_completed_at=excluded.last_completed_at,source_watermark=excluded.source_watermark,status='complete',error_message=null,updated_at=now()`);
-			await tx.execute(sql`insert into v2_rollup_refresh_state
+			await tx.execute(sql`insert into internal.v2_rollup_refresh_state
 				(rollup_name,bucket_start,last_started_at,last_completed_at,source_watermark,status,error_message,updated_at)
 				select 'public_hourly',date_trunc('hour',occurred_at),now(),now(),max(occurred_at),'complete',null,now()
-				from v2_request_facts where request_event_id=any(${ids}::uuid[]) group by date_trunc('hour',occurred_at)
+				from observability.v2_request_facts where request_event_id=any(${ids}::uuid[]) group by date_trunc('hour',occurred_at)
 				on conflict (rollup_name,bucket_start) do update set last_started_at=excluded.last_started_at,
 				last_completed_at=excluded.last_completed_at,source_watermark=excluded.source_watermark,status='complete',error_message=null,updated_at=now()`);
-			await tx.execute(sql`update v2_analytics_outbox set status='complete',last_error=null,updated_at=now()
+			await tx.execute(sql`update internal.v2_analytics_outbox set status='complete',last_error=null,updated_at=now()
 				where request_event_id=any(${ids}::uuid[])`);
 			return {
 				selected: claimed.length,
