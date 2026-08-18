@@ -147,7 +147,6 @@ export type GatewayBindings = {
     GOOGLE_VERTEX_BASE_URL?: string;
     GOOGLE_VERTEX_ACCESS_TOKEN?: string;
     GOOGLE_VERTEX_PROJECT?: string;
-    GOOGLE_VERTEX_LOCATION?: string;
     HYPERBOLIC_API_KEY?: string;
     HYPERBOLIC_BASE_URL?: string;
     INCEPTION_API_KEY?: string;

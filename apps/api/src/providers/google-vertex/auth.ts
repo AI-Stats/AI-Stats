@@ -1,3 +1,5 @@
+import { GOOGLE_VERTEX_PROVIDER_CONFIGS } from "./config";
+
 type VertexServiceAccount = {
 	client_email: string;
 	private_key: string;
@@ -10,10 +12,11 @@ function vertexError(code: string): Error & { code: string } {
 	return error;
 }
 
-export function resolveVertexApiBase(bindings: Record<string, unknown>): string {
+export function resolveVertexApiBase(bindings: Record<string, unknown>, providerId?: string): string {
 	const rawBase = String(bindings.GOOGLE_VERTEX_BASE_URL || "").replace(/\/+$/, "");
 	const project = String(bindings.GOOGLE_VERTEX_PROJECT || "").trim();
-	const location = String(bindings.GOOGLE_VERTEX_LOCATION || "").trim() || "global";
+	const location = GOOGLE_VERTEX_PROVIDER_CONFIGS[providerId as keyof typeof GOOGLE_VERTEX_PROVIDER_CONFIGS]?.location
+		|| "global";
 
 	if (rawBase) {
 		if (/\/v\d+(?:beta\d+)?\/projects\/[^/]+\/locations\/[^/]+$/i.test(rawBase)) {

@@ -125,6 +125,7 @@ const ADAPTERS: Record<string, ProviderAdapter> = {
     "black-forest-labs": createUnsupportedAdapter("black-forest-labs", "image_only_provider"),
     "amazon-bedrock": createOpenAICompatibleAdapter("amazon-bedrock"),
     "google-vertex": createOpenAICompatibleAdapter("google-vertex"),
+    "google-vertex-us": createOpenAICompatibleAdapter("google-vertex-us"),
     "google-vertex-eu": createOpenAICompatibleAdapter("google-vertex-eu"),
     meta: createOpenAICompatibleAdapter("meta"),
     "meta-contributor": createOpenAICompatibleAdapter("meta-contributor"),

@@ -219,7 +219,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 		() => bindings.GOOGLE_VERTEX_ACCESS_TOKEN || bindings.GOOGLE_VERTEX_API_KEY,
 	);
 	const accessToken = await resolveVertexAccessToken(keyInfo.key);
-	const apiBase = resolveVertexApiBase(bindings);
+	const apiBase = resolveVertexApiBase(bindings, args.providerId);
 
 	const requestBodyObject = irToVertexVideoRequest(ir);
 	const requestBody = JSON.stringify(requestBodyObject);
@@ -512,4 +512,3 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 }
 
 export const executor: ProviderExecutor = execute;
-

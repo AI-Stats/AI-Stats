@@ -471,7 +471,6 @@ function buildAimockBindings(): Partial<GatewayBindings> {
         GOOGLE_AI_STUDIO_BASE_URL: AIMOCK_BASE_URL,
         GOOGLE_BASE_URL: AIMOCK_BASE_URL,
         GOOGLE_VERTEX_PROJECT: "aimock-project",
-        GOOGLE_VERTEX_LOCATION: "us-east5",
 		AMAZON_BEDROCK_API_KEY: "test-bedrock-key",
 		AMAZON_BEDROCK_MANTLE_BASE_URL: `${AIMOCK_BASE_URL}/anthropic/v1`,
 		ANTHROPIC_AWS_API_KEY: "test-anthropic-aws-key",
