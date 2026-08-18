@@ -28,6 +28,15 @@ on:
                     - dry-run
                     - run
                 default: skip
+            rollback_reconcile:
+                description: "Approved PlanetScale to Supabase rollback reconciliation"
+                required: false
+                type: choice
+                options:
+                    - skip
+                    - dry-run
+                    - apply
+                default: skip
 
 permissions:
     contents: read
@@ -40,6 +49,58 @@ env:
     NODE_VERSION: 22
 
 jobs:
+    rollback-reconcile:
+        name: Rollback reconciliation (${{ inputs.rollback_reconcile }})
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/rollback/supabase-20260818' && inputs.rollback_reconcile != 'skip'
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        env:
+            PLANETSCALE_MIGRATION_DATABASE_URL: ${{ secrets.PLANETSCALE_DATABASE_URL }}
+            SUPABASE_MIGRATION_DATABASE_URL: ${{ secrets.SUPABASE_ROLLBACK_TEMP_URL }}
+            NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+            SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+              with:
+                  persist-credentials: false
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@0977fd99725f1db4007ccb2928b4e90d06cc86
+              with:
+                  version: 10.33.0
+                  run_install: false
+                  standalone: true
+
+            - name: Setup Node.js
+              uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+                  package-manager-cache: false
+
+            - name: Install dependencies
+              run: corepack pnpm install --frozen-lockfile
+
+            - name: Verify temporary credentials
+              shell: bash
+              run: |
+                  test -n "$PLANETSCALE_MIGRATION_DATABASE_URL"
+                  test -n "$SUPABASE_MIGRATION_DATABASE_URL"
+                  test -n "$NEXT_PUBLIC_SUPABASE_URL"
+                  test -n "$SUPABASE_SERVICE_ROLE_KEY"
+
+            - name: Dry-run reconciliation
+              if: inputs.rollback_reconcile == 'dry-run'
+              run: pnpm --filter @phaseo/web db:rollback:planetscale:dry-run
+
+            - name: Apply approved frozen reconciliation
+              if: inputs.rollback_reconcile == 'apply'
+              run: >-
+                  pnpm --filter @phaseo/web db:rollback:planetscale:apply --
+                  --confirm-source=phaseo/phaseo/main
+                  --confirm-target=xansbgjaduxypzsmjwct
+                  --freeze-confirmed
+
     prepare-cli-release:
         name: Prepare CLI release
         if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.publish_cli == true
