@@ -13,13 +13,13 @@ export async function listPublicModelsPageRows(env: Env, query: CatalogueQuery =
 		const cacheBucketMs = 15 * 60 * 1_000;
 		const asOf = new Date(Math.floor(Date.now() / cacheBucketMs) * cacheBucketMs).toISOString();
 		const rows = await db.execute<{ row_data: Record<string, unknown> }>(sql`
-			/*application='phaseo-web-api',service='web-api',route='/api/_web/models',feature='catalogue'*/
 			select row_data
 			from catalog.get_public_models_page_rows(
 				${region}::text,
 				${serviceTier}::text,
 				${asOf}::timestamptz
 			)
+			/*application='phaseo-web-api',feature='catalogue',route='%2Fapi%2F_web%2Fmodels',service='web-api'*/
 		`);
 		return [...rows].map((row) => row.row_data);
 	} finally { await client.end({ timeout: 1 }); }
@@ -33,7 +33,6 @@ export async function listPublicModelWeeklyMetrics(env: Env) {
 		const start = new Date(end);
 		start.setUTCDate(start.getUTCDate() - 6);
 		const rows = await db.execute<Record<string, unknown>>(sql`
-			/*application='phaseo-web-api',service='web-api',route='/api/_web/models',feature='catalogue-weekly-metrics'*/
 			with recent as materialized (
 				select * from ${v2PublicUsageDaily}
 				where usage_date between ${start.toISOString().slice(0, 10)}::date
@@ -82,6 +81,7 @@ export async function listPublicModelWeeklyMetrics(env: Env) {
 				round(throughput_sum/nullif(throughput_count,0),2) throughput_week,
 				round(latency_sum_ms/nullif(latency_count,0),2) latency_week
 			from classified order by weekly_usage_quantity desc, model_slug
+			/*application='phaseo-web-api',feature='catalogue-weekly-metrics',route='%2Fapi%2F_web%2Fmodels',service='web-api'*/
 		`);
 		return [...rows];
 	} finally { await client.end({ timeout: 1 }); }
