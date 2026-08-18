@@ -11,7 +11,7 @@ export async function listGatewayMonitorRows(env: Env) {
 		const asOf = new Date(Math.floor(Date.now() / cacheBucketMs) * cacheBucketMs);
 		const windowStart = new Date(asOf);
 		windowStart.setUTCHours(0, 0, 0, 0);
-		windowStart.setUTCDate(windowStart.getUTCDate() - 7);
+		windowStart.setUTCDate(windowStart.getUTCDate() - 6);
 		const rows = await db.execute<Record<string, unknown>>(sql`
 			/*application='phaseo-web-api',service='web-api',route='/api/_web/models',feature='catalogue-table'*/
 			with weekly as (

@@ -51,13 +51,15 @@ export async function getStateValue(scope: string, stateKey: string): Promise<un
 	});
 }
 
-export async function setStateValue(scope: string, stateKey: string, value: unknown): Promise<void> {
+export async function setStateValue(scope: string, stateKey: string, value: unknown, observedAt: string): Promise<void> {
 	await withDatabase(async (db) => {
-		await db.insert(modelDiscoveryState).values({ scope, stateKey, value, updatedAt: new Date().toISOString() })
-			.onConflictDoUpdate({
-				target: [modelDiscoveryState.scope, modelDiscoveryState.stateKey],
-				set: { value: sql`excluded.value`, updatedAt: sql`excluded.updated_at` },
-			});
+		await db.execute(sql`
+			insert into ${modelDiscoveryState} (scope, state_key, value, updated_at)
+			values (${scope}, ${stateKey}, ${JSON.stringify(value)}::jsonb, ${observedAt}::timestamptz)
+			on conflict (scope, state_key) do update
+			set value = excluded.value, updated_at = excluded.updated_at
+			where excluded.updated_at >= ${modelDiscoveryState.updatedAt}
+		`);
 	});
 }
 

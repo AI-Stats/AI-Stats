@@ -457,13 +457,13 @@ async function updateRunFinish(summary: DiscoveryRunSummary, status: RunStatus, 
 		error: extra.error ?? null,
 	});
 
-	if (status === "failed") return;
+	if (status === "failed" || !summary.statePersisted) return;
 	const scope = summary.source?.trim() || "__global__";
 	if (summary.pricingMonitor.cursorUpdatedAt) {
 		await modelDiscoveryRepository.setStateValue("__global__", "pricing_cursor", {
 			updatedAt: summary.pricingMonitor.cursorUpdatedAt,
 			ruleIdsAtTimestamp: summary.pricingMonitor.ruleIdsAtTimestamp ?? [],
-		});
+		}, summary.startedAt);
 	}
 	if (summary.configuredModelCoverageMonitor.executed && !summary.configuredModelCoverageMonitor.error) {
 		await modelDiscoveryRepository.setStateValue(scope, "configured_coverage", {
@@ -473,16 +473,16 @@ async function updateRunFinish(summary: DiscoveryRunSummary, status: RunStatus, 
 				samples: provider.samples.slice(0, MAX_SUMMARY_MODEL_SAMPLES),
 			})),
 			fingerprint: summary.configuredModelCoverageMonitor.fingerprint,
-		});
+		}, summary.startedAt);
 	}
 	if (summary.notificationFingerprint) {
-		await modelDiscoveryRepository.setStateValue(scope, "notification_fingerprint", summary.notificationFingerprint);
+		await modelDiscoveryRepository.setStateValue(scope, "notification_fingerprint", summary.notificationFingerprint, summary.startedAt);
 	}
 	if (summary.pricingTableMonitor.executed && !summary.pricingTableMonitor.error) {
 		await modelDiscoveryRepository.setStateValue(scope, "pricing_table", summary.pricingTableMonitor.sources.map((source) => ({
 			providerId: source.providerId,
 			fingerprint: source.fingerprint,
-		})));
+		})), summary.startedAt);
 	}
 }
 
