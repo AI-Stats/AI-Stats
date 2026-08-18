@@ -23,12 +23,17 @@
       "title": "Coding Plan model guide",
       "kind": "docs",
       "url": "https://docs.z.ai/devpack/latest-model"
+    },
+    {
+      "title": "API reference",
+      "kind": "docs",
+      "url": "https://docs.z.ai/api-reference/llm/chat-completion"
     }
   ],
   "details": [
     {
       "name": "availability",
-      "value": "Available as glm-5.3 to GLM Coding Plan Lite, Pro, and Max users. Z.AI's standard pay-as-you-go API reference and pricing table did not yet list GLM-5.3 at launch."
+      "value": "Available as glm-5.3 through Z.AI's Model API and to GLM Coding Plan users."
     },
     {
       "name": "context_length",
@@ -47,7 +52,7 @@
   "family_id": null,
   "page_notice": {
     "tone": "info",
-    "markdown": "GLM-5.3 is currently available through Z.AI's subscription Coding Plan. The API is coming soon. Provisional reference pricing is shown based on GLM-5.2 because Z.AI has not separately published GLM-5.3 API pricing, and the announced open weights have not yet been released."
+    "markdown": "GLM-5.3 is available through Z.AI's Model API and GLM Coding Plan. Z.AI lists standard pricing of $1.40 input, $0.26 cached input, and $4.40 output per million tokens. The announced open weights have not yet been released."
   },
   "model_type": null,
   "knowledge_cutoff": null,
@@ -97,16 +102,22 @@
     {
       "kind": "docs",
       "url": "https://docs.z.ai/guides/overview/pricing",
-      "accessed_at": "2026-08-14",
-      "notes": "Checked at launch; no standard pay-as-you-go GLM-5.3 price was listed."
+      "accessed_at": "2026-08-18",
+      "notes": "Official GLM-5.3 pricing: $1.40 input, $0.26 cached input, and $4.40 output per million tokens."
+    },
+    {
+      "kind": "docs",
+      "url": "https://docs.z.ai/api-reference/llm/chat-completion",
+      "accessed_at": "2026-08-18",
+      "notes": "Official Chat Completion reference lists glm-5.3 as a supported model and uses it in API examples."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-14",
-    "notes": "Verified against Z.AI's launch post and Coding Plan documentation. Pay-as-you-go availability remains unverified."
+    "checked_at": "2026-08-18",
+    "notes": "Verified against Z.AI's GLM-5.3 guide, Chat Completion reference, and pricing table."
   },
-  "last_updated": "2026-08-14",
+  "last_updated": "2026-08-18",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

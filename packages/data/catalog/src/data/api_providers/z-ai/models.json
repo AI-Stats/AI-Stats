@@ -1577,19 +1577,78 @@
     "provider_api_model_id": "z-ai:z-ai/glm-5.3",
     "provider_model_slug": "glm-5.3",
     "internal_model_id": "z-ai/glm-5.3",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 1000000,
-    "max_output_tokens": null,
-    "effective_from": null,
+    "max_output_tokens": 128000,
+    "effective_from": "2026-08-18T00:00:00",
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "coming_soon",
-        "params": [],
+        "status": "active",
+        "params": [
+          {
+            "param_id": "max_tokens",
+            "provider_min": 1,
+            "provider_max": 128000,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": "max",
+            "notes": "GLM-5.3 always reasons and accepts low, high, and max reasoning effort; the gateway maps Phaseo effort levels to the nearest supported value."
+          },
+          {
+            "param_id": "response_format",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "temperature",
+            "provider_min": 0,
+            "provider_max": 1,
+            "provider_default": 1,
+            "notes": null
+          },
+          {
+            "param_id": "stop",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tool_choice",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_p",
+            "provider_min": 0.01,
+            "provider_max": 1,
+            "provider_default": 0.95,
+            "notes": null
+          },
+          "include_reasoning",
+          "reasoning_effort"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -1600,8 +1659,8 @@
         "modes": []
       }
     ],
-    "routing_status": null,
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
@@ -1622,14 +1681,20 @@
       {
         "kind": "pricing",
         "url": "https://docs.z.ai/guides/overview/pricing",
-        "accessed_at": "2026-08-14T00:00:00Z",
-        "notes": "Official pricing table checked at launch; GLM-5.3 was not listed. Phaseo uses provisional GLM-5.2 parity pricing separately and keeps this route non-routable."
+        "accessed_at": "2026-08-18T00:00:00Z",
+        "notes": "Official pricing table lists GLM-5.3 at $1.40 input, $0.26 cached input, and $4.40 output per million tokens."
+      },
+      {
+        "kind": "docs",
+        "url": "https://docs.z.ai/api-reference/llm/chat-completion",
+        "accessed_at": "2026-08-18T00:00:00Z",
+        "notes": "Official Chat Completion reference lists glm-5.3 as a supported model and uses it in request examples."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-14T00:00:00Z",
-      "notes": "Coming-soon placeholder only. The official GLM-5.3 guide says the API is coming soon; provisional GLM-5.2 parity pricing is displayed separately, and the route remains non-routable."
+      "checked_at": "2026-08-18T00:00:00Z",
+      "notes": "Verified as available through Z.AI's Model API with published pricing and Chat Completion support."
     },
     "rate_limits": []
   }
