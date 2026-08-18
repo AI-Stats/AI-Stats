@@ -274,7 +274,7 @@ function dependencyOrder(plans: TablePlan[], foreignKeys: Array<{ child: string;
 }
 
 async function sourceRows(sql: QueryClient, table: Table): Promise<DatabaseRow[]> {
-	return sql.unsafe<DatabaseRow[]>(`select * from ${qualified(table.sourceSchema, table.name)} order by ${keyOrder(table)}`);
+	return sql.unsafe<DatabaseRow[]>(`select * from ${qualified(table.sourceSchema, table.name)} t order by ${keyOrder(table)}`);
 }
 
 function placeholders(rowCount: number, columnCount: number): string {
