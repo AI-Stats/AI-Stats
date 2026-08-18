@@ -1,6 +1,7 @@
 "use client";
 
 import useSWR from "swr";
+import { MODEL_CATALOGUE_SWR_OPTIONS } from "@/lib/swr/catalogueCache";
 import { publicSWRKeys } from "@/lib/swr/keys";
 import {
 	fetchModelsTableData,
@@ -24,12 +25,7 @@ export default function ModelsTablePageClient({
 		catalogueVersion === "v2"
 			? fetchModelsTableDataV2
 			: fetchModelsTableData;
-	const { data, error } = useSWR(swrKey, fetcher, {
-		dedupingInterval: 60 * 60 * 1_000,
-		refreshInterval: 60 * 60 * 1_000,
-		revalidateIfStale: false,
-		revalidateOnFocus: false,
-	});
+	const { data, error } = useSWR(swrKey, fetcher, MODEL_CATALOGUE_SWR_OPTIONS);
 
 	if (error) throw error;
 	if (!data) return <ModelsTablePageSkeleton />;

@@ -13,9 +13,9 @@ import { listGatewayMonitorRows } from "@/repositories/model-monitor";
 
 const CACHE_PROFILES = {
 	catalogue: {
-		edgeTtlSeconds: 60 * 60,
-		staleWhileRevalidateSeconds: 6 * 60 * 60,
-		browserTtlSeconds: 60 * 60,
+		edgeTtlSeconds: 15 * 60,
+		staleWhileRevalidateSeconds: 30 * 60,
+		browserTtlSeconds: 15 * 60,
 		cacheTags: ["web-api-models"],
 	},
 	overview: {
@@ -477,41 +477,6 @@ function buildModelsTablePayload(
 	};
 }
 
-const CATALOGUE_CACHE_SCHEMA_VERSION = "3";
-
-function catalogueCacheRequest(request: Request): Request {
-	const url = new URL(request.url);
-	url.searchParams.set("_phaseo_cache_schema", CATALOGUE_CACHE_SCHEMA_VERSION);
-	return new Request(url, request);
-}
-
-async function matchCachedCatalogue(request: Request): Promise<Response | null> {
-	if (typeof caches === "undefined") return null;
-	try {
-		const response = await (caches as unknown as { default: Cache }).default.match(catalogueCacheRequest(request));
-		if (!response) return null;
-		const headers = new Headers(response.headers);
-		headers.set("X-Phaseo-Local-Cache", "HIT");
-		return new Response(response.body, {
-			status: response.status,
-			statusText: response.statusText,
-			headers,
-		});
-	} catch {
-		return null;
-	}
-}
-
-async function storeCatalogueInCache(request: Request, response: Response): Promise<void> {
-	if (typeof caches === "undefined") return;
-	try {
-		await (caches as unknown as { default: Cache }).default.put(catalogueCacheRequest(request), response.clone());
-	} catch {
-		// Cloudflare's CDN headers remain the shared-cache fallback if a local
-		// Cache API write is unavailable or rejected.
-	}
-}
-
 function sectionPolicy(section: keyof typeof CACHE_PROFILES, modelId?: string): PublicCachePolicy {
 	const profile = CACHE_PROFILES[section];
 	return {
@@ -601,8 +566,6 @@ export const publicModelsRouter = new Hono<{ Bindings: Env }>();
 
 /** Main models API. Deliberately excludes volatile benchmark/performance data. */
 publicModelsRouter.get("/", async (c) => {
-	const cached = await matchCachedCatalogue(c.req.raw);
-	if (cached) return cached;
 	try {
 		const requestedVersion = c.req.query("catalogue_version")?.trim().toLowerCase();
 		if (requestedVersion && requestedVersion !== "v1" && requestedVersion !== "v2") {
@@ -636,7 +599,6 @@ publicModelsRouter.get("/", async (c) => {
 			const normalizedSearch = search?.toLowerCase();
 			const filtered = normalizedSearch ? allModels.filter((model) => String(model.name ?? "").toLowerCase().includes(normalizedSearch)) : allModels;
 			const response = withPublicCache(c.json({ models: filtered.slice(offset, offset + limit), facets: buildModelsPageFacets(filtered), pricing_complete: catalogue.pricingComplete, total: filtered.length, limit, offset, catalogue_version: catalogueVersion, shape: "page", projection }), cataloguePolicy(catalogueVersion, includeVirtual));
-			await storeCatalogueInCache(c.req.raw, response);
 			return response;
 		}
 		if (shape === "table") {
@@ -658,7 +620,6 @@ publicModelsRouter.get("/", async (c) => {
 				}),
 				cataloguePolicy(catalogueVersion),
 			);
-			await storeCatalogueInCache(c.req.raw, response);
 			return response;
 		}
 		const gatewayRowsByModelId = await fetchGatewayMonitorRows(
@@ -693,7 +654,6 @@ publicModelsRouter.get("/", async (c) => {
 			c.json({ models, total: catalogue.total, limit, offset, catalogue_version: catalogueVersion }),
 			cataloguePolicy(catalogueVersion),
 		);
-		await storeCatalogueInCache(c.req.raw, response);
 		return response;
 	} catch (error) {
 		console.error("[web-api/models] catalogue failed", error, error instanceof Error ? error.cause : undefined);

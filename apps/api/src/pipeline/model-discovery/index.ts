@@ -443,18 +443,47 @@ function compactSummary(summary: DiscoveryRunSummary, extra: { notificationError
 }
 
 async function updateRunFinish(summary: DiscoveryRunSummary, status: RunStatus, extra: { notificationError?: string | null; error?: string | null } = {}): Promise<void> {
+	const persistedSummary = compactSummary(summary, extra);
 	await modelDiscoveryRepository.finishRun(summary.runId, {
-			status,
-			finishedAt: summary.finishedAt,
-			providersTotal: summary.providersTotal,
-			providersSuccess: summary.providersSuccess,
-			providersSkipped: summary.providersSkipped,
-			providersError: summary.providersError,
-			changesCount: summary.changesDetected,
-			staleModelsDeleted: summary.staleModelsDeleted,
-			summary: compactSummary(summary, extra),
-			error: extra.error ?? null,
+		status,
+		finishedAt: summary.finishedAt,
+		providersTotal: summary.providersTotal,
+		providersSuccess: summary.providersSuccess,
+		providersSkipped: summary.providersSkipped,
+		providersError: summary.providersError,
+		changesCount: summary.changesDetected,
+		staleModelsDeleted: summary.staleModelsDeleted,
+		summary: persistedSummary,
+		error: extra.error ?? null,
 	});
+
+	if (status === "failed" || !summary.statePersisted) return;
+	const scope = summary.source?.trim() || "__global__";
+	if (summary.pricingMonitor.cursorUpdatedAt) {
+		await modelDiscoveryRepository.setStateValue("__global__", "pricing_cursor", {
+			updatedAt: summary.pricingMonitor.cursorUpdatedAt,
+			ruleIdsAtTimestamp: summary.pricingMonitor.ruleIdsAtTimestamp ?? [],
+		}, summary.startedAt);
+	}
+	if (summary.configuredModelCoverageMonitor.executed && !summary.configuredModelCoverageMonitor.error) {
+		await modelDiscoveryRepository.setStateValue(scope, "configured_coverage", {
+			providerChanges: summary.configuredModelCoverageMonitor.providerChanges.map((provider) => ({
+				providerId: provider.providerId,
+				updates: provider.updates,
+				samples: provider.samples.slice(0, MAX_SUMMARY_MODEL_SAMPLES),
+			})),
+			fingerprint: summary.configuredModelCoverageMonitor.fingerprint,
+		}, summary.startedAt);
+	}
+	if (summary.notificationFingerprint) {
+		await modelDiscoveryRepository.setStateValue(scope, "notification_fingerprint", summary.notificationFingerprint, summary.startedAt);
+	}
+	if (summary.pricingTableMonitor.executed && !summary.pricingTableMonitor.error) {
+		await modelDiscoveryRepository.setStateValue(scope, "pricing_table", summary.pricingTableMonitor.sources.map((source) => ({
+			providerId: source.providerId,
+			fingerprint: source.fingerprint,
+		})), summary.startedAt);
+	}
 }
 
 type SeenModelUpsertRow = {
@@ -593,7 +622,7 @@ function shouldPruneRunsDaily(args: RunArgs, startedAt: Date): boolean {
 	return hour === 0 && minute < 10;
 }
 
-export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunSummary> {
+async function runModelDiscoveryJobWithDatabase(args: RunArgs): Promise<DiscoveryRunSummary> {
 	const startedAt = new Date();
 	const runId = crypto.randomUUID();
 	const retentionDays = toInt(readBindingEnv(["MODEL_DISCOVERY_RETENTION_DAYS"]) ?? String(DEFAULT_RETENTION_DAYS), DEFAULT_RETENTION_DAYS);
@@ -602,7 +631,7 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 	const shouldPrune = args.prune ?? true;
 	const shouldNotify = args.notify ?? true;
 	const providers = selectProvidersForShard(args);
-	const pricingEnabled = toBool(readBindingEnv(["PRICING_MONITOR_ENABLED"]) ?? "true", true);
+	const pricingEnabled = toBool(readBindingEnv(["PRICING_MONITOR_ENABLED"]) ?? "false", false);
 	const pricingExecuted = pricingEnabled && shouldRunPricingMonitor(args);
 
 	await insertRunStart(runId, args, startedAt.toISOString());
@@ -1175,4 +1204,10 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 		}
 		throw error;
 	}
+}
+
+export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunSummary> {
+	return modelDiscoveryRepository.withModelDiscoveryDatabaseContext(
+		() => runModelDiscoveryJobWithDatabase(args),
+	);
 }
