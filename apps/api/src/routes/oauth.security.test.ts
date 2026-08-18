@@ -30,6 +30,91 @@ function json(body: unknown, status = 200, headers: Record<string, string> = {})
 
 vi.mock("@/runtime/env", () => ({
 	getBindings: () => ({ PHASEO_MCP_RESOURCE_SERVER_SECRET: "s".repeat(64) }),
+	getSupabaseAdmin: () => ({
+		auth: {
+			admin: {
+				getUserById: async () => ({
+					data: {
+						user: {
+							email: "user@example.com",
+							user_metadata: { full_name: "Phaseo User" },
+						},
+					},
+				}),
+			},
+		},
+		rpc: async () => ({ data: state.pollStatus, error: null }),
+		from(table: string) {
+			if (table === "oauth_clients") {
+				return {
+					insert: async (payload: Record<string, unknown>) => {
+						state.registeredClients.push(payload);
+						return { error: null };
+					},
+				};
+			}
+			if (table === "oauth_authorization_codes") {
+				return {
+					select: () => ({
+						in: () => ({
+							eq: () => ({
+								maybeSingle: async () => ({ data: state.authorizationCodeRow, error: null }),
+							}),
+						}),
+					}),
+				};
+			}
+			if (table === "oauth_authorizations") {
+				return {
+					select: () => ({
+						eq: () => ({
+							eq: () => ({
+								eq: () => ({
+									maybeSingle: async () => ({ data: state.authorizationRow, error: null }),
+								}),
+							}),
+						}),
+					}),
+				};
+			}
+			if (table !== "oauth_device_codes") throw new Error(`Unexpected table: ${table}`);
+			return {
+				select: () => ({
+					in: () => ({
+						eq: () => ({
+							maybeSingle: async () => ({ data: state.deviceRow, error: null }),
+						}),
+						maybeSingle: async () => ({ data: state.deviceRow, error: null }),
+					}),
+					eq: () => ({
+						eq: () => ({
+							maybeSingle: async () => ({ data: state.deviceRow, error: null }),
+						}),
+						maybeSingle: async () => ({ data: state.deviceRow, error: null }),
+					}),
+				}),
+				update: (payload: Record<string, unknown>) => {
+					state.updatePayloads.push(payload);
+					const filters: Array<{ column: string; value: unknown }> = [];
+					state.updateFilters.push(filters);
+					return {
+						eq(column: string, value: unknown) {
+							filters.push({ column, value });
+							return this;
+						},
+						is(column: string, value: unknown) {
+							filters.push({ column, value });
+							return this;
+						},
+						select() {
+							return this;
+						},
+						maybeSingle: async () => ({ data: state.updateResult, error: null }),
+					};
+				},
+			};
+		},
+	}),
 }));
 
 vi.mock("@/routes/utils", () => ({
@@ -39,51 +124,6 @@ vi.mock("@/routes/utils", () => ({
 
 vi.mock("@/pipeline/before/auth", () => ({
 	authenticateManagement: vi.fn(async () => state.oauthAuth),
-}));
-
-function camelOAuthRow(row: Record<string, unknown> | null) {
-	if (!row) return null;
-	return {
-		...row,
-		clientId: row.client_id,
-		userId: row.user_id,
-		workspaceId: row.workspace_id,
-		redirectUri: row.redirect_uri,
-		codeChallenge: row.code_challenge,
-		codeChallengeMethod: row.code_challenge_method,
-		expiresAt: row.expires_at,
-		usedAt: row.used_at,
-		consumedAt: row.consumed_at,
-	};
-}
-
-vi.mock("@/repositories/oauth", () => ({
-	createOAuthClient: vi.fn(async (payload: Record<string, unknown>) => {
-		state.registeredClients.push({
-			...payload,
-			allowed_scopes: payload.allowedScopes,
-			redirect_uris: payload.redirectUris,
-		});
-	}),
-	createOAuthDeviceCode: vi.fn(async () => undefined),
-	createOAuthAuthorizationCode: vi.fn(async () => undefined),
-	findWorkspaceMemberships: vi.fn(async (_userId: string, workspaceIds: string[]) => workspaceIds),
-	hasWorkspaceMembership: vi.fn(async () => true),
-	findOAuthDeviceByUserCode: vi.fn(async () => camelOAuthRow(state.deviceRow)),
-	findOAuthDeviceByDeviceCode: vi.fn(async () => camelOAuthRow(state.deviceRow)),
-	findOAuthAuthorizationCode: vi.fn(async () => camelOAuthRow(state.authorizationCodeRow)),
-	transitionPendingOAuthDevice: vi.fn(async (_id: string, payload: Record<string, unknown>) => {
-		state.updatePayloads.push(payload);
-		return Boolean(state.updateResult);
-	}),
-	enforceOAuthDevicePollInterval: vi.fn(async () => state.pollStatus),
-}));
-
-vi.mock("@/runtime/identity", () => ({
-	getIdentityUserById: vi.fn(async () => ({
-		data: { user: { id: "user_1", email: "user@example.com", name: "Phaseo User", image: null } },
-		error: null,
-	})),
 }));
 
 vi.mock("@/lib/oauth/service", () => ({
@@ -109,7 +149,7 @@ vi.mock("@/lib/oauth/service", () => ({
 	getApiBaseUrl: vi.fn(() => "https://api.example.com"),
 	getIssuer: vi.fn(() => "https://api.example.com/oauth"),
 	getLocalJwks: vi.fn(async () => ({ keys: [] })),
-	getOAuthRequestActor: vi.fn(async () => ({ userId: "user_1" })),
+	getSupabaseActor: vi.fn(async () => ({ userId: "user_1" })),
 	hashOAuthSecret: vi.fn(async (value: string) => `hash:${value}`),
 	hashOAuthSecretCandidates: vi.fn(async (value: string) => [`hash:${value}`]),
 	hasActiveOAuthWorkspaceAccess: vi.fn(async () => Boolean(

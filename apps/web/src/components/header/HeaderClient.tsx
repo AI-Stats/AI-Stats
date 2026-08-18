@@ -32,7 +32,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import TeamSwitcher from "./TeamSwitcher";
-import { clearActiveWorkspaceAction, SwapTeam } from "@/app/(dashboard)/actions";
+import { SwapTeam } from "@/app/(dashboard)/actions";
 import { postClientAuthSignOut } from "@/lib/fetchers/internal/postClientAuthSignOut";
 import { useTheme } from "next-themes";
 import { toast } from "sonner";
@@ -99,7 +99,6 @@ export default function HeaderClient({
 
 	async function handleSignOut() {
 		try {
-			await clearActiveWorkspaceAction();
 			await postClientAuthSignOut();
 		} catch (error) {
 			console.error("Sign out error", error);
@@ -109,7 +108,7 @@ export default function HeaderClient({
 	}
 
 	async function handleTeamSwitch(nextTeamId: string, teamName: string) {
-		if (nextTeamId === activeWorkspaceId && currentTeamId === nextTeamId) return true;
+		if (nextTeamId === activeWorkspaceId) return true;
 
 		const previousTeamId = activeWorkspaceId;
 		setActiveTeamId(nextTeamId);

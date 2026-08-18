@@ -14,6 +14,8 @@ const SPEC_PATH = path.resolve(
 );
 
 const TEST_ENV = {
+	SUPABASE_URL: "https://example.supabase.co",
+	SUPABASE_SERVICE_ROLE_KEY: "test-service-role-key",
 	GATEWAY_CACHE: {
 		get: async () => null,
 		put: async () => undefined,

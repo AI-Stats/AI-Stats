@@ -1,8 +1,9 @@
 import { Hono } from "hono";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { requireUser } from "@/auth/requireUser";
+import { getDataClient } from "@/data/supabase";
 import type { Env } from "@/env";
 import { PRIVATE_NO_STORE_HEADERS } from "@/http/cache";
-import { reserveChatIssueReport } from "@/repositories/chat-issues";
 
 const CHAT_ISSUE_RATE_LIMIT_FALLBACK_RETRY_AFTER_SECONDS = 60 * 60;
 
@@ -195,8 +196,7 @@ function normalizeRateLimitRow(data: unknown): {
 }
 
 async function reserveAutomaticIssueReport(args: {
-	env: Env;
-	userId: string;
+	supabase: SupabaseClient;
 	error: {
 		status: number | null;
 		errorCode: string | null;
@@ -211,9 +211,16 @@ async function reserveAutomaticIssueReport(args: {
 	remaining: number;
 	retryAfterSeconds: number | null;
 }> {
-	try {
-		return await reserveChatIssueReport(args.env, { userId: args.userId, issueFingerprint: buildIssueFingerprint(args.error), modelId: args.error.modelId, requestId: args.error.requestId });
-	} catch (error) {
+	const { data, error } = await args.supabase.rpc(
+		"reserve_chat_issue_report",
+		{
+			p_issue_fingerprint: buildIssueFingerprint(args.error),
+			p_model_id: args.error.modelId,
+			p_request_id: args.error.requestId,
+		},
+	);
+
+	if (error) {
 		console.error("[chat-issues] issue report rate limit check failed", error);
 		return {
 			allowed: false,
@@ -221,6 +228,12 @@ async function reserveAutomaticIssueReport(args: {
 			retryAfterSeconds: CHAT_ISSUE_RATE_LIMIT_FALLBACK_RETRY_AFTER_SECONDS,
 		};
 	}
+
+	return normalizeRateLimitRow(data) ?? {
+		allowed: false,
+		remaining: 0,
+		retryAfterSeconds: CHAT_ISSUE_RATE_LIMIT_FALLBACK_RETRY_AFTER_SECONDS,
+	};
 }
 
 export const accountChatIssuesRouter = new Hono<{ Bindings: Env }>();
@@ -280,9 +293,9 @@ accountChatIssuesRouter.post("/issues", async (c) => {
 		}, 200, PRIVATE_NO_STORE_HEADERS);
 	}
 
+	const supabase = getDataClient(c.env);
 	const rateLimit = await reserveAutomaticIssueReport({
-		env: c.env,
-		userId: user.id,
+		supabase,
 		error: normalizedError,
 	});
 	if (!rateLimit.allowed) {

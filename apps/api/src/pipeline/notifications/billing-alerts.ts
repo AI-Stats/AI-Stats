@@ -1,8 +1,6 @@
 import Stripe from "stripe";
 
-import * as billingNotificationRepository from "@/repositories/billing-notifications";
-import { getBindings } from "@/runtime/env";
-import { getIdentityUserById } from "@/runtime/identity";
+import { getBindings, getSupabaseAdmin } from "@/runtime/env";
 
 type OwnerContact = {
 	email: string;
@@ -18,9 +16,14 @@ function stripeClient(): Stripe {
 }
 
 async function resolveOwnerContact(workspaceId: string): Promise<OwnerContact | null> {
-	const data = await billingNotificationRepository.getWorkspaceOwner(workspaceId);
-	if (!data?.owner_user_id) return null;
-	const user = await getIdentityUserById(data.owner_user_id).catch(() => null);
+	const supabase = getSupabaseAdmin();
+	const { data, error } = await supabase
+		.from("workspaces")
+		.select("name,owner_user_id")
+		.eq("id", workspaceId)
+		.maybeSingle();
+	if (error || !data?.owner_user_id) return null;
+	const user = await (supabase as any).auth.admin.getUserById(data.owner_user_id).catch(() => null);
 	const email = String(user?.data?.user?.email ?? "").trim();
 	if (!email) return null;
 	return {
@@ -31,12 +34,10 @@ async function resolveOwnerContact(workspaceId: string): Promise<OwnerContact | 
 }
 
 async function enqueueUnique(row: Record<string, unknown>): Promise<boolean> {
-	await billingNotificationRepository.enqueueUnique({
-		dedupeKey: String(row.dedupe_key), kind: String(row.kind), template: String(row.template),
-		toEmail: String(row.to_email), subject: row.subject == null ? null : String(row.subject),
-		workspaceId: row.workspace_id == null ? null : String(row.workspace_id),
-		userId: row.user_id == null ? null : String(row.user_id), payload: row.payload as Record<string, unknown>,
-	});
+	const { error } = await getSupabaseAdmin()
+		.from("email_outbox")
+		.upsert(row as any, { onConflict: "dedupe_key", ignoreDuplicates: true });
+	if (error) throw new Error(`billing_email_enqueue_failed:${error.message ?? "unknown"}`);
 	return true;
 }
 
@@ -45,7 +46,13 @@ export async function enqueueAutoTopUpFailedEmail(args: {
 	dedupeId: string;
 	reason?: string | null;
 }): Promise<boolean> {
-	if (!await billingNotificationRepository.autoTopUpFailureEmailEnabled(args.workspaceId)) return false;
+	const supabase = getSupabaseAdmin();
+	const { data: settings, error } = await supabase
+		.from("workspace_settings")
+		.select("auto_top_up_failure_email_enabled")
+		.eq("workspace_id", args.workspaceId)
+		.maybeSingle();
+	if (error || settings?.auto_top_up_failure_email_enabled === false) return false;
 	const owner = await resolveOwnerContact(args.workspaceId);
 	if (!owner) return false;
 	const dedupeId = args.dedupeId.replace(/[^a-zA-Z0-9:_-]/g, "_").slice(0, 180);
@@ -83,6 +90,7 @@ export async function runPaymentMethodExpiryNotificationJob(args: {
 } = {}): Promise<{ checked: number; enqueued: number; failed: number }> {
 	const now = args.now ?? new Date();
 	const pageSize = Math.max(1, Math.min(500, Math.trunc(args.pageSize ?? 100)));
+	const supabase = getSupabaseAdmin();
 	const stripe = stripeClient();
 	let checked = 0;
 	let enqueued = 0;
@@ -90,12 +98,30 @@ export async function runPaymentMethodExpiryNotificationJob(args: {
 	let offset = 0;
 
 	while (true) {
-		const wallets = await billingNotificationRepository.listPaymentMethodWallets(pageSize, offset);
+		const { data: wallets, error: walletError } = await supabase
+			.from("wallets")
+			.select("workspace_id,stripe_customer_id")
+			.not("stripe_customer_id", "is", null)
+			.order("workspace_id", { ascending: true })
+			.range(offset, offset + pageSize - 1);
+		if (walletError) throw new Error(`payment_method_expiry_wallets_failed:${walletError.message}`);
 		if (!wallets?.length) break;
+
+		const workspaceIds = wallets.map((row) => String(row.workspace_id));
+		const { data: settings, error: settingsError } = await supabase
+			.from("workspace_settings")
+			.select("workspace_id,payment_method_expiring_email_enabled")
+			.in("workspace_id", workspaceIds);
+		if (settingsError) throw new Error(`payment_method_expiry_settings_failed:${settingsError.message}`);
+		const disabled = new Set(
+			(settings ?? [])
+				.filter((row) => row.payment_method_expiring_email_enabled === false)
+				.map((row) => String(row.workspace_id)),
+		);
 
 		for (const wallet of wallets) {
 			const workspaceId = String(wallet.workspace_id);
-			if (wallet.payment_method_expiring_email_enabled === false) continue;
+			if (disabled.has(workspaceId)) continue;
 			try {
 				const methods = await stripe.paymentMethods.list({ customer: String(wallet.stripe_customer_id), type: "card", limit: 100 });
 				const owner = await resolveOwnerContact(workspaceId);

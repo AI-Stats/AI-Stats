@@ -67,6 +67,8 @@ function buildArgs(ir: IRVideoGenerationRequest): ExecutorExecuteArgs {
 
 beforeAll(() => {
 	setupRuntimeFromEnv({
+		SUPABASE_URL: "https://example.supabase.co",
+		SUPABASE_SERVICE_ROLE_KEY: "test-service-role-key",
 		RUNWAY_API_KEY: "test-runway-key",
 		RUNWAY_BASE_URL: "https://api.runway.example",
 	});
@@ -130,6 +132,8 @@ describe("runway video executor", () => {
 	it("accepts the official credential name and maps Runway's string-array output", async () => {
 		teardownTestRuntime();
 		setupRuntimeFromEnv({
+			SUPABASE_URL: "https://example.supabase.co",
+			SUPABASE_SERVICE_ROLE_KEY: "test-service-role-key",
 			RUNWAY_API_KEY: undefined,
 			RUNWAYML_API_SECRET: "official-runway-secret",
 			RUNWAY_BASE_URL: "https://api.runway.example",
@@ -160,6 +164,8 @@ describe("runway video executor", () => {
 			mock.restore();
 			teardownTestRuntime();
 			setupRuntimeFromEnv({
+				SUPABASE_URL: "https://example.supabase.co",
+				SUPABASE_SERVICE_ROLE_KEY: "test-service-role-key",
 				RUNWAY_API_KEY: "test-runway-key",
 				RUNWAY_BASE_URL: "https://api.runway.example",
 			});

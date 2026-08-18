@@ -23,10 +23,6 @@ import {
 import { ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import { SecretRevealActions } from "../keys/SecretRevealActions";
-import { useSWRConfig } from "swr";
-import { accountSWRFetcher } from "@/lib/swr/accountFetcher";
-import type { SettingsManagementApiKeysInitialData } from "@/lib/fetchers/internal/settingsTypes";
-import { managementKeysSWRKey } from "./useManagementKeys";
 
 const KEY_TEMPLATES = [
 	{
@@ -62,7 +58,6 @@ export default function CreateManagementKeyDialog({
 	currentWorkspaceId?: string | null;
 	workspaces?: Array<{ id: string | null; name: string }>;
 }) {
-	const { mutate } = useSWRConfig();
 	const resolveInitialWorkspaceId = React.useCallback(() => {
 		const normalizedCurrent = String(currentWorkspaceId ?? "").trim();
 		if (normalizedCurrent) return normalizedCurrent;
@@ -127,10 +122,6 @@ export default function CreateManagementKeyDialog({
 				expiresAt,
 			});
 			setPlainKey(res?.plaintext ?? null);
-			const cacheKey = managementKeysSWRKey(currentWorkspaceId);
-			void accountSWRFetcher<SettingsManagementApiKeysInitialData>(cacheKey).then(
-				(freshData) => mutate(cacheKey, freshData, { revalidate: false }),
-			);
 		} catch (err: any) {
 			const message =
 				err?.message ??

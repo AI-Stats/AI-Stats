@@ -168,6 +168,7 @@ export function buildAuthenticatedStatsigUser(
 		customIDs: {
 			stableID,
 			anonymousID: stableID,
+			supabaseUserID: authUser.id,
 		},
 		custom: {
 			betaOptIn: profile.betaOptIn,

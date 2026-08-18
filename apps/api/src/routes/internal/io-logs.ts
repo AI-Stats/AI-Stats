@@ -2,8 +2,7 @@ import { Hono } from "hono";
 
 import { readGatewayIoLogObject } from "@/pipeline/audit/io-logging";
 import { isGatewayIoLoggingFeatureEnabled } from "@/core/feature-flags";
-import { getBindings } from "@/runtime/env";
-import { findGenerationIoLog } from "@/repositories/generations";
+import { getBindings, getSupabaseAdmin } from "@/runtime/env";
 import type { Env } from "@/runtime/types";
 import { json, withRuntime } from "@/routes/utils";
 
@@ -50,12 +49,13 @@ async function handleIoLogRequest(req: Request) {
 		return json({ ok: true, io_log: null }, 200, { "Cache-Control": "no-store" });
 	}
 
-	let data;
-	try {
-		data = await findGenerationIoLog(workspaceId, requestId);
-	} catch {
-		return json({ ok: false, error: "db_error" }, 500, { "Cache-Control": "no-store" });
-	}
+	const { data, error } = await getSupabaseAdmin()
+		.from("gateway_io_logs")
+		.select("io_log_status,io_log_storage_provider,io_log_bytes,io_log_retention_until,io_log_error,io_log_object_key")
+		.eq("workspace_id", workspaceId)
+		.eq("request_id", requestId)
+		.maybeSingle();
+	if (error) return json({ ok: false, error: "db_error" }, 500, { "Cache-Control": "no-store" });
 	if (!data) return json({ ok: true, io_log: null }, 200, { "Cache-Control": "no-store" });
 
 	let payload: Record<string, unknown> | null = null;

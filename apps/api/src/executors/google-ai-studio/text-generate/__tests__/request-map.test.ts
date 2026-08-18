@@ -2,22 +2,6 @@ import { describe, expect, it } from "vitest";
 import { irToGemini } from "../index";
 
 describe("google-ai-studio irToGemini", () => {
-	it("always disables Interactions storage", async () => {
-		const baseRequest = {
-			model: "gemini-3.7-flash",
-			stream: false,
-			messages: [{ role: "user", content: [{ type: "text", text: "hello" }] }],
-		} as any;
-
-		const defaultStorage = await irToGemini(baseRequest);
-		const stateless = await irToGemini({ ...baseRequest, store: false });
-		const stateful = await irToGemini({ ...baseRequest, store: true });
-
-		expect(defaultStorage.store).toBe(false);
-		expect(stateless.store).toBe(false);
-		expect(stateful.store).toBe(false);
-	});
-
 	it.each(["gemini-2.5-flash", "gemini-3.6-flash", "gemini-3.7-flash", "gemini-robotics-er-1.6-preview"])(
 		"uses the Interactions request shape for %s",
 		async (model) => {
@@ -80,20 +64,10 @@ describe("google-ai-studio irToGemini", () => {
 	});
 
 	it("sanitizes Interactions function schemas and maps function results", async () => {
-		const providerSteps = [{
-			type: "thought",
-			signature: "provider-signature",
-			summary: [{ type: "text", text: "I should call datetime." }],
-		}, {
-			type: "function_call",
-			id: "call_datetime",
-			name: "datetime",
-			arguments: { timezone: "UTC" },
-		}];
 		const request = await irToGemini({
 			model: "gemini-3.5-flash-lite",
 			stream: false,
-			vendor: { google: { stateless_interaction_step_groups: [providerSteps] } },
+			vendor: { google: { previous_interaction_id: "v1_interaction_datetime" } },
 			messages: [
 				{ role: "user", content: [{ type: "text", text: "What time is it?" }] },
 				{
@@ -131,10 +105,9 @@ describe("google-ai-studio irToGemini", () => {
 				properties: { timezone: { type: "string" } },
 			},
 		}]);
-		expect(request.store).toBe(false);
-		expect(request).not.toHaveProperty("previous_interaction_id");
-		expect(request.input).toHaveLength(4);
-		expect(request.input.slice(1, 3)).toEqual(providerSteps);
+		expect(request.store).toBe(true);
+		expect(request.previous_interaction_id).toBe("v1_interaction_datetime");
+		expect(request.input).toHaveLength(1);
 		expect(request.input.at(-1)).toEqual({
 			type: "function_result",
 			call_id: "call_datetime",

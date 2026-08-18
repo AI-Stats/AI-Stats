@@ -110,7 +110,7 @@ function parseStringBytes(value: string): Uint8Array {
         return decodeAsciiBytes(raw) ?? raw;
     }
 
-    // Some database drivers return base64 for bytea columns; try decode
+    // Supabase / PostgREST return base64 for bytea columns; try decode
     try {
         return b64ToBytes(s);
     } catch { }
@@ -300,6 +300,7 @@ export async function decryptBYOK(row: {
 export function bytesToString(u8: Uint8Array): string {
     return td.decode(u8);
 }
+
 
 
 

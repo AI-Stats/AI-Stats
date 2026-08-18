@@ -81,7 +81,7 @@ describe("buildGuardrailRestrictionPreview", () => {
 			blockedProviderIds: ["xai"],
 			reachableProviderIds: ["anthropic", "openai"],
 			reachableModelIds: ["claude-haiku", "claude-sonnet", "gpt-4.1"],
-			blockedModelIds: ["grok-4"],
+			blockedModelIds: [],
 			activeRouteCount: 4,
 			filteredRouteCount: 3,
 		});
@@ -102,7 +102,7 @@ describe("buildGuardrailRestrictionPreview", () => {
 			blockedProviderIds: ["xai"],
 			reachableProviderIds: ["anthropic", "openai"],
 			reachableModelIds: ["claude-sonnet", "gpt-4.1"],
-			blockedModelIds: ["claude-haiku", "grok-4"],
+			blockedModelIds: ["claude-haiku"],
 			activeRouteCount: 4,
 			filteredRouteCount: 2,
 		});

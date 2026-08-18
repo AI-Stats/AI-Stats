@@ -3,7 +3,6 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { config as dotenvConfig } from "dotenv";
-import { selectImportRows } from "@phaseo/db/import-service";
 
 type CliArgs = {
     providers: string[];
@@ -488,13 +487,28 @@ async function discoverAllApiProviders(gatewayUrl: string, apiKey: string): Prom
     return [...providers].sort((a, b) => a.localeCompare(b));
 }
 
-async function discoverAllTextProvidersFromPlanetScale(): Promise<string[]> {
+async function discoverAllTextProvidersFromSupabase(): Promise<string[]> {
+    const supabaseUrl = normalizeEnvValue(process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL);
+    const supabaseKey = normalizeEnvValue(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+    if (!supabaseUrl || !supabaseKey) {
+        throw new Error("Supabase env vars missing for provider discovery fallback");
+    }
+
+    const { createClient } = await import("@supabase/supabase-js");
+    const supabase = createClient(supabaseUrl, supabaseKey, {
+        auth: { persistSession: false },
+    });
+
     const now = new Date();
-    const modelRows = (await selectImportRows({
-		table: "v2_model_provider_routes",
-		columns: "provider_model_id,provider_slug,routing_enabled,effective_from,effective_to",
-		filters: [{ column: "routing_enabled", value: true }],
-	})).map((row) => ({
+    const modelsRes = await supabase
+		.from("v2_model_provider_routes")
+        .select("provider_model_id,provider_slug,routing_enabled,effective_from,effective_to")
+        .eq("routing_enabled", true);
+    if (modelsRes.error) {
+        throw new Error(modelsRes.error.message);
+    }
+
+    const modelRows = (modelsRes.data ?? []).map((row) => ({
         provider_api_model_id: row.provider_model_id,
         provider_id: row.provider_slug,
         is_active_gateway: row.routing_enabled,
@@ -514,15 +528,18 @@ async function discoverAllTextProvidersFromPlanetScale(): Promise<string[]> {
         .filter((value): value is string => typeof value === "string" && value.length > 0);
     if (!providerModelIds.length) return [];
 
-    const capabilityRows = (await selectImportRows({
-		table: "v2_route_capabilities",
-		columns: "provider_model_id,status",
-		filters: [{ column: "capability_id", value: "text.generate" }],
-		inFilter: { column: "provider_model_id", values: providerModelIds },
-	})).filter((row) => ["active", "deranked"].includes(String(row.status)));
+    const capsRes = await supabase
+        .from("v2_route_capabilities")
+        .select("provider_model_id")
+        .in("provider_model_id", providerModelIds)
+        .eq("capability_id", "text.generate")
+        .in("status", ["active", "deranked"]);
+    if (capsRes.error) {
+        throw new Error(capsRes.error.message);
+    }
 
     const supportedIds = new Set(
-        capabilityRows
+        (capsRes.data ?? [])
             .map((row) => row.provider_model_id)
             .filter((value): value is string => typeof value === "string" && value.length > 0)
     );
@@ -537,10 +554,27 @@ async function discoverAllTextProvidersFromPlanetScale(): Promise<string[]> {
     return [...providers].sort((a, b) => a.localeCompare(b));
 }
 
-async function discoverAllApiProvidersFromPlanetScale(): Promise<string[]> {
-    const providerRows = await selectImportRows({ table: "v2_providers", columns: "provider_slug" });
+async function discoverAllApiProvidersFromSupabase(): Promise<string[]> {
+    const supabaseUrl = normalizeEnvValue(process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL);
+    const supabaseKey = normalizeEnvValue(process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+    if (!supabaseUrl || !supabaseKey) {
+        throw new Error("Supabase env vars missing for provider discovery fallback");
+    }
+
+    const { createClient } = await import("@supabase/supabase-js");
+    const supabase = createClient(supabaseUrl, supabaseKey, {
+        auth: { persistSession: false },
+    });
+
+    const providersRes = await supabase
+		.from("v2_providers")
+        .select("provider_slug");
+    if (providersRes.error) {
+        throw new Error(providersRes.error.message);
+    }
+
     const providers = new Set<string>();
-    for (const row of providerRows) {
+    for (const row of providersRes.data ?? []) {
 		if (!row?.provider_slug) continue;
 		providers.add(String(row.provider_slug));
     }
@@ -615,18 +649,18 @@ async function main() {
                 providers = await discoverAllApiProviders(gatewayUrl, apiKey);
             } catch (error) {
                 console.warn(
-                    `[live-provider-tests] /v1/providers discovery failed, falling back to PlanetScale: ${String((error as Error)?.message ?? error)}`
+                    `[live-provider-tests] /v1/providers discovery failed, falling back to Supabase: ${String((error as Error)?.message ?? error)}`
                 );
-                providers = await discoverAllApiProvidersFromPlanetScale();
+                providers = await discoverAllApiProvidersFromSupabase();
             }
         } else {
             try {
                 providers = await discoverAllTextProviders(gatewayUrl, apiKey);
             } catch (error) {
                 console.warn(
-                    `[live-provider-tests] /v1/models discovery failed, falling back to PlanetScale: ${String((error as Error)?.message ?? error)}`
+                    `[live-provider-tests] /v1/models discovery failed, falling back to Supabase: ${String((error as Error)?.message ?? error)}`
                 );
-                providers = await discoverAllTextProvidersFromPlanetScale();
+                providers = await discoverAllTextProvidersFromSupabase();
             }
         }
     }

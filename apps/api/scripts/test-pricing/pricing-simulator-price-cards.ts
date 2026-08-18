@@ -1,4 +1,4 @@
-import { selectImportRows } from "@phaseo/db/import-service";
+import { getSupabaseAdmin } from "../../src/runtime/env";
 import type { PriceCard, PriceRule } from "../../src/pipeline/pricing/types";
 import type { Combo } from "./pricing-simulator-types";
 
@@ -75,34 +75,37 @@ export async function loadPriceCardsForCombos(combos: Combo[]): Promise<Map<stri
     const cards = new Map<string, PriceCard>();
     if (!keys.length) return cards;
 
+    const supabase = getSupabaseAdmin();
     const nowIso = new Date().toISOString();
 
     const providers = Array.from(new Set(combos.map((combo) => combo.provider)));
     const models = Array.from(new Set(combos.map((combo) => combo.model)));
     const endpoints = Array.from(new Set(combos.map((combo) => combo.endpoint)));
 
-    const routeRows = await selectImportRows({
-		table: "v2_model_provider_routes",
-		columns: "provider_model_id,provider_slug,model_slug",
-		inFilter: { column: "provider_slug", values: providers },
-	});
-    const routes = routeRows.filter((row) => providers.includes(row.provider_slug) && models.includes(row.model_slug));
+    const { data: routeRows, error: routeError } = await supabase
+        .from("v2_model_provider_routes")
+        .select("provider_model_id,provider_slug,model_slug")
+        .in("provider_slug", providers)
+        .in("model_slug", models);
+    if (routeError) throw new Error(`Failed to load provider routes: ${routeError.message}`);
+    const routes = (routeRows ?? []).filter((row) => providers.includes(row.provider_slug) && models.includes(row.model_slug));
     const routeIds = routes.map((row) => row.provider_model_id).filter(Boolean);
     if (!routeIds.length) return cards;
 
-    const skuRows = (await selectImportRows({
-		table: "v2_pricing_skus",
-		columns: "sku_id,provider_model_id,operation,service_tier_slug,currency,effective_from,effective_to,metadata,updated_at",
-		inFilter: { column: "provider_model_id", values: routeIds },
-	})).filter((row) => endpoints.includes(row.operation));
-    const skuIds = skuRows.map((row) => row.sku_id).filter(Boolean);
+    const { data: skuRows, error: skuError } = await supabase
+        .from("v2_pricing_skus")
+        .select("sku_id,provider_model_id,operation,service_tier_slug,currency,effective_from,effective_to,metadata,updated_at")
+        .in("provider_model_id", routeIds)
+        .in("operation", endpoints);
+    if (skuError) throw new Error(`Failed to load pricing SKUs: ${skuError.message}`);
+    const skuIds = (skuRows ?? []).map((row) => row.sku_id).filter(Boolean);
     if (!skuIds.length) return cards;
-    const meterRows = await selectImportRows({
-		table: "v2_pricing_sku_meters",
-		columns: "sku_meter_id,sku_id,meter_key,unit,unit_quantity,price_nanos,meter_order,metadata,updated_at,created_at",
-		filters: [{ column: "billable", value: true }],
-		inFilter: { column: "sku_id", values: skuIds },
-	});
+    const { data: meterRows, error: meterError } = await supabase
+        .from("v2_pricing_sku_meters")
+        .select("sku_meter_id,sku_id,meter_key,unit,unit_quantity,price_nanos,meter_order,metadata,updated_at,created_at")
+        .eq("billable", true)
+        .in("sku_id", skuIds);
+    if (meterError) throw new Error(`Failed to load pricing meters: ${meterError.message}`);
     const routeById = new Map(routes.map((row) => [row.provider_model_id, row]));
     const skuById = new Map((skuRows ?? []).map((row) => [row.sku_id, row]));
     const data = (meterRows ?? []).flatMap((meter) => {
@@ -153,3 +156,4 @@ export async function loadPriceCardsForCombos(combos: Combo[]): Promise<Map<stri
 
     return cards;
 }
+

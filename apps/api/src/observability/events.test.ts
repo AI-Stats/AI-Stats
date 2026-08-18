@@ -14,6 +14,8 @@ describe("emitGatewayRequestEvent", () => {
 	beforeEach(() => {
 		sendAxiomWideEventMock.mockReset();
 		configureRuntime({
+			SUPABASE_URL: "https://example.supabase.co",
+			SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
 			GATEWAY_CACHE: {} as KVNamespace,
 			NODE_ENV: "test",
 			AXIOM_API_KEY: "axiom_test_key",
@@ -500,6 +502,8 @@ describe("emitGatewayRequestEvent", () => {
 	it("omits null values and duplicate diagnostic fields from compact success events", async () => {
 		clearRuntime();
 		configureRuntime({
+			SUPABASE_URL: "https://example.supabase.co",
+			SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
 			GATEWAY_CACHE: {} as KVNamespace,
 			NODE_ENV: "test",
 			AXIOM_API_KEY: "axiom_test_key",
@@ -551,6 +555,8 @@ describe("emitGatewayRequestEvent", () => {
 	it("keeps allowlisted provider timing headers on compact success events", async () => {
 		clearRuntime();
 		configureRuntime({
+			SUPABASE_URL: "https://example.supabase.co",
+			SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
 			GATEWAY_CACHE: {} as KVNamespace,
 			NODE_ENV: "test",
 			AXIOM_API_KEY: "axiom_test_key",
@@ -633,6 +639,8 @@ describe("emitGatewayRequestEvent", () => {
 	it("rejects malformed processing time and safely bounds provider header signals", async () => {
 		clearRuntime();
 		configureRuntime({
+			SUPABASE_URL: "https://example.supabase.co",
+			SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
 			GATEWAY_CACHE: {} as KVNamespace,
 			NODE_ENV: "test",
 			AXIOM_API_KEY: "axiom_test_key",
@@ -685,6 +693,8 @@ describe("emitGatewayRequestEvent", () => {
 	it("retains a safe provider snapshot and attempt timeline on compact success events", async () => {
 		clearRuntime();
 		configureRuntime({
+			SUPABASE_URL: "https://example.supabase.co",
+			SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
 			GATEWAY_CACHE: {} as KVNamespace,
 			NODE_ENV: "test",
 			AXIOM_API_KEY: "axiom_test_key",
@@ -792,6 +802,8 @@ describe("emitGatewayRequestEvent", () => {
 	it("emits compact success events by default without raw IP addresses", async () => {
 		clearRuntime();
 		configureRuntime({
+			SUPABASE_URL: "https://example.supabase.co",
+			SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
 			GATEWAY_CACHE: {} as KVNamespace,
 			NODE_ENV: "test",
 			AXIOM_API_KEY: "axiom_test_key",

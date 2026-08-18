@@ -146,13 +146,11 @@ export default function EditKeyItem({
 	trigger = true,
 	open: controlledOpen,
 	onOpenChange,
-	onChanged,
 }: {
 	k: any;
 	trigger?: boolean;
 	open?: boolean;
 	onOpenChange?: (open: boolean) => void;
-	onChanged?: () => Promise<unknown> | unknown;
 }) {
 	const [internalOpen, setInternalOpen] = useState(false);
 	const open = controlledOpen ?? internalOpen;
@@ -185,20 +183,17 @@ export default function EditKeyItem({
 
 		setSaving(true);
 		try {
-			const updatePromise = Promise.all([
-				updateApiKeyAction(k.id, { name: trimmedName, paused: !enabled }),
-				updateKeyLimitsAction(k.id, limitPayload),
-			]);
-			toast.promise(
-				updatePromise,
+			await toast.promise(
+				Promise.all([
+					updateApiKeyAction(k.id, { name: trimmedName, paused: !enabled }),
+					updateKeyLimitsAction(k.id, limitPayload),
+				]),
 				{
 					loading: "Saving key...",
 					success: "Key updated",
 					error: (error) => error instanceof Error ? error.message : "Failed to update key",
 				},
 			);
-			await updatePromise;
-			await onChanged?.();
 			setOpen(false);
 		} finally {
 			setSaving(false);

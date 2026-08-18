@@ -1,16 +1,12 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-const identity = vi.hoisted(() => ({ updateIdentity: vi.fn(async () => ({ id: "11111111-1111-4111-8111-111111111111" })), deleteIdentity: vi.fn(async () => undefined) }));
-vi.mock("@/repositories/identity", () => ({
-	findIdentityBySessionToken: vi.fn(async (_env, token: string) => token ? ({ id: "11111111-1111-4111-8111-111111111111", email: "person@example.com", createdAt: "2025-01-01", appMetadata: {}, userMetadata: { avatar_url: "https://avatars.phaseo.app/avatars/11111111-1111-4111-8111-111111111111/old.png", name: "Test Person" } }) : null),
-	updateIdentity: identity.updateIdentity,
-	deleteIdentity: identity.deleteIdentity,
-}));
-
 import app from "@/index";
 
 const baseEnv = {
 	ENV: "development" as const,
+	SUPABASE_URL: "https://example.supabase.co",
+	SUPABASE_ANON_KEY: "anon-key",
+	SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
 	PROFILE_AVATARS_PUBLIC_BASE_URL: "https://avatars.phaseo.app",
 };
 
@@ -49,6 +45,29 @@ function fakeBucket() {
 	return { bucket: { put, delete: remove, get } as unknown as R2Bucket, get, objects, put, remove };
 }
 
+function stubSupabase(options: { avatarUrl?: string; adminStatus?: number } = {}) {
+	let adminBody: Record<string, unknown> | null = null;
+	vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+		const request = input instanceof Request ? input : null;
+		const url = request?.url ?? String(input);
+		const method = request?.method ?? init?.method ?? "GET";
+		if (url.includes("/auth/v1/user") && method === "GET") {
+			return new Response(JSON.stringify({
+				id: USER_ID,
+				email: "person@example.com",
+				created_at: "2025-01-01T00:00:00Z",
+				user_metadata: options.avatarUrl ? { avatar_url: options.avatarUrl, name: "Test Person" } : { name: "Test Person" },
+			}), { status: 200 });
+		}
+		if (url.includes(`/auth/v1/admin/users/${USER_ID}`)) {
+			adminBody = JSON.parse(String(request ? await request.clone().text() : init?.body ?? "{}")) as Record<string, unknown>;
+			return new Response(JSON.stringify({ id: USER_ID }), { status: options.adminStatus ?? 200 });
+		}
+		return new Response(JSON.stringify([]), { status: 200 });
+	}));
+	return { adminBody: () => adminBody };
+}
+
 afterEach(() => vi.unstubAllGlobals());
 
 describe("profile avatar routes", () => {
@@ -65,6 +84,7 @@ describe("profile avatar routes", () => {
 
 	it("stores a validated immutable image and updates only the display metadata", async () => {
 		const oldUrl = `https://avatars.phaseo.app/avatars/${USER_ID}/old.png`;
+		const { adminBody } = stubSupabase({ avatarUrl: oldUrl });
 		const { bucket, put, remove } = fakeBucket();
 		const response = await app.request(
 			"https://phaseo.app/api/account/settings/profile/avatar",
@@ -89,11 +109,14 @@ describe("profile avatar routes", () => {
 				},
 			}),
 		);
-		expect(identity.updateIdentity).toHaveBeenCalledWith(expect.anything(), USER_ID, expect.objectContaining({ image: payload.avatarUrl }));
+		expect(adminBody()).toMatchObject({
+			user_metadata: { avatar_url: payload.avatarUrl, name: "Test Person" },
+		});
 		expect(remove).toHaveBeenCalledWith(`avatars/${USER_ID}/old.png`);
 	});
 
 	it("rejects a mismatched image payload before writing to R2", async () => {
+		stubSupabase();
 		const { bucket, put } = fakeBucket();
 		const response = await app.request(
 			"https://phaseo.app/api/account/settings/profile/avatar",
@@ -109,6 +132,7 @@ describe("profile avatar routes", () => {
 	});
 
 	it("cancels a lengthless upload as soon as it exceeds the byte limit", async () => {
+		stubSupabase();
 		const { bucket, put } = fakeBucket();
 		const cancel = vi.fn();
 		let chunkIndex = 0;
@@ -147,6 +171,7 @@ describe("profile avatar routes", () => {
 	});
 
 	it("uses a same-origin fallback URL outside production", async () => {
+		stubSupabase();
 		const { bucket } = fakeBucket();
 		const response = await app.request(
 			"http://localhost:8788/api/account/settings/profile/avatar",
@@ -164,6 +189,7 @@ describe("profile avatar routes", () => {
 
 	it("removes the owned R2 avatar when the account is deleted", async () => {
 		const oldUrl = `https://avatars.phaseo.app/avatars/${USER_ID}/old.png`;
+		stubSupabase({ avatarUrl: oldUrl });
 		const { bucket, remove } = fakeBucket();
 		const response = await app.fetch(
 			new Request("https://phaseo.app/api/account/settings/account", {

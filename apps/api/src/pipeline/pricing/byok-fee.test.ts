@@ -1,9 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const incrementMonthlyRequestCountMock = vi.fn();
+const rpcMock = vi.fn();
+const maybeSingleMock = vi.fn();
+const eqSecondMock = vi.fn();
+const eqFirstMock = vi.fn();
+const selectMock = vi.fn();
+const fromMock = vi.fn();
+const getSupabaseAdminMock = vi.fn();
 
-vi.mock("@/repositories/byok-fee", () => ({
-	incrementMonthlyRequestCount: (...args: unknown[]) => incrementMonthlyRequestCountMock(...args),
+vi.mock("@/runtime/env", () => ({
+	getSupabaseAdmin: () => getSupabaseAdminMock(),
 }));
 
 import {
@@ -14,7 +20,23 @@ import {
 
 describe("applyByokServiceFee", () => {
 	beforeEach(() => {
-		incrementMonthlyRequestCountMock.mockReset();
+		rpcMock.mockReset();
+		maybeSingleMock.mockReset();
+		eqSecondMock.mockReset();
+		eqFirstMock.mockReset();
+		selectMock.mockReset();
+		fromMock.mockReset();
+		getSupabaseAdminMock.mockReset();
+
+		eqSecondMock.mockReturnValue({ maybeSingle: maybeSingleMock });
+		eqFirstMock.mockReturnValue({ eq: eqSecondMock });
+		selectMock.mockReturnValue({ eq: eqFirstMock });
+		fromMock.mockReturnValue({ select: selectMock });
+
+		getSupabaseAdminMock.mockReturnValue({
+			rpc: rpcMock,
+			from: fromMock,
+		});
 	});
 
 	it("returns original pricing for non-BYOK requests", async () => {
@@ -33,14 +55,17 @@ describe("applyByokServiceFee", () => {
 			},
 		});
 
-		expect(incrementMonthlyRequestCountMock).not.toHaveBeenCalled();
+		expect(rpcMock).not.toHaveBeenCalled();
 		expect(result.totalNanos).toBe(1_000_000_000);
 		expect(result.totalCents).toBe(100);
 		expect(result.byokFeeNanos).toBe(0);
 	});
 
 	it("keeps BYOK request free while inside monthly free tier", async () => {
-		incrementMonthlyRequestCountMock.mockResolvedValue({ month_start: "2026-02-01T00:00:00+00:00", request_count: BYOK_MONTHLY_FREE_REQUESTS });
+		rpcMock.mockResolvedValue({
+			data: [{ month_start: "2026-02-01T00:00:00+00:00", request_count: BYOK_MONTHLY_FREE_REQUESTS }],
+			error: null,
+		});
 
 		const result = await applyByokServiceFee({
 			workspaceId: "team_1",
@@ -57,7 +82,10 @@ describe("applyByokServiceFee", () => {
 			},
 		});
 
-		expect(incrementMonthlyRequestCountMock).toHaveBeenCalledWith("team_1", expect.any(String));
+		expect(rpcMock).toHaveBeenCalledWith("increment_workspace_byok_monthly_request_count", {
+			p_workspace_id: "team_1",
+			p_now: expect.any(String),
+		});
 		expect(result.totalNanos).toBe(0);
 		expect(result.totalCents).toBe(0);
 		expect(result.byokFeeNanos).toBe(0);
@@ -67,7 +95,10 @@ describe("applyByokServiceFee", () => {
 	});
 
 	it("charges 2.5% fee after the one-million-request threshold", async () => {
-		incrementMonthlyRequestCountMock.mockResolvedValue({ month_start: "2026-02-01T00:00:00+00:00", request_count: BYOK_MONTHLY_FREE_REQUESTS + 1 });
+		rpcMock.mockResolvedValue({
+			data: [{ month_start: "2026-02-01T00:00:00+00:00", request_count: BYOK_MONTHLY_FREE_REQUESTS + 1 }],
+			error: null,
+		});
 
 		const baseCost = 2_000_000_000; // $2.00
 		const expectedFeeNanos = Math.round(baseCost * BYOK_SERVICE_FEE_RATE); // $0.07
@@ -96,8 +127,15 @@ describe("applyByokServiceFee", () => {
 		expect(result.pricedUsage.pricing.byok_reference_total_nanos).toBe(baseCost);
 	});
 
-	it("uses the atomic database count without an approximate fallback", async () => {
-		incrementMonthlyRequestCountMock.mockResolvedValue({ month_start: "2026-02-01T00:00:00+00:00", request_count: BYOK_MONTHLY_FREE_REQUESTS + 1 });
+	it("uses fallback read when rpc increment fails", async () => {
+		rpcMock.mockResolvedValue({
+			data: null,
+			error: { message: "rpc failed" },
+		});
+		maybeSingleMock.mockResolvedValue({
+			data: { month_start: "2026-02-01T00:00:00+00:00", request_count: BYOK_MONTHLY_FREE_REQUESTS },
+			error: null,
+		});
 
 		const result = await applyByokServiceFee({
 			workspaceId: "team_1",
@@ -115,11 +153,18 @@ describe("applyByokServiceFee", () => {
 
 		expect(result.byokMonthlyRequestCount).toBe(BYOK_MONTHLY_FREE_REQUESTS + 1);
 		expect(result.totalNanos).toBe(75_000_000); // $3 * 2.5%
-		expect(result.pricedUsage.byok_billing.counter_source).toBe("database");
+		expect(result.pricedUsage.byok_billing.counter_source).toBe("fallback_read");
 	});
 
 	it("charges conservatively when counter is unavailable", async () => {
-		incrementMonthlyRequestCountMock.mockRejectedValue(new Error("database failed"));
+		rpcMock.mockResolvedValue({
+			data: null,
+			error: { message: "rpc failed" },
+		});
+		maybeSingleMock.mockResolvedValue({
+			data: null,
+			error: { message: "fallback failed" },
+		});
 
 		const result = await applyByokServiceFee({
 			workspaceId: "team_1",

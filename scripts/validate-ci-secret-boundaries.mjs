@@ -86,7 +86,11 @@ export function validateCiSecretBoundaries(workflow) {
 		throw new Error("production migrations must remain serialized and non-cancelling");
 	}
 
-	for (const secret of ["PLANETSCALE_MIGRATION_DATABASE_URL"]) {
+	for (const secret of [
+		"SUPABASE_ACCESS_TOKEN",
+		"SUPABASE_DB_PASSWORD",
+		"SUPABASE_PROJECT_ID",
+	]) {
 		const expression = `secrets.${secret}`;
 		if (!productionMigrationJob.includes(expression)) {
 			throw new Error(`migrate-production is missing ${secret}`);
@@ -96,10 +100,10 @@ export function validateCiSecretBoundaries(workflow) {
 		}
 	}
 
-	const validation = productionMigrationJob.indexOf("db:check");
+	const dryRun = productionMigrationJob.indexOf("--dry-run");
 	const apply = productionMigrationJob.indexOf("Apply pending production migrations");
-	if (validation < 0 || apply < 0 || validation > apply) {
-		throw new Error("production migrations must validate Drizzle history before applying");
+	if (dryRun < 0 || apply < 0 || dryRun > apply) {
+		throw new Error("production migrations must dry-run before applying");
 	}
 
 	if (

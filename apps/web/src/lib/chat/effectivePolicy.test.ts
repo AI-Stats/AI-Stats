@@ -1,3 +1,5 @@
+// @ts-ignore Vitest is available in the workspace test runner but is not part of the web app's production dependency graph.
+import { describe, expect, it } from "vitest";
 import { applyChatEffectivePolicy, type ChatEffectivePolicy } from "./effectivePolicy";
 import type { GatewaySupportedModel } from "@/lib/fetchers/gateway/getGatewaySupportedModelIds";
 

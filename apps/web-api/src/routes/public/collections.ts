@@ -1,7 +1,7 @@
 import { Hono } from "hono";
+import { getDataClient } from "@/data/supabase";
 import type { Env } from "@/env";
 import { withPublicCache } from "@/http/cache";
-import { loadPublicCollectionData } from "@/repositories/collections";
 
 const COLLECTION_CACHE = {
 	edgeTtlSeconds: 60 * 60,
@@ -15,9 +15,7 @@ function toModel(row: Model) {
 	const organisation = Array.isArray(row.lab ?? row.organisation) ? (row.lab ?? row.organisation as unknown[])[0] : row.lab ?? row.organisation;
 	const primaryDate = row.released_at ?? row.release_date ?? row.announced_at ?? row.announcement_date ?? null;
 	const metadata = organisation && typeof organisation === "object" && !Array.isArray(organisation) && (organisation as { metadata?: unknown }).metadata && typeof (organisation as { metadata?: unknown }).metadata === "object" ? (organisation as { metadata: Record<string, unknown> }).metadata : {};
-	const timestamp = primaryDate instanceof Date
-		? primaryDate.getTime()
-		: typeof primaryDate === "string" ? Date.parse(primaryDate) : Number.NaN;
+	const timestamp = typeof primaryDate === "string" ? Date.parse(primaryDate) : Number.NaN;
 	return {
 		model_id: row.model_slug ?? row.model_id,
 		name: row.name,
@@ -58,15 +56,25 @@ export const publicCollectionsRouter = new Hono<{ Bindings: Env }>();
 publicCollectionsRouter.get("/collections", async (c) => {
 	try {
 		const limit = Math.max(1, Math.min(25, Number(c.req.query("limit") ?? 10) || 10));
-		const { models: collectionModels, capabilities, routes, benchmarkResults } = await loadPublicCollectionData(c.env, limit);
-		const models = collectionModels as Model[];
+		const client = getDataClient(c.env);
+		const [modelsResult, capabilitiesResult, routesResult, benchmarkResults] = await Promise.all([
+			client.from("v2_models").select("model_slug,name,lab_slug,status,released_at,announced_at,input_modalities,output_modalities,lab:v2_labs!v2_models_lab_slug_fkey(name,metadata)").eq("hidden", false),
+			client.from("v2_route_capabilities").select("provider_model_id,capability_id,params").eq("status", "active"),
+			client.from("v2_model_provider_routes").select("provider_model_id,model_slug").eq("routing_enabled", true).in("status", ["active", "degraded"]),
+			client.from("v2_benchmark_results").select("benchmark_id,rank,model_slug").in("benchmark_id", ["aider-polyglot", "mmmu"]).order("rank", { ascending: true }).limit(limit * 8),
+		]);
+		if (modelsResult.error) throw modelsResult.error;
+		if (capabilitiesResult.error) throw capabilitiesResult.error;
+		if (routesResult.error) throw routesResult.error;
+		if (benchmarkResults.error) throw benchmarkResults.error;
+		const models = (modelsResult.data ?? []) as Model[];
 		const modelBySlug = new Map(models.map((model) => [String(model.model_slug), model]));
-		const routeModels = new Map(routes.map((route) => [route.provider_model_id, route.model_slug]));
+		const routeModels = new Map((routesResult.data ?? []).map((route) => [route.provider_model_id, route.model_slug]));
 		const image = uniqueLatest(models.filter((model) => hasModality(model, "image")), limit);
 		const video = uniqueLatest(models.filter((model) => hasModality(model, "video")), limit);
 		const audio = uniqueLatest(models.filter((model) => hasModality(model, "audio") || hasModality(model, "music")), limit);
 		const featureModels = (feature: "tools" | "reasoning") => uniqueLatest(
-			capabilities.flatMap((row) => {
+			(capabilitiesResult.data ?? []).flatMap((row) => {
 				const params = JSON.stringify(row.params ?? {}).toLowerCase();
 				if (!params.includes(feature)) return [];
 				const model = modelBySlug.get(routeModels.get(row.provider_model_id) ?? "");
@@ -75,7 +83,7 @@ publicCollectionsRouter.get("/collections", async (c) => {
 			limit,
 		);
 		const topModels = (benchmarkId: string) => uniqueLatest(
-			benchmarkResults
+			(benchmarkResults.data ?? [])
 				.filter((row) => row.benchmark_id === benchmarkId)
 				.flatMap((row) => {
 					const model = modelBySlug.get(row.model_slug);

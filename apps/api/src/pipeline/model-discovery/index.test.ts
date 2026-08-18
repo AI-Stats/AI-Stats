@@ -1,15 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const modelDiscoveryRepositoryMock = vi.hoisted(() => ({
-	listSeenModels: vi.fn(),
-	markPendingRemovals: vi.fn(),
-}));
+const getSupabaseAdminMock = vi.fn();
 
 vi.mock("@/runtime/env", () => ({
 	getBindings: () => ({}),
+	getSupabaseAdmin: () => getSupabaseAdminMock(),
 }));
-
-vi.mock("@/repositories/model-discovery", () => modelDiscoveryRepositoryMock);
 
 import { fetchPreviousModelsByProviders, markPendingModelRemovals } from "./index";
 
@@ -21,51 +17,69 @@ type SeenModelRow = {
 	removal_pending?: boolean;
 };
 
+function buildPagedSupabase(rows: SeenModelRow[]) {
+	const ranges: Array<[number, number]> = [];
+	const query = {
+		select: vi.fn(() => query),
+		in: vi.fn(() => query),
+		order: vi.fn(() => query),
+		range: vi.fn(async (from: number, to: number) => {
+			ranges.push([from, to]);
+			return { data: rows.slice(from, to + 1), error: null };
+		}),
+	};
+	return {
+		ranges,
+		client: { from: vi.fn(() => query) },
+	};
+}
+
 describe("fetchPreviousModelsByProviders", () => {
 	beforeEach(() => {
-		modelDiscoveryRepositoryMock.listSeenModels.mockReset();
-		modelDiscoveryRepositoryMock.markPendingRemovals.mockReset();
+		getSupabaseAdminMock.mockReset();
 	});
 
-	it("loads more than 1,000 stored models in one repository query", async () => {
+	it("loads every page when a shard has more than 1,000 stored models", async () => {
 		const rows = Array.from({ length: 1_093 }, (_, index) => ({
 			provider_id: "large-provider",
 			model_id: `model-${index.toString().padStart(4, "0")}`,
 			model_details: {},
 			pricing_details: null,
 		}));
-		modelDiscoveryRepositoryMock.listSeenModels.mockResolvedValue(rows);
+		const supabase = buildPagedSupabase(rows);
+		getSupabaseAdminMock.mockReturnValue(supabase.client);
 
 		const state = await fetchPreviousModelsByProviders(["large-provider"]);
 
 		expect(state.byProvider.get("large-provider")?.modelIds).toHaveLength(1_093);
-		expect(modelDiscoveryRepositoryMock.listSeenModels).toHaveBeenCalledOnce();
-		expect(modelDiscoveryRepositoryMock.listSeenModels).toHaveBeenCalledWith(["large-provider"]);
+		expect(supabase.ranges).toEqual([[0, 999], [1_000, 1_999]]);
 	});
 
-	it("does not need a sentinel query when the row count is exactly 1,000", async () => {
+	it("requests an empty final page when the row count is an exact page multiple", async () => {
 		const rows = Array.from({ length: 1_000 }, (_, index) => ({
 			provider_id: "exact-provider",
 			model_id: `model-${index.toString().padStart(4, "0")}`,
 			model_details: {},
 			pricing_details: null,
 		}));
-		modelDiscoveryRepositoryMock.listSeenModels.mockResolvedValue(rows);
+		const supabase = buildPagedSupabase(rows);
+		getSupabaseAdminMock.mockReturnValue(supabase.client);
 
 		const state = await fetchPreviousModelsByProviders(["exact-provider"]);
 
 		expect(state.byProvider.get("exact-provider")?.modelIds).toHaveLength(1_000);
-		expect(modelDiscoveryRepositoryMock.listSeenModels).toHaveBeenCalledOnce();
+		expect(supabase.ranges).toEqual([[0, 999], [1_000, 1_999]]);
 	});
 
 	it("loads provisional removals with the provider snapshot", async () => {
-		modelDiscoveryRepositoryMock.listSeenModels.mockResolvedValue([{
+		const supabase = buildPagedSupabase([{
 			provider_id: "provider",
 			model_id: "occasionally-missing-model",
 			model_details: {},
 			pricing_details: null,
 			removal_pending: true,
 		}]);
+		getSupabaseAdminMock.mockReturnValue(supabase.client);
 
 		const state = await fetchPreviousModelsByProviders(["provider"]);
 
@@ -77,17 +91,21 @@ describe("fetchPreviousModelsByProviders", () => {
 
 describe("markPendingModelRemovals", () => {
 	it("refreshes retention while marking the first missing check", async () => {
-		modelDiscoveryRepositoryMock.markPendingRemovals.mockResolvedValue(undefined);
+		const query = {
+			update: vi.fn(() => query),
+			eq: vi.fn(() => query),
+			in: vi.fn(async () => ({ error: null })),
+		};
+		getSupabaseAdminMock.mockReturnValue({ from: vi.fn(() => query) });
 
 		await markPendingModelRemovals([{
 			provider_id: "provider",
 			model_id: "temporarily-missing-model",
 		}]);
 
-		expect(modelDiscoveryRepositoryMock.markPendingRemovals).toHaveBeenCalledWith(
-			"provider",
-			["temporarily-missing-model"],
-			expect.stringMatching(/^\d{4}-\d{2}-\d{2}T/),
-		);
+		expect(query.update).toHaveBeenCalledWith({
+			removal_pending: true,
+			last_seen_at: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T/),
+		});
 	});
 });

@@ -398,7 +398,7 @@ export default async function PrivacyPage() {
 						<strong>Service providers</strong> – We use trusted
 						third parties to help us operate the Service (for
 						example, hosting providers, database providers such as
-						PlanetScale, analytics platforms, payment processors such
+						Supabase, analytics platforms, payment processors such
 						as Stripe, email providers, and customer support tools).
 						They may access personal data only to perform services
 						for us and are contractually required to protect it.

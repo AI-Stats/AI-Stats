@@ -27,16 +27,68 @@ function json(body: unknown, status = 200, headers: Record<string, string> = {})
 	});
 }
 
-vi.mock("@/repositories/credits", () => ({
-	loadCreditsSummary: vi.fn(async () => ({
-		wallet: state.walletRow ? {
-			balanceNanos: state.walletRow.balance_nanos,
-			reservedNanos: state.walletRow.reserved_nanos,
-		} : null,
-		ledger: state.ledgerRows.map((row) => ({ amountNanos: row.amount_nanos })),
-		requestCount: state.requestCount,
-	})),
-	loadWorkspaceActivity: vi.fn(async () => ({ rows: state.requestRows, total: state.requestCount })),
+function buildCreditsSupabaseMock() {
+	return {
+		from(table: string) {
+			if (table === "wallets") {
+				return {
+					select: () => ({
+						eq: () => ({
+							maybeSingle: async () => ({
+								data: state.walletRow,
+								error: null,
+							}),
+						}),
+					}),
+				};
+			}
+
+			if (table === "credit_ledger") {
+				const query: any = {
+					select: () => query,
+					eq: () => query,
+					gte: () => query,
+					order: async () => ({
+						data: state.ledgerRows,
+						error: null,
+					}),
+				};
+				return query;
+			}
+
+			if (table === "gateway_requests") {
+				const query: any = {
+					select: (_columns?: string, options?: { count?: string; head?: boolean }) => {
+						if (options?.head) {
+							return {
+								eq: () => ({
+									gte: async () => ({
+										count: state.requestCount,
+										error: null,
+									}),
+								}),
+							};
+						}
+						return query;
+					},
+					eq: () => query,
+					gte: () => query,
+					order: () => query,
+					range: async () => ({
+						data: state.requestRows,
+						error: null,
+					}),
+				};
+				return query;
+			}
+
+			throw new Error(`Unexpected table: ${table}`);
+		},
+	};
+}
+
+vi.mock("@/runtime/env", () => ({
+	getSupabaseAdmin: () => buildCreditsSupabaseMock(),
 }));
 
 vi.mock("@/pipeline/before/guards", () => ({

@@ -4,8 +4,7 @@ import Stripe from "stripe";
 // How: Persists pricing/usage data into storage.
 
 import { invalidateGatewayCreditCache } from "../../core/gateway-credit-cache";
-import * as pricingPersistenceRepository from "../../repositories/pricing-persistence";
-import { ensureRuntimeForBackground } from "../../runtime/env";
+import { getSupabaseAdmin, ensureRuntimeForBackground } from "../../runtime/env";
 import { enqueueLowBalanceEmail } from "../notifications/low-balance";
 import { enqueueAutoTopUpFailedEmail } from "../notifications/billing-alerts";
 
@@ -24,6 +23,8 @@ type WorkspaceLowBalanceSettingsRow = {
     low_balance_email_last_sent_at: string | null;
     low_balance_email_last_sent_balance_nanos: number | string | null;
 };
+
+let workspaceSettingsSupportsLowBalanceEmailColumns: boolean | null = null;
 
 function getStripe(): Stripe {
     const key = process.env.STRIPE_SECRET_KEY ?? process.env.TEST_STRIPE_SECRET_KEY;
@@ -90,15 +91,78 @@ function toFiniteNumber(value: unknown, fallback: number): number {
     return Number.isFinite(n) ? n : fallback;
 }
 
+function isMissingColumnError(error: unknown, column: string, table?: string): boolean {
+    const candidate = error && typeof error === "object" ? error as Record<string, unknown> : null;
+    const code = String(candidate?.code ?? "");
+    const message = String(candidate?.message ?? "");
+    if (code !== "PGRST204" && code !== "42703") return false;
+    if (!message.toLowerCase().includes(column.toLowerCase())) return false;
+    if (!table) return true;
+    return message.toLowerCase().includes(table.toLowerCase());
+}
+
+async function loadWorkspaceLowBalanceSettings(
+    supabase: ReturnType<typeof getSupabaseAdmin>,
+    workspaceId: string,
+): Promise<WorkspaceLowBalanceSettingsRow | null> {
+    const selectLegacyCompatible = async () => {
+        const { data, error } = await supabase
+            .from("workspace_settings")
+            .select(
+                "low_balance_email_enabled,low_balance_email_threshold_nanos,low_balance_email_last_sent_at,low_balance_email_last_sent_balance_nanos",
+            )
+            .eq("workspace_id", workspaceId)
+            .maybeSingle();
+        return { data, error };
+    };
+
+    if (workspaceSettingsSupportsLowBalanceEmailColumns === false) {
+        return null;
+    }
+
+    const { data, error } = await selectLegacyCompatible();
+    if (!error) {
+        workspaceSettingsSupportsLowBalanceEmailColumns = true;
+        return (data ?? null) as WorkspaceLowBalanceSettingsRow | null;
+    }
+
+    if (isMissingColumnError(error, "low_balance_email_enabled", "workspace_settings")) {
+        workspaceSettingsSupportsLowBalanceEmailColumns = false;
+        return null;
+    }
+
+    console.error("[low-balance] failed to load workspace settings", {
+        workspaceId,
+        code: error.code ?? null,
+        message: error.message ?? String(error),
+    });
+    return null;
+}
+
 async function maybeEnqueueLowBalanceAlert(workspaceId: string): Promise<void> {
-	const state = await pricingPersistenceRepository.getLowBalanceState(workspaceId);
-	const typedSettings = state as (WorkspaceLowBalanceSettingsRow & { balance_nanos: number | string | null }) | null;
+    const supabase = getSupabaseAdmin();
+    const typedSettings = await loadWorkspaceLowBalanceSettings(supabase, workspaceId);
     if (!typedSettings?.low_balance_email_enabled) return;
 
     const thresholdNanos = toFiniteNumber(typedSettings.low_balance_email_threshold_nanos, 0);
     if (thresholdNanos < 0) return;
 
-	const balanceNanos = toFiniteNumber(typedSettings.balance_nanos, NaN);
+    const { data: walletRow, error: walletError } = await supabase
+        .from("wallets")
+        .select("balance_nanos")
+        .eq("workspace_id", workspaceId)
+        .maybeSingle();
+
+    if (walletError) {
+        console.error("[low-balance] failed to load wallet balance", {
+            workspaceId,
+            code: walletError.code ?? null,
+            message: walletError.message ?? String(walletError),
+        });
+        return;
+    }
+
+    const balanceNanos = toFiniteNumber((walletRow as any)?.balance_nanos, NaN);
     if (!Number.isFinite(balanceNanos)) return;
 
     await enqueueLowBalanceEmail({
@@ -121,11 +185,16 @@ export async function recordUsageAndCharge(args: {
 }): Promise<ChargeRpcResult> {
     const releaseRuntime = ensureRuntimeForBackground();
     try {
-		// Invoicing is intentionally disabled right now; all charges flow through
-		// one idempotent transaction keyed by workspace and request.
-		const chargeResult = normalizeChargeRpcResult(await pricingPersistenceRepository.chargeRequest({
-			workspaceId: args.workspaceId, requestId: args.requestId, costNanos: args.cost_nanos,
-		}));
+        const supabase = getSupabaseAdmin();
+        // Invoicing is intentionally disabled right now; all charges must flow through
+        // the idempotent gateway_deduct_and_check_top_up_once RPC.
+        const onceRpc = await supabase.rpc("gateway_deduct_and_check_top_up_once", {
+            p_workspace_id: args.workspaceId,
+            p_request_id: args.requestId,
+            p_cost_nanos: args.cost_nanos,
+        });
+        if (onceRpc.error) throw onceRpc.error;
+        const chargeResult = normalizeChargeRpcResult(onceRpc.data);
 
         if (!chargeResult) throw new Error("gateway_charge_result_missing");
         if (!chargeResult.applied && !chargeResult.already_applied) {
@@ -269,6 +338,8 @@ export async function recordUsageAndCharge(args: {
         releaseRuntime();
     }
 }
+
+
 
 
 

@@ -1,19 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const state = vi.hoisted(() => ({
-	usageCalls: [] as unknown[][],
-	chargeCalls: [] as Array<Record<string, unknown>>,
-	warnings: [] as Array<Record<string, unknown>>,
-}));
-
-const repository = vi.hoisted(() => ({
-	listExtendedRetentionWorkspaces: vi.fn(),
-	usageSnapshot: vi.fn(),
-	chargeOnce: vi.fn(),
-	getWorkspace: vi.fn(),
-	enqueueWarning: vi.fn(),
-	listPrunableLogs: vi.fn(),
-	markLogsDeleted: vi.fn(),
+	rpcCalls: [] as Array<{ name: string; args: Record<string, unknown> }>,
+	insertedEmails: [] as Array<Record<string, unknown>>,
+	settingsUpdates: [] as Array<Record<string, unknown>>,
 }));
 
 const workspaceRow = {
@@ -27,6 +17,98 @@ const workspaceRow = {
 	io_logging_price_per_million_units_nanos: 0,
 };
 
+function buildSupabaseMock() {
+	return {
+		auth: {
+			admin: {
+				getUserById: vi.fn(async () => ({
+					data: {
+						user: {
+							email: "owner@example.com",
+							user_metadata: { first_name: "Ada" },
+						},
+					},
+				})),
+			},
+		},
+		from(table: string) {
+			if (table === "workspace_settings") {
+				return {
+					select: () => ({
+						eq: () => ({
+							gt: () => ({
+								order: () => ({
+									limit: async () => ({
+										data: [workspaceRow],
+										error: null,
+									}),
+								}),
+							}),
+						}),
+					}),
+					update: (payload: Record<string, unknown>) => ({
+						eq: async () => {
+							state.settingsUpdates.push(payload);
+							return { error: null };
+						},
+					}),
+				};
+			}
+			if (table === "workspaces") {
+				return {
+					select: () => ({
+						eq: () => ({
+							maybeSingle: async () => ({
+								data: {
+									id: workspaceRow.workspace_id,
+									name: "Acme",
+									owner_user_id: "user_1",
+								},
+								error: null,
+							}),
+						}),
+					}),
+				};
+			}
+			if (table === "email_outbox") {
+				return {
+					insert: async (payload: Record<string, unknown>) => {
+						state.insertedEmails.push(payload);
+						return { error: null };
+					},
+				};
+			}
+			throw new Error(`Unexpected table: ${table}`);
+		},
+		rpc: async (name: string, args: Record<string, unknown>) => {
+			state.rpcCalls.push({ name, args });
+			if (name === "gateway_io_retention_usage_snapshot") {
+				return {
+					data: [{
+						event_units: 1_000_000,
+						billable_bytes: 64 * 1024 * 1_000_000,
+						object_count: 1_000_000,
+					}],
+					error: null,
+				};
+			}
+			if (name === "gateway_io_retention_charge_once") {
+				return {
+					data: [{
+						status: "grace",
+						amount_nanos: args.p_amount_nanos,
+						before_balance_nanos: 0,
+						after_balance_nanos: 0,
+						grace_until: "2026-07-19T00:10:00.000Z",
+					}],
+					error: null,
+				};
+			}
+			throw new Error(`Unexpected rpc: ${name}`);
+		},
+	};
+}
+
 vi.mock("@/runtime/env", () => ({
 	getBindings: () => ({
 		GATEWAY_IO_RETENTION_BILLING_LIMIT: "10",
@@ -34,30 +116,14 @@ vi.mock("@/runtime/env", () => ({
 		GATEWAY_IO_RETENTION_PRICE_PER_MILLION_UNITS_NANOS: "0",
 		GATEWAY_IO_RETENTION_PRUNE_LIMIT: "250",
 	}),
-}));
-
-vi.mock("@/repositories/io-retention-billing", () => repository);
-vi.mock("@/runtime/identity", () => ({
-	getIdentityUserById: vi.fn(async () => ({ data: { user: { email: "owner@example.com", name: "Ada Lovelace" } } })),
+	getSupabaseAdmin: () => buildSupabaseMock(),
 }));
 
 describe("runGatewayIoRetentionBillingJob", () => {
 	beforeEach(() => {
-		state.usageCalls.length = 0;
-		state.chargeCalls.length = 0;
-		state.warnings.length = 0;
-		repository.listExtendedRetentionWorkspaces.mockResolvedValue([workspaceRow]);
-		repository.usageSnapshot.mockImplementation(async (...args: unknown[]) => {
-			state.usageCalls.push(args);
-			return { event_units: 1_000_000, billable_bytes: 64 * 1024 * 1_000_000, object_count: 1_000_000 };
-		});
-		repository.chargeOnce.mockImplementation(async (args: Record<string, unknown>) => {
-			state.chargeCalls.push(args);
-			return { status: "grace", amount_nanos: args.amountNanos, before_balance_nanos: 0, after_balance_nanos: 0, grace_until: "2026-07-19T00:10:00.000Z" };
-		});
-		repository.getWorkspace.mockResolvedValue({ id: workspaceRow.workspace_id, name: "Acme", owner_user_id: "user_1" });
-		repository.enqueueWarning.mockImplementation(async (args: Record<string, unknown>) => { state.warnings.push(args); });
-		repository.listPrunableLogs.mockResolvedValue([]);
+		state.rpcCalls.length = 0;
+		state.insertedEmails.length = 0;
+		state.settingsUpdates.length = 0;
 	});
 
 	it("charges extended retention usage and queues a grace warning when credits are unavailable", async () => {
@@ -77,26 +143,38 @@ describe("runGatewayIoRetentionBillingJob", () => {
 			warningsQueued: 1,
 			failed: 0,
 		});
-		expect(state.usageCalls[0]).toEqual([workspaceRow.workspace_id, "2026-07-05T00:10:00.000Z", 90, 65_536]);
-		expect(state.chargeCalls[0]).toMatchObject({
-			workspaceId: workspaceRow.workspace_id,
-			billingDate: "2026-07-05",
-			eventUnits: 1_000_000,
-			graceDays: 14,
-			amountNanos: 59_501_026,
+		expect(state.rpcCalls[0]).toMatchObject({
+			name: "gateway_io_retention_usage_snapshot",
+			args: {
+				p_workspace_id: workspaceRow.workspace_id,
+				p_included_days: 90,
+				p_event_unit_bytes: 65_536,
+			},
 		});
-		expect(state.warnings[0]).toMatchObject({
+		expect(state.rpcCalls[1]).toMatchObject({
+			name: "gateway_io_retention_charge_once",
+			args: {
+				p_workspace_id: workspaceRow.workspace_id,
+				p_billing_date: "2026-07-05",
+				p_event_units: 1_000_000,
+				p_grace_days: 14,
+			},
+		});
+		expect(state.rpcCalls[1]?.args.p_amount_nanos).toBe(59_501_026);
+		expect(state.insertedEmails[0]).toMatchObject({
 			kind: "io_retention_grace",
 			template: "io_retention_grace",
-			toEmail: "owner@example.com",
-			workspaceId: workspaceRow.workspace_id,
+			to_email: "owner@example.com",
+			workspace_id: workspaceRow.workspace_id,
 			payload: expect.objectContaining({
 				workspace_name: "Acme",
 				retention_days: 365,
 				grace_until: "2026-07-19T00:10:00.000Z",
 			}),
-			warningKind: "grace",
-			warnedAt: "2026-07-05T00:10:00.000Z",
+		});
+		expect(state.settingsUpdates[0]).toMatchObject({
+			io_logging_last_billing_warning_kind: "grace",
+			io_logging_last_billing_warning_at: "2026-07-05T00:10:00.000Z",
 		});
 	});
 });

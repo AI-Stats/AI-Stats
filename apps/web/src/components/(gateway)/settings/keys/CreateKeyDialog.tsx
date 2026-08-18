@@ -29,10 +29,6 @@ import {
 } from "@/lib/gateway/secretReveal";
 import { SecretRevealActions } from "./SecretRevealActions";
 import { captureProductEvent } from "@/lib/productAnalytics";
-import { useSWRConfig } from "swr";
-import { settingsKeysSWRKey } from "./useSettingsKeys";
-import { accountSWRFetcher } from "@/lib/swr/accountFetcher";
-import type { SettingsKeysInitialData } from "@/lib/fetchers/internal/settingsTypes";
 
 export default function CreateKeyDialog({
 	currentUserId,
@@ -47,7 +43,6 @@ export default function CreateKeyDialog({
 	teams?: Array<{ id: string | null; name: string }>;
 	workspaces?: Array<{ id: string | null; name: string }>;
 }) {
-	const { mutate } = useSWRConfig();
 	const resolvedTeams = workspaces ?? teams;
 	const resolvedCurrentTeamId = currentWorkspaceId ?? currentTeamId ?? null;
 	const [open, setOpen] = useState(false);
@@ -87,10 +82,6 @@ export default function CreateKeyDialog({
 				getApiKeyPreset(selectedPresetId).limits
 			);
 			setPlainKey(res?.plaintext ?? null);
-			const cacheKey = settingsKeysSWRKey(resolvedCurrentTeamId);
-			void accountSWRFetcher<SettingsKeysInitialData>(cacheKey).then((freshData) =>
-				mutate(cacheKey, freshData, { revalidate: false }),
-			);
 			captureProductEvent("api_key_created", {
 				preset: selectedPresetId,
 				surface: "settings",

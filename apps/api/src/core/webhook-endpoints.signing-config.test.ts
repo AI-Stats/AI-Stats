@@ -1,23 +1,31 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const findWebhookEndpointMock = vi.hoisted(() => vi.fn());
+const maybeSingleMock = vi.hoisted(() => vi.fn());
 
-vi.mock("@/runtime/env", () => ({
+vi.mock("@/runtime/env", () => {
+	const query = {
+		select: vi.fn(),
+		eq: vi.fn(),
+		maybeSingle: maybeSingleMock,
+	};
+	query.select.mockReturnValue(query);
+	query.eq.mockReturnValue(query);
+	return {
 		getBindings: () => ({
 			ASYNC_WEBHOOK_SECRET_ENCRYPTION_KEY: "test-webhook-encryption-key",
 			ASYNC_WEBHOOK_SECRET_ENCRYPTION_KEY_VERSION: "test-v1",
 		}),
-}));
-
-vi.mock("@/repositories/webhook-endpoints", () => ({
-	findWebhookEndpoint: (...args: unknown[]) => findWebhookEndpointMock(...args),
-}));
+		getSupabaseAdmin: () => ({
+			from: () => query,
+		}),
+	};
+});
 
 import { getWebhookEndpointSigningConfig } from "./webhook-endpoints";
 
 describe("getWebhookEndpointSigningConfig", () => {
 	beforeEach(() => {
-		findWebhookEndpointMock.mockReset();
+		maybeSingleMock.mockReset();
 		vi.spyOn(console, "warn").mockImplementation(() => undefined);
 	});
 
@@ -26,7 +34,8 @@ describe("getWebhookEndpointSigningConfig", () => {
 	});
 
 	it("returns null when encrypted secret columns are missing", async () => {
-		findWebhookEndpointMock.mockResolvedValue({
+		maybeSingleMock.mockResolvedValue({
+			data: {
 				id: "we_1",
 				workspace_id: "ws_1",
 				url: "https://receiver.test/webhook",
@@ -35,12 +44,13 @@ describe("getWebhookEndpointSigningConfig", () => {
 				secret_ciphertext: "",
 				secret_iv: null,
 				secret_key_version: "test-v1",
+			},
+			error: null,
 		});
 
 		await expect(
 			getWebhookEndpointSigningConfig({ workspaceId: "ws_1", endpointId: "we_1" }),
 		).resolves.toBeNull();
-		expect(findWebhookEndpointMock).toHaveBeenCalledWith("ws_1", "we_1");
 		expect(console.warn).toHaveBeenCalledWith("webhook_endpoint_missing_secret_material", {
 			workspaceId: "ws_1",
 			endpointId: "we_1",
@@ -48,7 +58,8 @@ describe("getWebhookEndpointSigningConfig", () => {
 	});
 
 	it("returns null when encrypted secret material cannot be decrypted", async () => {
-		findWebhookEndpointMock.mockResolvedValue({
+		maybeSingleMock.mockResolvedValue({
+			data: {
 				id: "we_1",
 				workspace_id: "ws_1",
 				url: "https://receiver.test/webhook",
@@ -57,6 +68,8 @@ describe("getWebhookEndpointSigningConfig", () => {
 				secret_ciphertext: "not-valid-base64",
 				secret_iv: "not-valid-base64",
 				secret_key_version: "test-v1",
+			},
+			error: null,
 		});
 
 		await expect(

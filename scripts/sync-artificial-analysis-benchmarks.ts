@@ -2,11 +2,7 @@ import * as dotenv from "dotenv";
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
-import {
-	deleteImportRows,
-	selectImportRows,
-	upsertImportRows,
-} from "../packages/data/db/src/import-service";
+import { createAdminClient } from "../apps/web/src/utils/supabase/admin";
 
 dotenv.config({ path: resolve("apps/web/.env.local") });
 
@@ -233,9 +229,10 @@ async function fetchArtificialAnalysisModels(apiKey: string) {
 }
 
 async function syncDatabase(catalogEntries: CatalogEntry[]) {
+	const supabase = createAdminClient();
 	const benchmark = JSON.parse(readFileSync(BENCHMARK_PATH, "utf8")) as Record<string, unknown>;
 	const timestamp = new Date().toISOString();
-	await upsertImportRows("v2_benchmarks", [{
+	const { error: benchmarkError } = await supabase.from("v2_benchmarks").upsert({
 		benchmark_id: BENCHMARK_ID,
 		name: benchmark.benchmark_name,
 		category: benchmark.category ?? null,
@@ -244,7 +241,8 @@ async function syncDatabase(catalogEntries: CatalogEntry[]) {
 		ascending_order: benchmark.ascending_order ?? false,
 		benchmark_type: benchmark.type ?? null,
 		updated_at: timestamp,
-	}], ["benchmark_id"]);
+	}, { onConflict: "benchmark_id" });
+	if (benchmarkError) throw benchmarkError;
 
 	const rows = catalogEntries.flatMap((entry) => {
 		const benchmarks = Array.isArray(entry.model.benchmarks) ? entry.model.benchmarks : [];
@@ -270,25 +268,29 @@ async function syncDatabase(catalogEntries: CatalogEntry[]) {
 	});
 
 	for (let offset = 0; offset < rows.length; offset += 200) {
-		await upsertImportRows("v2_benchmark_results", rows.slice(offset, offset + 200), ["result_id"]);
+		const { error } = await supabase
+			.from("v2_benchmark_results")
+			.upsert(rows.slice(offset, offset + 200), { onConflict: "result_id" });
+		if (error) throw error;
 	}
 
-	const existing = await selectImportRows({
-		table: "v2_benchmark_results",
-		columns: "result_id",
-		filters: [{ column: "benchmark_id", value: BENCHMARK_ID }],
-	});
+	const { data: existing, error: existingError } = await supabase
+		.from("v2_benchmark_results")
+		.select("result_id")
+		.eq("benchmark_id", BENCHMARK_ID);
+	if (existingError) throw existingError;
 	const desiredIds = new Set(rows.map((row) => row.result_id));
 	const staleIds = (existing ?? [])
 		.map((row) => String(row.result_id))
 		.filter((id) => !desiredIds.has(id));
 	for (let offset = 0; offset < staleIds.length; offset += 200) {
-		await deleteImportRows({
-			table: "v2_benchmark_results",
-			inFilter: { column: "result_id", values: staleIds.slice(offset, offset + 200) },
-		});
+		const { error } = await supabase
+			.from("v2_benchmark_results")
+			.delete()
+			.in("result_id", staleIds.slice(offset, offset + 200));
+		if (error) throw error;
 	}
-	console.log(`Synchronized ${rows.length} Intelligence Index results to PlanetScale and removed ${staleIds.length} stale results.`);
+	console.log(`Synchronized ${rows.length} Intelligence Index results to Supabase and removed ${staleIds.length} stale results.`);
 }
 
 async function main() {

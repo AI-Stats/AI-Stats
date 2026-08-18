@@ -1,5 +1,4 @@
-import * as otelExportRepository from "@/repositories/otel-export";
-import { getBindings } from "@/runtime/env";
+import { getBindings, getSupabaseAdmin } from "@/runtime/env";
 import { decryptWebhookSecret, validateWebhookEndpointUrlForDelivery } from "@core/webhook-endpoints";
 import {
 	buildAsyncGenAiOtlpPayload,
@@ -150,7 +149,18 @@ function buildOptions(destination: Destination): GatewayOtlpBuildOptions {
 }
 
 async function destinations(workspaceId: string): Promise<Destination[]> {
-	return await otelExportRepository.listDestinations(workspaceId) as Destination[];
+	const { data, error } = await getSupabaseAdmin()
+		.from("workspace_broadcast_destinations")
+		.select(`
+			id,destination_id,destination_config,destination_config_ciphertext,destination_config_iv,destination_config_key_version,privacy_exclude_prompts_and_outputs,sampling_rate,group_join_operator,include_generation_metadata,include_cost_metadata,include_identity_metadata,include_request_context,
+			broadcast_destination_keys(key_id,filter_mode),
+			broadcast_destination_rule_groups(match_operator,broadcast_destination_rules(field,condition,value))
+		`)
+		.eq("workspace_id", workspaceId)
+		.in("destination_id", ["otel_collector", "webhook"])
+		.eq("enabled", true);
+	if (error) throw new Error(`otel_destinations_load_failed:${error.message}`);
+	return (data ?? []) as Destination[];
 }
 
 function metadataCategory(key: string): "generation" | "cost" | "identity" | "context" | null {
@@ -206,15 +216,18 @@ async function enqueuePayloads(args: {
 	const configured = await destinations(args.workspaceId);
 	const selectedDestinations = configured.filter((destination) => selected(destination, args.gatewaySelection, args.eventId));
 	const rows = selectedDestinations.map((destination) => ({
-		workspaceId: args.workspaceId,
-		destinationId: destination.id,
-		eventId: args.eventId,
-		payload: args.build(destination),
-		status: "pending",
-		nextAttemptAt: new Date().toISOString(),
-	}));
+			workspace_id: args.workspaceId,
+			destination_id: destination.id,
+			event_id: args.eventId,
+			payload: args.build(destination),
+			status: "pending",
+			next_attempt_at: new Date().toISOString(),
+		}));
 	if (!rows.length) return 0;
-	await otelExportRepository.enqueue(rows);
+	const { error } = await getSupabaseAdmin()
+		.from("otel_export_outbox")
+		.upsert(rows, { onConflict: "destination_id,event_id", ignoreDuplicates: true });
+	if (error) throw new Error(`otel_outbox_enqueue_failed:${error.message}`);
 	return rows.length;
 }
 
@@ -458,31 +471,47 @@ export async function deliverGatewayWebhookPayload(
 	};
 }
 
+async function updateOutboxRow(
+	client: ReturnType<typeof getSupabaseAdmin>,
+	id: string,
+	patch: Record<string, unknown>,
+) {
+	const { error } = await client.from("otel_export_outbox").update(patch).eq("id", id);
+	if (error) throw new Error(`otel_outbox_update_failed:${error.message}`);
+}
+
 export async function drainGatewayOtlpOutbox(limit = 100): Promise<{
 	claimed: number;
 	delivered: number;
 	retried: number;
 	failed: number;
 }> {
-	const rows = await otelExportRepository.claim(limit) as OutboxRow[];
+	const client = getSupabaseAdmin();
+	const { data, error } = await client.rpc("claim_otel_export_outbox", { p_limit: limit });
+	if (error) throw new Error(`otel_outbox_claim_failed:${error.message}`);
+	const rows = (data ?? []) as OutboxRow[];
 	let delivered = 0;
 	let retried = 0;
 	let failed = 0;
 	for (const row of rows) {
-		const destinationResult = await otelExportRepository.getDestination(row.destination_id);
-		if (!destinationResult?.enabled) {
-			await otelExportRepository.updateOutbox(row.id, {
+		const destinationResult = await client
+			.from("workspace_broadcast_destinations")
+			.select("id,destination_id,destination_config,destination_config_ciphertext,destination_config_iv,destination_config_key_version,enabled")
+			.eq("id", row.destination_id)
+			.maybeSingle();
+		if (destinationResult.error || !destinationResult.data?.enabled) {
+			await updateOutboxRow(client, row.id, {
 				status: "failed",
-				lastError: "Broadcast destination unavailable or disabled",
-				leaseExpiresAt: null,
-				updatedAt: new Date().toISOString(),
+				last_error: "Broadcast destination unavailable or disabled",
+				lease_expires_at: null,
+				updated_at: new Date().toISOString(),
 			});
 			failed += 1;
 			continue;
 		}
 		let outcome;
 		try {
-			const destination = destinationResult as Destination & { enabled: boolean };
+			const destination = destinationResult.data as Destination & { enabled: boolean };
 			const config = await destinationConfig(destination);
 			outcome = destination.destination_id === "webhook"
 				? await deliverGatewayWebhookPayload(row.payload, config, row.attempts)
@@ -497,25 +526,25 @@ export async function drainGatewayOtlpOutbox(limit = 100): Promise<{
 			};
 		}
 		if (outcome.delivered) {
-			await otelExportRepository.updateOutbox(row.id, {
+			await updateOutboxRow(client, row.id, {
 				status: "delivered",
-				deliveredAt: new Date().toISOString(),
-				leaseExpiresAt: null,
-				lastHttpStatus: outcome.status,
-				lastError: outcome.error,
-				updatedAt: new Date().toISOString(),
+				delivered_at: new Date().toISOString(),
+				lease_expires_at: null,
+				last_http_status: outcome.status,
+				last_error: outcome.error,
+				updated_at: new Date().toISOString(),
 			});
 			delivered += 1;
 			continue;
 		}
 		const shouldRetry = outcome.retryable && row.attempts < MAX_ATTEMPTS;
-		await otelExportRepository.updateOutbox(row.id, {
+		await updateOutboxRow(client, row.id, {
 			status: shouldRetry ? "pending" : "failed",
-			nextAttemptAt: new Date(Date.now() + outcome.delayMs).toISOString(),
-			leaseExpiresAt: null,
-			lastHttpStatus: outcome.status,
-			lastError: outcome.error,
-			updatedAt: new Date().toISOString(),
+			next_attempt_at: new Date(Date.now() + outcome.delayMs).toISOString(),
+			lease_expires_at: null,
+			last_http_status: outcome.status,
+			last_error: outcome.error,
+			updated_at: new Date().toISOString(),
 		});
 		if (shouldRetry) retried += 1;
 		else failed += 1;

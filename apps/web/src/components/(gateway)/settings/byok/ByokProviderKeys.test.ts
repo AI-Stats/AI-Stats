@@ -1,8 +1,3 @@
-jest.mock("@/app/(dashboard)/settings/byok/actions", () => ({
-	reorderByokKeyAction: jest.fn(),
-	updateByokKeyAction: jest.fn(),
-}));
-
 import { reorderByokEntries, type ByokKeyEntry } from "./ByokProviderKeys";
 
 function key(id: string, routingMode: "priority" | "fallback", sortOrder: number): ByokKeyEntry {

@@ -10,13 +10,6 @@ import { accountChatIssuesRouter } from "@/routes/account/chat-issues";
 
 export const accountRouter = new Hono<{ Bindings: Env }>();
 
-accountRouter.use("*", async (c, next) => {
-	const user = await requireUser(c.req.raw, c.env);
-	if (!user?.mfaReenrollmentRequired) return next();
-	if (c.req.path === "/api/account/settings/account/mfa") return next();
-	return c.json({ error: "mfa_reenrollment_required" }, 403, PRIVATE_NO_STORE_HEADERS);
-});
-
 accountRouter.route("/credits", creditsRouter);
 accountRouter.route("/auth", accountAuthRouter);
 accountRouter.route("/settings", accountSettingsRouter);

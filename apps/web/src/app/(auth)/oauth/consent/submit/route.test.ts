@@ -1,8 +1,3 @@
-jest.mock("../actions", () => ({
-	approveAuthorizationAction: jest.fn(),
-	denyAuthorizationAction: jest.fn(),
-}));
-
 import { POST } from "./route";
 
 describe("OAuth consent submission route", () => {

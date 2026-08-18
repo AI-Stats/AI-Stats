@@ -1,4 +1,5 @@
 import { fetchOptionalPublicWebApi } from "@/lib/web-api/client";
+import { fetchAdminModelSource } from "@/lib/fetchers/internal/fetchAdminModelSource";
 
 export type ModelLink = { url: string; platform?: string | null; kind?: string | null; title?: string | null };
 export type ModelVariantSummary = { model_id: string; name: string; variant_kind: string };
@@ -12,7 +13,7 @@ function pricingRules(rows: Array<Record<string, any>>): PricingRule[] { const n
 function normalizeModel<T extends { model_details: { detail_name: string; detail_value: string | number | null }[]; license?: string | null }>(model: T): T { model.model_details ??= []; if (model.license) { model.model_details.push({ detail_name: "license", detail_value: model.license }); model.license = null; } return model; }
 
 export default async function getModel(modelId: string, includeHidden: boolean): Promise<ModelPage> {
-	if (includeHidden) { const { fetchAdminModelSource } = await import("@/lib/fetchers/internal/fetchAdminModelSource"); const source = await fetchAdminModelSource(modelId); if (!source.model) throw new Error("Model not found"); const model = normalizeModel(source.model as ModelPage); model.benchmark_results ??= []; model.pricing = pricingRules(source.pricingRules); return model; }
+	if (includeHidden) { const source = await fetchAdminModelSource(modelId); if (!source.model) throw new Error("Model not found"); const model = normalizeModel(source.model as ModelPage); model.benchmark_results ??= []; model.pricing = pricingRules(source.pricingRules); return model; }
 	const [overview, benchmarks, pricing] = await Promise.all([
 		fetchOptionalPublicWebApi<{ model: ModelPage }>(`/api/_web/models/${encodeURIComponent(modelId)}?projection=variants-v1`),
 		fetchOptionalPublicWebApi<{ results: ModelPage["benchmark_results"] }>(`/api/_web/models/${encodeURIComponent(modelId)}/benchmarks`),
@@ -22,7 +23,7 @@ export default async function getModel(modelId: string, includeHidden: boolean):
 }
 
 export async function getModelOverview(modelId: string, includeHidden: boolean): Promise<ModelOverviewPage | null> {
-	if (includeHidden) { const { fetchAdminModelSource } = await import("@/lib/fetchers/internal/fetchAdminModelSource"); const source = await fetchAdminModelSource(modelId); return source.model ? normalizeModel(source.model as ModelOverviewPage) : null; }
+	if (includeHidden) { const source = await fetchAdminModelSource(modelId); return source.model ? normalizeModel(source.model as ModelOverviewPage) : null; }
 	const payload = await fetchOptionalPublicWebApi<{ model: ModelOverviewPage }>(`/api/_web/models/${encodeURIComponent(modelId)}?projection=variants-v1`); return payload?.model ? normalizeModel(payload.model) : null;
 }
 

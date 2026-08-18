@@ -1,5 +1,5 @@
+import { getSupabaseAdmin } from "@/runtime/env";
 import { json } from "@/routes/utils";
-import { findWorkspaceRole } from "@/repositories/management";
 
 export type ManagementRouteAuth = {
 	authMethod?: "api_key" | "oauth";
@@ -63,10 +63,16 @@ export async function requireOAuthWorkspaceRole(
 	if (!userId) {
 		return json({ error: "forbidden", message: "OAuth user is required" }, 403, { "Cache-Control": "no-store" });
 	}
-	const role = (await findWorkspaceRole(userId, workspaceId))?.toLowerCase() ?? null;
-	if (!role) {
+	const { data, error } = await getSupabaseAdmin()
+		.from("workspace_members")
+		.select("role")
+		.eq("workspace_id", workspaceId)
+		.eq("user_id", userId)
+		.maybeSingle();
+	if (error || !data) {
 		return json({ error: "forbidden", message: "Workspace membership is required" }, 403, { "Cache-Control": "no-store" });
 	}
+	const role = String((data as { role?: unknown }).role ?? "").toLowerCase();
 	if (!allowedRoles.includes(role)) {
 		return json(
 			{ error: "forbidden", message: `Workspace role must be one of: ${allowedRoles.join(", ")}` },

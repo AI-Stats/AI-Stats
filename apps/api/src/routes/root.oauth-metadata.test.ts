@@ -3,7 +3,8 @@ import { rootRouter } from "./root";
 
 const bindings = {
 	GATEWAY_PUBLIC_BASE_URL: "https://api.phaseo.app",
-	PLANETSCALE_DATABASE_URL: "postgresql://phaseo:test@aws.connect.psdb.cloud/phaseo?sslmode=verify-full",
+	SUPABASE_URL: "https://test.supabase.co",
+	SUPABASE_SERVICE_ROLE_KEY: "test-service-role-key",
 	GATEWAY_CACHE: {} as KVNamespace,
 	PHASEO_THIRD_PARTY_OAUTH_ENABLED: "true",
 } as any;

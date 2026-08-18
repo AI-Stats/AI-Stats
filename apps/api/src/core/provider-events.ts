@@ -1,8 +1,8 @@
 // Purpose: Persist provider webhook events for idempotency and auditability.
 // Why: Provider webhooks may be delivered multiple times and retried.
-// How: Writes one row per provider event id through a transactional Drizzle repository.
+// How: Writes one row per provider event id and marks processing completion.
 
-import * as providerEventRepository from "@/repositories/provider-events";
+import { getSupabaseAdmin } from "@/runtime/env";
 
 export type ProviderEventRecord = {
 	id: string;
@@ -72,23 +72,35 @@ export async function insertProviderEvent(args: {
 	const now = new Date().toISOString();
 	const payload = {
 		provider,
-		providerEventId,
+		provider_event_id: providerEventId,
 		kind: normalizeText(args.kind),
-		workspaceId: normalizeText(args.workspaceId),
-		internalId: normalizeText(args.internalId),
+		workspace_id: normalizeText(args.workspaceId),
+		internal_id: normalizeText(args.internalId),
 		payload: args.payload ?? {},
 		headers: args.headers ?? {},
-		updatedAt: now,
+		updated_at: now,
 	};
 
-	const data = await providerEventRepository.insertProviderEvent(payload);
-	if (data) {
+	const { data, error } = await getSupabaseAdmin()
+		.from("gateway_provider_events")
+		.insert(payload)
+		.select("id,provider,provider_event_id,kind,workspace_id,internal_id,payload,processed_at,attempt_count,next_attempt_at,created_at")
+		.maybeSingle();
+
+	if (!error) {
 		return {
 			inserted: true,
-			record: mapRow(data as ProviderEventRow),
+			record: data ? mapRow(data as ProviderEventRow) : null,
 		};
 	}
-	return { inserted: false, record: await getProviderEvent(provider, providerEventId) };
+
+	// unique_violation means this event was already accepted and should be treated as deduped.
+	if (String((error as any)?.code ?? "") === "23505") {
+		const existing = await getProviderEvent(provider, providerEventId);
+		return { inserted: false, record: existing };
+	}
+
+	throw error;
 }
 
 export async function getProviderEvent(
@@ -99,7 +111,13 @@ export async function getProviderEvent(
 	const providerEventId = normalizeText(providerEventIdRaw);
 	if (!provider || !providerEventId) return null;
 
-	const data = await providerEventRepository.findProviderEvent(provider, providerEventId);
+	const { data, error } = await getSupabaseAdmin()
+		.from("gateway_provider_events")
+		.select("id,provider,provider_event_id,kind,workspace_id,internal_id,payload,processed_at,attempt_count,next_attempt_at,created_at")
+		.eq("provider", provider)
+		.eq("provider_event_id", providerEventId)
+		.maybeSingle();
+	if (error) throw error;
 	if (!data) return null;
 	return mapRow(data as ProviderEventRow);
 }
@@ -113,7 +131,13 @@ export async function listUnprocessedProviderEvents(args: {
 	const providers = [...new Set(args.providers.map((provider) => normalizeText(provider)).filter((provider): provider is string => Boolean(provider)))];
 	if (providers.length === 0) return [];
 	const limit = Math.max(1, Math.min(500, Math.trunc(args.limit ?? 100)));
-	const data = await providerEventRepository.claimProviderEvents({ providers, limit, workerId: normalizeText(args.workerId) ?? "batch-provider-event-replay", leaseSeconds: Math.max(30, Math.min(3_600, Math.trunc(args.leaseSeconds ?? 120))) });
+	const { data, error } = await getSupabaseAdmin().rpc("gateway_claim_provider_events", {
+		p_providers: providers,
+		p_limit: limit,
+		p_worker_id: normalizeText(args.workerId) ?? "batch-provider-event-replay",
+		p_lease_seconds: Math.max(30, Math.min(3_600, Math.trunc(args.leaseSeconds ?? 120))),
+	});
+	if (error) throw error;
 	return (data ?? []).map((row) => mapRow(row as ProviderEventRow));
 }
 
@@ -126,7 +150,14 @@ export async function claimProviderEvent(args: {
 	const provider = normalizeText(args.provider);
 	const providerEventId = normalizeText(args.providerEventId);
 	if (!provider || !providerEventId) return false;
-	return providerEventRepository.claimProviderEvent({ provider, providerEventId, workerId: normalizeText(args.workerId) ?? "batch-provider-webhook", leaseSeconds: Math.max(30, Math.min(3_600, Math.trunc(args.leaseSeconds ?? 120))) });
+	const { data, error } = await getSupabaseAdmin().rpc("gateway_claim_provider_event", {
+		p_provider: provider,
+		p_provider_event_id: providerEventId,
+		p_worker_id: normalizeText(args.workerId) ?? "batch-provider-webhook",
+		p_lease_seconds: Math.max(30, Math.min(3_600, Math.trunc(args.leaseSeconds ?? 120))),
+	});
+	if (error) throw error;
+	return data === true;
 }
 
 export async function deferProviderEvent(args: {
@@ -137,7 +168,12 @@ export async function deferProviderEvent(args: {
 	const provider = normalizeText(args.provider);
 	const providerEventId = normalizeText(args.providerEventId);
 	if (!provider || !providerEventId) return;
-	await providerEventRepository.deferProviderEvent(provider, providerEventId, normalizeText(args.reason) ?? "provider_event_deferred");
+	const { error } = await getSupabaseAdmin().rpc("gateway_defer_provider_event", {
+		p_provider: provider,
+		p_provider_event_id: providerEventId,
+		p_reason: normalizeText(args.reason) ?? "provider_event_deferred",
+	});
+	if (error) throw error;
 }
 
 export async function markProviderEventProcessed(args: {
@@ -150,7 +186,22 @@ export async function markProviderEventProcessed(args: {
 	const providerEventId = normalizeText(args.providerEventId);
 	if (!provider || !providerEventId) return;
 
+	const now = new Date().toISOString();
+	const patch: Record<string, unknown> = {
+		processed_at: now,
+		replay_locked_at: null,
+		replay_locked_by: null,
+		updated_at: now,
+	};
 	const workspaceId = normalizeText(args.workspaceId);
 	const internalId = normalizeText(args.internalId);
-	await providerEventRepository.markProviderEventProcessed({ provider, providerEventId, workspaceId, internalId });
+	if (workspaceId) patch.workspace_id = workspaceId;
+	if (internalId) patch.internal_id = internalId;
+
+	const { error } = await getSupabaseAdmin()
+		.from("gateway_provider_events")
+		.update(patch)
+		.eq("provider", provider)
+		.eq("provider_event_id", providerEventId);
+	if (error) throw error;
 }

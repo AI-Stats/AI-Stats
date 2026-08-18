@@ -1,5 +1,0 @@
-# Use the same cache-disabled Hyperdrive configuration for both Workers.
-# Replace the placeholder with the ID returned by `wrangler hyperdrive create`.
-[[hyperdrive]]
-binding = "PLANETSCALE_HYPERDRIVE"
-id = "<CACHE_DISABLED_HYPERDRIVE_CONFIGURATION_ID>"

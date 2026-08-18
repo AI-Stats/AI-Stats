@@ -555,9 +555,8 @@ export async function fetchGoogleVertexOperation(
 	}
 	const bindings = getBindings() as unknown as Record<string, string | undefined>;
 	const accessToken = await resolveVertexAccessToken(credential);
+	const apiBase = resolveVertexApiBase(bindings);
 	const model = normalizeGoogleVideoModelName(String(videoMeta?.model ?? inferGoogleModelFromOperation(operationName) ?? "").trim());
-	const providerId = String(videoMeta?.provider ?? "google-vertex").trim() || "google-vertex";
-	const apiBase = resolveVertexApiBase(bindings, providerId);
 	if (!model) {
 		return err("upstream_error", {
 			reason: "google_vertex_model_missing",
@@ -638,3 +637,4 @@ export async function fetchGoogleVertexVideoContent(
 	}
 	return res;
 }
+

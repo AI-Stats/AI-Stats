@@ -4,7 +4,7 @@
 
 import { Hono } from "hono";
 import type { Env } from "@/runtime/types";
-import { loadCreditsSummary, loadWorkspaceActivity } from "@/repositories/credits";
+import { getSupabaseAdmin } from "@/runtime/env";
 import { guardManagementAuth, type GuardErr } from "@/pipeline/before/guards";
 import { CAPABILITIES } from "@/lib/authz/capabilities";
 import { json, withRuntime } from "@/routes/utils";
@@ -78,14 +78,38 @@ async function handleCredits(req: Request) {
 	if (roleError) return roleError;
 
 	try {
-		const { wallet, ledger, requestCount } = await loadCreditsSummary(workspaceId, new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString());
-		const thirtyDayUsage = ledger.reduce(
-			(sum, entry) => sum + (entry.amountNanos || 0),
+		const supabase = getSupabaseAdmin();
+
+		const { data: wallet, error } = await supabase
+			.from("wallets")
+			.select("balance_nanos,reserved_nanos")
+			.eq("workspace_id", workspaceId)
+			.maybeSingle();
+
+		if (error) {
+			throw new Error(error.message || "Failed to fetch wallet");
+		}
+
+		const { data: ledgerData, error: ledgerError } = await supabase
+			.from("credit_ledger")
+			.select("amount_nanos, created_at")
+			.eq("workspace_id", workspaceId)
+			.gte("created_at", new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
+			.order("created_at", { ascending: false });
+
+		const { count: requestCount, error: countError } = await supabase
+			.from("gateway_requests")
+			.select("*", { count: "exact", head: true })
+			.eq("workspace_id", workspaceId)
+			.gte("created_at", new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString());
+
+		const thirtyDayUsage = ledgerError ? null : (ledgerData ?? []).reduce(
+			(sum, entry) => sum + (entry.amount_nanos || 0),
 			0
 		);
 
-		const balanceNanos = Number(wallet?.balanceNanos ?? 0) || 0;
-		const reservedNanos = Number(wallet?.reservedNanos ?? 0) || 0;
+		const balanceNanos = Number(wallet?.balance_nanos ?? 0) || 0;
+		const reservedNanos = Number((wallet as any)?.reserved_nanos ?? 0) || 0;
 		const availableNanos = Math.max(0, balanceNanos - reservedNanos);
 
 		return json(
@@ -137,10 +161,28 @@ async function handleActivity(req: Request) {
 	const offset = parseOffsetParam(url.searchParams.get("offset"));
 
 	try {
+		const supabase = getSupabaseAdmin();
 		const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
-		const { rows: generations, total } = await loadWorkspaceActivity({ workspaceId, since, limit, offset });
 
-		const totalCost = generations.reduce(
+		const { data: generations, error } = await supabase
+			.from("gateway_requests")
+			.select("request_id, provider, model_id, endpoint, usage, cost_nanos, created_at, latency_ms")
+			.eq("workspace_id", workspaceId)
+			.gte("created_at", since)
+			.order("created_at", { ascending: false })
+			.range(offset, offset + limit - 1);
+
+		if (error) {
+			throw new Error(error.message || "Failed to fetch activity");
+		}
+
+		const { count, error: countError } = await supabase
+			.from("gateway_requests")
+			.select("*", { count: "exact", head: true })
+			.eq("workspace_id", workspaceId)
+			.gte("created_at", since);
+
+		const totalCost = (generations ?? []).reduce(
 			(sum, g) => sum + ((Number((g as any).cost_nanos ?? 0) || 0) / 10_000_000),
 			0
 		);
@@ -151,9 +193,9 @@ async function handleActivity(req: Request) {
 				period_days: days,
 				limit,
 				offset,
-				total,
+				total: count ?? 0,
 				total_cost_cents: totalCost,
-				activity: generations.map((g) => ({
+				activity: (generations ?? []).map((g) => ({
 					request_id: g.request_id,
 					provider: g.provider,
 					model: g.model_id,
@@ -181,4 +223,5 @@ export const activityRoutes = new Hono<Env>();
 
 creditsRoutes.get("/", withRuntime(handleCredits));
 activityRoutes.get("/", withRuntime(handleActivity));
+
 

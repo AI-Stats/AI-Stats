@@ -1,9 +1,8 @@
-// Purpose: Run model discovery on a schedule and persist compact state in PostgreSQL.
+// Purpose: Run model discovery on a schedule and persist compact state in Supabase.
 // Why: Replace filesystem snapshots with durable DB state for Cloudflare Worker cron runs.
 // How: Poll provider model endpoints, diff against DB, notify on changes, and prune stale rows.
 
-import { getBindings } from "@/runtime/env";
-import * as modelDiscoveryRepository from "@/repositories/model-discovery";
+import { getBindings, getSupabaseAdmin } from "@/runtime/env";
 import {
 	asRecord,
 	assertSafeDiscoverySnapshot,
@@ -207,7 +206,7 @@ type DiscoveryRunSummary = {
 	notificationFingerprint: string | null;
 };
 
-type SeenModelRow = {
+type SupabaseSeenModelRow = {
 	provider_id: string;
 	model_id: string;
 	model_details?: unknown;
@@ -340,14 +339,16 @@ function selectProvidersForShard(args: RunArgs): ProviderConfig[] {
 }
 
 async function insertRunStart(runId: string, args: RunArgs, startedAt: string): Promise<void> {
-	await modelDiscoveryRepository.insertRun({
+	const supabase = getSupabaseAdmin();
+	const { error } = await supabase.from("model_discovery_runs").insert({
 		id: runId,
 		trigger: args.trigger,
 		source: args.source,
-		scheduledAt: args.scheduledAtIso ?? null,
+		scheduled_at: args.scheduledAtIso ?? null,
 		status: "running",
-		startedAt,
+		started_at: startedAt,
 	});
+	if (error) throw new Error(error.message || "Failed to insert model discovery run row");
 }
 
 function compactSummary(summary: DiscoveryRunSummary, extra: { notificationError?: string | null; error?: string | null } = {}): Record<string, unknown> {
@@ -443,47 +444,23 @@ function compactSummary(summary: DiscoveryRunSummary, extra: { notificationError
 }
 
 async function updateRunFinish(summary: DiscoveryRunSummary, status: RunStatus, extra: { notificationError?: string | null; error?: string | null } = {}): Promise<void> {
-	const persistedSummary = compactSummary(summary, extra);
-	await modelDiscoveryRepository.finishRun(summary.runId, {
-		status,
-		finishedAt: summary.finishedAt,
-		providersTotal: summary.providersTotal,
-		providersSuccess: summary.providersSuccess,
-		providersSkipped: summary.providersSkipped,
-		providersError: summary.providersError,
-		changesCount: summary.changesDetected,
-		staleModelsDeleted: summary.staleModelsDeleted,
-		summary: persistedSummary,
-		error: extra.error ?? null,
-	});
-
-	if (status === "failed" || !summary.statePersisted) return;
-	const scope = summary.source?.trim() || "__global__";
-	if (summary.pricingMonitor.cursorUpdatedAt) {
-		await modelDiscoveryRepository.setStateValue("__global__", "pricing_cursor", {
-			updatedAt: summary.pricingMonitor.cursorUpdatedAt,
-			ruleIdsAtTimestamp: summary.pricingMonitor.ruleIdsAtTimestamp ?? [],
-		}, summary.startedAt);
-	}
-	if (summary.configuredModelCoverageMonitor.executed && !summary.configuredModelCoverageMonitor.error) {
-		await modelDiscoveryRepository.setStateValue(scope, "configured_coverage", {
-			providerChanges: summary.configuredModelCoverageMonitor.providerChanges.map((provider) => ({
-				providerId: provider.providerId,
-				updates: provider.updates,
-				samples: provider.samples.slice(0, MAX_SUMMARY_MODEL_SAMPLES),
-			})),
-			fingerprint: summary.configuredModelCoverageMonitor.fingerprint,
-		}, summary.startedAt);
-	}
-	if (summary.notificationFingerprint) {
-		await modelDiscoveryRepository.setStateValue(scope, "notification_fingerprint", summary.notificationFingerprint, summary.startedAt);
-	}
-	if (summary.pricingTableMonitor.executed && !summary.pricingTableMonitor.error) {
-		await modelDiscoveryRepository.setStateValue(scope, "pricing_table", summary.pricingTableMonitor.sources.map((source) => ({
-			providerId: source.providerId,
-			fingerprint: source.fingerprint,
-		})), summary.startedAt);
-	}
+	const supabase = getSupabaseAdmin();
+	const { error } = await supabase
+		.from("model_discovery_runs")
+		.update({
+			status,
+			finished_at: summary.finishedAt,
+			providers_total: summary.providersTotal,
+			providers_success: summary.providersSuccess,
+			providers_skipped: summary.providersSkipped,
+			providers_error: summary.providersError,
+			changes_count: summary.changesDetected,
+			stale_models_deleted: summary.staleModelsDeleted,
+			summary: compactSummary(summary, extra),
+			error: extra.error ?? null,
+		})
+		.eq("id", summary.runId);
+	if (error) throw new Error(error.message || "Failed to update model discovery run row");
 }
 
 type SeenModelUpsertRow = {
@@ -530,7 +507,25 @@ export async function fetchPreviousModelsByProviders(providerIds: string[]): Pro
 		return { byProvider: map, providerApiSnapshotReadyByProvider: new Set<string>() };
 	}
 
-	const rows = await modelDiscoveryRepository.listSeenModels(providerIds) as SeenModelRow[];
+	const supabase = getSupabaseAdmin();
+	const rows: SupabaseSeenModelRow[] = [];
+	for (let offset = 0; ; offset += SEEN_MODELS_PAGE_SIZE) {
+		const { data, error } = await supabase
+			.from("model_discovery_seen_models")
+			.select("provider_id,model_id,model_details,pricing_details,removal_pending")
+			.in("provider_id", providerIds)
+			.order("provider_id", { ascending: true })
+			.order("model_id", { ascending: true })
+			.range(offset, offset + SEEN_MODELS_PAGE_SIZE - 1);
+
+		if (error) {
+			throw new Error(error.message || "Failed to load previous discovered models");
+		}
+
+		const page = (data ?? []) as SupabaseSeenModelRow[];
+		rows.push(...page);
+		if (page.length < SEEN_MODELS_PAGE_SIZE) break;
+	}
 
 	const providerApiSnapshotReadyByProvider = new Set<string>();
 
@@ -561,15 +556,21 @@ export async function fetchPreviousModelsByProviders(providerIds: string[]): Pro
 
 async function upsertCurrentModels(rows: SeenModelUpsertRow[]): Promise<void> {
 	if (rows.length === 0) return;
+	const supabase = getSupabaseAdmin();
+
 	for (let i = 0; i < rows.length; i += UPSERT_BATCH_SIZE) {
 		const batch = rows.slice(i, i + UPSERT_BATCH_SIZE);
-		await modelDiscoveryRepository.upsertSeenModels(batch.map((row) => ({ providerId: row.provider_id, providerName: row.provider_name, modelId: row.model_id, modelDetails: row.model_details, pricingDetails: row.pricing_details, lastSeenAt: row.last_seen_at, lastRunId: row.last_run_id, removalPending: row.removal_pending })));
+		const { error } = await supabase
+			.from("model_discovery_seen_models")
+			.upsert(batch, { onConflict: "provider_id,model_id" });
+		if (error) throw new Error(error.message || "Failed to persist discovered models");
 	}
 }
 
 async function deleteRemovedModels(rows: SeenModelDeleteRow[]): Promise<number> {
 	if (rows.length === 0) return 0;
 
+	const supabase = getSupabaseAdmin();
 	const modelIdsByProvider = new Map<string, string[]>();
 
 	for (const row of rows) {
@@ -582,7 +583,18 @@ async function deleteRemovedModels(rows: SeenModelDeleteRow[]): Promise<number> 
 	for (const [providerId, modelIds] of modelIdsByProvider.entries()) {
 		for (let index = 0; index < modelIds.length; index += UPSERT_BATCH_SIZE) {
 			const batch = modelIds.slice(index, index + UPSERT_BATCH_SIZE);
-			deletedCount += await modelDiscoveryRepository.deleteSeenModels(providerId, batch);
+			const { data, error } = await supabase
+				.from("model_discovery_seen_models")
+				.delete()
+				.eq("provider_id", providerId)
+				.in("model_id", batch)
+				.select("model_id");
+
+			if (error) {
+				throw new Error(error.message || "Failed to remove deleted discovered models");
+			}
+
+			deletedCount += Array.isArray(data) ? data.length : 0;
 		}
 	}
 
@@ -591,6 +603,7 @@ async function deleteRemovedModels(rows: SeenModelDeleteRow[]): Promise<number> 
 
 export async function markPendingModelRemovals(rows: SeenModelPendingRemovalRow[]): Promise<void> {
 	if (rows.length === 0) return;
+	const supabase = getSupabaseAdmin();
 	const modelIdsByProvider = new Map<string, string[]>();
 	for (const row of rows) {
 		const modelIds = modelIdsByProvider.get(row.provider_id) ?? [];
@@ -599,17 +612,34 @@ export async function markPendingModelRemovals(rows: SeenModelPendingRemovalRow[
 	}
 	for (const [providerId, modelIds] of modelIdsByProvider) {
 		for (let index = 0; index < modelIds.length; index += UPSERT_BATCH_SIZE) {
-			await modelDiscoveryRepository.markPendingRemovals(providerId, modelIds.slice(index, index + UPSERT_BATCH_SIZE), new Date().toISOString());
+			const { error } = await supabase
+				.from("model_discovery_seen_models")
+				.update({ removal_pending: true, last_seen_at: new Date().toISOString() })
+				.eq("provider_id", providerId)
+				.in("model_id", modelIds.slice(index, index + UPSERT_BATCH_SIZE));
+			if (error) throw new Error(error.message || "Failed to mark provisional model removals");
 		}
 	}
 }
 
 async function pruneOldRows(cutoffIso: string): Promise<number> {
-	return modelDiscoveryRepository.pruneSeenModels(cutoffIso);
+	const supabase = getSupabaseAdmin();
+	const { data, error } = await supabase
+		.from("model_discovery_seen_models")
+		.delete()
+		.lt("last_seen_at", cutoffIso)
+		.select("provider_id");
+	if (error) throw new Error(error.message || "Failed to prune stale discovered models");
+	return Array.isArray(data) ? data.length : 0;
 }
 
 async function pruneOldRuns(cutoffIso: string): Promise<void> {
-	await modelDiscoveryRepository.pruneRuns(cutoffIso);
+	const supabase = getSupabaseAdmin();
+	const { error } = await supabase
+		.from("model_discovery_runs")
+		.delete()
+		.lt("started_at", cutoffIso);
+	if (error) throw new Error(error.message || "Failed to prune old model discovery runs");
 }
 
 function shouldPruneRunsDaily(args: RunArgs, startedAt: Date): boolean {
@@ -622,7 +652,7 @@ function shouldPruneRunsDaily(args: RunArgs, startedAt: Date): boolean {
 	return hour === 0 && minute < 10;
 }
 
-async function runModelDiscoveryJobWithDatabase(args: RunArgs): Promise<DiscoveryRunSummary> {
+export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunSummary> {
 	const startedAt = new Date();
 	const runId = crypto.randomUUID();
 	const retentionDays = toInt(readBindingEnv(["MODEL_DISCOVERY_RETENTION_DAYS"]) ?? String(DEFAULT_RETENTION_DAYS), DEFAULT_RETENTION_DAYS);
@@ -631,7 +661,7 @@ async function runModelDiscoveryJobWithDatabase(args: RunArgs): Promise<Discover
 	const shouldPrune = args.prune ?? true;
 	const shouldNotify = args.notify ?? true;
 	const providers = selectProvidersForShard(args);
-	const pricingEnabled = toBool(readBindingEnv(["PRICING_MONITOR_ENABLED"]) ?? "false", false);
+	const pricingEnabled = toBool(readBindingEnv(["PRICING_MONITOR_ENABLED"]) ?? "true", true);
 	const pricingExecuted = pricingEnabled && shouldRunPricingMonitor(args);
 
 	await insertRunStart(runId, args, startedAt.toISOString());
@@ -1206,8 +1236,3 @@ async function runModelDiscoveryJobWithDatabase(args: RunArgs): Promise<Discover
 	}
 }
 
-export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunSummary> {
-	return modelDiscoveryRepository.withModelDiscoveryDatabaseContext(
-		() => runModelDiscoveryJobWithDatabase(args),
-	);
-}

@@ -70,6 +70,8 @@ function buildArgs(ir: IRVideoGenerationRequest): ExecutorExecuteArgs {
 
 beforeAll(() => {
 	setupRuntimeFromEnv({
+		SUPABASE_URL: "https://example.supabase.co",
+		SUPABASE_SERVICE_ROLE_KEY: "test-service-role-key",
 		BYTEPLUS_API_KEY: "test-bytedance-key",
 		BYTEDANCE_SEED_BASE_URL: "https://api.bytedance.example",
 	});

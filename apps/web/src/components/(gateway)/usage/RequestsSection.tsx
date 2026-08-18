@@ -26,6 +26,7 @@ interface RequestsSectionProps {
 	initialRows: RequestRow[];
 	initialTotal: number;
 	initialTotalPages: number;
+	initialHasMore: boolean;
 	initialNextCursor: { createdAt: string; id: string } | null;
 	initialPageSize: number;
 	detailBasePath?: string;
@@ -42,6 +43,7 @@ export default function RequestsSection({
 	initialRows,
 	initialTotal,
 	initialTotalPages,
+	initialHasMore,
 	initialNextCursor,
 	initialPageSize,
 	detailBasePath,
@@ -110,6 +112,7 @@ export default function RequestsSection({
 				initialRows={initialRows}
 				initialTotal={initialTotal}
 				initialTotalPages={initialTotalPages}
+				initialHasMore={initialHasMore}
 				initialNextCursor={initialNextCursor}
 				initialPageSize={initialPageSize}
 				detailBasePath={detailBasePath}

@@ -1,34 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const authenticateMock = vi.fn();
+const getSupabaseAdminMock = vi.fn();
 const readGatewayIoLogObjectMock = vi.fn();
 const isGatewayIoLoggingFeatureEnabledMock = vi.fn();
-const findGenerationMock = vi.hoisted(() => vi.fn());
-const findGenerationIoLogMock = vi.hoisted(() => vi.fn());
-let repositoryOptions: {
-	requestData?: Record<string, unknown> | null;
-	requestError?: { message: string } | null;
-	ioLogData?: Record<string, unknown> | null;
-	ioLogError?: { message: string } | null;
-} = {};
 
 vi.mock("@pipeline/before/auth", () => ({
 	authenticate: (...args: any[]) => authenticateMock(...args),
 }));
 
-vi.mock("@/repositories/generations", () => ({
-	findGeneration: findGenerationMock,
-	findGenerationIoLog: findGenerationIoLogMock,
+vi.mock("@/runtime/env", () => ({
+	getSupabaseAdmin: (...args: any[]) => getSupabaseAdminMock(...args),
 }));
-
-findGenerationMock.mockImplementation(async () => {
-		if (repositoryOptions.requestError) throw new Error(repositoryOptions.requestError.message);
-		return repositoryOptions.requestData ?? null;
-});
-findGenerationIoLogMock.mockImplementation(async () => {
-		if (repositoryOptions.ioLogError) throw new Error(repositoryOptions.ioLogError.message);
-		return repositoryOptions.ioLogData ?? null;
-});
 
 vi.mock("@pipeline/audit/io-logging", () => ({
 	readGatewayIoLogObject: (...args: any[]) => readGatewayIoLogObjectMock(...args),
@@ -55,24 +38,56 @@ vi.mock("../../utils", () => ({
 
 import { generationsRoutes } from "./generations";
 
-function setRepositoryOptions(options: {
+function buildSupabaseMock(options: {
 	requestData?: Record<string, unknown> | null;
 	requestError?: { message: string } | null;
 	ioLogData?: Record<string, unknown> | null;
 	ioLogError?: { message: string } | null;
 }) {
-	repositoryOptions = options;
+	return {
+		from: vi.fn((table: string) => {
+			if (table === "gateway_requests") {
+				return {
+					select: vi.fn(() => ({
+						eq: vi.fn(() => ({
+							eq: vi.fn(() => ({
+								maybeSingle: vi.fn(async () => ({
+									data: options.requestData ?? null,
+									error: options.requestError ?? null,
+								})),
+							})),
+						})),
+					})),
+				};
+			}
+
+			if (table === "gateway_io_logs") {
+				return {
+					select: vi.fn(() => ({
+						eq: vi.fn(() => ({
+							eq: vi.fn(() => ({
+								maybeSingle: vi.fn(async () => ({
+									data: options.ioLogData ?? null,
+									error: options.ioLogError ?? null,
+								})),
+							})),
+						})),
+					})),
+				};
+			}
+
+			throw new Error(`unexpected table: ${table}`);
+		}),
+	};
 }
 
 describe("generationsRoutes", () => {
 	beforeEach(() => {
 		authenticateMock.mockReset();
-		findGenerationMock.mockClear();
-		findGenerationIoLogMock.mockClear();
+		getSupabaseAdminMock.mockReset();
 		readGatewayIoLogObjectMock.mockReset();
 		isGatewayIoLoggingFeatureEnabledMock.mockReset();
 		isGatewayIoLoggingFeatureEnabledMock.mockResolvedValue(true);
-		repositoryOptions = {};
 		authenticateMock.mockResolvedValue({
 			ok: true,
 			workspaceId: "ws_test",
@@ -84,13 +99,14 @@ describe("generationsRoutes", () => {
 	});
 
 	it("does not read or expose raw I/O logs to an unscoped API key", async () => {
-		setRepositoryOptions({
+		const supabase = buildSupabaseMock({
 			requestData: { request_id: "gen_123", status_code: 200 },
 			ioLogData: {
 				io_log_status: "stored",
 				io_log_object_key: "private/ws_test/gen_123.json",
 			},
 		});
+		getSupabaseAdminMock.mockReturnValue(supabase);
 
 		const response = await generationsRoutes.request("https://example.com/?id=gen_123");
 		const body = await response.json() as Record<string, unknown>;
@@ -111,13 +127,13 @@ describe("generationsRoutes", () => {
 			apiKeyKid: "kid_test",
 			scopes: ["activity:read"],
 		});
-		setRepositoryOptions({
+		getSupabaseAdminMock.mockReturnValue(buildSupabaseMock({
 			requestData: { request_id: "gen_123", status_code: 200 },
 			ioLogData: {
 				io_log_status: "stored",
 				io_log_object_key: "private/ws_test/gen_123.json",
 			},
-		});
+		}));
 
 		const response = await generationsRoutes.request("https://example.com/?id=gen_123");
 		const body = await response.json() as Record<string, unknown>;
@@ -147,7 +163,7 @@ describe("generationsRoutes", () => {
 			error: "insufficient_scope",
 			message: "Token requires generations:read",
 		});
-		expect(findGenerationMock).not.toHaveBeenCalled();
+		expect(getSupabaseAdminMock).not.toHaveBeenCalled();
 	});
 
 	it("returns raw I/O logs only with an explicit log-read capability", async () => {
@@ -159,13 +175,13 @@ describe("generationsRoutes", () => {
 			apiKeyKid: "kid_test",
 			scopes: ["generations:read"],
 		});
-		setRepositoryOptions({
+		getSupabaseAdminMock.mockReturnValue(buildSupabaseMock({
 			requestData: { request_id: "gen_123", status_code: 200 },
 			ioLogData: {
 				io_log_status: "stored",
 				io_log_object_key: "private/ws_test/gen_123.json",
 			},
-		});
+		}));
 		readGatewayIoLogObjectMock.mockResolvedValue({
 			request_payload: { model: "openai/gpt-5-nano", messages: [{ role: "user", content: "hello" }] },
 			gateway_response: { output_text: "hi" },
@@ -181,7 +197,8 @@ describe("generationsRoutes", () => {
 	});
 
 	it("does not expose replay data when no R2 I/O object exists", async () => {
-		setRepositoryOptions({
+		getSupabaseAdminMock.mockReturnValue(
+			buildSupabaseMock({
 				requestData: {
 					request_id: "gen_123",
 					endpoint: "chat/completions",
@@ -190,7 +207,8 @@ describe("generationsRoutes", () => {
 					status_code: 200,
 				},
 			ioLogData: null,
-		});
+			}),
+		);
 
 		const response = await generationsRoutes.request("https://example.com/?id=gen_123");
 
@@ -205,7 +223,8 @@ describe("generationsRoutes", () => {
 	});
 
 	it("returns replay_supported=false for older rows without stored payloads", async () => {
-		setRepositoryOptions({
+		getSupabaseAdminMock.mockReturnValue(
+			buildSupabaseMock({
 				requestData: {
 					request_id: "gen_legacy",
 					endpoint: "responses",
@@ -214,7 +233,8 @@ describe("generationsRoutes", () => {
 					status_code: 500,
 				},
 			ioLogData: null,
-		});
+			}),
+		);
 
 		const response = await generationsRoutes.request("https://example.com/?id=gen_legacy");
 

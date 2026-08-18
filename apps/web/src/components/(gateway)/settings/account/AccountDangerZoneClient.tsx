@@ -27,13 +27,11 @@ export default function AccountDangerZoneClient() {
 	async function handleDeleteAccount() {
 		setDeleting(true);
 		try {
-			const deletePromise = deleteAccount();
-			toast.promise(deletePromise, {
+			await toast.promise(deleteAccount(), {
 				loading: "Deleting your account...",
 				success: "Account deleted.",
 				error: (err: any) => err?.message || "Could not delete account",
 			});
-			await deletePromise;
 			window.location.href = "/";
 		} catch (e) {
 			void e;
@@ -124,3 +122,4 @@ function ConfirmDelete({
 		</div>
 	);
 }
+

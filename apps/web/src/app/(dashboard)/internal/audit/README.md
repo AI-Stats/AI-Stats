@@ -94,7 +94,7 @@ All actions in `actions.ts` and `actions-advanced.ts` include admin authenticati
 async function checkAdminAuth() {
   // 1. Verify user is logged in
   // 2. Check user has admin role in users table
-  // 3. Return the authorized server context
+  // 3. Return authorized status + supabase client
 }
 ```
 

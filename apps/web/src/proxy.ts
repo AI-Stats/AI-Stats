@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { updateSession } from "@/utils/authMiddleware";
-import { shouldBlockDuringCutover } from "@/lib/auth/cutoverFreeze";
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { updateSession } from "@/utils/supabase/middleware";
 
 const RETIRED_BLOG_SLUGS = new Set([
 	"security-notice-key-rotation-vercel-2026-04-19",
@@ -31,22 +31,34 @@ async function canPreviewFutureBlogPost(request: NextRequest): Promise<boolean> 
 	if (process.env.NODE_ENV === "development") {
 		return true;
 	}
-	const cookie = request.headers.get("cookie")?.trim();
-	if (!cookie) return false;
-	const origin = (process.env.WEB_API_ORIGIN ?? "https://phaseo.app").replace(/\/+$/, "");
-	try {
-		const response = await fetch(`${origin}/api/account/auth/status`, {
-			headers: { Accept: "application/json", Cookie: cookie },
-			cache: "no-store",
-			redirect: "error",
-			signal: AbortSignal.timeout(3_000),
-		});
-		if (!response.ok) return false;
-		const status = await response.json() as { isAdmin?: boolean };
-		return status.isAdmin === true;
-	} catch {
+
+	const supabase = createServerClient(
+		process.env.NEXT_PUBLIC_SUPABASE_URL!,
+		process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+		{
+			cookies: {
+				getAll: () => request.cookies.getAll(),
+				setAll: (_cookiesToSet: Array<{ name: string; value: string; options?: CookieOptions }>) => {
+					// The normal session middleware handles cookie refreshes after this gate.
+				},
+			},
+		}
+	);
+
+	const {
+		data: { user },
+	} = await supabase.auth.getUser();
+	if (!user) {
 		return false;
 	}
+
+	const { data, error } = await supabase
+		.from("users")
+		.select("role")
+		.eq("user_id", user.id)
+		.maybeSingle();
+
+	return !error && data?.role === "admin";
 }
 
 async function blockFutureBlogPostUnlessPreviewAllowed(
@@ -69,13 +81,6 @@ async function blockFutureBlogPostUnlessPreviewAllowed(
 }
 
 export async function proxy(request: NextRequest) {
-	if (shouldBlockDuringCutover(request.method, request.nextUrl.pathname, process.env.CUTOVER_WRITE_FREEZE)) {
-		return NextResponse.json(
-			{ error: "cutover_maintenance", message: "Phaseo is briefly read-only during a database migration." },
-			{ status: 503, headers: { "Cache-Control": "no-store", "Retry-After": "60" } },
-		);
-	}
-
 	if (request.nextUrl.pathname === "/" && wantsMarkdown(request)) {
 		const rewriteUrl = request.nextUrl.clone();
 		rewriteUrl.pathname = "/__markdown";
@@ -111,12 +116,6 @@ export const config = {
 		"/onboarding/:path*",
 		"/internal/:path*",
 		"/chat/:path*",
-		"/sign-in",
-		"/sign-up",
-		"/activate/:path*",
-		"/auth/:path*",
-		"/oauth/:path*",
-		"/api/:path*",
 		"/api/account/:path*",
 		"/api/internal/:path*",
 		"/api/chat/:path*",

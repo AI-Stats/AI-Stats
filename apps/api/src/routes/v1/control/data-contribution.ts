@@ -1,10 +1,9 @@
 import { Hono } from "hono";
 import type { Env } from "@/runtime/types";
-import { auditConsentEvent, createClassifier as insertClassifier, deleteClassifier as removeClassifier, isPhaseoAdmin, listWorkspaceKeyIds, loadDataContributionOverview, setDataContributionConsent, updateClassifier as persistClassifier, type ClassifierPatch } from "@/repositories/data-contribution";
-import { findWorkspaceOwnerUserId, findWorkspaceRole } from "@/repositories/management";
+import { getSupabaseAdmin } from "@/runtime/env";
 import { setKeyVersion } from "@/core/kv";
 import { isDataContributionAccessEnabled } from "@/core/feature-flags";
-import { getOAuthRequestActor } from "@/lib/oauth/service";
+import { getSupabaseActor } from "@/lib/oauth/service";
 import type { AuthSuccess } from "@/pipeline/before/auth";
 import { guardManagementAuth, type GuardErr } from "@/pipeline/before/guards";
 import { CAPABILITIES } from "@/lib/authz/capabilities";
@@ -37,22 +36,28 @@ async function auditConsentDenial(auth: {
 	apiKeyId: string;
 }, reason: string): Promise<void> {
 	try {
-		await auditConsentEvent({
-			workspaceId: auth.workspaceId,
-			actorType: auth.authMethod === "oauth" ? "user" : "management_key",
-			actorUserId: auth.userId ?? null,
-			actorKeyId: auth.authMethod === "oauth" ? null : auth.apiKeyId,
+		await getSupabaseAdmin().from("data_contribution_consent_events").insert({
+			workspace_id: auth.workspaceId,
+			actor_type: auth.authMethod === "oauth" ? "user" : "management_key",
+			actor_user_id: auth.userId ?? null,
+			actor_key_id: auth.authMethod === "oauth" ? null : auth.apiKeyId,
 			action: "change_denied",
 			outcome: "denied",
-			policyVersion: DATA_CONTRIBUTION_POLICY_VERSION,
-			sampleRateBps: SAMPLE_RATE_BPS,
-			classifierSampleRateBps: CLASSIFIER_SAMPLE_RATE_BPS,
-			discountBps: DISCOUNT_BPS,
+			policy_version: DATA_CONTRIBUTION_POLICY_VERSION,
+			sample_rate_bps: SAMPLE_RATE_BPS,
+			classifier_sample_rate_bps: CLASSIFIER_SAMPLE_RATE_BPS,
+			discount_bps: DISCOUNT_BPS,
 			reason,
 		});
 	} catch (error) {
 		console.error("data_contribution_consent_denial_audit_failed", { reason, error: String(error) });
 	}
+}
+
+function bearerToken(req: Request): string | null {
+	const authorization = req.headers.get("authorization")?.trim() ?? "";
+	if (!authorization.toLowerCase().startsWith("bearer ")) return null;
+	return authorization.slice(7).trim() || null;
 }
 
 async function requireAdminPreview(
@@ -64,7 +69,10 @@ async function requireAdminPreview(
 		if (auditConsentDenials) await auditConsentDenial(auth, "admin_preview_only");
 		return json({ error: "not_found" }, 404, { "Cache-Control": "no-store" });
 	}
-	if (!await isPhaseoAdmin(userId)) {
+	const roleResult = await getSupabaseAdmin().from("users")
+		.select("role").eq("user_id", userId).maybeSingle();
+	const isPhaseoAdmin = !roleResult.error && String(roleResult.data?.role ?? "").toLowerCase() === "admin";
+	if (!isPhaseoAdmin) {
 		if (auditConsentDenials) await auditConsentDenial(auth, "not_phaseo_admin");
 		return json({ error: "not_found" }, 404, { "Cache-Control": "no-store" });
 	}
@@ -89,15 +97,21 @@ export async function authenticateDashboardDataContribution(
 ): Promise<AuthSuccess | Response | null> {
 	const workspaceId = req.headers.get("x-phaseo-workspace-id")?.trim();
 	if (!workspaceId) return null;
-	const actor = await getOAuthRequestActor(req);
+	const token = bearerToken(req);
+	const actor = token ? await getSupabaseActor(token) : null;
 	if (!actor) return json({ error: "unauthorized" }, 401, { "Cache-Control": "no-store" });
-	const [membershipRole, ownerUserId] = await Promise.all([findWorkspaceRole(actor.userId, workspaceId), findWorkspaceOwnerUserId(workspaceId)]);
-	if (!ownerUserId) {
+	const client = getSupabaseAdmin();
+	const [membership, workspace] = await Promise.all([
+		client.from("workspace_members").select("role")
+			.eq("workspace_id", workspaceId).eq("user_id", actor.userId).maybeSingle(),
+		client.from("workspaces").select("owner_user_id").eq("id", workspaceId).maybeSingle(),
+	]);
+	if (membership.error || workspace.error || !workspace.data) {
 		return json({ error: "forbidden" }, 403, { "Cache-Control": "no-store" });
 	}
-	const workspaceRole = ownerUserId === actor.userId
+	const workspaceRole = workspace.data.owner_user_id === actor.userId
 		? "owner"
-		: String(membershipRole ?? "").toLowerCase();
+		: String(membership.data?.role ?? "").toLowerCase();
 	const auth: AuthSuccess = {
 		ok: true,
 		workspaceId,
@@ -143,9 +157,11 @@ async function authenticate(req: Request, write = false, auditConsentDenials = f
 }
 
 async function invalidateWorkspaceKeys(workspaceId: string): Promise<void> {
-	const keyIds = await listWorkspaceKeyIds(workspaceId);
+	const { data, error } = await getSupabaseAdmin().from("keys")
+		.select("id").eq("workspace_id", workspaceId).neq("status", "deleted");
+	if (error) throw new Error(error.message || "Failed to invalidate gateway context");
 	const version = Date.now();
-	await Promise.all(keyIds.map((id) => setKeyVersion("id", id, version)));
+	await Promise.all((data ?? []).map((row) => setKeyVersion("id", String(row.id), version)));
 }
 
 function categoriesFrom(value: unknown): Record<string, string[]> {
@@ -199,43 +215,39 @@ function classifierPatch(body: Record<string, unknown>, creating: boolean): Reco
 	return patch;
 }
 
-function toClassifierPatch(patch: Record<string, unknown>): ClassifierPatch {
-	return {
-		name: typeof patch.name === "string" ? patch.name : undefined,
-		description: patch.description === null || typeof patch.description === "string" ? patch.description as string | null : undefined,
-		instructions: typeof patch.instructions === "string" ? patch.instructions : undefined,
-		categories: patch.categories as Record<string, string[]> | undefined,
-		model: typeof patch.model === "string" ? patch.model : undefined,
-		serviceTier: typeof patch.service_tier === "string" ? patch.service_tier : undefined,
-		sampleRateBps: typeof patch.sample_rate_bps === "number" ? patch.sample_rate_bps : undefined,
-		enabled: typeof patch.enabled === "boolean" ? patch.enabled : undefined,
-	};
-}
-
-function serializeDatabaseRow(row: Record<string, unknown>): Record<string, unknown> {
-	return Object.fromEntries(Object.entries(row).map(([key, value]) => [key.replace(/[A-Z]/g, (character) => `_${character.toLowerCase()}`), value]));
-}
-
 async function getOverview(req: Request) {
 	const auth = await authenticate(req);
 	if (auth instanceof Response) return auth;
 	try {
-		const since = new Date(Date.now() - 30 * 86_400_000).toISOString();
-		const { settings, classifiers, totals, analytics } = await loadDataContributionOverview(auth.workspaceId, since, since.slice(0, 10));
+		const client = getSupabaseAdmin();
+		const [settings, classifiers, recent, analytics] = await Promise.all([
+			client.from("workspace_settings").select("data_contribution_enabled,data_contribution_policy_version,data_contribution_consented_at,data_contribution_sample_rate_bps,data_contribution_classifier_sample_rate_bps,data_contribution_discount_bps")
+				.eq("workspace_id", auth.workspaceId).maybeSingle(),
+			client.from("workspace_classifiers").select("id,slug,name,description,kind,instructions,categories,model,service_tier,sample_rate_bps,enabled,created_at,updated_at")
+				.eq("workspace_id", auth.workspaceId).order("created_at", { ascending: true }),
+			client.rpc("get_data_contribution_totals", {
+				p_workspace_id: auth.workspaceId,
+				p_since: new Date(Date.now() - 30 * 86_400_000).toISOString(),
+			}),
+			client.from("request_classification_daily").select("usage_date,classifier_id,primary_category,model_slug,provider_slug,request_count,input_tokens,output_tokens")
+				.eq("workspace_id", auth.workspaceId).gte("usage_date", new Date(Date.now() - 30 * 86_400_000).toISOString().slice(0, 10))
+				.order("usage_date", { ascending: false }).limit(1000),
+		]);
+		for (const result of [settings, classifiers, recent, analytics]) if (result.error) throw result.error;
 		return json({
 			data: {
-				enabled: settings?.dataContributionEnabled === true,
-				policyVersion: settings?.dataContributionPolicyVersion ?? DATA_CONTRIBUTION_POLICY_VERSION,
-				consentedAt: settings?.dataContributionConsentedAt ?? null,
-				sampleRateBps: Number(settings?.dataContributionSampleRateBps ?? SAMPLE_RATE_BPS),
-				classifierSampleRateBps: Number(settings?.dataContributionClassifierSampleRateBps ?? CLASSIFIER_SAMPLE_RATE_BPS),
-				discountBps: Number(settings?.dataContributionDiscountBps ?? DISCOUNT_BPS),
+				enabled: settings.data?.data_contribution_enabled === true,
+				policyVersion: settings.data?.data_contribution_policy_version ?? DATA_CONTRIBUTION_POLICY_VERSION,
+				consentedAt: settings.data?.data_contribution_consented_at ?? null,
+				sampleRateBps: Number(settings.data?.data_contribution_sample_rate_bps ?? SAMPLE_RATE_BPS),
+				classifierSampleRateBps: Number(settings.data?.data_contribution_classifier_sample_rate_bps ?? CLASSIFIER_SAMPLE_RATE_BPS),
+				discountBps: Number(settings.data?.data_contribution_discount_bps ?? DISCOUNT_BPS),
 				last30Days: {
-					contributions: Number(totals.contributions ?? 0),
-					discountNanos: Number(totals.discountNanos ?? 0),
+					contributions: Number((recent.data as any)?.contributions ?? 0),
+					discountNanos: Number((recent.data as any)?.discount_nanos ?? 0),
 				},
-				classifiers: classifiers.map((row) => serializeDatabaseRow(row)),
-				analytics: analytics.map((row) => serializeDatabaseRow(row)),
+				classifiers: classifiers.data ?? [],
+				analytics: analytics.data ?? [],
 				starterCategories: STARTER_TASK_CATEGORIES,
 			},
 		}, 200, { "Cache-Control": "no-store" });
@@ -252,19 +264,21 @@ async function updateConsent(req: Request) {
 	if (typeof body.enabled !== "boolean") return json({ error: "bad_request", message: "enabled must be a boolean" }, 400);
 	const enabled = body.enabled;
 	try {
+		const client = getSupabaseAdmin();
 		if (enabled) await ensureStarterClassifier(auth.workspaceId, auth.userId ?? null);
-		await setDataContributionConsent({
-			workspaceId: auth.workspaceId,
-			enabled,
-			actorType: auth.authMethod === "oauth" ? "user" : "management_key",
-			actorUserId: auth.userId ?? null,
-			actorKeyId: auth.authMethod === "oauth" ? null : auth.apiKeyId,
-			reason: typeof body.reason === "string" ? body.reason.slice(0, 500) : null,
-			policyVersion: DATA_CONTRIBUTION_POLICY_VERSION,
-			sampleRateBps: SAMPLE_RATE_BPS,
-			classifierSampleRateBps: CLASSIFIER_SAMPLE_RATE_BPS,
-			discountBps: DISCOUNT_BPS,
+		const { error: settingsError } = await client.rpc("set_data_contribution_consent", {
+			p_workspace_id: auth.workspaceId,
+			p_enabled: enabled,
+			p_actor_type: auth.authMethod === "oauth" ? "user" : "management_key",
+			p_actor_user_id: auth.userId ?? null,
+			p_actor_key_id: auth.authMethod === "oauth" ? null : auth.apiKeyId,
+			p_reason: typeof body.reason === "string" ? body.reason.slice(0, 500) : null,
+			p_policy_version: DATA_CONTRIBUTION_POLICY_VERSION,
+			p_sample_rate_bps: SAMPLE_RATE_BPS,
+			p_classifier_sample_rate_bps: CLASSIFIER_SAMPLE_RATE_BPS,
+			p_discount_bps: DISCOUNT_BPS,
 		});
+		if (settingsError) throw settingsError;
 		try {
 			await invalidateWorkspaceKeys(auth.workspaceId);
 		} catch (error) {
@@ -288,8 +302,15 @@ async function createClassifier(req: Request) {
 		const name = String(body.name ?? "").trim();
 		const slugBase = String(body.slug ?? name).trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 64);
 		if (!slugBase || slugBase === STARTER_CLASSIFIER_SLUG) throw new Error("a unique custom slug is required");
-		const data = await insertClassifier(auth.workspaceId, slugBase, auth.userId ?? null, toClassifierPatch(classifierPatch(body, true)));
-		return json({ data: serializeDatabaseRow(data) }, 201, { "Cache-Control": "no-store" });
+		const { data, error } = await getSupabaseAdmin().from("workspace_classifiers").insert({
+			workspace_id: auth.workspaceId,
+			slug: slugBase,
+			kind: "custom",
+			created_by: auth.userId ?? null,
+			...classifierPatch(body, true),
+		}).select("*").maybeSingle();
+		if (error) throw error;
+		return json({ data }, 201, { "Cache-Control": "no-store" });
 	} catch (error) {
 		return json({ error: "classifier_invalid", message: error instanceof Error ? error.message : "Invalid classifier" }, 400, { "Cache-Control": "no-store" });
 	}
@@ -301,10 +322,12 @@ async function updateClassifier(req: Request, id: string) {
 	const body = await requireJsonBody(req);
 	if (isResponse(body)) return body;
 	try {
-		const patch = toClassifierPatch(classifierPatch(body, false));
-		const data = await persistClassifier(auth.workspaceId, id, patch);
+		const patch = classifierPatch(body, false);
+		const { data, error } = await getSupabaseAdmin().from("workspace_classifiers").update(patch)
+			.eq("id", id).eq("workspace_id", auth.workspaceId).eq("kind", "custom").select("*").maybeSingle();
+		if (error) throw error;
 		if (!data) return json({ error: "not_found" }, 404);
-		return json({ data: serializeDatabaseRow(data) }, 200, { "Cache-Control": "no-store" });
+		return json({ data }, 200, { "Cache-Control": "no-store" });
 	} catch (error) {
 		return json({ error: "classifier_invalid", message: error instanceof Error ? error.message : "Invalid classifier" }, 400, { "Cache-Control": "no-store" });
 	}
@@ -313,7 +336,10 @@ async function updateClassifier(req: Request, id: string) {
 async function deleteClassifier(req: Request, id: string) {
 	const auth = await authenticate(req, true);
 	if (auth instanceof Response) return auth;
-	if (!await removeClassifier(auth.workspaceId, id)) return json({ error: "not_found" }, 404);
+	const { data, error } = await getSupabaseAdmin().from("workspace_classifiers").delete()
+		.eq("id", id).eq("workspace_id", auth.workspaceId).eq("kind", "custom").select("id").maybeSingle();
+	if (error) return internalServerError("data-contribution.classifier.delete", error);
+	if (!data) return json({ error: "not_found" }, 404);
 	return json({ data: { deleted: true } }, 200, { "Cache-Control": "no-store" });
 }
 

@@ -13,6 +13,8 @@ vi.mock("@core/video-reservations", () => ({
 vi.mock("@core/wallet-reservations", () => ({ releaseWalletReservation: vi.fn(async () => ({ status: "released" })) }));
 
 beforeAll(() => setupRuntimeFromEnv({
+	SUPABASE_URL: "https://example.supabase.co",
+	SUPABASE_SERVICE_ROLE_KEY: "test-service-role-key",
 	FAL_KEY: "test-fal-key",
 	FAL_QUEUE_BASE_URL: "https://queue.fal.test",
 }));

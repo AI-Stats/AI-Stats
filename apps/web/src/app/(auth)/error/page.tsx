@@ -19,8 +19,6 @@ export default function AuthErrorPage({ searchParams }: AuthErrorPageProps) {
 async function AuthErrorPageContent({ searchParams }: AuthErrorPageProps) {
     const params = (await searchParams) ?? {};
     const rawMessage = Array.isArray(params.message) ? params.message[0] : params.message;
-    const rawCode = Array.isArray(params.code) ? params.code[0] : params.code;
-    const errorCode = String(rawCode ?? "").trim().slice(0, 80);
     const initialMessage = normalizeAuthErrorMessage(rawMessage);
     if (rawMessage && initialMessage !== DEFAULT_AUTH_ERROR_MESSAGE) {
         console.error("Auth error page query message", {
@@ -35,9 +33,6 @@ async function AuthErrorPageContent({ searchParams }: AuthErrorPageProps) {
                 <p className="mt-2 text-sm text-muted-foreground">
                     <AuthErrorMessage initialMessage={initialMessage} />
                 </p>
-                {errorCode ? (
-                    <p className="mt-3 font-mono text-xs text-muted-foreground">Error code: {errorCode}</p>
-                ) : null}
                 <div className="mt-4">
                     <Link className="text-sm underline underline-offset-4" href="/sign-in">
                         Back to sign in

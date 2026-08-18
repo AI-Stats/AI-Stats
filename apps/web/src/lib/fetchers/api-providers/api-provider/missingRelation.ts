@@ -6,5 +6,11 @@ export function isMissingRelationError(error: unknown): boolean {
 			? candidate.message.toLowerCase()
 			: "";
 
-	return code === "42P01" || message.includes("relation") && message.includes("does not exist");
+	return (
+		code === "42P01" ||
+		(code === "PGRST205" &&
+			(message.includes("could not find the table") ||
+				message.includes("relation") ||
+				message.includes("schema cache")))
+	);
 }

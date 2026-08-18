@@ -79,9 +79,10 @@ def resolve_project() -> str:
 def resolve_location() -> str:
     load_local_env()
     value = (
-        os.getenv("GOOGLE_CLOUD_LOCATION")
+        os.getenv("GOOGLE_VERTEX_LOCATION")
+        or os.getenv("GOOGLE_CLOUD_LOCATION")
         or os.getenv("LOCATION")
-        or "global"
+        or "us-east5"
     )
     return value.strip()
 
@@ -111,8 +112,7 @@ def resolve_base_url(project: str, location: str) -> str:
         if raw_base.endswith("/v1"):
             return f"{raw_base}/projects/{project}/locations/{location}"
         return f"{raw_base}/v1/projects/{project}/locations/{location}"
-    host = "aiplatform.googleapis.com" if location == "global" else f"{location}-aiplatform.googleapis.com"
-    return f"https://{host}/v1/projects/{project}/locations/{location}"
+    return f"https://{location}-aiplatform.googleapis.com/v1/projects/{project}/locations/{location}"
 
 
 def pretty(data: Any) -> str:

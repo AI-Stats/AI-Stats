@@ -1,27 +1,41 @@
 import "server-only";
 
+import { createClient } from "@/utils/supabase/server";
 import { evaluateTeamSsoEnforcementNoop } from "@/lib/auth/ssoEnforcement";
 import { fetchAccountWebApi } from "@/lib/web-api/client";
 import { getServerAccountContext } from "@/lib/fetchers/internal/serverAccountContext";
-import { requireServerIdentity } from "@/lib/auth/serverIdentity";
+
+type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
 
 export async function requireAuthenticatedUser(): Promise<{
+	supabase: SupabaseServerClient;
 	user: { id: string; email?: string | null };
 }> {
-	const { user } = await requireServerIdentity();
+	const supabase = await createClient();
+	const {
+		data: { user },
+		error,
+	} = await supabase.auth.getUser();
+
+	if (error || !user?.id) {
+		throw new Error("Unauthorized");
+	}
 
 	return {
-		user: { id: user.id, email: user.email ?? null },
+		supabase,
+		user: { id: user.id, email: (user as any).email ?? null },
 	};
 }
 
 export async function requireWorkspaceMembership(
+	supabase: SupabaseServerClient,
 	userId: string,
 	workspaceId: string,
 	roles?: Array<"owner" | "admin" | "member">,
 ): Promise<void> {
 	if (!userId || !workspaceId) throw new Error("Unauthorized");
 
+	void supabase;
 	const { accessToken } = await getServerAccountContext();
 	if (!accessToken) throw new Error("Unauthorized");
 	const query = new URLSearchParams({ workspaceId });
@@ -45,3 +59,4 @@ export function requireActingUser(
 		throw new Error("Unauthorized");
 	}
 }
+

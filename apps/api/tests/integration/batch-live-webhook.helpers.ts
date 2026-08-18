@@ -1,7 +1,4 @@
 import { GATEWAY_API_KEY, sleep } from "./live-gateway.helpers";
-import { gatewayWebhookEndpoints, keys } from "@phaseo/db/schema";
-import { eq } from "@phaseo/db/query";
-import { withLiveDatabase } from "./live-database.helpers";
 
 export type LiveBatchWebhookFixture = {
 	endpointId: string;
@@ -34,9 +31,34 @@ function gatewayKeyKid(): string {
 	return match[1];
 }
 
+export async function supabaseAdminRest<T>(args: {
+	pathname: string;
+	method?: string;
+	body?: unknown;
+	headers?: Record<string, string>;
+}): Promise<T> {
+	const supabaseUrl = normalizeLiveEnv(process.env.SUPABASE_URL) || requireLiveEnv("NEXT_PUBLIC_SUPABASE_URL");
+	const serviceRole = requireLiveEnv("SUPABASE_SERVICE_ROLE_KEY");
+	const response = await fetch(`${supabaseUrl.replace(/\/+$/, "")}/rest/v1/${args.pathname.replace(/^\/+/, "")}`, {
+		method: args.method ?? "GET",
+		headers: {
+			apikey: serviceRole,
+			Authorization: `Bearer ${serviceRole}`,
+			"Content-Type": "application/json",
+			...(args.headers ?? {}),
+		},
+		body: args.body === undefined ? undefined : JSON.stringify(args.body),
+	});
+	const body = await response.text();
+	if (!response.ok) throw new Error(`Supabase REST ${args.method ?? "GET"} ${args.pathname} failed (${response.status}): ${body}`);
+	return (body ? JSON.parse(body) : null) as T;
+}
+
 export async function resolveLiveWorkspaceId(): Promise<string> {
-	const workspaceId = await withLiveDatabase(async (db) => (await db.select({ workspaceId: keys.workspaceId })
-		.from(keys).where(eq(keys.kid, gatewayKeyKid())).limit(1))[0]?.workspaceId ?? null);
+	const rows = await supabaseAdminRest<Array<{ workspace_id?: string }>>({
+		pathname: `keys?select=workspace_id&kid=eq.${encodeURIComponent(gatewayKeyKid())}&limit=1`,
+	});
+	const workspaceId = String(rows[0]?.workspace_id ?? "").trim();
 	if (!workspaceId) throw new Error("Could not resolve workspace_id for live gateway key");
 	return workspaceId;
 }
@@ -99,25 +121,32 @@ export async function createLiveBatchWebhookFixture(workspaceId: string): Promis
 	const receiverUrl = `https://webhook.site/${receiverToken}`;
 	const signingSecret = `whsec_${randomToken(32)}`;
 	const encrypted = await encryptWebhookSecret(signingSecret);
-	const endpointId = await withLiveDatabase(async (db) => (await db.insert(gatewayWebhookEndpoints).values({
-			workspaceId,
+	const rows = await supabaseAdminRest<Array<{ id?: string }>>({
+		pathname: "gateway_webhook_endpoints?select=id",
+		method: "POST",
+		headers: { Prefer: "return=representation" },
+		body: {
+			workspace_id: workspaceId,
 			name: `Live provider batch matrix ${Date.now()}`,
 			url: receiverUrl,
 			events: ["batch.completed", "batch.failed", "batch.cancelled"],
 			status: "active",
-			secretCiphertext: encrypted.ciphertext,
-			secretIv: encrypted.iv,
-			secretHash: encrypted.hash,
-		}).returning({ id: gatewayWebhookEndpoints.id }))[0]?.id ?? null);
+			secret_ciphertext: encrypted.ciphertext,
+			secret_iv: encrypted.iv,
+			secret_hash: encrypted.hash,
+		},
+	});
+	const endpointId = String(rows[0]?.id ?? "").trim();
 	if (!endpointId) throw new Error("Failed to create managed webhook endpoint fixture");
 	return { endpointId, receiverToken, receiverUrl, signingSecret };
 }
 
 export async function deleteLiveBatchWebhookFixture(endpointId: string): Promise<void> {
-	const now = new Date().toISOString();
-	await withLiveDatabase(async (db) => {
-		await db.update(gatewayWebhookEndpoints).set({ status: "deleted", deletedAt: now, updatedAt: now })
-			.where(eq(gatewayWebhookEndpoints.id, endpointId));
+	await supabaseAdminRest<null>({
+		pathname: `gateway_webhook_endpoints?id=eq.${encodeURIComponent(endpointId)}`,
+		method: "PATCH",
+		headers: { Prefer: "return=minimal" },
+		body: { status: "deleted", deleted_at: new Date().toISOString(), updated_at: new Date().toISOString() },
 	});
 }
 

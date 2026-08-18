@@ -1,9 +1,9 @@
 import { Hono } from "hono";
 import { z } from "zod";
 import { requireUser } from "@/auth/requireUser";
+import { getDataClient } from "@/data/supabase";
 import type { Env } from "@/env";
 import { PRIVATE_NO_STORE_HEADERS } from "@/http/cache";
-import { getAccountProfile } from "@/repositories/account-auth";
 import {
 	buildCompareBody,
 	buildCompareHeaders,
@@ -131,8 +131,8 @@ function extractContentText(frame: any): string {
 async function isAdmin(request: Request, env: Env): Promise<boolean> {
 	const user = await requireUser(request, env);
 	if (!user) return false;
-	const profile = await getAccountProfile(env, user.id);
-	return String(profile?.role ?? "").toLowerCase() === "admin";
+	const role = await getDataClient(env).from("users").select("role").eq("user_id", user.id).maybeSingle();
+	return !role.error && String(role.data?.role ?? "").toLowerCase() === "admin";
 }
 
 function compareKeys(env: Env) {

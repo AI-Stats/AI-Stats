@@ -64,8 +64,10 @@ async function ManagementApiKeysContent({
 				}
 			/>
 			<ManagementKeysPanel
-				initialData={initialData}
+				teamsWithKeys={initialData.teamsWithKeys}
+				currentUserId={initialData.currentUserId}
 			/>
 		</div>
 	);
 }
+

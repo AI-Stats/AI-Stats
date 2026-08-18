@@ -43,10 +43,48 @@ const runtime = vi.hoisted(() => {
 		providers: [],
 		pricing: {},
 	};
-	const fetchRequestContext = vi.fn(async () => contextPayload);
-	const findWallet = vi.fn(async () => {
-		if (walletResult.error) throw new Error(walletResult.error.message);
-		return walletResult.data;
+	const rpc = vi.fn(async () => ({ data: [contextPayload], error: null }));
+	const from = vi.fn((table: string) => {
+		if (table === "wallets") {
+			return {
+				select: () => ({
+					eq: () => ({
+						maybeSingle: async () => walletResult,
+					}),
+				}),
+			};
+		}
+		if (table === "workspace_settings") {
+			return {
+				select: () => ({
+					eq: () => ({
+						maybeSingle: async () => ({
+							data: {
+								routing_mode: null,
+								byok_fallback_enabled: false,
+								beta_channel_enabled: false,
+								alpha_channel_enabled: false,
+								cache_aware_routing_enabled: true,
+							},
+							error: null,
+						}),
+					}),
+				}),
+			};
+		}
+		if (table === "workspaces") {
+			return {
+				select: () => ({
+					eq: () => ({
+						maybeSingle: async () => ({
+							data: { billing_mode: "wallet" },
+							error: null,
+						}),
+					}),
+				}),
+			};
+		}
+		throw new Error(`Unexpected table: ${table}`);
 	});
 
 	return {
@@ -54,8 +92,7 @@ const runtime = vi.hoisted(() => {
 		background,
 		pendingWrites,
 		cache,
-		fetchRequestContext,
-		findWallet,
+		supabase: { rpc, from },
 		get deferWrites() {
 			return deferWrites;
 		},
@@ -73,20 +110,10 @@ const runtime = vi.hoisted(() => {
 
 vi.mock("@/runtime/env", () => ({
 	getCache: () => runtime.cache as unknown as KVNamespace,
+	getSupabaseAdmin: () => runtime.supabase,
 	dispatchBackground: (promise: Promise<unknown>) => {
 		runtime.background.push(promise);
 	},
-}));
-
-vi.mock("@/repositories/gateway-context", () => ({
-	findWallet: (workspaceId: string) => runtime.findWallet(workspaceId),
-	fetchRequestContext: (args: Record<string, unknown>) => runtime.fetchRequestContext(args),
-	loadWorkspaceEnrichment: async () => ({
-		settings: { routing_mode: null, byok_fallback_enabled: false, beta_channel_enabled: false, alpha_channel_enabled: false, cache_aware_routing_enabled: true },
-		workspace: { billing_mode: "wallet" },
-		providers: [],
-	}),
-	listByokKeys: async () => [], listRoutes: async () => [], listCapabilities: async () => [], listModels: async () => [], listProviders: async () => [],
 }));
 
 const workspaceId = "workspace_credit";
@@ -158,8 +185,8 @@ describe("fetchGatewayContext credit-only cache refresh", () => {
 		runtime.cache.get.mockClear();
 		runtime.cache.put.mockClear();
 		runtime.cache.delete.mockClear();
-		runtime.fetchRequestContext.mockClear();
-		runtime.findWallet.mockClear();
+		runtime.supabase.rpc.mockClear();
+		runtime.supabase.from.mockClear();
 		vi.resetModules();
 	});
 
@@ -187,9 +214,9 @@ describe("fetchGatewayContext credit-only cache refresh", () => {
 			enrichMs: null,
 		});
 		expect(context.contextTelemetry?.creditRefreshMs).toEqual(expect.any(Number));
-		expect(runtime.fetchRequestContext).not.toHaveBeenCalled();
-		expect(runtime.findWallet).toHaveBeenCalledTimes(1);
-		expect(runtime.findWallet).toHaveBeenCalledWith(workspaceId);
+		expect(runtime.supabase.rpc).not.toHaveBeenCalled();
+		expect(runtime.supabase.from).toHaveBeenCalledTimes(1);
+		expect(runtime.supabase.from).toHaveBeenCalledWith("wallets");
 		expect(runtime.background).toHaveLength(0);
 		expect(JSON.parse(runtime.store.get(`gateway:credit:${workspaceId}`) ?? "null")).toMatchObject({
 			credit: { ok: true, balanceNanos: 4_000_000_000 },
@@ -243,7 +270,7 @@ describe("fetchGatewayContext credit-only cache refresh", () => {
 			balanceNanos: 749_999_999,
 		});
 		expect(context.contextTelemetry?.cacheStatus).toBe("credit_refresh");
-		expect(runtime.fetchRequestContext).not.toHaveBeenCalled();
+		expect(runtime.supabase.rpc).not.toHaveBeenCalled();
 	});
 
 	it("uses a valid separate credit snapshot without querying the wallet", async () => {
@@ -269,7 +296,7 @@ describe("fetchGatewayContext credit-only cache refresh", () => {
 			cacheStatus: "hit",
 			creditRefreshMs: null,
 		});
-		expect(runtime.findWallet).not.toHaveBeenCalled();
+		expect(runtime.supabase.from).not.toHaveBeenCalled();
 	});
 
 	it("awaits full-context credit writes but leaves unrelated cache writes in the background", async () => {

@@ -1,6 +1,5 @@
 import {
     buildAuthErrorRedirectUrl,
-    classifyPostLoginError,
     normalizeAuthErrorMessage,
     resolveCallbackErrorMessage,
     resolveHashAuthErrorMessage,
@@ -34,20 +33,9 @@ describe('auth error helpers', () => {
     })
 
     it('builds an error redirect URL with a sanitized message', () => {
-        const redirectUrl = buildAuthErrorRedirectUrl('https://example.com/auth/callback', '  Detailed failure  ', 'workspace_setup_failed')
+        const redirectUrl = buildAuthErrorRedirectUrl('https://example.com/auth/callback', '  Detailed failure  ')
 
         expect(redirectUrl.pathname).toBe('/error')
         expect(redirectUrl.searchParams.get('message')).toBe('Detailed failure')
-        expect(redirectUrl.searchParams.get('code')).toBe('workspace_setup_failed')
-    })
-
-    it('classifies post-login errors without exposing internal details', () => {
-        expect(classifyPostLoginError(new Error("Cannot read properties of undefined (reading 'listFactors')"))).toEqual({
-            code: 'security_check_failed',
-            message: 'You are signed in, but Phaseo could not finish checking your account security settings. Please retry sign-in.',
-        })
-        expect(classifyPostLoginError(new Error('provision_personal_workspace_failed'))).toMatchObject({
-            code: 'workspace_setup_failed',
-        })
     })
 })

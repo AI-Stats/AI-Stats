@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import type { Env } from "@/runtime/types";
-import { findActivityLog, listActivityLogs, type ActivityLogStatusFilter } from "@/repositories/activity-logs";
+import { getSupabaseAdmin } from "@/runtime/env";
 import { guardManagementAuth, type GuardErr } from "@/pipeline/before/guards";
 import { CAPABILITIES } from "@/lib/authz/capabilities";
 import { json, withRuntime } from "@/routes/utils";
@@ -16,6 +16,35 @@ const DEFAULT_LIMIT = 50;
 const MAX_LIMIT = 200;
 const DEFAULT_SINCE = "24h";
 const MAX_SINCE_MS = 90 * 24 * 60 * 60 * 1000;
+const LOG_FIELDS = [
+	"request_id",
+	"created_at",
+	"endpoint",
+	"model_id",
+	"requested_model_id",
+	"routed_model_id",
+	"canonical_model_id",
+	"provider",
+	"status_code",
+	"success",
+	"error_code",
+	"latency_ms",
+	"generation_ms",
+	"usage",
+	"cost_nanos",
+	"currency",
+	"pricing_lines",
+	"key_id",
+	"auth_method",
+	"oauth_client_id",
+	"stream",
+	"byok",
+	"native_response_id",
+	"throughput",
+	"location",
+	"finish_reason",
+].join(",");
+
 type ParsedTimeRange =
 	| { ok: true; from: string; to: string | null }
 	| { ok: false; response: Response };
@@ -100,16 +129,16 @@ function formatLog(row: Record<string, unknown>) {
 	return safeLog;
 }
 
-function parseStatusFilter(status: string | null): { ok: true; value: ActivityLogStatusFilter | null } | { ok: false; response: Response } {
-	if (!status) return { ok: true, value: null };
+function applyStatusFilter(query: any, status: string | null): { ok: true; query: any } | { ok: false; response: Response } {
+	if (!status) return { ok: true, query };
 	const normalized = status.toLowerCase();
-	if (normalized === "success") return { ok: true, value: { kind: "success", value: true } };
-	if (normalized === "error") return { ok: true, value: { kind: "success", value: false } };
+	if (normalized === "success") return { ok: true, query: query.eq("success", true) };
+	if (normalized === "error") return { ok: true, query: query.eq("success", false) };
 	if (/^[1-5]xx$/.test(normalized)) {
 		const lower = Number(normalized[0]) * 100;
-		return { ok: true, value: { kind: "status_range", lower, upper: lower + 99 } };
+		return { ok: true, query: query.gte("status_code", lower).lte("status_code", lower + 99) };
 	}
-	if (/^[1-5]\d{2}$/.test(normalized)) return { ok: true, value: { kind: "status_code", value: Number(normalized) } };
+	if (/^[1-5]\d{2}$/.test(normalized)) return { ok: true, query: query.eq("status_code", Number(normalized)) };
 	return { ok: false, response: badRequest("status must be success, error, 1xx-5xx, or an exact HTTP status code") };
 }
 
@@ -154,19 +183,30 @@ async function handleListLogs(req: Request) {
 
 	const limit = parsePositiveInt(url.searchParams.get("limit"), DEFAULT_LIMIT, MAX_LIMIT);
 	const offset = parseOffset(url.searchParams.get("offset"));
-	const status = parseStatusFilter(url.searchParams.get("status"));
-	if (status.ok === false) return status.response;
 	try {
-		const { rows, total } = await listActivityLogs({
-			workspaceId, from: timeRange.from, to: timeRange.to,
-			provider: provider.value, model: model.value, endpoint: endpoint.value,
-			requestId: requestId.value, keyId: keyId.value, sessionId: sessionId.value,
-			errorCode: errorCode.value, status: status.value,
-		}, limit, offset);
+		let query: any = getSupabaseAdmin()
+			.from("gateway_requests")
+			.select(LOG_FIELDS, { count: "exact" })
+			.eq("workspace_id", workspaceId)
+			.gte("created_at", timeRange.from)
+			.order("created_at", { ascending: false })
+			.range(offset, offset + limit - 1);
+		if (timeRange.to) query = query.lte("created_at", timeRange.to);
+		if (provider.value) query = query.eq("provider", provider.value);
+		if (model.value) query = query.eq("model_id", model.value);
+		if (endpoint.value) query = query.eq("endpoint", endpoint.value);
+		if (requestId.value) query = query.eq("request_id", requestId.value);
+		if (keyId.value) query = query.eq("key_id", keyId.value);
+		if (sessionId.value) query = query.eq("session_id", sessionId.value);
+		if (errorCode.value) query = query.eq("error_code", errorCode.value);
+		const status = applyStatusFilter(query, url.searchParams.get("status"));
+		if (status.ok === false) return status.response;
+		const { data, error, count } = await status.query;
+		if (error) throw error;
 		return json({
 			ok: true,
-			data: rows.map((row) => formatLog(row)),
-			total,
+			data: (data ?? []).map((row: Record<string, unknown>) => formatLog(row)),
+			total: count ?? 0,
 			limit,
 			offset,
 			from: timeRange.from,
@@ -185,7 +225,15 @@ async function handleGetLog(req: Request) {
 	if (!requestId) return badRequest("request id is required");
 	if (requestId.length > 256) return badRequest("request id is too long");
 	try {
-		const data = await findActivityLog(authenticated.workspaceId, requestId);
+		const { data, error } = await getSupabaseAdmin()
+			.from("gateway_requests")
+			.select(LOG_FIELDS)
+			.eq("workspace_id", authenticated.workspaceId)
+			.eq("request_id", requestId)
+			.order("created_at", { ascending: false })
+			.limit(1)
+			.maybeSingle();
+		if (error) throw error;
 		if (!data) return json({ ok: false, error: "not_found" }, 404, { "Cache-Control": "no-store" });
 		return json({ ok: true, data: formatLog(data as unknown as Record<string, unknown>) }, 200, { "Cache-Control": "no-store" });
 	} catch (error) {

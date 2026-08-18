@@ -1,7 +1,9 @@
-import * as byokFeeRepository from "@/repositories/byok-fee";
+import { getSupabaseAdmin } from "@/runtime/env";
 import { formatUsdFromNanosExact } from "./money";
 
 const NANOS_PER_CENT = 10_000_000;
+const COUNTER_RPC_MAX_ATTEMPTS = 3;
+const COUNTER_RPC_RETRY_BASE_MS = 25;
 
 export const BYOK_MONTHLY_FREE_REQUESTS = 1_000_000;
 export const BYOK_SERVICE_FEE_RATE = 0.025;
@@ -32,7 +34,7 @@ type ByokFeeResult = {
 type ByokCounterResolution = {
 	requestCount: number | null;
 	monthStart: string | null;
-	source: "database" | "unavailable";
+	source: "rpc" | "fallback_read" | "unavailable";
 };
 
 function normalizeNanos(value: unknown): number {
@@ -57,25 +59,82 @@ function coerceRequestCount(value: unknown): number | null {
 	return null;
 }
 
+function extractByokCounterRow(data: unknown): ByokCounterRow | null {
+	if (Array.isArray(data)) {
+		const first = data[0];
+		if (first && typeof first === "object") return first as ByokCounterRow;
+		return null;
+	}
+	if (data && typeof data === "object") return data as ByokCounterRow;
+	return null;
+}
+
+function sleep(ms: number) {
+	return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 function utcMonthStartIso(nowIso: string): string {
 	const now = new Date(nowIso);
 	return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0, 0)).toISOString();
 }
 
 async function resolveByokCounter(workspaceId: string): Promise<ByokCounterResolution> {
+	const supabase = getSupabaseAdmin();
 	const nowIso = new Date().toISOString();
+	let lastError: unknown = null;
+
+	for (let attempt = 1; attempt <= COUNTER_RPC_MAX_ATTEMPTS; attempt++) {
+		try {
+			const { data, error } = await supabase.rpc("increment_workspace_byok_monthly_request_count", {
+				p_workspace_id: workspaceId,
+				p_now: nowIso,
+			});
+			if (error) throw error;
+			const row = extractByokCounterRow(data);
+			const requestCount = coerceRequestCount(row?.request_count);
+			if (requestCount != null) {
+				return {
+					requestCount,
+					monthStart: typeof row?.month_start === "string" ? row.month_start : utcMonthStartIso(nowIso),
+					source: "rpc",
+				};
+			}
+			lastError = new Error("byok counter rpc returned no request_count");
+		} catch (err) {
+			lastError = err;
+		}
+
+		if (attempt < COUNTER_RPC_MAX_ATTEMPTS) {
+			await sleep(COUNTER_RPC_RETRY_BASE_MS * attempt);
+		}
+	}
+
+	// Fallback read path: approximate count by reading current row and treating this call as +1.
+	const monthStartIso = utcMonthStartIso(nowIso);
 	try {
-		const row = await byokFeeRepository.incrementMonthlyRequestCount(workspaceId, nowIso) as ByokCounterRow;
+		const { data, error } = await supabase
+			.from("workspace_byok_monthly_usage")
+			.select("month_start,request_count")
+			.eq("workspace_id", workspaceId)
+			.eq("month_start", monthStartIso)
+			.maybeSingle();
+		if (error) throw error;
+		const row = data as ByokCounterRow | null;
+		const existingCount = coerceRequestCount(row?.request_count) ?? 0;
 		return {
-			requestCount: coerceRequestCount(row.request_count),
-			monthStart: typeof row.month_start === "string" ? row.month_start : utcMonthStartIso(nowIso),
-			source: "database",
+			requestCount: existingCount + 1,
+			monthStart: (typeof row?.month_start === "string" ? row.month_start : monthStartIso),
+			source: "fallback_read",
 		};
-	} catch (error) {
-		console.error("byok_monthly_counter_increment_failed", { workspaceId, error });
+	} catch (fallbackErr) {
+		console.error("byok_monthly_counter_fallback_failed", {
+			workspaceId,
+			error: fallbackErr,
+			lastRpcError: lastError,
+		});
 		return {
 			requestCount: null,
-			monthStart: utcMonthStartIso(nowIso),
+			monthStart: monthStartIso,
 			source: "unavailable",
 		};
 	}

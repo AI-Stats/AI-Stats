@@ -70,16 +70,7 @@ export async function fetchGenerationLog(requestId: string): Promise<{ success: 
 		return { success: false, error: error instanceof Error ? error.message : "usage_log_detail_unavailable" };
 	}
 }
-export async function investigateGeneration(requestId: string): Promise<{ success: boolean; data?: InvestigateGenerationResult; error?: string }> {
-	try {
-		return await operation("investigateGeneration", [requestId]);
-	} catch (error) {
-		return {
-			success: false,
-			error: error instanceof Error ? error.message : "usage_log_detail_unavailable",
-		};
-	}
-}
+export async function investigateGeneration(requestId: string): Promise<{ success: boolean; data?: InvestigateGenerationResult; error?: string }> { return operation("investigateGeneration", [requestId]); }
 export async function fetchChartData(params: any): Promise<ChartDataResult> { return operation("chartData", [params]); }
 export async function fetchSessionRollups(params: any): Promise<SessionRollupRow[]> { return operation("sessionRollups", [params]); }
 export async function fetchSessionRequests(params: any): Promise<SessionRequestRow[]> { return operation("sessionRequests", [params]); }

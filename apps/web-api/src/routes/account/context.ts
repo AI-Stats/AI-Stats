@@ -1,9 +1,11 @@
 import { requireUser, type AuthenticatedUser } from "@/auth/requireUser";
+import { getAuthenticatedDataClient, getDataClient } from "@/data/supabase";
 import type { Env } from "@/env";
-import { getWorkspaceAccess } from "@/repositories/workspace-access";
 
 export type AccountWorkspaceContext = {
 	user: AuthenticatedUser;
+	client: ReturnType<typeof getDataClient>;
+	userClient: ReturnType<typeof getDataClient>;
 	workspaceId: string;
 	role: string;
 };
@@ -27,21 +29,31 @@ export async function requireAccountWorkspace(args: {
 	const workspaceId = String(
 		args.workspaceId ?? cookieValue(args.request, "activeWorkspaceId") ?? "",
 	).trim();
-	if (!user || !workspaceId) {
-		console.warn("[account/workspace] context incomplete", {
-			hasUser: Boolean(user),
-			hasWorkspaceId: Boolean(workspaceId),
-		});
-		return null;
-	}
-	const access = await getWorkspaceAccess(args.env, user.id, workspaceId);
-	if (!access) {
-		console.warn("[account/workspace] membership not found");
-		return null;
-	}
+	if (!user || !workspaceId) return null;
+	const client = getDataClient(args.env);
+	const userClient = getAuthenticatedDataClient(args.env, args.request);
+	if (!userClient) return null;
+	const [membershipResult, workspaceResult] = await Promise.all([
+		client
+			.from("workspace_members")
+			.select("role")
+			.eq("workspace_id", workspaceId)
+			.eq("user_id", user.id)
+			.maybeSingle(),
+		client
+			.from("workspaces")
+			.select("owner_user_id")
+			.eq("id", workspaceId)
+			.maybeSingle(),
+	]);
+	if (membershipResult.error || workspaceResult.error) return null;
+	const isOwner = workspaceResult.data?.owner_user_id === user.id;
+	if (!membershipResult.data && !isOwner) return null;
 	return {
 		user,
+		client,
+		userClient,
 		workspaceId,
-		role: access.role,
+		role: isOwner ? "admin" : String(membershipResult.data?.role ?? "member"),
 	};
 }

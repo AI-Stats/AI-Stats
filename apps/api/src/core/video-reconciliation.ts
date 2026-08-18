@@ -565,8 +565,8 @@ async function fetchGoogleVertexVideoStatus(job: VideoJobRecord): Promise<VideoP
 	if (!credential) return null;
 	const bindings = getBindings() as unknown as Record<string, string | undefined>;
 	const accessToken = await resolveVertexAccessToken(credential);
+	const apiBase = resolveVertexApiBase(bindings);
 	const providerId = String(job.provider ?? "google-vertex").trim() || "google-vertex";
-	const apiBase = resolveVertexApiBase(bindings, providerId);
 	const model = normalizeGoogleVideoModelName(String(
 		job.model ??
 		job.meta?.model ??

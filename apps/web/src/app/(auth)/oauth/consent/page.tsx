@@ -1,8 +1,5 @@
 import React, { Suspense } from "react";
-import {
-	findActiveOAuthAppMetadata,
-	listUserWorkspaces,
-} from "@/lib/database/repositories/oauth";
+import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import ConsentForm from "@/components/(gateway)/oauth/ConsentForm";
 import { Card } from "@/components/ui/card";
@@ -10,8 +7,6 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
 import { isSafeOAuthRedirectUrl } from "@/lib/oauth/safeUrls";
 import { apiBaseUrl } from "@/lib/oauth/apiBaseUrl";
-import { headers } from "next/headers";
-import { getServerIdentity } from "@/lib/auth/serverIdentity";
 
 export const metadata = {
 	title: "Authorize Application - Phaseo",
@@ -84,15 +79,14 @@ function oauthAppFromClientRow(row: Record<string, any>) {
 	};
 }
 
-async function loadConsentClientMetadata(clientId: string) {
-	const cookie = (await headers()).get("cookie")?.trim();
-	const authHeaders: HeadersInit | null = cookie ? { Cookie: cookie } : null;
-	if (!authHeaders) return null;
+async function loadConsentClientMetadata(supabase: any, clientId: string) {
+	const { data: { session } } = await supabase.auth.getSession();
+	if (!session?.access_token) return null;
 	try {
 		const url = new URL(`${apiBaseUrl()}/oauth/client-metadata`);
 		url.searchParams.set("client_id", clientId);
 		const response = await fetch(url, {
-			headers: authHeaders,
+			headers: { Authorization: `Bearer ${session.access_token}` },
 			cache: "no-store",
 		});
 		if (!response.ok) return null;
@@ -122,18 +116,17 @@ export default function ConsentPage({ searchParams }: ConsentPageProps) {
 
 async function ConsentPageContent({ searchParams }: ConsentPageProps) {
 	const params = await searchParams;
-	const oauthClient = {
-		getAuthorizationDetails: async (_authorizationId: string): Promise<{ data: any; error: { message: string } | null }> => ({
-			data: null,
-			error: { message: "This authorization request has expired. Restart the OAuth flow." },
-		}),
-	};
+	const supabase = await createClient();
+	const oauthClient = supabase.auth.oauth as any;
 
 	// Check if user is authenticated
-	const user = (await getServerIdentity())?.user;
+	const {
+		data: { user },
+		error: userError,
+	} = await supabase.auth.getUser();
 
 	// If not authenticated, redirect to sign in with return URL
-	if (!user) {
+	if (userError || !user) {
 		const returnUrl = new URLSearchParams(params as any).toString();
 		redirect(`/sign-in?returnUrl=${encodeURIComponent(`/oauth/consent?${returnUrl}`)}`);
 	}
@@ -212,10 +205,15 @@ async function ConsentPageContent({ searchParams }: ConsentPageProps) {
 		}
 
 		if (resolvedClientId) {
-			const appMetadata = await findActiveOAuthAppMetadata(resolvedClientId);
+			const { data: appMetadata } = await supabase
+				.from("oauth_app_metadata")
+				.select("*")
+				.eq("client_id", resolvedClientId)
+				.eq("status", "active")
+				.maybeSingle();
 			oauthApp = appMetadata
 				? { ...appMetadata, registration_source: appMetadata.is_first_party ? "first_party" : "developer" }
-				: await loadConsentClientMetadata(resolvedClientId);
+				: await loadConsentClientMetadata(supabase, resolvedClientId);
 		}
 
 		if (!oauthApp) {
@@ -249,11 +247,16 @@ async function ConsentPageContent({ searchParams }: ConsentPageProps) {
 		}
 
 		// Fetch OAuth app metadata
-		const appMetadata = await findActiveOAuthAppMetadata(params.client_id);
+		const { data: appMetadata, error: appError } = await supabase
+			.from("oauth_app_metadata")
+			.select("*")
+			.eq("client_id", params.client_id)
+			.eq("status", "active")
+			.single();
 
 		let resolvedAppMetadata: Record<string, any> | null = appMetadata as Record<string, any> | null;
-		if (!resolvedAppMetadata) {
-			const firstPartyClient = await loadConsentClientMetadata(params.client_id);
+		if (appError || !resolvedAppMetadata) {
+			const firstPartyClient = await loadConsentClientMetadata(supabase, params.client_id);
 			if (firstPartyClient) {
 				resolvedAppMetadata = oauthAppFromClientRow(firstPartyClient as Record<string, any>);
 			}
@@ -359,9 +362,18 @@ async function ConsentPageContent({ searchParams }: ConsentPageProps) {
 	}
 
 	// Fetch user's teams
-	const teams = await listUserWorkspaces(user.id);
+	const { data: teamMembers, error: teamsError } = await supabase
+		.from("workspace_members")
+		.select(`
+			workspace_id,
+			teams:workspaces (
+				id,
+				name
+			)
+		`)
+		.eq("user_id", user.id);
 
-	if (teams.length === 0) {
+	if (teamsError || !teamMembers || teamMembers.length === 0) {
 		return (
 			<div className="container max-w-2xl mx-auto py-12">
 				<Card className="p-8">
@@ -379,6 +391,17 @@ async function ConsentPageContent({ searchParams }: ConsentPageProps) {
 			</div>
 		);
 	}
+
+	// Transform teams data
+	const teams = teamMembers
+		.map((tm) => {
+			const team = Array.isArray(tm.teams) ? tm.teams[0] : tm.teams;
+			if (team && typeof team === "object" && "id" in team && "name" in team) {
+				return { id: team.id, name: team.name };
+			}
+			return null;
+		})
+		.filter((t): t is { id: string; name: string } => t !== null);
 
 	return (
 		<div className="container max-w-3xl mx-auto py-12">

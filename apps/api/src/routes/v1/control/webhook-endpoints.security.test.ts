@@ -22,22 +22,10 @@ const state = vi.hoisted(() => ({
 vi.mock("@/runtime/env", () => ({
 	configureRuntime: vi.fn(),
 	clearRuntime: vi.fn(),
-	getBindings: vi.fn(() => ({})),
-}));
-
-vi.mock("@/repositories/management", () => ({
-	findWorkspaceRole: vi.fn(async () => "owner"),
-}));
-
-vi.mock("@/repositories/webhook-endpoints", () => ({
-	listWebhookEndpoints: vi.fn(async () => {
+	getSupabaseAdmin: () => {
 		state.dbCalls += 1;
 		throw new Error("database_should_not_be_reached");
-	}),
-	createWebhookEndpoint: vi.fn(),
-	findWebhookEndpoint: vi.fn(),
-	updateWebhookEndpoint: vi.fn(),
-	deleteWebhookEndpoint: vi.fn(),
+	},
 }));
 
 vi.mock("@/pipeline/before/guards", () => ({

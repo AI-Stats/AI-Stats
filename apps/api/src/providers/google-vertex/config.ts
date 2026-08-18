@@ -1,11 +1,5 @@
 import type { OpenAICompatConfig } from "../openai-compatible/types";
 
-export const GOOGLE_VERTEX_PROVIDER_CONFIGS = {
-	"google-vertex": { location: "global" },
-	"google-vertex-us": { location: "us-central1" },
-	"google-vertex-eu": { location: "eu" },
-} as const;
-
 export const GOOGLE_VERTEX_OPENAI_COMPAT_CONFIGS = {
 	"google-vertex": {
 		providerId: "google-vertex",
@@ -16,13 +10,6 @@ export const GOOGLE_VERTEX_OPENAI_COMPAT_CONFIGS = {
 	},
 	"google-vertex-eu": {
 		providerId: "google-vertex-eu",
-		baseUrlEnv: "GOOGLE_VERTEX_BASE_URL",
-		apiKeyEnv: "GOOGLE_VERTEX_API_KEY",
-		pathPrefix: "",
-		supportsResponses: false,
-	},
-	"google-vertex-us": {
-		providerId: "google-vertex-us",
 		baseUrlEnv: "GOOGLE_VERTEX_BASE_URL",
 		apiKeyEnv: "GOOGLE_VERTEX_API_KEY",
 		pathPrefix: "",

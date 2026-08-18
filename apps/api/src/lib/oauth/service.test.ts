@@ -14,7 +14,8 @@ import {
 } from "./service";
 
 const baseBindings = {
-	PLANETSCALE_DATABASE_URL: "postgresql://phaseo:test@aws.connect.psdb.cloud/phaseo?sslmode=verify-full",
+	SUPABASE_URL: "https://example.supabase.co",
+	SUPABASE_SERVICE_ROLE_KEY: "test-service-role-key",
 	GATEWAY_CACHE: {} as KVNamespace,
 	KEY_PEPPER_ACTIVE: "test-key-pepper",
 	PHASEO_OAUTH_TOKEN_PEPPER_ACTIVE: "test-oauth-pepper",

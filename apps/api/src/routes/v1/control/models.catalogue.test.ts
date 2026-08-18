@@ -1,97 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const catalogueFixtureMock = vi.fn();
+const getSupabaseAdminMock = vi.fn();
 
-vi.mock("@/repositories/catalogue", () => ({
-    loadCatalogueMetadata: vi.fn(async () => {
-        const admin = catalogueFixtureMock();
-        const read = async (table: string, selection = "*") => {
-            const result = await admin.from(table).select(selection);
-            if (result.error) throw new Error(result.error.message || `Failed to load ${table}`);
-            return result.data ?? [];
-        };
-        const [modelRows, details, routeRows, capabilityRows, aliasRows, providerRows] = await Promise.all([
-            read("v2_models"),
-            read("v2_model_details"),
-            read("v2_model_provider_routes"),
-            read("v2_route_capabilities"),
-            read("v2_model_aliases"),
-            read("v2_providers"),
-        ]);
-        return {
-            models: modelRows.map((row: any) => {
-                const organisation = Array.isArray(row.organisation) ? row.organisation[0] : row.organisation;
-                return {
-                    ...row,
-                    organisation_slug: organisation?.lab_slug ?? organisation?.organisation_id ?? null,
-                    organisation_name: organisation?.name ?? null,
-                    organisation_country_code: organisation?.country_code ?? null,
-                    organisation_metadata: organisation?.metadata ?? (organisation?.colour ? { colour: organisation.colour } : null),
-                };
-            }),
-            details,
-            routes: routeRows.map((row: any) => ({
-                provider_api_model_id: row.provider_model_id,
-                provider_id: row.provider_slug,
-                api_model_id: row.model_slug,
-                model_id: row.model_slug,
-                provider_model_slug: row.provider_model_slug,
-                is_active_gateway: row.routing_enabled,
-                routing_status: row.status,
-                input_modalities: row.input_modalities,
-                output_modalities: row.output_modalities,
-                effective_from: row.effective_from ?? null,
-                effective_to: row.effective_to ?? null,
-            })),
-            capabilities: capabilityRows.map((row: any) => ({
-                provider_api_model_id: row.provider_model_id,
-                capability_id: row.capability_id,
-                status: row.status,
-                params: row.params,
-                effective_from: row.effective_from ?? null,
-                effective_to: row.effective_to ?? null,
-            })),
-            aliases: aliasRows.map((row: any) => ({
-                alias_slug: row.alias_slug,
-                api_model_id: row.model_slug ?? row.api_model_id,
-            })),
-            providers: providerRows.map((row: any) => ({
-                api_provider_id: row.provider_slug,
-                api_provider_name: row.name,
-                metadata: row.metadata,
-                country_code: row.country_code,
-                status: row.status,
-                routing_enabled: row.routing_enabled,
-            })),
-        };
-    }),
-}));
-
-vi.mock("@/repositories/pricing", () => ({
-    loadCataloguePricingRows: vi.fn(async () => {
-        const admin = catalogueFixtureMock();
-        const skuResult = await admin.from("v2_pricing_skus").select("*");
-        const meterResult = await admin.from("v2_pricing_sku_meters").select("*");
-        return {
-            skus: (skuResult.data ?? []).map((row: any) => ({
-                ...row,
-                skuId: row.sku_id,
-                providerModelId: row.provider_model_id,
-                serviceTierSlug: row.service_tier_slug,
-                effectiveFrom: row.effective_from,
-                effectiveTo: row.effective_to,
-            })),
-            meters: (meterResult.data ?? []).map((row: any) => ({
-                ...row,
-                skuMeterId: row.sku_meter_id,
-                skuId: row.sku_id,
-                meterKey: row.meter_key,
-                unitQuantity: row.unit_quantity,
-                priceNanos: row.price_nanos,
-                meterOrder: row.meter_order,
-            })),
-        };
-    }),
+vi.mock("@/runtime/env", () => ({
+    getSupabaseAdmin: getSupabaseAdminMock,
 }));
 
 type QueryResult = {
@@ -103,7 +15,7 @@ type QueryState = {
     emptyCapabilityInCalled: boolean;
 };
 
-function buildCatalogueFixture(
+function buildSupabaseMock(
     responses: Record<string, QueryResult[]>,
     state: QueryState
 ) {
@@ -347,7 +259,7 @@ describe("fetchCatalogue", () => {
             data_api_pricing_rules: [{ data: [], error: null }],
         };
 
-        catalogueFixtureMock.mockReturnValue(buildCatalogueFixture(responses, state));
+        getSupabaseAdminMock.mockReturnValue(buildSupabaseMock(responses, state));
         const { fetchCatalogue } = await import("./models.catalogue");
 
         const models = await fetchCatalogue({});
@@ -456,7 +368,7 @@ describe("fetchCatalogue", () => {
             data_api_pricing_rules: [{ data: [], error: null }],
         };
 
-        catalogueFixtureMock.mockReturnValue(buildCatalogueFixture(responses, state));
+        getSupabaseAdminMock.mockReturnValue(buildSupabaseMock(responses, state));
         const { fetchCatalogue } = await import("./models.catalogue");
 
         const models = await fetchCatalogue({});
@@ -568,7 +480,7 @@ describe("fetchCatalogue", () => {
 
         for (const endpoint of ["video.generation", "videos", "/v1/videos"]) {
             const { state, responses } = buildResponses();
-            catalogueFixtureMock.mockReturnValueOnce(buildCatalogueFixture(responses, state));
+            getSupabaseAdminMock.mockReturnValueOnce(buildSupabaseMock(responses, state));
 
             const models = await fetchCatalogue({ endpoints: [endpoint] });
 
@@ -600,7 +512,7 @@ describe("fetchCatalogue", () => {
 
         for (const param of ["duration_seconds", "size"]) {
             const { state, responses } = buildResponses();
-            catalogueFixtureMock.mockReturnValueOnce(buildCatalogueFixture(responses, state));
+            getSupabaseAdminMock.mockReturnValueOnce(buildSupabaseMock(responses, state));
 
             const models = await fetchCatalogue({ endpoints: ["video.generate"], params: [param] });
 
@@ -683,7 +595,7 @@ describe("fetchCatalogue", () => {
             data_api_pricing_rules: [{ data: [], error: null }],
         };
 
-        catalogueFixtureMock.mockReturnValue(buildCatalogueFixture(responses, state));
+        getSupabaseAdminMock.mockReturnValue(buildSupabaseMock(responses, state));
         const { fetchCatalogue } = await import("./models.catalogue");
 
         const models = await fetchCatalogue({ endpoints: ["audio/speech"] as any });
@@ -780,7 +692,7 @@ describe("fetchCatalogue", () => {
             data_api_pricing_rules: [{ data: [], error: null }],
         };
 
-        catalogueFixtureMock.mockReturnValue(buildCatalogueFixture(responses, state));
+        getSupabaseAdminMock.mockReturnValue(buildSupabaseMock(responses, state));
         const { fetchCatalogue } = await import("./models.catalogue");
 
         const models = await fetchCatalogue({});
@@ -899,7 +811,7 @@ describe("fetchCatalogue", () => {
             data_api_pricing_rules: [{ data: [], error: null }],
         };
 
-        catalogueFixtureMock.mockReturnValue(buildCatalogueFixture(responses, state));
+        getSupabaseAdminMock.mockReturnValue(buildSupabaseMock(responses, state));
         const { fetchCatalogue } = await import("./models.catalogue");
 
         const models = await fetchCatalogue({ statuses: ["active"] });
@@ -1208,7 +1120,7 @@ describe("fetchCatalogue", () => {
             ],
         };
 
-        catalogueFixtureMock.mockReturnValue(buildCatalogueFixture(responses, state));
+        getSupabaseAdminMock.mockReturnValue(buildSupabaseMock(responses, state));
         const { fetchCatalogue } = await import("./models.catalogue");
 
         const models = await fetchCatalogue({ params: ["top_k"] });
@@ -1346,7 +1258,7 @@ describe("fetchCatalogue", () => {
             data_api_pricing_rules: [{ data: [], error: null }],
         };
 
-        catalogueFixtureMock.mockReturnValue(buildCatalogueFixture(responses, state));
+        getSupabaseAdminMock.mockReturnValue(buildSupabaseMock(responses, state));
         const { fetchCatalogue } = await import("./models.catalogue");
 
         const models = await fetchCatalogue({});
@@ -1496,7 +1408,7 @@ describe("fetchCatalogue", () => {
             data_api_pricing_rules: [{ data: [], error: null }, { data: [], error: null }],
         };
 
-        catalogueFixtureMock.mockReturnValue(buildCatalogueFixture(responses, state));
+        getSupabaseAdminMock.mockReturnValue(buildSupabaseMock(responses, state));
         const { fetchCatalogue } = await import("./models.catalogue");
 
         const models = await fetchCatalogue({
@@ -1659,7 +1571,7 @@ describe("fetchCatalogue", () => {
             data_api_pricing_rules: [{ data: [], error: null }, { data: [], error: null }],
         };
 
-        catalogueFixtureMock.mockReturnValue(buildCatalogueFixture(responses, state));
+        getSupabaseAdminMock.mockReturnValue(buildSupabaseMock(responses, state));
         const { fetchCatalogue } = await import("./models.catalogue");
 
         const models = await fetchCatalogue({
@@ -1769,7 +1681,7 @@ describe("fetchCatalogue", () => {
             data_api_pricing_rules: [{ data: [], error: null }],
         };
 
-        catalogueFixtureMock.mockReturnValue(buildCatalogueFixture(responses, state));
+        getSupabaseAdminMock.mockReturnValue(buildSupabaseMock(responses, state));
         const { fetchCatalogue } = await import("./models.catalogue");
 
         const models = await fetchCatalogue({
@@ -1885,7 +1797,7 @@ describe("fetchCatalogue", () => {
                 data_api_pricing_rules: [{ data: [], error: null }],
             };
 
-        catalogueFixtureMock.mockReturnValue(buildCatalogueFixture(responses, state));
+            getSupabaseAdminMock.mockReturnValue(buildSupabaseMock(responses, state));
             const { fetchCatalogue } = await import("./models.catalogue");
 
             const models = await fetchCatalogue({
@@ -2052,7 +1964,7 @@ describe("fetchCatalogue", () => {
             data_api_pricing_rules: [{ data: [], error: null }, { data: [], error: null }],
         };
 
-        catalogueFixtureMock.mockReturnValue(buildCatalogueFixture(responses, state));
+        getSupabaseAdminMock.mockReturnValue(buildSupabaseMock(responses, state));
         const { fetchCatalogue } = await import("./models.catalogue");
 
         const activeOnlyModels = await fetchCatalogue({});
@@ -2190,7 +2102,7 @@ describe("fetchCatalogue", () => {
             data_api_pricing_rules: [{ data: [], error: null }],
         };
 
-        catalogueFixtureMock.mockReturnValue(buildCatalogueFixture(responses, state));
+        getSupabaseAdminMock.mockReturnValue(buildSupabaseMock(responses, state));
         const { fetchCatalogue } = await import("./models.catalogue");
 
         const models = await fetchCatalogue({
@@ -2333,7 +2245,7 @@ describe("fetchCatalogue", () => {
             data_api_pricing_rules: [{ data: [], error: null }],
         };
 
-        catalogueFixtureMock.mockReturnValue(buildCatalogueFixture(responses, state));
+        getSupabaseAdminMock.mockReturnValue(buildSupabaseMock(responses, state));
         const { fetchCatalogue } = await import("./models.catalogue");
 
         const models = await fetchCatalogue({});
@@ -2424,7 +2336,7 @@ describe("fetchCatalogue", () => {
             data_api_pricing_rules: [{ data: [], error: null }],
         };
 
-        catalogueFixtureMock.mockReturnValue(buildCatalogueFixture(responses, state));
+        getSupabaseAdminMock.mockReturnValue(buildSupabaseMock(responses, state));
         const { fetchCatalogue } = await import("./models.catalogue");
 
         const models = await fetchCatalogue({ availability: "all" });
@@ -2537,7 +2449,7 @@ describe("fetchCatalogue", () => {
             data_api_pricing_rules: [{ data: [], error: null }, { data: [], error: null }],
         };
 
-        catalogueFixtureMock.mockReturnValue(buildCatalogueFixture(responses, state));
+        getSupabaseAdminMock.mockReturnValue(buildSupabaseMock(responses, state));
         const { fetchCatalogue } = await import("./models.catalogue");
 
         const activeOnlyModels = await fetchCatalogue({});
@@ -2636,7 +2548,7 @@ describe("fetchCatalogue", () => {
             data_api_pricing_rules: [{ data: [], error: null }],
         };
 
-        catalogueFixtureMock.mockReturnValue(buildCatalogueFixture(responses, state));
+        getSupabaseAdminMock.mockReturnValue(buildSupabaseMock(responses, state));
         const { fetchCatalogue } = await import("./models.catalogue");
 
         const models = await fetchCatalogue({ endpoints: ["batch"] });
@@ -2759,7 +2671,7 @@ describe("fetchCatalogue", () => {
 
         for (const endpoint of ["/v1/batches", "batches"]) {
             const { state, responses } = buildResponses();
-            catalogueFixtureMock.mockReturnValueOnce(buildCatalogueFixture(responses, state));
+            getSupabaseAdminMock.mockReturnValueOnce(buildSupabaseMock(responses, state));
             const models = await fetchCatalogue({ endpoints: [endpoint] });
             expect(models).toHaveLength(1);
             expect(models[0]).toMatchObject({

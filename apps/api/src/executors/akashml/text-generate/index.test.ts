@@ -8,6 +8,8 @@ import { executor, preprocess } from "./index";
 import { installFetchMock } from "../../../../tests/helpers/mock-fetch";
 import { setupTestRuntime, teardownTestRuntime } from "../../../../tests/helpers/runtime";
 
+vi.mock("@supabase/supabase-js", () => ({ createClient: () => ({}) }));
+
 function args(ir: IRChatRequest): ExecutorExecuteArgs {
 	return {
 		ir,

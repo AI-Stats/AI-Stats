@@ -147,7 +147,7 @@ export default function TeamSwitcher({
 									)}
 									closeOnClick={!isActive}
 									onClick={() => {
-										if (isActive && initialActiveTeamId === t.id) {
+										if (isActive) {
 											if (
 												typeof navigator === "undefined" ||
 												!navigator?.clipboard?.writeText

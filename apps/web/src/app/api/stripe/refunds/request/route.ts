@@ -1,19 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getStripe } from "@/lib/stripe";
 import { requireActiveTeamStripeCustomer } from "@/lib/server/activeTeamStripe";
-import { applyWalletDelta } from "@/lib/billing/walletRepository";
-import {
-    findPaymentIntentPurchase,
-    getWalletBalance,
-    hasActivePaymentIntentRefund,
-    markRefundLedgerSucceeded,
-    sumWorkspaceUsageSince,
-    updatePurchaseRefundClaim,
-    upsertRefundLedger,
-} from "@/lib/database/repositories/billing";
+import { createAdminClient } from "@/utils/supabase/admin";
 
 const REFUND_WINDOW_MS = 24 * 60 * 60 * 1000;
 const TOP_UP_KINDS = new Set(["top_up", "top_up_one_off", "auto_top_up"]);
+const ACTIVE_REFUND_STATUSES = new Set(["pending", "applying", "processing", "succeeded"]);
 const REFUND_REASON_LABELS: Record<string, string> = {
     no_comment: "No comment",
     accidental_purchase: "Accidental purchase",
@@ -75,7 +67,17 @@ export async function POST(req: NextRequest) {
         }
 
         const { workspaceId, customerId, userId } = await requireActiveTeamStripeCustomer();
-        const purchase = await findPaymentIntentPurchase(workspaceId, paymentIntentId);
+        const supabase = createAdminClient();
+
+        const { data: purchase, error: purchaseErr } = await supabase
+            .from("credit_ledger")
+            .select("workspace_id,event_time,kind,amount_nanos,before_balance_nanos,status,ref_type,ref_id")
+            .eq("workspace_id", workspaceId)
+            .eq("ref_type", "Stripe_Payment_Intent")
+            .eq("ref_id", paymentIntentId)
+            .maybeSingle();
+
+        if (purchaseErr) throw purchaseErr;
         if (!purchase) {
             return NextResponse.json({ error: "Purchase not found" }, { status: 404 });
         }
@@ -87,7 +89,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "This purchase is not in a refundable state" }, { status: 409 });
         }
 
-        const purchaseTs = new Date(String(purchase.eventTime ?? "")).getTime();
+        const purchaseTs = new Date(String(purchase.event_time ?? "")).getTime();
         if (!Number.isFinite(purchaseTs)) {
             return NextResponse.json({ error: "Invalid purchase timestamp" }, { status: 400 });
         }
@@ -98,20 +100,44 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        const amountNanos = Number(purchase.amountNanos ?? 0);
-        const beforeBalanceNanos = Number(purchase.beforeBalanceNanos ?? 0);
+        const amountNanos = Number(purchase.amount_nanos ?? 0);
+        const beforeBalanceNanos = Number(purchase.before_balance_nanos ?? 0);
         if (!Number.isFinite(amountNanos) || amountNanos <= 0) {
             return NextResponse.json({ error: "Invalid purchase amount" }, { status: 400 });
         }
 
-        if (await hasActivePaymentIntentRefund(workspaceId, paymentIntentId)) {
+        const { data: existingRefunds, error: refundLookupErr } = await supabase
+            .from("credit_ledger")
+            .select("ref_id,status")
+            .eq("workspace_id", workspaceId)
+            .eq("kind", "refund")
+            .eq("source_ref_type", "Stripe_Payment_Intent")
+            .eq("source_ref_id", paymentIntentId);
+
+        if (refundLookupErr) throw refundLookupErr;
+        if (
+            (existingRefunds ?? []).some((row) =>
+                ACTIVE_REFUND_STATUSES.has(String(row.status ?? "").toLowerCase())
+            )
+        ) {
             return NextResponse.json(
                 { error: "A refund for this purchase is already in progress or completed." },
                 { status: 409 }
             );
         }
 
-        const usageSincePurchaseNanos = await sumWorkspaceUsageSince(workspaceId, new Date(purchaseTs));
+        const { data: usageRows, error: usageErr } = await supabase
+		.from("gateway_requests")
+            .select("cost_nanos")
+            .eq("workspace_id", workspaceId)
+            .eq("success", true)
+            .gte("created_at", new Date(purchaseTs).toISOString());
+        if (usageErr) throw usageErr;
+
+        const usageSincePurchaseNanos = (usageRows ?? []).reduce((sum, row) => {
+            const nanos = Number(row.cost_nanos ?? 0);
+            return sum + (Number.isFinite(nanos) && nanos > 0 ? nanos : 0);
+        }, 0);
 
         // Full-lot only: if usage exceeded the pre-purchase balance, this lot has been consumed.
         if (usageSincePurchaseNanos > beforeBalanceNanos) {
@@ -172,58 +198,86 @@ export async function POST(req: NextRequest) {
         const refundNetNanos = Math.max(0, Math.round(amountNanos * ratio));
         const negativeNetNanos = -refundNetNanos;
 
-        const currentBalanceNanos = await getWalletBalance(workspaceId);
+        const { data: wallet, error: walletErr } = await supabase
+            .from("wallets")
+            .select("balance_nanos")
+            .eq("workspace_id", workspaceId)
+            .maybeSingle();
+        if (walletErr) throw walletErr;
+        const currentBalanceNanos = Number(wallet?.balance_nanos ?? 0);
 
-        await upsertRefundLedger({
-            workspaceId,
-            amountNanos: negativeNetNanos,
-            beforeBalanceNanos: currentBalanceNanos,
-            afterBalanceNanos: currentBalanceNanos,
-            refundId: refund.id,
-            status: mapRefundStatus(refund.status),
-            paymentIntentId,
-        });
+        const { error: refundLedgerErr } = await supabase.from("credit_ledger").upsert(
+            [
+                {
+                    workspace_id: workspaceId,
+                    kind: "refund",
+                    amount_nanos: negativeNetNanos,
+                    before_balance_nanos: currentBalanceNanos,
+                    after_balance_nanos: currentBalanceNanos,
+                    ref_type: "Stripe_Refund",
+                    ref_id: refund.id,
+                    status: mapRefundStatus(refund.status),
+                    event_time: new Date().toISOString(),
+                    source_ref_type: "Stripe_Payment_Intent",
+                    source_ref_id: paymentIntentId,
+                },
+            ],
+            {
+                onConflict: "ref_type,ref_id",
+            }
+        );
+        if (refundLedgerErr) throw refundLedgerErr;
 
         let claimStateToWrite = "Requested";
         const status = String(refund.status ?? "pending").toLowerCase();
 
         if (status === "succeeded" && negativeNetNanos < 0) {
-			let deltaRow;
-			try {
-				deltaRow = await applyWalletDelta(workspaceId, negativeNetNanos);
-			} catch (deltaErr) {
-				console.warn("[refund.request] inline wallet_apply_delta failed; waiting for webhook reconciliation", {
-					workspaceId,
-					refundId: refund.id,
-					error: deltaErr instanceof Error ? deltaErr.message : String(deltaErr),
-				});
-			}
-			if (deltaRow) {
+            const { data: deltaRows, error: deltaErr } = await supabase.rpc("wallet_apply_delta", {
+                p_workspace_id: workspaceId,
+                p_delta_nanos: negativeNetNanos,
+            });
+
+            if (deltaErr) {
+                console.warn("[refund.request] inline wallet_apply_delta failed; waiting for webhook reconciliation", {
+                    workspaceId,
+                    refundId: refund.id,
+                    error: deltaErr.message,
+                });
+            } else {
+                const deltaRow = deltaRows?.[0] ?? {};
                 const beforeBalanceAfterRefund = Number(deltaRow.before_balance_nanos ?? currentBalanceNanos);
                 const afterBalanceAfterRefund = Number(deltaRow.after_balance_nanos ?? currentBalanceNanos);
                 claimStateToWrite = "Succeeded";
 
-                await markRefundLedgerSucceeded({
-                    refundId: refund.id,
-                    beforeBalanceNanos: beforeBalanceAfterRefund,
-                    afterBalanceNanos: afterBalanceAfterRefund,
-                });
+                await supabase
+                    .from("credit_ledger")
+                    .update({
+                        before_balance_nanos: beforeBalanceAfterRefund,
+                        after_balance_nanos: afterBalanceAfterRefund,
+                        status: "Succeeded",
+                        event_time: new Date().toISOString(),
+                    })
+                    .eq("ref_type", "Stripe_Refund")
+                    .eq("ref_id", refund.id);
             }
         }
 
-        try {
-            await updatePurchaseRefundClaim({
-                workspaceId,
-                paymentIntentId,
-                state: claimStateToWrite,
-                reason: refundReasonLabel,
-                userId,
-            });
-        } catch (claimUpdateErr) {
+        const { error: claimUpdateErr } = await supabase
+            .from("credit_ledger")
+            .update({
+                refund_claim_state: claimStateToWrite,
+                refund_claim_reason: refundReasonLabel,
+                refund_claimed_at: new Date().toISOString(),
+                refund_claimed_by_user_id: userId,
+            })
+            .eq("workspace_id", workspaceId)
+            .eq("ref_type", "Stripe_Payment_Intent")
+            .eq("ref_id", paymentIntentId);
+        if (claimUpdateErr && !String(claimUpdateErr.message ?? "").toLowerCase().includes("column")) {
             console.warn("[refund.request] failed to persist refund claim metadata", {
                 workspaceId,
                 paymentIntentId,
-                error: claimUpdateErr instanceof Error ? claimUpdateErr.message : String(claimUpdateErr),
+                error: claimUpdateErr.message,
             });
         }
 

@@ -1,6 +1,6 @@
 import type { AuthenticatedUser } from "@/auth/requireUser";
+import { getDataClient } from "@/data/supabase";
 import type { Env } from "@/env";
-import { saveGameCompletion } from "./repository";
 import type { GameKey, PuzzleRecord } from "./types";
 
 export type GameCompletion = {
@@ -72,5 +72,19 @@ export async function persistGameCompletion(
   puzzle: PuzzleRecord,
   completion: GameCompletion
 ): Promise<void> {
-  await saveGameCompletion(env, { userId: user.id, gameKey: puzzle.game_key, puzzleId: puzzle.puzzle_id, puzzleDate: puzzle.puzzle_date, won: completion.won, score: completion.score, maxScore: completion.maxScore, attempts: completion.attempts, completedAt: new Date().toISOString() });
+  const result = await getDataClient(env).from("catalogue_game_results").upsert(
+    {
+      user_id: user.id,
+      game_key: puzzle.game_key,
+      puzzle_id: puzzle.puzzle_id,
+      puzzle_date: puzzle.puzzle_date,
+      won: completion.won,
+      score: completion.score,
+      max_score: completion.maxScore,
+      attempts: completion.attempts,
+      completed_at: new Date().toISOString(),
+    },
+    { onConflict: "user_id,game_key,puzzle_date", ignoreDuplicates: true }
+  );
+  if (result.error) throw new Error(result.error.message);
 }

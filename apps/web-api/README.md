@@ -15,8 +15,8 @@ remains a separate Worker in `apps/api`.
 | Path | Intended data | Authentication | Cache policy |
 | --- | --- | --- | --- |
 | `/api/_web/*` | Anonymous website data | None | Explicit Cloudflare edge caching only where safe |
-| `/api/account/*` | Current user/workspace data | Better Auth session or bearer session token | `private, no-store` |
-| `/api/chat/*` | Authenticated chat/playground gateway proxy | Better Auth session and managed workspace key | `private, no-store` |
+| `/api/account/*` | Current user/workspace data | Supabase bearer JWT | `private, no-store` |
+| `/api/chat/*` | Authenticated chat/playground gateway proxy | Supabase bearer JWT and managed workspace key | `private, no-store` |
 | `/api/internal/*` | Privileged operations | Route-specific secret or user/role check | `private, no-store` |
 | `/api/checkout/*`, `/api/stripe/*`, `/api/payments/*`, `/api/webhooks/stripe-checkout` | Authentication and Stripe/checkout operations | Vercel-owned | Their existing policy |
 
@@ -53,7 +53,7 @@ Each model page section will be added as an independent resource rather than ext
 
 ## Local development
 
-1. Create `apps/web-api/.dev.vars` with the non-production values needed by a route. Data routes require the `PLANETSCALE_HYPERDRIVE` binding. Authentication uses the shared Better Auth database tables and may use `BETTER_AUTH_URL` for cookie-session validation.
+1. Create `apps/web-api/.dev.vars` with the non-production values needed by a route. The account API requires `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY`; the local Worker also accepts the existing `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` names used by `apps/api/.dev.vars`.
 	Stripe checkout, billing reads, and webhooks remain owned by the Next.js web application; they are intentionally not configured in this Worker.
 	Authenticated automatic chat issue creation additionally uses `GITHUB_TOKEN` (or `GH_TOKEN`) and optional `GITHUB_REPOSITORY`; anonymous reports fall back to a prefilled GitHub issue URL.
 	Key-management routes require `KEY_PEPPER_ACTIVE`; OAuth client management
@@ -82,7 +82,7 @@ the sole cache owner for migrated data.
 
 ## Deployment prerequisites
 
-- Bind production `PLANETSCALE_HYPERDRIVE` to the PlanetScale database and configure `BETTER_AUTH_URL` for the production application origin. Authorization is enforced by the Worker services and workspace-scoped Drizzle repositories.
+- Add the production `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` as Worker environment values/secrets. The service-role key is only available inside Cloudflare and is used to read public catalogue data consistently regardless of Supabase RLS.
 - Provision `KEY_PEPPER_ACTIVE`, `PHASEO_OAUTH_TOKEN_PEPPER`,
   `BYOK_KMS_KEY_V1`, `BYOK_FINGERPRINT_PEPPER`, and
   `ASYNC_WEBHOOK_SECRET_ENCRYPTION_KEY` as Worker secrets before
@@ -100,7 +100,7 @@ the sole cache owner for migrated data.
 
 - `pnpm exec wrangler deploy --env staging` creates `phaseo-web-api-staging` on the account's `workers.dev` subdomain. It has no `phaseo.app` route, so it is safe for PR validation.
 - The PR workflow deploys that staging Worker and points its Vercel preview at it with `WEB_API_ORIGIN`; it supplies the origin at both build and runtime without changing Vercel's shared preview environment.
-- Before the first staging deployment, bind its `PLANETSCALE_HYPERDRIVE` to the staging PlanetScale database and configure its Better Auth origin.
+- Before the first staging deployment, provision its `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` in Cloudflare.
 - Promote the default environment explicitly with `pnpm exec wrangler deploy --env=""` after the PR is reviewed. `phaseo-web-api` is the only Worker allowed to own the application API namespaces listed above.
 
 The exhaustive route/consumer checklist is maintained in

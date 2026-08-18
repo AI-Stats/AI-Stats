@@ -1,8 +1,7 @@
 * @DanielButler1
 
 # Production database changes and their deployment boundary require owner review.
-/.github/PRODUCTION_DATABASE_MIGRATIONS.md @DanielButler1
-/packages/data/db/drizzle.config.ts @DanielButler1
-/packages/data/db/src/generated/ @DanielButler1
+/supabase/migrations/ @DanielButler1
+/supabase/config.toml @DanielButler1
 /.github/workflows/ci.yml @DanielButler1
-/scripts/validate-ci-secret-boundaries.mjs @DanielButler1
+/scripts/validate-supabase-migrations.mjs @DanielButler1

@@ -2,7 +2,7 @@
 // Why: Keeps stage-specific logic isolated and testable.
 // How: Exposes helpers used by before/execute/after orchestration.
 
-import { getBindings, dispatchBackground, configureRuntime, clearRuntime, getCache } from "@/runtime/env";
+import { getBindings, getSupabaseAdmin, dispatchBackground, configureRuntime, clearRuntime, getCache } from "@/runtime/env";
 import { keyVersionToken } from "@/core/kv";
 import {
 	resolveActiveKeyPepper,
@@ -10,8 +10,6 @@ import {
 	type KeyPepperCandidate,
 } from "@/lib/security/keyPepper";
 import { GATEWAY_ACCESS_SCOPE, parseStoredScopeList } from "@/lib/authz/capabilities";
-import { touchOAuthAuthorization } from "@/repositories/oauth";
-import { findGatewayKeyByKid, findManagementKeyByKid, touchGatewayKey, touchManagementKey } from "@/repositories/auth-keys";
 
 const enc = new TextEncoder();
 const KEY_CACHE_PREFIX = "gateway:key";
@@ -359,7 +357,7 @@ async function cacheKey(kid: string, row: KeyRow) {
  * Steps:
  *  1. Parse and validate the token format.
  *  2a. If JWT: Validate signature, claims, and check revocation
- *  2b. If API Key: Look up key metadata (id, workspace_id, status, stored hash) in PostgreSQL.
+ *  2b. If API Key: Look up key metadata (id, workspace_id, status, stored hash) in Supabase.
  *  3. Compute HMAC(secret + pepper) and compare against stored hash (API key only).
  *  4. On success, update last_used_at and return team + key reference.
  *
@@ -400,16 +398,20 @@ export async function authenticate(req: Request, options: AuthenticateOptions = 
     }
     if (!isValidKidFormat(parsed.kid)) return { ok: false, reason: "invalid_key_format" };
 
-    // 3. Look up the key through the authentication repository.
+    // 3. Look up key in Supabase.
+    const supabase = getSupabaseAdmin();
     let keyRow: KeyRow | null = null;
     let keyRowSource: "cache" | "db" | null = null;
 
     const fetchFreshKeyRow = async (): Promise<KeyRow | "db_error" | null> => {
-		try {
-			return await findGatewayKeyByKid(parsed.kid) as KeyRow | null;
-		} catch {
-			return "db_error";
-		}
+        const { data, error } = await supabase
+            .from("keys")
+            .select("*")
+            .eq("kid", parsed.kid)
+            .maybeSingle();
+        if (error) return "db_error";
+        if (!data) return null;
+        return data as KeyRow;
     };
 
     if (useKvCache) {
@@ -549,11 +551,15 @@ export async function authenticate(req: Request, options: AuthenticateOptions = 
 			dispatchBackground((async () => {
 				configureRuntime(bindings);
 				try {
-					const lastUsedAt = new Date().toISOString();
-					await Promise.all([
-						touchGatewayKey(keyRow.id, lastUsedAt, hasHashMigration ? nextHash : null),
-						touchOAuthAuthorization({ userId, clientId, workspaceId }),
-					]);
+					const updatePayload: Record<string, unknown> = { last_used_at: new Date().toISOString() };
+					if (hasHashMigration) updatePayload.hash = nextHash;
+					await supabase.from("keys").update(updatePayload).eq("id", keyRow.id);
+					await supabase
+						.from("oauth_authorizations")
+						.update({ last_used_at: new Date().toISOString() })
+						.eq("user_id", userId)
+						.eq("client_id", clientId)
+						.eq("workspace_id", workspaceId);
 				} finally {
 					clearRuntime();
 				}
@@ -579,7 +585,16 @@ export async function authenticate(req: Request, options: AuthenticateOptions = 
         dispatchBackground((async () => {
             configureRuntime(bindings);
             try {
-				await touchGatewayKey(keyRow.id, new Date().toISOString(), hasHashMigration ? nextHash : null);
+                const updatePayload: Record<string, unknown> = {
+                    last_used_at: new Date().toISOString(),
+                };
+                if (hasHashMigration) {
+                    updatePayload.hash = nextHash;
+                }
+                await supabase
+                    .from("keys")
+                    .update(updatePayload)
+                    .eq("id", keyRow.id);
                 if (useKvCache && hasHashMigration) {
                     await cacheKey(parsed.kid, {
                         ...keyRow,
@@ -653,15 +668,17 @@ export async function authenticateManagement(
     if (!isValidKidFormat(parsed.kid)) return { ok: false, reason: "invalid_key_format" };
 
     const bindings = getBindings();
-	const useKvCache = options.useKvCache ?? false;
+    const supabase = getSupabaseAdmin();
+    const useKvCache = options.useKvCache ?? false;
 
-	let data;
-	try {
-		data = await findManagementKeyByKid(parsed.kid);
-	} catch {
-		return { ok: false, reason: "db_error" };
-	}
-	if (!data) return { ok: false, reason: "key_not_found_or_revoked" };
+    const { data, error } = await supabase
+        .from("management_keys")
+        .select("*")
+        .eq("kid", parsed.kid)
+        .maybeSingle();
+
+    if (error) return { ok: false, reason: "db_error" };
+    if (!data) return { ok: false, reason: "key_not_found_or_revoked" };
 
     const keyRow = data as KeyRow;
     if (keyRow.status !== "active") {
@@ -702,11 +719,16 @@ export async function authenticateManagement(
     dispatchBackground((async () => {
         configureRuntime(bindings);
         try {
-			await touchManagementKey(
-				keyRow.id,
-				new Date().toISOString(),
-				nextHash && nextHash !== stored ? nextHash : null,
-			);
+            const updatePayload: Record<string, unknown> = {
+                last_used_at: new Date().toISOString(),
+            };
+            if (nextHash && nextHash !== stored) {
+                updatePayload.hash = nextHash;
+            }
+            await supabase
+                .from("management_keys")
+                .update(updatePayload)
+                .eq("id", keyRow.id);
         } finally {
             clearRuntime();
         }
@@ -737,19 +759,117 @@ export async function authenticateManagement(
  */
 async function authenticateOAuth(req: Request, token: string, options: AuthenticateOptions = {}): Promise<AuthSuccess | AuthFailure> {
     const bindings = getBindings();
+    const useKvCache = options.useKvCache ?? true;
 
     try {
         const { getActiveOAuthWorkspaceScopes, validateLocalAccessToken } = await import("@/lib/oauth/service");
         const localValidation = await validateLocalAccessToken(token);
-		if (!localValidation.valid || !localValidation.claims) {
+        if (localValidation.valid && localValidation.claims) {
+            const claims = localValidation.claims;
+            const supabase = getSupabaseAdmin();
+            const activeAuthorizationScopes = await getActiveOAuthWorkspaceScopes({
+                userId: claims.user_id,
+                clientId: claims.client_id,
+                workspaceId: claims.workspace_id,
+            });
+            if (activeAuthorizationScopes === null) {
+                return { ok: false, reason: "oauth_authorization_revoked" };
+            }
+			const tokenScopes = typeof claims.scope === "string" ? claims.scope.split(/\s+/).filter(Boolean) : [];
+			const effectiveScopes = tokenScopes.filter((scope) => activeAuthorizationScopes.includes(scope));
+
+            dispatchBackground((async () => {
+                configureRuntime(bindings);
+                try {
+                    await supabase
+                        .from("oauth_authorizations")
+                        .update({ last_used_at: new Date().toISOString() })
+                        .eq("user_id", claims.user_id)
+                        .eq("client_id", claims.client_id)
+                        .eq("workspace_id", claims.workspace_id);
+                } finally {
+                    clearRuntime();
+                }
+            })());
+
+            return {
+                ok: true,
+                workspaceId: claims.workspace_id,
+                apiKeyId: claims.client_id,
+                apiKeyRef: `oauth_${claims.client_id}`,
+                apiKeyKid: claims.client_id,
+                userId: claims.user_id,
+                internal: isInternalRequestAuthorized(req, bindings),
+                authMethod: "oauth",
+                oauthClientId: claims.client_id,
+				oauthScopes: effectiveScopes,
+				scopes: effectiveScopes,
+            } as AuthSuccess;
+        }
+    } catch {
+        // Fall through to the legacy Supabase OAuth validator below.
+    }
+
+    // Check if SUPABASE_URL is configured
+    const supabaseUrl = bindings.SUPABASE_URL;
+    if (!supabaseUrl) {
+        console.error("SUPABASE_URL not configured for OAuth");
+        return { ok: false, reason: "oauth_not_configured" };
+    }
+    const supabaseBase = `${supabaseUrl}`.replace(/\/+$/, "").replace(/\/auth\/v1$/, "");
+    const expectedIssuer = `${supabaseBase}/auth/v1`;
+
+    try {
+        // Import OAuth utilities dynamically to avoid circular dependencies
+        const { getJWKSWithCache, getJWKSWithRetry } = await import("@/lib/oauth/jwks");
+        const { validateOAuthToken, isJWT } = await import("@/lib/oauth/jwt");
+
+        // Verify it's actually a JWT
+        if (!isJWT(token)) {
+            return { ok: false, reason: "invalid_jwt_format" };
+        }
+
+        // Get JWKS (with caching via KV)
+        let jwks = await getJWKSWithCache(
+            supabaseUrl,
+            useKvCache ? bindings.KV || null : null
+        );
+
+        // Validate token
+        let validation = await validateOAuthToken(
+            token,
+            jwks.keys,
+            expectedIssuer,
+            "authenticated" // Expected audience
+        );
+
+        // If validation fails due to key not found, refresh JWKS and retry
+        if (!validation.valid && validation.error?.includes("Public key not found")) {
+            jwks = await getJWKSWithRetry(
+                supabaseUrl,
+                useKvCache ? bindings.KV || null : null,
+                true
+            );
+            validation = await validateOAuthToken(
+                token,
+                jwks.keys,
+                expectedIssuer,
+                "authenticated"
+            );
+        }
+
+        if (!validation.valid || !validation.claims) {
             return {
                 ok: false,
-				reason: localValidation.error || "invalid_oauth_token",
+                reason: validation.error || "invalid_oauth_token",
             };
         }
-		const claims = localValidation.claims;
+
+        const claims = validation.claims;
 
         // Check that both the authorization and workspace membership remain active.
+        const supabase = getSupabaseAdmin();
+        const { getActiveOAuthWorkspaceScopes } = await import("@/lib/oauth/service");
         const activeAuthorizationScopes = await getActiveOAuthWorkspaceScopes({
             userId: claims.user_id,
             clientId: claims.client_id,
@@ -765,11 +885,12 @@ async function authenticateOAuth(req: Request, token: string, options: Authentic
         dispatchBackground((async () => {
             configureRuntime(bindings);
             try {
-				await touchOAuthAuthorization({
-					userId: claims.user_id,
-					clientId: claims.client_id,
-					workspaceId: claims.workspace_id,
-				});
+                await supabase
+                    .from("oauth_authorizations")
+                    .update({ last_used_at: new Date().toISOString() })
+                    .eq("user_id", claims.user_id)
+                    .eq("client_id", claims.client_id)
+                    .eq("workspace_id", claims.workspace_id);
             } catch (error) {
                 console.error("Error updating OAuth last_used_at:", error);
             } finally {
@@ -793,6 +914,9 @@ async function authenticateOAuth(req: Request, token: string, options: Authentic
         } as AuthSuccess;
     } catch (error: any) {
         const message = String(error?.message ?? "");
+        if (message.includes("JWKS")) {
+            return { ok: false, reason: "oauth_jwks_unavailable" };
+        }
         console.error("OAuth authentication error:", message);
         return { ok: false, reason: "oauth_authentication_failed" };
     }

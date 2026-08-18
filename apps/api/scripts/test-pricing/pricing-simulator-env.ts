@@ -76,14 +76,15 @@ export function loadEnvFromFiles(files: string[] = [".env.local", ".env", ".dev.
 
 export function ensureRuntimeConfigured(): void {
     loadEnvFromFiles();
-    const required = ["PLANETSCALE_DATABASE_URL"] as const;
+    const required = ["SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY"] as const;
     const missing = required.filter((key) => !process.env[key]);
     if (missing.length) {
         throw new Error(`Missing required environment variables: ${missing.join(", ")}`);
     }
 
     const bindings: GatewayBindings = {
-        PLANETSCALE_HYPERDRIVE: { connectionString: process.env.PLANETSCALE_DATABASE_URL! },
+        SUPABASE_URL: process.env.SUPABASE_URL!,
+        SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY!,
         GATEWAY_CACHE: createMemoryKv(),
         NEXT_PUBLIC_GATEWAY_VERSION: process.env.NEXT_PUBLIC_GATEWAY_VERSION ?? "cli-simulator",
         AXIOM_API_KEY: process.env.AXIOM_API_KEY,
@@ -100,3 +101,4 @@ export function ensureRuntimeConfigured(): void {
 
     configureRuntime(bindings);
 }
+

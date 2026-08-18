@@ -5,6 +5,10 @@ import { installFetchMock, jsonResponse } from "../../../../../../tests/helpers/
 import { sseResponse } from "../../../../../../tests/helpers/sse";
 import { setupRuntimeFromEnv, setupTestRuntime, teardownTestRuntime } from "../../../../../../tests/helpers/runtime";
 
+vi.mock("@supabase/supabase-js", () => ({
+	createClient: () => ({}),
+}));
+
 beforeAll(() => {
 	setupTestRuntime();
 });

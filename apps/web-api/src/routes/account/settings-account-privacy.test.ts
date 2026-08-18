@@ -1,20 +1,20 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-const privacyRepo = vi.hoisted(() => ({ loadAccountPrivacy: vi.fn(), validatePrivacyRoutes: vi.fn(), saveAccountPrivacy: vi.fn(), listManagedChatKeyIds: vi.fn() }));
-vi.mock("@/repositories/account-privacy", () => privacyRepo);
 import app from "@/index";
 
 const env = {
 	ENV: "development" as const,
+	SUPABASE_URL: "https://example.supabase.co",
+	SUPABASE_ANON_KEY: "anon-key",
+	SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
 	PHASEO_CONTROL_KEY: "control-key",
 	PHASEO_CONTROL_SECRET: "control-secret",
 	GATEWAY_API_ORIGIN: "https://gateway.example.com",
 };
 
-afterEach(() => { vi.unstubAllGlobals(); vi.clearAllMocks(); });
+afterEach(() => vi.unstubAllGlobals());
 
 describe("account privacy settings", () => {
 	it("only lists providers backed by active gateway routes", async () => {
-		privacyRepo.loadAccountPrivacy.mockResolvedValue({ policy: null, providers: [{ id: "openai", name: "OpenAI" }, { id: "302ai", name: "302.AI" }, { id: "openrouter", name: "OpenRouter" }], routes: [{ model_slug: "openai/gpt-5", provider_slug: "openai" }], models: [{ id: "openai/gpt-5", name: "GPT-5", organisationId: "openai", organisationName: "OpenAI" }] });
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
 			const request = input instanceof Request ? input : new Request(input, init);
 			if (request.url.includes("/auth/v1/user")) return new Response(JSON.stringify({ id: "user-1", email: "user@example.com", created_at: "2025-01-01" }), { status: 200 });
@@ -37,7 +37,6 @@ describe("account privacy settings", () => {
 	});
 
 	it("rejects provider restrictions without an active gateway route", async () => {
-		privacyRepo.validatePrivacyRoutes.mockResolvedValue({ providerIds: new Set(), modelIds: new Set() });
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
 			const request = input instanceof Request ? input : new Request(input, init);
 			if (request.url.includes("/auth/v1/user")) return new Response(JSON.stringify({ id: "user-1", email: "user@example.com", created_at: "2025-01-01" }), { status: 200 });
@@ -54,9 +53,6 @@ describe("account privacy settings", () => {
 	});
 
 	it("reports a persisted policy as saved with a pending warning when cache invalidation fails", async () => {
-		privacyRepo.validatePrivacyRoutes.mockResolvedValue({ providerIds: new Set(), modelIds: new Set() });
-		privacyRepo.saveAccountPrivacy.mockResolvedValue(undefined);
-		privacyRepo.listManagedChatKeyIds.mockResolvedValue(["key-1"]);
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
 			const request = input instanceof Request ? input : new Request(input, init);
 			if (request.url.includes("/auth/v1/user")) return new Response(JSON.stringify({ id: "user-1", email: "user@example.com", created_at: "2025-01-01" }), { status: 200 });

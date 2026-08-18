@@ -1,19 +1,10 @@
 import { Hono } from "hono";
 import type { Env } from "@/runtime/types";
-import {
-	addGuardrailKeys, addGuardrailMembers, createGuardrail, deleteGuardrail, findGuardrail,
-	listGuardrailKeyIds, listGuardrails, removeGuardrailKeys, removeGuardrailMembers,
-	replaceGuardrailKeys, updateGuardrail, validWorkspaceKeyIds, validWorkspaceMemberIds,
-	type GuardrailPatch,
-} from "@/repositories/guardrails";
+import { getSupabaseAdmin } from "@/runtime/env";
 import { guardManagementAuth, type GuardErr } from "@/pipeline/before/guards";
 import { bumpWorkspacePolicyVersion } from "@/pipeline/before/workspacePolicy";
 import { CAPABILITIES } from "@/lib/authz/capabilities";
 import { json, withRuntime } from "@/routes/utils";
-import {
-	listGuardrailKeyAssignments,
-	listGuardrailMemberAssignments,
-} from "@/repositories/workspace-members";
 import {
 	internalServerError,
 	isResponse,
@@ -115,23 +106,48 @@ function normalizeGuardrailPatch(body: Record<string, unknown>): Record<string, 
 	return patch;
 }
 
-function toGuardrailPatch(patch: Record<string, unknown>): GuardrailPatch {
-	const mapped: Record<string, unknown> = {};
-	const names: Record<string, string> = {
-		privacy_enable_paid_may_train: "privacyEnablePaidMayTrain", privacy_enable_free_may_train: "privacyEnableFreeMayTrain",
-		privacy_enable_free_may_publish_prompts: "privacyEnableFreeMayPublishPrompts", privacy_enable_input_output_logging: "privacyEnableInputOutputLogging",
-		privacy_zdr_only: "privacyZdrOnly", provider_restriction_mode: "providerRestrictionMode",
-		provider_restriction_provider_ids: "providerRestrictionProviderIds", provider_restriction_enforce_allowed: "providerRestrictionEnforceAllowed",
-		model_restriction_mode: "modelRestrictionMode", allowed_api_model_ids: "allowedApiModelIds",
-		prompt_injection_enabled: "promptInjectionEnabled", prompt_injection_action: "promptInjectionAction",
-		sensitive_info_enabled: "sensitiveInfoEnabled", sensitive_info_default_action: "sensitiveInfoDefaultAction",
-		sensitive_info_rules: "sensitiveInfoRules", daily_limit_requests: "dailyLimitRequests",
-		weekly_limit_requests: "weeklyLimitRequests", monthly_limit_requests: "monthlyLimitRequests",
-		daily_limit_cost_nanos: "dailyLimitCostNanos", weekly_limit_cost_nanos: "weeklyLimitCostNanos",
-		monthly_limit_cost_nanos: "monthlyLimitCostNanos",
-	};
-	for (const [key, value] of Object.entries(patch)) mapped[names[key] ?? key] = value;
-	return mapped as GuardrailPatch;
+function selectColumns(): string {
+	return [
+		"id",
+		"workspace_id",
+		"name",
+		"description",
+		"enabled",
+		"privacy_enable_paid_may_train",
+		"privacy_enable_free_may_train",
+		"privacy_enable_free_may_publish_prompts",
+		"privacy_enable_input_output_logging",
+		"privacy_zdr_only",
+		"provider_restriction_mode",
+		"provider_restriction_provider_ids",
+		"provider_restriction_enforce_allowed",
+		"model_restriction_mode",
+		"allowed_api_model_ids",
+		"prompt_injection_enabled",
+		"prompt_injection_action",
+		"sensitive_info_enabled",
+		"sensitive_info_default_action",
+		"sensitive_info_rules",
+		"daily_limit_requests",
+		"weekly_limit_requests",
+		"monthly_limit_requests",
+		"daily_limit_cost_nanos",
+		"weekly_limit_cost_nanos",
+		"monthly_limit_cost_nanos",
+		"created_at",
+		"updated_at",
+	].join(", ");
+}
+
+async function findGuardrail(workspaceId: string, id: string): Promise<GuardrailRow | null> {
+	const { data, error } = await getSupabaseAdmin()
+		.from("workspace_guardrails")
+		.select(selectColumns())
+		.eq("workspace_id", workspaceId)
+		.eq("id", id)
+		.maybeSingle();
+	if (error) throw new Error(error.message || "Failed to fetch guardrail");
+	return (data as unknown as GuardrailRow | null) ?? null;
 }
 
 function parseGuardrailResourceId(url: URL): string | null {
@@ -141,6 +157,106 @@ function parseGuardrailResourceId(url: URL): string | null {
 	const candidate = segments[guardrailsIndex + 1];
 	if (!candidate) return null;
 	return decodeURIComponent(candidate).trim() || null;
+}
+
+async function listGuardrailKeyAssignments(workspaceId: string, guardrailId: string): Promise<KeyAssignmentRow[]> {
+	const { data: assignmentRows, error: assignmentError } = await getSupabaseAdmin()
+		.from("key_guardrails")
+		.select("key_id")
+		.eq("guardrail_id", guardrailId);
+	if (assignmentError) {
+		throw new Error(assignmentError.message || "Failed to fetch guardrail key assignments");
+	}
+
+	const keyIds = (assignmentRows ?? []).map((row) => String(row.key_id ?? "").trim()).filter(Boolean);
+	if (!keyIds.length) return [];
+
+	const { data: keyRows, error: keyError } = await getSupabaseAdmin()
+		.from("keys")
+		.select("id, name, prefix, status, created_at, workspace_id")
+		.in("id", keyIds);
+	if (keyError) {
+		throw new Error(keyError.message || "Failed to fetch guardrail keys");
+	}
+
+	const keysById = new Map(
+		(keyRows ?? [])
+			.filter((row) => row.workspace_id === workspaceId)
+			.map((row) => [
+				String(row.id),
+				{
+					key_id: String(row.id),
+					name: row.name ?? null,
+					prefix: row.prefix ?? null,
+					status: row.status ?? null,
+					created_at: (row as { created_at?: string | null }).created_at ?? null,
+				} satisfies KeyAssignmentRow,
+			]),
+	);
+	const assignments: KeyAssignmentRow[] = [];
+	for (const keyId of keyIds) {
+		const assignment = keysById.get(keyId);
+		if (assignment) assignments.push(assignment);
+	}
+	return assignments;
+}
+
+async function listGuardrailMemberAssignments(workspaceId: string, guardrailId: string): Promise<MemberAssignmentRow[]> {
+	const supabase = getSupabaseAdmin();
+	const { data: assignmentRows, error: assignmentError } = await supabase
+		.from("workspace_member_guardrails")
+		.select("user_id")
+		.eq("workspace_id", workspaceId)
+		.eq("guardrail_id", guardrailId);
+	if (assignmentError) {
+		throw new Error(assignmentError.message || "Failed to fetch guardrail member assignments");
+	}
+
+	const userIds = (assignmentRows ?? []).map((row) => String(row.user_id ?? "").trim()).filter(Boolean);
+	if (!userIds.length) return [];
+
+	const { data: memberRows, error: memberError } = await supabase
+		.from("workspace_members")
+		.select("user_id, role, joined_at")
+		.eq("workspace_id", workspaceId)
+		.in("user_id", userIds);
+	if (memberError) {
+		throw new Error(memberError.message || "Failed to fetch workspace members");
+	}
+
+	const { data: userRows, error: userError } = await supabase
+		.from("users")
+		.select("user_id, display_name")
+		.in("user_id", userIds);
+	if (userError) {
+		throw new Error(userError.message || "Failed to fetch member profiles");
+	}
+
+	const usersById = new Map(
+		(userRows ?? []).map((row) => [
+			String(row.user_id),
+			{
+				display_name: row.display_name ?? null,
+			},
+		]),
+	);
+	const membersById = new Map(
+		(memberRows ?? []).map((row) => [
+			String(row.user_id),
+			{
+				user_id: String(row.user_id),
+				role: row.role ?? null,
+				display_name: usersById.get(String(row.user_id))?.display_name ?? null,
+				joined_at: (row as { joined_at?: string | null }).joined_at ?? null,
+			} satisfies MemberAssignmentRow,
+		]),
+	);
+	const assignments: MemberAssignmentRow[] = [];
+	for (const userId of userIds) {
+		const assignment = membersById.get(userId);
+		if (assignment) assignments.push(assignment);
+	}
+	return assignments;
 }
 
 async function handleListGuardrails(req: Request) {
@@ -156,8 +272,14 @@ async function handleListGuardrails(req: Request) {
 	const limit = parsePositiveInt(url.searchParams.get("limit"), DEFAULT_LIMIT, MAX_LIMIT);
 
 	try {
-		const data = await listGuardrails(auth.value.workspaceId, limit, offset);
-		return json({ data }, 200, { "Cache-Control": "no-store" });
+		const { data, error } = await getSupabaseAdmin()
+			.from("workspace_guardrails")
+			.select(selectColumns())
+			.eq("workspace_id", auth.value.workspaceId)
+			.order("created_at", { ascending: false })
+			.range(offset, offset + limit - 1);
+		if (error) throw new Error(error.message || "Failed to list guardrails");
+		return json({ data: data ?? [] }, 200, { "Cache-Control": "no-store" });
 	} catch (error: any) {
 		return internalServerError("guardrails.list", error);
 	}
@@ -177,7 +299,17 @@ async function handleCreateGuardrail(req: Request) {
 	if (!patch.name) return json({ error: "bad_request", message: "name is required" }, 400, { "Cache-Control": "no-store" });
 
 	try {
-		const data = await createGuardrail(auth.value.workspaceId, String(patch.name), toGuardrailPatch(patch));
+		const { data, error } = await getSupabaseAdmin()
+			.from("workspace_guardrails")
+			.insert({
+				workspace_id: auth.value.workspaceId,
+				enabled: true,
+				...patch,
+				updated_at: new Date().toISOString(),
+			})
+			.select(selectColumns())
+			.maybeSingle();
+		if (error) throw new Error(error.message || "Failed to create guardrail");
 		await bumpWorkspacePolicyVersion(auth.value.workspaceId);
 		return json({ data }, 201, { "Cache-Control": "no-store" });
 	} catch (error: any) {
@@ -198,8 +330,12 @@ async function handleGetGuardrail(req: Request) {
 	try {
 		const guardrail = await findGuardrail(auth.value.workspaceId, id);
 		if (!guardrail) return json({ error: "not_found", message: "Guardrail not found" }, 404, { "Cache-Control": "no-store" });
-		const keyIds = await listGuardrailKeyIds(id);
-		return json({ data: { ...guardrail, key_ids: keyIds } }, 200, { "Cache-Control": "no-store" });
+		const { data: keyRows, error: keyError } = await getSupabaseAdmin()
+			.from("key_guardrails")
+			.select("key_id")
+			.eq("guardrail_id", id);
+		if (keyError) throw new Error(keyError.message || "Failed to fetch guardrail keys");
+		return json({ data: { ...guardrail, key_ids: (keyRows ?? []).map((row) => row.key_id) } }, 200, { "Cache-Control": "no-store" });
 	} catch (error: any) {
 		return internalServerError("guardrails.get", error);
 	}
@@ -223,7 +359,14 @@ async function handleUpdateGuardrail(req: Request) {
 	}
 
 	try {
-		const data = await updateGuardrail(auth.value.workspaceId, id, toGuardrailPatch(patch));
+		const { data, error } = await getSupabaseAdmin()
+			.from("workspace_guardrails")
+			.update({ ...patch, updated_at: new Date().toISOString() })
+			.eq("workspace_id", auth.value.workspaceId)
+			.eq("id", id)
+			.select(selectColumns())
+			.maybeSingle();
+		if (error) throw new Error(error.message || "Failed to update guardrail");
 		if (!data) return json({ error: "not_found", message: "Guardrail not found" }, 404, { "Cache-Control": "no-store" });
 		await bumpWorkspacePolicyVersion(auth.value.workspaceId);
 		return json({ data }, 200, { "Cache-Control": "no-store" });
@@ -245,7 +388,20 @@ async function handleDeleteGuardrail(req: Request) {
 	try {
 		const guardrail = await findGuardrail(auth.value.workspaceId, id);
 		if (!guardrail) return json({ error: "not_found", message: "Guardrail not found" }, 404, { "Cache-Control": "no-store" });
-		if (!await deleteGuardrail(auth.value.workspaceId, id)) throw new Error("Failed to delete guardrail");
+		const { error: keyDeleteError } = await getSupabaseAdmin().from("key_guardrails").delete().eq("guardrail_id", id);
+		if (keyDeleteError) throw new Error(keyDeleteError.message || "Failed to delete guardrail key assignments");
+		const { error: memberDeleteError } = await getSupabaseAdmin()
+			.from("workspace_member_guardrails")
+			.delete()
+			.eq("workspace_id", auth.value.workspaceId)
+			.eq("guardrail_id", id);
+		if (memberDeleteError) throw new Error(memberDeleteError.message || "Failed to delete guardrail member assignments");
+		const { error } = await getSupabaseAdmin()
+			.from("workspace_guardrails")
+			.delete()
+			.eq("workspace_id", auth.value.workspaceId)
+			.eq("id", id);
+		if (error) throw new Error(error.message || "Failed to delete guardrail");
 		await bumpWorkspacePolicyVersion(auth.value.workspaceId);
 		return json({ deleted: true }, 200, { "Cache-Control": "no-store" });
 	} catch (error: any) {
@@ -270,12 +426,25 @@ async function handleSetGuardrailKeys(req: Request) {
 		const guardrail = await findGuardrail(auth.value.workspaceId, id);
 		if (!guardrail) return json({ error: "not_found", message: "Guardrail not found" }, 404, { "Cache-Control": "no-store" });
 		if (keyIds.length) {
-			const validKeyIds = await validWorkspaceKeyIds(auth.value.workspaceId, keyIds);
+			const { data: keyRows, error: keyError } = await getSupabaseAdmin()
+				.from("keys")
+				.select("id, workspace_id, status")
+				.in("id", keyIds);
+			if (keyError) throw new Error(keyError.message || "Failed to validate keys");
+			const validKeyIds = new Set((keyRows ?? [])
+				.filter((row) => row.workspace_id === auth.value.workspaceId && String(row.status ?? "").toLowerCase() !== "deleted")
+				.map((row) => row.id));
 			if (keyIds.some((keyId) => !validKeyIds.has(keyId))) {
 				return json({ error: "bad_request", message: "One or more keys do not belong to this workspace" }, 400, { "Cache-Control": "no-store" });
 			}
 		}
-		await replaceGuardrailKeys(id, keyIds);
+		await getSupabaseAdmin().from("key_guardrails").delete().eq("guardrail_id", id);
+		if (keyIds.length) {
+			const { error } = await getSupabaseAdmin()
+				.from("key_guardrails")
+				.insert(keyIds.map((keyId) => ({ key_id: keyId, guardrail_id: id })));
+			if (error) throw new Error(error.message || "Failed to assign guardrail keys");
+		}
 		await bumpWorkspacePolicyVersion(auth.value.workspaceId);
 		return json({ data: { guardrail_id: id, key_ids: keyIds } }, 200, { "Cache-Control": "no-store" });
 	} catch (error: any) {
@@ -327,12 +496,27 @@ async function handleAddGuardrailKeys(req: Request) {
 		const guardrail = await findGuardrail(auth.value.workspaceId, id);
 		if (!guardrail) return json({ error: "not_found", message: "Guardrail not found" }, 404, { "Cache-Control": "no-store" });
 
-		const validKeyIds = await validWorkspaceKeyIds(auth.value.workspaceId, keyIds);
+		const { data: keyRows, error: keyError } = await getSupabaseAdmin()
+			.from("keys")
+			.select("id, workspace_id, status")
+			.in("id", keyIds);
+		if (keyError) throw new Error(keyError.message || "Failed to validate keys");
+		const validKeyIds = new Set(
+			(keyRows ?? [])
+				.filter((row) => row.workspace_id === auth.value.workspaceId && String(row.status ?? "").toLowerCase() !== "deleted")
+				.map((row) => String(row.id)),
+		);
 		if (keyIds.some((keyId) => !validKeyIds.has(keyId))) {
 			return json({ error: "bad_request", message: "One or more keys do not belong to this workspace" }, 400, { "Cache-Control": "no-store" });
 		}
 
-		await addGuardrailKeys(id, keyIds);
+		const { error: insertError } = await getSupabaseAdmin()
+			.from("key_guardrails")
+			.upsert(
+				keyIds.map((keyId) => ({ key_id: keyId, guardrail_id: id })),
+				{ onConflict: "key_id,guardrail_id", ignoreDuplicates: true },
+			);
+		if (insertError) throw new Error(insertError.message || "Failed to assign guardrail keys");
 
 		const assignments = await listGuardrailKeyAssignments(auth.value.workspaceId, id);
 		const added = assignments.filter((assignment) => keyIds.includes(assignment.key_id));
@@ -366,7 +550,13 @@ async function handleRemoveGuardrailKeys(req: Request) {
 		const guardrail = await findGuardrail(auth.value.workspaceId, id);
 		if (!guardrail) return json({ error: "not_found", message: "Guardrail not found" }, 404, { "Cache-Control": "no-store" });
 
-		const count = await removeGuardrailKeys(id, keyIds);
+		const { error: deleteError, count } = await getSupabaseAdmin()
+			.from("key_guardrails")
+			.delete({ count: "exact" })
+			.eq("guardrail_id", id)
+			.in("key_id", keyIds);
+		if (deleteError) throw new Error(deleteError.message || "Failed to remove guardrail keys");
+
 		await bumpWorkspacePolicyVersion(auth.value.workspaceId);
 		return json({ removed_count: count ?? 0 }, 200, { "Cache-Control": "no-store" });
 	} catch (error: any) {
@@ -418,12 +608,28 @@ async function handleAddGuardrailMembers(req: Request) {
 		const guardrail = await findGuardrail(auth.value.workspaceId, id);
 		if (!guardrail) return json({ error: "not_found", message: "Guardrail not found" }, 404, { "Cache-Control": "no-store" });
 
-		const validUserIds = await validWorkspaceMemberIds(auth.value.workspaceId, userIds);
+		const { data: memberRows, error: memberError } = await getSupabaseAdmin()
+			.from("workspace_members")
+			.select("user_id")
+			.eq("workspace_id", auth.value.workspaceId)
+			.in("user_id", userIds);
+		if (memberError) throw new Error(memberError.message || "Failed to validate workspace members");
+		const validUserIds = new Set((memberRows ?? []).map((row) => String(row.user_id)));
 		if (userIds.some((userId) => !validUserIds.has(userId))) {
 			return json({ error: "bad_request", message: "One or more users are not members of this workspace" }, 400, { "Cache-Control": "no-store" });
 		}
 
-		await addGuardrailMembers(auth.value.workspaceId, id, userIds);
+		const { error: insertError } = await getSupabaseAdmin()
+			.from("workspace_member_guardrails")
+			.upsert(
+				userIds.map((userId) => ({
+					workspace_id: auth.value.workspaceId,
+					user_id: userId,
+					guardrail_id: id,
+				})),
+				{ onConflict: "workspace_id,user_id,guardrail_id", ignoreDuplicates: true },
+			);
+		if (insertError) throw new Error(insertError.message || "Failed to assign guardrail members");
 
 		const assignments = await listGuardrailMemberAssignments(auth.value.workspaceId, id);
 		const added = assignments.filter((assignment) => userIds.includes(assignment.user_id));
@@ -457,7 +663,14 @@ async function handleRemoveGuardrailMembers(req: Request) {
 		const guardrail = await findGuardrail(auth.value.workspaceId, id);
 		if (!guardrail) return json({ error: "not_found", message: "Guardrail not found" }, 404, { "Cache-Control": "no-store" });
 
-		const count = await removeGuardrailMembers(auth.value.workspaceId, id, userIds);
+		const { error: deleteError, count } = await getSupabaseAdmin()
+			.from("workspace_member_guardrails")
+			.delete({ count: "exact" })
+			.eq("workspace_id", auth.value.workspaceId)
+			.eq("guardrail_id", id)
+			.in("user_id", userIds);
+		if (deleteError) throw new Error(deleteError.message || "Failed to remove guardrail members");
+
 		await bumpWorkspacePolicyVersion(auth.value.workspaceId);
 		return json({ removed_count: count ?? 0 }, 200, { "Cache-Control": "no-store" });
 	} catch (error: any) {

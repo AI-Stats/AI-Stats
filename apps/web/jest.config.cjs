@@ -11,7 +11,6 @@ const customJestConfig = {
 		"^@/(.*)$": "<rootDir>/src/$1",
 	},
 	testPathIgnorePatterns: ["/node_modules/", "/.next/", "/tests/e2e/"],
-	transformIgnorePatterns: ["node_modules/(?!(?:\\.pnpm/)?(?:@better-auth\\+|better-auth@|@better-auth/|better-auth/))"],
 	collectCoverageFrom: [
 		"src/**/*.{ts,tsx}",
 		"!src/**/index.ts",
