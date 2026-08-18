@@ -114,7 +114,7 @@ export function resolveGatewayBaseUrlForEnvironment(args: { configuredBaseUrl?: 
 	const staging = normalizeGatewayBaseUrl(args.stagingBaseUrl);
 	const requested = normalizeGatewayBaseUrl(args.requestedBaseUrl);
 	if (args.environment === "production") {
-		return requested && staging && requested === staging ? staging : configured ?? null;
+		return configured ?? null;
 	}
 	if (requested && (requested === PUBLIC_GATEWAY_BASE_URL || requested === configured || requested === staging || isDevelopmentLocalGatewayBaseUrl(requested, args.environment))) return requested;
 	return configured ?? PUBLIC_GATEWAY_BASE_URL;
