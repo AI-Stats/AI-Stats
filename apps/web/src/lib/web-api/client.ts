@@ -1,8 +1,3 @@
-import {
-	CachedPublicWebApiError,
-	publicDataCacheTags,
-} from "./publicDataCache";
-
 const DEFAULT_WEB_API_ORIGIN = "https://phaseo.app";
 
 export class WebApiError extends Error {
@@ -67,19 +62,6 @@ async function readJsonPayload<T>(
  * single cache contract for every web deployment.
  */
 export async function fetchPublicWebApi<T>(path: `/api/_web/${string}`): Promise<T> {
-	if (typeof window === "undefined" && publicDataCacheTags(path)) {
-		const { fetchCachedPublicWebApi } = await import("./publicDataCache.server");
-		try {
-			const response = await fetchCachedPublicWebApi(getWebApiOrigin(), path);
-			return JSON.parse(response.body) as T;
-		} catch (error) {
-			if (error instanceof CachedPublicWebApiError) {
-				throw new WebApiError(path, error.status);
-			}
-			throw error;
-		}
-	}
-
 	const response = await fetch(`${getWebApiOrigin()}${path}`, {
 		headers: { Accept: "application/json" },
 		cache: "no-store",

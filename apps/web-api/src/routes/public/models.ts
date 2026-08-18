@@ -13,8 +13,9 @@ import { listGatewayMonitorRows } from "@/repositories/model-monitor";
 
 const CACHE_PROFILES = {
 	catalogue: {
-		edgeTtlSeconds: 5 * 60,
-		staleWhileRevalidateSeconds: 5 * 60,
+		edgeTtlSeconds: 60 * 60,
+		staleWhileRevalidateSeconds: 6 * 60 * 60,
+		browserTtlSeconds: 60 * 60,
 		cacheTags: ["web-api-models"],
 	},
 	overview: {

@@ -26,7 +26,7 @@ export default function ModelsTablePageClient({
 			: fetchModelsTableData;
 	const { data, error } = useSWR(swrKey, fetcher, {
 		dedupingInterval: 60 * 60 * 1_000,
-		revalidateIfStale: false,
+		refreshInterval: 60 * 60 * 1_000,
 		revalidateOnFocus: false,
 	});
 
