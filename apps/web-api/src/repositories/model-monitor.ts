@@ -13,7 +13,6 @@ export async function listGatewayMonitorRows(env: Env) {
 		windowStart.setUTCHours(0, 0, 0, 0);
 		windowStart.setUTCDate(windowStart.getUTCDate() - 6);
 		const rows = await db.execute<Record<string, unknown>>(sql`
-			/*application='phaseo-web-api',service='web-api',route='/api/_web/models',feature='catalogue-table'*/
 			with weekly as (
 				select model_id, provider_id, sum(total_tokens)::bigint tokens,
 					sum(latency_sum_ms)::numeric / nullif(sum(latency_samples), 0) latency,
@@ -70,6 +69,7 @@ export async function listGatewayMonitorRows(env: Env) {
 			left join weekly on weekly.model_id = model.model_slug and weekly.provider_id = route.provider_slug
 			where model.hidden = false
 			order by route.provider_model_id, cap.capability_id
+			/*application='phaseo-web-api',feature='catalogue-table',route='%2Fapi%2F_web%2Fmodels',service='web-api'*/
 		`);
 		return [...rows];
 	} finally {
