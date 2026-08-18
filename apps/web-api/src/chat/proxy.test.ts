@@ -15,8 +15,8 @@ describe("deriveChatGatewayKey", () => {
 });
 
 describe("resolveGatewayBaseUrlForEnvironment", () => {
-	it("allows only the configured staging gateway in production", () => {
-		expect(resolveGatewayBaseUrlForEnvironment({ configuredBaseUrl: "https://api.phaseo.app/v1", stagingBaseUrl: "https://api-staging.phaseo.app/v1", requestedBaseUrl: "https://api-staging.phaseo.app/v1", environment: "production" })).toBe("https://api-staging.phaseo.app/v1");
+	it("never allows a requested staging gateway in production", () => {
+		expect(resolveGatewayBaseUrlForEnvironment({ configuredBaseUrl: "https://api.phaseo.app/v1", stagingBaseUrl: "https://api-staging.phaseo.app/v1", requestedBaseUrl: "https://api-staging.phaseo.app/v1", environment: "production" })).toBe("https://api.phaseo.app/v1");
 		expect(resolveGatewayBaseUrlForEnvironment({ configuredBaseUrl: "https://api.phaseo.app/v1", stagingBaseUrl: "https://api-staging.phaseo.app/v1", requestedBaseUrl: "https://attacker.example.com/v1", environment: "production" })).toBe("https://api.phaseo.app/v1");
 	});
 
