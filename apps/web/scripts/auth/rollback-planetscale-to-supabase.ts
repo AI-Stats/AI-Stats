@@ -390,6 +390,10 @@ async function main(): Promise<void> {
 	// Supabase's shared pooler uses encrypted sslmode=require semantics. PlanetScale always verifies its certificate.
 	const target = database(connectionString("SUPABASE_MIGRATION_DATABASE_URL", ".supabase.com"), false);
 	try {
+		// Supabase temporary token-based database access logs in through a
+		// short-lived cli_login role. Its documented dump path assumes the
+		// delegated postgres role before accessing public and auth schemas.
+		await target.unsafe("set role postgres");
 		const [sourceRowsMeta, sourceKeys, targetRowsMeta, targetKeys] = await Promise.all([
 			loadTableRows(source, SOURCE_SCHEMAS),
 			loadKeyRows(source, SOURCE_SCHEMAS),
