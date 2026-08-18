@@ -203,7 +203,13 @@ function calendarDays(days: number) {
 
 async function tokenRollups(args: { env: Env; providerId: string; idColumn: "canonical_model_id" | "app_id"; ids?: string[]; since: string; to: string; maxPages: number }) {
 	if (args.ids && !args.ids.length) return [];
-	const rows = await listProviderRollups(args.env, args.providerId, args.since, args.to);
+	const rows = await listProviderRollups(
+		args.env,
+		args.providerId,
+		args.since,
+		args.to,
+		args.idColumn === "app_id" ? "app" : "model",
+	);
 	return rows.filter((row) => !args.ids?.length || args.ids.includes(String(args.idColumn === "canonical_model_id" ? row.canonical_model_id : row.app_id)));
 }
 

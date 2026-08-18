@@ -350,7 +350,6 @@ export async function UsageLogsContent({
 				initialRows={requestRows}
 				initialTotal={requestRows.length}
 				initialTotalPages={data.initialRequestsPage.hasMore ? 2 : 1}
-				initialHasMore={data.initialRequestsPage.hasMore}
 				initialNextCursor={data.initialRequestsPage.nextCursor}
 				initialPageSize={data.initialRequestsPage.pageSize ?? 50}
 				detailBasePath="/settings/usage/logs/requests"

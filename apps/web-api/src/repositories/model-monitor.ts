@@ -4,7 +4,15 @@ import { sql } from "@phaseo/db/query";
 import { createDatabase } from "@/data/db";
 import type { Env } from "@/env";
 
-export async function listGatewayMonitorRows(env: Env) {
+export type GatewayMonitorCursor = {
+	providerModelId: string;
+	capabilityId: string;
+};
+
+export async function listGatewayMonitorRows(
+	env: Env,
+	options?: { cursor?: GatewayMonitorCursor; limit?: number },
+) {
 	const { db, client } = createDatabase(env);
 	try {
 		const cacheBucketMs = 15 * 60 * 1_000;
@@ -12,6 +20,14 @@ export async function listGatewayMonitorRows(env: Env) {
 		const windowStart = new Date(asOf);
 		windowStart.setUTCHours(0, 0, 0, 0);
 		windowStart.setUTCDate(windowStart.getUTCDate() - 6);
+		const cursorFilter = options?.cursor
+			? sql`and (
+				route.provider_model_id > ${options.cursor.providerModelId}
+				or (route.provider_model_id = ${options.cursor.providerModelId}
+					and cap.capability_id > ${options.cursor.capabilityId})
+			)`
+			: sql``;
+		const rowLimit = options?.limit ? Math.max(1, options.limit) + 1 : null;
 		const rows = await db.execute<Record<string, unknown>>(sql`
 			with weekly as (
 				select model_id, provider_id, sum(total_tokens)::bigint tokens,
@@ -68,7 +84,14 @@ export async function listGatewayMonitorRows(env: Env) {
 			left join pricing on pricing.provider_model_id = route.provider_model_id
 			left join weekly on weekly.model_id = model.model_slug and weekly.provider_id = route.provider_slug
 			where model.hidden = false
+				and provider.status is distinct from 'external'
+				and btrim(model.model_slug) <> ''
+				and btrim(route.model_slug) <> ''
+				and btrim(route.provider_slug) <> ''
+				and btrim(cap.capability_id) <> ''
+			${cursorFilter}
 			order by route.provider_model_id, cap.capability_id
+			${rowLimit ? sql`limit ${rowLimit}` : sql``}
 			/*application='phaseo-web-api',feature='catalogue-table',route='%2Fapi%2F_web%2Fmodels',service='web-api'*/
 		`);
 		return [...rows];
