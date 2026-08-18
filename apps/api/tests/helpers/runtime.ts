@@ -121,7 +121,6 @@ export function setupTestRuntime() {
         GOOGLE_VERTEX_API_KEY: "test-vertex-key",
         GOOGLE_VERTEX_BASE_URL: "https://api.vertex.example",
         GOOGLE_VERTEX_PROJECT: "test-project",
-        GOOGLE_VERTEX_LOCATION: "us-east5",
         MINIMAX_API_KEY: "test-minimax-key",
         MINIMAX_BASE_URL: "https://api.minimax.example",
         ZAI_API_KEY: "test-zai-key",

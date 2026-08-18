@@ -122,7 +122,7 @@ describe("google-vertex video executor", () => {
 
 		expect(result.upstream?.status).toBe(200);
 		expect(capturedUrl).toBe(
-			"https://api.vertex.example/v1/projects/test-project/locations/us-east5/publishers/google/models/veo-3.1-generate-001:predictLongRunning",
+			"https://api.vertex.example/v1/projects/test-project/locations/global/publishers/google/models/veo-3.1-generate-001:predictLongRunning",
 		);
 		expect(capturedHeaders["Authorization"]).toBe("Bearer test-google-vertex-access-token");
 		expect(capturedBody?.instances?.[0]?.prompt).toBe("A cinematic waterfall in Iceland");

@@ -219,7 +219,6 @@ vi.mock("@/runtime/env", () => ({
 		GOOGLE_VERTEX_ACCESS_TOKEN: "test-vertex-token",
 		GOOGLE_VERTEX_BASE_URL: "https://api.vertex.example",
 		GOOGLE_VERTEX_PROJECT: "test-project",
-		GOOGLE_VERTEX_LOCATION: "us-east5",
 		GATEWAY_PUBLIC_BASE_URL: "https://api.phaseo.app",
 		KEY_PEPPER_ACTIVE: "test-video-secret",
 	}),
