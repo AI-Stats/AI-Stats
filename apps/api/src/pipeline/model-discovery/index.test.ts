@@ -11,7 +11,20 @@ vi.mock("@/runtime/env", () => ({
 
 vi.mock("@/repositories/model-discovery", () => modelDiscoveryRepositoryMock);
 
-import { fetchPreviousModelsByProviders, markPendingModelRemovals } from "./index";
+import {
+	fetchPreviousModelsByProviders,
+	markPendingModelRemovals,
+	shouldWatchProviderApiPricing,
+} from "./index";
+
+describe("provider API pricing watcher support", () => {
+	it("keeps providers with observed API pricing and excludes unsupported sources", () => {
+		expect(shouldWatchProviderApiPricing("openrouter")).toBe(true);
+		expect(shouldWatchProviderApiPricing("together")).toBe(true);
+		expect(shouldWatchProviderApiPricing("cloudflare")).toBe(false);
+		expect(shouldWatchProviderApiPricing("requesty")).toBe(false);
+	});
+});
 
 type SeenModelRow = {
 	provider_id: string;

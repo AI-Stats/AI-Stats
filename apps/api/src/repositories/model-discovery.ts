@@ -4,6 +4,8 @@ import { and, desc, eq, inArray, lt, sql } from "@phaseo/db/query";
 import { createDatabase } from "@/runtime/db";
 import { getBindings } from "@/runtime/env";
 
+const COMPLETED_RUN_STATE_LOOKBACK = 20;
+
 async function withDatabase<T>(operation: (db: ReturnType<typeof createDatabase>["db"]) => Promise<T>): Promise<T> {
 	const { db, client } = createDatabase(getBindings());
 	try { return await operation(db); } finally { await client.end({ timeout: 1 }); }
@@ -28,7 +30,7 @@ export async function listCompletedRuns(source?: string) {
 	return withDatabase((db) => {
 		const conditions = [inArray(modelDiscoveryRuns.status, ["completed", "completed_with_errors"] as const)];
 		if (source?.trim()) conditions.push(eq(modelDiscoveryRuns.source, source.trim()));
-		return db.select({ summary: modelDiscoveryRuns.summary, status: modelDiscoveryRuns.status, started_at: modelDiscoveryRuns.startedAt }).from(modelDiscoveryRuns).where(and(...conditions)).orderBy(desc(modelDiscoveryRuns.startedAt)).limit(200);
+		return db.select({ summary: modelDiscoveryRuns.summary, status: modelDiscoveryRuns.status, started_at: modelDiscoveryRuns.startedAt }).from(modelDiscoveryRuns).where(and(...conditions)).orderBy(desc(modelDiscoveryRuns.startedAt)).limit(COMPLETED_RUN_STATE_LOOKBACK);
 	});
 }
 

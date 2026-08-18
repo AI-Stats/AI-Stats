@@ -635,8 +635,8 @@ describe("public model routes", () => {
 		]);
 
 		expect(catalogue.status).toBe(200);
-		expect(catalogue.headers.get("cache-control")).toBe("public, max-age=3600, s-maxage=3600, stale-while-revalidate=21600");
-		expect(catalogue.headers.get("cloudflare-cdn-cache-control")).toBe("public, max-age=3600, stale-while-revalidate=21600");
+		expect(catalogue.headers.get("cache-control")).toBe("public, max-age=900, s-maxage=900, stale-while-revalidate=1800");
+		expect(catalogue.headers.get("cloudflare-cdn-cache-control")).toBe("public, max-age=900, stale-while-revalidate=1800");
 		expect(benchmarks.status).toBe(200);
 		expect(benchmarks.headers.get("cloudflare-cdn-cache-control")).toBe("public, max-age=86400, stale-while-revalidate=604800");
 		await expect(benchmarks.json()).resolves.toMatchObject({ highlights: [{ benchmarkId: "mmlu", score: 85, scoreDisplay: "85%", rank: 2 }] });

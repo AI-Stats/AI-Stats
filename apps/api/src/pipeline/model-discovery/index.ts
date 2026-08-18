@@ -246,46 +246,44 @@ const PROVIDER_ID_ALIASES: Record<string, string> = {
 	"atlas-cloud": "atlascloud",
 };
 const PROVIDER_API_PRICING_WATCH_PROVIDER_IDS = new Set<string>([
-	"ai21",
 	"akashml",
 	"aion-labs",
 	"ambient",
 	"arcee-ai",
-	"atlascloud",
 	"baseten",
+	"cerebras",
 	"chutes",
-	"cloudflare",
 	"crossmodel",
 	"crofai",
 	"deepinfra",
 	"digitalocean",
 	"empiriolabs",
-	"nebius-token-factory",
 	"elevenlabs",
-	"fastrouter",
+	"friendli",
 	"gmicloud",
 	"groq",
 	"huggingface",
 	"inception",
 	"kilo",
 	"llmgateway",
+	"morph",
 	"nano-gpt",
-	"nextbit",
 	"novita",
-	"novita-ai",
 	"openrouter",
-	"orcarouter",
 	"ovhcloud",
+	"pioneer",
+	"poolside",
 	"spacex-ai",
 	"together",
-	"venice",
 	"vercel",
+	"wafer",
 	"weights-and-biases",
-	"pioneer",
-	"poe",
-	"requesty",
 	"zenmux",
 ]);
+
+export function shouldWatchProviderApiPricing(providerId: string): boolean {
+	return PROVIDER_API_PRICING_WATCH_PROVIDER_IDS.has(providerId);
+}
 
 const PROVIDERS: ProviderConfig[] = MODEL_DISCOVERY_PROVIDERS;
 
@@ -514,7 +512,7 @@ export async function fetchPreviousModelsByProviders(providerIds: string[]): Pro
 		const pricingDetails = row.pricing_details ?? null;
 		const fingerprint = toPricingFingerprint(pricingDetails);
 		state.pricingByModelId.set(row.model_id, fingerprint);
-		if (PROVIDER_API_PRICING_WATCH_PROVIDER_IDS.has(row.provider_id)) {
+		if (shouldWatchProviderApiPricing(row.provider_id)) {
 			const snapshot = extractProviderApiModelSnapshot(row.provider_id, asRecord(row.model_details), pricingDetails);
 			state.providerApiSnapshotByModelId.set(row.model_id, snapshot);
 			if (hasProviderApiSnapshotValue(snapshot)) {
@@ -602,7 +600,7 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 	const shouldPrune = args.prune ?? true;
 	const shouldNotify = args.notify ?? true;
 	const providers = selectProvidersForShard(args);
-	const pricingEnabled = toBool(readBindingEnv(["PRICING_MONITOR_ENABLED"]) ?? "true", true);
+	const pricingEnabled = toBool(readBindingEnv(["PRICING_MONITOR_ENABLED"]) ?? "false", false);
 	const pricingExecuted = pricingEnabled && shouldRunPricingMonitor(args);
 
 	await insertRunStart(runId, args, startedAt.toISOString());
@@ -645,7 +643,7 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 				continue;
 			}
 			const hasProviderApiSnapshotBaseline = previousState.providerApiSnapshotReadyByProvider.has(provider.providerId);
-			if (PROVIDER_API_PRICING_WATCH_PROVIDER_IDS.has(provider.providerId) && !hasProviderApiSnapshotBaseline) {
+			if (shouldWatchProviderApiPricing(provider.providerId) && !hasProviderApiSnapshotBaseline) {
 				providerApiPricingBaselineInitialized = true;
 			}
 
@@ -685,7 +683,7 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 				for (const modelId of provisionalRemovals) {
 					pendingRemovalRows.push({ provider_id: provider.providerId, model_id: modelId });
 				}
-				if (PROVIDER_API_PRICING_WATCH_PROVIDER_IDS.has(provider.providerId) && providerModelsWithPricing === 0) {
+				if (shouldWatchProviderApiPricing(provider.providerId) && providerModelsWithPricing === 0) {
 					providerApiProvidersWithoutPricing.add(provider.providerId);
 				}
 				for (const modelId of removed) {
@@ -708,7 +706,7 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 						};
 				if (change) changes.push(change);
 
-				if (hasProviderApiSnapshotBaseline && PROVIDER_API_PRICING_WATCH_PROVIDER_IDS.has(provider.providerId)) {
+				if (hasProviderApiSnapshotBaseline && shouldWatchProviderApiPricing(provider.providerId)) {
 					const addedModelIds = new Set(added);
 					for (const model of discoveredModels) {
 						if (addedModelIds.has(model.id)) continue;

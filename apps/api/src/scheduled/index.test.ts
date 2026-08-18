@@ -199,6 +199,20 @@ describe("handleScheduledEvent", () => {
 		expect(runVideoReconciliationJobMock).not.toHaveBeenCalled();
 	});
 
+	it("runs model discovery every fifteen minutes", async () => {
+		const env = { MODEL_DISCOVERY_SHARD_SIZE: "20" } as any;
+
+		await handleScheduledEvent(scheduledEventAt("2026-06-10T15:10:00.000Z"), env);
+		expect(runModelDiscoveryJobMock).not.toHaveBeenCalled();
+
+		await handleScheduledEvent(scheduledEventAt("2026-06-10T15:15:00.000Z"), env);
+		expect(runModelDiscoveryJobMock).toHaveBeenCalledTimes(1);
+		expect(runModelDiscoveryJobMock).toHaveBeenCalledWith(expect.objectContaining({
+			trigger: "scheduled",
+			scheduledAtIso: "2026-06-10T15:15:00.000Z",
+		}));
+	});
+
 	it("runs I/O retention billing on the daily billing tick", async () => {
 		const env = {
 			GATEWAY_IO_RETENTION_BILLING_ENABLED: "true",
