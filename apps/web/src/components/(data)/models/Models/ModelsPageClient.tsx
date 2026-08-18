@@ -23,6 +23,7 @@ export default function ModelsPageClient({
 	const { data, error } = useSWR(swrKey, fetcher, {
 		dedupingInterval: 60 * 60 * 1_000,
 		refreshInterval: 60 * 60 * 1_000,
+		revalidateIfStale: false,
 		revalidateOnFocus: false,
 	});
 
