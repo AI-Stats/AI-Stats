@@ -7,13 +7,19 @@ import type { Env } from "@/env";
 export async function listGatewayMonitorRows(env: Env) {
 	const { db, client } = createDatabase(env);
 	try {
+		const cacheBucketMs = 15 * 60 * 1_000;
+		const asOf = new Date(Math.floor(Date.now() / cacheBucketMs) * cacheBucketMs);
+		const windowStart = new Date(asOf);
+		windowStart.setUTCHours(0, 0, 0, 0);
+		windowStart.setUTCDate(windowStart.getUTCDate() - 7);
 		const rows = await db.execute<Record<string, unknown>>(sql`
+			/*application='phaseo-web-api',service='web-api',route='/api/_web/models',feature='catalogue-table'*/
 			with weekly as (
 				select model_id, provider_id, sum(total_tokens)::bigint tokens,
 					sum(latency_sum_ms)::numeric / nullif(sum(latency_samples), 0) latency,
 					sum(throughput_sum)::numeric / nullif(sum(throughput_samples), 0) throughput
 				from ${v2RpcGatewayModelUsageDaily}
-				where day_bucket >= current_date - 7
+				where day_bucket >= ${windowStart.toISOString().slice(0, 10)}::date
 				group by model_id, provider_id
 			), pricing_by_tier as (
 				select sku.provider_model_id, coalesce(sku.service_tier_slug, 'standard') service_tier_slug,
@@ -22,7 +28,8 @@ export async function listGatewayMonitorRows(env: Env) {
 				from ${v2PricingSkus} sku
 				join ${v2PricingSkuMeters} meter using (sku_id)
 				where sku.status <> 'disabled'
-					and sku.effective_from <= now() and (sku.effective_to is null or sku.effective_to > now())
+					and sku.effective_from <= ${asOf.toISOString()}::timestamptz
+					and (sku.effective_to is null or sku.effective_to > ${asOf.toISOString()}::timestamptz)
 				group by sku.provider_model_id, coalesce(sku.service_tier_slug, 'standard')
 			), pricing as (
 				select distinct on (provider_model_id) *

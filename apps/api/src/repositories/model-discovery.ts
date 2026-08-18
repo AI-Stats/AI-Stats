@@ -1,12 +1,27 @@
-import { modelDiscoveryRuns, modelDiscoverySeenModels, v2ModelProviderRoutes, v2PricingSkuMeters, v2PricingSkus } from "@phaseo/db/schema";
-import { and, desc, eq, inArray, lt, sql } from "@phaseo/db/query";
+import { AsyncLocalStorage } from "node:async_hooks";
+
+import { modelDiscoveryRuns, modelDiscoverySeenModels, modelDiscoveryState, v2ModelProviderRoutes, v2PricingSkuMeters, v2PricingSkus } from "@phaseo/db/schema";
+import { and, eq, inArray, lt, sql } from "@phaseo/db/query";
 
 import { createDatabase } from "@/runtime/db";
 import { getBindings } from "@/runtime/env";
 
-const COMPLETED_RUN_STATE_LOOKBACK = 20;
+type DatabaseHandle = ReturnType<typeof createDatabase>;
+const databaseContext = new AsyncLocalStorage<DatabaseHandle>();
+
+export async function withModelDiscoveryDatabaseContext<T>(operation: () => Promise<T>): Promise<T> {
+	if (databaseContext.getStore()) return operation();
+	const handle = createDatabase(getBindings());
+	try {
+		return await databaseContext.run(handle, operation);
+	} finally {
+		await handle.client.end({ timeout: 1 });
+	}
+}
 
 async function withDatabase<T>(operation: (db: ReturnType<typeof createDatabase>["db"]) => Promise<T>): Promise<T> {
+	const active = databaseContext.getStore();
+	if (active) return operation(active.db);
 	const { db, client } = createDatabase(getBindings());
 	try { return await operation(db); } finally { await client.end({ timeout: 1 }); }
 }
@@ -26,11 +41,23 @@ export async function loadPricingRows() {
 	`)]);
 }
 
-export async function listCompletedRuns(source?: string) {
-	return withDatabase((db) => {
-		const conditions = [inArray(modelDiscoveryRuns.status, ["completed", "completed_with_errors"] as const)];
-		if (source?.trim()) conditions.push(eq(modelDiscoveryRuns.source, source.trim()));
-		return db.select({ summary: modelDiscoveryRuns.summary, status: modelDiscoveryRuns.status, started_at: modelDiscoveryRuns.startedAt }).from(modelDiscoveryRuns).where(and(...conditions)).orderBy(desc(modelDiscoveryRuns.startedAt)).limit(COMPLETED_RUN_STATE_LOOKBACK);
+export async function getStateValue(scope: string, stateKey: string): Promise<unknown | null> {
+	return withDatabase(async (db) => {
+		const [row] = await db.select({ value: modelDiscoveryState.value })
+			.from(modelDiscoveryState)
+			.where(and(eq(modelDiscoveryState.scope, scope), eq(modelDiscoveryState.stateKey, stateKey)))
+			.limit(1);
+		return row?.value ?? null;
+	});
+}
+
+export async function setStateValue(scope: string, stateKey: string, value: unknown): Promise<void> {
+	await withDatabase(async (db) => {
+		await db.insert(modelDiscoveryState).values({ scope, stateKey, value, updatedAt: new Date().toISOString() })
+			.onConflictDoUpdate({
+				target: [modelDiscoveryState.scope, modelDiscoveryState.stateKey],
+				set: { value: sql`excluded.value`, updatedAt: sql`excluded.updated_at` },
+			});
 	});
 }
 

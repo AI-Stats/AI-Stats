@@ -1,9 +1,20 @@
-import { billingSchema, observabilitySchema } from "./namespaces";
+import { billingSchema, catalogSchema, observabilitySchema } from "./namespaces";
 // Generated from the live PlanetScale Postgres schema with `pnpm db:pull`.
 export * from "./generated/schema";
 
 import { sql } from "drizzle-orm";
-import { bigint, boolean, check, date, index, integer, jsonb, numeric, pgTable, text, timestamp, unique, uuid } from "drizzle-orm/pg-core";
+import { bigint, boolean, check, date, index, integer, jsonb, numeric, pgTable, primaryKey, text, timestamp, unique, uuid } from "drizzle-orm/pg-core";
+
+// Runtime watcher state belongs in a compact keyed table. Audit-run summaries
+// remain immutable history and are no longer scanned to reconstruct cursors.
+export const modelDiscoveryState = catalogSchema.table("model_discovery_state", {
+	scope: text().notNull(),
+	stateKey: text("state_key").notNull(),
+	value: jsonb().notNull(),
+	updatedAt: timestamp("updated_at", { withTimezone: true, mode: "string" }).defaultNow().notNull(),
+}, (table) => [
+	primaryKey({ columns: [table.scope, table.stateKey], name: "model_discovery_state_pkey" }),
+]);
 
 // Drizzle Kit omits the partitioned parent from generated schema output.
 // Declare the authoritative request table explicitly so runtime repositories

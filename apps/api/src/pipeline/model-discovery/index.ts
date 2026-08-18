@@ -246,44 +246,46 @@ const PROVIDER_ID_ALIASES: Record<string, string> = {
 	"atlas-cloud": "atlascloud",
 };
 const PROVIDER_API_PRICING_WATCH_PROVIDER_IDS = new Set<string>([
+	"ai21",
 	"akashml",
 	"aion-labs",
 	"ambient",
 	"arcee-ai",
+	"atlascloud",
 	"baseten",
-	"cerebras",
 	"chutes",
+	"cloudflare",
 	"crossmodel",
 	"crofai",
 	"deepinfra",
 	"digitalocean",
 	"empiriolabs",
+	"nebius-token-factory",
 	"elevenlabs",
-	"friendli",
+	"fastrouter",
 	"gmicloud",
 	"groq",
 	"huggingface",
 	"inception",
 	"kilo",
 	"llmgateway",
-	"morph",
 	"nano-gpt",
+	"nextbit",
 	"novita",
+	"novita-ai",
 	"openrouter",
+	"orcarouter",
 	"ovhcloud",
-	"pioneer",
-	"poolside",
 	"spacex-ai",
 	"together",
+	"venice",
 	"vercel",
-	"wafer",
 	"weights-and-biases",
+	"pioneer",
+	"poe",
+	"requesty",
 	"zenmux",
 ]);
-
-export function shouldWatchProviderApiPricing(providerId: string): boolean {
-	return PROVIDER_API_PRICING_WATCH_PROVIDER_IDS.has(providerId);
-}
 
 const PROVIDERS: ProviderConfig[] = MODEL_DISCOVERY_PROVIDERS;
 
@@ -441,18 +443,47 @@ function compactSummary(summary: DiscoveryRunSummary, extra: { notificationError
 }
 
 async function updateRunFinish(summary: DiscoveryRunSummary, status: RunStatus, extra: { notificationError?: string | null; error?: string | null } = {}): Promise<void> {
+	const persistedSummary = compactSummary(summary, extra);
 	await modelDiscoveryRepository.finishRun(summary.runId, {
-			status,
-			finishedAt: summary.finishedAt,
-			providersTotal: summary.providersTotal,
-			providersSuccess: summary.providersSuccess,
-			providersSkipped: summary.providersSkipped,
-			providersError: summary.providersError,
-			changesCount: summary.changesDetected,
-			staleModelsDeleted: summary.staleModelsDeleted,
-			summary: compactSummary(summary, extra),
-			error: extra.error ?? null,
+		status,
+		finishedAt: summary.finishedAt,
+		providersTotal: summary.providersTotal,
+		providersSuccess: summary.providersSuccess,
+		providersSkipped: summary.providersSkipped,
+		providersError: summary.providersError,
+		changesCount: summary.changesDetected,
+		staleModelsDeleted: summary.staleModelsDeleted,
+		summary: persistedSummary,
+		error: extra.error ?? null,
 	});
+
+	if (status === "failed") return;
+	const scope = summary.source?.trim() || "__global__";
+	if (summary.pricingMonitor.cursorUpdatedAt) {
+		await modelDiscoveryRepository.setStateValue("__global__", "pricing_cursor", {
+			updatedAt: summary.pricingMonitor.cursorUpdatedAt,
+			ruleIdsAtTimestamp: summary.pricingMonitor.ruleIdsAtTimestamp ?? [],
+		});
+	}
+	if (summary.configuredModelCoverageMonitor.executed && !summary.configuredModelCoverageMonitor.error) {
+		await modelDiscoveryRepository.setStateValue(scope, "configured_coverage", {
+			providerChanges: summary.configuredModelCoverageMonitor.providerChanges.map((provider) => ({
+				providerId: provider.providerId,
+				updates: provider.updates,
+				samples: provider.samples.slice(0, MAX_SUMMARY_MODEL_SAMPLES),
+			})),
+			fingerprint: summary.configuredModelCoverageMonitor.fingerprint,
+		});
+	}
+	if (summary.notificationFingerprint) {
+		await modelDiscoveryRepository.setStateValue(scope, "notification_fingerprint", summary.notificationFingerprint);
+	}
+	if (summary.pricingTableMonitor.executed && !summary.pricingTableMonitor.error) {
+		await modelDiscoveryRepository.setStateValue(scope, "pricing_table", summary.pricingTableMonitor.sources.map((source) => ({
+			providerId: source.providerId,
+			fingerprint: source.fingerprint,
+		})));
+	}
 }
 
 type SeenModelUpsertRow = {
@@ -512,7 +543,7 @@ export async function fetchPreviousModelsByProviders(providerIds: string[]): Pro
 		const pricingDetails = row.pricing_details ?? null;
 		const fingerprint = toPricingFingerprint(pricingDetails);
 		state.pricingByModelId.set(row.model_id, fingerprint);
-		if (shouldWatchProviderApiPricing(row.provider_id)) {
+		if (PROVIDER_API_PRICING_WATCH_PROVIDER_IDS.has(row.provider_id)) {
 			const snapshot = extractProviderApiModelSnapshot(row.provider_id, asRecord(row.model_details), pricingDetails);
 			state.providerApiSnapshotByModelId.set(row.model_id, snapshot);
 			if (hasProviderApiSnapshotValue(snapshot)) {
@@ -591,7 +622,7 @@ function shouldPruneRunsDaily(args: RunArgs, startedAt: Date): boolean {
 	return hour === 0 && minute < 10;
 }
 
-export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunSummary> {
+async function runModelDiscoveryJobWithDatabase(args: RunArgs): Promise<DiscoveryRunSummary> {
 	const startedAt = new Date();
 	const runId = crypto.randomUUID();
 	const retentionDays = toInt(readBindingEnv(["MODEL_DISCOVERY_RETENTION_DAYS"]) ?? String(DEFAULT_RETENTION_DAYS), DEFAULT_RETENTION_DAYS);
@@ -643,7 +674,7 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 				continue;
 			}
 			const hasProviderApiSnapshotBaseline = previousState.providerApiSnapshotReadyByProvider.has(provider.providerId);
-			if (shouldWatchProviderApiPricing(provider.providerId) && !hasProviderApiSnapshotBaseline) {
+			if (PROVIDER_API_PRICING_WATCH_PROVIDER_IDS.has(provider.providerId) && !hasProviderApiSnapshotBaseline) {
 				providerApiPricingBaselineInitialized = true;
 			}
 
@@ -683,7 +714,7 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 				for (const modelId of provisionalRemovals) {
 					pendingRemovalRows.push({ provider_id: provider.providerId, model_id: modelId });
 				}
-				if (shouldWatchProviderApiPricing(provider.providerId) && providerModelsWithPricing === 0) {
+				if (PROVIDER_API_PRICING_WATCH_PROVIDER_IDS.has(provider.providerId) && providerModelsWithPricing === 0) {
 					providerApiProvidersWithoutPricing.add(provider.providerId);
 				}
 				for (const modelId of removed) {
@@ -706,7 +737,7 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 						};
 				if (change) changes.push(change);
 
-				if (hasProviderApiSnapshotBaseline && shouldWatchProviderApiPricing(provider.providerId)) {
+				if (hasProviderApiSnapshotBaseline && PROVIDER_API_PRICING_WATCH_PROVIDER_IDS.has(provider.providerId)) {
 					const addedModelIds = new Set(added);
 					for (const model of discoveredModels) {
 						if (addedModelIds.has(model.id)) continue;
@@ -1173,4 +1204,10 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 		}
 		throw error;
 	}
+}
+
+export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunSummary> {
+	return modelDiscoveryRepository.withModelDiscoveryDatabaseContext(
+		() => runModelDiscoveryJobWithDatabase(args),
+	);
 }

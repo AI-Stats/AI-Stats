@@ -1208,11 +1208,13 @@ export function parsePricingCursorFromSummary(summary: unknown): PricingCursor |
 }
 
 export async function loadLatestPricingCursor(): Promise<PricingCursor | null> {
-	for (const row of await modelDiscoveryRepository.listCompletedRuns()) {
-		const cursor = parsePricingCursorFromSummary((row as Record<string, unknown>).summary);
-		if (cursor) return cursor;
-	}
-	return null;
+	const state = asRecord(await modelDiscoveryRepository.getStateValue("__global__", "pricing_cursor"));
+	if (!state || typeof state.updatedAt !== "string" || !state.updatedAt.trim()) return null;
+	return {
+		updatedAt: state.updatedAt,
+		ruleIdsAtTimestamp: asArray(state.ruleIdsAtTimestamp)
+			.filter((value): value is string => typeof value === "string" && value.trim().length > 0),
+	};
 }
 
 export function parseConfiguredCoverageProviderChanges(value: unknown): PricingProviderChange[] {
@@ -1260,22 +1262,13 @@ export function parseConfiguredCoverageStateFromSummary(summary: unknown): Confi
 }
 
 export async function loadLatestConfiguredCoverageState(source?: string): Promise<ConfiguredModelCoverageState | null> {
-	for (const row of await modelDiscoveryRepository.listCompletedRuns(source)) {
-		const state = parseConfiguredCoverageStateFromSummary((row as Record<string, unknown>).summary);
-		if (state) return state;
-	}
-	return null;
+	const value = await modelDiscoveryRepository.getStateValue(source?.trim() || "__global__", "configured_coverage");
+	return parseConfiguredCoverageStateFromSummary({ configuredModelCoverageMonitor: value });
 }
 
 export async function loadLatestDiscordNotificationFingerprint(source?: string): Promise<string | null> {
-	for (const row of await modelDiscoveryRepository.listCompletedRuns(source)) {
-		const summary = asRecord((row as Record<string, unknown>).summary);
-		const fingerprint = typeof summary?.notificationFingerprint === "string"
-			? summary.notificationFingerprint.trim()
-			: "";
-		if (fingerprint) return fingerprint;
-	}
-	return null;
+	const value = await modelDiscoveryRepository.getStateValue(source?.trim() || "__global__", "notification_fingerprint");
+	return typeof value === "string" && value.trim() ? value.trim() : null;
 }
 
 export function parsePricingTableStateFromSummary(summary: unknown): PricingTableSnapshotState[] {
@@ -1294,14 +1287,8 @@ export function parsePricingTableStateFromSummary(summary: unknown): PricingTabl
 }
 
 export async function loadLatestPricingTableState(source?: string): Promise<PricingTableSnapshotState[]> {
-	const latestByProvider = new Map<string, PricingTableSnapshotState>();
-	for (const row of await modelDiscoveryRepository.listCompletedRuns(source)) {
-		const state = parsePricingTableStateFromSummary((row as Record<string, unknown>).summary);
-		for (const snapshot of state) {
-			if (!latestByProvider.has(snapshot.providerId)) latestByProvider.set(snapshot.providerId, snapshot);
-		}
-	}
-	return [...latestByProvider.values()];
+	const value = await modelDiscoveryRepository.getStateValue(source?.trim() || "__global__", "pricing_table");
+	return parsePricingTableStateFromSummary({ pricingTableMonitor: { sources: value } });
 }
 
 export async function fetchLatestPricingUpdatedAt(): Promise<string | null> {

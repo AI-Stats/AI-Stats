@@ -25,8 +25,9 @@ import { pruneExpiredDataContributions } from "@/pipeline/classification/data-co
 import { drainGatewayOtlpOutbox } from "@/observability/otlp-export";
 import { cleanupExpiredOAuthArtifacts } from "@/repositories/oauth";
 
-const MODEL_DISCOVERY_INTERVAL_MINUTES = 15;
-const MODEL_DISCOVERY_TICKS_PER_DAY = 24 * (60 / MODEL_DISCOVERY_INTERVAL_MINUTES);
+const MODEL_DISCOVERY_TICKS_PER_DAY = Array.from({ length: 24 }, (_value, hour) =>
+	60 / getModelDiscoveryStepMinutesUtc(hour),
+).reduce((total, ticks) => total + ticks, 0);
 
 function serializeError(error: unknown): Record<string, unknown> {
 	if (error instanceof Error) {
@@ -84,12 +85,27 @@ function getScheduledMinuteUtc(event: ScheduledController): number {
 	return new Date(event.scheduledTime).getUTCMinutes();
 }
 
+function getModelDiscoveryStepMinutesUtc(hour: number): number {
+	if (hour >= 15 && hour < 18) {
+		return 3;
+	}
+
+	if (hour >= 10 && hour < 12) {
+		return 5;
+	}
+
+	return 15;
+}
+
 function isCoreJobsTick(event: ScheduledController): boolean {
 	return getScheduledMinuteUtc(event) % 5 === 0;
 }
 
 function isModelDiscoveryTick(event: ScheduledController): boolean {
-	return getScheduledMinuteUtc(event) % MODEL_DISCOVERY_INTERVAL_MINUTES === 0;
+	const scheduledAt = new Date(event.scheduledTime);
+	const hour = scheduledAt.getUTCHours();
+	const minute = scheduledAt.getUTCMinutes();
+	return minute % getModelDiscoveryStepMinutesUtc(hour) === 0;
 }
 
 function isDailyRetentionBillingTick(event: ScheduledController): boolean {
@@ -108,10 +124,15 @@ function getModelDiscoveryExecutionIndex(event: ScheduledController): number {
 	const minute = scheduledAt.getUTCMinutes();
 	const dayNumber = Math.floor(event.scheduledTime / (24 * 60 * 60 * 1000));
 
+	let ticksBeforeHour = 0;
+	for (let currentHour = 0; currentHour < hour; currentHour += 1) {
+		ticksBeforeHour += 60 / getModelDiscoveryStepMinutesUtc(currentHour);
+	}
+
 	return (
 		dayNumber * MODEL_DISCOVERY_TICKS_PER_DAY +
-		hour * (60 / MODEL_DISCOVERY_INTERVAL_MINUTES) +
-		Math.floor(minute / MODEL_DISCOVERY_INTERVAL_MINUTES)
+		ticksBeforeHour +
+		Math.floor(minute / getModelDiscoveryStepMinutesUtc(hour))
 	);
 }
 
