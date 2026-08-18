@@ -1,5 +1,19 @@
 import { describe, expect, it } from "vitest";
-import { deriveChatGatewayKey, resolveGatewayBaseUrlForEnvironment } from "@/chat/proxy";
+import {
+	CANONICAL_CHAT_APP_HEADERS,
+	deriveChatGatewayKey,
+	resolveGatewayBaseUrlForEnvironment,
+} from "@/chat/proxy";
+
+describe("Phaseo Chat attribution", () => {
+	it("declares Phaseo Chat as the canonical gateway client source", () => {
+		expect(CANONICAL_CHAT_APP_HEADERS).toMatchObject({
+			"x-phaseo-client": "phaseo-chat",
+			"x-app-id": "phaseo-chat",
+			"x-app-name": "Phaseo Chat",
+		});
+	});
+});
 
 describe("deriveChatGatewayKey", () => {
 	it("creates a stable, distinct managed key for each user in a workspace", async () => {

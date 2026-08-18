@@ -1,4 +1,5 @@
 import {
+	APP_HEADERS,
 	DEFAULT_SETTINGS,
 	buildDefaultSystemPrompt,
 	buildServerToolDefinitions,
@@ -9,6 +10,12 @@ import {
 	normalizeServerTools,
 	resolveChatApiBaseUrl,
 } from "./chat-playground-core";
+
+describe("Phaseo Chat attribution", () => {
+	it("sends the declared Chat client source through the web proxy", () => {
+		expect(APP_HEADERS["x-phaseo-client"]).toBe("phaseo-chat");
+	});
+});
 
 describe("chat API targets", () => {
 	const stagingBaseUrl = "https://staging.example.com/v1";

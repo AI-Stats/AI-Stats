@@ -309,6 +309,7 @@ export const generateId = () => {
 };
 
 export const APP_HEADERS = {
+	"x-phaseo-client": "phaseo-chat",
 	"x-app-id": "phaseo-chat",
 	"x-app-name": "Phaseo Chat",
 	"x-title": "Phaseo Chat",
