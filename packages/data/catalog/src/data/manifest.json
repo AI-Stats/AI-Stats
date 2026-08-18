@@ -1283,7 +1283,8 @@
       "z-ai/glm-5.2",
       "z-ai/glm-5v-turbo",
       "z-ai/glm-image",
-      "z-ai/glm-4.7-flash:free"
+      "z-ai/glm-4.7-flash:free",
+      "z-ai/glm-5.3"
     ],
     "crofai": [
       "crofai/greg-1-mini",
