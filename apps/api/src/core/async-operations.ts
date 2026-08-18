@@ -1,8 +1,8 @@
 // Purpose: Persist async operation ownership and billing metadata.
 // Why: Long-running jobs (video/batch) need team-scoped lookup across requests.
-// How: Store operation records through typed Drizzle repositories with workspace+kind+internalId identity.
+// How: Store operation records in Supabase with team+kind+internalId identity.
 
-import * as asyncOperationRepository from "@/repositories/async-operations";
+import { getSupabaseAdmin } from "@/runtime/env";
 
 export type AsyncOperationKind = "video" | "batch" | "music";
 const ASYNC_OPERATION_L1_TTL_MS = 1_000;
@@ -154,6 +154,9 @@ function mapRow(row: AsyncOperationRow): AsyncOperationRecord {
 	};
 }
 
+const ASYNC_OPERATION_SELECT_COLUMNS =
+	"workspace_id,kind,internal_id,request_id,session_id,app_id,provider,native_id,model,status,meta,billed_at,next_reconcile_at,reconcile_attempts,reconcile_locked_at,reconcile_locked_by,last_reconcile_error,created_at,updated_at";
+
 export async function upsertAsyncOperation(args: {
 	workspaceId: string;
 	kind: AsyncOperationKind;
@@ -174,24 +177,27 @@ export async function upsertAsyncOperation(args: {
 
 	const now = new Date().toISOString();
 	const payload = {
-		workspaceId,
+		workspace_id: workspaceId,
 		kind: args.kind,
-		internalId,
-		requestId: normalizeText(args.requestId) ?? null,
-		sessionId: normalizeText(args.sessionId) ?? null,
-		appId: normalizeUuid(args.appId) ?? null,
+		internal_id: internalId,
+		request_id: normalizeText(args.requestId) ?? null,
+		session_id: normalizeText(args.sessionId) ?? null,
+		app_id: normalizeUuid(args.appId) ?? null,
 		provider: normalizeText(args.provider) ?? null,
-		nativeId: normalizeText(args.nativeId) ?? null,
+		native_id: normalizeText(args.nativeId) ?? null,
 		model: normalizeText(args.model) ?? null,
 		status: normalizeText(args.status) ?? null,
 		meta: normalizeMeta(args.meta),
-		updatedAt: now,
+		updated_at: now,
 	} as Record<string, unknown>;
 	if (Object.prototype.hasOwnProperty.call(args, "nextReconcileAt")) {
-		payload.nextReconcileAt = normalizeText(args.nextReconcileAt) ?? null;
+		payload.next_reconcile_at = normalizeText(args.nextReconcileAt) ?? null;
 	}
 
-	await asyncOperationRepository.upsertOperation(payload as Parameters<typeof asyncOperationRepository.upsertOperation>[0]);
+	const { error } = await getSupabaseAdmin()
+		.from("gateway_async_operations")
+		.upsert(payload, { onConflict: "workspace_id,kind,internal_id" });
+	if (error) throw error;
 	invalidateAsyncOperationCache(workspaceId, args.kind, internalId);
 }
 
@@ -205,8 +211,45 @@ export async function listAsyncOperations(args: {
 }): Promise<AsyncOperationRecord[]> {
 	const limit = Number.isFinite(args.limit) ? Math.max(1, Math.min(500, Math.trunc(args.limit!))) : 100;
 	const offset = Number.isFinite(args.offset) ? Math.max(0, Math.trunc(args.offset!)) : 0;
-	const providers = args.providers?.map((value) => normalizeText(value)).filter((value): value is string => Boolean(value));
-	const data = await asyncOperationRepository.listOperations({ kind: args.kind, limit, offset, providers, statuses: args.statuses, unbilledOnly: args.unbilledOnly });
+	let query = getSupabaseAdmin()
+		.from("gateway_async_operations")
+		.select(
+			ASYNC_OPERATION_SELECT_COLUMNS,
+		)
+		.eq("kind", args.kind)
+		.order("updated_at", { ascending: true });
+
+	query = offset > 0 ? query.range(offset, offset + limit - 1) : query.limit(limit);
+
+	if (args.unbilledOnly) {
+		query = query.is("billed_at", null);
+	}
+	if (args.providers && args.providers.length > 0) {
+		const providers = args.providers
+			.map((value) => normalizeText(value))
+			.filter((value): value is string => Boolean(value));
+		if (providers.length > 0) {
+			query = query.in("provider", providers);
+		}
+	}
+	if (args.statuses && args.statuses.length > 0) {
+		const includeNullStatus = args.statuses.some((value) => value == null);
+		const statuses = args.statuses
+			.map((value) => normalizeText(value))
+			.filter((value): value is string => Boolean(value));
+		if (includeNullStatus && statuses.length > 0) {
+			query = query.or(
+				`status.is.null,status.in.(${statuses.map((value) => `"${value}"`).join(",")})`,
+			);
+		} else if (includeNullStatus) {
+			query = query.is("status", null);
+		} else if (statuses.length > 0) {
+			query = query.in("status", statuses);
+		}
+	}
+
+	const { data, error } = await query;
+	if (error) throw error;
 	return (data ?? []).map((row) => mapRow(row as AsyncOperationRow));
 }
 
@@ -218,9 +261,17 @@ async function callWebhookDeliveryRpc(name: string, args: {
 	claimToken: string;
 	staleAfterSeconds?: number;
 }): Promise<boolean> {
-	if (name === "claim_gateway_async_webhook_delivery") return asyncOperationRepository.claimWebhookDelivery({ ...args, staleAfterSeconds: args.staleAfterSeconds ?? 300 });
-	if (name === "complete_gateway_async_webhook_delivery") return asyncOperationRepository.completeWebhookDelivery(args);
-	return asyncOperationRepository.releaseWebhookDelivery(args);
+	const params: Record<string, unknown> = {
+		p_workspace_id: args.workspaceId,
+		p_kind: args.kind,
+		p_internal_id: args.internalId,
+		p_delivery_key: args.deliveryKey,
+		p_claim_token: args.claimToken,
+	};
+	if (args.staleAfterSeconds != null) params.p_stale_after_seconds = args.staleAfterSeconds;
+	const result = await getSupabaseAdmin().rpc(name, params);
+	if (result.error) throw result.error;
+	return result.data === true;
 }
 
 export function claimAsyncWebhookDelivery(args: {
@@ -256,7 +307,19 @@ export function releaseAsyncWebhookDeliveryClaim(args: {
 
 export async function listPendingAsyncWebhookDeliveries(limit = 100): Promise<PendingAsyncWebhookDelivery[]> {
 	const normalizedLimit = Number.isFinite(limit) ? Math.max(1, Math.min(500, Math.trunc(limit))) : 100;
-	const data = await asyncOperationRepository.listPendingWebhookDeliveries(normalizedLimit);
+	const { data, error } = await getSupabaseAdmin()
+		.from("gateway_async_webhook_deliveries")
+		.select("workspace_id,kind,internal_id,delivery_key,event_type,phase,progress,previous_status,current_status")
+		.eq("status", "pending")
+		.in("kind", ["video", "batch"])
+		.not("event_type", "is", null)
+		.neq("event_type", "")
+		.not("phase", "is", null)
+		.neq("phase", "")
+		.lte("next_attempt_at", new Date().toISOString())
+		.order("next_attempt_at", { ascending: true })
+		.limit(normalizedLimit);
+	if (error) throw error;
 	return (data ?? []).flatMap((row: any) => {
 		if (row.kind !== "video" && row.kind !== "batch") return [];
 		if (!normalizeText(row.event_type) || !normalizeText(row.phase)) return [];
@@ -286,11 +349,19 @@ export async function recordAsyncWebhookDeliveryResult(args: {
 	progress?: number | null;
 	telemetryPatch?: Record<string, unknown>;
 }): Promise<void> {
-	await asyncOperationRepository.recordWebhookResult({
-		workspaceId: args.workspaceId, kind: args.kind, internalId: args.internalId, deliveryKey: args.deliveryKey,
-		attempt: args.attempt, retryState: args.retryState ?? null, deliveredAt: args.deliveredAt ?? null,
-		nextRetryAt: args.nextRetryAt ?? null, progress: args.progress ?? null, telemetryPatch: args.telemetryPatch ?? null,
+	const { error } = await getSupabaseAdmin().rpc("record_gateway_async_webhook_result", {
+		p_workspace_id: args.workspaceId,
+		p_kind: args.kind,
+		p_internal_id: args.internalId,
+		p_delivery_key: args.deliveryKey,
+		p_attempt: args.attempt,
+		p_retry_state: args.retryState ?? null,
+		p_delivered_at: args.deliveredAt ?? null,
+		p_next_retry_at: args.nextRetryAt ?? null,
+		p_progress: args.progress ?? null,
+		p_telemetry_patch: args.telemetryPatch ?? null,
 	});
+	if (error) throw error;
 	invalidateAsyncOperationCache(args.workspaceId, args.kind, args.internalId);
 }
 
@@ -301,7 +372,15 @@ export async function discardPendingAsyncWebhookDelivery(args: {
 	deliveryKey: string;
 	reason: string;
 }): Promise<void> {
-	await asyncOperationRepository.updateWebhookDelivery({ ...args, status: "failed" });
+	const { error } = await getSupabaseAdmin()
+		.from("gateway_async_webhook_deliveries")
+		.update({ status: "failed", last_error: args.reason, updated_at: new Date().toISOString() })
+		.eq("workspace_id", args.workspaceId)
+		.eq("kind", args.kind)
+		.eq("internal_id", args.internalId)
+		.eq("delivery_key", args.deliveryKey)
+		.eq("status", "pending");
+	if (error) throw error;
 }
 
 export async function markPendingAsyncWebhookDeliveryDelivered(args: {
@@ -310,7 +389,16 @@ export async function markPendingAsyncWebhookDeliveryDelivered(args: {
 	internalId: string;
 	deliveryKey: string;
 }): Promise<void> {
-	await asyncOperationRepository.updateWebhookDelivery({ ...args, status: "delivered" });
+	const nowIso = new Date().toISOString();
+	const { error } = await getSupabaseAdmin()
+		.from("gateway_async_webhook_deliveries")
+		.update({ status: "delivered", delivered_at: nowIso, updated_at: nowIso })
+		.eq("workspace_id", args.workspaceId)
+		.eq("kind", args.kind)
+		.eq("internal_id", args.internalId)
+		.eq("delivery_key", args.deliveryKey)
+		.eq("status", "pending");
+	if (error) throw error;
 }
 
 export async function claimAsyncOperationsForReconciliation(args: {
@@ -336,10 +424,16 @@ export async function claimAsyncOperationsForReconciliation(args: {
 		?.map((value) => normalizeText(value) ?? "")
 		.filter((value, index, values) => values.indexOf(value) === index);
 
-	const data = await asyncOperationRepository.claimOperationsForReconciliation({
-		kind: args.kind, limit, statuses: statuses && statuses.length > 0 ? statuses : null,
-		workerId: normalizeText(args.workerId) ?? "gateway-reconciler", leaseSeconds, shardCount, shardIndex,
+	const { data, error } = await getSupabaseAdmin().rpc("claim_gateway_async_operations_for_reconciliation", {
+		p_kind: args.kind,
+		p_limit: limit,
+		p_statuses: statuses && statuses.length > 0 ? statuses : null,
+		p_worker_id: normalizeText(args.workerId) ?? "gateway-reconciler",
+		p_lease_seconds: leaseSeconds,
+		p_shard_count: shardCount,
+		p_shard_index: shardIndex,
 	});
+	if (error) throw error;
 	return (data ?? []).map((row) => mapRow(row as AsyncOperationRow));
 }
 
@@ -355,11 +449,26 @@ export async function updateAsyncOperationReconciliation(args: {
 	const internalId = normalizeText(args.internalId);
 	if (!workspaceId || !internalId) return;
 
-	await asyncOperationRepository.updateReconciliation({
-		workspaceId, kind: args.kind, internalId, lastError: normalizeText(args.lastError) ?? null,
-		clearLease: args.clearLease !== false,
-		...(Object.prototype.hasOwnProperty.call(args, "nextReconcileAt") ? { nextReconcileAt: normalizeText(args.nextReconcileAt) ?? null } : {}),
-	});
+	const now = new Date().toISOString();
+	const patch: Record<string, unknown> = {
+		updated_at: now,
+		last_reconcile_error: normalizeText(args.lastError) ?? null,
+	};
+	if (Object.prototype.hasOwnProperty.call(args, "nextReconcileAt")) {
+		patch.next_reconcile_at = normalizeText(args.nextReconcileAt) ?? null;
+	}
+	if (args.clearLease !== false) {
+		patch.reconcile_locked_at = null;
+		patch.reconcile_locked_by = null;
+	}
+
+	const { error } = await getSupabaseAdmin()
+		.from("gateway_async_operations")
+		.update(patch)
+		.eq("workspace_id", workspaceId)
+		.eq("kind", args.kind)
+		.eq("internal_id", internalId);
+	if (error) throw error;
 	invalidateAsyncOperationCache(workspaceId, args.kind, internalId);
 }
 
@@ -373,7 +482,34 @@ export async function listTeamAsyncOperations(args: {
 	if (!workspaceId) return [];
 	const limit = Number.isFinite(args.limit) ? Math.max(1, Math.min(500, Math.trunc(args.limit!))) : 100;
 
-	const data = await asyncOperationRepository.listOperations({ workspaceId, kind: args.kind, limit, statuses: args.statuses, descending: true });
+	let query = getSupabaseAdmin()
+		.from("gateway_async_operations")
+		.select(
+			ASYNC_OPERATION_SELECT_COLUMNS,
+		)
+		.eq("workspace_id", workspaceId)
+		.eq("kind", args.kind)
+		.order("updated_at", { ascending: false })
+		.limit(limit);
+
+	if (args.statuses && args.statuses.length > 0) {
+		const includeNullStatus = args.statuses.some((value) => value == null);
+		const statuses = args.statuses
+			.map((value) => normalizeText(value))
+			.filter((value): value is string => Boolean(value));
+		if (includeNullStatus && statuses.length > 0) {
+			query = query.or(
+				`status.is.null,status.in.(${statuses.map((value) => `"${value}"`).join(",")})`,
+			);
+		} else if (includeNullStatus) {
+			query = query.is("status", null);
+		} else if (statuses.length > 0) {
+			query = query.in("status", statuses);
+		}
+	}
+
+	const { data, error } = await query;
+	if (error) throw error;
 	return (data ?? []).map((row) => mapRow(row as AsyncOperationRow));
 }
 
@@ -394,7 +530,16 @@ export async function getAsyncOperation(
 
 	const epoch = currentAsyncOperationEpoch(cacheKey);
 	const loader = (async (): Promise<AsyncOperationRecord | null> => {
-		const data = await asyncOperationRepository.findOperation(workspaceId, kind, internalId);
+		const { data, error } = await getSupabaseAdmin()
+			.from("gateway_async_operations")
+			.select(
+				ASYNC_OPERATION_SELECT_COLUMNS,
+			)
+			.eq("workspace_id", workspaceId)
+			.eq("kind", kind)
+			.eq("internal_id", internalId)
+			.maybeSingle();
+		if (error) throw error;
 		const record = data ? mapRow(data as AsyncOperationRow) : null;
 		if (currentAsyncOperationEpoch(cacheKey) === epoch) {
 			writeAsyncOperationL1(cacheKey, record);
@@ -421,7 +566,17 @@ export async function findAsyncOperationByNativeId(
 	const nativeId = normalizeText(nativeIdRaw);
 	if (!provider || !nativeId) return null;
 
-	const data = await asyncOperationRepository.findOperationByNativeId(kind, provider, nativeId);
+	const { data, error } = await getSupabaseAdmin()
+		.from("gateway_async_operations")
+		.select(
+			ASYNC_OPERATION_SELECT_COLUMNS,
+		)
+		.eq("kind", kind)
+		.eq("provider", provider)
+		.eq("native_id", nativeId)
+		.order("created_at", { ascending: false })
+		.limit(2);
+	if (error) throw error;
 	const rows = Array.isArray(data) ? data : [];
 	if (rows.length > 1) {
 		console.error("async_operation_native_id_ambiguous", {
@@ -446,7 +601,14 @@ export async function isAsyncOperationBilled(
 	const internalId = normalizeText(internalIdRaw);
 	if (!workspaceId || !internalId) return false;
 
-	const data = await asyncOperationRepository.findOperation(workspaceId, kind, internalId);
+	const { data, error } = await getSupabaseAdmin()
+		.from("gateway_async_operations")
+		.select("billed_at")
+		.eq("workspace_id", workspaceId)
+		.eq("kind", kind)
+		.eq("internal_id", internalId)
+		.maybeSingle();
+	if (error) throw error;
 	return Boolean((data as { billed_at?: string | null } | null)?.billed_at);
 }
 
@@ -459,9 +621,26 @@ export async function markAsyncOperationBilled(
 	const internalId = normalizeText(internalIdRaw);
 	if (!workspaceId || !internalId) return false;
 
-	const changed = await asyncOperationRepository.markOperationBilled(workspaceId, kind, internalId);
-	if (changed) invalidateAsyncOperationCache(workspaceId, kind, internalId);
-	return changed;
+	const now = new Date().toISOString();
+	const { data, error } = await getSupabaseAdmin()
+		.from("gateway_async_operations")
+		.update({
+			billed_at: now,
+			updated_at: now,
+			next_reconcile_at: null,
+			reconcile_locked_at: null,
+			reconcile_locked_by: null,
+			last_reconcile_error: null,
+		})
+		.eq("workspace_id", workspaceId)
+		.eq("kind", kind)
+		.eq("internal_id", internalId)
+		.is("billed_at", null)
+		.select("internal_id")
+		.maybeSingle();
+	if (error) throw error;
+	if (data) invalidateAsyncOperationCache(workspaceId, kind, internalId);
+	return Boolean(data);
 }
 
 export async function setAsyncOperationStatus(args: {
@@ -478,7 +657,16 @@ export async function setAsyncOperationStatus(args: {
 	if (!workspaceId || !internalId || !status) return;
 
 	const updateNextReconcile = Object.prototype.hasOwnProperty.call(args, "nextReconcileAt");
-	await asyncOperationRepository.setOperationStatus({ workspaceId, kind: args.kind, internalId, status, metaPatch: normalizeMeta(args.metaPatch), updateNextReconcile, nextReconcileAt: updateNextReconcile ? normalizeText(args.nextReconcileAt) : null });
+	const { error } = await getSupabaseAdmin().rpc("gateway_set_async_operation_status", {
+		p_workspace_id: workspaceId,
+		p_kind: args.kind,
+		p_internal_id: internalId,
+		p_status: status,
+		p_meta_patch: normalizeMeta(args.metaPatch),
+		p_update_next_reconcile: updateNextReconcile,
+		p_next_reconcile_at: updateNextReconcile ? normalizeText(args.nextReconcileAt) : null,
+	});
+	if (error) throw error;
 	invalidateAsyncOperationCache(workspaceId, args.kind, internalId);
 }
 
@@ -493,7 +681,16 @@ export async function patchAsyncOperationMeta(args: {
 	if (!workspaceId || !internalId) return;
 	if (!args.metaPatch || typeof args.metaPatch !== "object" || Array.isArray(args.metaPatch)) return;
 
-	await asyncOperationRepository.setOperationStatus({ workspaceId, kind: args.kind, internalId, status: null, metaPatch: normalizeMeta(args.metaPatch), updateNextReconcile: false, nextReconcileAt: null });
+	const { error } = await getSupabaseAdmin().rpc("gateway_set_async_operation_status", {
+		p_workspace_id: workspaceId,
+		p_kind: args.kind,
+		p_internal_id: internalId,
+		p_status: null,
+		p_meta_patch: normalizeMeta(args.metaPatch),
+		p_update_next_reconcile: false,
+		p_next_reconcile_at: null,
+	});
+	if (error) throw error;
 	invalidateAsyncOperationCache(workspaceId, args.kind, internalId);
 }
 
@@ -511,20 +708,27 @@ export async function patchAsyncOperationIdentity(args: {
 	const workspaceId = normalizeText(args.workspaceId);
 	const internalId = normalizeText(args.internalId);
 	if (!workspaceId || !internalId) return;
-	const patch: Record<string, unknown> = {};
+	const patch: Record<string, unknown> = { updated_at: new Date().toISOString() };
 	const requestId = normalizeText(args.requestId);
 	const sessionId = normalizeText(args.sessionId);
 	const appId = normalizeUuid(args.appId);
 	const provider = normalizeText(args.provider);
 	const nativeId = normalizeText(args.nativeId);
 	const model = normalizeText(args.model);
-	if (requestId) patch.requestId = requestId;
-	if (sessionId) patch.sessionId = sessionId;
-	if (appId) patch.appId = appId;
+	if (requestId) patch.request_id = requestId;
+	if (sessionId) patch.session_id = sessionId;
+	if (appId) patch.app_id = appId;
 	if (provider) patch.provider = provider;
-	if (nativeId) patch.nativeId = nativeId;
+	if (nativeId) patch.native_id = nativeId;
 	if (model) patch.model = model;
-	if (Object.keys(patch).length === 0) return;
-	await asyncOperationRepository.patchOperationIdentity(workspaceId, args.kind, internalId, patch);
+	if (Object.keys(patch).length === 1) return;
+	const { error } = await getSupabaseAdmin()
+		.from("gateway_async_operations")
+		.update(patch)
+		.eq("workspace_id", workspaceId)
+		.eq("kind", args.kind)
+		.eq("internal_id", internalId);
+	if (error) throw error;
 	invalidateAsyncOperationCache(workspaceId, args.kind, internalId);
 }
+

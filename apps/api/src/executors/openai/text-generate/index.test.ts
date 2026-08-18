@@ -6,6 +6,10 @@ import { installFetchMock, jsonResponse } from "../../../../tests/helpers/mock-f
 import { readSseFrames, parseSseJson } from "../../../../tests/helpers/sse";
 import { setupTestRuntime, teardownTestRuntime } from "../../../../tests/helpers/runtime";
 
+vi.mock("@supabase/supabase-js", () => ({
+	createClient: () => ({}),
+}));
+
 function buildArgs(overrides?: Partial<IRChatRequest>): ExecutorExecuteArgs {
 	const ir: IRChatRequest = {
 		model: "openai/gpt-5-nano-2025-08-07",

@@ -25,7 +25,7 @@ Run the narrowest relevant checks while iterating. Run a production build when a
 ## Next.js and React
 
 - Prefer Server Components. Add `"use client"` only at the smallest boundary requiring browser APIs, local state, event handlers, or client-only libraries.
-- Keep secrets, privileged database clients, and billing logic in server-only modules. Authenticate and authorize every mutation at the server boundary.
+- Keep secrets, privileged clients, billing logic, and admin Supabase access in server-only modules. Authenticate and authorize every mutation at the server boundary.
 - Start independent asynchronous work together and await it with `Promise.all`; use Suspense to stream independent dynamic sections.
 - Minimize data serialized into Client Components. Dynamically import large client-only charts, editors, 3D, PDF, or media features when deferral improves initial load.
 - Preserve accessibility, keyboard behavior, focus management, and reduced-motion preferences.
@@ -50,7 +50,7 @@ Run the narrowest relevant checks while iterating. Run a production build when a
 
 - Jest uses a Node environment by default. Add DOM-specific setup only when a test genuinely needs it.
 - Use Playwright under `tests/e2e` for critical browser journeys and performance regressions.
-- Mock network and time at clear boundaries; unit tests must not call live providers, production databases, billing, or analytics services.
+- Mock network and time at clear boundaries; unit tests must not call live providers, production Supabase, billing, or analytics services.
 - Treat redirect URLs, webhook payloads, uploaded content, Markdown/HTML, and external URLs as untrusted. Reuse existing validation and sanitization utilities.
 - Scripts for imports, outreach, provisioning, reconciliation, or database updates may have external side effects; inspect their options and environment requirements before running them.
 

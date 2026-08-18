@@ -1,5 +1,5 @@
 import { normalizeProviderList } from "@/lib/config/providerAliases";
-import { dispatchBackground, getCache } from "@/runtime/env";
+import { dispatchBackground, getCache, getSupabaseAdmin } from "@/runtime/env";
 import { keyVersionToken } from "@/core/kv";
 import type { PriceCard } from "../pricing";
 import type {
@@ -10,12 +10,6 @@ import type {
 	WorkspacePolicy,
 } from "./types";
 import { normalizeDynamicRouteConfig, type DynamicRoutePolicy } from "./dynamic-routes";
-import {
-	loadActiveDynamicRoute,
-	loadEnabledWorkspaceGuardrails,
-	loadPrincipalWorkspacePolicy,
-	loadWorkspacePolicyBase,
-} from "@/repositories/workspace-policy";
 
 type ProviderRestrictionMode = "none" | "allowlist" | "blocklist";
 const CHAT_MANAGED_KEY_NAME = "__chat_route_managed_key__";
@@ -38,7 +32,10 @@ export function isOptionalDynamicRouteSchemaUnavailable(error: unknown): boolean
 	if (!referencesDynamicRouteSchema) return false;
 	return (
 		code === "42P01" ||
-		message.includes("does not exist")
+		code === "PGRST204" ||
+		code === "PGRST205" ||
+		message.includes("does not exist") ||
+		message.includes("schema cache")
 	);
 }
 
@@ -562,44 +559,140 @@ export async function fetchWorkspacePolicy(args: {
 		// Ignore cache read failures and use the source of truth.
 	}
 
-	const base = await loadWorkspacePolicyBase(args.workspaceId, args.apiKeyId);
-	const principalUserId = String(base.key?.oauth_user_id ?? base.key?.created_by ?? "").trim();
-	const applyLegacyAccountPolicy = shouldApplyLegacyAccountPolicy(base.key?.name);
+	const supabase = getSupabaseAdmin();
+	const [settingsResult, keyResult, keyGuardrailsResult, routeLinkResult] = await Promise.all([
+		supabase
+			.from("workspace_settings")
+			.select(
+				"privacy_enable_paid_may_train,privacy_enable_free_may_train,privacy_enable_input_output_logging,privacy_zdr_only,provider_restriction_mode,provider_restriction_provider_ids,provider_restriction_enforce_allowed,model_restriction_mode,model_restriction_model_ids",
+			)
+			.eq("workspace_id", args.workspaceId)
+			.maybeSingle(),
+		supabase
+			.from("keys")
+			.select("created_by,oauth_user_id,name")
+			.eq("id", args.apiKeyId)
+			.eq("workspace_id", args.workspaceId)
+			.maybeSingle(),
+		supabase
+			.from("key_guardrails")
+			.select("guardrail_id")
+			.eq("key_id", args.apiKeyId),
+		supabase
+			.from("gateway_dynamic_route_keys")
+			.select("route_id")
+			.eq("key_id", args.apiKeyId)
+			.maybeSingle(),
+	]);
+
+	if (settingsResult.error) {
+		throw new Error(`workspace_settings_lookup_failed:${settingsResult.error.message}`);
+	}
+	if (keyResult.error) {
+		throw new Error(`key_principal_lookup_failed:${keyResult.error.message}`);
+	}
+	if (keyGuardrailsResult.error) {
+		throw new Error(`key_guardrails_lookup_failed:${keyGuardrailsResult.error.message}`);
+	}
+	if (routeLinkResult.error) {
+		if (isOptionalDynamicRouteSchemaUnavailable(routeLinkResult.error)) {
+			console.warn("[fetchWorkspacePolicy] dynamic_route_schema_unavailable", {
+				workspaceId: args.workspaceId,
+				code: routeLinkResult.error.code ?? null,
+			});
+		} else {
+			throw new Error(`dynamic_route_link_lookup_failed:${routeLinkResult.error.message}`);
+		}
+	}
+
+	const principalUserId = String(keyResult.data?.oauth_user_id ?? keyResult.data?.created_by ?? "").trim();
+	const applyLegacyAccountPolicy = shouldApplyLegacyAccountPolicy(keyResult.data?.name);
 	let memberGuardrailIds: string[] = [];
 	let legacyAccountSettings: LegacyAccountSettingsRow | null = null;
 	if (principalUserId) {
-		const principal = await loadPrincipalWorkspacePolicy(args.workspaceId, principalUserId, applyLegacyAccountPolicy);
-		legacyAccountSettings = principal.accountSettings as LegacyAccountSettingsRow | null;
-		memberGuardrailIds = principal.memberGuardrails
+		const [memberGuardrailsResult, legacyAccountSettingsResult] = await Promise.all([
+			supabase
+				.from("workspace_member_guardrails")
+				.select("guardrail_id")
+				.eq("workspace_id", args.workspaceId)
+				.eq("user_id", principalUserId),
+			applyLegacyAccountPolicy
+				? supabase
+					.from("account_guardrail_settings")
+					.select("privacy_enable_paid_may_train,privacy_enable_free_may_train,privacy_enable_input_output_logging,privacy_zdr_only,provider_restriction_mode,provider_restriction_provider_ids,model_restriction_mode,model_restriction_model_ids")
+					.eq("user_id", principalUserId)
+					.maybeSingle()
+				: Promise.resolve({ data: null, error: null }),
+		]);
+		if (memberGuardrailsResult.error) {
+			throw new Error(`workspace_member_guardrails_lookup_failed:${memberGuardrailsResult.error.message}`);
+		}
+		if (legacyAccountSettingsResult.error) {
+			const code = String(legacyAccountSettingsResult.error.code ?? "").toUpperCase();
+			if (code !== "42P01" && code !== "PGRST205") {
+				throw new Error(`account_guardrail_settings_lookup_failed:${legacyAccountSettingsResult.error.message}`);
+			}
+		} else {
+			legacyAccountSettings = legacyAccountSettingsResult.data as LegacyAccountSettingsRow | null;
+		}
+		memberGuardrailIds = (memberGuardrailsResult.data ?? [])
 			.map((row: any) => String(row?.guardrail_id ?? "").trim())
 			.filter(Boolean);
 	}
 
-	const guardrailIds = [...new Set([...base.keyGuardrails
+	const guardrailIds = [...new Set([...(keyGuardrailsResult.data ?? [])
 		.map((row: any) => String(row?.guardrail_id ?? "").trim())
 		.filter(Boolean), ...memberGuardrailIds])];
 
 	let guardrails: GuardrailRow[] = [];
 	if (guardrailIds.length > 0) {
-		guardrails = await loadEnabledWorkspaceGuardrails(args.workspaceId, guardrailIds) as GuardrailRow[];
+		const guardrailsResult = await supabase
+			.from("workspace_guardrails")
+			.select(
+				"id,privacy_enable_paid_may_train,privacy_enable_free_may_train,privacy_enable_input_output_logging,privacy_zdr_only,provider_restriction_mode,provider_restriction_provider_ids,provider_restriction_enforce_allowed,model_restriction_mode,allowed_api_model_ids,prompt_injection_enabled,prompt_injection_action,sensitive_info_enabled,sensitive_info_default_action,sensitive_info_rules",
+			)
+			.eq("workspace_id", args.workspaceId)
+			.eq("enabled", true)
+			.in("id", guardrailIds);
+
+		if (guardrailsResult.error) {
+			throw new Error(`workspace_guardrails_lookup_failed:${guardrailsResult.error.message}`);
+		}
+
+		guardrails = (guardrailsResult.data ?? []) as GuardrailRow[];
 	}
 
 	let dynamicRoute: DynamicRoutePolicy | null = null;
-	const routeId = String(base.routeLink?.route_id ?? "").trim();
+	const routeId = String(routeLinkResult.data?.route_id ?? "").trim();
 	if (routeId) {
-		const route = await loadActiveDynamicRoute(args.workspaceId, routeId);
-		if (route && route.status === "active" && route.deployed_version) {
+		const routeResult = await supabase
+			.from("gateway_dynamic_routes")
+			.select("id,name,version,deployed_version,config,status")
+			.eq("id", routeId)
+			.eq("workspace_id", args.workspaceId)
+			.maybeSingle();
+		if (routeResult.error) {
+			if (isOptionalDynamicRouteSchemaUnavailable(routeResult.error)) {
+				console.warn("[fetchWorkspacePolicy] dynamic_route_schema_unavailable", {
+					workspaceId: args.workspaceId,
+					code: routeResult.error.code ?? null,
+				});
+			} else {
+				throw new Error(`dynamic_route_lookup_failed:${routeResult.error.message}`);
+			}
+		}
+		if (!routeResult.error && routeResult.data && routeResult.data.status === "active" && routeResult.data.deployed_version) {
 			dynamicRoute = {
-				id: route.id,
-				name: route.name,
-				version: Number(route.deployed_version) || 1,
-				config: normalizeDynamicRouteConfig(route.config),
+				id: routeResult.data.id,
+				name: routeResult.data.name,
+				version: Number(routeResult.data.deployed_version) || 1,
+				config: normalizeDynamicRouteConfig(routeResult.data.config),
 			};
 		}
 	}
 
 	const policy = buildWorkspacePolicy({
-		globalSettings: base.settings as WorkspaceSettingsRow | null,
+		globalSettings: (settingsResult.data ?? null) as WorkspaceSettingsRow | null,
 		legacyAccountSettings,
 		guardrails,
 		dynamicRoute,

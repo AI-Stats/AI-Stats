@@ -197,7 +197,7 @@ const PROVIDER_SCENARIO_OVERRIDES: Record<string, Partial<Record<Endpoint, Scena
         },
         "music.generate": {
             ...SCENARIOS["music.generate"]!,
-				urlMatch: (url) => url.includes("/v1/music"),
+            urlMatch: (url) => url.includes("/v1/music/detailed"),
         },
     },
 };

@@ -1,10 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-const creditsRepo = vi.hoisted(() => ({ createCreditGrant: vi.fn(), deleteCreditGrant: vi.fn(), getCreditTierSummary: vi.fn(), getWalletBalance: vi.fn(), listCreditGrants: vi.fn(), listCreditWorkspaces: vi.fn(), redeemCreditGrant: vi.fn(), saveWorkspaceNotifications: vi.fn(), updateCreditGrant: vi.fn(), updateWalletTopUp: vi.fn() }));
-vi.mock("@/repositories/credits", () => creditsRepo);
 import app from "@/index";
 import { parseLowBalanceThresholdNanos } from "./credits";
 
-afterEach(() => { vi.unstubAllGlobals(); vi.clearAllMocks(); });
+afterEach(() => vi.unstubAllGlobals());
 
 describe("account credit routes", () => {
 	it("accepts non-negative low-balance thresholds with up to two decimal places", () => {
@@ -42,7 +40,6 @@ describe("account credit routes", () => {
 	});
 
 	it("uses the active workspace cookie only after bearer and membership verification", async () => {
-		creditsRepo.getWalletBalance.mockResolvedValue(12_500_000_000);
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
 			if (url.includes("/auth/v1/user")) {
@@ -70,6 +67,9 @@ describe("account credit routes", () => {
 			},
 			{
 				ENV: "development",
+				SUPABASE_URL: "https://example.supabase.co",
+				SUPABASE_ANON_KEY: "anon-key",
+				SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
 			},
 		);
 
@@ -77,37 +77,5 @@ describe("account credit routes", () => {
 		expect(response.headers.get("cache-control")).toBe("private, no-store");
 		expect(response.headers.get("cloudflare-cdn-cache-control")).toBeNull();
 		await expect(response.json()).resolves.toEqual({ initialBalance: 12.5 });
-	});
-
-	it("queries the secured spend summary for the current workspace", async () => {
-		creditsRepo.getCreditTierSummary.mockResolvedValue({ previous_nanos: 1_230_000_000, mtd_nanos: 4_560_000_000, tier: "basic" });
-		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
-			const request = input instanceof Request ? input : new Request(input, init);
-			const url = request.url;
-			if (url.includes("/auth/v1/user")) {
-				return Response.json({ id: "user-1", email: "user@example.com" });
-			}
-			if (url.includes("workspace_members")) {
-				return Response.json([{ workspace_id: "workspace-1" }]);
-			}
-			if (url.includes("workspaces")) return Response.json([{ tier: "basic" }]);
-			return Response.json([]);
-		}));
-
-		const response = await app.request(
-			"https://phaseo.app/api/account/credits/tier-summary?workspaceId=workspace-1",
-			{ headers: { authorization: "Bearer session-token" } },
-			{
-				ENV: "development",
-			},
-		);
-
-		expect(response.status).toBe(200);
-		await expect(response.json()).resolves.toEqual({
-			lastMonthCents: 1_230_000_000,
-			mtdCents: 4_560_000_000,
-			teamTier: "basic",
-		});
-		expect(creditsRepo.getCreditTierSummary).toHaveBeenCalledWith(expect.anything(), "workspace-1");
 	});
 });

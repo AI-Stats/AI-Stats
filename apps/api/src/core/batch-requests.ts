@@ -1,9 +1,4 @@
-import {
-	findBatchRequestRows,
-	type BatchRequestInsert,
-	type BatchRequestRecord,
-	upsertBatchRequestRows,
-} from "@/repositories/batch-requests";
+import { getSupabaseAdmin } from "@/runtime/env";
 
 export type BatchRequestStatus =
 	| "queued"
@@ -70,54 +65,54 @@ function toPlainObject(value: unknown): Record<string, unknown> | null {
 	return value as Record<string, unknown>;
 }
 
-function toDbRow(workspaceId: string, batchId: string, row: BatchRequestRowInput): BatchRequestInsert {
+function toDbRow(workspaceId: string, batchId: string, row: BatchRequestRowInput): Record<string, unknown> {
 	return {
-		workspaceId,
-		batchId,
+		workspace_id: workspaceId,
+		batch_id: batchId,
 		provider: row.provider,
-		nativeBatchId: row.nativeBatchId ?? null,
-		customId: row.customId,
-		requestIndex: row.requestIndex,
+		native_batch_id: row.nativeBatchId ?? null,
+		custom_id: row.customId,
+		request_index: row.requestIndex,
 		method: row.method ?? null,
 		endpoint: row.endpoint ?? null,
 		model: row.model ?? null,
 		status: row.status ?? "queued",
-		requestBodyHash: row.requestBodyHash ?? null,
-		responseStatus: row.responseStatus ?? null,
-		responseBody: row.responseBody ?? null,
-		errorBody: row.errorBody ?? null,
+		request_body_hash: row.requestBodyHash ?? null,
+		response_status: row.responseStatus ?? null,
+		response_body: row.responseBody ?? null,
+		error_body: row.errorBody ?? null,
 		usage: row.usage ?? null,
-		costNanos: row.costNanos ?? null,
-		costUsd: row.costUsd === null || row.costUsd === undefined ? null : String(row.costUsd),
+		cost_nanos: row.costNanos ?? null,
+		cost_usd: row.costUsd ?? null,
 		meta: row.meta ?? {},
-		completedAt: row.completedAt ?? null,
+		completed_at: row.completedAt ?? null,
 	};
 }
 
-function fromDbRow(row: BatchRequestRecord): BatchRequestRow {
+function fromDbRow(row: Record<string, unknown>): BatchRequestRow {
 	return {
-		id: row.id,
-		workspaceId: row.workspaceId,
-		batchId: row.batchId,
-		provider: row.provider,
-		nativeBatchId: normalizeText(row.nativeBatchId),
-		customId: row.customId,
-		requestIndex: row.requestIndex,
+		id: String(row.id ?? ""),
+		workspaceId: String(row.workspace_id ?? ""),
+		batchId: String(row.batch_id ?? ""),
+		provider: String(row.provider ?? ""),
+		nativeBatchId: normalizeText(row.native_batch_id),
+		customId: String(row.custom_id ?? ""),
+		requestIndex: typeof row.request_index === "number" ? row.request_index : 0,
 		method: normalizeText(row.method),
 		endpoint: normalizeText(row.endpoint),
 		model: normalizeText(row.model),
 		status: String(row.status ?? "queued"),
-		requestBodyHash: normalizeText(row.requestBodyHash),
-		responseStatus: row.responseStatus,
-		responseBody: toPlainObject(row.responseBody),
-		errorBody: toPlainObject(row.errorBody),
+		requestBodyHash: normalizeText(row.request_body_hash),
+		responseStatus: typeof row.response_status === "number" ? row.response_status : null,
+		responseBody: toPlainObject(row.response_body),
+		errorBody: toPlainObject(row.error_body),
 		usage: toPlainObject(row.usage),
-		costNanos: row.costNanos,
-		costUsd: row.costUsd === null ? null : Number(row.costUsd),
+		costNanos: typeof row.cost_nanos === "number" ? row.cost_nanos : null,
+		costUsd: typeof row.cost_usd === "number" ? row.cost_usd : null,
 		meta: toPlainObject(row.meta) ?? {},
-		createdAt: normalizeText(row.createdAt),
-		updatedAt: normalizeText(row.updatedAt),
-		completedAt: normalizeText(row.completedAt),
+		createdAt: normalizeText(row.created_at),
+		updatedAt: normalizeText(row.updated_at),
+		completedAt: normalizeText(row.completed_at),
 	};
 }
 
@@ -133,8 +128,12 @@ export async function saveBatchRequestRows(args: {
 	rows: BatchRequestRowInput[];
 }): Promise<void> {
 	if (!args.workspaceId || !args.batchId || args.rows.length === 0) return;
+	const supabase = getSupabaseAdmin();
 	const payload = args.rows.map((row) => toDbRow(args.workspaceId, args.batchId, row));
-	await upsertBatchRequestRows(payload);
+	const { error } = await supabase
+		.from("gateway_batch_requests")
+		.upsert(payload, { onConflict: "workspace_id,batch_id,custom_id" });
+	if (error) throw new Error(error.message ?? "Failed to save batch request rows");
 }
 
 export async function listBatchRequestRows(args: {
@@ -147,13 +146,16 @@ export async function listBatchRequestRows(args: {
 	if (!args.workspaceId || !args.batchId) return [];
 	const limit = Math.max(1, Math.min(1000, Math.trunc(args.limit ?? 100)));
 	const offset = Math.max(0, Math.trunc(args.offset ?? 0));
+	let query = getSupabaseAdmin()
+		.from("gateway_batch_requests")
+		.select("*")
+		.eq("workspace_id", args.workspaceId)
+		.eq("batch_id", args.batchId)
+		.order("request_index", { ascending: true })
+		.range(offset, offset + limit - 1);
 	const status = normalizeText(args.status);
-	const rows = await findBatchRequestRows({
-		workspaceId: args.workspaceId,
-		batchId: args.batchId,
-		limit,
-		offset,
-		status,
-	});
-	return rows.map(fromDbRow);
+	if (status) query = query.eq("status", status);
+	const { data, error } = await query;
+	if (error) throw new Error(error.message ?? "Failed to list batch request rows");
+	return Array.isArray(data) ? data.map((row) => fromDbRow(row as Record<string, unknown>)) : [];
 }

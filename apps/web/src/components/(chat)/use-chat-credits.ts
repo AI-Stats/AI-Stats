@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createClient } from "@/utils/supabase/client";
 
 type CreditsBalanceResponse = {
 	initialBalance?: number | null;
@@ -31,12 +32,18 @@ export function useChatCredits(userId?: string) {
 		const controller = new AbortController();
 		const timeoutId = window.setTimeout(() => controller.abort(), 8000);
 		setLoading(true);
-		fetch("/api/account/credits/balance", {
+		createClient().auth.getSession()
+			.then(({ data }) => {
+				const accessToken = data.session?.access_token;
+				if (!accessToken) throw new Error("Credits request requires a session");
+				return fetch("/api/account/credits/balance", {
 					headers: {
 						accept: "application/json",
+						authorization: `Bearer ${accessToken}`,
 					},
 					signal: controller.signal,
-				})
+				});
+			})
 			.then(async (response) => {
 				if (!response.ok) throw new Error(`Credits request failed: ${response.status}`);
 				return (await response.json()) as CreditsBalanceResponse;

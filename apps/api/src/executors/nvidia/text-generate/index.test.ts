@@ -6,6 +6,8 @@ import { setupRuntimeFromEnv, teardownTestRuntime } from "../../../../tests/help
 import { executor } from "./index";
 import { irToOpenAIChat } from "@executors/_shared/text-generate/openai-compat/transform-chat";
 
+vi.mock("@supabase/supabase-js", () => ({ createClient: () => ({}) }));
+
 beforeAll(() => setupRuntimeFromEnv({ NVIDIA_API_KEY: "nvapi-test" } as any));
 afterAll(teardownTestRuntime);
 

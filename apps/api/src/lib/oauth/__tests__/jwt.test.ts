@@ -70,7 +70,7 @@ describe('JWT Utilities', () => {
 
   describe('validateClaims', () => {
     const now = Math.floor(Date.now() / 1000);
-    const expectedIssuer = 'https://api.phaseo.app';
+    const expectedIssuer = 'https://project.supabase.co';
 
     it('validates correct claims', () => {
       const claims: Partial<JWTClaims> = {

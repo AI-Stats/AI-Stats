@@ -206,29 +206,6 @@ const PROVIDERS = Object.keys(EXECUTORS_BY_PROVIDER).filter(
     (providerId) => EXECUTORS_BY_PROVIDER[providerId]?.["text.generate"]
 );
 
-// The generic matrix supplies OpenAI-shaped fixtures. Providers with a
-// provider-native transport, mandatory account context, encryption, or strict
-// model-specific request rules are covered by their executor/quirk suites
-// instead of being forced through a transport contract they do not implement.
-const PROVIDER_NATIVE_MATRIX_EXCLUSIONS = new Set([
-	"ai21",
-	"anthropic-aws",
-	"anthropic-aws-us",
-	"cloudflare",
-	"google-ai-studio",
-	"mancer",
-	"minimax",
-	"minimax-lightning",
-	"switchpoint",
-	"tensorix",
-	"tensorx",
-	"thinking-machines",
-	"upstage",
-	"venice-e2ee",
-	"wafer",
-	"weights-and-biases",
-]);
-
 function openAiChatFrames() {
     return [
         {
@@ -401,14 +378,11 @@ type UpstreamKind =
     | "google-gemini"
     | "vertex-openapi-chat";
 
-function resolveUpstreamKind(providerId: string, model: string, protocol?: string): UpstreamKind {
+function resolveUpstreamKind(providerId: string, model: string): UpstreamKind {
     if (providerId === "anthropic") return "anthropic";
     if (providerId === "google-ai-studio") return "google-gemini";
     if (providerId === "amazon-bedrock") return "openai-chat";
     if (providerId === "google-vertex") return "vertex-openapi-chat";
-	if (providerId === "openai" || providerId === "openai-eu") {
-		return protocol === RESPONSES_PROTOCOL ? "openai-responses" : "openai-chat";
-	}
 
     if (providerId === "x-ai" || providerId === "xai") return "openai-responses";
 
@@ -419,6 +393,21 @@ function resolveUpstreamKind(providerId: string, model: string, protocol?: strin
     }
 
     return "openai-chat";
+}
+
+function expectedNativeResponseId(kind: UpstreamKind): string {
+    switch (kind) {
+        case "openai-responses":
+            return "resp_mock";
+        case "openai-legacy-completions":
+            return "cmpl_mock";
+        case "anthropic":
+            return "msg_mock";
+        case "google-gemini":
+            return "gemini_mock";
+        default:
+            return "chatcmpl_mock";
+    }
 }
 
 function usesBufferedOpenAICompat(providerId: string): boolean {
@@ -433,43 +422,22 @@ function usesBufferedOpenAICompat(providerId: string): boolean {
     ]).has(providerId);
 }
 
-function anthropicFrames(tool = false) {
-	const contentEvents = tool
-		? [
-			{
-				type: "content_block_start",
-				index: 0,
-				content_block: { type: "tool_use", id: "tool_1", name: "get_weather" },
-			},
-			{
-				type: "content_block_delta",
-				index: 0,
-				delta: { type: "input_json_delta", partial_json: '{"city":"SF"}' },
-			},
-			{ type: "content_block_stop", index: 0 },
-		]
-		: [
-			{
-				type: "content_block_start",
-				index: 0,
-				content_block: { type: "text", text: "" },
-			},
-			{
-				type: "content_block_delta",
-				index: 0,
-				delta: { type: "text_delta", text: "Hello world" },
-			},
-			{ type: "content_block_stop", index: 0 },
-		];
-	return [
-		{
-			type: "message_start",
-			message: { id: "msg_mock", model: "claude-3-5-sonnet-20241022", usage: { input_tokens: 4, output_tokens: 0 } },
-		},
-		...contentEvents,
-		{ type: "message_delta", delta: { stop_reason: tool ? "tool_use" : "end_turn" }, usage: { output_tokens: 2 } },
-		{ type: "message_stop" },
-	];
+function anthropicJson(tool = false) {
+    return {
+        id: "msg_mock",
+        type: "message",
+        role: "assistant",
+        model: "claude-3-5-sonnet-20241022",
+        stop_reason: tool ? "tool_use" : "end_turn",
+        stop_sequence: null,
+        content: tool
+            ? [
+                { type: "text", text: "Calling tool" },
+                { type: "tool_use", id: "tool_1", name: "get_weather", input: { city: "SF" } },
+            ]
+            : [{ type: "text", text: "Hello world" }],
+        usage: { input_tokens: 4, output_tokens: 2 },
+    };
 }
 
 function buildCtx(endpoint: Endpoint, protocol: string) {
@@ -510,42 +478,51 @@ async function executeExecutorScenario(args: {
         throw new Error(`missing executor for provider ${args.providerId}`);
     }
 
-	let actualUrl = "";
-	const actualUpstreamKind = (): UpstreamKind => {
-		if (actualUrl.includes("/messages")) return "anthropic";
-		if (actualUrl.includes(":generateContent")) return "google-gemini";
-		if (actualUrl.includes("/responses")) return "openai-responses";
-		if (/\/completions(?:\?|$)/.test(actualUrl) && !actualUrl.includes("/chat/completions")) {
-			return "openai-legacy-completions";
-		}
-		return actualUrl.includes("/endpoints/openapi/chat/completions")
-			? "vertex-openapi-chat"
-			: "openai-chat";
-	};
+    const upstreamKind = args.upstreamKind ?? resolveUpstreamKind(args.providerId, ir.model);
 
     const mock = installFetchMock([
         {
             match: (url) => {
-				return url !== "https://example.com/test.png";
-            },
-            response: () => {
-				const responseKind = actualUpstreamKind();
-				if (responseKind === "anthropic") {
-					return sseResponse(anthropicFrames(Boolean(args.tool)));
+                if (upstreamKind === "anthropic") {
+                    return url.includes("api.anthropic.com/v1/messages");
                 }
-                if (responseKind === "openai-responses") {
+                if (upstreamKind === "openai-responses") {
+                    return url.includes("/responses");
+                }
+                if (upstreamKind === "openai-chat") {
+                    return url.includes("/chat/completions");
+                }
+                if (upstreamKind === "openai-legacy-completions") {
+                    return /\/completions(?:\?|$)/.test(url) && !url.includes("/chat/completions");
+                }
+                if (upstreamKind === "google-gemini") {
+                    return url.includes(":generateContent");
+                }
+                if (upstreamKind === "vertex-openapi-chat") {
+                    return url.includes("/endpoints/openapi/chat/completions");
+                }
+                return false;
+            },
+            response: (() => {
+                if (upstreamKind === "anthropic") {
+                    return sseResponse([
+                        { type: "message_stop", message: anthropicJson(Boolean(args.tool)) },
+                        "[DONE]",
+                    ]);
+                }
+                if (upstreamKind === "openai-responses") {
                     if (usesBufferedOpenAICompat(args.providerId)) {
                         return sseResponse(openAiResponsesFrames(Boolean(args.tool)));
                     }
                     return jsonResponse(openAiResponsesJson(Boolean(args.tool)));
                 }
-                if (responseKind === "openai-chat") {
+                if (upstreamKind === "openai-chat") {
                     if (usesBufferedOpenAICompat(args.providerId)) {
                         return sseResponse(args.tool ? openAiToolFrames() : openAiChatFrames());
                     }
                     return jsonResponse(openAiChatJson(Boolean(args.tool)));
                 }
-                if (responseKind === "openai-legacy-completions") {
+                if (upstreamKind === "openai-legacy-completions") {
                     if (usesBufferedOpenAICompat(args.providerId)) {
                         return sseResponse(args.tool ? openAiToolFrames() : openAiChatFrames());
                     }
@@ -566,35 +543,33 @@ async function executeExecutorScenario(args: {
                         },
                     });
                 }
-                if (responseKind === "google-gemini") {
+                if (upstreamKind === "google-gemini") {
                     return jsonResponse(geminiJson(Boolean(args.tool)));
                 }
-                if (responseKind === "vertex-openapi-chat") {
+                if (upstreamKind === "vertex-openapi-chat") {
                     return jsonResponse(openAiChatJson(Boolean(args.tool)));
                 }
-                throw new Error(`unsupported upstream kind: ${responseKind}`);
-			},
+                throw new Error(`unsupported upstream kind: ${upstreamKind}`);
+            })(),
             onRequest: (call) => {
-				actualUrl = call.url;
-				const requestKind = actualUpstreamKind();
                 if (args.expectRequest) {
                     args.expectRequest(call.bodyJson);
                     return;
                 }
-				if (requestKind === "anthropic") {
+                if (upstreamKind === "anthropic") {
                     expect(call.bodyJson?.model).toBe(args.body?.model);
                     expect(Array.isArray(call.bodyJson?.messages)).toBe(true);
                     return;
                 }
-				if (requestKind === "google-gemini") {
+                if (upstreamKind === "google-gemini") {
                     expect(Array.isArray(call.bodyJson?.contents)).toBe(true);
                     return;
                 }
-				if (requestKind === "vertex-openapi-chat") {
+                if (upstreamKind === "vertex-openapi-chat") {
                     expect(call.bodyJson?.model).toBe(args.body?.model);
                     return;
                 }
-				expect(String(call.bodyJson?.model ?? "").trim()).not.toBe("");
+                expect(call.bodyJson?.model).toBe(args.body?.model);
             },
         },
         {
@@ -674,14 +649,12 @@ afterAll(() => {
 });
 
 describe("IR executor matrix", () => {
-    const openAiCompatProviders = PROVIDERS.filter(
-		(provider) => provider !== "anthropic" && !PROVIDER_NATIVE_MATRIX_EXCLUSIONS.has(provider),
-	);
+    const openAiCompatProviders = PROVIDERS.filter((provider) => provider !== "anthropic");
 
     for (const providerId of openAiCompatProviders) {
         describe(`${providerId} openai protocols`, () => {
             it("chat.completions basic text", async () => {
-                const upstreamKind = resolveUpstreamKind(providerId, BASE_CHAT_BODY.model, CHAT_PROTOCOL);
+                const upstreamKind = resolveUpstreamKind(providerId, BASE_CHAT_BODY.model);
                 const { ctx, executorResult } = await executeExecutorScenario({
                     providerId,
                     protocol: CHAT_PROTOCOL,
@@ -691,13 +664,13 @@ describe("IR executor matrix", () => {
 
                 const response = await buildFinalResponse(ctx, executorResult, CHAT_PROTOCOL);
                 expect(response.id).toBe(REQUEST_ID);
-				expect(typeof response.nativeResponseId).toBe("string");
+                expect(response.nativeResponseId).toBe(expectedNativeResponseId(upstreamKind));
                 expect(response.object).toBe("chat.completion");
                 expect(response.choices?.[0]?.message?.content).toContain("Hello");
             });
 
             it("chat.completions tool call", async () => {
-                const upstreamKind = resolveUpstreamKind(providerId, TOOL_CHAT_BODY.model, CHAT_PROTOCOL);
+                const upstreamKind = resolveUpstreamKind(providerId, TOOL_CHAT_BODY.model);
                 const { ctx, executorResult } = await executeExecutorScenario({
                     providerId,
                     protocol: CHAT_PROTOCOL,
@@ -710,8 +683,8 @@ describe("IR executor matrix", () => {
                 expect(response.choices?.[0]?.message?.tool_calls?.[0]?.function?.name).toBe("get_weather");
             });
 
-			it.skipIf(providerId === "perplexity")("chat.completions multimodal (url)", async () => {
-                const upstreamKind = resolveUpstreamKind(providerId, MULTIMODAL_URL_CHAT_BODY.model, CHAT_PROTOCOL);
+            it("chat.completions multimodal (url)", async () => {
+                const upstreamKind = resolveUpstreamKind(providerId, MULTIMODAL_URL_CHAT_BODY.model);
                 const { ctx, executorResult } = await executeExecutorScenario({
                     providerId,
                     protocol: CHAT_PROTOCOL,
@@ -723,8 +696,8 @@ describe("IR executor matrix", () => {
                 expect(response.choices?.[0]?.message?.content).toContain("Hello");
             });
 
-			it.skipIf(providerId === "perplexity")("chat.completions multimodal (base64)", async () => {
-                const upstreamKind = resolveUpstreamKind(providerId, MULTIMODAL_B64_CHAT_BODY.model, CHAT_PROTOCOL);
+            it("chat.completions multimodal (base64)", async () => {
+                const upstreamKind = resolveUpstreamKind(providerId, MULTIMODAL_B64_CHAT_BODY.model);
                 const { ctx, executorResult } = await executeExecutorScenario({
                     providerId,
                     protocol: CHAT_PROTOCOL,
@@ -737,7 +710,7 @@ describe("IR executor matrix", () => {
             });
 
             it("chat.completions structured output", async () => {
-                const upstreamKind = resolveUpstreamKind(providerId, STRUCTURED_CHAT_BODY.model, CHAT_PROTOCOL);
+                const upstreamKind = resolveUpstreamKind(providerId, STRUCTURED_CHAT_BODY.model);
                 const { ctx, executorResult } = await executeExecutorScenario({
                     providerId,
                     protocol: CHAT_PROTOCOL,
@@ -750,7 +723,7 @@ describe("IR executor matrix", () => {
             });
 
             it("responses basic text", async () => {
-                const upstreamKind = resolveUpstreamKind(providerId, BASE_RESPONSES_BODY.model, RESPONSES_PROTOCOL);
+                const upstreamKind = resolveUpstreamKind(providerId, BASE_RESPONSES_BODY.model);
                 const { ctx, executorResult } = await executeExecutorScenario({
                     providerId,
                     protocol: RESPONSES_PROTOCOL,
@@ -765,7 +738,7 @@ describe("IR executor matrix", () => {
             });
 
             it("responses tool call", async () => {
-                const upstreamKind = resolveUpstreamKind(providerId, TOOL_RESPONSES_BODY.model, RESPONSES_PROTOCOL);
+                const upstreamKind = resolveUpstreamKind(providerId, TOOL_RESPONSES_BODY.model);
                 const { ctx, executorResult } = await executeExecutorScenario({
                     providerId,
                     protocol: RESPONSES_PROTOCOL,
@@ -779,8 +752,8 @@ describe("IR executor matrix", () => {
                 expect(response.output?.length ?? 0).toBeGreaterThan(0);
             });
 
-			it.skipIf(providerId === "perplexity")("responses multimodal (url)", async () => {
-                const upstreamKind = resolveUpstreamKind(providerId, MULTIMODAL_URL_RESPONSES_BODY.model, RESPONSES_PROTOCOL);
+            it("responses multimodal (url)", async () => {
+                const upstreamKind = resolveUpstreamKind(providerId, MULTIMODAL_URL_RESPONSES_BODY.model);
                 const { ctx, executorResult } = await executeExecutorScenario({
                     providerId,
                     protocol: RESPONSES_PROTOCOL,
@@ -793,8 +766,8 @@ describe("IR executor matrix", () => {
                 expect(response.output?.length ?? 0).toBeGreaterThan(0);
             });
 
-			it.skipIf(providerId === "perplexity")("responses multimodal (base64)", async () => {
-                const upstreamKind = resolveUpstreamKind(providerId, MULTIMODAL_B64_RESPONSES_BODY.model, RESPONSES_PROTOCOL);
+            it("responses multimodal (base64)", async () => {
+                const upstreamKind = resolveUpstreamKind(providerId, MULTIMODAL_B64_RESPONSES_BODY.model);
                 const { ctx, executorResult } = await executeExecutorScenario({
                     providerId,
                     protocol: RESPONSES_PROTOCOL,
@@ -808,7 +781,7 @@ describe("IR executor matrix", () => {
             });
 
             it("responses structured output", async () => {
-                const upstreamKind = resolveUpstreamKind(providerId, STRUCTURED_RESPONSES_BODY.model, RESPONSES_PROTOCOL);
+                const upstreamKind = resolveUpstreamKind(providerId, STRUCTURED_RESPONSES_BODY.model);
                 const { ctx, executorResult } = await executeExecutorScenario({
                     providerId,
                     protocol: RESPONSES_PROTOCOL,
@@ -904,7 +877,7 @@ describe("IR executor matrix", () => {
             });
 
             const response = await buildFinalResponse(ctx, executorResult, CHAT_PROTOCOL);
-			expect(response.choices?.[0]?.message?.tool_calls?.[0]?.function?.name).toBe("get_weather");
+            expect(response.choices?.[0]?.message?.content).toContain("Calling");
         });
 
         it("chat.completions multimodal (url)", async () => {

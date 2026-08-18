@@ -2,13 +2,12 @@
 // Why: Batch routes currently persist status changes but never settle wallet billing.
 // How: Reads output JSONL, prices successful responses, applies one idempotent charge, and marks billed.
 
-import { getBindings } from "@/runtime/env";
+import { getBindings, getSupabaseAdmin } from "@/runtime/env";
 import { emitGatewayOperationalFailure } from "@/observability/axiom";
 import { enqueueAsyncGenAiOtlpExport } from "@/observability/otlp-export";
 import type { Endpoint } from "@core/types";
 import { resolveCapabilityFromEndpoint } from "@/lib/config/capabilityToEndpoints";
 import { pickFirstFiniteNumber, resolveCanonicalTokenUsage } from "@core/usage-normalization";
-import { recordBatchKeyUsage as persistBatchKeyUsage } from "@/repositories/batch-key-usage";
 import {
 	getBatchJobRecord,
 	isBatchJobBilled,
@@ -686,13 +685,14 @@ async function recordBatchKeyUsage(args: {
 		}];
 	});
 	if (rows.length === 0) return;
-	await persistBatchKeyUsage({
-		workspaceId: args.workspaceId,
-		keyId: apiKeyId,
-		batchId: args.batchId,
-		provider: args.providerId,
-		rows,
+	const { error } = await getSupabaseAdmin().rpc("gateway_record_batch_key_usage", {
+		p_workspace_id: args.workspaceId,
+		p_key_id: apiKeyId,
+		p_batch_id: args.batchId,
+		p_provider: args.providerId,
+		p_rows: rows,
 	});
+	if (error) throw error;
 	await setKeyVersion("id", apiKeyId, Date.now());
 }
 

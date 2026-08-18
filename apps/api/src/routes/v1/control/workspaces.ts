@@ -4,20 +4,7 @@
 
 import { Hono } from "hono";
 import type { Env } from "@/runtime/types";
-import { listWorkspaceMembers } from "@/repositories/workspace-members";
-import {
-	countActiveWorkspaceKeys,
-	createWorkspaceWithOwner,
-	deleteWorkspaceByOwner,
-	findExistingUserIds,
-	findWorkspaceById,
-	findWorkspaceMemberRoles,
-	isDefaultWorkspaceForUser,
-	removeWorkspaceMembers,
-	updateWorkspaceByOwner,
-	upsertWorkspaceMembers,
-} from "@/repositories/workspaces";
-import { findWorkspaceOwnerUserId } from "@/repositories/management";
+import { getSupabaseAdmin } from "@/runtime/env";
 import { guardManagementAuth, type GuardErr } from "@/pipeline/before/guards";
 import { CAPABILITIES } from "@/lib/authz/capabilities";
 import { json, withRuntime } from "@/routes/utils";
@@ -32,6 +19,12 @@ type WorkspaceRow = {
 	created_at?: string | null;
 	updated_at?: string | null;
 };
+
+function assertSupabaseWrite(result: { error?: { message?: string | null } | null }, fallbackMessage: string): void {
+	if (result?.error) {
+		throw new Error(result.error.message || fallbackMessage);
+	}
+}
 
 function parsePathId(url: URL): string | null {
 	const segments = url.pathname.split("/").filter(Boolean);
@@ -81,11 +74,46 @@ function isValidWorkspaceRole(value: unknown): value is "owner" | "admin" | "mem
 }
 
 async function resolveOwnerUserId(authWorkspaceId: string): Promise<string> {
-	const ownerUserId = (await findWorkspaceOwnerUserId(authWorkspaceId))?.trim() ?? "";
+	const supabase = getSupabaseAdmin();
+	const { data, error } = await supabase
+		.from("workspaces")
+		.select("owner_user_id")
+		.eq("id", authWorkspaceId)
+		.maybeSingle();
+	if (error) {
+		throw new Error(error.message || "Failed to resolve workspace owner");
+	}
+	const ownerUserId = String((data as { owner_user_id?: unknown } | null)?.owner_user_id ?? "").trim();
 	if (!ownerUserId) {
 		throw new Error("Workspace owner not found");
 	}
 	return ownerUserId;
+}
+
+async function findWorkspaceById(workspaceId: string): Promise<WorkspaceRow | null> {
+	const supabase = getSupabaseAdmin();
+	const { data, error } = await supabase
+		.from("workspaces")
+		.select("id, name, slug, owner_user_id, created_at, updated_at")
+		.eq("id", workspaceId)
+		.maybeSingle();
+	if (error) {
+		throw new Error(error.message || "Failed to fetch workspace");
+	}
+	return (data as WorkspaceRow | null) ?? null;
+}
+
+async function isDefaultWorkspaceForUser(userId: string, workspaceId: string): Promise<boolean> {
+	const supabase = getSupabaseAdmin();
+	const { data, error } = await supabase
+		.from("users")
+		.select("default_workspace_id")
+		.eq("user_id", userId)
+		.maybeSingle();
+	if (error) {
+		throw new Error(error.message || "Failed to resolve default workspace");
+	}
+	return String((data as { default_workspace_id?: unknown } | null)?.default_workspace_id ?? "").trim() === workspaceId;
 }
 
 async function resolveAuthorizedWorkspace(authWorkspaceId: string, identifier: string): Promise<WorkspaceRow | null> {
@@ -99,12 +127,52 @@ async function resolveAuthorizedWorkspace(authWorkspaceId: string, identifier: s
 }
 
 async function cleanupProvisioningFailedWorkspace(workspaceId: string, ownerUserId: string): Promise<void> {
-	const deleted = await deleteWorkspaceByOwner(workspaceId, ownerUserId);
-	if (!deleted) throw new Error("Failed to roll back workspace after provisioning error");
+	const supabase = getSupabaseAdmin();
+	const cleanupResults = [
+		await supabase.from("workspace_settings").delete().eq("workspace_id", workspaceId),
+		await supabase.from("workspace_members").delete().eq("workspace_id", workspaceId),
+		await supabase.from("wallets").delete().eq("workspace_id", workspaceId),
+		await supabase.from("management_keys").delete().eq("workspace_id", workspaceId),
+		await supabase.from("workspaces").delete().eq("id", workspaceId).eq("owner_user_id", ownerUserId),
+	];
+	const failed = cleanupResults.find((result) => result?.error);
+	if (failed?.error) {
+		throw new Error(failed.error.message || "Failed to roll back workspace after provisioning error");
+	}
 }
 
 async function resolveWorkspaceMembers(workspaceId: string) {
-	return listWorkspaceMembers(workspaceId);
+	const supabase = getSupabaseAdmin();
+	const { data, error } = await supabase
+		.from("workspace_members")
+		.select("workspace_id, user_id, role, joined_at")
+		.eq("workspace_id", workspaceId)
+		.order("joined_at", { ascending: true });
+	if (error) {
+		throw new Error(error.message || "Failed to load workspace members");
+	}
+	const userIds = (data ?? []).map((row) => String(row.user_id ?? "").trim()).filter(Boolean);
+	const { data: userRows, error: userError } = userIds.length
+		? await supabase.from("users").select("user_id, display_name").in("user_id", userIds)
+		: { data: [], error: null };
+	if (userError) {
+		throw new Error(userError.message || "Failed to load member profiles");
+	}
+	const usersById = new Map(
+		(userRows ?? []).map((row) => [
+			String(row.user_id),
+			{
+				display_name: row.display_name ?? null,
+			},
+		]),
+	);
+	return (data ?? []).map((row) => ({
+		workspace_id: row.workspace_id,
+		user_id: row.user_id,
+		role: row.role,
+		joined_at: (row as { joined_at?: string | null }).joined_at ?? null,
+		display_name: usersById.get(String(row.user_id))?.display_name ?? null,
+	}));
 }
 
 async function handleListWorkspaces(req: Request) {
@@ -213,13 +281,39 @@ async function handleCreateWorkspace(req: Request) {
 				{ "Cache-Control": "no-store" },
 			);
 		}
-		const data = await createWorkspaceWithOwner({ name, slug, ownerUserId });
-		const workspaceId = data.id;
+		const supabase = getSupabaseAdmin();
+		const { data, error } = await supabase
+			.from("workspaces")
+			.insert({
+				name,
+				slug,
+				owner_user_id: ownerUserId,
+			})
+			.select("id, name, slug, owner_user_id, created_at, updated_at")
+			.maybeSingle();
+		if (error) {
+			throw new Error(error.message || "Failed to create workspace");
+		}
+		const workspaceId = String((data as WorkspaceRow | null)?.id ?? "").trim();
+		if (!workspaceId) {
+			throw new Error("Workspace creation returned no id");
+		}
 		try {
+			const memberResult = await supabase
+				.from("workspace_members")
+				.upsert(
+					{ workspace_id: workspaceId, user_id: ownerUserId, role: "owner" },
+					{ onConflict: "workspace_id,user_id", ignoreDuplicates: true },
+				);
+			assertSupabaseWrite(memberResult, "Failed to create workspace owner membership");
 			await ensureWorkspaceWalletProvisioned({
 				workspaceId,
 				userId: ownerUserId,
 			});
+			const settingsResult = await supabase
+				.from("workspace_settings")
+				.upsert({ workspace_id: workspaceId, routing_mode: "balanced" }, { onConflict: "workspace_id", ignoreDuplicates: false });
+			assertSupabaseWrite(settingsResult, "Failed to initialize workspace settings");
 		} catch (error) {
 			try {
 				await cleanupProvisioningFailedWorkspace(workspaceId, ownerUserId);
@@ -231,7 +325,7 @@ async function handleCreateWorkspace(req: Request) {
 			throw error;
 		}
 
-		return json({ data: formatWorkspace(data) }, 201, { "Cache-Control": "no-store" });
+		return json({ data: formatWorkspace(data as WorkspaceRow) }, 201, { "Cache-Control": "no-store" });
 	} catch (error: any) {
 		const message = String(error?.message ?? error);
 		if (message.includes("Stripe customer provisioning is not configured")) {
@@ -306,10 +400,17 @@ async function handleUpdateWorkspace(req: Request) {
 			);
 		}
 
-		const updated = await updateWorkspaceByOwner(existing.id, ownerUserId, {
-			name: typeof updatePayload.name === "string" ? updatePayload.name : undefined,
-			slug: typeof updatePayload.slug === "string" ? updatePayload.slug : undefined,
-		});
+		const supabase = getSupabaseAdmin();
+		const { error } = await supabase
+			.from("workspaces")
+			.update(updatePayload)
+			.eq("id", existing.id)
+			.eq("owner_user_id", ownerUserId);
+		if (error) {
+			throw new Error(error.message || "Failed to update workspace");
+		}
+
+		const updated = await findWorkspaceById(existing.id);
 		if (!updated) {
 			throw new Error("Workspace update succeeded but refetch failed");
 		}
@@ -345,17 +446,38 @@ async function handleDeleteWorkspace(req: Request) {
 			throw new Error("Workspace owner not found");
 		}
 
-		if (await isDefaultWorkspaceForUser(ownerUserId, workspace.id)) {
+		const supabase = getSupabaseAdmin();
+		const { data: userRow, error: userError } = await supabase
+			.from("users")
+			.select("default_workspace_id")
+			.eq("user_id", ownerUserId)
+			.maybeSingle();
+		if (userError) {
+			throw new Error(userError.message || "Failed to resolve default workspace");
+		}
+		if (String((userRow as { default_workspace_id?: unknown } | null)?.default_workspace_id ?? "").trim() === workspace.id) {
 			return json({ error: "bad_request", message: "The default workspace cannot be deleted" }, 400, { "Cache-Control": "no-store" });
 		}
 
-		const activeKeyCount = await countActiveWorkspaceKeys(workspace.id);
-		if (activeKeyCount > 0) {
+		const { count: activeKeyCount, error: keyCountError } = await supabase
+			.from("keys")
+			.select("id", { count: "exact", head: true })
+			.eq("workspace_id", workspace.id)
+			.neq("status", "deleted");
+		if (keyCountError) {
+			throw new Error(keyCountError.message || "Failed to count workspace keys");
+		}
+		if ((activeKeyCount ?? 0) > 0) {
 			return json({ error: "bad_request", message: "Workspaces with active API keys cannot be deleted" }, 400, { "Cache-Control": "no-store" });
 		}
 
-		const deleted = await deleteWorkspaceByOwner(workspace.id, ownerUserId);
-		if (!deleted) throw new Error("Workspace deletion did not remove a row");
+		await supabase.from("workspace_members").delete().eq("workspace_id", workspace.id);
+		await supabase.from("workspace_invites").delete().eq("workspace_id", workspace.id);
+		await supabase.from("workspace_join_requests").delete().eq("workspace_id", workspace.id);
+		await supabase.from("workspace_settings").delete().eq("workspace_id", workspace.id);
+		await supabase.from("wallets").delete().eq("workspace_id", workspace.id);
+		await supabase.from("management_keys").delete().eq("workspace_id", workspace.id);
+		await supabase.from("workspaces").delete().eq("id", workspace.id).eq("owner_user_id", ownerUserId);
 
 		return json({ deleted: true }, 200, { "Cache-Control": "no-store" });
 	} catch (error: any) {
@@ -433,16 +555,33 @@ async function handleAddWorkspaceMembers(req: Request) {
 			return json({ error: "not_found", message: "Workspace not found" }, 404, { "Cache-Control": "no-store" });
 		}
 
-		const existingUserIds = await findExistingUserIds(userIds);
+		const supabase = getSupabaseAdmin();
+		const { data: existingUsers, error: usersError } = await supabase
+			.from("users")
+			.select("user_id")
+			.in("user_id", userIds);
+		if (usersError) {
+			throw new Error(usersError.message || "Failed to validate users");
+		}
+		const existingUserIds = new Set((existingUsers ?? []).map((row) => String(row.user_id)));
 		if (userIds.some((userId) => !existingUserIds.has(userId))) {
 			return json({ error: "bad_request", message: "One or more users do not exist" }, 400, { "Cache-Control": "no-store" });
 		}
 
-		const uniqueUserIds = Array.from(new Set(userIds));
-		await upsertWorkspaceMembers(workspace.id, uniqueUserIds, requestedRole);
+		const payload = Array.from(new Set(userIds)).map((userId) => ({
+			workspace_id: workspace.id,
+			user_id: userId,
+			role: requestedRole,
+		}));
+		const { error: upsertError } = await supabase
+			.from("workspace_members")
+			.upsert(payload, { onConflict: "workspace_id,user_id", ignoreDuplicates: false });
+		if (upsertError) {
+			throw new Error(upsertError.message || "Failed to add workspace members");
+		}
 
 		const members = await resolveWorkspaceMembers(workspace.id);
-		const added = members.filter((member) => uniqueUserIds.includes(member.user_id));
+		const added = members.filter((member) => payload.some((entry) => entry.user_id === member.user_id));
 		return json({ added_count: added.length, data: added }, 200, { "Cache-Control": "no-store" });
 	} catch (error: any) {
 		return internalServerError("workspaces.members.add", error);
@@ -494,13 +633,29 @@ async function handleRemoveWorkspaceMembers(req: Request) {
 			return json({ error: "bad_request", message: "Workspace owner cannot be removed" }, 400, { "Cache-Control": "no-store" });
 		}
 
-		const existingMembers = await findWorkspaceMemberRoles(workspace.id, userIds);
-		if (existingMembers.some((member) => member.role === "owner")) {
+		const supabase = getSupabaseAdmin();
+		const { data: existingMembers, error: membersError } = await supabase
+			.from("workspace_members")
+			.select("user_id, role")
+			.eq("workspace_id", workspace.id)
+			.in("user_id", userIds);
+		if (membersError) {
+			throw new Error(membersError.message || "Failed to load workspace members");
+		}
+		if ((existingMembers ?? []).some((member) => String(member.role ?? "").toLowerCase() === "owner")) {
 			return json({ error: "bad_request", message: "Workspace owner cannot be removed" }, 400, { "Cache-Control": "no-store" });
 		}
 
-		const removedCount = await removeWorkspaceMembers(workspace.id, userIds);
-		return json({ removed_count: removedCount }, 200, { "Cache-Control": "no-store" });
+		const { error: deleteError, count } = await supabase
+			.from("workspace_members")
+			.delete({ count: "exact" })
+			.eq("workspace_id", workspace.id)
+			.in("user_id", userIds);
+		if (deleteError) {
+			throw new Error(deleteError.message || "Failed to remove workspace members");
+		}
+
+		return json({ removed_count: count ?? 0 }, 200, { "Cache-Control": "no-store" });
 	} catch (error: any) {
 		return internalServerError("workspaces.members.remove", error);
 	}

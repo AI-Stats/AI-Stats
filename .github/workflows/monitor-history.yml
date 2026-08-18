@@ -28,7 +28,8 @@ jobs:
         timeout-minutes: 30
 
         env:
-            PLANETSCALE_DATABASE_URL: ${{ secrets.PLANETSCALE_DATABASE_URL }}
+            NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+            SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
             MONITOR_HISTORY_BASE_SHA: ${{ github.event.inputs.base_sha || vars.MONITOR_HISTORY_BASE_SHA || '' }}
 
         steps:
@@ -53,7 +54,7 @@ jobs:
             - name: Install dependencies
               run: pnpm install --frozen-lockfile
 
-            - name: Sync monitor history to PlanetScale
+            - name: Sync monitor history to Supabase
               shell: bash
               run: |
                   set -euo pipefail
@@ -68,4 +69,4 @@ jobs:
                     args+=(--from "$MONITOR_HISTORY_BASE_SHA")
                   fi
 
-                  pnpm exec tsx scripts/sync-monitor-history-to-planetscale.ts "${args[@]}"
+                  pnpm exec tsx scripts/sync-monitor-history-to-supabase.ts "${args[@]}"

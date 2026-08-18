@@ -1,11 +1,6 @@
 import { createHmac } from "node:crypto";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("@/repositories/oauth", () => ({
-	findActiveAuthorizationWithMembership: vi.fn(async () => ({ scopes: ["gateway:access", "models:read"] })),
-	touchOAuthAuthorization: vi.fn(async () => undefined),
-}));
-
 type KeyRow = {
     id: string;
     workspace_id: string;
@@ -29,6 +24,16 @@ const runtime = vi.hoisted(() => {
         data: dbRow.value,
         error: null,
     }));
+	const authorizationMaybeSingle = vi.fn(async () => ({
+		data: { scopes: ["gateway:access", "models:read"], revoked_at: null },
+		error: null,
+	}));
+	const membershipMaybeSingle = vi.fn(async () => ({
+		data: { workspace_id: "team_oauth" },
+		error: null,
+	}));
+    const updateEq = vi.fn(async () => ({ error: null }));
+
     const cache = {
         get: vi.fn(async (key: string, type?: "text" | "json" | "arrayBuffer" | "stream") => {
             const value = store.get(key);
@@ -44,14 +49,50 @@ const runtime = vi.hoisted(() => {
         }),
     };
 
+    const supabase = {
+        from: vi.fn((table: string) => {
+			if (table === "oauth_authorizations") {
+				return {
+					select: () => ({ eq: () => ({ eq: () => ({ eq: () => ({ maybeSingle: authorizationMaybeSingle }) }) }) }),
+					update: () => ({ eq: () => ({ eq: () => ({ eq: updateEq }) }) }),
+				};
+			}
+			if (table === "workspace_members") {
+				return {
+					select: () => ({ eq: () => ({ eq: () => ({ maybeSingle: membershipMaybeSingle }) }) }),
+				};
+			}
+			if (table !== "keys") throw new Error(`Unexpected table: ${table}`);
+            return {
+                select: () => ({
+                    eq: () => ({
+                        maybeSingle,
+                    }),
+                }),
+                update: (payload: Record<string, unknown>) => {
+                    updatePayloads.push(payload);
+                    return {
+                    eq: updateEq,
+                    };
+                },
+            };
+        }),
+    };
+
     return {
         store,
         backgroundTasks,
         dbRow,
         maybeSingle,
+		authorizationMaybeSingle,
+		membershipMaybeSingle,
+        updateEq,
         cache,
+        supabase,
         updatePayloads,
         bindings: {
+            SUPABASE_URL: "https://example.supabase.co",
+            SUPABASE_SERVICE_ROLE_KEY: "test-service-role-key",
             GATEWAY_CACHE: cache as unknown as KVNamespace,
 			KEY_PEPPER_ACTIVE: "pepper_test_value",
             KEY_PEPPER_PREVIOUS: undefined as string | undefined,
@@ -62,20 +103,12 @@ const runtime = vi.hoisted(() => {
 vi.mock("@/runtime/env", () => ({
     getBindings: () => runtime.bindings,
     getCache: () => runtime.cache as unknown as KVNamespace,
+    getSupabaseAdmin: () => runtime.supabase,
     dispatchBackground: (promise: Promise<unknown>) => {
         runtime.backgroundTasks.push(promise.catch(() => undefined));
     },
     configureRuntime: () => undefined,
     clearRuntime: () => undefined,
-}));
-
-vi.mock("@/repositories/auth-keys", () => ({
-	findGatewayKeyByKid: async () => (await runtime.maybeSingle()).data,
-	findManagementKeyByKid: async () => null,
-	touchGatewayKey: async (_id: string, lastUsedAt: string, hash?: string | null) => {
-		runtime.updatePayloads.push({ last_used_at: lastUsedAt, ...(hash ? { hash } : {}) });
-	},
-	touchManagementKey: async () => undefined,
 }));
 
 function buildRequest(token: string): Request {
@@ -109,7 +142,11 @@ describe("authenticate hot-path caching", () => {
         runtime.cache.get.mockClear();
         runtime.cache.put.mockClear();
         runtime.cache.delete.mockClear();
+        runtime.supabase.from.mockClear();
         runtime.maybeSingle.mockClear();
+		runtime.authorizationMaybeSingle.mockClear();
+		runtime.membershipMaybeSingle.mockClear();
+        runtime.updateEq.mockClear();
         vi.resetModules();
     });
 
@@ -124,7 +161,7 @@ describe("authenticate hot-path caching", () => {
 			ok: false,
 			reason: "oauth_delegated_key_required",
 		});
-		expect(runtime.maybeSingle).not.toHaveBeenCalled();
+		expect(runtime.supabase.from).not.toHaveBeenCalled();
 	});
 
     it("reuses key-version and key-row L1 cache for back-to-back KV-backed auth checks", async () => {
@@ -331,6 +368,11 @@ describe("authenticate hot-path caching", () => {
 			oauth_client_id: "client_oauth",
 			oauth_scopes: ["openid"],
 		};
+		runtime.authorizationMaybeSingle.mockResolvedValueOnce({
+			data: { scopes: ["openid"], revoked_at: null },
+			error: null,
+		});
+
 		const { authenticate } = await import("./auth");
 		const result = await authenticate(buildRequest(`phaseo_v1_sk_${kid}_${secret}`), { useKvCache: false });
 

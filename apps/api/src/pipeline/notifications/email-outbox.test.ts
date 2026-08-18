@@ -6,22 +6,44 @@ const state = vi.hoisted(() => ({
 	sendEmail: vi.fn(async (_args: Record<string, unknown>) => undefined),
 }));
 
+function buildSupabaseMock() {
+	return {
+		from(table: string) {
+			if (table !== "email_outbox") {
+				throw new Error(`Unexpected table: ${table}`);
+			}
+
+			return {
+				select: () => ({
+					is: () => ({
+						lt: () => ({
+							order: () => ({
+								limit: async () => ({
+									data: state.rows,
+									error: null,
+								}),
+							}),
+						}),
+					}),
+				}),
+				update: (payload: Record<string, unknown>) => ({
+					eq: async (_column: string, value: unknown) => {
+						state.updateCalls.push({ payload, id: String(value) });
+						return { error: null };
+					},
+				}),
+			};
+		},
+	};
+}
+
 vi.mock("@/runtime/env", () => ({
+	getSupabaseAdmin: () => buildSupabaseMock(),
 	getBindings: () => ({
 		RESEND_API_KEY: "resend_key",
 		RESEND_FROM_EMAIL: "Phaseo <noreply@example.com>",
 		RESEND_TEMPLATE_LOW_BALANCE_ID: "low_balance_template",
 	}),
-}));
-
-vi.mock("@/repositories/billing-notifications", () => ({
-	listPendingEmails: async () => state.rows,
-	markEmailSent: async (id: string, sentAt: string) => {
-		state.updateCalls.push({ payload: { sent_at: sentAt, last_error: null }, id });
-	},
-	markEmailFailed: async (id: string, attempts: number, lastError: string) => {
-		state.updateCalls.push({ payload: { attempts, last_error: lastError }, id });
-	},
 }));
 
 vi.mock("@/lib/email/resend", () => ({

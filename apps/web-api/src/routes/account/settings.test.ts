@@ -1,161 +1,14 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-const appRepositoryMocks = vi.hoisted(() => ({
-	findAccountApps: vi.fn(async () => [
-		{ id: "source-app", workspaceId: "workspace-1", title: "Source", appKey: "source" },
-		{ id: "target-app", workspaceId: "workspace-1", title: "Target", appKey: "target" },
-	]),
-	listWorkspaceApps: vi.fn(async () => [
-		{
-			id: "app-1", title: "Customer App", appKey: "customer-app",
-			meta: { category: "chat,invalid,research", docs_url: "https://docs.example.com" },
-			url: "https://example.com", imageUrl: null, isPublic: true, isActive: true,
-			lastSeen: "2026-07-14T00:00:00Z", createdAt: "2026-01-01T00:00:00Z",
-		},
-		{ id: "internal", title: "Phaseo Chat", appKey: "phaseo-chat", meta: {}, url: "about:blank", imageUrl: null, isPublic: true, isActive: true, lastSeen: "2026-07-14T00:00:00Z", createdAt: "2026-01-01T00:00:00Z" },
-	]),
-	mergeAppHistory: vi.fn(async () => ({ gateway_requests: 2, request_facts: 2, rollup_rebuild: "queued" as const })),
-}));
-const oauthAuthorizationMocks = vi.hoisted(() => ({
-	listUserOAuthAuthorizations: vi.fn(async () => [{
-		id: "authorization-1", clientId: "client-1", workspaceId: "workspace-1",
-		scopes: ["models:read"], createdAt: "2026-01-01T00:00:00Z", lastUsedAt: "2026-07-14T00:00:00Z",
-		appName: "Example OAuth App", appDescription: "Example", appLogoUrl: null,
-		appHomepageUrl: "https://example.com", allowedScopes: ["models:read", "usage:read"], workspaceName: "Team One",
-	}]),
-	listWorkspaceOAuthApps: vi.fn(async () => [{ client_id: "client-1", workspace_id: "workspace-1", name: "Example OAuth App" }]),
-	loadOAuthAppDetails: vi.fn(async () => ({
-		oauthApp: { client_id: "client-1", workspace_id: "workspace-1", name: "Example OAuth App" },
-		authorizations: [{ id: "authorization-1", user_id: "user-1" }],
-		usageStats: [{ created_at: "2026-07-14T00:00:00Z", success: true, cost_nanos: 1000 }],
-		recentRequests: [{ request_id: "request-1", oauth_user_id: "user-1", success: true }],
-		userDirectory: [{ user_id: "user-1", full_name: "Test User", email: "user@example.com" }],
-	})),
-}));
 import app from "@/index";
-
-vi.mock("@/repositories/apps", async (importOriginal) => ({
-	...(await importOriginal<typeof import("@/repositories/apps")>()),
-	...appRepositoryMocks,
-}));
-
-vi.mock("@/repositories/oauth-apps", async (importOriginal) => ({
-	...(await importOriginal<typeof import("@/repositories/oauth-apps")>()),
-	...oauthAuthorizationMocks,
-}));
-
-vi.mock("@/repositories/settings-summary", () => ({
-	getPreviousMonthSpendCents: vi.fn(async () => 0),
-	getWorkspaceKeyUsage: vi.fn(async () => [{
-		key_id: "key-1", daily_request_count: 3, weekly_request_count: 20,
-		monthly_request_count: 80, daily_cost_nanos: 100, weekly_cost_nanos: 500,
-		monthly_cost_nanos: 2000, last_used_at: "2026-07-14T00:00:00Z",
-	}]),
-}));
-
-vi.mock("@/repositories/settings-keys", async (importOriginal) => ({
-	...(await importOriginal<typeof import("@/repositories/settings-keys")>()),
-	listAccountApiKeys: vi.fn(async () => [{ id: "key-1", workspace_id: "workspace-1", name: "Production", status: "active", last_used_at: null }]),
-	listManagementKeys: vi.fn(async () => [{ id: "management-key-1", workspaceId: "workspace-1", name: "Automation", createdAt: "2026-01-01T00:00:00Z" }]),
-}));
-
-vi.mock("@/repositories/workspace-access", async (importOriginal) => ({
-	...(await importOriginal<typeof import("@/repositories/workspace-access")>()),
-	getWorkspaceAccess: vi.fn(async (_env, _userId: string, workspaceId: string) => workspaceId && workspaceId !== "workspace-2" ? ({ workspaceId, role: "owner" as const }) : null),
-	getWorkspaceName: vi.fn(async () => "Team One"),
-	listWorkspaceAccess: vi.fn(async () => [{ id: "workspace-1", name: "Team One", slug: "team-one", role: "owner" as const }]),
-}));
-
-vi.mock("@/repositories/byok", async (importOriginal) => ({
-	...(await importOriginal<typeof import("@/repositories/byok")>()),
-	loadWorkspaceByokSettings: vi.fn(async () => ({
-		fallbackEnabled: false,
-		monthlyRequestCount: 100_250,
-		keyEntries: [{
-			id: "byok-new", providerId: "openai", name: "OpenAI key", prefix: "sk-", suffix: "1234",
-			createdAt: "2026-07-01T00:00:00Z", lastUsedAt: "2026-07-15T12:00:00Z", enabled: true,
-			alwaysUse: true, routingMode: "priority", sortOrder: 0, verificationStatus: "format_valid_strict",
-			errorMessage: null, allowedModelSlugs: [], allowedApiKeyIds: [],
-		}, {
-			id: "byok-old", providerId: "openai", name: "Old key", prefix: "sk-", suffix: "0000",
-			createdAt: "2026-01-01T00:00:00Z", lastUsedAt: null, enabled: false,
-			alwaysUse: false, routingMode: "fallback", sortOrder: 0, verificationStatus: null,
-			errorMessage: null, allowedModelSlugs: [], allowedApiKeyIds: [],
-		}],
-	})),
-}));
-
-vi.mock("@/repositories/billing-settings", () => ({
-	getWorkspaceBillingStatus: vi.fn(async () => ({ name: "Team One", slug: "team-one", tier: "enterprise", billingMode: "invoice" })),
-	loadWorkspaceBillingTransactions: vi.fn(async () => ({
-		workspace: { tier: "enterprise", billingMode: "invoice" },
-		stripeCustomerId: "cus_test",
-		transactions: [{
-			id: "ledger-1", eventTime: "2026-07-13T00:00:00Z", kind: "Purchase", amountNanos: 10_000_000_000,
-			beforeBalanceNanos: 2_500_000_000, afterBalanceNanos: 12_500_000_000, status: "paid",
-			refType: "Stripe_Payment_Intent", refId: "pi_1", sourceRefType: null, sourceRefId: null,
-			createdAt: "2026-07-13T00:00:00Z",
-		}],
-	})),
-	loadWorkspaceCreditSettings: vi.fn(async () => ({
-		wallet: { workspaceId: "workspace-1", stripeCustomerId: "cus_test", balanceNanos: 12_500_000_000, reservedNanos: 0, autoTopUpEnabled: false, lowBalanceThreshold: 0, autoTopUpAmount: 0, autoTopUpAccountId: null },
-		settings: { lowBalanceEmailEnabled: true, lowBalanceEmailThresholdNanos: 5_000_000_000, autoTopUpFailureEmailEnabled: true, paymentMethodExpiringEmailEnabled: true },
-		latestPaymentAt: "2026-07-13T00:00:00Z",
-		profile: { obfuscateInfo: false, declaredCountryCode: null },
-	})),
-	getAccountObfuscation: vi.fn(async () => false),
-}));
-
-vi.mock("@/repositories/account-auth", async (importOriginal) => ({
-	...(await importOriginal<typeof import("@/repositories/account-auth")>()),
-	getAccountProfile: vi.fn(async () => ({ userId: "user-1", role: "user", betaOptIn: true, betaFeatures: { models_catalogue_v2: true }, displayName: "Test User", defaultWorkspaceId: "workspace-1", obfuscateInfo: false, declaredCountryCode: null, createdAt: "2025-01-01T00:00:00Z" })),
-	listAccountWorkspaces: vi.fn(async () => [{ id: "workspace-1", name: "Team One", slug: "team-one", role: "owner" }]),
-	saveAccountBetaProfile: vi.fn(async () => undefined),
-}));
-
-vi.mock("@/repositories/guardrails", async (importOriginal) => ({
-	...(await importOriginal<typeof import("@/repositories/guardrails")>()),
-	loadPrivacySettings: vi.fn(async () => ({
-		workspace: { id: "workspace-1", name: "Team One" },
-		settings: {
-			privacyEnablePaidMayTrain: true, privacyEnableFreeMayTrain: true,
-			privacyEnableFreeMayPublishPrompts: true, privacyEnableInputOutputLogging: true,
-			privacyZdrOnly: true, ioLoggingEnabled: false, ioLoggingRetentionDays: 90,
-			ioLoggingIncludeProviderPayloads: true, providerRestrictionMode: "allowlist",
-			providerRestrictionProviderIds: ["openai-eu"], providerRestrictionEnforceAllowed: false,
-			modelRestrictionMode: "none", modelRestrictionModelIds: [], responseHealingEnabled: false,
-			responseHealingLocked: false, responseHealingMode: "safe",
-		},
-		account: null,
-		providers: [{ providerSlug: "openai-eu", name: "OpenAI", providerFamilySlug: "openai", offerLabel: "OpenAI EU", offerScope: "regional" }],
-		routes: [{ providerSlug: "openai-eu", modelSlug: "gpt-test" }],
-		models: [{ model: { modelSlug: "gpt-test", name: "GPT Test", labSlug: "openai" }, lab: { labSlug: "openai", name: "OpenAI" } }],
-	})),
-	getPrivacyPolicies: vi.fn(async () => ({
-		workspace: { privacyEnablePaidMayTrain: true, privacyEnableFreeMayTrain: true, privacyZdrOnly: true, providerRestrictionMode: "none", providerRestrictionProviderIds: [] },
-		account: null,
-	})),
-}));
-
-vi.mock("@/repositories/broadcast", async (importOriginal) => ({
-	...(await importOriginal<typeof import("@/repositories/broadcast")>()),
-	listBroadcastDestinations: vi.fn(async () => [{ id: "destination-row-1", destinationId: "destination-1", name: "Primary", enabled: true, samplingRate: 0.5, updatedAt: "2026-07-14T00:00:00Z" }]),
-}));
-
-vi.mock("@/repositories/observability-settings", () => ({
-	loadObservabilityDestinationOptions: vi.fn(async () => ({
-		workspaceName: "Team One",
-		keys: [{ id: "key-1", name: "Production", prefix: "key" }],
-		providers: [{ id: "openai-eu", name: "OpenAI" }],
-		routes: [{ providerId: "openai-eu", modelId: "gpt-test" }],
-		models: [{ id: "gpt-test", name: "GPT Test", organisationId: "openai" }],
-	})),
-}));
 
 const env = {
 	ENV: "development" as const,
+	SUPABASE_URL: "https://example.supabase.co",
+	SUPABASE_ANON_KEY: "anon-key",
+	SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
 };
 
-afterEach(() => { vi.unstubAllGlobals(); vi.clearAllMocks(); });
+afterEach(() => vi.unstubAllGlobals());
 
 function authenticatedFetch(input: RequestInfo | URL): Response {
 	const url = input instanceof Request ? input.url : String(input);
@@ -316,6 +169,13 @@ function authenticatedFetch(input: RequestInfo | URL): Response {
 			status: "active", last_used_at: null,
 		}]), { status: 200 });
 	}
+	if (url.includes("/rpc/get_workspace_key_usage")) {
+		return new Response(JSON.stringify([{
+			key_id: "key-1", daily_request_count: 3, weekly_request_count: 20,
+			monthly_request_count: 80, daily_cost_nanos: 100, weekly_cost_nanos: 500,
+			monthly_cost_nanos: 2000, last_used_at: "2026-07-14T00:00:00Z",
+		}]), { status: 200 });
+	}
 	if (url.includes("byok_keys")) {
 		return new Response(JSON.stringify([
 			{
@@ -387,7 +247,7 @@ describe("account settings routes", () => {
 			expect(response.headers.get("cloudflare-cdn-cache-control")).toBeNull();
 		}
 		await expect(layout.json()).resolves.toEqual({
-			isEnterpriseInvoiceMode: false,
+			isEnterpriseInvoiceMode: true,
 			showBroadcast: true,
 			signedIn: true,
 			workspaceId: "workspace-1",
@@ -404,7 +264,7 @@ describe("account settings routes", () => {
 			providers: [{ id: "openai-eu", name: "OpenAI (EU)" }],
 			activeProviderModels: [{
 				apiModelId: "gpt-test",
-				internalModelId: "gpt-test",
+				internalModelId: "openai/gpt-test",
 				providerId: "openai-eu",
 			}],
 		});
@@ -435,7 +295,7 @@ describe("account settings routes", () => {
 		await expect(mfa.json()).resolves.toEqual({
 			hasPassword: true,
 			mfaEnabled: true,
-			mfaFactorId: "better-auth-totp",
+			mfaFactorId: "factor-1",
 			signedIn: true,
 		});
 		await expect(apps.json()).resolves.toMatchObject({
@@ -492,21 +352,21 @@ describe("account settings routes", () => {
 			}],
 		});
 		await expect(onboarding.json()).resolves.toMatchObject({
-			canAccessOnboarding: false,
+			canAccessOnboarding: true,
 			canManageBilling: true,
-			currentBillingMode: "wallet",
-			initialBillingDay: 1,
-			initialPaymentTermsDays: 30,
-			invoiceProfileEnabled: false,
+			currentBillingMode: "invoice",
+			initialBillingDay: 15,
+			initialPaymentTermsDays: 14,
+			invoiceProfileEnabled: true,
 			signedIn: true,
 			workspaceId: "workspace-1",
 		});
 		await expect(transactions.json()).resolves.toMatchObject({
-			billingMode: "wallet",
-			isEnterpriseInvoiceMode: false,
+			billingMode: "invoice",
+			isEnterpriseInvoiceMode: true,
 			teamTier: "enterprise",
-			invoices: [],
-			transactions: [{ id: "ledger-1", amount_nanos: 10000000000 }],
+			invoices: [{ id: "invoice-1", amount_nanos: 12000000000 }],
+			transactions: [],
 			workspaceId: "workspace-1",
 		});
 		await expect(credits.json()).resolves.toMatchObject({
@@ -565,7 +425,7 @@ describe("account settings routes", () => {
 		await expect(response.json()).resolves.toEqual({ signedIn: false });
 	});
 
-	it("merges authoritative requests and queues V2 analytics through one Drizzle transaction", async () => {
+	it("merges authoritative requests and V2 analytics through one atomic RPC", async () => {
 		const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
 			const url = input instanceof Request ? input.url : String(input);
 			if (url.includes("api_apps") && url.includes("id=in.")) {
@@ -573,6 +433,9 @@ describe("account settings routes", () => {
 					{ id: "source-app", workspace_id: "workspace-1", title: "Source", app_key: "source" },
 					{ id: "target-app", workspace_id: "workspace-1", title: "Target", app_key: "target" },
 				]), { status: 200 });
+			}
+			if (url.includes("/rpc/merge_v2_gateway_app_history")) {
+				return new Response(JSON.stringify({ gateway_requests: 2, request_facts: 2 }), { status: 200 });
 			}
 			return authenticatedFetch(input);
 		});
@@ -598,11 +461,9 @@ describe("account settings routes", () => {
 			success: true,
 			merge: { gateway_requests: 2, request_facts: 2 },
 		});
-		expect(appRepositoryMocks.mergeAppHistory).toHaveBeenCalledWith(expect.anything(), {
-			workspaceId: "workspace-1",
-			sourceAppId: "source-app",
-			targetAppId: "target-app",
-		});
+		const requestedUrls = fetchMock.mock.calls.map(([input]) => input instanceof Request ? input.url : String(input));
+		expect(requestedUrls.some((url) => url.includes("/rpc/merge_v2_gateway_app_history"))).toBe(true);
+		expect(requestedUrls.some((url) => url.includes("/gateway_requests?"))).toBe(false);
 	});
 
 	it("rejects a workspace that is not accessible to the authenticated user", async () => {

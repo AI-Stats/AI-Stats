@@ -1,20 +1,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-
-vi.mock("@/repositories/model-usage", () => ({
-	getModelTokenTrajectory: vi.fn(async () => ({ points: [] })),
-}));
-vi.mock("@/repositories/model-pricing", () => ({ loadModelPricingSources: vi.fn(async () => ({ providerRows: [], pricingRows: [] })) }));
-vi.mock("@/repositories/compare", () => ({
-	listCompareCatalogueModels: vi.fn(async () => [{ model: { modelSlug: "openai/gpt-test", name: "GPT Test", status: "active", previousModelSlug: null, announcedAt: "2026-06-01", releasedAt: "2026-07-01", deprecatedAt: null, retiredAt: null, inputModalities: ["text"], outputModalities: ["text"], license: null }, lab: { labSlug: "openai", name: "OpenAI" } }]),
-	loadCompareSelection: vi.fn(async () => ({ models: [{ model_id: "openai/gpt-test", name: "GPT Test", organisation_id: "openai", status: "active", input_types: ["text"], output_types: ["text"], organisation: { organisation_id: "openai", name: "OpenAI" }, model_links: [], model_details: [], benchmark_results: [] }], modelPlans: [], plans: [] })),
-	getCompareUsageAnalytics: vi.fn(async () => [{ model_id: "openai/gpt-test", realtime_requests: 2, realtime_latency_p50: 75, realtime_throughput_p50: 100, performance: { last_24h: { total_requests: 5 }, hourly_24h: [] } }]),
-}));
-
 import app from "@/index";
-import { loadCompareSelection } from "@/repositories/compare";
 
 const env = {
 	ENV: "development" as const,
+	SUPABASE_URL: "https://example.supabase.co",
+	SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
 };
 
 afterEach(() => vi.unstubAllGlobals());
@@ -41,7 +31,8 @@ describe("public compare routes", () => {
 		await expect(response.json()).resolves.toMatchObject({ usage: {
 			"openai/gpt-test": { totalRequests: 5, requests30m: 2, latencyP50Ms30m: 75, throughputP50TokPerSec30m: 100 },
 		} });
-		expect(fetchMock).not.toHaveBeenCalled();
+		expect(fetchMock).toHaveBeenCalledTimes(3);
+		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("get_public_compare_realtime"))).toBe(true);
 	});
 
 	it("rejects oversized detailed selections before querying the database", async () => {
@@ -73,7 +64,8 @@ describe("public compare routes", () => {
 		await expect(response.json()).resolves.toMatchObject({
 			models: [{ id: "openai/gpt-test", name: "GPT Test", benchmark_results: [], prices: [] }],
 		});
-		expect(loadCompareSelection).toHaveBeenCalledWith(expect.anything(), ["openai/gpt-test"]);
+		const modelUrls = fetchMock.mock.calls.map(([input]) => String(input));
+		expect(modelUrls.filter((url) => url.includes("/v2_models?")).length).toBe(1);
 	});
 
 	it("returns the visible compare catalogue with edge cache headers", async () => {

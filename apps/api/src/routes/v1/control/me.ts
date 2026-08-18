@@ -1,8 +1,7 @@
 import { Hono } from "hono";
 import type { Env } from "@/runtime/types";
 import { CAPABILITIES } from "@/lib/authz/capabilities";
-import { getIdentityUserById } from "@/runtime/identity";
-import { listUserWorkspaces } from "@/repositories/workspace-members";
+import { getSupabaseAdmin } from "@/runtime/env";
 import { authenticateManagement } from "@/pipeline/before/auth";
 import { json, withRuntime } from "@/routes/utils";
 
@@ -28,13 +27,27 @@ meRoutes.get(
 				{ "Cache-Control": "no-store" },
 			);
 		}
-		const [userResult, membershipRows] = await Promise.all([
-			getIdentityUserById(auth.userId),
-			listUserWorkspaces(auth.userId),
+		const supabase = getSupabaseAdmin();
+		const [userResult, membershipsResult] = await Promise.all([
+			supabase.auth.admin.getUserById(auth.userId),
+			supabase
+				.from("workspace_members")
+				.select("role, workspace_id, workspaces:workspaces(id, name, slug)")
+				.eq("user_id", auth.userId),
 		]);
 
 		const user = userResult.data?.user;
-		const workspaces = membershipRows.map((row) => ({ ...row, current: row.id === auth.workspaceId }));
+		const metadata = (user?.user_metadata ?? {}) as Record<string, unknown>;
+		const workspaces = (membershipsResult.data ?? []).map((row: any) => {
+			const workspace = Array.isArray(row.workspaces) ? row.workspaces[0] : row.workspaces;
+			return {
+				id: workspace?.id ?? row.workspace_id,
+				name: workspace?.name ?? null,
+				slug: workspace?.slug ?? null,
+				role: row.role ?? null,
+				current: String(row.workspace_id) === auth.workspaceId,
+			};
+		});
 
 		return json(
 			{
@@ -42,7 +55,12 @@ meRoutes.get(
 					user: {
 						id: auth.userId,
 						email: user?.email ?? null,
-						name: user?.name ?? null,
+						name:
+							typeof metadata.full_name === "string"
+								? metadata.full_name
+								: typeof metadata.name === "string"
+									? metadata.name
+									: null,
 					},
 					oauth: {
 						client_id: auth.oauthClientId,

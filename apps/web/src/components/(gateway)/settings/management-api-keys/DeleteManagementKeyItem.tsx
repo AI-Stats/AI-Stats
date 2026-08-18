@@ -23,13 +23,11 @@ export default function DeleteManagementKeyItem({
 	trigger = true,
 	open: controlledOpen,
 	onOpenChange,
-	onChanged,
 }: {
 	k: any;
 	trigger?: boolean;
 	open?: boolean;
 	onOpenChange?: (open: boolean) => void;
-	onChanged?: () => Promise<unknown> | unknown;
 }) {
 	const [open, setOpen] = useState(false);
 	const dialogOpen = controlledOpen ?? open;
@@ -43,7 +41,7 @@ export default function DeleteManagementKeyItem({
 		setLoading(true);
 		const promise = deleteManagementKeyAction(k.id, confirm);
 		try {
-			toast.promise(promise, {
+			await toast.promise(promise, {
 				loading: `Deleting management API key...`,
 				success: `Management API key deleted`,
 				error: (err) => {
@@ -52,8 +50,6 @@ export default function DeleteManagementKeyItem({
 					);
 				},
 			});
-			await promise;
-			await onChanged?.();
 			setDialogOpen(false);
 		} finally {
 			setLoading(false);
@@ -117,3 +113,4 @@ export default function DeleteManagementKeyItem({
 		</Dialog>
 	);
 }
+

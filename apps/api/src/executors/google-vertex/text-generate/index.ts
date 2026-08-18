@@ -18,7 +18,6 @@ import { googleUsageMetadataToIRUsage } from "@providers/google-ai-studio/usage"
 import { applyGoogleOutputTokenFallback, applyOpenAIUsageFallback } from "@executors/google/shared/usage-fallback";
 import { getBindings } from "@/runtime/env";
 import { upstreamTestHeaders } from "@providers/shared/testing";
-import { resolveVertexApiBase } from "@providers/google-vertex/auth";
 import { withNormalizedReasoning } from "@executors/google/text-generate/normalize-reasoning";
 import { irPartsToGeminiParts } from "@executors/google/shared/media";
 import {
@@ -58,7 +57,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 		bindings.GOOGLE_VERTEX_ACCESS_TOKEN || bindings.GOOGLE_VERTEX_API_KEY,
 	);
 	const accessToken = await resolveVertexAccessToken(keyInfo.key, args.upstreamTiming);
-	const apiBase = resolveVertexApiBase(bindings, args.providerId);
+	const apiBase = resolveVertexApiBase(bindings);
 	const route = resolveVertexModelRoute(model);
 
 	let payload: any;
@@ -346,6 +345,26 @@ export function resolveVertexModelRoute(model: string): VertexModelRoute {
 		return { family: "gemini", modelForPath: value, modelForPayload: value };
 	}
 	return { family: "openapi_chat", modelForPath: value, modelForPayload: value };
+}
+
+function resolveVertexApiBase(bindings: Record<string, any>): string {
+	const rawBase = String(bindings.GOOGLE_VERTEX_BASE_URL || "").replace(/\/+$/, "");
+	const project = String(bindings.GOOGLE_VERTEX_PROJECT || "").trim();
+	const location = String(bindings.GOOGLE_VERTEX_LOCATION || "").trim() || "us-east5";
+
+	if (rawBase) {
+		if (/\/v\d+(?:beta\d+)?\/projects\/[^/]+\/locations\/[^/]+$/i.test(rawBase)) {
+			return rawBase;
+		}
+		if (!project) throw vertexError("google-vertex_project_missing");
+		if (/\/v\d+(?:beta\d+)?$/i.test(rawBase)) {
+			return `${rawBase}/projects/${encodeURIComponent(project)}/locations/${encodeURIComponent(location)}`;
+		}
+		return `${rawBase}/v1/projects/${encodeURIComponent(project)}/locations/${encodeURIComponent(location)}`;
+	}
+
+	if (!project) throw vertexError("google-vertex_project_missing");
+	return `https://${encodeURIComponent(location)}-aiplatform.googleapis.com/v1/projects/${encodeURIComponent(project)}/locations/${encodeURIComponent(location)}`;
 }
 
 export async function irToGemini(ir: IRChatRequest, modelOverride?: string | null, upstreamTiming?: ExecutorExecuteArgs["upstreamTiming"]): Promise<any> {
@@ -758,5 +777,6 @@ export const executor: ProviderExecutor = buildTextExecutor({
 	postprocess,
 	transformStream,
 });
+
 
 

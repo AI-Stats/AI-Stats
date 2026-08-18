@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+type CountResult = { count: number | null; error: { message?: string } | null };
+
 const state = vi.hoisted(() => ({
 	keysCount: 0,
 	managementKeysCount: 0,
@@ -11,15 +13,59 @@ const state = vi.hoisted(() => ({
 	},
 }));
 
+function buildSupabaseMock() {
+	return {
+		from(table: string) {
+			if (table === "keys") {
+				return {
+					select: () => ({
+						eq: () => ({
+							neq: () => ({
+								neq: async (): Promise<CountResult> => ({ count: state.keysCount, error: null }),
+							}),
+						}),
+					}),
+				};
+			}
+
+			if (table === "management_keys") {
+				return {
+					select: () => ({
+						eq: async (): Promise<CountResult> => ({ count: state.managementKeysCount, error: null }),
+					}),
+				};
+			}
+
+			if (table === "workspace_members") {
+				return {
+					select: () => ({
+						eq: () => Promise.resolve({ data: state.workspaceMembershipRows, error: null }),
+					}),
+				};
+			}
+
+			if (table === "credit_ledger") {
+				return {
+					select: () => ({
+						in: () => ({
+							in: () => ({
+								in: () => ({
+									gt: async (): Promise<CountResult> => ({ count: state.creditLedgerCount, error: null }),
+								}),
+							}),
+						}),
+					}),
+				};
+			}
+
+			throw new Error(`Unexpected table: ${table}`);
+		},
+	};
+}
+
 vi.mock("@/runtime/env", () => ({
 	getBindings: () => state.bindings,
-}));
-
-vi.mock("@/repositories/management", () => ({
-	countWorkspaceKeys: vi.fn(async () => state.keysCount + state.managementKeysCount),
-	userHasPaidWorkspaceAccess: vi.fn(async () => state.creditLedgerCount > 0),
-	findWorkspaceWallet: vi.fn(async () => null),
-	upsertWorkspaceWallet: vi.fn(async () => undefined),
+	getSupabaseAdmin: () => buildSupabaseMock(),
 }));
 
 describe("management helpers", () => {

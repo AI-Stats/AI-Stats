@@ -62,7 +62,7 @@ export function normalizeTeamSsoSettingsInput(
 		throw new Error("Choose an SSO mode before enabling single sign-on.");
 	}
 	if (ssoEnabled && !ssoProviderIdentifier) {
-		throw new Error("Add the Better Auth SSO provider ID before enabling single sign-on.");
+		throw new Error("Add the Supabase SSO provider ID before enabling single sign-on.");
 	}
 	if (ssoEnabled && ssoDomains.length === 0) {
 		throw new Error("Add at least one verified domain before enabling single sign-on.");

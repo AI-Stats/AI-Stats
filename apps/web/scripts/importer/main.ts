@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { isDryRun, isTransientImporterError } from "./runtime";
+import { isDryRun, isTransientImporterError } from "./supa";
 import { syncV2Catalogue } from "./v2";
 import { DATA_ROOT } from "./paths";
 

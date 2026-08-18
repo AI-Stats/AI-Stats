@@ -461,6 +461,8 @@ function buildRecordConfig(): RecordConfig | undefined {
 
 function buildAimockBindings(): Partial<GatewayBindings> {
     const bindings: Record<string, string | KVNamespace> = {
+        SUPABASE_URL: "https://example.supabase.co",
+        SUPABASE_SERVICE_ROLE_KEY: "test-service-role-key",
         OPENAI_API_KEY: envValue("OPENAI_API_KEY", "test-openai-key"),
         OPENAI_BASE_URL: AIMOCK_BASE_URL,
         X_AI_API_KEY: envValue("X_AI_API_KEY", "test-xai-key"),
@@ -471,6 +473,7 @@ function buildAimockBindings(): Partial<GatewayBindings> {
         GOOGLE_AI_STUDIO_BASE_URL: AIMOCK_BASE_URL,
         GOOGLE_BASE_URL: AIMOCK_BASE_URL,
         GOOGLE_VERTEX_PROJECT: "aimock-project",
+        GOOGLE_VERTEX_LOCATION: "us-east5",
 		AMAZON_BEDROCK_API_KEY: "test-bedrock-key",
 		AMAZON_BEDROCK_MANTLE_BASE_URL: `${AIMOCK_BASE_URL}/anthropic/v1`,
 		ANTHROPIC_AWS_API_KEY: "test-anthropic-aws-key",

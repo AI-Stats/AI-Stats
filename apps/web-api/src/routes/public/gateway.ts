@@ -1,18 +1,52 @@
 import { Hono } from "hono";
+import { getDataClient } from "@/data/supabase";
 import type { Env } from "@/env";
 import { withPublicCache } from "@/http/cache";
-import { listEnabledModelAliases, listPublicGatewayRows } from "@/repositories/gateway";
 
 const CACHE = { edgeTtlSeconds: 5 * 60, staleWhileRevalidateSeconds: 5 * 60, cacheTags: ["web-api-gateway-models"] } as const;
 export const publicGatewayRouter = new Hono<{ Bindings: Env }>();
 
 async function gatewayModels(env: Env) {
-	const rows = await listPublicGatewayRows(env); const now = Date.now(); const grouped = new Map<string, Record<string, any>>();
-	for (const row of rows) { const key = `${row.providerId}:${row.apiModelId}`; const from = row.effectiveFrom ? Date.parse(row.effectiveFrom) : Number.NEGATIVE_INFINITY; const to = row.effectiveTo ? Date.parse(row.effectiveTo) : Number.POSITIVE_INFINITY; const retirement = row.retirementDate ? Date.parse(row.retirementDate) : Number.POSITIVE_INFINITY; const current = grouped.get(key) ?? { modelId: row.apiModelId, internalModelId: row.modelId, selectorModelId: row.modelId || row.apiModelId, providerId: row.providerId, capabilities: [], capabilityParamsById: {}, effectiveFrom: row.effectiveFrom, effectiveTo: row.effectiveTo, providerName: row.providerName, providerFamilyId: row.providerFamilyId, providerOfferLabel: row.providerOfferLabel, providerOfferScope: row.providerOfferScope, providerPromptTrainingPolicy: row.providerPromptTrainingPolicy, modelName: row.modelName, modelStatus: row.modelStatus, organisationId: row.organisationId, organisationName: row.organisationName, previousModelId: row.previousModelId, releaseDate: row.releaseDate, announcementDate: row.announcementDate, isAvailable: row.routingEnabled && now >= from && now < to && now < retirement && row.modelStatus.toLowerCase() !== "retired" }; current.capabilities.push(row.capabilityId); current.capabilityParamsById[row.capabilityId] = row.capabilityParams ?? {}; grouped.set(key, current); }
-	const output: Array<Record<string, any>> = [...grouped.values()].map((row) => ({ ...row, capabilities: [...new Set(row.capabilities as string[])].sort((a, b) => a.localeCompare(b, "en")) }));
+	const client = getDataClient(env); const providerModels: Array<Record<string, unknown>> = [];
+	for (let offset = 0; ; offset += 1_000) { const result = await client.from("v2_model_provider_routes").select("provider_api_model_id:provider_model_id,provider_id:provider_slug,api_model_id:model_slug,model_id:model_slug,is_active_gateway:routing_enabled,effective_from,effective_to").order("provider_model_id", { ascending: true }).range(offset, offset + 999); if (result.error) throw result.error; providerModels.push(...((result.data ?? []) as Array<Record<string, unknown>>)); if ((result.data?.length ?? 0) < 1_000) break; }
+	const providerModelIds = providerModels.map((row) => String(row.provider_api_model_id ?? "")).filter(Boolean); const capabilities = new Map<string, Set<string>>(); const capabilityParams = new Map<string, Record<string, unknown>>();
+	for (let offset = 0; offset < providerModelIds.length; offset += 200) { const result = await client.from("v2_route_capabilities").select("provider_api_model_id:provider_model_id,capability_id,params,status").in("provider_model_id", providerModelIds.slice(offset, offset + 200)); if (result.error) throw result.error; for (const row of result.data ?? []) { if (!row.provider_api_model_id || !row.capability_id || ["disabled", "internal_testing"].includes(String(row.status ?? "").toLowerCase())) continue; const values = capabilities.get(row.provider_api_model_id) ?? new Set<string>(); values.add(row.capability_id); capabilities.set(row.provider_api_model_id, values); const params = capabilityParams.get(row.provider_api_model_id) ?? {}; params[String(row.capability_id)] = row.params && typeof row.params === "object" ? row.params : {}; capabilityParams.set(row.provider_api_model_id, params); } }
+	const providerIds = [...new Set(providerModels.map((row) => String(row.provider_id ?? "")).filter(Boolean))]; const modelIds = [...new Set(providerModels.map((row) => String(row.model_id ?? "")).filter(Boolean))];
+	const idChunkSize = 200;
+	const providerResults = await Promise.all(
+		Array.from({ length: Math.ceil(providerIds.length / idChunkSize) }, (_, index) =>
+			client.from("v2_providers")
+				.select("api_provider_id:provider_slug,api_provider_name:name,provider_family_id:provider_family_slug,offer_label,offer_scope,prompt_training_policy")
+				.in("provider_slug", providerIds.slice(index * idChunkSize, (index + 1) * idChunkSize))),
+	);
+	const modelResults = await Promise.all(
+		Array.from({ length: Math.ceil(modelIds.length / idChunkSize) }, (_, index) =>
+			client.from("v2_models")
+				.select("model_id:model_slug,name,status,organisation_id:lab_slug,previous_model_id:previous_model_slug,release_date:released_at,announcement_date:announced_at,deprecation_date:deprecated_at,retirement_date:retired_at")
+				.in("model_slug", modelIds.slice(index * idChunkSize, (index + 1) * idChunkSize))
+				.eq("hidden", false)),
+	);
+	for (const result of [...providerResults, ...modelResults]) {
+		if (result.error) throw result.error;
+	}
+	const providers = new Map(providerResults.flatMap((result) => result.data ?? []).map((row) => [row.api_provider_id, row]));
+	const models = new Map(modelResults.flatMap((result) => result.data ?? []).map((row) => [row.model_id, row]));
+	const labIds = [...new Set(Array.from(models.values()).map((model) => String(model.organisation_id ?? "")).filter(Boolean))];
+	const labResults = await Promise.all(
+		Array.from({ length: Math.ceil(labIds.length / idChunkSize) }, (_, index) =>
+			client.from("v2_labs")
+				.select("lab_slug,name")
+				.in("lab_slug", labIds.slice(index * idChunkSize, (index + 1) * idChunkSize))),
+	);
+	for (const result of labResults) {
+		if (result.error) throw result.error;
+	}
+	const labs = new Map(labResults.flatMap((result) => result.data ?? []).map((row) => [row.lab_slug, row]));
+	const now = Date.now(); const seen = new Set<string>(); const output: Array<Record<string, unknown>> = [];
+	for (const row of providerModels) { const providerModelId = String(row.provider_api_model_id ?? ""); const apiModelId = String(row.api_model_id ?? ""); const providerId = String(row.provider_id ?? ""); if (!providerModelId || !apiModelId || !providerId || !capabilities.has(providerModelId)) continue; const key = `${providerId}:${apiModelId}`; if (seen.has(key)) continue; seen.add(key); const model = models.get(String(row.model_id ?? "")); const provider = providers.get(providerId); const from = row.effective_from ? Date.parse(String(row.effective_from)) : Number.NEGATIVE_INFINITY; const to = row.effective_to ? Date.parse(String(row.effective_to)) : Number.POSITIVE_INFINITY; const retirementDate = model?.retirement_date ? Date.parse(String(model.retirement_date)) : Number.POSITIVE_INFINITY; const status = String(model?.status ?? "").toLowerCase(); const isAvailable = Boolean(row.is_active_gateway) && now >= from && now < to && now < retirementDate && status !== "retired"; const internalModelId = model?.model_id ?? null; const selectorModelId = internalModelId || apiModelId; output.push({ modelId: apiModelId, internalModelId, selectorModelId, providerId, capabilities: [...(capabilities.get(providerModelId) ?? [])], capabilityParamsById: capabilityParams.get(providerModelId) ?? {}, effectiveFrom: row.effective_from ?? null, effectiveTo: row.effective_to ?? null, providerName: provider?.api_provider_name ?? null, providerFamilyId: provider?.provider_family_id ?? null, providerOfferLabel: provider?.offer_label ?? null, providerOfferScope: provider?.offer_scope ?? null, providerPromptTrainingPolicy: provider?.prompt_training_policy ?? null, modelName: model?.name ?? null, modelStatus: model?.status ?? null, organisationId: model?.organisation_id ?? null, organisationName: labs.get(model?.organisation_id ?? "")?.name ?? null, previousModelId: model?.previous_model_id ?? null, releaseDate: model?.release_date ?? null, announcementDate: model?.announcement_date ?? null, isAvailable }); }
 	return output.sort((a, b) => String(a.providerId).localeCompare(String(b.providerId)) || String(a.modelId).localeCompare(String(b.modelId)));
 }
 
 publicGatewayRouter.get("/gateway/models", async (c) => { try { const models = await gatewayModels(c.env); const availableOnly = c.req.query("available_only") !== "false"; return withPublicCache(c.json({ models: availableOnly ? models.filter((model) => model.isAvailable) : models }), CACHE); } catch (error) { console.error("[web-api/gateway] models failed", error); return c.json({ error: "gateway_models_unavailable" }, 503); } });
 
-publicGatewayRouter.get("/gateway/model-aliases", async (c) => { try { const [models, aliasRows] = await Promise.all([gatewayModels(c.env), listEnabledModelAliases(c.env)]); const byId = new Map<string, Record<string, unknown>[]>(); for (const model of models.filter((row) => row.isAvailable)) for (const id of [model.modelId, model.selectorModelId, model.internalModelId]) if (id) byId.set(String(id), [...(byId.get(String(id)) ?? []), model]); const aliases: Array<Record<string, unknown>> = []; const seen = new Set<string>(); for (const row of aliasRows) { const slug = row.aliasSlug.trim(); const [resolved] = byId.get(row.modelSlug) ?? []; if (!slug || !resolved || seen.has(slug)) continue; seen.add(slug); aliases.push({ ...resolved, modelId: slug, selectorModelId: slug, modelName: slug.split(/[\/_-]+/).filter(Boolean).map((part) => part.slice(0, 1).toUpperCase() + part.slice(1)).join(" ") }); } return withPublicCache(c.json({ aliases }), CACHE); } catch (error) { console.error("[web-api/gateway] aliases failed", error); return c.json({ error: "gateway_aliases_unavailable" }, 503); } });
+publicGatewayRouter.get("/gateway/model-aliases", async (c) => { try { const models = await gatewayModels(c.env); const byId = new Map<string, Record<string, unknown>[]>(); for (const model of models.filter((row) => row.isAvailable)) for (const id of [model.modelId, model.selectorModelId, model.internalModelId]) if (id) byId.set(String(id), [...(byId.get(String(id)) ?? []), model]); const result = await getDataClient(c.env).from("v2_model_aliases").select("alias_slug,api_model_id:model_slug").eq("enabled", true).order("alias_slug", { ascending: true }); if (result.error) throw result.error; const aliases: Array<Record<string, unknown>> = []; const seen = new Set<string>(); for (const row of result.data ?? []) { const slug = String(row.alias_slug ?? "").trim(); const [resolved] = byId.get(String(row.api_model_id ?? "")) ?? []; if (!slug || !resolved || seen.has(slug)) continue; seen.add(slug); aliases.push({ ...resolved, modelId: slug, selectorModelId: slug, modelName: slug.split(/[\/_-]+/).filter(Boolean).map((part) => part.slice(0, 1).toUpperCase() + part.slice(1)).join(" ") }); } return withPublicCache(c.json({ aliases }), CACHE); } catch (error) { console.error("[web-api/gateway] aliases failed", error); return c.json({ error: "gateway_aliases_unavailable" }, 503); } });

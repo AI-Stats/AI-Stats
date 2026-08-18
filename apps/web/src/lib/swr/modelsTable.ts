@@ -7,7 +7,7 @@ import { publicSWRFetcher } from "@/lib/swr/publicFetcher";
 
 type ModelsCatalogueVersion = "v1" | "v2";
 
-export type ModelsTableResponse = {
+type ModelsTableResponse = {
 	models: MonitorModelTableRow[];
 	facets?: {
 		endpoints?: string[];
@@ -17,9 +17,9 @@ export type ModelsTableResponse = {
 	};
 	catalogue_version?: ModelsCatalogueVersion;
 	shape?: string;
-	next_cursor?: string | null;
-	has_more?: boolean;
+	total: number;
 	limit: number;
+	offset: number;
 };
 
 function sortFeatures(features: string[]): string[] {
@@ -54,41 +54,42 @@ function assertTablePage(
 	}
 }
 
-async function fetchModelsTablePageForVersion(
+async function fetchModelsTableDataForVersion(
 	path: string,
 	expectedVersion: ModelsCatalogueVersion,
-): Promise<ModelsTableResponse> {
-	const page = await publicSWRFetcher<ModelsTableResponse>(path);
-	assertTablePage(page, expectedVersion, true);
-	return page;
-}
+): Promise<ModelsTableData> {
+	const firstPage = await publicSWRFetcher<ModelsTableResponse>(path);
+	assertTablePage(firstPage, expectedVersion, true);
 
-export function combineModelsTablePages(
-	pages: ModelsTableResponse[],
-): ModelsTableData {
-	const endpoints = new Set<string>();
-	const modalities = new Set<string>();
-	const features = new Set<string>();
-	const statuses = new Set<string>();
-	for (const page of pages) {
-		for (const value of page.facets?.endpoints ?? []) endpoints.add(value);
-		for (const value of page.facets?.modalities ?? []) modalities.add(value);
-		for (const value of page.facets?.features ?? []) features.add(value);
-		for (const value of page.facets?.statuses ?? []) statuses.add(value);
+	const pageSize = Math.max(1, firstPage.limit || 10_000);
+	const offsets: number[] = [];
+	for (let offset = pageSize; offset < firstPage.total; offset += pageSize) {
+		offsets.push(offset);
 	}
+	const laterPages = await Promise.all(
+		offsets.map((offset) => {
+			const url = new URL(path, "https://phaseo.local");
+			url.searchParams.set("offset", String(offset));
+			return publicSWRFetcher<ModelsTableResponse>(
+				`${url.pathname}${url.search}`,
+			);
+		}),
+	);
+	for (const page of laterPages) assertTablePage(page, expectedVersion);
+
 	return {
-		models: pages.flatMap((page) => page.models),
-		allEndpoints: [...endpoints].sort(),
-		allModalities: [...modalities].sort(),
-		allFeatures: sortFeatures([...features]),
-		allStatuses: [...statuses].sort(),
+		models: [firstPage, ...laterPages].flatMap((page) => page.models),
+		allEndpoints: firstPage.facets?.endpoints ?? [],
+		allModalities: firstPage.facets?.modalities ?? [],
+		allFeatures: sortFeatures(firstPage.facets?.features ?? []),
+		allStatuses: firstPage.facets?.statuses ?? [],
 	};
 }
 
-export function fetchModelsTableData(path: string): Promise<ModelsTableResponse> {
-	return fetchModelsTablePageForVersion(path, "v1");
+export function fetchModelsTableData(path: string): Promise<ModelsTableData> {
+	return fetchModelsTableDataForVersion(path, "v1");
 }
 
-export function fetchModelsTableDataV2(path: string): Promise<ModelsTableResponse> {
-	return fetchModelsTablePageForVersion(path, "v2");
+export function fetchModelsTableDataV2(path: string): Promise<ModelsTableData> {
+	return fetchModelsTableDataForVersion(path, "v2");
 }

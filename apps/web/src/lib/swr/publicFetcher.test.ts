@@ -18,7 +18,7 @@ describe("publicSWRFetcher", () => {
 			.resolves.toEqual({ ok: true });
 		expect(fetchMock).toHaveBeenCalledWith("/api/_web/status", {
 			headers: { Accept: "application/json" },
-			credentials: "same-origin",
+			credentials: "omit",
 		});
 	});
 

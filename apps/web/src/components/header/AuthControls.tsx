@@ -9,7 +9,7 @@ export default async function AuthControls({
 }: {
 	variant?: "mobile" | "desktop";
 }) {
-	// Authentication reads token expiry during initialization. Explicitly defer
+	// Supabase Auth reads token expiry during initialization. Explicitly defer
 	// that indirect Date.now() access until a request is available.
 	await connection();
 	let data: InternalAuthHeaderData = {

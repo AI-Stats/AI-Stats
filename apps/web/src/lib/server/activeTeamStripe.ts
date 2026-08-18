@@ -1,12 +1,9 @@
-import {
-    findWorkspaceStripeCustomer,
-    upsertWorkspaceStripeCustomer,
-} from "@/lib/database/repositories/billing";
+import { createClient } from "@/utils/supabase/server";
+import { createAdminClient } from "@/utils/supabase/admin";
 import { getWorkspaceIdFromCookie } from "@/utils/workspaceCookie";
 import { requireWorkspaceMembership } from "@/utils/serverActionAuth";
 import { getStripe } from "@/lib/stripe";
 import type Stripe from "stripe";
-import { requireServerIdentity } from "@/lib/auth/serverIdentity";
 
 type ActiveTeamStripeCustomer = {
     workspaceId: string;
@@ -65,6 +62,18 @@ function isMissingStripeCustomerError(error: unknown): boolean {
         code === "resource_missing" &&
         (param === "customer" || param === "id" || message.includes("No such customer"))
     );
+}
+
+async function upsertWorkspaceStripeCustomer(workspaceId: string, customerId: string) {
+    const admin = createAdminClient();
+    const { error: upsertError } = await admin
+        .from("wallets")
+        .upsert(
+            { workspace_id: workspaceId, stripe_customer_id: customerId },
+            { onConflict: "workspace_id", ignoreDuplicates: false }
+        );
+
+    if (upsertError) throw upsertError;
 }
 
 async function findOrCreateStripeCustomer(args: {
@@ -185,7 +194,15 @@ async function resolveWorkspaceStripeCustomer(args: {
 export async function requireActiveTeamStripeCustomer(
     options: RequireActiveTeamStripeCustomerOptions = {}
 ): Promise<ActiveTeamStripeCustomer> {
-    const { user } = await requireServerIdentity().catch(() => { throw new Error("unauthorized"); });
+    const supabase = await createClient();
+    const {
+        data: { user },
+        error: userErr,
+    } = await supabase.auth.getUser();
+
+    if (userErr || !user?.id) {
+        throw new Error("unauthorized");
+    }
 
     const workspaceId = await getWorkspaceIdFromCookie();
     if (!workspaceId) {
@@ -194,6 +211,7 @@ export async function requireActiveTeamStripeCustomer(
 
     try {
         await requireWorkspaceMembership(
+            supabase,
             user.id,
             workspaceId,
             options.roles ?? ["owner", "admin"],
@@ -208,23 +226,29 @@ export async function requireActiveTeamStripeCustomer(
         throw error;
     }
 
-    const wallet = await findWorkspaceStripeCustomer(workspaceId);
+    const { data: wallet, error: walletErr } = await supabase
+        .from("wallets")
+        .select("workspace_id, stripe_customer_id")
+        .eq("workspace_id", workspaceId)
+        .maybeSingle();
+
+    if (walletErr) throw walletErr;
     const customerId = await resolveWorkspaceStripeCustomer({
         workspaceId,
         userId: user.id,
         email: user.email ?? undefined,
         name: deriveCustomerName(user),
-        storedCustomerId: wallet?.stripeCustomerId ?? null,
+        storedCustomerId: wallet?.stripe_customer_id ?? null,
         createIfMissing: options.createIfMissing ?? false,
         repairInvalidCustomer: options.repairInvalidCustomer ?? true,
     });
 
-    if (!wallet?.workspaceId || !customerId) {
+    if (!wallet?.workspace_id || !customerId) {
         throw new Error("missing_stripe_customer");
     }
 
     return {
-        workspaceId: wallet.workspaceId,
+        workspaceId: String(wallet.workspace_id),
         customerId,
         userId: user.id,
         userEmail: user.email ?? null,

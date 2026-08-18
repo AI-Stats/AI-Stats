@@ -1,6 +1,5 @@
+import { getDataClient } from "@/data/supabase";
 import type { Env } from "@/env";
-import { listActiveModelAliases } from "@/repositories/model-aliases";
-import { loadModelPricingSources } from "@/repositories/model-pricing";
 
 type Row = Record<string, unknown>;
 
@@ -138,28 +137,77 @@ function availabilityReason(row: Row, capability: Row, provider: Row | null, now
 }
 
 export async function fetchGatewayMetadataSource(env: Env, modelId: string): Promise<GatewayMetadataSource | null> {
-	const source = await loadModelPricingSources(env, [modelId], true, false);
-	const providerModels = source.providerRows as Row[];
-	if (!providerModels.length) return null;
-	const caps = providerModels.flatMap((route) => {
-		const providerModelId = id(route.provider_api_model_id);
-		return rows(route.data_api_provider_model_capabilities).map((capability) => ({
-			...capability,
-			provider_api_model_id: providerModelId,
-		}));
+	const client = getDataClient(env);
+	const v2Pricing = await client.rpc("get_v2_model_pricing", {
+		p_model_slug: modelId,
+		p_region: null,
+		p_service_tier: "standard",
 	});
-	const providers = [...new Map(providerModels.flatMap((route) => {
-		const providerId = id(route.provider_id);
-		const provider = asRow(route.data_api_providers);
-		return providerId && provider ? [[providerId, { ...provider, api_provider_id: providerId }] as const] : [];
-	})).values()];
-	const aliasRows = await listActiveModelAliases(env, modelId);
-	return {
-		providerModels,
-		caps,
-		providers,
-		aliases: aliasRows.map((alias) => ({ api_model_id: modelId, alias_slug: alias.alias_slug })),
-	};
+	if (!v2Pricing.error && Array.isArray(v2Pricing.data)) {
+		const routeStatusResult = await client
+			.from("v2_model_provider_routes")
+			.select("provider_model_id,provider_availability_status,phaseo_status,access_scope")
+			.eq("model_slug", modelId);
+		const explicitStatusesByRoute = new Map(
+			(routeStatusResult.error ? [] : rows(routeStatusResult.data)).flatMap((route) => {
+				const providerModelId = id(route.provider_model_id);
+				return providerModelId ? [[providerModelId, route] as const] : [];
+			}),
+		);
+		const providerModels = new Map<string, Row>();
+		const caps = new Map<string, Row>();
+		const providers: Row[] = [];
+		for (const payload of v2Pricing.data as Row[]) {
+			const provider = asRow(payload.provider);
+			if (provider) providers.push(provider);
+			for (const item of rows(payload.provider_models)) {
+				const providerModelId = id(item.id);
+				const endpoint = id(item.endpoint) ?? "unmapped";
+				if (!providerModelId) continue;
+				const key = `${providerModelId}:${endpoint}`;
+				const explicitStatuses = explicitStatusesByRoute.get(providerModelId);
+				const normalized = {
+					provider_api_model_id: providerModelId,
+					provider_id: item.api_provider_id,
+					api_model_id: item.model_id,
+					model_id: item.model_id,
+					provider_model_slug: item.provider_model_slug,
+					is_active_gateway: item.is_active_gateway,
+					provider_availability_status: explicitStatuses?.provider_availability_status ?? item.provider_availability_status ?? null,
+					phaseo_status: explicitStatuses?.phaseo_status ?? item.phaseo_status ?? null,
+					access_scope: explicitStatuses?.access_scope ?? item.access_scope ?? null,
+					routing_status: item.routing_status,
+					input_modalities: item.input_modalities,
+					output_modalities: item.output_modalities,
+					context_length: item.context_length,
+					max_output_tokens: item.max_output_tokens,
+					effective_from: null,
+					effective_to: null,
+				};
+				if (!providerModels.has(key) || item.execution_region == null) providerModels.set(key, normalized);
+				caps.set(key, {
+					provider_api_model_id: providerModelId,
+					capability_id: endpoint,
+					params: item.params ?? {},
+					max_input_tokens: item.max_input_tokens ?? null,
+					max_output_tokens: item.max_output_tokens ?? null,
+					status: item.capability_status ?? "active",
+				});
+			}
+		}
+		const uniqueProviders = [...new Map(providers.map((provider, index) => [id(provider.api_provider_id) ?? `provider-${index}`, provider])).values()];
+		const aliasResult = await client.rpc("get_v2_model_aliases", { p_model_slug: modelId });
+		const aliases = !aliasResult.error
+			? rows(aliasResult.data).flatMap((alias) => id(alias.alias_slug) ? [{ api_model_id: modelId, alias_slug: id(alias.alias_slug)! }] : [])
+			: [];
+		return {
+			providerModels: [...providerModels.values()],
+			caps: [...caps.values()],
+			providers: uniqueProviders,
+			aliases,
+		};
+	}
+	throw v2Pricing.error ?? new Error("V2 gateway metadata query returned an invalid payload");
 }
 
 export function composeGatewayMetadata(modelId: string, source: GatewayMetadataSource) {

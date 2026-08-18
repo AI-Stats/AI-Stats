@@ -5,7 +5,7 @@
 
 import { Hono } from "hono";
 import type { Env } from "@/runtime/types";
-import { loadPricingCatalogueRows } from "@/repositories/pricing";
+import { getSupabaseAdmin } from "@/runtime/env";
 import { guardAuth, type GuardErr } from "@pipeline/before/guards";
 import { CAPABILITIES } from "@/lib/authz/capabilities";
 import { json, withRuntime, cacheHeaders } from "@/routes/utils";
@@ -38,38 +38,60 @@ async function handlePricingModels(req: Request) {
     if (scopeError) return scopeError;
 
     try {
-        const rows = await loadPricingCatalogueRows();
-        const routes = new Map(rows.routes.map((route) => [route.providerModelId, route]));
-        const models = new Map(rows.models
+        const supabase = getSupabaseAdmin();
+        const nowIso = new Date().toISOString();
+        const [routesResult, modelsResult, skusResult] = await Promise.all([
+            supabase.from("v2_model_provider_routes")
+                .select("provider_model_id,provider_slug,model_slug")
+                .eq("routing_enabled", true).in("status", ["active", "degraded"]),
+            supabase.from("v2_models").select("model_slug,name,hidden,status"),
+            supabase.from("v2_pricing_skus")
+                .select("sku_id,provider_model_id,operation,service_tier_slug,currency,metadata")
+                .eq("status", "active").lte("effective_from", nowIso)
+                .or(`effective_to.is.null,effective_to.gt.${nowIso}`),
+        ]);
+        for (const result of [routesResult, modelsResult, skusResult]) {
+            if (result.error) throw new Error(result.error.message);
+        }
+        const skuIds = (skusResult.data ?? []).map((sku) => sku.sku_id);
+        const metersResult = skuIds.length
+            ? await supabase.from("v2_pricing_sku_meters")
+                .select("sku_id,meter_key,unit,unit_quantity,price_nanos,metadata,meter_order")
+                .in("sku_id", skuIds).eq("billable", true).order("meter_order")
+            : { data: [], error: null };
+        if (metersResult.error) throw new Error(metersResult.error.message);
+
+        const routes = new Map((routesResult.data ?? []).map((route) => [route.provider_model_id, route]));
+        const models = new Map((modelsResult.data ?? [])
             .filter((model) => !model.hidden && model.status !== "disabled" && model.status !== "retired")
-            .map((model) => [model.modelSlug, model]));
-        const skuById = new Map(rows.skus.map((sku) => [sku.skuId, sku]));
+            .map((model) => [model.model_slug, model]));
+        const skuById = new Map((skusResult.data ?? []).map((sku) => [sku.sku_id, sku]));
         const modelMap = new Map<string, PricingModel>();
-        for (const meter of rows.meters) {
-            const sku = skuById.get(meter.skuId);
-            const route = sku ? routes.get(sku.providerModelId) : null;
-            const model = route ? models.get(route.modelSlug) : null;
+        for (const meter of metersResult.data ?? []) {
+            const sku = skuById.get(meter.sku_id);
+            const route = sku ? routes.get(sku.provider_model_id) : null;
+            const model = route ? models.get(route.model_slug) : null;
             if (!sku || !route || !model) continue;
             const capabilityId = sku.operation;
-            const key = `${route.providerSlug}:${route.modelSlug}:${capabilityId}:${sku.serviceTierSlug || "standard"}`;
+            const key = `${route.provider_slug}:${route.model_slug}:${capabilityId}:${sku.service_tier_slug || "standard"}`;
 
             if (!modelMap.has(key)) {
                 modelMap.set(key, {
-                    provider: route.providerSlug,
-                    model: route.modelSlug,
+                    provider: route.provider_slug,
+                    model: route.model_slug,
                     endpoint: capabilityId,
                     display_name: model.name,
                     meters: [],
                 });
             }
 
-            const metadata = meter.metadata && typeof meter.metadata === "object" ? meter.metadata as Record<string, any> : {};
-            const skuMetadata = sku.metadata && typeof sku.metadata === "object" ? sku.metadata as Record<string, any> : {};
+            const metadata = meter.metadata && typeof meter.metadata === "object" ? meter.metadata : {};
+            const skuMetadata = sku.metadata && typeof sku.metadata === "object" ? sku.metadata : {};
             modelMap.get(key)!.meters.push({
-                meter: meter.meterKey,
+                meter: meter.meter_key,
                 unit: meter.unit,
-                unit_size: Number(meter.unitQuantity ?? 1),
-                price_per_unit: String(Number(meter.priceNanos) / 1_000_000_000),
+                unit_size: Number(meter.unit_quantity ?? 1),
+                price_per_unit: String(Number(meter.price_nanos) / 1_000_000_000),
                 currency: sku.currency ?? "USD",
                 conditions: Array.isArray(skuMetadata.match) ? skuMetadata.match : Array.isArray(metadata.match) ? metadata.match : [],
                 billing_timestamp_basis: skuMetadata.billing_timestamp_basis ?? "request_start",
@@ -176,6 +198,7 @@ export const pricingRoutes = new Hono<Env>();
 
 pricingRoutes.get("/models", withRuntime(handlePricingModels));
 pricingRoutes.post("/calculate", withRuntime(handlePricingCalculate));
+
 
 
 

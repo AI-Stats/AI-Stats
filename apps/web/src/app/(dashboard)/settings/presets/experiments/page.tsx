@@ -48,10 +48,6 @@ import {
 	requireWorkspaceMembership,
 } from "@/utils/serverActionAuth";
 import { getWorkspaceIdFromCookie } from "@/utils/workspaceCookie";
-import {
-	listPresetFeedbackPage,
-	listWorkspacePresets,
-} from "@/lib/database/repositories/presets";
 
 export const metadata: Metadata = {
 	title: "Preset Feedback - Settings",
@@ -454,12 +450,18 @@ function presetDisplayName(preset: Pick<PresetRow, "name" | "slug">): string {
 }
 
 async function loadPresetFeedbackData(filters: Filters) {
-	const { user } = await requireAuthenticatedUser();
+	const { supabase, user } = await requireAuthenticatedUser();
 	const workspaceId = await getWorkspaceIdFromCookie();
 	if (!workspaceId) return { workspaceId: null };
-	await requireWorkspaceMembership(user.id, workspaceId);
+	await requireWorkspaceMembership(supabase, user.id, workspaceId);
 
-	const presets = await listWorkspacePresets(workspaceId) as PresetRow[];
+	const { data: presetsData, error: presetsError } = await supabase
+		.from("presets")
+		.select("id,name,slug,description,config")
+		.eq("workspace_id", workspaceId)
+		.order("name", { ascending: true });
+	if (presetsError) throw presetsError;
+	const presets = (presetsData ?? []) as PresetRow[];
 	const presetIds = presets.map((preset) => preset.id);
 
 	let feedback: FeedbackRow[] = [];
@@ -468,17 +470,31 @@ async function loadPresetFeedbackData(filters: Filters) {
 		const pageSize = 1_000;
 		const maxFeedbackRows = 10_000;
 		for (let offset = 0; offset < maxFeedbackRows; offset += pageSize) {
-			const page = await listPresetFeedbackPage({
-				workspaceId,
-				presetIds,
-				fromIso: filters.fromIso,
-				toIso: filters.toIso,
-				rating: filters.rating,
-				metadataKey: filters.metadataKey,
-				metadataValue: filters.metadataValue,
-				offset,
-				limit: pageSize,
-			}) as FeedbackRow[];
+			let query = supabase
+				.from("gateway_feedback")
+				.select(
+					"id,request_id,session_id,preset_id,rating,score,reason,reason_tags,comment,metadata_dimensions,end_user_id,created_at",
+				)
+				.eq("workspace_id", workspaceId)
+				.in("preset_id", presetIds)
+				.gte("created_at", filters.fromIso)
+				.lte("created_at", filters.toIso)
+				.order("created_at", { ascending: false })
+				.order("id", { ascending: false })
+				.range(offset, offset + pageSize - 1);
+			if (filters.rating === "unrated") {
+				query = query.is("rating", null);
+			} else if (filters.rating !== "all") {
+				query = query.eq("rating", filters.rating);
+			}
+			if (filters.metadataKey && filters.metadataValue) {
+				query = query.contains("metadata_dimensions", {
+					[filters.metadataKey]: filters.metadataValue,
+				});
+			}
+			const { data, error } = await query;
+			if (error) throw error;
+			const page = (data ?? []) as FeedbackRow[];
 			feedback.push(...page);
 			if (page.length < pageSize) break;
 			if (feedback.length >= maxFeedbackRows) feedbackTruncated = true;

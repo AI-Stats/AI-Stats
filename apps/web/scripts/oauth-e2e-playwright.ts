@@ -84,6 +84,14 @@ function parsePositiveInt(value: string | undefined, fallback: number): number {
 	return Math.floor(parsed);
 }
 
+function normalizeSupabaseBase(url: string): string {
+	const trimmed = url.trim().replace(/\/+$/, "");
+	if (trimmed.endsWith("/auth/v1")) {
+		return trimmed.slice(0, -"/auth/v1".length);
+	}
+	return trimmed;
+}
+
 function base64Url(input: Buffer): string {
 	return input
 		.toString("base64")
@@ -140,6 +148,7 @@ function buildConfig(): RunnerConfig {
 	const apiBaseUrl = process.env.API_BASE_URL?.trim() || "";
 	const redirectUri =
 		process.env.OAUTH_REDIRECT_URI?.trim() || "http://127.0.0.1:8788/callback";
+	const supabaseUrl = process.env.SUPABASE_URL?.trim() || "";
 	const clientId = process.env.OAUTH_CLIENT_ID?.trim() || "";
 	const clientSecret = process.env.OAUTH_CLIENT_SECRET?.trim() || "";
 
@@ -153,7 +162,11 @@ function buildConfig(): RunnerConfig {
 	const exchangeUrl =
 		process.env.OAUTH_EXCHANGE_URL?.trim() || `${normalizedApiBase}/auth/exchange`;
 	const tokenUrlOverride = process.env.OAUTH_TOKEN_URL?.trim() || "";
-	const tokenUrl = tokenUrlOverride || `${normalizedApiBase}/oauth/token`;
+	const tokenUrl =
+		tokenUrlOverride ||
+		(supabaseUrl
+			? `${normalizeSupabaseBase(supabaseUrl)}/auth/v1/oauth/token`
+			: undefined);
 
 	return {
 		apiBaseUrl: normalizedApiBase,
@@ -341,7 +354,7 @@ function usage(): void {
 	console.log("  OAUTH_TEST_MODEL / OAUTH_TEST_PROMPT");
 	console.log("  OAUTH_FLOW_TIMEOUT_MS (default 600000)");
 	console.log("  OAUTH_HEADLESS=1");
-	console.log("  OAUTH_TOKEN_URL (default <API_BASE_URL>/oauth/token)");
+	console.log("  SUPABASE_URL and/or OAUTH_TOKEN_URL for refresh probe");
 }
 
 function isHelpRequest(argv: string[]): boolean {

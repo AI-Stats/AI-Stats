@@ -26,7 +26,7 @@ const state = vi.hoisted(() => ({
 	requestRows: [] as Array<Record<string, unknown>>,
 	fetchCalls: [] as string[],
 	walletCalls: [] as Array<Record<string, unknown>>,
-	keyUsageCalls: [] as Array<Record<string, unknown>>,
+	keyUsageCalls: [] as Array<{ name: string; args: Record<string, unknown> }>,
 	captureResult: null as Record<string, unknown> | null,
 	releaseError: null as Error | null,
 }));
@@ -63,17 +63,12 @@ vi.mock("@/runtime/env", () => ({
 		OPENAI_API_KEY: "test-openai-key",
 		OPENAI_BASE_URL: "https://api.openai.example/v1",
 	}),
-}));
-
-vi.mock("@/repositories/batch-key-usage", () => ({
-	recordBatchKeyUsage: vi.fn(async (args: Record<string, unknown>) => {
-		state.keyUsageCalls.push(args);
-		return 1;
+	getSupabaseAdmin: () => ({
+		rpc: vi.fn(async (name: string, args: Record<string, unknown>) => {
+			state.keyUsageCalls.push({ name, args });
+			return { data: 1, error: null };
+		}),
 	}),
-}));
-
-vi.mock("@/observability/otlp-export", () => ({
-	enqueueAsyncGenAiOtlpExport: vi.fn(async () => undefined),
 }));
 
 vi.mock("@providers/keys", () => ({
@@ -99,7 +94,6 @@ vi.mock("@core/batch-requests", () => ({
 vi.mock("@pipeline/pricing/loader", () => ({
 	loadPriceCard: vi.fn(async (provider: string, model: string, endpoint: string) => {
 		state.loadCalls.push({ provider, model, endpoint });
-		if (model === "openai/unpriced-image-model") return null;
 		if (endpoint === "text.embed") {
 			return {
 				provider,
@@ -1142,7 +1136,7 @@ describe("batch-finalization", () => {
 				provider: "openai",
 				status: "completed",
 				endpoint: "/v1/images/generations",
-				model: "openai/unpriced-image-model",
+				model: "openai/gpt-image-1-mini",
 				inputFileId: "file_in_image_unmatched",
 				outputFileId: "file_out_image_unmatched",
 				reservationId: "batch_hold:req_image_unmatched",
@@ -1183,7 +1177,7 @@ describe("batch-finalization", () => {
 							method: "POST",
 							url: "/v1/images/generations",
 							body: {
-								model: "openai/unpriced-image-model",
+								model: "openai/gpt-image-1-mini",
 								prompt: "a quiet desk",
 								n: 1,
 								size: "512x512",
@@ -1392,9 +1386,12 @@ describe("batch-finalization", () => {
 			settleRefId: "batch_cancelled_partial_no_counts",
 		});
 		expect(state.keyUsageCalls).toEqual([expect.objectContaining({
-			workspaceId: "ws_batch_test",
-			keyId: "key_batch_test",
-			batchId: "batch_cancelled_partial_no_counts",
+			name: "gateway_record_batch_key_usage",
+			args: expect.objectContaining({
+				p_workspace_id: "ws_batch_test",
+				p_key_id: "key_batch_test",
+				p_batch_id: "batch_cancelled_partial_no_counts",
+			}),
 		})]);
 	});
 

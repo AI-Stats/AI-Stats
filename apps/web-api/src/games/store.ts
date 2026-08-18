@@ -1,8 +1,10 @@
+import { getDataClient } from "@/data/supabase";
 import type { Env } from "@/env";
 import { fetchGameCatalogue } from "./catalogue";
 import { buildPuzzle } from "./engine";
-import { createGamePuzzle, findGamePuzzle } from "./repository";
 import type { GameKey, PuzzleRecord } from "./types";
+
+const PUZZLE_TABLE = "catalogue_interaction_puzzles";
 
 function utcDate(now = new Date()): string {
   return now.toISOString().slice(0, 10);
@@ -44,7 +46,14 @@ async function findPuzzle(
   game: GameKey,
   date: string
 ): Promise<PuzzleRecord | null> {
-  return findGamePuzzle(env, game, date);
+  const { data, error } = await getDataClient(env)
+    .from(PUZZLE_TABLE)
+    .select("puzzle_id,game_key,puzzle_date,public_payload,answer_payload")
+    .eq("game_key", game)
+    .eq("puzzle_date", date)
+    .maybeSingle();
+  if (error) throw error;
+  return data as PuzzleRecord | null;
 }
 
 export async function resolveDailyPuzzle(
@@ -59,9 +68,21 @@ export async function resolveDailyPuzzle(
   const models = await fetchGameCatalogue(env);
   const built = buildPuzzle(game, models, await puzzleSeed(env, game, date));
   const puzzleId = crypto.randomUUID();
-  const created = await createGamePuzzle(env, { puzzle_id: puzzleId, game_key: game, puzzle_date: date, public_payload: built.public_payload, answer_payload: built.answer_payload });
-  if (created) return created;
-  const winner = await findPuzzle(env, game, date);
-  if (winner) return winner;
-  throw new Error("Puzzle could not be stored");
+  const { data, error } = await getDataClient(env)
+    .from(PUZZLE_TABLE)
+    .insert({
+      puzzle_id: puzzleId,
+      game_key: game,
+      puzzle_date: date,
+      public_payload: built.public_payload,
+      answer_payload: built.answer_payload,
+    })
+    .select("puzzle_id,game_key,puzzle_date,public_payload,answer_payload")
+    .single();
+  if (!error && data) return data as PuzzleRecord;
+  if (error?.code === "23505") {
+    const winner = await findPuzzle(env, game, date);
+    if (winner) return winner;
+  }
+  throw error ?? new Error("Puzzle could not be stored");
 }

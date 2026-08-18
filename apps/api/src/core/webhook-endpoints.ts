@@ -1,5 +1,4 @@
-import { getBindings } from "@/runtime/env";
-import { findWebhookEndpoint } from "@/repositories/webhook-endpoints";
+import { getBindings, getSupabaseAdmin } from "@/runtime/env";
 
 export type WebhookEndpointStatus = "active" | "disabled" | "deleted";
 
@@ -362,7 +361,13 @@ export async function getWebhookEndpointSigningConfig(args: {
 }): Promise<WebhookEndpointSigningConfig | null> {
 	const endpointId = normalizeText(args.endpointId);
 	if (!args.workspaceId || !endpointId) return null;
-	const data = await findWebhookEndpoint(args.workspaceId, endpointId);
+	const { data, error } = await getSupabaseAdmin()
+		.from("gateway_webhook_endpoints")
+		.select("id, workspace_id, url, status, events, secret_ciphertext, secret_iv, secret_key_version")
+		.eq("workspace_id", args.workspaceId)
+		.eq("id", endpointId)
+		.maybeSingle();
+	if (error) throw new Error(error.message ?? "Failed to load webhook endpoint");
 	if (!data || String((data as any).status ?? "") !== "active") return null;
 	const validatedUrl = await validateWebhookEndpointUrlForDelivery((data as any).url);
 	if (!validatedUrl.ok) return null;

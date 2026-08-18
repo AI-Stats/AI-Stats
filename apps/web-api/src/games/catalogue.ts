@@ -1,6 +1,6 @@
+import { getDataClient } from "@/data/supabase";
 import type { Env } from "@/env";
 import { fetchModelsPageCatalogue } from "@/models/page-catalogue";
-import { listGameCatalogueModels } from "./repository";
 import type { GameModel, ModelAccess } from "./types";
 
 type Row = Record<string, unknown>;
@@ -60,9 +60,26 @@ function relationRow(value: unknown): Row {
 }
 
 export async function fetchGameCatalogue(env: Env): Promise<GameModel[]> {
+  const client = getDataClient(env);
+  const canonicalModels = async () => {
+    const rows: Row[] = [];
+    for (let offset = 0; ; offset += 1_000) {
+      const result = await client
+        .from("v2_models")
+        .select(
+          "model_slug,name,lab_slug,family_slug,status,announced_at,released_at,license,input_modalities,output_modalities,metadata,lab:v2_labs!v2_models_lab_slug_fkey(lab_slug,name,country_code)"
+        )
+        .eq("hidden", false)
+        .range(offset, offset + 999);
+      if (result.error) throw result.error;
+      rows.push(...((result.data ?? []) as Row[]));
+      if ((result.data?.length ?? 0) < 1_000) break;
+    }
+    return rows;
+  };
   const [page, modelsResult] = await Promise.all([
     fetchModelsPageCatalogue(env),
-    listGameCatalogueModels(env),
+    canonicalModels(),
   ]);
 
   const pageById = new Map(page.models.map((row) => [text(row.model_id), row]));

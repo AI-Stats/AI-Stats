@@ -6,6 +6,8 @@ import { installFetchMock } from "../../../../tests/helpers/mock-fetch";
 import { setupRuntimeFromEnv, teardownTestRuntime } from "../../../../tests/helpers/runtime";
 import { executor } from "./index";
 
+vi.mock("@supabase/supabase-js", () => ({ createClient: () => ({}) }));
+
 beforeAll(() => setupRuntimeFromEnv({ OVH_AI_ENDPOINTS_ACCESS_TOKEN: "ovh-test-key" } as any));
 afterAll(teardownTestRuntime);
 

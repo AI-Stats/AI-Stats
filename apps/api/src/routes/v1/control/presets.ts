@@ -1,7 +1,6 @@
 import { Hono } from "hono";
 import type { Env } from "@/runtime/types";
-import { archivePreset, createPreset, findPreset, findWorkspacePublisherHandle, listPresets, presetConflict, publishPresetVersion, updatePreset } from "@/repositories/presets";
-import { findWorkspaceOwnerUserId } from "@/repositories/management";
+import { getSupabaseAdmin } from "@/runtime/env";
 import { guardManagementAuth, type GuardErr } from "@/pipeline/before/guards";
 import { json, withRuntime } from "@/routes/utils";
 import { CAPABILITIES } from "@/lib/authz/capabilities";
@@ -107,6 +106,48 @@ function formatPreset(row: PresetRow) {
 	};
 }
 
+async function publicPublisher(userId: string | null | undefined): Promise<string | null> {
+	if (!userId) return null;
+	const { data, error } = await getSupabaseAdmin().from("users").select("public_profile_enabled,public_profile_slug").eq("user_id", userId).maybeSingle();
+	if (error) throw new Error(error.message || "Failed to fetch public profile");
+	const slug = String(data?.public_profile_slug ?? "").trim().toLowerCase();
+	return data?.public_profile_enabled && slug ? slug : null;
+}
+
+async function findPreset(workspaceId: string, identifier: string): Promise<PresetRow | null> {
+	const supabase = getSupabaseAdmin();
+	const select = "id, workspace_id, name, slug, description, config, visibility, created_by, source_preset_id, created_at, updated_at, draft_name, draft_slug, draft_description, draft_config, draft_visibility, active_version_id, versioning_method";
+	const byId = await supabase
+		.from("presets")
+		.select(select)
+		.eq("workspace_id", workspaceId)
+		.eq("id", identifier)
+		.is("archived_at", null)
+		.maybeSingle();
+	if (byId.error) throw new Error(byId.error.message || "Failed to fetch preset");
+	if (byId.data) return byId.data as PresetRow;
+
+	const bySlug = await supabase
+		.from("presets")
+		.select(select)
+		.eq("workspace_id", workspaceId)
+		.eq("slug", identifier)
+		.is("archived_at", null)
+		.maybeSingle();
+	if (bySlug.error) throw new Error(bySlug.error.message || "Failed to fetch preset");
+	if (bySlug.data) return bySlug.data as PresetRow;
+
+	const byName = await supabase
+		.from("presets")
+		.select(select)
+		.eq("workspace_id", workspaceId)
+		.eq("name", normalizePresetName(identifier))
+		.is("archived_at", null)
+		.maybeSingle();
+	if (byName.error) throw new Error(byName.error.message || "Failed to fetch preset");
+	return (byName.data as PresetRow | null) ?? null;
+}
+
 async function handleListPresets(req: Request) {
 	const auth = await guardManagementAuth(req, { useKvCache: false });
 	if (!auth.ok) return (auth as GuardErr).response;
@@ -121,7 +162,20 @@ async function handleListPresets(req: Request) {
 	const visibility = url.searchParams.get("visibility")?.trim();
 
 	try {
-		const data = await listPresets({ workspaceId: auth.value.workspaceId, userId: auth.value.userId, visibility, limit, offset });
+		let query = getSupabaseAdmin()
+			.from("presets")
+			.select("id, workspace_id, name, slug, description, config, visibility, created_by, source_preset_id, created_at, updated_at, draft_name, draft_slug, draft_description, draft_config, draft_visibility, active_version_id, versioning_method")
+			.eq("workspace_id", auth.value.workspaceId)
+			.is("archived_at", null)
+			.order("created_at", { ascending: false })
+			.range(offset, offset + limit - 1);
+		query = auth.value.userId
+			? query.or(`visibility.neq.private,created_by.eq.${auth.value.userId}`)
+			: query.neq("visibility", "private");
+		if (visibility) query = query.eq("visibility", visibility);
+
+		const { data, error } = await query;
+		if (error) throw new Error(error.message || "Failed to list presets");
 		return json(
 			{
 				data: (data ?? []).map((row) => formatPreset(row as PresetRow)),
@@ -161,27 +215,43 @@ async function handleCreatePreset(req: Request) {
 
 	try {
 		const visibility = normalizeVisibility(body.visibility);
-		const publisher = visibility === "public" ? await findWorkspacePublisherHandle(auth.value.workspaceId) : null;
-		if (visibility === "public" && !publisher) return json({ error: "publisher_handle_required", message: "Configure a workspace publisher handle before publishing a preset" }, 409, { "Cache-Control": "no-store" });
-		if (await presetConflict({ workspaceId: auth.value.workspaceId, field: "slug", value: slug })) return json({ error: "conflict", message: `Preset slug "${slug}" already exists in this workspace` }, 409, { "Cache-Control": "no-store" });
-		if (await presetConflict({ workspaceId: auth.value.workspaceId, field: "name", value: name })) {
+		const publisher = visibility === "public" ? await publicPublisher(auth.value.userId) : null;
+		if (visibility === "public" && !publisher) return json({ error: "public_profile_required", message: "Enable a public profile and choose a username before publishing a preset" }, 409, { "Cache-Control": "no-store" });
+		const slugQuery = getSupabaseAdmin().from("presets").select("id").eq("workspace_id", auth.value.workspaceId).eq("slug", slug);
+		const { data: slugDuplicate, error: slugError } = await slugQuery.maybeSingle();
+		if (slugError) throw new Error(slugError.message || "Failed to check preset slug");
+		if (slugDuplicate) return json({ error: "conflict", message: `Preset slug "${slug}" already exists in this workspace` }, 409, { "Cache-Control": "no-store" });
+		if (visibility === "public") {
+			const { data: publicDuplicate, error: publicError } = await getSupabaseAdmin().from("presets").select("id").eq("visibility", "public").eq("created_by", auth.value.userId).eq("slug", slug).maybeSingle();
+			if (publicError) throw new Error(publicError.message || "Failed to check public preset slug");
+			if (publicDuplicate) return json({ error: "public_slug_conflict", message: `Public preset slug "${slug}" is already in use` }, 409, { "Cache-Control": "no-store" });
+		}
+		const { data: duplicate, error: duplicateError } = await getSupabaseAdmin()
+			.from("presets")
+			.select("id")
+			.eq("workspace_id", auth.value.workspaceId)
+			.eq("name", name)
+			.maybeSingle();
+		if (duplicateError) throw new Error(duplicateError.message || "Failed to check preset name");
+		if (duplicate) {
 			return json({ error: "conflict", message: `Preset "${name}" already exists in this workspace` }, 409, { "Cache-Control": "no-store" });
 		}
-		const createdBy = auth.value.userId ?? await findWorkspaceOwnerUserId(auth.value.workspaceId);
-		if (!createdBy) throw new Error("Workspace owner not found");
-		const config = normalizeConfig(body.config);
-		const versioningMethod = ["sequential", "semver", "date"].includes(String(body.versioning_method)) ? String(body.versioning_method) : "sequential";
-		const data = await createPreset({
-				workspaceId: auth.value.workspaceId,
+
+		const { data, error } = await getSupabaseAdmin()
+			.from("presets")
+			.insert({
+				workspace_id: auth.value.workspaceId,
 				name,
 				slug,
 				description,
-				config,
+				config: normalizeConfig(body.config),
 				visibility,
-				createdBy,
-				versioningMethod,
-				draftName: name, draftSlug: slug, draftDescription: description, draftConfig: config, draftVisibility: visibility,
-			});
+				created_by: auth.value.userId ?? null,
+				versioning_method: ["sequential", "semver", "date"].includes(String(body.versioning_method)) ? body.versioning_method : "sequential",
+			})
+			.select("id, workspace_id, name, slug, description, config, visibility, created_by, source_preset_id, created_at, updated_at, draft_name, draft_slug, draft_description, draft_config, draft_visibility, active_version_id, versioning_method")
+			.maybeSingle();
+		if (error) throw new Error(error.message || "Failed to create preset");
 		return json({ data: formatPreset(data as PresetRow), canonical_model: visibility === "public" ? `@${publisher}/${slug}` : `@${slug}` }, 201, { "Cache-Control": "no-store" });
 	} catch (error: any) {
 		return internalServerError("presets.create", error);
@@ -232,12 +302,20 @@ async function handleUpdatePreset(req: Request) {
 		const existing = await findPreset(auth.value.workspaceId, identifier);
 		if (!existing) return json({ error: "not_found", message: "Preset not found" }, 404, { "Cache-Control": "no-store" });
 
-		const updatePayload: Record<string, unknown> = {};
+		const updatePayload: Record<string, unknown> = { updated_at: new Date().toISOString() };
 		if (typeof body.name === "string") {
 			const name = normalizePresetName(body.name);
 			const nameError = validatePresetName(name);
 			if (nameError) return json({ error: "bad_request", message: nameError }, 400, { "Cache-Control": "no-store" });
-			if (await presetConflict({ workspaceId: auth.value.workspaceId, field: "name", value: name, excludeId: existing.id })) {
+			const { data: duplicate, error: duplicateError } = await getSupabaseAdmin()
+				.from("presets")
+				.select("id")
+				.eq("workspace_id", auth.value.workspaceId)
+				.eq("name", name)
+				.neq("id", existing.id)
+				.maybeSingle();
+			if (duplicateError) throw new Error(duplicateError.message || "Failed to check preset name");
+			if (duplicate) {
 				return json({ error: "conflict", message: `Preset "${name}" already exists in this workspace` }, 409, { "Cache-Control": "no-store" });
 			}
 			updatePayload.draft_name = name;
@@ -253,15 +331,24 @@ async function handleUpdatePreset(req: Request) {
 		if (["sequential", "semver", "date"].includes(String(body.versioning_method))) updatePayload.versioning_method = body.versioning_method;
 		const nextSlug = String(updatePayload.draft_slug ?? existing.draft_slug ?? existing.slug ?? "");
 		const nextVisibility = String(updatePayload.draft_visibility ?? existing.draft_visibility ?? existing.visibility ?? "team");
-		const publisher = nextVisibility === "public" ? await findWorkspacePublisherHandle(auth.value.workspaceId) : null;
-		if (nextVisibility === "public" && !publisher) return json({ error: "publisher_handle_required", message: "Configure a workspace publisher handle before publishing a preset" }, 409, { "Cache-Control": "no-store" });
-		if (await presetConflict({ workspaceId: auth.value.workspaceId, field: "slug", value: nextSlug, excludeId: existing.id })) return json({ error: "conflict", message: `Preset slug "${nextSlug}" already exists in this workspace` }, 409, { "Cache-Control": "no-store" });
-		const updated = await updatePreset(auth.value.workspaceId, existing.id, {
-			draftName: updatePayload.draft_name as string | undefined, draftSlug: updatePayload.draft_slug as string | undefined,
-			draftDescription: updatePayload.draft_description as string | null | undefined, draftConfig: updatePayload.draft_config as Record<string, unknown> | undefined,
-			draftVisibility: updatePayload.draft_visibility as string | undefined, versioningMethod: updatePayload.versioning_method as string | undefined,
-		});
-		if (!updated) throw new Error("Failed to update preset");
+		const publisher = nextVisibility === "public" ? await publicPublisher(existing.created_by) : null;
+		if (nextVisibility === "public" && !publisher) return json({ error: "public_profile_required", message: "Enable a public profile and choose a username before publishing a preset" }, 409, { "Cache-Control": "no-store" });
+		const { data: slugDuplicate, error: slugError } = await getSupabaseAdmin().from("presets").select("id").eq("workspace_id", auth.value.workspaceId).eq("slug", nextSlug).neq("id", existing.id).maybeSingle();
+		if (slugError) throw new Error(slugError.message || "Failed to check preset slug");
+		if (slugDuplicate) return json({ error: "conflict", message: `Preset slug "${nextSlug}" already exists in this workspace` }, 409, { "Cache-Control": "no-store" });
+		if (nextVisibility === "public") {
+			const { data: publicDuplicate, error: publicError } = await getSupabaseAdmin().from("presets").select("id").eq("visibility", "public").eq("created_by", existing.created_by).eq("slug", nextSlug).neq("id", existing.id).maybeSingle();
+			if (publicError) throw new Error(publicError.message || "Failed to check public preset slug");
+			if (publicDuplicate) return json({ error: "public_slug_conflict", message: `Public preset slug "${nextSlug}" is already in use` }, 409, { "Cache-Control": "no-store" });
+		}
+
+		const { error } = await getSupabaseAdmin()
+			.from("presets")
+			.update(updatePayload)
+			.eq("workspace_id", auth.value.workspaceId)
+			.eq("id", existing.id);
+		if (error) throw new Error(error.message || "Failed to update preset");
+		const updated = await findPreset(auth.value.workspaceId, existing.id);
 		return json({ data: formatPreset(updated as PresetRow) }, 200, { "Cache-Control": "no-store" });
 	} catch (error: any) {
 		return internalServerError("presets.update", error);
@@ -282,7 +369,12 @@ async function handleDeletePreset(req: Request) {
 	try {
 		const existing = await findPreset(auth.value.workspaceId, identifier);
 		if (!existing) return json({ error: "not_found", message: "Preset not found" }, 404, { "Cache-Control": "no-store" });
-		if (!await archivePreset(auth.value.workspaceId, existing.id)) throw new Error("Failed to delete preset");
+		const { error } = await getSupabaseAdmin()
+			.from("presets")
+			.update({ archived_at: new Date().toISOString() })
+			.eq("workspace_id", auth.value.workspaceId)
+			.eq("id", existing.id);
+		if (error) throw new Error(error.message || "Failed to delete preset");
 		return json({ deleted: true }, 200, { "Cache-Control": "no-store" });
 	} catch (error: any) {
 		return internalServerError("presets.delete", error);
@@ -300,15 +392,16 @@ async function handlePublishPresetVersion(req: Request) {
 	const body = await req.json().catch(() => ({})) as { release_notes?: string; version_label?: string };
 	try {
 		const preset = await findPreset(auth.value.workspaceId, presetId); if (!preset) return json({ error: "not_found" }, 404, { "Cache-Control": "no-store" });
-		const result = await publishPresetVersion({ workspaceId: auth.value.workspaceId, presetId: preset.id, actorUserId: auth.value.userId, notes: String(body.release_notes ?? "").slice(0, 1000), requestedLabel: body.version_label ? String(body.version_label).slice(0, 100) : null });
-		return json({ data: result }, 201, { "Cache-Control": "no-store" });
-	} catch (error: any) {
-		const message = String(error?.message ?? error);
-		if (message.includes("invalid_semver_label")) return json({ error: "invalid_semver_label" }, 400, { "Cache-Control": "no-store" });
-		if (message.includes("preset_not_found")) return json({ error: "not_found" }, 404, { "Cache-Control": "no-store" });
-		if (message.includes("preset_publish_forbidden")) return json({ error: "forbidden" }, 403, { "Cache-Control": "no-store" });
-		return internalServerError("presets.publish-version", error);
-	}
+		const result = await getSupabaseAdmin().rpc("publish_preset_version", { target_preset_id: preset.id, actor_user_id: auth.value.userId, notes: String(body.release_notes ?? "").slice(0, 1000), requested_label: body.version_label ? String(body.version_label).slice(0, 100) : null });
+		if (result.error) {
+			const message = result.error.message ?? "";
+			if (message.includes("invalid_semver_label")) return json({ error: "invalid_semver_label" }, 400, { "Cache-Control": "no-store" });
+			if (message.includes("preset_not_found")) return json({ error: "not_found" }, 404, { "Cache-Control": "no-store" });
+			if (message.includes("preset_publish_forbidden")) return json({ error: "forbidden" }, 403, { "Cache-Control": "no-store" });
+			throw new Error(message || "Failed to publish preset version");
+		}
+		return json({ data: Array.isArray(result.data) ? result.data[0] : result.data }, 201, { "Cache-Control": "no-store" });
+	} catch (error: any) { return internalServerError("presets.publish-version", error); }
 }
 
 export const presetsRoutes = new Hono<Env>();

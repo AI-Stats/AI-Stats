@@ -846,9 +846,6 @@ export default function RequestDetailDialog({
 	const attempts = Array.isArray(request.provider_attempts)
 		? request.provider_attempts
 		: [];
-	const pricingLines = Array.isArray(request.pricing_lines)
-		? request.pricing_lines
-		: [];
 	const finalSuccessAttempt = [...attempts]
 		.reverse()
 		.find(
@@ -2664,10 +2661,10 @@ export default function RequestDetailDialog({
 							<DetailRows items={technicalDetailItems} />
 						</GenerationSection>
 
-						{pricingLines.length > 0 ? (
+						{request.pricing_lines.length > 0 ? (
 							<GenerationSection title="Pricing">
 								<div className="space-y-2">
-									{pricingLines.map((line, index) => (
+									{request.pricing_lines.map((line, index) => (
 										<div
 											key={`request-pricing-line-${index}`}
 											className="rounded-lg border border-border/60 bg-muted/30 px-3 py-2"

@@ -4,6 +4,7 @@ const getBindingsMock = vi.fn();
 
 vi.mock("@/runtime/env", () => ({
 	getBindings: () => getBindingsMock(),
+	getSupabaseAdmin: vi.fn(),
 }));
 
 import { isTestingModeRequested, resolveTestingMode } from "./testingMode";

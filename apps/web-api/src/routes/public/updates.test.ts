@@ -1,16 +1,13 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-vi.mock("@/repositories/updates", () => ({ listModelEventRows: vi.fn(async () => [{
-	model_id: "openai/gpt-test", name: "GPT Test", organisation_id: "openai",
-	announcement_date: "2020-01-01", release_date: "2020-02-01", deprecation_date: "2099-01-01", retirement_date: null,
-	organisation: { organisation_id: "openai", name: "OpenAI" },
-}]) }));
 import app from "@/index";
 
 const env = {
 	ENV: "development" as const,
+	SUPABASE_URL: "https://example.supabase.co",
+	SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
 };
 
-afterEach(() => vi.clearAllMocks());
+afterEach(() => vi.unstubAllGlobals());
 
 describe("public update routes", () => {
 	it.each([
@@ -24,6 +21,17 @@ describe("public update routes", () => {
 	});
 
 	it("returns model cards, split events, and organisation release events", async () => {
+		vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify([{
+			model_slug: "openai/gpt-test",
+			name: "GPT Test",
+			lab_slug: "openai",
+			announced_at: "2020-01-01",
+			released_at: "2020-02-01",
+			deprecated_at: "2099-01-01",
+			retired_at: null,
+			lab: { lab_slug: "openai", name: "OpenAI" },
+		}]), { status: 200 })));
+
 		const [cards, split, releases] = await Promise.all([
 			app.request("https://phaseo.app/api/_web/updates/models/cards?limit=5", {}, env),
 			app.request("https://phaseo.app/api/_web/updates/models?limit=5&upcoming_limit=5", {}, env),

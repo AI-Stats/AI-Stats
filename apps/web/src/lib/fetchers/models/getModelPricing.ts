@@ -1,4 +1,5 @@
 import { fetchPublicWebApi } from "@/lib/web-api/client";
+import { fetchAdminModelSource } from "@/lib/fetchers/internal/fetchAdminModelSource";
 import { normalizeQuantizationScheme } from "@/lib/quantization";
 
 /** mirrors new rules schema */
@@ -236,8 +237,10 @@ function isMissingProviderModelColumnError(error: unknown): boolean {
     const mentionsRoutingStatusColumn = text.includes("routing_status");
 
     if (!mentionsTargetColumn && !mentionsRoutingStatusColumn) return false;
-    if (code === "42703") return true;
+    if (code === "PGRST204" || code === "42703") return true;
     if (text.includes("does not exist")) return true;
+    if (text.includes("could not find") && text.includes("column")) return true;
+    if (text.includes("schema cache")) return true;
 
     return false;
 }
@@ -253,7 +256,6 @@ export default async function getModelPricing(
 		)).providers;
 	}
     // console.log(`[getModelPricing] Starting for modelId: ${modelId}`);
-	const { fetchAdminModelSource } = await import("@/lib/fetchers/internal/fetchAdminModelSource");
 	const publicPayload = await fetchAdminModelSource(modelId).then((source) => ({
             provider_rows: source.providerRows,
             pricing_rules: source.pricingRules,

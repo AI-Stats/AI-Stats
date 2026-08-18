@@ -1,16 +1,21 @@
 import type { CLIOptions, Combo } from "./pricing-simulator-types";
-import { selectImportRows } from "@phaseo/db/import-service";
+import { getSupabaseAdmin } from "../../src/runtime/env";
 
 export async function loadCombos(options: CLIOptions): Promise<Combo[]> {
-	const providerModelRows = await selectImportRows({
-		table: "v2_model_provider_routes",
-		columns: "provider_model_id,provider_slug,model_slug,routing_enabled,effective_from,effective_to",
-	});
+    const supabase = getSupabaseAdmin();
+    let query = supabase
+        .from("v2_model_provider_routes")
+        .select("provider_model_id, provider_slug, model_slug, routing_enabled, effective_from, effective_to");
 
-    const providerModels = providerModelRows
-		.filter((row) => !options.provider?.length || options.provider.includes(String(row.provider_slug)))
-		.filter((row) => !options.model?.length || options.model.includes(String(row.model_slug)))
-		.map((row) => ({
+    if (options.provider?.length) query = query.in("provider_slug", options.provider);
+    if (options.model?.length) query = query.in("model_slug", options.model);
+
+    const { data: providerModelRows, error } = await query;
+    if (error) {
+        throw new Error(`Failed to load provider models: ${error.message}`);
+    }
+
+    const providerModels = (providerModelRows ?? []).map((row) => ({
         provider_api_model_id: row.provider_model_id,
         provider_id: row.provider_slug,
         api_model_id: row.model_slug,
@@ -23,12 +28,16 @@ export async function loadCombos(options: CLIOptions): Promise<Combo[]> {
         .filter((id): id is string => Boolean(id));
     if (!providerModelIds.length) return [];
 
-	const capabilities = await selectImportRows({
-		table: "v2_route_capabilities",
-		columns: "provider_model_id,capability_id",
-		filters: options.endpoint ? [{ column: "capability_id", value: options.endpoint }] : [],
-		inFilter: { column: "provider_model_id", values: providerModelIds },
-	});
+    let capQuery = supabase
+        .from("v2_route_capabilities")
+        .select("provider_model_id, capability_id")
+        .in("provider_model_id", providerModelIds);
+    if (options.endpoint) capQuery = capQuery.eq("capability_id", options.endpoint);
+
+    const { data: capabilities, error: capError } = await capQuery;
+    if (capError) {
+        throw new Error(`Failed to load provider capabilities: ${capError.message}`);
+    }
 
     const providerById = new Map<string, any>();
     for (const row of providerModels ?? []) {

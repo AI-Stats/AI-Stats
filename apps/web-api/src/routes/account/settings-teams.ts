@@ -1,8 +1,8 @@
 import { Hono } from "hono";
 import { requireUser } from "@/auth/requireUser";
+import { getAuthenticatedDataClient, getDataClient } from "@/data/supabase";
 import type { Env } from "@/env";
 import { PRIVATE_NO_STORE_HEADERS } from "@/http/cache";
-import { acceptWorkspaceInvite, canCreateWorkspace, createWorkspace, createWorkspaceInvite, decideWorkspaceJoinRequest, deleteWorkspaceInvite, findWorkspaceInvite, getMemberRole, getTeamsDashboard, getWorkspaceSso, removeWorkspace, removeWorkspaceMember, renameWorkspace, saveWorkspaceSso, setWorkspaceMemberRole } from "@/repositories/teams";
 import { requireAccountWorkspace } from "./context";
 
 const emptyTeams = {
@@ -118,20 +118,41 @@ export const accountSettingsTeamsRouter = new Hono<{ Bindings: Env }>();
 accountSettingsTeamsRouter.get("/teams", async (c) => {
 	const user = await requireUser(c.req.raw, c.env);
 	if (!user) return c.json(emptyTeams, 200, PRIVATE_NO_STORE_HEADERS);
-	let data; try { data = await getTeamsDashboard(c.env, String(user.id)); } catch { return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
-	const membershipRows = data.memberships;
-	const ownedIds = data.owned.map((row) => String(row.id ?? "").trim()).filter(Boolean);
+	const client = getDataClient(c.env);
+	const [userResult, membershipsResult, ownedResult] = await Promise.all([
+		client.from("users").select("default_workspace_id,role").eq("user_id", user.id).maybeSingle(),
+		client.from("workspace_members").select("workspace_id,role").eq("user_id", user.id),
+		client.from("workspaces").select("id").eq("owner_user_id", user.id),
+	]);
+	if (userResult.error || membershipsResult.error || ownedResult.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	const membershipRows = membershipsResult.data ?? [];
+	const ownedIds = (ownedResult.data ?? []).map((row) => String(row.id ?? "").trim()).filter(Boolean);
 	const accessibleIds = Array.from(new Set([
-		...membershipRows.map((row) => String(row.workspaceId ?? "").trim()).filter(Boolean),
+		...membershipRows.map((row) => String(row.workspace_id ?? "").trim()).filter(Boolean),
 		...ownedIds,
 	]));
-	const defaultWorkspaceId = String(data.profile?.defaultWorkspaceId ?? "").trim() || null;
+	const defaultWorkspaceId = String(userResult.data?.default_workspace_id ?? "").trim() || null;
 	if (!accessibleIds.length) return c.json({ ...emptyTeams, currentUserId: user.id, personalTeamId: defaultWorkspaceId }, 200, PRIVATE_NO_STORE_HEADERS);
-	const teams = data.teams.map((row) => ({ id: String(row.id), name: String(row.name), publisherHandle: String(row.publisherHandle ?? "").trim() || null })).filter((row) => row.id && row.name);
+	const sevenDaysAgo = new Date(Date.now() - 7 * 86_400_000).toISOString();
+	const [teamsResult, membersResult, invitesResult, requestsResult, walletsResult, ssoResult] = await Promise.all([
+		client.from("workspaces").select("id,name,publisher_handle").in("id", accessibleIds),
+		client.from("workspace_members").select("workspace_id,user_id,role").in("workspace_id", accessibleIds),
+		client.from("workspace_invites").select("*,users(display_name)").in("workspace_id", accessibleIds).or(`expires_at.is.null,expires_at.gte.${sevenDaysAgo}`),
+		client.from("workspace_join_requests").select("id,workspace_id,requester_user_id,status,created_at,decided_at,teams:workspaces(name),requester:users!workspace_join_requests_requester_user_id_fkey(user_id,display_name),decider:users!workspace_join_requests_decided_by_fkey(user_id,display_name)").in("workspace_id", accessibleIds).or(`decided_at.is.null,decided_at.gte.${sevenDaysAgo}`),
+		client.from("wallets").select("workspace_id,balance_nanos").in("workspace_id", accessibleIds),
+		client.from("workspace_settings").select("workspace_id,sso_enabled,sso_enforced,sso_mode,sso_provider_identifier,sso_domains").in("workspace_id", accessibleIds),
+	]);
+	if ([teamsResult, membersResult, invitesResult, requestsResult, walletsResult, ssoResult].some((result) => result.error)) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	const teams = (teamsResult.data ?? []).map((row) => ({ id: String(row.id), name: String(row.name), publisherHandle: String(row.publisher_handle ?? "").trim() || null })).filter((row) => row.id && row.name);
+	const memberRows = membersResult.data ?? [];
+	const memberIds = Array.from(new Set(memberRows.map((row) => String(row.user_id ?? "")).filter(Boolean)));
+	const usersResult = memberIds.length ? await client.from("users").select("user_id,display_name").in("user_id", memberIds) : { data: [], error: null };
+	if (usersResult.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	const names = new Map((usersResult.data ?? []).map((row) => [row.user_id, row.display_name ?? null]));
 	const membersByTeam: Record<string, unknown[]> = {};
-	for (const row of data.members) {
-		const workspaceId = String(row.workspaceId); if (!workspaceId) continue;
-		(membersByTeam[workspaceId] ||= []).push({ workspace_id: workspaceId, user_id: row.userId, role: row.role, display_name: row.displayName ?? null });
+	for (const row of memberRows) {
+		if (!row.workspace_id) continue;
+		(membersByTeam[row.workspace_id] ||= []).push({ ...row, display_name: names.get(row.user_id) ?? null });
 	}
 	const group = (rows: Array<Record<string, unknown>>) => {
 		const grouped: Record<string, unknown[]> = {};
@@ -145,17 +166,16 @@ accountSettingsTeamsRouter.get("/teams", async (c) => {
 	const active = c.req.query("workspaceId")?.trim();
 	const initialTeamId = [preferred, active, defaultWorkspaceId, teams[0]?.id].find((id) => Boolean(id && accessibleIds.includes(id))) ?? null;
 	const manageable = new Set(ownedIds);
-	for (const row of membershipRows) if (row.workspaceId && ["owner", "admin"].includes(String(row.role ?? "").toLowerCase())) manageable.add(String(row.workspaceId));
+	for (const row of membershipRows) if (row.workspace_id && ["owner", "admin"].includes(String(row.role ?? "").toLowerCase())) manageable.add(row.workspace_id);
 	const walletBalances: Record<string, number> = {};
-	for (const row of data.balances) if (row.workspaceId) walletBalances[String(row.workspaceId)] = Number((Number(row.balanceNanos ?? 0) / 1_000_000_000).toFixed(2));
+	for (const row of walletsResult.data ?? []) if (row.workspace_id) walletBalances[row.workspace_id] = Number((Number(row.balance_nanos ?? 0) / 1_000_000_000).toFixed(2));
 	const teamSsoSettingsByTeam: Record<string, unknown> = {};
-	for (const row of data.settings) if (row.workspaceId) teamSsoSettingsByTeam[String(row.workspaceId)] = { sso_enabled: Boolean(row.ssoEnabled), sso_enforced: Boolean(row.ssoEnforced), sso_mode: String(row.ssoMode ?? "none"), sso_provider_identifier: row.ssoProviderIdentifier ?? null, sso_domains: Array.isArray(row.ssoDomains) ? row.ssoDomains : [] };
-	const inviteRows = data.invites.map(({ invite, creatorDisplayName }) => ({ ...invite, workspace_id: invite.workspaceId, creator_user_id: invite.creatorUserId, expires_at: invite.expiresAt, max_uses: invite.maxUses, uses_count: invite.usesCount, token_preview: invite.tokenPreview, users: { display_name: creatorDisplayName } }));
+	for (const row of ssoResult.data ?? []) if (row.workspace_id) teamSsoSettingsByTeam[row.workspace_id] = { sso_enabled: Boolean(row.sso_enabled), sso_enforced: Boolean(row.sso_enforced), sso_mode: String(row.sso_mode ?? "none"), sso_provider_identifier: row.sso_provider_identifier ?? null, sso_domains: Array.isArray(row.sso_domains) ? row.sso_domains : [] };
 	return c.json({
 		teams,
 		membersByTeam,
-		invitesByTeam: group(inviteRows as unknown as Array<Record<string, unknown>>),
-		requestsByTeam: group(data.requests as Array<Record<string, unknown>>),
+		invitesByTeam: group((invitesResult.data ?? []) as unknown as Array<Record<string, unknown>>),
+		requestsByTeam: group((requestsResult.data ?? []) as unknown as Array<Record<string, unknown>>),
 		initialTeamId,
 		currentUserId: user.id,
 		personalTeamId: defaultWorkspaceId,
@@ -171,10 +191,27 @@ accountSettingsTeamsRouter.post("/teams", async (c) => {
 	const body: { name?: string } = await c.req.json<{ name?: string }>().catch(() => ({}));
 	const name = String(body.name ?? "").trim();
 	if (!name) return c.json({ error: "invalid_name" }, 400, PRIVATE_NO_STORE_HEADERS);
-	if (!await canCreateWorkspace(c.env, String(user.id))) return c.json({ error: "paid_workspace_required" }, 403, PRIVATE_NO_STORE_HEADERS);
+	const client = getDataClient(c.env);
+	const memberships = await client.from("workspace_members").select("workspace_id,role").eq("user_id", user.id);
+	if (memberships.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	const adminIds = Array.from(new Set((memberships.data ?? []).filter((row) => ["owner", "admin"].includes(String(row.role ?? "").toLowerCase())).map((row) => row.workspace_id).filter(Boolean)));
+	if (!adminIds.length) return c.json({ error: "paid_workspace_required" }, 403, PRIVATE_NO_STORE_HEADERS);
+	const [topUps, enterprise] = await Promise.all([
+		client.from("credit_ledger").select("id", { count: "exact", head: true }).in("workspace_id", adminIds).in("kind", ["top_up", "top_up_one_off", "auto_top_up"]).in("status", ["Succeeded", "succeeded", "paid", "Paid"]).gt("amount_nanos", 0),
+		client.from("workspaces").select("id", { count: "exact", head: true }).in("id", adminIds).eq("tier", "enterprise"),
+	]);
+	if ([topUps, enterprise].some((result) => result.error)) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	if (![topUps.count, enterprise.count].some((count) => (count ?? 0) > 0)) return c.json({ error: "paid_workspace_required" }, 403, PRIVATE_NO_STORE_HEADERS);
 	const slugBase = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 42) || "workspace";
 	const slug = `${slugBase}-${crypto.randomUUID().replace(/-/g, "").slice(0, 8)}`.slice(0, 50);
-	let workspaceId; try { workspaceId = await createWorkspace(c.env, { userId: String(user.id), name, slug }); } catch { return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
+	const created = await client.from("workspaces").insert({ name, slug, owner_user_id: user.id }).select("id").maybeSingle();
+	if (created.error || !created.data?.id) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	const workspaceId = created.data.id;
+	const [member, wallet] = await Promise.all([
+		client.from("workspace_members").upsert({ workspace_id: workspaceId, user_id: user.id, role: "owner" }, { onConflict: "workspace_id,user_id", ignoreDuplicates: true }),
+		client.from("wallets").upsert({ workspace_id: workspaceId }, { onConflict: "workspace_id", ignoreDuplicates: true }),
+	]);
+	if (member.error || wallet.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	c.executionCtx.waitUntil(upsertLinearCustomer(c.env, { workspaceId, name }).catch((error) => console.error("[web-api/teams] Linear upsert failed", error)));
 	return c.json({ id: workspaceId }, 200, PRIVATE_NO_STORE_HEADERS);
 });
@@ -182,8 +219,10 @@ accountSettingsTeamsRouter.post("/teams", async (c) => {
 accountSettingsTeamsRouter.get("/teams/:workspaceId/sso", async (c) => {
 	const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId: c.req.param("workspaceId") });
 	if (!context || !["owner", "admin"].includes(context.role.toLowerCase())) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
-	try { const row = await getWorkspaceSso(c.env, context.workspaceId); return c.json({ sso_enabled: Boolean(row?.ssoEnabled), sso_enforced: Boolean(row?.ssoEnforced), sso_mode: String(row?.ssoMode ?? "none"), sso_provider_identifier: row?.ssoProviderIdentifier ?? null, sso_domains: Array.isArray(row?.ssoDomains) ? row.ssoDomains : [] }, 200, PRIVATE_NO_STORE_HEADERS); }
-	catch { return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
+	const result = await context.client.from("workspace_settings").select("sso_enabled,sso_enforced,sso_mode,sso_provider_identifier,sso_domains").eq("workspace_id", context.workspaceId).maybeSingle();
+	if (result.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	const row = result.data;
+	return c.json({ sso_enabled: Boolean(row?.sso_enabled), sso_enforced: Boolean(row?.sso_enforced), sso_mode: String(row?.sso_mode ?? "none"), sso_provider_identifier: row?.sso_provider_identifier ?? null, sso_domains: Array.isArray(row?.sso_domains) ? row.sso_domains : [] }, 200, PRIVATE_NO_STORE_HEADERS);
 });
 
 accountSettingsTeamsRouter.put("/teams/:workspaceId", async (c) => {
@@ -191,21 +230,36 @@ accountSettingsTeamsRouter.put("/teams/:workspaceId", async (c) => {
 	if (!user) return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
 	const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId: c.req.param("workspaceId") });
 	if (!context || !["owner", "admin"].includes(context.role.toLowerCase())) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
+	const userRow = await context.client.from("users").select("default_workspace_id").eq("user_id", user.id).maybeSingle();
+	if (userRow.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	if (userRow.data?.default_workspace_id === context.workspaceId) return c.json({ error: "personal_workspace" }, 409, PRIVATE_NO_STORE_HEADERS);
 	const body: { name?: string } = await c.req.json<{ name?: string }>().catch(() => ({}));
 	const name = String(body.name ?? "").trim();
 	if (!name) return c.json({ error: "invalid_name" }, 400, PRIVATE_NO_STORE_HEADERS);
-	try { if (await renameWorkspace(c.env, context.workspaceId, String(user.id), name) === "personal") return c.json({ error: "personal_workspace" }, 409, PRIVATE_NO_STORE_HEADERS); return c.json({ id: context.workspaceId }, 200, PRIVATE_NO_STORE_HEADERS); }
-	catch { return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
+	const result = await context.client.from("workspaces").update({ name }).eq("id", context.workspaceId).select("id").maybeSingle();
+	if (result.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	return c.json({ id: result.data?.id ?? context.workspaceId }, 200, PRIVATE_NO_STORE_HEADERS);
 });
 
 accountSettingsTeamsRouter.delete("/teams/:workspaceId", async (c) => {
 	const user = await requireUser(c.req.raw, c.env);
 	if (!user) return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
 	const workspaceId = c.req.param("workspaceId");
-	let result; try { result = await removeWorkspace(c.env, workspaceId, String(user.id)); } catch { return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
-	if (result === "personal") return c.json({ error: "personal_workspace" }, 409, PRIVATE_NO_STORE_HEADERS);
-	if (result === "not_found") return c.json({ error: "not_found" }, 404, PRIVATE_NO_STORE_HEADERS);
-	if (result === "owner_required") return c.json({ error: "owner_required" }, 403, PRIVATE_NO_STORE_HEADERS);
+	const client = getDataClient(c.env);
+	const [userRow, workspace] = await Promise.all([
+		client.from("users").select("default_workspace_id").eq("user_id", user.id).maybeSingle(),
+		client.from("workspaces").select("owner_user_id").eq("id", workspaceId).maybeSingle(),
+	]);
+	if (userRow.error || workspace.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	if (userRow.data?.default_workspace_id === workspaceId) return c.json({ error: "personal_workspace" }, 409, PRIVATE_NO_STORE_HEADERS);
+	if (!workspace.data) return c.json({ error: "not_found" }, 404, PRIVATE_NO_STORE_HEADERS);
+	if (workspace.data.owner_user_id !== user.id) return c.json({ error: "owner_required" }, 403, PRIVATE_NO_STORE_HEADERS);
+	for (const table of ["workspace_members", "workspace_invites", "workspace_join_requests"] as const) {
+		const result = await client.from(table).delete().eq("workspace_id", workspaceId);
+		if (result.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	}
+	const removed = await client.from("workspaces").delete().eq("id", workspaceId);
+	if (removed.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	return c.json({ success: true }, 200, PRIVATE_NO_STORE_HEADERS);
 });
 
@@ -219,8 +273,9 @@ accountSettingsTeamsRouter.post("/teams/:workspaceId/invites", async (c) => {
 	const role = ["admin", "member"].includes(String(body.role).toLowerCase()) ? String(body.role).toLowerCase() : "member";
 	if (token.length < 6) return c.json({ error: "invalid_token" }, 400, PRIVATE_NO_STORE_HEADERS);
 	try {
-		const result = await createWorkspaceInvite(c.env, { workspaceId: context.workspaceId, creatorUserId: String(user.id), role: role as "admin" | "member", tokenEncrypted: await encryptInviteToken(c.env, token), tokenFingerprint: await inviteFingerprint(c.env, token), tokenPreview: token.length >= 4 ? `${token.slice(0, 2)}...${token.slice(-2)}` : token, expiresAt: new Date(Date.now() + Math.max(1, Number(body.expiresInDays) || 7) * 86_400_000).toISOString(), maxUses: typeof body.maxUses === "number" ? Math.max(0, Math.floor(body.maxUses)) : null, keyVersion: 1 });
-		return c.json({ id: result?.id, token }, 200, PRIVATE_NO_STORE_HEADERS);
+		const result = await context.client.from("workspace_invites").insert({ workspace_id: context.workspaceId, creator_user_id: user.id, role, token_encrypted: await encryptInviteToken(c.env, token), token_fingerprint: await inviteFingerprint(c.env, token), token_preview: token.length >= 4 ? `${token.slice(0, 2)}...${token.slice(-2)}` : token, expires_at: new Date(Date.now() + Math.max(1, Number(body.expiresInDays) || 7) * 86_400_000).toISOString(), max_uses: typeof body.maxUses === "number" ? Math.max(0, Math.floor(body.maxUses)) : null, key_version: 1 }).select("id").maybeSingle();
+		if (result.error) throw result.error;
+		return c.json({ id: result.data?.id, token }, 200, PRIVATE_NO_STORE_HEADERS);
 	} catch (error) {
 		console.error("[web-api/teams] create invite failed", error);
 		return c.json({ error: "invite_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
@@ -230,26 +285,33 @@ accountSettingsTeamsRouter.post("/teams/:workspaceId/invites", async (c) => {
 accountSettingsTeamsRouter.get("/teams/invites/:inviteId/reveal", async (c) => {
 	const user = await requireUser(c.req.raw, c.env);
 	if (!user) return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
-	let invite; try { invite = await findWorkspaceInvite(c.env, c.req.param("inviteId")); } catch { return c.json({ error: "invite_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
-	if (!invite) return c.json({ error: "not_found" }, 404, PRIVATE_NO_STORE_HEADERS);
-	let role; try { role = await getMemberRole(c.env, String(invite.workspaceId), String(user.id)); } catch { return c.json({ error: "invite_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
-	const creatorMember = String(invite.creatorUserId) === String(user.id) && Boolean(role);
-	if (!creatorMember && !["owner", "admin"].includes(String(role ?? "").toLowerCase())) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
-	if (!invite.tokenEncrypted) return c.json({ error: "token_unavailable" }, 409, PRIVATE_NO_STORE_HEADERS);
-	try { return c.json({ id: invite.id, token: await decryptInviteToken(c.env, invite.tokenEncrypted) }, 200, PRIVATE_NO_STORE_HEADERS); }
+	const client = getDataClient(c.env);
+	const invite = await client.from("workspace_invites").select("id,creator_user_id,workspace_id,token_encrypted,key_version").eq("id", c.req.param("inviteId")).maybeSingle();
+	if (invite.error) return c.json({ error: "invite_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	if (!invite.data) return c.json({ error: "not_found" }, 404, PRIVATE_NO_STORE_HEADERS);
+	const membership = await client.from("workspace_members").select("role").eq("workspace_id", invite.data.workspace_id).eq("user_id", user.id).maybeSingle();
+	if (membership.error) return c.json({ error: "invite_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	const creatorMember = invite.data.creator_user_id === user.id && Boolean(membership.data);
+	if (!creatorMember && !["owner", "admin"].includes(String(membership.data?.role ?? "").toLowerCase())) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
+	if (!invite.data.token_encrypted) return c.json({ error: "token_unavailable" }, 409, PRIVATE_NO_STORE_HEADERS);
+	try { return c.json({ id: invite.data.id, token: await decryptInviteToken(c.env, invite.data.token_encrypted) }, 200, PRIVATE_NO_STORE_HEADERS); }
 	catch { return c.json({ error: "decrypt_failed" }, 503, PRIVATE_NO_STORE_HEADERS); }
 });
 
 accountSettingsTeamsRouter.delete("/teams/invites/:inviteId", async (c) => {
 	const user = await requireUser(c.req.raw, c.env);
 	if (!user) return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
-	let invite; try { invite = await findWorkspaceInvite(c.env, c.req.param("inviteId")); } catch { return c.json({ error: "invite_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
-	if (!invite) return c.json({ error: "not_found" }, 404, PRIVATE_NO_STORE_HEADERS);
-	let role; try { role = await getMemberRole(c.env, String(invite.workspaceId), String(user.id)); } catch { return c.json({ error: "invite_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
-	const creatorMember = String(invite.creatorUserId) === String(user.id) && Boolean(role);
-	if (!creatorMember && !["owner", "admin"].includes(String(role ?? "").toLowerCase())) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
-	try { const result = await deleteWorkspaceInvite(c.env, String(invite.id)); return c.json({ success: true, id: result?.id }, 200, PRIVATE_NO_STORE_HEADERS); }
-	catch { return c.json({ error: "invite_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
+	const client = getDataClient(c.env);
+	const invite = await client.from("workspace_invites").select("id,creator_user_id,workspace_id").eq("id", c.req.param("inviteId")).maybeSingle();
+	if (invite.error) return c.json({ error: "invite_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	if (!invite.data) return c.json({ error: "not_found" }, 404, PRIVATE_NO_STORE_HEADERS);
+	const membership = await client.from("workspace_members").select("role").eq("workspace_id", invite.data.workspace_id).eq("user_id", user.id).maybeSingle();
+	if (membership.error) return c.json({ error: "invite_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	const creatorMember = invite.data.creator_user_id === user.id && Boolean(membership.data);
+	if (!creatorMember && !["owner", "admin"].includes(String(membership.data?.role ?? "").toLowerCase())) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
+	const result = await client.from("workspace_invites").delete().eq("id", invite.data.id).select("id").maybeSingle();
+	if (result.error) return c.json({ error: "invite_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	return c.json({ success: true, id: result.data?.id }, 200, PRIVATE_NO_STORE_HEADERS);
 });
 
 accountSettingsTeamsRouter.post("/teams/invites/accept", async (c) => {
@@ -258,12 +320,22 @@ accountSettingsTeamsRouter.post("/teams/invites/accept", async (c) => {
 	const body: { token?: string } = await c.req.json<{ token?: string }>().catch(() => ({}));
 	const token = String(body.token ?? "");
 	if (token.length < 6) return c.json({ success: false, error: "Invite code too short" }, 400, PRIVATE_NO_STORE_HEADERS);
+	const client = getDataClient(c.env);
 	try {
-		const result = await acceptWorkspaceInvite(c.env, { fingerprint: await inviteFingerprint(c.env, token), userId: String(user.id) });
-		if (result.status === "invalid") return c.json({ success: false, error: "Invalid or expired invite" }, 404, PRIVATE_NO_STORE_HEADERS);
-		if (result.status === "member") return c.json({ success: false, error: "You are already a member of this workspace" }, 409, PRIVATE_NO_STORE_HEADERS);
-		if (result.status === "pending") return c.json({ success: false, error: "You already have a pending request" }, 409, PRIVATE_NO_STORE_HEADERS);
-		return c.json({ success: true, requestId: result.id }, 200, PRIVATE_NO_STORE_HEADERS);
+		const now = new Date().toISOString();
+		const invite = await client.from("workspace_invites").select("id,workspace_id,expires_at,max_uses,uses_count").eq("token_fingerprint", await inviteFingerprint(c.env, token)).or(`expires_at.is.null,expires_at.gt.${now}`).maybeSingle();
+		if (invite.error) throw invite.error;
+		if (!invite.data || (invite.data.max_uses != null && (invite.data.uses_count ?? 0) >= invite.data.max_uses)) return c.json({ success: false, error: "Invalid or expired invite" }, 404, PRIVATE_NO_STORE_HEADERS);
+		const [membership, pending] = await Promise.all([
+			client.from("workspace_members").select("workspace_id").eq("workspace_id", invite.data.workspace_id).eq("user_id", user.id).maybeSingle(),
+			client.from("workspace_join_requests").select("id").eq("workspace_id", invite.data.workspace_id).eq("requester_user_id", user.id).eq("status", "pending").maybeSingle(),
+		]);
+		if (membership.error || pending.error) throw membership.error ?? pending.error;
+		if (membership.data) return c.json({ success: false, error: "You are already a member of this workspace" }, 409, PRIVATE_NO_STORE_HEADERS);
+		if (pending.data) return c.json({ success: false, error: "You already have a pending request" }, 409, PRIVATE_NO_STORE_HEADERS);
+		const created = await client.from("workspace_join_requests").insert({ workspace_id: invite.data.workspace_id, invite_id: invite.data.id, requester_user_id: user.id, status: "pending" }).select("id").maybeSingle();
+		if (created.error) throw created.error;
+		return c.json({ success: true, requestId: created.data?.id }, 200, PRIVATE_NO_STORE_HEADERS);
 	} catch (error) {
 		console.error("[web-api/teams] accept invite failed", error);
 		return c.json({ success: false, error: "Could not create join request" }, 503, PRIVATE_NO_STORE_HEADERS);
@@ -277,8 +349,8 @@ accountSettingsTeamsRouter.put("/teams/:workspaceId/sso", async (c) => {
 	const normalized = normalizeWorkspaceSsoUpdate(body);
 	if ("error" in normalized) return c.json({ error: normalized.error }, 400, PRIVATE_NO_STORE_HEADERS);
 	const payload = { workspace_id: context.workspaceId, ...normalized.value, updated_at: new Date().toISOString() };
-	try { await saveWorkspaceSso(c.env, context.workspaceId, { ssoEnabled: normalized.value.sso_enabled, ssoEnforced: normalized.value.sso_enforced, ssoMode: normalized.value.sso_mode, ssoProviderIdentifier: normalized.value.sso_provider_identifier, ssoDomains: normalized.value.sso_domains, updatedAt: payload.updated_at }); }
-	catch { return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
+	const result = await context.client.from("workspace_settings").upsert(payload, { onConflict: "workspace_id" });
+	if (result.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	return c.json({ success: true, workspaceId: context.workspaceId, settings: payload }, 200, PRIVATE_NO_STORE_HEADERS);
 });
 
@@ -290,8 +362,12 @@ accountSettingsTeamsRouter.put("/teams/:workspaceId/members/:userId", async (c) 
 	const body: { role?: string } = await c.req.json<{ role?: string }>().catch(() => ({}));
 	const role = String(body.role ?? "").toLowerCase();
 	if (!["admin", "member"].includes(role)) return c.json({ error: "invalid_role" }, 400, PRIVATE_NO_STORE_HEADERS);
-	try { if (await setWorkspaceMemberRole(c.env, { workspaceId: context.workspaceId, userId: targetUserId, role: role as "admin" | "member" }) === "owner") return c.json({ error: "owner_role_fixed" }, 409, PRIVATE_NO_STORE_HEADERS); return c.json({ workspaceId: context.workspaceId, userId: targetUserId, role, ok: true }, 200, PRIVATE_NO_STORE_HEADERS); }
-	catch { return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
+	const workspace = await context.client.from("workspaces").select("owner_user_id").eq("id", context.workspaceId).maybeSingle();
+	if (workspace.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	if (workspace.data?.owner_user_id === targetUserId) return c.json({ error: "owner_role_fixed" }, 409, PRIVATE_NO_STORE_HEADERS);
+	const result = await context.client.from("workspace_members").upsert({ workspace_id: context.workspaceId, user_id: targetUserId, role }, { onConflict: "workspace_id,user_id" }).select("workspace_id,user_id,role").maybeSingle();
+	if (result.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	return c.json({ workspaceId: context.workspaceId, userId: targetUserId, role: result.data?.role ?? null, ok: true }, 200, PRIVATE_NO_STORE_HEADERS);
 });
 
 accountSettingsTeamsRouter.delete("/teams/:workspaceId/members/:userId", async (c) => {
@@ -303,9 +379,16 @@ accountSettingsTeamsRouter.delete("/teams/:workspaceId/members/:userId", async (
 	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
 	const isSelf = user.id === targetUserId;
 	if (!isSelf && !["owner", "admin"].includes(context.role.toLowerCase())) return c.json({ workspaceId, userId: targetUserId, ok: false, message: "You don't have permission to remove this member from the workspace." }, 403, PRIVATE_NO_STORE_HEADERS);
-	let removed; try { removed = await removeWorkspaceMember(c.env, { workspaceId, userId: targetUserId, actorRole: context.role, isSelf }); } catch { return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
-	if (removed.status === "owner") return c.json({ workspaceId, userId: targetUserId, ok: false, message: "You can't remove the workspace owner." }, 409, PRIVATE_NO_STORE_HEADERS);
-	if (removed.status === "higher") return c.json({ workspaceId, userId: targetUserId, ok: false, message: "You can't remove a member with a higher role." }, 403, PRIVATE_NO_STORE_HEADERS);
+	const [workspace, target] = await Promise.all([
+		context.client.from("workspaces").select("owner_user_id").eq("id", workspaceId).maybeSingle(),
+		context.client.from("workspace_members").select("role").eq("workspace_id", workspaceId).eq("user_id", targetUserId).maybeSingle(),
+	]);
+	if (workspace.error || target.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	if (workspace.data?.owner_user_id === targetUserId) return c.json({ workspaceId, userId: targetUserId, ok: false, message: "You can't remove the workspace owner." }, 409, PRIVATE_NO_STORE_HEADERS);
+	const rank = (role: string | null | undefined) => ({ owner: 1, admin: 2, member: 3 }[String(role ?? "").toLowerCase()] ?? 4);
+	if (!isSelf && rank(target.data?.role) < rank(context.role)) return c.json({ workspaceId, userId: targetUserId, ok: false, message: "You can't remove a member with a higher role." }, 403, PRIVATE_NO_STORE_HEADERS);
+	const result = await context.client.from("workspace_members").delete().eq("workspace_id", workspaceId).eq("user_id", targetUserId);
+	if (result.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	return c.json({ workspaceId, userId: targetUserId, ok: true }, 200, PRIVATE_NO_STORE_HEADERS);
 });
 
@@ -313,9 +396,12 @@ for (const decision of ["approve", "reject"] as const) {
 	accountSettingsTeamsRouter.post(`/teams/join-requests/:requestId/${decision}`, async (c) => {
 		const user = await requireUser(c.req.raw, c.env);
 		if (!user) return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
-		let row; try { row = await decideWorkspaceJoinRequest(c.env, { requestId: c.req.param("requestId"), actorUserId: String(user.id), decision }); }
-		catch { return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS); }
+		const userClient = getAuthenticatedDataClient(c.env, c.req.raw);
+		if (!userClient) return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
+		const result = await userClient.rpc(`${decision}_workspace_join_request`, { p_request_id: c.req.param("requestId") });
+		if (result.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+		const row = Array.isArray(result.data) ? result.data[0] : result.data;
 		if (!row?.id) return c.json({ error: "not_found" }, 404, PRIVATE_NO_STORE_HEADERS);
-		return c.json({ success: true, id: row.id, workspaceId: row.workspaceId }, 200, PRIVATE_NO_STORE_HEADERS);
+		return c.json({ success: true, id: row.id, workspaceId: row.workspace_id }, 200, PRIVATE_NO_STORE_HEADERS);
 	});
 }

@@ -1,7 +1,7 @@
 {
   "files": [
     "client/audio.ts",
-    "client/gateway.ts",
+    "client/default.ts",
     "client/index.ts",
     "index.ts",
     "models/ActivityEntry.ts",

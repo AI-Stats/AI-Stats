@@ -1,6 +1,5 @@
-import { getBindings } from "@/runtime/env";
+import { getBindings, getSupabaseAdmin } from "@/runtime/env";
 import { redactSensitiveInfoForStorage } from "@/pipeline/before/sensitiveInfo";
-import { insertContribution, listExpiredContributions, markContributionsDeleted } from "@/repositories/classification";
 
 export const DATA_CONTRIBUTION_POLICY_VERSION = "2026-07-26-v2";
 export const DATA_CONTRIBUTION_REDACTION_VERSION = "2026-07-26-v1";
@@ -176,15 +175,27 @@ export async function pruneExpiredDataContributions(limit = 250): Promise<{ dele
 	const bindings = getBindings();
 	const bucket = bindings.DATA_CONTRIBUTIONS_BUCKET;
 	if (!bucket) return { deleted: 0, failed: 0 };
-	const data = await listExpiredContributions(limit);
+	const client = getSupabaseAdmin();
+	const { data, error } = await client.from("data_contributions")
+		.select("id,object_key")
+		.lt("retention_until", new Date().toISOString())
+		.neq("status", "deleted")
+		.order("retention_until", { ascending: true })
+		.limit(Math.max(1, Math.min(5000, Math.trunc(limit))));
+	if (error) throw new Error(error.message || "Failed to list expired contributions");
 	let deleted = 0;
 	let failed = 0;
 	const rows = data ?? [];
 	for (let index = 0; index < rows.length; index += 1000) {
 		const batch = rows.slice(index, index + 1000);
 		try {
-			await bucket.delete(batch.map((row) => String(row.objectKey)));
-			await markContributionsDeleted(batch.map((row) => row.id), new Date().toISOString());
+			await bucket.delete(batch.map((row) => String(row.object_key)));
+			const update = await client.from("data_contributions").update({
+				status: "deleted",
+				lease_expires_at: null,
+				updated_at: new Date().toISOString(),
+			}).in("id", batch.map((row) => row.id));
+			if (update.error) throw update.error;
 			deleted += batch.length;
 		} catch {
 			failed += batch.length;
@@ -273,30 +284,34 @@ export async function persistDataContribution(
 				retention_until: retentionUntil.toISOString(),
 			},
 		});
-		await insertContribution({
-			workspaceId: input.workspaceId,
-			requestId: input.requestId,
+		const { error } = await getSupabaseAdmin().from("data_contributions").upsert({
+			workspace_id: input.workspaceId,
+			request_id: input.requestId,
 			endpoint: input.endpoint,
-			modelSlug: input.model,
-			providerSlug: input.provider ?? null,
-			objectKey,
-			objectBytes: bytes.byteLength,
-			objectSha256: sha256,
-			retentionUntil: retentionUntil.toISOString(),
-			consentPolicyVersion: policyVersion,
-			sampleRateBps: input.policy.sampleRateBps,
-			classifierSampleRateBps: input.policy.classifierSampleRateBps,
-			sampleBucket,
-			redactionVersion: DATA_CONTRIBUTION_REDACTION_VERSION,
-			redactionCount,
-			discountBps: input.policy.discountBps,
-			discountNanos: Math.max(0, Math.trunc(input.discountNanos)),
-			inputTokens: tokenCount(input.usage, "input"),
-			outputTokens: tokenCount(input.usage, "output"),
+			model_slug: input.model,
+			provider_slug: input.provider ?? null,
+			object_key: objectKey,
+			object_bytes: bytes.byteLength,
+			object_sha256: sha256,
+			retention_until: retentionUntil.toISOString(),
+			consent_policy_version: policyVersion,
+			sample_rate_bps: input.policy.sampleRateBps,
+			classifier_sample_rate_bps: input.policy.classifierSampleRateBps,
+			sample_bucket: sampleBucket,
+			redaction_version: DATA_CONTRIBUTION_REDACTION_VERSION,
+			redaction_count: redactionCount,
+			discount_bps: input.policy.discountBps,
+			discount_nanos: Math.max(0, Math.trunc(input.discountNanos)),
+			input_tokens: tokenCount(input.usage, "input"),
+			output_tokens: tokenCount(input.usage, "output"),
 			status: dataContributionQueueStatus(sampleBucket, input.policy.classifierSampleRateBps),
-			availableAt: now.toISOString(),
-			updatedAt: now.toISOString(),
-		});
+			available_at: now.toISOString(),
+			updated_at: now.toISOString(),
+		}, { onConflict: "workspace_id,request_id", ignoreDuplicates: true });
+		if (error) {
+			await bucket.delete(objectKey);
+			throw new Error(error.message || "contribution metadata insert failed");
+		}
 		return { status: "stored", sampleBucket };
 	} catch (error) {
 		console.error("data_contribution_capture_failed", {

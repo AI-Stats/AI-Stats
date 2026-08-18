@@ -1,4 +1,4 @@
-export type GatewayTelemetrySink = "axiom" | "database" | "otlp";
+export type GatewayTelemetrySink = "axiom" | "supabase" | "otlp";
 
 export type GatewayTelemetryDelivery = {
 	sink: GatewayTelemetrySink;
@@ -9,11 +9,11 @@ export type GatewayTelemetryDelivery = {
 type GatewayTelemetryPipelineArgs = {
 	requestId: string;
 	workspaceId?: string | null;
-	writeDatabase?: (() => Promise<unknown>) | null;
+	writeSupabase?: (() => Promise<unknown>) | null;
 	writeOtlp?: (() => Promise<unknown>) | null;
 	writeAxiom: () => Promise<unknown>;
 	onDeliveryFailure?: (failure: {
-		sink: "database";
+		sink: "supabase";
 		requestId: string;
 		workspaceId: string | null;
 		error: string;
@@ -25,7 +25,7 @@ function errorMessage(error: unknown): string {
 }
 
 /**
- * Runs the durable database projection and the operational Axiom projection as
+ * Runs the durable Supabase projection and the operational Axiom projection as
  * independent drains of the same completed gateway request.
  *
  * The drains deliberately use Promise.allSettled: observability must not make
@@ -50,8 +50,8 @@ export async function runGatewayTelemetryPipelines(
 		write: () => Promise<unknown>;
 	}> = [];
 
-	if (args.writeDatabase) {
-		sinks.push({ sink: "database", write: args.writeDatabase });
+	if (args.writeSupabase) {
+		sinks.push({ sink: "supabase", write: args.writeSupabase });
 	}
 	sinks.push({ sink: "axiom", write: args.writeAxiom });
 
@@ -78,9 +78,9 @@ export async function runGatewayTelemetryPipelines(
 			error: delivery.error,
 		});
 
-		// A failing Axiom drain cannot report its own failure to Axiom. Database
+		// A failing Axiom drain cannot report its own failure to Axiom. Supabase
 		// failures can, without coupling the primary request event to the retry.
-		if (delivery.sink === "database" && args.onDeliveryFailure) {
+		if (delivery.sink === "supabase" && args.onDeliveryFailure) {
 			try {
 				await args.onDeliveryFailure({
 					sink: delivery.sink,

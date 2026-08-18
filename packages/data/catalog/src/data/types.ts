@@ -294,7 +294,7 @@ export interface ExtendedModel {
         markdown: string;
     } | null;
     provider: Provider;
-    // Optional structured model details from the catalogue database.
+    // Optional structured model details (from supabase `model_details`)
     model_details?: { detail_name: string; detail_value: string | number | null }[] | null;
     /**
      * Phaseo score derived from Glicko rating.

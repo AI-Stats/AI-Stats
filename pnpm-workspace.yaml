@@ -15,6 +15,7 @@ allowBuilds:
   protobufjs: set this to true or false
   puppeteer: set this to true or false
   sharp: set this to true or false
+  supabase: set this to true or false
   unrs-resolver: set this to true or false
   workerd: set this to true or false
 

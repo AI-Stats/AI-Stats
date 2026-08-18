@@ -1458,7 +1458,7 @@ function main() {
 
   if (shouldSyncDb) {
     execSync(
-      "pnpm --filter @phaseo/web exec tsx scripts/sync-monitor-history-to-planetscale.ts",
+      "pnpm --filter @phaseo/web exec tsx scripts/sync-monitor-history-to-supabase.ts",
       {
         stdio: "inherit",
       }

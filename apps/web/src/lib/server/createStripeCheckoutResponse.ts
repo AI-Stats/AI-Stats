@@ -8,7 +8,7 @@ import { sendBillingDiscordWebhook } from "@/lib/automations/billingDiscord";
 import { buildStripeCheckoutRedirectUrls } from "@/lib/stripeCheckoutRedirects";
 import { getStripe } from "@/lib/stripe";
 import { requireActiveWorkspaceStripeCustomer } from "@/lib/server/activeTeamStripe";
-import { updateUserDeclaredCountry } from "@/lib/database/repositories/accounts";
+import { createAdminClient } from "@/utils/supabase/admin";
 import { normaliseCountryCode } from "@/lib/countryCodes";
 
 type CheckoutKind = "oneoff" | "pay_and_save" | "save_only";
@@ -100,9 +100,11 @@ export async function createStripeCheckoutResponse(
 		return NextResponse.json({ error: "Workspace mismatch" }, { status: 403 });
 	}
 	if (countryCode) {
-		try {
-			await updateUserDeclaredCountry(userId, countryCode);
-		} catch {
+		const { error } = await createAdminClient()
+			.from("users")
+			.update({ declared_country_code: countryCode, country_declared_at: new Date().toISOString() })
+			.eq("user_id", userId);
+		if (error) {
 			return NextResponse.json({ error: "Could not confirm purchase location" }, { status: 503 });
 		}
 	}

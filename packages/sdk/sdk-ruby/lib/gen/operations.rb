@@ -33,12 +33,6 @@ module Phaseo
         client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
-      def self.connectRealtimeSessionRelay(client, path: nil, query: nil, headers: nil, body: nil)
-        path ||= {}
-        resolved_path = "/audio/realtime/sessions/#{path["session_id"]}/relay"
-        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
-      end
-
       def self.createAnthropicMessage(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/messages"
@@ -96,12 +90,6 @@ module Phaseo
       def self.createOcr(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/ocr"
-        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
-      end
-
-      def self.createRealtimeSession(client, path: nil, query: nil, headers: nil, body: nil)
-        path ||= {}
-        resolved_path = "/audio/realtime/sessions"
         client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -187,18 +175,6 @@ module Phaseo
         path ||= {}
         resolved_path = "/workspaces/#{path["id"]}"
         client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
-      end
-
-      def self.extendRealtimeSessionReservation(client, path: nil, query: nil, headers: nil, body: nil)
-        path ||= {}
-        resolved_path = "/audio/realtime/sessions/#{path["session_id"]}/extend"
-        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
-      end
-
-      def self.finalizeRealtimeSession(client, path: nil, query: nil, headers: nil, body: nil)
-        path ||= {}
-        resolved_path = "/audio/realtime/sessions/#{path["session_id"]}/finalize"
-        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
       def self.generateMusic(client, path: nil, query: nil, headers: nil, body: nil)
@@ -453,12 +429,6 @@ module Phaseo
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
-      def self.markRealtimeSessionConnected(client, path: nil, query: nil, headers: nil, body: nil)
-        path ||= {}
-        resolved_path = "/audio/realtime/sessions/#{path["session_id"]}/connected"
-        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
-      end
-
       def self.openAsyncJobWebSocket(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/async/#{path["kind"]}/#{path["id"]}/ws"
@@ -517,12 +487,6 @@ module Phaseo
         path ||= {}
         resolved_path = "/keys/#{path["id"]}"
         client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
-      end
-
-      def self.updateRealtimeSessionUsage(client, path: nil, query: nil, headers: nil, body: nil)
-        path ||= {}
-        resolved_path = "/audio/realtime/sessions/#{path["session_id"]}/usage"
-        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
       def self.updateWorkspace(client, path: nil, query: nil, headers: nil, body: nil)

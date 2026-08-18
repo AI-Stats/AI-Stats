@@ -1,20 +1,21 @@
 import { cookies } from "next/headers";
 import { io } from "next/cache";
+import { createClient } from "@/utils/supabase/server";
 import { OBFUSCATE_INFO_COOKIE, parseObfuscateInfo } from "@/lib/obfuscation";
-import { getServerIdentity } from "@/lib/auth/serverIdentity";
 
 export async function getServerAccountContext(): Promise<{
 	accessToken: string | null;
 	obfuscateInfo: boolean | null;
 	workspaceId: string | null;
 }> {
-	// Session loading reads the current time. Mark this
+	// Supabase Auth reads the current time while loading a session. Mark this
 	// shared auth boundary as request-time work so Cache Components never try
 	// to capture that session state in a prerendered shell.
 	await io();
-	const [cookieStore, identity] = await Promise.all([cookies(), getServerIdentity()]);
+	const [cookieStore, supabase] = await Promise.all([cookies(), createClient()]);
+	const { data } = await supabase.auth.getSession();
 	return {
-		accessToken: identity?.session.token ?? null,
+		accessToken: data.session?.access_token ?? null,
 		obfuscateInfo: parseObfuscateInfo(
 			cookieStore.get(OBFUSCATE_INFO_COOKIE)?.value ?? null,
 		),

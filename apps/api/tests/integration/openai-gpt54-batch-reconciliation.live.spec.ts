@@ -8,9 +8,6 @@ import {
 	requireGatewayApiKey,
 	sleep,
 } from "./live-gateway.helpers";
-import { gatewayAsyncOperations, keys } from "@phaseo/db/schema";
-import { and, eq } from "@phaseo/db/query";
-import { withLiveDatabase } from "./live-database.helpers";
 
 const LIVE_OPENAI_BATCH_RECONCILIATION_RUN =
 	(process.env.LIVE_OPENAI_BATCH_RECONCILIATION_RUN ?? "0").trim() === "1";
@@ -34,34 +31,67 @@ type AsyncOperationRow = {
 	meta?: Record<string, unknown> | null;
 };
 
+function normalizeEnv(value: string | undefined): string {
+	return String(value ?? "").trim().replace(/^['"]|['"]$/g, "");
+}
+
+function requireEnv(name: string): string {
+	const value = normalizeEnv(process.env[name]);
+	if (!value) throw new Error(`${name} is required for the live reconciliation smoke`);
+	return value;
+}
+
 function parseGatewayKeyKid(value: string): string {
 	const match = value.match(/^aistats_v1_sk_([^_]+)_/);
 	if (!match?.[1]) throw new Error("Expected structured Phaseo API key");
 	return match[1];
 }
 
+async function supabaseRest<T>(args: {
+	pathname: string;
+	method?: string;
+	body?: unknown;
+	headers?: Record<string, string>;
+}): Promise<T> {
+	const supabaseUrl = normalizeEnv(process.env.SUPABASE_URL) || requireEnv("NEXT_PUBLIC_SUPABASE_URL");
+	const serviceRole = requireEnv("SUPABASE_SERVICE_ROLE_KEY");
+	const response = await fetch(`${supabaseUrl.replace(/\/+$/, "")}/rest/v1/${args.pathname.replace(/^\/+/, "")}`, {
+		method: args.method ?? "GET",
+		headers: {
+			apikey: serviceRole,
+			Authorization: `Bearer ${serviceRole}`,
+			"Content-Type": "application/json",
+			...(args.headers ?? {}),
+		},
+		body: args.body === undefined ? undefined : JSON.stringify(args.body),
+	});
+	const text = await response.text();
+	if (!response.ok) {
+		throw new Error(`Supabase REST ${args.method ?? "GET"} ${args.pathname} failed (${response.status}): ${text}`);
+	}
+	return (text ? JSON.parse(text) : null) as T;
+}
+
 async function resolveWorkspaceIdFromGatewayKey(): Promise<string> {
 	const kid = parseGatewayKeyKid(GATEWAY_API_KEY);
-	const workspaceId = await withLiveDatabase(async (db) => (await db.select({ workspaceId: keys.workspaceId })
-		.from(keys).where(eq(keys.kid, kid)).limit(1))[0]?.workspaceId ?? null);
+	const rows = await supabaseRest<Array<{ workspace_id?: string }>>({
+		pathname: `keys?select=workspace_id&kid=eq.${encodeURIComponent(kid)}&limit=1`,
+	});
+	const workspaceId = String(rows[0]?.workspace_id ?? "").trim();
 	if (!workspaceId) throw new Error("Could not resolve workspace_id for live gateway key");
 	return workspaceId;
 }
 
 async function readAsyncOperation(workspaceId: string, batchId: string): Promise<AsyncOperationRow | null> {
-	return withLiveDatabase(async (db) => (await db.select({
-		workspace_id: gatewayAsyncOperations.workspaceId,
-		internal_id: gatewayAsyncOperations.internalId,
-		native_id: gatewayAsyncOperations.nativeId,
-		model: gatewayAsyncOperations.model,
-		status: gatewayAsyncOperations.status,
-		billed_at: gatewayAsyncOperations.billedAt,
-		meta: gatewayAsyncOperations.meta,
-	}).from(gatewayAsyncOperations).where(and(
-		eq(gatewayAsyncOperations.workspaceId, workspaceId),
-		eq(gatewayAsyncOperations.kind, "batch"),
-		eq(gatewayAsyncOperations.internalId, batchId),
-	)).limit(1))[0] ?? null);
+	const rows = await supabaseRest<AsyncOperationRow[]>({
+		pathname:
+			`gateway_async_operations?select=workspace_id,internal_id,native_id,model,status,billed_at,meta` +
+			`&workspace_id=eq.${encodeURIComponent(workspaceId)}` +
+			`&kind=eq.batch` +
+			`&internal_id=eq.${encodeURIComponent(batchId)}` +
+			`&limit=1`,
+	});
+	return rows[0] ?? null;
 }
 
 async function waitForReconciledBilling(workspaceId: string, batchId: string): Promise<AsyncOperationRow> {

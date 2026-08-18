@@ -1,21 +1,8 @@
 import { Hono } from "hono";
 import type { Env } from "@/runtime/types";
+import { getSupabaseAdmin } from "@/runtime/env";
 import { guardManagementAuth, type GuardErr } from "@/pipeline/before/guards";
 import { CAPABILITIES } from "@/lib/authz/capabilities";
-import {
-	findTestRunAccess,
-	findVisibleTestRun,
-	insertEvent,
-	insertFeedback,
-	insertTestRun,
-	listEvents,
-	listFeedback,
-	listTestRuns,
-	listVisiblePresetIds,
-	requestExists,
-	summarizeFeedback,
-	updateTestRun,
-} from "@/repositories/feedback";
 import { json, withRuntime } from "@/routes/utils";
 import {
 	isResponse,
@@ -110,6 +97,12 @@ type FeedbackSummaryRow = {
 	last_feedback_at: string | null;
 };
 
+const FEEDBACK_SELECT =
+	"id,workspace_id,request_id,session_id,preset_id,test_run_id,source,rating,score,reason,reason_tags,comment,metadata,metadata_dimensions,end_user_id,created_by_user_id,created_at";
+const EVENT_SELECT =
+	"id,workspace_id,request_id,session_id,preset_id,test_run_id,category,event_name,value,numeric_value,metadata,metadata_dimensions,end_user_id,source,occurred_at,created_by_user_id,created_at";
+const TEST_RUN_SELECT =
+	"id,workspace_id,preset_id,baseline_preset_id,name,description,status,dataset_name,config,summary,started_at,completed_at,created_by_user_id,created_at,updated_at";
 const FEEDBACK_RATINGS = new Set([
 	"thumbs_up",
 	"thumbs_down",
@@ -317,11 +310,36 @@ async function authorize(req: Request, capability: string, roles: string[]) {
 }
 
 async function visiblePresetIds(auth: AuthValue): Promise<string[] | Response> {
-	try {
-		return await listVisiblePresetIds(auth.workspaceId, normalizeUuid(auth.userId));
-	} catch (error) {
-		return json({ error: "failed", message: error instanceof Error ? error.message : "Failed to load presets" }, 500, { "Cache-Control": "no-store" });
+	const userId = normalizeUuid(auth.userId);
+	const pageSize = 1_000;
+	const presetIds: string[] = [];
+	for (let offset = 0; ; offset += pageSize) {
+		let query = getSupabaseAdmin()
+			.from("presets")
+			.select("id")
+			.eq("workspace_id", auth.workspaceId)
+			.is("archived_at", null);
+		query = userId
+			? query.or(`visibility.neq.private,created_by.eq.${userId}`)
+			: query.neq("visibility", "private");
+		const { data, error } = await query
+			.order("id", { ascending: true })
+			.range(offset, offset + pageSize - 1);
+		if (error) return json({ error: "failed", message: error.message }, 500, { "Cache-Control": "no-store" });
+		const rows = data ?? [];
+		presetIds.push(...rows.map((row) => String(row.id)));
+		if (rows.length < pageSize) break;
 	}
+	return presetIds;
+}
+
+function applyPresetVisibility(query: any, presetIds: string[], ...columns: string[]) {
+	for (const column of columns) {
+		query = presetIds.length
+			? query.or(`${column}.is.null,${column}.in.(${presetIds.join(",")})`)
+			: query.is(column, null);
+	}
+	return query;
 }
 
 async function ensurePresetAccess(auth: AuthValue, presetId: string | null): Promise<Response | null> {
@@ -334,19 +352,32 @@ async function ensurePresetAccess(auth: AuthValue, presetId: string | null): Pro
 
 async function ensureRequestAccess(workspaceId: string, requestId: string | null): Promise<Response | null> {
 	if (!requestId) return null;
-	if (!await requestExists(workspaceId, requestId)) return json({ error: "not_found", message: "Request not found in this workspace" }, 404, { "Cache-Control": "no-store" });
+	const { data, error } = await getSupabaseAdmin()
+		.from("gateway_requests")
+		.select("id")
+		.eq("workspace_id", workspaceId)
+		.eq("request_id", requestId)
+		.maybeSingle();
+	if (error) return json({ error: "failed", message: error.message }, 500, { "Cache-Control": "no-store" });
+	if (!data) return json({ error: "not_found", message: "Request not found in this workspace" }, 404, { "Cache-Control": "no-store" });
 	return null;
 }
 
 async function ensureTestRunAccess(auth: AuthValue, testRunId: string | null): Promise<TestRunAccessRow | Response | null> {
 	if (!testRunId) return null;
-	const data = await findTestRunAccess(auth.workspaceId, testRunId);
+	const { data, error } = await getSupabaseAdmin()
+		.from("gateway_preset_test_runs")
+		.select("id,preset_id,baseline_preset_id")
+		.eq("workspace_id", auth.workspaceId)
+		.eq("id", testRunId)
+		.maybeSingle();
+	if (error) return json({ error: "failed", message: error.message }, 500, { "Cache-Control": "no-store" });
 	if (!data) return json({ error: "not_found", message: "Preset test run not found" }, 404, { "Cache-Control": "no-store" });
 	for (const presetId of [data.preset_id, data.baseline_preset_id]) {
 		const presetError = await ensurePresetAccess(auth, presetId);
 		if (presetError) return presetError;
 	}
-	return data;
+	return data as TestRunAccessRow;
 }
 
 function validatePresetMatchesTestRun(presetId: string | null, testRun: TestRunAccessRow | null): Response | null {
@@ -357,6 +388,19 @@ function validatePresetMatchesTestRun(presetId: string | null, testRun: TestRunA
 		400,
 		{ "Cache-Control": "no-store" },
 	);
+}
+
+function applyTargetFilters(query: any, url: URL) {
+	for (const [param, column] of [
+		["request_id", "request_id"],
+		["session_id", "session_id"],
+		["preset_id", "preset_id"],
+		["test_run_id", "test_run_id"],
+	] as const) {
+		const value = url.searchParams.get(param)?.trim();
+		if (value) query = query.eq(column, value);
+	}
+	return query;
 }
 
 function collectMetadataFilters(url: URL): Record<string, string> {
@@ -370,6 +414,13 @@ function collectMetadataFilters(url: URL): Record<string, string> {
 		filters[key] = normalizedValue;
 	}
 	return filters;
+}
+
+function applyMetadataFilters(query: any, url: URL) {
+	for (const [key, value] of Object.entries(collectMetadataFilters(url))) {
+		query = query.contains("metadata_dimensions", { [key]: value });
+	}
+	return query;
 }
 
 function readDateFilters(url: URL) {
@@ -399,6 +450,16 @@ function hasInvalidUuidFilter(url: URL): boolean {
 		const value = url.searchParams.get(param)?.trim();
 		return Boolean(value && !normalizeUuid(value));
 	});
+}
+
+function applyDateFilters(
+	query: any,
+	filters: ReturnType<typeof readDateFilters>,
+	column: "created_at" | "occurred_at" = "created_at",
+) {
+	if (filters.since && filters.since !== "invalid") query = query.gte(column, filters.since);
+	if (filters.until && filters.until !== "invalid") query = query.lte(column, filters.until);
+	return query;
 }
 
 async function handleCreateFeedback(req: Request) {
@@ -444,24 +505,30 @@ async function handleCreateFeedback(req: Request) {
 	}
 
 	const payload = {
-		workspaceId: auth.workspaceId,
-		requestId,
-		sessionId,
-		presetId: linkedPresetId,
-		testRunId,
+		workspace_id: auth.workspaceId,
+		request_id: requestId,
+		session_id: sessionId,
+		preset_id: linkedPresetId,
+		test_run_id: testRunId,
 		source: normalizeSource(body.source),
 		rating,
-		score: score == null ? null : String(score),
+		score,
 		reason: normalizeText(body.reason, 128),
-		reasonTags: normalizeStringArray(body.reasonTags ?? body.reason_tags),
+		reason_tags: normalizeStringArray(body.reasonTags ?? body.reason_tags),
 		comment: normalizeText(body.comment, 2048),
 		metadata,
-		metadataDimensions,
-		endUserId: normalizeText(body.endUserId ?? body.end_user_id, 128),
-		createdByUserId: normalizeUuid(auth.userId),
+		metadata_dimensions: metadataDimensions,
+		end_user_id: normalizeText(body.endUserId ?? body.end_user_id, 128),
+		created_by_user_id: normalizeUuid(auth.userId),
 	};
 
-	const data = await insertFeedback(payload);
+	const { data, error } = await getSupabaseAdmin()
+		.from("gateway_feedback")
+		.insert(payload)
+		.select(FEEDBACK_SELECT)
+		.maybeSingle();
+	if (error) return json({ error: "failed", message: error.message }, 500, { "Cache-Control": "no-store" });
+	if (!data) return json({ error: "failed", message: "Feedback was not persisted" }, 500, { "Cache-Control": "no-store" });
 	return json({ data: formatFeedback(data as FeedbackRow) }, 201, { "Cache-Control": "no-store" });
 }
 
@@ -478,28 +545,29 @@ async function handleListFeedback(req: Request) {
 	if (!dateFilters.valid) return json({ error: "bad_request", message: "Invalid date filter" }, 400, { "Cache-Control": "no-store" });
 	if (hasInvalidUuidFilter(url)) return json({ error: "bad_request", message: "Invalid preset or test run id" }, 400, { "Cache-Control": "no-store" });
 
+	let query: any = getSupabaseAdmin()
+		.from("gateway_feedback")
+		.select(FEEDBACK_SELECT)
+		.eq("workspace_id", auth.workspaceId)
+		.order("created_at", { ascending: false })
+		.order("id", { ascending: false })
+		.range(offset, offset + limit - 1);
+	query = applyTargetFilters(query, url);
+	query = applyPresetVisibility(query, visible, "preset_id");
+	query = applyMetadataFilters(query, url);
+	query = applyDateFilters(query, dateFilters);
 	const rating = url.searchParams.get("rating")?.trim();
-	if (rating && rating !== "unrated") {
+	if (rating === "unrated") {
+		query = query.is("rating", null);
+	} else if (rating) {
 		if (!FEEDBACK_RATINGS.has(rating)) {
 			return json({ error: "bad_request", message: "Unsupported feedback rating" }, 400, { "Cache-Control": "no-store" });
 		}
+		query = query.eq("rating", rating);
 	}
 
-	const data = await listFeedback({
-		workspaceId: auth.workspaceId,
-		visiblePresetIds: visible,
-		requestId: normalizeText(url.searchParams.get("request_id"), 128),
-		sessionId: normalizeText(url.searchParams.get("session_id"), 128),
-		presetId: normalizeUuid(url.searchParams.get("preset_id")),
-		testRunId: normalizeUuid(url.searchParams.get("test_run_id")),
-		since: dateFilters.since,
-		until: dateFilters.until,
-		metadata: collectMetadataFilters(url),
-		rating: rating && rating !== "unrated" ? rating : null,
-		unrated: rating === "unrated",
-		limit,
-		offset,
-	});
+	const { data, error } = await query;
+	if (error) return json({ error: "failed", message: error.message }, 500, { "Cache-Control": "no-store" });
 	return json({ data: (data ?? []).map((row) => formatFeedback(row as FeedbackRow)) }, 200, { "Cache-Control": "no-store" });
 }
 
@@ -531,20 +599,21 @@ async function handleFeedbackSummary(req: Request) {
 		return json({ error: "bad_request", message: "Invalid preset or test run id" }, 400, { "Cache-Control": "no-store" });
 	}
 
-	const data = await summarizeFeedback({
-		workspaceId: auth.workspaceId,
-		visiblePresetIds: visible,
-		groupBy,
-		metadataKey: groupBy === "metadata" ? metadataKey : null,
-		requestId: normalizeText(url.searchParams.get("request_id"), 128),
-		sessionId: normalizeText(url.searchParams.get("session_id"), 128),
-		presetId,
-		testRunId,
-		since: dateFilters.since,
-		until: dateFilters.until,
-		metadata: collectMetadataFilters(url),
-		limit,
+	const { data, error } = await getSupabaseAdmin().rpc("gateway_feedback_summary", {
+		p_workspace_id: auth.workspaceId,
+		p_group_by: groupBy,
+		p_metadata_key: groupBy === "metadata" ? metadataKey : null,
+		p_request_id: normalizeText(url.searchParams.get("request_id"), 128),
+		p_session_id: normalizeText(url.searchParams.get("session_id"), 128),
+		p_preset_id: presetId,
+		p_test_run_id: testRunId,
+		p_created_since: dateFilters.since,
+		p_created_until: dateFilters.until,
+		p_metadata_filters: collectMetadataFilters(url),
+		p_limit: limit,
+		p_visible_preset_ids: visible,
 	});
+	if (error) return json({ error: "failed", message: error.message }, 500, { "Cache-Control": "no-store" });
 
 	return json({
 		group_by: groupBy,
@@ -610,24 +679,30 @@ async function handleCreateEvent(req: Request) {
 		return json({ error: "bad_request", message: "Event value exceeds the 32 KiB limit" }, 400, { "Cache-Control": "no-store" });
 	}
 	const payload = {
-		workspaceId: auth.workspaceId,
-		requestId,
-		sessionId,
-		presetId: linkedPresetId,
-		testRunId,
+		workspace_id: auth.workspaceId,
+		request_id: requestId,
+		session_id: sessionId,
+		preset_id: linkedPresetId,
+		test_run_id: testRunId,
 		category: normalizeEventCategory(body.category),
-		eventName,
+		event_name: eventName,
 		value: normalizedValue.value,
-		numericValue: normalizeNumber(body.numericValue ?? body.numeric_value)?.toString() ?? null,
+		numeric_value: normalizeNumber(body.numericValue ?? body.numeric_value),
 		metadata,
-		metadataDimensions,
-		endUserId: normalizeText(body.endUserId ?? body.end_user_id, 128),
+		metadata_dimensions: metadataDimensions,
+		end_user_id: normalizeText(body.endUserId ?? body.end_user_id, 128),
 		source: normalizeSource(body.source),
-		occurredAt: occurredAt ?? new Date().toISOString(),
-		createdByUserId: normalizeUuid(auth.userId),
+		occurred_at: occurredAt ?? new Date().toISOString(),
+		created_by_user_id: normalizeUuid(auth.userId),
 	};
 
-	const data = await insertEvent(payload);
+	const { data, error } = await getSupabaseAdmin()
+		.from("gateway_observability_events")
+		.insert(payload)
+		.select(EVENT_SELECT)
+		.maybeSingle();
+	if (error) return json({ error: "failed", message: error.message }, 500, { "Cache-Control": "no-store" });
+	if (!data) return json({ error: "failed", message: "Event was not persisted" }, 500, { "Cache-Control": "no-store" });
 	return json({ data: formatEvent(data as EventRow) }, 201, { "Cache-Control": "no-store" });
 }
 
@@ -644,24 +719,24 @@ async function handleListEvents(req: Request) {
 	if (!dateFilters.valid) return json({ error: "bad_request", message: "Invalid date filter" }, 400, { "Cache-Control": "no-store" });
 	if (hasInvalidUuidFilter(url)) return json({ error: "bad_request", message: "Invalid preset or test run id" }, 400, { "Cache-Control": "no-store" });
 
+	let query: any = getSupabaseAdmin()
+		.from("gateway_observability_events")
+		.select(EVENT_SELECT)
+		.eq("workspace_id", auth.workspaceId)
+		.order("occurred_at", { ascending: false })
+		.order("id", { ascending: false })
+		.range(offset, offset + limit - 1);
+	query = applyTargetFilters(query, url);
+	query = applyPresetVisibility(query, visible, "preset_id");
+	query = applyMetadataFilters(query, url);
+	query = applyDateFilters(query, dateFilters, "occurred_at");
 	const category = url.searchParams.get("category")?.trim();
+	if (category) query = query.eq("category", category);
 	const eventName = url.searchParams.get("event")?.trim() ?? url.searchParams.get("event_name")?.trim();
+	if (eventName) query = query.eq("event_name", eventName);
 
-	const data = await listEvents({
-		workspaceId: auth.workspaceId,
-		visiblePresetIds: visible,
-		requestId: normalizeText(url.searchParams.get("request_id"), 128),
-		sessionId: normalizeText(url.searchParams.get("session_id"), 128),
-		presetId: normalizeUuid(url.searchParams.get("preset_id")),
-		testRunId: normalizeUuid(url.searchParams.get("test_run_id")),
-		since: dateFilters.since,
-		until: dateFilters.until,
-		metadata: collectMetadataFilters(url),
-		category,
-		eventName,
-		limit,
-		offset,
-	});
+	const { data, error } = await query;
+	if (error) return json({ error: "failed", message: error.message }, 500, { "Cache-Control": "no-store" });
 	return json({ data: (data ?? []).map((row) => formatEvent(row as EventRow)) }, 200, { "Cache-Control": "no-store" });
 }
 
@@ -693,21 +768,27 @@ async function handleCreateTestRun(req: Request) {
 	}
 
 	const payload = {
-		workspaceId: auth.workspaceId,
-		presetId,
-		baselinePresetId,
+		workspace_id: auth.workspaceId,
+		preset_id: presetId,
+		baseline_preset_id: baselinePresetId,
 		name: normalizeText(body.name, 160),
 		description: normalizeText(body.description, 1000),
 		status,
-		datasetName: normalizeText(body.datasetName ?? body.dataset_name, 160),
+		dataset_name: normalizeText(body.datasetName ?? body.dataset_name, 160),
 		config: normalizeJsonObject(body.config),
 		summary: normalizeJsonObject(body.summary),
-		startedAt,
-		completedAt,
-		createdByUserId: normalizeUuid(auth.userId),
+		started_at: startedAt,
+		completed_at: completedAt,
+		created_by_user_id: normalizeUuid(auth.userId),
 	};
 
-	const data = await insertTestRun(payload);
+	const { data, error } = await getSupabaseAdmin()
+		.from("gateway_preset_test_runs")
+		.insert(payload)
+		.select(TEST_RUN_SELECT)
+		.maybeSingle();
+	if (error) return json({ error: "failed", message: error.message }, 500, { "Cache-Control": "no-store" });
+	if (!data) return json({ error: "failed", message: "Test run was not persisted" }, 500, { "Cache-Control": "no-store" });
 	return json({ data: formatTestRun(data as PresetTestRunRow) }, 201, { "Cache-Control": "no-store" });
 }
 
@@ -720,9 +801,19 @@ async function handleListTestRuns(req: Request) {
 	const url = new URL(req.url);
 	const limit = parsePositiveInt(url.searchParams.get("limit"), 100, 250);
 	const offset = parseOffset(url.searchParams.get("offset"));
+	let query: any = getSupabaseAdmin()
+		.from("gateway_preset_test_runs")
+		.select(TEST_RUN_SELECT)
+		.eq("workspace_id", auth.workspaceId)
+		.order("created_at", { ascending: false })
+		.order("id", { ascending: false })
+		.range(offset, offset + limit - 1);
+	query = applyPresetVisibility(query, visible, "preset_id", "baseline_preset_id");
 	const presetId = url.searchParams.get("preset_id")?.trim();
 	if (presetId && !normalizeUuid(presetId)) return json({ error: "bad_request", message: "Invalid preset id" }, 400, { "Cache-Control": "no-store" });
-	const data = await listTestRuns({ workspaceId: auth.workspaceId, visiblePresetIds: visible, presetId, limit, offset });
+	if (presetId) query = query.eq("preset_id", presetId);
+	const { data, error } = await query;
+	if (error) return json({ error: "failed", message: error.message }, 500, { "Cache-Control": "no-store" });
 	return json({ data: (data ?? []).map((row) => formatTestRun(row as PresetTestRunRow)) }, 200, { "Cache-Control": "no-store" });
 }
 
@@ -736,7 +827,14 @@ async function handleGetOrUpdateTestRun(req: Request) {
 	const auth = authorized.auth;
 	const visible = await visiblePresetIds(auth);
 	if (isResponse(visible)) return visible;
-	const data = await findVisibleTestRun(auth.workspaceId, id, visible);
+	let query: any = getSupabaseAdmin()
+		.from("gateway_preset_test_runs")
+		.select(TEST_RUN_SELECT)
+		.eq("workspace_id", auth.workspaceId)
+		.eq("id", id);
+	query = applyPresetVisibility(query, visible, "preset_id", "baseline_preset_id");
+	const { data, error } = await query.maybeSingle();
+	if (error) return json({ error: "failed", message: error.message }, 500, { "Cache-Control": "no-store" });
 	if (!data) return json({ error: "not_found", message: "Preset test run not found" }, 404, { "Cache-Control": "no-store" });
 
 	const feedbackUrl = new URL(req.url);
@@ -755,7 +853,7 @@ async function handleUpdateTestRun(req: Request, id: string) {
 	if (isResponse(existing)) return existing;
 	const body = await requireJsonBody(req);
 	if (isResponse(body)) return body;
-	const update: Parameters<typeof updateTestRun>[2] = {};
+	const update: Record<string, unknown> = { updated_at: new Date().toISOString() };
 	if (body.status !== undefined) {
 		const status = normalizeAllowedText(body.status, TEST_RUN_STATUSES);
 		if (!status) {
@@ -767,17 +865,24 @@ async function handleUpdateTestRun(req: Request, id: string) {
 	if (body.completedAt !== undefined || body.completed_at !== undefined) {
 		const completedAt = normalizeTimestamp(body.completedAt ?? body.completed_at);
 		if (completedAt === "invalid") return json({ error: "bad_request", message: "Invalid completed_at timestamp" }, 400, { "Cache-Control": "no-store" });
-		update.completedAt = completedAt;
+		update.completed_at = completedAt;
 	}
 	if (body.startedAt !== undefined || body.started_at !== undefined) {
 		const startedAt = normalizeTimestamp(body.startedAt ?? body.started_at);
 		if (startedAt === "invalid") return json({ error: "bad_request", message: "Invalid started_at timestamp" }, 400, { "Cache-Control": "no-store" });
-		update.startedAt = startedAt;
+		update.started_at = startedAt;
 	}
 	if (body.name !== undefined) update.name = normalizeText(body.name, 160);
 	if (body.description !== undefined) update.description = normalizeText(body.description, 1000);
 
-	const data = await updateTestRun(auth.workspaceId, id, update);
+	const { data, error } = await getSupabaseAdmin()
+		.from("gateway_preset_test_runs")
+		.update(update)
+		.eq("workspace_id", auth.workspaceId)
+		.eq("id", id)
+		.select(TEST_RUN_SELECT)
+		.maybeSingle();
+	if (error) return json({ error: "failed", message: error.message }, 500, { "Cache-Control": "no-store" });
 	if (!data) return json({ error: "not_found", message: "Preset test run not found" }, 404, { "Cache-Control": "no-store" });
 	return json({ data: formatTestRun(data as PresetTestRunRow) }, 200, { "Cache-Control": "no-store" });
 }

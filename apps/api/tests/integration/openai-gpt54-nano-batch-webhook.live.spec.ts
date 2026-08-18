@@ -8,9 +8,6 @@ import {
 	requireGatewayApiKey,
 	sleep,
 } from "./live-gateway.helpers";
-import { gatewayWebhookEndpoints, keys } from "@phaseo/db/schema";
-import { eq } from "@phaseo/db/query";
-import { withLiveDatabase } from "./live-database.helpers";
 
 const LIVE_OPENAI_BATCH_WEBHOOK_RUN =
 	(process.env.LIVE_OPENAI_BATCH_WEBHOOK_RUN ?? "0").trim() === "1";
@@ -48,6 +45,12 @@ function makePrompts(): string[] {
 
 function normalizeEnv(value: string | undefined): string {
 	return String(value ?? "").trim().replace(/^['"]|['"]$/g, "");
+}
+
+function requireEnv(name: string): string {
+	const value = normalizeEnv(process.env[name]);
+	if (!value) throw new Error(`${name} is required for the live webhook smoke`);
+	return value;
 }
 
 function parseGatewayKeyKid(value: string): string {
@@ -118,10 +121,37 @@ function headerValue(headers: Record<string, string[]>, name: string): string | 
 	return entry?.[1]?.[0] ?? null;
 }
 
+async function supabaseRest<T>(args: {
+	pathname: string;
+	method?: string;
+	body?: unknown;
+	headers?: Record<string, string>;
+}): Promise<T> {
+	const supabaseUrl = normalizeEnv(process.env.SUPABASE_URL) || requireEnv("NEXT_PUBLIC_SUPABASE_URL");
+	const serviceRole = requireEnv("SUPABASE_SERVICE_ROLE_KEY");
+	const response = await fetch(`${supabaseUrl.replace(/\/+$/, "")}/rest/v1/${args.pathname.replace(/^\/+/, "")}`, {
+		method: args.method ?? "GET",
+		headers: {
+			apikey: serviceRole,
+			Authorization: `Bearer ${serviceRole}`,
+			"Content-Type": "application/json",
+			...(args.headers ?? {}),
+		},
+		body: args.body === undefined ? undefined : JSON.stringify(args.body),
+	});
+	const text = await response.text();
+	if (!response.ok) {
+		throw new Error(`Supabase REST ${args.method ?? "GET"} ${args.pathname} failed (${response.status}): ${text}`);
+	}
+	return (text ? JSON.parse(text) : null) as T;
+}
+
 async function resolveWorkspaceIdFromGatewayKey(): Promise<string> {
 	const kid = parseGatewayKeyKid(GATEWAY_API_KEY);
-	const workspaceId = await withLiveDatabase(async (db) => (await db.select({ workspaceId: keys.workspaceId })
-		.from(keys).where(eq(keys.kid, kid)).limit(1))[0]?.workspaceId ?? null);
+	const rows = await supabaseRest<Array<{ workspace_id?: string }>>({
+		pathname: `keys?select=workspace_id&kid=eq.${encodeURIComponent(kid)}&limit=1`,
+	});
+	const workspaceId = String(rows[0]?.workspace_id ?? "").trim();
 	if (!workspaceId) throw new Error("Could not resolve workspace_id for live gateway key");
 	return workspaceId;
 }
@@ -132,25 +162,40 @@ async function createManagedWebhookEndpoint(args: {
 	const workspaceId = await resolveWorkspaceIdFromGatewayKey();
 	const signingSecret = `whsec_${randomToken(32)}`;
 	const encrypted = await encryptWebhookSecret(signingSecret);
-	const id = await withLiveDatabase(async (db) => (await db.insert(gatewayWebhookEndpoints).values({
-			workspaceId,
+	const rows = await supabaseRest<Array<{ id: string }>>({
+		pathname: "gateway_webhook_endpoints?select=id",
+		method: "POST",
+		headers: {
+			Prefer: "return=representation",
+		},
+		body: {
+			workspace_id: workspaceId,
 			name: `Live batch webhook ${Date.now()}`,
 			url: args.receiverUrl,
 			events: ["batch.completed", "batch.failed", "batch.cancelled"],
 			status: "active",
-			secretCiphertext: encrypted.secretCiphertext,
-			secretIv: encrypted.secretIv,
-			secretHash: encrypted.secretHash,
-		}).returning({ id: gatewayWebhookEndpoints.id }))[0]?.id ?? null);
+			secret_ciphertext: encrypted.secretCiphertext,
+			secret_iv: encrypted.secretIv,
+			secret_hash: encrypted.secretHash,
+		},
+	});
+	const id = String(rows[0]?.id ?? "").trim();
 	if (!id) throw new Error("Failed to create managed webhook endpoint fixture");
 	return { id, signingSecret };
 }
 
 async function deleteManagedWebhookEndpoint(id: string): Promise<void> {
-	const now = new Date().toISOString();
-	await withLiveDatabase(async (db) => {
-		await db.update(gatewayWebhookEndpoints).set({ status: "deleted", deletedAt: now, updatedAt: now })
-			.where(eq(gatewayWebhookEndpoints.id, id));
+	await supabaseRest<null>({
+		pathname: `gateway_webhook_endpoints?id=eq.${encodeURIComponent(id)}`,
+		method: "PATCH",
+		headers: {
+			Prefer: "return=minimal",
+		},
+		body: {
+			status: "deleted",
+			deleted_at: new Date().toISOString(),
+			updated_at: new Date().toISOString(),
+		},
 	});
 }
 

@@ -18,15 +18,34 @@ vi.mock("@/pipeline/before/auth", () => ({
 	authenticateManagement: vi.fn(async () => state.auth),
 }));
 
-vi.mock("@/runtime/identity", () => ({
-	getIdentityUserById: vi.fn(async () => ({
-		data: { user: { id: "user_1", email: "user@example.com", name: "Phaseo User", image: null } },
-		error: null,
-	})),
-}));
-
-vi.mock("@/repositories/workspace-members", () => ({
-	listUserWorkspaces: vi.fn(async () => [{ id: "workspace_1", name: "Example", slug: "example", role: "owner" }]),
+vi.mock("@/runtime/env", () => ({
+	getSupabaseAdmin: () => ({
+		auth: {
+			admin: {
+				getUserById: async () => ({
+					data: {
+						user: {
+							id: "user_1",
+							email: "user@example.com",
+							user_metadata: { full_name: "Phaseo User" },
+						},
+					},
+				}),
+			},
+		},
+		from: () => ({
+			select: () => ({
+				eq: async () => ({
+					data: [{
+						role: "owner",
+						workspace_id: "workspace_1",
+						workspaces: { id: "workspace_1", name: "Example", slug: "example" },
+					}],
+					error: null,
+				}),
+			}),
+		}),
+	}),
 }));
 
 vi.mock("@/routes/utils", () => ({

@@ -1,5 +1,4 @@
-import { getBindings } from "@/runtime/env";
-import * as modelDiscoveryRepository from "@/repositories/model-discovery";
+import { getBindings, getSupabaseAdmin } from "@/runtime/env";
 import { resolveVertexAccessToken } from "@providers/google-vertex/auth";
 import { sendDiscordTextMessage } from "./discord";
 import { normalizeProviderModelPricing } from "./pricing-normalizers";
@@ -54,7 +53,59 @@ type PricingRuleRow = {
 };
 
 async function loadV2PricingRows(): Promise<PricingRuleRow[]> {
-	return await modelDiscoveryRepository.loadPricingRows() as PricingRuleRow[];
+	const supabase = getSupabaseAdmin();
+	const routes: Array<{ provider_model_id: string; provider_slug: string; model_slug: string }> = [];
+	for (let offset = 0; ; offset += 1000) {
+		const { data, error } = await supabase
+			.from("v2_model_provider_routes")
+			.select("provider_model_id,provider_slug,model_slug")
+			.range(offset, offset + 999);
+		if (error) throw new Error(error.message || "Failed to load V2 pricing routes");
+		routes.push(...((data ?? []) as typeof routes));
+		if (!data || data.length < 1000) break;
+	}
+	const routeById = new Map(routes.map((route) => [route.provider_model_id, route]));
+	const skus: Array<Record<string, any>> = [];
+	for (let offset = 0; ; offset += 1000) {
+		const { data, error } = await supabase
+			.from("v2_pricing_skus")
+			.select("sku_id,provider_model_id,operation,service_tier_slug,currency,effective_from,effective_to,updated_at")
+			.range(offset, offset + 999);
+		if (error) throw new Error(error.message || "Failed to load V2 pricing SKUs");
+		skus.push(...(data ?? []));
+		if (!data || data.length < 1000) break;
+	}
+	const meters: Array<Record<string, any>> = [];
+	for (let offset = 0; ; offset += 1000) {
+		const { data, error } = await supabase
+			.from("v2_pricing_sku_meters")
+			.select("sku_meter_id,sku_id,meter_key,unit,unit_quantity,price_nanos,meter_order,updated_at,created_at,billable")
+			.eq("billable", true)
+			.range(offset, offset + 999);
+		if (error) throw new Error(error.message || "Failed to load V2 pricing meters");
+		meters.push(...(data ?? []));
+		if (!data || data.length < 1000) break;
+	}
+	const skuById = new Map(skus.map((sku) => [sku.sku_id, sku]));
+	return meters.flatMap((meter) => {
+		const sku = skuById.get(meter.sku_id);
+		const route = sku ? routeById.get(sku.provider_model_id) : null;
+		if (!sku || !route) return [];
+		const updatedAt = Math.max(Date.parse(String(sku.updated_at ?? 0)), Date.parse(String(meter.updated_at ?? meter.created_at ?? 0)));
+		return [{
+			rule_id: String(meter.sku_meter_id),
+			provider_id: route.provider_slug,
+			api_model_id: route.model_slug,
+			capability_id: sku.operation,
+			pricing_plan: sku.service_tier_slug ?? "standard",
+			meter: meter.meter_key,
+			price_per_unit: Number(meter.price_nanos) / 1_000_000_000,
+			currency: sku.currency,
+			effective_from: sku.effective_from ?? null,
+			effective_to: sku.effective_to ?? null,
+			updated_at: Number.isFinite(updatedAt) ? new Date(updatedAt).toISOString() : null,
+		} satisfies PricingRuleRow];
+	});
 }
 
 type PricingProviderChange = {
@@ -1208,13 +1259,21 @@ export function parsePricingCursorFromSummary(summary: unknown): PricingCursor |
 }
 
 export async function loadLatestPricingCursor(): Promise<PricingCursor | null> {
-	const state = asRecord(await modelDiscoveryRepository.getStateValue("__global__", "pricing_cursor"));
-	if (!state || typeof state.updatedAt !== "string" || !state.updatedAt.trim()) return null;
-	return {
-		updatedAt: state.updatedAt,
-		ruleIdsAtTimestamp: asArray(state.ruleIdsAtTimestamp)
-			.filter((value): value is string => typeof value === "string" && value.trim().length > 0),
-	};
+	const supabase = getSupabaseAdmin();
+	const { data, error } = await supabase
+		.from("model_discovery_runs")
+		.select("summary,status,started_at")
+		.in("status", ["completed", "completed_with_errors"])
+		.order("started_at", { ascending: false })
+		.limit(200);
+
+	if (error) throw new Error(error.message || "Failed to load pricing cursor from previous runs");
+
+	for (const row of data ?? []) {
+		const cursor = parsePricingCursorFromSummary((row as Record<string, unknown>).summary);
+		if (cursor) return cursor;
+	}
+	return null;
 }
 
 export function parseConfiguredCoverageProviderChanges(value: unknown): PricingProviderChange[] {
@@ -1262,13 +1321,50 @@ export function parseConfiguredCoverageStateFromSummary(summary: unknown): Confi
 }
 
 export async function loadLatestConfiguredCoverageState(source?: string): Promise<ConfiguredModelCoverageState | null> {
-	const value = await modelDiscoveryRepository.getStateValue(source?.trim() || "__global__", "configured_coverage");
-	return parseConfiguredCoverageStateFromSummary({ configuredModelCoverageMonitor: value });
+	const supabase = getSupabaseAdmin();
+	let query = supabase
+		.from("model_discovery_runs")
+		.select("summary,status,started_at")
+		.in("status", ["completed", "completed_with_errors"])
+		.order("started_at", { ascending: false });
+
+	const sourceValue = typeof source === "string" ? source.trim() : "";
+	if (sourceValue) {
+		query = query.eq("source", sourceValue);
+	}
+
+	const { data, error } = await query.limit(200);
+
+	if (error) throw new Error(error.message || "Failed to load configured model coverage state");
+
+	for (const row of data ?? []) {
+		const state = parseConfiguredCoverageStateFromSummary((row as Record<string, unknown>).summary);
+		if (state) return state;
+	}
+	return null;
 }
 
 export async function loadLatestDiscordNotificationFingerprint(source?: string): Promise<string | null> {
-	const value = await modelDiscoveryRepository.getStateValue(source?.trim() || "__global__", "notification_fingerprint");
-	return typeof value === "string" && value.trim() ? value.trim() : null;
+	const supabase = getSupabaseAdmin();
+	let query = supabase
+		.from("model_discovery_runs")
+		.select("summary,status,started_at")
+		.in("status", ["completed", "completed_with_errors"])
+		.order("started_at", { ascending: false });
+	const sourceValue = typeof source === "string" ? source.trim() : "";
+	if (sourceValue) query = query.eq("source", sourceValue);
+
+	const { data, error } = await query.limit(200);
+	if (error) throw new Error(error.message || "Failed to load Discord notification fingerprint");
+
+	for (const row of data ?? []) {
+		const summary = asRecord((row as Record<string, unknown>).summary);
+		const fingerprint = typeof summary?.notificationFingerprint === "string"
+			? summary.notificationFingerprint.trim()
+			: "";
+		if (fingerprint) return fingerprint;
+	}
+	return null;
 }
 
 export function parsePricingTableStateFromSummary(summary: unknown): PricingTableSnapshotState[] {
@@ -1287,8 +1383,25 @@ export function parsePricingTableStateFromSummary(summary: unknown): PricingTabl
 }
 
 export async function loadLatestPricingTableState(source?: string): Promise<PricingTableSnapshotState[]> {
-	const value = await modelDiscoveryRepository.getStateValue(source?.trim() || "__global__", "pricing_table");
-	return parsePricingTableStateFromSummary({ pricingTableMonitor: { sources: value } });
+	const supabase = getSupabaseAdmin();
+	let query = supabase
+		.from("model_discovery_runs")
+		.select("summary,status,started_at")
+		.in("status", ["completed", "completed_with_errors"])
+		.order("started_at", { ascending: false });
+	const sourceValue = typeof source === "string" ? source.trim() : "";
+	if (sourceValue) query = query.eq("source", sourceValue);
+
+	const { data, error } = await query.limit(200);
+	if (error) throw new Error(error.message || "Failed to load pricing table state");
+	const latestByProvider = new Map<string, PricingTableSnapshotState>();
+	for (const row of data ?? []) {
+		const state = parsePricingTableStateFromSummary((row as Record<string, unknown>).summary);
+		for (const snapshot of state) {
+			if (!latestByProvider.has(snapshot.providerId)) latestByProvider.set(snapshot.providerId, snapshot);
+		}
+	}
+	return [...latestByProvider.values()];
 }
 
 export async function fetchLatestPricingUpdatedAt(): Promise<string | null> {
@@ -1320,10 +1433,29 @@ export async function loadConfiguredProviderModelIds(providerIds: string[]): Pro
 	if (canonicalProviderIds.length === 0) return byProvider;
 	const canonicalProviderIdSet = new Set(canonicalProviderIds);
 
+	const supabase = getSupabaseAdmin();
 	const lookupProviderIds = expandProviderLookupIds(canonicalProviderIds);
-	const rows = await modelDiscoveryRepository.listConfiguredRoutes(lookupProviderIds) as ConfiguredProviderModelRow[];
+	let from = 0;
 
-	for (const row of rows) {
+	while (true) {
+		const to = from + PRICING_PAGE_SIZE - 1;
+		const { data, error } = await supabase
+			.from("v2_model_provider_routes")
+			.select("provider_slug,provider_model_slug,model_slug")
+			.in("provider_slug", lookupProviderIds)
+			.range(from, to);
+		if (error) {
+			throw new Error(error.message || "Failed to load configured provider models");
+		}
+
+		const rows = (data ?? []).map((row) => ({
+			provider_id: row.provider_slug,
+			provider_model_slug: row.provider_model_slug,
+			api_model_id: row.model_slug,
+		})) as ConfiguredProviderModelRow[];
+		if (rows.length === 0) break;
+
+		for (const row of rows) {
 			if (typeof row.provider_id !== "string" || !row.provider_id.trim()) continue;
 			const providerId = canonicalProviderId(row.provider_id);
 			if (!canonicalProviderIdSet.has(providerId)) continue;
@@ -1339,6 +1471,10 @@ export async function loadConfiguredProviderModelIds(providerIds: string[]): Pro
 				}
 			}
 			byProvider.set(providerId, set);
+		}
+
+		if (rows.length < PRICING_PAGE_SIZE) break;
+		from += PRICING_PAGE_SIZE;
 	}
 
 	return byProvider;

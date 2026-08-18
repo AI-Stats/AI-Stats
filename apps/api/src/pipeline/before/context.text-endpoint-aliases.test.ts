@@ -7,7 +7,7 @@ const runtime = vi.hoisted(() => {
 		delete: vi.fn(async () => undefined),
 	};
 
-	const fetchRequestContext = vi.fn(async (args: { endpoint: string }) => {
+	const rpc = vi.fn(async (_name: string, args: { endpoint: string }) => {
 		const providers =
 			args.endpoint === "text.generate"
 				? [
@@ -33,19 +33,77 @@ const runtime = vi.hoisted(() => {
 				: [];
 
 		return {
-			workspace_id: "ws_text_alias",
-			resolved_model: "mistral/devstral-2",
-			key_ok: { ok: true, reason: null },
-			key_limit_ok: { ok: true, reason: null },
-			credit_ok: { ok: true, reason: null },
-			providers,
-			pricing: {},
+			data: [
+				{
+					workspace_id: "ws_text_alias",
+					resolved_model: "mistral/devstral-2",
+					key_ok: { ok: true, reason: null },
+					key_limit_ok: { ok: true, reason: null },
+					credit_ok: { ok: true, reason: null },
+					providers,
+					pricing: {},
+				},
+			],
+			error: null,
 		};
+	});
+
+	const from = vi.fn((table: string) => {
+		if (table === "workspace_settings") {
+			return {
+				select: () => ({
+					eq: () => ({
+						maybeSingle: async () => ({
+							data: {
+								routing_mode: "balanced",
+								byok_fallback_enabled: true,
+								beta_channel_enabled: false,
+								alpha_channel_enabled: false,
+								cache_aware_routing_enabled: true,
+							},
+							error: null,
+						}),
+					}),
+				}),
+			};
+		}
+		if (table === "workspaces") {
+			return {
+				select: () => ({
+					eq: () => ({
+						maybeSingle: async () => ({
+							data: { billing_mode: "wallet" },
+							error: null,
+						}),
+					}),
+				}),
+			};
+		}
+		if (table === "data_api_providers") {
+			return {
+				select: () => ({
+					in: async () => ({
+						data: [
+							{
+								api_provider_id: "mistral",
+								status: "active",
+								routing_status: "active",
+								provider_family_id: null,
+								offer_scope: null,
+								offer_label: null,
+							},
+						],
+						error: null,
+					}),
+				}),
+			};
+		}
+		throw new Error(`Unexpected table: ${table}`);
 	});
 
 	return {
 		cache,
-		fetchRequestContext,
+		supabase: { rpc, from },
 	};
 });
 
@@ -53,16 +111,7 @@ const loadPriceCardMock = vi.hoisted(() => vi.fn());
 
 vi.mock("@/runtime/env", () => ({
 	getCache: () => runtime.cache as unknown as KVNamespace,
-}));
-
-vi.mock("@/repositories/gateway-context", () => ({
-	fetchRequestContext: (args: { endpoint: string }) => runtime.fetchRequestContext(args),
-	loadWorkspaceEnrichment: async (_workspaceId: string, providerIds: string[]) => ({
-		settings: { routing_mode: "balanced", byok_fallback_enabled: true, beta_channel_enabled: false, alpha_channel_enabled: false, cache_aware_routing_enabled: true },
-		workspace: { billing_mode: "wallet" },
-		providers: providerIds.map((provider_slug) => ({ provider_slug, status: "active", routing_enabled: true, provider_family_slug: null, offer_scope: null, offer_label: null, metadata: {} })),
-	}),
-	findWallet: async () => null, listByokKeys: async () => [], listRoutes: async () => [], listCapabilities: async () => [], listModels: async () => [], listProviders: async () => [],
+	getSupabaseAdmin: () => runtime.supabase,
 }));
 
 vi.mock("@pipeline/pricing", () => ({
@@ -74,7 +123,8 @@ describe("fetchGatewayContext text endpoint aliases", () => {
 		runtime.cache.get.mockClear();
 		runtime.cache.put.mockClear();
 		runtime.cache.delete.mockClear();
-		runtime.fetchRequestContext.mockClear();
+		runtime.supabase.rpc.mockClear();
+		runtime.supabase.from.mockClear();
 		loadPriceCardMock.mockReset();
 		loadPriceCardMock.mockResolvedValue({
 			provider: "mistral",
@@ -111,7 +161,7 @@ describe("fetchGatewayContext text endpoint aliases", () => {
 			}),
 		);
 		expect(
-			runtime.fetchRequestContext.mock.calls.map(([args]) => args.endpoint),
+			runtime.supabase.rpc.mock.calls.map(([, args]) => args.endpoint),
 		).toContain("text.generate");
 		expect(loadPriceCardMock).toHaveBeenCalledWith(
 			"mistral",
@@ -121,7 +171,7 @@ describe("fetchGatewayContext text endpoint aliases", () => {
 	});
 
 	it("merges text.generate providers when the first /responses context is only partial", async () => {
-		runtime.fetchRequestContext.mockImplementation(async (args: { endpoint: string }) => {
+		runtime.supabase.rpc.mockImplementation(async (_name: string, args: { endpoint: string }) => {
 			const providers =
 				args.endpoint === "responses"
 					? [
@@ -186,13 +236,18 @@ describe("fetchGatewayContext text endpoint aliases", () => {
 						: [];
 
 			return {
-				workspace_id: "ws_text_alias",
-				resolved_model: "minimax/minimax-m3",
-				key_ok: { ok: true, reason: null },
-				key_limit_ok: { ok: true, reason: null },
-				credit_ok: { ok: true, reason: null },
-				providers,
-				pricing: {},
+				data: [
+					{
+						workspace_id: "ws_text_alias",
+						resolved_model: "minimax/minimax-m3",
+						key_ok: { ok: true, reason: null },
+						key_limit_ok: { ok: true, reason: null },
+						credit_ok: { ok: true, reason: null },
+						providers,
+						pricing: {},
+					},
+				],
+				error: null,
 			};
 		});
 
@@ -211,7 +266,7 @@ describe("fetchGatewayContext text endpoint aliases", () => {
 			"venice",
 		]);
 		expect(
-			runtime.fetchRequestContext.mock.calls.map(([args]) => args.endpoint),
+			runtime.supabase.rpc.mock.calls.map(([, args]) => args.endpoint),
 		).toContain("text.generate");
 	});
 });

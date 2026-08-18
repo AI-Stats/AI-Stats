@@ -1,17 +1,17 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-const profileRepo = vi.hoisted(() => ({ getProfileRecord: vi.fn(), listProfileWorkspaceIds: vi.fn(), listProfileUsageRows: vi.fn(), getProfileModelNames: vi.fn(), listProfileGameResults: vi.fn() }));
-vi.mock("@/repositories/account-profile", () => profileRepo);
 import app from "@/index";
 
 const env = {
 	ENV: "development" as const,
+	SUPABASE_URL: "https://example.supabase.co",
+	SUPABASE_ANON_KEY: "anon-key",
+	SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
 };
 
 afterEach(() => vi.unstubAllGlobals());
 
 describe("account profile settings route", () => {
 	it("returns the private profile identity without coupling it to usage queries", async () => {
-		profileRepo.getProfileRecord.mockResolvedValue({ profile: { displayName: "Test Person", defaultWorkspaceId: "workspace-1", createdAt: "2025-01-01T00:00:00Z", obfuscateInfo: false, publicProfileEnabled: false, publicProfileSlug: null }, workspaceName: "Test Workspace" });
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = input instanceof Request ? input.url : String(input);
 			if (url.includes("/auth/v1/user")) return new Response(JSON.stringify({
@@ -53,12 +53,7 @@ describe("account profile settings route", () => {
 	});
 
 	it("aggregates profile usage across every workspace membership", async () => {
-		profileRepo.listProfileWorkspaceIds.mockResolvedValue(["workspace-1", "workspace-2"]);
-		profileRepo.listProfileUsageRows.mockResolvedValue([
-			{ bucket: new Date().toISOString(), model_id: "openai/gpt-test", requests: 2, tokens: 15, cost: .25 },
-			{ bucket: new Date().toISOString(), model_id: "anthropic/claude-test", requests: 3, tokens: 25, cost: .5 },
-		]);
-		profileRepo.getProfileModelNames.mockResolvedValue(new Map([["openai/gpt-test", "GPT Test"], ["anthropic/claude-test", "Claude Test"]]));
+		let requestCalls = 0;
 		const requestedUrls: string[] = [];
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = input instanceof Request ? input.url : String(input);
@@ -73,6 +68,17 @@ describe("account profile settings route", () => {
 				{ workspace_id: "workspace-1" },
 				{ workspace_id: "workspace-2" },
 			]), { status: 200 });
+			if (url.includes("v2_web_gateway_requests")) {
+				requestCalls += 1;
+				return new Response(JSON.stringify(requestCalls === 1 ? [
+					{ created_at: new Date().toISOString(), model_id: "openai/gpt-test", usage: { total_tokens: 7 }, cost_nanos: 125_000_000 },
+					{ created_at: new Date().toISOString(), model_id: "openai/gpt-test", usage: { total_tokens: 8 }, cost_nanos: 125_000_000 },
+				] : [
+					{ created_at: new Date().toISOString(), model_id: "anthropic/claude-test", usage: { total_tokens: 10 }, cost_nanos: 200_000_000 },
+					{ created_at: new Date().toISOString(), model_id: "anthropic/claude-test", usage: { total_tokens: 10 }, cost_nanos: 150_000_000 },
+					{ created_at: new Date().toISOString(), model_id: "anthropic/claude-test", usage: { total_tokens: 5 }, cost_nanos: 150_000_000 },
+				]), { status: 200 });
+			}
 			if (url.includes("v2_models")) return new Response(JSON.stringify([
 				{ model_id: "openai/gpt-test", name: "GPT Test" },
 				{ model_id: "anthropic/claude-test", name: "Claude Test" },
@@ -102,7 +108,9 @@ describe("account profile settings route", () => {
 				]),
 			},
 		});
-		expect(profileRepo.listProfileWorkspaceIds).toHaveBeenCalledWith(env, "user-1", 100);
-		expect(profileRepo.listProfileUsageRows).toHaveBeenCalledWith(env, ["workspace-1", "workspace-2"], 365);
+		expect(requestedUrls.find((url) => url.includes("workspace_members"))).toContain("limit=100");
+		expect(requestedUrls.filter((url) => url.includes("v2_web_gateway_requests"))).toEqual(
+			expect.arrayContaining([expect.stringContaining("created_at=gte.")]),
+		);
 	});
 });

@@ -19,7 +19,8 @@ const state = vi.hoisted(() => ({
 	updatePayloads: [] as Array<Record<string, unknown>>,
 	insertPayloads: [] as Array<Record<string, unknown>>,
 	membershipRows: [] as Array<Record<string, unknown> | null>,
-	tombstones: [] as Array<{ id: string; workspaceId: string; deletedAt: string }>,
+	updateFilters: [] as Array<Array<{ column: string; value: unknown }>>,
+	deleteFilters: [] as Array<{ table: string; column: string; value: unknown }>,
 	enforceWorkspaceKeyLimit: vi.fn(async (_workspaceId: string) => undefined),
 	setKeyVersion: vi.fn(async () => undefined),
 	bindings: { PHASEO_CONTROL_SECRET: "secret", KEY_PEPPER_ACTIVE: "pepper" } as Record<string, unknown>,
@@ -35,38 +36,98 @@ function json(body: unknown, status = 200, headers: Record<string, string> = {})
 	});
 }
 
+function buildKeysSupabaseMock() {
+	return {
+		from(table: string) {
+			if (table !== "keys" && table !== "workspaces" && table !== "workspace_members" && table !== "key_guardrails" && table !== "broadcast_destination_keys") {
+				throw new Error(`Unexpected table: ${table}`);
+			}
+
+			if (table === "key_guardrails" || table === "broadcast_destination_keys") {
+				return {
+					delete: () => ({
+						eq: async (column: string, value: unknown) => {
+							state.deleteFilters.push({ table, column, value });
+							return { error: null };
+						},
+					}),
+				};
+			}
+
+			if (table === "workspaces") {
+				return {
+					select: () => ({
+						eq: () => ({
+							maybeSingle: async () => ({
+								data: state.workspaceRows.shift() ?? null,
+								error: null,
+							}),
+						}),
+					}),
+				};
+			}
+
+			if (table === "workspace_members") {
+				return {
+					select: () => ({
+						eq: () => ({
+							eq: () => ({
+								maybeSingle: async () => ({
+									data: state.membershipRows.shift() ?? null,
+									error: null,
+								}),
+							}),
+						}),
+					}),
+				};
+			}
+
+			let updatePayload: Record<string, unknown> | null = null;
+			const query: any = {
+				select: () => query,
+				eq: () => query,
+				neq: () => query,
+				or: () => query,
+				order: () => query,
+				range: () => query,
+				maybeSingle: async () => ({
+					data: state.keyRows.shift() ?? null,
+					error: null,
+				}),
+				update: (payload: Record<string, unknown>) => {
+					updatePayload = payload;
+					state.updatePayloads.push(payload);
+					const filters: Array<{ column: string; value: unknown }> = [];
+					state.updateFilters.push(filters);
+					const updater: any = {
+						eq: (column: string, value: unknown) => {
+							filters.push({ column, value });
+							return filters.length >= 2 ? Promise.resolve({ error: null }) : updater;
+						},
+					};
+					return updater;
+				},
+				insert: (payload: Record<string, unknown>) => {
+					state.insertPayloads.push(payload);
+					return {
+						select: () => ({
+							maybeSingle: async () => ({
+								data: state.keyRows.shift() ?? null,
+								error: null,
+							}),
+						}),
+					};
+				},
+			};
+			return query;
+		},
+	};
+}
+
 vi.mock("@/runtime/env", () => ({
+	getSupabaseAdmin: () => buildKeysSupabaseMock(),
 	getCache: () => ({ delete: vi.fn(async () => undefined) }),
 	getBindings: () => state.bindings,
-}));
-
-vi.mock("@/repositories/api-keys", () => ({
-	findApiKeyByIdAndWorkspace: vi.fn(async () => state.keyRows.shift() ?? null),
-	findApiKey: vi.fn(async () => state.keyRows.shift() ?? null),
-	findApiKeyForInvalidation: vi.fn(async () => state.keyRows.shift() ?? null),
-	listApiKeys: vi.fn(async () => ({ total: state.keyRows.length, rows: state.keyRows.splice(0) })),
-	createApiKey: vi.fn(async (payload: Record<string, unknown>) => {
-		state.insertPayloads.push(payload);
-		return state.keyRows.shift() ?? null;
-	}),
-	updateApiKey: vi.fn(async (_id: string, _workspaceId: string, payload: Record<string, unknown>) => {
-		state.updatePayloads.push(payload);
-		return state.keyRows.shift() ?? null;
-	}),
-	tombstoneApiKey: vi.fn(async (id: string, workspaceId: string, deletedAt: string) => {
-		state.tombstones.push({ id, workspaceId, deletedAt });
-	}),
-}));
-
-vi.mock("@/repositories/management", () => ({
-	findWorkspaceOwnerUserId: vi.fn(async () => {
-		const row = state.workspaceRows.shift();
-		return typeof row?.owner_user_id === "string" ? row.owner_user_id : null;
-	}),
-	findWorkspaceRole: vi.fn(async () => {
-		const row = state.membershipRows.shift();
-		return typeof row?.role === "string" ? row.role : null;
-	}),
 }));
 
 vi.mock("@/pipeline/before/guards", () => ({
@@ -117,7 +178,8 @@ describe("management key routes", () => {
 		state.workspaceRows.length = 0;
 		state.membershipRows.length = 0;
 		state.updatePayloads.length = 0;
-		state.tombstones.length = 0;
+		state.updateFilters.length = 0;
+		state.deleteFilters.length = 0;
 		state.setKeyVersion.mockClear();
 		state.bindings = { PHASEO_CONTROL_SECRET: "secret", KEY_PEPPER_ACTIVE: "pepper" };
 		state.insertPayloads.length = 0;
@@ -198,12 +260,12 @@ describe("management key routes", () => {
 		expect(response.status).toBe(201);
 		expect(state.enforceWorkspaceKeyLimit).toHaveBeenCalledWith("ws_1");
 		expect(state.insertPayloads[0]).toMatchObject({
-			workspaceId: "ws_1",
+			workspace_id: "ws_1",
 			name: "Analytics Key",
 			scopes: "[]",
-			weeklyLimitCostNanos: 5_000_000_000,
-			dailyLimitCostNanos: 0,
-			monthlyLimitCostNanos: 0,
+			weekly_limit_cost_nanos: 5_000_000_000,
+			daily_limit_cost_nanos: 0,
+			monthly_limit_cost_nanos: 0,
 		});
 		expect(body.data).toMatchObject({
 			hash: "hash_new",
@@ -354,10 +416,14 @@ describe("management key routes", () => {
 
 		expect(response.status).toBe(200);
 		expect(state.updatePayloads[0]).toMatchObject({
-			dailyLimitCostNanos: 10_000_000_000,
-			weeklyLimitCostNanos: 0,
-			monthlyLimitCostNanos: 0,
+			daily_limit_cost_nanos: 10_000_000_000,
+			weekly_limit_cost_nanos: 0,
+			monthly_limit_cost_nanos: 0,
 		});
+		expect(state.updateFilters[0]).toEqual([
+			{ column: "id", value: "key_1" },
+			{ column: "workspace_id", value: "ws_1" },
+		]);
 		expect(body.data).toMatchObject({
 			hash: "hash_1",
 			limit: 10,
@@ -383,7 +449,19 @@ describe("management key routes", () => {
 
 		expect(response.status).toBe(200);
 		expect(body).toEqual({ deleted: true });
-		expect(state.tombstones).toEqual([{ id: "key_1", workspaceId: "ws_1", deletedAt: expect.any(String) }]);
+		expect(state.updatePayloads[0]).toMatchObject({
+			status: "deleted",
+			soft_blocked: true,
+			hash: "deleted:key_1",
+		});
+		expect(state.updateFilters[0]).toEqual([
+			{ column: "id", value: "key_1" },
+			{ column: "workspace_id", value: "ws_1" },
+		]);
+		expect(state.deleteFilters).toEqual([
+			{ table: "key_guardrails", column: "key_id", value: "key_1" },
+			{ table: "broadcast_destination_keys", column: "key_id", value: "key_1" },
+		]);
 	});
 
 	it("accepts legacy control bindings while invalidating a cached key", async () => {

@@ -1,6 +1,4 @@
-import { getBindings } from "@/runtime/env";
-import { getIdentityUserById } from "@/runtime/identity";
-import { enqueueUnique, getWorkspaceOwner, markLowBalanceEmailSent } from "@/repositories/billing-notifications";
+import { getBindings, getSupabaseAdmin } from "@/runtime/env";
 
 type LowBalanceSettings = {
 	enabled: boolean;
@@ -131,8 +129,14 @@ export async function enqueueLowBalanceEmail(args: {
 		return;
 	}
 
+	const supabase = getSupabaseAdmin();
+
 	// Resolve team name + owner email.
-	const teamRow = await getWorkspaceOwner(workspaceId);
+	const { data: teamRow } = await supabase
+		.from("workspaces")
+		.select("id,name,owner_user_id")
+		.eq("id", workspaceId)
+		.maybeSingle();
 
 	const teamName = (teamRow as any)?.name ?? "your team";
 	const ownerUserId = (teamRow as any)?.owner_user_id ?? null;
@@ -141,9 +145,11 @@ export async function enqueueLowBalanceEmail(args: {
 	let ownerEmail: string | null = null;
 	let ownerMetadata: Record<string, unknown> | null = null;
 	try {
-		const userRes = await getIdentityUserById(ownerUserId);
+		const userRes = await (supabase as any).auth.admin.getUserById(ownerUserId);
 		ownerEmail = userRes?.data?.user?.email ?? null;
-		ownerMetadata = userRes?.data?.user?.name ? { name: userRes.data.user.name } : null;
+		ownerMetadata = (userRes?.data?.user?.user_metadata ?? null) as
+			| Record<string, unknown>
+			| null;
 	} catch {
 		ownerEmail = null;
 		ownerMetadata = null;
@@ -169,13 +175,13 @@ export async function enqueueLowBalanceEmail(args: {
 			thresholdUsd: roundedThresholdUsd,
 		});
 	} else {
-		await enqueueUnique({
+		await supabase.from("email_outbox").insert({
 			kind: "low_balance",
 			template: "low_balance",
-			toEmail: ownerEmail,
+			to_email: ownerEmail,
 			subject: "Low balance alert",
-			workspaceId,
-			userId: ownerUserId,
+			workspace_id: workspaceId,
+			user_id: ownerUserId,
 			payload: {
 				user_first_name: ownerFirstName,
 				workspace_id: workspaceId,
@@ -185,8 +191,15 @@ export async function enqueueLowBalanceEmail(args: {
 				threshold_nanos: settings.thresholdNanos,
 				threshold_usd: roundedThresholdUsd,
 			},
-		});
+		} as any);
 	}
 
-	await markLowBalanceEmailSent({ workspaceId, balanceNanos, sentAt: new Date().toISOString() });
+	await supabase
+		.from("workspace_settings")
+		.update({
+			low_balance_email_last_sent_at: new Date().toISOString(),
+			low_balance_email_last_sent_balance_nanos: balanceNanos,
+			updated_at: new Date().toISOString(),
+		})
+		.eq("workspace_id", workspaceId);
 }

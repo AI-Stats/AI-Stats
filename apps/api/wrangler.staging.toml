@@ -1,15 +1,15 @@
 name = "phaseo-gateway-staging"
 main = "src/index.ts"
 compatibility_date = "2025-10-01"
-compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
+compatibility_flags = ["global_fetch_strictly_public"]
 workers_dev = true
 preview_urls = false
 routes = [{ pattern = "api-staging.phaseo.app", custom_domain = true }]
 
 [vars]
 ENV = "staging"
-BETTER_AUTH_URL = "https://phaseo.app"
 NODE_ENV = "production"
+SUPABASE_URL = "https://xansbgjaduxypzsmjwct.supabase.co"
 AMAZON_BEDROCK_REGION = "us-east-1"
 AMAZON_BEDROCK_MANTLE_BASE_URL = "https://bedrock-mantle.us-east-1.api.aws"
 STATSIG_ENVIRONMENT_TIER = "staging"
@@ -31,6 +31,7 @@ VIDEO_RECONCILIATION_ENABLED = "false"
 BATCH_RECONCILIATION_ENABLED = "false"
 EMAIL_OUTBOX_DRAIN_ENABLED = "false"
 PRICING_MONITOR_ENABLED = "false"
+ENTERPRISE_INVOICING_ENABLED = "false"
 
 [placement]
 mode = "smart"
@@ -52,10 +53,6 @@ bucket_name = "phaseo-gateway-io-logs-preview"
 [[r2_buckets]]
 binding = "DATA_CONTRIBUTIONS_BUCKET"
 bucket_name = "phaseo-data-contributions-preview"
-
-[[hyperdrive]]
-binding = "PLANETSCALE_HYPERDRIVE"
-id = "31f2d1cba26c46f79705fbb7c22b3a7c"
 
 [[ratelimits]]
 name = "OAUTH_STRICT_RATE_LIMITER"

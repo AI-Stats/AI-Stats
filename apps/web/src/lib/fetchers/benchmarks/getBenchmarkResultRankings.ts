@@ -1,4 +1,4 @@
-import { getPlanetScalePool } from "@/lib/database/planetscale";
+import { createAdminClient } from "@/utils/supabase/admin";
 
 export interface DerivedBenchmarkRankingRow {
 	resultId: string;
@@ -102,50 +102,19 @@ export async function getBenchmarkResultRankings(args: {
 	);
 	if (!benchmarkIds.length) return [];
 
-	const result = await getPlanetScalePool().query<RawDerivedBenchmarkRankingRow>(`
-		with target_benchmarks as (
-			select id,ascending_order,type from data_benchmarks
-			where id=any($1::text[]) and ($2::text is null or exists (
-				select 1 from data_benchmark_results requested
-				where requested.benchmark_id=data_benchmarks.id and requested.model_id=$2
-			))
-		), scoped_results as (
-			select result.*,model.name model_name,model.release_date,model.announcement_date,
-				model.organisation_id,organisation.name organisation_name,organisation.colour organisation_colour,
-				target.ascending_order,
-				case when target.type='percentage' and abs(result.score_numeric)>0 and abs(result.score_numeric)<=1
-					then result.score_numeric*100 else result.score_numeric end comparable_score
-			from target_benchmarks target
-			join data_benchmark_results result on result.benchmark_id=target.id
-			join data_models model on model.model_id=result.model_id
-			left join data_organisations organisation on organisation.organisation_id=model.organisation_id
-			where $3::boolean or not coalesce(model.hidden,false)
-		), model_scores as (
-			select benchmark_id,model_id,bool_or(ascending_order is false) lower_is_better,
-				case when bool_or(ascending_order is false) then min(comparable_score) else max(comparable_score) end primary_score
-			from scoped_results where comparable_score is not null group by benchmark_id,model_id
-		), ranked_models as (
-			select benchmark_id,model_id,primary_score,
-				rank() over (partition by benchmark_id order by
-					case when lower_is_better then primary_score end asc nulls last,
-					case when not lower_is_better then primary_score end desc nulls last) benchmark_rank,
-				count(*) over (partition by benchmark_id) total_ranked_models
-			from model_scores
-		), selected_models as (
-			select roster.benchmark_id,roster.model_id,ranked.primary_score,ranked.benchmark_rank,ranked.total_ranked_models
-			from (select distinct benchmark_id,model_id from scoped_results) roster
-			left join ranked_models ranked using (benchmark_id,model_id)
-			where ($2::text is null or roster.model_id=$2)
-				and ($4::integer is null or ranked.benchmark_rank>=1 and ranked.benchmark_rank<=greatest($4,1))
-		)
-		select scoped.id result_id,scoped.model_id,scoped.benchmark_id,scoped.score,scoped.score_numeric,
-			scoped.is_self_reported,scoped.other_info,scoped.source_link,scoped.created_at,scoped.updated_at,
-			scoped.occur_idx,scoped.variant,scoped.result_key,ranked.benchmark_rank,ranked.total_ranked_models,
-			ranked.primary_score is not null and scoped.comparable_score is not distinct from ranked.primary_score is_primary_result,
-			scoped.model_name,scoped.release_date,scoped.announcement_date,scoped.organisation_id,
-			scoped.organisation_name,scoped.organisation_colour
-		from scoped_results scoped join selected_models ranked using (benchmark_id,model_id)
-		order by scoped.benchmark_id,ranked.benchmark_rank,scoped.model_id,scoped.occur_idx,scoped.id
-	`, [benchmarkIds, args.modelId ?? null, args.includeHidden, args.limitPerBenchmark ?? null]);
-	return result.rows.map(mapDerivedBenchmarkRankingRow);
+	const supabase = createAdminClient();
+	const { data, error } = await supabase.rpc("get_benchmark_result_rankings", {
+		p_benchmark_ids: benchmarkIds,
+		p_model_id: args.modelId ?? null,
+		p_include_hidden: args.includeHidden,
+		p_limit_per_benchmark: args.limitPerBenchmark ?? null,
+	});
+
+	if (error) {
+		throw new Error(error.message || "Failed to derive benchmark rankings");
+	}
+
+	return ((data ?? []) as RawDerivedBenchmarkRankingRow[]).map(
+		mapDerivedBenchmarkRankingRow
+	);
 }

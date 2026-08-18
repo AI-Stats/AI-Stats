@@ -8,25 +8,13 @@ export const metadata = {
 	title: "MFA - Settings",
 };
 
-
-export default async function AccountMFAPage({
-	searchParams,
-}: {
-	searchParams: Promise<{ reenroll?: string }>;
-}) {
-	const reenrollmentRequired = (await searchParams).reenroll === "required";
+export default function AccountMFAPage() {
 	return (
 		<div className="space-y-6">
 			<SettingsPageHeader
 				title="MFA"
 				description="Manage two-factor authentication for your user."
 			/>
-			{reenrollmentRequired ? (
-				<div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-4 text-sm">
-					Your previous authenticator secret cannot be transferred safely. Enrol a new
-					Phaseo authenticator below before continuing to your account.
-				</div>
-			) : null}
 			<Suspense fallback={<SettingsSectionFallback />}>
 				<AccountMFAContent />
 			</Suspense>
@@ -50,7 +38,7 @@ async function AccountMFAContent() {
 			hasPassword={initialData.hasPassword}
 			mfaEnabled={initialData.mfaEnabled}
 			mfaFactorId={initialData.mfaFactorId}
-			useBetterAuth
 		/>
 	);
 }
+

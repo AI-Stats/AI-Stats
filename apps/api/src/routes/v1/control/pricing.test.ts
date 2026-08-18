@@ -1,14 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const guardAuthMock = vi.fn();
-const loadPricingCatalogueRowsMock = vi.fn();
+const getSupabaseAdminMock = vi.fn();
 
 vi.mock("@pipeline/before/guards", () => ({
 	guardAuth: (...args: unknown[]) => guardAuthMock(...args),
 }));
 
-vi.mock("@/repositories/pricing", () => ({
-	loadPricingCatalogueRows: (...args: unknown[]) => loadPricingCatalogueRowsMock(...args),
+vi.mock("@/runtime/env", () => ({
+	getSupabaseAdmin: (...args: unknown[]) => getSupabaseAdminMock(...args),
 }));
 
 vi.mock("../../utils", () => ({
@@ -23,10 +23,19 @@ vi.mock("../../utils", () => ({
 
 import { pricingRoutes } from "./pricing";
 
+function queryResult(result: { data: unknown[]; error: unknown }) {
+	const query: Record<string, unknown> = {};
+	for (const method of ["select", "eq", "in", "lte", "or", "order"]) {
+		query[method] = vi.fn(() => query);
+	}
+	query.then = (resolve: (value: unknown) => unknown) => Promise.resolve(result).then(resolve);
+	return query;
+}
+
 describe("pricingRoutes", () => {
 	beforeEach(() => {
 		guardAuthMock.mockReset();
-		loadPricingCatalogueRowsMock.mockReset();
+		getSupabaseAdminMock.mockReset();
 		guardAuthMock.mockResolvedValue({
 			ok: true,
 			value: {
@@ -38,26 +47,38 @@ describe("pricingRoutes", () => {
 	});
 
 	it("includes active rows with open effective windows and avoids empty in filters", async () => {
-		loadPricingCatalogueRowsMock.mockResolvedValue({
-			routes: [{ providerModelId: "pm_1", providerSlug: "openai", modelSlug: "openai/gpt-test" }],
-			models: [{ modelSlug: "openai/gpt-test", name: "GPT Test", hidden: false, status: "active" }],
-			skus: [{
-					skuId: "sku_1",
-					providerModelId: "pm_1",
+		getSupabaseAdminMock.mockReturnValue({
+			from: vi.fn((table: string) => {
+				if (table === "v2_model_provider_routes") return queryResult({ data: [{
+					provider_model_id: "pm_1",
+					provider_slug: "openai",
+					model_slug: "openai/gpt-test",
+				}], error: null });
+				if (table === "v2_models") return queryResult({ data: [{
+					model_slug: "openai/gpt-test",
+					name: "GPT Test",
+					hidden: false,
+					status: "active",
+				}], error: null });
+				if (table === "v2_pricing_skus") return queryResult({ data: [{
+					sku_id: "sku_1",
+					provider_model_id: "pm_1",
 					operation: "chat/completions",
-					serviceTierSlug: "standard",
+					service_tier_slug: "standard",
 					currency: "USD",
 					metadata: {},
-			}],
-			meters: [{
-					skuId: "sku_1",
-					meterKey: "input_tokens",
+				}], error: null });
+				if (table === "v2_pricing_sku_meters") return queryResult({ data: [{
+					sku_id: "sku_1",
+					meter_key: "input_tokens",
 					unit: "token",
-					unitQuantity: 1_000_000,
-					priceNanos: 1_500_000_000,
+					unit_quantity: 1_000_000,
+					price_nanos: 1_500_000_000,
 					metadata: {},
-					meterOrder: 1,
-			}],
+					meter_order: 1,
+				}], error: null });
+				throw new Error(`unexpected table: ${table}`);
+			}),
 		});
 
 		const response = await pricingRoutes.request("https://example.com/models");

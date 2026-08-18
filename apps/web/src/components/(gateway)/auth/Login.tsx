@@ -12,13 +12,11 @@ export function Login({
 	authError = null,
 	returnUrl,
 	ssoEnabled = false,
-	useBetterAuth = false,
 }: {
 	signupNotice?: SignupNotice;
 	authError?: "auth-failed" | null;
 	returnUrl?: string;
 	ssoEnabled?: boolean;
-	useBetterAuth?: boolean;
 }) {
 	const signupNoticeText =
 		signupNotice === "check-email"
@@ -53,7 +51,7 @@ export function Login({
 			<div className="grid gap-2.5">
 				<OAuthButtons returnUrl={returnUrl} />
 				<div className={ssoEnabled ? "grid grid-cols-2 gap-2.5" : "grid"}>
-					<PasskeySignInButton returnUrl={returnUrl} compact={ssoEnabled} useBetterAuth={useBetterAuth} />
+					<PasskeySignInButton returnUrl={returnUrl} compact={ssoEnabled} />
 					{ssoEnabled ? <Button asChild variant="outline" className="h-11 w-full">
 						<Link
 							href={

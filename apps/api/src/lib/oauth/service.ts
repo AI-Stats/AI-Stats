@@ -1,5 +1,4 @@
-import { getBindings } from "@/runtime/env";
-import { getIdentityUserById } from "@/runtime/identity";
+import { getBindings, getSupabaseAdmin } from "@/runtime/env";
 import {
 	CAPABILITIES,
 	DEFAULT_CLI_OAUTH_CAPABILITIES,
@@ -10,19 +9,6 @@ import {
 import { resolveActiveKeyPepper, resolveKeyPepperCandidates } from "@/lib/security/keyPepper";
 import { generateGatewayKey, hmacSecret, timingSafeEqual } from "@/routes/auth.helpers";
 import { validateOAuthToken, type JWTClaims } from "./jwt";
-import {
-	findActiveDelegatedKeyByKid,
-	findActiveAuthorizationWithMembership,
-	findActiveOAuthClient,
-	findOAuthRefreshToken,
-	insertOAuthRefreshToken,
-	consumeOAuthGrantAndIssueRefreshToken,
-	consumeOAuthCodeAndIssueDelegatedKey,
-	revokeDelegatedKey,
-	revokeOAuthRefreshTokens,
-	rotateOAuthRefreshToken as rotateStoredOAuthRefreshToken,
-	upsertOAuthAuthorization,
-} from "@/repositories/oauth";
 
 const encoder = new TextEncoder();
 const ACCESS_TOKEN_TTL_SECONDS = 15 * 60;
@@ -165,6 +151,15 @@ export function getIssuer(): string {
 export function isThirdPartyOAuthEnabled(): boolean {
 	const bindings = getBindings();
 	const raw = bindings.PHASEO_THIRD_PARTY_OAUTH_ENABLED;
+	if (typeof raw === "boolean") return raw;
+	return TRUTHY_VALUES.has(String(raw ?? "").trim().toLowerCase());
+}
+
+// The older /auth exchange flow mints keys that predate delegated-key
+// revocation metadata. Keep it independently disabled unless it is migrated.
+export function isLegacyOAuthExchangeEnabled(): boolean {
+	const bindings = getBindings();
+	const raw = bindings.PHASEO_LEGACY_OAUTH_EXCHANGE_ENABLED;
 	if (typeof raw === "boolean") return raw;
 	return TRUTHY_VALUES.has(String(raw ?? "").trim().toLowerCase());
 }
@@ -395,48 +390,36 @@ export async function issueMcpUpstreamToken(input: TokenIssueInput) {
 }
 
 async function fetchUserProfile(userId: string): Promise<{ email?: string | null; name?: string | null }> {
-	const { data } = await getIdentityUserById(userId);
+	const supabase = getSupabaseAdmin();
+	const { data } = await supabase.auth.admin.getUserById(userId);
 	const user = data?.user;
+	const metadata = (user?.user_metadata ?? {}) as Record<string, unknown>;
 	return {
 		email: user?.email ?? null,
-		name: user?.name ?? null,
+		name:
+			typeof metadata.full_name === "string"
+				? metadata.full_name
+				: typeof metadata.name === "string"
+					? metadata.name
+					: null,
 	};
 }
 
-export async function getOAuthRequestActor(request: Request): Promise<OAuthActor | null> {
-	const bindings = getBindings();
-	const cookie = request.headers.get("cookie")?.trim();
-	const authorization = request.headers.get("authorization")?.trim();
-	const configured = String(bindings.BETTER_AUTH_URL ?? "").trim();
-	if ((!cookie && !authorization?.startsWith("Bearer ")) || !configured) return null;
-	try {
-		const sessionUrl = new URL(configured);
-		if (sessionUrl.protocol !== "https:" && sessionUrl.hostname !== "localhost") return null;
-		sessionUrl.pathname = `${sessionUrl.pathname.replace(/\/+$/, "")}/api/auth/get-session`;
-		sessionUrl.search = "";
-		sessionUrl.hash = "";
-		const response = await fetch(sessionUrl, {
-			headers: {
-				Accept: "application/json",
-				...(cookie ? { Cookie: cookie } : {}),
-				...(authorization ? { Authorization: authorization } : {}),
-			},
-			redirect: "error",
-			signal: AbortSignal.timeout(3_000),
-		});
-		if (!response.ok) return null;
-		const payload = await response.json<{
-			user?: { id?: string; email?: string | null; name?: string | null; mfaReenrollmentRequired?: boolean };
-		}>();
-		if (!payload.user?.id || payload.user.mfaReenrollmentRequired === true) return null;
-		return {
-			userId: payload.user.id,
-			email: payload.user.email ?? null,
-			name: payload.user.name ?? null,
-		};
-	} catch {
-		return null;
-	}
+export async function getSupabaseActor(accessToken: string): Promise<OAuthActor | null> {
+	const supabase = getSupabaseAdmin();
+	const { data, error } = await supabase.auth.getUser(accessToken);
+	if (error || !data?.user?.id) return null;
+	const metadata = (data.user.user_metadata ?? {}) as Record<string, unknown>;
+	return {
+		userId: data.user.id,
+		email: data.user.email ?? null,
+		name:
+			typeof metadata.full_name === "string"
+				? metadata.full_name
+				: typeof metadata.name === "string"
+					? metadata.name
+					: null,
+	};
 }
 
 function parseCimdClientId(clientId: string): URL | null {
@@ -585,26 +568,74 @@ async function loadCimdClient(clientId: string): Promise<OAuthClient | null> {
 }
 
 export async function loadOAuthClient(clientId: string): Promise<OAuthClient | null> {
+	const supabase = getSupabaseAdmin();
 	const id = clientId.trim();
 	if (!id) return null;
 	if (!isOAuthClientUsable(id)) return null;
-	const lookupId = id === LEGACY_CLI_CLIENT_ID ? CLI_CLIENT_ID : id;
-	const row = await findActiveOAuthClient(lookupId);
-	if (!row) return loadCimdClient(id);
+
+	let firstParty = await supabase
+		.from("oauth_clients")
+		.select("id, name, description, logo_url, homepage_url, client_type, client_secret_hash, redirect_uris, allowed_scopes, is_first_party, beta_status, status")
+		.eq("id", id)
+		.eq("status", "active")
+		.maybeSingle();
+	if ((firstParty.error || !firstParty.data) && id === LEGACY_CLI_CLIENT_ID) {
+		firstParty = await supabase
+			.from("oauth_clients")
+			.select("id, name, description, logo_url, homepage_url, client_type, client_secret_hash, redirect_uris, allowed_scopes, is_first_party, beta_status, status")
+			.eq("id", CLI_CLIENT_ID)
+			.eq("status", "active")
+			.maybeSingle();
+	}
+	if (!firstParty.error && firstParty.data) {
+		const row = firstParty.data as any;
+		return {
+			id: id === LEGACY_CLI_CLIENT_ID ? LEGACY_CLI_CLIENT_ID : row.id,
+			name: row.name,
+			description: row.description ?? null,
+			logo_url: row.logo_url ?? null,
+			homepage_url: row.homepage_url ?? null,
+			client_type: row.client_type ?? "public",
+			client_secret_hash: row.client_secret_hash ?? null,
+			redirect_uris: Array.isArray(row.redirect_uris) ? row.redirect_uris : [],
+			allowed_scopes: Array.isArray(row.allowed_scopes) ? row.allowed_scopes : [],
+			is_first_party: Boolean(row.is_first_party),
+			beta_status: row.beta_status ?? "private",
+			status: row.status ?? "active",
+			registration_source: Boolean(row.is_first_party) ? "first_party" : "dynamic",
+		};
+	}
+
+	let metadata = await supabase
+		.from("oauth_app_metadata")
+		.select("client_id, name, description, logo_url, homepage_url, client_type, client_secret_hash, redirect_uris, allowed_scopes, is_first_party, beta_status, status")
+		.eq("client_id", id)
+		.eq("status", "active")
+		.maybeSingle();
+	if ((metadata.error || !metadata.data) && id === LEGACY_CLI_CLIENT_ID) {
+		metadata = await supabase
+			.from("oauth_app_metadata")
+			.select("client_id, name, description, logo_url, homepage_url, client_type, client_secret_hash, redirect_uris, allowed_scopes, is_first_party, beta_status, status")
+			.eq("client_id", CLI_CLIENT_ID)
+			.eq("status", "active")
+			.maybeSingle();
+	}
+	if (metadata.error || !metadata.data) return loadCimdClient(id);
+	const row = metadata.data as any;
 	return {
-		id: id === LEGACY_CLI_CLIENT_ID ? LEGACY_CLI_CLIENT_ID : row.id,
+		id: id === LEGACY_CLI_CLIENT_ID ? LEGACY_CLI_CLIENT_ID : row.client_id,
 		name: row.name,
 		description: row.description ?? null,
-		logo_url: row.logoUrl ?? null,
-		homepage_url: row.homepageUrl ?? null,
-		client_type: row.clientType === "confidential" ? "confidential" : "public",
-		client_secret_hash: row.clientSecretHash ?? null,
-		redirect_uris: row.redirectUris,
-		allowed_scopes: row.allowedScopes,
-		is_first_party: row.isFirstParty,
-		beta_status: row.betaStatus === "public" || row.betaStatus === "beta" ? row.betaStatus : "private",
+		logo_url: row.logo_url ?? null,
+		homepage_url: row.homepage_url ?? null,
+		client_type: row.client_type ?? "public",
+		client_secret_hash: row.client_secret_hash ?? null,
+		redirect_uris: Array.isArray(row.redirect_uris) ? row.redirect_uris : [],
+		allowed_scopes: Array.isArray(row.allowed_scopes) ? row.allowed_scopes : [],
+		is_first_party: Boolean(row.is_first_party),
+		beta_status: row.beta_status ?? "beta",
 		status: row.status ?? "active",
-		registration_source: row.isFirstParty ? "first_party" : "developer",
+		registration_source: Boolean(row.is_first_party) ? "first_party" : "developer",
 	};
 }
 
@@ -641,7 +672,34 @@ export async function ensureGrant(args: {
 	clientId: string;
 	scopes: string[];
 }) {
-	await upsertOAuthAuthorization(args);
+	const supabase = getSupabaseAdmin();
+	const existing = await supabase
+		.from("oauth_authorizations")
+		.select("id, revoked_at")
+		.eq("user_id", args.userId)
+		.eq("client_id", args.clientId)
+		.eq("workspace_id", args.workspaceId)
+		.maybeSingle();
+	if (existing.error) {
+		throw new Error(existing.error.message || "Failed to load OAuth authorization");
+	}
+
+	if (existing.data?.id) {
+		const { error } = await supabase
+			.from("oauth_authorizations")
+			.update({ scopes: args.scopes, revoked_at: null })
+			.eq("id", existing.data.id);
+		if (error) throw new Error(error.message || "Failed to update OAuth authorization");
+		return;
+	}
+
+	const { error } = await supabase.from("oauth_authorizations").insert({
+		user_id: args.userId,
+		client_id: args.clientId,
+		workspace_id: args.workspaceId,
+		scopes: args.scopes,
+	});
+	if (error) throw new Error(error.message || "Failed to create OAuth authorization");
 }
 
 export async function getActiveOAuthWorkspaceScopes(args: {
@@ -649,8 +707,29 @@ export async function getActiveOAuthWorkspaceScopes(args: {
 	workspaceId: string;
 	clientId: string;
 }): Promise<string[] | null> {
-	const authorization = await findActiveAuthorizationWithMembership(args);
-	return authorization ? authorization.scopes.map(String).filter(Boolean) : null;
+	const supabase = getSupabaseAdmin();
+	const [authorization, membership] = await Promise.all([
+		supabase
+			.from("oauth_authorizations")
+			.select("scopes, revoked_at")
+			.eq("user_id", args.userId)
+			.eq("workspace_id", args.workspaceId)
+			.eq("client_id", args.clientId)
+			.maybeSingle(),
+		supabase
+			.from("workspace_members")
+			.select("workspace_id")
+			.eq("user_id", args.userId)
+			.eq("workspace_id", args.workspaceId)
+			.maybeSingle(),
+	]);
+	if (authorization.error || membership.error || !authorization.data || authorization.data.revoked_at !== null || !membership.data) {
+		return null;
+	}
+
+	return Array.isArray(authorization.data.scopes)
+		? authorization.data.scopes.map(String).filter(Boolean)
+		: [];
 }
 
 export async function hasActiveOAuthWorkspaceAccess(args: {
@@ -700,15 +779,19 @@ async function createTokenPairMaterial(input: TokenIssueInput) {
 
 export async function issueTokenPair(input: TokenIssueInput) {
 	const material = await createTokenPairMaterial(input);
-	await insertOAuthRefreshToken({
-		tokenHash: material.refreshHash,
-		userId: input.userId,
-		workspaceId: input.workspaceId,
-		clientId: input.clientId,
+	const supabase = getSupabaseAdmin();
+	const { error: refreshInsertError } = await supabase.from("oauth_refresh_tokens").insert({
+		token_hash: material.refreshHash,
+		user_id: input.userId,
+		workspace_id: input.workspaceId,
+		client_id: input.clientId,
 		scopes: input.scopes,
-		expiresAt: material.refreshExpiresAt,
-		familyId: crypto.randomUUID(),
+		expires_at: material.refreshExpiresAt,
+		family_id: crypto.randomUUID(),
 	});
+	if (refreshInsertError) {
+		throw new Error(refreshInsertError.message || "Failed to persist OAuth refresh token");
+	}
 
 	return material.response;
 }
@@ -718,18 +801,19 @@ export async function issueTokenPairForGrant(
 	input: TokenIssueInput,
 ) {
 	const material = await createTokenPairMaterial(input);
-	const result = await consumeOAuthGrantAndIssueRefreshToken({
-		grantType: grant.type,
-		grantId: grant.id,
-		tokenHash: material.refreshHash,
-		userId: input.userId,
-		workspaceId: input.workspaceId,
-		clientId: input.clientId,
-		scopes: input.scopes,
-		expiresAt: material.refreshExpiresAt,
-		familyId: crypto.randomUUID(),
+	const { data, error } = await getSupabaseAdmin().rpc("consume_oauth_grant_and_issue_refresh_token", {
+		p_grant_type: grant.type,
+		p_grant_id: grant.id,
+		p_token_hash: material.refreshHash,
+		p_user_id: input.userId,
+		p_workspace_id: input.workspaceId,
+		p_client_id: input.clientId,
+		p_scopes: input.scopes,
+		p_expires_at: material.refreshExpiresAt,
+		p_family_id: crypto.randomUUID(),
 	});
-	if (result !== "issued") return null;
+	if (error) throw new Error(error.message || "Failed to consume OAuth grant and persist refresh token");
+	if (data !== "issued") return null;
 	return material.response;
 }
 
@@ -748,19 +832,31 @@ export async function issueOAuthManagedKeyForAuthorizationCode(
 	if (!pepper) throw new Error("KEY_PEPPER_ACTIVE is not configured");
 
 	const generated = generateGatewayKey();
-	const result = await consumeOAuthCodeAndIssueDelegatedKey({
-		codeId: grantId,
-		keyHash: await hmacSecret(generated.secret, pepper),
-		keyKid: generated.kid,
-		keyPrefix: generated.prefix,
-		keyName: `OAuth: ${input.clientId}`,
-		userId: input.userId,
-		workspaceId: input.workspaceId,
-		clientId: input.clientId,
-		scopes: input.scopes,
-		resource: input.resource ?? null,
-	});
-	if (result !== "issued") return null;
+	const supabase = getSupabaseAdmin();
+	const rpcInput = {
+		p_code_id: grantId,
+		p_key_hash: await hmacSecret(generated.secret, pepper),
+		p_key_kid: generated.kid,
+		p_key_prefix: generated.prefix,
+		p_key_name: `OAuth: ${input.clientId}`,
+		p_user_id: input.userId,
+		p_workspace_id: input.workspaceId,
+		p_client_id: input.clientId,
+		p_scopes: input.scopes,
+		p_resource: input.resource ?? null,
+	};
+	let { data, error } = await supabase.rpc("consume_oauth_code_and_issue_managed_key", rpcInput);
+	if (error && !input.resource && /p_resource|schema cache|function.*not found/i.test(error.message)) {
+		const { p_resource: _resource, ...legacyRpcInput } = rpcInput;
+		const legacyResult = await supabase.rpc(
+			"consume_oauth_code_and_issue_managed_key",
+			legacyRpcInput,
+		);
+		data = legacyResult.data;
+		error = legacyResult.error;
+	}
+	if (error) throw new Error(error.message || "Failed to consume OAuth code and issue key");
+	if (data !== "issued") return null;
 	return {
 		access_token: generated.plaintext,
 		token_type: "Bearer",
@@ -778,14 +874,19 @@ export async function rotateRefreshToken(
 	| { ok: false; reason: "invalid_client" | "invalid_grant" }
 > {
 	const tokenHashes = await hashOAuthSecretCandidates(refreshToken);
-	const data = await findOAuthRefreshToken(tokenHashes);
-	if (!data) return { ok: false, reason: "invalid_grant" };
-	const tokenHash = String(data.tokenHash ?? "");
+	const supabase = getSupabaseAdmin();
+	const { data, error } = await supabase
+		.from("oauth_refresh_tokens")
+		.select("id, token_hash, user_id, workspace_id, client_id, scopes, expires_at, revoked_at")
+		.in("token_hash", tokenHashes)
+		.maybeSingle();
+	if (error || !data) return { ok: false, reason: "invalid_grant" };
+	const tokenHash = String(data.token_hash ?? "");
 	if (!tokenHash) return { ok: false, reason: "invalid_grant" };
-	if (data.expiresAt && Date.parse(String(data.expiresAt)) <= Date.now()) {
+	if (data.expires_at && Date.parse(String(data.expires_at)) <= Date.now()) {
 		return { ok: false, reason: "invalid_grant" };
 	}
-	const clientId = String(data.clientId ?? "").trim();
+	const clientId = String(data.client_id ?? "").trim();
 	const client = await loadOAuthClient(clientId);
 	if (!client) return { ok: false, reason: "invalid_grant" };
 	if (clientAuth?.clientId && clientAuth.clientId !== clientId) {
@@ -799,39 +900,53 @@ export async function rotateRefreshToken(
 			return { ok: false, reason: "invalid_client" };
 		}
 	}
-	if (data.revokedAt) {
-		await rotateStoredOAuthRefreshToken({
-			currentTokenHash: tokenHash,
-			nextTokenHash: tokenHash,
-			nextExpiresAt: new Date().toISOString(),
+	if (data.revoked_at) {
+		const replay = await supabase.rpc("rotate_oauth_refresh_token", {
+			p_current_token_hash: tokenHash,
+			p_next_token_hash: tokenHash,
+			p_next_expires_at: new Date().toISOString(),
+			p_scopes: [],
 		});
+		if (replay.error) throw new Error(replay.error.message || "Failed to revoke replayed OAuth token family");
 		return { ok: false, reason: "invalid_grant" };
 	}
-	const authorization = await findActiveAuthorizationWithMembership({
-		userId: data.userId,
-		workspaceId: data.workspaceId,
-		clientId,
-	});
-	if (!authorization) {
+	const authorization = await supabase
+		.from("oauth_authorizations")
+		.select("scopes, revoked_at")
+		.eq("user_id", data.user_id)
+		.eq("workspace_id", data.workspace_id)
+		.eq("client_id", clientId)
+		.maybeSingle();
+	if (authorization.error || !authorization.data || authorization.data.revoked_at !== null) {
 		return { ok: false, reason: "invalid_grant" };
 	}
-	const scopes = Array.isArray(authorization.scopes)
-		? authorization.scopes.map(String)
+	const membership = await supabase
+		.from("workspace_members")
+		.select("workspace_id")
+		.eq("user_id", data.user_id)
+		.eq("workspace_id", data.workspace_id)
+		.maybeSingle();
+	if (membership.error || !membership.data) {
+		return { ok: false, reason: "invalid_grant" };
+	}
+	const scopes = Array.isArray(authorization.data.scopes)
+		? authorization.data.scopes.map(String)
 		: Array.isArray(data.scopes)
 			? data.scopes.map(String)
 			: [];
 	const material = await createTokenPairMaterial({
-		userId: data.userId,
-		workspaceId: data.workspaceId,
+		userId: String(data.user_id),
+		workspaceId: String(data.workspace_id),
 		clientId,
 		scopes,
 	});
-	const rotation = await rotateStoredOAuthRefreshToken({
-		currentTokenHash: tokenHash,
-		nextTokenHash: material.refreshHash,
-		nextExpiresAt: material.refreshExpiresAt,
+	const rotation = await supabase.rpc("rotate_oauth_refresh_token", {
+		p_current_token_hash: tokenHash,
+		p_next_token_hash: material.refreshHash,
+		p_next_expires_at: material.refreshExpiresAt,
+		p_scopes: scopes,
 	});
-	if (rotation !== "rotated") {
+	if (rotation.error || rotation.data !== "rotated") {
 		return { ok: false, reason: "invalid_grant" };
 	}
 
@@ -866,7 +981,12 @@ export async function ensureGrants(args: {
 
 export async function revokeToken(token: string) {
 	const tokenHashes = await hashOAuthSecretCandidates(token);
-	await revokeOAuthRefreshTokens(tokenHashes);
+	const supabase = getSupabaseAdmin();
+	await supabase
+		.from("oauth_refresh_tokens")
+		.update({ revoked_at: new Date().toISOString() })
+		.in("token_hash", tokenHashes)
+		.is("revoked_at", null);
 
 	// Third-party authorization-code grants return an opaque delegated Gateway
 	// key as their OAuth access token. RFC 7009 revocation must invalidate that
@@ -874,14 +994,23 @@ export async function revokeToken(token: string) {
 	const delegatedKey = /^phaseo_v1_sk_([A-Za-z0-9]{12})_([A-Za-z0-9]{40})$/.exec(token);
 	if (!delegatedKey) return;
 	const [, kid, secret] = delegatedKey;
-	const keyRow = await findActiveDelegatedKeyByKid(kid);
-	if (!keyRow) return;
+	const { data: keyRow, error } = await supabase
+		.from("keys")
+		.select("id, hash, key_kind, status")
+		.eq("kid", kid)
+		.maybeSingle();
+	if (error || !keyRow || keyRow.key_kind !== "oauth_delegated" || keyRow.status !== "active") return;
 
 	const candidates = resolveKeyPepperCandidates(getBindings());
 	const hashes = await Promise.all(candidates.map((candidate) => hmacSecret(secret, candidate.value)));
 	if (!hashes.some((candidate) => timingSafeEqual(candidate, String(keyRow.hash ?? "")))) return;
 
-	await revokeDelegatedKey(keyRow.id);
+	await supabase
+		.from("keys")
+		.update({ status: "revoked" })
+		.eq("id", keyRow.id)
+		.eq("status", "active")
+		.eq("key_kind", "oauth_delegated");
 }
 
 export function makeDeviceCodeExpiry(): string {

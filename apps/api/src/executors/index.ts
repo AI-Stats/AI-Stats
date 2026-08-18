@@ -355,7 +355,6 @@ export const EXECUTORS_BY_PROVIDER: Record<string, ProviderCapabilityMap> = {
 	aionlabs: { "text.generate": aionLabsText },
 	"amazon-bedrock": { "text.generate": amazonBedrockText },
 	"google-vertex": { "text.generate": googleVertexText, "video.generate": googleVertexVideo },
-	"google-vertex-us": { "text.generate": googleVertexText, "video.generate": googleVertexVideo },
 	"google-vertex-eu": { "text.generate": googleVertexText, "video.generate": googleVertexVideo },
 	deepinfra: { "text.generate": deepinfraText },
 	fireworks: { "text.generate": fireworksText, embeddings: openaiEmbeddings, rerank: openaiRerank, "image.generate": nonTextAdapterExecutor },

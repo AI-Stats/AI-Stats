@@ -1,8 +1,7 @@
-import { getAuthenticationFailure, requireUser } from "@/auth/requireUser";
+import { requireUser } from "@/auth/requireUser";
+import { getDataClient } from "@/data/supabase";
 import type { Env } from "@/env";
 import { PRIVATE_NO_STORE_HEADERS } from "@/http/cache";
-import { getAccountProfile, listAccountWorkspaces } from "@/repositories/account-auth";
-import { createChatKey, findChatKeyByKid, updateChatKeyHash } from "@/repositories/chat-keys";
 
 export type ChatProxyEnvelope = {
 	baseUrl?: string;
@@ -50,6 +49,8 @@ async function keyHash(pepper: string, secret: string): Promise<string> {
 	return [...digest].map((byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
+function truthy(value: unknown): boolean { return ["1", "true", "yes", "on"].includes(String(value ?? "").trim().toLowerCase()); }
+
 async function invalidateGatewayKey(env: Env, keyId: string) {
 	const key = env.PHASEO_MANAGEMENT_KEY ?? env.PHASEO_CONTROL_KEY;
 	if (!key || !env.PHASEO_CONTROL_SECRET) return;
@@ -58,60 +59,42 @@ async function invalidateGatewayKey(env: Env, keyId: string) {
 
 export async function resolveGatewayKeys(request: Request, env: Env, waitUntil: (promise: Promise<unknown>) => void): Promise<GatewayKeys | GatewayKeyError> {
 	const user = await requireUser(request, env);
-	if (!user) return { status: 401, code: getAuthenticationFailure(request), message: "Your session could not be validated. Please sign in again." };
-	const userId = String(user.id);
-	let profile;
-	let memberships;
-	try {
-		[profile, memberships] = await Promise.all([
-			getAccountProfile(env, userId),
-			listAccountWorkspaces(env, userId),
-		]);
-	} catch {
-		return { status: 503, code: "workspace_unavailable", message: "Unable to resolve a workspace for chat" };
-	}
-	const accessible = new Set(memberships.map((row) => String(row.id)));
+	if (!user) return { status: 401, code: "unauthorized", message: "Sign in is required to use chat" };
+	const client = getDataClient(env);
+	const [profile, memberships, owned] = await Promise.all([
+		client.from("users").select("default_workspace_id").eq("user_id", user.id).maybeSingle(),
+		client.from("workspace_members").select("workspace_id").eq("user_id", user.id).order("workspace_id", { ascending: true }),
+		client.from("workspaces").select("id").eq("owner_user_id", user.id).order("id", { ascending: true }),
+	]);
+	if (profile.error || memberships.error || owned.error) return { status: 503, code: "workspace_unavailable", message: "Unable to resolve a workspace for chat" };
+	const accessible = new Set([...(memberships.data ?? []).map((row) => String(row.workspace_id ?? "")), ...(owned.data ?? []).map((row) => String(row.id ?? ""))].filter(Boolean));
 	const requested = cookieValue(request, "activeWorkspaceId").trim();
-	const fallback = String(profile?.defaultWorkspaceId ?? "").trim();
-	const workspaceId = String(
-		(requested && accessible.has(requested) ? requested : "")
-		|| (fallback && accessible.has(fallback) ? fallback : "")
-		|| [...accessible][0]
-		|| "",
-	);
+	const fallback = String(profile.data?.default_workspace_id ?? "").trim();
+	const workspaceId = (requested && accessible.has(requested) ? requested : "") || (fallback && accessible.has(fallback) ? fallback : "") || [...accessible][0] || "";
 	if (!workspaceId) return { status: 403, code: "no_workspace_membership", message: "A workspace is required to use chat" };
 	const seed = String(env.CHAT_ROUTE_KEY_SEED ?? env.KEY_PEPPER_ACTIVE ?? "").trim();
 	const pepper = String(env.KEY_PEPPER_ACTIVE ?? "").trim();
 	if (!seed || !pepper) return { status: 503, code: "chat_key_configuration_missing", message: "Chat authentication is not configured" };
-	const { kid, secret } = await deriveChatGatewayKey(seed, workspaceId, userId);
+	const { kid, secret } = await deriveChatGatewayKey(seed, workspaceId, user.id);
 	const apiKey = `phaseo_v1_sk_${kid}_${secret}`;
 	const expectedHash = await keyHash(pepper, secret);
-	let existing;
-	try {
-		existing = await findChatKeyByKid(env, kid);
-	} catch {
-		return { status: 503, code: "chat_key_lookup_failed", message: "Unable to prepare chat authentication" };
-	}
-	if (!existing) {
-		try {
-			await createChatKey(env, { workspaceId, userId, kid, hash: expectedHash });
-		} catch {
-			return { status: 503, code: "chat_key_create_failed", message: "Unable to prepare chat authentication" };
-		}
+	const existing = await client.from("keys").select("id,workspace_id,status,hash").eq("kid", kid).maybeSingle();
+	if (existing.error) return { status: 503, code: "chat_key_lookup_failed", message: "Unable to prepare chat authentication" };
+	if (!existing.data) {
+		const inserted = await client.from("keys").insert({ workspace_id: workspaceId, name: "__chat_route_managed_key__", kid, hash: expectedHash, prefix: kid.slice(0, 6), status: "active", scopes: "[]", created_by: user.id, daily_limit_requests: 0, weekly_limit_requests: 0, monthly_limit_requests: 0, daily_limit_cost_nanos: 0, weekly_limit_cost_nanos: 0, monthly_limit_cost_nanos: 0 });
+		if (inserted.error && String(inserted.error.code ?? "") !== "23505") return { status: 503, code: "chat_key_create_failed", message: "Unable to prepare chat authentication" };
 	} else {
-		if (String(existing.workspaceId) !== workspaceId) return { status: 500, code: "chat_key_collision", message: "Unable to prepare chat authentication" };
-		if (existing.status !== "active") return { status: 403, code: "chat_key_inactive", message: "Chat authentication has been disabled" };
-		if (String(existing.hash ?? "").toLowerCase().trim() !== expectedHash) {
-			const existingId = String(existing.id);
-			try {
-				await updateChatKeyHash(env, existingId, workspaceId, expectedHash);
-			} catch {
-				return { status: 503, code: "chat_key_update_failed", message: "Unable to prepare chat authentication" };
-			}
-			waitUntil(invalidateGatewayKey(env, existingId));
+		if (String(existing.data.workspace_id) !== workspaceId) return { status: 500, code: "chat_key_collision", message: "Unable to prepare chat authentication" };
+		if (String(existing.data.status) !== "active") return { status: 403, code: "chat_key_inactive", message: "Chat authentication has been disabled" };
+		const update: Record<string, unknown> = {};
+		if (truthy(env.CHAT_ROUTE_FORCE_HASH_SYNC) && String(existing.data.hash ?? "").toLowerCase().trim() !== expectedHash) update.hash = expectedHash;
+		if (Object.keys(update).length) {
+			const updated = await client.from("keys").update(update).eq("id", existing.data.id).eq("workspace_id", workspaceId);
+			if (updated.error) return { status: 503, code: "chat_key_update_failed", message: "Unable to prepare chat authentication" };
+			waitUntil(invalidateGatewayKey(env, String(existing.data.id)));
 		}
 	}
-	return { apiKey, userId, workspaceId };
+	return { apiKey, userId: user.id, workspaceId };
 }
 
 function normalizeGatewayBaseUrl(value: string | undefined): string | undefined {
@@ -131,46 +114,16 @@ export function resolveGatewayBaseUrlForEnvironment(args: { configuredBaseUrl?: 
 	const staging = normalizeGatewayBaseUrl(args.stagingBaseUrl);
 	const requested = normalizeGatewayBaseUrl(args.requestedBaseUrl);
 	if (args.environment === "production") {
-		return configured ?? null;
+		return requested && staging && requested === staging ? staging : configured ?? null;
 	}
 	if (requested && (requested === PUBLIC_GATEWAY_BASE_URL || requested === configured || requested === staging || isDevelopmentLocalGatewayBaseUrl(requested, args.environment))) return requested;
-	return configured ?? staging ?? PUBLIC_GATEWAY_BASE_URL;
+	return configured ?? PUBLIC_GATEWAY_BASE_URL;
 }
 
 function privateResponse(response: Response): Response {
 	const headers = new Headers(response.headers);
 	for (const [name, value] of Object.entries(PRIVATE_NO_STORE_HEADERS)) headers.set(name, value);
 	return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
-}
-
-export function forwardChatStream(response: Response): Response {
-	if (!response.body) return response;
-	const reader = response.body.getReader();
-	let bytes = 0;
-	let chunks = 0;
-	const body = new ReadableStream<Uint8Array>({
-		async pull(controller) {
-			try {
-				const { done, value } = await reader.read();
-				if (done) {
-					controller.close();
-					return;
-				}
-				if (value) {
-					bytes += value.byteLength;
-					chunks += 1;
-					controller.enqueue(value);
-				}
-			} catch (error) {
-				console.warn("[web-api/chat] gateway stream failed", { bytes, chunks, error: error instanceof Error ? error.message : "unknown" });
-				controller.error(error);
-			}
-		},
-		async cancel(reason) {
-			await reader.cancel(reason).catch(() => undefined);
-		},
-	});
-	return new Response(body, { status: response.status, statusText: response.statusText, headers: response.headers });
 }
 
 function jsonError(status: number, code: string, message: string): Response {
@@ -196,15 +149,7 @@ export async function proxyGateway(request: Request, env: Env, waitUntil: (promi
 			headers: { ...(args.method === "GET" ? {} : { "Content-Type": "application/json" }), ...sanitizeAppHeaders(args.appHeaders), ...CANONICAL_CHAT_APP_HEADERS, Authorization: `Bearer ${auth.apiKey}`, ...(args.debug ? { "x-gateway-debug": "true" } : {}), ...(args.stream ? { Accept: "text/event-stream" } : {}) },
 			...(args.method === "GET" ? {} : { body: JSON.stringify(args.requestBody ?? {}) }),
 		});
-		if (!upstream.ok) {
-			const payload = await upstream.clone().json<Record<string, unknown>>().catch(() => null);
-			console.warn("[web-api/chat] gateway rejected request", {
-				status: upstream.status,
-				host: new URL(baseUrl).host,
-				code: typeof payload?.error === "string" ? payload.error : undefined,
-			});
-		}
-		return privateResponse(args.stream && upstream.ok ? forwardChatStream(upstream) : upstream);
+		return privateResponse(upstream);
 	} catch {
 		return jsonError(502, "gateway_unreachable", "The gateway is temporarily unavailable. Please try again.");
 	}

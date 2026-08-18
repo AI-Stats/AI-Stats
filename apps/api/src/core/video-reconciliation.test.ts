@@ -78,6 +78,7 @@ describe("video-reconciliation provider polling", () => {
 			GOOGLE_VERTEX_ACCESS_TOKEN: "gateway-vertex-token",
 			GOOGLE_VERTEX_BASE_URL: "https://api.vertex.example",
 			GOOGLE_VERTEX_PROJECT: "test-project",
+			GOOGLE_VERTEX_LOCATION: "us-east5",
 			BYTEDANCE_SEED_API_KEY: "gateway-bytedance-key",
 			BYTEDANCE_SEED_BASE_URL: "https://ark.byteplus.example",
 		});

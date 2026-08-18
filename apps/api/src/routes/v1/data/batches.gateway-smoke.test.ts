@@ -96,15 +96,12 @@ vi.mock("@/runtime/env", () => ({
 		OPENAI_BASE_URL: "https://api.openai.example/v1",
 		BATCH_API_PREVIEW_PROVIDERS: "openai",
 	}),
-}));
-
-vi.mock("@/repositories/batch-file-uploads", () => ({
-	claimUpload: vi.fn(async () => ({ ok: true, reason: null })),
-	finishUpload: vi.fn(async () => undefined),
-}));
-
-vi.mock("@/observability/otlp-export", () => ({
-	enqueueAsyncGenAiOtlpExport: vi.fn(async () => undefined),
+	getSupabaseAdmin: () => ({
+		rpc: vi.fn(async (name: string) => ({
+			data: name === "gateway_claim_batch_file_upload" ? [{ ok: true, reason: null }] : null,
+			error: null,
+		})),
+	}),
 }));
 
 vi.mock("@providers/keys", () => ({
@@ -245,12 +242,7 @@ describe("mounted batch gateway smoke flows", () => {
 					});
 				}
 				if (url === "https://api.openai.example/v1/files/file_input_123/content" && method === "GET") {
-					return new Response(`${JSON.stringify({
-						custom_id: "request-1",
-						method: "POST",
-						url: "/v1/responses",
-						body: { model: "gpt-4.1-mini", input: "hello", max_output_tokens: 16 },
-					})}\n`, { status: 200 });
+					return new Response(JSON.stringify({ body: { model: "gpt-4.1-mini", max_output_tokens: 16 } }), { status: 200 });
 				}
 
 				if (url === "https://api.openai.example/v1/batches" && method === "POST") {
@@ -340,7 +332,7 @@ describe("mounted batch gateway smoke flows", () => {
 				session_id: "session_smoke_success",
 			}),
 		});
-		expect(createResponse.status, await createResponse.clone().text()).toBe(200);
+		expect(createResponse.status).toBe(200);
 		const createPayload = await createResponse.json() as any;
 		const publicBatchId = String(createPayload.id);
 		expect(createPayload).toMatchObject({
@@ -482,12 +474,7 @@ describe("mounted batch gateway smoke flows", () => {
 					});
 				}
 				if (url === "https://api.openai.example/v1/files/file_input_fail_123/content" && method === "GET") {
-					return new Response(`${JSON.stringify({
-						custom_id: "request-1",
-						method: "POST",
-						url: "/v1/responses",
-						body: { model: "gpt-4.1-mini", input: "hello", max_output_tokens: 16 },
-					})}\n`, { status: 200 });
+					return new Response(JSON.stringify({ body: { model: "gpt-4.1-mini", max_output_tokens: 16 } }), { status: 200 });
 				}
 
 				if (url === "https://api.openai.example/v1/batches" && method === "POST") {
@@ -569,7 +556,7 @@ describe("mounted batch gateway smoke flows", () => {
 				session_id: "session_smoke_fail",
 			}),
 		});
-		expect(createResponse.status, await createResponse.clone().text()).toBe(200);
+		expect(createResponse.status).toBe(200);
 		const createPayload = await createResponse.json() as any;
 		const publicBatchId = String(createPayload.id);
 		expect(createPayload).toMatchObject({

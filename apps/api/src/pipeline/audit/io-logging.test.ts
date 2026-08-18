@@ -2,10 +2,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const state = vi.hoisted(() => ({
 	settings: {
-		ioLoggingEnabled: true,
-		ioLoggingRetentionDays: 365,
-		ioLoggingIncludeProviderPayloads: true,
-		ioLoggingBillingStatus: "active",
+		io_logging_enabled: true,
+		io_logging_retention_days: 365,
+		io_logging_include_provider_payloads: true,
+		io_logging_billing_status: "active",
 	} as Record<string, unknown>,
 	bucket: {
 		put: vi.fn(async () => null),
@@ -19,25 +19,37 @@ vi.mock("@/runtime/env", () => ({
 		GATEWAY_IO_LOGS_BUCKET_NAME: "ai-stats-gateway-io-logs",
 		GATEWAY_IO_LOGGING_MAX_BYTES: "5242880",
 	}),
-}));
-
-vi.mock("@/repositories/workspace-settings", () => ({
-	findWorkspaceSettings: async () => state.settings,
-}));
-
-vi.mock("@/repositories/generations", () => ({
-	upsertGenerationIoLog: async (row: Record<string, unknown>) => {
-		state.metadataRows.push(row);
-	},
+	getSupabaseAdmin: () => ({
+		from: (table: string) => {
+			if (table === "workspace_settings") {
+				return {
+					select: () => ({
+						eq: () => ({
+							maybeSingle: async () => ({ data: state.settings, error: null }),
+						}),
+					}),
+				};
+			}
+			if (table === "gateway_io_logs") {
+				return {
+					upsert: async (row: Record<string, unknown>) => {
+						state.metadataRows.push(row);
+						return { error: null };
+					},
+				};
+			}
+			throw new Error(`unexpected table: ${table}`);
+		},
+	}),
 }));
 
 describe("persistGatewayIoLog", () => {
 	beforeEach(() => {
 		state.settings = {
-			ioLoggingEnabled: true,
-			ioLoggingRetentionDays: 365,
-			ioLoggingIncludeProviderPayloads: true,
-			ioLoggingBillingStatus: "active",
+			io_logging_enabled: true,
+			io_logging_retention_days: 365,
+			io_logging_include_provider_payloads: true,
+			io_logging_billing_status: "active",
 		};
 		state.bucket.put.mockClear();
 		state.metadataRows = [];
@@ -45,7 +57,7 @@ describe("persistGatewayIoLog", () => {
 	});
 
 	it("does not write an object when workspace logging is disabled", async () => {
-		state.settings.ioLoggingEnabled = false;
+		state.settings.io_logging_enabled = false;
 		const { persistGatewayIoLog } = await import("./io-logging");
 
 		const result = await persistGatewayIoLog({
@@ -58,9 +70,9 @@ describe("persistGatewayIoLog", () => {
 		expect(state.bucket.put).not.toHaveBeenCalled();
 		expect(state.metadataRows).toEqual([
 			expect.objectContaining({
-				workspaceId: "workspace_1",
-				requestId: "req_disabled",
-				ioLogStatus: "not_enabled",
+				workspace_id: "workspace_1",
+				request_id: "req_disabled",
+				io_log_status: "not_enabled",
 			}),
 		]);
 	});
@@ -98,9 +110,9 @@ describe("persistGatewayIoLog", () => {
 		expect(state.bucket.put).toHaveBeenCalledTimes(1);
 		expect(state.metadataRows).toEqual([
 			expect.objectContaining({
-				workspaceId: "workspace_1",
-				requestId: "req_123",
-				ioLogStatus: "stored",
+				workspace_id: "workspace_1",
+				request_id: "req_123",
+				io_log_status: "stored",
 			}),
 		]);
 
@@ -122,7 +134,7 @@ describe("persistGatewayIoLog", () => {
 	});
 
 	it("keeps new logs for the included 90-day window when extended retention is suspended", async () => {
-		state.settings.ioLoggingBillingStatus = "suspended";
+		state.settings.io_logging_billing_status = "suspended";
 		const { persistGatewayIoLog } = await import("./io-logging");
 		const startedAt = Date.now();
 
@@ -138,7 +150,7 @@ describe("persistGatewayIoLog", () => {
 	});
 
 	it("keeps configured extended retention while billing is in grace", async () => {
-		state.settings.ioLoggingBillingStatus = "grace";
+		state.settings.io_logging_billing_status = "grace";
 		const { persistGatewayIoLog } = await import("./io-logging");
 		const startedAt = Date.now();
 

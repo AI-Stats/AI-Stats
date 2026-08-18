@@ -5,6 +5,7 @@ import { installFetchMock, jsonResponse } from "../../../../tests/helpers/mock-f
 import { setupRuntimeFromEnv, teardownTestRuntime } from "../../../../tests/helpers/runtime";
 import { execute } from "./index";
 
+vi.mock("@supabase/supabase-js", () => ({ createClient: () => ({}) }));
 afterEach(teardownTestRuntime);
 
 function args(ir: IRChatRequest): ExecutorExecuteArgs {

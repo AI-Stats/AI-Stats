@@ -1,7 +1,7 @@
 import { Hono } from "hono";
+import { getDataClient } from "@/data/supabase";
 import type { Env } from "@/env";
 import { withPublicCache } from "@/http/cache";
-import { findOrganisation, listOrganisationLinks, listOrganisationModels } from "@/repositories/organisations";
 
 const ORGANISATION_CACHE = {
 	edgeTtlSeconds: 24 * 60 * 60,
@@ -71,12 +71,17 @@ function cacheTags(organisationId: string, resource: string) {
 }
 
 async function getOrganisationIdentity(env: Env, organisationId: string) {
-	const data = await findOrganisation(env, organisationId);
+	const { data, error } = await getDataClient(env)
+		.from("v2_labs")
+		.select("lab_slug,name,metadata")
+		.eq("lab_slug", organisationId)
+		.maybeSingle();
+	if (error) throw error;
 	if (!data) return null;
 	const details = data.metadata && typeof data.metadata === "object" && !Array.isArray(data.metadata)
 		? data.metadata as Record<string, unknown>
 		: {};
-	return { organisation_id: data.labSlug, name: data.name, colour: typeof details.colour === "string" ? details.colour : null };
+	return { organisation_id: data.lab_slug, name: data.name, colour: typeof details.colour === "string" ? details.colour : null };
 }
 
 export const publicOrganisationsRouter = new Hono<{ Bindings: Env }>();
@@ -84,12 +89,17 @@ export const publicOrganisationsRouter = new Hono<{ Bindings: Env }>();
 publicOrganisationsRouter.get("/organisations/:organisationId/header", async (c) => {
 	const organisationId = c.req.param("organisationId");
 	try {
-		const data = await findOrganisation(c.env, organisationId);
+		const { data, error } = await getDataClient(c.env)
+			.from("v2_labs")
+			.select("lab_slug,name,country_code")
+			.eq("lab_slug", organisationId)
+			.maybeSingle();
+		if (error) throw error;
 		if (!data) return c.json({ error: "organisation_not_found" }, 404);
 		return withPublicCache(c.json({ organisation: {
-			organisation_id: data.labSlug,
+			organisation_id: data.lab_slug,
 			name: data.name ?? "",
-			country_code: data.countryCode ?? null,
+			country_code: data.country_code ?? null,
 		} }), {
 			...ORGANISATION_CACHE,
 			cacheTags: cacheTags(organisationId, "headers"),
@@ -105,8 +115,14 @@ publicOrganisationsRouter.get("/organisations/:organisationId/models", async (c)
 	try {
 		const organisation = await getOrganisationIdentity(c.env, organisationId);
 		if (!organisation) return c.json({ error: "organisation_not_found" }, 404);
-		const rows = await listOrganisationModels(c.env, organisationId);
-		const models = rows.map((row) => toModelCard({ model_slug: row.modelSlug, name: row.name, description: row.description, status: row.status, released_at: row.releasedAt, announced_at: row.announcedAt, hidden: row.hidden, input_modalities: row.inputModalities, output_modalities: row.outputModalities, updated_at: row.updatedAt }, organisation));
+		const { data, error } = await getDataClient(c.env)
+			.from("v2_models")
+			.select("model_slug,name,description,status,released_at,announced_at,lab_slug,hidden,input_modalities,output_modalities,updated_at")
+			.eq("lab_slug", organisationId)
+			.eq("hidden", false)
+			.order("released_at", { ascending: false });
+		if (error) throw error;
+		const models = (data ?? []).map((row) => toModelCard(row, organisation));
 		return withPublicCache(c.json({ models }), {
 			...ORGANISATION_CACHE,
 			cacheTags: cacheTags(organisationId, "models"),
@@ -121,14 +137,31 @@ publicOrganisationsRouter.get("/organisations/:organisationId", async (c) => {
 	const organisationId = c.req.param("organisationId");
 	const limit = parseLimit(c.req.query("limit"));
 	try {
-		const [organisationRow, modelRows, links] = await Promise.all([
-			findOrganisation(c.env, organisationId),
-			listOrganisationModels(c.env, organisationId, limit),
-			listOrganisationLinks(c.env, organisationId),
+		const client = getDataClient(c.env);
+		const [organisationResult, modelsResult, linksResult] = await Promise.all([
+			client
+				.from("v2_labs")
+				.select("lab_slug,name,country_code,description,metadata,updated_at")
+				.eq("lab_slug", organisationId)
+				.maybeSingle(),
+			client
+				.from("v2_models")
+				.select("model_slug,name,description,status,released_at,announced_at,hidden,input_modalities,output_modalities,updated_at")
+				.eq("lab_slug", organisationId)
+				.eq("hidden", false)
+				.or("released_at.not.is.null,announced_at.not.is.null")
+				.order("released_at", { ascending: false })
+				.limit(limit),
+			// Organisation links do not yet have a V2 table.
+			client.from("v2_lab_links").select("url,platform").eq("lab_slug", organisationId),
 		]);
-		if (!organisationRow) {
+		if (organisationResult.error) throw organisationResult.error;
+		if (modelsResult.error) throw modelsResult.error;
+		if (linksResult.error) throw linksResult.error;
+		if (!organisationResult.data) {
 			return c.json({ error: "organisation_not_found" }, 404);
 		}
+		const organisationRow = organisationResult.data;
 		const organisationMetadata = organisationRow.metadata && typeof organisationRow.metadata === "object" && !Array.isArray(organisationRow.metadata)
 			? organisationRow.metadata as Record<string, unknown>
 			: {};
@@ -137,8 +170,8 @@ publicOrganisationsRouter.get("/organisations/:organisationId", async (c) => {
 			name: organisationRow.name ?? null,
 			colour: typeof organisationMetadata.colour === "string" ? organisationMetadata.colour : null,
 		};
-		const models = modelRows
-			.map((row) => toModelCard({ model_slug: row.modelSlug, name: row.name, description: row.description, status: row.status, released_at: row.releasedAt, announced_at: row.announcedAt, hidden: row.hidden, input_modalities: row.inputModalities, output_modalities: row.outputModalities, updated_at: row.updatedAt }, identity))
+		const models = (modelsResult.data ?? [])
+			.map((row) => toModelCard(row, identity))
 			.sort((left, right) =>
 				Number(right.primary_timestamp ?? 0) - Number(left.primary_timestamp ?? 0),
 			);
@@ -147,13 +180,14 @@ publicOrganisationsRouter.get("/organisations/:organisationId", async (c) => {
 			const status = String(model.status ?? "unknown");
 			(groupedModels[status] ??= []).push(model);
 		}
+		const links = linksResult.data ?? [];
 		const organisation = {
-			organisation_id: organisationRow.labSlug ?? organisationId,
+			organisation_id: organisationRow.lab_slug ?? organisationId,
 			name: organisationRow.name ?? organisationId,
-			country_code: organisationRow.countryCode ?? null,
+			country_code: organisationRow.country_code ?? null,
 			description: organisationRow.description ?? null,
 			colour: typeof organisationMetadata.colour === "string" ? organisationMetadata.colour : null,
-			updated_at: organisationRow.updatedAt ?? null,
+			updated_at: organisationRow.updated_at ?? null,
 			organisation_links: links.map((link) => ({
 				platform: link.platform,
 				url: link.url,

@@ -89,18 +89,17 @@ describe("V2 catalogue and analytics cutover", () => {
 	it("keeps exact gateway control reads on the authoritative request table", () => {
 		const repoRoot = join(process.cwd(), "..", "..");
 		const exactRequestReaders = [
-			["apps/api/src/routes/v1/control/credits.ts", "apps/api/src/repositories/credits.ts", "@/repositories/credits"],
-			["apps/api/src/routes/v1/control/generations.ts", "apps/api/src/repositories/generations.ts", "@/repositories/generations"],
-			["apps/api/src/routes/v1/control/logs.ts", "apps/api/src/repositories/activity-logs.ts", "@/repositories/activity-logs"],
-			["apps/api/src/routes/v1/control/oauth-clients.ts", "apps/api/src/repositories/oauth.ts", "@/repositories/oauth"],
-			["apps/web/src/app/api/stripe/refunds/request/route.ts", "apps/web/src/lib/database/repositories/billing.ts", "@/lib/database/repositories/billing"],
+			"apps/api/src/routes/v1/control/credits.ts",
+			"apps/api/src/routes/v1/control/generations.ts",
+			"apps/api/src/routes/v1/control/logs.ts",
+			"apps/api/src/routes/v1/control/oauth-clients.ts",
+			"apps/web/src/app/api/stripe/refunds/request/route.ts",
 		];
 
-		for (const [routePath, repositoryPath, repositoryImport] of exactRequestReaders) {
-			const routeSource = readFileSync(join(repoRoot, routePath), "utf8");
-			const repositorySource = readFileSync(join(repoRoot, repositoryPath), "utf8");
-			expect(routeSource, routePath).toContain(repositoryImport);
-			expect(repositorySource, repositoryPath).toMatch(/gatewayRequests|gateway_requests/);
+		for (const repoPath of exactRequestReaders) {
+			const source = readFileSync(join(repoRoot, repoPath), "utf8");
+			expect(source, repoPath).toContain('.from("gateway_requests")');
+			expect(source, repoPath).not.toContain('.from("v2_web_gateway_requests")');
 		}
 	});
 });

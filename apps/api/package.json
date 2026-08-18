@@ -46,12 +46,10 @@
 		"report:missing-discovered-models": "tsx scripts/report-missing-discovered-models.ts"
 	},
 	"dependencies": {
-		"@phaseo/db": "workspace:*",
+		"@supabase/supabase-js": "^2.106.2",
 		"@upstash/redis": "^1.38.0",
-		"drizzle-orm": "^0.45.2",
 		"@visulima/tabular": "^4.0.0",
 		"hono": "^4.12.27",
-		"pg": "^8.22.0",
 		"ink": "^7.1.0",
 		"react": "^19.2.7",
 		"stripe": "^22.1.0",
@@ -60,7 +58,6 @@
 	"devDependencies": {
 		"@anthropic-ai/sdk": "^0.91.1",
 		"@cloudflare/workers-types": "^4.20260523.1",
-		"@types/pg": "^8.20.0",
 		"@copilotkit/aimock": "1.15.1",
 		"dotenv": "^17.4.2",
 		"eslint": "^10.7.0",

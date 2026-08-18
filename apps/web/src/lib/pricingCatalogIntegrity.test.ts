@@ -58,10 +58,7 @@ describe("pricing catalogue billing integrity", () => {
 			expect(rates(rules.filter((rule: any) => rule.match.length === 0))).toEqual(
 				meters.map((meter, index) => ({ meter, price_per_unit: planRates.normal[index] })),
 			);
-			expect(rates(rules.filter((rule: any) =>
-				rule.match.some((condition: any) => condition.path === "input_tokens" && condition.op === "gt") &&
-				!rule.match.some((condition: any) => condition.or_group != null),
-			))).toEqual(
+			expect(rates(rules.filter((rule: any) => rule.match.length > 0))).toEqual(
 				meters.map((meter, index) => ({ meter, price_per_unit: planRates.high[index] })),
 			);
 		}
@@ -72,6 +69,9 @@ describe("pricing catalogue billing integrity", () => {
 		const thinkingMachines = readJson(
 			"pricing/thinking-machines/thinkingmachines-inkling/text.generate/pricing.json",
 		);
+		const thinkingMachines64k = readJson(
+			"pricing/thinking-machines/thinkingmachines-inkling-64k/text.generate/pricing.json",
+		);
 
 		expect(baseten).toMatchObject({
 			key: "baseten:thinking-machines/inkling:text.generate",
@@ -81,31 +81,34 @@ describe("pricing catalogue billing integrity", () => {
 			key: "thinking-machines:thinking-machines/inkling:text.generate",
 			api_model_id: "thinking-machines/inkling",
 		});
-		expect(thinkingMachines.service_tiers).toEqual(expect.arrayContaining(["standard", "64k"]));
+		expect(thinkingMachines64k).toMatchObject({
+			key: "thinking-machines:thinking-machines/inkling-64k:text.generate",
+			api_model_id: "thinking-machines/inkling-64k",
+		});
 	});
 
-	it("keeps both priced Thinking Machines Inkling tiers attached to the canonical model", () => {
+	it("routes both priced Thinking Machines Inkling variants", () => {
 		const models = readJson("api_providers/thinking-machines/models.json");
-		const routes = models.filter((row: any) => row.api_model_id === "thinking-machines/inkling");
+		const main = models.find((row: any) => row.api_model_id === "thinking-machines/inkling");
+		const small = models.find((row: any) => row.api_model_id === "thinking-machines/inkling-64k");
 
-		expect(routes).toHaveLength(2);
-		expect(routes.map((row: any) => row.context_length).sort((a: number, b: number) => a - b)).toEqual([65536, 262144]);
-		expect(routes.find((row: any) => row.context_length === 65536)?.service_tiers).toContain("64k");
-		expect(routes[0]?.capabilities).toEqual(expect.arrayContaining([
+		expect(main?.is_active_gateway).toBe(true);
+		expect(small?.is_active_gateway).toBe(true);
+		expect(small?.capabilities).toEqual(expect.arrayContaining([
 			expect.objectContaining({ capability_id: "text.generate", status: "active" }),
 		]));
 	});
 
 	it.each([
-		["64K", "64k", [3.74, 0.748, 9.36], [1.87, 0.374, 4.68]],
-		["256K", "standard", [7.48, 1.496, 18.72], [3.74, 0.748, 9.36]],
-	])("stores %s Inkling list prices and the active 50%% promotion", (_label, pricingPlan, list, promotional) => {
+		["64K", "thinkingmachines-inkling-64k", [3.74, 0.748, 9.36], [1.87, 0.374, 4.68]],
+		["256K", "thinkingmachines-inkling", [7.48, 1.496, 18.72], [3.74, 0.748, 9.36]],
+	])("stores %s Inkling list prices and the active 50%% promotion", (_label, directory, list, promotional) => {
 		const pricing = readJson(
-			"pricing/thinking-machines/thinkingmachines-inkling/text.generate/pricing.json",
+			`pricing/thinking-machines/${directory}/text.generate/pricing.json`,
 		);
 		const meters = ["input_text_tokens", "cached_read_text_tokens", "output_text_tokens"];
 		const ratesAtPriority = (priority: number) => pricing.rules
-			.filter((rule: any) => rule.priority === priority && rule.pricing_plan === pricingPlan)
+			.filter((rule: any) => rule.priority === priority)
 			.map((rule: any) => ({ meter: rule.meter, price: rule.price_per_unit }));
 
 		expect(ratesAtPriority(100)).toEqual(
@@ -114,7 +117,7 @@ describe("pricing catalogue billing integrity", () => {
 		expect(ratesAtPriority(200)).toEqual(
 			meters.map((meter, index) => ({ meter, price: promotional[index] })),
 		);
-		expect(pricing.rules.filter((rule: any) => rule.priority === 200 && rule.pricing_plan === pricingPlan)).toEqual(
+		expect(pricing.rules.filter((rule: any) => rule.priority === 200)).toEqual(
 			expect.arrayContaining([
 				expect.objectContaining({ effective_from: "2026-07-15T00:00:00Z" }),
 			]),

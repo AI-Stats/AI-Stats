@@ -4,6 +4,11 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, LogIn, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import {
+	deletePasskeyAction,
+	startPasskeyRegistrationAction,
+	verifyPasskeyRegistrationAction,
+} from "@/app/(dashboard)/settings/account/actions";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -15,7 +20,11 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { betterAuthClient } from "@/lib/auth/betterAuthClient";
+import {
+	parsePasskeyCreationOptions,
+	serializePasskeyRegistrationCredential,
+} from "@/lib/auth/passkeyWebAuthn";
+import { createClient } from "@/utils/supabase/client";
 
 type Passkey = {
 	id: string;
@@ -28,13 +37,7 @@ type PendingPasskeyAction =
 	| { type: "register" }
 	| { passkeyId: string; type: "remove" };
 
-export function PasskeyManager({
-	hasPassword,
-	useBetterAuth: _useBetterAuth = true,
-}: {
-	hasPassword: boolean;
-	useBetterAuth?: boolean;
-}) {
+export function PasskeyManager({ hasPassword }: { hasPassword: boolean }) {
 	const router = useRouter();
 	const [passkeys, setPasskeys] = React.useState<Passkey[]>([]);
 	const [loading, setLoading] = React.useState(true);
@@ -48,18 +51,9 @@ export function PasskeyManager({
 	const load = React.useCallback(async () => {
 		setLoading(true);
 		try {
-			const result = await betterAuthClient.$fetch<
-					Array<{ id: string; name?: string; createdAt: Date | string }>
-				>("/passkey/list-user-passkeys");
-				if (result.error) throw new Error(result.error.message);
-				setPasskeys(
-					(result.data ?? []).map((passkey) => ({
-						id: passkey.id,
-						friendly_name: passkey.name,
-						created_at: new Date(passkey.createdAt).toISOString(),
-					})),
-				);
-			return;
+			const { data, error } = await createClient().auth.passkey.list();
+			if (error) throw error;
+			setPasskeys((data ?? []) as Passkey[]);
 		} catch (error) {
 			const message = error instanceof Error ? error.message : "Could not load passkeys";
 			if (!message.includes("passkey_disabled")) toast.error(message);
@@ -83,25 +77,37 @@ export function PasskeyManager({
 		password?: string,
 	) {
 		if (action.type === "register") {
-				const result = await betterAuthClient.passkey.addPasskey({
-					name: "Passkey",
-				});
-				if (result.error) throw new Error(result.error.message);
-				toast.success("Passkey added");
-				await load();
-				return { ok: true as const };
+			const startResult = await startPasskeyRegistrationAction(password);
+			if (!startResult.ok) return startResult;
+
+			const publicKey = parsePasskeyCreationOptions(startResult.data.options);
+			const credential = await navigator.credentials.create({ publicKey });
+			if (!(credential instanceof PublicKeyCredential)) {
+				throw new Error("Passkey registration was cancelled");
 			}
 
-			const result = await betterAuthClient.$fetch(
-				"/passkey/delete-passkey",
-				{ method: "POST", body: { id: action.passkeyId } },
+			const verifyResult = await verifyPasskeyRegistrationAction(
+				startResult.data.challengeId,
+				serializePasskeyRegistrationCredential(credential),
+				password,
 			);
-			if (result.error) throw new Error(result.error.message);
-			setPasskeys((items) =>
-				items.filter((item) => item.id !== action.passkeyId),
-			);
-			toast.success("Passkey removed");
-		return { ok: true as const };
+			if (!verifyResult.ok) return verifyResult;
+
+			toast.success("Passkey added");
+			await load();
+			return verifyResult;
+		}
+
+		const deleteResult = await deletePasskeyAction(
+			action.passkeyId,
+			password,
+		);
+		if (!deleteResult.ok) return deleteResult;
+		setPasskeys((items) =>
+			items.filter((item) => item.id !== action.passkeyId),
+		);
+		toast.success("Passkey removed");
+		return deleteResult;
 	}
 
 	function requestAction(action: PendingPasskeyAction) {
@@ -121,10 +127,20 @@ export function PasskeyManager({
 
 		setPending(true);
 		try {
-			await executeAction(
+			const result = await executeAction(
 				requestedAction,
 				hasPassword ? currentPassword : undefined,
 			);
+			if (!result.ok) {
+				if (
+					result.code === "fresh_sign_in_required" ||
+					result.code === "not_authenticated"
+				) {
+					setFreshSignInRequired(true);
+					return;
+				}
+				throw new Error(result.message);
+			}
 
 			setReauthOpen(false);
 			setRequestedAction(null);
@@ -148,7 +164,7 @@ export function PasskeyManager({
 	async function restartSignIn() {
 		setPending(true);
 		try {
-			await betterAuthClient.signOut();
+			await createClient().auth.signOut();
 		} finally {
 			router.push(
 				`/sign-in?returnUrl=${encodeURIComponent("/settings/account/mfa")}`,
