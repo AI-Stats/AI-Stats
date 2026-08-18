@@ -14,8 +14,20 @@ export type GatewayKeys = { apiKey: string; userId: string; workspaceId: string 
 export type GatewayKeyError = { status: number; code: string; message: string };
 const BASE62 = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 const PUBLIC_GATEWAY_BASE_URL = "https://api.phaseo.app/v1";
-const ALLOWED_APP_HEADERS = new Set(["x-title", "http-referer", "x-app-id", "x-app-name"]);
-const CANONICAL_CHAT_APP_HEADERS = { "x-app-id": "phaseo-chat", "x-app-name": "Phaseo Chat", "x-title": "Phaseo Chat", "http-referer": "https://phaseo.app/chat" };
+const ALLOWED_APP_HEADERS = new Set([
+	"x-title",
+	"http-referer",
+	"x-app-id",
+	"x-app-name",
+	"x-phaseo-client",
+]);
+export const CANONICAL_CHAT_APP_HEADERS = {
+	"x-phaseo-client": "phaseo-chat",
+	"x-app-id": "phaseo-chat",
+	"x-app-name": "Phaseo Chat",
+	"x-title": "Phaseo Chat",
+	"http-referer": "https://phaseo.app/chat",
+};
 
 function cookieValue(request: Request, name: string): string {
 	for (const segment of (request.headers.get("cookie") ?? "").split(";")) {

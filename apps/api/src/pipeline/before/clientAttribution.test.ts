@@ -18,6 +18,7 @@ describe("detectClientAttribution", () => {
     });
 
 	it.each([
+		["phaseo-chat", "Phaseo Chat", "app"],
 		["phaseo-go", "Phaseo Go SDK", "sdk"],
 		["phaseo-cpp", "Phaseo C++ SDK", "sdk"],
 		["phaseo-agent-python", "Phaseo Agent Python SDK", "agent_sdk"],

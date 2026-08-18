@@ -19,7 +19,9 @@ import {
 } from "@/lib/gateway/usage/timeRange";
 
 import RequestsSection from "@/components/(gateway)/usage/RequestsSection";
-import RouteRequestDetailDialog from "@/components/(gateway)/usage/RouteRequestDetailDialog";
+import RouteRequestDetailDialog, {
+	RouteRequestDetailErrorDialog,
+} from "@/components/(gateway)/usage/RouteRequestDetailDialog";
 import { investigateGeneration, type RequestRow } from "@/app/(dashboard)/gateway/usage/server-actions";
 import { fetchSettingsUsageLogsInitialData } from "@/lib/fetchers/internal/fetchSettingsUsageLogsInitialData";
 
@@ -377,6 +379,12 @@ export async function UsageLogsContent({
 								? buildLogsRequestHref(sp, rows[currentIndex + 1].request_id)
 								: null
 						}
+					/>
+				);
+			} else {
+				detailDialog = (
+					<RouteRequestDetailErrorDialog
+						closeHref={buildLogsRequestHref(sp)}
 					/>
 				);
 			}
