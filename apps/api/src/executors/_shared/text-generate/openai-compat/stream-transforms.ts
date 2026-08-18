@@ -1158,6 +1158,12 @@ function accumulateChatCompletion(finalResponse: any, payload: any): any {
 			choice.message.reasoning =
 				(choice.message.reasoning || "") + chunk.delta.reasoning;
 		}
+		if (Array.isArray(chunk.delta?._contentParts)) {
+			choice.message._contentParts = [
+				...(Array.isArray(choice.message._contentParts) ? choice.message._contentParts : []),
+				...chunk.delta._contentParts,
+			];
+		}
 		if (chunk.delta?.tool_calls) {
 			if (!choice.message.tool_calls) choice.message.tool_calls = [];
 			// Accumulate tool calls

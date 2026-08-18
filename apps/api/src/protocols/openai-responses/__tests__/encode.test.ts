@@ -229,6 +229,37 @@ describe("encodeOpenAIResponsesResponse", () => {
 		}
 	});
 
+	it("should preserve opaque reasoning signatures without inventing a summary", () => {
+		const ir: IRChatResponse = {
+			id: "req-123",
+			model: "gemini-3.6-flash",
+			choices: [{
+				index: 0,
+				message: {
+					role: "assistant",
+					content: [{
+						type: "reasoning_text",
+						text: "",
+						thoughtSignature: "gemini-thought-signature",
+					}],
+					toolCalls: [{ id: "call_weather", name: "get_weather", arguments: "{}" }],
+				},
+				finishReason: "tool_calls",
+			}],
+		};
+
+		const response = encodeOpenAIResponsesResponse(ir, "req-123");
+
+		expect(response.output[0]).toEqual({
+			type: "reasoning",
+			encrypted_content: "gemini-thought-signature",
+		});
+		expect(response.output[1]).toMatchObject({
+			type: "function_call",
+			call_id: "call_weather",
+		});
+	});
+
 	it("should handle multiple reasoning blocks", () => {
 		const ir: IRChatResponse = {
 			id: "req-123",

@@ -1,4 +1,4 @@
-﻿// Purpose: Executor for google-ai-studio / text-generate.
+// Purpose: Executor for google-ai-studio / text-generate.
 // Why: Isolates provider-specific behavior per capability.
 // How: Transforms IR and calls the provider API for this capability.
 
@@ -57,7 +57,11 @@ function isGeminiImageModelName(value: string): boolean {
 
 function isGeminiInteractionsModelName(value: string): boolean {
 	const normalized = String(value ?? "").toLowerCase();
-	return normalized.includes("gemini-3.6-flash") || normalized.includes("gemini-3.5-flash");
+	return (
+		normalized.includes("gemini-3.7-flash") ||
+		normalized.includes("gemini-3.6-flash") ||
+		normalized.includes("gemini-3.5-flash")
+	);
 }
 
 function hasUsableIRResponse(response: IRChatResponse | undefined): boolean {
@@ -274,11 +278,13 @@ export async function irToGemini(
 			}
 			for (const part of msg.content) {
 				if (part.type !== "reasoning_text") continue;
-				input.push({
+				const thought: any = {
 					type: "thought",
-					...(part.thoughtSignature ? { signature: part.thoughtSignature } : {}),
-					summary: { type: "text", text: part.summary || part.text },
-				});
+				};
+				const summary = part.summary || part.text;
+				if (part.thoughtSignature) thought.signature = part.thoughtSignature;
+				if (summary) thought.summary = { type: "text", text: summary };
+				input.push(thought);
 			}
 			if (Array.isArray(msg.toolCalls)) {
 				for (const toolCall of msg.toolCalls) {
@@ -718,12 +724,13 @@ function interactionToIR(
 			}
 		} else if (step.type === "thought") {
 			const text = interactionTextFromContent(step.summary);
-			if (text) {
+			const thoughtSignature = typeof step.signature === "string" ? step.signature : undefined;
+			if (text || thoughtSignature) {
 				contentParts.push({
 					type: "reasoning_text",
 					text,
-					thoughtSignature: typeof step.signature === "string" ? step.signature : undefined,
-					summary: text,
+					...(thoughtSignature ? { thoughtSignature } : {}),
+					...(text ? { summary: text } : {}),
 				});
 			}
 		} else if (step.type === "function_call") {
@@ -1460,6 +1467,7 @@ export function transformStream(
 		type: string;
 		id?: string;
 		name?: string;
+		signature?: string;
 		argumentsSoFar: string;
 		emittedName: boolean;
 		toolIndex: number;
@@ -1478,7 +1486,7 @@ export function transformStream(
 		return payload && typeof payload === "object" ? [payload] : [];
 	};
 	const splitSseBlocks = (value: string): { blocks: string[]; remainder: string } => {
-		const normalized = value.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+		const normalized = value.replace(/\n/g, "\n").replace(/\r/g, "\n");
 		const blocks = normalized.split(/\n\n/);
 		return {
 			blocks: blocks.slice(0, -1),
@@ -1535,6 +1543,7 @@ export function transformStream(
 				type: String(step.type ?? ""),
 				id: typeof step.id === "string" ? step.id : undefined,
 				name: typeof step.name === "string" ? step.name : undefined,
+				signature: typeof step.signature === "string" ? step.signature : undefined,
 				argumentsSoFar: "",
 				emittedName: false,
 				toolIndex: interactionToolCallCount,
@@ -1563,6 +1572,21 @@ export function transformStream(
 				enqueueIRChunk(irChunk, controller);
 				return 1;
 			}
+			if (state.type === "thought" && state.signature) {
+				const irChunk = buildBaseIRChunk();
+				irChunk.choices.push({
+					index: 0,
+					delta: {
+						role: "assistant",
+						contentParts: [{
+							type: "reasoning_text",
+							text: "",
+							thoughtSignature: state.signature,
+						}],
+					},
+				} as any);
+				enqueueIRChunk(irChunk, controller);
+			}
 
 			return 0;
 		}
@@ -1588,10 +1612,11 @@ export function transformStream(
 				}
 			} else if (delta.type === "thought_summary") {
 				const text = interactionTextFromContent(delta.content);
-				if (text) {
+				if (text || state?.signature) {
 					choice.delta.contentParts = [{
 						type: "reasoning_text",
 						text,
+						...(state?.signature ? { thoughtSignature: state.signature } : {}),
 					}];
 				}
 			} else if (delta.type === "arguments_delta") {
@@ -1835,7 +1860,7 @@ export function transformStream(
 							}
 						}
 						if (emittedChunkCount === 0 && rawText.trim().length > 0) {
-							const normalized = rawText.replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();
+							const normalized = rawText.replace(/\n/g, "\n").replace(/\r/g, "\n").trim();
 							const fallbackPayloads = normalized.startsWith("data:")
 								? normalized
 									.split("\n")
@@ -1931,9 +1956,11 @@ function encodeIRChunkToOpenAI(chunk: IRStreamChunk): any {
 
 		// Handle reasoning in contentParts
 		if (c.delta.contentParts) {
+			const contentParts: any[] = [];
 			for (const part of c.delta.contentParts) {
 				if (part.type === "reasoning_text") {
-					delta.reasoning_content = part.text;
+					if (part.text) delta.reasoning_content = part.text;
+					contentParts.push(part);
 				} else if (part.type === "text") {
 					delta.content = (delta.content || "") + part.text;
 				} else if (part.type === "image") {
@@ -1973,6 +2000,7 @@ function encodeIRChunkToOpenAI(chunk: IRStreamChunk): any {
 					});
 				}
 			}
+			if (contentParts.length > 0) delta._contentParts = contentParts;
 		}
 		if (Array.isArray(c.delta.toolCalls) && c.delta.toolCalls.length > 0) {
 			delta.tool_calls = c.delta.toolCalls.map((tc) => ({

@@ -2,9 +2,11 @@ import { describe, expect, it } from "vitest";
 import { irToGemini } from "../index";
 
 describe("google-ai-studio irToGemini", () => {
-	it("uses the Interactions request shape for current Gemini Flash models", async () => {
+	it.each(["gemini-3.6-flash", "gemini-3.7-flash"])(
+		"uses the Interactions request shape for %s",
+		async (model) => {
 		const request = await irToGemini({
-			model: "gemini-3.6-flash",
+			model,
 			stream: true,
 			temperature: 0.2,
 			topP: 0.8,
@@ -13,7 +15,7 @@ describe("google-ai-studio irToGemini", () => {
 			messages: [{ role: "user", content: [{ type: "text", text: "hello" }] }],
 		} as any);
 
-		expect(request.model).toBe("gemini-3.6-flash");
+		expect(request.model).toBe(model);
 		expect(request.input).toEqual([{
 			type: "user_input",
 			content: [{ type: "text", text: "hello" }],
@@ -23,7 +25,8 @@ describe("google-ai-studio irToGemini", () => {
 		expect(request.generation_config).not.toHaveProperty("temperature");
 		expect(request.generation_config).not.toHaveProperty("top_p");
 		expect(request.generation_config).not.toHaveProperty("top_k");
-	});
+		},
+	);
 
 	it("maps system and developer roles into system_instruction", async () => {
 		const request = await irToGemini({
@@ -97,6 +100,33 @@ describe("google-ai-studio irToGemini", () => {
 			is_error: undefined,
 			result: [{ type: "text", text: "{\"datetime\":\"2026-07-22T08:00:00Z\"}" }],
 		});
+	});
+
+	it("replays signature-only thoughts without an empty summary", async () => {
+		const request = await irToGemini({
+			model: "gemini-3.6-flash",
+			stream: false,
+			messages: [
+				{ role: "assistant", content: [{
+					type: "reasoning_text",
+					text: "",
+					thoughtSignature: "gemini-thought-signature",
+				}], toolCalls: [{ id: "call_weather", name: "get_weather", arguments: "{}" }] },
+				{ role: "tool", toolResults: [{ toolCallId: "call_weather", content: "Sunny" }] },
+			],
+		} as any);
+
+		expect(request.input).toEqual([
+			{ type: "thought", signature: "gemini-thought-signature" },
+			{ type: "function_call", id: "call_weather", name: "get_weather", arguments: {} },
+			{
+				type: "function_result",
+				call_id: "call_weather",
+				name: "get_weather",
+				is_error: undefined,
+				result: [{ type: "text", text: "Sunny" }],
+			},
+		]);
 	});
 
 	it("honors store=false and ignores client previous response IDs", async () => {

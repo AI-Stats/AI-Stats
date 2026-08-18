@@ -24,4 +24,18 @@ describe("google-vertex auth helpers", () => {
 			"https://aiplatform.googleapis.com/v1/projects/project-1/locations/global",
 		);
 	});
+
+	it("uses the provider adapter location instead of the shared location binding", () => {
+		expect(resolveVertexApiBase({
+			GOOGLE_VERTEX_PROJECT: "project-1",
+		}, "google-vertex")).toBe(
+			"https://aiplatform.googleapis.com/v1/projects/project-1/locations/global",
+		);
+		expect(resolveVertexApiBase({ GOOGLE_VERTEX_PROJECT: "project-1" }, "google-vertex-eu")).toBe(
+			"https://eu-aiplatform.googleapis.com/v1/projects/project-1/locations/eu",
+		);
+		expect(resolveVertexApiBase({ GOOGLE_VERTEX_PROJECT: "project-1" }, "google-vertex-us")).toBe(
+			"https://us-central1-aiplatform.googleapis.com/v1/projects/project-1/locations/us-central1",
+		);
+	});
 });

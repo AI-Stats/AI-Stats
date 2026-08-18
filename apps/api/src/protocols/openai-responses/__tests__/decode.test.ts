@@ -276,6 +276,45 @@ describe("decodeOpenAIResponsesRequest", () => {
 		}
 	});
 
+	it("should restore encrypted reasoning before a tool result", () => {
+		const request = {
+			model: "gemini-3.6-flash",
+			input: [
+				{
+					type: "reasoning",
+					encrypted_content: "gemini-thought-signature",
+				},
+				{
+					type: "function_call",
+					call_id: "call_weather",
+					name: "get_weather",
+					arguments: "{}",
+				},
+				{
+					type: "function_call_output",
+					call_id: "call_weather",
+					output: "Sunny",
+				},
+			],
+		};
+
+		const ir: IRChatRequest = decodeOpenAIResponsesRequest(request as any);
+
+		expect(ir.messages[0]).toMatchObject({
+			role: "assistant",
+			content: [{
+				type: "reasoning_text",
+				text: "",
+				thoughtSignature: "gemini-thought-signature",
+			}],
+			toolCalls: [{ id: "call_weather", name: "get_weather" }],
+		});
+		expect(ir.messages[1]).toMatchObject({
+			role: "tool",
+			toolResults: [{ toolCallId: "call_weather", content: "Sunny" }],
+		});
+	});
+
 	it("should handle multiple function calls", () => {
 		const request = {
 			model: "gpt-4",

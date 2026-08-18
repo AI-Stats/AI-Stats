@@ -79,10 +79,9 @@ def resolve_project() -> str:
 def resolve_location() -> str:
     load_local_env()
     value = (
-        os.getenv("GOOGLE_VERTEX_LOCATION")
-        or os.getenv("GOOGLE_CLOUD_LOCATION")
+        os.getenv("GOOGLE_CLOUD_LOCATION")
         or os.getenv("LOCATION")
-        or "us-east5"
+        or "global"
     )
     return value.strip()
 

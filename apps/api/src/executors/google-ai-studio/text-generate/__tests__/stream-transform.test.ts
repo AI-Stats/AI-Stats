@@ -196,6 +196,57 @@ describe("google-ai-studio stream transform", () => {
 		expect(output).toContain("\"reasoning_content\":\"thinking trace\"");
 	});
 
+	it("preserves a signature-only thought through streamed tool calling", async () => {
+		const upstream = makeGoogleSseStream([
+			{
+				index: 0,
+				step: {
+					type: "thought",
+					signature: "gemini-thought-signature",
+				},
+				event_type: "step.start",
+			},
+			{
+				index: 0,
+				step: {
+					type: "function_call",
+					id: "call_weather",
+					name: "get_weather",
+					arguments: {},
+				},
+				event_type: "step.start",
+			},
+			{
+				index: 0,
+				delta: {
+					type: "arguments_delta",
+					arguments: "{}",
+				},
+				event_type: "step.delta",
+			},
+			{
+				interaction: {
+					id: "v1_test",
+					status: "requires_action",
+				},
+				event_type: "interaction.completed",
+			},
+		]);
+
+		const output = await readStreamText(transformStream(upstream, baseArgs({
+			endpoint: "responses",
+			protocol: "openai.responses",
+			ir: {
+				model: "gemini-3.6-flash",
+				messages: [{ role: "user", content: [{ type: "text", text: "weather" }] }],
+				stream: true,
+			},
+		})));
+
+		expect(output).toContain("\"encrypted_content\":\"gemini-thought-signature\"");
+		expect(output).toContain("\"call_id\":\"call_weather\"");
+	});
+
 	it("emits image deltas when Interactions stream returns image content", async () => {
 		const upstream = makeGoogleSseStream([
 			{

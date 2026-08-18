@@ -87,6 +87,39 @@ describe("google-ai-studio execute usage fallback", () => {
 		expect(mock.calls[0]?.bodyJson?.generation_config).toBeUndefined();
 	});
 
+	it("routes Gemini 3.7 Chat Completions through Interactions", async () => {
+		const mock = installFetchMock([{
+			match: (url) => url.endsWith("/v1beta/interactions"),
+			response: new Response(JSON.stringify({
+				id: "gemini_37_chat_route",
+				status: "completed",
+				steps: [],
+			}), {
+				status: 200,
+				headers: { "Content-Type": "application/json" },
+			}),
+		}]);
+
+		try {
+			const result = await executor(buildArgs(
+				{ model: "google/gemini-3.7-flash" },
+				{
+					providerModelSlug: "google/gemini-3.7-flash",
+					endpoint: "chat.completions",
+					protocol: "openai.chat.completions",
+				},
+			));
+
+			expect(result.kind).toBe("completed");
+			expect(mock.calls).toHaveLength(1);
+			expect(mock.calls[0]?.url).toMatch(/\/v1beta\/interactions$/);
+			expect(mock.calls[0]?.bodyJson?.model).toBe("gemini-3.7-flash");
+			expect(mock.calls[0]?.bodyJson?.input?.[0]?.type).toBe("user_input");
+		} finally {
+			mock.restore();
+		}
+	});
+
 	it("does not transform a synthetic Interactions tool-call stream twice", async () => {
 		const mock = installFetchMock([{
 			match: (url) => url.endsWith("/v1beta/interactions"),

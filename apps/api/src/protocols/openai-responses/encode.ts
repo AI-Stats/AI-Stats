@@ -54,7 +54,11 @@ export type OpenAIResponseOutputItem =
 		phase?: "commentary" | "final_answer" | null;
 	}
 	| { type: "function_call"; call_id: string; name: string; arguments: string }
-	| { type: "reasoning"; content: Array<{ type: "output_text"; text: string; annotations?: any[] }> };
+	| {
+		type: "reasoning";
+		content?: Array<{ type: "output_text"; text: string; annotations?: any[] }>;
+		encrypted_content?: string;
+	};
 
 /**
  * Encode IR response to OpenAI Responses format
@@ -77,10 +81,15 @@ export function encodeOpenAIResponsesResponse(
 		const hasToolCalls = (choice.message.toolCalls?.length ?? 0) > 0;
 		const { textParts, reasoningParts, imageParts, audioParts } = splitContentParts(choice.message.content as IRContentPart[]);
 
-		for (const reasoningText of reasoningParts) {
+		for (const reasoningPart of reasoningParts) {
 			outputItems.push({
 				type: "reasoning",
-				content: [{ type: "output_text", text: reasoningText, annotations: [] }],
+				...(reasoningPart.text
+					? { content: [{ type: "output_text", text: reasoningPart.text, annotations: [] }] }
+					: {}),
+				...(reasoningPart.thoughtSignature
+					? { encrypted_content: reasoningPart.thoughtSignature }
+					: {}),
 			});
 		}
 
@@ -189,7 +198,7 @@ export function encodeOpenAIResponsesResponse(
 
 function splitContentParts(parts: IRContentPart[]): {
 	textParts: string[];
-	reasoningParts: string[];
+	reasoningParts: Array<Extract<IRContentPart, { type: "reasoning_text" }>>;
 	imageParts: Array<Extract<IRContentPart, { type: "image" }>>;
 	audioParts: Array<Extract<IRContentPart, { type: "audio" }>>;
 } {
@@ -197,9 +206,7 @@ function splitContentParts(parts: IRContentPart[]): {
 	const textParts = parts
 		.filter((part) => part.type === "text")
 		.map((part) => part.text);
-	const reasoningParts = parts
-		.filter((part) => part.type === "reasoning_text")
-		.map((part) => part.text);
+	const reasoningParts = parts.filter((part): part is Extract<IRContentPart, { type: "reasoning_text" }> => part.type === "reasoning_text");
 	const imageParts = parts.filter((part) => part.type === "image") as Array<Extract<IRContentPart, { type: "image" }>>;
 	const audioParts = parts.filter((part) => part.type === "audio") as Array<Extract<IRContentPart, { type: "audio" }>>;
 	return { textParts, reasoningParts, imageParts, audioParts };

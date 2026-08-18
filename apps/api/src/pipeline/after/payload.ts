@@ -319,18 +319,22 @@ function buildResponsesOutput(ir: IRChatResponse, requestId: string) {
 
         // Add reasoning output items
         for (const reasoningPart of reasoningParts) {
-            output.push({
+            const reasoningOutput: any = {
                 type: "reasoning",
                 id: `reasoning_${requestId}_${idx}_${output.length}`,
                 status: "completed",
-                content: [
-                    {
-                        type: "output_text",
-                        text: reasoningPart.text,
-                        annotations: [],
-                    },
-                ],
-            });
+            };
+            if (reasoningPart.text) {
+                reasoningOutput.content = [{
+                    type: "output_text",
+                    text: reasoningPart.text,
+                    annotations: [],
+                }];
+            }
+            if (reasoningPart.thoughtSignature) {
+                reasoningOutput.encrypted_content = reasoningPart.thoughtSignature;
+            }
+            output.push(reasoningOutput);
         }
 
         // Add message output item with regular text, images, and audio

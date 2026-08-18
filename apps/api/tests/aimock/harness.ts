@@ -440,7 +440,6 @@ function buildAimockBindings(): Partial<GatewayBindings> {
         GOOGLE_AI_STUDIO_BASE_URL: AIMOCK_BASE_URL,
         GOOGLE_BASE_URL: AIMOCK_BASE_URL,
         GOOGLE_VERTEX_PROJECT: "aimock-project",
-        GOOGLE_VERTEX_LOCATION: "us-east5",
         NODE_ENV: "test",
     };
 

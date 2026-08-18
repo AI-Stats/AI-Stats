@@ -139,9 +139,9 @@ export function decodeOpenAIResponsesRequest(req: ResponsesRequest): IRChatReque
 									arguments: tc.function?.arguments || tc.arguments || "{}",
 								}))
 								: undefined,
-							phase: item.phase ?? undefined,
-						});
-					} else if (item.role === "tool" && item.tool_call_id) {
+								phase: item.phase ?? undefined,
+							});
+						} else if (item.role === "tool" && item.tool_call_id) {
 						messages.push({
 							role: "tool",
 							toolResults: [
@@ -154,6 +154,34 @@ export function decodeOpenAIResponsesRequest(req: ResponsesRequest): IRChatReque
 							],
 						});
 					}
+				}
+				// Reasoning item (including opaque provider continuation state)
+				else if (item.type === "reasoning") {
+					flushPendingUserParts();
+					const summary = Array.isArray(item.content)
+						? item.content
+							.map((part: any) => typeof part?.text === "string" ? part.text : "")
+							.join("")
+						: "";
+					const encryptedContent = typeof item.encrypted_content === "string"
+						? item.encrypted_content
+						: undefined;
+					if (!summary && !encryptedContent) continue;
+
+					let lastAssistant = messages[messages.length - 1];
+					if (!lastAssistant || lastAssistant.role !== "assistant") {
+						lastAssistant = {
+							role: "assistant",
+							content: [],
+						};
+						messages.push(lastAssistant);
+					}
+					lastAssistant.content.push({
+						type: "reasoning_text",
+						text: summary,
+						...(encryptedContent ? { thoughtSignature: encryptedContent } : {}),
+						...(summary ? { summary } : {}),
+					});
 				}
 				// Function call item (assistant tool call)
 				else if (item.type === "function_call") {
