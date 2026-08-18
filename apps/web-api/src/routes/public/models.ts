@@ -9,7 +9,7 @@ import { listActiveModelAliases } from "@/repositories/model-aliases";
 import { findPublicModelIdentity, getModelAvailability, getModelNotice, getModelTimeline, getProviderMetadata, getProviderRegions, getProviderStatuses, listCatalogPricingRules, listModelBenchmarks, listModelIdentifiers, listModelSubscriptionPlans, listPublicCatalogueModels, listPublicModelVariants, listRecentProviderHealthStates, resolvePublicModel, type ModelVariantSummary } from "@/repositories/models";
 import { getModelRealtimeStats, getModelTokenTrajectory, listModelApps, listModelPerformanceColos, listModelUsageDaily } from "@/repositories/model-usage";
 import { getModelPerformanceBundle, getModelProviderHealthRows } from "@/repositories/model-performance";
-import { listGatewayMonitorRows } from "@/repositories/model-monitor";
+import { listGatewayMonitorRows, type GatewayMonitorCursor } from "@/repositories/model-monitor";
 
 const CACHE_PROFILES = {
 	catalogue: {
@@ -283,6 +283,13 @@ export async function fetchGatewayMonitorRows(
 	_catalogueVersion: ModelsCatalogueVersion = "v2",
 ): Promise<Map<string, Record<string, unknown>[]>> {
 	const rows = await listGatewayMonitorRows(env);
+	return enrichGatewayMonitorRows(env, rows);
+}
+
+async function enrichGatewayMonitorRows(
+	env: Env,
+	rows: Record<string, unknown>[],
+): Promise<Map<string, Record<string, unknown>[]>> {
 	const providerIds = Array.from(
 		new Set(
 			rows
@@ -364,6 +371,54 @@ export async function fetchGatewayMonitorRows(
 		byModelId.set(modelId, [...(byModelId.get(modelId) ?? []), monitorRow]);
 	}
 	return byModelId;
+}
+
+function encodeGatewayMonitorCursor(cursor: GatewayMonitorCursor): string {
+	return btoa(JSON.stringify(cursor))
+		.replace(/\+/g, "-")
+		.replace(/\//g, "_")
+		.replace(/=+$/g, "");
+}
+
+function decodeGatewayMonitorCursor(value: string | undefined): GatewayMonitorCursor | null {
+	if (!value) return null;
+	try {
+		const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
+		const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=");
+		const decoded = JSON.parse(atob(padded)) as Partial<GatewayMonitorCursor>;
+		if (typeof decoded.providerModelId !== "string" || typeof decoded.capabilityId !== "string") return null;
+		const providerModelId = decoded.providerModelId.trim();
+		const capabilityId = decoded.capabilityId.trim();
+		if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(providerModelId) || !capabilityId) return null;
+		return { providerModelId, capabilityId };
+	} catch {
+		return null;
+	}
+}
+
+async function fetchGatewayMonitorRowsPage(
+	env: Env,
+	limit: number,
+	cursor: GatewayMonitorCursor | null,
+) {
+	const rows = await listGatewayMonitorRows(env, {
+		cursor: cursor ?? undefined,
+		limit,
+	});
+	const hasMore = rows.length > limit;
+	const pageRows = rows.slice(0, limit);
+	const lastRow = pageRows.at(-1);
+	const nextCursor = hasMore && lastRow
+		? encodeGatewayMonitorCursor({
+			providerModelId: String(lastRow.provider_api_model_id ?? ""),
+			capabilityId: String(lastRow.capability_id ?? ""),
+		})
+		: null;
+	return {
+		rowsByModelId: await enrichGatewayMonitorRows(env, pageRows),
+		nextCursor,
+		hasMore,
+	};
 }
 
 function normaliseRankingKey(value: unknown): string {
@@ -485,14 +540,21 @@ function sectionPolicy(section: keyof typeof CACHE_PROFILES, modelId?: string): 
 	};
 }
 
-function cataloguePolicy(catalogueVersion: ModelsCatalogueVersion, includeVirtual = false): PublicCachePolicy {
+function cataloguePolicy(
+	catalogueVersion: ModelsCatalogueVersion,
+	includeVirtual = false,
+	revalidateOnDemand = false,
+): PublicCachePolicy {
 	const policy = sectionPolicy("catalogue");
 	const versionPolicy = catalogueVersion === "v2"
 		? { ...policy, cacheTags: [...(policy.cacheTags ?? []), "web-api-models-v2"] }
 		: policy;
-	return includeVirtual
+	const virtualPolicy = includeVirtual
 		? { ...versionPolicy, cacheTags: [...(versionPolicy.cacheTags ?? []), "web-api-free-router-overview"] }
 		: versionPolicy;
+	return revalidateOnDemand
+		? { ...virtualPolicy, edgeTtlSeconds: 0, staleWhileRevalidateSeconds: 0, browserTtlSeconds: 0 }
+		: virtualPolicy;
 }
 
 function notFound(c: { json: (value: unknown, status: number) => Response }) {
@@ -585,6 +647,7 @@ publicModelsRouter.get("/", async (c) => {
 		const search = c.req.query("search")?.trim();
 		const region = c.req.query("region")?.trim().toLowerCase() || null;
 		const serviceTier = c.req.query("service_tier")?.trim().toLowerCase() || null;
+		const requestsRevalidation = c.req.query("revalidate") === "1";
 		if (shape === "page") {
 			const projection = parseBoundedInt(c.req.query("projection"), 4, 100);
 			const includeVirtual = projection >= 5;
@@ -603,22 +666,48 @@ publicModelsRouter.get("/", async (c) => {
 		}
 		if (shape === "table") {
 			const projection = parseBoundedInt(c.req.query("projection"), 2, 100);
+			const rawCursor = c.req.query("cursor");
+			const revalidateOnDemand = requestsRevalidation
+				&& projection === 3
+				&& !rawCursor
+				&& offset === 0
+				&& limit <= 250;
+			if (projection < 3) {
+				const payload = buildModelsTablePayload(
+					await fetchGatewayMonitorRows(c.env, catalogueVersion),
+				);
+				return withPublicCache(
+					c.json({
+						models: payload.models.slice(offset, offset + limit),
+						facets: payload.facets,
+						total: payload.models.length,
+						limit,
+						offset,
+						catalogue_version: catalogueVersion,
+						shape: "table",
+						projection,
+					}),
+					cataloguePolicy(catalogueVersion, false, revalidateOnDemand),
+				);
+			}
+			const cursor = decodeGatewayMonitorCursor(rawCursor);
+			if (rawCursor && !cursor) return c.json({ error: "invalid_cursor" }, 400);
+			const page = await fetchGatewayMonitorRowsPage(c.env, limit, cursor);
 			const payload = buildModelsTablePayload(
-				await fetchGatewayMonitorRows(c.env, catalogueVersion),
+				page.rowsByModelId,
 			);
-			const models = payload.models.slice(offset, offset + limit);
 			const response = withPublicCache(
 				c.json({
-					models,
+					models: payload.models,
 					facets: payload.facets,
-					total: payload.models.length,
+					next_cursor: page.nextCursor,
+					has_more: page.hasMore,
 					limit,
-					offset,
 					catalogue_version: catalogueVersion,
 					shape: "table",
 					projection,
 				}),
-				cataloguePolicy(catalogueVersion),
+				cataloguePolicy(catalogueVersion, false, revalidateOnDemand),
 			);
 			return response;
 		}

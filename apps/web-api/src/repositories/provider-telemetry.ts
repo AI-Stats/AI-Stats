@@ -1,5 +1,5 @@
 import { apiApps, gatewayRequests, v2Labs, v2ModelProviderRoutes, v2Models, v2PricingSkuMeters, v2PricingSkus, v2RouteCapabilities, v2WebPublicUsageHourly } from "@phaseo/db/schema";
-import { and, asc, desc, eq, gte, inArray, lte, sql } from "@phaseo/db/query";
+import { and, desc, eq, gte, inArray, sql } from "@phaseo/db/query";
 
 import { createDatabase } from "@/data/db";
 import type { Env } from "@/env";
@@ -12,7 +12,43 @@ export async function getProviderRecentTokens(env: Env, providerId: string, sinc
 
 export async function listProviderRecentModels(env: Env, providerId: string, since: string | null, limit: number) { const { db, client } = createDatabase(env); try { const rows = await db.select({ route: v2ModelProviderRoutes, model: v2Models, lab: v2Labs }).from(v2ModelProviderRoutes).innerJoin(v2Models, and(eq(v2Models.modelSlug, v2ModelProviderRoutes.modelSlug), eq(v2Models.hidden, false))).innerJoin(v2Labs, eq(v2Labs.labSlug, v2Models.labSlug)).where(eq(v2ModelProviderRoutes.providerSlug, providerId)).orderBy(desc(v2Models.releasedAt), desc(v2ModelProviderRoutes.createdAt)); const merged = new Map<string, Record<string, any>>(); for (const { route, model, lab } of rows) { const lifecycle = model.releasedAt ?? model.announcedAt; if (since && (!lifecycle || Date.parse(lifecycle)<Date.parse(since))) continue; const existing = merged.get(model.modelSlug); const row = { model_id: model.modelSlug, api_model_id: route.providerModelSlug, created_at: route.createdAt, is_active_gateway: route.routingEnabled && ["active","degraded"].includes(route.status), data_models: { name: model.name, organisation_id: model.labSlug, release_date: model.releasedAt, announcement_date: model.announcedAt, organisation: { lab_slug: lab.labSlug, name: lab.name } } }; if (!existing) merged.set(model.modelSlug,row); else existing.is_active_gateway ||= row.is_active_gateway; } return [...merged.values()].slice(0,limit); } finally { await client.end({ timeout: 1 }); } }
 
-export async function listProviderRollups(env: Env, providerId: string, since: string, to: string) { const { db, client } = createDatabase(env); try { return await db.select({ bucket_15m: v2WebPublicUsageHourly.bucket15M, canonical_model_id: v2WebPublicUsageHourly.canonicalModelId, app_id: v2WebPublicUsageHourly.appId, requests: v2WebPublicUsageHourly.requests, success_requests: v2WebPublicUsageHourly.successRequests, total_tokens: v2WebPublicUsageHourly.totalTokens, latency_sum_ms: v2WebPublicUsageHourly.latencySumMs, latency_samples: v2WebPublicUsageHourly.latencySamples, throughput_sum: v2WebPublicUsageHourly.throughputSum, throughput_samples: v2WebPublicUsageHourly.throughputSamples }).from(v2WebPublicUsageHourly).where(and(eq(v2WebPublicUsageHourly.provider, providerId), gte(v2WebPublicUsageHourly.bucket15M, since), lte(v2WebPublicUsageHourly.bucket15M, to))).orderBy(asc(v2WebPublicUsageHourly.bucket15M)).limit(40_000); } finally { await client.end({ timeout: 1 }); } }
+export async function listProviderRollups(
+	env: Env,
+	providerId: string,
+	since: string,
+	to: string,
+	dimension: "model" | "app" = "model",
+) {
+	const { db, client } = createDatabase(env);
+	try {
+		const dimensionColumn = dimension === "app"
+			? sql`rollup.app_id`
+			: sql`rollup.canonical_model_id`;
+		const rows = await db.execute<Record<string, unknown>>(sql`
+			/*application='phaseo-web-api',service='web-api',route='/api/_web/providers/:providerId',feature='provider-daily-rollups'*/
+			select date_trunc('day', rollup.bucket_15m) bucket_15m,
+				${dimension === "model" ? dimensionColumn : sql`null::text`} canonical_model_id,
+				${dimension === "app" ? dimensionColumn : sql`null::text`} app_id,
+				sum(rollup.requests)::bigint requests,
+				sum(rollup.success_requests)::bigint success_requests,
+				sum(rollup.total_tokens)::bigint total_tokens,
+				sum(rollup.latency_sum_ms) latency_sum_ms,
+				sum(rollup.latency_samples)::bigint latency_samples,
+				sum(rollup.throughput_sum) throughput_sum,
+				sum(rollup.throughput_samples)::bigint throughput_samples
+			from ${v2WebPublicUsageHourly} rollup
+			where rollup.provider = ${providerId}
+				and rollup.bucket_15m >= ${since}::timestamptz
+				and rollup.bucket_15m <= ${to}::timestamptz
+			group by date_trunc('day', rollup.bucket_15m), ${dimensionColumn}
+			order by bucket_15m asc
+			limit 40000
+		`);
+		return [...rows];
+	} finally {
+		await client.end({ timeout: 1 });
+	}
+}
 export async function getProviderModelNames(env: Env, ids: string[]) { if (!ids.length) return new Map<string,string>(); const { db, client } = createDatabase(env); try { const rows = await db.select({ id: v2Models.modelSlug, name: v2Models.name }).from(v2Models).where(and(inArray(v2Models.modelSlug, ids), eq(v2Models.hidden,false))); return new Map(rows.map((row)=>[row.id,row.name])); } finally { await client.end({ timeout: 1 }); } }
 export async function getProviderAppMetadata(env: Env, ids: string[]) { if (!ids.length) return new Map<string,Record<string,unknown>>(); const { db, client } = createDatabase(env); try { const rows=await db.select({id:apiApps.id,title:apiApps.title,url:apiApps.url,image_url:apiApps.imageUrl}).from(apiApps).where(and(inArray(apiApps.id,ids),eq(apiApps.isPublic,true))); return new Map(rows.map((row)=>[row.id,row])); } finally { await client.end({timeout:1}); } }
 export async function loadProviderModelCatalogue(env: Env, providerId: string) { const { db, client }=createDatabase(env); try { const [routes,capabilities,skus,meters]=await Promise.all([db.select({route:v2ModelProviderRoutes,model:v2Models}).from(v2ModelProviderRoutes).innerJoin(v2Models,and(eq(v2Models.modelSlug,v2ModelProviderRoutes.modelSlug),eq(v2Models.hidden,false))).where(eq(v2ModelProviderRoutes.providerSlug,providerId)).orderBy(desc(v2ModelProviderRoutes.createdAt)),db.select().from(v2RouteCapabilities).innerJoin(v2ModelProviderRoutes,eq(v2ModelProviderRoutes.providerModelId,v2RouteCapabilities.providerModelId)).where(eq(v2ModelProviderRoutes.providerSlug,providerId)),db.select().from(v2PricingSkus).innerJoin(v2ModelProviderRoutes,eq(v2ModelProviderRoutes.providerModelId,v2PricingSkus.providerModelId)).where(eq(v2ModelProviderRoutes.providerSlug,providerId)),db.select().from(v2PricingSkuMeters).innerJoin(v2PricingSkus,eq(v2PricingSkus.skuId,v2PricingSkuMeters.skuId)).innerJoin(v2ModelProviderRoutes,eq(v2ModelProviderRoutes.providerModelId,v2PricingSkus.providerModelId)).where(eq(v2ModelProviderRoutes.providerSlug,providerId))]); return { routes:routes.map(({route,model})=>({provider_model_id:route.providerModelId,provider_model_slug:route.providerModelSlug,model_slug:route.modelSlug,routing_enabled:route.routingEnabled,status:route.status,input_modalities:route.inputModalities,output_modalities:route.outputModalities,created_at:route.createdAt,model:{name:model.name,released_at:model.releasedAt,announced_at:model.announcedAt}})), capabilities:capabilities.map(({v2_route_capabilities:row})=>({provider_model_id:row.providerModelId,capability_id:row.capabilityId,params:row.params,status:row.status})), skus:skus.map(({v2_pricing_skus:row})=>({sku_id:row.skuId,provider_model_id:row.providerModelId,service_tier_slug:row.serviceTierSlug,status:row.status,effective_from:row.effectiveFrom,effective_to:row.effectiveTo})), meters:meters.map(({v2_pricing_sku_meters:row})=>({sku_id:row.skuId,meter_key:row.meterKey,unit:row.unit,unit_quantity:row.unitQuantity,price_nanos:row.priceNanos,meter_order:row.meterOrder})) }; } finally { await client.end({timeout:1}); } }

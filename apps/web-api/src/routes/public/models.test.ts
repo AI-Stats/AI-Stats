@@ -375,12 +375,13 @@ describe("public model routes", () => {
 		vi.stubGlobal("fetch", fetchMock);
 
 		const response = await app.request(
-			"https://phaseo.app/api/_web/models?catalogue_version=v2&shape=table&projection=2&limit=10000",
+			"https://phaseo.app/api/_web/models?catalogue_version=v2&shape=table&projection=2&limit=10000&revalidate=1",
 			{},
 			env,
 		);
 
 		expect(response.status).toBe(200);
+		expect(response.headers.get("cloudflare-cdn-cache-control")).toBe("public, max-age=900, stale-while-revalidate=1800");
 		expect(response.headers.get("cache-tag")).toContain("web-api-models-v2");
 		const payload = await response.json() as {
 			models: Array<{ id: string; provider: Record<string, unknown> }>;
@@ -412,6 +413,39 @@ describe("public model routes", () => {
 		expect(payload.models[0].provider).not.toHaveProperty("standardInputPrice");
 		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("v2_models?"))).toBe(false);
 		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("data_models?"))).toBe(false);
+
+		const cursorResponse = await app.request(
+			"https://phaseo.app/api/_web/models?catalogue_version=v2&shape=table&projection=3&limit=1&revalidate=1",
+			{},
+			env,
+		);
+		expect(cursorResponse.status).toBe(200);
+		expect(cursorResponse.headers.get("cloudflare-cdn-cache-control")).toBe("public, max-age=0");
+		await expect(cursorResponse.json()).resolves.toMatchObject({
+			projection: 3,
+			has_more: true,
+			next_cursor: expect.any(String),
+			models: [{ id: "openai/gpt-test::openai::provider-model-a::responses" }],
+		});
+
+		const monitorCallsBeforeInvalidCursor = vi.mocked(listGatewayMonitorRows).mock.calls.length;
+		for (const malformedCursor of [
+			{ providerModelId: "not-a-uuid", capabilityId: "responses" },
+			{ providerModelId: "00000000-0000-0000-0000-000000000000", capabilityId: "" },
+		]) {
+			const encodedCursor = btoa(JSON.stringify(malformedCursor))
+				.replace(/\+/g, "-")
+				.replace(/\//g, "_")
+				.replace(/=+$/g, "");
+			const invalidCursorResponse = await app.request(
+				`https://phaseo.app/api/_web/models?shape=table&projection=3&cursor=${encodedCursor}`,
+				{},
+				env,
+			);
+			expect(invalidCursorResponse.status).toBe(400);
+			await expect(invalidCursorResponse.json()).resolves.toEqual({ error: "invalid_cursor" });
+		}
+		expect(listGatewayMonitorRows).toHaveBeenCalledTimes(monitorCallsBeforeInvalidCursor);
 
 		const laterPageResponse = await app.request(
 			"https://phaseo.app/api/_web/models?catalogue_version=v2&shape=table&projection=2&limit=10000&offset=20000",

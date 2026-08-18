@@ -108,19 +108,37 @@ export async function fetchAppMetadata(appIds: string[]): Promise<Map<string, Ap
 type PaginatedRequestsParams = Record<string, unknown> & { pageSize?: number; cursor?: { createdAt: string; id: string } | null };
 export async function fetchPaginatedRequests(params: PaginatedRequestsParams) {
 	const pageSize = [25, 50, 100].includes(Number(params.pageSize)) ? Number(params.pageSize) : 50;
+	const cursor = params.cursor ?? null;
+	if (cursor && (
+		!Number.isFinite(Date.parse(cursor.createdAt))
+		|| !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cursor.id)
+	)) throw new Error("Invalid request cursor");
+	const filterOperators = objectOrNull(params.filterOperators) ?? {};
 	const stringFilters: Array<{ column: any; value: string; negate: boolean }> = [];
-	const add = (column: string, value: unknown) => { const text = stringOrNull(value); if (text) stringFilters.push({ column, value: text, negate: params.filterOperators?.[column] === "not_equals" }); };
-	add("model_id", params.modelFilter); add("provider", params.providerFilter); add("app_id", params.appFilter);
-	add("endpoint", params.endpointFilter); add("finish_reason", params.finishReasonFilter); add("request_id", params.requestFilter);
-	add("session_id", params.sessionFilter); add("client_source_id", params.sourceFilter); add("error_code", params.errorCodeFilter);
-	const status = params.statusFilter === "success" ? { value: true, negate: false } : params.statusFilter === "error" ? { value: false, negate: false } : undefined;
-	const stream = params.streamFilter === "streaming" ? { value: true, negate: false } : params.streamFilter === "non_streaming" ? { value: false, negate: false } : undefined;
+	const add = (column: string, value: unknown, operatorKey = column) => { const text = stringOrNull(value); if (text) stringFilters.push({ column, value: text, negate: filterOperators[operatorKey] === "is_not" }); };
+	add("model", params.modelFilter); add("provider", params.providerFilter); add("app", params.appFilter);
+	add("endpoint", params.endpointFilter); add("finishReason", params.finishReasonFilter, "finish"); add("requestId", params.requestFilter);
+	add("session", params.sessionFilter); add("source", params.sourceFilter); add("errorCode", params.errorCodeFilter, "error");
+	if (numberOrNull(params.statusCodeFilter) != null) add("statusCode", String(params.statusCodeFilter), "http");
+	add("key", params.keyFilter);
+	const status = params.statusFilter === "success" ? { value: true, negate: filterOperators.status === "is_not" } : params.statusFilter === "error" ? { value: false, negate: filterOperators.status === "is_not" } : undefined;
+	const stream = params.streamFilter === "streaming" ? { value: true, negate: filterOperators.stream === "is_not" } : params.streamFilter === "non_streaming" ? { value: false, negate: filterOperators.stream === "is_not" } : undefined;
+	const tokenFilters: Array<{ column: "input" | "output" | "total"; operator: "eq" | "lte" | "gte" | "between"; value: number; max?: number }> = [];
+	for (const [column, valueKey, maxKey, operatorKey] of [["input", "inputTokensFilter", "inputTokensMax", "inputTokensOperator"], ["output", "outputTokensFilter", "outputTokensMax", "outputTokensOperator"], ["total", "totalTokensFilter", "totalTokensMax", "totalTokensOperator"]] as const) {
+		const value = numberOrNull(params[valueKey]);
+		if (value == null || value < 0) continue;
+		const rawOperator = params[operatorKey];
+		const operator = rawOperator === "eq" || rawOperator === "lte" || rawOperator === "between" ? rawOperator : "gte";
+		const max = numberOrNull(params[maxKey]);
+		tokenFilters.push({ column, operator, value, ...(operator === "between" && max != null ? { max } : {}) });
+	}
 	const rows = await loadUsageRequestPage(current().env, {
 		workspaceId: current().account.workspaceId,
 		from: String((params.timeRange as any)?.from ?? new Date(0).toISOString()),
 		to: String((params.timeRange as any)?.to ?? new Date().toISOString()),
 		limit: pageSize,
-		stringFilters, success: status, stream, tokenFilters: [],
+		cursor,
+		stringFilters, success: status, stream, tokenFilters,
 	});
 	const data = rows.slice(0, pageSize).map((row) => requestRow(row as Record<string, unknown>));
 	const hasMore = rows.length > pageSize;

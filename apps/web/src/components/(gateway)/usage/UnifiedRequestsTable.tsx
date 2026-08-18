@@ -88,7 +88,6 @@ interface UnifiedRequestsTableProps {
 	initialRows: RequestRow[];
 	initialTotal: number;
 	initialTotalPages: number;
-	initialHasMore: boolean;
 	initialNextCursor: { createdAt: string; id: string } | null;
 	initialPageSize: number;
 	detailBasePath?: string;
@@ -207,7 +206,6 @@ export default function UnifiedRequestsTable({
 	initialRows,
 	initialTotal,
 	initialTotalPages,
-	initialHasMore,
 	initialNextCursor,
 	initialPageSize,
 	detailBasePath,
@@ -291,14 +289,11 @@ export default function UnifiedRequestsTable({
 	const [pageCursors, setPageCursors] = useState<Map<number, { createdAt: string; id: string } | null>>(
 		() => new Map([[1, null], [2, initialNextCursor]]),
 	);
-	const [hasMoreByPage, setHasMoreByPage] = useState<Map<number, boolean>>(
-		() => new Map([[1, initialHasMore]]),
-	);
 	const [total, setTotal] = useState(initialTotal);
 	const [totalPages, setTotalPages] = useState(initialTotalPages);
 	const [loading, setLoading] = useState(false);
-	const [isBackgroundLoading, setIsBackgroundLoading] = useState(false);
 	const inFlightPages = React.useRef(new Set<number>());
+	const failedPages = React.useRef(new Set<number>());
 	const [selectedRequest, setSelectedRequest] = useState<RequestRow | null>(null);
 	const [selectedDetail, setSelectedDetail] =
 		useState<InvestigateGenerationResult | null>(null);
@@ -342,17 +337,13 @@ export default function UnifiedRequestsTable({
 
 	// Fetch a specific page
 	const fetchPage = useCallback(
-		async (pageNum: number, background = false) => {
+		async (pageNum: number) => {
 			if (inFlightPages.current.has(pageNum)) return null;
 			const cursor = pageNum === 1 ? null : pageCursors.get(pageNum);
 			if (pageNum > 1 && !cursor) return null;
 			inFlightPages.current.add(pageNum);
 
-			if (!background) {
-				setLoading(true);
-			} else {
-				setIsBackgroundLoading(true);
-			}
+			setLoading(true);
 
 			try {
 				const params: PaginatedRequestsParams = {
@@ -426,30 +417,20 @@ export default function UnifiedRequestsTable({
 					next.set(pageNum, result.data);
 					return next;
 				});
-				setHasMoreByPage((prev) => new Map(prev).set(pageNum, result.hasMore));
 				setPageCursors((prev) => new Map(prev).set(pageNum + 1, result.nextCursor));
+				failedPages.current.delete(pageNum);
 
-				if (!background) {
-					setTotal((pageNum - 1) * pageSize + result.data.length);
-					setTotalPages(result.hasMore ? pageNum + 1 : pageNum);
-				}
+				setTotal((pageNum - 1) * pageSize + result.data.length);
+				setTotalPages(result.hasMore ? pageNum + 1 : pageNum);
 
 				return result;
 			} catch (error) {
 				console.error("Error fetching requests:", error);
-				if (!background) {
-					setPageCache(new Map());
-					setTotal(0);
-					setTotalPages(0);
-				}
+				failedPages.current.add(pageNum);
 				return null;
 			} finally {
 				inFlightPages.current.delete(pageNum);
-				if (!background) {
-					setLoading(false);
-				} else {
-					setIsBackgroundLoading(false);
-				}
+				setLoading(false);
 			}
 		},
 		[
@@ -478,17 +459,22 @@ export default function UnifiedRequestsTable({
 	);
 
 	const refreshCurrentView = useCallback(async () => {
-		setPageCache(new Map());
-		await fetchPage(page, false);
+		failedPages.current.delete(page);
+		setPageCache((previous) => {
+			const next = new Map(previous);
+			next.delete(page);
+			return next;
+		});
+		await fetchPage(page);
 	}, [fetchPage, page]);
 
 	// Clear cache when filters change
 	useEffect(() => {
 		const newCacheKey = getCacheKey();
 		if (newCacheKey !== currentCacheKey) {
+			failedPages.current.clear();
 			setPageCache(new Map());
 			setPageCursors(new Map([[1, null]]));
-			setHasMoreByPage(new Map());
 			setCurrentCacheKey(newCacheKey);
 			setPage(1);
 		}
@@ -507,35 +493,23 @@ export default function UnifiedRequestsTable({
 	}, [providerMetadata]);
 
 	useEffect(() => {
+		failedPages.current.clear();
 		setPageCache(new Map([[initialPage, initialRows]]));
 		setPageCursors(new Map([[1, null], [2, initialNextCursor]]));
-		setHasMoreByPage(new Map([[1, initialHasMore]]));
 		setTotal(initialTotal);
 		setTotalPages(initialTotalPages);
 		setLoading(false);
-	}, [initialHasMore, initialNextCursor, initialPage, initialRows, initialTotal, initialTotalPages]);
+	}, [initialNextCursor, initialPage, initialRows, initialTotal, initialTotalPages]);
 
 	useEffect(() => registerUsageViewRefresher("logs", refreshCurrentView), [refreshCurrentView]);
 
-	// Fetch current page and prefetch next 2 pages
+	// Fetch only the page the user requested. Request rows contain usage JSON, so
+	// speculative page prefetching creates avoidable database egress.
 	useEffect(() => {
-		// Check if current page is already cached
-		if (!pageCache.has(page)) {
-			fetchPage(page, false);
+		if (!pageCache.has(page) && !failedPages.current.has(page)) {
+			fetchPage(page);
 		}
-
-		// Prefetch next 2 pages in background
-		for (let i = 1; i <= 2; i++) {
-			const nextPage = page + i;
-			if (
-				nextPage <= totalPages &&
-				!pageCache.has(nextPage) &&
-				totalPages > 0
-			) {
-				fetchPage(nextPage, true);
-			}
-		}
-	}, [page, totalPages, pageCache, fetchPage]);
+	}, [page, pageCache, fetchPage]);
 
 	// Get current page data from cache
 	const data = pageCache.get(page) || [];

@@ -41,6 +41,8 @@ import {
 	Video,
 	CalendarDays,
 	XCircle,
+	Loader2,
+	RefreshCw,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -192,6 +194,10 @@ interface ModelsTableDisplayProps {
 	allModalities: string[];
 	allFeatures: string[];
 	allStatuses: string[];
+	hasMore?: boolean;
+	isLoadingMore?: boolean;
+	onLoadMore?: () => void;
+	onRevalidate?: () => void;
 }
 
 function parseContextMinParam(value: string | null): number {
@@ -666,6 +672,10 @@ export default function ModelsTableDisplay({
 	allEndpoints,
 	allModalities,
 	allFeatures,
+	hasMore = false,
+	isLoadingMore = false,
+	onLoadMore,
+	onRevalidate,
 }: ModelsTableDisplayProps) {
 	const [search, setSearch] = useQueryState("search", {
 		defaultValue: "",
@@ -1197,6 +1207,24 @@ export default function ModelsTableDisplay({
 			</Tooltip>
 		</div>
 	);
+	const revalidateButton = onRevalidate ? (
+		<Tooltip>
+			<TooltipTrigger asChild>
+				<Button
+					type="button"
+					variant="outline"
+					size="icon"
+					className="h-8 w-9"
+					onClick={onRevalidate}
+					disabled={isLoadingMore}
+					aria-label="Refresh model data"
+				>
+					<RefreshCw className={cn("h-4 w-4", isLoadingMore && "animate-spin")} />
+				</Button>
+			</TooltipTrigger>
+			<TooltipContent side="top">Refresh data</TooltipContent>
+		</Tooltip>
+	) : null;
 
 	const sortSelect = (triggerClassName: string) => (
 		<Select
@@ -1563,6 +1591,7 @@ export default function ModelsTableDisplay({
 						<div className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-2">
 							{sortSelect("h-8 min-w-0 rounded-md bg-background text-sm")}
 							{filterButton(true)}
+							{revalidateButton}
 							{viewSwitcher}
 						</div>
 
@@ -1607,6 +1636,7 @@ export default function ModelsTableDisplay({
 									{sortSelect(
 										"h-8 w-[12.5rem] rounded-md bg-background text-sm 2xl:w-[13.5rem]",
 									)}
+									{revalidateButton}
 									{viewSwitcher}
 								</div>
 							</div>
@@ -1617,6 +1647,7 @@ export default function ModelsTableDisplay({
 								<h1 className="font-bold text-xl leading-8">Models</h1>
 								<div className="flex shrink-0 items-center justify-end gap-2">
 									{filterButton()}
+									{revalidateButton}
 									{viewSwitcher}
 								</div>
 							</div>
@@ -1659,6 +1690,14 @@ export default function ModelsTableDisplay({
 						effectiveStatuses={effectiveSelectedStatuses}
 						stickyHeaderOffset={stickyOffsets.tableHeaderTop}
 					/>
+					{hasMore && onLoadMore ? (
+						<div className="flex justify-center border-t border-border/70 pt-4">
+							<Button type="button" variant="outline" onClick={onLoadMore} disabled={isLoadingMore}>
+								{isLoadingMore ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+								{isLoadingMore ? "Loading…" : "Load more models"}
+							</Button>
+						</div>
+					) : null}
 				</div>
 			</section>
 
