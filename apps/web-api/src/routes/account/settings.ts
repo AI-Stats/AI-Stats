@@ -23,6 +23,18 @@ import { accountSettingsDynamicRoutesRouter } from "./settings-dynamic-routes";
 import { accountSettingsAccountPrivacyRouter } from "./settings-account-privacy";
 import { purgeWorkerCacheTags } from "@/http/invalidation";
 
+// Mirrors the first-party CLI allowlist enforced by the gateway OAuth service.
+const PHASEO_CLI_SCOPES = [
+	"openid", "profile", "email", "me:read", "models:read", "providers:read",
+	"pricing:read", "credits:read", "activity:read", "analytics:read", "generations:read",
+	"workspaces:read", "workspaces:write", "workspaces:delete", "keys:read", "keys:write",
+	"keys:delete", "presets:read", "presets:write", "presets:delete", "settings:read",
+	"settings:write", "guardrails:read", "guardrails:write", "guardrails:delete",
+	"management_keys:read", "management_keys:write", "management_keys:delete",
+	"oauth_clients:read", "oauth_clients:write", "oauth_clients:delete",
+] as const;
+const PHASEO_CLI_SCOPE_SET = new Set<string>(PHASEO_CLI_SCOPES);
+
 function normalizeBetaFeatures(value: unknown): Record<string, boolean> {
 	if (!value || typeof value !== "object" || Array.isArray(value)) return {};
 	return Object.fromEntries(
@@ -638,14 +650,19 @@ accountSettingsRouter.get("/authorized-apps", async (c) => {
 	const workspacesById = new Map((workspacesResult.data ?? []).map((workspace) => [workspace.id, workspace]));
 	const authorizedApps = authorizations.map((authorization) => {
 		const app = appsById.get(authorization.client_id);
+		const isPhaseoCli = authorization.client_id === "phaseo_cli" || authorization.client_id === "aistats_cli";
 		const grantedScopes = Array.isArray(authorization.scopes) ? authorization.scopes.map(String) : [];
-		const allowedScopes = Array.isArray(app?.allowed_scopes) ? app.allowed_scopes.map(String) : [];
+		const allowedScopes = Array.isArray(app?.allowed_scopes)
+			? app.allowed_scopes.map(String)
+			: isPhaseoCli ? [...PHASEO_CLI_SCOPES] : [];
 		return {
 			authorization_id: authorization.id,
-			app_name: app?.name ?? "OAuth application",
-			app_description: app?.description ?? null,
+			app_client_id: authorization.client_id,
+			app_name: app?.name ?? (isPhaseoCli ? "Phaseo CLI" : "OAuth application"),
+			app_description: app?.description ?? (isPhaseoCli ? "The official Phaseo command-line interface." : null),
 			app_logo_url: app?.logo_url ?? null,
-			app_homepage_url: app?.homepage_url ?? null,
+			app_homepage_url: app?.homepage_url ?? (isPhaseoCli ? "https://phaseo.app/docs/v1/developers/cli-and-mcp" : null),
+			app_is_identified: Boolean(app) || isPhaseoCli,
 			scopes: grantedScopes,
 			additional_scopes: allowedScopes.filter((scope) => !grantedScopes.includes(scope)),
 			team_name: workspacesById.get(authorization.workspace_id)?.name ?? "Unknown workspace",
@@ -663,6 +680,87 @@ accountSettingsRouter.get("/authorized-apps/:authorizationId", async (c) => {
 	if (result.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	if (!result.data) return c.json({ error: "not_found" }, 404, PRIVATE_NO_STORE_HEADERS);
 	return c.json({ authorization: result.data }, 200, PRIVATE_NO_STORE_HEADERS);
+});
+
+accountSettingsRouter.patch("/authorized-apps/:authorizationId/scopes", async (c) => {
+	const user = await requireUser(c.req.raw, c.env);
+	if (!user) return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
+	const body = await c.req.json<{ scopes?: unknown }>().catch(() => null);
+	if (!body || !Array.isArray(body.scopes)) {
+		return c.json({ error: "invalid_scopes" }, 400, PRIVATE_NO_STORE_HEADERS);
+	}
+	const scopes: string[] = Array.from(new Set<string>(
+		body.scopes
+			.map((scope) => typeof scope === "string" ? scope.trim() : "")
+			.filter((scope): scope is string => Boolean(scope)),
+	));
+	if (scopes.length === 0) {
+		return c.json({ error: "at_least_one_scope_required" }, 400, PRIVATE_NO_STORE_HEADERS);
+	}
+	const client = getDataClient(c.env);
+	const existing = await client
+		.from("oauth_authorizations")
+		.select("id,scopes")
+		.eq("id", c.req.param("authorizationId"))
+		.eq("user_id", user.id)
+		.is("revoked_at", null)
+		.maybeSingle();
+	if (existing.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	if (!existing.data) return c.json({ error: "not_found" }, 404, PRIVATE_NO_STORE_HEADERS);
+	const currentScopes = new Set(Array.isArray(existing.data.scopes) ? existing.data.scopes.map(String) : []);
+	if (scopes.some((scope) => !currentScopes.has(scope))) {
+		return c.json({ error: "scopes_can_only_be_reduced" }, 400, PRIVATE_NO_STORE_HEADERS);
+	}
+	const updated = await client
+		.from("oauth_authorizations")
+		.update({ scopes })
+		.eq("id", existing.data.id)
+		.eq("user_id", user.id)
+		.is("revoked_at", null);
+	if (updated.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	return c.json({ success: true, scopes }, 200, PRIVATE_NO_STORE_HEADERS);
+});
+
+accountSettingsRouter.post("/authorized-apps/:authorizationId/reauthorize", async (c) => {
+	const user = await requireUser(c.req.raw, c.env);
+	if (!user) return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
+	const body = await c.req.json<{ scopes?: unknown }>().catch(() => null);
+	if (!body || !Array.isArray(body.scopes)) {
+		return c.json({ error: "invalid_scopes" }, 400, PRIVATE_NO_STORE_HEADERS);
+	}
+	const scopes: string[] = Array.from(new Set<string>(
+		body.scopes
+			.map((scope) => typeof scope === "string" ? scope.trim() : "")
+			.filter((scope): scope is string => Boolean(scope)),
+	));
+	const client = getDataClient(c.env);
+	const existing = await client
+		.from("oauth_authorizations")
+		.select("id,client_id,scopes")
+		.eq("id", c.req.param("authorizationId"))
+		.eq("user_id", user.id)
+		.is("revoked_at", null)
+		.maybeSingle();
+	if (existing.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	if (!existing.data) return c.json({ error: "not_found" }, 404, PRIVATE_NO_STORE_HEADERS);
+	if (!["phaseo_cli", "aistats_cli"].includes(String(existing.data.client_id))) {
+		return c.json({ error: "client_reauthorization_required" }, 400, PRIVATE_NO_STORE_HEADERS);
+	}
+	const currentScopes = Array.isArray(existing.data.scopes) ? existing.data.scopes.map(String) : [];
+	if (
+		scopes.length === 0 ||
+		currentScopes.some((scope) => !scopes.includes(scope)) ||
+		scopes.some((scope) => !PHASEO_CLI_SCOPE_SET.has(scope))
+	) {
+		return c.json({ error: "invalid_reauthorization_scopes" }, 400, PRIVATE_NO_STORE_HEADERS);
+	}
+	const updated = await client
+		.from("oauth_authorizations")
+		.update({ scopes, revoked_at: null })
+		.eq("id", existing.data.id)
+		.eq("user_id", user.id);
+	if (updated.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	return c.json({ success: true, scopes, applies_on_next_refresh: true }, 200, PRIVATE_NO_STORE_HEADERS);
 });
 
 accountSettingsRouter.delete("/authorized-apps/:authorizationId", async (c) => {

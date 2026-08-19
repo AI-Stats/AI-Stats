@@ -213,6 +213,128 @@ function authenticatedFetch(input: RequestInfo | URL): Response {
 }
 
 describe("account settings routes", () => {
+	it.each(["phaseo_cli", "aistats_cli"])("identifies the first-party CLI client %s without metadata", async (clientId) => {
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+			const url = input instanceof Request ? input.url : String(input);
+			if (url.includes("oauth_authorizations")) {
+				return new Response(JSON.stringify([{
+					id: "authorization-cli", client_id: clientId, workspace_id: "workspace-1",
+					scopes: ["models:read"], created_at: "2026-01-01T00:00:00Z", last_used_at: null,
+				}]), { status: 200 });
+			}
+			if (url.includes("oauth_app_metadata")) return new Response(JSON.stringify([]), { status: 200 });
+			return authenticatedFetch(input);
+		}));
+
+		const response = await app.request("https://phaseo.app/api/account/settings/authorized-apps", {
+			headers: { authorization: "Bearer session-token" },
+		}, env);
+
+		expect(response.status).toBe(200);
+		const payload = await response.json() as { authorizedApps: Array<Record<string, unknown>> };
+		expect(payload.authorizedApps[0]).toMatchObject({
+			app_client_id: clientId,
+			app_name: "Phaseo CLI",
+			app_description: "The official Phaseo command-line interface.",
+			app_homepage_url: "https://phaseo.app/docs/v1/developers/cli-and-mcp",
+			app_is_identified: true,
+		});
+	});
+
+	it("lets an authorization owner reduce granted scopes", async () => {
+		let updatedScopes: unknown = null;
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+			const request = input instanceof Request ? input : new Request(String(input), init);
+			if (request.url.includes("oauth_authorizations")) {
+				if (request.method === "PATCH") {
+					updatedScopes = (await request.clone().json() as { scopes?: unknown }).scopes;
+					return new Response(JSON.stringify([]), { status: 200 });
+				}
+				return new Response(JSON.stringify([{
+					id: "authorization-1", scopes: ["models:read", "usage:read"],
+				}]), { status: 200 });
+			}
+			return authenticatedFetch(input);
+		}));
+
+		const response = await app.request(
+			"https://phaseo.app/api/account/settings/authorized-apps/authorization-1/scopes",
+			{
+				method: "PATCH",
+				headers: { authorization: "Bearer session-token", "content-type": "application/json" },
+				body: JSON.stringify({ scopes: ["models:read"] }),
+			},
+			env,
+		);
+
+		expect(response.status).toBe(200);
+		await expect(response.json()).resolves.toEqual({ success: true, scopes: ["models:read"] });
+		expect(updatedScopes).toEqual(["models:read"]);
+	});
+
+	it("rejects attempts to add scopes through authorization settings", async () => {
+		let updateRequested = false;
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+			const request = input instanceof Request ? input : new Request(String(input), init);
+			if (request.url.includes("oauth_authorizations")) {
+				if (request.method === "PATCH") updateRequested = true;
+				return new Response(JSON.stringify([{
+					id: "authorization-1", scopes: ["models:read"],
+				}]), { status: 200 });
+			}
+			return authenticatedFetch(input);
+		}));
+
+		const response = await app.request(
+			"https://phaseo.app/api/account/settings/authorized-apps/authorization-1/scopes",
+			{
+				method: "PATCH",
+				headers: { authorization: "Bearer session-token", "content-type": "application/json" },
+				body: JSON.stringify({ scopes: ["models:read", "usage:read"] }),
+			},
+			env,
+		);
+
+		expect(response.status).toBe(400);
+		await expect(response.json()).resolves.toEqual({ error: "scopes_can_only_be_reduced" });
+		expect(updateRequested).toBe(false);
+	});
+
+	it("reauthorizes first-party CLI scopes on the web", async () => {
+		let updatedScopes: unknown = null;
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+			const request = input instanceof Request ? input : new Request(String(input), init);
+			if (request.url.includes("oauth_authorizations")) {
+				if (request.method === "PATCH") {
+					updatedScopes = (await request.clone().json() as { scopes?: unknown }).scopes;
+					return new Response(JSON.stringify([]), { status: 200 });
+				}
+				return new Response(JSON.stringify([{
+					id: "authorization-cli", client_id: "phaseo_cli", scopes: ["openid", "models:read"],
+				}]), { status: 200 });
+			}
+			return authenticatedFetch(input);
+		}));
+
+		const response = await app.request(
+			"https://phaseo.app/api/account/settings/authorized-apps/authorization-cli/reauthorize",
+			{
+				method: "POST",
+				headers: { authorization: "Bearer session-token", "content-type": "application/json" },
+				body: JSON.stringify({ scopes: ["openid", "models:read", "pricing:read"] }),
+			},
+			env,
+		);
+
+		expect(response.status).toBe(200);
+		await expect(response.json()).resolves.toEqual({
+			success: true,
+			scopes: ["openid", "models:read", "pricing:read"],
+			applies_on_next_refresh: true,
+		});
+		expect(updatedScopes).toEqual(["openid", "models:read", "pricing:read"]);
+	});
+
 	it("returns private layout, beta, and privacy bootstrap data", async () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => authenticatedFetch(input)));
 		const init = {
