@@ -122,7 +122,7 @@ function authenticatedFetch(input: RequestInfo | URL): Response {
 				is_active: true, last_seen: "2026-07-14T00:00:00Z",
 				created_at: "2026-01-01T00:00:00Z",
 			},
-			{ id: "internal", title: "Phaseo Chat", app_key: "phaseo-chat", is_active: true },
+			{ id: "internal", title: "Phaseo Chat", app_key: "phaseo-chat", is_active: true, is_public: true },
 		]), { status: 200 });
 	}
 	if (url.includes("oauth_authorizations")) {
@@ -425,6 +425,12 @@ describe("account settings routes", () => {
 				id: "app-1",
 				category: "chat,research",
 				title: "Customer App",
+			}, {
+				id: "internal",
+				category: "chat,productivity",
+				is_managed: true,
+				title: "Phaseo Chat",
+				url: "https://phaseo.app/chat",
 			}],
 		});
 		await expect(authorizedApps.json()).resolves.toMatchObject({

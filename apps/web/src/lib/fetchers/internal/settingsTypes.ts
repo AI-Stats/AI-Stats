@@ -153,6 +153,7 @@ export type SettingsAppRow = {
 	id: string;
 	image_url: string | null;
 	is_active: boolean;
+	is_managed: boolean;
 	is_public: boolean;
 	last_seen: string | null;
 	title: string;

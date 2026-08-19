@@ -92,6 +92,12 @@ function isInternalApp(titleValue: unknown, keyValue: unknown): boolean {
 		.some((prefix) => key.startsWith(prefix));
 }
 
+function isPhaseoChatApp(titleValue: unknown, keyValue: unknown): boolean {
+	const title = String(titleValue ?? "").trim().toLowerCase();
+	const key = String(keyValue ?? "").trim().toLowerCase();
+	return title === "phaseo chat" || key === "phaseo-chat";
+}
+
 export const accountSettingsRouter = new Hono<{ Bindings: Env }>();
 accountSettingsRouter.route("/", accountSettingsPolicyRouter);
 accountSettingsRouter.route("/", accountSettingsUsageRouter);
@@ -524,20 +530,33 @@ accountSettingsRouter.get("/apps", async (c) => {
 	}
 	if (error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	const apps = (data ?? [])
-		.filter((app) => !isInternalApp(app.title, app.app_key))
-		.map((app) => ({
-			app_key: String(app.app_key ?? ""),
-			category: normalizeAppCategories(app.category),
-			created_at: typeof app.created_at === "string" ? app.created_at : null,
-			docs_url: typeof app.docs_url === "string" ? app.docs_url : null,
-			id: String(app.id ?? ""),
-			image_url: typeof app.image_url === "string" ? app.image_url : null,
-			is_active: app.is_active === true,
-			is_public: app.is_public === true,
-			last_seen: typeof app.last_seen === "string" ? app.last_seen : null,
-			title: String(app.title ?? ""),
-			url: typeof app.url === "string" ? app.url : null,
-		}));
+		.filter((app) =>
+			!isInternalApp(app.title, app.app_key) ||
+			isPhaseoChatApp(app.title, app.app_key)
+		)
+		.map((app) => {
+			const isPhaseoChat = isPhaseoChatApp(app.title, app.app_key);
+			return {
+				app_key: String(app.app_key ?? ""),
+				category:
+					normalizeAppCategories(app.category) ??
+					(isPhaseoChat ? "chat,productivity" : null),
+				created_at: typeof app.created_at === "string" ? app.created_at : null,
+				docs_url: typeof app.docs_url === "string" ? app.docs_url : null,
+				id: String(app.id ?? ""),
+				image_url: typeof app.image_url === "string" ? app.image_url : null,
+				is_active: app.is_active === true,
+				is_managed: isInternalApp(app.title, app.app_key),
+				is_public: app.is_public === true,
+				last_seen: typeof app.last_seen === "string" ? app.last_seen : null,
+				title: String(app.title ?? ""),
+				url: isPhaseoChat
+					? "https://phaseo.app/chat"
+					: typeof app.url === "string"
+						? app.url
+						: null,
+			};
+		});
 	return c.json({ apps }, 200, PRIVATE_NO_STORE_HEADERS);
 });
 
@@ -576,13 +595,7 @@ accountSettingsRouter.put("/apps/:appId", async (c) => {
 			.eq("workspace_id", context.workspaceId)
 			.select("id,is_public,is_active,image_url")
 			.maybeSingle();
-		let result = await updateApp(update);
-		if (result.error && /category|docs_url/i.test(result.error.message)) {
-			const compatibleUpdate = { ...update };
-			delete compatibleUpdate.category;
-			delete compatibleUpdate.docs_url;
-			if (Object.keys(compatibleUpdate).length) result = await updateApp(compatibleUpdate);
-		}
+		const result = await updateApp(update);
 		if (result.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 		if (!result.data) return c.json({ error: "app_not_updated" }, 409, PRIVATE_NO_STORE_HEADERS);
 		updatedApp = result.data as Record<string, unknown>;
