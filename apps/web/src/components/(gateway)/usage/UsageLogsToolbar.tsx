@@ -185,6 +185,8 @@ export default function UsageLogsToolbar({
 	}));
 	const rangeAnchorRef = React.useRef<HTMLDivElement | null>(null);
 	const rangeInputRef = React.useRef<HTMLInputElement | null>(null);
+	const rangeTriggerRef = React.useRef<HTMLButtonElement | null>(null);
+	const rangePopoverContentRef = React.useRef<HTMLDivElement | null>(null);
 
 	const currentQuery = searchParams.toString();
 	const isPending = pendingTargetQuery !== null;
@@ -211,6 +213,40 @@ export default function UsageLogsToolbar({
 			to: parseDateInput(customTo ?? undefined),
 		});
 	}, [customFrom, customTo, preset]);
+
+	React.useEffect(() => {
+		if (!popoverOpen) return;
+
+		const handlePointerDown = (event: PointerEvent) => {
+			const target = event.target;
+			if (!(target instanceof Node)) return;
+			if (
+				rangeAnchorRef.current?.contains(target) ||
+				rangePopoverContentRef.current?.contains(target)
+			) {
+				return;
+			}
+
+			setPopoverOpen(false);
+			setIsEditingRangeInput(false);
+			setRangeInputValue("");
+		};
+
+		const handleKeyDown = (event: KeyboardEvent) => {
+			if (event.key !== "Escape") return;
+			setPopoverOpen(false);
+			setIsEditingRangeInput(false);
+			setRangeInputValue("");
+			requestAnimationFrame(() => rangeTriggerRef.current?.focus());
+		};
+
+		document.addEventListener("pointerdown", handlePointerDown, true);
+		document.addEventListener("keydown", handleKeyDown, true);
+		return () => {
+			document.removeEventListener("pointerdown", handlePointerDown, true);
+			document.removeEventListener("keydown", handleKeyDown, true);
+		};
+	}, [popoverOpen]);
 
 	const paramKeys = React.useMemo(() => getUsageRangeParamKeys(), []);
 	const displayLabel = React.useMemo(
@@ -515,6 +551,7 @@ export default function UsageLogsToolbar({
 							<div className="absolute inset-y-0 right-1 flex items-center">
 								<PopoverTrigger asChild>
 									<Button
+										ref={rangeTriggerRef}
 										type="button"
 										variant="ghost"
 										size="icon"
@@ -529,6 +566,7 @@ export default function UsageLogsToolbar({
 						</div>
 					</PopoverAnchor>
 					<PopoverContent
+						ref={rangePopoverContentRef}
 						align="start"
 						anchor={rangeAnchorRef}
 						onOpenAutoFocus={(event) => event.preventDefault()}
