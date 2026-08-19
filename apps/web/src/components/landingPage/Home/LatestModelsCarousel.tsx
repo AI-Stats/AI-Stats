@@ -23,9 +23,9 @@ export function LatestModelsCarousel({ cards }: LatestModelsCarouselProps) {
 	const canAutoScroll = cards.length > 1 && !prefersReducedMotion;
 
 	return (
-		<div className="relative">
+		<div className="relative min-w-0 max-w-full overflow-hidden">
 			<Marquee
-				className="py-1"
+				className="min-w-0 py-1"
 				onFocusCapture={() => setIsFocusPaused(true)}
 				onBlurCapture={(event) => {
 					if (!event.currentTarget.contains(event.relatedTarget)) {
@@ -33,8 +33,8 @@ export function LatestModelsCarousel({ cards }: LatestModelsCarouselProps) {
 					}
 				}}
 			>
-				<MarqueeFade side="left" className="w-10 sm:w-20" />
-				<MarqueeFade side="right" className="w-10 sm:w-20" />
+				<MarqueeFade side="left" className="w-6 sm:w-20" aria-hidden="true" />
+				<MarqueeFade side="right" className="w-6 sm:w-20" aria-hidden="true" />
 				<MarqueeContent
 					autoFill
 					pauseOnHover
@@ -45,7 +45,7 @@ export function LatestModelsCarousel({ cards }: LatestModelsCarouselProps) {
 					{cards.map((card, index) => (
 						<MarqueeItem
 							key={card.id ? String(card.id) : `card-${index}`}
-							className="w-[17.5rem] sm:w-[19rem]"
+							className="w-[calc(100vw-3rem)] max-w-[17.5rem] sm:w-[19rem] sm:max-w-none"
 						>
 							<UpdateCard
 								{...card}
@@ -67,7 +67,7 @@ export function LatestModelsCarousel({ cards }: LatestModelsCarouselProps) {
 					aria-pressed={isUserPaused}
 					aria-label={isUserPaused ? "Play latest model updates" : "Pause latest model updates"}
 					onClick={() => setIsUserPaused((paused) => !paused)}
-					className="absolute top-1 right-2 z-20 inline-flex h-7 w-7 items-center justify-center rounded-md border border-zinc-200/80 bg-white/90 text-zinc-500 shadow-sm transition-colors hover:bg-white hover:text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/70 dark:border-zinc-800/80 dark:bg-zinc-950/90 dark:text-zinc-400 dark:hover:bg-zinc-950 dark:hover:text-zinc-50"
+					className="absolute top-1 right-2 z-20 inline-flex h-9 w-9 items-center justify-center rounded-md border border-zinc-200/80 bg-white/90 text-zinc-500 shadow-sm transition-colors hover:bg-white hover:text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/70 sm:h-7 sm:w-7 dark:border-zinc-800/80 dark:bg-zinc-950/90 dark:text-zinc-400 dark:hover:bg-zinc-950 dark:hover:text-zinc-50"
 				>
 					{isUserPaused ? (
 						<Play className="h-3.5 w-3.5" aria-hidden="true" />
