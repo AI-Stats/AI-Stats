@@ -4353,9 +4353,6 @@ function ChatPlaygroundContent({
 					tags={allTags}
 					activeTagId={activeVisibleTagId}
 					onTagFilterChange={setActiveTagId}
-					authUser={authUser}
-					authLoading={authLoading}
-					onSignOut={handleSignOut}
 				/>
 				<SidebarRail />
 			</Sidebar>
