@@ -81,7 +81,7 @@ function AppAvatar({ app }: { app: AppItem }) {
 	}, [app.image_url]);
 
 	return (
-		<div className="grid size-9 shrink-0 place-items-center overflow-hidden rounded-lg border border-border/70 bg-muted/40">
+		<div className="grid size-9 shrink-0 place-items-center overflow-hidden rounded-md border border-border/70 bg-muted/40">
 			{app.image_url && !imageFailed ? (
 				<img
 					src={app.image_url}
@@ -109,7 +109,7 @@ function CategoryBadge({ category }: { category: AppCategory }) {
 	return (
 		<Badge
 			variant="outline"
-			className={`h-5 rounded-lg px-1.5 text-[11px] font-medium ${visuals.badgeClassName}`}
+			className={`h-5 rounded-md px-1.5 text-[11px] font-medium ${visuals.badgeClassName}`}
 		>
 			<Icon className="size-3" />
 			{label}
@@ -220,7 +220,7 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 						<MoreHorizontal className="size-4" />
 
 				</DropdownMenuTrigger>
-				<DropdownMenuContent align="end" className="w-44">
+				<DropdownMenuContent align="end" className="w-44 rounded-md">
 					{mobile ? (
 						<>
 							<DropdownMenuItem
@@ -278,7 +278,7 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 
 	if (!sortedApps.length) {
 		return (
-			<Empty className="rounded-xl border border-dashed border-border/80 p-8">
+			<Empty className="rounded-md border border-dashed border-border/80 p-8">
 				<EmptyHeader>
 					<EmptyMedia variant="icon">
 						<Blocks className="h-5 w-5" />
@@ -295,7 +295,7 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 
 	return (
 		<>
-			<div className="overflow-hidden rounded-lg border border-border/60 bg-card">
+			<div className="overflow-hidden rounded-md border border-border/60 bg-card">
 				<ScrollArea
 					className="hidden w-full lg:block"
 					viewportClassName="pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
