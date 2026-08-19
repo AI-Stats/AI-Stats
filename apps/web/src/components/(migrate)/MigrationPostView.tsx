@@ -152,14 +152,23 @@ export function MigrationPostView({ post }: { post: MigrationPost }) {
 			) : null}
 
 			<section className="rounded-md border border-border/60 p-5">
-				<p className="text-sm font-semibold">Want us to handle your migration?</p>
+				<p className="text-sm font-semibold">
+					{post.slug === "openrouter"
+						? "Want us to handle your migration?"
+						: "Need a custom migration diff?"}
+				</p>
 				<p className="mt-1 text-sm text-muted-foreground">
-					Get in touch and we&apos;ll help move your OpenRouter integration to Phaseo
-					for free, including the endpoint switch, model checks, and migration review.
+					{post.slug === "openrouter"
+						? "Get in touch and we'll help move your OpenRouter integration to Phaseo for free, including the endpoint switch, model checks, and migration review."
+						: "Use the interactive assistant for before/after snippets tailored to your current SDK and language."}
 				</p>
 				<div className="mt-4">
 					<Button asChild className="rounded-md">
-						<Link href="/contact">Get Free Migration Help</Link>
+						<Link href={post.slug === "openrouter" ? "/contact" : "/migrate"}>
+							{post.slug === "openrouter"
+								? "Get Free Migration Help"
+								: "Open Migration Assistant"}
+						</Link>
 					</Button>
 				</div>
 			</section>
