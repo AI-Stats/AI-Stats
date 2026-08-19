@@ -1,6 +1,7 @@
 import {
 	prepareTrendChartData,
 	shouldOpenTrendExplore,
+	stopTrendControlClick,
 } from "./trendChart";
 import type { ObservabilityTimeSeriesChart } from "./types";
 
@@ -14,6 +15,14 @@ describe("trend chart interactions", () => {
 
 		expect(shouldOpenTrendExplore({ closest })).toBe(false);
 		expect(closest).toHaveBeenCalledTimes(1);
+	});
+
+	it("stops a portaled control click before it reaches the chart card", () => {
+		const stopPropagation = jest.fn();
+
+		stopTrendControlClick({ stopPropagation });
+
+		expect(stopPropagation).toHaveBeenCalledTimes(1);
 	});
 
 	it("still opens Explore for a non-interactive chart click", () => {

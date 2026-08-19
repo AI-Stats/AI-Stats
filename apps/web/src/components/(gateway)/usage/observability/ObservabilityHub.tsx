@@ -102,6 +102,7 @@ import type {
 import {
 	prepareTrendChartData,
 	shouldOpenTrendExplore,
+	stopTrendControlClick,
 } from "./trendChart";
 
 const CHART_COLORS = ["#2563eb", "#059669", "#d97706", "#7c3aed", "#dc2626"];
@@ -1424,7 +1425,11 @@ function TrendChartOptions({
 					<span className="sr-only">Chart options</span>
 				</Button>
 			</PopoverTrigger>
-			<PopoverContent align="end" className="w-64 space-y-4 p-3">
+			<PopoverContent
+				align="end"
+				className="w-64 space-y-4 p-3"
+				onClick={stopTrendControlClick}
+			>
 				<div className="flex items-center justify-between gap-3">
 					<div className="text-sm">Show Other</div>
 					<Switch

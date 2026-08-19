@@ -14,6 +14,12 @@ export function shouldOpenTrendExplore(
 	return target.closest(INTERACTIVE_TREND_CHART_SELECTOR) === null;
 }
 
+export function stopTrendControlClick(event: {
+	stopPropagation: () => void;
+}): void {
+	event.stopPropagation();
+}
+
 export function prepareTrendChartData(
 	data: ObservabilityTimeSeriesChart,
 	options: { showOther: boolean; cumulative: boolean },
