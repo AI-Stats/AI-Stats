@@ -34,6 +34,12 @@ function mapOpenAIResult(entry: any): IRModerationsResult {
 	};
 }
 
+function readProcessingMs(value: string | null): number | undefined {
+	if (value === null || value.trim() === "") return undefined;
+	const parsed = Number(value);
+	return Number.isFinite(parsed) && parsed >= 0 ? parsed : undefined;
+}
+
 export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult> {
 	const ir = args.ir as IRModerationsRequest;
 	const keyInfo = await resolveOpenAICompatKey(args as any);
@@ -56,6 +62,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	const captureRequest = Boolean(args.meta.returnUpstreamRequest || args.meta.echoUpstreamRequest);
 	const mappedRequest = captureRequest ? JSON.stringify(requestBody) : undefined;
 
+	const upstreamStartedAtMs = Date.now();
 	const res = await fetchUpstream(args, openAICompatUrl(args.providerId, moderationPath), {
 		method: "POST",
 		headers: openAICompatHeaders(args.providerId, key, {
@@ -64,6 +71,11 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 		}),
 		body: JSON.stringify(requestBody),
 	});
+	const observedUpstreamLatencyMs =
+		args.upstreamTiming?.timingFor(res)?.headersMs ?? Math.max(0, Date.now() - upstreamStartedAtMs);
+	const generationMs =
+		readProcessingMs(res.headers.get("openai-processing-ms")) ?? observedUpstreamLatencyMs;
+	const latencyMs = Math.max(observedUpstreamLatencyMs, generationMs);
 
 	const json = await res.clone().json().catch(() => null);
 	const results = Array.isArray(json?.results) ? json.results.map(mapOpenAIResult) : [];
@@ -116,6 +128,10 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 		byokKeyId: keyInfo.byokId,
 		mappedRequest,
 		rawResponse: json ?? null,
+		timing: {
+			latencyMs,
+			generationMs,
+		},
 	};
 }
 
