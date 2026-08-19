@@ -3,7 +3,7 @@
   "displayName": "Aion Labs compatibility alias",
   "source": {
     "kind": "phaseo-overlay",
-    "url": "https://docs.aionlabs.ai/"
+    "url": "https://api.aionlabs.ai/docs/api-reference/"
   },
   "operations": [
     {
@@ -12,6 +12,13 @@
       "path": "/v1/chat/completions",
       "operationId": "aion_labs_chat",
       "notes": "Reconstructed from the provider's documented OpenAI-compatible API surface; provider-specific restrictions belong in overlays."
+    },
+    {
+      "capability": "responses",
+      "method": "post",
+      "path": "/v1/responses",
+      "operationId": "aion_labs_responses",
+      "notes": "Inherited official Aion Labs Responses endpoint."
     }
   ],
   "overlays": [

@@ -1,10 +1,10 @@
 [
   {
     "api_model_id": "kwaipilot/kat-coder-air-v2.5",
-    "provider_api_model_id": "streamlake:ep-cbso5h-1784044408030577927",
-    "provider_model_slug": "ep-cbso5h-1784044408030577927",
+    "provider_api_model_id": "streamlake:kat-coder-air-v2.5",
+    "provider_model_slug": "kat-coder-air-v2.5",
     "internal_model_id": "kwaipilot/kat-coder-air-v2.5",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
@@ -15,44 +15,44 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "inactive",
-        "params": [],
+        "status": "active",
+        "params": ["max_tokens","temperature","top_p","stop","tools","tool_choice","stream"],
         "reasoning": null,
-        "tool_call": null,
+        "tool_call": true,
         "structured_output": null,
-        "temperature": null,
+        "temperature": true,
         "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
+        "input_modalities": ["text"],
+        "output_modalities": ["text"],
         "modes": []
       }
     ],
-    "routing_status": null,
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
+      "formats": ["openai-chat-completions"],
+      "endpoint": "https://vanchin.streamlake.ai/api/gateway/v1/endpoints/chat/completions",
+      "deployment": "preset"
     },
-    "sources": [],
+    "sources": [{"kind":"documentation","url":"https://www.streamlake.ai/document/DOC/mg6k6nlp8j6qxicx4c9","accessed_at":"2026-08-12T00:00:00Z"},{"kind":"pricing","url":"https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce","accessed_at":"2026-08-12T00:00:00Z"}],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Official preset model ID, OpenAI-compatible pay-as-you-go route, 256K context, function calling, output limit, and pricing verified."
     },
     "rate_limits": []
   },
   {
     "api_model_id": "kwaipilot/kat-coder-pro-v2.5",
-    "provider_api_model_id": "streamlake:ep-nixvpn-1784044408036465292",
-    "provider_model_slug": "ep-nixvpn-1784044408036465292",
+    "provider_api_model_id": "streamlake:kat-coder-pro-v2.5",
+    "provider_model_slug": "kat-coder-pro-v2.5",
     "internal_model_id": "kwaipilot/kat-coder-pro-v2.5",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
@@ -63,35 +63,35 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "inactive",
-        "params": [],
+        "status": "active",
+        "params": ["max_tokens","temperature","top_p","stop","tools","tool_choice","stream"],
         "reasoning": null,
-        "tool_call": null,
+        "tool_call": true,
         "structured_output": null,
-        "temperature": null,
+        "temperature": true,
         "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
+        "input_modalities": ["text"],
+        "output_modalities": ["text"],
         "modes": []
       }
     ],
-    "routing_status": null,
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
+      "formats": ["openai-chat-completions"],
+      "endpoint": "https://vanchin.streamlake.ai/api/gateway/v1/endpoints/chat/completions",
+      "deployment": "preset"
     },
-    "sources": [],
+    "sources": [{"kind":"documentation","url":"https://www.streamlake.ai/document/DOC/mg6k6nlp8j6qxicx4c9","accessed_at":"2026-08-12T00:00:00Z"},{"kind":"pricing","url":"https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce","accessed_at":"2026-08-12T00:00:00Z"}],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Official preset model ID, OpenAI-compatible pay-as-you-go route, 256K context, function calling, output limit, and pricing verified."
     },
     "rate_limits": []
   },
@@ -1408,5 +1408,40 @@
       "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
     },
     "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-vl-235b-a22b-thinking",
+    "provider_api_model_id": "streamlake:qwen/qwen3-vl-235b-a22b-thinking",
+    "provider_model_slug": "qwen/qwen3-vl-235b-a22b-thinking",
+    "internal_model_id": "qwen/qwen3-vl-235b-a22b-thinking",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 128000,
+    "max_output_tokens": 32000,
+    "effective_from": "2026-05-22T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [{
+      "capability_id": "text.generate",
+      "status": "disabled",
+      "params": ["max_tokens","temperature","top_p","stop","tools","tool_choice","stream"],
+      "reasoning": true,
+      "tool_call": true,
+      "structured_output": null,
+      "temperature": true,
+      "attachment": true,
+      "input_modalities": ["text","image","video"],
+      "output_modalities": ["text"],
+      "modes": []
+    }],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {"execution":null,"data":null},
+    "service_tiers": ["standard"],
+    "api": {"formats":["openai-chat-completions"],"endpoint":"https://vanchin.streamlake.ai/api/gateway/v1/endpoints/chat/completions","deployment":"custom_or_preset_unverified"},
+    "sources": [{"kind":"provider_models","url":"https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv","accessed_at":"2026-08-12T00:00:00Z","notes":"Official model overview documents image-to-text and video-to-text, function calling, 128K context, 124K maximum input, and 32K output."}],
+    "verification": {"status":"partial","checked_at":"2026-08-12T00:00:00Z","notes":"Model and multimodal contract verified; routing remains disabled until the exact account-visible API model slug and pricing are verified."},
+    "rate_limits": [{"type":"requests","unit":"minute","limit":500},{"type":"tokens","unit":"minute","limit":1000000}]
   }
 ]

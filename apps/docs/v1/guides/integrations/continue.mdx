@@ -1,0 +1,72 @@
+---
+title: "Continue"
+description: "Add Phaseo to Continue in VS Code, JetBrains, or Continue CLI."
+---
+
+Phaseo CLI can create a local Continue configuration shared by the IDE extensions and the `cn` command-line interface.
+
+## Set up Continue
+
+```bash
+phaseo login
+phaseo integrations setup continue --model anthropic/claude-sonnet-4.6
+```
+
+When `~/.continue/config.yaml` and `~/.continue/.env` are unused, setup creates both files:
+
+```yaml
+name: Phaseo
+version: 1.0.0
+schema: v1
+models:
+  - name: Phaseo
+    provider: openai
+    model: anthropic/claude-sonnet-4.6
+    apiBase: https://api.phaseo.app/v1
+    apiKey: ${{ secrets.PHASEO_API_KEY }}
+    useResponsesApi: false
+    roles: [chat, edit, apply]
+```
+
+The key is stored as `PHASEO_API_KEY` in `~/.continue/.env`. `useResponsesApi: false` keeps requests on Phaseo's Chat Completions path.
+
+<Warning>
+Continue's global `.env` is plaintext. Never commit it. IDE extensions do not inherit ordinary shell environment variables, so the CLI uses Continue's documented secret file.
+</Warning>
+
+If either file already contains user configuration, setup stops without overwriting it. Merge the model entry and add `PHASEO_API_KEY=<dedicated key>` to the existing `.env`. Retrieve the key with `phaseo integrations credential continue`.
+
+## Verify
+
+In VS Code or JetBrains, reload the window, open Continue, select **Phaseo**, and ask it to reply with `PHASEO_CONTINUE_OK`.
+
+For Continue CLI, run `cn`. Use `/config` if another saved configuration is active, then send the same test prompt. Confirm the request appears in Phaseo activity.
+
+## Remove
+
+```bash
+phaseo integrations remove continue
+```
+
+Removal revokes the key and deletes both files only when they still carry the Phaseo CLI ownership marker. Manually merged entries are left untouched.
+
+## Troubleshooting
+
+### Phaseo does not appear
+
+Reload the IDE and check that `config.yaml` includes the required top-level `name`, `version`, and `schema` fields.
+
+### Continue reports a missing secret
+
+Confirm `~/.continue/.env` contains the key returned by `phaseo integrations credential continue`, then restart the IDE.
+
+### Continue calls the Responses API
+
+Keep `useResponsesApi: false` on the Phaseo model entry.
+
+## Related
+
+- [Continue OpenAI-compatible configuration](https://docs.continue.dev/customize/model-providers/top-level/openai)
+- [Continue local secrets](https://docs.continue.dev/faqs#managing-local-secrets-and-environment-variables)
+- [Coding Assistants](./coding-assistants.mdx)
+- [Models](../../api-reference/endpoint/models.mdx)

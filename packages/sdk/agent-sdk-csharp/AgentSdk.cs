@@ -987,7 +987,10 @@ public static class AgentSdk
                           options.ClientOptions.TryGetValue("baseUrl", out var baseUrlValue)
                 ? baseUrlValue?.ToString()
                 : Environment.GetEnvironmentVariable("PHASEO_BASE_URL");
-            client = new PhaseoSdk.Phaseo(apiKey: apiKey, basePath: baseUrl ?? "https://api.phaseo.app/v1");
+            var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Add("X-Phaseo-Client", "phaseo-agent-csharp");
+            httpClient.DefaultRequestHeaders.Add("X-Phaseo-Client-Version", "0.2.0");
+            client = new PhaseoSdk.Phaseo(apiKey: apiKey, basePath: baseUrl ?? "https://api.phaseo.app/v1", httpClient: httpClient);
         }
 
         return new GatewayAgentClient(client, options);

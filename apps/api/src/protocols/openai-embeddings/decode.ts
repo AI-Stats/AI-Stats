@@ -58,6 +58,7 @@ function normalizeEmbeddingsInputItem(value: unknown): IREmbeddingsInputItem {
 		if (typeof value.type === "string") {
 			return asEmbeddingsContentParts([value]);
 		}
+		return { ...value };
 	}
 
 	return String(value ?? "");
@@ -89,14 +90,21 @@ export function decodeOpenAIEmbeddingsRequest(req: EmbeddingsRequest): IREmbeddi
 	const googleOptions = providerOptions?.google;
 	const mistralOptions = providerOptions?.mistral;
 	const voyageOptions = providerOptions?.voyage;
+	const fireworksOptions = providerOptions?.fireworks;
+	const morpheusSessionId = (req as any).session_id;
 	return {
 		model: req.model,
 		input: normalizeEmbeddingsInput(req.input),
 		encodingFormat: req.encoding_format,
 		dimensions: req.dimensions,
+		serviceTier: (req as any).service_tier,
+		metadata: (req as any).metadata,
 		providerOptions:
-			googleOptions || mistralOptions || voyageOptions
+			googleOptions || mistralOptions || voyageOptions || fireworksOptions || morpheusSessionId
 				? {
+						morpheus: typeof morpheusSessionId === "string"
+							? { sessionId: morpheusSessionId }
+							: undefined,
 						google: googleOptions
 							? {
 									taskType: googleOptions.task_type,
@@ -122,6 +130,17 @@ export function decodeOpenAIEmbeddingsRequest(req: EmbeddingsRequest): IREmbeddi
 											: undefined,
 								}
 							: undefined,
+						fireworks: fireworksOptions
+							? {
+									promptTemplate: fireworksOptions.prompt_template,
+									returnLogits: Array.isArray(fireworksOptions.return_logits)
+										? [...fireworksOptions.return_logits]
+										: undefined,
+									normalize: typeof fireworksOptions.normalize === "boolean"
+										? fireworksOptions.normalize
+										: undefined,
+								}
+							: undefined,
 					}
 				: undefined,
 		userId: req.user,
@@ -138,13 +157,19 @@ export function decodeOpenAIEmbeddingsResponse(payload: any): IREmbeddingsRespon
 					}
 					return {
 						index: typeof entry?.index === "number" ? entry.index : index,
-						embedding: Array.isArray(entry?.embedding) ? entry.embedding : [],
+						embedding:
+							Array.isArray(entry?.embedding) || typeof entry?.embedding === "string"
+								? entry.embedding
+								: [],
 					};
 				})
 				: []);
 	const data = dataSource.map((entry: any, index: number) => ({
 		index: typeof entry?.index === "number" ? entry.index : index,
-		embedding: Array.isArray(entry?.embedding) ? entry.embedding : [],
+		embedding:
+			Array.isArray(entry?.embedding) || typeof entry?.embedding === "string"
+				? entry.embedding
+				: [],
 	}));
 
 	const usageRaw = payload?.usage && typeof payload.usage === "object"
@@ -186,6 +211,7 @@ export function decodeOpenAIEmbeddingsResponse(payload: any): IREmbeddingsRespon
 			embeddingTokens,
 			_ext: (() => {
 				const ext: NonNullable<IREmbeddingsResponse["usage"]>["_ext"] = {};
+				if (usageRaw?.cost && typeof usageRaw.cost === "object") ext.providerCost = usageRaw.cost;
 				if (inputImageTokens != null) ext.inputImageTokens = inputImageTokens;
 				if (inputAudioTokens != null) ext.inputAudioTokens = inputAudioTokens;
 				if (inputVideoTokens != null) ext.inputVideoTokens = inputVideoTokens;
@@ -201,5 +227,6 @@ export function decodeOpenAIEmbeddingsResponse(payload: any): IREmbeddingsRespon
 		model: payload?.model ?? "unknown",
 		data,
 		usage,
+		serviceTier: typeof payload?.service_tier === "string" ? payload.service_tier : undefined,
 	};
 }

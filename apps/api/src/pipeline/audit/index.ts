@@ -636,6 +636,9 @@ function buildSupaRow(args: {
     edgeCountry?: string | null;
     edgeContinent?: string | null;
     edgeAsn?: number | null;
+    userAgent?: string | null;
+    clientSource?: { id: string; name: string; kind: string; version: string | null; detection: string } | null;
+    detailMetadata?: Record<string, unknown> | null;
 }) {
     const usageColumns = buildGatewayRequestUsageColumns({
         usage: args.usage ?? {},
@@ -643,6 +646,21 @@ function buildSupaRow(args: {
         requestPayload: args.requestPayload,
         gatewayResponse: args.gatewayResponse,
     });
+
+    const detailMetadata = {
+        ...(args.detailMetadata ?? {}),
+        client_source: args.clientSource ?? null,
+        request: {
+            ...(
+                args.detailMetadata?.request &&
+                typeof args.detailMetadata.request === "object" &&
+                !Array.isArray(args.detailMetadata.request)
+                    ? args.detailMetadata.request as Record<string, unknown>
+                    : {}
+            ),
+            user_agent: args.userAgent ?? null,
+        },
+    };
 
     return {
         request_id: args.requestId,
@@ -687,6 +705,7 @@ function buildSupaRow(args: {
         throughput: args.throughput ?? null,
         finish_reason: args.finishReason ?? null,
         location: args.edgeColo ?? null,
+        detail_metadata: detailMetadata,
     };
 }
 
@@ -819,7 +838,9 @@ export async function auditSuccess(args: {
             appId: args.appId ?? null,
             appName: args.appName ?? null,
         });
-        if (!appId) {
+        const hasExplicitAppAttribution = [args.appTitle, args.referer, args.appId, args.appName]
+            .some((value) => String(value ?? "").trim().length > 0);
+        if (!appId && hasExplicitAppAttribution) {
             console.error("[audit] ensureAppId returned null", {
                 requestId: args.requestId,
                 workspaceId: args.workspaceId,
@@ -874,6 +895,9 @@ export async function auditSuccess(args: {
             edgeContinent: args.edgeContinent ?? null,
             edgeAsn: args.edgeAsn ?? null,
             finishReason: args.finishReason ?? null,
+            userAgent: args.userAgent ?? null,
+            clientSource: args.clientSource ?? null,
+            detailMetadata: args.detailMetadata ?? null,
         });
 
         let supabaseError: Error | null = null;
@@ -1183,6 +1207,9 @@ export async function auditFailure(args: AuditFailureBefore | AuditFailureExecut
                 edgeCountry: args.edgeCountry ?? null,
                 edgeContinent: args.edgeContinent ?? null,
                 edgeAsn: args.edgeAsn ?? null,
+                userAgent: args.userAgent ?? null,
+                clientSource: args.clientSource ?? null,
+                detailMetadata: args.detailMetadata ?? null,
             });
 
             let supabaseError: Error | null = null;
@@ -1349,6 +1376,9 @@ export async function auditFailure(args: AuditFailureBefore | AuditFailureExecut
             edgeCountry: args.edgeCountry ?? null,
             edgeContinent: args.edgeContinent ?? null,
             edgeAsn: args.edgeAsn ?? null,
+            userAgent: args.userAgent ?? null,
+            clientSource: args.clientSource ?? null,
+            detailMetadata: args.detailMetadata ?? null,
         });
 
         let supabaseError: Error | null = null;
@@ -1489,7 +1519,6 @@ export async function auditFailure(args: AuditFailureBefore | AuditFailureExecut
         releaseRuntime();
     }
 }
-
 
 
 

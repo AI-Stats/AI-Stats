@@ -887,10 +887,10 @@
     "routable": false,
     "regions": {
       "execution": [
-        "global"
+        "eu-north1"
       ],
       "data": [
-        "global"
+        "eu-north1"
       ]
     },
     "service_tiers": [],
@@ -901,9 +901,9 @@
     },
     "sources": [],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-11T03:45:55.451+00:00",
-      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+      "status": "verified",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "The live first-party catalog lists only Qwen/Qwen3-Embedding-8B and no -fast embedding flavor; Fast routing remains correctly disabled."
     },
     "rate_limits": []
   },

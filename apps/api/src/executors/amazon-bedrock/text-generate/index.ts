@@ -9,7 +9,7 @@ import { buildTextExecutor, cherryPickIRParams } from "@executors/_shared/text-g
 import { resolveStreamForProtocol, bufferStreamToIR } from "@executors/_shared/text-generate/openai-compat";
 import { irToOpenAIChat, openAIChatToIR } from "@executors/_shared/text-generate/openai-compat/transform-chat";
 import { irToOpenAIResponses, openAIResponsesToIR } from "@executors/_shared/text-generate/openai-compat/transform";
-import { irToAnthropicMessages, anthropicMessagesToIR } from "@executors/anthropic/text-generate";
+import { collectAnthropicStreamUsage, irToAnthropicMessages, anthropicMessagesToIR } from "@executors/anthropic/text-generate";
 import { createAnthropicToResponsesStreamTransformer } from "@executors/anthropic/text-generate/stream-transformer";
 import { normalizeTextUsageForPricing } from "@executors/_shared/usage/text";
 import { upstreamTestHeaders } from "@providers/shared/testing";
@@ -46,13 +46,10 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	const irRequest = args.ir as IRChatRequest;
 	const model = args.providerModelSlug ?? irRequest.model;
 	const { keyInfo, auth } = resolveMantleAuth(args);
-	if (isClaudeModel(model) && irRequest.responseFormat?.type === "json_schema") {
-		throw new Error("amazon_bedrock_mantle_claude_structured_output_unsupported");
-	}
-	if (usesBedrockMessagesApi(model, irRequest)) {
+	if (usesBedrockMessagesApi(args)) {
 		return executeBedrockMessages(args, keyInfo, auth, model);
 	}
-	const route = resolveMantleTextRoute(args, model);
+	const route = resolveMantleTextRoute(args);
 	return executeMantleOpenAI(args, keyInfo, auth, model, route);
 }
 
@@ -111,7 +108,8 @@ async function executeBedrockMessages(
 		if (!res.body) {
 			throw new Error("bedrock_messages_stream_missing_body");
 		}
-		const responsesStream = res.body.pipeThrough(
+		const [clientBody, accountingBody] = res.body.tee();
+		const responsesStream = clientBody.pipeThrough(
 			createAnthropicToResponsesStreamTransformer(args.requestId, model),
 		);
 		const stream = resolveStreamForProtocol(
@@ -125,7 +123,18 @@ async function executeBedrockMessages(
 		return {
 			kind: "stream",
 			stream,
-			usageFinalizer: async () => null,
+			usageFinalizer: async () => {
+				const final = await collectAnthropicStreamUsage(accountingBody);
+				return {
+					...bill,
+					usage: normalizeTextUsageForPricing(final.usage) ?? undefined,
+					finish_reason: final.stopReason === "max_tokens"
+						? "length"
+						: final.stopReason === "tool_use"
+							? "tool_calls"
+							: final.stopReason ? "stop" : null,
+				};
+			},
 			bill,
 			upstream: res,
 			keySource: keyInfo.source,
@@ -178,9 +187,6 @@ async function executeMantleOpenAI(
 			: irToOpenAIChat(irRequest, model, providerId, args.capabilityParams);
 
 		payload.stream = true;
-		if (route === "responses") {
-			payload.store = false;
-		}
 		if (route === "chat" && payload.stream) {
 			payload.stream_options = {
 				...(payload.stream_options ?? {}),
@@ -317,29 +323,14 @@ export function transformStream(stream: ReadableStream<Uint8Array>): ReadableStr
 
 function resolveMantleTextRoute(
 	args: ExecutorExecuteArgs,
-	model: string,
 ): "chat" | "responses" {
 	const protocol = args.protocol ?? (args.endpoint === "responses" ? "openai.responses" : "openai.chat.completions");
 	const wantsResponses = protocol === "openai.responses" || args.endpoint === "responses";
-	return wantsResponses || isResponsesOnlyMantleModel(model) ? "responses" : "chat";
+	return wantsResponses ? "responses" : "chat";
 }
 
-function isResponsesOnlyMantleModel(model: string): boolean {
-	const normalized = model.trim().toLowerCase().replaceAll("/", ".");
-	return /(?:^|\.)openai\.gpt-5\.(?:4|5|6)(?:$|[.-])/.test(normalized);
-}
-
-function usesBedrockMessagesApi(model: string, ir: IRChatRequest): boolean {
-	// Mantle Messages is the native, recommended surface for Claude. Structured
-	// output is rejected before routing because AWS only documents it for
-	// Converse/InvokeModel on Bedrock Runtime, which is intentionally out of scope.
-	return isClaudeModel(model) &&
-		ir.responseFormat?.type !== "json_schema";
-}
-
-function isClaudeModel(model: string): boolean {
-	const normalized = model.trim().toLowerCase().replaceAll("/", ".");
-	return /(?:^|\.)anthropic\.claude(?:$|[.:-])/.test(normalized);
+function usesBedrockMessagesApi(args: ExecutorExecuteArgs): boolean {
+	return args.protocol === "anthropic.messages" || args.endpoint === "messages";
 }
 
 function buildMantleMessagesUrl(baseUrl: string): string {
@@ -396,7 +387,7 @@ async function sendMantleRequest(
 			url: args.url,
 			body: args.body,
 			region: auth.region,
-			service: "bedrock-mantle",
+			service: "bedrock",
 			accessKeyId: auth.credentials.accessKeyId,
 			secretAccessKey: auth.credentials.secretAccessKey,
 			sessionToken: auth.credentials.sessionToken,
@@ -425,5 +416,3 @@ export const executor: ProviderExecutor = buildTextExecutor({
 	postprocess,
 	transformStream,
 });
-
-

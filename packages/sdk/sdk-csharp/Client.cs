@@ -86,7 +86,9 @@ namespace PhaseoSdk
             PhaseoLogger? logger = null,
             Func<string, Task<ModelLifecycleInfo?>>? lifecycleResolver = null,
             HttpClient? httpClient = null,
-            DevtoolsConfig? devtools = null)
+            DevtoolsConfig? devtools = null,
+            string clientSource = "phaseo-csharp",
+            string clientSourceVersion = "2.1.0")
         {
             apiKey ??= Environment.GetEnvironmentVariable("PHASEO_API_KEY");
             if (string.IsNullOrWhiteSpace(apiKey))
@@ -94,7 +96,12 @@ namespace PhaseoSdk
                 throw new InvalidOperationException("Missing API key. Pass apiKey or set PHASEO_API_KEY.");
             }
 
-            var headers = new Dictionary<string, string> { { "Authorization", $"Bearer {apiKey}" } };
+            var headers = new Dictionary<string, string>
+            {
+                { "Authorization", $"Bearer {apiKey}" },
+                { "X-Phaseo-Client", clientSource },
+                { "X-Phaseo-Client-Version", clientSourceVersion }
+            };
             _basePath = string.IsNullOrWhiteSpace(basePath) ? "https://api.phaseo.app/v1" : basePath.TrimEnd('/');
             _client = new global::Phaseo.Gen.Client(_basePath, httpClient, headers: headers);
             _enableDeprecationWarnings = enableDeprecationWarnings;

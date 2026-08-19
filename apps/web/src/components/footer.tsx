@@ -31,7 +31,6 @@ const developerLinks = [
 		external: true,
 	},
 	{ href: "/methodology", label: "Methodology" },
-	{ href: "/compare/openrouter", label: "Gateway Comparisons" },
 ];
 
 const companyLinks = [
@@ -89,11 +88,11 @@ function FooterLinkList({
 	links: FooterLink[];
 }) {
 	return (
-		<div className="flex flex-col gap-2">
+		<div className="flex min-w-0 flex-col gap-2">
 			<h3 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
 				{title}
 			</h3>
-			<ul className="space-y-1.5">
+			<ul className="lg:space-y-1.5">
 				{links.map((link) => (
 					<li key={`${title}-${link.href}`}>
 						<Link
@@ -101,7 +100,7 @@ function FooterLinkList({
 							prefetch={link.external ? undefined : false}
 							target={link.external ? "_blank" : undefined}
 							rel={link.external ? "noopener noreferrer" : undefined}
-							className={`group inline-flex items-center text-sm text-zinc-600 hover:text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/70 dark:text-zinc-400 dark:hover:text-zinc-50 ${link.logoId ? "lg:w-28" : ""}`}
+							className={`group inline-flex min-h-7 max-w-full items-center break-words py-0.5 text-sm text-zinc-600 hover:text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/70 lg:min-h-0 lg:py-0 dark:text-zinc-400 dark:hover:text-zinc-50 ${link.logoId ? "lg:w-28" : ""}`}
 						>
 							{link.logoId ? (
 								<span
@@ -130,10 +129,10 @@ export default function Footer() {
 	return (
 		<footer className="mt-auto w-full overflow-x-clip border-t border-zinc-200/80 bg-white dark:border-zinc-800 dark:bg-zinc-950">
 			<div className="mx-auto flex w-full max-w-[1280px] flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
-				<div className="grid items-start gap-6 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.3fr)_repeat(4,minmax(0,0.8fr))]">
-					<div className="flex flex-col gap-2 sm:col-span-2 lg:col-span-1">
-						<div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-							<Link href="/" className="inline-flex w-fit items-center">
+				<div className="grid grid-cols-2 items-start gap-x-4 gap-y-6 sm:gap-x-6 lg:grid-cols-[minmax(0,1.3fr)_repeat(4,minmax(0,0.8fr))]">
+					<div className="col-span-2 min-w-0 lg:col-span-1">
+						<div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2">
+							<Link href="/" className="inline-flex w-fit max-w-full items-center">
 								<Image
 									src="/wordmark_light.svg"
 									alt="Phaseo"
@@ -149,10 +148,10 @@ export default function Footer() {
 									className="hidden h-7 w-[108px] dark:block"
 								/>
 							</Link>
-							<div className="relative top-px">
+							<div className="relative order-3 top-px w-full max-w-full md:order-none md:w-auto">
 								<FooterStatusIndicator />
 							</div>
-							<div className="md:hidden sm:ml-auto">
+							<div className="ml-auto md:hidden">
 								<ThemeSelector className="py-0" labelSize="sm" showSelectedLabel={false} />
 							</div>
 						</div>

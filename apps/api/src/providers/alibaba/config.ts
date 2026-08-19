@@ -1,6 +1,6 @@
 import type { OpenAICompatConfig } from "../openai-compatible/types";
 
-export const ALIBABA_CLOUD_API_KEY_ENVS = ["ALIBABA_CLOUD_API_KEY"] as const;
+export const ALIBABA_CLOUD_API_KEY_ENVS = ["ALIBABA_CLOUD_API_KEY", "DASHSCOPE_API_KEY"] as const;
 
 const common = {
 	baseUrl: "https://dashscope-intl.aliyuncs.com",

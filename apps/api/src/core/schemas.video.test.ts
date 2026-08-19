@@ -2,6 +2,38 @@ import { describe, expect, it } from "vitest";
 import { VideoGenerationSchema } from "./schemas";
 
 describe("VideoGenerationSchema", () => {
+	it("allows image-to-video requests without a text prompt", () => {
+		const parsed = VideoGenerationSchema.parse({
+			model: "minimax/hailuo-2.3-fast",
+			input_reference: { image_url: "https://example.com/frame.webp" },
+		});
+		expect(parsed.prompt).toBe("");
+	});
+
+	it("still requires a prompt when no image input is provided", () => {
+		expect(VideoGenerationSchema.safeParse({ model: "minimax/hailuo-2.3" }).success).toBe(false);
+	});
+
+	it("accepts the native OpenAI multipart contract and defaults the model", () => {
+		const reference = new Blob([new Uint8Array([1, 2, 3])], { type: "image/png" });
+		const parsed = VideoGenerationSchema.parse({
+			prompt: "A calico cat playing piano",
+			seconds: "8",
+			size: "1280x720",
+			input_reference: reference,
+		});
+		expect(parsed.model).toBe("sora-2");
+		expect(parsed.seconds).toBe("8");
+		expect(parsed.input_reference).toBe(reference);
+		expect(VideoGenerationSchema.parse({ prompt: "Longer Pro render", seconds: "20", size: "1920x1080" }).seconds).toBe("20");
+	});
+
+	it("enforces OpenAI prompt, seconds, and input-reference bounds", () => {
+		expect(VideoGenerationSchema.safeParse({ prompt: "x".repeat(32_001) }).success).toBe(false);
+		expect(VideoGenerationSchema.safeParse({ prompt: "x", seconds: "6" }).success).toBe(false);
+		expect(VideoGenerationSchema.safeParse({ prompt: "x", input_reference: { file_id: "f", image_url: "https://example.com/i.png" } }).success).toBe(false);
+	});
+
 	it("accepts duration and image_url input references", () => {
 		const parsed = VideoGenerationSchema.parse({
 			model: "google/veo-3.1",

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { normalizeAzureChatRequest, shouldUseAzureResponsesRoute } from "./index";
+import { normalizeAzureChatRequest, resolveAzureTextUrl, shouldUseAzureResponsesRoute } from "./index";
 
 describe("azure text-generate executor", () => {
 	it("uses max_completion_tokens for Azure GPT-5 chat deployments", () => {
@@ -56,5 +56,27 @@ describe("azure text-generate executor", () => {
 			providerModelSlug: "gpt-5.6-luna-pro",
 			ir: { model: "openai/gpt-5.6-luna-pro" } as any,
 		})).toBe(false);
+	});
+
+	it("selects Chat or Responses from the public protocol rather than the model name", () => {
+		expect(shouldUseAzureResponsesRoute({
+			protocol: "openai.responses",
+			providerModelSlug: "gpt-4o",
+			ir: { model: "openai/gpt-4o" } as any,
+		})).toBe(true);
+		expect(shouldUseAzureResponsesRoute({
+			protocol: "openai.chat.completions",
+			providerModelSlug: "gpt-5.6-sol",
+			ir: { model: "openai/gpt-5.6-sol" } as any,
+		})).toBe(false);
+	});
+
+	it("builds v1 and legacy deployment-scoped text routes", () => {
+		expect(resolveAzureTextUrl({ route: "chat", deployment: "my-deployment", baseUrl: "https://resource.openai.azure.com", apiVersion: "v1" }))
+			.toBe("https://resource.openai.azure.com/openai/v1/chat/completions");
+		expect(resolveAzureTextUrl({ route: "responses", deployment: "my-deployment", baseUrl: "https://resource.openai.azure.com", apiVersion: "preview" }))
+			.toBe("https://resource.openai.azure.com/openai/v1/responses?api-version=preview");
+		expect(resolveAzureTextUrl({ route: "chat", deployment: "my-deployment", baseUrl: "https://resource.openai.azure.com", apiVersion: "2024-10-21" }))
+			.toBe("https://resource.openai.azure.com/openai/deployments/my-deployment/chat/completions?api-version=2024-10-21");
 	});
 });

@@ -50,6 +50,133 @@ afterAll(() => {
 });
 
 describe("openai embeddings executor", () => {
+	it.each(["alibaba-cloud", "alibaba", "qwen"])("implements Alibaba text embeddings for alias %s", async (providerId) => {
+		setupRuntimeFromEnv({
+			DASHSCOPE_API_KEY: "test-dashscope-key",
+			ALIBABA_BASE_URL: "https://workspace.ap-southeast-1.maas.aliyuncs.com",
+		} as any);
+		const mock = installFetchMock([{
+			match: (url) => url.endsWith("/compatible-mode/v1/embeddings"),
+			response: jsonResponse({
+				object: "list",
+				model: "text-embedding-v4",
+				data: [{ object: "embedding", index: 0, embedding: [0.1, 0.2] }],
+				usage: { prompt_tokens: 4, total_tokens: 4 },
+			}),
+		}]);
+		await executor(buildArgs({
+			providerId,
+			providerModelSlug: "text-embedding-v4",
+			ir: { input: ["hello"], dimensions: 256 },
+		}));
+		expect(mock.calls[0]?.bodyJson).toMatchObject({
+			model: "text-embedding-v4",
+			input: ["hello"],
+			dimensions: 256,
+		});
+		mock.restore();
+	});
+
+	it("uses Together's native model/input-only embeddings contract", async () => {
+		setupRuntimeFromEnv({ TOGETHER_API_KEY: "test-together-key" } as any);
+		const mock = installFetchMock([{
+			match: (url) => url.endsWith("/v1/embeddings"),
+			response: jsonResponse({
+				object: "list",
+				model: "BAAI/bge-large-en-v1.5",
+				data: [{ object: "embedding", index: 0, embedding: [0.1, 0.2] }],
+			}),
+		}]);
+		const result = await executor(buildArgs({
+			providerId: "together",
+			providerModelSlug: "BAAI/bge-large-en-v1.5",
+			ir: {
+				model: "baai/bge-large-en-v1.5",
+				input: ["hello", "world"],
+				dimensions: 512,
+				encodingFormat: "base64",
+				userId: "not-supported",
+			},
+		}));
+		mock.restore();
+
+		expect(mock.calls[0]?.bodyJson).toEqual({
+			model: "BAAI/bge-large-en-v1.5",
+			input: ["hello", "world"],
+		});
+		expect(result.kind).toBe("completed");
+	});
+
+	it("implements Perplexity standard embeddings with native quantized encoding and usage cost", async () => {
+		const mock = installFetchMock([{
+			match: (url) => url === "https://api.perplexity.example/v1/embeddings",
+			response: jsonResponse({
+				object: "list",
+				model: "pplx-embed-v1-0.6b",
+				data: [{ object: "embedding", index: 0, embedding: "AAEC/w==" }],
+				usage: {
+					prompt_tokens: 6,
+					total_tokens: 6,
+					cost: { input_cost: 0.000000024, total_cost: 0.000000024, currency: "USD" },
+				},
+			}),
+		}]);
+		const result = await executor(buildArgs({
+			providerId: "perplexity",
+			providerModelSlug: "pplx-embed-v1-0.6b",
+			ir: {
+				model: "perplexity/pplx-embed-v1-0.6b",
+				input: ["hello", "world"],
+				dimensions: 512,
+				userId: "not-supported",
+			},
+		}));
+		mock.restore();
+
+		expect(mock.calls[0]?.bodyJson).toEqual({
+			model: "pplx-embed-v1-0.6b",
+			input: ["hello", "world"],
+			encoding_format: "base64_int8",
+			dimensions: 512,
+		});
+		expect((result as any).ir).toMatchObject({
+			model: "pplx-embed-v1-0.6b",
+			data: [{ index: 0, embedding: "AAEC/w==" }],
+			usage: {
+				inputTokens: 6,
+				totalTokens: 6,
+				_ext: { providerCost: { total_cost: 0.000000024, currency: "USD" } },
+			},
+		});
+		expect((result as any).bill.usage).toMatchObject({ input_text_tokens: 6, embedding_tokens: 6 });
+	});
+
+	it("rejects contextualized models until the nested native schema can be represented losslessly", async () => {
+		await expect(executor(buildArgs({
+			providerId: "perplexity",
+			providerModelSlug: "pplx-embed-context-v1-0.6b",
+			ir: { input: ["chunk one", "chunk two"] },
+		}))).rejects.toThrow("perplexity_contextualized_embeddings_require_native_schema");
+	});
+
+	it("enforces Perplexity's text-only input, encoding, and model-specific dimension contract", async () => {
+		await expect(executor(buildArgs({
+			providerId: "perplexity",
+			providerModelSlug: "pplx-embed-v1-0.6b",
+			ir: { input: [1, 2, 3] },
+		}))).rejects.toThrow("perplexity_embeddings_text_input_required");
+		await expect(executor(buildArgs({
+			providerId: "perplexity",
+			providerModelSlug: "pplx-embed-v1-0.6b",
+			ir: { encodingFormat: "float" },
+		}))).rejects.toThrow("perplexity_embeddings_encoding_format_unsupported");
+		await expect(executor(buildArgs({
+			providerId: "perplexity",
+			providerModelSlug: "pplx-embed-v1-0.6b",
+			ir: { dimensions: 1025 },
+		}))).rejects.toThrow("perplexity_embeddings_dimensions_out_of_range");
+	});
+
 	it("preserves slash-delimited provider model slugs for OpenAI-compatible providers", async () => {
 		const mock = installFetchMock([
 			{
@@ -75,6 +202,106 @@ describe("openai embeddings executor", () => {
 		expect(mock.calls[0]?.bodyJson?.model).toBe("baai/bge-m3");
 	});
 
+	it.each(["novita", "novitaai"])("implements Novita embeddings for alias %s", async (providerId) => {
+		setupRuntimeFromEnv({
+			NOVITA_API_KEY: "novita-test",
+			NOVITA_BASE_URL: "https://api.novita.ai",
+		} as any);
+		const mock = installFetchMock([{
+			match: (url) => url === "https://api.novita.example/openai/v1/embeddings",
+			response: jsonResponse({
+				object: "list",
+				model: "baai/bge-m3",
+				data: [{ object: "embedding", index: 0, embedding: [0.1, 0.2] }],
+				usage: { prompt_tokens: 6, total_tokens: 6 },
+			}),
+		}]);
+		const result = await executor(buildArgs({
+			providerId,
+			providerModelSlug: "baai/bge-m3",
+			ir: {
+				model: "baai/bge-m3",
+				input: ["hello", "world"],
+				encodingFormat: "float",
+				dimensions: 512,
+				userId: "not-supported",
+			},
+		}));
+		expect(mock.calls[0]?.headers.Authorization).toBe("Bearer test-novita-key");
+		expect(mock.calls[0]?.bodyJson).toEqual({
+			model: "baai/bge-m3",
+			input: ["hello", "world"],
+			encoding_format: "float",
+		});
+		expect((result as any).ir).toMatchObject({
+			model: "baai/bge-m3",
+			data: [{ index: 0, embedding: [0.1, 0.2] }],
+			usage: { inputTokens: 6, totalTokens: 6 },
+		});
+		expect((result as any).bill.usage).toMatchObject({ input_text_tokens: 6, embedding_tokens: 6 });
+		mock.restore();
+	});
+
+	it("implements the Nebius embeddings contract and preserves service tier", async () => {
+		setupRuntimeFromEnv({ NEBIUS_API_KEY: "test-nebius-key" } as any);
+		const mock = installFetchMock([{
+			match: (url) => url.endsWith("/v1/embeddings"),
+			response: jsonResponse({
+				object: "list",
+				model: "Qwen/Qwen3-Embedding-8B",
+				data: [{ object: "embedding", index: 0, embedding: "AACAPwAAAMA=" }],
+				usage: { prompt_tokens: 8, total_tokens: 8 },
+				service_tier: "flex",
+			}),
+		}]);
+		const result = await executor(buildArgs({
+			providerId: "nebius-token-factory",
+			providerModelSlug: "Qwen/Qwen3-Embedding-8B",
+			ir: {
+				model: "qwen/qwen3-embedding-8b",
+				input: [[101, 102], [103]],
+				dimensions: 1024,
+				encodingFormat: "base64",
+				userId: "customer-1",
+				serviceTier: "flex",
+			},
+		}));
+		mock.restore();
+
+		expect(mock.calls[0]?.bodyJson).toMatchObject({
+			model: "Qwen/Qwen3-Embedding-8B",
+			input: [[101, 102], [103]],
+			dimensions: 1024,
+			encoding_format: "base64",
+			user: "customer-1",
+			service_tier: "flex",
+		});
+		expect((result as any).ir).toMatchObject({
+			model: "Qwen/Qwen3-Embedding-8B",
+			data: [{ index: 0, embedding: "AACAPwAAAMA=" }],
+			serviceTier: "flex",
+			usage: { inputTokens: 8, totalTokens: 8 },
+		});
+	});
+
+	it("preserves Nebius validation errors without fabricating an embeddings IR", async () => {
+		setupRuntimeFromEnv({ NEBIUS_API_KEY: "test-nebius-key" } as any);
+		const mock = installFetchMock([{
+			match: (url) => url.endsWith("/v1/embeddings"),
+			response: jsonResponse({ detail: [{ loc: ["body", "dimensions"], msg: "invalid", type: "value_error" }] }, { status: 422 }),
+		}]);
+		const result = await executor(buildArgs({
+			providerId: "nebius-token-factory",
+			providerModelSlug: "Qwen/Qwen3-Embedding-8B",
+			ir: { model: "qwen/qwen3-embedding-8b", dimensions: 999999 },
+		}));
+		mock.restore();
+		expect(result.kind).toBe("completed");
+		expect((result as any).upstream.status).toBe(422);
+		expect((result as any).ir).toBeUndefined();
+		expect((result as any).bill.usage).toBeUndefined();
+	});
+
 	it("strips gateway prefixes from canonical model ids when provider model slug is absent", async () => {
 		const mock = installFetchMock([
 			{
@@ -94,6 +321,46 @@ describe("openai embeddings executor", () => {
 		expect(result.kind).toBe("completed");
 		expect(mock.calls).toHaveLength(1);
 		expect(mock.calls[0]?.bodyJson?.model).toBe("text-embedding-3-small");
+	});
+
+	it("forwards every OpenAI embedding option and preserves base64 responses", async () => {
+		const mock = installFetchMock([
+			{
+				match: (url) => url === "https://api.openai.com/v1/embeddings",
+				response: jsonResponse({
+					object: "list",
+					model: "text-embedding-3-large",
+					data: [{ object: "embedding", index: 0, embedding: "AACAPwAAAMA=" }],
+					usage: { prompt_tokens: 3, total_tokens: 3 },
+				}),
+			},
+		]);
+
+		const result = await executor(buildArgs({
+			ir: {
+				model: "openai/text-embedding-3-large",
+				input: [[101, 102, 103]],
+				dimensions: 256,
+				encodingFormat: "base64",
+				userId: "end-user-123",
+			},
+		}));
+		mock.restore();
+
+		expect(mock.calls[0]?.bodyJson).toMatchObject({
+			model: "text-embedding-3-large",
+			input: [[101, 102, 103]],
+			dimensions: 256,
+			encoding_format: "base64",
+			user: "end-user-123",
+		});
+		expect((result as any).ir?.data).toEqual([
+			{ index: 0, embedding: "AACAPwAAAMA=" },
+		]);
+		expect((result as any).bill?.usage).toMatchObject({
+			input_tokens: 3,
+			total_tokens: 3,
+		});
 	});
 
 	it("maps mistral dimensions and dtype to provider-specific fields", async () => {
@@ -131,6 +398,83 @@ describe("openai embeddings executor", () => {
 		expect(mock.calls[0]?.bodyJson?.dimensions).toBeUndefined();
 	});
 
+	it("uses the EU regional endpoint and preserves Mistral metadata", async () => {
+		const mock = installFetchMock([{
+			match: (url) => url === "https://api.eu.mistral.ai/v1/embeddings",
+			response: jsonResponse({
+				object: "list",
+				model: "mistral-embed",
+				data: [{ object: "embedding", index: 0, embedding: [0.3, 0.4] }],
+				usage: { prompt_tokens: 8, completion_tokens: 0, total_tokens: 8 },
+			}),
+		}]);
+
+		const result = await executor(buildArgs({
+			providerId: "mistral-eu",
+			providerModelSlug: "mistral-embed",
+			ir: {
+				model: "mistral/mistral-embed",
+				dimensions: 256,
+				metadata: { tenant: "eu-customer" },
+				providerOptions: { mistral: { outputDtype: "uint8" } },
+			},
+		}));
+		mock.restore();
+
+		expect(result.kind).toBe("completed");
+		expect(mock.calls[0]?.bodyJson).toMatchObject({
+			model: "mistral-embed",
+			output_dimension: 256,
+			output_dtype: "uint8",
+			metadata: { tenant: "eu-customer" },
+		});
+		expect((result as any).bill?.usage).toMatchObject({
+			input_tokens: 8,
+			embedding_tokens: 8,
+			total_tokens: 8,
+		});
+	});
+
+	it("maps Fireworks embedding extensions and usage", async () => {
+		const mock = installFetchMock([{
+			match: (url) => url === "https://api.fireworks.example/inference/v1/embeddings",
+			response: jsonResponse({
+				object: "list",
+				model: "fireworks/qwen3-embedding-8b",
+				data: [{ object: "embedding", index: 0, embedding: [0.1, 0.2] }],
+				usage: { prompt_tokens: 7, total_tokens: 7 },
+			}),
+		}]);
+
+		const result = await executor(buildArgs({
+			providerId: "fireworks",
+			providerModelSlug: "fireworks/qwen3-embedding-8b",
+			ir: {
+				model: "fireworks/qwen3-embedding-8b",
+				input: [{ text: "hello" }],
+				dimensions: 256,
+				providerOptions: {
+					fireworks: {
+						promptTemplate: "Embed this text: {text}",
+						returnLogits: [0, 1],
+						normalize: true,
+					},
+				},
+			},
+		}));
+		mock.restore();
+
+		expect(mock.calls[0]?.bodyJson).toMatchObject({
+			model: "fireworks/qwen3-embedding-8b",
+			input: [{ text: "hello" }],
+			dimensions: 256,
+			prompt_template: "Embed this text: {text}",
+			return_logits: [0, 1],
+			normalize: true,
+		});
+		expect((result as any).ir.usage).toMatchObject({ inputTokens: 7, totalTokens: 7 });
+	});
+
 	it("strips unsupported dimensions and user fields for cohere embeddings compatibility endpoint", async () => {
 		setupRuntimeFromEnv({
 			COHERE_API_KEY: "test-cohere-key",
@@ -152,6 +496,7 @@ describe("openai embeddings executor", () => {
 			providerId: "cohere",
 			ir: {
 				model: "cohere/embed-v4.0",
+				encodingFormat: "base64",
 				dimensions: 512,
 				userId: "user_cohere_test",
 			},
@@ -161,6 +506,7 @@ describe("openai embeddings executor", () => {
 		expect(result.kind).toBe("completed");
 		expect(mock.calls).toHaveLength(1);
 		expect(mock.calls[0]?.bodyJson?.model).toBe("embed-v4.0");
+		expect(mock.calls[0]?.bodyJson?.encoding_format).toBe("base64");
 		expect(mock.calls[0]?.bodyJson?.dimensions).toBeUndefined();
 		expect(mock.calls[0]?.bodyJson?.user).toBeUndefined();
 	});

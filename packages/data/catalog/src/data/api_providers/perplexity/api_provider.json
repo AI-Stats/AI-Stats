@@ -1,0 +1,53 @@
+{
+  "api_provider_id": "perplexity",
+  "api_provider_name": "Perplexity",
+  "provider_family_id": "perplexity",
+  "offer_scope": "global",
+  "description": "Perplexity provides the Sonar, Search, Agent, and text Embeddings APIs.",
+  "link": "https://docs.perplexity.ai/",
+  "residency_mode": "unknown",
+  "default_execution_regions": null,
+  "default_data_regions": null,
+  "zero_data_retention": "unknown",
+  "residency_source_url": null,
+  "residency_notes": "The public embeddings reference does not specify a contractual execution or data-residency region.",
+  "data_policy_tier": "unknown",
+  "data_policy_confidence": "unknown",
+  "data_policy_contract_mode": "none",
+  "country_code": "US",
+  "status": "Active",
+  "colour": "#20b8cd",
+  "privacy_policy_url": null,
+  "terms_of_service_url": null,
+  "prompt_training_policy": "unknown",
+  "prompt_training_notes": null,
+  "prompt_training_source_url": null,
+  "gateway_kind": "openai_compatible",
+  "routable": true,
+  "routing_enabled": true,
+  "sdk_package": "openai",
+  "api_base_url": "https://api.perplexity.ai/v1",
+  "docs_url": "https://docs.perplexity.ai/api-reference/embeddings-post",
+  "auth_env": "PERPLEXITY_API_KEY",
+  "api_formats": ["openai.chat.completions", "openai.embeddings"],
+  "service_tiers": [],
+  "sources": [
+    {
+      "kind": "provider_docs",
+      "url": "https://docs.perplexity.ai/api-reference/embeddings-post",
+      "accessed_at": "2026-08-12T00:00:00Z",
+      "notes": "Official standard embeddings endpoint, authentication, models, inputs, dimensions, encodings, response and usage contract."
+    },
+    {
+      "kind": "pricing",
+      "url": "https://docs.perplexity.ai/docs/getting-started/pricing",
+      "accessed_at": "2026-08-12T00:00:00Z",
+      "notes": "Official standard and contextualized embeddings dimensions and token prices."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-12T00:00:00Z",
+    "notes": "Standard embeddings endpoint and two routable standard models verified. Contextualized embeddings use a distinct nested contract and are intentionally not registered on the OpenAI embeddings surface."
+  }
+}

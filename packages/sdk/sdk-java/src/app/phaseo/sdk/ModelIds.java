@@ -571,6 +571,9 @@ public final class ModelIds {
     /** Model ID: <code>mistral/mixtral-8x7b</code>. Model page: https://phaseo.app/models/mistral/mixtral-8x7b */
     public static final String MISTRAL_MIXTRAL_8X7B = "mistral/mixtral-8x7b";
 
+    /** Model ID: <code>mistral/ocr-4.1</code>. Model page: https://phaseo.app/models/mistral/ocr-4.1 */
+    public static final String MISTRAL_OCR_4_1 = "mistral/ocr-4.1";
+
     /** Model ID: <code>mistral/pixtral-large</code>. Model page: https://phaseo.app/models/mistral/pixtral-large */
     public static final String MISTRAL_PIXTRAL_LARGE = "mistral/pixtral-large";
 
@@ -1215,6 +1218,9 @@ public final class ModelIds {
 
     /** Model ID: <code>spacex-ai/grok-4.5</code>. Model page: https://phaseo.app/models/spacex-ai/grok-4.5 */
     public static final String SPACEX_AI_GROK_4_5 = "spacex-ai/grok-4.5";
+
+    /** Model ID: <code>spacex-ai/grok-4.6</code>. Model page: https://phaseo.app/models/spacex-ai/grok-4.6 */
+    public static final String SPACEX_AI_GROK_4_6 = "spacex-ai/grok-4.6";
 
     /** Model ID: <code>spacex-ai/grok-build-0.1</code>. Model page: https://phaseo.app/models/spacex-ai/grok-build-0.1 */
     public static final String SPACEX_AI_GROK_BUILD_0_1 = "spacex-ai/grok-build-0.1";

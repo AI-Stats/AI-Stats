@@ -1242,16 +1242,16 @@ function getPrivacyReasonMeta(reason: string): {
 } | null {
 	if (reason === "Blocked by account provider restrictions") {
 		return {
-			label: "Unavailable in Phaseo Chat because of your Personal Data Controls.",
-			href: "/settings/account/privacy",
-			linkLabel: "Review Personal Data Controls",
+			label: "Unavailable because of workspace privacy or an assigned guardrail.",
+			href: "/settings/privacy",
+			linkLabel: "Review workspace privacy",
 		};
 	}
 	if (reason === "Not in account provider allowlist") {
 		return {
-			label: "Unavailable in Phaseo Chat because it is outside your personal allowlist.",
-			href: "/settings/account/privacy",
-			linkLabel: "Review Personal Data Controls",
+			label: "Unavailable because it is outside the workspace or assigned guardrail allowlist.",
+			href: "/settings/privacy",
+			linkLabel: "Review workspace privacy",
 		};
 	}
 	if (reason === "Blocked by workspace provider restrictions") {
@@ -2789,7 +2789,7 @@ export default function ProviderCard({
 										<HoverCardContent align="start" className="w-80 p-2 text-xs">
 											<p className="font-semibold text-foreground">{isWorkspacePrivacyBlocked ? "Workspace blocked" : "Chat unavailable"}</p>
 											<p className="mt-1 text-muted-foreground">
-												{isWorkspacePrivacyBlocked ? "Workspace Data Controls prevent API and Chat traffic from using this provider." : "Your Personal Data Controls prevent Phaseo Chat from using this provider; workspace API keys are unaffected."}
+												{isWorkspacePrivacyBlocked ? "Workspace privacy prevents API and Chat traffic from using this provider." : "An assigned guardrail prevents this request from using the provider."}
 											</p>
 											<div className="mt-2 space-y-1 border-t border-zinc-200/70 pt-2 dark:border-zinc-800">
 												{privacyReasonMeta.map(({ reason, meta }) => (

@@ -21,7 +21,12 @@ export default function AppsSettingsPage() {
 				title="Apps"
 				description="Manage application metadata and public visibility for your workspace."
 				actions={
-					<Button asChild variant="outline" size="sm">
+					<Button
+						asChild
+						variant="outline"
+						size="sm"
+						className="h-10 rounded-md"
+					>
 						<Link
 							href={ATTRIBUTION_DOCS_HREF}
 							target="_blank"
