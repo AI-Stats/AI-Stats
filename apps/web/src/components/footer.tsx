@@ -132,29 +132,27 @@ export default function Footer() {
 			<div className="mx-auto flex w-full max-w-[1280px] flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
 				<div className="grid grid-cols-2 items-start gap-x-4 gap-y-6 sm:gap-x-6 lg:grid-cols-[minmax(0,1.3fr)_repeat(4,minmax(0,0.8fr))]">
 					<div className="col-span-2 min-w-0 lg:col-span-1">
-						<div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-							<div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2">
-								<Link href="/" className="inline-flex w-fit max-w-full items-center">
-									<Image
-										src="/wordmark_light.svg"
-										alt="Phaseo"
-										width={154}
-										height={40}
-										className="h-7 w-[108px] dark:hidden"
-									/>
-									<Image
-										src="/wordmark_dark.svg"
-										alt="Phaseo"
-										width={154}
-										height={40}
-										className="hidden h-7 w-[108px] dark:block"
-									/>
-								</Link>
-								<div className="relative top-px max-w-full">
-									<FooterStatusIndicator />
-								</div>
+						<div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2">
+							<Link href="/" className="inline-flex w-fit max-w-full items-center">
+								<Image
+									src="/wordmark_light.svg"
+									alt="Phaseo"
+									width={154}
+									height={40}
+									className="h-7 w-[108px] dark:hidden"
+								/>
+								<Image
+									src="/wordmark_dark.svg"
+									alt="Phaseo"
+									width={154}
+									height={40}
+									className="hidden h-7 w-[108px] dark:block"
+								/>
+							</Link>
+							<div className="relative order-3 top-px w-full max-w-full md:order-none md:w-auto">
+								<FooterStatusIndicator />
 							</div>
-							<div className="md:hidden">
+							<div className="ml-auto md:hidden">
 								<ThemeSelector className="py-0" labelSize="sm" showSelectedLabel={false} />
 							</div>
 						</div>
