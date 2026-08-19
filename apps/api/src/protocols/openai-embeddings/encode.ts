@@ -95,28 +95,11 @@ export function encodeOpenAIEmbeddingsRequest(ir: IREmbeddingsRequest): any {
 }
 
 export function encodeOpenAIEmbeddingsResponse(ir: IREmbeddingsResponse): any {
-	const inputTokensDetails = ir.usage?._ext
-		? {
-				...(typeof ir.usage._ext.inputImageTokens === "number"
-					? { input_images: ir.usage._ext.inputImageTokens }
-					: {}),
-				...(typeof ir.usage._ext.inputAudioTokens === "number"
-					? { input_audio: ir.usage._ext.inputAudioTokens }
-					: {}),
-				...(typeof ir.usage._ext.inputVideoTokens === "number"
-					? { input_videos: ir.usage._ext.inputVideoTokens }
-					: {}),
-			}
-		: undefined;
-
 	const usage = ir.usage
 		? {
-				input_tokens: ir.usage.inputTokens ?? ir.usage.embeddingTokens ?? 0,
+				prompt_tokens: ir.usage.inputTokens ?? ir.usage.embeddingTokens ?? 0,
 				total_tokens: ir.usage.totalTokens ?? ir.usage.inputTokens ?? 0,
-				embedding_tokens: ir.usage.embeddingTokens ?? ir.usage.inputTokens ?? 0,
-				...(inputTokensDetails && Object.keys(inputTokensDetails).length > 0
-					? { input_tokens_details: inputTokensDetails }
-					: {}),
+				...(ir.usage._ext?.providerCost ? { cost: ir.usage._ext.providerCost } : {}),
 			}
 		: undefined;
 
@@ -129,5 +112,6 @@ export function encodeOpenAIEmbeddingsResponse(ir: IREmbeddingsResponse): any {
 		})),
 		model: ir.model,
 		...(usage ? { usage } : {}),
+		...(ir.serviceTier ? { service_tier: ir.serviceTier } : {}),
 	};
 }

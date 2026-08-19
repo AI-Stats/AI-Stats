@@ -237,7 +237,7 @@ export function parseVideoListStatuses(
 export function parseVideoListLimit(url: URL): number {
 	const parsed = Number(url.searchParams.get("limit") ?? "");
 	if (!Number.isFinite(parsed)) return 50;
-	return Math.max(1, Math.min(200, Math.trunc(parsed)));
+	return Math.max(0, Math.min(100, Math.trunc(parsed)));
 }
 
 export async function requireOwnedVideoJob(
@@ -555,5 +555,4 @@ export async function finalizeVideoStatusIfTerminal(args: {
 		});
 	}
 }
-
 

@@ -83,8 +83,8 @@
   "capabilities": {
     "attachment": true,
     "tool_call": true,
-    "structured_output": null,
-    "temperature": null,
+    "structured_output": true,
+    "temperature": false,
     "streaming": true,
     "web_search": true
   },
@@ -117,10 +117,10 @@
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-03T00:00:00Z",
+    "checked_at": "2026-08-12T00:00:00Z",
     "notes": "Release, API identifiers, pricing, modalities, tools, compatibility, and regional restrictions verified against Sakana AI's official API documentation."
   },
-  "last_updated": "2026-08-03T00:00:00Z",
+  "last_updated": "2026-08-12T00:00:00Z",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

@@ -3,7 +3,7 @@
 // How: Transforms IR and calls the provider API for this capability.
 
 // Moonshot AI Executor - OpenAI Compatible
-// Documentation: https://platform.moonshot.cn/docs/
+// Documentation: https://platform.kimi.ai/docs/api/chat
 
 import type { IRChatRequest } from "@core/ir";
 import type { ExecutorExecuteArgs, ExecutorResult } from "@executors/types";
@@ -12,7 +12,19 @@ import { buildTextExecutor, cherryPickIRParams } from "@executors/_shared/text-g
 import type { ProviderExecutor } from "../../types";
 
 export function preprocess(ir: IRChatRequest, args: ExecutorExecuteArgs): IRChatRequest {
-	return cherryPickIRParams(ir, args.capabilityParams);
+	const next = cherryPickIRParams(ir, args.capabilityParams);
+	const moonshot = (ir.vendor as any)?.moonshot;
+	const prediction = (ir.vendor as any)?.openai?.prediction;
+	if (moonshot || prediction !== undefined) {
+		next.vendor = {
+			...(next.vendor ?? {}),
+			moonshot: {
+				...(moonshot ?? {}),
+				...(prediction !== undefined && moonshot?.prediction === undefined ? { prediction } : {}),
+			},
+		};
+	}
+	return next;
 }
 
 export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult> {
@@ -33,5 +45,3 @@ export const executor: ProviderExecutor = buildTextExecutor({
 	postprocess,
 	transformStream,
 });
-
-

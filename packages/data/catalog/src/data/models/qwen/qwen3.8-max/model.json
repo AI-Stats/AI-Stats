@@ -4,7 +4,7 @@
   "name": "Qwen 3.8 Max",
   "status": "Available",
   "previous_model_id": "qwen/qwen3.8-max-preview",
-  "description": "Qwen 3.8 Max is Qwen's proprietary 2.4-trillion-parameter mixture-of-experts flagship for long-horizon coding and professional work. It supports native text, image and video understanding, a 1M-token context window, reasoning, function calling, structured outputs, caching, batches and web search.",
+  "description": "Qwen 3.8 Max is Qwen Cloud's managed multimodal flagship for complex reasoning, coding and professional work. It is based on Qwen3.8-2.4T-A95B but is a distinct API model with native text, image and video understanding, non-thinking support, a default 1M-token context window, function calling, structured outputs, caching, batches and built-in tools.",
   "announced_date": "2026-08-03T00:00:00",
   "release_date": "2026-08-03T00:00:00",
   "deprecation_date": null,
@@ -32,12 +32,6 @@
     }
   ],
   "details": [
-    {
-      "name": "parameter_count",
-      "value": 2400000000000,
-      "source_link": "https://www.qwencloud.com/models/qwen3.8-max",
-      "other_info": "2.4T total parameters; Qwen describes the model as a mixture-of-experts flagship."
-    },
     {
       "name": "input_context_length",
       "value": 991800,
@@ -162,10 +156,10 @@
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-03T00:00:00",
-    "notes": "Verified against the official Qwen Cloud model page and API reference."
+    "checked_at": "2026-08-12T00:00:00Z",
+    "notes": "Verified against the official Qwen Cloud model page and API reference. The separate open-weight checkpoint is catalogued as qwen/qwen3.8-2.4t-a95b."
   },
-  "last_updated": "2026-08-03T00:00:00",
+  "last_updated": "2026-08-12T00:00:00",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

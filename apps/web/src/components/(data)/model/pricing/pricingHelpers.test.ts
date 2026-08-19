@@ -2,6 +2,8 @@ import type { ProviderPricing } from "@/lib/fetchers/models/getModelPricing";
 import {
 	buildProviderSections,
 	buildProviderTablePriceSummary,
+	calculateDailyAveragePricingMeterPrice,
+	getUtcPricingScheduleTimes,
 } from "./pricingHelpers";
 
 function makeProviderPricing(): ProviderPricing {
@@ -127,6 +129,18 @@ function makeProviderPricing(): ProviderPricing {
 }
 
 describe("buildProviderSections", () => {
+	test("shows only the base conditional context price in the provider table summary", () => {
+		const sections = buildProviderSections(makeProviderPricing(), "standard", new Date("2026-02-01T00:00:00.000Z"));
+		const summary = buildProviderTablePriceSummary(sections, "input");
+
+		expect(summary.primary).toMatchObject({
+			label: "text",
+			price: 5,
+		});
+		expect(summary.secondary).toBeNull();
+		expect(summary.extraCount).toBe(0);
+	});
+
 	test("does not compare marked-up priority pricing with standard", () => {
 		const sections = buildProviderSections(makeProviderPricing(), "priority");
 		const inputTiers = sections.textTokens?.in ?? [];
@@ -509,5 +523,22 @@ describe("buildProviderSections", () => {
 			sortValue: 0.87,
 		});
 		expect(buildProviderTablePriceSummary(atEnd, "input").sortValue).toBe(0.28);
+	});
+
+	test("averages recurring UTC pricing windows into one daily chart rate", () => {
+		expect(calculateDailyAveragePricingMeterPrice({
+			price_per_unit: "0.22",
+			time_windows: [
+				{ label: "Peak", timezone: "UTC", start_time: "01:00", end_time: "04:00", price_per_unit: 0.44 },
+				{ label: "Peak", timezone: "UTC", start_time: "06:00", end_time: "10:00", price_per_unit: 0.44 },
+			],
+		})).toBeCloseTo((0.22 * 17 + 0.44 * 7) / 24, 12);
+	});
+
+	test("returns distinct UTC boundaries for a recurring pricing chart", () => {
+		expect(getUtcPricingScheduleTimes([
+			{ label: "Peak", timezone: "UTC", start_time: "01:00", end_time: "04:00", price_per_unit: 0.44 },
+			{ label: "Peak", timezone: "UTC", start_time: "06:00", end_time: "10:00", price_per_unit: 0.44 },
+		])).toEqual(["00:00", "01:00", "04:00", "06:00", "10:00"]);
 	});
 });

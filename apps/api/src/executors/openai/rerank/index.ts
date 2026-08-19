@@ -11,6 +11,7 @@ import {
 	openAICompatHeaders,
 	openAICompatUrl,
 	resolveOpenAICompatKey,
+	resolveOpenAICompatConfig,
 } from "@providers/openai-compatible/config";
 import { upstreamTestHeaders } from "@providers/shared/testing";
 import type { ProviderExecutor } from "../../types";
@@ -34,6 +35,19 @@ function resolveTargetModel(ir: IRRerankRequest, args: ExecutorExecuteArgs): str
 
 function isVoyageProvider(providerId: string): boolean {
 	return providerId === "voyage" || providerId === "voyageai";
+}
+
+function isCohereProvider(providerId: string): boolean {
+	return providerId === "cohere";
+}
+
+function isNebiusProvider(providerId: string): boolean {
+	return providerId.startsWith("nebius-token-factory");
+}
+
+function cohereRerankUrl(): string {
+	const configured = resolveOpenAICompatConfig("cohere").baseUrl.replace(/\/+$/, "");
+	return `${configured.replace(/\/compatibility\/v1$/i, "")}/v2/rerank`;
 }
 
 function serializeVoyageDocument(
@@ -72,6 +86,21 @@ function buildRequestBody(
 	// Most OpenAI-compatible providers reject unknown provider_options fields.
 	delete encoded.provider_options;
 
+	if (isCohereProvider(args.providerId)) {
+		// Cohere v2 accepts text documents only. Preserve structured gateway
+		// inputs deterministically rather than sending an invalid JSON object.
+		encoded.documents = ir.documents.map((document) =>
+			typeof document === "string" ? document : JSON.stringify(document),
+		);
+
+		// These belong to older/vendor-neutral rerank dialects, not Cohere v2.
+		delete encoded.return_documents;
+		delete encoded.max_chunks_per_doc;
+		delete encoded.rank_fields;
+		delete encoded.user;
+		delete encoded.metadata;
+	}
+
 	if (isVoyageProvider(args.providerId)) {
 		// Voyage expects `top_k` and string documents.
 		if (typeof encoded.top_n === "number") {
@@ -103,6 +132,68 @@ function buildRequestBody(
 		}
 	}
 
+	if (args.providerId === "fireworks") {
+		encoded.documents = ir.documents.map((document) =>
+			typeof document === "string" ? document : JSON.stringify(document),
+		);
+		const providerOptions = ir.vendor?.provider_options;
+		const fireworksOptions = providerOptions?.fireworks;
+		if (typeof fireworksOptions?.task === "string" && fireworksOptions.task.length > 0) {
+			encoded.task = fireworksOptions.task;
+		}
+		delete encoded.max_chunks_per_doc;
+		delete encoded.max_tokens_per_doc;
+		delete encoded.priority;
+		delete encoded.rank_fields;
+		delete encoded.user;
+		delete encoded.metadata;
+	}
+
+	if (isNebiusProvider(args.providerId)) {
+		// Nebius' native contract accepts only string documents plus user and
+		// service_tier. Vendor-neutral rerank controls are rejected with 422.
+		encoded.documents = ir.documents.map((document) =>
+			typeof document === "string" ? document : JSON.stringify(document),
+		);
+		delete encoded.top_n;
+		delete encoded.return_documents;
+		delete encoded.max_chunks_per_doc;
+		delete encoded.max_tokens_per_doc;
+		delete encoded.priority;
+		delete encoded.rank_fields;
+		delete encoded.metadata;
+	}
+
+	if (args.providerId === "novita" || args.providerId === "novitaai") {
+		// Novita documents string documents plus top_n only.
+		encoded.documents = ir.documents.map((document) =>
+			typeof document === "string" ? document : JSON.stringify(document),
+		);
+		delete encoded.return_documents;
+		delete encoded.max_chunks_per_doc;
+		delete encoded.max_tokens_per_doc;
+		delete encoded.priority;
+		delete encoded.rank_fields;
+		delete encoded.user;
+		delete encoded.metadata;
+	}
+
+	if (args.providerId === "scaleway") {
+		// Scaleway exposes the Jina/Cohere-shaped core only: string documents,
+		// query, model, and top_n. Do not leak gateway/vendor extensions upstream.
+		encoded.documents = ir.documents.map((document) =>
+			typeof document === "string" ? document : JSON.stringify(document),
+		);
+		delete encoded.return_documents;
+		delete encoded.max_chunks_per_doc;
+		delete encoded.max_tokens_per_doc;
+		delete encoded.priority;
+		delete encoded.rank_fields;
+		delete encoded.user;
+		delete encoded.service_tier;
+		delete encoded.metadata;
+	}
+
 	return encoded;
 }
 
@@ -120,6 +211,7 @@ function usageToMeters(usage?: IRRerankResponse["usage"]): Record<string, number
 	meters.output_tokens = outputTokens;
 	meters.output_text_tokens = outputTokens;
 	meters.total_tokens = totalTokens;
+	if (usage.searchUnits !== undefined) meters.search_units = usage.searchUnits;
 	return meters;
 }
 
@@ -134,7 +226,10 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	);
 	const mappedRequest = captureRequest ? JSON.stringify(requestBody) : undefined;
 
-	const res = await fetchUpstream(args, openAICompatUrl(args.providerId, "/rerank"), {
+	const upstreamUrl = isCohereProvider(args.providerId)
+		? cohereRerankUrl()
+		: openAICompatUrl(args.providerId, "/rerank");
+	const res = await fetchUpstream(args, upstreamUrl, {
 		method: "POST",
 		headers: openAICompatHeaders(args.providerId, key, {
 			"Idempotency-Key": args.requestId,
@@ -144,6 +239,19 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	});
 
 	const json = await res.clone().json().catch(() => null);
+	if (!res.ok) {
+		ir.rawRequest = requestBody;
+		return {
+			kind: "completed",
+			upstream: res,
+			ir: undefined,
+			bill: undefined,
+			keySource: keyInfo.source,
+			byokKeyId: keyInfo.byokId,
+			mappedRequest,
+			rawResponse: json ?? null,
+		};
+	}
 	const responseIr = decodeOpenAIRerankResponse(json, ir.model);
 	responseIr.rawResponse = json ?? null;
 	ir.rawRequest = requestBody;

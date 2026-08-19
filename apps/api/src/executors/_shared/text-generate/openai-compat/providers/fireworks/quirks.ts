@@ -58,12 +58,40 @@ function normalizeResponsesFormat(request: Record<string, any>) {
 	}
 }
 
+const CHAT_OPTION_KEYS = [
+	"min_p", "typical_p", "prompt_cache_isolation_key", "raw_output",
+	"perf_metrics_in_response", "mirostat_target", "mirostat_lr", "echo",
+	"echo_last", "ignore_eos", "context_length_exceeded_behavior",
+	"reasoning_history", "return_token_ids", "prompt_truncate_len", "safe_tokenization",
+] as const;
+
 export const fireworksQuirks: ProviderQuirks = {
-	transformRequest: ({ request }) => {
+	transformRequest: ({ request, ir }) => {
 		// Fireworks Responses endpoint follows OpenAI field names.
 		// Normalize only responses-shaped payloads and keep Chat payloads untouched.
 		const isResponsesRequest = request.input_items != null || request.input != null;
-		if (!isResponsesRequest) return;
+		if (!isResponsesRequest) {
+			const options = ir.vendor?.fireworks;
+			if (options && typeof options === "object") {
+				for (const key of CHAT_OPTION_KEYS) {
+					if (options[key] !== undefined) request[key] = options[key];
+				}
+			}
+
+			const reasoning = ir.reasoning;
+			if (reasoning && request.reasoning_effort == null) {
+				if (reasoning.enabled === false || reasoning.effort === "none") {
+					request.reasoning_effort = "none";
+				} else if (typeof reasoning.maxTokens === "number" && reasoning.maxTokens > 0) {
+					request.reasoning_effort = reasoning.maxTokens;
+				} else if (typeof reasoning.effort === "string") {
+					request.reasoning_effort = reasoning.effort === "minimal" ? "low" : reasoning.effort;
+				} else if (reasoning.enabled === true) {
+					request.reasoning_effort = "medium";
+				}
+			}
+			return;
+		}
 
 		if (request.input == null && request.input_items != null) {
 			request.input = request.input_items;
@@ -80,5 +108,11 @@ export const fireworksQuirks: ProviderQuirks = {
 
 		normalizeResponsesFormat(request);
 	},
+	extractReasoning: ({ choice, rawContent }) => {
+		const reasoning = choice?.message?.reasoning_content;
+		return {
+			main: rawContent,
+			reasoning: typeof reasoning === "string" && reasoning.length > 0 ? [reasoning] : [],
+		};
+	},
 };
-

@@ -36,8 +36,8 @@ import {
 export const metadata: Metadata = {
 	...buildMetadata({
 		title: "Phaseo: The AI Gateway for Every Model and Provider",
-		description:
-			"Discover, route, and observe every AI model with an open source AI gateway and model intelligence layer.",
+	description:
+			"Discover trusted model data, route requests through one open-source AI gateway, and observe cost, reliability, usage, and performance across providers.",
 		path: "/",
 		keywords: [
 			"AI models",
@@ -193,11 +193,11 @@ function LandingPage({ isBeta }: { isBeta: boolean }) {
 								One Platform for Every AI Model
 							</h1>
 							<p className="text-balance mx-auto max-w-[44rem] text-lg leading-8 text-zinc-600 dark:text-zinc-300 2xl:max-w-5xl 2xl:text-pretty">
-								Discover trusted data for 300+ AI models, route requests
+								Discover trusted model data, route requests
 								through one{" "}
 								<span className="whitespace-nowrap">OpenAI-compatible</span>{" "}
-								gateway, and monitor pricing, reliability, usage, and performance
-								in one place.
+								gateway, and observe cost, reliability, usage, and performance
+								across every provider.
 							</p>
 						</div>
 						<div

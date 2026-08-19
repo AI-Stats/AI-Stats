@@ -12,8 +12,8 @@ import {
 	FolderKey,
 	KeyRound,
 	RadioTower,
-	ShieldCheck,
 	Shield,
+	ShieldCheck,
 	User,
 	UserCog,
 	UserKey,
@@ -83,12 +83,6 @@ const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
 				],
 			},
 			{
-				href: "/settings/account/privacy",
-				label: "Privacy",
-				icon: Shield,
-				match: ["/settings/account/privacy"],
-			},
-			{
 				href: "/settings/account/workspaces",
 				label: "Workspaces",
 				icon: Building2,
@@ -141,6 +135,19 @@ const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
 					{ href: "/settings/workspaces/members", label: "Members" },
 					{ href: "/settings/workspaces/access", label: "Access" },
 				],
+			},
+			{
+				href: "/settings/guardrails",
+				label: "Guardrails",
+				icon: ShieldCheck,
+				badge: "Beta",
+				match: ["/settings/guardrails"],
+			},
+			{
+				href: "/settings/privacy",
+				label: "Privacy",
+				icon: Shield,
+				match: ["/settings/privacy"],
 			},
 		],
 	},
@@ -239,16 +246,6 @@ const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
 					{ href: "/settings/presets/experiments", label: "Feedback", badge: "Alpha" },
 				],
 			},
-			{
-				href: "/settings/guardrails",
-				label: "Safety & privacy",
-				icon: ShieldCheck,
-				match: ["/settings/guardrails", "/settings/privacy"],
-				children: [
-					{ href: "/settings/guardrails", label: "Guardrails", badge: "Beta" },
-					{ href: "/settings/privacy", label: "Data Controls" },
-				],
-			},
 		],
 	},
 	{
@@ -277,10 +274,27 @@ const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
     // },
 ];
 
+const WORKSPACE_NAV_ORDER = [
+	"/settings/workspaces/settings",
+	"/settings/keys",
+	"/settings/usage",
+	"/settings/usage/logs",
+	"/settings/routing",
+	"/settings/guardrails",
+	"/settings/privacy",
+	"/settings/byok",
+	"/settings/presets",
+	"/settings/apps",
+	"/settings/management-api-keys",
+	"/settings/broadcast",
+	"/settings/oauth-apps",
+	"/settings/webhooks",
+] as const;
+
 export function getSettingsSidebar(options?: { showBroadcast?: boolean; showWebhooks?: boolean }): NavGroup[] {
 	const showBroadcast = options?.showBroadcast ?? true;
 	const showWebhooks = options?.showWebhooks ?? true;
-	return BASE_SETTINGS_SIDEBAR.map((group) => ({
+	const groups = BASE_SETTINGS_SIDEBAR.map((group) => ({
 		...group,
 		items: group.items
 			.filter((item) =>
@@ -295,6 +309,20 @@ export function getSettingsSidebar(options?: { showBroadcast?: boolean; showWebh
 				),
 			})),
 	})).filter((group) => group.items.length > 0);
+	const personalGroups = groups.filter((group) => group.scope === "personal");
+	const workspaceItems = groups
+		.filter((group) => group.scope === "workspace")
+		.flatMap((group) => group.items)
+		.sort((a, b) => {
+			const aIndex = WORKSPACE_NAV_ORDER.indexOf(a.href as typeof WORKSPACE_NAV_ORDER[number]);
+			const bIndex = WORKSPACE_NAV_ORDER.indexOf(b.href as typeof WORKSPACE_NAV_ORDER[number]);
+			return (aIndex < 0 ? Number.MAX_SAFE_INTEGER : aIndex) - (bIndex < 0 ? Number.MAX_SAFE_INTEGER : bIndex);
+		});
+
+	return [
+		...personalGroups,
+		...(workspaceItems.length ? [{ scope: "workspace" as const, items: workspaceItems }] : []),
+	];
 }
 
 export function isSettingsNavChildActive(

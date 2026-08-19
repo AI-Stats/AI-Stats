@@ -1067,6 +1067,13 @@ function checkApiProviders(state: ValidationState): string[] {
             errors.push(`API provider ${providerId} has invalid zero_data_retention '${String(data.zero_data_retention)}'`);
         }
         if (
+            data.data_retention_days !== undefined &&
+            data.data_retention_days !== null &&
+            (!Number.isInteger(data.data_retention_days) || data.data_retention_days < 0)
+        ) {
+            errors.push(`API provider ${providerId} has invalid data_retention_days '${String(data.data_retention_days)}'`);
+        }
+        if (
             data.stream_cancellation_support !== undefined &&
             data.stream_cancellation_support !== null &&
             !['supported', 'unsupported', 'unknown'].includes(String(data.stream_cancellation_support))
@@ -1132,6 +1139,24 @@ function checkApiProviders(state: ValidationState): string[] {
         ) {
             errors.push(`API provider ${providerId} has invalid data_policy_contract_mode '${String(data.data_policy_contract_mode)}'`);
         }
+		const providerModelsPath = path.join(providersDir, provider, 'models.json');
+		const providerModels = fs.existsSync(providerModelsPath)
+			? safeReadJson(providerModelsPath, errors, 'API provider models')
+			: null;
+		const hasActiveGatewayRoute = Array.isArray(providerModels) && providerModels.some((model: Record<string, unknown>) =>
+			model.is_active_gateway === true && !['disabled', 'retired'].includes(String(model.status ?? '').trim().toLowerCase()),
+		);
+		if (String(data.status ?? '').trim().toLowerCase() === 'active' && hasActiveGatewayRoute) {
+			for (const key of ['country_code', 'prompt_training_policy', 'zero_data_retention', 'residency_mode', 'data_policy_tier', 'data_policy_confidence', 'data_policy_contract_mode']) {
+				const value = (data as Record<string, unknown>)[key];
+				if (value === undefined || value === null || (typeof value === 'string' && !value.trim())) {
+					errors.push(`Active API provider ${providerId} is missing ${key}`);
+				}
+			}
+			if (data.zero_data_retention === 'default' && data.data_retention_days !== 0) {
+				errors.push(`Active ZDR provider ${providerId} must set data_retention_days to 0`);
+			}
+		}
 		if (data.data_policy_variant === 'zdr') {
 			if (data.offer_scope !== 'specialized') {
 				errors.push(`ZDR provider ${providerId} must use offer_scope 'specialized'`);
@@ -1674,6 +1699,32 @@ function checkPricing(state: ValidationState): string[] {
     return errors;
 }
 
+export function checkSubscriptionPlanModels(
+    planId: string,
+    planModels: unknown[],
+    modelIds: ReadonlySet<string>,
+): string[] {
+    const errors: string[] = [];
+    const seenModelIds = new Set<string>();
+    for (const entry of planModels) {
+        const modelId = typeof (entry as { model_id?: unknown })?.model_id === 'string'
+            ? (entry as { model_id: string }).model_id
+            : '';
+        if (!modelId) {
+            errors.push(`Subscription plan ${planId} has a model entry without model_id`);
+            continue;
+        }
+        if (!modelIds.has(modelId)) {
+            errors.push(`Subscription plan ${planId} references unknown model ${modelId}`);
+        }
+        if (seenModelIds.has(modelId)) {
+            errors.push(`Subscription plan ${planId} contains duplicate model ${modelId}`);
+        }
+        seenModelIds.add(modelId);
+    }
+    return errors;
+}
+
 function checkSubscriptionPlans(state: ValidationState): string[] {
     const errors: string[] = [];
     const plansDir = path.join(DATA_ROOT, 'subscription_plans');
@@ -1702,16 +1753,7 @@ function checkSubscriptionPlans(state: ValidationState): string[] {
             errors.push(`Subscription plan ${planId} missing organisation_id`);
         }
         const planModels = Array.isArray(data.models) ? data.models : [];
-        for (const entry of planModels) {
-            const modelId = typeof entry?.model_id === 'string' ? entry.model_id : '';
-            if (!modelId) {
-                errors.push(`Subscription plan ${planId} has a model entry without model_id`);
-                continue;
-            }
-            if (!state.modelIds.has(modelId)) {
-                errors.push(`Subscription plan ${planId} references unknown model ${modelId}`);
-            }
-        }
+        errors.push(...checkSubscriptionPlanModels(planId, planModels, state.modelIds));
     }
     return errors;
 }

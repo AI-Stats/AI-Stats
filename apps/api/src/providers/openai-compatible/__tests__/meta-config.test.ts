@@ -93,6 +93,17 @@ describe("Meta OpenAI-compatible config", () => {
 
 		teardownTestRuntime();
 		setupRuntimeFromEnv({
+			MODEL_API_KEY: "test-official-meta-key",
+			META_MODEL_API_KEY: "test-legacy-meta-key",
+		} as any);
+
+		expect(resolveOpenAICompatKey({
+			providerId: "meta",
+			byokMeta: [],
+		} as any).key).toBe("test-official-meta-key");
+
+		teardownTestRuntime();
+		setupRuntimeFromEnv({
 			LLAMA_API_KEY: "test-llama-key",
 		} as any);
 

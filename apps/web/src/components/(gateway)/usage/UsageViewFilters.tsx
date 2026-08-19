@@ -66,7 +66,7 @@ const SOURCE_LANGUAGE_LABELS = {
 	csharp: "C#", cpp: "C++", php: "PHP", ruby: "Ruby", rust: "Rust",
 } as const;
 const SUPPORTED_CLIENT_SOURCES: ReadonlyArray<FilterOption> = [
-	{ value: "api", label: "Direct API", group: "API clients" },
+	{ value: "api", label: "Direct HTTP", group: "HTTP clients" },
 	{ value: "codex", label: "Codex", logoId: "codex", group: "Coding agents" },
 	{ value: "claude-code", label: "Claude Code", logoId: "claudecode", group: "Coding agents" },
 	...(["typescript", "python", "go", "java", "csharp", "cpp", "php", "ruby", "rust"] as const).map((language) => ({ value: `phaseo-${language}`, label: `Phaseo ${SOURCE_LANGUAGE_LABELS[language]} SDK`, logoId: "phaseo", group: "Phaseo SDKs" })),

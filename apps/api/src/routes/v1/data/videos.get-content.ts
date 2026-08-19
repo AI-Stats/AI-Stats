@@ -720,6 +720,18 @@ export async function getVideoContentHandler(req: Request): Promise<Response> {
 			});
 		}
 		const json = await statusRes.clone().json().catch(() => null);
+		const minimaxStatusCode = Number(json?.base_resp?.status_code ?? 0);
+		if (Number.isFinite(minimaxStatusCode) && minimaxStatusCode !== 0) {
+			return err("upstream_error", {
+				reason: "minimax_api_error",
+				request_id: authValue.requestId,
+				workspace_id: authValue.workspaceId,
+				upstream_error: {
+					code: minimaxStatusCode,
+					message: String(json?.base_resp?.status_msg ?? "MiniMax task query failed."),
+				},
+			});
+		}
 		const status = mapMiniMaxVideoStatus(json?.status ?? json?.task_status ?? json?.data?.status);
 		const providerId = videoMeta?.provider ?? MINIMAX_PROVIDER_ID;
 		const model = String(json?.model ?? json?.data?.model ?? videoMeta?.model ?? "").trim();
@@ -777,6 +789,18 @@ export async function getVideoContentHandler(req: Request): Promise<Response> {
 					});
 				}
 				const fileJson = await fileRes.clone().json().catch(() => null);
+				const minimaxFileStatusCode = Number(fileJson?.base_resp?.status_code ?? 0);
+				if (Number.isFinite(minimaxFileStatusCode) && minimaxFileStatusCode !== 0) {
+					return err("upstream_error", {
+						reason: "minimax_api_error",
+						request_id: authValue.requestId,
+						workspace_id: authValue.workspaceId,
+						upstream_error: {
+							code: minimaxFileStatusCode,
+							message: String(fileJson?.base_resp?.status_msg ?? "MiniMax file retrieval failed."),
+						},
+					});
+				}
 				uri =
 					fileJson?.file?.download_url ??
 					fileJson?.download_url ??
@@ -1177,4 +1201,3 @@ export async function getVideoContentHandler(req: Request): Promise<Response> {
 		filename: contentFilename,
 	});
 }
-

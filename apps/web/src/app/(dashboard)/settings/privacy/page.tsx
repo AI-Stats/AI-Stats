@@ -13,8 +13,8 @@ export default function PrivacySettingsPage() {
 	return (
 		<div className="space-y-6">
 			<SettingsPageHeader
-				title="Data Controls"
-				description="Set the minimum data-handling and route-access policy for this workspace."
+				title="Privacy"
+				description="Set data handling, log storage, and route access for every request in this workspace."
 			/>
 			<Suspense fallback={<SettingsSectionFallback />}>
 				<PrivacySettingsContent />
@@ -42,7 +42,6 @@ async function PrivacySettingsContent() {
 			models={initialData.models}
 			scope="workspace"
 			workspaceId={initialData.workspaceId}
-			inheritedAccountPolicy={initialData.accountPolicy}
 			workspaceLogStorage={{
 				enabled: initialData.initialGlobal?.io_logging_enabled === true,
 				retentionDays: Math.max(90, Math.min(365, Number(initialData.initialGlobal?.io_logging_retention_days ?? 90))),
