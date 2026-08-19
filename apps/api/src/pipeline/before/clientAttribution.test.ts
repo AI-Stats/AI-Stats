@@ -65,6 +65,18 @@ describe("detectClientAttribution", () => {
 		});
 	});
 
+	it.each(Object.entries(DECLARED_CLIENTS))(
+		"classifies declared source %s with its canonical tuple",
+		(id, source) => {
+			expect(detectClientAttribution(new Headers({ "x-phaseo-client": id }))).toMatchObject({
+				id,
+				name: source.name,
+				kind: source.kind,
+				detection: "declared",
+			});
+		},
+	);
+
 	it("does not treat App attribution as a client source", () => {
 		expect(detectClientAttribution(new Headers({ "x-phaseo-client": "phaseo-chat" }))).toEqual({
 			id: "api",
