@@ -1,7 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { memo, useState, type CSSProperties, type MouseEvent } from "react";
+import {
+	memo,
+	useEffect,
+	useRef,
+	useState,
+	type CSSProperties,
+	type MouseEvent,
+	type ReactNode,
+} from "react";
 import {
 	ArrowUpRight,
 	ArrowUpDown,
@@ -446,6 +454,69 @@ function formatPrimaryDate(model: ModelCardLike): string {
 	return PRIMARY_DATE_FORMATTER.format(parsed);
 }
 
+function ModelCardScrollRail({
+	ariaLabel,
+	children,
+	className,
+}: {
+	ariaLabel: string;
+	children: ReactNode;
+	className?: string;
+}) {
+	const viewportRef = useRef<HTMLDivElement>(null);
+	const [canScrollRight, setCanScrollRight] = useState(false);
+
+	useEffect(() => {
+		const viewport = viewportRef.current;
+		if (!viewport) return;
+
+		const updateScrollAffordance = () => {
+			setCanScrollRight(
+				viewport.scrollLeft + viewport.clientWidth < viewport.scrollWidth - 1,
+			);
+		};
+
+		updateScrollAffordance();
+		viewport.addEventListener("scroll", updateScrollAffordance, { passive: true });
+		const resizeObserver = new ResizeObserver(updateScrollAffordance);
+		resizeObserver.observe(viewport);
+		if (viewport.firstElementChild) {
+			resizeObserver.observe(viewport.firstElementChild);
+		}
+
+		return () => {
+			viewport.removeEventListener("scroll", updateScrollAffordance);
+			resizeObserver.disconnect();
+		};
+	}, []);
+
+	return (
+		<ScrollArea
+			aria-label={ariaLabel}
+			className={cn(
+				"min-w-0 max-w-full transition-[mask-image] duration-200",
+				className,
+			)}
+			scrollBarClassName="hidden"
+			scrollBarOrientation="horizontal"
+			style={
+				canScrollRight
+					? {
+							WebkitMaskImage:
+								"linear-gradient(to right, black calc(100% - 2rem), transparent)",
+							maskImage:
+								"linear-gradient(to right, black calc(100% - 2rem), transparent)",
+						}
+					: undefined
+			}
+			viewportRef={viewportRef}
+			viewportClassName="[scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+		>
+			{children}
+		</ScrollArea>
+	);
+}
+
 function ModelCardImpl({
 	model,
 	showOrganisationPrefix = false,
@@ -855,11 +926,9 @@ function ModelCardImpl({
 		const unique = sortModalitiesForDisplay(Array.from(
 			new Set(values.map((value) => String(value ?? "").trim()).filter(Boolean)),
 		));
-		const visible = unique.slice(0, 4);
-		const hiddenCount = unique.length - visible.length;
 		return {
-			visible,
-			hiddenCount,
+			visible: unique,
+			hiddenCount: 0,
 		};
 	};
 	const inputModalityDisplay = formatModalities(inputModalities);
@@ -996,7 +1065,8 @@ function ModelCardImpl({
 				</div>
 
 				<div className="grid gap-2 text-xs md:grid-cols-3">
-					<div className="flex flex-wrap items-center gap-1.5 text-[11px] md:col-span-3">
+					<ModelCardScrollRail ariaLabel="Model summary" className="md:col-span-3">
+						<div className="flex w-max min-w-full items-center gap-1.5 pb-px text-[11px] [&>*]:shrink-0">
 						{providerStatusItems.length > 0 ? (
 							<HoverCard openDelay={120} closeDelay={100}>
 								<HoverCardTrigger asChild>
@@ -1086,7 +1156,7 @@ function ModelCardImpl({
 										<button
 											type="button"
 											data-no-row-nav="true"
-											className="inline-flex items-center gap-1 rounded-md border border-border/60 bg-muted/30 px-2 py-1 text-left transition-colors hover:bg-muted/45"
+											className="order-first inline-flex items-center gap-1 rounded-md border border-border/60 bg-muted/30 px-2 py-1 text-left transition-colors hover:bg-muted/45"
 										>
 											<span className="text-muted-foreground">{priceLabel}</span>
 											<span className="font-medium text-foreground">
@@ -1241,7 +1311,7 @@ function ModelCardImpl({
 									</HoverCardContent>
 								</HoverCard>
 							) : (
-								<div className="inline-flex items-center gap-1 rounded-md border border-border/60 bg-muted/30 px-2 py-1">
+								<div className="order-first inline-flex items-center gap-1 rounded-md border border-border/60 bg-muted/30 px-2 py-1">
 									<span className="text-muted-foreground">{priceLabel}</span>
 									<span className="font-medium text-foreground">{priceSummary}</span>
 								</div>
@@ -1263,14 +1333,16 @@ function ModelCardImpl({
 								</span>
 							</div>
 						) : null}
-					</div>
+						</div>
+					</ModelCardScrollRail>
 
-					<div className="space-y-1 md:col-span-3">
+					<div className="min-w-0 space-y-1 md:col-span-3">
 						<div className="flex items-center gap-2 min-w-0">
 							<span className="w-11 shrink-0 text-[11px] text-muted-foreground">
 								Input
 							</span>
-							<div className="min-w-0 flex flex-wrap gap-1">
+							<ModelCardScrollRail ariaLabel="Input modalities" className="flex-1">
+								<div className="flex w-max min-w-full items-center gap-1 pb-px [&>*]:shrink-0">
 								{inputModalityDisplay.visible.length > 0 ? (
 									<>
 										{inputModalityDisplay.visible.map((modality) => {
@@ -1298,13 +1370,15 @@ function ModelCardImpl({
 								) : (
 									<span className="text-[11px] text-muted-foreground">-</span>
 								)}
-							</div>
+								</div>
+							</ModelCardScrollRail>
 						</div>
 						<div className="flex items-center gap-2 min-w-0">
 							<span className="w-11 shrink-0 text-[11px] text-muted-foreground">
 								Output
 							</span>
-							<div className="min-w-0 flex flex-wrap gap-1">
+							<ModelCardScrollRail ariaLabel="Output modalities" className="flex-1">
+								<div className="flex w-max min-w-full items-center gap-1 pb-px [&>*]:shrink-0">
 								{outputModalityDisplay.visible.length > 0 ? (
 									<>
 										{outputModalityDisplay.visible.map((modality) => {
@@ -1332,7 +1406,8 @@ function ModelCardImpl({
 								) : (
 									<span className="text-[11px] text-muted-foreground">-</span>
 								)}
-							</div>
+								</div>
+							</ModelCardScrollRail>
 						</div>
 					</div>
 				</div>
