@@ -492,7 +492,6 @@ function ModelCardScrollRail({
 
 	return (
 		<ScrollArea
-			aria-label={ariaLabel}
 			className={cn(
 				"min-w-0 max-w-full transition-[mask-image] duration-200",
 				className,
@@ -510,6 +509,7 @@ function ModelCardScrollRail({
 					: undefined
 			}
 			viewportRef={viewportRef}
+			viewportProps={{ "aria-label": ariaLabel, role: "region" }}
 			viewportClassName="[scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
 		>
 			{children}
