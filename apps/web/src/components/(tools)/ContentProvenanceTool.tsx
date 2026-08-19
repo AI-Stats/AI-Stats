@@ -50,6 +50,7 @@ function resultLabel(type: string): string {
 export default function ContentProvenanceTool() {
 	const inputRef = useRef<HTMLInputElement>(null);
 	const previewUrlRef = useRef<string | null>(null);
+	const requestControllerRef = useRef<AbortController | null>(null);
 	const [file, setFile] = useState<File | null>(null);
 	const [result, setResult] = useState<ProvenanceResponse | null>(null);
 	const [error, setError] = useState<string | null>(null);
@@ -58,10 +59,14 @@ export default function ContentProvenanceTool() {
 	const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
 	useEffect(() => () => {
+		requestControllerRef.current?.abort();
 		if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
 	}, []);
 
 	const chooseFile = useCallback((nextFile?: File) => {
+		requestControllerRef.current?.abort();
+		requestControllerRef.current = null;
+		setChecking(false);
 		setResult(null);
 		setError(null);
 		if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
@@ -104,6 +109,8 @@ export default function ContentProvenanceTool() {
 
 	async function checkFile() {
 		if (!file || checking) return;
+		const controller = new AbortController();
+		requestControllerRef.current = controller;
 		setChecking(true);
 		setError(null);
 		setResult(null);
@@ -115,6 +122,7 @@ export default function ContentProvenanceTool() {
 				headers: { Accept: "application/json" },
 				body,
 				cache: "no-store",
+				signal: controller.signal,
 			});
 			const payload = await response.json().catch(() => null) as (ProvenanceResponse & { message?: string }) | null;
 			if (!response.ok) throw new Error(payload?.message || "Verification failed. Try again.");
@@ -123,9 +131,13 @@ export default function ContentProvenanceTool() {
 			}
 			setResult(payload);
 		} catch (caught) {
+			if (controller.signal.aborted) return;
 			setError(caught instanceof Error ? caught.message : "Verification failed. Try again.");
 		} finally {
-			setChecking(false);
+			if (requestControllerRef.current === controller) {
+				requestControllerRef.current = null;
+				setChecking(false);
+			}
 		}
 	}
 

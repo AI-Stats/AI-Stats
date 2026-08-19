@@ -20,6 +20,7 @@ function uploadRequest(file: File) {
 	body.append("file", file);
 	return new Request("https://phaseo.app/api/_web/tools/content-provenance", {
 		method: "POST",
+		headers: { "Content-Length": "1024" },
 		body,
 	});
 }
@@ -55,6 +56,17 @@ describe("POST /api/_web/tools/content-provenance", () => {
 		const fetchMock = vi.spyOn(globalThis, "fetch");
 		const response = await app.request(uploadRequest(new File(["hello"], "notes.txt", { type: "text/plain" })), undefined, env());
 		expect(response.status).toBe(415);
+		expect(fetchMock).not.toHaveBeenCalled();
+	});
+
+	it("rejects uploads without a valid bounded content length", async () => {
+		const fetchMock = vi.spyOn(globalThis, "fetch");
+		const response = await app.request(new Request(
+			"https://phaseo.app/api/_web/tools/content-provenance",
+			{ method: "POST", body: new FormData() },
+		), undefined, env());
+
+		expect(response.status).toBe(411);
 		expect(fetchMock).not.toHaveBeenCalled();
 	});
 

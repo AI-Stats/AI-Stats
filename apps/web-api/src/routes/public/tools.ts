@@ -55,8 +55,12 @@ function isProvenanceResponse(value: unknown): value is ProvenanceResponse {
 export const publicToolsRouter = new Hono<{ Bindings: Env }>();
 
 publicToolsRouter.post("/tools/content-provenance", async (c) => {
-	const contentLength = Number(c.req.header("content-length") ?? 0);
-	if (Number.isFinite(contentLength) && contentLength > MAX_MULTIPART_BYTES) {
+	const contentLengthHeader = c.req.header("content-length");
+	const contentLength = Number(contentLengthHeader);
+	if (!contentLengthHeader || !Number.isSafeInteger(contentLength) || contentLength <= 0) {
+		return c.json({ error: "invalid_upload_length", message: "Upload a valid image or audio file." }, 411, noStoreHeaders());
+	}
+	if (contentLength > MAX_MULTIPART_BYTES) {
 		return c.json({ error: "file_too_large", message: "Choose a file no larger than 20 MB." }, 413, noStoreHeaders());
 	}
 
