@@ -62,7 +62,7 @@ export type RequestMeta = {
     clientSource?: {
         id: string;
         name: string;
-        kind: "sdk" | "agent_sdk" | "coding_agent" | "http_client" | "app" | "api" | "unknown";
+        kind: "sdk" | "agent_sdk" | "coding_agent" | "http_client" | "api" | "unknown";
         version: string | null;
         detection: "declared" | "user_agent" | "unknown";
     };

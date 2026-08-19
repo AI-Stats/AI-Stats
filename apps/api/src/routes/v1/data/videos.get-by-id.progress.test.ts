@@ -71,7 +71,7 @@ vi.mock("./videos.helpers", async () => {
 			new Response(JSON.stringify({
 				id: "video-native-progress",
 				model: "openai/sora-2",
-				status: "processing",
+		status: "in_progress",
 				progress: 42,
 			}), {
 				status: 200,
@@ -101,7 +101,7 @@ describe("getVideoByIdHandler progress polling", () => {
 		const body = await response.json();
 		expect(body).toMatchObject({
 			id: "video_progress",
-			status: "processing",
+			status: "in_progress",
 			progress: 42,
 			progress_source: "provider",
 		});

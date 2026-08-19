@@ -45,8 +45,11 @@ export function decodeOpenAIRerankRequest(req: RerankRequest): IRRerankRequest {
 		topN: req.top_n,
 		returnDocuments: req.return_documents,
 		maxChunksPerDoc: req.max_chunks_per_doc,
+		maxTokensPerDoc: req.max_tokens_per_doc,
+		priority: req.priority,
 		rankFields: req.rank_fields,
 		userId: req.user,
+		serviceTier: req.service_tier,
 		metadata: req.metadata,
 		vendor: req.provider_options
 			? { provider_options: req.provider_options }
@@ -65,16 +68,18 @@ export function decodeOpenAIRerankResponse(
 		normalizeResult(entry, index),
 	);
 	const usageRaw = payload?.usage;
+	const searchUnits = toNumber(payload?.meta?.billed_units?.search_units);
 	return {
 		id: payload?.id ?? undefined,
 		nativeId: payload?.id ?? payload?.nativeResponseId ?? undefined,
 		model: payload?.model ?? modelFallback,
 		results,
-		usage: usageRaw
+		usage: usageRaw || searchUnits !== undefined
 			? {
 				inputTokens: toNumber(usageRaw?.input_tokens ?? usageRaw?.prompt_tokens ?? usageRaw?.text_tokens),
 				outputTokens: toNumber(usageRaw?.output_tokens ?? usageRaw?.completion_tokens),
 				totalTokens: toNumber(usageRaw?.total_tokens),
+				searchUnits,
 			}
 			: undefined,
 	};

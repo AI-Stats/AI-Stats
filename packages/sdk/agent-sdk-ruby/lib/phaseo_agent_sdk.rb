@@ -79,7 +79,9 @@ module PhaseoAgentSdk
       api_key ||= ENV["PHASEO_API_KEY"]
       @client = client || PhaseoSdk::Phaseo.new(
         api_key: api_key,
-        base_path: base_url || ENV.fetch("PHASEO_BASE_URL", "https://api.phaseo.app/v1")
+        base_path: base_url || ENV.fetch("PHASEO_BASE_URL", "https://api.phaseo.app/v1"),
+        client_source: "phaseo-agent-ruby",
+        client_source_version: "0.2.0"
       )
       @model = model
       @preset = preset

@@ -5,7 +5,6 @@ import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const specs = [
-  { id: "openai", capability: "rerank", method: "post", path: "/rerank" },
   { id: "alibaba-cloud", capability: "video.generate", method: "post", path: "/api/v1/services/aigc/video-generation/video-synthesis" },
   { id: "atlascloud", capability: "video.generate", method: "post", path: "/api/v1/model/generateVideo" },
   { id: "byteplus", capability: "video.generate", method: "post", path: "/api/v3/contents/generations/tasks" },

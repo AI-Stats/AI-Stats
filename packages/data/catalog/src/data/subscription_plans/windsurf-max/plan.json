@@ -33,12 +33,6 @@
       "other_info": null
     },
     {
-      "model_id": "windsurf/swe-1.6-fast",
-      "model_info": "Fast Windsurf native agent model",
-      "rate_limit": "Higher included quota",
-      "other_info": null
-    },
-    {
       "model_id": "windsurf/swe-1.5",
       "model_info": "Windsurf native agent model",
       "rate_limit": "Higher included quota",

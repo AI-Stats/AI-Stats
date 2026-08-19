@@ -488,7 +488,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	const bindings = getBindings() as unknown as Record<string, string | undefined>;
 	const keyInfo = resolveProviderKey(
 		{ providerId: args.providerId, byokMeta: args.byokMeta, forceGatewayKey: args.meta.forceGatewayKey },
-		() => bindings.ALIBABA_CLOUD_API_KEY,
+		() => bindings.ALIBABA_CLOUD_API_KEY || bindings.DASHSCOPE_API_KEY,
 	);
 	const baseUrl = (bindings.ALIBABA_BASE_URL || DEFAULT_BASE_URL).replace(/\/+$/, "");
 	let requestObject: Record<string, unknown>;

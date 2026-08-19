@@ -124,7 +124,7 @@
     "internal_model_id": "microsoft/phi-4-multimodal-instruct",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text",
+    "input_modalities": "text,image,audio",
     "output_modalities": "text",
     "context_length": 128000,
     "max_output_tokens": 16384,
@@ -139,7 +139,7 @@
         "tool_call": false,
         "structured_output": false,
         "temperature": null,
-        "attachment": false,
+        "attachment": true,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
@@ -163,16 +163,16 @@
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: microsoft/phi-4-multimodal-instruct"
+        "kind": "provider_docs",
+        "url": "https://build.nvidia.com/microsoft/phi-4-multimodal-instruct",
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Official NVIDIA model page documents text, image, and audio input with text output; the free hosted endpoint is deprecated."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Modalities and hosted endpoint deprecation verified against the official NVIDIA model page; routing remains disabled."
     },
     "rate_limits": []
   },
@@ -301,11 +301,11 @@
         "capability_id": "text.generate",
         "status": "active",
         "params": [],
-        "reasoning": null,
+        "reasoning": true,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
+        "attachment": true,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
@@ -323,11 +323,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_docs",
+        "url": "https://build.nvidia.com/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Official hosted NIM page documents text, image, audio, and video input, reasoning_budget, text output, and the shared Chat Completions endpoint."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Hosted endpoint, modalities, and reasoning controls verified against the official NVIDIA model page."
     },
     "rate_limits": []
   },

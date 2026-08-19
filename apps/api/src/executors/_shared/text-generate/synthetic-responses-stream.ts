@@ -23,7 +23,7 @@ export function createSyntheticResponsesStreamFromIR(
 				emit(controller, "response.created", {
 					response: {
 						id: nativeId,
-						created_at: finalResponse.created,
+						created_at: finalResponse.created_at,
 						model: finalResponse.model,
 						object: "response",
 						status: "in_progress",

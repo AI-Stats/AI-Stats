@@ -4195,7 +4195,7 @@ components:
             type: string
         supported_parameters:
           type: array
-          description: OpenRouter-compatible alias for params.
+          description: Compatibility alias for params.
           items:
             type: string
         params_detail:
@@ -6099,6 +6099,15 @@ components:
           description: >-
             Duration of the source video in seconds. Required when a provider
             bills source-video duration independently from generated output.
+        input_audio_duration:
+          type: number
+          format: double
+          minimum: 2
+          maximum: 20
+          description: >-
+            Declared source-audio duration in seconds, used for provider range
+            validation. Providers that do not report authoritative usage may
+            bill at their supported input-duration ceiling.
         size:
           type: string
           description: >-
@@ -6134,6 +6143,10 @@ components:
           type: string
         input_references:
           type: array
+          description: >-
+            HTTPS image, audio, or video inputs used to condition generation.
+            Supported types, roles, counts, and combinations depend on the
+            selected model. Check GET /videos/models before submitting a job.
           items:
             $ref: '#/components/schemas/VideoInputReference'
         provider_params:
@@ -6461,6 +6474,10 @@ components:
         error:
           nullable: true
     VideoInputReference:
+      description: >-
+        A typed HTTPS media input. Use image_url for images and media_url for
+        audio or video. Roles describe how the model should use the input;
+        provider and model support varies.
       oneOf:
         - type: object
           required:
@@ -6473,6 +6490,7 @@ components:
                 - image_url
             role:
               type: string
+              description: Intended use of this image by the selected model.
               enum:
                 - first_frame
                 - last_frame
@@ -6489,6 +6507,7 @@ components:
                 url:
                   type: string
                   format: uri
+                  description: Publicly reachable HTTPS image URL.
         - type: object
           required:
             - type
@@ -6501,6 +6520,7 @@ components:
                 - audio_url
             role:
               type: string
+              description: Intended use of this audio or video by the selected model.
               enum:
                 - first_frame
                 - last_frame
@@ -6517,6 +6537,7 @@ components:
                 url:
                   type: string
                   format: uri
+                  description: Publicly reachable HTTPS audio or video URL.
     VideoOutputConfig:
       type: object
       properties:
@@ -6609,7 +6630,7 @@ components:
             type: string
         supported_parameters:
           type: array
-          description: OpenRouter-compatible alias for supported_params.
+          description: Compatibility alias for supported_params.
           items:
             type: string
         supported_params_detail:
@@ -6639,7 +6660,7 @@ components:
             type: string
         supported_parameters:
           type: array
-          description: OpenRouter-compatible alias for supported_params.
+          description: Compatibility alias for supported_params.
           items:
             type: string
         supported_params_detail:
@@ -6674,7 +6695,7 @@ components:
             type: string
         supported_parameters:
           type: array
-          description: OpenRouter-compatible alias for supported_params.
+          description: Compatibility alias for supported_params.
           items:
             type: string
         supported_params_detail:
@@ -6704,7 +6725,7 @@ components:
             type: string
         supported_parameters:
           type: array
-          description: OpenRouter-compatible alias for supported_params.
+          description: Compatibility alias for supported_params.
           items:
             type: string
         supported_params_detail:
@@ -7378,6 +7399,7 @@ components:
         - amazon
         - anthropic
         - arcee-ai
+        - baai
         - baidu
         - black-forest-labs
         - bytedance
@@ -7395,6 +7417,7 @@ components:
         - inflection
         - kwaipilot
         - lg
+        - lightricks
         - liquid-ai
         - meituan
         - meta
@@ -7414,8 +7437,10 @@ components:
         - poolside
         - prime-intellect
         - qwen
+        - reka
         - relace
         - runway
+        - sakana
         - sourceful
         - spacex-ai
         - stepfun
@@ -9499,7 +9524,6 @@ components:
         - ai21/jamba-large-1.7
         - ai21/jamba-mini-2
         - aion-labs/aion-2.0
-        - aion-labs/aion-2.5
         - aion-labs/aion-3.0
         - aion-labs/aion-3.0-mini
         - aion-labs/aion-rp-llama-3.1-8b
@@ -9511,7 +9535,6 @@ components:
         - anthropic/claude-opus-4.5
         - anthropic/claude-opus-4.6
         - anthropic/claude-opus-4.7
-        - anthropic/claude-opus-4.7-fast
         - anthropic/claude-opus-4.8
         - anthropic/claude-opus-5
         - anthropic/claude-sonnet-4.5
@@ -9520,6 +9543,9 @@ components:
         - arcee-ai/trinity-large
         - arcee-ai/trinity-large-thinking
         - arcee-ai/trinity-mini
+        - baai/bge-m3
+        - baai/bge-multilingual-gemma2
+        - baai/bge-reranker-v2-m3
         - baidu/ernie-4.5-21b-a3b
         - baidu/ernie-4.5-21b-a3b-thinking
         - baidu/ernie-4.5-300b-a47b
@@ -9567,18 +9593,18 @@ components:
         - deepseek/deepseek-v4-flash
         - deepseek/deepseek-v4-flash-0731
         - deepseek/deepseek-v4-pro
-        - deepseek/deepseek-v4-pro-lightning
+        - deepseek/deepseek-v4-pro-0813
         - eleven-labs/eleven-flash-v2
         - eleven-labs/eleven-flash-v2.5
         - eleven-labs/eleven-multilingual-v2
         - eleven-labs/eleven-turbo-v2
         - eleven-labs/eleven-turbo-v2.5
         - eleven-labs/eleven-v3
+        - eleven-labs/music
+        - eleven-labs/scribe-v2
         - essential-ai/rnj-1
         - google/gemini-2.5-flash
         - google/gemini-2.5-flash-lite
-        - google/gemini-2.5-flash-lite-preview-2025-06-17
-        - google/gemini-2.5-flash-lite-preview-2025-09-25
         - google/gemini-2.5-pro
         - google/gemini-3-flash-preview
         - google/gemini-3-pro-image
@@ -9593,12 +9619,13 @@ components:
         - google/gemini-3.1-pro-preview-customtools
         - google/gemini-3.5-flash
         - google/gemini-3.5-flash-lite
-        - google/gemini-3.5-pro
         - google/gemini-3.6-flash
+        - google/gemini-3.7-flash
         - google/gemini-embedding-001
         - google/gemini-embedding-2
         - google/gemini-embedding-2-preview
         - google/gemini-robotics-er-1.6-preview
+        - google/gemini-robotics-er-2-preview
         - google/gemma-3-27b
         - google/gemma-3n-e4b
         - google/gemma-4-26b-a4b
@@ -9611,6 +9638,7 @@ components:
         - google/veo-2
         - google/veo-3.1-fast-preview
         - google/veo-3.1-lite-generate-preview
+        - google/veo-3.1-lite-preview
         - google/veo-3.1-preview
         - ibm/granite-4.1-8b
         - inception/mercury-2
@@ -9629,6 +9657,10 @@ components:
         - kwaipilot/kat-coder-pro-v2
         - kwaipilot/kat-coder-pro-v2.5
         - liquid-ai/lfm-2-24b-a2b
+        - ltx-2-3-fast
+        - ltx-2-3-pro
+        - ltx-2-5-fast
+        - ltx-2-5-pro
         - meituan/longcat-2.0
         - meta/llama-3-70b
         - meta/llama-3-8b
@@ -9676,8 +9708,6 @@ components:
         - mistral/mistral-large-3
         - mistral/mistral-medium-3.0
         - mistral/mistral-medium-3.1
-        - mistral/mistral-medium-3.5
-        - mistral/mistral-moderation
         - mistral/mistral-moderation-2
         - mistral/mistral-nemo
         - mistral/mistral-nemo-12b
@@ -9686,17 +9716,19 @@ components:
         - mistral/mistral-small-3.2
         - mistral/mistral-small-4
         - mistral/mixtral-8x7b
+        - mistral/ocr-4.1
         - mistral/pixtral-large
+        - mistral/voxtral-mini-transcribe-2
         - moonshotai/kimi-k2
         - moonshotai/kimi-k2-0905
         - moonshotai/kimi-k2-instruct
         - moonshotai/kimi-k2-instruct-0905
         - moonshotai/kimi-k2-thinking
         - moonshotai/kimi-k2.5
-        - moonshotai/kimi-k2.5-lightning
         - moonshotai/kimi-k2.6
         - moonshotai/kimi-k2.7-code
         - moonshotai/kimi-k3
+        - moonshotai/kimi-k3-fast
         - moonshotai/moonshot-v1-128k
         - moonshotai/moonshot-v1-128k-vision-preview
         - moonshotai/moonshot-v1-32k
@@ -9716,6 +9748,7 @@ components:
         - nvidia/llama-3.1-nemotron-ultra-253b
         - nvidia/llama-3.3-nemotron-super-49b-v1.5
         - nvidia/nemotron-3-nano-30b-a3b
+        - nvidia/nemotron-3-nano-omni
         - nvidia/nemotron-3-nano-omni-30b-a3b-reasoning
         - nvidia/nemotron-3-super-120b-a12b
         - nvidia/nemotron-3-ultra-550b-a55b
@@ -9788,6 +9821,10 @@ components:
         - openai/text-embedding-3-small
         - openai/text-embedding-ada-002
         - openai/whisper-1
+        - openai/whisper-large-v3
+        - openai/whisper-large-v3-turbo
+        - perplexity/pplx-embed-v1-0.6b
+        - perplexity/pplx-embed-v1-4b
         - phaseo/free
         - poolside/laguna-m.1:free
         - poolside/laguna-s-2.1:free
@@ -9848,6 +9885,8 @@ components:
         - qwen/qwen3-coder-plus-2025-07-22
         - qwen/qwen3-coder-plus-2025-09-23
         - qwen/qwen3-embedding-8b
+        - qwen/qwen3-guard-gen-0.6b
+        - qwen/qwen3-guard-gen-8b
         - qwen/qwen3-max
         - qwen/qwen3-max-2025-09-23
         - qwen/qwen3-max-2026-01-23
@@ -9859,6 +9898,7 @@ components:
         - qwen/qwen3-next-80b-a3b-thinking
         - qwen/qwen3-omni-30b-a3b-thinking
         - qwen/qwen3-reranker
+        - qwen/qwen3-reranker-8b
         - qwen/qwen3-vl-235b-a22b
         - qwen/qwen3-vl-235b-a22b-instruct
         - qwen/qwen3-vl-235b-a22b-thinking
@@ -9897,14 +9937,24 @@ components:
         - qwen/text-embedding-v3
         - qwen/text-embedding-v4
         - qwen/wan2.7-t2v
+        - reka-edge
+        - reka-edge-2603
+        - reka-flash
+        - reka-flash-research
+        - relace/relace-search
+        - sakana/fugu-ultra
+        - sakana/namazu
         - spacex-ai/grok-4.20-beta-0309
         - spacex-ai/grok-4.20-multi-agent-beta-0309
         - spacex-ai/grok-4.3
         - spacex-ai/grok-4.5
+        - spacex-ai/grok-4.6
         - spacex-ai/grok-build-0.1
         - spacex-ai/grok-code-fast-1
         - spacex-ai/grok-imagine-image
+        - spacex-ai/grok-imagine-image-2.0
         - spacex-ai/grok-imagine-image-quality
+        - spacex-ai/grok-transcribe
         - spacex-ai/grok-tts
         - stepfun/step-3.5-flash
         - stepfun/step-3.7-flash
@@ -9913,7 +9963,6 @@ components:
         - tencent/hy3-preview
         - tencent/hy3:free
         - thinking-machines/inkling
-        - thinking-machines/inkling-64k
         - thinking-machines/inkling-small
         - upstage/solar-mini
         - upstage/solar-pro-2
@@ -9970,6 +10019,7 @@ components:
         - z-ai/glm-5-turbo
         - z-ai/glm-5.1
         - z-ai/glm-5.2
+        - z-ai/glm-5.3
         - z-ai/glm-5v-turbo
         - zai-org/glm-4.5-air
         - zai/glm-5

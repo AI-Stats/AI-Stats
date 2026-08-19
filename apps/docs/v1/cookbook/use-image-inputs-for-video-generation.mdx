@@ -67,6 +67,12 @@ Before shipping:
 
 This avoids building against a prompt-only model and discovering the mismatch after paid requests start failing.
 
+Support differs by model. For example, Veo 3.1 supports first and last frames,
+reference images, and video extension on its full routes; Veo Lite supports the
+simpler first-frame flow. Seedance 2.x and Grok Imagine Video expose broader
+reference workflows on their supported provider routes. Treat the catalogue
+returned by `GET /v1/videos/models` as the current source of truth.
+
 ## 5. Add provider-specific overrides only if needed
 
 If one provider needs extra video options, add them through `provider_params` instead of rewriting the whole request around one provider.
@@ -75,4 +81,5 @@ If one provider needs extra video options, add them through `provider_params` in
 
 - [Choose a video generation model](./choose-a-video-generation-model.mdx)
 - [Send provider-specific video options](./send-provider-specific-video-options.mdx)
+- [Generate video from audio](./generate-video-from-audio.mdx)
 - [API Reference: Video generation](../api-reference/endpoint/video-generation.mdx)

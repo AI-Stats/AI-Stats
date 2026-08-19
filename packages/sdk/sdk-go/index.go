@@ -115,6 +115,17 @@ func WithLogger(logger PhaseoLogger) Option {
 	}
 }
 
+func WithClientSource(source string, version string) Option {
+	return func(c *Phaseo) {
+		if normalized := strings.TrimSpace(source); normalized != "" {
+			c.raw.Headers["X-Phaseo-Client"] = normalized
+		}
+		if normalized := strings.TrimSpace(version); normalized != "" {
+			c.raw.Headers["X-Phaseo-Client-Version"] = normalized
+		}
+	}
+}
+
 // WithLifecycleResolver can override lifecycle lookup (useful for testing).
 func WithLifecycleResolver(
 	resolver func(ctx context.Context, modelID string) (*ModelLifecycleInfo, error),
@@ -131,6 +142,8 @@ func New(apiKey string, baseURL string, opts ...Option) *Phaseo {
 	}
 	raw := gen.NewClient(baseURL)
 	raw.Headers["Authorization"] = "Bearer " + apiKey
+	raw.Headers["X-Phaseo-Client"] = "phaseo-go"
+	raw.Headers["X-Phaseo-Client-Version"] = goSDKVersion
 	client := &Phaseo{
 		raw:                       raw,
 		enableDeprecationWarnings: true,

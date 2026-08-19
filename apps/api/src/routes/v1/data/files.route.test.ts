@@ -59,7 +59,9 @@ vi.mock("@/runtime/env", () => ({
 	getBindings: () => ({
 		OPENAI_API_KEY: "test-openai-key",
 		OPENAI_BASE_URL: "https://api.openai.example/v1",
-		BATCH_API_PREVIEW_PROVIDERS: "openai,anthropic,google-ai-studio,mistral,x-ai,groq,together",
+		MOONSHOT_API_KEY: "test-moonshot-key",
+		MOONSHOT_AI_BASE_URL: "https://api.moonshot.example",
+		BATCH_API_PREVIEW_PROVIDERS: "openai,anthropic,google-ai-studio,mistral,moonshotai,x-ai,groq,together",
 	}),
 	getSupabaseAdmin: () => ({
 		rpc: vi.fn(async (name: string) => {
@@ -136,6 +138,20 @@ describe("filesRoutes", () => {
 			},
 		});
 		await expect(readRequestBodyWithLimit(stream, 5)).rejects.toThrow("batch_file_too_large");
+	});
+
+	it("enforces Kimi's 100 MB per-file limit before provider upload", async () => {
+		const fetchMock = vi.fn();
+		vi.stubGlobal("fetch", fetchMock);
+		const { filesRoutes } = await import("./files");
+		const response = await filesRoutes.request("https://example.com/?provider=moonshotai", {
+			method: "POST",
+			headers: { "content-length": String(100 * 1024 * 1024 + 1) },
+			body: "{}",
+		});
+		expect(response.status).toBe(413);
+		await expect(response.json()).resolves.toMatchObject({ error: { reason: "batch_file_too_large" } });
+		expect(fetchMock).not.toHaveBeenCalled();
 	});
 
 	it("falls back to a scoped update when upload-claim finalization RPC fails", async () => {

@@ -150,9 +150,9 @@ export function DataContributionSettingsCard({ initial }: { initial: DataContrib
 					<div className="divide-y rounded-lg border">
 						{initial.classifiers.map((classifier) => (
 							<div key={classifier.id} className="flex items-start justify-between gap-4 p-3">
-								<div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><span className="text-sm font-medium">{classifier.name}</span><Badge variant="outline">{classifier.kind === "openrouter_task" ? "Starter" : "Custom"}</Badge><Badge variant="secondary">{classifier.service_tier}</Badge></div><p className="mt-1 text-xs text-muted-foreground">{Object.values(classifier.categories).flat().length} labels · {classifier.model}</p></div>
+								<div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><span className="text-sm font-medium">{classifier.name}</span><Badge variant="outline">{classifier.kind === "phaseo_task" ? "Starter" : "Custom"}</Badge><Badge variant="secondary">{classifier.service_tier}</Badge></div><p className="mt-1 text-xs text-muted-foreground">{Object.values(classifier.categories).flat().length} labels · {classifier.model}</p></div>
 								<div className="flex items-center gap-2">
-									<Switch checked={classifier.enabled} disabled={pending || classifier.kind === "openrouter_task"} onCheckedChange={(next) => startTransition(async () => { await setDataContributionClassifierEnabled(classifier.id, next); router.refresh(); })} />
+									<Switch checked={classifier.enabled} disabled={pending || classifier.kind === "phaseo_task"} onCheckedChange={(next) => startTransition(async () => { await setDataContributionClassifierEnabled(classifier.id, next); router.refresh(); })} />
 									{classifier.kind === "custom" ? <Button size="icon" variant="ghost" disabled={pending} aria-label={`Delete ${classifier.name}`} onClick={() => startTransition(async () => { await deleteDataContributionClassifier(classifier.id); toast.success("Classifier deleted"); router.refresh(); })}><Trash2 className="size-4" /></Button> : null}
 								</div>
 							</div>
