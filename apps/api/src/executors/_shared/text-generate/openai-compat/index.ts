@@ -69,6 +69,7 @@ export type OpenAIWirePolicy = {
 	useClientStreamingMode?: boolean;
 	transientRetries?: 0 | 1;
 	urlProviderId?: string;
+	emptyDoneBehavior?: "length";
 };
 
 export async function executeOpenAIWire(
@@ -326,6 +327,7 @@ export async function executeOpenAIWire(
 			args,
 			route,
 			selectedDispatchAtMs,
+			policy.emptyDoneBehavior,
 		);
 		if (ir) {
 			(ir as any).rawResponse = rawResponse;
@@ -819,6 +821,7 @@ export async function bufferStreamToIR(
 	args: ExecutorExecuteArgs,
 	route: "responses" | "chat",
 	upstreamStartMs: number,
+	emptyDoneBehavior?: "length",
 ): Promise<{ ir: IRChatResponse; usage: any; rawResponse: any; firstByteMs: number | null; totalMs: number }> {
 	if (!res.body) {
 		throw new Error("openai_stream_missing_body");
@@ -828,6 +831,7 @@ export async function bufferStreamToIR(
 	const decoder = new TextDecoder();
 	let buf = "";
 	let finalResponse: any = null;
+	let sawDone = false;
 	const applyStreamPayload = (payload: any) => {
 		// Responses API sends response in payload.response
 		if (route === "responses" && payload?.response) {
@@ -849,7 +853,7 @@ export async function bufferStreamToIR(
 		const { value, done } = await reader.read();
 		if (done) break;
 		buf += decoder.decode(value, { stream: true });
-		const frames = buf.split(/\n\n/);
+		const frames = buf.split(/\r?\n\r?\n/);
 		buf = frames.pop() ?? "";
 
 		for (const raw of frames) {
@@ -863,7 +867,11 @@ export async function bufferStreamToIR(
 				}
 			}
 
-			if (!data || data === "[DONE]") continue;
+			if (!data) continue;
+			if (data === "[DONE]") {
+				sawDone = true;
+				continue;
+			}
 
 			let payload: any;
 			try {
@@ -897,7 +905,9 @@ export async function bufferStreamToIR(
 			}
 		}
 
-		if (data && data !== "[DONE]") {
+		if (data === "[DONE]") {
+			sawDone = true;
+		} else if (data) {
 			try {
 				const payload = JSON.parse(data);
 				applyStreamPayload(payload);
@@ -921,6 +931,22 @@ export async function bufferStreamToIR(
 			} catch {
 				// Keep existing error path below.
 			}
+		}
+	}
+
+	if (!finalResponse) {
+		if (route === "chat" && sawDone && emptyDoneBehavior === "length") {
+			finalResponse = {
+				id: args.requestId,
+				object: "chat.completion",
+				created: Math.floor(Date.now() / 1000),
+				model: args.providerModelSlug ?? args.ir.model,
+				choices: [{
+					index: 0,
+					message: { role: "assistant", content: "" },
+					finish_reason: "length",
+				}],
+			};
 		}
 	}
 

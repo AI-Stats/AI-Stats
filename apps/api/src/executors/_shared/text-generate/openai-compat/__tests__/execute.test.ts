@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import type { ExecutorExecuteArgs } from "@executors/types";
 import { executeOpenAIWire } from "../index";
+import { execute as executeNovita } from "@executors/novitaai/text-generate";
 import { installFetchMock, jsonResponse } from "../../../../../../tests/helpers/mock-fetch";
 import { sseResponse } from "../../../../../../tests/helpers/sse";
 import { setupRuntimeFromEnv, setupTestRuntime, teardownTestRuntime } from "../../../../../../tests/helpers/runtime";
@@ -136,6 +137,36 @@ describe("executeOpenAIWire", () => {
 		expect(mock.calls).toHaveLength(1);
 		expect(mock.calls[0]?.url).toBe(ALIBABA_CHAT_URL);
 		expect(capturedBody?.stream).toBe(true);
+	});
+
+	it("keeps Novita upstream streaming and accepts clean empty completion streams", async () => {
+		const args = buildArgs();
+		args.providerId = "novita";
+		args.providerModelSlug = "mindai/macaron-v1-tall";
+		args.ir = {
+			...args.ir,
+			model: "mindai/macaron-v1-tall",
+			stream: false,
+		};
+
+		let capturedBody: any = null;
+		const mock = installFetchMock([{
+			match: (url) => url === "https://api.novita.example/openai/v1/chat/completions",
+			response: sseResponse(["[DONE]"]),
+			onRequest: (call) => {
+				capturedBody = call.bodyJson;
+			},
+		}]);
+
+		const result = await executeNovita(args);
+		mock.restore();
+
+		expect(result.kind).toBe("completed");
+		expect(result.upstream.status).toBe(200);
+		expect(capturedBody?.stream).toBe(true);
+		expect(capturedBody?.stream_options?.include_usage).toBe(true);
+		if (result.kind !== "completed") throw new Error("Expected completed result");
+		expect(result.ir?.choices[0]?.finishReason).toBe("length");
 	});
 
 	it("reports Meta native web search usage as billable web search requests", async () => {
