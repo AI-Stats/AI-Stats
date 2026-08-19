@@ -12,8 +12,12 @@ import {
 } from "./chat-playground-core";
 
 describe("Phaseo Chat attribution", () => {
-	it("sends the declared Chat client source through the web proxy", () => {
-		expect(APP_HEADERS["x-phaseo-client"]).toBe("phaseo-chat");
+	it("sends App attribution without declaring a client source", () => {
+		expect(APP_HEADERS).toMatchObject({
+			"x-app-id": "phaseo-chat",
+			"x-app-name": "Phaseo Chat",
+		});
+		expect(APP_HEADERS).not.toHaveProperty("x-phaseo-client");
 	});
 });
 

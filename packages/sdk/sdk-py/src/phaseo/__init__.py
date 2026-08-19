@@ -341,6 +341,8 @@ class Phaseo:
         warnings_as_errors: bool = False,
         logger: Optional[PhaseoLogger] = None,
         app: Optional[dict[str, str]] = None,
+        client_source: Optional[str] = None,
+        client_source_version: Optional[str] = None,
     ):
         api_key = api_key or os.getenv("PHASEO_API_KEY")
         if not api_key:
@@ -351,8 +353,8 @@ class Phaseo:
         self._headers = {
             "Authorization": f"Bearer {api_key}",
             "User-Agent": DEFAULT_USER_AGENT,
-            "X-Phaseo-Client": "phaseo-python",
-            "X-Phaseo-Client-Version": "2.0.7",
+            "X-Phaseo-Client": client_source or "phaseo-python",
+            "X-Phaseo-Client-Version": client_source_version or "2.0.7",
         }
         if app:
             app_headers = {

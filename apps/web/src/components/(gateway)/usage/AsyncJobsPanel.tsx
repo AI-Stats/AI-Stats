@@ -754,7 +754,7 @@ function AsyncJobDetailDialog({
 										},
 									{
 										label: "Source",
-										value: job.client_source_name ?? job.client_source_id ?? "Direct API",
+										value: job.client_source_name ?? job.client_source_id ?? "Direct HTTP",
 									},
 									{
 										label: "App",

@@ -6,12 +6,12 @@ import {
 } from "@/chat/proxy";
 
 describe("Phaseo Chat attribution", () => {
-	it("declares Phaseo Chat as the canonical gateway client source", () => {
+	it("declares Phaseo Chat only as App attribution", () => {
 		expect(CANONICAL_CHAT_APP_HEADERS).toMatchObject({
-			"x-phaseo-client": "phaseo-chat",
 			"x-app-id": "phaseo-chat",
 			"x-app-name": "Phaseo Chat",
 		});
+		expect(CANONICAL_CHAT_APP_HEADERS).not.toHaveProperty("x-phaseo-client");
 	});
 });
 

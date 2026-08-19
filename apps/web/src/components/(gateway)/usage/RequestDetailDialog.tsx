@@ -1462,7 +1462,7 @@ export default function RequestDetailDialog({
 			value: (
 				<span className="inline-flex items-center justify-end gap-2">
 					<ClientSourceIcon kind={request.client_source_kind ?? "api"} />
-					{request.client_source_name ?? request.client_source_id ?? "Direct API"}
+					{request.client_source_name ?? request.client_source_id ?? "Direct HTTP"}
 				</span>
 			),
 		},

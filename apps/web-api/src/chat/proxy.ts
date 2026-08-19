@@ -19,10 +19,8 @@ const ALLOWED_APP_HEADERS = new Set([
 	"http-referer",
 	"x-app-id",
 	"x-app-name",
-	"x-phaseo-client",
 ]);
 export const CANONICAL_CHAT_APP_HEADERS = {
-	"x-phaseo-client": "phaseo-chat",
 	"x-app-id": "phaseo-chat",
 	"x-app-name": "Phaseo Chat",
 	"x-title": "Phaseo Chat",

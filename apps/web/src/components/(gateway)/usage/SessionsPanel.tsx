@@ -702,7 +702,7 @@ function SessionDetailDialog({
 														/>
 													</TableCell>
 													<TableCell className="py-2">
-														{request.client_source_name ?? request.client_source_id ?? "Direct API"}
+												{request.client_source_name ?? request.client_source_id ?? "Direct HTTP"}
 													</TableCell>
 													<TableCell className="py-2">
 														{request.app_id ? (

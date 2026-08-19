@@ -217,7 +217,7 @@ export default function UpstreamRequestsTable({
 											</UsageEntityHoverCard>
 										) : providerLabel}
 									</TableCell>
-									<TableCell>{row.client_source_name ?? row.client_source_id ?? "Direct API"}</TableCell>
+									<TableCell>{row.client_source_name ?? row.client_source_id ?? "Direct HTTP"}</TableCell>
 										<TableCell className="max-w-[210px] truncate font-mono" title={row.request_id}>{row.request_id}</TableCell>
 										<TableCell>
 											<Badge variant="outline" className={cn("gap-1", row.success ? "border-emerald-500/30 text-emerald-600" : "border-rose-500/30 text-rose-600")}>
@@ -262,7 +262,7 @@ export default function UpstreamRequestsTable({
 								<div className="grid grid-cols-2 gap-x-5">
 									<DetailField label="Model" value={getModelDisplayName(selected.model_id, modelMetadata)} />
 									<DetailField label="Provider model" value={selected.provider_model_slug ?? selected.api_model_id ?? "—"} />
-									<DetailField label="Source" value={selected.client_source_name ?? selected.client_source_id ?? "Direct API"} />
+									<DetailField label="Source" value={selected.client_source_name ?? selected.client_source_id ?? "Direct HTTP"} />
 									<DetailField label="Status" value={selected.status_code ?? selected.outcome} />
 									<DetailField label="Attempt" value={attemptLabel(selected)} />
 									<DetailField label="Key used" value={keySourceLabel(selected.key_source)} />
