@@ -226,7 +226,7 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 		}
 	};
 
-	const renderActions = (app: AppItem) => {
+	const renderActions = (app: AppItem, mobile = false) => {
 		const isBusy = pending[app.id];
 		const canMerge = sortedApps.length > 1;
 		const attributionHeaders = getAttributionHeaders(app);
@@ -236,6 +236,7 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 				<DropdownMenuTrigger render={<Button
 						variant="ghost"
 						size="icon-sm"
+						className={mobile ? "size-10" : undefined}
 						aria-label={`Manage ${app.title}`} />}>
 
 						<MoreHorizontal className="size-4" />
@@ -444,7 +445,7 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 											</div>
 										</div>
 									</div>
-									{renderActions(app)}
+									{renderActions(app, true)}
 								</div>
 
 								<div className="flex flex-wrap items-center gap-2">
@@ -453,6 +454,7 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 										type="button"
 										size="xs"
 										variant="outline"
+										className="h-10"
 										disabled={isBusy}
 										onClick={() =>
 											handleToggle(app, "is_public", !app.is_public)
@@ -472,6 +474,7 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 										asChild
 										size="xs"
 										variant="outline"
+										className="h-10"
 										aria-label={`View stats for ${app.title}`}
 									>
 										<Link href={`/apps/${encodeURIComponent(app.id)}`}>
