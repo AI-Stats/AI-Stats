@@ -838,7 +838,9 @@ export async function auditSuccess(args: {
             appId: args.appId ?? null,
             appName: args.appName ?? null,
         });
-        if (!appId) {
+        const hasExplicitAppAttribution = [args.appTitle, args.referer, args.appId, args.appName]
+            .some((value) => String(value ?? "").trim().length > 0);
+        if (!appId && hasExplicitAppAttribution) {
             console.error("[audit] ensureAppId returned null", {
                 requestId: args.requestId,
                 workspaceId: args.workspaceId,
@@ -1517,7 +1519,6 @@ export async function auditFailure(args: AuditFailureBefore | AuditFailureExecut
         releaseRuntime();
     }
 }
-
 
 
 

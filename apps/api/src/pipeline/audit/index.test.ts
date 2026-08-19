@@ -61,6 +61,8 @@ describe("audit request detail persistence", () => {
 	it("stores replay-ready details for successful requests", async () => {
 		const gatewayRequestRows: any[] = [];
 		const detailRows: any[] = [];
+		const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+		ensureAppIdMock.mockResolvedValueOnce(null);
 
 		getSupabaseAdminMock.mockReturnValue({
 			rpc: vi.fn(async () => ({ data: "v2_request_event_1", error: null })),
@@ -177,6 +179,11 @@ describe("audit request detail persistence", () => {
 				metadata: expect.objectContaining({ replay_supported: true }),
 			}),
 		);
+		expect(consoleErrorSpy).not.toHaveBeenCalledWith(
+			"[audit] ensureAppId returned null",
+			expect.anything(),
+		);
+		consoleErrorSpy.mockRestore();
 	});
 
 	it("stores replay-ready details for execute-stage failures", async () => {
