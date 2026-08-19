@@ -14,6 +14,7 @@ import {
 	ProviderInspectorSheetTitle,
 } from "@/components/(data)/model/pricing/ProviderInspectorSheet";
 import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import {
 	Table,
@@ -137,7 +138,12 @@ export default function UpstreamRequestsTable({
 	return (
 		<>
 			<div className="min-w-0 max-w-full overflow-hidden rounded-lg border border-border/70">
-				<div className="w-full overflow-x-auto">
+				<ScrollArea
+					className="w-full"
+					scrollBarOrientation="horizontal"
+					keepScrollbarMounted
+					viewportClassName="w-full pb-2"
+				>
 					<Table wrapInContainer={false} className="min-w-[1080px] whitespace-nowrap text-xs">
 						<TableHeader>
 							<TableRow className="h-9">
@@ -244,7 +250,7 @@ export default function UpstreamRequestsTable({
 							})}
 						</TableBody>
 					</Table>
-				</div>
+				</ScrollArea>
 			</div>
 
 			<ProviderInspectorSheet open={selected !== null} onOpenChange={(open) => { if (!open) setSelected(null); }}>
