@@ -70,7 +70,9 @@ async function getActiveWorkspaceIdFromCookieRaw(): Promise<string | undefined> 
 	}
 }
 
-export async function resolveAccessibleWorkspaceIdFromCookie(): Promise<string | undefined> {
+export async function resolveAccessibleWorkspaceIdFromCookie(options?: {
+	throwOnFailure?: boolean;
+}): Promise<string | undefined> {
 	try {
 		const rawCookieWorkspaceId = await getActiveWorkspaceIdFromCookieRaw();
 		const context = await getServerAccountContext();
@@ -84,6 +86,7 @@ export async function resolveAccessibleWorkspaceIdFromCookie(): Promise<string |
 		console.warn("[workspace-resolve] unexpected failure", {
 			error: String(e),
 		});
+		if (options?.throwOnFailure) throw e;
 		return undefined;
 	}
 }

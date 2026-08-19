@@ -553,7 +553,7 @@ function withOpenAIRequestMetadata(
 		includeMetadata?: boolean;
 	},
 ): IRChatRequest {
-	if (providerId !== "openai") return ir;
+	if (!isOpenAIProviderOffer(providerId)) return ir;
 	const includeMetadata = options?.includeMetadata !== false;
 	const next: IRChatRequest = { ...ir };
 	const workspaceSafetyIdentifier = typeof workspaceId === "string" && workspaceId.trim().length > 0
@@ -599,7 +599,7 @@ function openAIRequestHeaders(
 	testId?: string | null,
 ): Record<string, string> | undefined {
 	const testHeaders = upstreamTestHeaders({ testId });
-	if (providerId !== "openai") {
+	if (!isOpenAIProviderOffer(providerId)) {
 		return Object.keys(testHeaders).length > 0 ? testHeaders : undefined;
 	}
 	return {
@@ -650,6 +650,7 @@ function cherryPickIRParams(
 				if (leaf === "effort") reasoning.effort = ir.reasoning?.effort;
 				if (leaf === "mode") reasoning.mode = ir.reasoning?.mode;
 				if (leaf === "summary") reasoning.summary = ir.reasoning?.summary;
+				if (leaf === "context") reasoning.context = ir.reasoning?.context;
 				if (leaf === "enabled") reasoning.enabled = ir.reasoning?.enabled;
 				if (leaf === "maxTokens" || leaf === "max_tokens") reasoning.maxTokens = ir.reasoning?.maxTokens;
 			}
@@ -701,6 +702,14 @@ function cherryPickIRParams(
 					return "promptCacheKey";
 				case "prompt_cache_retention":
 					return "promptCacheRetention";
+				case "prompt_cache_options":
+					return "promptCacheOptions";
+				case "verbosity":
+					return "textVerbosity";
+				case "audio":
+					return "audioConfig";
+				case "context_management":
+					return "contextManagement";
 				case "safety_identifier":
 					return "safetyIdentifier";
 				case "user":
@@ -723,13 +732,15 @@ function cherryPickIRParams(
 		next.responseFormat = responseFormat;
 	}
 
-	const openAIContextManagement = (ir.vendor as any)?.openai?.context_management;
-	if (openAIContextManagement && typeof openAIContextManagement === "object") {
+	const openAIVendor = (ir.vendor as any)?.openai;
+	const openAIContextManagement = ir.contextManagement
+		?? openAIVendor?.context_management;
+	if ((openAIVendor && typeof openAIVendor === "object") || openAIContextManagement) {
 		(next as any).vendor = {
 			...((next as any).vendor ?? {}),
 			openai: {
-				...(((next as any).vendor?.openai as Record<string, any> | undefined) ?? {}),
-				context_management: openAIContextManagement,
+				...(openAIVendor ?? {}),
+				...(openAIContextManagement ? { context_management: openAIContextManagement } : {}),
 			},
 		};
 	}

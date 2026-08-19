@@ -1,9 +1,11 @@
 import type { OpenAICompatConfig } from "../openai-compatible/types";
 
+export const MOONSHOT_API_KEY_ENVS = ["MOONSHOT_API_KEY", "MOONSHOT_AI_API_KEY"] as const;
+
 const common = {
 	baseUrl: "https://api.moonshot.ai",
 	pathPrefix: "/v1",
-	apiKeyEnv: "MOONSHOT_AI_API_KEY",
+	apiKeyEnv: "MOONSHOT_API_KEY",
 	baseUrlEnv: "MOONSHOT_AI_BASE_URL",
 } as const;
 

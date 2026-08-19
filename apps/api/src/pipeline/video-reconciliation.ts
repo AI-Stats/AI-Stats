@@ -59,6 +59,21 @@ function terminalVideoEvent(status: string): "video.completed" | "video.failed" 
 	return null;
 }
 
+function terminalVideoPricingOptions(job: VideoJobRecord) {
+	const provider = String(job.provider ?? job.meta?.provider ?? "").toLowerCase();
+	const storedInputAudioSeconds = Number(job.meta?.inputAudioSeconds);
+	const isLtxAudio = provider === "ltx" && (
+		job.meta?.ltxEndpoint === "audio-to-video"
+		|| (Number.isFinite(storedInputAudioSeconds) && storedInputAudioSeconds > 0)
+	);
+	return buildVideoPricingRequestOptions({
+		resolution: job.meta?.resolution,
+		quality: job.meta?.quality,
+		input_audio_seconds: isLtxAudio ? 20 : job.meta?.inputAudioSeconds,
+		mode: isLtxAudio ? "audio-to-video" : job.meta?.ltxEndpoint,
+	});
+}
+
 export async function runVideoReconciliationJob(args?: {
 	limit?: number;
 	concurrency?: number;
@@ -98,10 +113,7 @@ export async function runVideoReconciliationJob(args?: {
 					status: currentStatus as "completed" | "failed" | "cancelled" | "expired",
 					model: job.model ?? job.meta?.model,
 					seconds: job.meta?.seconds ?? null,
-					requestOptions: buildVideoPricingRequestOptions({
-						resolution: job.meta?.resolution,
-						quality: job.meta?.quality,
-					}),
+					requestOptions: terminalVideoPricingOptions(job),
 					isByok: job.meta?.keySource === "byok",
 					metaPatch: {
 						lastReconciledAt: new Date().toISOString(),

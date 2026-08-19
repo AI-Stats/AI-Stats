@@ -2019,6 +2019,8 @@ module Phaseo
     #   @return [Boolean, nil]
     # @!attribute [rw] generate_audio
     #   @return [Boolean, nil]
+    # @!attribute [rw] input_audio_duration
+    #   @return [Float, nil]
     # @!attribute [rw] input_references
     #   @return [Array<Hash{String => Object}>, nil]
     # @!attribute [rw] input_video_duration
@@ -2049,7 +2051,7 @@ module Phaseo
     #   @return [String, nil]
     # @!attribute [rw] webhook
     #   @return [Hash{String => Object}, nil]
-    VideoGenerationRequest = Struct.new(:aspect_ratio, :compression_quality, :duration, :enhance_prompt, :generate_audio, :input_references, :input_video_duration, :model, :negative_prompt, :output, :person_generation, :prompt, :provider, :provider_params, :resize_mode, :resolution, :sample_count, :seed, :size, :webhook, keyword_init: true)
+    VideoGenerationRequest = Struct.new(:aspect_ratio, :compression_quality, :duration, :enhance_prompt, :generate_audio, :input_audio_duration, :input_references, :input_video_duration, :model, :negative_prompt, :output, :person_generation, :prompt, :provider, :provider_params, :resize_mode, :resolution, :sample_count, :seed, :size, :webhook, keyword_init: true)
     # @!attribute [rw] asset
     #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] audio

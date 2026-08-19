@@ -5,7 +5,7 @@
     "version": "1.0.0"
   },
   "paths": {
-    "/v1/chat/completions": {
+    "/v2/ext/openai/v1/chat/completions": {
       "post": {
         "operationId": "clarifai_chat",
         "tags": [
@@ -40,6 +40,35 @@
           }
         },
         "description": "Reference-derived Clarifai chat contract. See manifest provenance."
+      }
+    },
+    "/v2/ext/openai/v1/responses": {
+      "post": {
+        "operationId": "clarifai_responses",
+        "description": "Clarifai OpenAI-compatible Responses API with text/image inputs, streaming, and tools.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["model", "input"],
+                "properties": {
+                  "model": { "type": "string" },
+                  "input": {},
+                  "max_output_tokens": { "type": "integer" },
+                  "temperature": { "type": "number" },
+                  "tools": { "type": "array", "items": { "type": "object" } },
+                  "stream": { "type": "boolean" }
+                },
+                "additionalProperties": true
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "OpenAI-compatible Response object or stream." }
+        }
       }
     }
   },

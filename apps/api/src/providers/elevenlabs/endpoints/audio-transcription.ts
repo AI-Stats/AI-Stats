@@ -29,18 +29,40 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
 	const bindings = getBindings() as unknown as Record<string, string | undefined>;
 	const baseUrl = String(bindings.ELEVENLABS_BASE_URL || "https://api.elevenlabs.io").replace(/\/+$/, "");
 	const modelId = resolveElevenLabsModelSlug(typedPayload.model, args.providerModelSlug);
+	const raw = typedPayload as AudioTranscriptionRequest & { config?: { elevenlabs?: Record<string, unknown> } };
+	const elevenlabs = raw.config?.elevenlabs ?? {};
 
 	const form = new FormData();
 	form.append("model_id", modelId);
 	if (typedPayload.language) {
 		form.append("language_code", typedPayload.language);
 	}
-	const filename = typeof File !== "undefined" && typedPayload.file instanceof File && typedPayload.file.name
-		? typedPayload.file.name
-		: "audio";
-	form.append("file", typedPayload.file, filename);
+	if (typedPayload.file) {
+		const filename = typeof File !== "undefined" && typedPayload.file instanceof File && typedPayload.file.name
+			? typedPayload.file.name
+			: "audio";
+		form.append("file", typedPayload.file, filename);
+	} else {
+		const sourceUrl = typedPayload.file_url ?? typedPayload.s3_presigned_url;
+		if (sourceUrl) form.append("source_url", sourceUrl);
+	}
+	if (typedPayload.keywords?.length) {
+		for (const keyterm of typedPayload.keywords) form.append("keyterms", keyterm);
+	}
+	if (typeof typedPayload.temperature === "number") form.append("temperature", String(typedPayload.temperature));
+	if (typeof typedPayload.diarize === "boolean") form.append("diarize", String(typedPayload.diarize));
+	if (typedPayload.timestamp_granularities?.length) {
+		form.append("timestamps_granularity", typedPayload.timestamp_granularities.includes("word") ? "word" : "none");
+	}
+	for (const [key, value] of Object.entries(elevenlabs)) {
+		if (value == null || ["model_id", "file", "source_url", "language_code", "keyterms", "enable_logging"].includes(key)) continue;
+		form.append(key, typeof value === "object" ? JSON.stringify(value) : String(value));
+	}
+	const query = typeof elevenlabs.enable_logging === "boolean"
+		? `?enable_logging=${elevenlabs.enable_logging ? "true" : "false"}`
+		: "";
 
-	const res = await (args.upstreamTiming?.fetch ?? fetch)(`${baseUrl}/v1/speech-to-text`, {
+	const res = await (args.upstreamTiming?.fetch ?? fetch)(`${baseUrl}/v1/speech-to-text${query}`, {
 		method: "POST",
 		headers: {
 			"xi-api-key": keyInfo.key,

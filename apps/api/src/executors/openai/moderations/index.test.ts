@@ -35,6 +35,58 @@ afterAll(() => {
 });
 
 describe("openai moderations executor", () => {
+	it("preserves multimodal input and nullable legacy categories", async () => {
+		let capturedBody: any = null;
+		const input = [
+			{ type: "text" as const, text: "test input" },
+			{
+				type: "image_url" as const,
+				image_url: { url: "https://example.com/input.png" },
+			},
+		];
+		const mock = installFetchMock([
+			{
+				match: (url) => url.includes("/moderations"),
+				response: jsonResponse({
+					id: "modr_multimodal",
+					model: "omni-moderation-latest",
+					results: [{
+						flagged: false,
+						categories: { illicit: null, violence: false },
+						category_scores: { illicit: 0.01, violence: 0.02 },
+						category_applied_input_types: {
+							illicit: ["text"],
+							violence: ["text", "image"],
+						},
+					}],
+				}),
+				onRequest: (call) => {
+					capturedBody = call.bodyJson;
+				},
+			},
+		]);
+
+		const result = await execute(buildArgs({
+			model: "openai/omni-moderation",
+			input,
+		}));
+
+		mock.restore();
+
+		expect(capturedBody?.input).toEqual(input);
+		expect(result.kind).toBe("completed");
+		if (result.kind === "completed") {
+			expect(result.ir?.results[0]?.categories).toEqual({
+				illicit: null,
+				violence: false,
+			});
+			expect(result.ir?.results[0]?.categoryAppliedInputTypes?.violence).toEqual([
+				"text",
+				"image",
+			]);
+		}
+	});
+
 	it("normalizes provider-prefixed model ids when provider slug is unavailable", async () => {
 		let capturedBody: any = null;
 		const mock = installFetchMock([
@@ -130,6 +182,41 @@ describe("openai moderations executor", () => {
 		mock.restore();
 
 		expect(result.timing).toMatchObject({ latencyMs: 27, generationMs: 12.5 });
+	});
+
+	it("keeps latency at least as large as OpenAI processing time", async () => {
+		const mock = installFetchMock([
+			{
+				match: (url) => url.includes("/moderations"),
+				response: jsonResponse(
+					{
+						id: "modr_timing_precision",
+						model: "omni-moderation-latest",
+						results: [{ flagged: false, categories: {}, category_scores: {} }],
+					},
+					{ headers: { "openai-processing-ms": "27.25" } },
+				),
+			},
+		]);
+		const upstreamTiming: ExecutorUpstreamTiming = {
+			fetch: (input, init) => globalThis.fetch(input, init),
+			timingFor: () => ({
+				phase: "provider",
+				sequence: 1,
+				dispatchAtMs: Date.now() - 27,
+				headersAtMs: Date.now(),
+				headersMs: 27,
+			}),
+		};
+
+		const result = await execute({
+			...buildArgs({ model: "openai/omni-moderation-latest", input: "test input" }),
+			upstreamTiming,
+		});
+
+		mock.restore();
+
+		expect(result.timing).toMatchObject({ latencyMs: 27.25, generationMs: 27.25 });
 	});
 
 	it("falls back to observed upstream latency when a compatible provider omits processing time", async () => {

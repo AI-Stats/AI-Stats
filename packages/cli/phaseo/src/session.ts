@@ -12,6 +12,7 @@ export type Session = {
 	integrationGatewayKey?: string;
 	integrationGatewayKeyId?: string;
 	integrationGatewayKeyExpiresAt?: number;
+	integrationGatewayCredentials?: Record<string, { key: string; keyId: string }>;
 };
 
 type SessionBackend = "dpapi-file" | "keychain" | "secret-service" | "file" | "unavailable";
@@ -80,6 +81,12 @@ function parseSession(raw: string): Session | null {
 			!parsed.apiUrl
 		) return null;
 		if (parsed.scope !== undefined && typeof parsed.scope !== "string") return null;
+		if (parsed.integrationGatewayCredentials !== undefined) {
+			if (!parsed.integrationGatewayCredentials || typeof parsed.integrationGatewayCredentials !== "object" || Array.isArray(parsed.integrationGatewayCredentials)) return null;
+			for (const value of Object.values(parsed.integrationGatewayCredentials)) {
+				if (!value || typeof value !== "object" || typeof value.key !== "string" || !value.key || typeof value.keyId !== "string" || !value.keyId) return null;
+			}
+		}
 		const integrationFields = [
 			parsed.integrationGatewayKey,
 			parsed.integrationGatewayKeyId,

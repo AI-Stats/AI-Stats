@@ -2,27 +2,45 @@ import { describe, expect, it } from "vitest";
 import { irToGemini } from "../index";
 
 describe("google-ai-studio irToGemini", () => {
-	it("uses the Interactions request shape for current Gemini Flash models", async () => {
+	it.each(["gemini-2.5-flash", "gemini-3.6-flash", "gemini-3.7-flash", "gemini-robotics-er-1.6-preview"])(
+		"uses the Interactions request shape for %s",
+		async (model) => {
+			const request = await irToGemini({
+				model,
+				stream: true,
+				temperature: 0.2,
+				topP: 0.8,
+				topK: 20,
+				frequencyPenalty: 0.2,
+				presencePenalty: 0.3,
+				maxTokens: 256,
+				messages: [{ role: "user", content: [{ type: "text", text: "hello" }] }],
+			} as any);
+
+			expect(request.model).toBe(model);
+			expect(request.input).toEqual([{
+				type: "user_input",
+				content: [{ type: "text", text: "hello" }],
+			}]);
+			expect(request.generation_config).toEqual({ max_output_tokens: 256 });
+			expect(request).not.toHaveProperty("temperature");
+			expect(request.generation_config).not.toHaveProperty("temperature");
+			expect(request.generation_config).not.toHaveProperty("top_p");
+			expect(request.generation_config).not.toHaveProperty("top_k");
+			expect(request.generation_config).not.toHaveProperty("frequency_penalty");
+			expect(request.generation_config).not.toHaveProperty("presence_penalty");
+		},
+	);
+
+	it("maps Gemini 2.5 reasoning effort through Interactions", async () => {
 		const request = await irToGemini({
-			model: "gemini-3.6-flash",
-			stream: true,
-			temperature: 0.2,
-			topP: 0.8,
-			topK: 20,
-			maxTokens: 256,
+			model: "gemini-2.5-flash",
+			stream: false,
+			reasoning: { enabled: true, effort: "medium" },
 			messages: [{ role: "user", content: [{ type: "text", text: "hello" }] }],
 		} as any);
 
-		expect(request.model).toBe("gemini-3.6-flash");
-		expect(request.input).toEqual([{
-			type: "user_input",
-			content: [{ type: "text", text: "hello" }],
-		}]);
-		expect(request.generation_config).toEqual({ max_output_tokens: 256 });
-		expect(request).not.toHaveProperty("temperature");
-		expect(request.generation_config).not.toHaveProperty("temperature");
-		expect(request.generation_config).not.toHaveProperty("top_p");
-		expect(request.generation_config).not.toHaveProperty("top_k");
+		expect(request.generation_config?.thinking_level).toBe("medium");
 	});
 
 	it("maps system and developer roles into system_instruction", async () => {
@@ -171,7 +189,7 @@ describe("google-ai-studio irToGemini", () => {
 			},
 		} as any);
 
-		expect(request.response_modalities).toEqual(["image"]);
+		expect(request).not.toHaveProperty("response_modalities");
 		expect(request.generation_config?.thinking_summaries).toBe("none");
 		expect(request.response_format).toEqual({
 			type: "image",
@@ -189,7 +207,8 @@ describe("google-ai-studio irToGemini", () => {
 			messages: [{ role: "user", content: [{ type: "text", text: "draw a blue square" }] }],
 		} as any);
 
-		expect(request.response_modalities).toEqual(["text", "image"]);
+		expect(request).not.toHaveProperty("response_modalities");
+		expect(request.response_format).toMatchObject({ type: "image" });
 	});
 
 	it("maps audio modality for Gemini responseModalities", async () => {
@@ -200,7 +219,22 @@ describe("google-ai-studio irToGemini", () => {
 			modalities: ["text", "audio"],
 		} as any);
 
-		expect(request.response_modalities).toEqual(["text", "audio"]);
+		expect(request).not.toHaveProperty("response_modalities");
+		expect(request.response_format).toMatchObject({ type: "audio" });
+	});
+
+	it("uses the current Interactions named tool-choice shape", async () => {
+		const request = await irToGemini({
+			model: "gemini-3.7-flash",
+			stream: false,
+			messages: [{ role: "user", content: [{ type: "text", text: "What time is it?" }] }],
+			tools: [{ name: "datetime", parameters: { type: "object", properties: {} } }],
+			toolChoice: { name: "datetime" },
+		} as any);
+
+		expect(request.generation_config?.tool_choice).toEqual({
+			allowed_tools: { mode: "any", tools: ["datetime"] },
+		});
 	});
 
 	it("maps reasoning.effort to thinkingLevel for Gemini 3.1 image preview", async () => {

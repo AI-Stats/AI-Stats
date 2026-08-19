@@ -843,7 +843,12 @@ impl GatewayAgentClient {
     }
 
     pub fn from_env(model: impl Into<String>) -> Result<Self, AgentError> {
-        Ok(Self::new(Phaseo::from_env()?, model))
+        Ok(Self::new(
+            Phaseo::from_env()?
+                .with_header("X-Phaseo-Client", "phaseo-agent-rust")
+                .with_header("X-Phaseo-Client-Version", env!("CARGO_PKG_VERSION")),
+            model,
+        ))
     }
 }
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { detectClientAttribution } from "./clientAttribution";
+import { DECLARED_CLIENTS, detectClientAttribution } from "./clientAttribution";
 
 describe("detectClientAttribution", () => {
     it("prefers a recognized declared client", () => {
@@ -10,7 +10,7 @@ describe("detectClientAttribution", () => {
         });
         expect(detectClientAttribution(headers)).toEqual({
             id: "phaseo-agent-typescript",
-            name: "Phaseo Agent SDK",
+            name: "Phaseo Agent TypeScript SDK",
             kind: "agent_sdk",
             version: "1.4.0",
             detection: "declared",
@@ -28,6 +28,62 @@ describe("detectClientAttribution", () => {
 			name,
 			kind,
 			detection: "declared",
+		});
+	});
+
+	it("keeps the client source registry exhaustive", () => {
+		expect(DECLARED_CLIENTS).toEqual({
+			"phaseo-typescript": { name: "Phaseo TypeScript SDK", kind: "sdk" },
+			"phaseo-python": { name: "Phaseo Python SDK", kind: "sdk" },
+			"phaseo-agent-typescript": { name: "Phaseo Agent TypeScript SDK", kind: "agent_sdk" },
+			"phaseo-go": { name: "Phaseo Go SDK", kind: "sdk" },
+			"phaseo-java": { name: "Phaseo Java SDK", kind: "sdk" },
+			"phaseo-csharp": { name: "Phaseo C# SDK", kind: "sdk" },
+			"phaseo-cpp": { name: "Phaseo C++ SDK", kind: "sdk" },
+			"phaseo-php": { name: "Phaseo PHP SDK", kind: "sdk" },
+			"phaseo-ruby": { name: "Phaseo Ruby SDK", kind: "sdk" },
+			"phaseo-rust": { name: "Phaseo Rust SDK", kind: "sdk" },
+			"phaseo-agent-python": { name: "Phaseo Agent Python SDK", kind: "agent_sdk" },
+			"phaseo-agent-go": { name: "Phaseo Agent Go SDK", kind: "agent_sdk" },
+			"phaseo-agent-java": { name: "Phaseo Agent Java SDK", kind: "agent_sdk" },
+			"phaseo-agent-csharp": { name: "Phaseo Agent C# SDK", kind: "agent_sdk" },
+			"phaseo-agent-php": { name: "Phaseo Agent PHP SDK", kind: "agent_sdk" },
+			"phaseo-agent-ruby": { name: "Phaseo Agent Ruby SDK", kind: "agent_sdk" },
+			"phaseo-agent-rust": { name: "Phaseo Agent Rust SDK", kind: "agent_sdk" },
+			codex: { name: "Codex", kind: "coding_agent" },
+			"claude-code": { name: "Claude Code", kind: "coding_agent" },
+			"openai-typescript": { name: "OpenAI TypeScript SDK", kind: "sdk" },
+			"openai-python": { name: "OpenAI Python SDK", kind: "sdk" },
+			"anthropic-typescript": { name: "Anthropic TypeScript SDK", kind: "sdk" },
+			"anthropic-python": { name: "Anthropic Python SDK", kind: "sdk" },
+			curl: { name: "cURL", kind: "http_client" },
+			httpie: { name: "HTTPie", kind: "http_client" },
+			postman: { name: "Postman", kind: "http_client" },
+			insomnia: { name: "Insomnia", kind: "http_client" },
+			axios: { name: "Axios", kind: "http_client" },
+			"python-requests": { name: "Python Requests", kind: "http_client" },
+		});
+	});
+
+	it.each(Object.entries(DECLARED_CLIENTS))(
+		"classifies declared source %s with its canonical tuple",
+		(id, source) => {
+			expect(detectClientAttribution(new Headers({ "x-phaseo-client": id }))).toMatchObject({
+				id,
+				name: source.name,
+				kind: source.kind,
+				detection: "declared",
+			});
+		},
+	);
+
+	it("does not treat App attribution as a client source", () => {
+		expect(detectClientAttribution(new Headers({ "x-phaseo-client": "phaseo-chat" }))).toEqual({
+			id: "api",
+			name: "Direct HTTP",
+			kind: "api",
+			version: null,
+			detection: "unknown",
 		});
 	});
 
@@ -62,7 +118,7 @@ describe("detectClientAttribution", () => {
     it("does not trust arbitrary declared names", () => {
         expect(detectClientAttribution(new Headers({ "x-phaseo-client": "Definitely Codex" }))).toEqual({
             id: "api",
-            name: "Direct API",
+            name: "Direct HTTP",
             kind: "api",
             version: null,
             detection: "unknown",

@@ -172,6 +172,9 @@ export async function ensureAppId(params: {
     appName?: string | null;
 }): Promise<string | null> {
     const { workspaceId, appTitle, referer, appId, appName } = params;
+    if (![appTitle, referer, appId, appName].some((value) => String(value ?? "").trim().length > 0)) {
+        return null;
+    }
     const normalizedAppId = normalizeAppId(appId);
     const identityUrl = deriveIdentityUrl({ referer, appId, appTitle, appName });
     const app_key = deriveAppKey(identityUrl);

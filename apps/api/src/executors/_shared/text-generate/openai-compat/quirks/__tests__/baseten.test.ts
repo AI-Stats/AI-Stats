@@ -64,6 +64,44 @@ describe("Baseten quirks", () => {
 		expect(request.chat_template_args).toEqual({
 			enable_thinking: true,
 		});
+		expect(request.reasoning_effort).toBe("high");
+	});
+
+	it("uses Baseten audio_url and video_url content types", () => {
+		const request: Record<string, any> = {
+			messages: [{
+				role: "user",
+				content: [
+					{ type: "input_audio", input_audio: { url: "https://example.com/a.wav" } },
+					{ type: "input_audio", input_audio: { data: "UklGRg==", format: "wav" } },
+					{ type: "input_video", video_url: { url: "https://example.com/v.mp4" } },
+				],
+			}],
+		};
+
+		basetenQuirks.transformRequest?.({ request, ir: {} as any });
+
+			expect(request.messages[0].content).toEqual([
+			{ type: "audio_url", audio_url: { url: "https://example.com/a.wav" } },
+			{ type: "audio_url", audio_url: { url: "data:audio/wav;base64,UklGRg==" } },
+			{ type: "video_url", video_url: { url: "https://example.com/v.mp4" } },
+		]);
+	});
+
+	it("forwards lower reasoning efforts for faster DeepSeek responses", () => {
+		const request: Record<string, unknown> = {};
+		const ir: any = {
+			reasoning: {
+				effort: "minimal",
+			},
+		};
+
+		basetenQuirks.transformRequest?.({ request, ir });
+
+		expect(request.reasoning_effort).toBe("minimal");
+		expect(request.chat_template_args).toEqual({
+			enable_thinking: true,
+		});
 	});
 
 	it("preserves existing chat_template_args keys", () => {
@@ -106,4 +144,3 @@ describe("Baseten quirks", () => {
 		expect(request.service_tier).toBeUndefined();
 	});
 });
-

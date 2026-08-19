@@ -38,7 +38,7 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
             ? body.provider_params
             : {};
 
-	const seconds = body.duration
+	const seconds = body.seconds ?? body.duration
 		?? providerParams.duration
 		?? providerParams.duration_seconds
 		?? providerParams.durationSeconds;
@@ -54,12 +54,13 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
     const aspectRatio = body.aspect_ratio ?? legacyBody.ratio ?? providerParams.aspect_ratio ?? providerParams.aspectRatio;
 
     const isOpenAIProvider = args.providerId === "openai";
+	const nativeInputReference = body.input_reference;
 	const inputReferenceValue = extractInputReferenceString(
         Array.isArray(body.input_references)
 			? body.input_references.find((item) => item.role === "first_frame") ?? body.input_references[0]
 			: undefined,
     );
-    const sendAsMultipart = isOpenAIProvider && inputReferenceValue.length > 0;
+    const sendAsMultipart = isOpenAIProvider && !(nativeInputReference && typeof nativeInputReference === "object" && !(nativeInputReference instanceof Blob));
     const headers = openAICompatHeaders(args.providerId, keyInfo.key, upstreamTestHeaders(args.meta));
     let requestBody: BodyInit;
 
@@ -100,7 +101,11 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
             fileBlob = new Blob([bytes], { type: mimeType });
         }
 
-        if (fileBlob) {
+        if (nativeInputReference && typeof nativeInputReference === "object" && !(nativeInputReference instanceof Blob)) {
+            form.append("input_reference", JSON.stringify(nativeInputReference));
+        } else if (nativeInputReference instanceof Blob) {
+            form.append("input_reference", nativeInputReference, typeof (nativeInputReference as File).name === "string" ? (nativeInputReference as File).name : filename);
+        } else if (fileBlob) {
             form.append("input_reference", fileBlob, filename);
         }
         requestBody = form;
@@ -113,8 +118,8 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
 			...(seconds != null ? { seconds } : {}),
 			...(size ? { size } : {}),
 			...pickDefined({
+				input_reference: nativeInputReference && typeof nativeInputReference === "object" ? nativeInputReference : inputReferenceValue || undefined,
                 quality: legacyBody.quality,
-                input_reference: inputReferenceValue || undefined,
                 aspect_ratio: aspectRatio,
 				resolution: size,
                 compression_quality: compressionQuality,
@@ -155,4 +160,3 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
         byokKeyId: keyInfo.byokId,
     };
 }
-

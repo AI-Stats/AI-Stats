@@ -80,7 +80,6 @@ import {
 } from "@/components/(data)/model/pricing/providerPlanRouting";
 import {
 	formatProviderOfferDisplayName,
-	resolveProviderLogoId,
 } from "@/lib/providers/providerOffers";
 import {
 	chooseGatewayStatus,
@@ -607,11 +606,6 @@ function formatPolicyValue(value: string | null | undefined): string {
 		.replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
-function formatProviderRegions(value: string[] | null | undefined): string {
-	if (!Array.isArray(value) || value.length === 0) return "Not published";
-	return value.join(", ");
-}
-
 function formatProviderCountry(value: string | null | undefined): string {
 	const normalized = String(value ?? "").trim().toUpperCase();
 	if (!normalized || normalized === "XX") return "Unknown";
@@ -622,17 +616,15 @@ function formatProviderCountry(value: string | null | undefined): string {
 	}
 }
 
-function formatDataRetentionValue(value: string | null | undefined): string {
-	switch (String(value ?? "").trim().toLowerCase()) {
-		case "private":
-			return "No prompt/output retention by default";
-		case "logs":
-			return "Provider logs may be retained";
-		case "trains":
-			return "May be used for training";
-		default:
-			return "Unknown";
+function formatPromptRetentionValue(
+	days: number | null | undefined,
+): string {
+	if (typeof days === "number" && Number.isInteger(days) && days >= 0) {
+		return days === 0
+			? "No retention"
+			: `Retention for ${days} ${days === 1 ? "day" : "days"}`;
 	}
+	return "Unknown retention";
 }
 
 function getPlanTheme(plan: string) {
@@ -1250,16 +1242,16 @@ function getPrivacyReasonMeta(reason: string): {
 } | null {
 	if (reason === "Blocked by account provider restrictions") {
 		return {
-			label: "Unavailable in Phaseo Chat because of your Personal Data Controls.",
-			href: "/settings/account/privacy",
-			linkLabel: "Review Personal Data Controls",
+			label: "Unavailable because of workspace privacy or an assigned guardrail.",
+			href: "/settings/privacy",
+			linkLabel: "Review workspace privacy",
 		};
 	}
 	if (reason === "Not in account provider allowlist") {
 		return {
-			label: "Unavailable in Phaseo Chat because it is outside your personal allowlist.",
-			href: "/settings/account/privacy",
-			linkLabel: "Review Personal Data Controls",
+			label: "Unavailable because it is outside the workspace or assigned guardrail allowlist.",
+			href: "/settings/privacy",
+			linkLabel: "Review workspace privacy",
 		};
 	}
 	if (reason === "Blocked by workspace provider restrictions") {
@@ -2105,10 +2097,7 @@ export default function ProviderCard({
 		}
 		return name;
 	})();
-	const logoProviderId = resolveProviderLogoId({
-		providerId: sec.providerId,
-		providerFamilyId: provider.provider.provider_family_id ?? null,
-	});
+	const logoProviderId = sec.logoProviderId;
 	const tableInputPriceSummary = buildProviderTablePriceSummary(tableSec, "input");
 	const tableOutputPriceSummary = buildProviderTablePriceSummary(tableSec, "output");
 	const tableCacheReadPriceSummary = showCacheReadColumn
@@ -2674,46 +2663,27 @@ export default function ProviderCard({
 	const parametersSectionId = `${sheetSectionPrefix}-parameters`;
 	const dataPolicySummary = [
 		{
-			label: "Training Policy",
-			value: formatPolicyValue(provider.provider.prompt_training_policy),
-		},
-		{
-			label: "Zero Data Retention",
-			value: formatPolicyValue(provider.provider.zero_data_retention),
-		},
-		{
 			label: "Data Policy",
 			value: formatPolicyValue(provider.provider.data_policy_tier),
 		},
 		{
-			label: "Data Retention",
-			value: formatDataRetentionValue(provider.provider.data_policy_tier),
+			label: "Prompt retention",
+			value: formatPromptRetentionValue(provider.provider.data_retention_days),
 		},
 		{
-			label: "Residency",
-			value: formatPolicyValue(provider.provider.residency_mode),
-		},
-		{
-			label: "Data Execution",
-			value: formatProviderRegions(provider.provider.default_execution_regions),
-		},
-		{
-			label: "Data Storage",
-			value: formatProviderRegions(provider.provider.default_data_regions),
-		},
-		{
-			label: "HQ / Base country",
+			label: "Headquarters",
 			value: formatProviderCountry(provider.provider.country_code),
 		},
 	];
 	const dataPolicyEvidence =
-		provider.provider.residency_notes ??
-		provider.provider.prompt_training_notes ??
 		provider.provider.data_policy_contract_notes ??
+		provider.provider.prompt_training_notes ??
+		provider.provider.residency_notes ??
 		null;
 	const dataPolicyEvidenceUrl =
 		provider.provider.residency_source_url ??
 		provider.provider.prompt_training_source_url ??
+		provider.provider.terms_of_service_url ??
 		null;
 
 	return (
@@ -2819,7 +2789,7 @@ export default function ProviderCard({
 										<HoverCardContent align="start" className="w-80 p-2 text-xs">
 											<p className="font-semibold text-foreground">{isWorkspacePrivacyBlocked ? "Workspace blocked" : "Chat unavailable"}</p>
 											<p className="mt-1 text-muted-foreground">
-												{isWorkspacePrivacyBlocked ? "Workspace Data Controls prevent API and Chat traffic from using this provider." : "Your Personal Data Controls prevent Phaseo Chat from using this provider; workspace API keys are unaffected."}
+												{isWorkspacePrivacyBlocked ? "Workspace privacy prevents API and Chat traffic from using this provider." : "An assigned guardrail prevents this request from using the provider."}
 											</p>
 											<div className="mt-2 space-y-1 border-t border-zinc-200/70 pt-2 dark:border-zinc-800">
 												{privacyReasonMeta.map(({ reason, meta }) => (
@@ -3329,7 +3299,7 @@ export default function ProviderCard({
 								<div>
 									<h3 className="text-[15px] font-semibold text-foreground">
 										<ProviderSheetSectionLink href={PROVIDER_SHEET_DOCS.dataRetention}>
-											Data and Retention
+											Data Policy
 										</ProviderSheetSectionLink>
 									</h3>
 								</div>

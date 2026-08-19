@@ -1,0 +1,171 @@
+-- Expose the provider retention duration through the aggregate used by the
+-- public provider index. The legacy zero_data_retention field remains separate
+-- because it is still used by routing and workspace privacy filters.
+
+drop function if exists public.get_public_provider_index();
+
+create function public.get_public_provider_index()
+returns table (
+  provider_slug text,
+  provider_name text,
+  colour text,
+  country_code text,
+  provider_family_id text,
+  offer_label text,
+  offer_scope text,
+  is_gateway_provider boolean,
+  prompt_training_policy text,
+  data_policy_tier text,
+  zero_data_retention text,
+  data_retention_days integer,
+  privacy_policy_url text,
+  terms_of_service_url text,
+  total_model_ids text[],
+  active_model_ids text[],
+  free_model_ids text[],
+  requests_24h bigint,
+  tokens_24h numeric,
+  tokens_30d numeric,
+  last_updated_at timestamptz,
+  text_input_model_ids text[],
+  text_output_model_ids text[],
+  image_input_model_ids text[],
+  image_output_model_ids text[],
+  video_input_model_ids text[],
+  video_output_model_ids text[],
+  audio_input_model_ids text[],
+  audio_output_model_ids text[],
+  moderation_input_model_ids text[],
+  moderation_output_model_ids text[],
+  embedding_input_model_ids text[],
+  embedding_output_model_ids text[]
+)
+language sql
+stable
+security invoker
+set search_path = ''
+as $$
+  with providers as (
+    select
+      provider.provider_slug,
+      provider.name,
+      provider.country_code,
+      provider.lab_slug,
+      provider.metadata,
+      provider.routable,
+      provider.routing_enabled,
+      provider.status,
+      provider.prompt_training_policy,
+      provider.data_policy_tier,
+      provider.zero_data_retention,
+      provider.data_retention_days
+    from public.v2_providers provider
+    where lower(provider.provider_slug) not in ('inception', 'inceptron', 'nextbit')
+  ),
+  eligible_routes as (
+    select
+      route.provider_slug,
+      route.model_slug,
+      route.routing_enabled,
+      route.status,
+      route.effective_from,
+      route.effective_to,
+      route.updated_at,
+      model.variant_kind,
+      case
+        when cardinality(route.input_modalities) > 0 then route.input_modalities
+        else model.input_modalities
+      end as input_modalities,
+      case
+        when cardinality(route.output_modalities) > 0 then route.output_modalities
+        else model.output_modalities
+      end as output_modalities
+    from public.v2_model_provider_routes route
+    join providers provider using (provider_slug)
+    join public.v2_models model using (model_slug)
+    where not model.hidden
+  ),
+  coverage as (
+    select
+      route.provider_slug,
+      array_agg(distinct route.model_slug order by route.model_slug) as total_model_ids,
+      array_agg(distinct route.model_slug order by route.model_slug) filter (
+        where route.routing_enabled
+          and route.status in ('active', 'degraded')
+          and (route.effective_from is null or route.effective_from <= now())
+          and (route.effective_to is null or route.effective_to > now())
+      ) as active_model_ids,
+      array_agg(distinct route.model_slug order by route.model_slug) filter (
+        where route.variant_kind = 'free' or lower(route.model_slug) like '%:free'
+      ) as free_model_ids,
+      max(route.updated_at) as last_updated_at,
+      array_agg(distinct route.model_slug order by route.model_slug) filter (where 'text' = any(route.input_modalities)) as text_input_model_ids,
+      array_agg(distinct route.model_slug order by route.model_slug) filter (where 'text' = any(route.output_modalities)) as text_output_model_ids,
+      array_agg(distinct route.model_slug order by route.model_slug) filter (where 'image' = any(route.input_modalities)) as image_input_model_ids,
+      array_agg(distinct route.model_slug order by route.model_slug) filter (where 'image' = any(route.output_modalities)) as image_output_model_ids,
+      array_agg(distinct route.model_slug order by route.model_slug) filter (where 'video' = any(route.input_modalities)) as video_input_model_ids,
+      array_agg(distinct route.model_slug order by route.model_slug) filter (where 'video' = any(route.output_modalities)) as video_output_model_ids,
+      array_agg(distinct route.model_slug order by route.model_slug) filter (where 'audio' = any(route.input_modalities) or 'music' = any(route.input_modalities)) as audio_input_model_ids,
+      array_agg(distinct route.model_slug order by route.model_slug) filter (where 'audio' = any(route.output_modalities) or 'music' = any(route.output_modalities)) as audio_output_model_ids,
+      array_agg(distinct route.model_slug order by route.model_slug) filter (where 'moderation' = any(route.input_modalities)) as moderation_input_model_ids,
+      array_agg(distinct route.model_slug order by route.model_slug) filter (where 'moderation' = any(route.output_modalities)) as moderation_output_model_ids,
+      array_agg(distinct route.model_slug order by route.model_slug) filter (where 'embedding' = any(route.input_modalities) or 'embeddings' = any(route.input_modalities)) as embedding_input_model_ids,
+      array_agg(distinct route.model_slug order by route.model_slug) filter (where 'embedding' = any(route.output_modalities) or 'embeddings' = any(route.output_modalities)) as embedding_output_model_ids
+    from eligible_routes route
+    group by route.provider_slug
+  ),
+  usage as (
+    select
+      summary.provider as provider_slug,
+      summary.requests_24h,
+      summary.tokens_24h,
+      summary.tokens_30d
+    from public.get_public_provider_usage_summary() summary
+  )
+  select
+    provider.provider_slug,
+    provider.name,
+    nullif(provider.metadata->>'colour', ''),
+    coalesce(provider.country_code, ''),
+    coalesce(nullif(provider.metadata->>'provider_family_id', ''), provider.lab_slug),
+    nullif(provider.metadata->>'offer_label', ''),
+    nullif(provider.metadata->>'offer_scope', ''),
+    provider.routable
+      and provider.routing_enabled
+      and provider.status in ('active', 'degraded'),
+    provider.prompt_training_policy,
+    provider.data_policy_tier,
+    provider.zero_data_retention,
+    provider.data_retention_days,
+    nullif(provider.metadata->>'privacy_policy_url', ''),
+    nullif(provider.metadata->>'terms_of_service_url', ''),
+    coverage.total_model_ids,
+    coalesce(coverage.active_model_ids, array[]::text[]),
+    coalesce(coverage.free_model_ids, array[]::text[]),
+    coalesce(usage.requests_24h, 0),
+    coalesce(usage.tokens_24h, 0),
+    coalesce(usage.tokens_30d, 0),
+    coverage.last_updated_at,
+    coalesce(coverage.text_input_model_ids, array[]::text[]),
+    coalesce(coverage.text_output_model_ids, array[]::text[]),
+    coalesce(coverage.image_input_model_ids, array[]::text[]),
+    coalesce(coverage.image_output_model_ids, array[]::text[]),
+    coalesce(coverage.video_input_model_ids, array[]::text[]),
+    coalesce(coverage.video_output_model_ids, array[]::text[]),
+    coalesce(coverage.audio_input_model_ids, array[]::text[]),
+    coalesce(coverage.audio_output_model_ids, array[]::text[]),
+    coalesce(coverage.moderation_input_model_ids, array[]::text[]),
+    coalesce(coverage.moderation_output_model_ids, array[]::text[]),
+    coalesce(coverage.embedding_input_model_ids, array[]::text[]),
+    coalesce(coverage.embedding_output_model_ids, array[]::text[])
+  from providers provider
+  join coverage using (provider_slug)
+  left join usage using (provider_slug)
+  order by provider.name, provider.provider_slug;
+$$;
+
+revoke all on function public.get_public_provider_index() from public;
+grant execute on function public.get_public_provider_index() to service_role;
+
+comment on function public.get_public_provider_index() is
+  'Returns provider coverage rows, gateway-routable flags, and retention durations for the cached public Web API provider index.';

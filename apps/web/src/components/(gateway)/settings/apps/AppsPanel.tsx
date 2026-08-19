@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
 	BarChart2,
 	Blocks,
@@ -11,8 +12,6 @@ import {
 	Merge,
 	MoreHorizontal,
 	Pencil,
-	Power,
-	PowerOff,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -40,6 +39,12 @@ import {
 } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
 	type AppCategory,
 	getAppCategoryLabel,
 	parseAppCategories,
@@ -56,8 +61,8 @@ type AppItem = {
 	docs_url: string | null;
 	url: string | null;
 	image_url: string | null;
+	is_managed: boolean;
 	is_public: boolean;
-	is_active: boolean;
 	last_seen: string | null;
 	created_at: string | null;
 };
@@ -78,14 +83,32 @@ function getAttributionHeaders(app: AppItem) {
 function AppAvatar({ app }: { app: AppItem }) {
 	const imageLetter = app.title?.trim()?.[0]?.toUpperCase() ?? "A";
 	const [imageFailed, setImageFailed] = useState(false);
+	const isPhaseoChat = app.app_key === "phaseo-chat";
 
 	useEffect(() => {
 		setImageFailed(false);
 	}, [app.image_url]);
 
 	return (
-		<div className="grid size-9 shrink-0 place-items-center overflow-hidden rounded-lg border border-border/70 bg-muted/40">
-			{app.image_url && !imageFailed ? (
+		<div className="grid size-9 shrink-0 place-items-center overflow-hidden rounded-md border border-border/70 bg-muted/40">
+			{isPhaseoChat ? (
+				<>
+					<Image
+						src="/logo_light.svg"
+						alt="Phaseo"
+						width={24}
+						height={24}
+						className="size-6 object-contain dark:hidden"
+					/>
+					<Image
+						src="/logo_dark.svg"
+						alt="Phaseo"
+						width={24}
+						height={24}
+						className="hidden size-6 object-contain dark:block"
+					/>
+				</>
+			) : app.image_url && !imageFailed ? (
 				<img
 					src={app.image_url}
 					alt={app.title}
@@ -101,21 +124,6 @@ function AppAvatar({ app }: { app: AppItem }) {
 	);
 }
 
-function StatusBadge({ active }: { active: boolean }) {
-	return (
-		<Badge
-			variant="outline"
-			className={
-				active
-					? "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
-					: "border-border bg-muted/50 text-muted-foreground"
-			}
-		>
-			{active ? "Active" : "Inactive"}
-		</Badge>
-	);
-}
-
 function CategoryBadge({ category }: { category: AppCategory }) {
 	const label = getAppCategoryLabel(category);
 
@@ -127,7 +135,7 @@ function CategoryBadge({ category }: { category: AppCategory }) {
 	return (
 		<Badge
 			variant="outline"
-			className={`h-5 rounded-lg px-1.5 text-[11px] font-medium ${visuals.badgeClassName}`}
+			className={`h-5 rounded-md px-1.5 text-[11px] font-medium ${visuals.badgeClassName}`}
 		>
 			<Icon className="size-3" />
 			{label}
@@ -138,17 +146,40 @@ function CategoryBadge({ category }: { category: AppCategory }) {
 function CategoryBadges({ category }: { category: string | null }) {
 	const categories = parseAppCategories(category);
 
-	if (categories.length === 0) {
-		return (
-			<span className="text-xs text-muted-foreground">No category set</span>
-		);
-	}
+	if (categories.length === 0) return null;
 
 	return (
-		<div className="flex flex-wrap gap-1">
+		<div className="mt-1 flex flex-wrap gap-1">
 			{categories.map((category) => (
 				<CategoryBadge key={category} category={category} />
 			))}
+		</div>
+	);
+}
+
+function CategoryIcons({ category }: { category: string | null }) {
+	const categories = parseAppCategories(category);
+	if (categories.length === 0) return null;
+
+	return (
+		<div className="flex shrink-0 items-center gap-0.5">
+			{categories.map((category) => {
+				const { Icon, iconClassName } = APP_CATEGORY_VISUALS[category];
+				const label = getAppCategoryLabel(category) ?? category;
+				return (
+					<Tooltip key={category}>
+						<TooltipTrigger asChild>
+							<span
+								className="inline-flex size-5 items-center justify-center rounded-md hover:bg-muted/60"
+								aria-label={label}
+							>
+								<Icon className={`size-3.5 ${iconClassName}`} />
+							</span>
+						</TooltipTrigger>
+						<TooltipContent>{label}</TooltipContent>
+					</Tooltip>
+				);
+			})}
 		</div>
 	);
 }
@@ -193,11 +224,7 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 		setMergeAppId((prev) => (prev === id ? null : prev));
 	};
 
-	const handleToggle = async (
-		app: AppItem,
-		field: "is_public" | "is_active",
-		value: boolean
-	) => {
+	const handleVisibilityToggle = async (app: AppItem, value: boolean) => {
 		setBusy(app.id, true);
 		try {
 			const updatePromise = (async () => {
@@ -206,7 +233,7 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 					{
 						method: "PUT",
 						headers: { "Content-Type": "application/json" },
-						body: JSON.stringify({ [field]: value }),
+						body: JSON.stringify({ is_public: value }),
 					},
 				);
 				if (!response.ok) {
@@ -220,29 +247,62 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 				error: (err) => err?.message ?? "Failed to update app",
 			});
 			await updatePromise;
-			updateLocal(app.id, { [field]: value });
+			updateLocal(app.id, { is_public: value });
 		} finally {
 			setBusy(app.id, false);
 		}
 	};
 
-	const renderActions = (app: AppItem) => {
+	const renderActions = (app: AppItem, mobile = false) => {
+		const canMerge =
+			!app.is_managed && sortedApps.filter((item) => !item.is_managed).length > 1;
 		const isBusy = pending[app.id];
-		const canMerge = sortedApps.length > 1;
 		const attributionHeaders = getAttributionHeaders(app);
 
 		return (
 			<DropdownMenu>
-				<DropdownMenuTrigger render={<Button
+				<Tooltip>
+					<TooltipTrigger render={<DropdownMenuTrigger render={<Button
 						variant="ghost"
 						size="icon-sm"
-						aria-label={`Manage ${app.title}`} />}>
-
+						className={mobile ? "size-10 rounded-md" : "rounded-md"}
+						aria-label={`Manage ${app.title}`} />} />}>
 						<MoreHorizontal className="size-4" />
-
-				</DropdownMenuTrigger>
-				<DropdownMenuContent align="end" className="w-44">
+					</TooltipTrigger>
+					<TooltipContent>More actions</TooltipContent>
+				</Tooltip>
+				<DropdownMenuContent align="end" className="w-44 rounded-md">
+					{mobile ? (
+						<>
+							<DropdownMenuItem
+								className="rounded-md"
+								render={
+									<Link href={`/apps/${encodeURIComponent(app.id)}`} />
+								}
+							>
+								<BarChart2 className="mr-2 size-4" />
+								View Stats
+							</DropdownMenuItem>
+							{!app.is_managed ? (
+								<DropdownMenuItem
+									className="rounded-md"
+									disabled={isBusy}
+									onClick={() =>
+										handleVisibilityToggle(app, !app.is_public)
+									}
+								>
+									{app.is_public ? (
+										<Lock className="mr-2 size-4" />
+									) : (
+										<Globe className="mr-2 size-4" />
+									)}
+									{app.is_public ? "Make Private" : "Make Public"}
+								</DropdownMenuItem>
+							) : null}
+						</>
+					) : null}
 					<DropdownMenuItem
+						className="rounded-md"
 						onClick={() => {
 							navigator.clipboard
 								.writeText(attributionHeaders)
@@ -251,35 +311,30 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 						}}
 					>
 						<Copy className="mr-2 size-4" />
-						Copy headers
+						Copy Headers
 					</DropdownMenuItem>
-					<DropdownMenuItem onClick={() => setEditAppId(app.id)}>
-						<Pencil className="mr-2 size-4" />
-						Edit
-					</DropdownMenuItem>
-					<DropdownMenuItem
-						disabled={!canMerge}
-						onClick={() => {
-							if (!canMerge) return;
-							setMergeAppId(app.id);
-						}}
-					>
-						<Merge className="mr-2 size-4" />
-						Merge
-					</DropdownMenuItem>
-					<DropdownMenuItem
-						disabled={isBusy}
-						onClick={() => {
-							handleToggle(app, "is_active", !app.is_active);
-						}}
-					>
-						{app.is_active ? (
-							<PowerOff className="mr-2 size-4" />
-						) : (
-							<Power className="mr-2 size-4" />
-						)}
-						{app.is_active ? "Disable" : "Enable"}
-					</DropdownMenuItem>
+					{!app.is_managed ? (
+						<DropdownMenuItem
+							className="rounded-md"
+							onClick={() => setEditAppId(app.id)}
+						>
+							<Pencil className="mr-2 size-4" />
+							Edit
+						</DropdownMenuItem>
+					) : null}
+					{!app.is_managed ? (
+						<DropdownMenuItem
+							className="rounded-md"
+							disabled={!canMerge}
+							onClick={() => {
+								if (!canMerge) return;
+								setMergeAppId(app.id);
+							}}
+						>
+							<Merge className="mr-2 size-4" />
+							Merge
+						</DropdownMenuItem>
+					) : null}
 				</DropdownMenuContent>
 			</DropdownMenu>
 		);
@@ -287,7 +342,7 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 
 	if (!sortedApps.length) {
 		return (
-			<Empty className="rounded-xl border border-dashed border-border/80 p-8">
+			<Empty className="rounded-md border border-dashed border-border/80 p-8">
 				<EmptyHeader>
 					<EmptyMedia variant="icon">
 						<Blocks className="h-5 w-5" />
@@ -303,8 +358,8 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 	}
 
 	return (
-		<>
-			<div className="overflow-hidden rounded-lg border border-border/60 bg-card">
+		<TooltipProvider delayDuration={150}>
+			<div className="lg:overflow-hidden lg:rounded-md lg:border lg:border-border/60 lg:bg-card">
 				<ScrollArea
 					className="hidden w-full lg:block"
 					viewportClassName="pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
@@ -313,16 +368,15 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 				>
 					<Table
 						wrapInContainer={false}
-						className="min-w-[820px] table-fixed text-sm [&_tr:last-child]:border-b-0 [&_td]:px-4 [&_th]:px-4"
+						className="min-w-[720px] table-fixed text-sm [&_tr:last-child]:border-b-0 [&_td]:px-4 [&_th]:px-4"
 					>
 						<TableHeader className="bg-muted/30">
 							<TableRow>
-								<TableHead className="w-[38%]">App</TableHead>
-								<TableHead className="w-[12%]">Status</TableHead>
-								<TableHead className="w-[14%]">Visibility</TableHead>
-								<TableHead className="w-[14%]">Last Seen</TableHead>
-								<TableHead className="w-[14%]">Created</TableHead>
-								<TableHead className="w-[8%] text-right" />
+								<TableHead className="w-[42%]">App</TableHead>
+								<TableHead className="w-[16%]">Visibility</TableHead>
+								<TableHead className="w-[16%]">Last Seen</TableHead>
+								<TableHead className="w-[16%]">Created</TableHead>
+								<TableHead className="w-[10%] text-right" />
 							</TableRow>
 						</TableHeader>
 						<TableBody>
@@ -336,7 +390,8 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 											<div className="flex min-w-0 items-center gap-3">
 												<AppAvatar app={app} />
 												<div className="min-w-0">
-													<div className="truncate font-medium">
+													<div className="flex min-w-0 items-center gap-1">
+														<div className="truncate font-medium">
 														{displayUrl ? (
 															<Link
 																href={app.url ?? "#"}
@@ -349,61 +404,64 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 														) : (
 															app.title
 														)}
+														</div>
+														<CategoryIcons category={app.category} />
 													</div>
 													<div className="truncate text-xs text-muted-foreground">
 														{displayUrl ? app.url : "No public URL set"}
 													</div>
-													<div className="mt-1">
-														<CategoryBadges category={app.category} />
-													</div>
-												</div>
-											</div>
-										</TableCell>
-										<TableCell>
-											<StatusBadge active={app.is_active} />
-										</TableCell>
-										<TableCell>
-											<Button
-												type="button"
-												size="xs"
-												variant="outline"
-												disabled={isBusy}
-												onClick={() =>
-													handleToggle(app, "is_public", !app.is_public)
-												}
-												aria-label={`Make ${app.title} ${
-													app.is_public ? "private" : "public"
-												}`}
-											>
-												{app.is_public ? (
-													<Globe className="size-3" />
-												) : (
-													<Lock className="size-3" />
-												)}
-												{app.is_public ? "Public" : "Private"}
-											</Button>
-										</TableCell>
-										<TableCell className="text-xs text-muted-foreground">
-											{formatDate(app.last_seen)}
-										</TableCell>
-										<TableCell className="text-xs text-muted-foreground">
-											{formatDate(app.created_at)}
-										</TableCell>
-										<TableCell className="text-right">
-											<div className="flex items-center justify-end gap-1">
-												<Button
-													asChild
-													size="icon-sm"
-													variant="ghost"
-													aria-label={`View stats for ${app.title}`}
-												>
-													<Link href={`/apps/${encodeURIComponent(app.id)}`}>
+										</div>
+									</div>
+								</TableCell>
+								<TableCell>
+									{app.is_managed ? (
+										<Badge variant="outline" className="rounded-md">
+											Managed by Phaseo
+										</Badge>
+									) : (
+										<Button
+											type="button"
+											size="xs"
+											variant="outline"
+											className="rounded-md"
+											disabled={isBusy}
+											onClick={() =>
+												handleVisibilityToggle(app, !app.is_public)
+											}
+											aria-label={`Make ${app.title} ${
+												app.is_public ? "private" : "public"
+											}`}
+										>
+											{app.is_public ? (
+												<Globe className="size-3" />
+											) : (
+												<Lock className="size-3" />
+											)}
+											{app.is_public ? "Public" : "Private"}
+										</Button>
+									)}
+								</TableCell>
+								<TableCell className="text-xs text-muted-foreground">
+									{formatDate(app.last_seen)}
+								</TableCell>
+								<TableCell className="text-xs text-muted-foreground">
+									{formatDate(app.created_at)}
+								</TableCell>
+								<TableCell className="text-right">
+									<div className="flex items-center justify-end gap-1">
+										<Tooltip>
+											<TooltipTrigger asChild>
+												<Button asChild size="icon-sm" variant="ghost" className="rounded-md">
+													<Link href={`/apps/${encodeURIComponent(app.id)}`} aria-label={`View stats for ${app.title}`}>
 														<BarChart2 className="size-4" />
 													</Link>
 												</Button>
-												{renderActions(app)}
-											</div>
-										</TableCell>
+											</TooltipTrigger>
+							<TooltipContent>View Stats</TooltipContent>
+										</Tooltip>
+										{renderActions(app)}
+									</div>
+								</TableCell>
 									</TableRow>
 								);
 							})}
@@ -411,13 +469,15 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 					</Table>
 				</ScrollArea>
 
-				<div className="divide-y divide-border/60 lg:hidden">
+				<div className="space-y-3 lg:hidden">
 					{sortedApps.map((app) => {
 						const displayUrl = app.url && app.url !== "about:blank";
-						const isBusy = pending[app.id];
 
 						return (
-							<div key={app.id} className="space-y-3 p-3">
+							<div
+								key={app.id}
+								className="space-y-3 rounded-md border border-border/60 bg-card p-3"
+							>
 								<div className="flex items-start justify-between gap-3">
 									<div className="flex min-w-0 items-center gap-3">
 										<AppAvatar app={app} />
@@ -439,47 +499,11 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 											<div className="truncate text-xs text-muted-foreground">
 												{displayUrl ? app.url : "No public URL set"}
 											</div>
-											<div className="mt-1">
-												<CategoryBadges category={app.category} />
-											</div>
 										</div>
 									</div>
-									{renderActions(app)}
+									{renderActions(app, true)}
 								</div>
-
-								<div className="flex flex-wrap items-center gap-2">
-									<StatusBadge active={app.is_active} />
-									<Button
-										type="button"
-										size="xs"
-										variant="outline"
-										disabled={isBusy}
-										onClick={() =>
-											handleToggle(app, "is_public", !app.is_public)
-										}
-										aria-label={`Make ${app.title} ${
-											app.is_public ? "private" : "public"
-										}`}
-									>
-										{app.is_public ? (
-											<Globe className="size-3" />
-										) : (
-											<Lock className="size-3" />
-										)}
-										{app.is_public ? "Public" : "Private"}
-									</Button>
-									<Button
-										asChild
-										size="xs"
-										variant="outline"
-										aria-label={`View stats for ${app.title}`}
-									>
-										<Link href={`/apps/${encodeURIComponent(app.id)}`}>
-											<BarChart2 className="size-3" />
-											Stats
-										</Link>
-									</Button>
-								</div>
+								<CategoryBadges category={app.category} />
 
 								<div className="grid grid-cols-2 gap-3 text-xs">
 									<div>
@@ -522,6 +546,6 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 					hideTrigger
 				/>
 			) : null}
-		</>
+		</TooltipProvider>
 	);
 }

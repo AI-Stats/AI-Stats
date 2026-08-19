@@ -43,8 +43,8 @@ describe("encodeOpenAIResponsesResponse", () => {
 			content: [{ type: "output_text", text: "Hello! How can I help?", annotations: [] }],
 		});
 		expect(response.usage).toEqual({
-			prompt_tokens: 10,
-			completion_tokens: 7,
+			input_tokens: 10,
+			output_tokens: 7,
 			total_tokens: 17,
 		});
 	});
@@ -371,7 +371,10 @@ describe("encodeOpenAIResponsesResponse", () => {
 
 		expect(response.output).toHaveLength(1);
 		if (response.output[0].type === "message") {
-			expect(response.output[0].refusal).toBe("I cannot help with that.");
+			expect(response.output[0].content).toContainEqual({
+				type: "refusal",
+				refusal: "I cannot help with that.",
+			});
 		}
 	});
 
@@ -391,8 +394,8 @@ describe("encodeOpenAIResponsesResponse", () => {
 
 		const response = encodeOpenAIResponsesResponse(ir, "req-123");
 
-		expect(response.created).toBeGreaterThan(0);
-		expect(typeof response.created).toBe("number");
+		expect(response.created_at).toBeGreaterThan(0);
+		expect(typeof response.created_at).toBe("number");
 	});
 
 	it("should handle only reasoning without main content", () => {
@@ -521,4 +524,3 @@ describe("encodeOpenAIResponsesResponse", () => {
 		});
 	});
 });
-

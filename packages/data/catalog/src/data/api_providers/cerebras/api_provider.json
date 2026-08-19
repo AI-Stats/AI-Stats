@@ -7,6 +7,7 @@
   "default_execution_regions": null,
   "default_data_regions": null,
   "zero_data_retention": "default",
+  "data_retention_days": 0,
   "residency_source_url": "https://www.cerebras.ai/privacy-policy",
   "residency_notes": "Cerebras says it does not retain inputs and outputs from its training, inference, and chatbot services. It does not publish a fixed inference region; personal data may be stored and processed in the United States and other countries, and service logs are deleted when no longer needed.",
   "data_policy_tier": "private",
@@ -24,15 +25,22 @@
   "routable": null,
   "routing_enabled": null,
   "sdk_package": null,
-  "api_base_url": null,
+  "api_base_url": "https://api.cerebras.ai/v1",
   "docs_url": "https://inference-docs.cerebras.ai/",
-  "auth_env": null,
-  "api_formats": [],
+  "auth_env": ["CEREBRAS_API_KEY"],
+  "api_formats": ["openai.chat.completions"],
   "service_tiers": [],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "documentation",
+      "url": "https://inference-docs.cerebras.ai/api-reference/chat-completions",
+      "accessed_at": "2026-08-12T00:00:00Z",
+      "notes": "Official Chat Completions API reference under the default v2 behavior."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-12T00:00:00Z",
+    "notes": "Endpoint, bearer authentication, Chat request contract, reasoning, tools, streaming, usage, and errors checked against official Cerebras references."
   }
 }

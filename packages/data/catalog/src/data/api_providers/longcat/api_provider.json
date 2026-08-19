@@ -34,15 +34,18 @@
   "routable": null,
   "routing_enabled": null,
   "sdk_package": null,
-  "api_base_url": null,
+  "api_base_url": "https://api.longcat.chat/openai/v1",
   "docs_url": "https://longcat.chat/platform/docs/APIDocs.html",
-  "auth_env": null,
-  "api_formats": [],
+  "auth_env": "LONGCAT_API_KEY",
+  "api_formats": [
+    "openai_chat",
+    "anthropic_messages"
+  ],
   "service_tiers": [],
   "sources": [],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-12",
+    "notes": "Verified against LongCat's current API overview, Chat Completions, model, FAQ, error, and SDK compatibility references."
   }
 }

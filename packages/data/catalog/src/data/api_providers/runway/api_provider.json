@@ -31,9 +31,9 @@
   "sdk_package": null,
   "api_base_url": "https://api.dev.runwayml.com",
   "docs_url": "https://docs.dev.runwayml.com/api/",
-  "auth_env": ["RUNWAY_API_KEY"],
+  "auth_env": ["RUNWAYML_API_SECRET", "RUNWAY_API_KEY"],
   "api_formats": ["runway-task"],
   "service_tiers": ["standard"],
   "sources": [{ "kind": "official_documentation", "url": "https://docs.dev.runwayml.com/api/", "accessed_at": "2026-08-10T00:00:00Z", "notes": "Task creation and polling API." }],
-  "verification": { "status": "verified", "checked_at": "2026-08-10T00:00:00Z", "notes": "Runway Gen-4.5 task contract and pricing verified." }
+  "verification": { "status": "verified", "checked_at": "2026-08-12T00:00:00Z", "notes": "Runway Gen-4.5 task contract, output arrays, official authentication variable, cancellation, and pricing verified." }
 }

@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { fireworksQuirks } from "../../providers/fireworks/quirks";
+import { ChatCompletionsSchema } from "@core/schemas";
+import { decodeOpenAIChatRequest } from "@protocols/openai-chat/decode";
 
 describe("Fireworks quirks", () => {
 	it("normalizes responses payload to OpenAI field names", () => {
@@ -117,5 +119,63 @@ describe("Fireworks quirks", () => {
 			format: { type: "json_object" },
 		});
 	});
-});
 
+	it("maps IR reasoning and namespaced Chat controls", () => {
+		const request: Record<string, any> = {
+			model: "accounts/fireworks/models/deepseek-v4",
+			messages: [{ role: "user", content: "hello" }],
+		};
+		fireworksQuirks.transformRequest?.({
+			request,
+			ir: {
+				reasoning: { enabled: true, effort: "minimal" },
+				vendor: {
+					fireworks: {
+						min_p: 0.1,
+						perf_metrics_in_response: true,
+						reasoning_history: "interleaved",
+						safe_tokenization: true,
+					},
+				},
+			} as any,
+			model: request.model,
+		});
+
+		expect(request).toMatchObject({
+			reasoning_effort: "low",
+			min_p: 0.1,
+			perf_metrics_in_response: true,
+			reasoning_history: "interleaved",
+			safe_tokenization: true,
+		});
+	});
+
+	it("uses an integer reasoning budget and extracts reasoning_content", () => {
+		const request: Record<string, any> = { messages: [] };
+		fireworksQuirks.transformRequest?.({
+			request,
+			ir: { reasoning: { enabled: true, maxTokens: 2048 } } as any,
+		});
+		expect(request.reasoning_effort).toBe(2048);
+
+		expect(fireworksQuirks.extractReasoning?.({
+			choice: { message: { reasoning_content: "working" } },
+			rawContent: "answer",
+		})).toEqual({ main: "answer", reasoning: ["working"] });
+	});
+
+	it("retains validated provider_options.fireworks controls through public decode", () => {
+		const parsed = ChatCompletionsSchema.parse({
+			model: "fireworks/accounts/fireworks/models/deepseek-v4",
+			messages: [{ role: "user", content: "hello" }],
+			provider_options: {
+				fireworks: { min_p: 0.2, context_length_exceeded_behavior: "error" },
+			},
+		});
+		const ir = decodeOpenAIChatRequest(parsed as any);
+		expect(ir.vendor?.fireworks).toEqual({
+			min_p: 0.2,
+			context_length_exceeded_behavior: "error",
+		});
+	});
+});

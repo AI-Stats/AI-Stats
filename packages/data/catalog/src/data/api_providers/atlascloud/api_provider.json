@@ -25,15 +25,15 @@
   "routable": null,
   "routing_enabled": null,
   "sdk_package": null,
-  "api_base_url": null,
+  "api_base_url": "https://api.atlascloud.ai",
   "docs_url": "https://docs.atlascloud.ai/",
-  "auth_env": null,
-  "api_formats": [],
+  "auth_env": ["ATLAS_CLOUD_API_KEY"],
+  "api_formats": ["openai-chat", "atlascloud-async-media"],
   "service_tiers": [],
-  "sources": [],
+  "sources": [{ "kind": "official_documentation", "url": "https://www.atlascloud.ai/docs/en/models/overview", "accessed_at": "2026-08-12T00:00:00Z", "notes": "OpenAI-compatible chat and native asynchronous image/video endpoint families." }],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-12T00:00:00Z",
+    "notes": "Chat and native video lifecycle verified; generic OpenAI media endpoint registrations are intentionally disabled."
   }
 }

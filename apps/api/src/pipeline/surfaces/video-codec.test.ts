@@ -102,6 +102,7 @@ describe("video codec (OpenAI edge shape <-> video IR)", () => {
 		const ir = decodeOpenAIVideoRequestToIR({
 			model: "bytedance/seedance-2.0",
 			prompt: "Use the supplied soundtrack",
+			input_audio_duration: 12.5,
 			input_references: [
 				{ type: "audio_url", role: "source", media_url: { url: "https://example.com/music.mp3" } },
 				{ type: "audio_url", role: "reference", media_url: { url: "https://example.com/voice.mp3" } },
@@ -111,6 +112,7 @@ describe("video codec (OpenAI edge shape <-> video IR)", () => {
 		expect(ir.inputVideo).toBeUndefined();
 		expect(ir.referenceImages).toEqual([]);
 		expect(ir.inputReferences?.map((entry) => entry.type)).toEqual(["audio", "audio"]);
+		expect(ir.inputAudioDurationSeconds).toBe(12.5);
 	});
 
 	it("encodes video IR response back to public video job shape", () => {
@@ -121,12 +123,35 @@ describe("video codec (OpenAI edge shape <-> video IR)", () => {
 				model: "google/veo-3.1-generate-preview",
 				provider: "google-ai-studio",
 				status: "queued",
+				progress: 0,
+				createdAt: 1_712_697_600,
+				seconds: "8",
+				size: "1280x720",
 			},
 			"req_123",
 		);
 
 		expect(response.id).toBe("req_123");
-		expect(response.status).toBe("pending");
-		expect(response.polling_url).toBe("/v1/videos/req_123");
+		expect(response).toMatchObject({
+			id: "req_123",
+			object: "video",
+			status: "queued",
+			progress: 0,
+			created_at: 1_712_697_600,
+			seconds: "8",
+			size: "1280x720",
+		});
+		expect(response.polling_url).toBeUndefined();
+	});
+
+	it("decodes native OpenAI seconds and input_reference", () => {
+		const ir = decodeOpenAIVideoRequestToIR({
+			prompt: "Animate this reference",
+			model: "sora-2",
+			seconds: "12",
+			input_reference: { file_id: "file_reference" },
+		});
+		expect(ir.seconds).toBe(12);
+		expect(ir.inputReference).toEqual({ file_id: "file_reference" });
 	});
 });

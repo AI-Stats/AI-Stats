@@ -54,7 +54,49 @@ async function parseAudioTextPayload(response: Response): Promise<Record<string,
 function normalizeAudioTextUsage(payload: Record<string, any> | undefined): Record<string, any> | undefined {
     const usage = payload?.usage;
     if (!usage || typeof usage !== "object") return undefined;
-    return usage as Record<string, any>;
+    const seconds = typeof usage.seconds === "number"
+        ? usage.seconds
+        : typeof usage.duration === "number"
+            ? usage.duration
+            : undefined;
+    return {
+        ...usage,
+        ...(typeof seconds === "number" ? { input_audio_seconds: seconds } : {}),
+    } as Record<string, any>;
+}
+
+async function collectTranscriptionStreamUsage(stream: ReadableStream<Uint8Array>): Promise<Record<string, any> | undefined> {
+    const reader = stream.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    let usage: Record<string, any> | undefined;
+    const consume = (frame: string) => {
+        const data = frame
+            .split(/\r?\n/)
+            .filter((line) => line.startsWith("data:"))
+            .map((line) => line.slice(5).trim())
+            .join("\n");
+        if (!data || data === "[DONE]") return;
+        try {
+            const event = JSON.parse(data);
+            if (event?.usage && typeof event.usage === "object") usage = event.usage;
+        } catch {
+            // The client still receives malformed upstream frames unchanged.
+        }
+    };
+    while (true) {
+        const { value, done } = await reader.read();
+        buffer += decoder.decode(value ?? new Uint8Array(), { stream: !done });
+        let boundary: number;
+        while ((boundary = buffer.search(/\r?\n\r?\n/)) >= 0) {
+            const frame = buffer.slice(0, boundary);
+            buffer = buffer.slice(boundary).replace(/^\r?\n\r?\n/, "");
+            consume(frame);
+        }
+        if (done) break;
+    }
+    if (buffer.trim()) consume(buffer);
+    return usage;
 }
 
 export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
@@ -66,12 +108,80 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
     };
 
     const modelName = normalizeModelName(body.model).toLowerCase();
-    const responseFormat = body.response_format ?? defaultTranscriptionResponseFormat(body.model);
+    const responseFormat = body.response_format ?? (args.providerId === "scaleway" ? "json" : defaultTranscriptionResponseFormat(body.model));
     const isGptTranscribe = modelName.includes("transcribe") && modelName !== "whisper-1";
     const isDiarize = modelName.includes("transcribe-diarize");
+	const supportsLogprobs = modelName === "gpt-4o-transcribe" ||
+		modelName === "gpt-4o-mini-transcribe" ||
+		modelName === "gpt-4o-mini-transcribe-2025-12-15";
     const supportedGptFormats = isDiarize
         ? new Set(["json", "text", "diarized_json"])
         : new Set(["json"]);
+	if (args.providerId === "scaleway") {
+		if (responseFormat !== "json") {
+			return {
+				kind: "completed",
+				upstream: invalidParameterResponse("response_format", "Scaleway transcription supports only response_format=\"json\"."),
+				bill: emptyBill(),
+				keySource: keyInfo.source,
+				byokKeyId: keyInfo.byokId,
+			};
+		}
+		if ((body.timestamp_granularities?.length ?? 0) > 0 || (body.include?.length ?? 0) > 0 || body.chunking_strategy !== undefined) {
+			const param = (body.timestamp_granularities?.length ?? 0) > 0
+				? "timestamp_granularities"
+				: (body.include?.length ?? 0) > 0 ? "include" : "chunking_strategy";
+			return {
+				kind: "completed",
+				upstream: invalidParameterResponse(param, `Scaleway transcription does not support ${param}.`),
+				bill: emptyBill(),
+				keySource: keyInfo.source,
+				byokKeyId: keyInfo.byokId,
+			};
+		}
+	}
+    if (args.providerId === "ovhcloud") {
+        const supportedFormats = new Set(["json", "text", "verbose_json"]);
+        if (!supportedFormats.has(responseFormat)) {
+            return {
+                kind: "completed",
+                upstream: invalidParameterResponse(
+                    "response_format",
+                    `OVHcloud Whisper supports response_format="json", "text", or "verbose_json"; SRT and VTT are not yet supported.`,
+                ),
+                bill: emptyBill(),
+                keySource: keyInfo.source,
+                byokKeyId: keyInfo.byokId,
+            };
+        }
+        if (body.stream === true) {
+            return {
+                kind: "completed",
+                upstream: invalidParameterResponse("stream", "OVHcloud Whisper does not support streaming transcription."),
+                bill: emptyBill(),
+                keySource: keyInfo.source,
+                byokKeyId: keyInfo.byokId,
+            };
+        }
+        if ((body.include?.length ?? 0) > 0) {
+            return {
+                kind: "completed",
+                upstream: invalidParameterResponse("include", "OVHcloud Whisper does not support include or logprobs."),
+                bill: emptyBill(),
+                keySource: keyInfo.source,
+                byokKeyId: keyInfo.byokId,
+            };
+        }
+        if ((body.timestamp_granularities?.length ?? 0) > 0 && responseFormat !== "verbose_json") {
+            return {
+                kind: "completed",
+                upstream: invalidParameterResponse("timestamp_granularities", "OVHcloud Whisper timestamps require response_format=\"verbose_json\"."),
+                bill: emptyBill(),
+                keySource: keyInfo.source,
+                byokKeyId: keyInfo.byokId,
+            };
+        }
+    }
     if (isGptTranscribe && !supportedGptFormats.has(responseFormat)) {
         return {
             kind: "completed",
@@ -127,6 +237,15 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
                 byokKeyId: keyInfo.byokId,
             };
         }
+		if ((body.include?.length ?? 0) > 0 && !supportsLogprobs) {
+			return {
+				kind: "completed",
+				upstream: invalidParameterResponse("include", `${modelName} does not support include; log probabilities require a GPT-4o transcription model.`),
+				bill: emptyBill(),
+				keySource: keyInfo.source,
+				byokKeyId: keyInfo.byokId,
+			};
+		}
     }
     if (modelName === "whisper-1") {
         const supportedFormats = new Set(["json", "text", "srt", "verbose_json", "vtt"]);
@@ -175,15 +294,21 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
         : "audio";
     form.append("file", body.file, filename);
     if (body.language) form.append("language", body.language);
+	for (const language of body.languages ?? []) form.append("languages[]", language);
+	for (const keyword of body.keywords ?? []) form.append("keywords[]", keyword);
     if (body.prompt) form.append("prompt", body.prompt);
     if (typeof body.temperature === "number") form.append("temperature", String(body.temperature));
     form.append("response_format", responseFormat);
+	if (typeof body.stream === "boolean") form.append("stream", String(body.stream));
     if (Array.isArray(body.timestamp_granularities)) {
         for (const entry of body.timestamp_granularities) {
             if (entry === "word" || entry === "segment") {
                 form.append("timestamp_granularities[]", entry);
             }
         }
+    }
+    if (args.providerId === "ovhcloud" && typeof body.diarize === "boolean") {
+        form.append("diarize", String(body.diarize));
     }
     if (Array.isArray(body.include)) {
         for (const entry of body.include) {
@@ -193,11 +318,14 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
         }
     }
     if (body.chunking_strategy !== undefined) {
+		const chunkingStrategy = args.providerId === "ovhcloud" && typeof body.chunking_strategy === "object"
+			? { vad_config: body.chunking_strategy }
+			: body.chunking_strategy;
         form.append(
             "chunking_strategy",
-            typeof body.chunking_strategy === "string"
-                ? body.chunking_strategy
-                : JSON.stringify(body.chunking_strategy),
+            typeof chunkingStrategy === "string"
+                ? chunkingStrategy
+                : JSON.stringify(chunkingStrategy),
         );
     }
     for (const name of body.known_speaker_names ?? []) {
@@ -215,6 +343,30 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
         headers,
         body: form,
     });
+	const baseBill = {
+		cost_cents: 0,
+		currency: "USD" as const,
+		usage: undefined as any,
+		upstream_id: res.headers.get("x-request-id"),
+		finish_reason: null,
+	};
+	if (res.ok && body.stream === true && res.body) {
+		const [clientStream, accountingStream] = res.body.tee();
+		const usageFinalizer = async () => {
+			const upstreamUsage = await collectTranscriptionStreamUsage(accountingStream);
+			const estimated = await estimateOpenAiSpeechToTextUsage({ file: body.file, prompt: body.prompt });
+			return { ...baseBill, usage: mergeSpeechToTextUsage(upstreamUsage, estimated) };
+		};
+		return {
+			kind: "stream",
+			upstream: res,
+			stream: clientStream,
+			usageFinalizer,
+			bill: baseBill,
+			keySource: keyInfo.source,
+			byokKeyId: keyInfo.byokId,
+		};
+	}
 
     const normalized = await parseAudioTextPayload(res);
     let usage = normalizeAudioTextUsage(normalized);
@@ -231,12 +383,9 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
     }
 
     const bill = {
-        cost_cents: 0,
-        currency: "USD" as const,
-        usage: usage as any,
-        upstream_id: res.headers.get("x-request-id"),
-        finish_reason: null,
-    };
+		...baseBill,
+		usage: usage as any,
+	};
 
     return {
         kind: "completed",
@@ -247,4 +396,3 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
         byokKeyId: keyInfo.byokId,
     };
 }
-
