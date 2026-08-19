@@ -9,7 +9,9 @@ export type ChatRoomId =
 	| "music"
 	| "realtime"
 	| "moderation"
-	| "embeddings";
+	| "embeddings"
+	| "ocr"
+	| "rerank";
 
 export type ChatRoomConfig = {
 	id: ChatRoomId;
@@ -65,6 +67,8 @@ const MUSIC_CAPABILITY_HINTS = ["music.generate", "music", "song", "audio.music"
 const REALTIME_CAPABILITY_HINTS = ["audio.realtime", "realtime", "real-time"];
 const MODERATION_CAPABILITY_HINTS = ["moderation", "moderations.create", "text.moderate"];
 const EMBEDDINGS_CAPABILITY_HINTS = ["text.embed", "embeddings", "embedding"];
+const OCR_CAPABILITY_HINTS = ["ocr"];
+const RERANK_CAPABILITY_HINTS = ["rerank"];
 
 export const CHAT_ROOMS: ChatRoomConfig[] = [
 	{
@@ -131,6 +135,20 @@ export const CHAT_ROOMS: ChatRoomConfig[] = [
 		capabilityHints: EMBEDDINGS_CAPABILITY_HINTS,
 	},
 	{
+		id: "ocr",
+		label: "OCR",
+		route: "/chat/ocr",
+		description: "Extract structured text from documents and images.",
+		capabilityHints: OCR_CAPABILITY_HINTS,
+	},
+	{
+		id: "rerank",
+		label: "Rerank",
+		route: "/chat/rerank",
+		description: "Rank documents by relevance to a query.",
+		capabilityHints: RERANK_CAPABILITY_HINTS,
+	},
+	{
 		id: "fusion",
 		label: "Fusion",
 		route: "/chat/fusion",
@@ -157,7 +175,9 @@ export const CHAT_ROOM_BY_ID: Record<ChatRoomId, ChatRoomConfig> = {
 	realtime: CHAT_ROOMS[6],
 	moderation: CHAT_ROOMS[7],
 	embeddings: CHAT_ROOMS[8],
-	fusion: CHAT_ROOMS[9],
+	ocr: CHAT_ROOMS[9],
+	rerank: CHAT_ROOMS[10],
+	fusion: CHAT_ROOMS[11],
 };
 
 const IMAGE_MODEL_HINTS = [
@@ -246,6 +266,12 @@ export function capabilityIdToRoomId(
 	if (matchesCapability(normalized, EMBEDDINGS_CAPABILITY_HINTS)) {
 		return "embeddings";
 	}
+	if (matchesCapability(normalized, OCR_CAPABILITY_HINTS)) {
+		return "ocr";
+	}
+	if (matchesCapability(normalized, RERANK_CAPABILITY_HINTS)) {
+		return "rerank";
+	}
 	return null;
 }
 
@@ -299,6 +325,8 @@ function roomIdsFromOutputModalities(
 		else if (modality === "audio") rooms.add("audio");
 		else if (modality === "embeddings") rooms.add("embeddings");
 		else if (modality === "moderations") rooms.add("moderation");
+		else if (modality === "ocr") rooms.add("ocr");
+		else if (modality === "rerank") rooms.add("rerank");
 	}
 	return Array.from(rooms);
 }

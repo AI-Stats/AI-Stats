@@ -26,10 +26,10 @@ describe("chat room capability mapping", () => {
 		expect(capabilityIdToRoomId("realtime")).toBe("realtime");
 	});
 
-	it("does not map capabilities reserved for future rooms", () => {
-		expect(capabilityIdToRoomId("ocr")).toBeNull();
-		expect(capabilityIdToRoomId("rerank")).toBeNull();
-		expect(capabilityIdToRoomId("text.rerank")).toBeNull();
+	it("maps normalized capabilities to their dedicated rooms", () => {
+		expect(capabilityIdToRoomId("ocr")).toBe("ocr");
+		expect(capabilityIdToRoomId("rerank")).toBe("rerank");
+		expect(capabilityIdToRoomId("text.rerank")).toBe("rerank");
 	});
 
 	it("normalizes capability aliases and groups image editing with Images", () => {
@@ -84,6 +84,8 @@ describe("chat room capability mapping", () => {
 		];
 
 		expect(filterModelsForRoom(models, "text")).toEqual([]);
+		expect(filterModelsForRoom(models, "ocr")).toEqual(models.slice(0, 2));
+		expect(filterModelsForRoom(models, "rerank")).toEqual(models.slice(2));
 	});
 
 	it("falls back to model id inference only when capabilities are absent", () => {

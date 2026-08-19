@@ -6,11 +6,18 @@ import { withPublicCache } from "@/http/cache";
 const CACHE = { edgeTtlSeconds: 5 * 60, staleWhileRevalidateSeconds: 5 * 60, cacheTags: ["web-api-gateway-models"] } as const;
 export const publicGatewayRouter = new Hono<{ Bindings: Env }>();
 
+function normalizeCapabilityId(value: unknown): string {
+	const capabilityId = String(value ?? "").trim().toLowerCase();
+	return ["rerank.create", "text.rerank"].includes(capabilityId)
+		? "rerank"
+		: capabilityId;
+}
+
 async function gatewayModels(env: Env) {
 	const client = getDataClient(env); const providerModels: Array<Record<string, unknown>> = [];
 	for (let offset = 0; ; offset += 1_000) { const result = await client.from("v2_model_provider_routes").select("provider_api_model_id:provider_model_id,provider_id:provider_slug,api_model_id:model_slug,model_id:model_slug,is_active_gateway:routing_enabled,input_modalities,output_modalities,effective_from,effective_to").order("provider_model_id", { ascending: true }).range(offset, offset + 999); if (result.error) throw result.error; providerModels.push(...((result.data ?? []) as Array<Record<string, unknown>>)); if ((result.data?.length ?? 0) < 1_000) break; }
 	const providerModelIds = providerModels.map((row) => String(row.provider_api_model_id ?? "")).filter(Boolean); const capabilities = new Map<string, Set<string>>(); const capabilityParams = new Map<string, Record<string, unknown>>();
-	for (let offset = 0; offset < providerModelIds.length; offset += 200) { const result = await client.from("v2_route_capabilities").select("provider_api_model_id:provider_model_id,capability_id,params,status").in("provider_model_id", providerModelIds.slice(offset, offset + 200)); if (result.error) throw result.error; for (const row of result.data ?? []) { if (!row.provider_api_model_id || !row.capability_id || ["disabled", "internal_testing"].includes(String(row.status ?? "").toLowerCase())) continue; const values = capabilities.get(row.provider_api_model_id) ?? new Set<string>(); values.add(row.capability_id); capabilities.set(row.provider_api_model_id, values); const params = capabilityParams.get(row.provider_api_model_id) ?? {}; params[String(row.capability_id)] = row.params && typeof row.params === "object" ? row.params : {}; capabilityParams.set(row.provider_api_model_id, params); } }
+	for (let offset = 0; offset < providerModelIds.length; offset += 200) { const result = await client.from("v2_route_capabilities").select("provider_api_model_id:provider_model_id,capability_id,params,status").in("provider_model_id", providerModelIds.slice(offset, offset + 200)); if (result.error) throw result.error; for (const row of result.data ?? []) { const capabilityId = normalizeCapabilityId(row.capability_id); if (!row.provider_api_model_id || !capabilityId || ["disabled", "internal_testing"].includes(String(row.status ?? "").toLowerCase())) continue; const values = capabilities.get(row.provider_api_model_id) ?? new Set<string>(); values.add(capabilityId); capabilities.set(row.provider_api_model_id, values); const params = capabilityParams.get(row.provider_api_model_id) ?? {}; params[capabilityId] = row.params && typeof row.params === "object" ? row.params : {}; capabilityParams.set(row.provider_api_model_id, params); } }
 	const providerIds = [...new Set(providerModels.map((row) => String(row.provider_id ?? "")).filter(Boolean))]; const modelIds = [...new Set(providerModels.map((row) => String(row.model_id ?? "")).filter(Boolean))];
 	const idChunkSize = 200;
 	const providerResults = await Promise.all(
