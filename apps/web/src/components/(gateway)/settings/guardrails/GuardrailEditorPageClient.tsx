@@ -1881,7 +1881,7 @@ export default function GuardrailEditorPageClient(props: {
 											Account Privacy applies first; blocked routes remain unavailable here.
 										</span>
 										<Button asChild type="button" variant="ghost" size="sm" className="h-7 justify-start px-2 sm:justify-center">
-											<Link href="/settings/account/privacy">Review account policy</Link>
+											<Link href="/settings/privacy">Review workspace privacy</Link>
 										</Button>
 									</div>
 								) : null}
@@ -2593,4 +2593,3 @@ export default function GuardrailEditorPageClient(props: {
 		</div>
 	);
 }
-

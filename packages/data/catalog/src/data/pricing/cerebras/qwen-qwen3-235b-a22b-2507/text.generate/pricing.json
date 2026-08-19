@@ -15,6 +15,7 @@
       "note": null,
       "match": [],
       "priority": 100,
+      "effective_to": "2026-05-27T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -30,6 +31,7 @@
       "note": null,
       "match": [],
       "priority": 100,
+      "effective_to": "2026-05-27T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -45,6 +47,7 @@
       "note": null,
       "match": [],
       "priority": 100,
+      "effective_to": "2026-05-27T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -55,10 +58,17 @@
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "deprecation",
+      "url": "https://inference-docs.cerebras.ai/support/deprecation",
+      "accessed_at": "2026-08-15T00:00:00Z",
+      "notes": "Cerebras fully deprecated qwen-3-235b-a22b-instruct-2507 on May 27, 2026."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-15T00:00:00Z",
+    "notes": "Pricing availability closes at the provider's documented route retirement boundary."
   }
 }

@@ -20,19 +20,21 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
+	ProviderInspectorSheet,
+	ProviderInspectorSheetContent,
+	ProviderInspectorSheetDescription,
+	ProviderInspectorSheetHeader,
+	ProviderInspectorSheetTitle,
+} from "@/components/(data)/model/pricing/ProviderInspectorSheet";
+import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import {
-	Dialog,
-	DialogContent,
-	DialogHeader,
-	DialogTitle,
-} from "@/components/ui/dialog";
 import { CopyButton } from "@/components/ui/copy-button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
 	HoverCard,
 	HoverCardContent,
@@ -100,10 +102,8 @@ function AsyncJobHeader({
 		.join(" · ");
 
 	return (
-		<div>
-			<div className="px-5 py-4 sm:px-6 sm:py-5">
-				<div className="pr-10">
-					<DialogTitle className="flex min-w-0 items-center gap-3 text-lg font-semibold">
+		<ProviderInspectorSheetHeader className="border-b border-border/70 px-5 py-4 pr-14 sm:px-6 sm:py-5">
+			<ProviderInspectorSheetTitle className="flex min-w-0 items-center gap-3 text-lg font-semibold">
 						{modelLogoId ? (
 							<Logo
 								id={modelLogoId}
@@ -124,12 +124,9 @@ function AsyncJobHeader({
 								{job.model ? modelLabel : "Async job"}
 							</span>
 						)}
-					</DialogTitle>
-					<div className="mt-2 text-sm text-muted-foreground">{subtitle}</div>
-				</div>
-			</div>
-			<Separator />
-		</div>
+			</ProviderInspectorSheetTitle>
+			<ProviderInspectorSheetDescription>{subtitle}</ProviderInspectorSheetDescription>
+		</ProviderInspectorSheetHeader>
 	);
 }
 
@@ -464,7 +461,7 @@ function AsyncJobAppBadge({
 	);
 }
 
-function AsyncJobDetailDialog({
+function AsyncJobDetailSheet({
 	job,
 	modelMetadata,
 	providerNames,
@@ -518,21 +515,17 @@ function AsyncJobDetailDialog({
 	);
 
 	return (
-		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="max-h-[90vh] max-w-6xl overflow-hidden p-0">
-				<DialogHeader className="sr-only">
-					<DialogTitle>Async job details</DialogTitle>
-				</DialogHeader>
-
+		<ProviderInspectorSheet open={open} onOpenChange={onOpenChange}>
+			<ProviderInspectorSheetContent className="!w-full max-w-none gap-0 overflow-hidden p-0 sm:max-w-none md:!w-[72vw] lg:!w-[68vw] xl:!w-[64vw] 2xl:!w-[60vw] data-[side=right]:sm:max-w-none">
 				{job ? (
-					<div>
+					<div className="flex min-h-0 flex-1 flex-col">
 						<AsyncJobHeader
 							job={job}
 							modelMetadata={modelMetadata}
 							providerNames={providerNames}
 						/>
 
-						<div className="max-h-[calc(90vh-110px)] space-y-6 overflow-y-auto p-5 sm:p-6">
+						<div className="min-h-0 flex-1 space-y-6 overflow-y-auto p-5 sm:p-6">
 							<div className="grid grid-cols-2 gap-2 md:grid-cols-3">
 								<DetailMetricTile
 									icon={Clock3}
@@ -752,8 +745,12 @@ function AsyncJobDetailDialog({
 												"-"
 											),
 										},
-										{
-											label: "App",
+									{
+										label: "Source",
+										value: job.client_source_name ?? job.client_source_id ?? "Direct HTTP",
+									},
+									{
+										label: "App",
 											value: job.app_id ? (
 												<div className="flex items-center gap-2">
 													{appHref ? (
@@ -1250,8 +1247,13 @@ function AsyncJobDetailDialog({
 									) : null}
 
 									{job.request_provider_attempts.length > 0 ? (
-										<div className="mt-4 overflow-x-auto rounded-xl border border-border/60">
-											<Table>
+										<ScrollArea
+											className="mt-4 w-full rounded-xl border border-border/60"
+											scrollBarOrientation="horizontal"
+											keepScrollbarMounted
+											viewportClassName="w-full pb-2"
+										>
+											<Table wrapInContainer={false} className="min-w-[720px]">
 												<TableHeader>
 													<TableRow>
 														<TableHead>Attempt</TableHead>
@@ -1294,7 +1296,7 @@ function AsyncJobDetailDialog({
 													))}
 												</TableBody>
 											</Table>
-										</div>
+										</ScrollArea>
 									) : null}
 								</DetailSection>
 							) : null}
@@ -1641,8 +1643,13 @@ function AsyncJobDetailDialog({
 										No webhook attempts recorded yet.
 									</div>
 								) : (
-									<div className="rounded-lg border">
-										<Table>
+									<ScrollArea
+										className="w-full rounded-lg border"
+										scrollBarOrientation="horizontal"
+										keepScrollbarMounted
+										viewportClassName="w-full pb-2"
+									>
+										<Table wrapInContainer={false} className="min-w-[840px]">
 											<TableHeader>
 												<TableRow>
 													<TableHead>Event</TableHead>
@@ -1670,14 +1677,14 @@ function AsyncJobDetailDialog({
 												))}
 											</TableBody>
 										</Table>
-									</div>
+									</ScrollArea>
 								)}
 							</DetailSection>
 						</div>
 					</div>
 				) : null}
-			</DialogContent>
-		</Dialog>
+			</ProviderInspectorSheetContent>
+		</ProviderInspectorSheet>
 	);
 }
 
@@ -2019,8 +2026,17 @@ export default function AsyncJobsPanel({
 			</div>
 		) : null}
 
-		<div className={cn("rounded-lg border", variant === "logs" ? "hidden md:block" : undefined)}>
-			<Table className={variant === "logs" ? "text-xs" : undefined}>
+		<div className={cn("overflow-hidden rounded-lg border", variant === "logs" ? "hidden md:block" : undefined)}>
+			<ScrollArea
+				className="w-full"
+				scrollBarOrientation="horizontal"
+				keepScrollbarMounted
+				viewportClassName="w-full pb-2"
+			>
+			<Table
+				wrapInContainer={false}
+				className={cn(variant === "logs" ? "min-w-[760px] text-xs" : "min-w-[860px]")}
+			>
 				<TableHeader>
 					<TableRow className={variant === "logs" ? "h-9" : undefined}>
 						{variant === "logs" ? <TableHead>Timestamp</TableHead> : null}
@@ -2282,6 +2298,7 @@ export default function AsyncJobsPanel({
 					})}
 				</TableBody>
 			</Table>
+			</ScrollArea>
 		</div>
 	</>
 	);
@@ -2324,7 +2341,7 @@ export default function AsyncJobsPanel({
 				</div>
 			)}
 
-			<AsyncJobDetailDialog
+			<AsyncJobDetailSheet
 				job={selectedJob}
 				modelMetadata={resolvedModelMetadata}
 				providerNames={resolvedProviderNames}
@@ -2333,6 +2350,7 @@ export default function AsyncJobsPanel({
 				onInspectRequest={openRequestDetail}
 				isInspectingRequest={isLoadingRequestDetail}
 				onOpenChange={(nextOpen) => {
+					if (!nextOpen && requestDetailOpen) return;
 					setOpen(nextOpen);
 					if (!nextOpen) {
 						setSelectedJob(null);
@@ -2342,6 +2360,7 @@ export default function AsyncJobsPanel({
 
 			<RequestDetailDialog
 				open={requestDetailOpen}
+				presentation="sheet"
 				onOpenChange={(nextOpen) => {
 					setRequestDetailOpen(nextOpen);
 					if (!nextOpen) {

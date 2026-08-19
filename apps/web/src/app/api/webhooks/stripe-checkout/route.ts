@@ -233,12 +233,6 @@ function getWebhookSecret(): string {
     return secret;
 }
 
-function redactSecret(secret: string): string {
-    if (!secret) return "<empty>";
-    if (secret.length <= 12) return `${secret.slice(0, 4)}...`;
-    return `${secret.slice(0, 7)}...${secret.slice(-4)}`;
-}
-
 function summarizeStripeSignatureHeader(signature: string) {
     const parts = signature
         .split(",")
@@ -448,19 +442,13 @@ export async function POST(req: Request) {
         const webhookSecret = getWebhookSecret();
         event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
     } catch (err: any) {
-        const configuredSecret = process.env.STRIPE_WEBHOOK_SECRET ?? "";
-        const normalizedSecret =
-            typeof configuredSecret === "string"
-                ? configuredSecret.trim().replace(/^["']|["']$/g, "")
-                : "";
         console.error("[stripe-webhook] Signature verification failed", {
             error: err?.message ?? String(err),
             bodyLength: rawBody.length,
             hasStripeSignatureHeader: signatureSummary.present,
             signatureTimestamp: signatureSummary.timestamp,
             signatureV1Count: signatureSummary.v1Count,
-            configuredSecretLength: normalizedSecret.length,
-            configuredSecretPreview: redactSecret(normalizedSecret),
+            hasConfiguredSecret: Boolean(process.env.STRIPE_WEBHOOK_SECRET?.trim()),
         });
         return NextResponse.json(
             { message: `Webhook Error: ${err?.message || String(err)}` },

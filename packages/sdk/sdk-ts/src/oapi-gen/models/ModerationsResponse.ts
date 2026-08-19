@@ -1,5 +1,10 @@
 export interface ModerationsResponse {
   id?: string;
+  meta?: {
+    generation_ms?: number;
+    latency_ms?: number;
+    [key: string]: unknown;
+  };
   model?: string;
   results?: {
     categories?: {

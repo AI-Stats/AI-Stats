@@ -22,7 +22,7 @@ const state = vi.hoisted(() => ({
 	saveBatchJobError: null as Error | null,
 	saveBatchJobErrorOnCall: null as number | null,
 	saveBatchJobCalls: 0,
-	previewProviders: "openai,anthropic,google-ai-studio,mistral,x-ai,groq,together",
+	previewProviders: "openai,anthropic,google-ai-studio,mistral,moonshotai,x-ai,groq,together",
 	googleApiKey: "test-google-key" as string | null,
 	guardContextFailure: null as Response | null,
 	policyAllowedProviders: null as string[] | null,
@@ -49,7 +49,7 @@ function resetState() {
 	state.saveBatchJobError = null;
 	state.saveBatchJobErrorOnCall = null;
 	state.saveBatchJobCalls = 0;
-	state.previewProviders = "openai,anthropic,google-ai-studio,mistral,x-ai,groq,together";
+	state.previewProviders = "openai,anthropic,google-ai-studio,mistral,moonshotai,x-ai,groq,together";
 	state.googleApiKey = "test-google-key";
 	state.guardContextFailure = null;
 	state.policyAllowedProviders = null;
@@ -89,7 +89,7 @@ vi.mock("@pipeline/before/guards", () => ({
 		? { ok: false, response: state.guardContextFailure }
 		: ({ ok: true, value: {
 			context: { teamSettings: {} },
-			providers: ["openai", "anthropic", "google-ai-studio", "mistral", "x-ai", "groq", "together"].map((providerId) => ({ providerId })),
+			providers: ["openai", "anthropic", "google-ai-studio", "mistral", "moonshotai", "x-ai", "groq", "together"].map((providerId) => ({ providerId })),
 			resolvedModel: null,
 			candidateDiagnostics: {},
 		} })),
@@ -129,6 +129,8 @@ vi.mock("@/runtime/env", () => ({
 	getBindings: () => ({
 		OPENAI_API_KEY: "test-openai-key",
 		OPENAI_BASE_URL: "https://api.openai.example/v1",
+		MOONSHOT_API_KEY: "test-moonshot-key",
+		MOONSHOT_AI_BASE_URL: "https://api.moonshot.example",
 		...(state.googleApiKey ? { GOOGLE_AI_STUDIO_API_KEY: state.googleApiKey } : {}),
 		BATCH_API_PREVIEW_PROVIDERS: state.previewProviders,
 	}),
@@ -485,7 +487,7 @@ describe("batchRoutes", () => {
 				});
 
 				if (url === "https://api.openai.example/v1/files/file_input_123/content" && method === "GET") {
-					return new Response(JSON.stringify({ body: { model: "gpt-4.1-mini", max_output_tokens: 16 } }), { status: 200 });
+					return new Response(JSON.stringify({ custom_id: "row-1", method: "POST", url: "/v1/responses", body: { model: "gpt-4.1-mini", max_output_tokens: 16 } }), { status: 200 });
 				}
 				if (url === "https://api.openai.example/v1/batches" && method === "POST") {
 					return jsonResponse({
@@ -651,7 +653,7 @@ describe("batchRoutes", () => {
 				const method = String(init?.method ?? "GET").toUpperCase();
 
 				if (url === "https://api.openai.example/v1/files/file_input_fail_123/content" && method === "GET") {
-					return new Response(JSON.stringify({ body: { model: "gpt-4.1-mini", max_output_tokens: 16 } }), { status: 200 });
+					return new Response(JSON.stringify({ custom_id: "row-1", method: "POST", url: "/v1/responses", body: { model: "gpt-4.1-mini", max_output_tokens: 16 } }), { status: 200 });
 				}
 				if (url === "https://api.openai.example/v1/batches" && method === "POST") {
 					return jsonResponse({
@@ -884,11 +886,11 @@ describe("batchRoutes", () => {
 				if (url === "https://api.groq.com/openai/v1/batches" && method === "POST") {
 					return jsonResponse({ id: "batch_groq", status: "validating", input_file_id: "file_groq_input" });
 				}
-				if (url === "https://api.together.xyz/v1/files" && method === "POST") {
+				if (url === "https://api.together.ai/v1/files/upload" && method === "POST") {
 					return jsonResponse({ id: "file_together_input", purpose: "batch-api", status: "uploaded" });
 				}
-				if (url === "https://api.together.xyz/v1/batches" && method === "POST") {
-					return jsonResponse({ id: "batch_together", status: "VALIDATING", input_file_id: "file_together_input" });
+				if (url === "https://api.together.ai/v1/batches" && method === "POST") {
+					return jsonResponse({ job: { id: "batch_together", status: "VALIDATING", input_file_id: "file_together_input" } }, { status: 201 });
 				}
 				if (url === "https://api.mistral.ai/v1/batch/jobs" && method === "POST") {
 					return jsonResponse({ id: "batch_mistral", status: "RUNNING", total_requests: 1, succeeded_requests: 0, failed_requests: 0 });
@@ -917,6 +919,7 @@ describe("batchRoutes", () => {
 		const makePayload = (label: string, model: string) => ({
 			endpoint: "/v1/chat/completions",
 			model,
+			...(label === "mistral" ? { agent_id: "agent_legacy" } : {}),
 			requests: [
 				{
 					custom_id: `${label}-request-1`,
@@ -954,6 +957,7 @@ describe("batchRoutes", () => {
 		expect(state.fetchCalls[0]?.bodyJson).toMatchObject({
 			endpoint: "/v1/chat/completions",
 			model: "mistral-large-latest",
+			agent_id: "agent_legacy",
 			requests: [
 				{
 					custom_id: "mistral-request-1",
@@ -997,6 +1001,90 @@ describe("batchRoutes", () => {
 			expect.objectContaining({ provider: "anthropic", nativeBatchId: "batch_anthropic", status: "in_progress", apiKeyId: "key_batch_test" }),
 			expect.objectContaining({ provider: "google-ai-studio", nativeBatchId: "batches/batch_gemini", apiKeyId: "key_batch_test" }),
 		]));
+	});
+
+	it("uploads a normalized Kimi K2.6 JSONL batch and preserves its supported completion window", async () => {
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+			const url = String(input);
+			const method = String(init?.method ?? "GET").toUpperCase();
+			const bodyText = typeof init?.body === "string" ? init.body : null;
+			state.fetchCalls.push({
+				url,
+				method,
+				bodyText,
+				bodyJson: bodyText ? JSON.parse(bodyText) : null,
+				headers: Object.fromEntries(new Headers(init?.headers).entries()),
+			});
+			if (url === "https://api.moonshot.example/v1/files" && method === "POST") {
+				const form = init?.body as FormData;
+				const file = form.get("file") as File;
+				const jsonl = await file.text();
+				expect(JSON.parse(jsonl.trim())).toMatchObject({
+					custom_id: "kimi-row-1",
+					method: "POST",
+					url: "/v1/chat/completions",
+					body: { model: "kimi-k2.6", max_tokens: 64 },
+				});
+				expect(JSON.parse(jsonl.trim()).body).not.toHaveProperty("temperature");
+				return jsonResponse({ id: "file_kimi_input", purpose: "batch", status: "uploaded" });
+			}
+			if (url === "https://api.moonshot.example/v1/batches" && method === "POST") {
+				expect(bodyText ? JSON.parse(bodyText) : null).toMatchObject({
+					input_file_id: "file_kimi_input",
+					endpoint: "/v1/chat/completions",
+					completion_window: "1d",
+					metadata: { audit: "kimi" },
+				});
+				return jsonResponse({ id: "batch_kimi", status: "validating", input_file_id: "file_kimi_input" });
+			}
+			throw new Error(`Unexpected fetch: ${method} ${url}`);
+		}));
+
+		const { batchRoutes } = await import("./batches");
+		const response = await batchRoutes.request("https://example.com/", {
+			method: "POST",
+			headers: { "content-type": "application/json" },
+			body: JSON.stringify({
+				provider: "moonshot-ai",
+				endpoint: "/v1/chat/completions",
+				completion_window: "1d",
+				metadata: { audit: "kimi" },
+				requests: [{
+					custom_id: "kimi-row-1",
+					body: {
+						model: "moonshotai/kimi-k2.6",
+						messages: [{ role: "user", content: [{ type: "video_url", video_url: { url: "https://example.com/demo.mp4" } }] }],
+						max_tokens: 64,
+						temperature: 0.8,
+					},
+				}],
+			}),
+		});
+		expect(response.status).toBe(200);
+		await expect(response.json()).resolves.toMatchObject({ native_batch_id: "batch_kimi", provider: "moonshotai" });
+		expect(state.fetchCalls.map((call) => `${call.method} ${call.url}`)).toEqual([
+			"POST https://api.moonshot.example/v1/files",
+			"POST https://api.moonshot.example/v1/batches",
+		]);
+	});
+
+	it("rejects unsupported Kimi Batch models and completion windows before dispatch", async () => {
+		const fetchMock = vi.fn();
+		vi.stubGlobal("fetch", fetchMock);
+		const { batchRoutes } = await import("./batches");
+		for (const [payload, reason] of [
+			[{ provider: "moonshotai", model: "kimi-k3", prompts: ["hello"] }, "moonshot_batch_model_unsupported"],
+			[{ provider: "moonshotai", model: "kimi-k2.5", completion_window: "8h", prompts: ["hello"] }, "moonshot_batch_completion_window_unsupported"],
+		] as const) {
+			const response = await batchRoutes.request("https://example.com/", {
+				method: "POST",
+				headers: { "content-type": "application/json" },
+				body: JSON.stringify(payload),
+			});
+			expect(response.status).toBe(400);
+			await expect(response.json()).resolves.toMatchObject({ reason });
+		}
+		expect(fetchMock).not.toHaveBeenCalled();
 	});
 
 	it("routes requests batches from row-level models without requiring a top-level model", async () => {
@@ -1287,11 +1375,11 @@ describe("batchRoutes", () => {
 				if (url === "https://api.groq.com/openai/v1/batches" && method === "POST") {
 					return jsonResponse({ id: "batch_groq_mixed", status: "validating", input_file_id: "file_groq_mixed" });
 				}
-				if (url === "https://api.together.xyz/v1/files" && method === "POST") {
+				if (url === "https://api.together.ai/v1/files/upload" && method === "POST") {
 					return jsonResponse({ id: "file_together_mixed", purpose: "batch-api", status: "uploaded" });
 				}
-				if (url === "https://api.together.xyz/v1/batches" && method === "POST") {
-					return jsonResponse({ id: "batch_together_mixed", status: "VALIDATING", input_file_id: "file_together_mixed" });
+				if (url === "https://api.together.ai/v1/batches" && method === "POST") {
+					return jsonResponse({ job: { id: "batch_together_mixed", status: "VALIDATING", input_file_id: "file_together_mixed" } }, { status: 201 });
 				}
 				throw new Error(`Unexpected fetch: ${method} ${url}`);
 			}),
@@ -2140,7 +2228,7 @@ describe("batchRoutes", () => {
 				});
 
 				if (url === "https://api.openai.example/v1/files/file_input_cancel_123/content" && method === "GET") {
-					return new Response(JSON.stringify({ body: { model: "gpt-4.1-mini", max_output_tokens: 16 } }), { status: 200 });
+					return new Response(JSON.stringify({ custom_id: "row-1", method: "POST", url: "/v1/responses", body: { model: "gpt-4.1-mini", max_output_tokens: 16 } }), { status: 200 });
 				}
 				if (url === "https://api.openai.example/v1/batches" && method === "POST") {
 					return jsonResponse({

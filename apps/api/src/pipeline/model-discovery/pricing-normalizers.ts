@@ -252,12 +252,6 @@ export function normalizeProviderModelPricing(providerId: string, modelDetails: 
 			const pricing = Array.isArray(model.pricing) ? asRecord(model.pricing[0]) : null;
 			return pricing ? promptCompletionPricing(pricing, true) : null;
 		}
-		case "novita":
-		case "novitaai":
-			return fromMeters({
-				input_text_tokens: asNumber(model.input_token_price_per_m),
-				output_text_tokens: asNumber(model.output_token_price_per_m),
-			});
 		case "spacex-ai":
 			return fromMeters({
 				input_text_tokens: centsPerHundredMillionTokensToPerMillion(model.prompt_text_token_price),

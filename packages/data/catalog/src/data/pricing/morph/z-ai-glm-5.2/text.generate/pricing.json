@@ -52,13 +52,62 @@
       "conditions": [],
       "source": "https://www.morphllm.com/pricing",
       "price_per_unit": 4.1
+    },
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "currency": "USD",
+      "pricing_plan": "flex",
+      "note": "Morph standby uses the standard token rates and may return 429 resource_unavailable without billing.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-07-30T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://docs.morphllm.com/llms.txt",
+      "price_per_unit": 1.1
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "currency": "USD",
+      "pricing_plan": "flex",
+      "note": "Morph standby uses the standard token rates.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-07-30T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://docs.morphllm.com/llms.txt",
+      "price_per_unit": 0.22
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "currency": "USD",
+      "pricing_plan": "flex",
+      "note": "Morph standby uses the standard token rates.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-07-30T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://docs.morphllm.com/llms.txt",
+      "price_per_unit": 4.1
     }
   ],
   "regions": [
     "US"
   ],
   "service_tiers": [
-    "standard"
+    "standard",
+    "flex"
   ],
   "sources": [
     {
@@ -69,6 +118,6 @@
   "verification": {
     "status": "verified",
     "checked_at": "2026-07-30T00:00:00Z",
-    "notes": "Official Morph pricing lists GLM-5.2 at $1.10 input, $0.22 cached input, and $4.10 output per 1M tokens."
+    "notes": "Verified standard pricing and the same-price standby service tier against Morph's current first-party documentation."
   }
 }

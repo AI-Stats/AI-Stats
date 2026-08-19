@@ -15,7 +15,7 @@ function resolveElevenLabsModelSlug(requestedModel: string, providerModelSlug?: 
 		return providerModelSlug.trim();
 	}
 	const tail = requestedModel.includes("/") ? requestedModel.split("/").pop() ?? requestedModel : requestedModel;
-	return tail.replace(/-/g, "_");
+	return tail.replace(/[.-]/g, "_");
 }
 
 function resolveOutputFormat(
@@ -210,7 +210,7 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
 	};
 
 	if (res.ok && args.pricingCard) {
-		const usageMeters = { requests: 1 };
+		const usageMeters = { input_characters: typedPayload.input.length };
 		const pricedUsage = computeBill(usageMeters, args.pricingCard, { model: modelId });
 		bill.cost_cents = pricedUsage.pricing.total_cents;
 		bill.currency = pricedUsage.pricing.currency;

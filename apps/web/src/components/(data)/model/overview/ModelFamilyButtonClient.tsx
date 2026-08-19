@@ -21,6 +21,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 
 import type { FamilyInfo } from "@/lib/fetchers/families/types";
+import { getModelDetailsHref } from "@/lib/models/modelHref";
 
 export default function ModelFamilyButtonClient({
 	family,
@@ -93,28 +94,33 @@ export default function ModelFamilyButtonClient({
 				{/* List of Models */}
 				<ScrollArea className="max-h-[50vh]">
 					<ul className="p-2 sm:p-3">
-						{models.map((m) => (
-							<li key={m.model_id}>
-								<button
-									type="button"
-									onClick={() => {
-										setOpen(false);
-										router.push(`/models/${m.model_id}`);
-									}}
-									className="group flex w-full items-center justify-between rounded-md px-2 py-2.5 text-left hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-								>
-									<div className="min-w-0">
-										<div className="truncate text-sm font-medium">
-											{m.name}
+						{models.map((m) => {
+							const modelHref = getModelDetailsHref(null, m.model_id);
+							return (
+								<li key={m.model_id}>
+									<button
+										type="button"
+										disabled={!modelHref}
+										onClick={() => {
+											if (!modelHref) return;
+											setOpen(false);
+											router.push(modelHref);
+										}}
+										className="group flex w-full items-center justify-between rounded-md px-2 py-2.5 text-left hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+									>
+										<div className="min-w-0">
+											<div className="truncate text-sm font-medium">
+												{m.name}
+											</div>
+											<div className="truncate text-xs text-muted-foreground">
+												{m.model_id}
+											</div>
 										</div>
-										<div className="truncate text-xs text-muted-foreground">
-											{m.model_id}
-										</div>
-									</div>
-									<ChevronRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
-								</button>
-							</li>
-						))}
+										<ChevronRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+									</button>
+								</li>
+							);
+						})}
 					</ul>
 				</ScrollArea>
 
@@ -140,4 +146,3 @@ export default function ModelFamilyButtonClient({
 		</Popover>
 	);
 }
-

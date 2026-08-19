@@ -3,12 +3,15 @@
   "api_provider_name": "Relace",
   "provider_family_id": "relace",
   "offer_scope": "global",
-  "description": null,
+  "description": "Relace hosts specialized models for code search, trace compaction, code application, embeddings, and reranking.",
   "link": "https://relace.ai",
   "residency_mode": "unknown",
   "default_execution_regions": null,
   "default_data_regions": null,
   "zero_data_retention": "unknown",
+  "data_policy_tier": "unknown",
+  "data_policy_confidence": "unknown",
+  "data_policy_contract_mode": "none",
   "residency_source_url": null,
   "residency_notes": null,
   "prompt_training_policy": "unknown",
@@ -21,22 +24,29 @@
   "regional_pricing_mode": "unknown",
   "pricing_source_url": "https://relace.ai/pricing",
   "regional_pricing_notes": null,
-  "country_code": null,
+  "country_code": "US",
   "status": "Active",
   "colour": null,
-  "gateway_kind": null,
-  "routable": false,
-  "routing_enabled": false,
-  "sdk_package": null,
-  "api_base_url": null,
+  "gateway_kind": "openai_compatible",
+  "routable": true,
+  "routing_enabled": true,
+  "sdk_package": "openai",
+  "api_base_url": "https://models.relace.ai/v1/search",
   "docs_url": "https://docs.relace.ai",
-  "auth_env": null,
-  "api_formats": [],
+  "auth_env": "RELACE_API_KEY",
+  "api_formats": ["openai-chat-completions"],
   "service_tiers": [],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "documentation",
+      "url": "https://docs.relace.ai/docs/fast-agentic-search/agent",
+      "accessed_at": "2026-08-12T00:00:00Z",
+      "notes": "Official OpenAI-compatible relace-search endpoint and model contract."
+    }
+  ],
   "verification": {
-    "status": "partial",
+    "status": "verified",
     "checked_at": "2026-08-12T00:00:00Z",
-    "notes": "Provider identity and official public pages verified; integration remains disabled."
+    "notes": "Bearer authentication and the OpenAI-compatible relace-search endpoint were verified from first-party documentation."
   }
 }

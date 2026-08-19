@@ -33,6 +33,11 @@ export function encodeOpenAIChatResponse(
 		provider: ir.provider,
 		choices: ir.choices.map((choice) => encodeChoice(choice, resolvedRequestId)),
 		usage: encodeUsage(ir.usage),
+		...(ir.citations ? { citations: ir.citations } : {}),
+		...(ir.searchResults ? { search_results: ir.searchResults } : {}),
+		...(ir.images ? { images: ir.images } : {}),
+		...(ir.relatedQuestions ? { related_questions: ir.relatedQuestions } : {}),
+		...(ir.reasoningSteps ? { reasoning_steps: ir.reasoningSteps } : {}),
 	} as GatewayCompletionsResponse;
 }
 
@@ -97,12 +102,19 @@ function encodeChoice(
 			...(choice.message.refusal ? { refusal: choice.message.refusal } : {}),
 			tool_calls: choice.message.toolCalls?.map((tc) => ({
 				id: tc.id,
-				type: "function" as const,
-				function: {
-					name: tc.name,
-					arguments: tc.arguments,
-				},
-			})),
+				...(tc.type === "custom"
+					? {
+						type: "custom" as const,
+						custom: { name: tc.name, input: tc.arguments },
+					}
+					: {
+						type: "function" as const,
+						function: {
+							name: tc.name,
+							arguments: tc.arguments,
+						},
+					}),
+			})) as any,
 			// Per-message reasoning fields (MiniMax/Aion format)
 			...(reasoningContent ? { reasoning_content: reasoningContent } : {}),
 			...(reasoningDetails.length > 0 ? { reasoning_details: reasoningDetails } : {}),
@@ -157,8 +169,23 @@ function encodeUsage(usage?: IRUsage): GatewayUsage | undefined {
 	};
 	(result as any).prompt_tokens = inputTokens;
 	(result as any).completion_tokens = outputTokens;
+	if (typeof usage._ext?.spentCredits === "number") {
+		(result as any)["x-spent-credits"] = usage._ext.spentCredits;
+	}
 	if (typeof usage.reasoningTokens === "number") {
 		result.reasoning_tokens = usage.reasoningTokens;
+	}
+	if (typeof usage._ext?.citationTokens === "number") {
+		(result as any).citation_tokens = usage._ext.citationTokens;
+	}
+	if (typeof usage._ext?.numSearchQueries === "number") {
+		(result as any).num_search_queries = usage._ext.numSearchQueries;
+	}
+	if (typeof usage._ext?.searchContextSize === "string") {
+		(result as any).search_context_size = usage._ext.searchContextSize;
+	}
+	if (usage._ext?.providerCost) {
+		(result as any).cost = usage._ext.providerCost;
 	}
 
 	if (usage.cachedInputTokens || usage._ext?.inputImageTokens || usage._ext?.inputAudioTokens || usage._ext?.inputVideoTokens) {

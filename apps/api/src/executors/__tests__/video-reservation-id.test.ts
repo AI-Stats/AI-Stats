@@ -6,6 +6,7 @@ import { executor as alibabaVideo } from "../alibaba/video-generate";
 import { executor as atlasCloudVideo } from "../atlascloud/video-generate";
 import { executor as bytedanceSeedVideo } from "../bytedance-seed/video-generate";
 import { executor as googleVertexVideo } from "../google-vertex/video-generate";
+import { executor as googleAiStudioVideo } from "../google/video-generate";
 import { executor as falVideo } from "../fal/video-generate";
 import { executor as minimaxVideo } from "../minimax/video-generate";
 import { executor as ltxVideo } from "../ltx/video-generate";
@@ -46,6 +47,7 @@ describe("video reservation ids", () => {
 			bytedanceSeedVideo,
 			falVideo,
 			googleVertexVideo,
+			googleAiStudioVideo,
 			minimaxVideo,
 			ltxVideo,
 			openaiVideo,
@@ -63,7 +65,7 @@ describe("video reservation ids", () => {
 			).toBe(true);
 		}
 
-		expect(resolveProviderExecutor("novita", "video.generation")).toBe(nonTextAdapterExecutor);
+		expect(resolveProviderExecutor("novita", "video.generation")).toBeNull();
 		expect(resolveProviderExecutor("fal", "video.generation")).toBe(falVideo);
 		expect(resolveProviderExecutor("fal-ai", "video.generation")).toBeNull();
 	});

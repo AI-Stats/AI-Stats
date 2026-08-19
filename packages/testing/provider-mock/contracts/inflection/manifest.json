@@ -3,7 +3,7 @@
   "displayName": "Inflection AI",
   "source": {
     "kind": "official-docs",
-    "url": "https://developers.inflection.ai/docs"
+    "url": "https://developers.inflection.ai/api/docs"
   },
   "operations": [
     {

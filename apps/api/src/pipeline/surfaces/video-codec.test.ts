@@ -123,12 +123,35 @@ describe("video codec (OpenAI edge shape <-> video IR)", () => {
 				model: "google/veo-3.1-generate-preview",
 				provider: "google-ai-studio",
 				status: "queued",
+				progress: 0,
+				createdAt: 1_712_697_600,
+				seconds: "8",
+				size: "1280x720",
 			},
 			"req_123",
 		);
 
 		expect(response.id).toBe("req_123");
-		expect(response.status).toBe("pending");
-		expect(response.polling_url).toBe("/v1/videos/req_123");
+		expect(response).toMatchObject({
+			id: "req_123",
+			object: "video",
+			status: "queued",
+			progress: 0,
+			created_at: 1_712_697_600,
+			seconds: "8",
+			size: "1280x720",
+		});
+		expect(response.polling_url).toBeUndefined();
+	});
+
+	it("decodes native OpenAI seconds and input_reference", () => {
+		const ir = decodeOpenAIVideoRequestToIR({
+			prompt: "Animate this reference",
+			model: "sora-2",
+			seconds: "12",
+			input_reference: { file_id: "file_reference" },
+		});
+		expect(ir.seconds).toBe(12);
+		expect(ir.inputReference).toEqual({ file_id: "file_reference" });
 	});
 });

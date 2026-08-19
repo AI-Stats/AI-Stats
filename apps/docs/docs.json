@@ -181,7 +181,17 @@
 											"v1/guides/integrations/coding-assistants",
 											"v1/guides/integrations/claude-code",
 											"v1/guides/integrations/codex",
-											"v1/guides/integrations/opencode"
+											"v1/guides/integrations/deepseek-harness",
+											"v1/guides/integrations/opencode",
+											"v1/guides/integrations/pi",
+											"v1/guides/integrations/prime-agent"
+											,"v1/guides/integrations/aider"
+											,"v1/guides/integrations/continue"
+											,"v1/guides/integrations/cline"
+											,"v1/guides/integrations/roo-code"
+											,"v1/guides/integrations/kilo-code"
+											,"v1/guides/integrations/cursor"
+											,"v1/guides/integrations/zed"
 										]
 									}
 								]
@@ -242,6 +252,7 @@
 											"v1/model-migrations/index",
 											"v1/model-migrations/anthropic-claude-opus-5",
 											"v1/model-migrations/openai-migrating-to-gpt-5-6",
+											"v1/model-migrations/openai-deprecations",
 											"v1/model-migrations/anthropic-claude-opus-4-1-to-4-8",
 											"v1/model-migrations/anthropic-claude-opus-4-6-to-4-7",
 											"v1/model-migrations/mistral-small-3-2-to-mistral-small-4",
@@ -1406,6 +1417,7 @@
 								"icon": "calendar-days",
 								"pages": [
 									"v1/changelog",
+									"v1/changelog/2026-07",
 									"v1/changelog/2026-06",
 									"v1/changelog/2026-05",
 									"v1/changelog/2026-04",

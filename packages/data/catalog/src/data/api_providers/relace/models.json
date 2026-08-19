@@ -1,65 +1,63 @@
 [
   {
     "api_model_id": "relace/relace-search",
-    "provider_api_model_id": "relace:relace/relace-search",
-    "provider_model_slug": "relace/relace-search",
+    "provider_api_model_id": "relace:relace-search",
+    "provider_model_slug": "relace-search",
     "internal_model_id": "relace/relace-search",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": "bf16",
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": 256000,
-    "max_output_tokens": 128000,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": null,
+    "max_output_tokens": null,
     "effective_from": "2026-08-12T00:00:00Z",
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "disabled",
+        "status": "active",
         "params": [
           "tools",
           "tool_choice",
-          "response_format",
           "temperature",
           "top_p",
-          "stop",
-          "seed",
-          "max_tokens"
+          "top_k",
+          "repetition_penalty"
         ],
         "reasoning": null,
-        "tool_call": null,
+        "tool_call": true,
         "structured_output": null,
-        "temperature": null,
+        "temperature": true,
         "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
+        "input_modalities": ["text"],
+        "output_modalities": ["text"],
         "modes": []
       }
     ],
-    "routing_status": "disabled",
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
-      "execution": null,
-      "data": null
+      "execution": ["global"],
+      "data": ["global"]
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
-      "endpoint": null,
+      "formats": ["openai-chat-completions"],
+      "endpoint": "https://models.relace.ai/v1/search/chat/completions",
       "deployment": null
     },
     "sources": [
       {
         "kind": "provider_models",
-        "url": null,
+        "url": "https://docs.relace.ai/docs/fast-agentic-search/agent",
         "accessed_at": "2026-08-12T00:00:00Z",
-        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+        "notes": "Official OpenAI-compatible endpoint, model slug, tool contract, and sampling example."
       }
     ],
     "verification": {
-      "status": "partial",
+      "status": "verified",
       "checked_at": "2026-08-12T00:00:00Z",
-      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+      "notes": "Verified against Relace's first-party Fast Agentic Search model guide. The model expects Relace's documented five-tool search harness."
     },
     "rate_limits": []
   }

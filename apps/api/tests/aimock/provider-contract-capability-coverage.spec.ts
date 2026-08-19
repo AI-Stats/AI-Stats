@@ -12,6 +12,9 @@ const inheritedContractByProvider: Record<string, string> = {
     "meta-contributor": "meta",
     streamlake: "openai",
     switchpoint: "openai",
+	"ionrouter-kimi": "ionrouter",
+	"ionrouter-minimax": "ionrouter",
+	tensorx: "tensorix",
     wafer: "openai",
 };
 

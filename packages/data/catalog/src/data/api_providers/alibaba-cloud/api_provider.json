@@ -21,19 +21,38 @@
   "prompt_training_policy": "no_train",
   "prompt_training_notes": "Alibaba Cloud Model Studio says it will never use your data for model training. For direct API calls, it says conversation data is not saved and only desensitized call status is recorded.",
   "prompt_training_source_url": "https://www.alibabacloud.com/help/en/model-studio/compliance-and-privacy",
-  "gateway_kind": null,
-  "routable": null,
-  "routing_enabled": null,
+  "gateway_kind": "hybrid",
+  "routable": true,
+  "routing_enabled": true,
   "sdk_package": null,
-  "api_base_url": null,
+  "api_base_url": "https://dashscope-intl.aliyuncs.com",
   "docs_url": "https://www.alibabacloud.com/help/en/model-studio/models",
-  "auth_env": null,
-  "api_formats": [],
+  "auth_env": "DASHSCOPE_API_KEY",
+  "api_formats": [
+    "openai_compatible",
+    "dashscope"
+  ],
   "service_tiers": [],
-  "sources": [],
+  "sources": [
+    {
+      "url": "https://www.alibabacloud.com/help/en/model-studio/base-url",
+      "title": "Base URL overview",
+      "checked_at": "2026-08-12"
+    },
+    {
+      "url": "https://www.alibabacloud.com/help/en/model-studio/qwen-api-reference",
+      "title": "Text Generation API Reference",
+      "checked_at": "2026-08-12"
+    },
+    {
+      "url": "https://www.alibabacloud.com/help/en/model-studio/batch-interfaces-compatible-with-openai/",
+      "title": "OpenAI Batch API",
+      "checked_at": "2026-08-12"
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-12T00:00:00.000Z",
+    "notes": "Verified regional OpenAI-compatible text/embeddings/Batch and native DashScope media contracts. Media endpoints require dedicated native adapters."
   }
 }

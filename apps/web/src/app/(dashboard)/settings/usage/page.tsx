@@ -608,9 +608,29 @@ async function ObservabilityContent({
 	const previousFrom = new Date(fromDate.getTime() - windowMs).toISOString();
 	const previousTo = from;
 
-	const initial = await fetchSettingsObservabilityData({ from, to, previousFrom, previousTo });
-	if (!initial?.signedIn) redirect("/sign-in");
-	if (!initial.workspaceId) return <div className="rounded-xl border bg-card p-6"><h1 className="text-xl font-semibold">Observability</h1><p className="mt-2 text-sm text-muted-foreground">You need to be signed in and have a team selected to view observability.</p></div>;
+	const result = await fetchSettingsObservabilityData({ from, to, previousFrom, previousTo });
+	if (result.status === "unauthenticated") redirect("/sign-in");
+	if (result.status === "no-workspace") {
+		return (
+			<div className="rounded-xl border bg-card p-6">
+				<h1 className="text-xl font-semibold">Observability</h1>
+				<p className="mt-2 text-sm text-muted-foreground">
+					Select or create a team to view observability.
+				</p>
+			</div>
+		);
+	}
+	if (result.status === "load-failed") {
+		return (
+			<div className="rounded-xl border bg-card p-6">
+				<h1 className="text-xl font-semibold">Unable to load observability</h1>
+				<p className="mt-2 text-sm text-muted-foreground">
+					Please try again shortly.
+				</p>
+			</div>
+		);
+	}
+	const initial = result.data;
 	const { keys, current: currentRequestResult, previous: previousRequestResult } = initial;
 	const rawRows = currentRequestResult.rows;
 	const previousRows = previousRequestResult.rows;

@@ -639,14 +639,13 @@ async function fetchAlibabaVideoStatus(job: VideoJobRecord): Promise<VideoProvid
 	const taskId = resolveStoredProviderTaskId(job, (value) => decodePrefixedBase64Id(value, DASHSCOPE_TASK_PREFIX));
 	if (!taskId) return null;
 	const providerId = String(job.provider ?? "alibaba").trim() || "alibaba";
+	const bindings = getBindings() as unknown as Record<string, string | undefined>;
 	const key = await resolveProviderPollingKey({
 		job,
 		providerId,
-		defaultEnvKey: "ALIBABA_CLOUD_API_KEY",
+		defaultEnvKey: bindings.ALIBABA_CLOUD_API_KEY ? "ALIBABA_CLOUD_API_KEY" : "DASHSCOPE_API_KEY",
 	});
 	if (!key) return null;
-	const bindings = getBindings() as unknown as Record<string, string | undefined>;
-
 	const baseUrl = (bindings.ALIBABA_BASE_URL || "https://dashscope-intl.aliyuncs.com").replace(/\/+$/, "");
 	const res = await fetch(`${baseUrl}/api/v1/tasks/${encodeURIComponent(taskId)}`, {
 		method: "GET",
@@ -884,13 +883,13 @@ async function fetchRunwayVideoStatus(job: VideoJobRecord): Promise<VideoProvide
 	const taskId = resolveStoredProviderTaskId(job, (value) => decodePrefixedBase64Id(value, RUNWAY_VIDEO_PREFIX));
 	if (!taskId) return null;
 	const providerId = String(job.provider ?? "runway").trim() || "runway";
+	const bindings = getBindings() as unknown as Record<string, string | undefined>;
 	const key = await resolveProviderPollingKey({
 		job,
 		providerId,
-		defaultEnvKey: "RUNWAY_API_KEY",
+		defaultEnvKey: bindings.RUNWAY_API_KEY ? "RUNWAY_API_KEY" : "RUNWAYML_API_SECRET",
 	});
 	if (!key) return null;
-	const bindings = getBindings() as unknown as Record<string, string | undefined>;
 	const baseUrl = String(bindings.RUNWAY_BASE_URL || DEFAULT_RUNWAY_BASE_URL).replace(/\/+$/, "");
 	const apiVersion = resolveRunwayApiVersion(job, bindings);
 	const headers: Record<string, string> = {

@@ -2,7 +2,7 @@
   "api_provider_id": "byteplus",
   "api_provider_name": "BytePlus",
   "description": null,
-  "link": null,
+  "link": "https://www.byteplus.com/en/product/modelark",
   "residency_mode": "customer_selectable",
   "default_execution_regions": ["AP", "EU"],
   "default_data_regions": ["MY", "ID", "EU"],
@@ -25,15 +25,18 @@
   "routable": null,
   "routing_enabled": null,
   "sdk_package": null,
-  "api_base_url": null,
-  "docs_url": null,
-  "auth_env": null,
-  "api_formats": [],
+  "api_base_url": "https://ark.ap-southeast.bytepluses.com/api/v3",
+  "docs_url": "https://docs.byteplus.com/en/docs/ModelArk/ChatCompletions",
+  "auth_env": "BYTEPLUS_API_KEY",
+  "api_formats": [
+    "openai_chat",
+    "openai_responses"
+  ],
   "service_tiers": [],
   "sources": [],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-12",
+    "notes": "Verified against current BytePlus ModelArk Chat, Responses migration, model, multimodal, and regional API documentation."
   }
 }

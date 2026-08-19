@@ -107,12 +107,24 @@
     "context_length": 1048576,
     "max_output_tokens": 262144,
     "effective_from": "2026-04-27T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-13T14:49:29Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -140,6 +152,104 @@
       "status": "unverified",
       "checked_at": null,
       "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v4-pro-0813",
+    "provider_api_model_id": "baseten:deepseek/deepseek-v4-pro-0813",
+    "provider_model_slug": "deepseek-ai/DeepSeek-V4-Pro",
+    "internal_model_id": "deepseek/deepseek-v4-pro-0813",
+    "is_active_gateway": true,
+    "quantization_scheme": "FP8",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 384000,
+    "effective_from": "2026-08-13T14:49:29Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "max_tokens",
+          "temperature",
+          "stop",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          {
+            "param_id": "reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": "Thinking is enabled by default."
+          },
+          {
+            "param_id": "reasoning.effort",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": "high",
+            "notes": "Baseten documents none, low, high, and max for DeepSeek V4 Pro 0813."
+          }
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "anthropic.messages"
+      ],
+      "endpoint": "https://inference.baseten.co/v1",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "announcement",
+        "url": "https://x.com/baseten/status/2087914444625973542",
+        "accessed_at": "2026-08-13T00:00:00Z",
+        "notes": "Baseten announced DeepSeek V4 Pro 0813 for Model APIs on 13 August 2026."
+      },
+      {
+        "kind": "api_reference",
+        "url": "https://docs.baseten.co/inference/model-apis/overview",
+        "accessed_at": "2026-08-13T00:00:00Z",
+        "notes": "Official Model APIs documentation for the stable DeepSeek V4 Pro slug and supported API formats."
+      },
+      {
+        "kind": "api_reference",
+        "url": "https://docs.baseten.co/inference/model-apis/reasoning",
+        "accessed_at": "2026-08-13T00:00:00Z",
+        "notes": "DeepSeek V4 Pro reasoning is enabled by default and supports reasoning_effort values from none through max."
+      },
+      {
+        "kind": "pricing",
+        "url": "https://www.baseten.co/products/model-apis/",
+        "accessed_at": "2026-08-13T00:00:00Z",
+        "notes": "Official DeepSeek V4 Model API token pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-13T00:00:00Z",
+      "notes": "Verified against Baseten's launch announcement, Model APIs documentation, and live pricing table."
     },
     "rate_limits": []
   },
@@ -390,7 +500,7 @@
     "internal_model_id": "moonshotai/kimi-k2.6",
     "is_active_gateway": true,
     "quantization_scheme": "FP4",
-    "input_modalities": "text",
+    "input_modalities": "text,image,video",
     "output_modalities": "text",
     "context_length": 262000,
     "max_output_tokens": 262000,
@@ -400,7 +510,20 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -496,7 +619,19 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
         "reasoning": true,
         "tool_call": null,
         "structured_output": null,
@@ -656,7 +791,20 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "top_k",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -704,7 +852,21 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -742,7 +904,7 @@
     "internal_model_id": "thinking-machines/inkling",
     "is_active_gateway": true,
     "quantization_scheme": "FP8",
-    "input_modalities": "text,image",
+    "input_modalities": "text,image,audio",
     "output_modalities": "text",
     "context_length": 1048576,
     "max_output_tokens": 32768,
@@ -1043,7 +1205,7 @@
     "internal_model_id": "z-ai/glm-5.2",
     "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": "text",
+    "input_modalities": "text,image",
     "output_modalities": "text",
     "context_length": 1048576,
     "max_output_tokens": 262144,
@@ -1053,7 +1215,21 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "structured_outputs",
+          "response_format",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -1091,7 +1267,7 @@
     "internal_model_id": "z-ai/glm-5.2",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text",
+    "input_modalities": "text,image",
     "output_modalities": "text",
     "context_length": 1048576,
     "max_output_tokens": 262144,

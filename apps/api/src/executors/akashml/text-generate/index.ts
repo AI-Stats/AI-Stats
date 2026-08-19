@@ -9,7 +9,18 @@ import { buildTextExecutor, cherryPickIRParams } from "@executors/_shared/text-g
 import type { ProviderExecutor } from "../../types";
 
 export function preprocess(ir: IRChatRequest, args: ExecutorExecuteArgs): IRChatRequest {
-	return cherryPickIRParams(ir, args.capabilityParams);
+	const filtered = cherryPickIRParams(ir, args.capabilityParams);
+	const rawEffort = filtered.reasoning?.effort;
+	if (rawEffort === "none" && filtered.model.toLowerCase().includes("gpt-oss")) {
+		throw new Error("akashml_gpt_oss_reasoning_cannot_be_disabled");
+	}
+	return {
+		...filtered,
+		vendor: {
+			...(filtered.vendor ?? {}),
+			...(ir.vendor?.akashml ? { akashml: ir.vendor.akashml } : {}),
+		},
+	};
 }
 
 export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult> {

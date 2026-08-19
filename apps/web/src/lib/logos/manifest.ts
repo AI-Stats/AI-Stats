@@ -137,6 +137,9 @@ export const logoManifest = {
 	deepseek: {
 		color: "/logos/deepseek.svg",
 	},
+	"dots-studio": {
+		color: "/logos/dots-studio.svg",
+	},
 	databricks: {
 		color: "/logos/databricks.svg",
 	},

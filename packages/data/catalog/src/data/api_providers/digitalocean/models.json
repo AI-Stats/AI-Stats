@@ -1223,6 +1223,58 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "qwen/qwen3.8-2.4t-a95b",
+    "provider_api_model_id": "digitalocean:qwen3.8-max",
+    "provider_model_slug": "qwen3.8-max",
+    "internal_model_id": "qwen/qwen3.8-2.4t-a95b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Provider model slug qwen3.8-max was reported from the DigitalOcean models feed; routing remains disabled pending gateway integration and publication in the provider documentation."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "qwen/wan2.2-t2v-a14b",
     "provider_api_model_id": "digitalocean:wan2.2-t2v-a14b",
     "provider_model_slug": "wan2.2-t2v-a14b",

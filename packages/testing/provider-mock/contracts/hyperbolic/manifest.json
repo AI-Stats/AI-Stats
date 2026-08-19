@@ -3,7 +3,7 @@
   "displayName": "Hyperbolic",
   "source": {
     "kind": "official-docs",
-    "url": "https://docs.hyperbolic.xyz/docs/getting-started"
+    "url": "https://docs.hyperbolic.xyz/docs/rest-api"
   },
   "operations": [
     {

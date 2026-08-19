@@ -1,5 +1,6 @@
 import { assertOk, client, isDryRun, logWrite } from "./supa";
 import { chunk } from "./util";
+import { deleteStaleModels } from "./stale-models";
 import { DATA_ROOT, DIR_ALIASES } from "./paths";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -1509,10 +1510,8 @@ export async function syncV2Catalogue(): Promise<void> {
 
     const desiredModelSlugs = new Set([...baseModelRows, ...variantModelRows].map(row => String(row.model_slug)));
     const existingModels = await fetchAll(supa, "v2_models", "model_slug,metadata");
-    await deleteByIds(
+    await deleteStaleModels(
         supa,
-        "v2_models",
-        "model_slug",
         existingModels
             .filter(row => ["json", "models.dev"].includes(String(row.metadata?.source ?? "")))
             .filter(row => !desiredModelSlugs.has(String(row.model_slug)))

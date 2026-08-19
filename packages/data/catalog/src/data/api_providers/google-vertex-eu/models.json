@@ -961,7 +961,7 @@
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "text.generate",
+        "capability_id": "text.embed",
         "status": "active",
         "params": [],
         "reasoning": null,

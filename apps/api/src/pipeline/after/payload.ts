@@ -785,6 +785,7 @@ function encodeChatUsage(usage: IRUsage) {
         cached_write_text_tokens: usage._ext?.cachedWriteTokens,
         cached_write_text_tokens_5m: usage._ext?.cachedWriteTokens5m,
         cached_write_text_tokens_1h: usage._ext?.cachedWriteTokens1h,
+		"x-spent-credits": usage._ext?.spentCredits,
         server_tool_use: buildServerToolUsePayload(usage._ext?.serverToolUse),
     };
 }
@@ -936,7 +937,6 @@ export function formatClientPayload(args: {
     if (meta) fallback.meta = meta;
     return attachTopLevelPricing(fallback, usage);
 }
-
 
 
 

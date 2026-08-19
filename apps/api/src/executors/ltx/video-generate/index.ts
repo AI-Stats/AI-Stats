@@ -13,9 +13,6 @@ import type { ExecutorExecuteArgs, ExecutorResult, ProviderExecutor } from "../.
 
 const DEFAULT_LTX_BASE_URL = "https://api.ltx.io";
 const LTX_VIDEO_PREFIX = "ltxvid_";
-// LTX bills the source audio duration but does not return authoritative usage.
-// Use its enforced ceiling so client-supplied metadata cannot reduce charges.
-const LTX_AUDIO_BILLING_SECONDS = 20;
 const LTX_MODELS = new Set(["ltx-2-fast", "ltx-2-pro", "ltx-2-3-fast", "ltx-2-3-pro", "ltx-2-5-fast", "ltx-2-5-pro"]);
 const CAMERA_MOTIONS = new Set(["dolly_in", "dolly_out", "dolly_left", "dolly_right", "jib_up", "jib_down", "static", "focus_shift"]);
 
@@ -77,7 +74,7 @@ function buildRequest(ir: IRVideoGenerationRequest, model: string) {
 			endpoint: "audio-to-video" as const,
 			body: { model, audio_uri: audio, ...(image ? { image_uri: image } : {}), prompt: ir.prompt, resolution, ...(guidanceScale != null ? { guidance_scale: Number(guidanceScale) } : {}) },
 			seconds: inputAudioSeconds,
-			inputAudioSeconds: LTX_AUDIO_BILLING_SECONDS,
+			inputAudioSeconds,
 			resolution,
 			fps: 25,
 			inputImageCount: image ? 1 : 0,

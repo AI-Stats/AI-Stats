@@ -58,7 +58,10 @@
     "venice",
     "alibaba",
     "runway",
-    "lightricks"
+    "lightricks",
+    "baai",
+    "reka",
+    "sakana"
   ],
   "models": {
     "ai21": [
@@ -256,6 +259,7 @@
       "deepseek/deepseek-v4-flash",
       "deepseek/deepseek-v4-flash-0731",
       "deepseek/deepseek-v4-pro",
+      "deepseek/deepseek-v4-pro-0813",
       "deepseek/deepseek-vl2",
       "deepseek/deepseek-vl2-small",
       "deepseek/deepseek-vl2-tiny",
@@ -280,7 +284,8 @@
       "eleven-labs/eleven-v3",
       "eleven-labs/scribe-v1",
       "eleven-labs/scribe-v2",
-      "eleven-labs/scribe-v2-realtime"
+      "eleven-labs/scribe-v2-realtime",
+      "eleven-labs/music"
     ],
     "essential-ai": [
       "essential-ai/rnj-1"
@@ -421,7 +426,9 @@
       "google/lyria-3-clip-preview",
       "google/lyria-3-pro-preview",
       "google/gemma-4-26b-a4b:free",
-      "google/gemma-4-31b:free"
+      "google/gemma-4-31b:free",
+      "google/gemini-3.7-flash",
+      "google/gemini-robotics-er-2-preview"
     ],
     "ibm": [
       "ibm/granite-20b-code-instruct-8k",
@@ -657,6 +664,7 @@
       "mistral/mixtral-8x7b",
       "mistral/ocr-3",
       "mistral/ocr-4",
+      "mistral/ocr-4.1",
       "mistral/pixtral-12b",
       "mistral/pixtral-large",
       "mistral/voxtral-mini",
@@ -737,7 +745,8 @@
       "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
       "nvidia/nemotron-3-ultra-550b-a55b",
       "nvidia/nvidia-nemotron-nano-12b-v2-vl",
-      "nvidia/nemotron-3.5-lightning"
+      "nvidia/nemotron-3.5-lightning",
+      "nvidia/nemotron-3-nano-omni"
     ],
     "openai": [
       "openai/ada",
@@ -903,7 +912,13 @@
       "openai/gpt-5.5",
       "openai/gpt-5.5-pro",
       "openai/gpt-image-2",
-      "openai/gpt-transcribe"
+      "openai/gpt-transcribe",
+      "openai/whisper-large-v3",
+      "openai/whisper-large-v3-turbo"
+    ],
+    "perplexity": [
+      "perplexity/pplx-embed-v1-0.6b",
+      "perplexity/pplx-embed-v1-4b"
     ],
     "poolside": [
       "poolside/laguna-m.1",
@@ -1113,7 +1128,8 @@
       "qwen/qwq-plus",
       "qwen/text-embedding-v3",
       "qwen/text-embedding-v4",
-      "qwen/wan2.7-t2v"
+      "qwen/wan2.7-t2v",
+      "qwen/qwen3.8-2.4t-a95b"
     ],
     "relace": [
       "relace/relace-search"
@@ -1226,7 +1242,10 @@
       "spacex-ai/grok-imagine-image-quality",
       "spacex-ai/grok-tts",
       "spacex-ai/grok-imagine-video-1.5",
-      "spacex-ai/grok-imagine-image-2.0"
+      "spacex-ai/grok-imagine-image-2.0",
+      "spacex-ai/grok-4.6",
+      "spacex-ai/grok-4.7",
+      "spacex-ai/grok-transcribe"
     ],
     "xiaomi": [
       "xiaomi/mimo-v2-flash",
@@ -1264,7 +1283,8 @@
       "z-ai/glm-5.2",
       "z-ai/glm-5v-turbo",
       "z-ai/glm-image",
-      "z-ai/glm-4.7-flash:free"
+      "z-ai/glm-4.7-flash:free",
+      "z-ai/glm-5.3"
     ],
     "crofai": [
       "crofai/greg-1-mini",
@@ -1307,6 +1327,21 @@
       "lightricks/ltx-2.5-pro",
       "lightricks/ltx-2-fast",
       "lightricks/ltx-2-pro"
+    ],
+    "baai": [
+      "baai/bge-m3",
+      "baai/bge-reranker-v2-m3",
+      "baai/bge-multilingual-gemma2"
+    ],
+    "reka": [
+      "reka/reka-edge",
+      "reka/reka-edge-2603",
+      "reka/reka-flash",
+      "reka/reka-flash-research"
+    ],
+    "sakana": [
+      "sakana/fugu-ultra",
+      "sakana/namazu"
     ]
   },
   "benchmarks": [

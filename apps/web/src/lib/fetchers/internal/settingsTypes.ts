@@ -153,6 +153,7 @@ export type SettingsAppRow = {
 	id: string;
 	image_url: string | null;
 	is_active: boolean;
+	is_managed: boolean;
 	is_public: boolean;
 	last_seen: string | null;
 	title: string;
@@ -491,6 +492,11 @@ export type UsageUpstreamRequestRow = {
 	usage: unknown;
 	cost_nanos: number | string | null;
 	currency: string | null;
+	client_source_id?: string | null;
+	client_source_name?: string | null;
+	client_source_kind?: string | null;
+	client_source_version?: string | null;
+	client_source_detection?: string | null;
 	error_code: string | null;
 	error_type: string | null;
 	error_message: string | null;
@@ -501,4 +507,5 @@ export type UsageUpstreamRequestRow = {
 	metadata: unknown;
 };
 type UsageUpstreamPayload = { availableKeys: Array<{ id: string; name: string | null; prefix: string | null }>; modelMetadataEntries: Array<[string, any]>; providerMetadataEntries: Array<[string, any]>; providerNameEntries: Array<[string, string]>; upstreamRequests: UsageUpstreamRequestRow[] };
-export type SettingsUsageLogsInitialData = { signedIn: boolean; workspaceId: string | null } & ({ view: "logs"; data: UsageLogsPayload | null } | { view: "upstream"; data: UsageUpstreamPayload | null } | { view: "jobs"; data: UsageJobsPayload | null } | { view: "sessions"; data: UsageSessionsPayload | null });
+export type SettingsUsageLogsLoadState = "ready" | "unauthorized" | "no_workspace" | "forbidden" | "failed";
+export type SettingsUsageLogsInitialData = { signedIn: boolean; workspaceId: string | null; loadState?: SettingsUsageLogsLoadState } & ({ view: "logs"; data: UsageLogsPayload | null } | { view: "upstream"; data: UsageUpstreamPayload | null } | { view: "jobs"; data: UsageJobsPayload | null } | { view: "sessions"; data: UsageSessionsPayload | null });

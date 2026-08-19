@@ -567,6 +567,9 @@ module PhaseoSdk
     # Model ID: mistral/mixtral-8x7b
     # Model page: https://phaseo.app/models/mistral/mixtral-8x7b
     MISTRAL_MIXTRAL_8X7B = "mistral/mixtral-8x7b"
+    # Model ID: mistral/ocr-4.1
+    # Model page: https://phaseo.app/models/mistral/ocr-4.1
+    MISTRAL_OCR_4_1 = "mistral/ocr-4.1"
     # Model ID: mistral/pixtral-large
     # Model page: https://phaseo.app/models/mistral/pixtral-large
     MISTRAL_PIXTRAL_LARGE = "mistral/pixtral-large"
@@ -1212,6 +1215,10 @@ module PhaseoSdk
     # Model ID: spacex-ai/grok-4.5
     # Model page: https://phaseo.app/models/spacex-ai/grok-4.5
     SPACEX_AI_GROK_4_5 = "spacex-ai/grok-4.5"
+
+    # Model ID: spacex-ai/grok-4.6
+    # Model page: https://phaseo.app/models/spacex-ai/grok-4.6
+    SPACEX_AI_GROK_4_6 = "spacex-ai/grok-4.6"
     # Model ID: spacex-ai/grok-build-0.1
     # Model page: https://phaseo.app/models/spacex-ai/grok-build-0.1
     SPACEX_AI_GROK_BUILD_0_1 = "spacex-ai/grok-build-0.1"
@@ -1621,6 +1628,7 @@ module PhaseoSdk
     ModelIds::MISTRAL_MISTRAL_SMALL_3_2,
     ModelIds::MISTRAL_MISTRAL_SMALL_4,
     ModelIds::MISTRAL_MIXTRAL_8X7B,
+    ModelIds::MISTRAL_OCR_4_1,
     ModelIds::MISTRAL_PIXTRAL_LARGE,
     ModelIds::MOONSHOTAI_KIMI_K2,
     ModelIds::MOONSHOTAI_KIMI_K2_0905,
