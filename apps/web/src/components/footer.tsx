@@ -89,11 +89,11 @@ function FooterLinkList({
 	links: FooterLink[];
 }) {
 	return (
-		<div className="flex flex-col gap-2">
+		<div className="flex min-w-0 flex-col gap-2">
 			<h3 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
 				{title}
 			</h3>
-			<ul className="space-y-1.5">
+			<ul className="space-y-0.5">
 				{links.map((link) => (
 					<li key={`${title}-${link.href}`}>
 						<Link
@@ -101,7 +101,7 @@ function FooterLinkList({
 							prefetch={link.external ? undefined : false}
 							target={link.external ? "_blank" : undefined}
 							rel={link.external ? "noopener noreferrer" : undefined}
-							className={`group inline-flex items-center text-sm text-zinc-600 hover:text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/70 dark:text-zinc-400 dark:hover:text-zinc-50 ${link.logoId ? "lg:w-28" : ""}`}
+							className={`group inline-flex min-h-9 max-w-full items-center break-words py-1.5 text-sm text-zinc-600 hover:text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/70 dark:text-zinc-400 dark:hover:text-zinc-50 ${link.logoId ? "lg:w-28" : ""}`}
 						>
 							{link.logoId ? (
 								<span
@@ -130,29 +130,31 @@ export default function Footer() {
 	return (
 		<footer className="mt-auto w-full overflow-x-clip border-t border-zinc-200/80 bg-white dark:border-zinc-800 dark:bg-zinc-950">
 			<div className="mx-auto flex w-full max-w-[1280px] flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
-				<div className="grid items-start gap-6 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.3fr)_repeat(4,minmax(0,0.8fr))]">
-					<div className="flex flex-col gap-2 sm:col-span-2 lg:col-span-1">
-						<div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-							<Link href="/" className="inline-flex w-fit items-center">
-								<Image
-									src="/wordmark_light.svg"
-									alt="Phaseo"
-									width={154}
-									height={40}
-									className="h-7 w-[108px] dark:hidden"
-								/>
-								<Image
-									src="/wordmark_dark.svg"
-									alt="Phaseo"
-									width={154}
-									height={40}
-									className="hidden h-7 w-[108px] dark:block"
-								/>
-							</Link>
-							<div className="relative top-px">
-								<FooterStatusIndicator />
+				<div className="grid grid-cols-2 items-start gap-x-4 gap-y-6 sm:gap-x-6 lg:grid-cols-[minmax(0,1.3fr)_repeat(4,minmax(0,0.8fr))]">
+					<div className="col-span-2 min-w-0 lg:col-span-1">
+						<div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+							<div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2">
+								<Link href="/" className="inline-flex w-fit max-w-full items-center">
+									<Image
+										src="/wordmark_light.svg"
+										alt="Phaseo"
+										width={154}
+										height={40}
+										className="h-7 w-[108px] dark:hidden"
+									/>
+									<Image
+										src="/wordmark_dark.svg"
+										alt="Phaseo"
+										width={154}
+										height={40}
+										className="hidden h-7 w-[108px] dark:block"
+									/>
+								</Link>
+								<div className="relative top-px max-w-full">
+									<FooterStatusIndicator />
+								</div>
 							</div>
-							<div className="md:hidden sm:ml-auto">
+							<div className="md:hidden">
 								<ThemeSelector className="py-0" labelSize="sm" showSelectedLabel={false} />
 							</div>
 						</div>
