@@ -484,7 +484,17 @@ export default function UsageLogsToolbar({
 
 				<Popover
 					open={popoverOpen}
-					onOpenChange={(open) => {
+					onOpenChange={(open, eventDetails) => {
+						const eventTarget = eventDetails.event.target;
+						if (
+							!open &&
+							eventDetails.reason === "outside-press" &&
+							eventTarget instanceof Node &&
+							rangeAnchorRef.current?.contains(eventTarget)
+						) {
+							eventDetails.cancel();
+							return;
+						}
 						setPopoverOpen(open);
 						if (!open) {
 							setIsEditingRangeInput(false);
