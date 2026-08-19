@@ -1208,7 +1208,13 @@ publicModelsRouter.get("/:modelId/provider-health", async (c) => {
 publicModelsRouter.get("/:modelId/pricing-history", async (c) => {
 	const modelId = c.req.param("modelId"); const days = Math.max(1, Math.min(3650, parseBoundedInt(c.req.query("days"), 30, 3650))); const now = Date.now(); const windowStart = now - days * 24 * 60 * 60 * 1_000;
 	try {
-		const { providerRows, pricingRows } = await fetchModelPricingSources(c.env, [modelId], false, true);
+		const { providerRows, pricingRows } = await fetchModelPricingSources(
+			c.env,
+			[modelId],
+			false,
+			true,
+			{ startMs: windowStart, endMs: now },
+		);
 		const providerNames = new Map(providerRows.map((row) => {
 			const provider = Array.isArray(row.data_api_providers) ? row.data_api_providers[0] : row.data_api_providers as Record<string, unknown> | null;
 			return [String(row.provider_id ?? ""), String(provider?.api_provider_name ?? row.provider_id ?? "")];
@@ -1353,6 +1359,7 @@ publicModelsRouter.get("/:modelId/subscription-plans", async (c) => {
 			const labResult = labSlugs.length
 				? await client.from("v2_labs").select("lab_slug,name,metadata").in("lab_slug", labSlugs)
 				: { data: [], error: null };
+			if (labResult.error) throw labResult.error;
 			const labsBySlug = new Map(
 				((labResult.data ?? []) as Array<Record<string, unknown>>).map((lab) => [
 					String(lab.lab_slug ?? ""),

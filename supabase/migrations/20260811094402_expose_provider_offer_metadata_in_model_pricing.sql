@@ -105,7 +105,7 @@ as $$
       coalesce((
         select jsonb_agg(jsonb_build_object(
           'id', sku.sku_id,
-          'model_key', model.provider_slug || ':' || route.model_slug || ':' || sku.operation,
+          'model_key', model.provider_slug || ':' || lower(trim(p_model_slug)) || ':' || sku.operation,
           'capability_id', sku.operation,
           'pricing_plan', sku.service_tier_slug,
           'meter', meter.meter_key,
@@ -131,13 +131,17 @@ as $$
         ) order by meter.meter_order, meter.meter_key)
         from public.v2_pricing_skus sku
         join public.v2_pricing_sku_meters meter on meter.sku_id = sku.sku_id
-        join public.v2_model_provider_routes route on route.provider_model_id = sku.provider_model_id
-        where route.model_slug = lower(trim(p_model_slug))
-          and route.access_scope = 'public'
-          and sku.provider_model_id in (
+        where sku.provider_model_id in (
             select provider_model_id
             from provider_models
             where provider_slug = model.provider_slug
+          )
+          and exists (
+            select 1
+            from public.v2_model_provider_routes route
+            where route.provider_model_id = sku.provider_model_id
+              and route.model_slug = lower(trim(p_model_slug))
+              and route.access_scope = 'public'
           )
           and sku.status <> 'disabled'
           and sku.effective_from <= now()

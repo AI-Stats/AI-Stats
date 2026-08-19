@@ -48,8 +48,8 @@ export function getPricingHistoryTimestamps({
 			? Math.max(earliestAvailable, nowMs - 3_650 * 86_400_000)
 			: nowMs - 365 * 86_400_000
 		: nowMs - RANGE_DAYS[range] * 86_400_000;
-	const rangeStart = customStartMs ?? presetRangeStart;
 	const rangeEnd = Math.min(customEndMs ?? nowMs, nowMs);
+	const rangeStart = Math.min(customStartMs ?? presetRangeStart, rangeEnd);
 
 	const timestamps = new Set<number>([rangeStart, rangeEnd]);
 	for (const timestamp of [...ruleBoundaries, ...usageTimestamps]) {

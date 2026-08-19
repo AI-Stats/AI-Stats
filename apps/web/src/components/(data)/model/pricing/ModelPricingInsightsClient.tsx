@@ -19,12 +19,14 @@ function getPreferredPlan(plans: string[]): string {
 }
 
 export default function ModelPricingInsightsClient({
+	modelId,
 	providers,
 	historyRules,
 	usageRows,
 	effectivePricingRows,
 	showPageHeader = false,
 }: {
+	modelId: string;
 	providers: ProviderPricing[];
 	historyRules: ModelPricingHistoryRule[];
 	usageRows: ModelUsageDailyBreakdownRow[];
@@ -32,7 +34,7 @@ export default function ModelPricingInsightsClient({
 	showPageHeader?: boolean;
 }) {
 	const [providerView, setProviderView] = useState<string | null>(null);
-	useEffect(() => subscribeProviderView(setProviderView), []);
+	useEffect(() => subscribeProviderView(modelId, setProviderView), [modelId]);
 	const visibleProviders = useMemo(() => {
 		if (providerView === null) {
 			return providers.filter((provider) =>

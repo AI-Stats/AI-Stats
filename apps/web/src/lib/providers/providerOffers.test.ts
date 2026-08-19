@@ -83,7 +83,7 @@ describe("providerOffers", () => {
                 providerId: "anthropic-aws-us",
                 providerName: "Anthropic",
             }),
-        ).toBe("Anthropic on AWS (US)");
+		).toBe("Claude Platform for AWS (US)");
         expect(
             formatProviderOfferDisplayName({
                 providerId: "google-vertex-eu",

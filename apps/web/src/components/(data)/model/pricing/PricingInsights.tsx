@@ -465,6 +465,66 @@ function ServiceTierIconBadge({ plan }: { plan: string }) {
 	);
 }
 
+type EffectivePricePrefixPoint = {
+	timestampMs: number;
+	inputTokens: number;
+	outputTokens: number;
+	inputCostNanos: number;
+	outputCostNanos: number;
+};
+
+function buildEffectivePricePrefix(
+	usage: ObservedEffectiveUsageSummary | undefined,
+): EffectivePricePrefixPoint[] {
+	let inputTokens = 0;
+	let outputTokens = 0;
+	let inputCostNanos = 0;
+	let outputCostNanos = 0;
+	return Array.from(usage?.usageByDay.values() ?? [])
+		.map((point) => ({ point, timestampMs: Date.parse(`${point.dayBucket}T12:00:00.000Z`) }))
+		.filter(({ timestampMs }) => Number.isFinite(timestampMs))
+		.sort((a, b) => a.timestampMs - b.timestampMs)
+		.map(({ point, timestampMs }) => {
+			if (point.inputTokens > 0) {
+				inputTokens += point.inputTokens;
+				inputCostNanos += point.inputCostNanos;
+			}
+			if (point.outputTokens > 0) {
+				outputTokens += point.outputTokens;
+				outputCostNanos += point.outputCostNanos;
+			}
+			return { timestampMs, inputTokens, outputTokens, inputCostNanos, outputCostNanos };
+		});
+}
+
+function getEffectivePriceFromPrefix(
+	points: EffectivePricePrefixPoint[],
+	sinceMs: number,
+	untilMs: number,
+	input: boolean,
+): number | null {
+	const upperBound = (value: number) => {
+		let low = 0;
+		let high = points.length;
+		while (low < high) {
+			const middle = (low + high) >>> 1;
+			if (points[middle]!.timestampMs <= value) low = middle + 1;
+			else high = middle;
+		}
+		return low;
+	};
+	const end = points[upperBound(untilMs) - 1];
+	if (!end) return null;
+	const before = points[upperBound(sinceMs - 1) - 1];
+	const tokens = input
+		? end.inputTokens - (before?.inputTokens ?? 0)
+		: end.outputTokens - (before?.outputTokens ?? 0);
+	const costNanos = input
+		? end.inputCostNanos - (before?.inputCostNanos ?? 0)
+		: end.outputCostNanos - (before?.outputCostNanos ?? 0);
+	return tokens > 0 ? (costNanos / 1_000_000_000) / tokens * 1_000_000 : null;
+}
+
 function ExternalProviderBadge() {
 	return (
 		<Tooltip delayDuration={120}>
@@ -526,23 +586,25 @@ function buildPricingHistoryState(args: {
 	const isOutputMeter = OUTPUT_METER_PREFERENCE.includes(
 		args.meter as (typeof OUTPUT_METER_PREFERENCE)[number],
 	);
+	const effectivePricePrefixes = new Map(
+		args.rows.map((row) => {
+			const key = `${row.providerId}\u0000${row.pricingPlan}`;
+			return [key, buildEffectivePricePrefix(args.observedUsageByProviderPlan.get(key))] as const;
+		}),
+	);
 	const chartData: PricingHistoryPoint[] = timestamps.map((timestampMs) => {
 		const timestamp = new Date(timestampMs).toISOString();
 		const entry: PricingHistoryPoint = { timestamp };
 		for (const row of args.rows) {
 			const rules = rulesBySeries.get(row.seriesKey) ?? [];
 			if (args.view === "effective" && (isInputMeter || isOutputMeter)) {
-				const observedUsage = args.observedUsageByProviderPlan.get(`${row.providerId}\u0000${row.pricingPlan}`);
-				const rollingSummary = observedUsage
-					? calculateObservedEffectivePriceSummary(
-						observedUsage.usageByDay,
-						timestampMs - 29 * 86_400_000 - 12 * 60 * 60 * 1_000,
-						timestampMs + 12 * 60 * 60 * 1_000,
-					)
-					: null;
-				entry[row.seriesKey] = isInputMeter
-					? rollingSummary?.weightedInputPricePer1M ?? null
-					: rollingSummary?.weightedOutputPricePer1M ?? null;
+				const prefix = effectivePricePrefixes.get(`${row.providerId}\u0000${row.pricingPlan}`) ?? [];
+				entry[row.seriesKey] = getEffectivePriceFromPrefix(
+					prefix,
+					timestampMs - 29 * 86_400_000 - 12 * 60 * 60 * 1_000,
+					timestampMs + 12 * 60 * 60 * 1_000,
+					isInputMeter,
+				);
 			} else {
 				const preferredListedPrice = isInputMeter
 					? row.listedInputPricePer1M
@@ -650,14 +712,14 @@ export default function PricingInsights({
 	const [seriesVisibilityOverrides, setSeriesVisibilityOverrides] = useState<Record<string, boolean>>({});
 	const [historyNowMs] = useState(() => Date.now());
 	const customStartMs = customPricingRange?.from
-		? new Date(customPricingRange.from.getFullYear(), customPricingRange.from.getMonth(), customPricingRange.from.getDate()).getTime()
+		? Date.UTC(customPricingRange.from.getFullYear(), customPricingRange.from.getMonth(), customPricingRange.from.getDate())
 		: undefined;
 	const customEndMs = customPricingRange?.from
-		? new Date(
+		? Date.UTC(
 			(customPricingRange.to ?? customPricingRange.from).getFullYear(),
 			(customPricingRange.to ?? customPricingRange.from).getMonth(),
 			(customPricingRange.to ?? customPricingRange.from).getDate() + 1,
-		).getTime() - 1
+		) - 1
 		: undefined;
 	const effectivePricingViewportRef = useRef<HTMLDivElement>(null);
 	const [effectivePricingTableOverflows, setEffectivePricingTableOverflows] =
@@ -801,10 +863,10 @@ export default function PricingInsights({
 		return pricingProviders.map((provider) => {
 			const providerId = provider.provider.api_provider_id;
 			const providerPlans = getProviderPricingPlans(provider);
-			const selectedProviderPlan = providerPlans.includes("standard")
-				? "standard"
-				: providerPlans.includes(plan)
-					? plan
+			const selectedProviderPlan = providerPlans.includes(plan)
+				? plan
+				: providerPlans.includes("standard")
+					? "standard"
 					: providerPlans[0] ?? "standard";
 			const providerName = formatProviderOfferDisplayName({
 				providerId,
@@ -1001,8 +1063,7 @@ export default function PricingInsights({
 		? selectedMeter
 		: meterOptions[0]?.meter ?? "input_text_tokens";
 	const activeMeterRule = meterOptions.find((option) => option.meter === activeMeter);
-	const pricingHistoryStates = useMemo(() => ({
-			effective: buildPricingHistoryState({
+	const effectivePricingHistoryState = useMemo(() => buildPricingHistoryState({
 			rows: historyRows,
 			usageByProvider,
 			observedUsageByProviderPlan,
@@ -1013,8 +1074,13 @@ export default function PricingInsights({
 			nowMs: historyNowMs,
 			customStartMs,
 			customEndMs,
-		}),
-		listed: buildPricingHistoryState({
+		}), [activeMeter, customEndMs, customStartMs, historyNowMs, historyRows, historyRules, observedUsageByProviderPlan, pricingRange, usageByProvider]);
+	const hasEffectivePricing = effectivePricingHistoryState.hasData;
+	const displayedPricingView: PricingView = pricingView === "effective" && !hasEffectivePricing
+		? "listed"
+		: pricingView;
+	const listedPricingHistoryState = useMemo(() => displayedPricingView === "listed"
+		? buildPricingHistoryState({
 			rows: historyRows,
 			usageByProvider,
 			observedUsageByProviderPlan,
@@ -1025,13 +1091,11 @@ export default function PricingInsights({
 			nowMs: historyNowMs,
 			customStartMs,
 			customEndMs,
-		}),
-	}), [activeMeter, customEndMs, customStartMs, historyNowMs, historyRows, historyRules, observedUsageByProviderPlan, pricingRange, usageByProvider]);
-	const hasEffectivePricing = pricingHistoryStates.effective.hasData;
-	const displayedPricingView: PricingView = pricingView === "effective" && !hasEffectivePricing
-		? "listed"
-		: pricingView;
-	const pricingHistoryState = pricingHistoryStates[displayedPricingView];
+		})
+		: null, [activeMeter, customEndMs, customStartMs, displayedPricingView, historyNowMs, historyRows, historyRules, observedUsageByProviderPlan, pricingRange, usageByProvider]);
+	const pricingHistoryState = displayedPricingView === "effective"
+		? effectivePricingHistoryState
+		: listedPricingHistoryState!;
 	const historyRowBySeries = useMemo(
 		() => new Map(historyRows.map((row) => [row.seriesKey, row])),
 		[historyRows],
@@ -1212,7 +1276,7 @@ export default function PricingInsights({
 								</Button>
 							</PopoverTrigger>
 							<PopoverContent align="end" className="w-auto gap-0 rounded-xl p-0">
-								<Calendar mode="range" numberOfMonths={2} selected={draftPricingRange} onSelect={setDraftPricingRange} defaultMonth={draftPricingRange?.from} className="rounded-xl" />
+								<Calendar mode="range" numberOfMonths={2} selected={draftPricingRange} onSelect={setDraftPricingRange} defaultMonth={draftPricingRange?.from} disabled={{ after: new Date(historyNowMs) }} className="rounded-xl" />
 								<div className="flex items-center justify-end gap-2 border-t px-3 py-2.5">
 									<Button type="button" variant="ghost" size="sm" onClick={() => setOpenCalendarSurface(null)}>Cancel</Button>
 									<Button type="button" size="sm" disabled={!draftPricingRange?.from} onClick={() => {

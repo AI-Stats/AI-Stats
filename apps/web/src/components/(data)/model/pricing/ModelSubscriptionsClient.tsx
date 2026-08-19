@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 import type { SubscriptionPlan } from "@/lib/fetchers/models/getModelSubscriptionPlans";
 import { getLogoLabel } from "@/lib/logos";
 
-type SubscriptionPrice = {
+export type SubscriptionPrice = {
 	price: number;
 	currency: string;
 	frequency: string;
@@ -136,7 +136,7 @@ function formatPlanPriceDisplay(price: SubscriptionPrice): {
 	};
 }
 
-function dedupeSubscriptionPlanPrices(
+export function dedupeSubscriptionPlanPrices(
 	prices: SubscriptionPrice[],
 ): SubscriptionPrice[] {
 	return Array.from(
@@ -183,7 +183,7 @@ function sortSubscriptionPlanPrices(prices: SubscriptionPrice[]): SubscriptionPr
 	});
 }
 
-function sortSubscriptionPlanPricesForDisplay(
+export function sortSubscriptionPlanPricesForDisplay(
 	prices: SubscriptionPrice[],
 ): SubscriptionPrice[] {
 	return dedupeSubscriptionPlanPrices(prices).toSorted((a, b) => {

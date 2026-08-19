@@ -148,6 +148,7 @@ export default async function ModelPricingInsightsSection({
 				/>
 			) : null}
 			<ModelPricingInsightsClient
+				modelId={modelId}
 				providers={providersForDisplay}
 				historyRules={pricingHistoryRules}
 				usageRows={usageRows}

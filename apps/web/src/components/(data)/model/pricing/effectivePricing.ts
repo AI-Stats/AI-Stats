@@ -18,6 +18,7 @@ export function calculateObservedEffectivePriceSummary(
 
 	for (const point of usageByDay.values()) {
 		const timestampMs = Date.parse(`${point.dayBucket}T12:00:00.000Z`);
+		if (!Number.isFinite(timestampMs)) continue;
 		if (sinceMs !== undefined && timestampMs < sinceMs) continue;
 		if (untilMs !== undefined && timestampMs > untilMs) continue;
 		if (point.inputTokens > 0) {

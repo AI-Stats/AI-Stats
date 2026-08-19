@@ -1557,9 +1557,9 @@ export default function ProviderCard({
 			const detail = (event as CustomEvent<ProviderInspectorOpenDetail>).detail;
 			const providerId = detail?.providerId;
 			if (!providerId) return;
-			if (detail.navigationProviderIds?.length) {
-				setInspectorNavigationProviderIds(detail.navigationProviderIds);
-			}
+			setInspectorNavigationProviderIds(
+				detail.navigationProviderIds?.length ? detail.navigationProviderIds : null,
+			);
 			const isTargetProvider = providerId === inspectorProviderId;
 			if (inspectorStateClearRef.current !== null) {
 				window.clearTimeout(inspectorStateClearRef.current);
