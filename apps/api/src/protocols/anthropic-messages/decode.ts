@@ -34,10 +34,19 @@ export type AnthropicMessagesRequest = {
 	top_p?: number;
 	top_k?: number;
 	stream?: boolean;
-	tools?: Array<AnthropicTool | AnthropicNativeWebSearchTool | AnthropicNativeWebFetchTool | AnthropicNativeAdvisorTool>;
+	tools?: Array<AnthropicTool | AnthropicNativeWebSearchTool | AnthropicNativeWebFetchTool | AnthropicNativeAdvisorTool | Record<string, any>>;
 	tool_choice?: AnthropicToolChoice;
 	metadata?: Record<string, any>;
 	service_tier?: string;
+	thinking?: {
+		type: "enabled" | "disabled" | "adaptive";
+		budget_tokens?: number;
+		display?: "summarized" | "omitted";
+	};
+	output_config?: {
+		effort?: "low" | "medium" | "high" | "max";
+		format?: { type: "json_schema"; schema: Record<string, any> } | null;
+	};
 	provider_options?: Record<string, any>;
 	providerOptions?: Record<string, any>;
 	cache_control?: AnthropicCacheControl;
@@ -85,6 +94,7 @@ export type AnthropicTool = {
 	description?: string;
 	input_schema: Record<string, any>;
 	cache_control?: AnthropicCacheControl;
+	strict?: boolean;
 };
 
 export type AnthropicNativeWebSearchTool = {
@@ -114,10 +124,12 @@ export type AnthropicNativeAdvisorTool = {
 	[key: string]: any;
 };
 
-export type AnthropicToolChoice =
+export type AnthropicToolChoice = (
 	| { type: "auto" }
 	| { type: "any" }
-	| { type: "tool"; name: string };
+	| { type: "none" }
+	| { type: "tool"; name: string }
+) & { disable_parallel_tool_use?: boolean };
 
 /**
  * Decode Anthropic Messages request to IR format
@@ -260,6 +272,7 @@ export function decodeAnthropicMessagesRequest(req: AnthropicMessagesRequest): I
 		// Tool calling
 		tools,
 		toolChoice,
+		parallelToolCalls: req.tool_choice?.disable_parallel_tool_use === true ? false : undefined,
 		webSearchOptions:
 			req.web_search_options && typeof req.web_search_options === "object"
 				? req.web_search_options
@@ -269,6 +282,13 @@ export function decodeAnthropicMessagesRequest(req: AnthropicMessagesRequest): I
 
 		// Reasoning
 		reasoning: resolveRequestedReasoning(req),
+		responseFormat: req.output_config?.format?.type === "json_schema"
+			? {
+				type: "json_schema",
+				schema: req.output_config.format.schema,
+				strict: true,
+			}
+			: undefined,
 
 		// Advanced parameters
 		stop: req.stop_sequences,
@@ -299,10 +319,14 @@ export function decodeAnthropicMessagesRequest(req: AnthropicMessagesRequest): I
 
 function resolveRequestedReasoning(req: AnthropicMessagesRequest): IRChatRequest["reasoning"] {
 	const reasoningReq = req.reasoning;
-	const effort = mapAnthropicEffortToIr(reasoningReq?.effort);
+	const effort = mapAnthropicEffortToIr(reasoningReq?.effort ?? req.output_config?.effort);
 	const enabled =
 		typeof reasoningReq?.enabled === "boolean"
 			? reasoningReq.enabled
+			: req.thinking?.type === "disabled"
+				? false
+				: req.thinking?.type === "enabled" || req.thinking?.type === "adaptive"
+					? true
 			: undefined;
 	const summary =
 		reasoningReq?.summary === "auto" ||
@@ -310,7 +334,7 @@ function resolveRequestedReasoning(req: AnthropicMessagesRequest): IRChatRequest
 		reasoningReq?.summary === "detailed"
 			? reasoningReq.summary
 			: undefined;
-	const maxTokensCandidate = reasoningReq?.max_tokens;
+	const maxTokensCandidate = reasoningReq?.max_tokens ?? req.thinking?.budget_tokens;
 	const maxTokens =
 		typeof maxTokensCandidate === "number" && Number.isFinite(maxTokensCandidate)
 			? maxTokensCandidate
@@ -396,7 +420,11 @@ function normalizeAnthropicContent(block: AnthropicContentBlock): IRContentPart 
 		};
 	}
 
-	// Fallback: unknown type -> text
+	// Preserve document/PDF/file, thinking, citations, and provider-native tool
+	// blocks losslessly so the native executor can forward them unchanged.
+	if (block && typeof block === "object") {
+		return { type: "provider_block", block: { ...(block as any) } };
+	}
 	return { type: "text", text: String(block) };
 }
 
@@ -432,6 +460,7 @@ function normalizeAnthropicToolChoice(choice: any): IRChatRequest["toolChoice"] 
 	if (typeof choice === "object") {
 		if (choice.type === "auto") return "auto";
 		if (choice.type === "any") return "required";
+		if (choice.type === "none") return "none";
 		if (choice.type === "tool" && choice.name) {
 			return { name: choice.name };
 		}
@@ -441,9 +470,10 @@ function normalizeAnthropicToolChoice(choice: any): IRChatRequest["toolChoice"] 
 }
 
 function decodeAnthropicTool(
-	tool: AnthropicTool | AnthropicNativeWebSearchTool | AnthropicNativeWebFetchTool | AnthropicNativeAdvisorTool,
+	tool: AnthropicTool | AnthropicNativeWebSearchTool | AnthropicNativeWebFetchTool | AnthropicNativeAdvisorTool | Record<string, any>,
 ): IRTool {
-	if (isNativeWebSearchTool(tool) || isNativeWebFetchTool(tool) || isNativeAdvisorTool(tool)) {
+	const isGenericNative = typeof (tool as any)?.type === "string" && !(tool as any)?.input_schema;
+	if (isNativeWebSearchTool(tool) || isNativeWebFetchTool(tool) || isNativeAdvisorTool(tool) || isGenericNative) {
 		const nativeTool = tool as AnthropicNativeWebSearchTool | AnthropicNativeWebFetchTool | AnthropicNativeAdvisorTool;
 		return {
 			name:
@@ -460,6 +490,7 @@ function decodeAnthropicTool(
 		name: (tool as AnthropicTool).name,
 		description: (tool as AnthropicTool).description,
 		parameters: (tool as AnthropicTool).input_schema,
+		strict: (tool as AnthropicTool).strict,
 		cacheControl: normalizeAnthropicCacheControl((tool as AnthropicTool).cache_control),
 	};
 }

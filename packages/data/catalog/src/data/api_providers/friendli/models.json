@@ -155,7 +155,7 @@
     "input_modalities": "text,image,video",
     "output_modalities": "text",
     "context_length": 256000,
-    "max_output_tokens": null,
+    "max_output_tokens": 8192,
     "effective_from": "2026-05-07T00:00:00",
     "effective_to": null,
     "capabilities": [

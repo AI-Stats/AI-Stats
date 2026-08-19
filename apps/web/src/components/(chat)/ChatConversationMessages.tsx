@@ -65,7 +65,6 @@ import { cn } from "@/lib/utils";
 import type { ChatThread } from "@/lib/indexeddb/chats";
 import type {
 	ChatResponseLayout,
-	ModelOption,
 } from "@/components/(chat)/playground/chat-playground-core";
 import {
 	Cpu,
@@ -312,9 +311,7 @@ type ChatConversationMessagesProps = {
 	scrollViewportRef: RefObject<HTMLDivElement | null>;
 	responseLayout?: ChatResponseLayout;
 	modelOrderIds?: string[];
-	modelOptions: ModelOption[];
-	selectedModelIds: string[];
-	onAddModelSet: (modelIds: string[]) => void;
+	onSelectPrompt: (prompt: string) => void;
 	temporaryMode?: boolean;
 };
 
@@ -342,9 +339,7 @@ export function ChatConversationMessages({
 	scrollViewportRef,
 	responseLayout = "sequential",
 	modelOrderIds = [],
-	modelOptions,
-	selectedModelIds,
-	onAddModelSet,
+	onSelectPrompt,
 	temporaryMode = false,
 }: ChatConversationMessagesProps) {
 	const [copiedMessageKey, setCopiedMessageKey] = useState<string | null>(null);
@@ -498,9 +493,7 @@ export function ChatConversationMessages({
 		if (!activeThread || !messages.length) {
 			return (
 				<ChatMessagesEmptyState
-					modelOptions={modelOptions}
-					selectedModelIds={selectedModelIds}
-					onAddModelSet={onAddModelSet}
+					onSelectPrompt={onSelectPrompt}
 					temporaryMode={temporaryMode}
 				/>
 			);
@@ -767,7 +760,7 @@ export function ChatConversationMessages({
 										className={cn(
 											isUser
 												? cn(
-												"max-w-full rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm",
+												"max-w-full rounded-md px-4 py-3 text-sm leading-relaxed shadow-sm",
 														inSideBySideGroup
 															? "flex h-full min-h-[180px] w-full flex-col"
 															: "w-fit",
@@ -1542,9 +1535,7 @@ export function ChatConversationMessages({
 		onMetadataOpenIdChange,
 		responseLayout,
 		modelOrderIds,
-		modelOptions,
-		selectedModelIds,
-		onAddModelSet,
+		onSelectPrompt,
 		temporaryMode,
 	]);
 

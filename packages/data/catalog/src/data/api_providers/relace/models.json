@@ -1,0 +1,64 @@
+[
+  {
+    "api_model_id": "relace/relace-search",
+    "provider_api_model_id": "relace:relace-search",
+    "provider_model_slug": "relace-search",
+    "internal_model_id": "relace/relace-search",
+    "is_active_gateway": true,
+    "quantization_scheme": "bf16",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "tools",
+          "tool_choice",
+          "temperature",
+          "top_p",
+          "top_k",
+          "repetition_penalty"
+        ],
+        "reasoning": null,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": null,
+        "input_modalities": ["text"],
+        "output_modalities": ["text"],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": ["global"],
+      "data": ["global"]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": ["openai-chat-completions"],
+      "endpoint": "https://models.relace.ai/v1/search/chat/completions",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.relace.ai/docs/fast-agentic-search/agent",
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Official OpenAI-compatible endpoint, model slug, tool contract, and sampling example."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Verified against Relace's first-party Fast Agentic Search model guide. The model expects Relace's documented five-tool search harness."
+    },
+    "rate_limits": []
+  }
+]

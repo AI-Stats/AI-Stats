@@ -55,4 +55,10 @@ describe("batch-model-aliases", () => {
 		expect(resolveBatchPricingModelCandidates("x-ai", "x-ai/grok-4.3"))
 			.toContain("spacex-ai/grok-4.3");
 	});
+
+	it("strips Moonshot provider aliases and restores catalog pricing candidates", () => {
+		expect(toProviderNativeBatchModelId("moonshotai", "moonshot-ai/kimi-k2.6")).toBe("kimi-k2.6");
+		expect(resolveBatchPricingModelCandidates("moonshotai", "kimi-k2.5"))
+			.toContain("moonshotai/kimi-k2.5");
+	});
 });

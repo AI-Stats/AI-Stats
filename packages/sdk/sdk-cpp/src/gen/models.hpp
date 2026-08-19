@@ -1396,6 +1396,7 @@ struct VideoGenerationRequest {
 	std::optional<int> duration;
 	std::optional<bool> enhance_prompt;
 	std::optional<bool> generate_audio;
+	std::optional<double> input_audio_duration;
 	std::vector<std::any> input_references;
 	std::optional<double> input_video_duration;
 	std::string model;

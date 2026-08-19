@@ -611,10 +611,10 @@ func stringValue(value any) string {
 }
 
 type GatewayAgentClient struct {
-	client  *phaseo.Phaseo
-	options GatewayAgentClientOptions
-	apiKey  string
-	baseURL string
+	client     *phaseo.Phaseo
+	options    GatewayAgentClientOptions
+	apiKey     string
+	baseURL    string
 	httpClient *http.Client
 }
 
@@ -636,9 +636,14 @@ func CreateGatewayAgentClient(options GatewayAgentClientOptions) (*GatewayAgentC
 			return nil, errors.New("PHASEO_API_KEY is required")
 		}
 		client = phaseo.New(apiKey, baseURL)
+		client.RawClient().Headers["X-Phaseo-Client"] = "phaseo-agent-go"
+		client.RawClient().Headers["X-Phaseo-Client-Version"] = "0.1.0"
 	}
-	httpClient:=options.HTTPClient;if httpClient==nil{httpClient=http.DefaultClient}
-	return &GatewayAgentClient{client: client, options: options, apiKey: apiKey, baseURL: strings.TrimRight(baseURL, "/"),httpClient:httpClient}, nil
+	httpClient := options.HTTPClient
+	if httpClient == nil {
+		httpClient = http.DefaultClient
+	}
+	return &GatewayAgentClient{client: client, options: options, apiKey: apiKey, baseURL: strings.TrimRight(baseURL, "/"), httpClient: httpClient}, nil
 }
 
 func toGatewayModelResponse(response gen.ResponsesResponse) ModelResponse {
@@ -659,7 +664,9 @@ func toGatewayModelResponse(response gen.ResponsesResponse) ModelResponse {
 		return 0
 	}
 	cost := firstNumber(raw["cost"], raw["cost_usd"], usage["cost"])
-	if cost == 0 { cost = firstNumber(raw["cost_nanos"]) / 1_000_000_000 }
+	if cost == 0 {
+		cost = firstNumber(raw["cost_nanos"]) / 1_000_000_000
+	}
 	if meta != nil {
 		cost = firstNumber(cost, meta["cost"], meta["cost_usd"])
 		if cost == 0 {
@@ -855,7 +862,11 @@ func (g *GatewayAgentClient) Stream(ctx context.Context, request ModelRequest) <
 		httpRequest.Header.Set("Authorization", "Bearer "+g.apiKey)
 		httpRequest.Header.Set("Content-Type", "application/json")
 		httpRequest.Header.Set("Accept", "text/event-stream")
-		for key,value:=range g.options.Headers{httpRequest.Header.Set(key,value)}
+		httpRequest.Header.Set("X-Phaseo-Client", "phaseo-agent-go")
+		httpRequest.Header.Set("X-Phaseo-Client-Version", "0.1.0")
+		for key, value := range g.options.Headers {
+			httpRequest.Header.Set(key, value)
+		}
 		response, err := g.httpClient.Do(httpRequest)
 		if err != nil {
 			events <- ModelStreamEvent{Err: err}

@@ -31,17 +31,17 @@ type Classification = {
 	confidence: number | null;
 };
 
-export const OPENROUTER_TASK_CATEGORIES = {
+export const STARTER_TASK_CATEGORIES = {
 	code: ["code_generation", "code_explanation", "code_review", "debugging", "tool_use"],
 	data: ["analysis", "extraction", "classification", "structured_output", "math"],
 	agent: ["planning", "research", "web_search", "multi_step", "automation"],
 	general: ["chat", "creative_writing", "translation", "summarization", "question_answering", "other"],
 } as const;
 
-export const STARTER_CLASSIFIER_SLUG = "openrouter-task-v1";
+export const STARTER_CLASSIFIER_SLUG = "phaseo-task-v1";
 export const ALLOWED_CLASSIFIER_MODELS = new Set(["gpt-5-mini"]);
 
-export const OPENROUTER_TASK_INSTRUCTIONS = [
+export const STARTER_TASK_INSTRUCTIONS = [
 	"Classify the user request by its primary task, not its subject matter.",
 	"Choose exactly one primary category from the supplied taxonomy and zero or more labels.",
 	"Use other only when no more specific label applies.",
@@ -53,10 +53,10 @@ export function starterClassifierRow(workspaceId: string, createdBy?: string | n
 		workspace_id: workspaceId,
 		slug: STARTER_CLASSIFIER_SLUG,
 		name: "Task categories",
-		description: "OpenRouter-compatible task taxonomy starter preset.",
-		kind: "openrouter_task",
-		instructions: OPENROUTER_TASK_INSTRUCTIONS,
-		categories: OPENROUTER_TASK_CATEGORIES,
+		description: "Task taxonomy starter preset.",
+		kind: "phaseo_task",
+		instructions: STARTER_TASK_INSTRUCTIONS,
+		categories: STARTER_TASK_CATEGORIES,
 		model: "gpt-5-mini",
 		service_tier: "flex",
 		sample_rate_bps: 10000,

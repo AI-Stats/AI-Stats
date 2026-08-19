@@ -262,7 +262,7 @@ export function createAnthropicToResponsesStreamTransformer(
 
 					// Map Anthropic stop_reason to Responses API status
 					let status: "completed" | "incomplete" | "failed" = "completed";
-					if (stopReason === "max_tokens") {
+					if (stopReason === "max_tokens" || stopReason === "model_context_window_exceeded") {
 						status = "incomplete";
 					}
 
@@ -274,11 +274,6 @@ export function createAnthropicToResponsesStreamTransformer(
 						...(typeof usage.cache_read_input_tokens === "number" ? {
 							input_tokens_details: {
 								cached_tokens: usage.cache_read_input_tokens,
-							},
-						} : {}),
-						...(typeof usage.cache_creation_input_tokens === "number" ? {
-							output_tokens_details: {
-								cached_tokens: usage.cache_creation_input_tokens,
 							},
 						} : {}),
 					} : undefined;

@@ -8,7 +8,7 @@ import { ChatCompletionsSchema, type ChatCompletionsRequest } from "@core/schema
 import { resolveCanonicalTokenUsage } from "@core/usage-normalization";
 import { buildAdapterPayload } from "../../utils";
 import { computeBill } from "@pipeline/pricing/engine";
-import { azureDeployment, azureHeaders, azureUrl, resolveAzureConfig, resolveAzureKey } from "../config";
+import { azureDeployment, azureHeaders, azureOpenAIV1Url, azureUrl, resolveAzureConfig, resolveAzureCredential, usesAzureV1 } from "../config";
 
 function mapGatewayToAzureChat(body: ChatCompletionsRequest) {
     return {
@@ -227,7 +227,7 @@ async function bufferAzureStream(
 }
 
 export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
-    const keyInfo = await resolveAzureKey(args);
+	const keyInfo = resolveAzureCredential(args);
     const { adapterPayload } = buildAdapterPayload(ChatCompletionsSchema, args.body, ["usage", "meta"]);
     const modifiedBody: ChatCompletionsRequest = {
         ...adapterPayload,
@@ -237,11 +237,13 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
     const req = mapGatewayToAzureChat(modifiedBody);
     const config = resolveAzureConfig();
     const deployment = azureDeployment(args);
-    const url = azureUrl(`openai/deployments/${deployment}/chat/completions`, config.apiVersion, config.baseUrl);
+	const url = usesAzureV1(config.apiVersion)
+		? azureOpenAIV1Url("chat/completions", config.baseUrl, config.apiVersion)
+		: azureUrl(`openai/deployments/${deployment}/chat/completions`, config.apiVersion, config.baseUrl);
 
     const res = await fetch(url, {
         method: "POST",
-        headers: azureHeaders(keyInfo.key),
+		headers: azureHeaders(keyInfo.key, keyInfo.authType),
         body: JSON.stringify(req),
     });
 
@@ -290,4 +292,3 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
         byokKeyId: keyInfo.byokId,
     };
 }
-

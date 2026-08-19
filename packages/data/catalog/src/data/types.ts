@@ -90,6 +90,7 @@ export interface APIProvider {
         | "optional"
         | "default"
         | null;
+    data_retention_days?: number | null;
     residency_source_url?: string | null;
     regional_pricing_mode?:
         | "unknown"

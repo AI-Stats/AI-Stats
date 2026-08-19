@@ -232,13 +232,12 @@ accountSettingsRouter.get("/privacy", async (c) => {
 		workspaceId,
 	});
 	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
-	let [teamResult, settingsResult, providersResult, modelsResult, contributionGatewayResult, accountPolicyResult] = await Promise.all([
+	let [teamResult, settingsResult, providersResult, modelsResult, contributionGatewayResult] = await Promise.all([
 		context.client.from("workspaces").select("id,name").eq("id", workspaceId).maybeSingle(),
 		context.client.from("workspace_settings").select("privacy_enable_paid_may_train,privacy_enable_free_may_train,privacy_enable_free_may_publish_prompts,privacy_enable_input_output_logging,privacy_zdr_only,io_logging_enabled,io_logging_retention_days,io_logging_include_provider_payloads,provider_restriction_mode,provider_restriction_provider_ids,provider_restriction_enforce_allowed,model_restriction_mode,model_restriction_model_ids,response_healing_enabled,response_healing_locked,response_healing_mode").eq("workspace_id", workspaceId).maybeSingle(),
 		context.client.from("v2_providers").select("api_provider_id:provider_slug,api_provider_name:name,provider_family_id:provider_family_slug,offer_label,offer_scope,routable,routing_enabled,status").eq("routable", true).eq("routing_enabled", true).in("status", ["active", "degraded"]).order("name", { ascending: true }),
 		context.client.from("v2_model_provider_routes").select("provider_id:provider_slug,api_model_id:model_slug,internal_model_id:model_slug,is_active_gateway:routing_enabled").eq("routing_enabled", true).in("status", ["active", "degraded"]),
 		callDataContributionGateway({ env: c.env, request: c.req.raw, workspaceId: context.workspaceId }),
-		context.client.from("account_guardrail_settings").select("privacy_enable_paid_may_train,privacy_enable_free_may_train,privacy_enable_input_output_logging,privacy_zdr_only,provider_restriction_mode,provider_restriction_provider_ids,model_restriction_mode,model_restriction_model_ids").eq("user_id", context.user.id).maybeSingle(),
 	]);
 	if (settingsResult.error && /model_restriction_(mode|model_ids)/i.test(settingsResult.error.message)) {
 		settingsResult = await context.client.from("workspace_settings")
@@ -246,7 +245,7 @@ accountSettingsRouter.get("/privacy", async (c) => {
 			.eq("workspace_id", workspaceId)
 			.maybeSingle();
 	}
-	for (const result of [teamResult, settingsResult, providersResult, modelsResult, accountPolicyResult]) {
+	for (const result of [teamResult, settingsResult, providersResult, modelsResult]) {
 		if (result.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	}
 	const routableProviderIds = new Set((modelsResult.data ?? []).map((row) => String(row.provider_id ?? "")).filter(Boolean));
@@ -277,16 +276,7 @@ accountSettingsRouter.get("/privacy", async (c) => {
 			providerId: row.provider_id,
 		})),
 		initialGlobal: settingsResult.data ?? null,
-		accountPolicy: accountPolicyResult.data ? {
-			privacyEnablePaidMayTrain: accountPolicyResult.data.privacy_enable_paid_may_train !== false,
-			privacyEnableFreeMayTrain: accountPolicyResult.data.privacy_enable_free_may_train !== false,
-			privacyEnableInputOutputLogging: accountPolicyResult.data.privacy_enable_input_output_logging !== false,
-			privacyZdrOnly: accountPolicyResult.data.privacy_zdr_only === true,
-			providerRestrictionMode: restrictionMode(accountPolicyResult.data.provider_restriction_mode),
-			providerRestrictionProviderIds: stringList(accountPolicyResult.data.provider_restriction_provider_ids).filter((id) => routableProviderIds.has(id)),
-			modelRestrictionMode: restrictionMode(accountPolicyResult.data.model_restriction_mode),
-			modelRestrictionModelIds: stringList(accountPolicyResult.data.model_restriction_model_ids).filter((id) => providerIdsByModel.has(id)),
-		} : null,
+		accountPolicy: null,
 		policy: {
 			privacyEnablePaidMayTrain: settings?.privacy_enable_paid_may_train !== false,
 			privacyEnableFreeMayTrain: settings?.privacy_enable_free_may_train !== false,
@@ -334,16 +324,11 @@ accountSettingsRouter.get("/workspace/privacy-settings", async (c) => {
 	if (!workspaceId) return c.json(null, 200, PRIVATE_NO_STORE_HEADERS);
 	const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId });
 	if (!context) return c.json(null, 200, PRIVATE_NO_STORE_HEADERS);
-	const [workspaceResult, accountResult] = await Promise.all([
-		context.client.from("workspace_settings")
-			.select("privacy_enable_paid_may_train,privacy_enable_free_may_train,privacy_zdr_only,provider_restriction_mode,provider_restriction_provider_ids")
-			.eq("workspace_id", workspaceId).maybeSingle(),
-		context.client.from("account_guardrail_settings")
-			.select("provider_restriction_mode,provider_restriction_provider_ids")
-			.eq("user_id", context.user.id).maybeSingle(),
-	]);
+	const workspaceResult = await context.client.from("workspace_settings")
+		.select("privacy_enable_paid_may_train,privacy_enable_free_may_train,privacy_zdr_only,provider_restriction_mode,provider_restriction_provider_ids")
+		.eq("workspace_id", workspaceId).maybeSingle();
 	const data = workspaceResult.data;
-	if (workspaceResult.error || accountResult.error || !data) return c.json(null, 200, PRIVATE_NO_STORE_HEADERS);
+	if (workspaceResult.error || !data) return c.json(null, 200, PRIVATE_NO_STORE_HEADERS);
 	const mode = String(data.provider_restriction_mode ?? "").trim().toLowerCase();
 	return c.json({
 		isAuthenticated: true,
@@ -354,12 +339,8 @@ accountSettingsRouter.get("/workspace/privacy-settings", async (c) => {
 		providerRestrictionProviderIds: Array.isArray(data.provider_restriction_provider_ids)
 			? data.provider_restriction_provider_ids.map((value) => String(value ?? "").trim()).filter(Boolean)
 			: [],
-		accountProviderRestrictionMode: ["none", "allowlist", "blocklist"].includes(String(accountResult.data?.provider_restriction_mode))
-			? accountResult.data?.provider_restriction_mode
-			: "none",
-		accountProviderRestrictionProviderIds: Array.isArray(accountResult.data?.provider_restriction_provider_ids)
-			? accountResult.data.provider_restriction_provider_ids.map((value) => String(value ?? "").trim()).filter(Boolean)
-			: [],
+		accountProviderRestrictionMode: "none",
+		accountProviderRestrictionProviderIds: [],
 	}, 200, PRIVATE_NO_STORE_HEADERS);
 });
 

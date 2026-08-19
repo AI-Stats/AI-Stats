@@ -7,6 +7,6 @@ export const OVHCLOUD_OPENAI_COMPAT_CONFIGS = {
 		pathPrefix: "/v1",
 		apiKeyEnv: "OVH_AI_ENDPOINTS_ACCESS_TOKEN",
 		baseUrlEnv: "OVH_AI_ENDPOINTS_URL",
-		supportsResponses: false,
+		supportsResponses: true,
 	},
 } satisfies Record<string, OpenAICompatConfig>;

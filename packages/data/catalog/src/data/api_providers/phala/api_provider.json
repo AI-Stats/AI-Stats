@@ -2,7 +2,7 @@
   "api_provider_id": "phala",
   "api_provider_name": "Phala",
   "description": null,
-  "link": "https://www.phala.network/",
+  "link": "https://phala.com/confidential-ai-models",
   "country_code": "US",
   "status": "NotReady",
   "colour": "#334155",
@@ -10,20 +10,33 @@
   "terms_of_service_url": "https://phala.com/terms",
   "prompt_training_policy": "no_train",
   "prompt_training_notes": "Phala says that when models are deployed in TEE mode, it does not collect or retain users' prompts, inputs, or requests and the interactions remain confidential throughout inference.",
-  "prompt_training_source_url": "https://phala.com/terms",
+  "prompt_training_source_url": "https://phala.com/solutions/private-ai-inference",
   "gateway_kind": null,
   "routable": null,
   "routing_enabled": null,
   "sdk_package": null,
-  "api_base_url": null,
-  "docs_url": "https://www.phala.network/",
-  "auth_env": null,
-  "api_formats": [],
+  "api_base_url": "https://inference.phala.com/v1",
+  "docs_url": "https://phala.com/confidential-ai-models",
+  "auth_env": "PHALA_API_KEY",
+  "api_formats": ["openai.chat.completions"],
   "service_tiers": [],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "documentation",
+      "url": "https://phala.com/confidential-ai-models",
+      "accessed_at": "2026-08-12T00:00:00Z",
+      "notes": "Current first-party model catalog documents the inference.phala.com host, Bearer API key, Chat Completions shape, model prices, and receipt-backed confidential execution."
+    },
+    {
+      "kind": "documentation",
+      "url": "https://phala.com/solutions/private-ai-inference",
+      "accessed_at": "2026-08-12T00:00:00Z",
+      "notes": "Documents end-to-end encryption, TEE execution, no-log registered builds, and receipt headers."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-12T00:00:00Z",
+    "notes": "Host, authentication, protocol, privacy boundary, and response receipt contract verified; provider offerings remain individually non-routable pending live authenticated model reconciliation."
   }
 }

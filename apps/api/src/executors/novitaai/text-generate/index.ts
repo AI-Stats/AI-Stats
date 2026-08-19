@@ -16,7 +16,11 @@ export function preprocess(ir: IRChatRequest, args: ExecutorExecuteArgs): IRChat
 }
 
 export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult> {
-	return executeOpenAIWire(args);
+	const model = (args.providerModelSlug?.trim() || args.ir.model).toLowerCase();
+	const emptyDoneBehavior = model === "mindai/macaron-v1-tall" || model === "mindai/macaron-v1-venti"
+		? "length"
+		: undefined;
+	return executeOpenAIWire(args, { emptyDoneBehavior });
 }
 
 export function postprocess(ir: any): any {
@@ -33,5 +37,4 @@ export const executor: ProviderExecutor = buildTextExecutor({
 	postprocess,
 	transformStream,
 });
-
 

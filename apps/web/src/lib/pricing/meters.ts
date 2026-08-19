@@ -22,6 +22,7 @@ const CORE_PRICING_METER_VALUES = [
   "output_video",
   "output_video_tokens",
   "cached_read_image_tokens",
+  "cached_read_video_tokens",
   "output_image_tokens",
   "cached_read_audio_tokens",
   "output_audio_tokens",

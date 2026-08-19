@@ -1,12 +1,13 @@
 import React from "react";
-import { CircleAlert } from "lucide-react";
+import Link from "next/link";
+import { CircleAlert, Pencil } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
 	fetchFrontendModelHeader,
 	fetchFrontendModelProviderRoutingHealth,
 	fetchFrontendModelProviderRuntimeStats,
 	fetchFrontendModelPricing,
 } from "@/lib/fetchers/frontend/fetchPublicCatalog";
-import { getModelPricingCached } from "@/lib/fetchers/models/getModelPricing";
 import ModelPricingClient from "@/components/(data)/model/pricing/ModelPricingClient";
 import ModelPendingApiReleaseBanner from "@/components/(data)/model/overview/ModelPendingApiReleaseBanner";
 import { fetchWorkspacePrivacySettings } from "@/lib/fetchers/internal/fetchWorkspacePrivacySettings";
@@ -63,18 +64,12 @@ export default async function ModelPricing({
 	modelName?: string | null;
 	creatorOrganisationId?: string | null;
 }) {
-	const includeInternalProviders = await withOptionalTimeout(
-		isAdminViewer(),
-		false,
-		"admin viewer check"
-	);
-	const [providers, identity] = await Promise.all([
-		includeInternalProviders
-			? getModelPricingCached(modelId, includeHidden, true)
-			: fetchFrontendModelPricing(modelId),
+	const [providers, identity, showAdminPricingControls] = await Promise.all([
+		fetchFrontendModelPricing(modelId),
 		modelStatus !== undefined
 			? Promise.resolve({ status: modelStatus, name: modelName ?? null, organisationId: creatorOrganisationId ?? null })
 			: fetchFrontendModelHeader(modelId, includeHidden).then((header) => ({ status: header?.status ?? null, name: header?.name ?? null, organisationId: header?.organisation_id ?? null })),
+		withOptionalTimeout(isAdminViewer(), false, "admin viewer check"),
 	]);
 	const workspacePrivacySettings: WorkspacePrivacySettings | null =
 		await withOptionalTimeout(
@@ -144,6 +139,16 @@ export default async function ModelPricing({
 	if (!providersForDisplay.length) {
 		return (
 			<div className="space-y-4">
+				{showAdminPricingControls ? (
+					<div className="flex justify-end">
+						<Button asChild size="sm" variant="outline">
+							<Link href={`/internal/data/models/edit/${modelId}?tab=pricing`}>
+								<Pencil className="mr-1 h-3.5 w-3.5" />
+								Add pricing
+							</Link>
+						</Button>
+					</div>
+				) : null}
 				{showHeader ? (
 					<h2 className="text-2xl font-semibold tracking-tight text-foreground">
 						Providers
@@ -189,6 +194,16 @@ export default async function ModelPricing({
 
 	return (
 		<div className="space-y-4">
+			{showAdminPricingControls ? (
+				<div className="flex justify-end">
+					<Button asChild size="sm" variant="outline">
+						<Link href={`/internal/data/models/edit/${modelId}?tab=pricing`}>
+							<Pencil className="mr-1 h-3.5 w-3.5" />
+							Edit pricing
+						</Link>
+					</Button>
+				</div>
+			) : null}
 			{showPendingApiBanner ? (
 				<ModelPendingApiReleaseBanner
 					modelName={identity.name ?? "This model"}
