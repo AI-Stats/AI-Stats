@@ -32,6 +32,8 @@ const IMAGE_CAPABILITY_HINTS = [
 	"images.generate",
 	"images.generations",
 	"image.generation",
+	"image.edit",
+	"images.edits",
 ];
 const VIDEO_CAPABILITY_HINTS = [
 	"video.generate",
@@ -192,6 +194,20 @@ function matchesCapability(capabilityId: string, supported: string[]): boolean {
 	return supported.includes(capabilityId);
 }
 
+const CAPABILITY_ALIASES: Record<string, string> = {
+	"images.generate": "image.generate",
+	"images.generations": "image.generate",
+	"image.generation": "image.generate",
+	"images.edits": "image.edit",
+	"rerank.create": "rerank",
+	"text.rerank": "rerank",
+};
+
+export function normalizeChatCapabilityId(capabilityId: string): string {
+	const normalized = normalizeCapability(capabilityId);
+	return CAPABILITY_ALIASES[normalized] ?? normalized;
+}
+
 function includesHint(value: string, hints: string[]) {
 	return hints.some((hint) => value.includes(hint));
 }
@@ -199,7 +215,7 @@ function includesHint(value: string, hints: string[]) {
 export function capabilityIdToRoomId(
 	capabilityId: string,
 ): ChatRoomId | null {
-	const normalized = normalizeCapability(capabilityId);
+	const normalized = normalizeChatCapabilityId(capabilityId);
 	if (matchesCapability(normalized, TEXT_CAPABILITY_HINTS)) {
 		return "text";
 	}
@@ -265,7 +281,27 @@ export function inferModelRoomFromId(modelId: string): ChatRoomId {
 type ModelWithCapabilities = {
 	modelId: string;
 	capabilities?: string[] | null;
+	outputModalities?: string[] | null;
 };
+
+function roomIdsFromOutputModalities(
+	modalities: string[] | null | undefined,
+): ChatRoomId[] {
+	const rooms = new Set<ChatRoomId>();
+	for (const value of modalities ?? []) {
+		const modality = value.trim().toLowerCase().replace(/[\s/-]+/g, "_");
+		if (modality === "text") rooms.add("text");
+		else if (modality === "image") rooms.add("image");
+		else if (modality === "video") rooms.add("video");
+		else if (modality === "music" || modality === "audio_music") rooms.add("music");
+		else if (modality === "audio_tts") rooms.add("speech");
+		else if (modality === "audio_stt") rooms.add("speech-to-text");
+		else if (modality === "audio") rooms.add("audio");
+		else if (modality === "embeddings") rooms.add("embeddings");
+		else if (modality === "moderations") rooms.add("moderation");
+	}
+	return Array.from(rooms);
+}
 
 export function modelSupportsRoom(
 	model: ModelWithCapabilities,
@@ -290,6 +326,12 @@ export function modelSupportsRoom(
 	);
 	if (hasDeclaredCapabilities) {
 		return false;
+	}
+	const modalityRooms = roomIdsFromOutputModalities(model.outputModalities);
+	if (modalityRooms.length > 0) {
+		return roomId === "audio"
+			? modalityRooms.some((id) => ["audio", "speech", "speech-to-text", "music"].includes(id))
+			: modalityRooms.includes(roomId);
 	}
 	if (roomId === "text") {
 		return inferModelRoomFromId(model.modelId) === "text";

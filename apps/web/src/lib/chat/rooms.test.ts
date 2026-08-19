@@ -3,6 +3,7 @@ import {
 	CHAT_ROOMS,
 	capabilityIdToRoomId,
 	filterModelsForRoom,
+	normalizeChatCapabilityId,
 	roomIdsFromCapabilities,
 } from "@/lib/chat/rooms";
 import minimaxRoutes from "../../../../../packages/data/catalog/src/data/api_providers/minimax/models.json";
@@ -29,7 +30,13 @@ describe("chat room capability mapping", () => {
 		expect(capabilityIdToRoomId("ocr")).toBeNull();
 		expect(capabilityIdToRoomId("rerank")).toBeNull();
 		expect(capabilityIdToRoomId("text.rerank")).toBeNull();
-		expect(capabilityIdToRoomId("image.edit")).toBeNull();
+	});
+
+	it("normalizes capability aliases and groups image editing with Images", () => {
+		expect(normalizeChatCapabilityId("images.edits")).toBe("image.edit");
+		expect(normalizeChatCapabilityId("text.rerank")).toBe("rerank");
+		expect(capabilityIdToRoomId("image.edit")).toBe("image");
+		expect(capabilityIdToRoomId("images.edits")).toBe("image");
 	});
 
 	it("returns all distinct room ids from capabilities", () => {
@@ -87,6 +94,16 @@ describe("chat room capability mapping", () => {
 
 		expect(filterModelsForRoom(models, "text")).toEqual([models[0]]);
 		expect(filterModelsForRoom(models, "image")).toEqual([models[1]]);
+	});
+
+	it("uses output modalities before model id inference", () => {
+		const models = [
+			{ modelId: "provider/creative-model", capabilities: [], outputModalities: ["image"] },
+			{ modelId: "provider/general-model", capabilities: [], outputModalities: ["text"] },
+		];
+
+		expect(filterModelsForRoom(models, "image")).toEqual([models[0]]);
+		expect(filterModelsForRoom(models, "text")).toEqual([models[1]]);
 	});
 
 	it("keeps the routable MiniMax Music 2.6 selectors eligible for the Music room", () => {
