@@ -157,6 +157,33 @@ function CategoryBadges({ category }: { category: string | null }) {
 	);
 }
 
+function CategoryIcons({ category }: { category: string | null }) {
+	const categories = parseAppCategories(category);
+	if (categories.length === 0) return null;
+
+	return (
+		<div className="flex shrink-0 items-center gap-0.5">
+			{categories.map((category) => {
+				const { Icon, iconClassName } = APP_CATEGORY_VISUALS[category];
+				const label = getAppCategoryLabel(category) ?? category;
+				return (
+					<Tooltip key={category}>
+						<TooltipTrigger asChild>
+							<span
+								className="inline-flex size-7 items-center justify-center rounded-md hover:bg-muted/60"
+								aria-label={label}
+							>
+								<Icon className={`size-4 ${iconClassName}`} />
+							</span>
+						</TooltipTrigger>
+						<TooltipContent>{label}</TooltipContent>
+					</Tooltip>
+				);
+			})}
+		</div>
+	);
+}
+
 export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 	const [items, setItems] = useState<AppItem[]>(apps);
 	const [pending, setPending] = useState<Record<string, boolean>>({});
@@ -345,10 +372,11 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 					>
 						<TableHeader className="bg-muted/30">
 							<TableRow>
-								<TableHead className="w-[50%]">App</TableHead>
+								<TableHead className="w-[42%]">App</TableHead>
 								<TableHead className="w-[16%]">Visibility</TableHead>
-								<TableHead className="w-[17%]">Last Seen</TableHead>
-								<TableHead className="w-[17%]">Created</TableHead>
+								<TableHead className="w-[16%]">Last Seen</TableHead>
+								<TableHead className="w-[16%]">Created</TableHead>
+								<TableHead className="w-[10%] text-right" />
 							</TableRow>
 						</TableHeader>
 						<TableBody>
@@ -377,24 +405,11 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 															app.title
 														)}
 														</div>
-														<div className="flex shrink-0 items-center gap-0.5">
-															<Tooltip>
-																<TooltipTrigger asChild>
-																	<Button asChild size="icon-sm" variant="ghost" className="rounded-md">
-																		<Link href={`/apps/${encodeURIComponent(app.id)}`} aria-label={`View stats for ${app.title}`}>
-																			<BarChart2 className="size-4" />
-																		</Link>
-																	</Button>
-																</TooltipTrigger>
-																<TooltipContent>View stats</TooltipContent>
-															</Tooltip>
-															{renderActions(app)}
-														</div>
+														<CategoryIcons category={app.category} />
 													</div>
 													<div className="truncate text-xs text-muted-foreground">
 														{displayUrl ? app.url : "No public URL set"}
 													</div>
-											<CategoryBadges category={app.category} />
 										</div>
 									</div>
 								</TableCell>
@@ -431,6 +446,21 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 								</TableCell>
 								<TableCell className="text-xs text-muted-foreground">
 									{formatDate(app.created_at)}
+								</TableCell>
+								<TableCell className="text-right">
+									<div className="flex items-center justify-end gap-1">
+										<Tooltip>
+											<TooltipTrigger asChild>
+												<Button asChild size="icon-sm" variant="ghost" className="rounded-md">
+													<Link href={`/apps/${encodeURIComponent(app.id)}`} aria-label={`View stats for ${app.title}`}>
+														<BarChart2 className="size-4" />
+													</Link>
+												</Button>
+											</TooltipTrigger>
+											<TooltipContent>View stats</TooltipContent>
+										</Tooltip>
+										{renderActions(app)}
+									</div>
 								</TableCell>
 									</TableRow>
 								);
