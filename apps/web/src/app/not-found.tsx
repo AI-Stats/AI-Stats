@@ -1,170 +1,111 @@
 import Link from "next/link";
-import Image from "next/image";
+import { ArrowRight, BookOpen, House, Layers3, Network } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Home, BookOpen, Layers, Network } from "lucide-react";
-import {
-	Card,
-	CardHeader,
-	CardTitle,
-	CardDescription,
-} from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 
-const externalLinks = {
-	github: "https://github.com/phaseoteam/Phaseo",
-	discord: "https://discord.gg/aQyywCvgZ5",
-};
-
-const suggestions = [
-	{
-		href: "/",
-		label: "Go back home",
-		description: "Return to the main page and start from a clean slate.",
-		icon: Home,
-	},
+const destinations = [
 	{
 		href: "/models",
-		label: "Browse models",
-		description: "Explore the catalogue of AI models and their details.",
-		icon: Layers,
-	},
-	{
-		href: "https://phaseo.app/docs/v1",
-		label: "Read the docs",
-		description:
-			"Check the documentation for guides, references, and examples.",
-		icon: BookOpen,
+		label: "Model catalogue",
+		description: "Compare models, capabilities, pricing, and availability.",
+		icon: Layers3,
+		external: false,
 	},
 	{
 		href: "/api-providers",
-		label: "Explore providers",
-		description:
-			"Browse supported providers and see where coverage is available today.",
+		label: "Provider directory",
+		description: "Explore providers and their supported model routes.",
 		icon: Network,
+		external: false,
+	},
+	{
+		href: "https://phaseo.app/docs/v1",
+		label: "Documentation",
+		description: "Find integration guides, SDKs, and API references.",
+		icon: BookOpen,
+		external: true,
 	},
 ];
 
 export default function NotFound() {
 	return (
-		<div className="flex min-h-[80vh] flex-col items-center justify-center px-4 py-10">
-			<div className="w-full max-w-3xl">
-				{/* Top-left branding */}
-				<div className="mb-8 flex items-center justify-start">
-					<Link
-						href="/"
-						className="text-sm font-semibold tracking-tight text-muted-foreground hover:text-foreground"
-					>
-						Phaseo
-					</Link>
-				</div>
+		<main className="relative isolate flex min-h-[calc(100dvh-3.75rem)] overflow-hidden px-4 py-12 sm:px-6 lg:px-8">
+			<div
+				aria-hidden="true"
+				className="pointer-events-none absolute inset-0 -z-20 bg-[radial-gradient(circle_at_18%_14%,color-mix(in_oklch,var(--foreground)_6%,transparent),transparent_32%),linear-gradient(to_bottom,var(--background),color-mix(in_oklch,var(--muted)_45%,var(--background)))]"
+			/>
+			<div
+				aria-hidden="true"
+				className="pointer-events-none absolute inset-0 -z-10 opacity-[0.18] [background-image:linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] [background-size:32px_32px] [mask-image:linear-gradient(to_bottom,black,transparent_78%)]"
+			/>
 
-				<div className="text-center">
-					<p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
-						404
+			<div className="mx-auto grid w-full max-w-6xl items-center gap-12 lg:grid-cols-[minmax(0,1.1fr)_minmax(20rem,0.9fr)]">
+				<section className="relative min-w-0">
+					<p className="text-sm font-medium uppercase tracking-[0.22em] text-muted-foreground">
+						Route not found
 					</p>
-
-					<h1 className="mt-2 text-4xl font-bold tracking-tight sm:text-5xl">
-						This page doesn&apos;t exist
-					</h1>
-
-					<p className="mt-4 text-sm text-muted-foreground sm:text-base">
-						The URL may be out of date, the page might have been
-						moved, or it never existed in the first place.
-						Don&apos;t worry - you can jump back into the important
-						parts of the site from here.
+					<div className="relative mt-3">
+						<div
+							aria-hidden="true"
+							className="absolute -left-2 top-1/2 h-px w-[min(42rem,92vw)] -translate-y-1/2 bg-gradient-to-r from-transparent via-border to-transparent"
+						/>
+						<h1 className="relative w-fit bg-background/80 pr-5 text-[clamp(5.5rem,22vw,12rem)] font-semibold leading-[0.78] tracking-[-0.09em] text-foreground">
+							404
+						</h1>
+					</div>
+					<h2 className="mt-8 max-w-xl text-balance text-3xl font-semibold tracking-tight sm:text-5xl">
+						This route leads nowhere.
+					</h2>
+					<p className="mt-4 max-w-xl text-pretty text-base leading-7 text-muted-foreground sm:text-lg">
+						The page may have moved or the address may be incomplete. Continue into
+						the model catalogue, or return to the Phaseo home page.
 					</p>
-
-					<div className="mt-8 flex justify-center">
-						<Button asChild>
-							<Link href="/">Return home</Link>
+					<div className="mt-8 flex flex-col gap-3 sm:flex-row">
+						<Button asChild size="lg" className="w-full sm:w-auto">
+							<Link href="/models">
+								Browse models
+								<ArrowRight className="size-4" />
+							</Link>
+						</Button>
+						<Button asChild size="lg" variant="outline" className="w-full sm:w-auto">
+							<Link href="/">
+								<House className="size-4" />
+								Return home
+							</Link>
 						</Button>
 					</div>
+				</section>
 
-					<div className="mt-10 grid gap-4 text-left sm:grid-cols-2">
-						{suggestions.map((item) => {
-							const Icon = item.icon;
-							return (
-								<Link
-									key={item.href}
-									href={item.href}
-									className="group"
-								>
-									<Card className="h-full cursor-pointer border-border bg-card/70 transition hover:border-primary/60 hover:bg-accent/40">
-										<CardHeader className="flex flex-row items-start gap-3">
-											<div className="mt-1 rounded-full border bg-background p-2 transition group-hover:border-primary/70">
-												<Icon className="h-4 w-4" />
-											</div>
-											<div>
-												<CardTitle className="text-base">
-													{item.label}
-												</CardTitle>
-												<CardDescription className="mt-1 text-xs sm:text-sm">
-													{item.description}
-												</CardDescription>
-											</div>
-										</CardHeader>
-									</Card>
-								</Link>
-							);
-						})}
-					</div>
-
-					<Separator className="my-6" />
-
-					<div className="mt-3 text-sm">
-						<p className="text-center text-muted-foreground">
-							If you believe this is an error, please let us know:
-						</p>
-						<div className="mt-2 flex flex-wrap justify-center gap-2">
-							<Button variant="ghost" size="sm" asChild>
-								<Link
-									href={externalLinks.github}
-									target="_blank"
-									rel="noreferrer"
-									className="inline-flex items-center"
-								>
-									<span className="mr-1 inline-flex h-4 w-4 items-center justify-center">
-										{/* Light / dark GitHub icons */}
-										<Image
-											src="/social/github_light.svg"
-											alt="GitHub"
-											width={16}
-											height={16}
-											className="block dark:hidden"
-										/>
-										<Image
-											src="/social/github_dark.svg"
-											alt="GitHub"
-											width={16}
-											height={16}
-											className="hidden dark:block"
-										/>
+				<nav aria-label="Useful destinations" className="grid min-w-0 gap-2">
+					{destinations.map((destination, index) => {
+						const Icon = destination.icon;
+						return (
+							<Link
+								key={destination.href}
+								href={destination.href}
+								target={destination.external ? "_blank" : undefined}
+								rel={destination.external ? "noreferrer" : undefined}
+								className="group grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 rounded-2xl border border-border/70 bg-background/80 p-4 shadow-sm backdrop-blur transition-colors hover:border-foreground/25 hover:bg-muted/55 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/30 sm:p-5"
+							>
+								<span className="grid size-10 place-items-center rounded-xl border bg-muted/50 text-muted-foreground transition-colors group-hover:text-foreground">
+									<Icon className="size-4" aria-hidden="true" />
+								</span>
+								<span className="min-w-0">
+									<span className="block font-medium">
+										{String(index + 1).padStart(2, "0")} · {destination.label}
 									</span>
-									GitHub
-								</Link>
-							</Button>
-							<Button variant="ghost" size="sm" asChild>
-								<Link
-									href={externalLinks.discord}
-									target="_blank"
-									rel="noreferrer"
-									className="inline-flex items-center"
-								>
-									<span className="mr-1 inline-flex h-4 w-4 items-center justify-center">
-										<Image
-											src="/social/discord.svg"
-											alt="Discord"
-											width={16}
-											height={16}
-										/>
+									<span className="mt-1 block text-sm leading-6 text-muted-foreground">
+										{destination.description}
 									</span>
-									Discord
-								</Link>
-							</Button>
-						</div>
-					</div>
-				</div>
+								</span>
+								<ArrowRight
+									className="size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-foreground"
+									aria-hidden="true"
+								/>
+							</Link>
+						);
+					})}
+				</nav>
 			</div>
-		</div>
+		</main>
 	);
 }
