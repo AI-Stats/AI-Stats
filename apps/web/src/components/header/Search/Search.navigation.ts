@@ -32,8 +32,8 @@ export const GLOBAL_NAVIGATION_ITEMS: readonly GlobalNavigationItem[] = [
 	{ id: "nav-model-updates", title: "Model Updates", subtitle: "Browse model release updates", href: "/updates/models", keywords: ["releases", "new models"] },
 
 	{ id: "nav-tools", title: "Developer Tools", subtitle: "Open the Phaseo tools collection", href: "/tools", keywords: ["utilities", "developer"] },
+	{ id: "nav-content-provenance", title: "Content Provenance", subtitle: "Check images and audio for OpenAI provenance signals", href: "/tools/content-provenance", keywords: ["C2PA", "SynthID", "verification", "AI detection"] },
 	{ id: "nav-pricing-calculator", title: "Pricing Calculator", subtitle: "Estimate model request costs", href: "/tools/pricing-calculator", keywords: ["cost calculator", "tokens"] },
-	{ id: "nav-latency-tool", title: "Latency Comparison", subtitle: "Compare provider response latency", href: "/tools/latency-comparison", keywords: ["speed", "performance tool"] },
 	{ id: "nav-request-builder", title: "Request Builder", subtitle: "Build gateway API requests", href: "/tools/request-builder", keywords: ["api request", "curl", "json"] },
 	{ id: "nav-json-formatter", title: "JSON Formatter", subtitle: "Format and inspect JSON", href: "/tools/json-formatter", keywords: ["developer utility", "pretty print"] },
 	{ id: "nav-markdown-preview", title: "Markdown Preview", subtitle: "Preview rendered Markdown", href: "/tools/markdown-preview", keywords: ["md", "renderer"] },

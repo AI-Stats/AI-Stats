@@ -40,6 +40,7 @@ import {
 	getModelLineageLinks,
 	resolveModelLineageNames,
 } from "@/components/(data)/model/overview/modelOverviewMetadata";
+import { supportsProvenanceVerification } from "@/components/(data)/model/overview/ModelVerificationSection";
 
 async function ModelCreatorModelsSectionContent({
 	modelId,
@@ -114,6 +115,7 @@ const baseModelPageTocItems: ModelPageTocItem[] = [
 	{ id: "activity", label: "Activity" },
 	{ id: "apps", label: "Apps" },
 	{ id: "uptime", label: "Uptime" },
+	{ id: "verification", label: "Verification" },
 	{ id: "about", label: "About" },
 	{ id: "subscriptions", label: "Subscriptions" },
 	{ id: "faq", label: "FAQ" },
@@ -124,16 +126,19 @@ function getModelPageTocItems({
 	showSubscriptions,
 	status,
 	isGatewayActive,
+	showVerification,
 }: {
 	showBenchmarks: boolean;
 	showSubscriptions: boolean;
 	status?: string | null;
 	isGatewayActive: boolean;
+	showVerification: boolean;
 }): ModelPageTocItem[] {
 	if (status === "Retired") {
 		return baseModelPageTocItems.filter((item) => {
 			if (item.id === "benchmarks") return showBenchmarks;
 			if (item.id === "subscriptions") return showSubscriptions;
+			if (item.id === "verification") return showVerification;
 			return item.id === "about" || item.id === "faq";
 		});
 	}
@@ -147,6 +152,7 @@ function getModelPageTocItems({
 		}
 		if (item.id === "benchmarks") return showBenchmarks;
 		if (item.id === "subscriptions") return showSubscriptions;
+		if (item.id === "verification") return showVerification;
 		return true;
 	});
 }
@@ -235,6 +241,7 @@ export default async function Page({
 		showSubscriptions,
 		status: modelOverview?.status,
 		isGatewayActive,
+		showVerification: supportsProvenanceVerification(modelOverview.output_types),
 	});
 	const modelName = modelOverview?.name ?? modelId.split("/").slice(-1)[0] ?? modelId;
 	const organisationName =

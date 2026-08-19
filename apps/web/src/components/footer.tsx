@@ -13,6 +13,7 @@ const productLinks = [
 	{ href: "/api-providers", label: "Providers" },
 	{ href: "/apps", label: "Apps" },
 	{ href: "/rankings", label: "Rankings" },
+	{ href: "/tools", label: "Tools" },
 	{ href: "/monitor", label: "Monitor" },
 ];
 
