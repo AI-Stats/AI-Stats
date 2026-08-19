@@ -34,6 +34,7 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { CopyButton } from "@/components/ui/copy-button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
 	HoverCard,
 	HoverCardContent,
@@ -1246,8 +1247,13 @@ function AsyncJobDetailSheet({
 									) : null}
 
 									{job.request_provider_attempts.length > 0 ? (
-										<div className="mt-4 overflow-x-auto rounded-xl border border-border/60">
-											<Table>
+										<ScrollArea
+											className="mt-4 w-full rounded-xl border border-border/60"
+											scrollBarOrientation="horizontal"
+											keepScrollbarMounted
+											viewportClassName="w-full pb-2"
+										>
+											<Table wrapInContainer={false} className="min-w-[720px]">
 												<TableHeader>
 													<TableRow>
 														<TableHead>Attempt</TableHead>
@@ -1290,7 +1296,7 @@ function AsyncJobDetailSheet({
 													))}
 												</TableBody>
 											</Table>
-										</div>
+										</ScrollArea>
 									) : null}
 								</DetailSection>
 							) : null}
@@ -1637,8 +1643,13 @@ function AsyncJobDetailSheet({
 										No webhook attempts recorded yet.
 									</div>
 								) : (
-									<div className="rounded-lg border">
-										<Table>
+									<ScrollArea
+										className="w-full rounded-lg border"
+										scrollBarOrientation="horizontal"
+										keepScrollbarMounted
+										viewportClassName="w-full pb-2"
+									>
+										<Table wrapInContainer={false} className="min-w-[840px]">
 											<TableHeader>
 												<TableRow>
 													<TableHead>Event</TableHead>
@@ -1666,7 +1677,7 @@ function AsyncJobDetailSheet({
 												))}
 											</TableBody>
 										</Table>
-									</div>
+									</ScrollArea>
 								)}
 							</DetailSection>
 						</div>
@@ -2015,8 +2026,17 @@ export default function AsyncJobsPanel({
 			</div>
 		) : null}
 
-		<div className={cn("rounded-lg border", variant === "logs" ? "hidden md:block" : undefined)}>
-			<Table className={variant === "logs" ? "text-xs" : undefined}>
+		<div className={cn("overflow-hidden rounded-lg border", variant === "logs" ? "hidden md:block" : undefined)}>
+			<ScrollArea
+				className="w-full"
+				scrollBarOrientation="horizontal"
+				keepScrollbarMounted
+				viewportClassName="w-full pb-2"
+			>
+			<Table
+				wrapInContainer={false}
+				className={cn(variant === "logs" ? "min-w-[760px] text-xs" : "min-w-[860px]")}
+			>
 				<TableHeader>
 					<TableRow className={variant === "logs" ? "h-9" : undefined}>
 						{variant === "logs" ? <TableHead>Timestamp</TableHead> : null}
@@ -2278,6 +2298,7 @@ export default function AsyncJobsPanel({
 					})}
 				</TableBody>
 			</Table>
+			</ScrollArea>
 		</div>
 	</>
 	);
