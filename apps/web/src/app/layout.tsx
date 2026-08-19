@@ -17,6 +17,7 @@ import {
 import { GA_MEASUREMENT_ID } from "@/lib/analytics";
 import { CookieConsentManager } from "@/components/analytics/CookieConsentManager";
 import { DeferredVercelAnalytics } from "@/components/analytics/DeferredVercelAnalytics";
+import { ProductAnalyticsGaBridge } from "@/components/analytics/ProductAnalyticsGaBridge";
 import { ConsoleEasterEgg } from "@/components/ConsoleEasterEgg";
 import SiteNoticeSlot from "@/components/site-notice/SiteNoticeSlot";
 import ThemeAwareFavicon from "@/components/ThemeAwareFavicon";
@@ -91,6 +92,7 @@ export default function RootLayout({
 				)}
 			>
 				<CookieConsentManager gaMeasurementId={GA_MEASUREMENT_ID} />
+				<ProductAnalyticsGaBridge />
 				<ConsoleEasterEgg />
 				<ThemeProvider
 					attribute="class"

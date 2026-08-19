@@ -96,7 +96,15 @@ public class Phaseo {
 	}
 
 	public Phaseo(String apiKey, String basePath) {
-		this(apiKey, basePath, true, false, null, null, null, null);
+		this(apiKey, basePath, "phaseo-java");
+	}
+
+	public Phaseo(String apiKey, String basePath, String clientSource) {
+		this(apiKey, basePath, clientSource, "2.1.0");
+	}
+
+	public Phaseo(String apiKey, String basePath, String clientSource, String clientSourceVersion) {
+		this(apiKey, basePath, true, false, null, null, null, null, clientSource, clientSourceVersion);
 	}
 
 	public Phaseo(
@@ -106,7 +114,7 @@ public class Phaseo {
 		boolean warningsAsErrors,
 		PhaseoLogger logger
 	) {
-		this(apiKey, basePath, enableDeprecationWarnings, warningsAsErrors, logger, null, null, null);
+		this(apiKey, basePath, enableDeprecationWarnings, warningsAsErrors, logger, null, null, null, "phaseo-java", "2.1.0");
 	}
 
 	public Phaseo(
@@ -117,7 +125,7 @@ public class Phaseo {
 		PhaseoLogger logger,
 		DevtoolsConfig devtoolsConfig
 	) {
-		this(apiKey, basePath, enableDeprecationWarnings, warningsAsErrors, logger, null, null, devtoolsConfig);
+		this(apiKey, basePath, enableDeprecationWarnings, warningsAsErrors, logger, null, null, devtoolsConfig, "phaseo-java", "2.1.0");
 	}
 
 	public Phaseo(
@@ -130,10 +138,21 @@ public class Phaseo {
 		HttpClient httpClient,
 		DevtoolsConfig devtoolsConfig
 	) {
+		this(apiKey, basePath, enableDeprecationWarnings, warningsAsErrors, logger, lifecycleResolver, httpClient, devtoolsConfig, "phaseo-java", "2.1.0");
+	}
+
+	private Phaseo(
+		String apiKey, String basePath, boolean enableDeprecationWarnings,
+		boolean warningsAsErrors, PhaseoLogger logger,
+		ModelLifecycleResolver lifecycleResolver, HttpClient httpClient,
+		DevtoolsConfig devtoolsConfig, String clientSource, String clientSourceVersion
+	) {
 		String resolvedApiKey = resolveApiKey(apiKey);
 		this.basePath = normalizeBasePath(basePath);
 		Map<String, String> headers = new HashMap<>();
 		headers.put("Authorization", "Bearer " + resolvedApiKey);
+		headers.put("X-Phaseo-Client", clientSource);
+		headers.put("X-Phaseo-Client-Version", clientSourceVersion);
 		this.rawClient = new Client(
 			this.basePath,
 			httpClient == null ? java.net.http.HttpClient.newHttpClient() : httpClient,

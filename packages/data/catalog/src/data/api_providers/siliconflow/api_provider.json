@@ -1,7 +1,7 @@
 {
   "api_provider_id": "siliconflow",
   "api_provider_name": "SiliconFlow",
-  "description": null,
+  "description": "SiliconFlow's OpenAI-compatible Chat API plus native embeddings, rerank, image, audio, and asynchronous video APIs.",
   "link": "https://docs.siliconflow.com/en/",
   "residency_mode": "provider_managed",
   "default_execution_regions": null,
@@ -24,15 +24,25 @@
   "routable": null,
   "routing_enabled": null,
   "sdk_package": null,
-  "api_base_url": null,
-  "docs_url": "https://docs.siliconflow.com/en/",
-  "auth_env": null,
-  "api_formats": [],
+  "api_base_url": "https://api.siliconflow.com/v1",
+  "docs_url": "https://docs.siliconflow.com/en/api-reference/chat-completions/chat-completions",
+  "auth_env": "SILICONFLOW_API_KEY",
+  "api_formats": ["openai.chat.completions", "anthropic.messages"],
   "service_tiers": [],
-  "sources": [],
+  "sources": [{
+    "kind": "documentation",
+    "url": "https://docs.siliconflow.com/en/api-reference/chat-completions/chat-completions",
+    "accessed_at": "2026-08-12T00:00:00Z",
+    "notes": "Documents the global Chat Completions host, Bearer authentication, request controls, SSE streaming, reasoning output, usage, and error responses."
+  }, {
+    "kind": "documentation",
+    "url": "https://docs.siliconflow.com/llms.txt",
+    "accessed_at": "2026-08-12T00:00:00Z",
+    "notes": "Complete first-party API index used to verify adjacent embeddings, rerank, image, audio, video, and Anthropic Messages surfaces and the absence of Responses and Batch references."
+  }],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-12T00:00:00Z",
+    "notes": "Global Chat route, auth, streaming, tools, structured output, reasoning controls/output, usage, errors, and adjacent modalities verified against first-party references."
   }
 }

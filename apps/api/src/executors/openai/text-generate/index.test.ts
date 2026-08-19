@@ -450,10 +450,10 @@ describe("openai text executor HTTP mode", () => {
 
 		expect(result.kind).toBe("completed");
 		expect(mock.calls).toHaveLength(1);
-		expect(mock.calls[0]?.bodyJson?.context_management).toEqual({
+		expect(mock.calls[0]?.bodyJson?.context_management).toEqual([{
 			type: "compaction",
 			compact_threshold: 0.8,
-		});
+		}]);
 	});
 
 	it("clamps dated gpt-5.4-pro snapshots to the pro reasoning floor", async () => {

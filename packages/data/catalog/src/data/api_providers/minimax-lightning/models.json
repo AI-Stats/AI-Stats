@@ -106,14 +106,14 @@
   {
     "api_model_id": "minimax/minimax-m2.1",
     "provider_api_model_id": "minimax-lightning:minimax/minimax-m2.1",
-    "provider_model_slug": "MiniMax-M2.1-Lightning",
+	"provider_model_slug": "MiniMax-M2.1-highspeed",
     "internal_model_id": "minimax/minimax-m2.1",
     "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+	"context_length": 204800,
+	"max_output_tokens": 204800,
     "effective_from": "2025-12-23T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -374,7 +374,7 @@
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 204800,
-    "max_output_tokens": 131072,
+	"max_output_tokens": 204800,
     "effective_from": "2026-03-18T00:00:00",
     "effective_to": null,
     "capabilities": [

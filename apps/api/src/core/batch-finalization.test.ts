@@ -681,6 +681,47 @@ describe("batch-finalization", () => {
 		});
 	});
 
+	it("settles Mistral batches from inline results without an output file", async () => {
+		state.record = {
+			workspaceId: "ws_batch_test",
+			batchId: "batch_mistral_inline",
+			status: "completed",
+			meta: {
+				provider: "mistral",
+				status: "completed",
+				nativeBatchId: "batch_mistral_inline",
+				requestCounts: { total: 1, completed: 1, failed: 0 },
+			},
+		};
+
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+			state.fetchCalls.push(String(input));
+			return new Response(JSON.stringify({
+				outputs: [{
+					custom_id: "request-1",
+					response: {
+						status_code: 200,
+						body: {
+							model: "mistral/mistral-small",
+							usage: { prompt_tokens: 10, completion_tokens: 2, total_tokens: 12 },
+						},
+					},
+				}],
+			}), { status: 200, headers: { "Content-Type": "application/json" } });
+		}));
+
+		const { finalizeBatchJob } = await import("./batch-finalization");
+		const result = await finalizeBatchJob({
+			workspaceId: "ws_batch_test",
+			batchId: "batch_mistral_inline",
+			status: "completed",
+		});
+
+		expect(result).toMatchObject({ status: "completed", charged: true, billed: true });
+		expect(state.fetchCalls.some((url) => url.includes("/batch/jobs/batch_mistral_inline?inline=true"))).toBe(true);
+		expect(state.requestRows).toHaveLength(1);
+	});
+
 	it("prices Anthropic mixed-model batch rows from each native result model", async () => {
 		state.record = {
 			workspaceId: "ws_batch_test",

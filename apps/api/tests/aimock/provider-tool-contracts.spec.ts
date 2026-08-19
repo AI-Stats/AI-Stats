@@ -124,23 +124,22 @@ describe("provider-native tool contract E2E", () => {
         expect(request?.validationIssues).toEqual([]);
     });
 
-    it("maps OpenAI tools to Gemini functionDeclarations and normalizes functionCall", async () => {
+    it("maps OpenAI tools to Gemini Interactions functions and normalizes function calls", async () => {
         const result = await execute("google-ai-studio", "gemini-2.5-flash", "req_google_tools");
         expectToolCall(result);
         const request = mock.getLastRequest();
         expect(request?.providerId).toBe("google-ai-studio");
         expect(request?.body).toMatchObject({
             tools: [{
-                functionDeclarations: [{
-                    name: "lookup_weather",
-                    parameters: {
-                        type: "object",
-                        properties: { city: { type: "string" } },
-                        required: ["city"],
-                    },
-                }],
+                type: "function",
+                name: "lookup_weather",
+                parameters: {
+                    type: "object",
+                    properties: { city: { type: "string" } },
+                    required: ["city"],
+                },
             }],
-            toolConfig: { functionCallingConfig: { mode: "ANY" } },
+            generation_config: { tool_choice: "any" },
         });
         expect(request?.validationIssues).toEqual([]);
     });

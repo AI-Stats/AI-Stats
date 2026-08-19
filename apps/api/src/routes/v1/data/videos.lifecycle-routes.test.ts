@@ -374,7 +374,7 @@ describe("videosRoutes lifecycle routes", () => {
 		expect(response.status).toBe(200);
 		expect(await response.json()).toEqual({
 			id: "video_terminal",
-			object: "video",
+			object: "video.deleted",
 			deleted: true,
 		});
 		expect(setVideoJobStatus).toHaveBeenCalledTimes(1);
@@ -389,7 +389,7 @@ describe("videosRoutes lifecycle routes", () => {
 		);
 	});
 
-	it("preserves cancelled status when tombstoning cancelled videos", async () => {
+	it("rejects deleting cancelled videos", async () => {
 		state.ownedVideo = {
 			record: {
 				videoId: "video_cancelled",
@@ -405,20 +405,7 @@ describe("videosRoutes lifecycle routes", () => {
 			VIDEO_API_ENABLED: "true",
 		});
 
-		expect(response.status).toBe(200);
-		expect(await response.json()).toEqual({
-			id: "video_cancelled",
-			object: "video",
-			deleted: true,
-		});
-		expect(setVideoJobStatus).toHaveBeenCalledWith(
-			"ws_video_lifecycle_test",
-			"video_cancelled",
-			"cancelled",
-			expect.objectContaining({
-				tombstoned: true,
-				tombstonedAt: expect.any(String),
-			}),
-		);
+		expect(response.status).toBe(400);
+		expect(setVideoJobStatus).not.toHaveBeenCalled();
 	});
 });

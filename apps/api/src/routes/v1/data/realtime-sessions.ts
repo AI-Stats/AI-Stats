@@ -51,14 +51,15 @@ async function deterministicBase62(seed: string, length: number): Promise<string
 	return output.slice(0, length);
 }
 
-const createSessionSchema = z.object({
+export const createRealtimeSessionSchema = z.object({
+	type: z.literal("realtime").optional(),
 	model: z.string().trim().min(1).max(160),
 	provider: z.string().trim().min(1).max(80).optional(),
 	voice: z.string().trim().min(1).max(80).optional(),
 	instructions: z.string().trim().max(4000).optional(),
 	source: z.enum(["api", "chat"]).optional(),
 	metadata: z.record(z.string(), z.unknown()).optional(),
-});
+}).strict();
 
 const MAX_METADATA_BYTES = 16_384;
 const MAX_METADATA_KEYS = 32;
@@ -310,7 +311,7 @@ realtimeSessionsRoutes.post("/", withRuntime(async (req) => {
 	}
 	const body = await guardJson(req, auth.value.workspaceId, auth.value.requestId);
 	if (body.ok !== true) return body.response;
-	const parsed = createSessionSchema.safeParse(body.value);
+	const parsed = createRealtimeSessionSchema.safeParse(body.value);
 	if (!parsed.success) {
 		return err("validation_error", {
 			details: parsed.error.flatten(),

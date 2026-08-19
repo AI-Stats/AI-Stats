@@ -28,7 +28,6 @@ on:
                     - dry-run
                     - run
                 default: skip
-
 permissions:
     contents: read
 

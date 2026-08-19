@@ -160,43 +160,65 @@ export function providerSupportsParam(
 	paramPath: string,
 	options?: { assumeSupportedOnMissingConfig?: boolean },
 ): boolean {
+	return providerParamSupportStatus(candidate, paramPath, options) === "supported";
+}
+
+export type ProviderParamSupportStatus = "supported" | "unsupported" | "unknown";
+
+/**
+ * Resolve provider parameter support without conflating missing catalog data
+ * with an explicit provider limitation. Unknown support remains eligible for
+ * optimistic routing; explicit false overrides remain hard exclusions.
+ */
+export function providerParamSupportStatus(
+	candidate: ProviderCandidate,
+	paramPath: string,
+	options?: { assumeSupportedOnMissingConfig?: boolean },
+): ProviderParamSupportStatus {
+	// provider_options is explicitly scoped to a provider. A provider that is
+	// not named by the request must never receive another provider's options,
+	// even when its capability metadata is incomplete.
+	const providerOptionsMatch = /^provider_options\.([^\.]+)(?:\.|$)/.exec(paramPath);
+	if (providerOptionsMatch && providerOptionsMatch[1] !== candidate.providerId) {
+		return "unsupported";
+	}
+
 	const override = resolveProviderParamSupportOverride(
 		candidate.providerId,
 		paramPath,
 	);
-	if (typeof override === "boolean") {
-		return override;
-	}
+	if (override === true) return "supported";
+	if (override === false) return "unsupported";
 
 	const params = candidate.capabilityParams;
 	if (!params || typeof params !== "object") {
-		return options?.assumeSupportedOnMissingConfig ?? false;
+		return options?.assumeSupportedOnMissingConfig ? "supported" : "unknown";
 	}
 	if (Object.keys(params).length === 0) {
-		return options?.assumeSupportedOnMissingConfig ?? false;
+		return options?.assumeSupportedOnMissingConfig ? "supported" : "unknown";
 	}
 
-	if (paramPath in params) return true;
+	if (paramPath in params) return "supported";
 
 	const segments = paramPath.split(".").filter(Boolean);
 	const [root, ...rest] = segments;
-	if (!root) return false;
+	if (!root) return "unknown";
 
 	const keysToCheck = expandCapabilityParamAliases(root);
 	for (const key of keysToCheck) {
 		if (key in params) {
-			if (rest.length === 0) return true;
+			if (rest.length === 0) return "supported";
 			const rootValue = (params as Record<string, unknown>)[key];
 			if (isPlainObject(rootValue) && hasNestedPath(rootValue, rest)) {
-				return true;
+				return "supported";
 			}
 		}
 
 		if (rest.length > 0 && `${key}.${rest.join(".")}` in params) {
-			return true;
+			return "supported";
 		}
 	}
-	return false;
+	return "unknown";
 }
 
 export function getUnsupportedParamsForProvider(args: {
@@ -209,10 +231,11 @@ export function getUnsupportedParamsForProvider(args: {
 	for (const param of args.requestedParams) {
 		if (isAlwaysSupportedParam(args.endpoint, param)) continue;
 		if (
-			!providerSupportsParam(args.candidate, param, {
+			providerParamSupportStatus(args.candidate, param, {
 				assumeSupportedOnMissingConfig:
 					args.assumeSupportedOnMissingConfig ?? false,
 			})
+				=== "unsupported"
 		) {
 			out.push(param);
 		}

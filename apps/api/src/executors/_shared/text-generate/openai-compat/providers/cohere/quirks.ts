@@ -16,6 +16,17 @@ const COHERE_UNSUPPORTED_CHAT_FIELDS = [
 	"audio",
 	"service_tier",
 	"parallel_tool_calls",
+	"tool_choice",
+	"max_tool_calls",
+	"logprobs",
+	"repetition_penalty",
+	"top_k",
+	"user",
+	"prompt_cache_key",
+	"prompt_cache_retention",
+	"prompt_cache_options",
+	"safety_identifier",
+	"web_search_options",
 ] as const;
 
 function mapCohereReasoningEffort(value?: string): "none" | "high" | undefined {
@@ -59,4 +70,3 @@ export const cohereQuirks: ProviderQuirks = {
 		}
 	},
 };
-

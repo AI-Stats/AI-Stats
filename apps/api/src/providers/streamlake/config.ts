@@ -2,7 +2,8 @@ import type { OpenAICompatConfig } from "../openai-compatible/types";
 
 export const STREAMLAKE_OPENAI_COMPAT_CONFIGS = {
 	streamlake: {
-		// StreamLake uses the OpenAI model field for an account-specific ep-... endpoint ID.
+		// The gateway uses StreamLake's pay-as-you-go OpenAI-compatible surface.
+		// Coding Plan URLs are restricted to approved developer tools.
 		providerId: "streamlake",
 		baseUrl: "https://vanchin.streamlake.ai",
 		pathPrefix: "/api/gateway/v1/endpoints",

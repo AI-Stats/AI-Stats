@@ -159,7 +159,7 @@ export function RoomScaffold({ children }: RoomScaffoldProps) {
 									side="right"
 									align="start"
 									sideOffset={8}
-									className="z-[90] w-56 rounded-[8px]! [&_[data-slot=dropdown-menu-item]]:rounded-[8px]!"
+									className="z-[90] w-56 rounded-md [&_[data-slot=dropdown-menu-item]]:rounded-md"
 								>
 									<DropdownMenuItem render={<Link href="/settings/account" />}>
 

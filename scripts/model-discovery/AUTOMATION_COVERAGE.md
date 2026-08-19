@@ -19,18 +19,18 @@ Phaseo fetches provider and aggregator sources directly. It also uses the public
 | EmpirioLabs | Direct public `/v1/models` | Single-tier prices auto-normalized; tier arrays are review-only | None |
 | Google | Direct Gemini and Vertex model APIs | Model metadata only; official API responses do not contain authoritative prices | API key/access token |
 | Hugging Face Router | Direct router API | Changes detected; provider-selection pricing is review-only | Optional token |
-| Kilo Gateway | Direct aggregator API | OpenRouter-style token prices auto-normalized | Optional API key |
-| LLM Gateway | Direct aggregator API | OpenRouter-style token prices auto-normalized | Optional API key |
+| Kilo Gateway | Direct aggregator API | Token prices auto-normalized | Optional API key |
+| LLM Gateway | Direct aggregator API | Token prices auto-normalized | Optional API key |
 | NanoGPT | Direct public detailed `/v1/models` | Per-million token and cache prices auto-normalized | Optional API key for account-specific visibility |
 | NovitaAI | Direct public OpenAI-compatible `/models` | Per-million token prices auto-normalized, including Novita's documented integer scale | Optional API key |
 | OpenAI | Direct `/v1/models` plus official documentation parser | Model API is availability-only; simple docs prices may update safe rules | API key for model list; docs are public |
 | OpenRouter | Direct aggregator API | Token, cache, multimodal token, and reasoning prices auto-normalized | Optional API key |
 | OrcaRouter | Direct public `/v1/models` | OpenAI-compatible token prices auto-normalized | Optional API key |
-| OVHcloud AI Endpoints | Direct public catalog | OpenRouter-style token prices auto-normalized | None |
+| OVHcloud AI Endpoints | Direct public catalog | Token prices auto-normalized | None |
 | Pioneer | Direct public `/v1/models` | Model and price-bearing payload changes detected; no safe pricing translator yet | None |
 | Poe | Direct public `/v1/models` | Simple token prices auto-normalized where provider model IDs match | Optional API key |
 | Requesty | Direct public `/v1/models` | Single-tier token prices auto-normalized; prompt-threshold tiers remain review-only | Optional API key |
-| FastRouter | Direct public `/api/v1/models` | OpenRouter-style token prices auto-normalized; tiered extras remain review-only | Optional API key |
+| FastRouter | Direct public `/api/v1/models` | Token prices auto-normalized; tiered extras remain review-only | Optional API key |
 | ZenMux | Direct public `/api/v1/models` | Unconditional per-million token prices auto-normalized; conditional arrays remain review-only | Optional API key |
 | Venice | Direct model API | Token prices auto-normalized | API key |
 | Vercel AI Gateway | Direct public catalog | Changes detected; tiered pricing is review-only | None |

@@ -64,11 +64,72 @@
       "cache_duration_seconds": null,
       "conditions": [],
       "source": null
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 3,
+      "currency": "USD",
+      "pricing_plan": "priority",
+      "note": "priority service tier",
+      "match": [],
+      "priority": 100,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    },
+    {
+      "meter": "cached_write_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 37.5,
+      "currency": "USD",
+      "pricing_plan": "priority",
+      "note": "priority service tier",
+      "match": [],
+      "priority": 100,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    },
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 30,
+      "currency": "USD",
+      "pricing_plan": "priority",
+      "note": "priority service tier",
+      "match": [],
+      "priority": 100,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 150,
+      "currency": "USD",
+      "pricing_plan": "priority",
+      "note": "priority service tier",
+      "match": [],
+      "priority": 100,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
     }
   ],
   "regions": [],
   "service_tiers": [
-    "standard"
+    "standard",
+    "priority"
   ],
   "sources": [],
   "verification": {

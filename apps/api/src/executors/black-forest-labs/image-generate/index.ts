@@ -9,7 +9,7 @@ import type { ProviderExecutor } from "../../types";
 import { getBindings } from "@/runtime/env";
 import { resolveProviderKey } from "@providers/keys";
 
-const DEFAULT_BASE_URL = "https://api.us.bfl.ai";
+const DEFAULT_BASE_URL = "https://api.bfl.ai";
 const DEFAULT_POLL_INTERVAL_MS = 1200;
 const DEFAULT_POLL_TIMEOUT_MS = 120000;
 const TERMINAL_FAILURE_STATUSES = new Set([
@@ -139,9 +139,9 @@ function buildBflPayload(ir: IRImageGenerationRequest): Record<string, unknown> 
 		? ir.image.filter((entry) => typeof entry === "string" && entry.trim().length > 0)
 		: (typeof ir.image === "string" && ir.image.trim().length > 0 ? [ir.image] : []);
 
-	if (inputImages.length > 0) payload.input_image = inputImages[0];
-	if (inputImages.length > 1) payload.input_image_2 = inputImages[1];
-	if (inputImages.length > 2) payload.input_image_3 = inputImages[2];
+	for (const [index, image] of inputImages.slice(0, 8).entries()) {
+		payload[index === 0 ? "input_image" : `input_image_${index + 1}`] = image;
+	}
 
 	return payload;
 }
@@ -246,6 +246,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	const hasInputImage = Array.isArray(ir.image)
 		? ir.image.some((entry) => typeof entry === "string" && entry.trim().length > 0)
 		: (typeof ir.image === "string" && ir.image.trim().length > 0);
+	const inputImageCount = Array.isArray(ir.image) ? ir.image.length : (hasInputImage ? 1 : 0);
 
 	if (isImageEdit && !hasInputImage) {
 		return {
@@ -270,6 +271,16 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 				"bfl_mask_not_supported",
 				"Black Forest Labs does not currently support OpenAI-style mask-based images.edits in this gateway.",
 			),
+			bill: { cost_cents: 0, currency: "USD" },
+			keySource: keyInfo.source,
+			byokKeyId: keyInfo.byokId,
+		};
+	}
+	if (isImageEdit && inputImageCount > 8) {
+		return {
+			kind: "completed",
+			ir: undefined,
+			upstream: createGatewayErrorResponse(400, "bfl_too_many_input_images", "Black Forest Labs FLUX.2 API accepts at most eight input images."),
 			bill: { cost_cents: 0, currency: "USD" },
 			keySource: keyInfo.source,
 			byokKeyId: keyInfo.byokId,

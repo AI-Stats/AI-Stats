@@ -59,6 +59,15 @@ export type ModelIdLiteral = KnownModelId;
 export type ModelId = KnownModelId | (string & {});
 export type OpenApiModelId = OapiModelId;
 
+export type AppAttribution = {
+  /** Stable identifier chosen by your application. */
+  id?: string;
+  /** Human-readable application name shown in usage logs. */
+  name?: string;
+  /** Optional page or deployment URL associated with the application. */
+  url?: string;
+};
+
 type Options = {
   apiKey?: string;
   baseUrl?: string;
@@ -69,7 +78,20 @@ type Options = {
   warningsAsErrors?: boolean;
   logger?: PhaseoLogger;
   headers?: Record<string, string>;
+  /** Optional user-defined application attribution. Phaseo never sets this automatically. */
+  app?: AppAttribution;
 };
+
+function appAttributionHeaders(app?: AppAttribution): Record<string, string> {
+  if (!app) return {};
+  return Object.fromEntries(
+    [
+      ["X-App-Id", app.id],
+      ["X-App-Name", app.name],
+      ["HTTP-Referer", app.url],
+    ].filter((entry): entry is [string, string] => typeof entry[1] === "string" && entry[1].trim().length > 0),
+  );
+}
 
 export type PhaseoLogLevel = "info" | "warn" | "error";
 export type PhaseoLogger = (level: PhaseoLogLevel, message: string, meta?: Record<string, unknown>) => void;
@@ -453,6 +475,7 @@ export class Phaseo {
       Authorization: `Bearer ${apiKey}`,
       "X-Phaseo-Client": "phaseo-typescript",
       "X-Phaseo-Client-Version": "2.2.0",
+      ...appAttributionHeaders(opts.app),
       ...(opts.headers ?? {}),
     };
     this.client = new Client({
