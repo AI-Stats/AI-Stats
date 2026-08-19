@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -194,6 +194,11 @@ export default function ByokProviderKeys({ provider, entries, modelOptions, apiK
 	const currentRef = useRef(displayEntries);
 	const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
 	const setEntries = (next: ByokKeyEntry[]) => { currentRef.current = next; setDisplayEntries(next); };
+	useEffect(() => {
+		const next = [...entries].sort((a, b) => a.sortOrder - b.sortOrder);
+		currentRef.current = next;
+		setDisplayEntries(next);
+	}, [entries]);
 	const priority = displayEntries.filter((entry) => entry.routingMode === "priority").sort((a, b) => a.sortOrder - b.sortOrder);
 	const fallback = displayEntries.filter((entry) => entry.routingMode === "fallback").sort((a, b) => a.sortOrder - b.sortOrder);
 	const activeEntry = activeId ? displayEntries.find((entry) => entry.id === activeId) ?? null : null;
