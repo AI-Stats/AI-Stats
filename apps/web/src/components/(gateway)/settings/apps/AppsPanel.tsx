@@ -170,10 +170,10 @@ function CategoryIcons({ category }: { category: string | null }) {
 					<Tooltip key={category}>
 						<TooltipTrigger asChild>
 							<span
-								className="inline-flex size-7 items-center justify-center rounded-md hover:bg-muted/60"
+								className="inline-flex size-5 items-center justify-center rounded-md hover:bg-muted/60"
 								aria-label={label}
 							>
-								<Icon className={`size-4 ${iconClassName}`} />
+								<Icon className={`size-3.5 ${iconClassName}`} />
 							</span>
 						</TooltipTrigger>
 						<TooltipContent>{label}</TooltipContent>
@@ -457,7 +457,7 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 													</Link>
 												</Button>
 											</TooltipTrigger>
-											<TooltipContent>View stats</TooltipContent>
+							<TooltipContent>View Stats</TooltipContent>
 										</Tooltip>
 										{renderActions(app)}
 									</div>
