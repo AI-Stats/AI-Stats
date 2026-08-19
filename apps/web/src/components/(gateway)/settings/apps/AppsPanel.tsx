@@ -140,14 +140,10 @@ function CategoryBadge({ category }: { category: AppCategory }) {
 function CategoryBadges({ category }: { category: string | null }) {
 	const categories = parseAppCategories(category);
 
-	if (categories.length === 0) {
-		return (
-			<span className="text-xs text-muted-foreground">No category set</span>
-		);
-	}
+	if (categories.length === 0) return null;
 
 	return (
-		<div className="flex flex-wrap gap-1">
+		<div className="mt-1 flex flex-wrap gap-1">
 			{categories.map((category) => (
 				<CategoryBadge key={category} category={category} />
 			))}
@@ -377,9 +373,7 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 													<div className="truncate text-xs text-muted-foreground">
 														{displayUrl ? app.url : "No public URL set"}
 													</div>
-											<div className="mt-1">
-												<CategoryBadges category={app.category} />
-											</div>
+											<CategoryBadges category={app.category} />
 										</div>
 									</div>
 								</TableCell>
@@ -471,9 +465,7 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 									</div>
 									{renderActions(app, true)}
 								</div>
-								<div>
-									<CategoryBadges category={app.category} />
-								</div>
+								<CategoryBadges category={app.category} />
 
 								<div className="grid grid-cols-2 gap-3 text-xs">
 									<div>
