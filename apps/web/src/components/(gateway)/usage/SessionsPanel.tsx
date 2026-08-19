@@ -486,19 +486,26 @@ function SessionDetailSheet({
 
 	if (!session) return null;
 
-	const primaryAppId =
-		session.app_counts?.[0]?.app_id ??
-		requests.find((request) => request.app_id)?.app_id ??
-		null;
-	const primaryAppRequest = primaryAppId
-		? requests.find((request) => request.app_id === primaryAppId)
-		: null;
-	const primaryApp = primaryAppId
-		? appMetadata.get(primaryAppId) ?? {
-				title: primaryAppRequest?.app_title ?? primaryAppId,
-				imageUrl: primaryAppRequest?.app_image_url ?? null,
-			}
-		: null;
+	const sessionAppIds = Array.from(
+		new Set([
+			...(session.app_counts ?? []).map((app) => app.app_id),
+			...requests
+				.map((request) => request.app_id)
+				.filter((appId): appId is string => Boolean(appId)),
+		]),
+	);
+	const sessionApps = sessionAppIds.map((appId) => {
+		const request = requests.find((item) => item.app_id === appId);
+		return {
+			appId,
+			app:
+				appMetadata.get(appId) ??
+				({
+					title: request?.app_title ?? appId,
+					imageUrl: request?.app_image_url ?? null,
+				} satisfies AppMetadata),
+		};
+	});
 	const modelCounts =
 		session.model_counts ??
 		(session.model_ids ?? []).map((modelId) => ({ model_id: modelId, request_count: 0 }));
@@ -623,9 +630,16 @@ function SessionDetailSheet({
 							</DetailSection>
 
 							<div className="grid gap-6 sm:grid-cols-2">
-								<DetailSection title="App" className="border-none bg-transparent p-0">
-									{primaryAppId ? (
-										<AppBadge appId={primaryAppId} app={primaryApp} />
+								<DetailSection
+									title={sessionApps.length === 1 ? "App" : "Apps"}
+									className="border-none bg-transparent p-0"
+								>
+									{sessionApps.length > 0 ? (
+										<div className="flex flex-wrap gap-1.5">
+											{sessionApps.map(({ appId, app }) => (
+												<AppBadge key={appId} appId={appId} app={app} />
+											))}
+										</div>
 									) : (
 										<div className="text-sm text-muted-foreground">No app metadata recorded.</div>
 									)}
@@ -694,8 +708,9 @@ function SessionDetailSheet({
 													setSelectedRequest(request);
 													setRequestDetailOpen(true);
 												}}
-												onKeyDown={(event) => {
-													if (event.key === "Enter" || event.key === " ") {
+											onKeyDown={(event) => {
+												if (event.target !== event.currentTarget) return;
+												if (event.key === "Enter" || event.key === " ") {
 														event.preventDefault();
 														setSelectedRequest(request);
 														setRequestDetailOpen(true);
@@ -1091,6 +1106,7 @@ export default function SessionsPanel({
 							className="w-full rounded-lg border bg-card px-4 py-3 text-left transition-colors hover:bg-muted/40"
 							onClick={() => openDetail(session)}
 							onKeyDown={(event) => {
+								if (event.target !== event.currentTarget) return;
 								if (event.key === "Enter" || event.key === " ") {
 									event.preventDefault();
 									openDetail(session);
