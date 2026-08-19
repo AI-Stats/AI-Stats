@@ -2143,6 +2143,26 @@ function ModelsDisplayContent({
 							}
 						/>
 					</div>
+
+					{activeFilterCount > 0 ? (
+						<div
+							className="mt-1.5 flex min-w-0 items-center justify-between gap-3 rounded-md bg-muted/45 px-2.5 py-1.5 md:hidden"
+							aria-live="polite"
+						>
+							<span className="min-w-0 truncate text-xs font-medium text-muted-foreground">
+								{activeFilterCount.toLocaleString()} active {activeFilterCount === 1 ? "filter" : "filters"}
+							</span>
+							<Button
+								type="button"
+								variant="ghost"
+								size="sm"
+								className="h-7 shrink-0 px-2 text-xs"
+								onClick={resetFilters}
+							>
+								Clear
+							</Button>
+						</div>
+					) : null}
 				</div>
 
 				<div className="w-full px-4 pt-1 pb-5 lg:px-8 lg:pt-1 lg:pb-6">
