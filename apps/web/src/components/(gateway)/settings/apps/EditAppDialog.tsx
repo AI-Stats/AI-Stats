@@ -266,6 +266,7 @@ export default function EditAppDialog({
 						<Label htmlFor="app-title">App name</Label>
 						<Input
 							id="app-title"
+							className="rounded-md"
 							value={title}
 							onChange={(event) => setTitle(event.target.value)}
 							placeholder="Acme Assistant"
@@ -275,6 +276,7 @@ export default function EditAppDialog({
 						<Label htmlFor="app-url">App URL</Label>
 						<Input
 							id="app-url"
+							className="rounded-md"
 							value={url}
 							onChange={(event) => setUrl(event.target.value)}
 							placeholder="https://example.com"
@@ -289,7 +291,7 @@ export default function EditAppDialog({
 								value={docsUrl}
 								onChange={(event) => setDocsUrl(event.target.value)}
 								placeholder="https://docs.example.com"
-								className="pl-9"
+								className="rounded-md pl-9"
 							/>
 						</div>
 					</div>
@@ -297,6 +299,7 @@ export default function EditAppDialog({
 						<Label htmlFor="app-image">Image URL</Label>
 						<Input
 							id="app-image"
+							className="rounded-md"
 							value={imageUrl}
 							onChange={(event) => updateImageUrl(event.target.value)}
 							placeholder="https://example.com/logo.png"
