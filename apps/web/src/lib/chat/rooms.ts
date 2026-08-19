@@ -188,6 +188,10 @@ function normalizeCapability(capabilityId: string): string {
 	return capabilityId.trim().toLowerCase();
 }
 
+function matchesCapability(capabilityId: string, supported: string[]): boolean {
+	return supported.includes(capabilityId);
+}
+
 function includesHint(value: string, hints: string[]) {
 	return hints.some((hint) => value.includes(hint));
 }
@@ -196,38 +200,34 @@ export function capabilityIdToRoomId(
 	capabilityId: string,
 ): ChatRoomId | null {
 	const normalized = normalizeCapability(capabilityId);
-	if (
-		TEXT_CAPABILITY_HINTS.some((hint) => normalized.includes(hint)) &&
-		!normalized.includes("embed") &&
-		!normalized.includes("moderate")
-	) {
+	if (matchesCapability(normalized, TEXT_CAPABILITY_HINTS)) {
 		return "text";
 	}
-	if (IMAGE_CAPABILITY_HINTS.some((hint) => normalized.includes(hint))) {
+	if (matchesCapability(normalized, IMAGE_CAPABILITY_HINTS)) {
 		return "image";
 	}
-	if (VIDEO_CAPABILITY_HINTS.some((hint) => normalized.includes(hint))) {
+	if (matchesCapability(normalized, VIDEO_CAPABILITY_HINTS)) {
 		return "video";
 	}
-	if (REALTIME_CAPABILITY_HINTS.some((hint) => normalized.includes(hint))) {
+	if (matchesCapability(normalized, REALTIME_CAPABILITY_HINTS)) {
 		return "realtime";
 	}
-	if (SPEECH_TO_TEXT_CAPABILITY_HINTS.some((hint) => normalized.includes(hint))) {
+	if (matchesCapability(normalized, SPEECH_TO_TEXT_CAPABILITY_HINTS)) {
 		return "speech-to-text";
 	}
-	if (SPEECH_CAPABILITY_HINTS.some((hint) => normalized.includes(hint))) {
+	if (matchesCapability(normalized, SPEECH_CAPABILITY_HINTS)) {
 		return "speech";
 	}
-	if (MUSIC_CAPABILITY_HINTS.some((hint) => normalized.includes(hint))) {
+	if (matchesCapability(normalized, MUSIC_CAPABILITY_HINTS)) {
 		return "music";
 	}
-	if (AUDIO_CAPABILITY_HINTS.some((hint) => normalized.includes(hint))) {
+	if (matchesCapability(normalized, AUDIO_CAPABILITY_HINTS)) {
 		return "audio";
 	}
-	if (MODERATION_CAPABILITY_HINTS.some((hint) => normalized.includes(hint))) {
+	if (matchesCapability(normalized, MODERATION_CAPABILITY_HINTS)) {
 		return "moderation";
 	}
-	if (EMBEDDINGS_CAPABILITY_HINTS.some((hint) => normalized.includes(hint))) {
+	if (matchesCapability(normalized, EMBEDDINGS_CAPABILITY_HINTS)) {
 		return "embeddings";
 	}
 	return null;

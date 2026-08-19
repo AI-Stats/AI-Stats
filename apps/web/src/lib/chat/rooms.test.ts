@@ -25,6 +25,13 @@ describe("chat room capability mapping", () => {
 		expect(capabilityIdToRoomId("realtime")).toBe("realtime");
 	});
 
+	it("does not map capabilities reserved for future rooms", () => {
+		expect(capabilityIdToRoomId("ocr")).toBeNull();
+		expect(capabilityIdToRoomId("rerank")).toBeNull();
+		expect(capabilityIdToRoomId("text.rerank")).toBeNull();
+		expect(capabilityIdToRoomId("image.edit")).toBeNull();
+	});
+
 	it("returns all distinct room ids from capabilities", () => {
 		expect(
 			roomIdsFromCapabilities([
@@ -66,6 +73,7 @@ describe("chat room capability mapping", () => {
 			{ modelId: "mistral/ocr-4.1", capabilities: ["ocr"] },
 			{ modelId: "deepseek/deepseek-ocr", capabilities: ["ocr"] },
 			{ modelId: "qwen/qwen3-reranker-8b", capabilities: ["rerank"] },
+			{ modelId: "qwen/qwen3-embedding-8b", capabilities: ["text.rerank"] },
 		];
 
 		expect(filterModelsForRoom(models, "text")).toEqual([]);
