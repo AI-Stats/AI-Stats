@@ -20,6 +20,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CopyButton } from "@/components/ui/copy-button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
 	ProviderInspectorSheet,
 	ProviderInspectorSheetContent,
@@ -670,8 +671,13 @@ function SessionDetailSheet({
 										No requests found for this session in the selected period.
 									</div>
 								) : (
-									<div className="overflow-x-auto rounded-lg border">
-										<Table className="text-xs">
+									<ScrollArea
+										className="w-full rounded-lg border"
+										scrollBarOrientation="horizontal"
+										keepScrollbarMounted
+										viewportClassName="w-full pb-2"
+									>
+										<Table wrapInContainer={false} className="min-w-[860px] text-xs">
 									<TableHeader>
 										<TableRow className="h-9">
 											<TableHead>Time</TableHead>
@@ -813,7 +819,7 @@ function SessionDetailSheet({
 										})}
 									</TableBody>
 										</Table>
-									</div>
+									</ScrollArea>
 								)}
 							</DetailSection>
 						</div>
@@ -1169,8 +1175,14 @@ export default function SessionsPanel({
 				})}
 			</div>
 
-			<div className="hidden overflow-x-auto rounded-lg border md:block">
-				<Table className="text-xs">
+			<div className="hidden overflow-hidden rounded-lg border md:block">
+				<ScrollArea
+					className="w-full"
+					scrollBarOrientation="horizontal"
+					keepScrollbarMounted
+					viewportClassName="w-full pb-2"
+				>
+				<Table wrapInContainer={false} className="min-w-[720px] text-xs">
 					<TableHeader>
 						<TableRow className="h-9">
 							<TableHead>
@@ -1256,6 +1268,7 @@ export default function SessionsPanel({
 						})}
 					</TableBody>
 				</Table>
+				</ScrollArea>
 			</div>
 		</>
 	);
