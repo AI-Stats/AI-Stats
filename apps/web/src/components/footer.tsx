@@ -160,26 +160,23 @@ export default function Footer() {
 							</div>
 						</div>
 					</div>
-					<div className="col-span-2 grid grid-cols-2 gap-x-4 sm:gap-x-6 lg:contents">
-						<div className="flex min-w-0 flex-col gap-6 lg:contents">
-							<div className="lg:order-1">
-								<FooterLinkList title="Explore" links={productLinks} />
-							</div>
-							<div className="lg:order-3">
-								<FooterLinkList title="Resources" links={resourceLinks} />
-							</div>
-							<div className="lg:order-5">
-								<FooterLinkList title="Community" links={communityLinks} />
-							</div>
+					<div className="col-span-2 grid grid-cols-2 gap-x-4 sm:gap-x-6 lg:hidden">
+						<div className="flex min-w-0 flex-col gap-6">
+							<FooterLinkList title="Explore" links={productLinks} />
+							<FooterLinkList title="Resources" links={resourceLinks} />
+							<FooterLinkList title="Community" links={communityLinks} />
 						</div>
-						<div className="flex min-w-0 flex-col gap-6 lg:contents">
-							<div className="lg:order-2">
-								<FooterLinkList title="Build" links={developerLinks} />
-							</div>
-							<div className="lg:order-4">
-								<FooterLinkList title="Company" links={companyLinks} />
-							</div>
+						<div className="flex min-w-0 flex-col gap-6">
+							<FooterLinkList title="Build" links={developerLinks} />
+							<FooterLinkList title="Company" links={companyLinks} />
 						</div>
+					</div>
+					<div className="hidden lg:contents">
+						<FooterLinkList title="Explore" links={productLinks} />
+						<FooterLinkList title="Build" links={developerLinks} />
+						<FooterLinkList title="Resources" links={resourceLinks} />
+						<FooterLinkList title="Company" links={companyLinks} />
+						<FooterLinkList title="Community" links={communityLinks} />
 					</div>
 				</div>
 
