@@ -25,7 +25,7 @@ wire_api = "responses"
 
 [model_providers.phaseo.auth]
 command = "phaseo"
-args = ["integrations", "credential"]
+args = ["integrations", "credential", "codex"]
 refresh_interval_ms = 300000
 `;
 }

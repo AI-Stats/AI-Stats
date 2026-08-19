@@ -41,6 +41,49 @@
         },
         "description": "Reference-derived Aion Labs chat contract. See manifest provenance."
       }
+    },
+    "/v1/responses": {
+      "post": {
+        "operationId": "aion_labs_responses",
+        "summary": "Creates an Aion Labs response using its OpenAI-compatible Responses shape.",
+        "description": "Supports input or messages, streaming, reasoning_split, metadata, and Aion 2.0 reasoning_effort.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["model"],
+                "properties": {
+                  "model": { "type": "string" },
+                  "input": {},
+                  "messages": { "type": "array", "items": { "type": "object" } },
+                  "temperature": { "type": "number" },
+                  "max_output_tokens": { "type": "integer", "minimum": 1 },
+                  "stream": { "type": "boolean", "default": false },
+                  "reasoning_effort": { "type": "string", "enum": ["none", "low", "medium", "high"] },
+                  "reasoning_split": { "type": "boolean" },
+                  "metadata": { "type": "object" }
+                },
+                "oneOf": [
+                  { "required": ["input"], "not": { "required": ["messages"] } },
+                  { "required": ["messages"], "not": { "required": ["input"] } }
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OpenAI-compatible Response object or SSE event stream.",
+            "content": {
+              "application/json": { "schema": { "type": "object" } },
+              "text/event-stream": { "schema": { "type": "string" } }
+            }
+          }
+        }
+      }
     }
   },
   "components": {

@@ -4,7 +4,7 @@
 
 The `params` JSONB field in `data_api_provider_model_capabilities` defines what parameters each provider-model-capability combination supports.
 
-**Simple Rule:** If a parameter key exists in `params`, it's supported. If it's missing, it's not supported.
+**Support states:** If a parameter key exists in `params`, it is supported. An explicit provider policy can mark a parameter unsupported. If the key is missing, support is unknown: the provider remains eligible while the request is observable for follow-up.
 
 ## Structure
 
@@ -24,7 +24,8 @@ capabilities should use structured object form so model APIs can return allowed 
     "types": ["text", "json_object", "json_schema"],
     "structuredOutputs": true
   }
-  // Parameters not listed are NOT supported
+  // Parameters not listed have unknown support unless an explicit provider
+  // policy marks them unsupported.
 }
 ```
 
@@ -448,8 +449,9 @@ Gateway extracts: `temperature`, `tools`, `reasoning`
 
 ### 3. Provider Filtering
 - Check each provider's `params` JSONB
-- Filter out providers missing any of: `temperature`, `tools`, `reasoning`
-- Result: Only providers with all three keys remain
+- Filter out providers only when a requested parameter is explicitly unsupported
+- Keep providers with missing metadata eligible and record them in `unknownProviders`
+- `require_parameters` follows the same rule: unknown is eligible; explicit unsupported is filtered
 
 ### 4. Normalization (in execute phase)
 - **Temperature:** 1.5 → 0.75 (OpenAI range → Anthropic range)
@@ -502,7 +504,8 @@ curl -X POST /v1/chat/completions \
 ## Key Principles
 
 ✅ **Key exists = Supported**
-✅ **Key missing = Not supported**
-✅ **User requests unsupported param = Error**
+✅ **Explicit policy false = Unsupported**
+✅ **Key missing = Unknown and observable**
+✅ **Unknown top-level request field = Validation error until an IR mapping exists**
 ✅ **Normalization happens in execute phase**
 ✅ **Database is source of truth**

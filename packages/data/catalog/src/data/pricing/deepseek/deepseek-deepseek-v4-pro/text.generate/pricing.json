@@ -122,7 +122,8 @@
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": null,
+      "effective_to": "2026-08-13T00:00:00Z"
     },
     {
       "meter": "cached_read_text_tokens",
@@ -139,7 +140,8 @@
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": null,
+      "effective_to": "2026-08-13T00:00:00Z"
     },
     {
       "meter": "output_text_tokens",
@@ -156,7 +158,8 @@
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": null,
+      "effective_to": "2026-08-13T00:00:00Z"
     }
   ],
   "regions": [],

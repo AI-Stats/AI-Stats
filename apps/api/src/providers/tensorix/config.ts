@@ -5,7 +5,7 @@ export const TENSORIX_BASE_URL_ENVS = ["TENSORIX_BASE_URL"] as const;
 
 export const TENSORIX_OPENAI_COMPAT_CONFIG = {
 	providerId: "tensorix",
-	baseUrl: "https://api.tensorix.ai",
+	baseUrl: "https://api.tensorx.ai",
 	pathPrefix: "/v1",
 	apiKeyEnv: "TENSORIX_API_KEY",
 	baseUrlEnv: "TENSORIX_BASE_URL",
@@ -14,4 +14,5 @@ export const TENSORIX_OPENAI_COMPAT_CONFIG = {
 
 export const TENSORIX_OPENAI_COMPAT_CONFIGS = {
 	tensorix: TENSORIX_OPENAI_COMPAT_CONFIG,
+	tensorx: { ...TENSORIX_OPENAI_COMPAT_CONFIG, providerId: "tensorx" },
 } satisfies Record<string, OpenAICompatConfig>;

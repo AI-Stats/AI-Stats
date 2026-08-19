@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
 	AlertCircle,
@@ -15,8 +15,11 @@ import {
 	Plus,
 	RotateCcw,
 	Save,
+	Search,
 	SendHorizontal,
+	SquarePen,
 	Sparkles,
+	Star,
 	Trash2,
 	X,
 } from "lucide-react";
@@ -24,10 +27,29 @@ import { Streamdown } from "streamdown";
 import { Logo } from "@/components/Logo";
 import { AIGeneratedNotice } from "@/components/(chat)/AIGeneratedNotice";
 import { ChatRoomSwitcher } from "@/components/(chat)/ChatRoomSwitcher";
+import { useInitialChatAuth } from "@/components/(chat)/ChatAuthProvider";
+import { RoomWorkingIndicator } from "@/components/(chat)/RoomWorkingIndicator";
+import { RoomSearchDialog } from "@/components/(chat)/RoomSearchDialog";
+import { RoomModelSelector } from "@/components/(chat)/RoomModelSelector";
+import { VirtualizedModelCatalog } from "@/components/(chat)/VirtualizedModelCatalog";
+import {
+	compareByReleaseDateDesc,
+	getDefaultFavoriteModelIds,
+	groupModelsByReleaseMonth,
+	MODEL_SELECTOR_FAVORITES_STORAGE_KEY,
+	normalizeFavoriteModelId,
+} from "@/components/(chat)/playgroundConfig";
+import {
+	RoomComposerFooter,
+	RoomComposerSurface,
+} from "@/components/(chat)/RoomComposer";
+import {
+	CHAT_SIDEBAR_ACTIONS_CLASS,
+	CHAT_SIDEBAR_HISTORY_GROUP_CLASS,
+} from "@/components/(chat)/chatSidebarStyles";
 import { extractResponseText } from "@/components/(chat)/chatPayload";
 import { fetchChatWebApi } from "@/lib/web-api/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import {
 	Command,
 	CommandEmpty,
@@ -44,7 +66,15 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+	ProviderInspectorSheet,
+	ProviderInspectorSheetContent,
+	ProviderInspectorSheetDescription,
+	ProviderInspectorSheetHeader,
+	ProviderInspectorSheetTitle,
+} from "@/components/(data)/model/pricing/ProviderInspectorSheet";
 import {
 	Sidebar,
 	SidebarContent,
@@ -57,12 +87,14 @@ import {
 	SidebarMenuButton,
 	SidebarMenuItem,
 	SidebarProvider,
+	SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Textarea } from "@/components/ui/textarea";
 import type { GatewaySupportedModel } from "@/lib/fetchers/gateway/getGatewaySupportedModelIds";
 import {
 	createExperimentsCouncilCustomPreset,
 	createExperimentsCouncilRun,
+	deleteExperimentsCouncilRun,
 	deleteExperimentsCouncilCustomPreset,
 	ensureExperimentsCouncilPresets,
 	listExperimentsCouncilCustomPresets,
@@ -575,7 +607,10 @@ function ModelSearchSelect(props: {
 	showSelectedLogoInTrigger?: boolean;
 	showChevron?: boolean;
 	className?: string;
+	isFavorite?: (value: string) => boolean;
+	getReleaseDate?: (value: string) => string | null;
 }) {
+	const newModelWindowMs = 14 * 24 * 60 * 60 * 1000;
 	const {
 		value,
 		options,
@@ -586,8 +621,41 @@ function ModelSearchSelect(props: {
 		showSelectedLogoInTrigger = false,
 		showChevron = true,
 		className,
+		isFavorite = () => false,
+		getReleaseDate = () => null,
 	} = props;
 	const [open, setOpen] = useState(false);
+	const [searchValue, setSearchValue] = useState("");
+	const [quickFilters, setQuickFilters] = useState({ free: false, new: false });
+	const [nowMs] = useState(() => Date.now());
+	const filteredOptions = useMemo(() => {
+		const query = searchValue.trim().toLowerCase();
+		return options.filter((option) => {
+			if (quickFilters.free && !option.endsWith(":free")) return false;
+			if (quickFilters.new) {
+				const releaseDate = getReleaseDate(option);
+				const releaseMs = releaseDate ? Date.parse(releaseDate) : Number.NaN;
+				if (!Number.isFinite(releaseMs) || releaseMs < nowMs - newModelWindowMs) {
+					return false;
+				}
+			}
+			return !query || `${option} ${getLabel(option)}`.toLowerCase().includes(query);
+		});
+	}, [getLabel, getReleaseDate, newModelWindowMs, nowMs, options, quickFilters, searchValue]);
+	const favoriteOptions = filteredOptions.filter(isFavorite);
+	const otherOptions = filteredOptions.filter((option) => !isFavorite(option));
+	const groupedOptions = useMemo(
+		() => groupModelsByReleaseMonth(otherOptions.map((option) => ({
+			option,
+			releaseDate: getReleaseDate(option),
+		}))).map(({ heading, items }) => ({
+			key: `group-${heading.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+			heading,
+			items: items.map(({ option }) => option),
+			separatorBefore: true,
+		})),
+		[getReleaseDate, otherOptions],
+	);
 	return (
 		<Popover open={open} onOpenChange={setOpen}>
 			<PopoverTrigger asChild>
@@ -603,13 +671,13 @@ function ModelSearchSelect(props: {
 				>
 					<span className="flex min-w-0 items-center gap-2">
 						{showSelectedLogoInTrigger && value ? (
-							<span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-sm border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-950">
+							<span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md border border-border bg-background">
 								<Logo
 									id={getLogoId(getLogoIdForOption(value))}
 									alt={value}
 									width={12}
 									height={12}
-									className="h-3 w-3 object-contain"
+								className="h-3 w-3 rounded-none object-contain"
 								/>
 							</span>
 						) : null}
@@ -618,36 +686,68 @@ function ModelSearchSelect(props: {
 					{showChevron ? <ChevronsUpDown className="ml-2 h-3.5 w-3.5 shrink-0 opacity-60" /> : null}
 				</Button>
 			</PopoverTrigger>
-			<PopoverContent align="start" className="w-[390px] p-0">
+			<PopoverContent align="start" className="w-[min(92vw,460px)] rounded-md p-0">
 				<Command>
-					<CommandInput placeholder="Search models..." />
-					<CommandList>
-						<CommandEmpty>No models found.</CommandEmpty>
-						<CommandGroup>
-							{options.map((option, optionIndex) => (
-								<CommandItem
-									key={`${option}-${optionIndex}`}
-									value={`${option} ${getLabel(option)}`}
-									onSelect={() => {
-										onSelect(option);
-										setOpen(false);
-									}}
-								>
-									<span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-sm border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-950">
+					<CommandInput placeholder="Search models..." value={searchValue} onValueChange={setSearchValue} />
+					<div className="flex items-center gap-1 border-b border-border px-3 py-2">
+						{(["free", "new"] as const).map((filter) => (
+							<Button
+								key={filter}
+								type="button"
+								variant="outline"
+								size="sm"
+								aria-pressed={quickFilters[filter]}
+								onClick={() => setQuickFilters((current) => ({
+									...current,
+									[filter]: !current[filter],
+								}))}
+								className={cn(
+									"h-7 rounded-md px-2.5 text-xs font-medium transition-colors",
+									quickFilters[filter]
+										? "border-sky-600 bg-sky-600 text-white hover:border-sky-700 hover:bg-sky-700 hover:text-white dark:border-sky-300 dark:bg-sky-300 dark:text-slate-950 dark:hover:border-sky-200 dark:hover:bg-sky-200 dark:hover:text-slate-950"
+										: "border-border bg-transparent text-foreground hover:bg-muted",
+								)}
+							>
+								{filter === "free" ? "Free" : "New"}
+							</Button>
+						))}
+					</div>
+					<VirtualizedModelCatalog
+						sections={searchValue
+							? [{ key: "results", heading: "Results", items: filteredOptions }]
+							: [
+								{ key: "favorites", heading: "Favourites", items: favoriteOptions },
+								...groupedOptions,
+							]}
+						getItemKey={(option) => option}
+						activeItemKey={value || null}
+						isItemDisabled={() => false}
+						onActiveItemChange={() => undefined}
+						onSelectItem={(option) => {
+							onSelect(option);
+							setOpen(false);
+							setSearchValue("");
+						}}
+						renderItem={(option) => (
+							<>
+									<span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md border border-border bg-background">
 										<Logo
 											id={getLogoId(getLogoIdForOption(option))}
 											alt={option}
 											width={12}
 											height={12}
-											className="h-3 w-3 object-contain"
+											className="h-3 w-3 rounded-none object-contain"
 										/>
 									</span>
-									<span className="truncate text-xs">{getLabel(option)}</span>
-									<Check className={cn("ml-auto h-3.5 w-3.5", value === option ? "opacity-100" : "opacity-0")} />
-								</CommandItem>
-							))}
-						</CommandGroup>
-					</CommandList>
+									<span className="min-w-0 flex-1 truncate text-sm">{getLabel(option)}</span>
+									{isFavorite(option) ? <Star className="h-3.5 w-3.5 fill-current text-muted-foreground" /> : null}
+									<Check className={cn("h-3.5 w-3.5", value === option ? "opacity-100" : "opacity-0")} />
+							</>
+						)}
+						emptyContent="No models found."
+						estimateItemSize={34}
+						maxHeightPx={420}
+					/>
 				</Command>
 			</PopoverContent>
 		</Popover>
@@ -689,6 +789,8 @@ export default function CouncilClient({
 	routeBasePath = "/experiments/council",
 }: CouncilClientProps) {
 	const router = useRouter();
+	const initialAuth = useInitialChatAuth();
+	const [dayPeriod, setDayPeriod] = useState("Morning");
 	const [prompt, setPrompt] = useState("");
 	const [presets, setPresets] = useState<CouncilPresetOption[]>(
 		initialPresets.map(toSystemPresetOption),
@@ -714,19 +816,47 @@ export default function CouncilClient({
 	const [dirtyCustomPresetIds, setDirtyCustomPresetIds] = useState<number[]>([]);
 	const [expandedSourceDialogOpen, setExpandedSourceDialogOpen] = useState(false);
 	const [mobileRunPickerOpen, setMobileRunPickerOpen] = useState(false);
+	const [searchOpen, setSearchOpen] = useState(false);
+	const [runEditMode, setRunEditMode] = useState(false);
+	const [selectedRunIds, setSelectedRunIds] = useState<Set<number>>(() => new Set());
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
+	const synthesisScrollRef = useRef<HTMLDivElement | null>(null);
+	const [favoriteModelIdSet, setFavoriteModelIdSet] = useState<Set<string>>(
+		() => new Set(getDefaultFavoriteModelIds()),
+	);
+
+	useEffect(() => {
+		const hour = new Date().getHours();
+		setDayPeriod(hour < 12 ? "Morning" : hour < 18 ? "Afternoon" : "Evening");
+	}, []);
+
+	useEffect(() => {
+		try {
+			const stored = window.localStorage.getItem(MODEL_SELECTOR_FAVORITES_STORAGE_KEY);
+			if (!stored) return;
+			const parsed = JSON.parse(stored);
+			if (!Array.isArray(parsed)) return;
+			setFavoriteModelIdSet(
+				new Set(parsed.map((value) => normalizeFavoriteModelId(String(value)))),
+			);
+		} catch {
+			setFavoriteModelIdSet(new Set(getDefaultFavoriteModelIds()));
+		}
+	}, []);
+
+	const displayName = initialAuth?.user?.displayName?.trim();
+	const firstName = displayName?.split(/\s+/)[0] || undefined;
 
 	const availableModels = useMemo(
 		() =>
 			models
 				.filter((m) => m.isAvailable)
-				.sort((a, b) => {
-					const orgA = a.organisationName ?? a.providerName ?? a.providerId;
-					const orgB = b.organisationName ?? b.providerName ?? b.providerId;
-					const byOrg = orgA.localeCompare(orgB);
-					if (byOrg !== 0) return byOrg;
-					return (a.modelName ?? a.modelId).localeCompare(b.modelName ?? b.modelId);
-				}),
+				.sort((a, b) =>
+					compareByReleaseDateDesc(
+						{ modelId: a.modelId, label: a.modelName ?? a.modelId, releaseDate: a.releaseDate ?? a.announcementDate ?? null },
+						{ modelId: b.modelId, label: b.modelName ?? b.modelId, releaseDate: b.releaseDate ?? b.announcementDate ?? null },
+					),
+				),
 		[models],
 	);
 	const modelOptions = useMemo(() => availableModels.map((m) => m.modelId), [availableModels]);
@@ -751,13 +881,21 @@ export default function CouncilClient({
 	const modelMetaById = useMemo(() => {
 		const map = new Map<
 			string,
-			{ label: string; providerId: string; organisationId: string | null }
+			{
+				label: string;
+				providerId: string;
+				organisationId: string | null;
+				organisationName: string;
+				releaseDate: string | null;
+			}
 		>();
 		for (const m of availableModels) {
 			map.set(m.modelId, {
 				label: m.modelName ?? m.modelId,
 				providerId: m.providerId,
 				organisationId: m.organisationId ?? null,
+				organisationName: m.organisationName ?? m.providerName ?? m.providerId,
+				releaseDate: m.releaseDate ?? m.announcementDate ?? null,
 			});
 		}
 		return map;
@@ -774,6 +912,10 @@ export default function CouncilClient({
 			modelMetaById.get(id)?.organisationId ?? null,
 			modelMetaById.get(id)?.providerId ?? "unknown",
 		);
+	const isFavoriteModel = (id: string) =>
+		favoriteModelIdSet.has(normalizeFavoriteModelId(id));
+	const getModelReleaseDate = (id: string) =>
+		modelMetaById.get(id)?.releaseDate ?? null;
 
 	useEffect(() => {
 		let active = true;
@@ -957,6 +1099,11 @@ export default function CouncilClient({
 		selectedRun?.status === "running_fusion";
 	const displayedSynthesis =
 		streamedSynthesisText || selectedRun?.synthesisedContent || "";
+	useEffect(() => {
+		const viewport = synthesisScrollRef.current;
+		if (!viewport || !displayedSynthesis) return;
+		viewport.scrollTo({ top: viewport.scrollHeight, behavior: synthesisBusy ? "auto" : "smooth" });
+	}, [displayedSynthesis, synthesisBusy]);
 	const step3ModelId =
 		selectedRun?.synthesisedModelSlug ??
 		selectedRunSynthesisModel ??
@@ -1329,6 +1476,24 @@ export default function CouncilClient({
 		router.push(`${routeBasePath}/${runId}`);
 	};
 
+	const toggleRunSelection = (runId: number) => {
+		setSelectedRunIds((current) => {
+			const next = new Set(current);
+			if (next.has(runId)) next.delete(runId);
+			else next.add(runId);
+			return next;
+		});
+	};
+
+	const deleteSelectedRuns = async () => {
+		const ids = [...selectedRunIds];
+		await Promise.all(ids.map((id) => deleteExperimentsCouncilRun(id)));
+		setRuns((current) => current.filter((run) => run.id == null || !selectedRunIds.has(run.id)));
+		if (selectedRunId != null && selectedRunIds.has(selectedRunId)) openRunById(null);
+		setSelectedRunIds(new Set());
+		setRunEditMode(false);
+	};
+
 	const openInChat = (modelId: string, text: string) => {
 		window.location.assign(
 			`/chat?model=${encodeURIComponent(modelId)}&prompt=${encodeURIComponent(text)}`,
@@ -1692,46 +1857,98 @@ export default function CouncilClient({
 	};
 
 	return (
-		<SidebarProvider contained defaultOpen className="flex min-h-0 flex-1">
-			<Sidebar className="h-full bg-white dark:bg-zinc-950" layout="inline">
-				{routeBasePath === "/chat/fusion" ? <ChatRoomSwitcher /> : null}
-				<SidebarHeader className="px-3 py-3">
-					<p className="text-sm font-semibold">LLM Council</p>
-					<p className="text-xs text-zinc-500">Council chats</p>
+		<SidebarProvider contained defaultOpen className="flex h-full min-h-0 flex-1 overflow-hidden [&_button]:rounded-md">
+			<Sidebar className="h-full min-h-0 bg-background" layout="inline">
+				<SidebarHeader className="h-[57px] gap-0 border-b border-border px-0 py-0">
+					<div className="flex h-full min-w-0 items-center px-0">
+						{routeBasePath === "/chat/fusion" ? (
+							<ChatRoomSwitcher className="min-w-0 flex-1" />
+						) : null}
+					</div>
+				</SidebarHeader>
+				<SidebarContent className="min-h-0 gap-0 overflow-hidden">
+				<div data-chat-sidebar-actions="true" className={CHAT_SIDEBAR_ACTIONS_CLASS}>
 					<Button
-						variant="secondary"
-						className="mt-2 w-full justify-start"
+						variant="ghost"
+						className="h-8 w-full justify-start gap-2 px-2 text-sm font-medium"
 						onClick={() => {
 							openRunById(null);
 						}}
+						aria-label="New Fusion"
 					>
-						<Plus className="h-4 w-4" />
-						New Council Run
+						<SquarePen className="h-4 w-4 shrink-0" />
+						New Fusion
 					</Button>
-				</SidebarHeader>
-				<SidebarContent className="overflow-hidden">
-					<SidebarGroup className="flex min-h-0 flex-1 pt-1">
-						<SidebarGroupLabel>Recent Runs</SidebarGroupLabel>
+					<Button
+						variant="ghost"
+						className="h-8 w-full justify-start gap-2 px-2 text-sm font-medium"
+						onClick={() => setSearchOpen(true)}
+						aria-label="Search Fusions"
+					>
+						<Search className="h-4 w-4 shrink-0" />
+						Search Fusions
+					</Button>
+				</div>
+					<SidebarGroup className={cn("flex min-h-0 flex-1", CHAT_SIDEBAR_HISTORY_GROUP_CLASS)}>
+						<div className="flex h-8 items-center justify-between px-2">
+							<SidebarGroupLabel className="px-0">Recent Fusions</SidebarGroupLabel>
+							{runs.length > 0 ? (
+								<Button
+									type="button"
+									variant="ghost"
+									size="sm"
+									className="h-6 px-1.5 text-xs text-muted-foreground hover:text-foreground"
+									onClick={() => {
+										setRunEditMode((current) => !current);
+										setSelectedRunIds(new Set());
+									}}
+								>
+									{runEditMode ? "Done" : "Edit"}
+								</Button>
+							) : null}
+						</div>
+						{runEditMode ? (
+							<div className="mx-2 mb-1 flex h-8 items-center rounded-md border border-border/70 bg-muted/25 p-0.5">
+								<Button
+									type="button"
+									variant="destructive"
+									size="sm"
+									className="h-7 w-full px-1.5 text-xs"
+									disabled={selectedRunIds.size === 0}
+									onClick={() => void deleteSelectedRuns()}
+								>
+									<Trash2 className="mr-1 h-3.5 w-3.5" />
+									Delete {selectedRunIds.size > 0 ? selectedRunIds.size : ""}
+								</Button>
+							</div>
+						) : null}
 						<SidebarGroupContent className="flex min-h-0 flex-1">
-							<ScrollArea className="h-full pr-2">
-								<SidebarMenu>
+							<ScrollArea className="min-h-0 flex-1 pr-2">
+								<SidebarMenu className="space-y-1">
 									{runs.length === 0 ? (
-										<div className="rounded-md border border-dashed border-zinc-300 px-3 py-2 text-xs text-zinc-500 dark:border-zinc-700 dark:text-zinc-300">
+										<div className="rounded-md border border-dashed border-border px-3 py-2 text-xs text-muted-foreground">
 											No stored runs yet.
 										</div>
 									) : (
 										runs.map((run) => (
 											<SidebarMenuItem key={run.id}>
 												<SidebarMenuButton
-													isActive={run.id === selectedRunId}
+													isActive={run.id != null && (runEditMode ? selectedRunIds.has(run.id) : run.id === selectedRunId)}
 													onClick={() => {
-														openRunById(run.id ?? null);
+														if (run.id == null) return;
+														if (runEditMode) toggleRunSelection(run.id);
+														else openRunById(run.id);
 													}}
-													className="h-auto py-2"
+													className="h-auto gap-2 rounded-md py-2"
 												>
+													{runEditMode ? (
+														<span className={cn("flex h-4 w-4 shrink-0 items-center justify-center rounded-full border", run.id != null && selectedRunIds.has(run.id) ? "border-primary bg-primary text-primary-foreground" : "border-border text-transparent")}>
+															<Check className="h-3 w-3" />
+														</span>
+													) : null}
 													<div className="w-full space-y-1">
 														<p className="line-clamp-2 text-xs font-medium leading-4">{run.originalPrompt}</p>
-														<div className="flex items-center justify-between text-[10px] text-zinc-500">
+														<div className="flex items-center justify-between text-[10px] text-muted-foreground">
 															<span className="inline-flex items-center gap-1">
 																<Clock3 className="h-3 w-3" />
 																{formatRunTime(run.createdAt)}
@@ -1750,10 +1967,112 @@ export default function CouncilClient({
 				</SidebarContent>
 			</Sidebar>
 
-			<SidebarInset className="flex min-h-0 flex-1 bg-white dark:bg-zinc-950">
+			<SidebarInset className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+				<header className="flex shrink-0 items-center justify-between gap-2 border-b border-border px-3 py-3 md:px-5">
+					<div className="flex min-w-0 flex-1 items-center gap-1">
+						<SidebarTrigger className="group -ml-1" />
+						{selectedRun ? (
+							<p className="truncate text-sm font-medium leading-8">Fusion result</p>
+						) : (
+							<>
+								<RoomModelSelector
+									models={availableModels}
+									selectedModelIds={selectedPreset?.sourceModels ?? []}
+									onSelectModel={(modelId) => {
+										const current = selectedPreset?.sourceModels ?? [];
+										if (current.includes(modelId) || current.length >= 4) return;
+										void updatePresetModels([...current, modelId]);
+									}}
+									onRemoveModel={(modelId) => {
+										void updatePresetModels(
+											(selectedPreset?.sourceModels ?? []).filter((id) => id !== modelId),
+										);
+									}}
+									onRemoveAllModels={() => void updatePresetModels([])}
+								/>
+								<div className="hidden">
+							<Popover>
+								<PopoverTrigger asChild>
+									<Button variant="outline" className="h-9 gap-2 rounded-md px-2.5">
+										<div className="flex -space-x-1.5">
+											{(selectedPreset?.sourceModels ?? []).slice(0, 3).map((model) => (
+											<span key={model} className="inline-flex h-5 w-5 items-center justify-center rounded-md border border-background bg-muted">
+													<Logo
+														id={getOptionLogoId(model)}
+														alt=""
+														width={12}
+														height={12}
+														className="h-3 w-3 rounded-none object-contain"
+													/>
+												</span>
+											))}
+										</div>
+										<span className="text-sm">{selectedPreset?.sourceModels.length ?? 0} models</span>
+										<ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground" />
+									</Button>
+								</PopoverTrigger>
+								<PopoverContent align="start" className="w-[min(92vw,380px)] rounded-md p-3">
+									<div className="space-y-4">
+										<div>
+											<p className="text-sm font-medium">Fusion models</p>
+											<p className="text-xs text-muted-foreground">Choose two to four perspectives.</p>
+										</div>
+										<div className="flex flex-wrap gap-1">
+											{corePresets.map((preset) => (
+												<Button
+													key={getPresetRef(preset)}
+													type="button"
+													variant={selectedPreset && getPresetRef(selectedPreset) === getPresetRef(preset) ? "secondary" : "ghost"}
+													size="sm"
+													className="h-7 rounded-md px-2 text-xs"
+													onClick={() => setSelectedPresetRef(getPresetRef(preset))}
+												>
+													{preset.name}
+												</Button>
+											))}
+										</div>
+										<div className="space-y-1.5">
+											{(selectedPreset?.sourceModels ?? []).map((model, index) => (
+												<div key={`${model}-${index}`} className="flex items-center gap-2 rounded-md border border-border p-1.5">
+											<Logo id={getOptionLogoId(model)} alt="" width={16} height={16} className="h-4 w-4 rounded-none object-contain" />
+													<ModelSearchSelect
+														value={model}
+														options={modelOptions}
+														onSelect={(next) => void updatePresetModels((selectedPreset?.sourceModels ?? []).map((entry, itemIndex) => itemIndex === index ? next : entry))}
+														getLabel={getLabel}
+														getLogoIdForOption={getOptionLogoId}
+														isFavorite={isFavoriteModel}
+														className="h-7 min-w-0 flex-1 justify-start border-0 px-1 shadow-none"
+													/>
+													<Button type="button" variant="ghost" size="icon" className="h-7 w-7 rounded-md" onClick={() => removePresetModel(index)} aria-label={`Remove ${getLabel(model)}`}>
+														<X className="h-3.5 w-3.5" />
+													</Button>
+												</div>
+											))}
+										</div>
+										{(selectedPreset?.sourceModels.length ?? 0) < 4 ? (
+											<ModelSearchSelect
+												value=""
+												options={modelOptions.filter((model) => !(selectedPreset?.sourceModels ?? []).includes(model))}
+												onSelect={(next) => void updatePresetModels([...(selectedPreset?.sourceModels ?? []), next])}
+												getLabel={getLabel}
+												getLogoIdForOption={getOptionLogoId}
+												isFavorite={isFavoriteModel}
+												placeholder="Search and add model"
+												className="w-full justify-start rounded-md"
+											/>
+										) : null}
+									</div>
+								</PopoverContent>
+							</Popover>
+								</div>
+							</>
+						)}
+					</div>
+				</header>
 				<div
 					className={cn(
-						"mx-auto flex w-full flex-1 flex-col px-4 py-6 sm:px-6 lg:px-8",
+						"mx-auto flex min-h-0 w-full flex-1 flex-col overflow-y-auto px-4 py-6 sm:px-6 lg:px-8",
 						selectedRun ? (sourceModelForView ? "max-w-5xl" : "max-w-4xl") : "max-w-[1600px]",
 					)}
 				>
@@ -1771,7 +2090,7 @@ export default function CouncilClient({
 									className="h-9 min-w-0 flex-1 justify-between"
 								>
 									<span className="truncate text-sm">{mobileRunTriggerLabel}</span>
-									<ChevronDown className="ml-2 h-4 w-4 shrink-0 text-zinc-500" />
+									<ChevronDown className="ml-2 h-4 w-4 shrink-0 text-muted-foreground" />
 								</Button>
 							</PopoverTrigger>
 							<PopoverContent align="start" className="w-[min(92vw,420px)] p-0">
@@ -1792,7 +2111,7 @@ export default function CouncilClient({
 												>
 													<div className="min-w-0 flex-1">
 														<p className="truncate text-xs font-medium">{run.originalPrompt}</p>
-														<p className="text-[10px] text-zinc-500">
+														<p className="text-[10px] text-muted-foreground">
 															{displayStatus(run.status)} - {formatRunTime(run.createdAt)}
 														</p>
 													</div>
@@ -1824,16 +2143,16 @@ export default function CouncilClient({
 						</Button>
 					</div>
 					{selectedRun ? (
-						<div className="space-y-5">
+						<div className="flex flex-col gap-5">
 							<div className="space-y-1">
-								<p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Prompt</p>
-								<div className="rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900/40 dark:text-zinc-200">
+								<p className="text-xs font-medium text-muted-foreground">Prompt</p>
+								<div className="rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground">
 									{selectedRun.originalPrompt}
 								</div>
 							</div>
 
-							<div className={cn("grid gap-5", sourceModelForView ? "xl:grid-cols-[1.2fr_1fr]" : "grid-cols-1")}>
-								<div className="space-y-5">
+							<div className="order-2 grid grid-cols-1 gap-5">
+								<div className="flex flex-col-reverse gap-5">
 									<div className="space-y-3">
 										<div className="flex items-center justify-between">
 											<p className="text-sm font-semibold">Step 1</p>
@@ -1858,10 +2177,10 @@ export default function CouncilClient({
 														Retry Failed
 													</Button>
 												) : null}
-												<p className="text-xs text-zinc-500 dark:text-zinc-400">Run Source Models</p>
+												<p className="text-xs text-muted-foreground">Run Source Models</p>
 											</div>
 										</div>
-										<div className="rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900/40 dark:text-zinc-300">
+										<div className="rounded-md border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
 											{displayStatus(selectedRun.status)} - {successfulSourceCount} complete - {failedSourceCount} failed - {totalSourceOutputTokens.toLocaleString()} output tokens
 										</div>
 										<div className="space-y-2">
@@ -1887,34 +2206,32 @@ export default function CouncilClient({
 													<button
 														key={modelId}
 														type="button"
-														onClick={() =>
-															setSelectedSourceModelId((current) => (current === modelId ? null : modelId))
-														}
+														onClick={() => setSelectedSourceModelId(modelId)}
 														className={cn(
-															"w-full rounded-xl border px-3 py-2 text-left transition-colors",
+															"w-full rounded-md border px-3 py-2 text-left transition-colors",
 															isActive
-																? "border-zinc-900 bg-zinc-100 dark:border-zinc-100 dark:bg-zinc-900/70"
-																: "border-zinc-200 bg-white hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900/60",
+																? "border-foreground/40 bg-muted"
+																: "border-border bg-card hover:bg-muted/50",
 														)}
 													>
 														<div className="flex items-center justify-between gap-3">
 															<div className="flex min-w-0 items-center gap-1">
-																<span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-950">
+																<span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-border bg-background">
 																	<Logo
 																		id={getLogoId(getOptionLogoId(modelId))}
 																		alt={modelId}
 																		width={14}
 																		height={14}
-																		className="h-3.5 w-3.5 object-contain"
+																		className="h-3.5 w-3.5 rounded-none object-contain"
 																	/>
 																</span>
 																<p className="truncate text-sm font-medium">{getLabel(modelId)}</p>
 															</div>
-															<ArrowRight className="h-3.5 w-3.5 shrink-0 text-zinc-400" />
+															<ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
 														</div>
-														<div className="mt-1.5 flex items-center gap-1 text-xs text-zinc-500 dark:text-zinc-300">
+														<div className="mt-1.5 flex items-center gap-1 text-xs text-muted-foreground">
 															{isPending ? (
-																<Loader2 className="h-3.5 w-3.5 animate-spin text-zinc-500" />
+																<RoomWorkingIndicator label="Running..." size={16} showLabel={false} />
 															) : isFailed ? (
 																<AlertCircle className="h-3.5 w-3.5 text-red-500" />
 															) : isCompleted ? (
@@ -1932,12 +2249,12 @@ export default function CouncilClient({
 
 									{showStep2 ? (
 										<>
-											<div className="h-px w-full bg-zinc-200/90 dark:bg-zinc-800/90" />
+											<div className="h-px w-full bg-border" />
 
 											<div className="space-y-3">
 												<div className="flex items-center justify-between">
 													<p className="text-sm font-semibold">Step 2</p>
-													<p className="text-xs text-zinc-500 dark:text-zinc-400">Choose Synthesiser and Analyse</p>
+													<p className="text-xs text-muted-foreground">Choose Synthesiser and Analyse</p>
 												</div>
 												<div className="space-y-2">
 													<p className="text-sm font-medium">Synthesis</p>
@@ -1951,9 +2268,11 @@ export default function CouncilClient({
 																}}
 																getLabel={getLabel}
 																getLogoIdForOption={getOptionLogoId}
+																isFavorite={isFavoriteModel}
+																getReleaseDate={getModelReleaseDate}
 																placeholder="Select synthesis model"
 																showSelectedLogoInTrigger
-																className="h-8 w-full min-w-0 rounded-md border border-zinc-200 bg-zinc-50 px-2 dark:border-zinc-700 dark:bg-zinc-900/40"
+																className="h-8 w-full min-w-0 rounded-md border border-border bg-background px-2"
 															/>
 														</div>
 														<Button
@@ -1970,16 +2289,16 @@ export default function CouncilClient({
 																runIsRetryingSources
 															}
 														>
-															{synthesisBusy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+															{synthesisBusy ? <RoomWorkingIndicator label="Synthesising..." size={16} showLabel={false} /> : <Sparkles className="mr-2 h-4 w-4" />}
 															{synthesisBusy ? "Synthesising" : selectedRun.isSynthesised ? "Re-synthesise" : "Synthesize"}
 														</Button>
 													</div>
 													{showSynthesisError ? (
-														<div className="rounded-lg border border-red-300/80 bg-red-50 px-3 py-2 text-xs text-red-700 dark:border-red-900/70 dark:bg-red-950/30 dark:text-red-300">
+														<div className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive">
 															Need at least two successful source responses before synthesis.
 														</div>
 													) : synthesisNeedsQuorum ? (
-														<div className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900/40 dark:text-zinc-300">
+														<div className="rounded-md border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
 															Synthesis unlocks after at least two source responses finish.
 														</div>
 													) : null}
@@ -1987,7 +2306,7 @@ export default function CouncilClient({
 
 												{analysisSections ? (
 													<div className="space-y-2">
-														<div className="h-px w-full bg-zinc-200/90 dark:bg-zinc-800/90" />
+														<div className="h-px w-full bg-border" />
 														<p className="text-sm font-medium">Analysis</p>
 														<div className="space-y-2">
 															{analysisHasRenderableContent ? (
@@ -2009,7 +2328,7 @@ export default function CouncilClient({
 																			<div
 																				key={section.key}
 																				className={cn(
-																					"rounded-xl border border-zinc-200 bg-zinc-50 p-3 transition-all duration-200 dark:border-zinc-800 dark:bg-zinc-900/40",
+																					"rounded-md border border-border bg-muted/30 p-3 transition-all duration-200",
 																					isExpanded
 																						? "shadow-sm ring-1 ring-zinc-200/70 dark:ring-zinc-700/60"
 																						: "ring-0",
@@ -2025,14 +2344,14 @@ export default function CouncilClient({
 																						)
 																					}
 																				>
-																					<div className="flex items-center justify-between gap-3 text-zinc-800 dark:text-zinc-100">
+																					<div className="flex items-center justify-between gap-3 text-foreground">
 																						<div className="flex min-w-0 items-center gap-2">
 																							<Icon className="h-3.5 w-3.5 shrink-0" />
 																							<p className="truncate text-sm font-medium">
 																								{section.label}
 																							</p>
 																						</div>
-																						<div className="flex shrink-0 items-center gap-2 text-[11px] text-zinc-500 dark:text-zinc-400">
+																						<div className="flex shrink-0 items-center gap-2 text-[11px] text-muted-foreground">
 																							<span>{section.points.length}</span>
 																							<ChevronDown
 																								className={cn(
@@ -2052,7 +2371,7 @@ export default function CouncilClient({
 																										: "grid-rows-[1fr] translate-y-0 opacity-100",
 																								)}
 																							>
-																								<p className="overflow-hidden truncate text-xs text-zinc-600 dark:text-zinc-300">
+																								<p className="overflow-hidden truncate text-xs text-muted-foreground">
 																									{section.points[0]}
 																								</p>
 																							</div>
@@ -2064,7 +2383,7 @@ export default function CouncilClient({
 																										: "pointer-events-none grid-rows-[0fr] -translate-y-0.5 opacity-0",
 																								)}
 																							>
-																								<ul className="ml-1 overflow-hidden list-inside list-disc space-y-1 text-xs text-zinc-700 dark:text-zinc-300">
+																								<ul className="ml-1 overflow-hidden list-inside list-disc space-y-1 text-xs text-foreground/80">
 																									{section.points.map((point, index) => (
 																										<li key={`${section.key}-${index}`}>{point}</li>
 																									))}
@@ -2072,7 +2391,7 @@ export default function CouncilClient({
 																							</div>
 																						</div>
 																					) : (
-																						<p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">No points.</p>
+																						<p className="mt-2 text-xs text-muted-foreground">No points.</p>
 																					)}
 																				</button>
 																			</div>
@@ -2080,7 +2399,7 @@ export default function CouncilClient({
 																	})}
 																</div>
 															) : (
-																<div className="text-zinc-600 dark:text-zinc-300">
+																<div className="text-muted-foreground">
 																	Analysis returned no structured findings for this run.
 																</div>
 															)}
@@ -2093,7 +2412,7 @@ export default function CouncilClient({
 								</div>
 
 								{sourceModelForView ? (
-									<div className="space-y-3 rounded-2xl border border-zinc-200/80 p-4 dark:border-zinc-800/80">
+									<div className="hidden">
 										<div className="flex items-center justify-between gap-3">
 											<p className="text-sm font-medium">Selected Response</p>
 											{sourceViewResult?.output_text ? (
@@ -2109,7 +2428,7 @@ export default function CouncilClient({
 												</Button>
 											) : null}
 										</div>
-										<div className="h-px w-full bg-zinc-200/90 dark:bg-zinc-800/90" />
+										<div className="h-px w-full bg-border" />
 										{sourceViewResult ? (
 											<div className="space-y-3">
 												<div className="max-h-[480px] overflow-auto p-1 text-sm leading-6">
@@ -2131,7 +2450,7 @@ export default function CouncilClient({
 												) : null}
 											</div>
 										) : (
-											<div className="rounded-xl border border-dashed border-zinc-300 p-3 text-sm text-zinc-500 dark:border-zinc-700 dark:text-zinc-300">
+											<div className="rounded-md border border-dashed border-border p-3 text-sm text-muted-foreground">
 												Waiting for selected model output.
 											</div>
 										)}
@@ -2145,7 +2464,7 @@ export default function CouncilClient({
 													Wide view of the currently selected source model response.
 												</DialogDescription>
 												<div className="flex h-full max-h-[90vh] flex-col">
-													<div className="border-b border-zinc-200 px-4 py-3 dark:border-zinc-800">
+													<div className="border-b border-border px-4 py-3">
 														<p className="text-sm font-medium">
 															{sourceViewResult ? getLabel(sourceViewResult.model_id) : "Selected Response"}
 														</p>
@@ -2163,53 +2482,69 @@ export default function CouncilClient({
 							</div>
 
 							{showStep3 ? (
-								<div className="space-y-3">
-									<div className="h-px w-full bg-zinc-200/90 dark:bg-zinc-800/90" />
+								<div className="order-1 space-y-3">
+									<div className="h-px w-full bg-border" />
 									<div className="flex items-center justify-between">
 										<p className="text-sm font-semibold">Step 3</p>
-										<p className="text-xs text-zinc-500 dark:text-zinc-400">Final Answer</p>
+										<p className="text-xs text-muted-foreground">Final Answer</p>
 									</div>
-									<div className="space-y-3 rounded-2xl border border-zinc-200/80 p-4 dark:border-zinc-800/80">
+									<div className="space-y-3 rounded-md border border-border bg-card p-4">
 										<div className="flex items-center justify-between gap-3">
 											<div className="flex min-w-0 items-center gap-2">
-												<span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-950">
-													<Logo
-														id={getLogoId(getOptionLogoId(step3ModelId))}
-														alt={step3ModelId}
-														width={12}
-														height={12}
-														className="h-3.5 w-3.5 object-contain"
-													/>
-												</span>
-												<p className="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
+											<span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-border bg-background">
+												<Logo
+													id={getLogoId(getOptionLogoId(step3ModelId))}
+													alt={step3ModelId}
+													width={14}
+													height={14}
+													className="h-3.5 w-3.5 rounded-none object-contain"
+												/>
+											</span>
+												<p className="truncate text-sm font-medium text-foreground">
 													{step3ModelLabel}
 												</p>
 											</div>
 											<div className="flex shrink-0 items-center gap-2">
-												<div className="flex items-center">
-													{fusedSourceModelIds.map((modelId, index) => (
-														<span
-															key={`fused-${modelId}-${index}`}
-															className={cn(
-																"inline-flex h-5 w-5 items-center justify-center rounded-full border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-950",
-																index > 0 ? "-ml-1.5" : "",
-															)}
+											<div className="flex items-center">
+												{fusedSourceModelIds.map((modelId, index) => (
+													<HoverCard key={`fused-${modelId}-${index}`} openDelay={150} closeDelay={80}>
+														<HoverCardTrigger asChild>
+															<span
+														key={`fused-${modelId}-${index}`}
+														className={cn(
+															"inline-flex h-5 w-5 cursor-default items-center justify-center rounded-md border border-border bg-background transition-transform hover:z-10 hover:-translate-y-0.5 hover:border-foreground/40",
+															index > 0 ? "-ml-1.5" : "",
+														)}
+															tabIndex={0}
 														>
 															<Logo
 																id={getLogoId(getOptionLogoId(modelId))}
 																alt={modelId}
 																width={10}
 																height={10}
-																className="h-2.5 w-2.5 object-contain"
+																className="h-2.5 w-2.5 rounded-none object-contain"
 															/>
-														</span>
-													))}
+															</span>
+														</HoverCardTrigger>
+														<HoverCardContent side="top" align="center" className="w-64 rounded-md p-3">
+															<div className="flex items-center gap-3">
+																<span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-border bg-background">
+																	<Logo id={getLogoId(getOptionLogoId(modelId))} alt="" width={18} height={18} className="h-[18px] w-[18px] rounded-none object-contain" />
+																</span>
+																<div className="min-w-0">
+																	<p className="truncate text-sm font-medium">{getLabel(modelId)}</p>
+																	<p className="truncate text-xs text-muted-foreground">{modelMetaById.get(modelId)?.organisationName ?? modelId}</p>
+																</div>
+															</div>
+														</HoverCardContent>
+													</HoverCard>
+												))}
 												</div>
 												<span
 													className={cn(
 														"inline-flex shrink-0 items-center rounded-full border px-2 py-0.5 text-[11px] font-medium",
 														synthesisBusy
-															? "border-zinc-300 bg-zinc-100 text-zinc-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200"
+															? "border-border bg-muted text-foreground"
 															: "border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300",
 													)}
 												>
@@ -2217,13 +2552,19 @@ export default function CouncilClient({
 												</span>
 											</div>
 										</div>
-										<div className="h-px w-full bg-zinc-200/90 dark:bg-zinc-800/90" />
+										<div className="h-px w-full bg-border" />
 										{displayedSynthesis ? (
-											<div className="max-h-[710px] min-h-[460px] overflow-auto p-1 text-sm leading-6 lg:min-h-[360px]">
+											<ScrollArea
+												className="h-[min(710px,60vh)] min-h-[360px]"
+												viewportClassName="overscroll-contain p-1 pr-3 text-sm leading-6"
+												viewportRef={(viewport) => {
+													synthesisScrollRef.current = viewport;
+												}}
+											>
 												<Streamdown>{displayedSynthesis}</Streamdown>
-											</div>
+											</ScrollArea>
 										) : (
-											<div className="min-h-[460px] rounded-xl border border-dashed border-zinc-300 p-4 text-sm text-zinc-500 dark:border-zinc-700 dark:text-zinc-300 lg:min-h-[360px]">
+											<div className="min-h-[460px] rounded-md border border-dashed border-border p-4 text-sm text-muted-foreground lg:min-h-[360px]">
 												{runReadyForSynthesis
 													? "Choose a synthesis model in Step 2 and run synthesis."
 													: selectedRun.status === "running_sources"
@@ -2251,7 +2592,7 @@ export default function CouncilClient({
 							) : null}
 
 							{errorMessage ? (
-								<div className="rounded-lg border border-red-300/80 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900/70 dark:bg-red-950/30 dark:text-red-300">
+								<div className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
 									{errorMessage}
 								</div>
 							) : null}
@@ -2259,28 +2600,52 @@ export default function CouncilClient({
 					) : isHydratingInitialRun ? (
 						<div className="space-y-5">
 							<div className="space-y-1">
-								<div className="h-4 w-16 rounded-md bg-zinc-200/70 dark:bg-zinc-800/70" />
-								<div className="h-10 rounded-xl border border-zinc-200 bg-zinc-50/60 dark:border-zinc-800 dark:bg-zinc-900/30" />
+								<div className="h-4 w-16 rounded-md bg-muted" />
+								<div className="h-10 rounded-md border border-border bg-muted/30" />
 							</div>
 							<div className="space-y-3">
-								<div className="h-5 w-14 rounded-md bg-zinc-200/70 dark:bg-zinc-800/70" />
-								<div className="h-10 rounded-xl border border-zinc-200 bg-zinc-50/60 dark:border-zinc-800 dark:bg-zinc-900/30" />
-								<div className="h-14 rounded-xl border border-zinc-200 bg-zinc-50/60 dark:border-zinc-800 dark:bg-zinc-900/30" />
-								<div className="h-14 rounded-xl border border-zinc-200 bg-zinc-50/60 dark:border-zinc-800 dark:bg-zinc-900/30" />
+								<div className="h-5 w-14 rounded-md bg-muted" />
+								<div className="h-10 rounded-md border border-border bg-muted/30" />
+								<div className="h-14 rounded-md border border-border bg-muted/30" />
+								<div className="h-14 rounded-md border border-border bg-muted/30" />
 							</div>
-							<div className="h-9 w-40 rounded-md bg-zinc-200/70 dark:bg-zinc-800/70" />
+							<div className="h-9 w-40 rounded-md bg-muted" />
 						</div>
 					) : (
-						<div className={cn("mx-auto w-full max-w-4xl", shouldCenterComposer ? "flex flex-1 items-center" : "")}>
-							<div className="w-full space-y-5">
-								<div className="space-y-1">
-									<h1 className="text-3xl font-semibold tracking-tight">LLM Council</h1>
-									<p className="text-sm text-zinc-600 dark:text-zinc-300">
-										Council model fusion workspace with local run history and preset model packs.
+						<div className={cn("mx-auto w-full max-w-3xl", shouldCenterComposer ? "flex flex-1 items-center" : "")}>
+							<div className="w-full space-y-8">
+								<div className="space-y-2 text-center">
+									<h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+										Good {dayPeriod}{firstName ? `, ${firstName}` : ""}
+									</h1>
+									<p className="text-sm text-muted-foreground">
+										Bring several perspectives together in one answer.
 									</p>
 								</div>
-								<Card>
-									<CardContent className="space-y-6 pt-6">
+								<div className="grid gap-2 sm:grid-cols-2">
+									{[
+										["Compare approaches", "Compare the strongest approaches to solving this problem, including tradeoffs."],
+										["Challenge an idea", "Evaluate this idea from several perspectives and identify its weakest assumptions."],
+										["Reach a recommendation", "Consider the available options and produce a clear, evidence-based recommendation."],
+										["Explore a question", "Explore this question through several distinct expert perspectives."],
+									].map(([label, starterPrompt]) => (
+										<button
+											key={label}
+											type="button"
+											onClick={() => setPrompt(starterPrompt)}
+											className="group flex min-h-12 items-center justify-between gap-3 rounded-md border border-border bg-card px-3 py-2.5 text-left text-sm transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+										>
+											<span>{label}</span>
+											<ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground" />
+										</button>
+									))}
+								</div>
+								{errorMessage ? (
+									<div className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+										{errorMessage}
+									</div>
+								) : null}
+								<div className="hidden space-y-5">
 									<div className="space-y-2">
 										<div className="flex flex-wrap items-center gap-1">
 											{corePresets.map((preset) => {
@@ -2295,8 +2660,8 @@ export default function CouncilClient({
 														className={cn(
 															"h-7 rounded-md px-2.5 text-xs",
 															isActive
-																? "bg-zinc-900 text-white hover:bg-zinc-900 hover:text-white focus-visible:text-white dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-100 dark:hover:text-zinc-900 dark:focus-visible:text-zinc-900"
-																: "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-900/60 dark:hover:text-zinc-100",
+																? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
+																: "text-muted-foreground hover:bg-muted hover:text-foreground",
 														)}
 														onClick={() => setSelectedPresetRef(getPresetRef(preset))}
 													>
@@ -2307,7 +2672,7 @@ export default function CouncilClient({
 
 											{customUserPresets.length > 0 ? (
 												<>
-													<span className="px-1 text-xs text-zinc-400">|</span>
+													<span className="px-1 text-xs text-muted-foreground">|</span>
 													{customUserPresets.map((preset) => {
 														const isActive =
 															selectedPreset && getPresetRef(selectedPreset) === getPresetRef(preset);
@@ -2320,8 +2685,8 @@ export default function CouncilClient({
 																className={cn(
 																	"h-7 rounded-md px-2.5 text-xs",
 																	isActive
-																		? "bg-zinc-900 text-white hover:bg-zinc-900 hover:text-white focus-visible:text-white dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-100 dark:hover:text-zinc-900 dark:focus-visible:text-zinc-900"
-																		: "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-900/60 dark:hover:text-zinc-100",
+																		? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
+																		: "text-muted-foreground hover:bg-muted hover:text-foreground",
 																)}
 																onClick={() => setSelectedPresetRef(getPresetRef(preset))}
 															>
@@ -2336,7 +2701,7 @@ export default function CouncilClient({
 											canUpdateSelectedCustomPreset ||
 											canDeleteSelectedCustomPreset ? (
 												<>
-													<span className="px-1 text-xs text-zinc-400">|</span>
+													<span className="px-1 text-xs text-muted-foreground">|</span>
 													{isSavingPresetInline ? (
 														<div className="inline-flex items-center gap-1">
 															<Input
@@ -2360,7 +2725,7 @@ export default function CouncilClient({
 																type="button"
 																variant="ghost"
 																size="sm"
-																className="h-7 rounded-md px-1.5 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-900/60 dark:hover:text-zinc-100"
+																className="h-7 rounded-md px-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
 																onClick={() => {
 																	void createCustomPreset(presetNameDraft);
 																}}
@@ -2373,7 +2738,7 @@ export default function CouncilClient({
 																type="button"
 																variant="ghost"
 																size="sm"
-																className="h-7 rounded-md px-1.5 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-900/60 dark:hover:text-zinc-100"
+																className="h-7 rounded-md px-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
 																onClick={() => {
 																	setIsSavingPresetInline(false);
 																	setPresetNameDraft("");
@@ -2391,7 +2756,7 @@ export default function CouncilClient({
 																	type="button"
 																	variant="ghost"
 																	size="sm"
-																	className="h-7 gap-1.5 rounded-md px-2 text-xs text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-900/60 dark:hover:text-zinc-100"
+																	className="h-7 gap-1.5 rounded-md px-2 text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
 																	onClick={() => {
 																		setIsSavingPresetInline(true);
 																		setPresetNameDraft("My Preset");
@@ -2406,7 +2771,7 @@ export default function CouncilClient({
 																	type="button"
 																	variant="ghost"
 																	size="sm"
-																	className="h-7 rounded-md px-1.5 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-900/60 dark:hover:text-zinc-100"
+																	className="h-7 rounded-md px-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
 																	onClick={() => {
 																		void updateSelectedCustomPreset();
 																	}}
@@ -2425,7 +2790,7 @@ export default function CouncilClient({
 																	type="button"
 																	variant="ghost"
 																	size="sm"
-																	className="h-7 rounded-md px-1.5 text-zinc-600 hover:bg-zinc-100 hover:text-red-600 dark:text-zinc-300 dark:hover:bg-zinc-900/60 dark:hover:text-red-400"
+																	className="h-7 rounded-md px-1.5 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
 																	onClick={() => {
 																		void deleteSelectedCustomPreset();
 																	}}
@@ -2449,8 +2814,8 @@ export default function CouncilClient({
 									<div>
 										<div className="flex flex-wrap items-center gap-2">
 											{(selectedPreset?.sourceModels ?? []).map((model, index) => (
-												<div key={`${index}-${model}`} className="group inline-flex items-center gap-1 rounded-md border border-zinc-300 bg-white px-2 py-1 dark:border-zinc-700 dark:bg-zinc-900">
-													<span className="inline-flex h-5 w-5 items-center justify-center rounded-sm border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-950">
+												<div key={`${index}-${model}`} className="group inline-flex items-center gap-1 rounded-md border border-border bg-background px-2 py-1">
+													<span className="inline-flex h-5 w-5 items-center justify-center rounded-md border border-border bg-background">
 														<Logo
 															id={getLogoId(
 																pickLogoId(
@@ -2461,7 +2826,7 @@ export default function CouncilClient({
 															alt={model}
 															width={12}
 															height={12}
-															className="h-3 w-3 object-contain"
+																	className="h-3 w-3 rounded-none object-contain"
 														/>
 													</span>
 													<ModelSearchSelect
@@ -2473,6 +2838,7 @@ export default function CouncilClient({
 														}}
 														getLabel={getLabel}
 														getLogoIdForOption={getOptionLogoId}
+														isFavorite={isFavoriteModel}
 														showChevron={false}
 														className="h-6 min-w-0 w-auto border-0 bg-transparent px-0 text-sm shadow-none hover:bg-transparent"
 													/>
@@ -2488,7 +2854,7 @@ export default function CouncilClient({
 												</div>
 											))}
 											{(selectedPreset?.sourceModels.length ?? 0) < 4 ? (
-												<div className="inline-flex items-center gap-0.5 rounded-md border border-dashed border-zinc-300 bg-zinc-50 px-2 py-1 dark:border-zinc-700 dark:bg-zinc-900/40">
+												<div className="inline-flex items-center gap-0.5 rounded-md border border-dashed border-border bg-muted/30 px-2 py-1">
 													<ModelSearchSelect
 														value=""
 														options={modelOptions.filter((option) => !(selectedPreset?.sourceModels ?? []).includes(option))}
@@ -2498,6 +2864,7 @@ export default function CouncilClient({
 														}}
 														getLabel={getLabel}
 														getLogoIdForOption={getOptionLogoId}
+														isFavorite={isFavoriteModel}
 														showChevron={false}
 														placeholder="Search and add model"
 														className="h-6 min-w-0 w-auto px-0 text-sm"
@@ -2507,54 +2874,144 @@ export default function CouncilClient({
 										</div>
 									</div>
 
-									<div className="space-y-2">
-										<div className="overflow-hidden rounded-xl border border-zinc-200 bg-transparent dark:border-zinc-800">
-											<Textarea
-												id="experiments-prompt"
-												value={prompt}
-												onChange={(event) => setPrompt(event.target.value)}
-												onKeyDown={(event) => {
-													if (event.key !== "Enter" || event.shiftKey) return;
-													if ((event.nativeEvent as KeyboardEvent).isComposing) return;
-													event.preventDefault();
-													void createRun();
-												}}
-												placeholder="Ask anything to compare selected models and synthesize one final answer..."
-												className="min-h-28 resize-none border-0 bg-transparent p-3 shadow-none focus-visible:ring-0"
-											/>
-											<div className="flex items-center justify-end border-t border-zinc-200/90 px-2 py-2 dark:border-zinc-800/90">
-												<Button
-													size="icon"
-													className="h-8 w-8 rounded-md"
-													onClick={createRun}
-													disabled={
-														creatingRun ||
-														!selectedPreset ||
-														(selectedPreset.sourceModels?.length ?? 0) === 0 ||
-														prompt.trim().length === 0
-													}
-													aria-label={creatingRun ? "Starting run" : "Send prompt"}
-												>
-													{creatingRun ? <Loader2 className="h-4 w-4 animate-spin" /> : <SendHorizontal className="h-4 w-4" />}
-												</Button>
-											</div>
-										</div>
-									</div>
-
 										{errorMessage ? (
-											<div className="rounded-lg border border-red-300/80 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900/70 dark:bg-red-950/30 dark:text-red-300">
+											<div className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
 												{errorMessage}
 											</div>
 										) : null}
-									</CardContent>
-								</Card>
+								</div>
 							</div>
 						</div>
 					)}
-					<AIGeneratedNotice className="mt-4" />
+					{selectedRun ? <AIGeneratedNotice className="mt-4" /> : null}
 				</div>
+				{!selectedRun && !isHydratingInitialRun ? (
+					<RoomComposerFooter>
+						<div className="mx-auto w-full max-w-3xl">
+							<RoomComposerSurface className="flex items-end gap-2 p-2">
+								<Textarea
+									id="experiments-prompt"
+									value={prompt}
+									onChange={(event) => setPrompt(event.target.value)}
+									onKeyDown={(event) => {
+										if (event.key !== "Enter" || event.shiftKey) return;
+										if ((event.nativeEvent as KeyboardEvent).isComposing) return;
+										event.preventDefault();
+										void createRun();
+									}}
+									placeholder="Ask anything"
+									rows={1}
+									className="min-h-9 flex-1 resize-none border-0 bg-transparent px-2 py-2 shadow-none focus-visible:ring-0"
+								/>
+								<Button
+									size="icon"
+									className="h-8 w-8 shrink-0 rounded-md"
+									onClick={createRun}
+									disabled={
+										creatingRun ||
+										!selectedPreset ||
+										(selectedPreset.sourceModels?.length ?? 0) === 0 ||
+										prompt.trim().length === 0
+									}
+									aria-label={creatingRun ? "Starting run" : "Send prompt"}
+								>
+									{creatingRun ? (
+										<RoomWorkingIndicator label="Starting fusion..." showLabel={false} />
+									) : (
+										<SendHorizontal className="h-4 w-4" />
+									)}
+								</Button>
+							</RoomComposerSurface>
+						</div>
+					</RoomComposerFooter>
+				) : null}
 			</SidebarInset>
+			<ProviderInspectorSheet
+				open={Boolean(sourceModelForView)}
+				onOpenChange={(open) => {
+					if (!open) setSelectedSourceModelId(null);
+				}}
+			>
+				<ProviderInspectorSheetContent
+					className="w-[min(92vw,42rem)] max-w-none gap-0 p-0 sm:max-w-2xl"
+				>
+					<ProviderInspectorSheetHeader className="border-b border-border/70 px-5 py-4 pr-14 text-left">
+						<div className="flex min-w-0 items-center gap-3">
+							<span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border bg-background">
+								{sourceModelForView ? (
+									<Logo
+										id={getLogoId(getOptionLogoId(sourceModelForView))}
+										alt=""
+										width={18}
+										height={18}
+										className="h-[18px] w-[18px] rounded-none object-contain"
+									/>
+								) : null}
+							</span>
+							<div className="min-w-0">
+								<ProviderInspectorSheetTitle className="truncate">
+									{sourceModelForView ? getLabel(sourceModelForView) : "Model response"}
+								</ProviderInspectorSheetTitle>
+								<ProviderInspectorSheetDescription>
+									{sourceViewResult?.status === "completed"
+										? `${sourceViewResult.output_tokens?.toLocaleString() ?? "—"} output tokens · ${((sourceViewResult.latency_ms ?? 0) / 1000).toFixed(1)}s`
+										: sourceViewResult?.status === "failed"
+											? "Generation failed"
+											: "Generating response…"}
+								</ProviderInspectorSheetDescription>
+							</div>
+						</div>
+					</ProviderInspectorSheetHeader>
+					<ScrollArea className="min-h-0 flex-1" viewportClassName="overscroll-y-contain">
+						<div className="px-5 py-5 text-sm leading-7">
+							{sourceViewResult ? (
+								<Streamdown>
+									{sourceViewResult.output_text ?? sourceViewResult.error ?? "No output yet."}
+								</Streamdown>
+							) : (
+								<div className="flex min-h-48 items-center justify-center text-muted-foreground">
+									<RoomWorkingIndicator label="Waiting for response..." />
+								</div>
+							)}
+						</div>
+					</ScrollArea>
+					{sourceViewResult?.output_text && selectedRun ? (
+						<div className="mt-auto border-t border-border px-5 py-4">
+							<Button
+								variant="outline"
+								className="w-full justify-between rounded-md"
+								onClick={() =>
+									openInChat(
+										sourceViewResult.model_id,
+										`Continue this conversation from the source-model draft.\n\nOriginal question:\n${selectedRun.originalPrompt}\n\nDraft answer:\n${sourceViewResult.output_text}`,
+									)
+								}
+							>
+								Continue in Chat Room
+								<ArrowRight className="h-4 w-4" />
+							</Button>
+						</div>
+					) : null}
+				</ProviderInspectorSheetContent>
+			</ProviderInspectorSheet>
+			<RoomSearchDialog
+				open={searchOpen}
+				onOpenChange={setSearchOpen}
+				title="Search fusions"
+				placeholder="Search fusions..."
+				emptyLabel="No fusions found."
+				groupLabel="Fusions"
+				conversations={runs.map((run) => ({
+					id: String(run.id),
+					title: run.originalPrompt,
+				}))}
+				onSelectConversation={(conversation) => {
+					const runId = Number(conversation.id);
+					if (!Number.isFinite(runId)) return;
+					setSearchOpen(false);
+					openRunById(runId);
+				}}
+			/>
 		</SidebarProvider>
 	);
 }
-

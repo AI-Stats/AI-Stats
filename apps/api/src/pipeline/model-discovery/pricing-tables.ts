@@ -26,6 +26,7 @@ export const PRICING_TABLE_SOURCES: PricingTableSource[] = [
 	{ providerId: "byteplus", providerName: "BytePlus ModelArk", sourceUrl: "https://docs.byteplus.com/en/docs/Byteplus_LAS/Large_model_billing" },
 	{ providerId: "cerebras", providerName: "Cerebras", sourceUrl: "https://www.cerebras.ai/pricing", extraction: "price-content" },
 	{ providerId: "cohere", providerName: "Cohere", sourceUrl: "https://cohere.com/pricing", extraction: "price-content" },
+	{ providerId: "cloudflare", providerName: "Cloudflare Workers AI", sourceUrl: "https://developers.cloudflare.com/workers-ai/platform/pricing/" },
 	{ providerId: "deepseek", providerName: "DeepSeek", sourceUrl: "https://api-docs.deepseek.com/quick_start/pricing" },
 	{ providerId: "elevenlabs", providerName: "ElevenLabs", sourceUrl: "https://elevenlabs.io/pricing/api?price.platform=api", extraction: "price-content" },
 	{ providerId: "fireworks", providerName: "Fireworks", sourceUrl: "https://docs.fireworks.ai/serverless/pricing" },

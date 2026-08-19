@@ -136,6 +136,8 @@ impl Phaseo {
             .post(&url)
             .set("Authorization", &format!("Bearer {}", self.api_key))
             .set("Content-Type", "application/json")
+            .set("X-Phaseo-Client", "phaseo-rust")
+            .set("X-Phaseo-Client-Version", env!("CARGO_PKG_VERSION"))
             .set(
                 "User-Agent",
                 concat!("phaseo-rust/", env!("CARGO_PKG_VERSION")),

@@ -1,7 +1,7 @@
 name = "phaseo-web-api"
 main = "src/index.ts"
 compatibility_date = "2026-07-20"
-compatibility_flags = ["nodejs_compat"]
+compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
 workers_dev = false
 preview_urls = false
 
@@ -14,6 +14,8 @@ enabled = true
 ENV = "production"
 SUPABASE_URL = "https://xansbgjaduxypzsmjwct.supabase.co"
 PROFILE_AVATARS_PUBLIC_BASE_URL = "https://avatars.phaseo.app"
+# Set by deployment environment; kept out of source configuration.
+# STAGING_GATEWAY_BASE_URL = "https://<staging-gateway>/v1"
 
 [[r2_buckets]]
 binding = "PROFILE_AVATARS_BUCKET"

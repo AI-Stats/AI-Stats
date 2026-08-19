@@ -567,3 +567,6 @@ export async function saveExperimentsCouncilRun(
 	};
 }
 
+export async function deleteExperimentsCouncilRun(id: number): Promise<void> {
+	await withStore(RUNS_STORE, "readwrite", (store) => store.delete(id));
+}

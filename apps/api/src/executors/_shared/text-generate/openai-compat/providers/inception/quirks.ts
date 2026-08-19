@@ -23,12 +23,13 @@ export const inceptionQuirks: ProviderQuirks = {
 			request.reasoning_effort = effort;
 		}
 
-		if (request.reasoning_summary == null && typeof ir?.reasoning?.summary === "string") {
-			request.reasoning_summary = ir.reasoning.summary;
-		}
-
 		const inceptionVendor = (ir?.vendor as any)?.inception;
 		if (inceptionVendor && typeof inceptionVendor === "object") {
+			if (request.reasoning_summary == null && typeof inceptionVendor.reasoning_summary === "boolean") {
+				request.reasoning_summary = inceptionVendor.reasoning_summary;
+			} else if (request.reasoning_summary == null && typeof ir?.reasoning?.summary === "string") {
+				request.reasoning_summary = true;
+			}
 			if (
 				request.reasoning_summary_wait == null &&
 				(
@@ -40,6 +41,9 @@ export const inceptionQuirks: ProviderQuirks = {
 			}
 			if (request.diffusing == null && typeof inceptionVendor.diffusing === "boolean") {
 				request.diffusing = inceptionVendor.diffusing;
+			}
+			if (request.realtime == null && typeof inceptionVendor.realtime === "boolean") {
+				request.realtime = inceptionVendor.realtime;
 			}
 		}
 
@@ -57,5 +61,25 @@ export const inceptionQuirks: ProviderQuirks = {
 					? [reasoningContent]
 					: [],
 		};
+	},
+
+	transformStreamChunk: ({ chunk }) => {
+		const summary = chunk?.reasoning_summary?.content;
+		if (typeof summary !== "string" || summary.length === 0) return;
+		const firstChoice = Array.isArray(chunk.choices) ? chunk.choices[0] : undefined;
+		if (firstChoice) {
+			firstChoice.delta ??= {};
+			firstChoice.delta.reasoning_content ??= summary;
+		}
+	},
+
+	normalizeResponse: ({ response }) => {
+		const summary = response?.reasoning_summary?.content;
+		if (typeof summary !== "string" || summary.length === 0) return;
+		const firstChoice = Array.isArray(response.choices) ? response.choices[0] : undefined;
+		if (firstChoice) {
+			firstChoice.message ??= {};
+			firstChoice.message.reasoning_content ??= summary;
+		}
 	},
 };

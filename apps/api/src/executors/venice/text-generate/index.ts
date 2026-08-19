@@ -13,6 +13,12 @@ export function preprocess(ir: IRChatRequest, args: ExecutorExecuteArgs): IRChat
 }
 
 export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult> {
+	if (args.providerId === "venice-e2ee") {
+		// E2EE is not a provider alias: it requires attestation verification,
+		// secp256k1 key agreement, encrypted messages, mandatory streaming, and
+		// response-chunk decryption. Never fall through to the plaintext adapter.
+		throw new Error("venice_e2ee_encryption_not_implemented");
+	}
 	return executeOpenAIWire(args, { transientRetries: 1 });
 }
 

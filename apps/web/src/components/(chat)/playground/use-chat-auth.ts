@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
-import { fetchClientAuthHeaderData } from "@/lib/fetchers/internal/fetchClientAuthHeaderData";
+import { useInitialChatAuth } from "@/components/(chat)/ChatAuthProvider";
 
 export type ChatUser = {
 	id: string;
@@ -25,9 +25,23 @@ function shouldBypassAuthForChatPerformance() {
 }
 
 export function useChatAuth() {
-	const [authUser, setAuthUser] = useState<ChatUser | null>(null);
-	const [userRole, setUserRole] = useState<string | null>(null);
-	const [authLoading, setAuthLoading] = useState(true);
+	const initialAuth = useInitialChatAuth();
+	const initialUser = initialAuth?.isLoggedIn && initialAuth.user
+		? {
+				id: initialAuth.user.id,
+				email: initialAuth.user.email,
+				name:
+					initialAuth.user.displayName ??
+					initialAuth.user.email ??
+					"Account",
+				avatarUrl: initialAuth.user.avatarUrl,
+			} satisfies ChatUser
+		: null;
+	const [authUser, setAuthUser] = useState<ChatUser | null>(initialUser);
+	const [userRole, setUserRole] = useState<string | null>(
+		initialAuth?.userRole ?? null,
+	);
+	const [authLoading, setAuthLoading] = useState(false);
 
 	useEffect(() => {
 		if (shouldBypassAuthForChatPerformance()) {
@@ -36,44 +50,20 @@ export function useChatAuth() {
 			setAuthLoading(false);
 			return;
 		}
-		let mounted = true;
 		const supabase = createClient();
-		const loadUser = async () => {
-			setAuthLoading(true);
-			const profile = await fetchClientAuthHeaderData().catch(() => undefined);
-			if (!mounted) return;
-			if (profile === undefined) {
-				setAuthLoading(false);
-				return;
-			}
-			if (!profile.isLoggedIn || !profile.user) {
+		const { data: listener } = supabase.auth.onAuthStateChange((event) => {
+			if (event === "SIGNED_OUT") {
 				setAuthUser(null);
 				setUserRole(null);
-				setAuthLoading(false);
-				return;
 			}
-			const displayName =
-				profile.user.displayName ??
-				profile.user.email ??
-				"Account";
-			setAuthUser({
-				id: profile.user.id,
-				email: profile.user.email,
-				name: displayName,
-				avatarUrl: profile.user.avatarUrl,
-			});
-			setUserRole(profile.userRole ?? null);
-			setAuthLoading(false);
-		};
-		loadUser();
-		const { data: listener } = supabase.auth.onAuthStateChange(() => {
-			loadUser();
+			if (event === "SIGNED_IN" && !initialAuth?.isLoggedIn) {
+				window.location.reload();
+			}
 		});
 		return () => {
-			mounted = false;
 			listener.subscription.unsubscribe();
 		};
-	}, []);
+	}, [initialAuth?.isLoggedIn]);
 
 	const handleSignOut = useCallback(async () => {
 		const supabase = createClient();

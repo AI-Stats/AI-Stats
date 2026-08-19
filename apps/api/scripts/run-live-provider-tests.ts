@@ -41,19 +41,12 @@ type ProviderModelRow = {
     effective_to?: string | null;
 };
 
-type ProviderCapabilityRow = {
-    provider_api_model_id?: string | null;
-};
 
 type ProvidersResponse = {
     total?: number;
     providers?: Array<{
         api_provider_id?: string;
     }>;
-};
-
-type SupabaseProviderRow = {
-    api_provider_id?: string | null;
 };
 
 const PROVIDER_ALIASES: Record<string, string> = {
@@ -508,14 +501,20 @@ async function discoverAllTextProvidersFromSupabase(): Promise<string[]> {
 
     const now = new Date();
     const modelsRes = await supabase
-		.from("v2_rpc_routes_legacy_shape")
-        .select("provider_api_model_id,provider_id,is_active_gateway,effective_from,effective_to")
-        .eq("is_active_gateway", true);
+		.from("v2_model_provider_routes")
+        .select("provider_model_id,provider_slug,routing_enabled,effective_from,effective_to")
+        .eq("routing_enabled", true);
     if (modelsRes.error) {
         throw new Error(modelsRes.error.message);
     }
 
-    const modelRows = (modelsRes.data ?? []).filter((row: ProviderModelRow) => {
+    const modelRows = (modelsRes.data ?? []).map((row) => ({
+        provider_api_model_id: row.provider_model_id,
+        provider_id: row.provider_slug,
+        is_active_gateway: row.routing_enabled,
+        effective_from: row.effective_from,
+        effective_to: row.effective_to,
+    })).filter((row: ProviderModelRow) => {
         if (!row?.provider_api_model_id || !row?.provider_id) return false;
         const from = row.effective_from ? new Date(row.effective_from) : null;
         const to = row.effective_to ? new Date(row.effective_to) : null;
@@ -530,9 +529,9 @@ async function discoverAllTextProvidersFromSupabase(): Promise<string[]> {
     if (!providerModelIds.length) return [];
 
     const capsRes = await supabase
-		.from("v2_rpc_capabilities_legacy_shape")
-        .select("provider_api_model_id")
-        .in("provider_api_model_id", providerModelIds)
+        .from("v2_route_capabilities")
+        .select("provider_model_id")
+        .in("provider_model_id", providerModelIds)
         .eq("capability_id", "text.generate")
         .in("status", ["active", "deranked"]);
     if (capsRes.error) {
@@ -541,7 +540,7 @@ async function discoverAllTextProvidersFromSupabase(): Promise<string[]> {
 
     const supportedIds = new Set(
         (capsRes.data ?? [])
-            .map((row: ProviderCapabilityRow) => row.provider_api_model_id)
+            .map((row) => row.provider_model_id)
             .filter((value): value is string => typeof value === "string" && value.length > 0)
     );
 
@@ -568,16 +567,16 @@ async function discoverAllApiProvidersFromSupabase(): Promise<string[]> {
     });
 
     const providersRes = await supabase
-		.from("v2_rpc_providers_legacy_shape")
-        .select("api_provider_id");
+		.from("v2_providers")
+        .select("provider_slug");
     if (providersRes.error) {
         throw new Error(providersRes.error.message);
     }
 
     const providers = new Set<string>();
-    for (const row of (providersRes.data ?? []) as SupabaseProviderRow[]) {
-        if (!row?.api_provider_id) continue;
-        providers.add(String(row.api_provider_id));
+    for (const row of providersRes.data ?? []) {
+		if (!row?.provider_slug) continue;
+		providers.add(String(row.provider_slug));
     }
 
     return [...providers].sort((a, b) => a.localeCompare(b));

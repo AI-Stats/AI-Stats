@@ -566,7 +566,7 @@ async function handleNonStreamResponse(
         gatewayPayload: payload,
         cacheAwareRoutingEnabled,
         clientResponseBody: responseBody,
-        responseStatus: ctx.endpoint === "video.generation" ? 202 : result.upstream.status,
+        responseStatus: result.upstream.status,
     });
 
     if (ctx.endpoint === "audio.speech" && shouldReturnBinaryAudio(ctx)) {
@@ -606,10 +606,9 @@ async function handleNonStreamResponse(
     if (ctx.responseCache?.status === "miss") {
         headers.set("X-Phaseo-Response-Cache", "miss");
     }
-    const responseStatus = ctx.endpoint === "video.generation" ? 202 : result.upstream.status;
+    const responseStatus = result.upstream.status;
     return ctx.timer.span("after_create_response", () => createResponse(responseBody, responseStatus, headers));
 }
-
 
 
 

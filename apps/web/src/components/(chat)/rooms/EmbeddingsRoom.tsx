@@ -75,6 +75,8 @@ import {
 	RoomComposerSurface,
 	RoomComposerToolsMenu,
 } from "@/components/(chat)/RoomComposer";
+import { RoomWorkingIndicator } from "@/components/(chat)/RoomWorkingIndicator";
+import { RoomEmptyState } from "@/components/(chat)/RoomEmptyState";
 import {
 	AudioLines,
 	ArrowUpRight,
@@ -1064,8 +1066,9 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 					{label}
 				</p>
 				{items.map((conversation) => (
-					<SidebarMenuItem key={conversation.id} className="w-full overflow-hidden">
+					<SidebarMenuItem key={conversation.id} className="mb-1 w-full overflow-hidden last:mb-0">
 						<SidebarMenuButton
+							className="rounded-md"
 							isActive={activeConversationId === conversation.id}
 							onClick={() => {
 								setActiveConversationId(conversation.id);
@@ -1082,7 +1085,7 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 									<MoreHorizontal className="h-4 w-4" />
 
 							</DropdownMenuTrigger>
-							<DropdownMenuContent side="right" className="rounded-[8px]! [&_[data-slot=dropdown-menu-item]]:rounded-[8px]!">
+							<DropdownMenuContent side="right" className="rounded-md [&_[data-slot=dropdown-menu-item]]:rounded-md">
 								<DropdownMenuItem
 									onClick={() => {
 										void renameConversation(conversation);
@@ -1303,12 +1306,19 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 				</div>
 			</header>
 
-			<main className="min-h-0 flex-1 overflow-auto overscroll-contain px-4 py-5 md:px-6">
-				<div className="mx-auto flex w-full max-w-5xl flex-col gap-5">
+			<main className="flex min-h-0 flex-1 flex-col overflow-auto overscroll-contain px-4 py-5 md:px-6">
+				<div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-5">
 					{activeEntries.length === 0 ? (
-						<div className="rounded-2xl border border-dashed border-border bg-card p-6 text-sm text-muted-foreground">
-							No embeddings history yet.
-						</div>
+						<RoomEmptyState
+							description="What would you like to turn into embeddings?"
+							suggestions={[
+							{ label: "Compare two ideas", prompt: "Remote work improves focus\nWorking from home increases concentration" },
+							{ label: "Embed product copy", prompt: "A fast, reliable AI gateway for every model and provider." },
+							{ label: "Explore semantic similarity", prompt: "Machine learning\nArtificial intelligence\nDeep neural networks" },
+							{ label: "Test a search query", prompt: "How do I reduce latency in an AI application?" },
+						]}
+						onSelectPrompt={setTextInput}
+					/>
 					) : (
 						activeEntries.map((entry) => {
 							const entryProjection = projectionsByEntryId.get(entry.id) ?? {
@@ -1381,7 +1391,7 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 							return (
 								<div key={entry.id} className="space-y-3">
 									<div className="ml-auto w-full max-w-[85%]">
-										<div className="rounded-2xl bg-foreground px-4 py-3 text-sm text-background">
+									<div className="rounded-md bg-foreground px-4 py-3 text-sm text-background">
 											<p className="whitespace-pre-wrap">
 												{entry.inputText || entry.summary}
 											</p>
@@ -1453,7 +1463,7 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 											/>
 											<span className="truncate">{modelLabel}</span>
 										</Link>
-										<div className="space-y-3 rounded-2xl border border-border bg-card p-4">
+								<div className="space-y-3 rounded-md border border-border bg-card p-4">
 											<div className="flex flex-wrap items-center gap-2">
 												<h2 className="text-sm font-semibold">2D projection (PCA)</h2>
 												<span className="rounded-full border border-border bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
@@ -1697,7 +1707,7 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 							value={textInput}
 							onChange={(event) => setTextInput(event.target.value)}
 							rows={1}
-							placeholder="Text input for embeddings (optional if using URLs/files)..."
+							placeholder="Embed anything"
 							className={cn(
 								"resize-none border-0 !bg-transparent shadow-none focus-visible:ring-0 dark:!bg-transparent",
 								showImageUrlInput || showAudioUrlInput || showVideoUrlInput || imageUrl.trim() || audioUrl.trim() || videoUrl.trim() || files.length || splitTextModeActive || error
@@ -1833,7 +1843,7 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 								}}
 								disabled={isLoading || !modelId || !selectedModelEnabled}
 							>
-								{isLoading ? "Embedding..." : "Embed"}
+								{isLoading ? <RoomWorkingIndicator label="Embedding..." /> : "Embed"}
 							</Button>
 						</div>
 					</RoomComposerSurface>

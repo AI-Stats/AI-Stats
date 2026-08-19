@@ -153,6 +153,8 @@ export type ChatSettings = ChatModelSettings & {
 
 export type ChatThread = {
     id: string;
+    /** Stable request correlation ID. Existing chats use their persisted thread ID. */
+    sessionId?: string;
     title: string;
     titleLocked?: boolean;
     pinned?: boolean;
@@ -222,6 +224,13 @@ export function normalizeChatThread(chat: ChatThread): ChatThread {
         ...chat,
         tags: normalizeChatTags((chat as { tags?: unknown }).tags),
     };
+}
+
+export function getChatThreadSessionId(
+    thread: Pick<ChatThread, "id" | "sessionId">,
+): string {
+    const sessionId = typeof thread.sessionId === "string" ? thread.sessionId.trim() : "";
+    return sessionId || thread.id;
 }
 
 function openDb(): Promise<IDBDatabase> {

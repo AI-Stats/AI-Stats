@@ -672,7 +672,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -701,6 +702,58 @@
       "status": "unverified",
       "checked_at": null,
       "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-ocr",
+    "provider_api_model_id": "novita:deepseek/deepseek-ocr",
+    "provider_model_slug": "deepseek/deepseek-ocr",
+    "internal_model_id": "deepseek/deepseek-ocr",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": 8192,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:01:01.895+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -985,6 +1038,58 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "deepseek/deepseek-r1",
+    "provider_api_model_id": "novita:deepseek/deepseek-r1",
+    "provider_model_slug": "deepseek/deepseek-r1",
+    "internal_model_id": "deepseek/deepseek-r1",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": 16000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:01:01.895+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "deepseek/deepseek-r1-0528",
     "provider_api_model_id": "novita:deepseek/deepseek-r1-0528",
     "provider_model_slug": "deepseek/deepseek-r1-0528",
@@ -1113,7 +1218,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "tool_choice",
+          "response_format"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -1142,6 +1250,110 @@
       "status": "unverified",
       "checked_at": null,
       "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-r1-distill-llama-70b",
+    "provider_api_model_id": "novita:deepseek/deepseek-r1-distill-llama-70b",
+    "provider_model_slug": "deepseek/deepseek-r1-distill-llama-70b",
+    "internal_model_id": "deepseek/deepseek-r1-distill-llama-70b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": 8192,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:01:01.895+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-r1-distill-qwen-32b",
+    "provider_api_model_id": "novita:deepseek/deepseek-r1-distill-qwen-32b",
+    "provider_model_slug": "deepseek/deepseek-r1-distill-qwen-32b",
+    "internal_model_id": "deepseek/deepseek-r1-distill-qwen-32b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": 32000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:01:01.895+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -1890,7 +2102,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "tool_choice",
+          "response_format"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -2051,7 +2266,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "tool_choice"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -2100,7 +2317,23 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "top_k",
+          "repetition_penalty",
+          "tools",
+          "tool_choice",
+          "response_format",
+          "structured_outputs"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -2148,7 +2381,23 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "top_k",
+          "repetition_penalty",
+          "tool_choice",
+          "tools",
+          "response_format",
+          "reasoning_effort"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -2196,7 +2445,25 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "top_k",
+          "repetition_penalty",
+          "tools",
+          "response_format",
+          "tool_choice",
+          "logprobs",
+          "top_logprobs",
+          "reasoning_effort"
+        ],
         "reasoning": true,
         "tool_call": true,
         "structured_output": true,
@@ -2259,7 +2526,25 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "top_k",
+          "repetition_penalty",
+          "tools",
+          "tool_choice",
+          "response_format",
+          "logprobs",
+          "top_logprobs",
+          "reasoning_effort"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -2287,6 +2572,93 @@
       "status": "unverified",
       "checked_at": null,
       "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v4-pro-0813",
+    "provider_api_model_id": "novita:deepseek/deepseek-v4-pro-0813",
+    "provider_model_slug": "deepseek/deepseek-v4-pro-0813",
+    "internal_model_id": "deepseek/deepseek-v4-pro-0813",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 393216,
+    "effective_from": "2026-08-13T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "top_k",
+          "repetition_penalty",
+          "tools",
+          "tool_choice",
+          "response_format",
+          "logprobs",
+          "top_logprobs",
+          "reasoning_effort"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/v1/models",
+        "accessed_at": "2026-08-14T00:00:00Z",
+        "notes": "Live Novita model registry confirms the exact 0813 slug, context and output limits, pricing fields, supported features, and available endpoints."
+      },
+      {
+        "kind": "documentation",
+        "url": "https://novita.ai/models/model-detail/deepseek-deepseek-v4-pro-0813",
+        "accessed_at": "2026-08-14T00:00:00Z",
+        "notes": "Official Novita model page confirms the dated model is available as a distinct deployment and publishes its model capabilities and pricing."
+      },
+      {
+        "kind": "documentation",
+        "url": "https://novita.ai/docs/api-reference/model-apis-llm-list-models",
+        "accessed_at": "2026-08-14T00:00:00Z",
+        "notes": "Official documentation for the model registry used to verify provider availability and model metadata."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-14T00:00:00Z",
+      "notes": "Confirmed as a distinct live Novita deployment with the exact dated provider slug and provider-specific limits."
     },
     "rate_limits": []
   },
@@ -2721,6 +3093,338 @@
       "status": "unverified",
       "checked_at": null,
       "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "inclusionai/ling-2.6-1t",
+    "provider_api_model_id": "novita:inclusionai/ling-2.6-1t",
+    "provider_model_slug": "inclusionai/ling-2.6-1t",
+    "internal_model_id": "inclusionai/ling-2.6-1t",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": 32768,
+    "effective_from": "2026-04-23T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "max_tokens",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "seed",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "frequency_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "presence_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "repetition_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "stop",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "temperature",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_k",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "min_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "logit_bias",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "logprobs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_logprobs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "structured_outputs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          "tool_choice",
+          "response_format"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "inclusionai/ling-3.0-flash",
+    "provider_api_model_id": "novita:inclusionai/ling-3.0-flash",
+    "provider_model_slug": "inclusionai/ling-3.0-flash",
+    "internal_model_id": "inclusionai/ling-3.0-flash",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": 32768,
+    "effective_from": "2026-08-06T15:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "top_k",
+          "repetition_penalty",
+          "tools",
+          "tool_choice",
+          "logprobs",
+          "top_logprobs"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://novita.ai/models/model-detail/inclusionai-ling-3.0-flash",
+        "kind": "documentation"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-06T00:00:00Z",
+      "notes": "Official Novita model page confirms the current paid route, limits, and capabilities."
+    },
+    "rate_limits": []
+  },
+  {
+    "canonical_model_id": "inclusionai/ling-3.0-flash:free",
+    "api_model_id": "inclusionai/ling-3.0-flash:free",
+    "provider_api_model_id": "novita:inclusionai/ling-3.0-flash:free",
+    "provider_model_slug": "inclusionai/ling-3.0-flash",
+    "internal_model_id": "inclusionai/ling-3.0-flash",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": 32768,
+    "effective_from": "2026-07-23T00:00:00",
+    "effective_to": "2026-08-06T15:00:00",
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "inactive",
+        "params": [],
+        "reasoning": null,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "inactive",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://x.com/novita_labs/status/2083204529319989745",
+        "kind": "announcement"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-06T00:00:00Z",
+      "notes": "Historical free route retired when the promotion ended on 6 August 2026 at 8:00 AM PT."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "inclusionai/ling-3.0-tiny",
+    "provider_api_model_id": "novita:inclusionai/ling-3.0-tiny",
+    "provider_model_slug": "inclusionai/ling-3.0-tiny",
+    "internal_model_id": "inclusionai/ling-3.0-tiny",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": 32768,
+    "effective_from": "2026-08-05T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://novita.ai/models/model-detail/inclusionai-ling-3.0-tiny",
+        "kind": "documentation"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-06T00:00:00Z",
+      "notes": "Official Novita model page and live model listing."
     },
     "rate_limits": []
   },
@@ -3733,6 +4437,113 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "mindai/macaron-v1-tall",
+    "provider_api_model_id": "novita:mindai/macaron-v1-tall",
+    "provider_model_slug": "mindai/macaron-v1-tall",
+    "internal_model_id": "mindai/macaron-v1-tall",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": 32768,
+    "effective_from": "2026-07-28T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://novita.ai/models/model-detail/mindai-macaron-v1-tall",
+        "kind": "documentation"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-06T00:00:00Z",
+      "notes": "Official Novita model page and live model listing."
+    },
+    "rate_limits": []
+  },
+  {
+    "canonical_model_id": "mindai/macaron-v1-venti:free",
+    "api_model_id": "mindai/macaron-v1-venti:free",
+    "provider_api_model_id": "novita:mindai/macaron-v1-venti:free",
+    "provider_model_slug": "mindai/macaron-v1-venti",
+    "internal_model_id": "mindai/macaron-v1-venti",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-07-23T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://novita.ai/models/model-detail/mindai-macaron-v1-venti",
+        "kind": "documentation"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-07-24T00:00:00Z",
+      "notes": "Official Novita model page."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "minimax/minimax-m1-80k",
     "provider_api_model_id": "novita:minimax/minimax-m1-80k",
     "provider_model_slug": "minimaxai/minimax-m1-80k",
@@ -4008,7 +4819,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "tool_choice",
+          "response_format"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -4162,7 +4976,11 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "include_reasoning",
+          "tool_choice",
+          "response_format"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -4323,7 +5141,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "tool_choice",
+          "response_format"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -4365,7 +5186,7 @@
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": null,
-    "max_output_tokens": null,
+    "max_output_tokens": 131100,
     "effective_from": "2026-03-25T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -4469,7 +5290,178 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "include_reasoning",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "top_k",
+          "repetition_penalty"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "minimax/minimax-m3",
+    "provider_api_model_id": "novita:minimax/minimax-m3",
+    "provider_model_slug": "minimax/minimax-m3",
+    "internal_model_id": "minimax/minimax-m3",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-06-01T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "max_tokens",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "seed",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "frequency_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "presence_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "repetition_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "stop",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "temperature",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_k",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "min_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "logit_bias",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "logprobs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_logprobs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "structured_outputs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "include_reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          "reasoning",
+          "tool_choice"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -4770,7 +5762,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "tool_choice"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -4924,7 +5917,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "response_format",
+          "tool_choice"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -5407,7 +6402,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "tool_choice",
+          "response_format"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -5568,7 +6566,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "response_format",
+          "tool_choice"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -5853,6 +6854,76 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "nvidia/nemotron-3-nano-30b-a3b",
+    "provider_api_model_id": "novita:nvidia/nemotron-3-nano-30b-a3b",
+    "provider_model_slug": "nvidia/nemotron-3-nano-30b-a3b",
+    "internal_model_id": "nvidia/nemotron-3-nano-30b-a3b",
+    "is_active_gateway": true,
+    "quantization_scheme": "FP4",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": 32768,
+    "effective_from": "2026-06-10T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "top_k",
+          "repetition_penalty",
+          "response_format",
+          "tools",
+          "tool_choice",
+          "logprobs",
+          "top_logprobs"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://novita.ai/models/model-detail/nvidia-nemotron-3-nano-30b-a3b",
+        "kind": "documentation"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-06T00:00:00Z",
+      "notes": "Official Novita model page and live model listing."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "openai/gpt-oss-120b",
     "provider_api_model_id": "novita:openai/gpt-oss-120b",
     "provider_model_slug": "openai/gpt-oss-120b",
@@ -5981,7 +7052,11 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "tool_choice",
+          "response_format",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -6135,7 +7210,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "response_format",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -6975,7 +8053,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "tool_choice",
+          "response_format"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -7129,7 +8209,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "tool_choice"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -8046,7 +9128,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "tool_choice",
+          "response_format"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -9131,7 +10215,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "tools",
+          "tool_choice"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -9802,7 +10889,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "tool_choice",
+          "response_format"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -9963,7 +11053,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "tool_choice",
+          "response_format"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -10285,7 +11378,656 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
+          },
+          "reasoning",
+          "tool_choice",
+          "response_format"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.5-plus",
+    "provider_api_model_id": "novita:qwen/qwen3.5-plus",
+    "provider_model_slug": "qwen/qwen3.5-plus",
+    "internal_model_id": "qwen/qwen3.5-plus",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:01:01.895+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.6-27b",
+    "provider_api_model_id": "novita:qwen/qwen3.6-27b",
+    "provider_model_slug": "qwen/qwen3.6-27b",
+    "internal_model_id": "qwen/qwen3.6-27b",
+    "is_active_gateway": true,
+    "quantization_scheme": "BF16",
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": 65536,
+    "effective_from": "2026-04-23T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "max_tokens",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "seed",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "frequency_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "presence_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "repetition_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "stop",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "temperature",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_k",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "min_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "logit_bias",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "logprobs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_logprobs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "structured_outputs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "include_reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
           }
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.6-35b-a3b",
+    "provider_api_model_id": "novita:qwen/qwen3.6-35b-a3b",
+    "provider_model_slug": "qwen/qwen3.6-35b-a3b",
+    "internal_model_id": "qwen/qwen3.6-35b-a3b",
+    "is_active_gateway": true,
+    "quantization_scheme": "BF16",
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "max_tokens",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "seed",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "frequency_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "presence_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "temperature",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "stop",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "response_format",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "parallel_tool_calls",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "service_tier",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "reasoning_effort",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "stream_options_include_usage",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "metadata",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "modalities",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "audio",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "prediction",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "store",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "logprobs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_logprobs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "structured_outputs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "include_reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          }
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.6-plus",
+    "provider_api_model_id": "novita:qwen/qwen3.6-plus",
+    "provider_model_slug": "qwen/qwen3.6-plus",
+    "internal_model_id": "qwen/qwen3.6-plus",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:01:01.895+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.7-max",
+    "provider_api_model_id": "novita:qwen/qwen3.7-max",
+    "provider_model_slug": "qwen/qwen3.7-max",
+    "internal_model_id": "qwen/qwen3.7-max",
+    "is_active_gateway": true,
+    "quantization_scheme": "FP8",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 65536,
+    "effective_from": "2026-05-22T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.8-max",
+    "provider_api_model_id": "novita:qwen/qwen3.8-max",
+    "provider_model_slug": "qwen/qwen3.8-max",
+    "internal_model_id": "qwen/qwen3.8-max",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-08-03T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://novita.ai/pricing",
+        "kind": "pricing"
+      },
+      {
+        "url": "https://novita.ai/models/model-detail/qwen-qwen3.8-max",
+        "kind": "documentation"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-03T00:00:00Z",
+      "notes": "Official Novita pricing and model-detail listing; API model id qwen/qwen3.8-max."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "stepfun/step-3.7-flash",
+    "provider_api_model_id": "novita:stepfun/step-3.7-flash",
+    "provider_model_slug": "stepfun/step-3.7-flash",
+    "internal_model_id": "stepfun/step-3.7-flash",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 256000,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-06-12T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "top_k",
+          "repetition_penalty",
+          "tools",
+          "tool_choice",
+          "structured_outputs",
+          "logprobs",
+          "top_logprobs",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -10528,6 +12270,132 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "xiaomi/mimo-v2.5",
+    "provider_api_model_id": "novita:xiaomi/mimo-v2.5",
+    "provider_model_slug": "xiaomimimo/mimo-v2.5",
+    "internal_model_id": "xiaomi/mimo-v2.5",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-05-29T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "top_k",
+          "repetition_penalty",
+          "response_format",
+          "tools",
+          "tool_choice"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "xiaomi/mimo-v2.5-pro",
+    "provider_api_model_id": "novita:xiaomi/mimo-v2.5-pro",
+    "provider_model_slug": "xiaomimimo/mimo-v2.5-pro",
+    "internal_model_id": "xiaomi/mimo-v2.5-pro",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-05-22T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "top_k",
+          "repetition_penalty",
+          "response_format",
+          "tools",
+          "tool_choice"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "z-ai/glm-4.5",
     "provider_api_model_id": "novita:z-ai/glm-4.5",
     "provider_model_slug": "zai-org/glm-4.5",
@@ -10698,7 +12566,21 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "top_k",
+          "repetition_penalty",
+          "tools",
+          "tool_choice"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -10858,7 +12740,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "tool_choice",
+          "response_format"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -11019,7 +12904,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "tool_choice",
+          "response_format"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -11180,7 +13068,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "tool_choice",
+          "response_format"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -11663,7 +13554,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "tool_choice"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -11740,7 +13633,19 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "top_k",
+          "repetition_penalty",
+          "tool_choice",
+          "response_format",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -11821,961 +13726,39 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "inclusionai/ling-2.6-1t",
-    "provider_api_model_id": "novita:inclusionai/ling-2.6-1t",
-    "provider_model_slug": "inclusionai/ling-2.6-1t",
-    "internal_model_id": "inclusionai/ling-2.6-1t",
-    "is_active_gateway": true,
-    "quantization_scheme": null,
-    "input_modalities": "text",
-    "output_modalities": "text",
-    "context_length": 262144,
-    "max_output_tokens": 32768,
-    "effective_from": "2026-04-23T00:00:00",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [
-          {
-            "param_id": "max_tokens",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "seed",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "frequency_penalty",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "presence_penalty",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "repetition_penalty",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "stop",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "temperature",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "top_p",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "top_k",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "min_p",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "logit_bias",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "logprobs",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "top_logprobs",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "tools",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "structured_outputs",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          }
-        ],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": true,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "qwen/qwen3.6-27b",
-    "provider_api_model_id": "novita:qwen/qwen3.6-27b",
-    "provider_model_slug": "qwen/qwen3.6-27b",
-    "internal_model_id": "qwen/qwen3.6-27b",
-    "is_active_gateway": true,
-    "quantization_scheme": "BF16",
-    "input_modalities": "text,image,video",
-    "output_modalities": "text",
-    "context_length": 262144,
-    "max_output_tokens": 65536,
-    "effective_from": "2026-04-23T00:00:00",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [
-          {
-            "param_id": "max_tokens",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "seed",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "frequency_penalty",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "presence_penalty",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "repetition_penalty",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "stop",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "temperature",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "top_p",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "top_k",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "min_p",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "logit_bias",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "logprobs",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "top_logprobs",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "tools",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "structured_outputs",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "include_reasoning",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          }
-        ],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": true,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "qwen/qwen3.6-35b-a3b",
-    "provider_api_model_id": "novita:qwen/qwen3.6-35b-a3b",
-    "provider_model_slug": "qwen/qwen3.6-35b-a3b",
-    "internal_model_id": "qwen/qwen3.6-35b-a3b",
-    "is_active_gateway": true,
-    "quantization_scheme": "BF16",
-    "input_modalities": "text,image,video",
-    "output_modalities": "text",
-    "context_length": 262144,
-    "max_output_tokens": 65536,
-    "effective_from": null,
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [
-          {
-            "param_id": "max_tokens",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "seed",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "frequency_penalty",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "presence_penalty",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "temperature",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "top_p",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "stop",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "response_format",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "parallel_tool_calls",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "service_tier",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "reasoning_effort",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "stream_options_include_usage",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "metadata",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "modalities",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "audio",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "prediction",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "reasoning",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "store",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "logprobs",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "top_logprobs",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "tools",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "structured_outputs",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "include_reasoning",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          }
-        ],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": true,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "xiaomi/mimo-v2.5",
-    "provider_api_model_id": "novita:xiaomi/mimo-v2.5",
-    "provider_model_slug": "xiaomimimo/mimo-v2.5",
-    "internal_model_id": "xiaomi/mimo-v2.5",
-    "is_active_gateway": true,
-    "quantization_scheme": null,
-    "input_modalities": "text,image,video",
-    "output_modalities": "text",
-    "context_length": 1048576,
-    "max_output_tokens": 131072,
-    "effective_from": "2026-05-29T00:00:00Z",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": true,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "xiaomi/mimo-v2.5-pro",
-    "provider_api_model_id": "novita:xiaomi/mimo-v2.5-pro",
-    "provider_model_slug": "xiaomimimo/mimo-v2.5-pro",
-    "internal_model_id": "xiaomi/mimo-v2.5-pro",
-    "is_active_gateway": true,
-    "quantization_scheme": null,
-    "input_modalities": "text",
-    "output_modalities": "text",
-    "context_length": 1048576,
-    "max_output_tokens": 131072,
-    "effective_from": "2026-05-22T00:00:00",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": true,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "qwen/qwen3.7-max",
-    "provider_api_model_id": "novita:qwen/qwen3.7-max",
-    "provider_model_slug": "qwen/qwen3.7-max",
-    "internal_model_id": "qwen/qwen3.7-max",
-    "is_active_gateway": true,
-    "quantization_scheme": "FP8",
-    "input_modalities": "text",
-    "output_modalities": "text",
-    "context_length": 1000000,
-    "max_output_tokens": 65536,
-    "effective_from": "2026-05-22T00:00:00",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": true,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "qwen/qwen3.8-max",
-    "provider_api_model_id": "novita:qwen/qwen3.8-max",
-    "provider_model_slug": "qwen/qwen3.8-max",
-    "internal_model_id": "qwen/qwen3.8-max",
-    "is_active_gateway": true,
-    "quantization_scheme": null,
-    "input_modalities": "text,image,video",
-    "output_modalities": "text",
-    "context_length": 1000000,
-    "max_output_tokens": 131072,
-    "effective_from": "2026-08-03T00:00:00",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": true,
-        "tool_call": true,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": true,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": true,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [
-      {
-        "url": "https://novita.ai/pricing",
-        "kind": "pricing"
-      },
-      {
-        "url": "https://novita.ai/models/model-detail/qwen-qwen3.8-max",
-        "kind": "documentation"
-      }
-    ],
-    "verification": {
-      "status": "verified",
-      "checked_at": "2026-08-03T00:00:00Z",
-      "notes": "Official Novita pricing and model-detail listing; API model id qwen/qwen3.8-max."
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "minimax/minimax-m3",
-    "provider_api_model_id": "novita:minimax/minimax-m3",
-    "provider_model_slug": "minimax/minimax-m3",
-    "internal_model_id": "minimax/minimax-m3",
-    "is_active_gateway": true,
-    "quantization_scheme": null,
-    "input_modalities": "text,image,video",
-    "output_modalities": "text",
-    "context_length": 1000000,
-    "max_output_tokens": 131072,
-    "effective_from": "2026-06-01T00:00:00",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [
-          {
-            "param_id": "max_tokens",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "seed",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "frequency_penalty",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "presence_penalty",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "repetition_penalty",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "stop",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "temperature",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "top_p",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "top_k",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "min_p",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "logit_bias",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "logprobs",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "top_logprobs",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "tools",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "structured_outputs",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "include_reasoning",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          }
-        ],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": true,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "stepfun/step-3.7-flash",
-    "provider_api_model_id": "novita:stepfun/step-3.7-flash",
-    "provider_model_slug": "stepfun/step-3.7-flash",
-    "internal_model_id": "stepfun/step-3.7-flash",
-    "is_active_gateway": true,
-    "quantization_scheme": null,
-    "input_modalities": "text,image,video",
-    "output_modalities": "text",
-    "context_length": 256000,
-    "max_output_tokens": 131072,
-    "effective_from": "2026-06-12T00:00:00",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": true,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
-    "canonical_model_id": "inclusionai/ling-3.0-flash:free",
-    "api_model_id": "inclusionai/ling-3.0-flash:free",
-    "provider_api_model_id": "novita:inclusionai/ling-3.0-flash:free",
-    "provider_model_slug": "inclusionai/ling-3.0-flash",
-    "internal_model_id": "inclusionai/ling-3.0-flash",
+    "api_model_id": "z-ai/glm-5.1",
+    "provider_api_model_id": "novita:z-ai/glm-5.1",
+    "provider_model_slug": "z-ai/glm-5.1",
+    "internal_model_id": "z-ai/glm-5.1",
     "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": "text",
-    "output_modalities": "text",
-    "context_length": 262144,
-    "max_output_tokens": null,
-    "effective_from": "2026-07-23T00:00:00",
-    "effective_to": "2026-08-06T15:00:00",
+    "quantization_scheme": "fp8",
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 204800,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "inactive",
-        "params": [],
+        "status": "disabled",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "top_k",
+          "repetition_penalty",
+          "tools",
+          "tool_choice"
+        ],
         "reasoning": null,
-        "tool_call": true,
+        "tool_call": null,
         "structured_output": null,
         "temperature": null,
         "attachment": null,
@@ -12784,7 +13767,7 @@
         "modes": []
       }
     ],
-    "routing_status": "inactive",
+    "routing_status": "disabled",
     "routable": false,
     "regions": {
       "execution": null,
@@ -12798,38 +13781,55 @@
     },
     "sources": [
       {
-        "url": "https://x.com/novita_labs/status/2083204529319989745",
-        "kind": "announcement"
+        "kind": "provider_models",
+        "url": null,
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
       }
     ],
     "verification": {
-      "status": "verified",
-      "checked_at": "2026-08-06T00:00:00Z",
-      "notes": "Historical free route retired when the promotion ended on 6 August 2026 at 8:00 AM PT."
+      "status": "partial",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
     },
     "rate_limits": []
   },
   {
-    "canonical_model_id": "mindai/macaron-v1-venti:free",
-    "api_model_id": "mindai/macaron-v1-venti:free",
-    "provider_api_model_id": "novita:mindai/macaron-v1-venti:free",
-    "provider_model_slug": "mindai/macaron-v1-venti",
-    "internal_model_id": "mindai/macaron-v1-venti",
-    "is_active_gateway": true,
-    "quantization_scheme": null,
-    "input_modalities": "text",
-    "output_modalities": "text",
-    "context_length": 1048576,
-    "max_output_tokens": 131072,
-    "effective_from": "2026-07-23T00:00:00",
+    "api_model_id": "qwen/qwen3-vl-30b-a3b-instruct",
+    "provider_api_model_id": "novita:qwen/qwen3-vl-30b-a3b-instruct",
+    "provider_model_slug": "qwen/qwen3-vl-30b-a3b-instruct",
+    "internal_model_id": "qwen/qwen3-vl-30b-a3b-instruct",
+    "is_active_gateway": false,
+    "quantization_scheme": "bf16",
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 131072,
+    "max_output_tokens": 32768,
+    "effective_from": "2026-08-12T00:00:00Z",
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": true,
-        "tool_call": true,
+        "status": "disabled",
+        "params": [
+          "structured_outputs",
+          "response_format",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "top_k",
+          "repetition_penalty",
+          "tools",
+          "tool_choice",
+          "logprobs",
+          "top_logprobs"
+        ],
+        "reasoning": null,
+        "tool_call": null,
         "structured_output": null,
         "temperature": null,
         "attachment": null,
@@ -12838,8 +13838,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "disabled",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -12852,227 +13852,297 @@
     },
     "sources": [
       {
-        "url": "https://novita.ai/models/model-detail/mindai-macaron-v1-venti",
-        "kind": "documentation"
+        "kind": "provider_models",
+        "url": null,
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
       }
     ],
     "verification": {
-      "status": "verified",
-      "checked_at": "2026-07-24T00:00:00Z",
-      "notes": "Official Novita model page."
+      "status": "partial",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
     },
     "rate_limits": []
   },
   {
-    "api_model_id": "inclusionai/ling-3.0-flash",
-    "provider_api_model_id": "novita:inclusionai/ling-3.0-flash",
-    "provider_model_slug": "inclusionai/ling-3.0-flash",
-    "internal_model_id": "inclusionai/ling-3.0-flash",
+    "api_model_id": "qwen/qwen3-vl-235b-a22b-instruct",
+    "provider_api_model_id": "novita:qwen/qwen3-vl-235b-a22b-instruct",
+    "provider_model_slug": "qwen/qwen3-vl-235b-a22b-instruct",
+    "internal_model_id": "qwen/qwen3-vl-235b-a22b-instruct",
+    "is_active_gateway": false,
+    "quantization_scheme": "bf16",
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 131072,
+    "max_output_tokens": 32768,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "disabled",
+        "params": [
+          "structured_outputs",
+          "response_format",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "top_k",
+          "repetition_penalty",
+          "tools",
+          "tool_choice",
+          "logprobs",
+          "top_logprobs"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": null,
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-next-80b-a3b-instruct",
+    "provider_api_model_id": "novita:qwen/qwen3-next-80b-a3b-instruct",
+    "provider_model_slug": "qwen/qwen3-next-80b-a3b-instruct",
+    "internal_model_id": "qwen/qwen3-next-80b-a3b-instruct",
+    "is_active_gateway": false,
+    "quantization_scheme": "bf16",
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 131072,
+    "max_output_tokens": 32768,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "disabled",
+        "params": [
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "top_k",
+          "repetition_penalty",
+          "tools",
+          "tool_choice",
+          "response_format",
+          "logprobs",
+          "top_logprobs"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": null,
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-coder",
+    "provider_api_model_id": "novita:qwen/qwen3-coder",
+    "provider_model_slug": "qwen/qwen3-coder",
+    "internal_model_id": "qwen/qwen3-coder",
+    "is_active_gateway": false,
+    "quantization_scheme": "fp8",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": 65536,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "disabled",
+        "params": [
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "top_k",
+          "repetition_penalty",
+          "tools",
+          "tool_choice",
+          "response_format",
+          "structured_outputs"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": null,
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "baai/bge-m3",
+    "provider_api_model_id": "novita:baai/bge-m3",
+    "provider_model_slug": "baai/bge-m3",
+    "internal_model_id": "baai/bge-m3",
     "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text",
-    "output_modalities": "text",
-    "context_length": 262144,
-    "max_output_tokens": 32768,
-    "effective_from": "2026-08-06T15:00:00",
+    "output_modalities": "embedding",
+    "context_length": 8192,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-12T00:00:00Z",
     "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": true,
-        "tool_call": true,
-        "structured_output": null,
-        "temperature": true,
-        "attachment": false,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
+    "capabilities": [{
+      "capability_id": "embeddings",
+      "status": "active",
+      "params": ["encoding_format"],
+      "reasoning": false,
+      "tool_call": false,
+      "structured_output": false,
+      "temperature": false,
+      "attachment": false,
+      "input_modalities": ["text"],
+      "output_modalities": ["embedding"],
+      "modes": []
+    }],
     "routing_status": "active",
     "routable": true,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [
-      {
-        "url": "https://novita.ai/models/model-detail/inclusionai-ling-3.0-flash",
-        "kind": "documentation"
-      }
-    ],
-    "verification": {
-      "status": "verified",
-      "checked_at": "2026-08-06T00:00:00Z",
-      "notes": "Official Novita model page confirms the current paid route, limits, and capabilities."
-    },
+    "regions": { "execution": ["global"], "data": ["global"] },
+    "service_tiers": ["standard"],
+    "api": { "formats": ["openai.embeddings"], "endpoint": "https://api.novita.ai/openai/v1/embeddings", "deployment": "serverless" },
+    "sources": [{ "kind": "provider_docs", "url": "https://novita.ai/docs/api-reference/model-apis-llm-create-embeddings", "accessed_at": "2026-08-12T00:00:00Z", "notes": "Official API reference enumerates baai/bge-m3 as the supported embedding model." }],
+    "verification": { "status": "verified", "checked_at": "2026-08-12T00:00:00Z", "notes": "Model, endpoint, inputs, encoding formats, usage and price verified from Novita first-party references." },
     "rate_limits": []
   },
   {
-    "api_model_id": "inclusionai/ling-3.0-tiny",
-    "provider_api_model_id": "novita:inclusionai/ling-3.0-tiny",
-    "provider_model_slug": "inclusionai/ling-3.0-tiny",
-    "internal_model_id": "inclusionai/ling-3.0-tiny",
+    "api_model_id": "baai/bge-reranker-v2-m3",
+    "provider_api_model_id": "novita:baai/bge-reranker-v2-m3",
+    "provider_model_slug": "baai/bge-reranker-v2-m3",
+    "internal_model_id": "baai/bge-reranker-v2-m3",
     "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text",
-    "output_modalities": "text",
-    "context_length": 262144,
-    "max_output_tokens": 32768,
-    "effective_from": "2026-08-05T00:00:00",
+    "output_modalities": "rerank",
+    "context_length": 8000,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-12T00:00:00Z",
     "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": true,
-        "tool_call": true,
-        "structured_output": null,
-        "temperature": true,
-        "attachment": false,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
+    "capabilities": [{
+      "capability_id": "rerank",
+      "status": "active",
+      "params": ["top_n"],
+      "reasoning": false,
+      "tool_call": false,
+      "structured_output": false,
+      "temperature": false,
+      "attachment": false,
+      "input_modalities": ["text"],
+      "output_modalities": ["rerank"],
+      "modes": []
+    }],
     "routing_status": "active",
     "routable": true,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [
-      {
-        "url": "https://novita.ai/models/model-detail/inclusionai-ling-3.0-tiny",
-        "kind": "documentation"
-      }
-    ],
-    "verification": {
-      "status": "verified",
-      "checked_at": "2026-08-06T00:00:00Z",
-      "notes": "Official Novita model page and live model listing."
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "mindai/macaron-v1-tall",
-    "provider_api_model_id": "novita:mindai/macaron-v1-tall",
-    "provider_model_slug": "mindai/macaron-v1-tall",
-    "internal_model_id": "mindai/macaron-v1-tall",
-    "is_active_gateway": true,
-    "quantization_scheme": null,
-    "input_modalities": "text",
-    "output_modalities": "text",
-    "context_length": 262144,
-    "max_output_tokens": 32768,
-    "effective_from": "2026-07-28T00:00:00",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": true,
-        "tool_call": true,
-        "structured_output": null,
-        "temperature": true,
-        "attachment": false,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": true,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [
-      {
-        "url": "https://novita.ai/models/model-detail/mindai-macaron-v1-tall",
-        "kind": "documentation"
-      }
-    ],
-    "verification": {
-      "status": "verified",
-      "checked_at": "2026-08-06T00:00:00Z",
-      "notes": "Official Novita model page and live model listing."
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "nvidia/nemotron-3-nano-30b-a3b",
-    "provider_api_model_id": "novita:nvidia/nemotron-3-nano-30b-a3b",
-    "provider_model_slug": "nvidia/nemotron-3-nano-30b-a3b",
-    "internal_model_id": "nvidia/nemotron-3-nano-30b-a3b",
-    "is_active_gateway": true,
-    "quantization_scheme": "FP4",
-    "input_modalities": "text",
-    "output_modalities": "text",
-    "context_length": 262144,
-    "max_output_tokens": 32768,
-    "effective_from": "2026-06-10T00:00:00",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": true,
-        "tool_call": true,
-        "structured_output": true,
-        "temperature": true,
-        "attachment": false,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": true,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [
-      {
-        "url": "https://novita.ai/models/model-detail/nvidia-nemotron-3-nano-30b-a3b",
-        "kind": "documentation"
-      }
-    ],
-    "verification": {
-      "status": "verified",
-      "checked_at": "2026-08-06T00:00:00Z",
-      "notes": "Official Novita model page and live model listing."
-    },
+    "regions": { "execution": ["global"], "data": ["global"] },
+    "service_tiers": ["standard"],
+    "api": { "formats": ["openai.rerank"], "endpoint": "https://api.novita.ai/openai/v1/rerank", "deployment": "serverless" },
+    "sources": [{ "kind": "provider_docs", "url": "https://novita.ai/docs/api-reference/model-apis-llm-create-rerank", "accessed_at": "2026-08-12T00:00:00Z", "notes": "Official rerank API reference and current model catalog." }],
+    "verification": { "status": "verified", "checked_at": "2026-08-12T00:00:00Z", "notes": "Model, endpoint, request/response, usage and price verified from Novita first-party references." },
     "rate_limits": []
   }
 ]

@@ -48,9 +48,6 @@ module PhaseoSdk
     # Model ID: anthropic/claude-opus-4.7
     # Model page: https://phaseo.app/models/anthropic/claude-opus-4.7
     ANTHROPIC_CLAUDE_OPUS_4_7 = "anthropic/claude-opus-4.7"
-    # Model ID: anthropic/claude-opus-4.7-fast
-    # Model page: https://phaseo.app/models/anthropic/claude-opus-4.7-fast
-    ANTHROPIC_CLAUDE_OPUS_4_7_FAST = "anthropic/claude-opus-4.7-fast"
     # Model ID: anthropic/claude-opus-4.8
     # Model page: https://phaseo.app/models/anthropic/claude-opus-4.8
     ANTHROPIC_CLAUDE_OPUS_4_8 = "anthropic/claude-opus-4.8"
@@ -93,6 +90,9 @@ module PhaseoSdk
     # Model ID: baidu/ernie-4.5-vl-424b-a47b
     # Model page: https://phaseo.app/models/baidu/ernie-4.5-vl-424b-a47b
     BAIDU_ERNIE_4_5_VL_424B_A47B = "baidu/ernie-4.5-vl-424b-a47b"
+    # Model ID: black-forest-labs/flux-1-dev
+    # Model page: https://phaseo.app/models/black-forest-labs/flux-1-dev
+    BLACK_FOREST_LABS_FLUX_1_DEV = "black-forest-labs/flux-1-dev"
     # Model ID: black-forest-labs/flux-1-schnell
     # Model page: https://phaseo.app/models/black-forest-labs/flux-1-schnell
     BLACK_FOREST_LABS_FLUX_1_SCHNELL = "black-forest-labs/flux-1-schnell"
@@ -126,6 +126,9 @@ module PhaseoSdk
     # Model ID: bytedance/seed-2.0-pro
     # Model page: https://phaseo.app/models/bytedance/seed-2.0-pro
     BYTEDANCE_SEED_2_0_PRO = "bytedance/seed-2.0-pro"
+    # Model ID: bytedance/seed-2.1-turbo
+    # Model page: https://phaseo.app/models/bytedance/seed-2.1-turbo
+    BYTEDANCE_SEED_2_1_TURBO = "bytedance/seed-2.1-turbo"
     # Model ID: bytedance/seed-oss-36b-instruct
     # Model page: https://phaseo.app/models/bytedance/seed-oss-36b-instruct
     BYTEDANCE_SEED_OSS_36B_INSTRUCT = "bytedance/seed-oss-36b-instruct"
@@ -141,6 +144,9 @@ module PhaseoSdk
     # Model ID: bytedance/seedance-2.0-mini-260615
     # Model page: https://phaseo.app/models/bytedance/seedance-2.0-mini-260615
     BYTEDANCE_SEEDANCE_2_0_MINI_260615 = "bytedance/seedance-2.0-mini-260615"
+    # Model ID: bytedance/seedream-5.0-pro
+    # Model page: https://phaseo.app/models/bytedance/seedream-5.0-pro
+    BYTEDANCE_SEEDREAM_5_0_PRO = "bytedance/seedream-5.0-pro"
     # Model ID: crofai/greg-1-mini
     # Model page: https://phaseo.app/models/crofai/greg-1-mini
     CROFAI_GREG_1_MINI = "crofai/greg-1-mini"
@@ -207,9 +213,6 @@ module PhaseoSdk
     # Model ID: deepseek/deepseek-v4-pro
     # Model page: https://phaseo.app/models/deepseek/deepseek-v4-pro
     DEEPSEEK_DEEPSEEK_V4_PRO = "deepseek/deepseek-v4-pro"
-    # Model ID: deepseek/deepseek-v4-pro-lightning
-    # Model page: https://phaseo.app/models/deepseek/deepseek-v4-pro-lightning
-    DEEPSEEK_DEEPSEEK_V4_PRO_LIGHTNING = "deepseek/deepseek-v4-pro-lightning"
     # Model ID: eleven-labs/eleven-flash-v2
     # Model page: https://phaseo.app/models/eleven-labs/eleven-flash-v2
     ELEVEN_LABS_ELEVEN_FLASH_V2 = "eleven-labs/eleven-flash-v2"
@@ -267,6 +270,9 @@ module PhaseoSdk
     # Model ID: google/gemini-3.1-flash-lite-preview
     # Model page: https://phaseo.app/models/google/gemini-3.1-flash-lite-preview
     GOOGLE_GEMINI_3_1_FLASH_LITE_PREVIEW = "google/gemini-3.1-flash-lite-preview"
+    # Model ID: google/gemini-3.1-flash-live-preview
+    # Model page: https://phaseo.app/models/google/gemini-3.1-flash-live-preview
+    GOOGLE_GEMINI_3_1_FLASH_LIVE_PREVIEW = "google/gemini-3.1-flash-live-preview"
     # Model ID: google/gemini-3.1-flash-tts-preview
     # Model page: https://phaseo.app/models/google/gemini-3.1-flash-tts-preview
     GOOGLE_GEMINI_3_1_FLASH_TTS_PREVIEW = "google/gemini-3.1-flash-tts-preview"
@@ -279,9 +285,15 @@ module PhaseoSdk
     # Model ID: google/gemini-3.5-flash
     # Model page: https://phaseo.app/models/google/gemini-3.5-flash
     GOOGLE_GEMINI_3_5_FLASH = "google/gemini-3.5-flash"
+    # Model ID: google/gemini-3.5-flash-lite
+    # Model page: https://phaseo.app/models/google/gemini-3.5-flash-lite
+    GOOGLE_GEMINI_3_5_FLASH_LITE = "google/gemini-3.5-flash-lite"
     # Model ID: google/gemini-3.5-pro
     # Model page: https://phaseo.app/models/google/gemini-3.5-pro
     GOOGLE_GEMINI_3_5_PRO = "google/gemini-3.5-pro"
+    # Model ID: google/gemini-3.6-flash
+    # Model page: https://phaseo.app/models/google/gemini-3.6-flash
+    GOOGLE_GEMINI_3_6_FLASH = "google/gemini-3.6-flash"
     # Model ID: google/gemini-embedding-001
     # Model page: https://phaseo.app/models/google/gemini-embedding-001
     GOOGLE_GEMINI_EMBEDDING_001 = "google/gemini-embedding-001"
@@ -426,6 +438,12 @@ module PhaseoSdk
     # Model ID: meta/llama-prompt-guard-2-86m
     # Model page: https://phaseo.app/models/meta/llama-prompt-guard-2-86m
     META_LLAMA_PROMPT_GUARD_2_86M = "meta/llama-prompt-guard-2-86m"
+    # Model ID: meta/muse-glimmer-30b
+    # Model page: https://phaseo.app/models/meta/muse-glimmer-30b
+    META_MUSE_GLIMMER_30B = "meta/muse-glimmer-30b"
+    # Model ID: meta/muse-spark-1.2
+    # Model page: https://phaseo.app/models/meta/muse-spark-1.2
+    META_MUSE_SPARK_1_2 = "meta/muse-spark-1.2"
     # Model ID: microsoft/phi-4
     # Model page: https://phaseo.app/models/microsoft/phi-4
     MICROSOFT_PHI_4 = "microsoft/phi-4"
@@ -435,6 +453,9 @@ module PhaseoSdk
     # Model ID: mindai/macaron-v1-tall
     # Model page: https://phaseo.app/models/mindai/macaron-v1-tall
     MINDAI_MACARON_V1_TALL = "mindai/macaron-v1-tall"
+    # Model ID: mindai/macaron-v1-venti:free
+    # Model page: https://phaseo.app/models/mindai/macaron-v1-venti%3Afree
+    MINDAI_MACARON_V1_VENTI_FREE = "mindai/macaron-v1-venti:free"
     # Model ID: minimax/hailuo-02
     # Model page: https://phaseo.app/models/minimax/hailuo-02
     MINIMAX_HAILUO_02 = "minimax/hailuo-02"
@@ -525,6 +546,9 @@ module PhaseoSdk
     # Model ID: mistral/mistral-moderation-2
     # Model page: https://phaseo.app/models/mistral/mistral-moderation-2
     MISTRAL_MISTRAL_MODERATION_2 = "mistral/mistral-moderation-2"
+    # Model ID: mistral/mistral-nemo
+    # Model page: https://phaseo.app/models/mistral/mistral-nemo
+    MISTRAL_MISTRAL_NEMO = "mistral/mistral-nemo"
     # Model ID: mistral/mistral-nemo-12b
     # Model page: https://phaseo.app/models/mistral/mistral-nemo-12b
     MISTRAL_MISTRAL_NEMO_12B = "mistral/mistral-nemo-12b"
@@ -543,12 +567,12 @@ module PhaseoSdk
     # Model ID: mistral/mixtral-8x7b
     # Model page: https://phaseo.app/models/mistral/mixtral-8x7b
     MISTRAL_MIXTRAL_8X7B = "mistral/mixtral-8x7b"
+    # Model ID: mistral/ocr-4.1
+    # Model page: https://phaseo.app/models/mistral/ocr-4.1
+    MISTRAL_OCR_4_1 = "mistral/ocr-4.1"
     # Model ID: mistral/pixtral-large
     # Model page: https://phaseo.app/models/mistral/pixtral-large
     MISTRAL_PIXTRAL_LARGE = "mistral/pixtral-large"
-    # Model ID: mistralai/mistral-nemo
-    # Model page: https://phaseo.app/models/mistralai/mistral-nemo
-    MISTRALAI_MISTRAL_NEMO = "mistralai/mistral-nemo"
     # Model ID: moonshotai/kimi-k2
     # Model page: https://phaseo.app/models/moonshotai/kimi-k2
     MOONSHOTAI_KIMI_K2 = "moonshotai/kimi-k2"
@@ -576,6 +600,9 @@ module PhaseoSdk
     # Model ID: moonshotai/kimi-k2.7-code
     # Model page: https://phaseo.app/models/moonshotai/kimi-k2.7-code
     MOONSHOTAI_KIMI_K2_7_CODE = "moonshotai/kimi-k2.7-code"
+    # Model ID: moonshotai/kimi-k3
+    # Model page: https://phaseo.app/models/moonshotai/kimi-k3
+    MOONSHOTAI_KIMI_K3 = "moonshotai/kimi-k3"
     # Model ID: moonshotai/moonshot-v1-128k
     # Model page: https://phaseo.app/models/moonshotai/moonshot-v1-128k
     MOONSHOTAI_MOONSHOT_V1_128K = "moonshotai/moonshot-v1-128k"
@@ -609,9 +636,6 @@ module PhaseoSdk
     # Model ID: nous/hermes-3-llama-3.1-405b
     # Model page: https://phaseo.app/models/nous/hermes-3-llama-3.1-405b
     NOUS_HERMES_3_LLAMA_3_1_405B = "nous/hermes-3-llama-3.1-405b"
-    # Model ID: nousresearch/hermes-3-llama-3.1-405b
-    # Model page: https://phaseo.app/models/nousresearch/hermes-3-llama-3.1-405b
-    NOUSRESEARCH_HERMES_3_LLAMA_3_1_405B = "nousresearch/hermes-3-llama-3.1-405b"
     # Model ID: nousresearch/hermes-3-llama-3.1-70b
     # Model page: https://phaseo.app/models/nousresearch/hermes-3-llama-3.1-70b
     NOUSRESEARCH_HERMES_3_LLAMA_3_1_70B = "nousresearch/hermes-3-llama-3.1-70b"
@@ -645,6 +669,9 @@ module PhaseoSdk
     # Model ID: nvidia/nemotron-3-ultra-550b-a55b
     # Model page: https://phaseo.app/models/nvidia/nemotron-3-ultra-550b-a55b
     NVIDIA_NEMOTRON_3_ULTRA_550B_A55B = "nvidia/nemotron-3-ultra-550b-a55b"
+    # Model ID: nvidia/nemotron-3.5-lightning
+    # Model page: https://phaseo.app/models/nvidia/nemotron-3.5-lightning
+    NVIDIA_NEMOTRON_3_5_LIGHTNING = "nvidia/nemotron-3.5-lightning"
     # Model ID: nvidia/nvidia-nemotron-3-nano-30b-a3b
     # Model page: https://phaseo.app/models/nvidia/nvidia-nemotron-3-nano-30b-a3b
     NVIDIA_NVIDIA_NEMOTRON_3_NANO_30B_A3B = "nvidia/nvidia-nemotron-3-nano-30b-a3b"
@@ -660,9 +687,6 @@ module PhaseoSdk
     # Model ID: openai/chatgpt-4o
     # Model page: https://phaseo.app/models/openai/chatgpt-4o
     OPENAI_CHATGPT_4O = "openai/chatgpt-4o"
-    # Model ID: openai/computer-use-preview
-    # Model page: https://phaseo.app/models/openai/computer-use-preview
-    OPENAI_COMPUTER_USE_PREVIEW = "openai/computer-use-preview"
     # Model ID: openai/davinci-002
     # Model page: https://phaseo.app/models/openai/davinci-002
     OPENAI_DAVINCI_002 = "openai/davinci-002"
@@ -717,12 +741,6 @@ module PhaseoSdk
     # Model ID: openai/gpt-5
     # Model page: https://phaseo.app/models/openai/gpt-5
     OPENAI_GPT_5 = "openai/gpt-5"
-    # Model ID: openai/gpt-5-chat
-    # Model page: https://phaseo.app/models/openai/gpt-5-chat
-    OPENAI_GPT_5_CHAT = "openai/gpt-5-chat"
-    # Model ID: openai/gpt-5-codex
-    # Model page: https://phaseo.app/models/openai/gpt-5-codex
-    OPENAI_GPT_5_CODEX = "openai/gpt-5-codex"
     # Model ID: openai/gpt-5-mini
     # Model page: https://phaseo.app/models/openai/gpt-5-mini
     OPENAI_GPT_5_MINI = "openai/gpt-5-mini"
@@ -735,33 +753,15 @@ module PhaseoSdk
     # Model ID: openai/gpt-5.1
     # Model page: https://phaseo.app/models/openai/gpt-5.1
     OPENAI_GPT_5_1 = "openai/gpt-5.1"
-    # Model ID: openai/gpt-5.1-chat
-    # Model page: https://phaseo.app/models/openai/gpt-5.1-chat
-    OPENAI_GPT_5_1_CHAT = "openai/gpt-5.1-chat"
-    # Model ID: openai/gpt-5.1-codex
-    # Model page: https://phaseo.app/models/openai/gpt-5.1-codex
-    OPENAI_GPT_5_1_CODEX = "openai/gpt-5.1-codex"
-    # Model ID: openai/gpt-5.1-codex-max
-    # Model page: https://phaseo.app/models/openai/gpt-5.1-codex-max
-    OPENAI_GPT_5_1_CODEX_MAX = "openai/gpt-5.1-codex-max"
-    # Model ID: openai/gpt-5.1-codex-mini
-    # Model page: https://phaseo.app/models/openai/gpt-5.1-codex-mini
-    OPENAI_GPT_5_1_CODEX_MINI = "openai/gpt-5.1-codex-mini"
     # Model ID: openai/gpt-5.2
     # Model page: https://phaseo.app/models/openai/gpt-5.2
     OPENAI_GPT_5_2 = "openai/gpt-5.2"
-    # Model ID: openai/gpt-5.2-chat
-    # Model page: https://phaseo.app/models/openai/gpt-5.2-chat
-    OPENAI_GPT_5_2_CHAT = "openai/gpt-5.2-chat"
     # Model ID: openai/gpt-5.2-codex
     # Model page: https://phaseo.app/models/openai/gpt-5.2-codex
     OPENAI_GPT_5_2_CODEX = "openai/gpt-5.2-codex"
     # Model ID: openai/gpt-5.2-pro
     # Model page: https://phaseo.app/models/openai/gpt-5.2-pro
     OPENAI_GPT_5_2_PRO = "openai/gpt-5.2-pro"
-    # Model ID: openai/gpt-5.3-chat
-    # Model page: https://phaseo.app/models/openai/gpt-5.3-chat
-    OPENAI_GPT_5_3_CHAT = "openai/gpt-5.3-chat"
     # Model ID: openai/gpt-5.3-codex
     # Model page: https://phaseo.app/models/openai/gpt-5.3-codex
     OPENAI_GPT_5_3_CODEX = "openai/gpt-5.3-codex"
@@ -783,6 +783,24 @@ module PhaseoSdk
     # Model ID: openai/gpt-5.5-pro
     # Model page: https://phaseo.app/models/openai/gpt-5.5-pro
     OPENAI_GPT_5_5_PRO = "openai/gpt-5.5-pro"
+    # Model ID: openai/gpt-5.6-luna
+    # Model page: https://phaseo.app/models/openai/gpt-5.6-luna
+    OPENAI_GPT_5_6_LUNA = "openai/gpt-5.6-luna"
+    # Model ID: openai/gpt-5.6-luna-pro
+    # Model page: https://phaseo.app/models/openai/gpt-5.6-luna-pro
+    OPENAI_GPT_5_6_LUNA_PRO = "openai/gpt-5.6-luna-pro"
+    # Model ID: openai/gpt-5.6-sol
+    # Model page: https://phaseo.app/models/openai/gpt-5.6-sol
+    OPENAI_GPT_5_6_SOL = "openai/gpt-5.6-sol"
+    # Model ID: openai/gpt-5.6-sol-pro
+    # Model page: https://phaseo.app/models/openai/gpt-5.6-sol-pro
+    OPENAI_GPT_5_6_SOL_PRO = "openai/gpt-5.6-sol-pro"
+    # Model ID: openai/gpt-5.6-terra
+    # Model page: https://phaseo.app/models/openai/gpt-5.6-terra
+    OPENAI_GPT_5_6_TERRA = "openai/gpt-5.6-terra"
+    # Model ID: openai/gpt-5.6-terra-pro
+    # Model page: https://phaseo.app/models/openai/gpt-5.6-terra-pro
+    OPENAI_GPT_5_6_TERRA_PRO = "openai/gpt-5.6-terra-pro"
     # Model ID: openai/gpt-image-1
     # Model page: https://phaseo.app/models/openai/gpt-image-1
     OPENAI_GPT_IMAGE_1 = "openai/gpt-image-1"
@@ -804,6 +822,18 @@ module PhaseoSdk
     # Model ID: openai/gpt-oss-safeguard-20b
     # Model page: https://phaseo.app/models/openai/gpt-oss-safeguard-20b
     OPENAI_GPT_OSS_SAFEGUARD_20B = "openai/gpt-oss-safeguard-20b"
+    # Model ID: openai/gpt-realtime
+    # Model page: https://phaseo.app/models/openai/gpt-realtime
+    OPENAI_GPT_REALTIME = "openai/gpt-realtime"
+    # Model ID: openai/gpt-realtime-1.5
+    # Model page: https://phaseo.app/models/openai/gpt-realtime-1.5
+    OPENAI_GPT_REALTIME_1_5 = "openai/gpt-realtime-1.5"
+    # Model ID: openai/gpt-realtime-2
+    # Model page: https://phaseo.app/models/openai/gpt-realtime-2
+    OPENAI_GPT_REALTIME_2 = "openai/gpt-realtime-2"
+    # Model ID: openai/gpt-transcribe
+    # Model page: https://phaseo.app/models/openai/gpt-transcribe
+    OPENAI_GPT_TRANSCRIBE = "openai/gpt-transcribe"
     # Model ID: openai/o1
     # Model page: https://phaseo.app/models/openai/o1
     OPENAI_O1 = "openai/o1"
@@ -816,9 +846,6 @@ module PhaseoSdk
     # Model ID: openai/o3
     # Model page: https://phaseo.app/models/openai/o3
     OPENAI_O3 = "openai/o3"
-    # Model ID: openai/o3-deep-research
-    # Model page: https://phaseo.app/models/openai/o3-deep-research
-    OPENAI_O3_DEEP_RESEARCH = "openai/o3-deep-research"
     # Model ID: openai/o3-mini
     # Model page: https://phaseo.app/models/openai/o3-mini
     OPENAI_O3_MINI = "openai/o3-mini"
@@ -828,9 +855,6 @@ module PhaseoSdk
     # Model ID: openai/o4-mini
     # Model page: https://phaseo.app/models/openai/o4-mini
     OPENAI_O4_MINI = "openai/o4-mini"
-    # Model ID: openai/o4-mini-deep-research
-    # Model page: https://phaseo.app/models/openai/o4-mini-deep-research
-    OPENAI_O4_MINI_DEEP_RESEARCH = "openai/o4-mini-deep-research"
     # Model ID: openai/omni-moderation
     # Model page: https://phaseo.app/models/openai/omni-moderation
     OPENAI_OMNI_MODERATION = "openai/omni-moderation"
@@ -858,6 +882,9 @@ module PhaseoSdk
     # Model ID: poolside/laguna-m.1:free
     # Model page: https://phaseo.app/models/poolside/laguna-m.1%3Afree
     POOLSIDE_LAGUNA_M_1_FREE = "poolside/laguna-m.1:free"
+    # Model ID: poolside/laguna-s-2.1:free
+    # Model page: https://phaseo.app/models/poolside/laguna-s-2.1%3Afree
+    POOLSIDE_LAGUNA_S_2_1_FREE = "poolside/laguna-s-2.1:free"
     # Model ID: poolside/laguna-xs-2.1:free
     # Model page: https://phaseo.app/models/poolside/laguna-xs-2.1%3Afree
     POOLSIDE_LAGUNA_XS_2_1_FREE = "poolside/laguna-xs-2.1:free"
@@ -1158,6 +1185,9 @@ module PhaseoSdk
     # Model ID: qwen/qwen3.7-plus-2026-05-26
     # Model page: https://phaseo.app/models/qwen/qwen3.7-plus-2026-05-26
     QWEN_QWEN3_7_PLUS_2026_05_26 = "qwen/qwen3.7-plus-2026-05-26"
+    # Model ID: qwen/qwen3.8-max
+    # Model page: https://phaseo.app/models/qwen/qwen3.8-max
+    QWEN_QWEN3_8_MAX = "qwen/qwen3.8-max"
     # Model ID: qwen/qwq-32b
     # Model page: https://phaseo.app/models/qwen/qwq-32b
     QWEN_QWQ_32B = "qwen/qwq-32b"
@@ -1185,6 +1215,10 @@ module PhaseoSdk
     # Model ID: spacex-ai/grok-4.5
     # Model page: https://phaseo.app/models/spacex-ai/grok-4.5
     SPACEX_AI_GROK_4_5 = "spacex-ai/grok-4.5"
+
+    # Model ID: spacex-ai/grok-4.6
+    # Model page: https://phaseo.app/models/spacex-ai/grok-4.6
+    SPACEX_AI_GROK_4_6 = "spacex-ai/grok-4.6"
     # Model ID: spacex-ai/grok-build-0.1
     # Model page: https://phaseo.app/models/spacex-ai/grok-build-0.1
     SPACEX_AI_GROK_BUILD_0_1 = "spacex-ai/grok-build-0.1"
@@ -1194,12 +1228,12 @@ module PhaseoSdk
     # Model ID: spacex-ai/grok-imagine-image
     # Model page: https://phaseo.app/models/spacex-ai/grok-imagine-image
     SPACEX_AI_GROK_IMAGINE_IMAGE = "spacex-ai/grok-imagine-image"
+    # Model ID: spacex-ai/grok-imagine-image-2.0
+    # Model page: https://phaseo.app/models/spacex-ai/grok-imagine-image-2.0
+    SPACEX_AI_GROK_IMAGINE_IMAGE_2_0 = "spacex-ai/grok-imagine-image-2.0"
     # Model ID: spacex-ai/grok-imagine-image-quality
     # Model page: https://phaseo.app/models/spacex-ai/grok-imagine-image-quality
     SPACEX_AI_GROK_IMAGINE_IMAGE_QUALITY = "spacex-ai/grok-imagine-image-quality"
-    # Model ID: spacex-ai/grok-imagine-video
-    # Model page: https://phaseo.app/models/spacex-ai/grok-imagine-video
-    SPACEX_AI_GROK_IMAGINE_VIDEO = "spacex-ai/grok-imagine-video"
     # Model ID: spacex-ai/grok-tts
     # Model page: https://phaseo.app/models/spacex-ai/grok-tts
     SPACEX_AI_GROK_TTS = "spacex-ai/grok-tts"
@@ -1221,6 +1255,24 @@ module PhaseoSdk
     # Model ID: tencent/hy3:free
     # Model page: https://phaseo.app/models/tencent/hy3%3Afree
     TENCENT_HY3_FREE = "tencent/hy3:free"
+    # Model ID: thinking-machines/inkling
+    # Model page: https://phaseo.app/models/thinking-machines/inkling
+    THINKING_MACHINES_INKLING = "thinking-machines/inkling"
+    # Model ID: thinking-machines/inkling-small
+    # Model page: https://phaseo.app/models/thinking-machines/inkling-small
+    THINKING_MACHINES_INKLING_SMALL = "thinking-machines/inkling-small"
+    # Model ID: upstage/solar-mini
+    # Model page: https://phaseo.app/models/upstage/solar-mini
+    UPSTAGE_SOLAR_MINI = "upstage/solar-mini"
+    # Model ID: upstage/solar-pro-2
+    # Model page: https://phaseo.app/models/upstage/solar-pro-2
+    UPSTAGE_SOLAR_PRO_2 = "upstage/solar-pro-2"
+    # Model ID: upstage/solar-pro-3
+    # Model page: https://phaseo.app/models/upstage/solar-pro-3
+    UPSTAGE_SOLAR_PRO_3 = "upstage/solar-pro-3"
+    # Model ID: upstage/solar-pro-4
+    # Model page: https://phaseo.app/models/upstage/solar-pro-4
+    UPSTAGE_SOLAR_PRO_4 = "upstage/solar-pro-4"
     # Model ID: venice/venice-uncensored
     # Model page: https://phaseo.app/models/venice/venice-uncensored
     VENICE_VENICE_UNCENSORED = "venice/venice-uncensored"
@@ -1403,7 +1455,6 @@ module PhaseoSdk
     ModelIds::ANTHROPIC_CLAUDE_OPUS_4_5,
     ModelIds::ANTHROPIC_CLAUDE_OPUS_4_6,
     ModelIds::ANTHROPIC_CLAUDE_OPUS_4_7,
-    ModelIds::ANTHROPIC_CLAUDE_OPUS_4_7_FAST,
     ModelIds::ANTHROPIC_CLAUDE_OPUS_4_8,
     ModelIds::ANTHROPIC_CLAUDE_OPUS_5,
     ModelIds::ANTHROPIC_CLAUDE_SONNET_4_5,
@@ -1418,6 +1469,7 @@ module PhaseoSdk
     ModelIds::BAIDU_ERNIE_4_5_VL_28B_A3B,
     ModelIds::BAIDU_ERNIE_4_5_VL_28B_A3B_THINKING,
     ModelIds::BAIDU_ERNIE_4_5_VL_424B_A47B,
+    ModelIds::BLACK_FOREST_LABS_FLUX_1_DEV,
     ModelIds::BLACK_FOREST_LABS_FLUX_1_SCHNELL,
     ModelIds::BYTEDANCE_SEED_1_6,
     ModelIds::BYTEDANCE_SEED_1_6_250915,
@@ -1429,11 +1481,13 @@ module PhaseoSdk
     ModelIds::BYTEDANCE_SEED_2_0_MINI,
     ModelIds::BYTEDANCE_SEED_2_0_MINI_260428,
     ModelIds::BYTEDANCE_SEED_2_0_PRO,
+    ModelIds::BYTEDANCE_SEED_2_1_TURBO,
     ModelIds::BYTEDANCE_SEED_OSS_36B_INSTRUCT,
     ModelIds::BYTEDANCE_SEED_TRANSLATION,
     ModelIds::BYTEDANCE_SEEDANCE_2_0,
     ModelIds::BYTEDANCE_SEEDANCE_2_0_FAST,
     ModelIds::BYTEDANCE_SEEDANCE_2_0_MINI_260615,
+    ModelIds::BYTEDANCE_SEEDREAM_5_0_PRO,
     ModelIds::CROFAI_GREG_1_MINI,
     ModelIds::CROFAI_GREG_2_SUPER,
     ModelIds::CROFAI_GREG_2_ULTRA,
@@ -1456,7 +1510,6 @@ module PhaseoSdk
     ModelIds::DEEPSEEK_DEEPSEEK_V4_FLASH,
     ModelIds::DEEPSEEK_DEEPSEEK_V4_FLASH_0731,
     ModelIds::DEEPSEEK_DEEPSEEK_V4_PRO,
-    ModelIds::DEEPSEEK_DEEPSEEK_V4_PRO_LIGHTNING,
     ModelIds::ELEVEN_LABS_ELEVEN_FLASH_V2,
     ModelIds::ELEVEN_LABS_ELEVEN_FLASH_V2_5,
     ModelIds::ELEVEN_LABS_ELEVEN_MULTILINGUAL_V2,
@@ -1476,11 +1529,14 @@ module PhaseoSdk
     ModelIds::GOOGLE_GEMINI_3_1_FLASH_LITE,
     ModelIds::GOOGLE_GEMINI_3_1_FLASH_LITE_IMAGE,
     ModelIds::GOOGLE_GEMINI_3_1_FLASH_LITE_PREVIEW,
+    ModelIds::GOOGLE_GEMINI_3_1_FLASH_LIVE_PREVIEW,
     ModelIds::GOOGLE_GEMINI_3_1_FLASH_TTS_PREVIEW,
     ModelIds::GOOGLE_GEMINI_3_1_PRO_PREVIEW,
     ModelIds::GOOGLE_GEMINI_3_1_PRO_PREVIEW_CUSTOMTOOLS,
     ModelIds::GOOGLE_GEMINI_3_5_FLASH,
+    ModelIds::GOOGLE_GEMINI_3_5_FLASH_LITE,
     ModelIds::GOOGLE_GEMINI_3_5_PRO,
+    ModelIds::GOOGLE_GEMINI_3_6_FLASH,
     ModelIds::GOOGLE_GEMINI_EMBEDDING_001,
     ModelIds::GOOGLE_GEMINI_EMBEDDING_2,
     ModelIds::GOOGLE_GEMINI_EMBEDDING_2_PREVIEW,
@@ -1529,9 +1585,12 @@ module PhaseoSdk
     ModelIds::META_LLAMA_GUARD_4_12B,
     ModelIds::META_LLAMA_PROMPT_GUARD_2_22M,
     ModelIds::META_LLAMA_PROMPT_GUARD_2_86M,
+    ModelIds::META_MUSE_GLIMMER_30B,
+    ModelIds::META_MUSE_SPARK_1_2,
     ModelIds::MICROSOFT_PHI_4,
     ModelIds::MICROSOFT_PHI_4_MINI,
     ModelIds::MINDAI_MACARON_V1_TALL,
+    ModelIds::MINDAI_MACARON_V1_VENTI_FREE,
     ModelIds::MINIMAX_HAILUO_02,
     ModelIds::MINIMAX_HAILUO_2_3,
     ModelIds::MINIMAX_HAILUO_2_3_FAST,
@@ -1562,14 +1621,15 @@ module PhaseoSdk
     ModelIds::MISTRAL_MISTRAL_MEDIUM_3_5,
     ModelIds::MISTRAL_MISTRAL_MODERATION,
     ModelIds::MISTRAL_MISTRAL_MODERATION_2,
+    ModelIds::MISTRAL_MISTRAL_NEMO,
     ModelIds::MISTRAL_MISTRAL_NEMO_12B,
     ModelIds::MISTRAL_MISTRAL_NEMO_2407,
     ModelIds::MISTRAL_MISTRAL_SMALL_24B_2501,
     ModelIds::MISTRAL_MISTRAL_SMALL_3_2,
     ModelIds::MISTRAL_MISTRAL_SMALL_4,
     ModelIds::MISTRAL_MIXTRAL_8X7B,
+    ModelIds::MISTRAL_OCR_4_1,
     ModelIds::MISTRAL_PIXTRAL_LARGE,
-    ModelIds::MISTRALAI_MISTRAL_NEMO,
     ModelIds::MOONSHOTAI_KIMI_K2,
     ModelIds::MOONSHOTAI_KIMI_K2_0905,
     ModelIds::MOONSHOTAI_KIMI_K2_INSTRUCT,
@@ -1579,6 +1639,7 @@ module PhaseoSdk
     ModelIds::MOONSHOTAI_KIMI_K2_5_LIGHTNING,
     ModelIds::MOONSHOTAI_KIMI_K2_6,
     ModelIds::MOONSHOTAI_KIMI_K2_7_CODE,
+    ModelIds::MOONSHOTAI_KIMI_K3,
     ModelIds::MOONSHOTAI_MOONSHOT_V1_128K,
     ModelIds::MOONSHOTAI_MOONSHOT_V1_128K_VISION_PREVIEW,
     ModelIds::MOONSHOTAI_MOONSHOT_V1_32K,
@@ -1590,7 +1651,6 @@ module PhaseoSdk
     ModelIds::NEX_AGI_DEEPSEEK_V3_1_NEX_N1,
     ModelIds::NEX_AGI_NEX_N2_PRO,
     ModelIds::NOUS_HERMES_3_LLAMA_3_1_405B,
-    ModelIds::NOUSRESEARCH_HERMES_3_LLAMA_3_1_405B,
     ModelIds::NOUSRESEARCH_HERMES_3_LLAMA_3_1_70B,
     ModelIds::NOUSRESEARCH_HERMES_4_405B,
     ModelIds::NOUSRESEARCH_HERMES_4_70B,
@@ -1602,12 +1662,12 @@ module PhaseoSdk
     ModelIds::NVIDIA_NEMOTRON_3_NANO_OMNI_30B_A3B_REASONING,
     ModelIds::NVIDIA_NEMOTRON_3_SUPER_120B_A12B,
     ModelIds::NVIDIA_NEMOTRON_3_ULTRA_550B_A55B,
+    ModelIds::NVIDIA_NEMOTRON_3_5_LIGHTNING,
     ModelIds::NVIDIA_NVIDIA_NEMOTRON_3_NANO_30B_A3B,
     ModelIds::NVIDIA_NVIDIA_NEMOTRON_NANO_12B_V2_VL,
     ModelIds::OPENAI_BABBAGE_002,
     ModelIds::OPENAI_CHAT_LATEST,
     ModelIds::OPENAI_CHATGPT_4O,
-    ModelIds::OPENAI_COMPUTER_USE_PREVIEW,
     ModelIds::OPENAI_DAVINCI_002,
     ModelIds::OPENAI_GPT_3_5_TURBO_16K,
     ModelIds::OPENAI_GPT_3_5_TURBO_2023_03_21,
@@ -1626,21 +1686,13 @@ module PhaseoSdk
     ModelIds::OPENAI_GPT_4O_MINI_TTS,
     ModelIds::OPENAI_GPT_4O_TRANSCRIBE,
     ModelIds::OPENAI_GPT_5,
-    ModelIds::OPENAI_GPT_5_CHAT,
-    ModelIds::OPENAI_GPT_5_CODEX,
     ModelIds::OPENAI_GPT_5_MINI,
     ModelIds::OPENAI_GPT_5_NANO,
     ModelIds::OPENAI_GPT_5_PRO,
     ModelIds::OPENAI_GPT_5_1,
-    ModelIds::OPENAI_GPT_5_1_CHAT,
-    ModelIds::OPENAI_GPT_5_1_CODEX,
-    ModelIds::OPENAI_GPT_5_1_CODEX_MAX,
-    ModelIds::OPENAI_GPT_5_1_CODEX_MINI,
     ModelIds::OPENAI_GPT_5_2,
-    ModelIds::OPENAI_GPT_5_2_CHAT,
     ModelIds::OPENAI_GPT_5_2_CODEX,
     ModelIds::OPENAI_GPT_5_2_PRO,
-    ModelIds::OPENAI_GPT_5_3_CHAT,
     ModelIds::OPENAI_GPT_5_3_CODEX,
     ModelIds::OPENAI_GPT_5_4,
     ModelIds::OPENAI_GPT_5_4_MINI,
@@ -1648,6 +1700,12 @@ module PhaseoSdk
     ModelIds::OPENAI_GPT_5_4_PRO,
     ModelIds::OPENAI_GPT_5_5,
     ModelIds::OPENAI_GPT_5_5_PRO,
+    ModelIds::OPENAI_GPT_5_6_LUNA,
+    ModelIds::OPENAI_GPT_5_6_LUNA_PRO,
+    ModelIds::OPENAI_GPT_5_6_SOL,
+    ModelIds::OPENAI_GPT_5_6_SOL_PRO,
+    ModelIds::OPENAI_GPT_5_6_TERRA,
+    ModelIds::OPENAI_GPT_5_6_TERRA_PRO,
     ModelIds::OPENAI_GPT_IMAGE_1,
     ModelIds::OPENAI_GPT_IMAGE_1_MINI,
     ModelIds::OPENAI_GPT_IMAGE_1_5,
@@ -1655,15 +1713,17 @@ module PhaseoSdk
     ModelIds::OPENAI_GPT_OSS_120B,
     ModelIds::OPENAI_GPT_OSS_20B,
     ModelIds::OPENAI_GPT_OSS_SAFEGUARD_20B,
+    ModelIds::OPENAI_GPT_REALTIME,
+    ModelIds::OPENAI_GPT_REALTIME_1_5,
+    ModelIds::OPENAI_GPT_REALTIME_2,
+    ModelIds::OPENAI_GPT_TRANSCRIBE,
     ModelIds::OPENAI_O1,
     ModelIds::OPENAI_O1_MINI,
     ModelIds::OPENAI_O1_PRO,
     ModelIds::OPENAI_O3,
-    ModelIds::OPENAI_O3_DEEP_RESEARCH,
     ModelIds::OPENAI_O3_MINI,
     ModelIds::OPENAI_O3_PRO,
     ModelIds::OPENAI_O4_MINI,
-    ModelIds::OPENAI_O4_MINI_DEEP_RESEARCH,
     ModelIds::OPENAI_OMNI_MODERATION,
     ModelIds::OPENAI_SORA_2,
     ModelIds::OPENAI_SORA_2_PRO,
@@ -1673,6 +1733,7 @@ module PhaseoSdk
     ModelIds::OPENAI_WHISPER_1,
     ModelIds::PHASEO_FREE,
     ModelIds::POOLSIDE_LAGUNA_M_1_FREE,
+    ModelIds::POOLSIDE_LAGUNA_S_2_1_FREE,
     ModelIds::POOLSIDE_LAGUNA_XS_2_1_FREE,
     ModelIds::QWEN_QVQ_MAX,
     ModelIds::QWEN_QWEN_3_6_PLUS,
@@ -1773,6 +1834,7 @@ module PhaseoSdk
     ModelIds::QWEN_QWEN3_7_MAX_2026_05_17,
     ModelIds::QWEN_QWEN3_7_PLUS,
     ModelIds::QWEN_QWEN3_7_PLUS_2026_05_26,
+    ModelIds::QWEN_QWEN3_8_MAX,
     ModelIds::QWEN_QWQ_32B,
     ModelIds::QWEN_QWQ_PLUS,
     ModelIds::QWEN_TEXT_EMBEDDING_V3,
@@ -1785,8 +1847,8 @@ module PhaseoSdk
     ModelIds::SPACEX_AI_GROK_BUILD_0_1,
     ModelIds::SPACEX_AI_GROK_CODE_FAST_1,
     ModelIds::SPACEX_AI_GROK_IMAGINE_IMAGE,
+    ModelIds::SPACEX_AI_GROK_IMAGINE_IMAGE_2_0,
     ModelIds::SPACEX_AI_GROK_IMAGINE_IMAGE_QUALITY,
-    ModelIds::SPACEX_AI_GROK_IMAGINE_VIDEO,
     ModelIds::SPACEX_AI_GROK_TTS,
     ModelIds::STEPFUN_STEP_3_5_FLASH,
     ModelIds::STEPFUN_STEP_3_7_FLASH,
@@ -1794,6 +1856,12 @@ module PhaseoSdk
     ModelIds::TENCENT_HY3,
     ModelIds::TENCENT_HY3_PREVIEW,
     ModelIds::TENCENT_HY3_FREE,
+    ModelIds::THINKING_MACHINES_INKLING,
+    ModelIds::THINKING_MACHINES_INKLING_SMALL,
+    ModelIds::UPSTAGE_SOLAR_MINI,
+    ModelIds::UPSTAGE_SOLAR_PRO_2,
+    ModelIds::UPSTAGE_SOLAR_PRO_3,
+    ModelIds::UPSTAGE_SOLAR_PRO_4,
     ModelIds::VENICE_VENICE_UNCENSORED,
     ModelIds::VENICE_VENICE_UNCENSORED_1_1,
     ModelIds::VOYAGE_RERANK_1,
