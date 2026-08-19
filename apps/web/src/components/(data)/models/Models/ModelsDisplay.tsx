@@ -790,9 +790,18 @@ function mergeOptionCounts(
 	}));
 }
 
-function filterOutFileModality(options: OptionCount[]): OptionCount[] {
+function filterSupportedInputModalities(options: OptionCount[]): OptionCount[] {
 	return options.filter(
-		(option) => normalizeModalityFilterValue(option.value) !== "file",
+		(option) => {
+			const modality = normalizeModalityFilterValue(option.value);
+			return modality !== "file" && modality !== "document";
+		},
+	);
+}
+
+function filterSupportedOutputModalities(options: OptionCount[]): OptionCount[] {
+	return options.filter(
+		(option) => normalizeModalityFilterValue(option.value) !== "action",
 	);
 }
 
@@ -1590,10 +1599,12 @@ function ModelsDisplayContent({
 			}),
 		[dynamicSidebarCounts.endpointOptions],
 	);
-	const inputModalityOptions = filterOutFileModality(
+	const inputModalityOptions = filterSupportedInputModalities(
 		dynamicSidebarCounts.inputModalityOptions,
 	);
-	const outputModalityOptions = dynamicSidebarCounts.outputModalityOptions;
+	const outputModalityOptions = filterSupportedOutputModalities(
+		dynamicSidebarCounts.outputModalityOptions,
+	);
 	const featureOptions = dynamicSidebarCounts.featureOptions;
 	const tierOptions = dynamicSidebarCounts.tierOptions;
 	const supportedParameterOptions =

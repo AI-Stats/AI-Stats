@@ -943,11 +943,18 @@ export default function ModelsTableDisplay({
 	}, [initialModelData]);
 
 	const inputModalityOptions = useMemo(
-		() => getModalityOptions(counts.inputMap, allModalities),
+		() =>
+			getModalityOptions(counts.inputMap, allModalities).filter((option) => {
+				const modality = normalizeModalityFilterValue(option.value);
+				return modality !== "file" && modality !== "document";
+			}),
 		[allModalities, counts.inputMap],
 	);
 	const outputModalityOptions = useMemo(
-		() => getModalityOptions(counts.outputMap, allModalities),
+		() =>
+			getModalityOptions(counts.outputMap, allModalities).filter(
+				(option) => normalizeModalityFilterValue(option.value) !== "action",
+			),
 		[allModalities, counts.outputMap],
 	);
 	const featureOptions = useMemo(
