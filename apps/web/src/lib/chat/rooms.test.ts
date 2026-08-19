@@ -61,6 +61,26 @@ describe("chat room capability mapping", () => {
 		expect(filterModelsForRoom(models, "realtime")).toHaveLength(1);
 	});
 
+	it("does not guess a room when a model declares an unsupported capability", () => {
+		const models = [
+			{ modelId: "mistral/ocr-4.1", capabilities: ["ocr"] },
+			{ modelId: "deepseek/deepseek-ocr", capabilities: ["ocr"] },
+			{ modelId: "qwen/qwen3-reranker-8b", capabilities: ["rerank"] },
+		];
+
+		expect(filterModelsForRoom(models, "text")).toEqual([]);
+	});
+
+	it("falls back to model id inference only when capabilities are absent", () => {
+		const models = [
+			{ modelId: "openai/gpt-5" },
+			{ modelId: "openai/gpt-image-1", capabilities: [] },
+		];
+
+		expect(filterModelsForRoom(models, "text")).toEqual([models[0]]);
+		expect(filterModelsForRoom(models, "image")).toEqual([models[1]]);
+	});
+
 	it("keeps the routable MiniMax Music 2.6 selectors eligible for the Music room", () => {
 		const routes = minimaxRoutes.filter((route) =>
 			["minimax/music-2.6", "minimax/music-2.6-free"].includes(route.api_model_id),

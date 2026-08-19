@@ -96,7 +96,11 @@ export const ModelSelectorList = ({
   viewportClassName,
   ...props
 }: ModelSelectorListProps) => (
-  <ScrollArea className={cn("max-h-72", className)} viewportClassName={viewportClassName}>
+  <ScrollArea
+    className={cn("max-h-72", className)}
+    viewportClassName={viewportClassName}
+    keepScrollbarMounted
+  >
     <CommandList
       className="max-h-none overflow-visible"
       {...props}

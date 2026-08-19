@@ -285,6 +285,12 @@ export function modelSupportsRoom(
 		}
 		return capabilityRooms.includes(roomId);
 	}
+	const hasDeclaredCapabilities = (model.capabilities ?? []).some(
+		(capabilityId) => capabilityId.trim().length > 0,
+	);
+	if (hasDeclaredCapabilities) {
+		return false;
+	}
 	if (roomId === "text") {
 		return inferModelRoomFromId(model.modelId) === "text";
 	}
