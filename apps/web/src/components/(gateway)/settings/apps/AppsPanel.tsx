@@ -325,7 +325,7 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 
 	return (
 		<>
-			<div className="overflow-hidden rounded-md border border-border/60 bg-card">
+			<div className="lg:overflow-hidden lg:rounded-md lg:border lg:border-border/60 lg:bg-card">
 				<ScrollArea
 					className="hidden w-full lg:block"
 					viewportClassName="pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
@@ -434,12 +434,15 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 					</Table>
 				</ScrollArea>
 
-				<div className="divide-y divide-border/60 lg:hidden">
+				<div className="space-y-3 lg:hidden">
 					{sortedApps.map((app) => {
 						const displayUrl = app.url && app.url !== "about:blank";
 
 						return (
-							<div key={app.id} className="space-y-3 p-3">
+							<div
+								key={app.id}
+								className="space-y-3 rounded-md border border-border/60 bg-card p-3"
+							>
 								<div className="flex items-start justify-between gap-3">
 									<div className="flex min-w-0 items-center gap-3">
 										<AppAvatar app={app} />
