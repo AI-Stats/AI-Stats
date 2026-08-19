@@ -11,8 +11,6 @@ import {
 	Merge,
 	MoreHorizontal,
 	Pencil,
-	Power,
-	PowerOff,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -57,7 +55,6 @@ type AppItem = {
 	url: string | null;
 	image_url: string | null;
 	is_public: boolean;
-	is_active: boolean;
 	last_seen: string | null;
 	created_at: string | null;
 };
@@ -98,21 +95,6 @@ function AppAvatar({ app }: { app: AppItem }) {
 				</span>
 			)}
 		</div>
-	);
-}
-
-function StatusBadge({ active }: { active: boolean }) {
-	return (
-		<Badge
-			variant="outline"
-			className={
-				active
-					? "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
-					: "border-border bg-muted/50 text-muted-foreground"
-			}
-		>
-			{active ? "Active" : "Inactive"}
-		</Badge>
 	);
 }
 
@@ -193,11 +175,7 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 		setMergeAppId((prev) => (prev === id ? null : prev));
 	};
 
-	const handleToggle = async (
-		app: AppItem,
-		field: "is_public" | "is_active",
-		value: boolean
-	) => {
+	const handleVisibilityToggle = async (app: AppItem, value: boolean) => {
 		setBusy(app.id, true);
 		try {
 			const updatePromise = (async () => {
@@ -206,7 +184,7 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 					{
 						method: "PUT",
 						headers: { "Content-Type": "application/json" },
-						body: JSON.stringify({ [field]: value }),
+						body: JSON.stringify({ is_public: value }),
 					},
 				);
 				if (!response.ok) {
@@ -220,14 +198,13 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 				error: (err) => err?.message ?? "Failed to update app",
 			});
 			await updatePromise;
-			updateLocal(app.id, { [field]: value });
+			updateLocal(app.id, { is_public: value });
 		} finally {
 			setBusy(app.id, false);
 		}
 	};
 
 	const renderActions = (app: AppItem, mobile = false) => {
-		const isBusy = pending[app.id];
 		const canMerge = sortedApps.length > 1;
 		const attributionHeaders = getAttributionHeaders(app);
 
@@ -268,19 +245,6 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 						<Merge className="mr-2 size-4" />
 						Merge
 					</DropdownMenuItem>
-					<DropdownMenuItem
-						disabled={isBusy}
-						onClick={() => {
-							handleToggle(app, "is_active", !app.is_active);
-						}}
-					>
-						{app.is_active ? (
-							<PowerOff className="mr-2 size-4" />
-						) : (
-							<Power className="mr-2 size-4" />
-						)}
-						{app.is_active ? "Disable" : "Enable"}
-					</DropdownMenuItem>
 				</DropdownMenuContent>
 			</DropdownMenu>
 		);
@@ -314,16 +278,15 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 				>
 					<Table
 						wrapInContainer={false}
-						className="min-w-[820px] table-fixed text-sm [&_tr:last-child]:border-b-0 [&_td]:px-4 [&_th]:px-4"
+						className="min-w-[720px] table-fixed text-sm [&_tr:last-child]:border-b-0 [&_td]:px-4 [&_th]:px-4"
 					>
 						<TableHeader className="bg-muted/30">
 							<TableRow>
-								<TableHead className="w-[38%]">App</TableHead>
-								<TableHead className="w-[12%]">Status</TableHead>
-								<TableHead className="w-[14%]">Visibility</TableHead>
-								<TableHead className="w-[14%]">Last Seen</TableHead>
-								<TableHead className="w-[14%]">Created</TableHead>
-								<TableHead className="w-[8%] text-right" />
+								<TableHead className="w-[42%]">App</TableHead>
+								<TableHead className="w-[16%]">Visibility</TableHead>
+								<TableHead className="w-[16%]">Last Seen</TableHead>
+								<TableHead className="w-[16%]">Created</TableHead>
+								<TableHead className="w-[10%] text-right" />
 							</TableRow>
 						</TableHeader>
 						<TableBody>
@@ -361,16 +324,13 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 											</div>
 										</TableCell>
 										<TableCell>
-											<StatusBadge active={app.is_active} />
-										</TableCell>
-										<TableCell>
 											<Button
 												type="button"
 												size="xs"
 												variant="outline"
 												disabled={isBusy}
 												onClick={() =>
-													handleToggle(app, "is_public", !app.is_public)
+												handleVisibilityToggle(app, !app.is_public)
 												}
 												aria-label={`Make ${app.title} ${
 													app.is_public ? "private" : "public"
@@ -449,7 +409,6 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 								</div>
 
 								<div className="flex flex-wrap items-center gap-2">
-									<StatusBadge active={app.is_active} />
 									<Button
 										type="button"
 										size="xs"
@@ -457,7 +416,7 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 										className="h-10"
 										disabled={isBusy}
 										onClick={() =>
-											handleToggle(app, "is_public", !app.is_public)
+										handleVisibilityToggle(app, !app.is_public)
 										}
 										aria-label={`Make ${app.title} ${
 											app.is_public ? "private" : "public"
