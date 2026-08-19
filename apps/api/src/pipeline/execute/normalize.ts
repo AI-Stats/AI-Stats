@@ -104,12 +104,19 @@ function getReasoningEffortAllowlist(
         "reasoning.effort",
         "reasoning_effort",
     ]);
-    const nested = readParamConfig(capabilityParams, ["reasoning"])?.effort;
+    const reasoningConfig = readParamConfig(capabilityParams, ["reasoning"]);
+    const nested = reasoningConfig?.effort;
     const nestedConfig = nested && typeof nested === "object" && !Array.isArray(nested)
         ? nested as Record<string, any>
         : undefined;
     const fromConfig = [
         ...toStringArray(direct?.supported_values ?? direct?.allowed_values ?? direct?.enum ?? direct?.values),
+        ...toStringArray(
+            reasoningConfig?.supported_values ??
+            reasoningConfig?.allowed_values ??
+            reasoningConfig?.enum ??
+            reasoningConfig?.values,
+        ),
         ...toStringArray(
             nestedConfig?.supported_values ??
             nestedConfig?.allowed_values ??

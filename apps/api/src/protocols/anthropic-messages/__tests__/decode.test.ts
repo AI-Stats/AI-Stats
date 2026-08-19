@@ -722,7 +722,7 @@ describe("decodeAnthropicMessagesRequest", () => {
 		if (ir.messages[0].role === "assistant") {
 			// Thinking blocks are preserved in content
 			expect(ir.messages[0].content).toHaveLength(2);
-			expect(ir.messages[0].content[0].type).toBe("text");
+			expect(ir.messages[0].content[0].type).toBe("provider_block");
 			expect(ir.messages[0].content[1].type).toBe("text");
 		}
 	});

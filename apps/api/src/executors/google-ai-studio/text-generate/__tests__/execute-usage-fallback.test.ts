@@ -48,6 +48,23 @@ afterAll(() => {
 });
 
 describe("google-ai-studio execute usage fallback", () => {
+	it("rejects explicit cached content instead of sending an invalid Interactions field", async () => {
+		const result = await executor(buildArgs({
+			model: "google/gemini-2.5-flash",
+			googleCachedContent: "cachedContents/example",
+		}));
+
+		expect(result.kind).toBe("completed");
+		if (result.kind !== "completed") return;
+		expect(result.upstream?.status).toBe(400);
+		expect(await result.upstream?.json()).toMatchObject({
+			error: {
+				code: "google_interactions_explicit_cache_unsupported",
+				param: "cached_content",
+			},
+		});
+	});
+
 	it("preserves billable usage when current Gemini Flash models return empty output", async () => {
 		const mock = installFetchMock([{
 			match: (url) => url.endsWith("/v1beta/interactions"),
@@ -131,9 +148,9 @@ describe("google-ai-studio execute usage fallback", () => {
 		}
 	});
 
-	it("keeps legacy GenerateContent routing for older AI Studio models", async () => {
+	it("routes Gemini 2.5 through Interactions", async () => {
 		const mock = installFetchMock([{
-			match: (url) => url.endsWith("/v1beta/models/gemini-2.5-flash:generateContent"),
+			match: (url) => url.endsWith("/v1beta/interactions"),
 			response: new Response(JSON.stringify({
 				candidates: [{
 					content: { parts: [{ text: "legacy response" }] },
@@ -157,12 +174,12 @@ describe("google-ai-studio execute usage fallback", () => {
 			type: "text",
 			text: "legacy response",
 		});
-		expect(mock.calls[0]?.bodyJson?.contents?.[0]?.role).toBe("user");
+		expect(mock.calls[0]?.bodyJson?.input?.[0]?.type).toBe("user_input");
 	});
 
 	it("defaults Gemma 4 to minimal thinking so short output budgets retain a final answer", async () => {
 		const mock = installFetchMock([{
-			match: (url) => url.endsWith("/v1beta/models/gemma-4-26b-a4b-it:generateContent"),
+			match: (url) => url.endsWith("/v1beta/interactions"),
 			response: new Response(JSON.stringify({
 				candidates: [{
 					content: { parts: [{ text: "OK" }] },
@@ -181,16 +198,16 @@ describe("google-ai-studio execute usage fallback", () => {
 		mock.restore();
 
 		expect(result.kind).toBe("completed");
-		expect(mock.calls[0]?.bodyJson?.generationConfig?.thinkingConfig).toEqual({
-			includeThoughts: false,
-			thinkingLevel: "MINIMAL",
+		expect(mock.calls[0]?.bodyJson?.generation_config).toMatchObject({
+			thinking_summaries: "none",
+			thinking_level: "minimal",
 		});
-		expect(mock.calls[0]?.bodyJson?.generationConfig?.thinkingConfig).not.toHaveProperty("thinkingBudget");
+		expect(mock.calls[0]?.bodyJson?.generation_config).not.toHaveProperty("thinking_budget");
 	});
 
 	it("maps explicit Gemma 4 reasoning effort to thinkingLevel instead of thinkingBudget", async () => {
 		const mock = installFetchMock([{
-			match: (url) => url.endsWith("/v1beta/models/gemma-4-31b-it:generateContent"),
+			match: (url) => url.endsWith("/v1beta/interactions"),
 			response: new Response(JSON.stringify({
 				candidates: [{
 					content: { parts: [{ text: "OK" }] },
@@ -212,16 +229,16 @@ describe("google-ai-studio execute usage fallback", () => {
 		mock.restore();
 
 		expect(result.kind).toBe("completed");
-		expect(mock.calls[0]?.bodyJson?.generationConfig?.thinkingConfig).toEqual({
-			includeThoughts: false,
-			thinkingLevel: "MINIMAL",
+		expect(mock.calls[0]?.bodyJson?.generation_config).toMatchObject({
+			thinking_summaries: "none",
+			thinking_level: "minimal",
 		});
-		expect(mock.calls[0]?.bodyJson?.generationConfig?.thinkingConfig).not.toHaveProperty("thinkingBudget");
+		expect(mock.calls[0]?.bodyJson?.generation_config).not.toHaveProperty("thinking_budget");
 	});
 
 	it("does not request thoughts when Gemma 4 reasoning is disabled", async () => {
 		const mock = installFetchMock([{
-			match: (url) => url.endsWith("/v1beta/models/gemma-4-26b-a4b-it:generateContent"),
+			match: (url) => url.endsWith("/v1beta/interactions"),
 			response: new Response(JSON.stringify({
 				candidates: [{
 					content: { parts: [{ text: "OK" }] },
@@ -243,9 +260,9 @@ describe("google-ai-studio execute usage fallback", () => {
 		mock.restore();
 
 		expect(result.kind).toBe("completed");
-		expect(mock.calls[0]?.bodyJson?.generationConfig?.thinkingConfig).toEqual({
-			includeThoughts: false,
-			thinkingLevel: "MINIMAL",
+		expect(mock.calls[0]?.bodyJson?.generation_config).toMatchObject({
+			thinking_summaries: "none",
+			thinking_level: "minimal",
 		});
 	});
 

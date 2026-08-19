@@ -1,0 +1,60 @@
+{
+  "key": "nebius-token-factory:nvidia/nemotron-3.5-lightning:text.generate",
+  "api_provider_id": "nebius-token-factory",
+  "provider_slug": "nebius-token-factory",
+  "api_model_id": "nvidia/nemotron-3.5-lightning",
+  "capability_id": "text.generate",
+  "rules": [
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.06,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Nebius Token Factory standard pricing for the Nemotron 3.5 Lightning BF16 flavor.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-11T13:22:31Z",
+      "region": "us-central1",
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://tokenfactory.nebius.com/api/public/models_info"
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.24,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Nebius Token Factory standard pricing for the Nemotron 3.5 Lightning BF16 flavor.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-11T13:22:31Z",
+      "region": "us-central1",
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://tokenfactory.nebius.com/api/public/models_info"
+    }
+  ],
+  "regions": [
+    "us-central1"
+  ],
+  "service_tiers": [
+    "standard"
+  ],
+  "sources": [
+    {
+      "url": "https://tokenfactory.nebius.com/api/public/models_info",
+      "kind": "pricing",
+      "accessed_at": "2026-08-11T13:22:31Z",
+      "notes": "Nebius public model catalog reports $0.06 per 1M input tokens and $0.24 per 1M output tokens."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-11T13:22:31Z",
+    "notes": "Verified against Nebius Token Factory's live public model catalog."
+  }
+}

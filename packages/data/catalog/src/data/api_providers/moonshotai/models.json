@@ -160,7 +160,18 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "structured_outputs",
+          "response_format",
+          "tool_choice",
+          "tools"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -208,7 +219,18 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "structured_outputs",
+          "response_format",
+          "tool_choice",
+          "tools"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -256,7 +278,18 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "structured_outputs",
+          "response_format",
+          "tool_choice",
+          "tools"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -394,7 +427,13 @@
             "provider_max": null,
             "provider_default": null,
             "notes": "Supports custom function tools and multi-step tool calls."
-          }
+          },
+          "reasoning",
+          "include_reasoning",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,

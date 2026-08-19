@@ -2,6 +2,28 @@ import { describe, expect, it } from "vitest";
 import { normalizeTextUsageForPricing } from "./text";
 
 describe("normalizeTextUsageForPricing", () => {
+	it("maps Perplexity deep-research search query counts to the native search meter", () => {
+		const usage = normalizeTextUsageForPricing({
+			prompt_tokens: 10,
+			completion_tokens: 5,
+			total_tokens: 15,
+			num_search_queries: 4,
+		});
+		expect(usage?.native_web_search_requests).toBe(4);
+	});
+
+	it("preserves the provider-observed service tier for fallback-safe billing", () => {
+		const usage = normalizeTextUsageForPricing({
+			prompt_tokens: 10,
+			completion_tokens: 5,
+			total_tokens: 15,
+			service_tier: "standard",
+		});
+
+		expect(usage?.service_tier).toBe("standard");
+		expect(usage?.serviceTier).toBe("standard");
+	});
+
 	it("maps Google thoughtsTokenCount to reasoning_tokens", () => {
 		const usage = normalizeTextUsageForPricing({
 			promptTokenCount: 100,

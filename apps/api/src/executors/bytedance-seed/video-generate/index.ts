@@ -40,6 +40,11 @@ function toNonNegativeNumber(value: unknown): number | undefined {
 	return undefined;
 }
 
+function toInteger(value: unknown): number | undefined {
+	const parsed = typeof value === "string" && value.trim() ? Number(value) : value;
+	return typeof parsed === "number" && Number.isInteger(parsed) ? parsed : undefined;
+}
+
 function toNonEmptyString(value: unknown): string | undefined {
 	if (typeof value !== "string") return undefined;
 	const trimmed = value.trim();
@@ -61,7 +66,9 @@ function toVideoStatus(value: unknown): IRVideoGenerationResponse["status"] {
 	if (status === "succeeded" || status === "success" || status === "completed" || status === "done") {
 		return "completed";
 	}
-	if (status === "failed" || status === "error" || status === "canceled" || status === "cancelled") {
+	if (status === "canceled" || status === "cancelled") return "cancelled";
+	if (status === "expired") return "expired";
+	if (status === "failed" || status === "error") {
 		return "failed";
 	}
 	if (status === "running" || status === "processing" || status === "in_progress") {
@@ -118,6 +125,16 @@ function normalizeReferenceImages(value: unknown): string[] | undefined {
 	return images.length > 0 ? images : undefined;
 }
 
+function normalizeSeedanceResolution(value: string | undefined): string | undefined {
+	if (!value) return undefined;
+	const normalized = value.toLowerCase().replace(/\s+/g, "");
+	if (["480p", "720p", "1080p"].includes(normalized)) return normalized;
+	if (["854x480", "480x854"].includes(normalized)) return "480p";
+	if (["1280x720", "720x1280"].includes(normalized)) return "720p";
+	if (["1920x1080", "1080x1920"].includes(normalized)) return "1080p";
+	return value;
+}
+
 function buildSeedanceRequest(ir: IRVideoGenerationRequest, model: string): Record<string, any> {
 	const rawRequest = ((ir.rawRequest ?? {}) as Record<string, any>);
 	const bytedanceConfig = extractBytedanceConfig(rawRequest);
@@ -132,8 +149,8 @@ function buildSeedanceRequest(ir: IRVideoGenerationRequest, model: string): Reco
 		toNonEmptyString(bytedanceConfig.aspectRatio) ??
 		ir.aspectRatio ??
 		ir.ratio;
-	const size = resolveVideoSize({ size: ir.size, resolution: ir.resolution });
-	const seed = toPositiveNumber(bytedanceConfig.seed ?? ir.seed);
+	const size = normalizeSeedanceResolution(resolveVideoSize({ size: ir.size, resolution: ir.resolution }));
+	const seed = toInteger(bytedanceConfig.seed ?? ir.seed);
 	const cameraFixed = toBoolean(bytedanceConfig.camera_fixed ?? bytedanceConfig.cameraFixed ?? ir.cameraFixed);
 	const generateAudio = toBoolean(bytedanceConfig.generate_audio ?? bytedanceConfig.generateAudio ?? ir.generateAudio);
 	const frameRate = toPositiveNumber(bytedanceConfig.frame_rate ?? bytedanceConfig.frameRate ?? ir.frameRate ?? ir.fps);
@@ -151,7 +168,7 @@ function buildSeedanceRequest(ir: IRVideoGenerationRequest, model: string): Reco
 	const parameters: Record<string, any> = {
 		...(typeof duration === "number" ? { duration } : {}),
 		...(ratio ? { ratio } : {}),
-		...(size ? { size } : {}),
+		...(size ? { resolution: size } : {}),
 		...(typeof seed === "number" ? { seed } : {}),
 		...(typeof cameraFixed === "boolean" ? { camera_fixed: cameraFixed } : {}),
 		...(typeof generateAudio === "boolean" ? { generate_audio: generateAudio } : {}),
@@ -182,7 +199,10 @@ function buildSeedanceRequest(ir: IRVideoGenerationRequest, model: string): Reco
 	return {
 		model,
 		content,
-		...(Object.keys(parameters).length > 0 ? { parameters } : {}),
+		...parameters,
+		...(toNonEmptyString(bytedanceConfig.priority) ? { priority: toNonEmptyString(bytedanceConfig.priority) } : {}),
+		...(toNonEmptyString(bytedanceConfig.service_tier ?? bytedanceConfig.serviceTier) ? { service_tier: toNonEmptyString(bytedanceConfig.service_tier ?? bytedanceConfig.serviceTier) } : {}),
+		...(toNonEmptyString(bytedanceConfig.callback_url ?? bytedanceConfig.callbackUrl ?? ir.callbackUrl) ? { callback_url: toNonEmptyString(bytedanceConfig.callback_url ?? bytedanceConfig.callbackUrl ?? ir.callbackUrl) } : {}),
 	};
 }
 
@@ -257,8 +277,8 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 		() => {
 			const bindings = getBindings() as unknown as Record<string, string | undefined>;
 			return bytePlus
-				? bindings.BYTEPLUS_API_KEY || bindings.BYTEDANCE_SEED_API_KEY
-				: bindings.BYTEDANCE_SEED_API_KEY || bindings.BYTEPLUS_API_KEY;
+				? bindings.BYTEPLUS_API_KEY || bindings.BYTEDANCE_SEED_API_KEY || bindings.ARK_API_KEY
+				: bindings.BYTEDANCE_SEED_API_KEY || bindings.BYTEPLUS_API_KEY || bindings.ARK_API_KEY;
 		},
 	);
 	const requestObject = buildSeedanceRequest(ir, model);

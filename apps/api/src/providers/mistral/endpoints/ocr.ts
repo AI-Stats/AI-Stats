@@ -36,13 +36,14 @@ function extractOcrText(json: any): string {
     return parts.join("\n\n");
 }
 
-function buildUsageMeters(json: any): Record<string, number> {
+function buildUsageMeters(json: any, annotated: boolean): Record<string, number> {
     const pagesProcessed = Number(json?.usage_info?.pages_processed ?? json?.usageInfo?.pagesProcessed ?? 0);
     const docSizeBytes = Number(json?.usage_info?.doc_size_bytes ?? json?.usageInfo?.docSizeBytes ?? 0);
 
     return {
         requests: 1,
         ...(Number.isFinite(pagesProcessed) && pagesProcessed > 0 ? { input_pages: pagesProcessed, pages_processed: pagesProcessed } : {}),
+        ...(annotated && Number.isFinite(pagesProcessed) && pagesProcessed > 0 ? { ocr_annotation_pages: pagesProcessed } : {}),
         ...(Number.isFinite(docSizeBytes) && docSizeBytes > 0 ? { doc_size_bytes: docSizeBytes } : {}),
     };
 }
@@ -54,12 +55,25 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
     const keyInfo = await resolveOpenAICompatKey(args);
     const adapterPayload = buildAdapterPayload(OcrSchema, args.body, []).adapterPayload as OcrRequest;
 
+    const document = adapterPayload.document ?? {
+        type: "image_url" as const,
+        image_url: normalizeImageUrl(adapterPayload.image ?? ""),
+    };
     const ocrRequest = {
         model: args.providerModelSlug || adapterPayload.model || "mistral-ocr-latest",
-        document: {
-            type: "image_url",
-            image_url: normalizeImageUrl(adapterPayload.image),
-        },
+        document,
+        ...(adapterPayload.pages !== undefined ? { pages: adapterPayload.pages } : {}),
+        ...(adapterPayload.include_image_base64 !== undefined ? { include_image_base64: adapterPayload.include_image_base64 } : {}),
+        ...(adapterPayload.image_limit !== undefined ? { image_limit: adapterPayload.image_limit } : {}),
+        ...(adapterPayload.image_min_size !== undefined ? { image_min_size: adapterPayload.image_min_size } : {}),
+        ...(adapterPayload.bbox_annotation_format !== undefined ? { bbox_annotation_format: adapterPayload.bbox_annotation_format } : {}),
+        ...(adapterPayload.document_annotation_format !== undefined ? { document_annotation_format: adapterPayload.document_annotation_format } : {}),
+        ...(adapterPayload.document_annotation_prompt !== undefined ? { document_annotation_prompt: adapterPayload.document_annotation_prompt } : {}),
+        ...(adapterPayload.table_format !== undefined ? { table_format: adapterPayload.table_format } : {}),
+        ...(adapterPayload.extract_header !== undefined ? { extract_header: adapterPayload.extract_header } : {}),
+        ...(adapterPayload.extract_footer !== undefined ? { extract_footer: adapterPayload.extract_footer } : {}),
+        ...(adapterPayload.include_blocks !== undefined ? { include_blocks: adapterPayload.include_blocks } : {}),
+        ...(adapterPayload.confidence_scores_granularity !== undefined ? { confidence_scores_granularity: adapterPayload.confidence_scores_granularity } : {}),
     };
 
     const res = await (args.upstreamTiming?.fetch ?? fetch)(openAICompatUrl(args.providerId, "/ocr"), {
@@ -77,7 +91,8 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
     };
 
     const json = await res.clone().json().catch(() => null);
-    const usageMeters = buildUsageMeters(json);
+    const hasAnnotations = adapterPayload.bbox_annotation_format != null || adapterPayload.document_annotation_format != null;
+    const usageMeters = buildUsageMeters(json, hasAnnotations);
 
     if (args.pricingCard) {
         const pricedUsage = computeBill(usageMeters, args.pricingCard);
@@ -89,6 +104,8 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
     const normalized = {
         text: extractOcrText(json),
         model: json?.model || adapterPayload.model,
+        pages: Array.isArray(json?.pages) ? json.pages : undefined,
+        document_annotation: json?.document_annotation,
         usage: usageMeters,
         rawResponse: json,
     };

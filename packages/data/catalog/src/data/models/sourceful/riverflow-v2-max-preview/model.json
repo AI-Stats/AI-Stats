@@ -10,10 +10,10 @@
   "deprecation_date": null,
   "retirement_date": null,
   "license": "Proprietary",
-  "input_types": null,
-  "output_types": null,
+  "input_types": "text,image",
+  "output_types": "image",
   "api_model_id": "sourceful/riverflow-v2-max-preview",
-  "links": [],
+  "links": [{"title":"Sourceful FAQ","kind":"documentation","url":"https://help.sourceful.com/en/articles/10706189-faq"}],
   "details": [],
   "benchmarks": [],
   "family_id": null,
@@ -26,8 +26,8 @@
     "output": null
   },
   "modalities": {
-    "input": null,
-    "output": null
+    "input": ["text","image/*"],
+    "output": ["image/*"]
   },
   "reasoning": {
     "supported": null,
@@ -42,13 +42,13 @@
     "web_search": null
   },
   "open_weights": null,
-  "sources": [],
+  "sources": [{"kind":"documentation","url":"https://help.sourceful.com/en/articles/10706189-faq","accessed_at":"2026-08-12T00:00:00Z","notes":"First-party FAQ confirms Riverflow 2 Max Preview as a visual product-plan feature, not a native text API model."}],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "partial",
+    "checked_at": "2026-08-12T00:00:00Z",
+    "notes": "Riverflow 2 Max Preview and visual modality verified first-party; no native public API slug or contract is published."
   },
-  "last_updated": null,
+  "last_updated": "2026-08-12T00:00:00Z",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

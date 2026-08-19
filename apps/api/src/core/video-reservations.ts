@@ -91,6 +91,7 @@ function hasPositiveVideoPricingRule(card: PriceCard): boolean {
 		"input_video_count",
 		"frame_rate",
 		"total_tokens",
+		"input_audio_seconds",
 	]);
 	return card.rules.some((rule) => {
 		const meter = String((rule as any)?.meter ?? "").trim().toLowerCase();

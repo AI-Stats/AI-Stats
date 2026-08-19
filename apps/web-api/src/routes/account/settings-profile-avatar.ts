@@ -40,6 +40,40 @@ function detectAvatarFormat(bytes: Uint8Array): AvatarFormat | null {
 	return null;
 }
 
+async function readRequestBodyWithLimit(
+	body: ReadableStream<Uint8Array> | null,
+	maxBytes: number,
+): Promise<ArrayBuffer | null> {
+	if (!body) return new ArrayBuffer(0);
+
+	const reader = body.getReader();
+	const chunks: Uint8Array[] = [];
+	let totalBytes = 0;
+
+	try {
+		while (true) {
+			const { done, value } = await reader.read();
+			if (done) break;
+			totalBytes += value.byteLength;
+			if (totalBytes > maxBytes) {
+				await reader.cancel("request_body_too_large");
+				return null;
+			}
+			chunks.push(value);
+		}
+	} finally {
+		reader.releaseLock();
+	}
+
+	const output = new Uint8Array(totalBytes);
+	let offset = 0;
+	for (const chunk of chunks) {
+		output.set(chunk, offset);
+		offset += chunk.byteLength;
+	}
+	return output.buffer;
+}
+
 function publicAvatarUrl(env: Env, key: string): string {
 	const configuredBase = env.PROFILE_AVATARS_PUBLIC_BASE_URL?.trim().replace(/\/+$/, "");
 	if (configuredBase) return `${configuredBase}/${key}`;
@@ -85,11 +119,11 @@ accountSettingsProfileAvatarRouter.post("/profile/avatar", async (c) => {
 		return c.json({ error: "unsupported_profile_photo" }, 415, PRIVATE_NO_STORE_HEADERS);
 	}
 
-	const body = await c.req.arrayBuffer();
-	if (!body.byteLength) return c.json({ error: "empty_profile_photo" }, 400, PRIVATE_NO_STORE_HEADERS);
-	if (body.byteLength > MAX_AVATAR_BYTES) {
+	const body = await readRequestBodyWithLimit(c.req.raw.body, MAX_AVATAR_BYTES);
+	if (body === null) {
 		return c.json({ error: "profile_photo_too_large" }, 413, PRIVATE_NO_STORE_HEADERS);
 	}
+	if (!body.byteLength) return c.json({ error: "empty_profile_photo" }, 400, PRIVATE_NO_STORE_HEADERS);
 	const format = detectAvatarFormat(new Uint8Array(body));
 	if (!format || format.contentType !== declaredType) {
 		return c.json({ error: "invalid_profile_photo" }, 400, PRIVATE_NO_STORE_HEADERS);
