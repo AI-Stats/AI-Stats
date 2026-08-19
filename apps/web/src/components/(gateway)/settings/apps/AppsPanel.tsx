@@ -229,7 +229,7 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 								}
 							>
 								<BarChart2 className="mr-2 size-4" />
-								View stats
+								View Stats
 							</DropdownMenuItem>
 							<DropdownMenuItem
 								disabled={isBusy}
@@ -242,7 +242,7 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 								) : (
 									<Globe className="mr-2 size-4" />
 								)}
-								{app.is_public ? "Make private" : "Make public"}
+								{app.is_public ? "Make Private" : "Make Public"}
 							</DropdownMenuItem>
 						</>
 					) : null}
@@ -255,7 +255,7 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 						}}
 					>
 						<Copy className="mr-2 size-4" />
-						Copy headers
+						Copy Headers
 					</DropdownMenuItem>
 					<DropdownMenuItem onClick={() => setEditAppId(app.id)}>
 						<Pencil className="mr-2 size-4" />
