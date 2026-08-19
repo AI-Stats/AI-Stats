@@ -595,13 +595,7 @@ accountSettingsRouter.put("/apps/:appId", async (c) => {
 			.eq("workspace_id", context.workspaceId)
 			.select("id,is_public,is_active,image_url")
 			.maybeSingle();
-		let result = await updateApp(update);
-		if (result.error && /category|docs_url/i.test(result.error.message)) {
-			const compatibleUpdate = { ...update };
-			delete compatibleUpdate.category;
-			delete compatibleUpdate.docs_url;
-			if (Object.keys(compatibleUpdate).length) result = await updateApp(compatibleUpdate);
-		}
+		const result = await updateApp(update);
 		if (result.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 		if (!result.data) return c.json({ error: "app_not_updated" }, 409, PRIVATE_NO_STORE_HEADERS);
 		updatedApp = result.data as Record<string, unknown>;

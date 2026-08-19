@@ -39,6 +39,12 @@ import {
 } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
 	type AppCategory,
 	getAppCategoryLabel,
 	parseAppCategories,
@@ -228,15 +234,16 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 
 		return (
 			<DropdownMenu>
-				<DropdownMenuTrigger render={<Button
+				<Tooltip>
+					<TooltipTrigger render={<DropdownMenuTrigger render={<Button
 						variant="ghost"
 						size="icon-sm"
 						className={mobile ? "size-10 rounded-md" : "rounded-md"}
-						aria-label={`Manage ${app.title}`} />}>
-
+						aria-label={`Manage ${app.title}`} />} />}>
 						<MoreHorizontal className="size-4" />
-
-				</DropdownMenuTrigger>
+					</TooltipTrigger>
+					<TooltipContent>More actions</TooltipContent>
+				</Tooltip>
 				<DropdownMenuContent align="end" className="w-44 rounded-md">
 					{mobile ? (
 						<>
@@ -324,7 +331,7 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 	}
 
 	return (
-		<>
+		<TooltipProvider delayDuration={150}>
 			<div className="lg:overflow-hidden lg:rounded-md lg:border lg:border-border/60 lg:bg-card">
 				<ScrollArea
 					className="hidden w-full lg:block"
@@ -338,11 +345,10 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 					>
 						<TableHeader className="bg-muted/30">
 							<TableRow>
-								<TableHead className="w-[42%]">App</TableHead>
+								<TableHead className="w-[50%]">App</TableHead>
 								<TableHead className="w-[16%]">Visibility</TableHead>
-								<TableHead className="w-[16%]">Last Seen</TableHead>
-								<TableHead className="w-[16%]">Created</TableHead>
-								<TableHead className="w-[10%] text-right" />
+								<TableHead className="w-[17%]">Last Seen</TableHead>
+								<TableHead className="w-[17%]">Created</TableHead>
 							</TableRow>
 						</TableHeader>
 						<TableBody>
@@ -356,7 +362,8 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 											<div className="flex min-w-0 items-center gap-3">
 												<AppAvatar app={app} />
 												<div className="min-w-0">
-													<div className="truncate font-medium">
+													<div className="flex min-w-0 items-center gap-1">
+														<div className="truncate font-medium">
 														{displayUrl ? (
 															<Link
 																href={app.url ?? "#"}
@@ -369,6 +376,20 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 														) : (
 															app.title
 														)}
+														</div>
+														<div className="flex shrink-0 items-center gap-0.5">
+															<Tooltip>
+																<TooltipTrigger asChild>
+																	<Button asChild size="icon-sm" variant="ghost" className="rounded-md">
+																		<Link href={`/apps/${encodeURIComponent(app.id)}`} aria-label={`View stats for ${app.title}`}>
+																			<BarChart2 className="size-4" />
+																		</Link>
+																	</Button>
+																</TooltipTrigger>
+																<TooltipContent>View stats</TooltipContent>
+															</Tooltip>
+															{renderActions(app)}
+														</div>
 													</div>
 													<div className="truncate text-xs text-muted-foreground">
 														{displayUrl ? app.url : "No public URL set"}
@@ -411,22 +432,6 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 								<TableCell className="text-xs text-muted-foreground">
 									{formatDate(app.created_at)}
 								</TableCell>
-								<TableCell className="text-right">
-											<div className="flex items-center justify-end gap-1">
-												<Button
-													asChild
-												size="icon-sm"
-												variant="ghost"
-												className="rounded-md"
-													aria-label={`View stats for ${app.title}`}
-												>
-													<Link href={`/apps/${encodeURIComponent(app.id)}`}>
-														<BarChart2 className="size-4" />
-													</Link>
-												</Button>
-												{renderActions(app)}
-											</div>
-										</TableCell>
 									</TableRow>
 								);
 							})}
@@ -511,6 +516,6 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 					hideTrigger
 				/>
 			) : null}
-		</>
+		</TooltipProvider>
 	);
 }
