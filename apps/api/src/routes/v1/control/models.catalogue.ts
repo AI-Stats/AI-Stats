@@ -46,6 +46,29 @@ type PricingRuleRow = {
     effective_to?: string | null;
 };
 
+type PricingSkuRow = {
+    sku_id: string;
+    provider_model_id: string;
+    operation: string;
+    service_tier_slug: string | null;
+    currency: string | null;
+    effective_from: string | null;
+    effective_to: string | null;
+    metadata: unknown;
+    description: string | null;
+};
+
+type PricingMeterRow = {
+    sku_meter_id: string;
+    sku_id: string;
+    meter_key: string;
+    unit: string;
+    unit_quantity: number | string;
+    price_nanos: number | string;
+    meter_order: number | null;
+    metadata: unknown;
+};
+
 type ModelDetailRow = {
     model_slug: string | null;
     detail_name: string | null;
@@ -1276,16 +1299,26 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
         }
     }
 
-    const { data: skuRows, error: skuError } = await supabase
-        .from("v2_pricing_skus")
-        .select("sku_id,provider_model_id,operation,service_tier_slug,currency,effective_from,effective_to,metadata,description")
-        .in("provider_model_id", providerModelIds);
-    if (skuError) throw new Error(`Failed to load pricing SKUs: ${skuError.message || "unknown error"}`);
+    const skuRows: PricingSkuRow[] = [];
+    for (const providerModelIdChunk of chunkArray(Array.from(new Set(providerModelIds)), 200)) {
+        const { data, error: skuError } = await supabase
+            .from("v2_pricing_skus")
+            .select("sku_id,provider_model_id,operation,service_tier_slug,currency,effective_from,effective_to,metadata,description")
+            .in("provider_model_id", providerModelIdChunk);
+        if (skuError) throw new Error(`Failed to load pricing SKUs: ${skuError.message || "unknown error"}`);
+        skuRows.push(...(data ?? []) as PricingSkuRow[]);
+    }
     const skuIds = (skuRows ?? []).map((row) => row.sku_id).filter(Boolean);
-    const { data: meterRows, error: meterError } = skuIds.length
-        ? await supabase.from("v2_pricing_sku_meters").select("sku_meter_id,sku_id,meter_key,unit,unit_quantity,price_nanos,meter_order,metadata").eq("billable", true).in("sku_id", skuIds)
-        : { data: [], error: null };
-    if (meterError) throw new Error(`Failed to load pricing meters: ${meterError.message || "unknown error"}`);
+    const meterRows: PricingMeterRow[] = [];
+    for (const skuIdChunk of chunkArray(Array.from(new Set(skuIds)), 200)) {
+        const { data, error: meterError } = await supabase
+            .from("v2_pricing_sku_meters")
+            .select("sku_meter_id,sku_id,meter_key,unit,unit_quantity,price_nanos,meter_order,metadata")
+            .eq("billable", true)
+            .in("sku_id", skuIdChunk);
+        if (meterError) throw new Error(`Failed to load pricing meters: ${meterError.message || "unknown error"}`);
+        meterRows.push(...(data ?? []) as PricingMeterRow[]);
+    }
     const routeByProviderModel = new Map(providerRows.map((row) => [row.provider_api_model_id, row]));
     const skuById = new Map((skuRows ?? []).map((row) => [row.sku_id, row]));
     const pricingRows = (meterRows ?? []).flatMap((meter) => {

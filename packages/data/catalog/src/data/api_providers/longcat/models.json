@@ -9,7 +9,7 @@
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 1048576,
-    "max_output_tokens": null,
+    "max_output_tokens": 131072,
     "effective_from": "2026-06-29T00:00:00",
     "effective_to": null,
     "capabilities": [

@@ -53,7 +53,7 @@ export type DataContributionClassifier = {
 	slug: string;
 	name: string;
 	description: string | null;
-	kind: "openrouter_task" | "custom";
+	kind: "phaseo_task" | "custom";
 	instructions: string;
 	categories: Record<string, string[]>;
 	model: string;
@@ -153,6 +153,7 @@ export type SettingsAppRow = {
 	id: string;
 	image_url: string | null;
 	is_active: boolean;
+	is_managed: boolean;
 	is_public: boolean;
 	last_seen: string | null;
 	title: string;
@@ -491,6 +492,11 @@ export type UsageUpstreamRequestRow = {
 	usage: unknown;
 	cost_nanos: number | string | null;
 	currency: string | null;
+	client_source_id?: string | null;
+	client_source_name?: string | null;
+	client_source_kind?: string | null;
+	client_source_version?: string | null;
+	client_source_detection?: string | null;
 	error_code: string | null;
 	error_type: string | null;
 	error_message: string | null;

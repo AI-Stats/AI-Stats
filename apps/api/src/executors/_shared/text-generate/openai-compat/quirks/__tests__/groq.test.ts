@@ -72,11 +72,12 @@ describe("Groq quirks", () => {
 			prompt: "reuse me",
 			prompt_cache_key: "cache_1",
 			safety_identifier: "safety_1",
+			top_logprobs: 3,
 		};
 
 		groqQuirks.transformRequest?.({
 			request,
-			ir: {} as any,
+			ir: { reasoning: { effort: "low" } } as any,
 			model: request.model,
 		});
 
@@ -114,6 +115,7 @@ describe("Groq quirks", () => {
 		expect(request.prompt).toBeUndefined();
 		expect(request.prompt_cache_key).toBeUndefined();
 		expect(request.safety_identifier).toBeUndefined();
+		expect(request.top_logprobs).toBe(3);
+		expect(request.reasoning).toEqual({ effort: "low" });
 	});
 });
-

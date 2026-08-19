@@ -172,14 +172,14 @@ describe("text request schema validation", () => {
 		expect(parsed.success).toBe(false);
 	});
 
-	it("rejects chat n", () => {
+	it("accepts chat n", () => {
 		const parsed = ChatCompletionsSchema.safeParse({
 			model: "gpt-4.1",
 			n: 1,
 			messages: [{ role: "user", content: "hello" }],
 		});
 
-		expect(parsed.success).toBe(false);
+		expect(parsed.success).toBe(true);
 	});
 
 	it("accepts responses streaming when tools are present", () => {
@@ -374,6 +374,19 @@ describe("text request schema validation", () => {
 					},
 				},
 			},
+		});
+
+		expect(parsed.success).toBe(true);
+	});
+
+	it("accepts current first-class OpenAI Responses controls", () => {
+		const parsed = ResponsesSchema.safeParse({
+			model: "openai/gpt-5.6-sol",
+			input: "hello",
+			context_management: [{ type: "compaction", compact_threshold: 12_000 }],
+			prompt_cache_options: { mode: "explicit", ttl: "30m" },
+			reasoning: { effort: "high", context: "all_turns" },
+			text: { verbosity: "low", format: { type: "text" } },
 		});
 
 		expect(parsed.success).toBe(true);

@@ -16,6 +16,21 @@ describe("Arcee quirks", () => {
 		expect(request.reasoning).toBeUndefined();
 	});
 
+	it("maps max effort to high and preserves Arcee reasoning responses", () => {
+		const request: Record<string, unknown> = {};
+		arceeQuirks.transformRequest?.({ request, ir: { reasoning: { effort: "max" } } as any });
+		expect(request.reasoning_effort).toBe("high");
+
+		expect(arceeQuirks.extractReasoning?.({
+			choice: { message: { reasoning: "working" } },
+			rawContent: "answer",
+		})).toEqual({ main: "answer", reasoning: ["working"] });
+
+		const chunk = { choices: [{ delta: { reasoning: "step" } }] };
+		arceeQuirks.transformStreamChunk?.({ chunk, accumulated: {} });
+		expect(chunk.choices[0].delta).toMatchObject({ reasoning_content: "step" });
+	});
+
 	it("maps disabled reasoning to minimal effort fallback", () => {
 		const request: Record<string, unknown> = {};
 		const ir: any = {

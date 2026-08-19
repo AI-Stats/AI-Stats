@@ -16,21 +16,24 @@ describe("proxyOpenAIVideoRequest", () => {
 	});
 
 	it("passes through successful binary content responses", async () => {
+		let capturedUrl = "";
 		vi.stubGlobal(
 			"fetch",
-			vi.fn(async () =>
+			vi.fn(async (input: RequestInfo | URL) => {
+				capturedUrl = String(input);
+				return (
 				new Response(Uint8Array.from([1, 2, 3]), {
 					status: 200,
 					headers: {
 						"Content-Type": "video/mp4",
 						"x-upstream": "ok",
 					},
-				}),
-			),
+				}));
+			}),
 		);
 
 		const response = await proxyOpenAIVideoRequest(
-			new Request("https://gateway.local/v1/videos/vid_test/content"),
+			new Request("https://gateway.local/v1/videos/vid_test/content?variant=thumbnail&index=2&download_sig=secret"),
 			{ requestId: "req_video_success", workspaceId: "ws_video_success" },
 			"openai",
 			"/videos/vid_test/content",
@@ -41,6 +44,7 @@ describe("proxyOpenAIVideoRequest", () => {
 		expect(response.headers.get("content-type")).toBe("video/mp4");
 		expect(response.headers.get("x-upstream")).toBe("ok");
 		expect(new Uint8Array(await response.arrayBuffer())).toEqual(Uint8Array.from([1, 2, 3]));
+		expect(capturedUrl).toBe("https://provider.example/v1/videos/vid_test/content?variant=thumbnail");
 	});
 
 	it("normalizes JSON upstream permission failures into the public error contract", async () => {

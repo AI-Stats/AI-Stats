@@ -213,8 +213,10 @@ export function resolveMantleAuth(args: ExecutorExecuteArgs): {
 } {
 	const bindings = getBindings() as any;
 	const keyInfo = resolveProviderKey(args, () => {
-		if (typeof bindings.AMAZON_BEDROCK_API_KEY === "string" && bindings.AMAZON_BEDROCK_API_KEY.trim()) {
-			return bindings.AMAZON_BEDROCK_API_KEY;
+		const bearerKey = [bindings.AMAZON_BEDROCK_API_KEY, bindings.AMAZON_BEDROCK_MANTLE_API_KEY, bindings.AWS_BEARER_TOKEN_BEDROCK]
+			.find((value) => typeof value === "string" && value.trim());
+		if (typeof bearerKey === "string") {
+			return bearerKey;
 		}
 		const accessKeyId = typeof bindings.AWS_ACCESS_KEY_ID === "string" ? bindings.AWS_ACCESS_KEY_ID : "";
 		const secretAccessKey = typeof bindings.AWS_SECRET_ACCESS_KEY === "string" ? bindings.AWS_SECRET_ACCESS_KEY : "";
@@ -272,7 +274,7 @@ export function assertBedrockMantleBaseUrl(value: string): void {
 	}
 
 	const isTestEndpoint = hostname === "localhost" || hostname === "127.0.0.1" || hostname.endsWith(".example");
-	const isMantleEndpoint = /^bedrock-mantle\.[a-z0-9-]+\.api\.aws$/.test(hostname);
+	const isMantleEndpoint = /^bedrock-mantle\.[a-z0-9-]+\.(?:api\.aws|amazonaws\.com)$/.test(hostname);
 	if (!isTestEndpoint && !isMantleEndpoint) {
 		throw new Error("amazon_bedrock_mantle_endpoint_required");
 	}
@@ -280,6 +282,6 @@ export function assertBedrockMantleBaseUrl(value: string): void {
 
 export function extractRegionFromMantleUrl(value: string | undefined): string | null {
 	if (!value) return null;
-	const match = value.match(/bedrock-mantle[\.-]([a-z0-9-]+)\.api\.aws/i);
+	const match = value.match(/bedrock-mantle[\.-]([a-z0-9-]+)\.(?:api\.aws|amazonaws\.com)/i);
 	return match?.[1] ?? null;
 }

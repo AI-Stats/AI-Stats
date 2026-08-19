@@ -10,10 +10,10 @@
   "deprecation_date": null,
   "retirement_date": null,
   "license": "Proprietary",
-  "input_types": null,
-  "output_types": null,
+  "input_types": "text,image",
+  "output_types": "image",
   "api_model_id": "sourceful/riverflow-v2-standard-preview",
-  "links": [],
+  "links": [{"title":"Riverflow overview","kind":"documentation","url":"https://help.sourceful.com/en/articles/12594058-riverflow-introduction"}],
   "details": [],
   "benchmarks": [],
   "family_id": null,
@@ -26,8 +26,8 @@
     "output": null
   },
   "modalities": {
-    "input": null,
-    "output": null
+    "input": ["text","image/*"],
+    "output": ["image/*"]
   },
   "reasoning": {
     "supported": null,
@@ -42,13 +42,13 @@
     "web_search": null
   },
   "open_weights": null,
-  "sources": [],
+  "sources": [{"kind":"documentation","url":"https://help.sourceful.com/en/articles/12594058-riverflow-introduction","accessed_at":"2026-08-12T00:00:00Z","notes":"First-party Sourceful documentation establishes Riverflow as an image-editing model and directs developers to partner Runware for API integration."}],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "partial",
+    "checked_at": "2026-08-12T00:00:00Z",
+    "notes": "Visual modality verified first-party; this exact preview slug is not published in a first-party API reference."
   },
-  "last_updated": null,
+  "last_updated": "2026-08-12T00:00:00Z",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

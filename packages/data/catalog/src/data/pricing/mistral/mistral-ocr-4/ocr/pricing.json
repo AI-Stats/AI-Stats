@@ -9,13 +9,13 @@
       "meter": "input_pages",
       "unit": "page",
       "unit_size": 1000,
-      "price_per_unit": 2,
+      "price_per_unit": 4,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Mistral pricing lists OCR 4 at $2 per 1,000 pages.",
+      "note": "Mistral prices OCR 4 at $4 per 1,000 pages.",
       "match": [],
       "priority": 100,
-      "effective_from": "2026-06-30T00:00:00Z",
+      "effective_from": "2026-06-23T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -25,13 +25,45 @@
       "meter": "input_pages",
       "unit": "page",
       "unit_size": 1000,
-      "price_per_unit": 1,
+      "price_per_unit": 2,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Document AI annotations cost $5 per 1,000 pages in total, a $1 uplift over base OCR 4.",
+      "match": [],
+      "priority": 110,
+      "effective_from": "2026-06-23T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    },
+    {
+      "meter": "input_pages",
+      "unit": "page",
+      "unit_size": 1000,
+      "price_per_unit": 2,
       "currency": "USD",
       "pricing_plan": "batch",
       "note": "Mistral batch processing is billed at a 50% discount from standard OCR 4 page pricing.",
       "match": [],
       "priority": 100,
-      "effective_from": "2026-06-30T00:00:00Z",
+      "effective_from": "2026-06-23T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    },
+    {
+      "meter": "input_pages",
+      "unit": "page",
+      "unit_size": 1000,
+      "price_per_unit": 0.5,
+      "currency": "USD",
+      "pricing_plan": "batch",
+      "note": "The 50% Batch discount makes the Document AI annotation uplift $0.50 per 1,000 pages.",
+      "match": [],
+      "priority": 110,
+      "effective_from": "2026-06-23T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -43,10 +75,17 @@
     "standard",
     "batch"
   ],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "pricing",
+      "url": "https://mistral.ai/pricing/api/",
+      "accessed_at": "2026-08-13T00:00:00Z",
+      "notes": "Mistral documents Batch processing at a 50% discount; eligibility depends on the model and Batch endpoint."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-13T00:00:00Z",
+    "notes": "Standard OCR and Batch API prices verified against Mistral's official pricing page."
   }
 }

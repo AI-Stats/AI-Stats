@@ -1,10 +1,10 @@
 [
   {
     "api_model_id": "eleven-labs/music",
-    "provider_api_model_id": "elevenlabs:elevenlabs/music",
-    "provider_model_slug": "music",
+    "provider_api_model_id": "elevenlabs:eleven-labs/music",
+    "provider_model_slug": "music_v2",
     "internal_model_id": "eleven-labs/music",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "music",
@@ -12,9 +12,21 @@
     "max_output_tokens": null,
     "effective_from": null,
     "effective_to": null,
-    "capabilities": [],
-    "routing_status": null,
-    "routable": false,
+    "capabilities": [{
+      "capability_id": "music.generate",
+      "status": "active",
+      "params": [],
+      "reasoning": null,
+      "tool_call": null,
+      "structured_output": null,
+      "temperature": null,
+      "attachment": null,
+      "input_modalities": null,
+      "output_modalities": null,
+      "modes": []
+    }],
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
@@ -25,11 +37,11 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [{ "kind": "documentation", "url": "https://elevenlabs.io/docs/api-reference/music/compose", "accessed_at": "2026-08-12T00:00:00Z" }],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Gateway alias routes to current native music_v2 compose endpoint."
     },
     "rate_limits": []
   },
@@ -168,7 +180,7 @@
     "provider_api_model_id": "elevenlabs:eleven-labs/eleven-monolingual-v1",
     "provider_model_slug": "eleven_monolingual_v1",
     "internal_model_id": "eleven-labs/eleven-monolingual-v1",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "audio_tts",
@@ -179,7 +191,7 @@
     "capabilities": [
       {
         "capability_id": "audio.speech",
-        "status": "active",
+        "status": "deprecated",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -191,8 +203,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "inactive",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -250,7 +262,7 @@
     "provider_api_model_id": "elevenlabs:eleven-labs/eleven-multilingual-v1",
     "provider_model_slug": "eleven_multilingual_v1",
     "internal_model_id": "eleven-labs/eleven-multilingual-v1",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "audio_tts",
@@ -261,7 +273,7 @@
     "capabilities": [
       {
         "capability_id": "audio.speech",
-        "status": "active",
+        "status": "deprecated",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -273,8 +285,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "inactive",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -483,6 +495,29 @@
       "checked_at": null,
       "notes": null
     },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "eleven-labs/scribe-v2",
+    "provider_api_model_id": "elevenlabs:eleven-labs/scribe-v2",
+    "provider_model_slug": "scribe_v2",
+    "internal_model_id": "eleven-labs/scribe-v2",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "audio,video",
+    "output_modalities": "text",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-01-09T00:00:00",
+    "effective_to": null,
+    "capabilities": [{ "capability_id": "audio.transcription", "status": "active", "params": [], "reasoning": null, "tool_call": null, "structured_output": null, "temperature": null, "attachment": null, "input_modalities": null, "output_modalities": null, "modes": [] }],
+    "routing_status": "active",
+    "routable": true,
+    "regions": { "execution": null, "data": null },
+    "service_tiers": [],
+    "api": { "formats": ["elevenlabs.native"], "endpoint": "/v1/speech-to-text", "deployment": null },
+    "sources": [{ "kind": "documentation", "url": "https://elevenlabs.io/docs/api-reference/speech-to-text/convert", "accessed_at": "2026-08-12T00:00:00Z" }],
+    "verification": { "status": "verified", "checked_at": "2026-08-12T00:00:00Z", "notes": "Synchronous multipart and source_url transcription contract verified." },
     "rate_limits": []
   }
 ]

@@ -420,7 +420,7 @@
     "provider_api_model_id": "venice/e2ee:google/gemma-3-27b",
     "provider_model_slug": "e2ee-gemma-3-27b-p",
     "internal_model_id": "google/gemma-3-27b",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
@@ -444,7 +444,7 @@
       }
     ],
     "routing_status": "active",
-    "routable": true,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -728,7 +728,7 @@
     "provider_api_model_id": "venice/e2ee:openai/gpt-oss-120b",
     "provider_model_slug": "e2ee-gpt-oss-120b-p",
     "internal_model_id": "openai/gpt-oss-120b",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
@@ -752,7 +752,7 @@
       }
     ],
     "routing_status": "active",
-    "routable": true,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -776,7 +776,7 @@
     "provider_api_model_id": "venice/e2ee:openai/gpt-oss-20b",
     "provider_model_slug": "e2ee-gpt-oss-20b-p",
     "internal_model_id": "openai/gpt-oss-20b",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
@@ -800,7 +800,7 @@
       }
     ],
     "routing_status": "active",
-    "routable": true,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -824,7 +824,7 @@
     "provider_api_model_id": "venice/e2ee:qwen/qwen2.5-7b",
     "provider_model_slug": "e2ee-qwen-2-5-7b-p",
     "internal_model_id": "qwen/qwen2.5-7b",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
@@ -848,7 +848,7 @@
       }
     ],
     "routing_status": "active",
-    "routable": true,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -924,7 +924,7 @@
     "provider_api_model_id": "venice/e2ee:qwen/qwen3-30b-a3b",
     "provider_model_slug": "e2ee-qwen3-30b-a3b-p",
     "internal_model_id": "qwen/qwen3-30b-a3b",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
@@ -948,7 +948,7 @@
       }
     ],
     "routing_status": "active",
-    "routable": true,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -972,7 +972,7 @@
     "provider_api_model_id": "venice/e2ee:qwen/qwen3-30b-a3b-2507",
     "provider_model_slug": "qwen3-30b-a3b-2507",
     "internal_model_id": "qwen/qwen3-30b-a3b-instruct-2507",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
@@ -996,7 +996,7 @@
       }
     ],
     "routing_status": "active",
-    "routable": true,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -1124,7 +1124,7 @@
     "provider_api_model_id": "venice/e2ee:qwen/qwen3-vl-30b-a3b",
     "provider_model_slug": "e2ee-qwen3-vl-30b-a3b-p",
     "internal_model_id": "",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
@@ -1148,7 +1148,7 @@
       }
     ],
     "routing_status": "active",
-    "routable": true,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -1272,7 +1272,7 @@
     "provider_api_model_id": "venice/e2ee:venice/venice-uncensored-1.1",
     "provider_model_slug": "e2ee-venice-uncensored-24b-p",
     "internal_model_id": "",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
@@ -1296,7 +1296,7 @@
       }
     ],
     "routing_status": "active",
-    "routable": true,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -1320,7 +1320,7 @@
     "provider_api_model_id": "venice/e2ee:z-ai/glm-4.7",
     "provider_model_slug": "e2ee-glm-4-7-p",
     "internal_model_id": "z-ai/glm-4.7",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
@@ -1344,7 +1344,7 @@
       }
     ],
     "routing_status": "active",
-    "routable": true,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -1368,7 +1368,7 @@
     "provider_api_model_id": "venice/e2ee:z-ai/glm-5",
     "provider_model_slug": "e2ee-glm-5",
     "internal_model_id": "z-ai/glm-5",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
@@ -1392,7 +1392,7 @@
       }
     ],
     "routing_status": "active",
-    "routable": true,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -1416,7 +1416,7 @@
     "provider_api_model_id": "venice/e2ee:z-ai/glm-5.1",
     "provider_model_slug": "e2ee-glm-5-1",
     "internal_model_id": "z-ai/glm-5.1",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
@@ -1440,7 +1440,7 @@
       }
     ],
     "routing_status": "active",
-    "routable": true,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -1464,7 +1464,7 @@
     "provider_api_model_id": "venice/e2ee:z-ai/glm-5.2",
     "provider_model_slug": "e2ee-glm-5-2-p",
     "internal_model_id": "z-ai/glm-5.2",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
@@ -1488,7 +1488,7 @@
       }
     ],
     "routing_status": "active",
-    "routable": true,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null

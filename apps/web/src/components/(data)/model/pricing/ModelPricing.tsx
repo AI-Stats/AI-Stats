@@ -8,7 +8,6 @@ import {
 	fetchFrontendModelProviderRuntimeStats,
 	fetchFrontendModelPricing,
 } from "@/lib/fetchers/frontend/fetchPublicCatalog";
-import { getModelPricingCached } from "@/lib/fetchers/models/getModelPricing";
 import ModelPricingClient from "@/components/(data)/model/pricing/ModelPricingClient";
 import ModelPendingApiReleaseBanner from "@/components/(data)/model/overview/ModelPendingApiReleaseBanner";
 import { fetchWorkspacePrivacySettings } from "@/lib/fetchers/internal/fetchWorkspacePrivacySettings";
@@ -65,18 +64,12 @@ export default async function ModelPricing({
 	modelName?: string | null;
 	creatorOrganisationId?: string | null;
 }) {
-	const includeInternalProviders = await withOptionalTimeout(
-		isAdminViewer(),
-		false,
-		"admin viewer check"
-	);
-	const [providers, identity] = await Promise.all([
-		includeInternalProviders
-			? getModelPricingCached(modelId, includeHidden, true)
-			: fetchFrontendModelPricing(modelId),
+	const [providers, identity, showAdminPricingControls] = await Promise.all([
+		fetchFrontendModelPricing(modelId),
 		modelStatus !== undefined
 			? Promise.resolve({ status: modelStatus, name: modelName ?? null, organisationId: creatorOrganisationId ?? null })
 			: fetchFrontendModelHeader(modelId, includeHidden).then((header) => ({ status: header?.status ?? null, name: header?.name ?? null, organisationId: header?.organisation_id ?? null })),
+		withOptionalTimeout(isAdminViewer(), false, "admin viewer check"),
 	]);
 	const workspacePrivacySettings: WorkspacePrivacySettings | null =
 		await withOptionalTimeout(
@@ -146,7 +139,7 @@ export default async function ModelPricing({
 	if (!providersForDisplay.length) {
 		return (
 			<div className="space-y-4">
-				{includeInternalProviders ? (
+				{showAdminPricingControls ? (
 					<div className="flex justify-end">
 						<Button asChild size="sm" variant="outline">
 							<Link href={`/internal/data/models/edit/${modelId}?tab=pricing`}>
@@ -201,7 +194,7 @@ export default async function ModelPricing({
 
 	return (
 		<div className="space-y-4">
-			{includeInternalProviders ? (
+			{showAdminPricingControls ? (
 				<div className="flex justify-end">
 					<Button asChild size="sm" variant="outline">
 						<Link href={`/internal/data/models/edit/${modelId}?tab=pricing`}>

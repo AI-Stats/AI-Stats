@@ -185,6 +185,8 @@ export default function UsageLogsToolbar({
 	}));
 	const rangeAnchorRef = React.useRef<HTMLDivElement | null>(null);
 	const rangeInputRef = React.useRef<HTMLInputElement | null>(null);
+	const rangeTriggerRef = React.useRef<HTMLButtonElement | null>(null);
+	const rangePopoverContentRef = React.useRef<HTMLDivElement | null>(null);
 
 	const currentQuery = searchParams.toString();
 	const isPending = pendingTargetQuery !== null;
@@ -211,6 +213,40 @@ export default function UsageLogsToolbar({
 			to: parseDateInput(customTo ?? undefined),
 		});
 	}, [customFrom, customTo, preset]);
+
+	React.useEffect(() => {
+		if (!popoverOpen) return;
+
+		const handlePointerDown = (event: PointerEvent) => {
+			const target = event.target;
+			if (!(target instanceof Node)) return;
+			if (
+				rangeAnchorRef.current?.contains(target) ||
+				rangePopoverContentRef.current?.contains(target)
+			) {
+				return;
+			}
+
+			setPopoverOpen(false);
+			setIsEditingRangeInput(false);
+			setRangeInputValue("");
+		};
+
+		const handleKeyDown = (event: KeyboardEvent) => {
+			if (event.key !== "Escape") return;
+			setPopoverOpen(false);
+			setIsEditingRangeInput(false);
+			setRangeInputValue("");
+			requestAnimationFrame(() => rangeTriggerRef.current?.focus());
+		};
+
+		document.addEventListener("pointerdown", handlePointerDown, true);
+		document.addEventListener("keydown", handleKeyDown, true);
+		return () => {
+			document.removeEventListener("pointerdown", handlePointerDown, true);
+			document.removeEventListener("keydown", handleKeyDown, true);
+		};
+	}, [popoverOpen]);
 
 	const paramKeys = React.useMemo(() => getUsageRangeParamKeys(), []);
 	const displayLabel = React.useMemo(
@@ -305,6 +341,13 @@ export default function UsageLogsToolbar({
 	}, [applyParams, draftRange]);
 
 	const applyTypedRange = React.useCallback(() => {
+		const finishEditing = () => {
+			setPopoverOpen(false);
+			setIsEditingRangeInput(false);
+			setRangeInputValue("");
+			rangeInputRef.current?.blur();
+		};
+
 		const shorthand = parseUsageRelativeShorthand(rangeInputValue);
 		if (shorthand) {
 			applyParams(
@@ -315,7 +358,7 @@ export default function UsageLogsToolbar({
 					to: null,
 				},
 			);
-			setIsEditingRangeInput(false);
+			finishEditing();
 			return;
 		}
 
@@ -327,7 +370,7 @@ export default function UsageLogsToolbar({
 			return;
 		}
 		if (rangeInputValue.trim() === editableRangeValue) {
-			setIsEditingRangeInput(false);
+			finishEditing();
 			return;
 		}
 		applyParams(
@@ -342,7 +385,7 @@ export default function UsageLogsToolbar({
 				to: parsed.to,
 			},
 		);
-		setIsEditingRangeInput(false);
+		finishEditing();
 	}, [applyParams, editableRangeValue, rangeInputValue]);
 
 	const runRefresh = React.useCallback(
@@ -448,7 +491,17 @@ export default function UsageLogsToolbar({
 
 				<Popover
 					open={popoverOpen}
-					onOpenChange={(open) => {
+					onOpenChange={(open, eventDetails) => {
+						const eventTarget = eventDetails.event.target;
+						if (
+							!open &&
+							eventDetails.reason === "outside-press" &&
+							eventTarget instanceof Node &&
+							rangeAnchorRef.current?.contains(eventTarget)
+						) {
+							eventDetails.cancel();
+							return;
+						}
 						setPopoverOpen(open);
 						if (!open) {
 							setIsEditingRangeInput(false);
@@ -515,6 +568,7 @@ export default function UsageLogsToolbar({
 							<div className="absolute inset-y-0 right-1 flex items-center">
 								<PopoverTrigger asChild>
 									<Button
+										ref={rangeTriggerRef}
 										type="button"
 										variant="ghost"
 										size="icon"
@@ -529,8 +583,11 @@ export default function UsageLogsToolbar({
 						</div>
 					</PopoverAnchor>
 					<PopoverContent
+						ref={rangePopoverContentRef}
 						align="start"
 						anchor={rangeAnchorRef}
+						finalFocus={false}
+						initialFocus={false}
 						onOpenAutoFocus={(event) => event.preventDefault()}
 						className={cn(showCustomRange ? "w-max p-0" : "w-[320px] p-3")}
 					>
@@ -541,13 +598,13 @@ export default function UsageLogsToolbar({
 										type="button"
 										variant="ghost"
 										size="sm"
-										className="-ml-2 h-8 px-2 text-xs text-muted-foreground"
+										className="-ml-2 h-8 rounded-md px-2 text-xs text-muted-foreground"
 										onClick={() => setShowCustomRange(false)}
 									>
 										<ChevronLeft className="h-3.5 w-3.5" />
 										Back
 									</Button>
-									<div className="text-xs font-medium">Custom range</div>
+									<div className="text-xs font-medium">Custom Range</div>
 								</div>
 								<Separator />
 								<div className="px-4 py-3">
@@ -566,6 +623,7 @@ export default function UsageLogsToolbar({
 										type="button"
 										variant="ghost"
 										size="sm"
+										className="rounded-md"
 										onClick={() => setPopoverOpen(false)}
 									>
 										Cancel
@@ -573,6 +631,7 @@ export default function UsageLogsToolbar({
 									<Button
 										type="button"
 										size="sm"
+										className="rounded-md"
 										onClick={applyCustomRange}
 										disabled={!draftRange?.from}
 									>
@@ -614,7 +673,7 @@ export default function UsageLogsToolbar({
 									<RangeOptionButton
 										badge={<CalendarDays className="h-3.5 w-3.5 text-muted-foreground" />}
 										badgeVariant="plain"
-										label="Custom range"
+										label="Custom Range"
 										active={effectivePreset === "custom"}
 										onClick={() => setShowCustomRange(true)}
 									/>
