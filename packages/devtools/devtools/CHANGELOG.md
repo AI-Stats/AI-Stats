@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release of `@phaseo/devtools` package
 - `createPhaseoDevtools()` function for SDK integration
-- OpenRouter-inspired hook pattern for telemetry capture
+- Provider-neutral hook pattern for telemetry capture
 - Standalone package installable as `@phaseo/devtools`
 - Cross-language design for TypeScript, Python, Go, C#, Ruby, PHP, Rust
 - Comprehensive documentation:

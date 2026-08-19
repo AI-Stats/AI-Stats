@@ -9,6 +9,7 @@
  */
 
 import { Phaseo } from "../index.js";
+import type { AppAttribution } from "../index.js";
 import type {
   ChatCompletionsRequest,
   ChatCompletionsResponse,
@@ -21,6 +22,7 @@ type AnthropicConfig = {
   timeout?: number;
   maxRetries?: number;
   defaultHeaders?: Record<string, string>;
+  app?: AppAttribution;
 };
 
 type MessageRole = 'user' | 'assistant';
@@ -167,7 +169,9 @@ export class Anthropic {
     this.phaseo = new Phaseo({
       apiKey: config.apiKey,
       baseUrl: config.baseURL,
-      timeoutMs: config.timeout
+      timeoutMs: config.timeout,
+      headers: config.defaultHeaders,
+      app: config.app,
     });
 
     // Messages

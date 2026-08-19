@@ -112,7 +112,7 @@ export async function fetchGameCatalogue(env: Env): Promise<GameModel[]> {
             stringList(row.output_modalities).length > 0
               ? stringList(row.output_modalities)
               : stringList(pageRow.gateway_output_modalities),
-          providerCount: finiteNumber(pageRow.gateway_provider_count),
+          providerCount: finiteNumber(pageRow.gateway_active_provider_count),
           contextLength:
             Math.max(
               ...stringList(pageRow.context_lengths)

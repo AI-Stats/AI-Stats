@@ -35,7 +35,7 @@ Zero output tokens alone are not a universal billing rule: tool calls, images, a
 
 ## Classifier execution
 
-The starter preset mirrors OpenRouter's task-oriented approach with four macro groups (`code`, `data`, `agent`, and `general`) and more specific task labels. Workspaces can add private classifiers with their own instructions and taxonomy.
+The starter preset uses four macro groups (`code`, `data`, `agent`, and `general`) with more specific task labels. Workspaces can add private classifiers with their own instructions and taxonomy.
 
 The worker uses the existing OpenAI Responses integration with `store: false`, structured output, a 200,000-character classification cap, and Flex service tier by default. Flex is preferable for this queue because classification is delay-tolerant and retryable. It also avoids collecting prompts in memory until a provider batch fills.
 

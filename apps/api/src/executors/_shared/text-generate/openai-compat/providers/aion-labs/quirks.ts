@@ -39,6 +39,12 @@ export const aionQuirks: ProviderQuirks = {
 					choice.delta.reasoning_content = reasoningDelta;
 				}
 			}
+			if (typeof choice.delta?.reasoning === "string" && choice.delta.reasoning_content == null) {
+				choice.delta.reasoning_content = choice.delta.reasoning;
+			}
+			if (typeof choice.message?.reasoning === "string" && choice.message.reasoning_content == null) {
+				choice.message.reasoning_content = choice.message.reasoning;
+			}
 
 			if (isFinal && typeof choice.message?.content === "string") {
 				const parsed = extractAionThinkBlocks(choice.message.content);
@@ -69,5 +75,4 @@ export const aionQuirks: ProviderQuirks = {
 		}
 	},
 };
-
 

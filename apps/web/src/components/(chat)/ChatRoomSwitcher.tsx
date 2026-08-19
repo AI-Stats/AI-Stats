@@ -77,7 +77,7 @@ export function ChatRoomSwitcher({ className }: { className?: string } = {}) {
 					<TooltipTrigger asChild>
 						<DropdownMenuTrigger render={<Button
 								variant="ghost"
-								className="relative h-8 w-full min-w-0 justify-start gap-0 overflow-hidden rounded-[8px]! px-2 text-sm font-medium group-data-[state=collapsed]:rounded-full!"
+								className="relative h-8 w-full min-w-0 justify-start gap-0 overflow-hidden rounded-md px-2 text-sm font-medium group-data-[state=collapsed]:rounded-full"
 								aria-label={activeRoom.label} />}>
 
 								<ActiveIcon className="h-4 w-4 shrink-0" />
@@ -111,7 +111,10 @@ export function ChatRoomSwitcher({ className }: { className?: string } = {}) {
 					side={collapsed ? "right" : "bottom"}
 					align="start"
 					sideOffset={8}
-					className={cn("z-[90] rounded-[8px]! [&_[data-slot=dropdown-menu-item]]:rounded-[8px]!", collapsed && "w-56")}
+					className={cn(
+						"z-[90] space-y-1 rounded-md [&_[data-slot=dropdown-menu-item]]:rounded-md",
+						collapsed && "w-56",
+					)}
 				>
 					{availableRooms.map((room) => {
 						const Icon = ICONS[room.id];

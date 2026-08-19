@@ -240,10 +240,10 @@
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [{ "kind": "pricing", "url": "https://platform.minimax.io/docs/guides/pricing-paygo", "accessed_at": "2026-08-12T00:00:00Z" }],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-12T00:00:00Z",
+    "notes": "All documented Hailuo-02 resolution and duration prices match MiniMax's current pay-as-you-go table."
   }
 }

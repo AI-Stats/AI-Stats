@@ -2,6 +2,19 @@ import { describe, expect, it } from "vitest";
 import { EmbeddingsSchema } from "../schemas";
 
 describe("embeddings schema validation", () => {
+	it("accepts documented Mistral request extensions", () => {
+		const parsed = EmbeddingsSchema.safeParse({
+			model: "mistral/mistral-embed",
+			input: ["one", "two"],
+			encoding_format: "base64",
+			dimensions: 256,
+			metadata: { tenant: "eu-customer", trace: 42 },
+			provider_options: { mistral: { output_dtype: "int8" } },
+		});
+
+		expect(parsed.success).toBe(true);
+		if (parsed.success) expect(parsed.data.metadata).toEqual({ tenant: "eu-customer", trace: 42 });
+	});
 	it("accepts OpenAI token arrays", () => {
 		const parsed = EmbeddingsSchema.safeParse({
 			model: "openai/text-embedding-3-large",
@@ -68,6 +81,21 @@ describe("embeddings schema validation", () => {
 			model: "openai/text-embedding-3-large",
 		});
 		expect(parsed.success).toBe(false);
+	});
+
+	it("rejects empty text inputs and arrays above OpenAI's 2048-item limit", () => {
+		expect(EmbeddingsSchema.safeParse({
+			model: "openai/text-embedding-3-small",
+			input: "",
+		}).success).toBe(false);
+		expect(EmbeddingsSchema.safeParse({
+			model: "openai/text-embedding-3-small",
+			input: Array.from({ length: 2049 }, (_, index) => index),
+		}).success).toBe(false);
+		expect(EmbeddingsSchema.safeParse({
+			model: "openai/text-embedding-3-small",
+			input: Array.from({ length: 2049 }, (_, index) => `input-${index}`),
+		}).success).toBe(false);
 	});
 
 	it("rejects legacy inputs alias without input", () => {

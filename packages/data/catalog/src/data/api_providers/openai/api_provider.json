@@ -21,6 +21,7 @@
     "global"
   ],
   "zero_data_retention": "optional",
+  "data_retention_days": 30,
   "residency_source_url": "https://developers.openai.com/api/docs/guides/your-data",
   "prompt_training_policy": "no_train",
   "prompt_training_notes": "OpenAI says API and other business data is not used to train or improve its models by default.",
@@ -33,6 +34,9 @@
   "regional_pricing_uplift_percent": null,
   "pricing_source_url": "https://developers.openai.com/api/docs/pricing",
   "regional_pricing_notes": "Default global OpenAI endpoint pricing. Regional processing offers such as OpenAI EU can carry different pricing for supported models.",
+  "data_policy_tier": "logs",
+  "data_policy_confidence": "confirmed",
+  "data_policy_contract_mode": "customer_agreement",
   "country_code": "US",
   "status": "Active",
   "colour": "#333333",

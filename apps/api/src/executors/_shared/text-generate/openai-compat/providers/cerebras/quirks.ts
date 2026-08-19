@@ -7,7 +7,6 @@ import { normalizeTextProviderServiceTier } from "@providers/textProfiles";
 
 type CerebrasReasoningEffort = "none" | "low" | "medium" | "high";
 const CEREBRAS_UNSUPPORTED_FIELDS = [
-	"prompt_cache_key",
 	"safety_identifier",
 ] as const;
 
@@ -34,10 +33,6 @@ function isObject(value: unknown): value is Record<string, any> {
 
 function isBooleanOrNull(value: unknown): value is boolean | null {
 	return typeof value === "boolean" || value === null;
-}
-
-function isNonNegativeInteger(value: unknown): value is number {
-	return Number.isInteger(value) && Number(value) >= 0;
 }
 
 function normalizeCerebrasReasoningEffort(value: unknown): CerebrasReasoningEffort | undefined {
@@ -75,26 +70,16 @@ export const cerebrasQuirks: ProviderQuirks = {
 			}
 		}
 
-		if ("max_reasoning_tokens" in raw && request.max_reasoning_tokens == null) {
-			if (isNonNegativeInteger(raw.max_reasoning_tokens)) {
-				request.max_reasoning_tokens = raw.max_reasoning_tokens;
-			}
-		}
-
 		if ("clear_thinking" in raw && request.clear_thinking == null) {
 			request.clear_thinking = raw.clear_thinking;
 		}
-		if ("disable_reasoning" in raw && request.disable_reasoning == null) {
-			request.disable_reasoning = raw.disable_reasoning;
+		if (["parsed", "raw", "hidden"].includes(raw.reasoning_format)) {
+			request.reasoning_format = raw.reasoning_format;
 		}
 
 		if (typeof request.max_tokens === "number" && request.max_completion_tokens == null) {
 			request.max_completion_tokens = request.max_tokens;
 			delete request.max_tokens;
-		}
-
-		if (typeof ir.reasoning?.maxTokens === "number" && request.max_reasoning_tokens == null) {
-			request.max_reasoning_tokens = ir.reasoning.maxTokens;
 		}
 
 		const effort = mapReasoningEffortToCerebras(ir.reasoning?.effort);
@@ -126,26 +111,13 @@ export const cerebrasQuirks: ProviderQuirks = {
 			delete request[key];
 		}
 
-		// Cerebras marks these OpenAI fields as unsupported.
-		// Keep request construction deterministic to avoid upstream 400+retry loops.
-		delete request.frequency_penalty;
-		delete request.presence_penalty;
-		delete request.logit_bias;
-
-		if (isObject(request.response_format) && request.reasoning_effort && request.reasoning_effort !== "none") {
-			// Cerebras docs: response_format is unsupported with reasoning models.
-			// Drop it proactively when reasoning is enabled.
-			delete request.response_format;
-		}
-
 		// Cerebras exposes these as model-specific Z.AI extensions.
 		// Keep request routing resilient by silently dropping unsupported/invalid values.
 		if (!isGlm || !isBooleanOrNull(request.clear_thinking)) {
 			delete request.clear_thinking;
 		}
-		if (!isGlm || !isBooleanOrNull(request.disable_reasoning)) {
-			delete request.disable_reasoning;
-		}
+		// disable_reasoning was removed with the v2 default; reasoning_effort="none" replaces it.
+		delete request.disable_reasoning;
 
 		if ("reasoning" in request) {
 			delete request.reasoning;

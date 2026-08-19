@@ -31,6 +31,7 @@ const developerLinks = [
 		external: true,
 	},
 	{ href: "/methodology", label: "Methodology" },
+	{ href: "/compare/openrouter", label: "Gateway Comparisons" },
 ];
 
 const companyLinks = [
@@ -138,16 +139,14 @@ export default function Footer() {
 									alt="Phaseo"
 									width={154}
 									height={40}
-									className="h-7 w-auto dark:hidden"
-									style={{ width: "auto" }}
+									className="h-7 w-[108px] dark:hidden"
 								/>
 								<Image
 									src="/wordmark_dark.svg"
 									alt="Phaseo"
 									width={154}
 									height={40}
-									className="hidden h-7 w-auto dark:block"
-									style={{ width: "auto" }}
+									className="hidden h-7 w-[108px] dark:block"
 								/>
 							</Link>
 							<div className="relative top-px">

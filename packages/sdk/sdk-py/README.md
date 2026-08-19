@@ -27,6 +27,20 @@ response = client.responses.create(
 print(response.get("output_text"))
 ```
 
+To attribute usage to one of your own applications, provide app metadata explicitly:
+
+```python
+client = Phaseo(
+    app={
+        "id": "support-console",
+        "name": "Support Console",
+        "url": "https://support.example.com",
+    }
+)
+```
+
+App attribution is optional and is never inferred from the SDK itself.
+
 ## Streaming example
 
 ```python

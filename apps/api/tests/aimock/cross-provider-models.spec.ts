@@ -120,20 +120,23 @@ describe("cross-provider model deployment matrix", () => {
     it.each(structuredCases.map((deployment) => [caseName(deployment), deployment] as const))(
         "round-trips structured output for %s",
         async (_name, deployment) => {
+            const supportsJsonSchema = deployment.parameters.includes("structured_outputs");
             const result = await execute(deployment, "[aimock-structured] person", {
-                response_format: {
-                    type: "json_schema",
-                    json_schema: {
-                        name: "person",
-                        strict: true,
-                        schema: {
-                            type: "object",
-                            properties: { name: { type: "string" }, city: { type: "string" } },
-                            required: ["name", "city"],
-                            additionalProperties: false,
+                response_format: supportsJsonSchema
+                    ? {
+                        type: "json_schema",
+                        json_schema: {
+                            name: "person",
+                            strict: true,
+                            schema: {
+                                type: "object",
+                                properties: { name: { type: "string" }, city: { type: "string" } },
+                                required: ["name", "city"],
+                                additionalProperties: false,
+                            },
                         },
-                    },
-                },
+                    }
+                    : { type: "json_object" },
             });
             expectSuccessfulText(result, "Ava");
             expect(JSON.parse(extractProtocolText("openai.chat.completions", result.encoded))).toMatchObject({ name: "Ava", city: "London" });
