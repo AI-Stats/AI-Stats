@@ -65,7 +65,7 @@ export default function RevokeDialog({
 	return (
 		<Dialog open={open} onOpenChange={(o) => !o && handleClose()}>
 			<DialogTrigger asChild>
-				<Button variant="outline" size="sm" className="w-full shrink-0 sm:w-auto">
+				<Button variant="outline" size="sm" className="w-full shrink-0 rounded-md sm:w-auto">
 					<X className="h-4 w-4 mr-1" />
 					Revoke Access
 				</Button>
@@ -95,11 +95,12 @@ export default function RevokeDialog({
 				)}
 
 				<DialogFooter>
-					<Button variant="outline" onClick={handleClose}>
+					<Button variant="outline" className="rounded-md" onClick={handleClose}>
 						Cancel
 					</Button>
 					<Button
 						variant="destructive"
+						className="rounded-md"
 						onClick={handleRevoke}
 						disabled={loading}
 					>
