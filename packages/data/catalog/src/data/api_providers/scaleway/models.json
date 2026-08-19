@@ -235,7 +235,7 @@
         "modes": []
       },
       {
-        "capability_id": "text.rerank",
+        "capability_id": "rerank",
         "status": "active",
         "params": ["query", "documents", "top_n"],
         "reasoning": null,

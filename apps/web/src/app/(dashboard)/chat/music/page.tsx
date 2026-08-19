@@ -17,11 +17,18 @@ export default function ChatMusicPage() {
 }
 
 async function ChatMusicContent() {
-	const models = await fetchFrontendGatewayModels();
+	let models: Awaited<ReturnType<typeof fetchFrontendGatewayModels>> = [];
+	let modelsLoadFailed = false;
+	try {
+		models = await fetchFrontendGatewayModels();
+	} catch {
+		modelsLoadFailed = true;
+	}
 	return (
 		<RoomScaffold>
 			<AudioRoom
 				models={models}
+				modelsLoadFailed={modelsLoadFailed}
 				roomId="music"
 				initialMode="music"
 				allowedModes={["music"]}
