@@ -653,6 +653,7 @@ function SessionDetailDialog({
 									<TableHeader>
 										<TableRow className="h-9">
 											<TableHead>Time</TableHead>
+											<TableHead>Source</TableHead>
 											<TableHead>App</TableHead>
 											<TableHead>Model</TableHead>
 											<TableHead>Provider</TableHead>
@@ -699,6 +700,9 @@ function SessionDetailDialog({
 															userTimeZone={userTimeZone}
 															relativeNowMs={relativeNowMs}
 														/>
+													</TableCell>
+													<TableCell className="py-2">
+														{request.client_source_name ?? request.client_source_id ?? "Direct API"}
 													</TableCell>
 													<TableCell className="py-2">
 														{request.app_id ? (

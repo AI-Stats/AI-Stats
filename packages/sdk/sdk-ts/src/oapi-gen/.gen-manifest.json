@@ -1,6 +1,5 @@
 {
   "files": [
-    "client/audio.ts",
     "client/default.ts",
     "client/index.ts",
     "index.ts",

@@ -163,10 +163,24 @@ function getClientSource(row: RequestRow) {
 		? metadata.client_source
 		: null;
 	if (!source || typeof source !== "object" || Array.isArray(source)) {
-		return null;
+		return {
+			id: "api",
+			name: "Direct API",
+			version: null,
+			detection: "unknown",
+			kind: "api",
+		};
 	}
 	const id = typeof source.id === "string" ? source.id : null;
-	if (!id) return null;
+	if (!id) {
+		return {
+			id: "api",
+			name: "Direct API",
+			version: null,
+			detection: "unknown",
+			kind: "api",
+		};
+	}
 	return {
 		id,
 		name: typeof source.name === "string" ? source.name : id,
@@ -604,6 +618,7 @@ export default function UnifiedRequestsTable({
 					row.app_id ? appNames.get(row.app_id) : null,
 				);
 				const appLabel = appTitle ?? mappedAppName ?? "-";
+				const source = getClientSource(row);
 				const requestedModelId = getRequestedModelId(row);
 				const routedModelId = getRoutedModelId(row);
 				return {
@@ -619,6 +634,11 @@ export default function UnifiedRequestsTable({
 					),
 					"Routed Model ID": routedModelId || "-",
 					Provider: providerLabel,
+					Source: source?.name ?? "Direct API",
+					"Source ID": source?.id ?? "api",
+					"Source Type": source?.kind ?? "api",
+					"Source Version": source?.version ?? "-",
+					"Source Detection": source?.detection ?? "unknown",
 					App: appLabel,
 					Usage: usageSummary,
 					"Input Tokens": formatUsageNumber(inputTokens),
@@ -698,6 +718,7 @@ export default function UnifiedRequestsTable({
 						const providerLabel = row.provider
 							? resolveProviderDisplayName({ providerId: row.provider, providerName: providerNames.get(row.provider) || providerMeta?.name || row.provider })
 							: null;
+						const source = getClientSource(row);
 						const appTitle = normalizeNonEmpty(row.app_title);
 						const mappedAppName = normalizeNonEmpty(
 							row.app_id ? appNames.get(row.app_id) : null,
@@ -855,6 +876,23 @@ export default function UnifiedRequestsTable({
 									</div>
 								</div>
 								<div className="mt-3 flex flex-wrap items-center gap-2">
+									{source ? (
+										<UsageEntityHoverCard
+											title={source.name}
+											subtitle={source.kind === "coding_agent" ? "Coding agent" : source.kind === "sdk" ? "Software development kit" : source.kind === "http_client" ? "HTTP client" : null}
+											visual={<ClientSourceVisual sourceId={source.id} kind={source.kind ?? ""} />}
+											rows={[
+												...(source.version ? [{ label: "Version", value: source.version }] : []),
+												...(source.detection ? [{ label: "Detection", value: source.detection === "declared" ? "Declared by client" : source.detection === "user_agent" ? "User agent" : source.detection }] : []),
+											]}
+										>
+											<span className="inline-flex min-w-0 items-center gap-2 font-medium text-foreground">
+												<ClientSourceVisual sourceId={source.id} kind={source.kind ?? ""} />
+												<span className="truncate">{source.name}</span>
+											</span>
+										</UsageEntityHoverCard>
+									) : null}
+
 									{row.provider ? (
 										<UsageEntityHoverCard
 											title={providerLabel ?? row.provider}

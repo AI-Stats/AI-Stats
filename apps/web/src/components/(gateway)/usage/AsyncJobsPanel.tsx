@@ -752,8 +752,12 @@ function AsyncJobDetailDialog({
 												"-"
 											),
 										},
-										{
-											label: "App",
+									{
+										label: "Source",
+										value: job.client_source_name ?? job.client_source_id ?? "Direct API",
+									},
+									{
+										label: "App",
 											value: job.app_id ? (
 												<div className="flex items-center gap-2">
 													{appHref ? (
