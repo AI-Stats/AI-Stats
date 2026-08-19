@@ -675,7 +675,6 @@ function SessionDetailSheet({
 										className="w-full rounded-lg border"
 										scrollBarOrientation="horizontal"
 										keepScrollbarMounted
-										scrollBarClassName="bg-muted/50 [&_[data-slot=scroll-area-thumb]]:bg-muted-foreground/60"
 										viewportClassName="w-full pb-2"
 									>
 										<Table wrapInContainer={false} className="min-w-[860px] text-xs">
@@ -1181,7 +1180,6 @@ export default function SessionsPanel({
 					className="w-full"
 					scrollBarOrientation="horizontal"
 					keepScrollbarMounted
-					scrollBarClassName="bg-muted/50 [&_[data-slot=scroll-area-thumb]]:bg-muted-foreground/60"
 					viewportClassName="w-full pb-2"
 				>
 				<Table wrapInContainer={false} className="min-w-[720px] text-xs">
