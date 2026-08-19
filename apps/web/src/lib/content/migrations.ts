@@ -28,6 +28,11 @@ export type MigrationFaq = {
 	answer: string;
 };
 
+export type MigrationReference = {
+	label: string;
+	href: string;
+};
+
 export type MigrationPost = {
 	slug: string;
 	title: string;
@@ -42,25 +47,31 @@ export type MigrationPost = {
 	sections: MigrationSection[];
 	validationSteps: string[];
 	faq: MigrationFaq[];
+	references?: MigrationReference[];
 };
 
 export const MIGRATION_POSTS: MigrationPost[] = [
 	{
 		slug: "openrouter",
-		title: "Migrating from OpenRouter to Phaseo Gateway",
-		seoTitle: "Migrating from OpenRouter to Phaseo Gateway: Complete Walkthrough",
+		title: "OpenRouter Alternative: Migrate to Phaseo Gateway",
+		seoTitle: "OpenRouter Alternative: Migrate to Phaseo Gateway",
 		description:
-			"Move from OpenRouter to Phaseo Gateway with a safe rollout plan, code-level before/after examples, model-ID checks, and validation commands for non-streaming and streaming traffic.",
+			"Looking for an OpenRouter alternative? Migrate to Phaseo with an OpenAI-compatible endpoint, model checks, code examples, streaming tests, and rollback steps.",
 		excerpt:
-			"Step-by-step OpenRouter migration with model mapping, header cleanup, and production rollout guidance.",
+			"A practical OpenRouter alternative and migration guide with model mapping, code changes, validation, and rollback guidance.",
 		sourceLabel: "OpenRouter",
-		readTimeMinutes: 12,
-		updatedAt: "2026-04-09",
+		readTimeMinutes: 10,
+		updatedAt: "2026-08-19",
 		keywords: [
+			"OpenRouter alternative",
+			"best OpenRouter alternative",
+			"OpenRouter replacement",
 			"OpenRouter migration",
+			"migrate from OpenRouter",
 			"migrate OpenRouter to Phaseo",
+			"Stripe OpenRouter acquisition alternative",
 			"AI gateway migration",
-			"OpenAI compatible migration",
+			"OpenAI compatible AI gateway",
 		],
 		prerequisites: [
 			"Access to your current OpenRouter integration code and deployment config.",
@@ -69,8 +80,23 @@ export const MIGRATION_POSTS: MigrationPost[] = [
 		],
 		sections: [
 			{
+				id: "answer",
+				title: "Is Phaseo an alternative to OpenRouter?",
+				paragraphs: [
+					"Yes. Phaseo is an OpenAI-compatible AI gateway for accessing models across providers through one API. An existing OpenRouter integration can usually move at the client boundary by changing the base URL, API key, and any model IDs that do not match the Phaseo catalog.",
+					"Stripe confirmed its acquisition of OpenRouter on 19 August 2026. Teams reviewing gateway concentration, portability, or vendor independence can use this guide to test Phaseo without committing all production traffic at once.",
+				],
+				checklist: [
+					"Phaseo base URL: `https://api.phaseo.app/v1`.",
+					"Phaseo credential: `PHASEO_API_KEY`.",
+					"Authentication stays `Authorization: Bearer <key>`.",
+					"Chat Completions supports non-streaming and streaming requests.",
+					"Model IDs must be checked against `GET /v1/models` before cutover.",
+				],
+			},
+			{
 				id: "scope",
-				title: "1) Inventory current OpenRouter usage",
+				title: "1. Inventory current OpenRouter usage",
 				paragraphs: [
 					"Start by identifying every place OpenRouter is referenced: endpoint URLs, keys, model IDs, and provider-specific headers.",
 					"Keeping the migration boundary small lowers risk. Usually, updating one gateway client module is enough.",
@@ -92,7 +118,7 @@ export const MIGRATION_POSTS: MigrationPost[] = [
 			},
 			{
 				id: "code-switch",
-				title: "2) Switch base URL and credentials",
+				title: "2. Switch the base URL and credentials",
 				paragraphs: [
 					"Replace the OpenRouter base URL with Phaseo and move authentication to `PHASEO_API_KEY`.",
 					"Keep request payload shape unchanged first. Do behavior parity before optimization.",
@@ -129,7 +155,7 @@ const response = await client.chat.completions.create({
 });`,
 					},
 					{
-						label: "Environment variable rename",
+						label: "Environment Variable Rename",
 						lang: "bash",
 						code: `# Before
 OPENROUTER_API_KEY=...
@@ -149,20 +175,20 @@ PHASEO_API_KEY=...`,
 			},
 			{
 				id: "models",
-				title: "3) Validate model IDs and remove OpenRouter-specific behavior",
+				title: "3. Validate model IDs and OpenRouter-specific behavior",
 				paragraphs: [
 					"Do not assume every old model alias is valid. Query `/v1/models` and verify each production model ID.",
 					"If your app consumed OpenRouter-specific response fields, adapt at one compatibility layer instead of changing every caller.",
 				],
 				codeSnippets: [
 					{
-						label: "Check model list from Phaseo",
+						label: "Check Model List From Phaseo",
 						lang: "bash",
 						code: `curl -s "${PHASEO_BASE_URL}/models" \\
   -H "Authorization: Bearer $PHASEO_API_KEY" | jq '.data[0:10] | map(.id)'`,
 					},
 					{
-						label: "Optional model alias compatibility map",
+						label: "Optional Model Alias Compatibility Map",
 						lang: "ts",
 						code: `const MODEL_ALIASES: Record<string, string> = {
   "openai/gpt-4.1-mini": "openai/gpt-4.1-mini",
@@ -182,7 +208,7 @@ export function resolveModelId(input: string): string {
 			},
 			{
 				id: "rollout",
-				title: "4) Roll out safely",
+				title: "4. Test streaming and roll out safely",
 				paragraphs: [
 					"Use a staged rollout: dev first, then a small production slice, then full traffic once metrics are stable.",
 					"Track latency, error rate, and token/cost drift. Roll back by switching only endpoint+key config if needed.",
@@ -211,6 +237,16 @@ export function resolveModelId(input: string): string {
 		],
 		faq: [
 			{
+				question: "What is the best alternative to OpenRouter?",
+				answer:
+					"The best alternative depends on your stack. Phaseo is a strong fit when you need one OpenAI-compatible API, multi-provider model access, public model and pricing intelligence, routing controls, and request observability. Test your own models, latency, output quality, and costs before moving production traffic.",
+			},
+			{
+				question: "Why migrate from OpenRouter after the Stripe acquisition?",
+				answer:
+					"An acquisition does not require an immediate migration. It is a sensible time to test a second gateway, document a rollback path, and reduce reliance on one routing and billing platform. Phaseo can run as a canary or fallback before a full cutover.",
+			},
+			{
 				question: "Do I need to rewrite prompts or message payloads?",
 				answer:
 					"No. Most teams keep payloads the same and only switch base URL, key source, and optional model alias mapping.",
@@ -219,6 +255,26 @@ export function resolveModelId(input: string): string {
 				question: "Can I keep provider-prefixed model IDs?",
 				answer:
 					"Often yes, but verify against `/v1/models`. If your existing aliases differ, normalize them in one boundary function.",
+			},
+			{
+				question: "Can I use Phaseo and OpenRouter at the same time?",
+				answer:
+					"Yes. Keep gateway configuration behind one client factory or environment switch, then send a small traffic percentage to Phaseo. This also gives you a fast rollback path while you compare reliability, latency, quality, and cost.",
+			},
+			{
+				question: "Can an agent migrate an OpenRouter integration automatically?",
+				answer:
+					"Yes. Ask the agent to find `openrouter.ai`, `OPENROUTER_API_KEY`, `sk-or-v1`, `HTTP-Referer`, and `X-Title`; replace the endpoint and secret name; verify models with `/v1/models`; then test health, non-streaming, streaming, and failure paths. Never place secret values in source control.",
+			},
+		],
+		references: [
+			{
+				label: "Compare Phaseo and OpenRouter",
+				href: "/compare/openrouter",
+			},
+			{
+				label: "OpenRouter to Phaseo migration skill for coding agents",
+				href: "https://github.com/phaseoteam/Phaseo/tree/main/.agents/skills/openrouter-to-phaseo-migration",
 			},
 		],
 	},
@@ -267,7 +323,7 @@ export function resolveModelId(input: string): string {
 				],
 				codeSnippets: [
 					{
-						label: "Before (gateway endpoint)",
+						label: "Before (Gateway Endpoint)",
 						lang: "ts",
 						code: `import OpenAI from "openai";
 
@@ -277,7 +333,7 @@ const client = new OpenAI({
 });`,
 					},
 					{
-						label: "After (Phaseo gateway endpoint)",
+						label: "After (Phaseo Gateway Endpoint)",
 						lang: "ts",
 						code: `import OpenAI from "openai";
 
@@ -287,7 +343,7 @@ const client = new OpenAI({
 });`,
 					},
 					{
-						label: "Vercel AI SDK style provider switch",
+						label: "Vercel AI SDK Style Provider Switch",
 						lang: "ts",
 						code: `import { generateText } from "ai";
 import { createPhaseo } from "@phaseo/ai-sdk-provider";
@@ -405,7 +461,7 @@ const { text } = await generateText({
 				],
 				codeSnippets: [
 					{
-						label: "Before (Requesty-style OpenAI-compatible client)",
+						label: "Before (Requesty-Style OpenAI-Compatible Client)",
 						lang: "ts",
 						code: `import OpenAI from "openai";
 
@@ -415,7 +471,7 @@ const client = new OpenAI({
 });`,
 					},
 					{
-						label: "After (Phaseo gateway)",
+						label: "After (Phaseo Gateway)",
 						lang: "ts",
 						code: `import OpenAI from "openai";
 
@@ -443,13 +499,13 @@ const client = new OpenAI({
 				],
 				codeSnippets: [
 					{
-						label: "Model availability check",
+						label: "Model Availability Check",
 						lang: "bash",
 						code: `curl -s "${PHASEO_BASE_URL}/models" \\
   -H "Authorization: Bearer $PHASEO_API_KEY" | jq '.data | length'`,
 					},
 					{
-						label: "Single-boundary model resolver",
+						label: "Single-Boundary Model Resolver",
 						lang: "ts",
 						code: `export function resolveGatewayModelId(input: string): string {
   const aliases: Record<string, string> = {
@@ -550,7 +606,7 @@ const client = new OpenAI({
 				],
 				codeSnippets: [
 					{
-						label: "Before (LLMGateway style config)",
+						label: "Before (LLMGateway Style Config)",
 						lang: "ts",
 						code: `import OpenAI from "openai";
 
@@ -588,7 +644,7 @@ const client = new OpenAI({
 				],
 				codeSnippets: [
 					{
-						label: "Model list check",
+						label: "Model List Check",
 						lang: "bash",
 						code: `curl -s "${PHASEO_BASE_URL}/models" \\
   -H "Authorization: Bearer $PHASEO_API_KEY" | jq '.data | length'`,
