@@ -341,6 +341,13 @@ export default function UsageLogsToolbar({
 	}, [applyParams, draftRange]);
 
 	const applyTypedRange = React.useCallback(() => {
+		const finishEditing = () => {
+			setPopoverOpen(false);
+			setIsEditingRangeInput(false);
+			setRangeInputValue("");
+			rangeInputRef.current?.blur();
+		};
+
 		const shorthand = parseUsageRelativeShorthand(rangeInputValue);
 		if (shorthand) {
 			applyParams(
@@ -351,7 +358,7 @@ export default function UsageLogsToolbar({
 					to: null,
 				},
 			);
-			setIsEditingRangeInput(false);
+			finishEditing();
 			return;
 		}
 
@@ -363,7 +370,7 @@ export default function UsageLogsToolbar({
 			return;
 		}
 		if (rangeInputValue.trim() === editableRangeValue) {
-			setIsEditingRangeInput(false);
+			finishEditing();
 			return;
 		}
 		applyParams(
@@ -378,7 +385,7 @@ export default function UsageLogsToolbar({
 				to: parsed.to,
 			},
 		);
-		setIsEditingRangeInput(false);
+		finishEditing();
 	}, [applyParams, editableRangeValue, rangeInputValue]);
 
 	const runRefresh = React.useCallback(
@@ -579,6 +586,8 @@ export default function UsageLogsToolbar({
 						ref={rangePopoverContentRef}
 						align="start"
 						anchor={rangeAnchorRef}
+						finalFocus={false}
+						initialFocus={false}
 						onOpenAutoFocus={(event) => event.preventDefault()}
 						className={cn(showCustomRange ? "w-max p-0" : "w-[320px] p-3")}
 					>
