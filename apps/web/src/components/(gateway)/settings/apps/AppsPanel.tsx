@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
 	BarChart2,
 	Blocks,
@@ -54,6 +55,7 @@ type AppItem = {
 	docs_url: string | null;
 	url: string | null;
 	image_url: string | null;
+	is_managed: boolean;
 	is_public: boolean;
 	last_seen: string | null;
 	created_at: string | null;
@@ -75,6 +77,7 @@ function getAttributionHeaders(app: AppItem) {
 function AppAvatar({ app }: { app: AppItem }) {
 	const imageLetter = app.title?.trim()?.[0]?.toUpperCase() ?? "A";
 	const [imageFailed, setImageFailed] = useState(false);
+	const isPhaseoChat = app.app_key === "phaseo-chat";
 
 	useEffect(() => {
 		setImageFailed(false);
@@ -82,7 +85,24 @@ function AppAvatar({ app }: { app: AppItem }) {
 
 	return (
 		<div className="grid size-9 shrink-0 place-items-center overflow-hidden rounded-md border border-border/70 bg-muted/40">
-			{app.image_url && !imageFailed ? (
+			{isPhaseoChat ? (
+				<>
+					<Image
+						src="/logo_light.svg"
+						alt="Phaseo"
+						width={24}
+						height={24}
+						className="size-6 object-contain dark:hidden"
+					/>
+					<Image
+						src="/logo_dark.svg"
+						alt="Phaseo"
+						width={24}
+						height={24}
+						className="hidden size-6 object-contain dark:block"
+					/>
+				</>
+			) : app.image_url && !imageFailed ? (
 				<img
 					src={app.image_url}
 					alt={app.title}
@@ -205,7 +225,8 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 	};
 
 	const renderActions = (app: AppItem, mobile = false) => {
-		const canMerge = sortedApps.length > 1;
+		const canMerge =
+			!app.is_managed && sortedApps.filter((item) => !item.is_managed).length > 1;
 		const isBusy = pending[app.id];
 		const attributionHeaders = getAttributionHeaders(app);
 
@@ -232,20 +253,22 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 								<BarChart2 className="mr-2 size-4" />
 								View Stats
 							</DropdownMenuItem>
-							<DropdownMenuItem
-								className="rounded-md"
-								disabled={isBusy}
-								onClick={() =>
-									handleVisibilityToggle(app, !app.is_public)
-								}
-							>
-								{app.is_public ? (
-									<Lock className="mr-2 size-4" />
-								) : (
-									<Globe className="mr-2 size-4" />
-								)}
-								{app.is_public ? "Make Private" : "Make Public"}
-							</DropdownMenuItem>
+							{!app.is_managed ? (
+								<DropdownMenuItem
+									className="rounded-md"
+									disabled={isBusy}
+									onClick={() =>
+										handleVisibilityToggle(app, !app.is_public)
+									}
+								>
+									{app.is_public ? (
+										<Lock className="mr-2 size-4" />
+									) : (
+										<Globe className="mr-2 size-4" />
+									)}
+									{app.is_public ? "Make Private" : "Make Public"}
+								</DropdownMenuItem>
+							) : null}
 						</>
 					) : null}
 					<DropdownMenuItem
@@ -260,24 +283,28 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 						<Copy className="mr-2 size-4" />
 						Copy Headers
 					</DropdownMenuItem>
-					<DropdownMenuItem
-						className="rounded-md"
-						onClick={() => setEditAppId(app.id)}
-					>
-						<Pencil className="mr-2 size-4" />
-						Edit
-					</DropdownMenuItem>
-					<DropdownMenuItem
-						className="rounded-md"
-						disabled={!canMerge}
-						onClick={() => {
-							if (!canMerge) return;
-							setMergeAppId(app.id);
-						}}
-					>
-						<Merge className="mr-2 size-4" />
-						Merge
-					</DropdownMenuItem>
+					{!app.is_managed ? (
+						<DropdownMenuItem
+							className="rounded-md"
+							onClick={() => setEditAppId(app.id)}
+						>
+							<Pencil className="mr-2 size-4" />
+							Edit
+						</DropdownMenuItem>
+					) : null}
+					{!app.is_managed ? (
+						<DropdownMenuItem
+							className="rounded-md"
+							disabled={!canMerge}
+							onClick={() => {
+								if (!canMerge) return;
+								setMergeAppId(app.id);
+							}}
+						>
+							<Merge className="mr-2 size-4" />
+							Merge
+						</DropdownMenuItem>
+					) : null}
 				</DropdownMenuContent>
 			</DropdownMenu>
 		);
@@ -350,47 +377,53 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 													<div className="truncate text-xs text-muted-foreground">
 														{displayUrl ? app.url : "No public URL set"}
 													</div>
-													<div className="mt-1">
-														<CategoryBadges category={app.category} />
-													</div>
-												</div>
+											<div className="mt-1">
+												<CategoryBadges category={app.category} />
 											</div>
-										</TableCell>
-										<TableCell>
-											<Button
-								type="button"
-								size="xs"
-								variant="outline"
-								className="rounded-md"
-								disabled={isBusy}
-								onClick={() =>
-									handleVisibilityToggle(app, !app.is_public)
-								}
-												aria-label={`Make ${app.title} ${
-													app.is_public ? "private" : "public"
-												}`}
-											>
-												{app.is_public ? (
-													<Globe className="size-3" />
-												) : (
-													<Lock className="size-3" />
-												)}
-												{app.is_public ? "Public" : "Private"}
-											</Button>
-										</TableCell>
-										<TableCell className="text-xs text-muted-foreground">
-											{formatDate(app.last_seen)}
-										</TableCell>
-										<TableCell className="text-xs text-muted-foreground">
-											{formatDate(app.created_at)}
-										</TableCell>
-										<TableCell className="text-right">
+										</div>
+									</div>
+								</TableCell>
+								<TableCell>
+									{app.is_managed ? (
+										<Badge variant="outline" className="rounded-md">
+											Managed by Phaseo
+										</Badge>
+									) : (
+										<Button
+											type="button"
+											size="xs"
+											variant="outline"
+											className="rounded-md"
+											disabled={isBusy}
+											onClick={() =>
+												handleVisibilityToggle(app, !app.is_public)
+											}
+											aria-label={`Make ${app.title} ${
+												app.is_public ? "private" : "public"
+											}`}
+										>
+											{app.is_public ? (
+												<Globe className="size-3" />
+											) : (
+												<Lock className="size-3" />
+											)}
+											{app.is_public ? "Public" : "Private"}
+										</Button>
+									)}
+								</TableCell>
+								<TableCell className="text-xs text-muted-foreground">
+									{formatDate(app.last_seen)}
+								</TableCell>
+								<TableCell className="text-xs text-muted-foreground">
+									{formatDate(app.created_at)}
+								</TableCell>
+								<TableCell className="text-right">
 											<div className="flex items-center justify-end gap-1">
 												<Button
 													asChild
-									size="icon-sm"
-									variant="ghost"
-									className="rounded-md"
+												size="icon-sm"
+												variant="ghost"
+												className="rounded-md"
 													aria-label={`View stats for ${app.title}`}
 												>
 													<Link href={`/apps/${encodeURIComponent(app.id)}`}>
@@ -434,12 +467,12 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 											<div className="truncate text-xs text-muted-foreground">
 												{displayUrl ? app.url : "No public URL set"}
 											</div>
-											<div className="mt-1">
-												<CategoryBadges category={app.category} />
-											</div>
 										</div>
 									</div>
 									{renderActions(app, true)}
+								</div>
+								<div>
+									<CategoryBadges category={app.category} />
 								</div>
 
 								<div className="grid grid-cols-2 gap-3 text-xs">
