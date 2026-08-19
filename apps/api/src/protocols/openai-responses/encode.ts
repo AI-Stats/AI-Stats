@@ -19,14 +19,24 @@ export type OpenAIResponsesResponse = {
 	id: string; // Gateway request ID
 	nativeResponseId?: string | null; // Provider's original response ID
 	object: "response";
-	created: number;
+	created_at: number;
 	model: string;
 	output: OpenAIResponseOutputItem[];
 	usage?: {
-		prompt_tokens: number;
-		completion_tokens: number;
+		input_tokens: number;
+		output_tokens: number;
 		total_tokens: number;
-		reasoning_tokens?: number;
+		citation_tokens?: number;
+		num_search_queries?: number;
+		search_context_size?: string;
+		cost?: Record<string, number>;
+		input_tokens_details?: {
+			cached_tokens?: number;
+			cache_write_tokens?: number;
+		};
+		output_tokens_details?: {
+			reasoning_tokens?: number;
+		};
 		server_tool_use?: {
 			datetime_requests?: number;
 			web_search_requests?: number;
@@ -43,6 +53,11 @@ export type OpenAIResponsesResponse = {
 		type: string;
 		reason: string;
 	};
+	citations?: string[];
+	search_results?: Array<Record<string, any>>;
+	images?: Array<Record<string, any>>;
+	related_questions?: string[];
+	reasoning_steps?: Array<Record<string, any>>;
 };
 
 export type OpenAIResponseOutputItem =
@@ -50,10 +65,10 @@ export type OpenAIResponseOutputItem =
 		type: "message";
 		role: "assistant";
 		content: any[];
-		refusal?: string;
 		phase?: "commentary" | "final_answer" | null;
 	}
 	| { type: "function_call"; call_id: string; name: string; arguments: string }
+	| { type: "custom_tool_call"; call_id: string; name: string; input: string }
 	| { type: "reasoning"; content: Array<{ type: "output_text"; text: string; annotations?: any[] }> };
 
 /**
@@ -95,9 +110,16 @@ export function encodeOpenAIResponsesResponse(
 		if (shouldEmitMessage) {
 			const content: any[] = [];
 			if (textParts.length > 0) {
-				for (const text of textParts) {
-					content.push({ type: "output_text", text, annotations: [] });
+				for (const part of textParts) {
+					content.push({
+						type: "output_text",
+						text: part.text,
+						annotations: part.annotations ?? [],
+					});
 				}
+			}
+			if (choice.message.refusal) {
+				content.push({ type: "refusal", refusal: choice.message.refusal });
 			}
 			if (imageParts.length > 0) {
 				for (const part of imageParts) {
@@ -150,19 +172,25 @@ export function encodeOpenAIResponsesResponse(
 				type: "message",
 				role: "assistant",
 				content,
-				refusal: choice.message.refusal,
 				phase: choice.message.phase,
 			});
 		}
 
 		if (hasToolCalls) {
 			for (const toolCall of choice.message.toolCalls ?? []) {
-				outputItems.push({
-					type: "function_call",
-					call_id: toolCall.id,
-					name: toolCall.name,
-					arguments: toolCall.arguments,
-				});
+				outputItems.push(toolCall.type === "custom"
+					? {
+						type: "custom_tool_call",
+						call_id: toolCall.id,
+						name: toolCall.name,
+						input: toolCall.arguments,
+					}
+					: {
+						type: "function_call",
+						call_id: toolCall.id,
+						name: toolCall.name,
+						arguments: toolCall.arguments,
+					});
 			}
 		}
 	}
@@ -179,24 +207,28 @@ export function encodeOpenAIResponsesResponse(
 		id: requestId ?? ir.id, // Gateway request ID as primary
 		nativeResponseId: ir.nativeId, // Provider's original response ID
 		object: "response",
-		created: ir.created ?? Math.floor(Date.now() / 1000),
+		created_at: ir.created ?? Math.floor(Date.now() / 1000),
 		model: ir.model,
 		output: outputItems,
 		usage: encodeUsage(ir.usage),
 		status,
+		...(ir.citations ? { citations: ir.citations } : {}),
+		...(ir.searchResults ? { search_results: ir.searchResults } : {}),
+		...(ir.images ? { images: ir.images } : {}),
+		...(ir.relatedQuestions ? { related_questions: ir.relatedQuestions } : {}),
+		...(ir.reasoningSteps ? { reasoning_steps: ir.reasoningSteps } : {}),
 	};
 }
 
 function splitContentParts(parts: IRContentPart[]): {
-	textParts: string[];
+	textParts: Array<Extract<IRContentPart, { type: "text" }>>;
 	reasoningParts: string[];
 	imageParts: Array<Extract<IRContentPart, { type: "image" }>>;
 	audioParts: Array<Extract<IRContentPart, { type: "audio" }>>;
 } {
 	if (!Array.isArray(parts)) return { textParts: [], reasoningParts: [], imageParts: [], audioParts: [] };
 	const textParts = parts
-		.filter((part) => part.type === "text")
-		.map((part) => part.text);
+		.filter((part): part is Extract<IRContentPart, { type: "text" }> => part.type === "text");
 	const reasoningParts = parts
 		.filter((part) => part.type === "reasoning_text")
 		.map((part) => part.text);
@@ -217,10 +249,29 @@ function encodeUsage(usage?: IRUsage): OpenAIResponsesResponse["usage"] | undefi
 	}
 
 	return {
-		prompt_tokens: promptTokens ?? 0,
-		completion_tokens: completionTokens ?? 0,
+		input_tokens: promptTokens ?? 0,
+		output_tokens: completionTokens ?? 0,
 		total_tokens: totalTokens ?? 0,
-		reasoning_tokens: usage.reasoningTokens,
+		...(typeof usage._ext?.citationTokens === "number" ? { citation_tokens: usage._ext.citationTokens } : {}),
+		...(typeof usage._ext?.numSearchQueries === "number" ? { num_search_queries: usage._ext.numSearchQueries } : {}),
+		...(typeof usage._ext?.searchContextSize === "string" ? { search_context_size: usage._ext.searchContextSize } : {}),
+		...(usage._ext?.providerCost ? { cost: usage._ext.providerCost } : {}),
+		input_tokens_details:
+			typeof usage.cachedInputTokens === "number" ||
+			typeof usage._ext?.cachedWriteTokens === "number"
+				? {
+					...(typeof usage.cachedInputTokens === "number"
+						? { cached_tokens: usage.cachedInputTokens }
+						: {}),
+					...(typeof usage._ext?.cachedWriteTokens === "number"
+						? { cache_write_tokens: usage._ext.cachedWriteTokens }
+						: {}),
+				}
+				: undefined,
+		output_tokens_details:
+			typeof usage.reasoningTokens === "number"
+				? { reasoning_tokens: usage.reasoningTokens }
+				: undefined,
 		server_tool_use:
 			typeof usage._ext?.serverToolUse?.datetime_requests === "number" ||
 			typeof usage._ext?.serverToolUse?.web_search_requests === "number" ||

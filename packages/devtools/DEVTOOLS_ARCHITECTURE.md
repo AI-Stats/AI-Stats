@@ -151,7 +151,7 @@ File System → Express API → React UI (polling)
 
 **Features**:
 - Simple one-line integration
-- OpenRouter-inspired API pattern
+- Provider-neutral API pattern
 - Configurable options
 - Environment variable support
 - Cross-language design
@@ -328,7 +328,7 @@ The architecture is designed for multi-language support:
 | Setup | One line | SDK + account |
 | Offline | ✓ | ✗ |
 
-### vs OpenRouter Devtools
+### External devtools comparison
 
 | Feature | Phaseo | OpenRouter |
 |---------|----------|------------|
@@ -369,7 +369,6 @@ See [CROSS_LANGUAGE.md](./devtools/CROSS_LANGUAGE.md) for examples.
 
 ## References
 
-- [OpenRouter Devtools](https://openrouter.ai/docs/developer-tools) - Inspiration
 - [Zod](https://zod.dev/) - Schema validation
 - [JSONL](https://jsonlines.org/) - File format
 - [React Query](https://tanstack.com/query) - Data fetching

@@ -10,6 +10,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { getModelDetailsHref } from "@/lib/models/modelHref";
 import { toast } from "sonner";
 
 interface ModelIdentifierControlProps {
@@ -150,11 +151,13 @@ export default function ModelIdentifierControl({
 						</div>
 						{variants.map((variant) => {
 							const isCurrent = variant.model_id === defaultIdentifier;
+							const variantHref = getModelDetailsHref(null, variant.model_id);
 							return (
 								<DropdownMenuItem
 									key={variant.model_id}
+									disabled={!variantHref}
 									onClick={() => {
-										if (!isCurrent) router.push(`/models/${variant.model_id}`);
+										if (!isCurrent && variantHref) router.push(variantHref);
 									}}
 									className="flex items-center justify-between gap-4 rounded-lg"
 								>

@@ -25,8 +25,9 @@ describe("OpenAI provider contract", () => {
   it("is reproducible and covers every declared Phaseo OpenAI operation", async () => {
     const raw = await readFile(path.join(contractDir, "openapi.json"));
     expect(getCanonicalBundleHash(raw)).toBe(provenance.bundleSha256);
-    expect(manifest.operations).toHaveLength(17);
-    expect(Object.keys(document.paths ?? {})).toHaveLength(16);
+    expect(manifest.operations).toHaveLength(16);
+    expect(Object.keys(document.paths ?? {})).toHaveLength(15);
+    expect(document.paths?.["/rerank"]).toBeUndefined();
   });
 
   it("serves deterministic Responses and Chat Completions streams", async () => {

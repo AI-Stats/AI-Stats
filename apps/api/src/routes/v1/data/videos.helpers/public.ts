@@ -317,7 +317,9 @@ export async function toPublicVideoResponse(args: {
 			? args.payload.provider
 			: args.record?.provider ?? args.meta?.provider ?? null;
 	const provider = toPublicVideoProviderId(rawProvider);
-	const status = toPublicVideoStatus(args.payload.status);
+	const normalizedStatus = toPublicVideoStatus(args.payload.status);
+	const isOpenAI = provider === "openai";
+	const status = isOpenAI && normalizedStatus === "processing" ? "in_progress" : normalizedStatus;
 	const createdAt =
 		(typeof args.payload.created_at === "number" ? args.payload.created_at : null) ??
 		normalizeText(args.record?.createdAt) ??
@@ -336,7 +338,7 @@ export async function toPublicVideoResponse(args: {
 	const firstOutput = outputs[0] ?? null;
 	const outputRaw = Array.isArray(args.payload.output) ? (args.payload.output[0] as Record<string, unknown> | undefined) : undefined;
 	let download: { download_url: string; expires_at: number } | null = null;
-	if (status === "completed" && includeSignedUrls && args.record?.workspaceId) {
+	if (normalizedStatus === "completed" && includeSignedUrls && args.record?.workspaceId) {
 		const signedPerOutput = await Promise.all(
 			outputsWithSigned.map(async (item: any) => ({
 				index: typeof item?.index === "number" ? item.index : 0,
@@ -379,7 +381,7 @@ export async function toPublicVideoResponse(args: {
 		? Math.max(0, Math.min(100, Math.round(args.payload.progress)))
 		: metaProgress != null
 			? Math.max(0, Math.min(100, Math.round(metaProgress)))
-			: status === "completed"
+			: normalizedStatus === "completed"
 				? 100
 				: 0;
 	const metaProgressSource = normalizeText(args.meta?.progressSource ?? (args.meta as any)?.progress_source);
@@ -422,13 +424,14 @@ export async function toPublicVideoResponse(args: {
 	if (usageSource.is_byok == null) {
 		usageSource.is_byok = isByok;
 	}
-	const errorValue =
-		typeof args.payload.error === "string"
+	const errorValue = isOpenAI && args.payload.error && typeof args.payload.error === "object"
+		? args.payload.error
+		: typeof args.payload.error === "string"
 			? args.payload.error
 			: typeof (args.payload.error as any)?.message === "string"
 				? (args.payload.error as any).message
 				: args.payload.error;
-	const asset = status === "completed" && firstOutput
+	const asset = normalizedStatus === "completed" && firstOutput
 		? {
 			id: `ast_${args.id.replace(/^G-/, "")}`,
 			mime_type: firstOutput.mime_type ?? "video/mp4",
@@ -443,7 +446,7 @@ export async function toPublicVideoResponse(args: {
 		id: args.id,
 		object: "video",
 		status,
-		lifecycle_status: toAsyncLifecycleStatus(status),
+		lifecycle_status: toAsyncLifecycleStatus(normalizedStatus),
 		output_access: outputAccess,
 		progress,
 		progress_source: progressSource,
@@ -454,10 +457,11 @@ export async function toPublicVideoResponse(args: {
 		generation_id: generationId ?? null,
 		native_video_id: nativeVideoId ?? null,
 		created_at: createdAt,
+		expires_at: typeof (args.payload as any)?.expires_at === "number" ? (args.payload as any).expires_at : null,
 		started_at: normalizeText((args.payload as any)?.started_at) ?? null,
 		completed_at:
-			normalizeText((args.payload as any)?.completed_at) ??
-			(status === "completed" || status === "failed" || status === "cancelled" || status === "expired"
+			(typeof (args.payload as any)?.completed_at === "number" ? (args.payload as any).completed_at : normalizeText((args.payload as any)?.completed_at)) ??
+			(normalizedStatus === "completed" || normalizedStatus === "failed" || normalizedStatus === "cancelled" || normalizedStatus === "expired"
 				? normalizeText(args.meta?.finalizedAt)
 				: null),
 		provider,
@@ -465,14 +469,19 @@ export async function toPublicVideoResponse(args: {
 			normalizeText(args.payload.model) ??
 			normalizeText(args.record?.model) ??
 			normalizeText(args.meta?.model),
-		seconds: durationSeconds,
+		seconds: isOpenAI && durationSeconds != null ? String(durationSeconds) : durationSeconds,
 		size: normalizeText(args.meta?.resolution) ?? null,
+		...(isOpenAI ? {
+			prompt: normalizeText((args.payload as any)?.prompt),
+			remixed_from_video_id: normalizeText((args.payload as any)?.remixed_from_video_id),
+			...(normalizeText((args.payload as any)?.quality) ? { quality: normalizeText((args.payload as any)?.quality) } : {}),
+		} : {}),
 		audio: typeof (args.payload as any)?.audio === "boolean" ? (args.payload as any).audio : null,
 		asset,
 		outputs: outputsWithSigned,
 		...(Object.keys(usageSource).length > 0 ? { usage: usageSource } : {}),
 		...(errorValue ? { error: errorValue } : {}),
-		billing: buildVideoBilling(args.record, args.meta, status),
+		billing: buildVideoBilling(args.record, args.meta, normalizedStatus),
 	};
 	const webhook = buildPublicAsyncWebhook("video", args.meta);
 	if (webhook) {
@@ -497,5 +506,3 @@ export async function toPublicVideoResponse(args: {
 	}
 	return response;
 }
-
-

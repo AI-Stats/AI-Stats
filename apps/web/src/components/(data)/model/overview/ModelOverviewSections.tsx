@@ -83,9 +83,7 @@ type ModelOverviewSectionsProps = {
 	showSubscriptions?: boolean;
 	status?: string | null;
 	isGatewayActive?: boolean;
-	gatewayMetadata?: ModelGatewayMetadata;
 	performancePromise?: Promise<ModelPerformanceMetrics | null>;
-	quickstartRequestContext?: QuickstartRequestContext;
 };
 
 export type ModelSectionSharedProps = {
@@ -1095,28 +1093,6 @@ function ProvidersSectionSkeleton() {
 	);
 }
 
-function QuickstartSectionSkeleton() {
-	return (
-		<div className="overflow-hidden rounded-lg border border-border/70 bg-background">
-			<div className="flex flex-wrap gap-2">
-				<div className="flex w-full flex-wrap items-center gap-2 border-b p-3">
-					<Skeleton className="h-8 w-28 rounded-md" />
-					<Skeleton className="h-8 w-28 rounded-md" />
-					<Skeleton className="h-8 w-36 rounded-md" />
-					<Skeleton className="ml-auto h-8 w-24 rounded-md" />
-				</div>
-			</div>
-			<div className="space-y-3 p-4">
-				<Skeleton className="h-4 w-2/5" />
-				<Skeleton className="h-4 w-4/5" />
-				<Skeleton className="h-4 w-3/4" />
-				<Skeleton className="h-4 w-5/6" />
-				<Skeleton className="h-4 w-1/2" />
-			</div>
-		</div>
-	);
-}
-
 function BenchmarksSectionSkeleton() {
 	return (
 		<div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -1316,13 +1292,6 @@ export function ModelOverviewSectionsSkeleton() {
 				/>
 				<UptimeSectionSkeleton />
 			</Section>
-			<Section id="quickstart">
-				<SectionHeader
-					title="Quickstart"
-					description="Start calling this model with endpoint-specific examples."
-				/>
-				<QuickstartSectionSkeleton />
-			</Section>
 			<Section id="about">
 				<SectionHeader
 					title="About"
@@ -1349,9 +1318,7 @@ export default function ModelOverviewSections({
 	showSubscriptions = true,
 	status,
 	isGatewayActive = true,
-	gatewayMetadata,
 	performancePromise,
-	quickstartRequestContext,
 }: ModelOverviewSectionsProps) {
 	const hasInternalModelData = Boolean(model);
 	const isRetired = status === "Retired";
@@ -1430,19 +1397,6 @@ export default function ModelOverviewSections({
 						</Suspense>
 					</Section>
 				) : null}
-				<Section id="quickstart">
-					<SectionHeader
-						title="Quickstart"
-						description="Retrieve catalog metadata for this model while it is not active in the Gateway."
-					/>
-					<ModelQuickstartSection
-						modelId={modelId}
-						includeHidden={includeHidden}
-						isGatewayActive={false}
-						gatewayMetadata={gatewayMetadata}
-						surface="overview"
-					/>
-				</Section>
 				{hasInternalModelData ? (
 					<>
 						<Section id="about">
@@ -1546,21 +1500,6 @@ export default function ModelOverviewSections({
 					<ModelUptimeSection
 						modelId={modelId}
 						performancePromise={performancePromise}
-					/>
-				</Suspense>
-			</Section>
-			<Section id="quickstart">
-				<SectionHeader
-					title="Quickstart"
-					description="Start calling this model with endpoint-specific examples."
-				/>
-				<Suspense fallback={<QuickstartSectionSkeleton />}>
-					<ModelQuickstartSection
-						modelId={modelId}
-						includeHidden={includeHidden}
-						gatewayMetadata={gatewayMetadata}
-						surface="overview"
-						quickstartRequestContext={quickstartRequestContext}
 					/>
 				</Suspense>
 			</Section>

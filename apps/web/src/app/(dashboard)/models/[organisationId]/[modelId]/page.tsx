@@ -34,10 +34,6 @@ import { notFound, permanentRedirect } from "next/navigation";
 import { Suspense } from "react";
 import { isFreeRouterModelId } from "@/lib/models/freeRouter";
 import FreeRouterOverview from "@/components/(data)/model/free-router/FreeRouterOverview";
-import {
-	resolveQuickstartRequestContext,
-	type QuickstartSearchParams,
-} from "@/components/(data)/model/quickstart/requestContext";
 import { JsonLdScript } from "@/components/seo/JsonLdScript";
 import ModelFaqSection from "@/components/(data)/model/overview/ModelFaqSection";
 import {
@@ -118,7 +114,6 @@ const baseModelPageTocItems: ModelPageTocItem[] = [
 	{ id: "activity", label: "Activity" },
 	{ id: "apps", label: "Apps" },
 	{ id: "uptime", label: "Uptime" },
-	{ id: "quickstart", label: "Quickstart" },
 	{ id: "about", label: "About" },
 	{ id: "subscriptions", label: "Subscriptions" },
 	{ id: "faq", label: "FAQ" },
@@ -191,18 +186,11 @@ export async function generateMetadata(props: {
 
 export default async function Page({
 	params,
-	searchParams,
 }: {
 	params: Promise<ModelRouteParams>;
-	searchParams: Promise<QuickstartSearchParams>;
 }) {
-	const [routeParams, routeSearchParams] = await Promise.all([
-		params,
-		searchParams,
-	]);
+	const routeParams = await params;
 	const includeHidden = false;
-	const quickstartRequestContext =
-		resolveQuickstartRequestContext(routeSearchParams);
 	const { requestedModelId, canonicalModelId } = await resolveModelRouteIds(
 		routeParams,
 		includeHidden,
@@ -338,7 +326,6 @@ export default async function Page({
 								status={modelOverview?.status}
 								isGatewayActive={isGatewayActive}
 								performancePromise={resolvedPerformancePromise}
-								quickstartRequestContext={quickstartRequestContext}
 							/>
 							{modelOverview ? (
 								<Suspense fallback={null}>

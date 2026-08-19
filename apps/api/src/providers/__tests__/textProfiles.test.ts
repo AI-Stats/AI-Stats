@@ -17,8 +17,8 @@ describe("text provider profiles", () => {
 	it("returns param policy overrides for known unsupported params", () => {
 		expect(
 			resolveTextProviderParamPolicyOverride({
-				providerId: "cerebras",
-				paramPathCandidates: ["presence_penalty"],
+				providerId: "cohere",
+				paramPathCandidates: ["stream_options"],
 			}),
 		).toBe(false);
 	});
@@ -55,5 +55,7 @@ describe("text provider profiles", () => {
 		expect(normalizeTextProviderServiceTier("anthropic", "standard")).toBe(
 			"standard",
 		);
+		expect(normalizeTextProviderServiceTier("morph", "standard")).toBe("default");
+		expect(normalizeTextProviderServiceTier("morph", "flex")).toBe("standby");
 	});
 });

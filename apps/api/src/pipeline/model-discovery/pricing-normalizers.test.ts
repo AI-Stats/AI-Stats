@@ -77,7 +77,7 @@ describe("normalizeProviderModelPricing", () => {
 		});
 	});
 
-	it("normalizes OpenRouter-compatible aggregator pricing", () => {
+	it("normalizes external aggregator pricing", () => {
 		expect(normalizeProviderModelPricing("openrouter", {
 			pricing: {
 				prompt: "0.0000004",
@@ -93,6 +93,34 @@ describe("normalizeProviderModelPricing", () => {
 				cached_write_text_tokens: 0.5,
 				input_text_tokens: 0.4,
 				output_text_tokens: 1.6,
+			},
+		});
+	});
+
+	it("normalizes external-provider multimodal pricing meters", () => {
+		expect(normalizeProviderModelPricing("openrouter", {
+			pricing: {
+				prompt: "0.0000003",
+				completion: "0.0000025",
+				image: "0.0000003",
+				image_output: "0.00003",
+				audio: "0.000001",
+				audio_output: "0.000002",
+				input_audio_cache: "0.0000001",
+				internal_reasoning: "0.0000025",
+			},
+		})).toEqual({
+			currency: "USD",
+			unit: "per_1m_tokens",
+			meters: {
+				cached_read_audio_tokens: 0.1,
+				input_audio_tokens: 1,
+				input_image_tokens: 0.3,
+				input_text_tokens: 0.3,
+				output_audio_tokens: 2,
+				output_image_tokens: 30,
+				output_reasoning_tokens: 2.5,
+				output_text_tokens: 2.5,
 			},
 		});
 	});
@@ -131,6 +159,69 @@ describe("normalizeProviderModelPricing", () => {
 				{ prompt: "0.0000005", completion: "0.0000015" },
 				{ min_context: 200_000, prompt: "0.000001", completion: "0.000003" },
 			],
+		})).toBeNull();
+	});
+
+	it("normalizes Vercel AI Gateway per-token prices", () => {
+		expect(normalizeProviderModelPricing("vercel", {
+			pricing: { input: "0.00000012", output: "0.00000024" },
+		})).toMatchObject({
+			meters: { input_text_tokens: 0.12, output_text_tokens: 0.24 },
+		});
+	});
+
+	it("normalizes NanoGPT per-million prices and cache prices", () => {
+		expect(normalizeProviderModelPricing("nano-gpt", {
+			pricing: {
+				prompt: 0.06,
+				completion: 0.3,
+				cacheReadInputPer1kTokens: 0.00003,
+				unit: "per_million_tokens",
+			},
+		})).toMatchObject({
+			meters: { input_text_tokens: 0.06, cached_read_text_tokens: 0.03, output_text_tokens: 0.3 },
+		});
+	});
+
+	it("normalizes only unconditional ZenMux token prices", () => {
+		expect(normalizeProviderModelPricing("zenmux", {
+			pricings: {
+				prompt: [{ value: 1.25, unit: "perMTokens", currency: "USD" }],
+				input_cache_read: [{ value: 0.15, unit: "perMTokens", currency: "USD" }],
+				completion: [{ value: 4.25, unit: "perMTokens", currency: "USD" }],
+			},
+		})).toMatchObject({
+			meters: { input_text_tokens: 1.25, cached_read_text_tokens: 0.15, output_text_tokens: 4.25 },
+		});
+		expect(normalizeProviderModelPricing("zenmux", {
+			pricings: {
+				prompt: [{ value: 1.25, unit: "perMTokens", currency: "USD", conditions: { prompt_tokens: { gte: 100 } } }],
+				completion: [{ value: 4.25, unit: "perMTokens", currency: "USD" }],
+			},
+		})).toMatchObject({ meters: { output_text_tokens: 4.25 } });
+	});
+
+	it("normalizes public aggregator feeds", () => {
+		expect(normalizeProviderModelPricing("pioneer", {
+			input_price_per_million: 1.5,
+			cache_read_price_per_million: 0.15,
+			output_price_per_million: 9,
+		})).toMatchObject({ meters: { input_text_tokens: 1.5, cached_read_text_tokens: 0.15, output_text_tokens: 9 } });
+		expect(normalizeProviderModelPricing("novita-ai", {
+			input_token_price_per_m: 30000,
+			output_token_price_per_m: 150000,
+			pricing: { input_cache_read: { price_per_m: 3000 } },
+		})).toMatchObject({ meters: { input_text_tokens: 3, cached_read_text_tokens: 0.3, output_text_tokens: 15 } });
+		expect(normalizeProviderModelPricing("requesty", {
+			input_price: 0.0000025,
+			cached_price: 0.00000025,
+			output_price: 0.000015,
+			pricing: [{ prompt_tokens_threshold: 0 }],
+		})).toMatchObject({ meters: { input_text_tokens: 2.5, cached_read_text_tokens: 0.25, output_text_tokens: 15 } });
+		expect(normalizeProviderModelPricing("requesty", {
+			input_price: 0.0000025,
+			output_price: 0.000015,
+			pricing: [{ prompt_tokens_threshold: 0 }, { prompt_tokens_threshold: 272000 }],
 		})).toBeNull();
 	});
 });

@@ -69,11 +69,13 @@ function normalizeResponsesFormat(request: Record<string, any>) {
 }
 
 export const groqQuirks: ProviderQuirks = {
-	transformRequest: ({ request }) => {
+	transformRequest: ({ request, ir }) => {
+		const isResponsesRequest = request.input_items != null || request.input != null;
+
 		// Groq currently rejects these legacy text-completions fields on OpenAI-compatible routes.
 		// Remove them proactively to avoid retry churn.
 		delete request.logprobs;
-		delete request.top_logprobs;
+		if (!isResponsesRequest) delete request.top_logprobs;
 		delete request.logit_bias;
 
 		if (request.n != null && request.n !== 1) {
@@ -90,8 +92,13 @@ export const groqQuirks: ProviderQuirks = {
 		}
 
 		// Responses API route normalization.
-		const isResponsesRequest = request.input_items != null || request.input != null;
 		if (!isResponsesRequest) return;
+
+		if (ir.reasoning && request.reasoning == null) {
+			const effort = ir.reasoning.effort
+				?? (ir.reasoning.enabled === false ? "none" : ir.reasoning.enabled === true ? "medium" : undefined);
+			if (effort !== undefined) request.reasoning = { effort };
+		}
 
 		if (request.input == null && request.input_items != null) {
 			request.input = request.input_items;
@@ -113,4 +120,3 @@ export const groqQuirks: ProviderQuirks = {
 		}
 	},
 };
-

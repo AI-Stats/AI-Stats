@@ -9,7 +9,6 @@ import { fetchAdminModelEditorSource, fetchAdminModelFormOptions } from "@/lib/f
 import BasicTab from "@/components/(data)/model/edit/tabs/BasicTab";
 import DetailsTab from "@/components/(data)/model/edit/tabs/DetailsTab";
 import BenchmarksTab from "@/components/(data)/model/edit/tabs/BenchmarksTab";
-import PricingTab from "@/components/(data)/model/edit/tabs/PricingTab";
 import SubscriptionPlansTab, {
 	type SubscriptionPlanModelPayload,
 } from "@/components/(data)/model/edit/tabs/SubscriptionPlansTab";
@@ -18,6 +17,7 @@ import ProvidersTab, {
 	type ProviderModelRow,
 } from "@/components/(data)/model/edit/tabs/ProvidersTab";
 import { updateModel } from "@/app/(dashboard)/models/actions";
+import V2PricingEditor from "./V2PricingEditor";
 
 type ModelData = {
 	model_id: string;
@@ -104,19 +104,6 @@ function normalizeSection(value: string | undefined): EditorSection {
 	return map[normalized] ?? "basic";
 }
 
-function parseModelKey(modelKey: string): {
-	provider_id: string;
-	api_model_id: string;
-	capability_id: string;
-} {
-	const [provider_id = "", api_model_id = "", ...rest] = modelKey.split(":");
-	return {
-		provider_id,
-		api_model_id,
-		capability_id: rest.join(":") || "text.generate",
-	};
-}
-
 type DetailsRow = {
 	id?: string;
 	detail_name: string;
@@ -141,32 +128,6 @@ type BenchmarkRow = {
 	variant: string | null;
 };
 
-type PricingRow = {
-	id: string;
-	model_key: string;
-	provider_id: string;
-	api_model_id: string;
-	capability_id: string;
-	pricing_plan: string;
-	meter: string;
-	unit: string;
-	unit_size: number;
-	price_per_unit: number;
-	currency: string;
-	note: string | null;
-	priority: number;
-	effective_from: string | null;
-	effective_to: string | null;
-	match: Array<{
-		path: string;
-		op: string;
-		value?: unknown;
-		and_index?: number;
-		or_group?: number;
-		note?: string;
-	}>;
-};
-
 export default function ModelLegacyEditor({
 	modelId,
 	initialTab,
@@ -185,7 +146,6 @@ export default function ModelLegacyEditor({
 	const [detailRows, setDetailRows] = useState<DetailsRow[] | null>(null);
 	const [linkRows, setLinkRows] = useState<LinkRow[] | null>(null);
 	const [benchmarkRows, setBenchmarkRows] = useState<BenchmarkRow[] | null>(null);
-	const [pricingRows, setPricingRows] = useState<PricingRow[] | null>(null);
 	const [subscriptionPlanRows, setSubscriptionPlanRows] = useState<
 		SubscriptionPlanModelPayload[] | null
 	>(null);
@@ -351,39 +311,6 @@ export default function ModelLegacyEditor({
 					modelId,
 					subscription_plan_models: subscriptionPlanRows,
 				});
-			} else if (activeSection === "pricing") {
-				if (pricingRows === null) {
-					throw new Error("Pricing rules are still loading. Please wait a moment and retry.");
-				}
-
-				await updateModel({
-					modelId,
-					pricing_rules: pricingRows
-						.map((row) => {
-							const parsed = parseModelKey(row.model_key ?? "");
-							return {
-								id:
-									typeof row.id === "string" && row.id.startsWith("new-")
-										? undefined
-										: row.id,
-								provider_id: row.provider_id ?? parsed.provider_id,
-								api_model_id: row.api_model_id ?? parsed.api_model_id,
-								capability_id: row.capability_id ?? parsed.capability_id,
-								pricing_plan: row.pricing_plan ?? "standard",
-								meter: row.meter,
-								unit: row.unit ?? "token",
-								unit_size: Number(row.unit_size ?? 1),
-								price_per_unit: Number(row.price_per_unit ?? 0),
-								currency: row.currency ?? "USD",
-								note: row.note ?? null,
-								match: Array.isArray(row.match) ? row.match : [],
-								priority: Number(row.priority ?? 100),
-								effective_from: row.effective_from ?? null,
-								effective_to: row.effective_to ?? null,
-							};
-						})
-						.filter((row) => row.provider_id && row.meter),
-				});
 			}
 		})();
 
@@ -423,15 +350,15 @@ export default function ModelLegacyEditor({
 	const currentSectionMeta = SECTION_META[activeSection];
 
 	return (
-		<div className="space-y-4">
-			<div className="rounded-lg border p-4">
+		<div className="min-w-0 space-y-3 sm:space-y-4">
+			<div className="rounded-lg border p-3 sm:p-4">
 				<div className="text-sm font-medium">
 					Editing: {currentSectionMeta.label}
 				</div>
 				<p className="mt-1 text-sm text-muted-foreground">
 					{currentSectionMeta.description}
 				</p>
-				<div className="mt-3 flex flex-wrap gap-2">
+				<div className="-mx-1 mt-3 flex gap-2 overflow-x-auto px-1 pb-1 sm:flex-wrap">
 					{SECTION_ORDER.map((section) => (
 						<Link
 							key={section}
@@ -442,7 +369,7 @@ export default function ModelLegacyEditor({
 									...(focusProviderId ? { provider: focusProviderId } : {}),
 								},
 							}}
-							className={`rounded-md border px-2 py-1 text-xs ${
+							className={`shrink-0 rounded-md border px-3 py-1.5 text-xs ${
 								section === activeSection
 									? "border-primary bg-primary/10 text-primary"
 									: "hover:bg-muted/40"
@@ -454,7 +381,7 @@ export default function ModelLegacyEditor({
 				</div>
 			</div>
 
-			<section className="space-y-3 rounded-lg border p-4">
+			<section className="min-w-0 space-y-3 rounded-lg border p-2 sm:p-4">
 				{activeSection === "basic" ? (
 					<BasicTab
 						model={model as any}
@@ -496,10 +423,7 @@ export default function ModelLegacyEditor({
 					/>
 				) : null}
 				{activeSection === "pricing" ? (
-					<PricingTab
-						modelId={modelId}
-						onPricingRulesChange={(rows) => setPricingRows(rows)}
-					/>
+					<V2PricingEditor modelId={modelId} focusProviderId={focusProviderId} />
 				) : null}
 			</section>
 
@@ -514,11 +438,11 @@ export default function ModelLegacyEditor({
 				</div>
 			) : null}
 
-			<div className="flex justify-end pt-2">
+			{activeSection !== "pricing" ? <div className="flex justify-end pt-2">
 				<Button onClick={handleSaveCurrentSection} disabled={saving}>
 					{saving ? "Saving..." : currentSectionMeta.saveLabel}
 				</Button>
-			</div>
+			</div> : null}
 		</div>
 	);
 }

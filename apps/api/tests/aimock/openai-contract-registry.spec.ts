@@ -37,6 +37,7 @@ const OPENAI_PARAMETER_EXPECTATIONS = {
     presence_penalty: { outcome: "forwarded", requestValue: 0.2, upstreamPaths: ["presence_penalty"] },
     prompt: { outcome: "forwarded", requestValue: "mock prompt", upstreamPaths: ["prompt"] },
     reasoning: { outcome: "transformed", requestValue: { effort: "medium" }, upstreamPaths: ["reasoning.effort", "reasoning_effort"] },
+    reasoning_effort: { outcome: "transformed", requestValue: "medium", upstreamPaths: ["reasoning.effort", "reasoning_effort"] },
     "reasoning.mode": { outcome: "transformed", requestValue: "enabled", upstreamPaths: ["reasoning"] },
     reference_images: { outcome: "transformed", requestValue: ["https://example.test/reference.png"], upstreamPaths: ["input_reference"] },
     response_format: { outcome: "transformed", requestValue: { type: "json_object" }, upstreamPaths: ["text.format", "response_format"] },

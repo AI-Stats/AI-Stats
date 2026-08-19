@@ -15,7 +15,7 @@
   "routable": false,
   "routing_enabled": false,
   "sdk_package": null,
-  "api_base_url": "https://neuro.mancer.tech/v1",
+  "api_base_url": "https://neuro.mancer.tech/oai/v1",
   "docs_url": "https://mancer.tech/docs-api/",
   "auth_env": null,
   "api_formats": ["openai.chat.completions", "openai.completions"],
@@ -24,13 +24,13 @@
     {
       "kind": "documentation",
       "url": "https://mancer.tech/docs-api/",
-      "accessed_at": "2026-08-01T00:00:00Z",
+      "accessed_at": "2026-08-12T00:00:00Z",
       "notes": "Official API documentation."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-01T00:00:00Z",
+    "checked_at": "2026-08-12T00:00:00Z",
     "notes": "Provider identity, API compatibility, model catalogue, billing and content policy verified against first-party pages."
   }
 }

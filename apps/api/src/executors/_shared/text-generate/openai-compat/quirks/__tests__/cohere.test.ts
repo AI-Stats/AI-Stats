@@ -15,6 +15,13 @@ describe("Cohere quirks", () => {
 			audio: { voice: "alloy" },
 			service_tier: "default",
 			parallel_tool_calls: true,
+			tool_choice: "auto",
+			logprobs: true,
+			repetition_penalty: 1.1,
+			top_k: 20,
+			user: "user-1",
+			prompt_cache_key: "cache-1",
+			web_search_options: {},
 		};
 
 		cohereQuirks.transformRequest?.({ request, ir: {} as any });
@@ -30,6 +37,13 @@ describe("Cohere quirks", () => {
 		expect(request.audio).toBeUndefined();
 		expect(request.service_tier).toBeUndefined();
 		expect(request.parallel_tool_calls).toBeUndefined();
+		expect(request.tool_choice).toBeUndefined();
+		expect(request.logprobs).toBeUndefined();
+		expect(request.repetition_penalty).toBeUndefined();
+		expect(request.top_k).toBeUndefined();
+		expect(request.user).toBeUndefined();
+		expect(request.prompt_cache_key).toBeUndefined();
+		expect(request.web_search_options).toBeUndefined();
 	});
 
 	it("maps reasoning effort to Cohere-supported values", () => {
@@ -68,4 +82,3 @@ describe("Cohere quirks", () => {
 		expect(request.reasoning_effort).toBe("high");
 	});
 });
-

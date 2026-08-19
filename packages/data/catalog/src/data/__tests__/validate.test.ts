@@ -5,6 +5,7 @@ import {
     checkApiProviderModelEntrySafety,
     checkPreviousModelReference,
     checkPricingEntrySafety,
+    checkSubscriptionPlanModels,
     isMajorError,
 } from '@/data/validate';
 
@@ -43,6 +44,21 @@ describe('model lineage reference checks', () => {
             previousModelExists: true,
             previousModelOrganisationId: 'openai',
         })[0]).toContain('from a different organisation');
+    });
+});
+
+describe('subscription plan model checks', () => {
+    test('duplicate model IDs are rejected before import', () => {
+        expect(checkSubscriptionPlanModels(
+            'example-plan',
+            [
+                { model_id: 'example/model' },
+                { model_id: 'example/model' },
+            ],
+            new Set(['example/model']),
+        )).toEqual([
+            'Subscription plan example-plan contains duplicate model example/model',
+        ]);
     });
 });
 
@@ -277,6 +293,12 @@ describe('pricing safety checks', () => {
 });
 
 describe('api provider model safety checks', () => {
+    test('Venice E2EE models remain unroutable until the encryption protocol is implemented', () => {
+        const rows = readProviderModels('venice-e2ee');
+        expect(rows.length).toBeGreaterThan(0);
+        expect(rows.every((row: any) => row.is_active_gateway === false && row.routable === false)).toBe(true);
+    });
+
     test('Kimi K3 provider rows retain provider-specific limits and support', () => {
         const gmi = readProviderModels('gmicloud').find(
             (row: any) => row.provider_api_model_id === 'gmicloud:moonshotai/kimi-k3'

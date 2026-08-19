@@ -3,7 +3,7 @@
   "displayName": "LongCat",
   "source": {
     "kind": "official-docs",
-    "url": "https://longcat.chat/platform/docs"
+    "url": "https://longcat.chat/platform/docs/APIDocs.html"
   },
   "operations": [
     {
