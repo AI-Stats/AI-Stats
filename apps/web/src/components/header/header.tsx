@@ -1,5 +1,6 @@
 // components/header/Header.tsx  (STATIC)
 import Link from "next/link";
+import Image from "next/image";
 import { Suspense } from "react";
 import AuthControls from "./AuthControls";
 import MainNav from "./MainNav";
@@ -22,7 +23,32 @@ export default function Header() {
 				<Suspense fallback={null}>
 					<SettingsSidebarTrigger />
 				</Suspense>
-				<BrandMenu />
+				<BrandMenu>
+					<Link
+						href="/"
+						aria-label="Phaseo home"
+						className="inline-flex h-[var(--site-header-control-h,2.25rem)] shrink-0 items-center rounded-lg px-[var(--site-header-nav-px,0.75rem)] transition-colors hover:bg-zinc-100/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/50 data-[state=open]:bg-zinc-100/70 dark:hover:bg-zinc-900/60 dark:focus-visible:ring-zinc-600/50 dark:data-[state=open]:bg-zinc-900/60"
+					>
+						<Image
+							src="/wordmark_light.svg"
+							alt="Phaseo"
+							width={154}
+							height={40}
+							className="h-[var(--site-header-logo-height,2.5rem)] w-auto select-none dark:hidden"
+							style={{ width: "auto" }}
+							priority
+						/>
+						<Image
+							src="/wordmark_dark.svg"
+							alt="Phaseo"
+							width={154}
+							height={40}
+							className="hidden h-[var(--site-header-logo-height,2.5rem)] w-auto select-none dark:block"
+							style={{ width: "auto" }}
+							priority
+						/>
+					</Link>
+				</BrandMenu>
 				<div className="hidden h-[var(--site-header-divider-height,1.5rem)] w-px bg-zinc-200/70 dark:bg-zinc-800 lg:block" />
 				<div className="hidden max-w-full lg:block">
 					<Suspense
@@ -120,5 +146,4 @@ export default function Header() {
 		</header>
 	);
 }
-
 

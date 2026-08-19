@@ -3,7 +3,13 @@
 import Image from "next/image";
 import { Check, Copy } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useState } from "react";
+import {
+	cloneElement,
+	type KeyboardEvent,
+	type MouseEvent,
+	type ReactElement,
+	useState,
+} from "react";
 import { toast } from "sonner";
 import {
 	DropdownMenu,
@@ -17,10 +23,34 @@ const brandAssets = [
 	{ name: "Logo", file: "logo", width: 64, height: 64 },
 ] as const;
 
-export function BrandMenu() {
+type BrandMenuTriggerProps = {
+	onContextMenu?: (event: MouseEvent) => void;
+	onKeyDown?: (event: KeyboardEvent) => void;
+};
+
+export function BrandMenu({
+	children,
+}: {
+	children: ReactElement<BrandMenuTriggerProps>;
+}) {
 	const { resolvedTheme } = useTheme();
+	const [open, setOpen] = useState(false);
 	const [copiedAsset, setCopiedAsset] = useState<string | null>(null);
 	const assetTheme = resolvedTheme === "dark" ? "dark" : "light";
+	const trigger = cloneElement(children, {
+		onContextMenu: (event: MouseEvent) => {
+			event.preventDefault();
+			setOpen(true);
+		},
+		onKeyDown: (event: KeyboardEvent) => {
+			if (event.key !== "ContextMenu" && !(event.shiftKey && event.key === "F10")) {
+				return;
+			}
+
+			event.preventDefault();
+			setOpen(true);
+		},
+	});
 
 	async function copyAsset(name: string, file: string) {
 		try {
@@ -37,35 +67,20 @@ export function BrandMenu() {
 	}
 
 	return (
-		<DropdownMenu>
+		<DropdownMenu
+			open={open}
+			onOpenChange={(nextOpen) => {
+				if (!nextOpen) setOpen(false);
+			}}
+		>
 			<DropdownMenuTrigger asChild>
-				<button
-					type="button"
-					aria-label="Open Phaseo brand assets"
-					className="inline-flex h-[var(--site-header-control-h,2.25rem)] shrink-0 items-center rounded-lg px-[var(--site-header-nav-px,0.75rem)] transition-colors hover:bg-zinc-100/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/50 data-[state=open]:bg-zinc-100/70 dark:hover:bg-zinc-900/60 dark:focus-visible:ring-zinc-600/50 dark:data-[state=open]:bg-zinc-900/60"
-				>
-					<Image
-						src="/wordmark_light.svg"
-						alt="Phaseo"
-						width={154}
-						height={40}
-						className="h-[var(--site-header-logo-height,2.5rem)] w-auto select-none dark:hidden"
-						style={{ width: "auto" }}
-						priority
-					/>
-					<Image
-						src="/wordmark_dark.svg"
-						alt="Phaseo"
-						width={154}
-						height={40}
-						className="hidden h-[var(--site-header-logo-height,2.5rem)] w-auto select-none dark:block"
-						style={{ width: "auto" }}
-						priority
-					/>
-				</button>
+				{trigger}
 			</DropdownMenuTrigger>
-			<DropdownMenuContent align="start" className="w-[22rem] rounded-xl p-2">
-				<div className="grid grid-cols-2 gap-2">
+			<DropdownMenuContent
+				align="start"
+				className="w-[min(22rem,calc(100vw-1rem))] rounded-xl p-2"
+			>
+				<div className="grid grid-cols-1 gap-2 min-[22rem]:grid-cols-2">
 					{brandAssets.map(({ name, file, width, height }) => {
 						const copied = copiedAsset === name;
 
