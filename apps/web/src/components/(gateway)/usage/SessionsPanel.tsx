@@ -456,6 +456,7 @@ function SessionDetailSheet({
 	modelMetadata,
 	providerNames,
 	providerMetadata,
+	loading,
 	open,
 	onOpenChange,
 }: {
@@ -465,6 +466,7 @@ function SessionDetailSheet({
 	modelMetadata: ModelMetadataMap;
 	providerNames: Map<string, string>;
 	providerMetadata: Map<string, ProviderMetadataEntry>;
+	loading: boolean;
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 }) {
@@ -530,12 +532,15 @@ function SessionDetailSheet({
 	const headlineMetrics = [
 		{ label: "Requests", value: session.request_count.toLocaleString() },
 		{ label: "Duration", value: formatDuration(sessionDuration) },
-		{ label: "Input tokens", value: formatUsageNumber(tokenTotals.input) },
-		{ label: "Output tokens", value: formatUsageNumber(tokenTotals.output) },
+		{ label: "Input tokens", value: loading ? "…" : formatUsageNumber(tokenTotals.input) },
+		{ label: "Output tokens", value: loading ? "…" : formatUsageNumber(tokenTotals.output) },
 		{ label: "Cost", value: formatMoneyFromNanos(session.total_cost_nanos) },
 		{
 			label: "Success rate",
-			value: successRate == null ? "-" : `${successRate.toFixed(successRate === 100 ? 0 : 1)}%`,
+			value:
+				loading || successRate == null
+					? "…"
+					: `${successRate.toFixed(successRate === 100 ? 0 : 1)}%`,
 		},
 	];
 	const subtitle = [
@@ -701,28 +706,29 @@ function SessionDetailSheet({
 											return (
 											<TableRow
 												key={`${request.request_id}-${request.created_at}-${index}`}
-												role="button"
-												tabIndex={0}
 												className="h-12 cursor-pointer hover:bg-muted/40"
 												onClick={() => {
 													setSelectedRequest(request);
 													setRequestDetailOpen(true);
 												}}
-											onKeyDown={(event) => {
-												if (event.target !== event.currentTarget) return;
-												if (event.key === "Enter" || event.key === " ") {
-														event.preventDefault();
-														setSelectedRequest(request);
-														setRequestDetailOpen(true);
-													}
-												}}
 												>
 													<TableCell className="py-2 font-mono text-xs">
-														<TimeHover
-															value={request.created_at}
-															userTimeZone={userTimeZone}
-															relativeNowMs={relativeNowMs}
-														/>
+														<button
+															type="button"
+															className="text-left"
+															aria-label={`Open details for request ${request.request_id}`}
+															onClick={(event) => {
+																event.stopPropagation();
+																setSelectedRequest(request);
+																setRequestDetailOpen(true);
+															}}
+														>
+															<TimeHover
+																value={request.created_at}
+																userTimeZone={userTimeZone}
+																relativeNowMs={relativeNowMs}
+															/>
+														</button>
 													</TableCell>
 											<TableCell className="py-2">
 												{request.client_source_name ?? request.client_source_id ?? "Direct HTTP"}
@@ -1281,6 +1287,7 @@ export default function SessionsPanel({
 				modelMetadata={modelMetadata}
 				providerNames={providerNames}
 				providerMetadata={providerMetadata}
+				loading={isLoadingDetail}
 				open={open}
 				onOpenChange={(nextOpen) => {
 					setOpen(nextOpen);

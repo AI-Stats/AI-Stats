@@ -125,8 +125,12 @@ function RequestRowContextMenu({
 		requestId || sessionId || nativeResponseId || resolvedModelId,
 	);
 	const copyValue = async (label: string, value: string) => {
-		await navigator.clipboard.writeText(value);
-		toast.success(`${label} copied`);
+		try {
+			await navigator.clipboard.writeText(value);
+			toast.success(`${label} copied`);
+		} catch {
+			toast.error(`Failed to copy ${label.toLowerCase()}`);
+		}
 	};
 
 	return (
