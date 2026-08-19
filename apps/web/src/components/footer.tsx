@@ -10,7 +10,6 @@ const startYear = 2025;
 const productLinks = [
 	{ href: "/models", label: "Models" },
 	{ href: "/chat", label: "Chat" },
-	{ href: "/compare", label: "Compare" },
 	{ href: "/api-providers", label: "Providers" },
 	{ href: "/apps", label: "Apps" },
 	{ href: "/rankings", label: "Rankings" },
@@ -30,13 +29,18 @@ const developerLinks = [
 		label: "SDKs",
 		external: true,
 	},
+];
+
+const resourceLinks = [
+	{ href: "/compare", label: "Compare" },
+	{ href: "/migrate", label: "Migration Guides" },
 	{ href: "/methodology", label: "Methodology" },
+	{ href: "/blog", label: "Blog" },
 ];
 
 const companyLinks = [
 	{ href: "/about", label: "About" },
 	{ href: "/mission", label: "Mission" },
-	{ href: "/blog", label: "Blog" },
 	{ href: "/pricing", label: "Pricing" },
 	{ href: "/works-with", label: "Works With" },
 	{ href: "/acknowledgements", label: "Acknowledgements" },
@@ -129,8 +133,8 @@ export default function Footer() {
 	return (
 		<footer className="mt-auto w-full overflow-x-clip border-t border-zinc-200/80 bg-white dark:border-zinc-800 dark:bg-zinc-950">
 			<div className="mx-auto flex w-full max-w-[1280px] flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
-				<div className="grid grid-cols-2 items-start gap-x-4 gap-y-6 sm:gap-x-6 lg:grid-cols-[minmax(0,1.3fr)_repeat(4,minmax(0,0.8fr))]">
-					<div className="col-span-2 min-w-0 lg:col-span-1">
+				<div className="grid grid-cols-2 items-start gap-x-4 gap-y-6 sm:gap-x-6 lg:grid-cols-5 xl:grid-cols-[minmax(0,1.25fr)_repeat(5,minmax(0,0.8fr))]">
+					<div className="col-span-2 min-w-0 lg:col-span-5 xl:col-span-1">
 						<div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2">
 							<Link href="/" className="inline-flex w-fit max-w-full items-center">
 								<Image
@@ -156,11 +160,26 @@ export default function Footer() {
 							</div>
 						</div>
 					</div>
-					<FooterLinkList title="Explore" links={productLinks} />
-					<FooterLinkList title="Build" links={developerLinks} />
-					<FooterLinkList title="Company" links={companyLinks} />
-					<div className="grid gap-3">
-						<FooterLinkList title="Community" links={communityLinks} />
+					<div className="col-span-2 grid grid-cols-2 gap-x-4 sm:gap-x-6 lg:contents">
+						<div className="flex min-w-0 flex-col gap-6 lg:contents">
+							<div className="lg:order-1">
+								<FooterLinkList title="Explore" links={productLinks} />
+							</div>
+							<div className="lg:order-3">
+								<FooterLinkList title="Resources" links={resourceLinks} />
+							</div>
+							<div className="lg:order-5">
+								<FooterLinkList title="Community" links={communityLinks} />
+							</div>
+						</div>
+						<div className="flex min-w-0 flex-col gap-6 lg:contents">
+							<div className="lg:order-2">
+								<FooterLinkList title="Build" links={developerLinks} />
+							</div>
+							<div className="lg:order-4">
+								<FooterLinkList title="Company" links={companyLinks} />
+							</div>
+						</div>
 					</div>
 				</div>
 
