@@ -424,7 +424,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 	];
 
 	const migrationItems = getMigrationPosts().map((post) =>
-		createItem(`/migrate/${post.slug}`, "weekly", 0.6, post.updatedAt),
+		createItem(
+			`/migrate/${post.slug}`,
+			"weekly",
+			post.slug === "openrouter" ? 0.82 : 0.6,
+			post.updatedAt,
+		),
 	);
 
 	const helpCategoryParams = fromSettled(
