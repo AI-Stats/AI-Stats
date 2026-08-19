@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils"
 function ScrollArea({
   className,
   viewportClassName,
+  viewportProps,
   scrollBarOrientation = "vertical",
   viewportRef,
   keepScrollbarMounted = false,
@@ -17,6 +18,7 @@ function ScrollArea({
   ...props
 }: ScrollAreaPrimitive.Root.Props & {
   viewportClassName?: string
+  viewportProps?: ScrollAreaPrimitive.Viewport.Props
   scrollBarOrientation?: "vertical" | "horizontal" | "both"
   viewportRef?: React.Ref<HTMLDivElement>
   keepScrollbarMounted?: boolean
@@ -31,6 +33,7 @@ function ScrollArea({
       {...props}
     >
       <ScrollAreaPrimitive.Viewport
+        {...viewportProps}
         ref={viewportRef}
         data-radix-scroll-area-viewport=""
         data-slot="scroll-area-viewport"
