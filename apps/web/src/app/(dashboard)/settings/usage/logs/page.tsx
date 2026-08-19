@@ -145,17 +145,35 @@ export async function UsageLogsContent({
 	const sp = selectedView ? { ...rawSearchParams, view: selectedView } : rawSearchParams;
 	const initialData = await fetchSettingsUsageLogsInitialData(sp);
 
-	if (!initialData.signedIn) redirect("/sign-in");
+	if (!initialData.signedIn || initialData.loadState === "unauthorized") redirect("/sign-in");
+
+	if (initialData.loadState === "failed") {
+		return (
+			<Card>
+				<CardHeader><CardTitle>Logs unavailable</CardTitle></CardHeader>
+				<CardContent><p className="text-sm text-muted-foreground">We couldn&apos;t load request logs. Try again in a moment.</p></CardContent>
+			</Card>
+		);
+	}
+
+	if (initialData.loadState === "forbidden") {
+		return (
+			<Card>
+				<CardHeader><CardTitle>Workspace access changed</CardTitle></CardHeader>
+				<CardContent><p className="text-sm text-muted-foreground">You no longer have access to this workspace. Select another workspace to view its logs.</p></CardContent>
+			</Card>
+		);
+	}
 
 	if (!initialData.workspaceId) {
 		return (
 			<Card>
 				<CardHeader>
-					<CardTitle>Usage Logs</CardTitle>
+					<CardTitle>No workspace available</CardTitle>
 				</CardHeader>
 				<CardContent>
 					<p className="text-sm text-muted-foreground">
-						You need to be signed in and have a team selected to view logs.
+						Join or create a workspace to view request logs.
 					</p>
 				</CardContent>
 			</Card>
