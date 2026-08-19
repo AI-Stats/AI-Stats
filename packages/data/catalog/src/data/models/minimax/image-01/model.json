@@ -4,16 +4,22 @@
   "name": "Image 01",
   "status": "Available",
   "previous_model_id": null,
-  "description": "Image 01 is a language model from MiniMax for chat, writing, analysis, and general-purpose automation.",
+  "description": "Image-01 is MiniMax's image generation model for text-to-image and subject-reference image-to-image generation.",
   "announced_date": "2025-02-15T00:00:00",
   "release_date": "2025-02-15T00:00:00",
   "deprecation_date": null,
   "retirement_date": null,
   "license": "Proprietary",
-  "input_types": null,
-  "output_types": null,
+  "input_types": ["text", "image"],
+  "output_types": ["image"],
   "api_model_id": "minimax/image-01",
-  "links": [],
+  "links": [
+    {
+      "kind": "documentation",
+      "title": "Official image generation guide",
+      "url": "https://platform.minimax.io/docs/guides/image-generation"
+    }
+  ],
   "details": [],
   "benchmarks": [],
   "family_id": null,
@@ -22,8 +28,8 @@
   "knowledge_cutoff": null,
   "limits": {
     "context": null,
-    "input": null,
-    "output": null
+    "input": ["text", "image"],
+    "output": ["image"]
   },
   "modalities": {
     "input": null,
@@ -42,13 +48,19 @@
     "web_search": null
   },
   "open_weights": null,
-  "sources": [],
+  "sources": [
+    {
+      "kind": "documentation",
+      "url": "https://platform.minimax.io/docs/guides/image-generation",
+      "accessed_at": "2026-08-12T00:00:00Z"
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-12T00:00:00Z",
+    "notes": "Verified against MiniMax's official image generation guide and text-to-image/image-to-image OpenAPI specifications."
   },
-  "last_updated": null,
+  "last_updated": "2026-08-12T00:00:00Z",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

@@ -49,7 +49,42 @@ import {
 	findPathInstallations,
 	packageManagerFromPath,
 } from "../src/installation.ts";
-import { sanitizeTerminalText } from "../src/output.ts";
+import { createSpinner, sanitizeTerminalText, terminalSupportsColor, terminalUi } from "../src/output.ts";
+
+test("keeps terminal styling deterministic for agents and pipes", () => {
+	assert.equal(terminalSupportsColor({ isTTY: false, env: {} }), false);
+	assert.equal(terminalSupportsColor({ isTTY: true, env: { NO_COLOR: "1" } }), false);
+	assert.equal(terminalSupportsColor({ isTTY: true, env: { TERM: "dumb" } }), false);
+	assert.equal(terminalSupportsColor({ isTTY: false, env: { FORCE_COLOR: "1" } }), true);
+	assert.equal(terminalSupportsColor({ isTTY: false, env: { FORCE_COLOR: "1", NO_COLOR: "1" } }), true);
+	assert.equal(terminalUi({ isTTY: false, env: {} }).success("Ready"), "✓ Ready");
+	assert.doesNotMatch(renderHelp([], { isTTY: false, env: {} }), /\u001b\[/);
+	assert.match(renderHelp([], { isTTY: true, env: { FORCE_COLOR: "1" } }), /\u001b\[/);
+});
+
+test("spinner animates only when explicitly enabled and clears its line", () => {
+	let output = "";
+	const stream = { write(chunk: string | Uint8Array) { output += String(chunk); return true; } };
+	const spinner = createSpinner("Working", {
+		enabled: true,
+		env: { NO_COLOR: "1" },
+		frames: ["/", "-", "\\", "|"],
+		intervalMs: 60_000,
+		stream: stream as Pick<NodeJS.WriteStream, "write">,
+	});
+	spinner.succeed("Ready");
+	assert.equal(spinner.active, true);
+	assert.match(output, /^\r\/ Working\r\u001b\[2K✓ Ready\n$/);
+
+	output = "";
+	createSpinner("Hidden", { enabled: false, stream: stream as Pick<NodeJS.WriteStream, "write"> }).succeed();
+	assert.equal(output, "");
+
+	const dumb = createSpinner("Hidden", { enabled: true, env: { TERM: "dumb" }, stream: stream as Pick<NodeJS.WriteStream, "write"> });
+	assert.equal(dumb.active, false);
+	dumb.succeed();
+	assert.equal(output, "");
+});
 
 test("normalizes API roots for oauth and v1 endpoints", () => {
 	assert.equal(DEFAULT_API_URL, "https://api.phaseo.app");

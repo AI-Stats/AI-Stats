@@ -7,6 +7,7 @@ import {
 	sendCreditsPurchasedEvent,
 } from "@/lib/automations/resend-events";
 import { getStripe } from "@/lib/stripe";
+import { readBoundedTextBody } from "@/lib/server/boundedRequestBody";
 
 const TOP_UP_PURPOSES = new Set(["top_up", "top_up_one_off", "auto_top_up", "credits_topup_offsession"]);
 type AppliedCreditRow = { applied?: boolean; before_balance_nanos?: number; after_balance_nanos?: number };
@@ -232,12 +233,6 @@ function getWebhookSecret(): string {
     return secret;
 }
 
-function redactSecret(secret: string): string {
-    if (!secret) return "<empty>";
-    if (secret.length <= 12) return `${secret.slice(0, 4)}...`;
-    return `${secret.slice(0, 7)}...${secret.slice(-4)}`;
-}
-
 function summarizeStripeSignatureHeader(signature: string) {
     const parts = signature
         .split(",")
@@ -427,12 +422,18 @@ async function upsertTeamInvoiceFromStripeInvoice(args: {
     if (error) throw error;
 }
 
+const MAX_STRIPE_WEBHOOK_BYTES = 1024 * 1024;
+
 export async function POST(req: Request) {
     const stripe = getStripe();
     const supabase = getSupabase();
 
     // IMPORTANT: read raw body for signature verification
-    const rawBody = await req.text();
+    const boundedBody = await readBoundedTextBody(req, MAX_STRIPE_WEBHOOK_BYTES);
+    if (!boundedBody.ok) {
+        return new Response("Webhook body too large", { status: 413 });
+    }
+    const rawBody = boundedBody.text;
     const signature = req.headers.get("stripe-signature") ?? "";
     const signatureSummary = summarizeStripeSignatureHeader(signature);
 
@@ -441,19 +442,13 @@ export async function POST(req: Request) {
         const webhookSecret = getWebhookSecret();
         event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
     } catch (err: any) {
-        const configuredSecret = process.env.STRIPE_WEBHOOK_SECRET ?? "";
-        const normalizedSecret =
-            typeof configuredSecret === "string"
-                ? configuredSecret.trim().replace(/^["']|["']$/g, "")
-                : "";
         console.error("[stripe-webhook] Signature verification failed", {
             error: err?.message ?? String(err),
             bodyLength: rawBody.length,
             hasStripeSignatureHeader: signatureSummary.present,
             signatureTimestamp: signatureSummary.timestamp,
             signatureV1Count: signatureSummary.v1Count,
-            configuredSecretLength: normalizedSecret.length,
-            configuredSecretPreview: redactSecret(normalizedSecret),
+            hasConfiguredSecret: Boolean(process.env.STRIPE_WEBHOOK_SECRET?.trim()),
         });
         return NextResponse.json(
             { message: `Webhook Error: ${err?.message || String(err)}` },

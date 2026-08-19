@@ -271,7 +271,7 @@ export function ChatSidebar({
 	const renderThreadItem = (thread: ChatThread, pinned = false) => {
 		const selected = selectedThreadIds.has(thread.id);
 		return (
-		<SidebarMenuItem key={thread.id} className="w-full overflow-hidden">
+		<SidebarMenuItem key={thread.id} className="mb-1 w-full overflow-hidden last:mb-0">
 			<SidebarMenuButton
 				isActive={chatEditMode ? selected : activeId === thread.id}
 				onClick={() =>
@@ -279,7 +279,7 @@ export function ChatSidebar({
 						? toggleThreadSelection(thread.id)
 						: onSelectThread(thread)
 				}
-				className={chatEditMode ? "gap-2" : undefined}
+				className={cn("rounded-md", chatEditMode && "gap-2")}
 			>
 				{chatEditMode ? (
 					<span
@@ -306,7 +306,7 @@ export function ChatSidebar({
 							<MoreHorizontal className="h-4 w-4" />
 
 					</DropdownMenuTrigger>
-					<DropdownMenuContent side="right" className="rounded-[8px]! [&_[data-slot=dropdown-menu-item]]:rounded-[8px]!">
+					<DropdownMenuContent side="right" className="rounded-md [&_[data-slot=dropdown-menu-item]]:rounded-md">
 						<DropdownMenuItem onClick={() => onRenameThread(thread)}>
 							<PencilLine className="mr-2 h-4 w-4" />
 							Rename
@@ -629,11 +629,9 @@ export function ChatSidebar({
 										<span className="truncate text-sm font-medium">
 											{firstName}
 										</span>
-										<span className="truncate text-[11px] font-normal text-muted-foreground">
-											{temporaryMode
-												? "Temporary chat is active."
-												: "All data is stored locally."}
-										</span>
+									<span className="truncate text-[11px] font-normal text-muted-foreground">
+										All data is stored locally.
+									</span>
 									</div>
 
 							</DropdownMenuTrigger>
@@ -641,7 +639,7 @@ export function ChatSidebar({
 								side={collapsed ? "right" : "top"}
 								align="start"
 								sideOffset={8}
-								className="z-[90] w-56 rounded-[8px]! [&_[data-slot=dropdown-menu-item]]:rounded-[8px]!"
+								className="z-[90] w-56 rounded-md [&_[data-slot=dropdown-menu-item]]:rounded-md"
 							>
 								<DropdownMenuItem render={<Link href="/settings/account" />}>
 
@@ -682,11 +680,6 @@ export function ChatSidebar({
 								</DropdownMenuItem>
 							</DropdownMenuContent>
 						</DropdownMenu>
-						{temporaryMode && !collapsed && (
-							<p className="text-[11px] text-muted-foreground">
-								Messages will not be saved.
-							</p>
-						)}
 					</div>
 				) : authLoading ? (
 					<div className="h-9 w-full rounded-md bg-muted/40" />

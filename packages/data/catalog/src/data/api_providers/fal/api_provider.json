@@ -38,13 +38,13 @@
     {
       "kind": "official_documentation",
       "url": "https://fal.ai/docs/documentation/model-apis/inference/queue",
-      "accessed_at": "2026-08-10T00:00:00Z",
+      "accessed_at": "2026-08-12T00:00:00Z",
       "notes": "Queue submission, polling, result retrieval, cancellation, and webhook lifecycle."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-10T00:00:00Z",
-    "notes": "Fal queue lifecycle and Seedance 2.0 endpoint IDs verified against official documentation."
+    "checked_at": "2026-08-12T00:00:00Z",
+    "notes": "fal queue submission, polling, result retrieval, request cancellation, and Seedance 2.0 endpoint IDs verified against official documentation."
   }
 }

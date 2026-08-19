@@ -26,7 +26,7 @@ export function resolveAzureConfig(): AzureOpenAIConfig {
     const configuredApiVersion = bindings.AZURE_OPENAI_API_VERSION?.trim();
     return {
         baseUrl,
-        apiVersion: configuredApiVersion || "2024-10-21",
+        apiVersion: configuredApiVersion || "v1",
     };
 }
 
@@ -34,9 +34,19 @@ export function resolveAzureKey(args: ProviderExecuteArgs): ResolvedKey {
     return resolveProviderKey(args, () => getBindings().AZURE_OPENAI_API_KEY);
 }
 
-export function azureHeaders(key: string): Record<string, string> {
+export type AzureCredential = ResolvedKey & { authType: "api-key" | "entra" };
+
+export function resolveAzureCredential(args: ProviderExecuteArgs): AzureCredential {
+	const apiKey = resolveProviderKey(args, () => getBindings().AZURE_OPENAI_API_KEY, { allowEmptyFallback: true });
+	if (apiKey.key) return { ...apiKey, authType: "api-key" };
+	const token = getBindings().AZURE_OPENAI_AUTH_TOKEN?.trim();
+	if (token) return { key: token, source: "gateway", byokId: null, authType: "entra" };
+	return { ...resolveAzureKey(args), authType: "api-key" };
+}
+
+export function azureHeaders(key: string, authType: "api-key" | "entra" = "api-key"): Record<string, string> {
     return {
-        "api-key": key,
+		...(authType === "entra" ? { Authorization: `Bearer ${key}` } : { "api-key": key }),
         "Content-Type": "application/json",
     };
 }
@@ -58,8 +68,14 @@ export function azureUrl(path: string, apiVersion: string, baseUrl?: string): st
     return `${base}/${trimmedPath}?api-version=${encodeURIComponent(apiVersion)}`;
 }
 
-export function azureOpenAIV1Url(path: string, baseUrl?: string): string {
+export function azureOpenAIV1Url(path: string, baseUrl?: string, apiVersion = "v1"): string {
     const base = azureResourceBaseUrl(baseUrl ?? resolveAzureConfig().baseUrl);
     const trimmedPath = path.replace(/^\/+/, "");
-    return `${base}/openai/v1/${trimmedPath}`;
+	const url = `${base}/openai/v1/${trimmedPath}`;
+	return apiVersion.trim().toLowerCase() === "preview" ? `${url}?api-version=preview` : url;
+}
+
+export function usesAzureV1(apiVersion: string): boolean {
+	const normalized = apiVersion.trim().toLowerCase();
+	return normalized === "v1" || normalized === "preview";
 }

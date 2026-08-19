@@ -124,7 +124,7 @@
     "internal_model_id": "microsoft/phi-4-multimodal-instruct",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text",
+    "input_modalities": "text,image,audio",
     "output_modalities": "text",
     "context_length": 128000,
     "max_output_tokens": 16384,
@@ -139,7 +139,7 @@
         "tool_call": false,
         "structured_output": false,
         "temperature": null,
-        "attachment": false,
+        "attachment": true,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
@@ -163,16 +163,16 @@
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: microsoft/phi-4-multimodal-instruct"
+        "kind": "provider_docs",
+        "url": "https://build.nvidia.com/microsoft/phi-4-multimodal-instruct",
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Official NVIDIA model page documents text, image, and audio input with text output; the free hosted endpoint is deprecated."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Modalities and hosted endpoint deprecation verified against the official NVIDIA model page; routing remains disabled."
     },
     "rate_limits": []
   },
@@ -301,11 +301,11 @@
         "capability_id": "text.generate",
         "status": "active",
         "params": [],
-        "reasoning": null,
+        "reasoning": true,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
+        "attachment": true,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
@@ -323,11 +323,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_docs",
+        "url": "https://build.nvidia.com/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Official hosted NIM page documents text, image, audio, and video input, reasoning_budget, text output, and the shared Chat Completions endpoint."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Hosted endpoint, modalities, and reasoning controls verified against the official NVIDIA model page."
     },
     "rate_limits": []
   },
@@ -1014,6 +1021,73 @@
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "nvidia/nemotron-3.5-lightning",
+    "provider_api_model_id": "nvidia:nvidia/nemotron-3.5-lightning-30b-a3b",
+    "provider_model_slug": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "internal_model_id": "nvidia/nemotron-3.5-lightning",
+    "is_active_gateway": false,
+    "quantization_scheme": "nvfp4",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 65536,
+    "effective_from": "2026-08-11T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai"
+      ],
+      "endpoint": "https://integrate.api.nvidia.com/v1",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://integrate.api.nvidia.com/v1/models",
+        "accessed_at": "2026-08-11T00:00:00Z",
+        "notes": "NVIDIA's live OpenAI-compatible model registry lists nvidia/nemotron-3.5-lightning-30b-a3b."
+      },
+      {
+        "kind": "api_reference",
+        "url": "https://build.nvidia.com/nvidia/nemotron-3.5-lightning",
+        "accessed_at": "2026-08-11T00:00:00Z",
+        "notes": "NVIDIA hosted NIM API page for Nemotron 3.5 Lightning."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-11T00:00:00Z",
+      "notes": "Verified against NVIDIA's live public model registry on release day; NVIDIA's public registry does not publish token pricing for this model."
     },
     "rate_limits": []
   }

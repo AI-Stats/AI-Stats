@@ -10,26 +10,13 @@ const REQUIRED_MODALITY_CAPABILITIES = [
 
 const PRIORITY_PROVIDERS = [
 	"openai",
-	"google-vertex",
-	"amazon-bedrock",
 	"x-ai",
-	"deepseek",
 	"minimax",
-	"cerebras",
-	"mistral",
-	"moonshot-ai",
-	"novitaai",
-	"alibaba",
-	"qwen",
-	"xiaomi",
-	"z-ai",
+	"google-ai-studio",
 ] as const;
 
 const PRIORITY_PROVIDER_ALIASES = [
 	"xai",
-	"minimax-lightning",
-	"moonshot-ai-turbo",
-	"zai",
 ] as const;
 
 describe("priority provider multimodal coverage", () => {

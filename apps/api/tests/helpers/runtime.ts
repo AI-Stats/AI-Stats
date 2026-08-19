@@ -119,6 +119,7 @@ export function setupTestRuntime() {
         PARASAIL_BASE_URL: "https://api.parasail.example",
         POOLSIDE_API_KEY: "test-poolside-key",
         POOLSIDE_BASE_URL: "https://api.poolside.example",
+        REKA_API_KEY: "test-reka-key",
         TOGETHER_API_KEY: "test-together-key",
         TOGETHER_BASE_URL: "https://api.together.example",
         VENICE_API_KEY: "test-venice-key",
@@ -143,6 +144,8 @@ export function setupTestRuntime() {
         NEBIUS_US_CENTRAL_1_BASE_URL: "https://us-central-1.api.nebius.example",
         SOURCEFUL_API_KEY: "test-sourceful-key",
         SOURCEFUL_BASE_URL: "https://api.sourceful.example",
+		SCW_SECRET_KEY: "test-scaleway-key",
+		SCALEWAY_BASE_URL: "https://api.scaleway.example",
         RELACE_API_KEY: "test-relace-key",
         RELACE_BASE_URL: "https://api.relace.example",
         AION_LABS_API_KEY: "test-aionlabs-key",
@@ -167,4 +170,3 @@ export function teardownTestRuntime() {
     configured = false;
     clearRuntime();
 }
-

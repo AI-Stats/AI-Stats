@@ -129,6 +129,49 @@ describe("runway video executor", () => {
 		);
 	});
 
+	it("accepts the official credential name and maps Runway's string-array output", async () => {
+		teardownTestRuntime();
+		setupRuntimeFromEnv({
+			SUPABASE_URL: "https://example.supabase.co",
+			SUPABASE_SERVICE_ROLE_KEY: "test-service-role-key",
+			RUNWAY_API_KEY: undefined,
+			RUNWAYML_API_SECRET: "official-runway-secret",
+			RUNWAY_BASE_URL: "https://api.runway.example",
+		});
+		let capturedHeaders: Headers | null = null;
+		const mock = installFetchMock([{
+			match: (url) => url.endsWith("/v1/text_to_video"),
+			response: jsonResponse({
+				id: "runway_task_completed",
+				status: "SUCCEEDED",
+				output: ["https://cdn.runway.example/result.mp4"],
+			}),
+			onRequest: (call) => { capturedHeaders = new Headers(call.headers); },
+		}]);
+
+		try {
+			const result = await execute(buildArgs({
+				model: "gen4.5",
+				prompt: "A completed Runway task",
+				duration: 4,
+			}));
+			expect(capturedHeaders?.get("authorization")).toBe("Bearer official-runway-secret");
+			expect((result as any).ir).toMatchObject({
+				status: "completed",
+				output: [{ uri: "https://cdn.runway.example/result.mp4", mime_type: "video/mp4" }],
+			});
+		} finally {
+			mock.restore();
+			teardownTestRuntime();
+			setupRuntimeFromEnv({
+				SUPABASE_URL: "https://example.supabase.co",
+				SUPABASE_SERVICE_ROLE_KEY: "test-service-role-key",
+				RUNWAY_API_KEY: "test-runway-key",
+				RUNWAY_BASE_URL: "https://api.runway.example",
+			});
+		}
+	});
+
 	it("uses the image-to-video endpoint and promptImage for one first-frame image", async () => {
 		let capturedBody: any = null;
 		const mock = installFetchMock([

@@ -110,6 +110,7 @@ function mapOpenAIToGatewayImages(json: any): any {
     return {
         created: json.created,
         data: json.data,
+        background: json.background,
         output_format: json.output_format,
         quality: json.quality,
         size: json.size,
@@ -129,7 +130,7 @@ function resolveOutputImageCount(body: ImagesGenerationRequest, normalized: any)
     return 1;
 }
 
-async function collectStreamUsage(stream: ReadableStream<Uint8Array>): Promise<Record<string, unknown>> {
+export async function collectStreamUsage(stream: ReadableStream<Uint8Array>): Promise<Record<string, unknown>> {
 	const reader = stream.getReader();
 	const decoder = new TextDecoder();
 	let buffer = "";
@@ -160,7 +161,7 @@ async function collectStreamUsage(stream: ReadableStream<Uint8Array>): Promise<R
 	return usage;
 }
 
-function usesGptImageTokenPricing(...modelIds: Array<string | null | undefined>): boolean {
+export function usesGptImageTokenPricing(...modelIds: Array<string | null | undefined>): boolean {
 	return modelIds.some((modelId) => /(?:gpt-image-|chatgpt-image-latest)/i.test(modelId?.trim() ?? ""));
 }
 
@@ -253,8 +254,6 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
     
     return { kind: "completed", upstream: res, bill, normalized, keySource: keyInfo.source, byokKeyId: keyInfo.byokId };
 }
-
-
 
 
 

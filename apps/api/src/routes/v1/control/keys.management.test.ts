@@ -223,7 +223,7 @@ describe("management key routes", () => {
 		});
 	});
 
-	it("creates a key and applies OpenRouter-style limit fields", async () => {
+	it("creates a key and applies compatibility limit fields", async () => {
 		state.workspaceRows.push({ owner_user_id: "user_1" });
 		state.keyRows.push({
 			id: "key_new",

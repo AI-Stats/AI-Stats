@@ -11,19 +11,29 @@
   "prompt_training_policy": "unknown",
   "prompt_training_notes": null,
   "prompt_training_source_url": null,
-  "gateway_kind": null,
-  "routable": null,
-  "routing_enabled": null,
-  "sdk_package": null,
-  "api_base_url": null,
+  "residency_mode": "provider_managed",
+  "default_execution_regions": null,
+  "default_data_regions": null,
+  "zero_data_retention": "unknown",
+  "data_policy_tier": "unknown",
+  "data_policy_confidence": "unknown",
+  "data_policy_contract_mode": "none",
+  "gateway_kind": "openai_compatible",
+  "routable": true,
+  "routing_enabled": true,
+  "sdk_package": "openai",
+  "api_base_url": "https://vanchin.streamlake.ai/api/gateway/v1/endpoints",
   "docs_url": "https://www.streamlake.ai/document/DOC/mg6k6nlp8j6qxicx4c9",
-  "auth_env": null,
-  "api_formats": [],
+  "auth_env": "STREAMLAKE_API_KEY",
+  "api_formats": ["openai-chat-completions"],
   "service_tiers": [],
-  "sources": [],
+  "sources": [
+    {"kind":"documentation","url":"https://www.streamlake.ai/document/DOC/mg6k6nlp8j6qxicx4c9","accessed_at":"2026-08-12T00:00:00Z","notes":"Official OpenAI-compatible pay-as-you-go base URL, model IDs, API-key setup, and separate restricted Coding Plan URL."},
+    {"kind":"documentation","url":"https://www.streamlake.ai/document/DOC/mgrm41pindmnfe5wgmj","accessed_at":"2026-08-12T00:00:00Z","notes":"Official preset/custom inference endpoint lifecycle, endpoint IDs, rate limits, monitoring, and token metrics."}
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-12T00:00:00Z",
+    "notes": "Verified pay-as-you-go OpenAI compatibility, API-key authentication, preset model routing, custom endpoint semantics, models, and pricing."
   }
 }

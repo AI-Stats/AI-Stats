@@ -42,8 +42,8 @@
   ],
   "sources": [],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "partial",
+    "checked_at": "2026-08-11T04:15:59.253+00:00",
+    "notes": "Pricing synchronized from the provider models API."
   }
 }

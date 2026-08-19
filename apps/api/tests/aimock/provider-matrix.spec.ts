@@ -178,7 +178,13 @@ describe("AIMock provider matrix", () => {
             it(`${providerId} returns deterministic embeddings`, async () => {
                 const { result, testId } = await executeEmbeddingScenario({
                     providerId,
-                    model: providerId === "google-ai-studio" ? "text-embedding-004" : "aimock-openai-model",
+                    model: providerId === "perplexity"
+                        ? "pplx-embed-v1-0.6b"
+                        : providerId === "scaleway"
+                            ? "qwen3-embedding-8b"
+                            : providerId === "google-ai-studio"
+                                ? "text-embedding-004"
+                                : "aimock-openai-model",
                     input: "[aimock-embedding] hello",
                 });
 
@@ -235,11 +241,16 @@ describe("AIMock provider matrix", () => {
                     },
                 });
 
-                const completed = expectCompleted(result);
-                expect(completed.ir?.provider).toBe(providerId);
-                expect((completed.ir as any)?.audio?.mimeType).toBe("audio/mpeg");
-                expect((completed.ir as any)?.audio?.data).toBe(Buffer.from("AIMOCK_TTS_AUDIO").toString("base64"));
-                expect((completed.ir as any)?.usage?.input_characters).toBe(input.length);
+                if (result.kind === "stream") {
+                    const audio = Buffer.from(await new Response(readStreamFromResult(result)).arrayBuffer());
+                    expect(audio.toString()).toBe("AIMOCK_TTS_AUDIO");
+                } else {
+                    const completed = expectCompleted(result);
+                    expect(completed.ir?.provider).toBe(providerId);
+                    expect((completed.ir as any)?.audio?.mimeType).toBe("audio/mpeg");
+                    expect((completed.ir as any)?.audio?.data).toBe(Buffer.from("AIMOCK_TTS_AUDIO").toString("base64"));
+                    expect((completed.ir as any)?.usage?.input_characters).toBe(input.length);
+                }
                 assertLastRequestTestId(testId);
             });
         }
@@ -505,7 +516,11 @@ describe("AIMock provider matrix", () => {
                     testId,
                 });
                 const firstToolCalls = first.encoded?.choices?.[0]?.message?.tool_calls;
-                expect(Array.isArray(firstToolCalls) ? firstToolCalls.length : 0).toBeGreaterThan(0);
+                const firstRequest = getAimock().getRequests()[0];
+                expect(
+                    Array.isArray(firstToolCalls) ? firstToolCalls.length : 0,
+                    JSON.stringify({ first, firstRequest }, null, 2),
+                ).toBeGreaterThan(0);
                 expect(firstToolCalls?.[0]?.function?.name).toBe("get_weather");
 
                 const second = await executeTextProtocol({

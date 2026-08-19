@@ -5,6 +5,7 @@ import {
 	azureOpenAIV1Url,
 	azureUrl,
 	resolveAzureConfig,
+	resolveAzureCredential,
 } from "../config";
 import {
 	setupRuntimeFromEnv,
@@ -66,7 +67,7 @@ describe("azure config", () => {
 				"https://phaseo-resource.cognitiveservices.azure.com",
 		} as any);
 
-		expect(resolveAzureConfig().apiVersion).toBe("2024-10-21");
+		expect(resolveAzureConfig().apiVersion).toBe("v1");
 	});
 
 	it("defaults api_version when configured as a blank string", () => {
@@ -78,7 +79,7 @@ describe("azure config", () => {
 			AZURE_OPENAI_API_VERSION: " ",
 		} as any);
 
-		expect(resolveAzureConfig().apiVersion).toBe("2024-10-21");
+		expect(resolveAzureConfig().apiVersion).toBe("v1");
 	});
 
 	it("throws a coded error when base URL is missing", () => {
@@ -135,5 +136,24 @@ describe("azure config", () => {
 			"api-key": "abc123",
 			"Content-Type": "application/json",
 		});
+	});
+
+	it("uses an Entra bearer token when no API key is configured", () => {
+		teardownTestRuntime();
+		setupRuntimeFromEnv({
+			AZURE_OPENAI_BASE_URL: "https://phaseo-resource.openai.azure.com",
+			AZURE_OPENAI_AUTH_TOKEN: "entra-token",
+		} as any);
+		const credential = resolveAzureCredential({ providerId: "azure", byokMeta: [] } as any);
+		expect(credential).toMatchObject({ key: "entra-token", authType: "entra", source: "gateway" });
+		expect(azureHeaders(credential.key, credential.authType)).toEqual({
+			Authorization: "Bearer entra-token",
+			"Content-Type": "application/json",
+		});
+	});
+
+	it("adds the preview selector only for the v1 preview surface", () => {
+		expect(azureOpenAIV1Url("responses", "https://phaseo-resource.openai.azure.com", "preview"))
+			.toBe("https://phaseo-resource.openai.azure.com/openai/v1/responses?api-version=preview");
 	});
 });

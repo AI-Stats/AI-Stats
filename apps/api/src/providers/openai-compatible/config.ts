@@ -16,8 +16,13 @@ import {
 	NEBIUS_TOKEN_FACTORY_API_KEY_ENVS,
 	NEBIUS_EU_NORTH_1_BASE_URL_ENVS,
 	NEBIUS_US_CENTRAL_1_BASE_URL_ENVS,
+	nebiusModelSupportsResponses,
 } from "../nebius-token-factory/config";
 import { BYTEPLUS_API_KEY_ENVS, BYTEPLUS_BASE_URL_ENVS } from "../byteplus/config";
+import { INFERENCE_NET_API_KEY_ENVS } from "../inference-net/config";
+import { LIQUID_AI_API_KEY_ENVS } from "../liquid-ai/config";
+import { MISTRAL_API_KEY_ENVS } from "../mistral/config";
+import { MOONSHOT_API_KEY_ENVS } from "../moonshotai/config";
 
 function configError(code: string): Error & { code: string } {
 	const error = new Error(code) as Error & { code: string };
@@ -41,7 +46,7 @@ const OPENAI_LEGACY_COMPLETIONS_MODELS = new Set<string>([
 
 const ALIBABA_RESPONSES_PATH_PREFIX = "/api/v2/apps/protocols/compatible-mode/v1";
 const ALIBABA_COMPAT_PROVIDER_IDS = new Set<string>(["alibaba-cloud", "alibaba", "qwen"]);
-const DEEPSEEK_RESPONSES_MODELS = new Set<string>(["deepseek-v4-flash"]);
+const CLOUDFLARE_RESPONSES_MODELS = new Set<string>(["gpt-oss-120b", "gpt-oss-20b"]);
 
 function normalizePathSegment(value: string | undefined) {
 	if (!value) return "";
@@ -104,6 +109,13 @@ function resolveNebiusBaseUrl(providerId: string): string | undefined {
 	return undefined;
 }
 
+function resolveCloudflareWorkersAIBaseUrl(providerId: string): string | undefined {
+	if (providerId !== "cloudflare") return undefined;
+	const accountId = readFirstBinding(["CLOUDFLARE_ACCOUNT_ID"]);
+	if (!accountId) return undefined;
+	return `https://api.cloudflare.com/client/v4/accounts/${encodeURIComponent(accountId)}/ai/v1`;
+}
+
 function isNebiusTokenFactoryProvider(providerId: string): boolean {
 	return (
 		providerId === "nebius-token-factory" ||
@@ -126,6 +138,7 @@ export function resolveOpenAICompatConfig(providerId: string): OpenAICompatConfi
 				: undefined) ||
 		resolveNebiusBaseUrl(providerId) ||
 		(config.baseUrlEnv && bindings[config.baseUrlEnv]) ||
+		resolveCloudflareWorkersAIBaseUrl(providerId) ||
 		config.baseUrl;
 
 	if (!baseUrl) {
@@ -144,16 +157,18 @@ export function isOpenAICompatProvider(providerId: string): boolean {
 
 export function openAICompatUrl(providerId: string, path: string): string {
 	const config = resolveOpenAICompatConfig(providerId);
-	const suffix = normalizePathSegment(path);
+	const requestedSuffix = normalizePathSegment(path);
+	// Perplexity's hosted Sonar surface is Chat-shaped, but its canonical
+	// endpoint is /v1/sonar rather than OpenAI's /v1/chat/completions.
+	const suffix = providerId === "perplexity" && requestedSuffix === "/chat/completions"
+		? "/sonar"
+		: requestedSuffix;
 	const isAlibabaCompatProvider = ALIBABA_COMPAT_PROVIDER_IDS.has(providerId);
 	const isAlibabaResponsesRoute = isAlibabaCompatProvider && suffix === "/responses";
 	const isAlibabaChatRoute = isAlibabaCompatProvider && suffix === "/chat/completions";
-	const isDeepSeekResponsesRoute = providerId === "deepseek" && suffix === "/responses";
 	let base = config.baseUrl?.replace(/\/+$/, "") ?? "";
 	const configuredPrefix = normalizePathSegment(
-		isDeepSeekResponsesRoute
-			? ""
-			: isAlibabaResponsesRoute
+		isAlibabaResponsesRoute
 				? ALIBABA_RESPONSES_PATH_PREFIX
 				: (config.pathPrefix ?? "/v1"),
 	);
@@ -205,7 +220,10 @@ export function openAICompatHeaders(
 	const prefix = config.apiKeyPrefix ?? "Bearer ";
 	const headerValue = prefix ? `${prefix}${key}` : key;
 	return {
-		[headerName]: headerValue,
+		...(key ? { [headerName]: headerValue } : {}),
+		// Reka Chat documents X-Api-Key while Reka Research documents Bearer auth.
+		// Both products share this provider and API host, so send both accepted forms.
+		...(providerId === "reka" && key ? { Authorization: `Bearer ${key}` } : {}),
 		"Content-Type": "application/json",
 		...(extraHeaders
 			? Object.fromEntries(
@@ -222,7 +240,7 @@ export function resolveOpenAICompatKey(args: ProviderExecuteArgs): ResolvedKey {
 	if (args.providerId === "arcee" || args.providerId === "arcee-ai") {
 		return resolveProviderKey(args, () => readFirstBinding(ARCEE_API_KEY_ENVS));
 	}
-	if (args.providerId === "alibaba-cloud") {
+	if (args.providerId === "alibaba-cloud" || args.providerId === "alibaba" || args.providerId === "qwen") {
 		return resolveProviderKey(args, () => readFirstBinding(ALIBABA_CLOUD_API_KEY_ENVS));
 	}
 	if (args.providerId === "gmicloud") {
@@ -237,8 +255,34 @@ export function resolveOpenAICompatKey(args: ProviderExecuteArgs): ResolvedKey {
 	if (args.providerId === "crofai") {
 		return resolveProviderKey(args, () => readFirstBinding(CROFAI_API_KEY_ENVS));
 	}
+	if (args.providerId === "inference-net") {
+		return resolveProviderKey(args, () => readFirstBinding(INFERENCE_NET_API_KEY_ENVS));
+	}
+	if (args.providerId === "liquid" || args.providerId === "liquid-ai") {
+		return resolveProviderKey(args, () => readFirstBinding(LIQUID_AI_API_KEY_ENVS));
+	}
+	if (args.providerId === "mistral" || args.providerId === "mistral-eu") {
+		return resolveProviderKey(args, () => readFirstBinding(MISTRAL_API_KEY_ENVS));
+	}
+	if (["moonshot-ai", "moonshotai", "moonshot-ai-turbo", "moonshotai-turbo"].includes(args.providerId)) {
+		return resolveProviderKey(args, () => readFirstBinding(MOONSHOT_API_KEY_ENVS));
+	}
+	if (args.providerId === "nvidia") {
+		const config = resolveOpenAICompatConfig(args.providerId);
+		const hosted = (() => {
+			try {
+				return new URL(config.baseUrl ?? "").hostname.toLowerCase() === "integrate.api.nvidia.com";
+			} catch {
+				return true;
+			}
+		})();
+		return resolveProviderKey(args, () => {
+			const bindings = getBindings() as unknown as Record<string, string | undefined>;
+			return bindings.NVIDIA_API_KEY;
+		}, { allowEmptyFallback: !hosted });
+	}
 	if (args.providerId === "meta" || args.providerId === "meta-contributor") {
-		return resolveProviderKey(args, () => readFirstBinding(["META_MODEL_API_KEY", "MODEL_API_KEY"]));
+		return resolveProviderKey(args, () => readFirstBinding(["MODEL_API_KEY", "META_MODEL_API_KEY"]));
 	}
 
 	const config = resolveOpenAICompatConfig(args.providerId);
@@ -271,9 +315,17 @@ function normalizeOpenAIModelName(model?: string | null): string {
 export function resolveOpenAICompatRoute(providerId: string, model?: string | null): OpenAICompatRoute {
 	const config = resolveOpenAICompatConfig(providerId);
 	const normalized = normalizeOpenAIModelName(model);
+	// StepFun currently exposes Responses only for step-3.7-flash; its other
+	// text and multimodal models remain on Chat Completions.
+	if (providerId === "stepfun") {
+		return normalized === "step-3.7-flash" ? "responses" : "chat";
+	}
+	if (isNebiusTokenFactoryProvider(providerId)) {
+		return nebiusModelSupportsResponses(model) ? "responses" : "chat";
+	}
 
-	if (providerId === "deepseek") {
-		return DEEPSEEK_RESPONSES_MODELS.has(normalized) ? "responses" : "chat";
+	if (providerId === "cloudflare") {
+		return CLOUDFLARE_RESPONSES_MODELS.has(normalized) ? "responses" : "chat";
 	}
 
 	if (providerId === "openai") {

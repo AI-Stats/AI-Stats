@@ -17,7 +17,10 @@ public:
 
 class Client {
 public:
-	Client(std::string base_url, Transport* transport) : base_url_(std::move(base_url)), transport_(transport) {}
+	Client(std::string base_url, Transport* transport) : base_url_(std::move(base_url)), transport_(transport) {
+		headers_["X-Phaseo-Client"] = "phaseo-cpp";
+		headers_["X-Phaseo-Client-Version"] = "1.0.2";
+	}
 	void set_header(const std::string& key, const std::string& value) { headers_[key] = value; }
 	Response request(const std::string& method, const std::string& path, const std::string& body = "", const std::map<std::string, std::string>& headers = {}) {
 		std::map<std::string, std::string> merged = headers_;
