@@ -58,7 +58,7 @@ export default async function SettingsLayout({
 				</Sidebar>
 				<SidebarInset className="flex w-0 min-w-0 flex-1 flex-col overflow-visible bg-white dark:bg-zinc-950">
 					<div className="container mx-auto flex min-h-full w-full flex-col px-4 sm:px-5 lg:px-6 xl:px-8">
-						<div className="w-full flex-1 pb-4 pt-5">
+						<div className="w-full flex-1 pb-4 pt-5 [&_[data-slot=button]:not(.rounded-none):not(.rounded-full)]:rounded-2xl [&_[data-slot=input]:not(.rounded-none):not(.rounded-full)]:rounded-2xl [&_[data-slot=select-trigger]:not(.rounded-none):not(.rounded-full)]:rounded-2xl [&_[data-slot=textarea]:not(.rounded-none):not(.rounded-full)]:rounded-2xl">
 							<Suspense fallback={<SettingsPageSkeleton />}>
 								{children}
 							</Suspense>
