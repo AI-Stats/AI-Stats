@@ -142,6 +142,7 @@ export default function UpstreamRequestsTable({
 					className="w-full"
 					scrollBarOrientation="horizontal"
 					keepScrollbarMounted
+					scrollBarClassName="bg-muted/50 [&_[data-slot=scroll-area-thumb]]:bg-muted-foreground/60"
 					viewportClassName="w-full pb-2"
 				>
 					<Table wrapInContainer={false} className="min-w-[1080px] whitespace-nowrap text-xs">

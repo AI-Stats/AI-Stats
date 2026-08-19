@@ -1251,6 +1251,7 @@ function AsyncJobDetailSheet({
 											className="mt-4 w-full rounded-xl border border-border/60"
 											scrollBarOrientation="horizontal"
 											keepScrollbarMounted
+											scrollBarClassName="bg-muted/50 [&_[data-slot=scroll-area-thumb]]:bg-muted-foreground/60"
 											viewportClassName="w-full pb-2"
 										>
 											<Table wrapInContainer={false} className="min-w-[720px]">
@@ -1647,6 +1648,7 @@ function AsyncJobDetailSheet({
 										className="w-full rounded-lg border"
 										scrollBarOrientation="horizontal"
 										keepScrollbarMounted
+										scrollBarClassName="bg-muted/50 [&_[data-slot=scroll-area-thumb]]:bg-muted-foreground/60"
 										viewportClassName="w-full pb-2"
 									>
 										<Table wrapInContainer={false} className="min-w-[840px]">
@@ -2031,6 +2033,7 @@ export default function AsyncJobsPanel({
 				className="w-full"
 				scrollBarOrientation="horizontal"
 				keepScrollbarMounted
+				scrollBarClassName="bg-muted/50 [&_[data-slot=scroll-area-thumb]]:bg-muted-foreground/60"
 				viewportClassName="w-full pb-2"
 			>
 			<Table
