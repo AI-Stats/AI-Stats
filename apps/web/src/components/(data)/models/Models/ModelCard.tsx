@@ -1067,88 +1067,6 @@ function ModelCardImpl({
 				<div className="grid gap-2 text-xs md:grid-cols-3">
 					<ModelCardScrollRail ariaLabel="Model summary" className="md:col-span-3">
 						<div className="flex w-max min-w-full items-center gap-1.5 pb-px text-[11px] [&>*]:shrink-0">
-						{providerStatusItems.length > 0 ? (
-							<HoverCard openDelay={120} closeDelay={100}>
-								<HoverCardTrigger asChild>
-									<button
-										type="button"
-										data-no-row-nav="true"
-										className="inline-flex items-center gap-1 rounded-md border border-border/60 bg-muted/30 px-2 py-1 text-left transition-colors hover:bg-muted/45"
-									>
-										<span className="text-muted-foreground">Providers</span>
-										<span className="font-medium text-foreground tabular-nums">
-											{activeProviders.toLocaleString()}/{providerCount.toLocaleString()}
-										</span>
-									</button>
-								</HoverCardTrigger>
-								<HoverCardContent align="start" className="w-72 p-3">
-									<div className="space-y-2">
-										<div className="text-xs font-medium text-foreground">
-											Provider Support
-										</div>
-										<ScrollArea className="pr-1" style={{ height: providerListHeight }}>
-											<div className="space-y-1 pr-2">
-												{providerStatusItems.map((provider) => (
-													<div
-														key={`${provider.id || "provider"}-${provider.name}`}
-														className="flex items-center justify-between gap-3 rounded-sm px-1 py-1 text-xs"
-													>
-														{provider.id ? (
-															<Link
-																href={`/api-providers/${provider.id}`}
-																prefetch={false}
-																className="flex min-w-0 items-center gap-2 text-foreground hover:underline underline-offset-2"
-															>
-																<span className="relative h-4 w-4 shrink-0 rounded-[4px] border bg-background">
-																	<Logo
-																		id={provider.id}
-																		alt={provider.name}
-																		className="object-contain p-[1px]"
-																		fill
-																	/>
-																</span>
-																<span className="truncate">
-																	{provider.name}
-																</span>
-															</Link>
-														) : (
-															<span className="flex min-w-0 items-center gap-2">
-																<span className="truncate text-foreground">
-																	{provider.name}
-																</span>
-															</span>
-														)}
-														<span
-															className={cn("inline-flex items-center gap-1 rounded-sm px-1.5 py-0.5 text-[11px]", PROVIDER_STATUS_META[provider.status]?.badgeClassName ?? "bg-muted text-muted-foreground")}
-														>
-															<span
-																className={cn("h-1.5 w-1.5 rounded-full", PROVIDER_STATUS_META[provider.status]?.dotClassName ?? "bg-muted-foreground/60")}
-															/>
-															{formatProviderStatusLabel(provider.status)}
-														</span>
-													</div>
-												))}
-											</div>
-										</ScrollArea>
-									</div>
-								</HoverCardContent>
-							</HoverCard>
-						) : (
-							<div className="inline-flex items-center gap-1 rounded-md border border-border/60 bg-muted/30 px-2 py-1">
-								<span className="text-muted-foreground">Providers</span>
-								<span className="font-medium text-foreground tabular-nums">
-									{activeProviders.toLocaleString()}/{providerCount.toLocaleString()}
-								</span>
-							</div>
-						)}
-						{maxContextLength ? (
-							<div className="inline-flex items-center gap-1 rounded-md border border-border/60 bg-muted/30 px-2 py-1">
-								<span className="text-muted-foreground">Context</span>
-								<span className="font-medium text-foreground tabular-nums">
-									{`${formatTokenCount(maxContextLength)} tokens`}
-								</span>
-							</div>
-						) : null}
 						{priceSummary ? (
 							pricingDetailRows.length > 0 ? (
 								<HoverCard openDelay={120} closeDelay={100}>
@@ -1156,7 +1074,7 @@ function ModelCardImpl({
 										<button
 											type="button"
 											data-no-row-nav="true"
-											className="order-first inline-flex items-center gap-1 rounded-md border border-border/60 bg-muted/30 px-2 py-1 text-left transition-colors hover:bg-muted/45"
+											className="inline-flex items-center gap-1 rounded-md border border-border/60 bg-muted/30 px-2 py-1 text-left transition-colors hover:bg-muted/45"
 										>
 											<span className="text-muted-foreground">{priceLabel}</span>
 											<span className="font-medium text-foreground">
@@ -1311,11 +1229,93 @@ function ModelCardImpl({
 									</HoverCardContent>
 								</HoverCard>
 							) : (
-								<div className="order-first inline-flex items-center gap-1 rounded-md border border-border/60 bg-muted/30 px-2 py-1">
+								<div className="inline-flex items-center gap-1 rounded-md border border-border/60 bg-muted/30 px-2 py-1">
 									<span className="text-muted-foreground">{priceLabel}</span>
 									<span className="font-medium text-foreground">{priceSummary}</span>
 								</div>
 							)
+						) : null}
+						{providerStatusItems.length > 0 ? (
+							<HoverCard openDelay={120} closeDelay={100}>
+								<HoverCardTrigger asChild>
+									<button
+										type="button"
+										data-no-row-nav="true"
+										className="inline-flex items-center gap-1 rounded-md border border-border/60 bg-muted/30 px-2 py-1 text-left transition-colors hover:bg-muted/45"
+									>
+										<span className="text-muted-foreground">Providers</span>
+										<span className="font-medium text-foreground tabular-nums">
+											{activeProviders.toLocaleString()}/{providerCount.toLocaleString()}
+										</span>
+									</button>
+								</HoverCardTrigger>
+								<HoverCardContent align="start" className="w-72 p-3">
+									<div className="space-y-2">
+										<div className="text-xs font-medium text-foreground">
+											Provider Support
+										</div>
+										<ScrollArea className="pr-1" style={{ height: providerListHeight }}>
+											<div className="space-y-1 pr-2">
+												{providerStatusItems.map((provider) => (
+													<div
+														key={`${provider.id || "provider"}-${provider.name}`}
+														className="flex items-center justify-between gap-3 rounded-sm px-1 py-1 text-xs"
+													>
+														{provider.id ? (
+															<Link
+																href={`/api-providers/${provider.id}`}
+																prefetch={false}
+																className="flex min-w-0 items-center gap-2 text-foreground hover:underline underline-offset-2"
+															>
+																<span className="relative h-4 w-4 shrink-0 rounded-[4px] border bg-background">
+																	<Logo
+																		id={provider.id}
+																		alt={provider.name}
+																		className="object-contain p-[1px]"
+																		fill
+																	/>
+																</span>
+																<span className="truncate">
+																	{provider.name}
+																</span>
+															</Link>
+														) : (
+															<span className="flex min-w-0 items-center gap-2">
+																<span className="truncate text-foreground">
+																	{provider.name}
+																</span>
+															</span>
+														)}
+														<span
+															className={cn("inline-flex items-center gap-1 rounded-sm px-1.5 py-0.5 text-[11px]", PROVIDER_STATUS_META[provider.status]?.badgeClassName ?? "bg-muted text-muted-foreground")}
+														>
+															<span
+																className={cn("h-1.5 w-1.5 rounded-full", PROVIDER_STATUS_META[provider.status]?.dotClassName ?? "bg-muted-foreground/60")}
+															/>
+															{formatProviderStatusLabel(provider.status)}
+														</span>
+													</div>
+												))}
+											</div>
+										</ScrollArea>
+									</div>
+								</HoverCardContent>
+							</HoverCard>
+						) : (
+							<div className="inline-flex items-center gap-1 rounded-md border border-border/60 bg-muted/30 px-2 py-1">
+								<span className="text-muted-foreground">Providers</span>
+								<span className="font-medium text-foreground tabular-nums">
+									{activeProviders.toLocaleString()}/{providerCount.toLocaleString()}
+								</span>
+							</div>
+						)}
+						{maxContextLength ? (
+							<div className="inline-flex items-center gap-1 rounded-md border border-border/60 bg-muted/30 px-2 py-1">
+								<span className="text-muted-foreground">Context</span>
+								<span className="font-medium text-foreground tabular-nums">
+									{`${formatTokenCount(maxContextLength)} tokens`}
+								</span>
+							</div>
 						) : null}
 						{routerRequests30d !== null ? (
 							<div className="inline-flex items-center gap-1 rounded-md border border-border/60 bg-muted/30 px-2 py-1">
