@@ -337,7 +337,11 @@ export function computeVideoPricedUsage(args: {
 		model: args.model,
 		requestOptions: args.requestOptions,
 	});
-	const usageMeters: Record<string, number> = { output_video_seconds: args.seconds };
+	const pricingMode = resolveStringOption(args.requestOptions ?? {}, ["mode", "video_params.mode"]);
+	const inputAudioSeconds = resolveNumericOption(args.requestOptions ?? {}, "input_audio_seconds") ?? resolveNumericOption(args.requestOptions ?? {}, "video_params.input_audio_seconds");
+	const usageMeters: Record<string, number> = pricingMode === "audio-to-video" && inputAudioSeconds
+		? { input_audio_seconds: inputAudioSeconds }
+		: { output_video_seconds: args.seconds };
 	const inputImageCount =
 		resolveNumericOption(args.requestOptions ?? {}, "input_image_count") ??
 		resolveNumericOption(args.requestOptions ?? {}, "video_params.input_image_count");
@@ -378,4 +382,3 @@ export function computeVideoPricedUsage(args: {
 	);
 	return priced as Record<string, unknown>;
 }
-

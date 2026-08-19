@@ -1871,6 +1871,8 @@ class ModerationsResponse
 {
 	/** @var string|null */
 	public $id;
+	/** @var array<string, mixed>|null */
+	public $meta;
 	/** @var string|null */
 	public $model;
 	/** @var array|null */
@@ -2465,6 +2467,8 @@ class VideoGenerationRequest
 	public $enhance_prompt;
 	/** @var bool|null */
 	public $generate_audio;
+	/** @var float|null */
+	public $input_audio_duration;
 	/** @var array|null */
 	public $input_references;
 	/** @var float|null */

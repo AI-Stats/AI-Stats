@@ -19,7 +19,7 @@
       "cache_duration_seconds": null,
       "conditions": [],
       "source": "https://www.morphllm.com/pricing",
-      "price_per_unit": 2.9
+      "price_per_unit": 2.8
     },
     {
       "meter": "cached_read_text_tokens",
@@ -51,7 +51,7 @@
       "cache_duration_seconds": null,
       "conditions": [],
       "source": "https://www.morphllm.com/pricing",
-      "price_per_unit": 15
+      "price_per_unit": 14
     }
   ],
   "regions": [
@@ -69,6 +69,6 @@
   "verification": {
     "status": "verified",
     "checked_at": "2026-07-30T00:00:00Z",
-    "notes": "Official Morph pricing lists Kimi K3 at $2.90 input, $0.29 cached input, and $15 output per 1M tokens."
+    "notes": "Verified against Morph's current pricing page: $2.80 input, $0.29 cached input, and $14 output per 1M tokens."
   }
 }

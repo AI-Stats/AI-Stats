@@ -2,7 +2,7 @@
 // Why: Keep IR conversion consistent across chat/completions/responses/messages.
 // How: Maps OpenAI-style content parts to IR content parts.
 
-import type { IRContentPart } from "@core/ir";
+import type { IRCacheControl, IRContentPart } from "@core/ir";
 
 function asString(value: unknown): string {
 	if (typeof value === "string") return value;
@@ -58,6 +58,15 @@ function parseDataUrl(value: string): { data: string; mimeType?: string } {
 	};
 }
 
+function normalizePromptCacheBreakpoint(part: any): IRCacheControl | undefined {
+	const breakpoint = part?.prompt_cache_breakpoint;
+	if (!breakpoint || typeof breakpoint !== "object") return undefined;
+	return {
+		type: "prompt_cache_breakpoint",
+		mode: breakpoint.mode,
+	};
+}
+
 function normalizeImageUrl(
 	url: unknown,
 ): { source: "data" | "url"; data: string; detail?: string; mimeType?: string } | null {
@@ -106,7 +115,11 @@ export function normalizeOpenAIContent(content: string | any[]): IRContentPart[]
 
 	return content.map((part) => {
 		if (part?.type === "text" || part?.type === "input_text" || part?.type === "output_text") {
-			return { type: "text", text: asString(part.text) };
+			return {
+				type: "text",
+				text: asString(part.text),
+				cacheControl: normalizePromptCacheBreakpoint(part),
+			};
 		}
 
 		if (
@@ -123,10 +136,16 @@ export function normalizeOpenAIContent(content: string | any[]): IRContentPart[]
 				data: normalized.data,
 				detail: normalized.detail,
 				mimeType: normalized.mimeType,
+				cacheControl: normalizePromptCacheBreakpoint(part),
 			} as IRContentPart;
 		}
 
-		if (part?.type === "input_audio" || part?.type === "output_audio" || part?.type === "audio") {
+		if (
+			part?.type === "input_audio" ||
+			part?.type === "output_audio" ||
+			part?.type === "audio" ||
+			part?.type === "audio_url"
+		) {
 			const audioData = part.input_audio?.data || part.data;
 			const audioUrl =
 				part.input_audio?.url ||
@@ -138,6 +157,14 @@ export function normalizeOpenAIContent(content: string | any[]): IRContentPart[]
 				source: audioUrl ? "url" : "data",
 				data: audioUrl || audioData,
 				format: resolveAudioFormat(part),
+				cacheControl: normalizePromptCacheBreakpoint(part),
+			} as IRContentPart;
+		}
+
+		if (part?.type === "input_file" || part?.type === "file") {
+			return {
+				type: "provider_block",
+				block: { ...part },
 			} as IRContentPart;
 		}
 

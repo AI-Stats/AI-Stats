@@ -1,0 +1,66 @@
+---
+title: "Kilo Code"
+description: "Connect Kilo Code to Phaseo with a custom OpenAI-compatible provider."
+---
+
+Phaseo CLI creates and manages Kilo Code's dedicated key. Add it as a custom provider in the extension.
+
+## Create the credential
+
+```bash
+phaseo login
+phaseo integrations setup kilo-code --model anthropic/claude-sonnet-4.6
+```
+
+## Configure Kilo Code
+
+1. Open Kilo Code in VS Code.
+2. Select the settings icon, open **Providers**, then select **Add custom provider**.
+3. Enter these values:
+
+| Kilo Code field | Value |
+| --- | --- |
+| Provider ID | `phaseo` |
+| Display name | `Phaseo` |
+| Provider API | **OpenAI Compatible** |
+| Base URL | `https://api.phaseo.app/v1` |
+| API key | Output of `phaseo integrations credential kilo-code` |
+
+4. If no model is discovered, add ID `anthropic/claude-sonnet-4.6` manually.
+5. Select **Submit**, then choose the Phaseo model.
+
+Kilo displays the selection as `phaseo/anthropic/claude-sonnet-4.6`: `phaseo` is the local provider ID, while the rest is sent to Phaseo as the model ID.
+
+## Verify
+
+Ask Kilo Code to reply with `PHASEO_KILO_OK`, then confirm the request appears in Phaseo activity.
+
+## Remove
+
+Delete the custom provider in Kilo Code, then run:
+
+```bash
+phaseo integrations remove kilo-code
+```
+
+The CLI cannot clear private extension storage, but removal revokes the key.
+
+## Troubleshooting
+
+### No models are discovered
+
+Add the model manually. Discovery through `/models` is not required.
+
+### Authentication fails
+
+Replace the saved value with `phaseo integrations credential kilo-code` and keep the Base URL exactly as shown.
+
+### The model name looks different
+
+Select `phaseo/<Phaseo model ID>` in Kilo, but do not add `phaseo/` inside the model ID field.
+
+## Related
+
+- [Kilo Code custom models](https://kilo.ai/docs/code-with-ai/agents/custom-models)
+- [Coding Assistants](./coding-assistants.mdx)
+- [Models](../../api-reference/endpoint/models.mdx)

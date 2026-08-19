@@ -25,6 +25,7 @@ import {
 	deleteChat,
 	getAllChatTags,
 	getAllChats,
+	getChatThreadSessionId,
 	normalizeChatTags,
 	upsertChat,
 	upsertChatTags,
@@ -66,6 +67,8 @@ import {
 	STORAGE_KEYS,
 	TEMP_CHAT_ID,
 	LOCAL_CHAT_API_BASE_URL,
+	inferChatApiTarget,
+	resolveChatApiBaseUrl,
 	buildServerToolDefinitions,
 	buildDefaultSystemPrompt,
 	buildPersonalizationPrompt,
@@ -144,39 +147,8 @@ const focusChatModelPickerSearch = () => {
 	}
 };
 
-const CHAT_API_TARGETS = new Set<ChatApiTarget>([
-	"default",
-	"public",
-	"local",
-	"custom",
-]);
-
 const normalizeStoredBaseUrl = (value: string | null) =>
 	(value ?? "").trim().replace(/\/+$/, "");
-
-const inferChatApiTarget = (
-	storedTarget: string | null,
-	storedBaseUrl: string | null,
-): ChatApiTarget => {
-	if (storedTarget && CHAT_API_TARGETS.has(storedTarget as ChatApiTarget)) {
-		return storedTarget as ChatApiTarget;
-	}
-	const normalizedBaseUrl = normalizeStoredBaseUrl(storedBaseUrl);
-	if (!normalizedBaseUrl) return "default";
-	if (normalizedBaseUrl === BASE_URL) return "public";
-	if (normalizedBaseUrl === LOCAL_CHAT_API_BASE_URL) return "local";
-	return "custom";
-};
-
-const resolveChatApiBaseUrl = (
-	apiTarget: ChatApiTarget,
-	customBaseUrl: string,
-): string | undefined => {
-	if (apiTarget === "default") return undefined;
-	if (apiTarget === "local") return LOCAL_CHAT_API_BASE_URL;
-	if (apiTarget === "custom") return customBaseUrl.trim() || BASE_URL;
-	return BASE_URL;
-};
 
 const DATETIME_TOOL_NAMES = new Set(["gateway_datetime", "gateway:datetime"]);
 
@@ -1265,6 +1237,7 @@ function ChatPlaygroundContent({
 				});
 			const requestBody: Record<string, unknown> = {
 				model: requestExecutionModelId,
+				session_id: getChatThreadSessionId(thread),
 			};
 			let requestUsesGatewayDatetimeServerTool = false;
 			let requestServerToolInputs = new Map<
@@ -3962,6 +3935,7 @@ function ChatPlaygroundContent({
 			setTemporaryMode(true);
 			setTemporaryThread({
 				id: TEMP_CHAT_ID,
+				sessionId: crypto.randomUUID(),
 				title: "Temporary chat",
 				titleLocked: true,
 				modelId: activeThread?.modelId ?? defaultModelId,
@@ -4379,9 +4353,6 @@ function ChatPlaygroundContent({
 					tags={allTags}
 					activeTagId={activeVisibleTagId}
 					onTagFilterChange={setActiveTagId}
-					authUser={authUser}
-					authLoading={authLoading}
-					onSignOut={handleSignOut}
 				/>
 				<SidebarRail />
 			</Sidebar>

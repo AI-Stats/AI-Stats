@@ -1,5 +1,6 @@
 import { assertOk, client, isDryRun, logWrite } from "./supa";
 import { chunk } from "./util";
+import { deleteStaleModels } from "./stale-models";
 import { DATA_ROOT, DIR_ALIASES } from "./paths";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -952,6 +953,7 @@ export async function syncV2Catalogue(): Promise<void> {
         default_execution_regions: row.default_execution_regions ?? null,
         default_data_regions: row.default_data_regions ?? null,
         zero_data_retention: row.zero_data_retention ?? "unknown",
+        data_retention_days: row.data_retention_days ?? null,
         prompt_training_policy: row.prompt_training_policy ?? "unknown",
         data_policy_tier: row.data_policy_tier ?? "unknown",
         data_policy_confidence: row.data_policy_confidence ?? "unknown",
@@ -985,6 +987,7 @@ export async function syncV2Catalogue(): Promise<void> {
             data_policy_contract_mode: row.data_policy_contract_mode ?? null,
             data_policy_contract_notes: row.data_policy_contract_notes ?? null,
             zero_data_retention: row.zero_data_retention ?? null,
+            data_retention_days: row.data_retention_days ?? null,
             privacy_policy_url: row.privacy_policy_url ?? null,
             terms_of_service_url: row.terms_of_service_url ?? null,
             residency_mode: row.residency_mode ?? null,
@@ -1507,10 +1510,8 @@ export async function syncV2Catalogue(): Promise<void> {
 
     const desiredModelSlugs = new Set([...baseModelRows, ...variantModelRows].map(row => String(row.model_slug)));
     const existingModels = await fetchAll(supa, "v2_models", "model_slug,metadata");
-    await deleteByIds(
+    await deleteStaleModels(
         supa,
-        "v2_models",
-        "model_slug",
         existingModels
             .filter(row => ["json", "models.dev"].includes(String(row.metadata?.source ?? "")))
             .filter(row => !desiredModelSlugs.has(String(row.model_slug)))

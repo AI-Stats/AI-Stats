@@ -2580,6 +2580,9 @@ public sealed class ModerationsResponse
 	[JsonPropertyName("id")]
 	public string? Id { get; set; }
 
+	[JsonPropertyName("meta")]
+	public Dictionary<string, object>? Meta { get; set; }
+
 	[JsonPropertyName("model")]
 	public string? Model { get; set; }
 
@@ -3394,6 +3397,9 @@ public sealed class VideoGenerationRequest
 
 	[JsonPropertyName("generate_audio")]
 	public bool? GenerateAudio { get; set; }
+
+	[JsonPropertyName("input_audio_duration")]
+	public double? InputAudioDuration { get; set; }
 
 	[JsonPropertyName("input_references")]
 	public List<object>? InputReferences { get; set; }

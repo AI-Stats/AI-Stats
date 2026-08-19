@@ -9,20 +9,7 @@ const AUDIO_RECORDING_MIME_CANDIDATES = [
 	"audio/ogg",
 ] as const;
 
-const SAMPLE_QUESTIONS = [
-	"Help me draft a clear email response.",
-	"Summarize this topic in simple terms.",
-	"Brainstorm ideas I can use right away.",
-	"Turn these notes into a clean action plan.",
-	"Compare two options and recommend one.",
-	"Rewrite this text to sound more professional.",
-	"Generate a step-by-step plan for this task.",
-	"Help me prepare talking points for a meeting.",
-	"Explain this concept for a beginner.",
-	"Create a concise checklist I can follow.",
-] as const;
-
-export const DEFAULT_CHAT_PLACEHOLDER = SAMPLE_QUESTIONS[0];
+export const DEFAULT_CHAT_PLACEHOLDER = "Ask anything";
 
 export const REASONING_OPTIONS: Array<{
 	value: NonNullable<ChatSettings["reasoningEffort"]>;
@@ -305,5 +292,5 @@ export function getInlineAttachmentPreviewsFromMeta(
 }
 
 export function getRandomPlaceholder() {
-	return SAMPLE_QUESTIONS[Math.floor(Math.random() * SAMPLE_QUESTIONS.length)];
+	return DEFAULT_CHAT_PLACEHOLDER;
 }

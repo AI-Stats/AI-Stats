@@ -74,7 +74,7 @@ describe("Mistral quirks", () => {
 		expect(unsupported.service_tier).toBeUndefined();
 	});
 
-	it("drops unsupported OpenAI-only fields on chat payloads", () => {
+	it("preserves Mistral prompt caching and drops unsupported OpenAI-only fields", () => {
 		const request: Record<string, any> = {
 			model: "mistral-large-latest",
 			messages: [{ role: "user", content: "hello" }],
@@ -87,7 +87,7 @@ describe("Mistral quirks", () => {
 
 		mistralQuirks.transformRequest?.({ request, ir: {} as any });
 
-		expect(request.prompt_cache_key).toBeUndefined();
+		expect(request.prompt_cache_key).toBe("cache_1");
 		expect(request.safety_identifier).toBeUndefined();
 		expect(request.background).toBeUndefined();
 		expect(request.modalities).toBeUndefined();

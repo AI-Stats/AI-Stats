@@ -76,6 +76,21 @@ describe("normalizeIRForProvider", () => {
 		expect(normalized.reasoning?.effort).toBe("max");
 	});
 
+	it("preserves Z.AI GLM-5.3 max effort from capability metadata", () => {
+		const ir = baseIr({
+			model: "z-ai/glm-5.3",
+			reasoning: { effort: "max" },
+		});
+
+		const normalized = normalizeIRForProvider(ir, "z-ai", "openai.chat.completions", {
+			capabilityParams: {
+				reasoning: { values: ["low", "high", "max"] },
+			},
+			modelForReasoning: "glm-5.3",
+		});
+		expect(normalized.reasoning?.effort).toBe("max");
+	});
+
 	it("preserves minimal effort for Google provider execution", () => {
 		const ir = baseIr({
 			model: "google/gemma-4-26b-a4b:free",

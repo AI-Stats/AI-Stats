@@ -915,7 +915,9 @@ async function attemptProviderWithIR(
 			const recordsSynchronousGeneration =
 				normalizedCapability === "image.generate" ||
 				normalizedCapability === "audio.speech";
-			if (!isTextGenerate) {
+			const preservesModerationTiming =
+				normalizedCapability === "moderations" && executorResult.upstream.ok;
+			if (!isTextGenerate && !preservesModerationTiming) {
 				delete (ctx.meta as Record<string, unknown>).latency_ms;
 				if (recordsSynchronousGeneration && executorResult.upstream.ok) {
 					ctx.meta.generation_ms ??= selectedProviderDurationMs;
@@ -1152,6 +1154,5 @@ async function attemptProviderWithIR(
 		return { ok: false };
 	}
 }
-
 
 

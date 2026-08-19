@@ -18,7 +18,7 @@
   "api_base_url": "https://qianfan.baidubce.com",
   "docs_url": "https://cloud.baidu.com/doc/qianfan/index.html",
   "auth_env": ["BAIDU_API_KEY"],
-  "api_formats": ["openai.chat.completions"],
+  "api_formats": ["openai.chat.completions", "openai.responses"],
   "service_tiers": [],
   "sources": [
     {
@@ -26,6 +26,12 @@
       "url": "https://cloud.baidu.com/doc/qianfan/s/rmh4stp0j",
       "accessed_at": "2026-08-03T00:00:00Z",
       "notes": "Official Qianfan model catalogue."
+    },
+    {
+      "kind": "documentation",
+      "url": "https://cloud.baidu.com/doc/qianfan-api/s/vmhejnuy8",
+      "accessed_at": "2026-08-12T00:00:00Z",
+      "notes": "Official Qianfan v2 Responses API reference."
     }
   ],
   "verification": {

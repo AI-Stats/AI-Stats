@@ -84,6 +84,6 @@ describe("usage time range", () => {
 	});
 
 	test("labels an unset custom range without truncation punctuation", () => {
-		expect(getUsageRangeLabel({ preset: "custom" })).toBe("Custom range");
+		expect(getUsageRangeLabel({ preset: "custom" })).toBe("Custom Range");
 	});
 });

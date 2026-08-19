@@ -7,6 +7,6 @@ export const SCALEWAY_OPENAI_COMPAT_CONFIGS = {
 		pathPrefix: "/v1",
 		apiKeyEnv: "SCW_SECRET_KEY",
 		baseUrlEnv: "SCALEWAY_BASE_URL",
-		supportsResponses: false,
+		supportsResponses: true,
 	},
 } satisfies Record<string, OpenAICompatConfig>;

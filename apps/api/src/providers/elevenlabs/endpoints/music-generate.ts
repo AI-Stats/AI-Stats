@@ -121,7 +121,9 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
     const bindings = getBindings() as any;
     const baseUrl = String(bindings.ELEVENLABS_BASE_URL || "https://api.elevenlabs.io").replace(/\/+$/, "");
 
-    const res = await (args.upstreamTiming?.fetch ?? fetch)(`${baseUrl}/v1/music/detailed${query}`, {
+    // The plain compose endpoint returns the generated audio directly. The detailed
+    // endpoint is multipart/mixed and must not be treated as a single audio blob.
+    const res = await (args.upstreamTiming?.fetch ?? fetch)(`${baseUrl}/v1/music${query}`, {
         method: "POST",
         headers: {
             "xi-api-key": keyInfo.key,
@@ -134,7 +136,7 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
         cost_cents: 0,
         currency: "USD" as const,
         usage: undefined as any,
-        upstream_id: res.headers.get("request-id") || res.headers.get("x-request-id"),
+        upstream_id: res.headers.get("song-id") || res.headers.get("request-id") || res.headers.get("x-request-id"),
         finish_reason: null,
     };
 
@@ -165,7 +167,10 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
         } else {
             const audioBuffer = await res.clone().arrayBuffer();
             const base64Audio = toBase64(audioBuffer);
-            const usageMeters = { requests: 1 };
+            const usageMeters = {
+				requests: 1,
+				...(typeof musicLengthMs === "number" ? { output_audio_seconds: musicLengthMs / 1000 } : {}),
+			};
             normalized = {
                 id: bill.upstream_id ?? null,
                 object: "music",
@@ -202,6 +207,7 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
                 format: typedPayload.format ?? null,
                 status: normalized?.status ?? null,
                 nativeResponseId: normalized?.nativeResponseId ?? null,
+				audioBase64: normalized?.audio_base64 ?? null,
                 output: Array.isArray(normalized.output) ? normalized.output : null,
                 createdAt: Date.now(),
             });
@@ -223,4 +229,3 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
         byokKeyId: keyInfo.byokId,
     };
 }
-

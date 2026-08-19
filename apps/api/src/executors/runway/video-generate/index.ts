@@ -58,7 +58,10 @@ function toVideoStatus(value: unknown): IRVideoGenerationResponse["status"] {
 	if (status === "succeeded" || status === "success" || status === "completed" || status === "done") {
 		return "completed";
 	}
-	if (status === "failed" || status === "error" || status === "canceled" || status === "cancelled") {
+	if (status === "canceled" || status === "cancelled") {
+		return "cancelled";
+	}
+	if (status === "failed" || status === "error") {
 		return "failed";
 	}
 	if (status === "running" || status === "processing" || status === "in_progress") {
@@ -236,8 +239,8 @@ function extractVideoOutput(json: any): Array<{ index: number; uri: string | nul
 	if (output.length > 0) {
 		return output.map((item: any, index: number) => ({
 			index,
-			uri: item?.url ?? item?.uri ?? item?.video_url ?? null,
-			mime_type: item?.mime_type ?? item?.mimeType ?? "video/mp4",
+			uri: typeof item === "string" ? item : item?.url ?? item?.uri ?? item?.video_url ?? null,
+			mime_type: typeof item === "string" ? "video/mp4" : item?.mime_type ?? item?.mimeType ?? "video/mp4",
 		}));
 	}
 	return [];
@@ -276,7 +279,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 		{ providerId: args.providerId, byokMeta: args.byokMeta, forceGatewayKey: args.meta.forceGatewayKey },
 		() => {
 			const bindings = getBindings() as unknown as Record<string, string | undefined>;
-			return bindings.RUNWAY_API_KEY;
+			return bindings.RUNWAY_API_KEY || bindings.RUNWAYML_API_SECRET;
 		},
 	);
 	const requestObject = mapped.body;

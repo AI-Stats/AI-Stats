@@ -58,6 +58,9 @@ const staticRoutes: Array<{
 		{ path: "/faq", changeFrequency: "monthly", priority: 0.6 },
 		{ path: "/blog", changeFrequency: "weekly", priority: 0.7 },
 		{ path: "/compare", changeFrequency: "weekly", priority: 0.7 },
+		{ path: "/compare/openrouter", changeFrequency: "monthly", priority: 0.72 },
+		{ path: "/compare/vercel-ai-gateway", changeFrequency: "monthly", priority: 0.7 },
+		{ path: "/compare/cloudflare-ai-gateway", changeFrequency: "monthly", priority: 0.7 },
 		{ path: "/migrate", changeFrequency: "weekly", priority: 0.7 },
 		{ path: "/gateway/marketplace", changeFrequency: "weekly", priority: 0.6 },
         { path: "/contribute", changeFrequency: "monthly", priority: 0.6 },
@@ -421,7 +424,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 	];
 
 	const migrationItems = getMigrationPosts().map((post) =>
-		createItem(`/migrate/${post.slug}`, "weekly", 0.6, post.updatedAt),
+		createItem(
+			`/migrate/${post.slug}`,
+			"weekly",
+			post.slug === "openrouter" ? 0.82 : 0.6,
+			post.updatedAt,
+		),
 	);
 
 	const helpCategoryParams = fromSettled(

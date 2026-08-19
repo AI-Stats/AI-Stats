@@ -7,6 +7,7 @@ import { requireAccountWorkspace } from "./context";
 
 const MAX_KEYS_PER_ROUTING_MODE = 16;
 const MAX_SCOPE_ITEMS = 256;
+const FINGERPRINT_PBKDF2_ITERATIONS = 100_000;
 
 function scopeStrings(value: unknown): string[] | null {
 	if (value === null || value === undefined) return null;
@@ -81,7 +82,7 @@ async function encrypt(env: Env, plaintext: string) {
 	const tag = encrypted.slice(-16);
 	const fingerprintSalt = env.BYOK_FINGERPRINT_PEPPER ? decode(env.BYOK_FINGERPRINT_PEPPER) : keyBytes;
 	const fingerprintMaterial = await crypto.subtle.importKey("raw", new TextEncoder().encode(plaintext), "PBKDF2", false, ["deriveBits"]);
-	const fingerprint = await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", iterations: 210_000, salt: arrayBuffer(fingerprintSalt) }, fingerprintMaterial, 256);
+	const fingerprint = await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", iterations: FINGERPRINT_PBKDF2_ITERATIONS, salt: arrayBuffer(fingerprintSalt) }, fingerprintMaterial, 256);
 	return {
 		enc_value: `\\x${bytesToHex(ciphertext)}`,
 		enc_iv: `\\x${bytesToHex(iv)}`,

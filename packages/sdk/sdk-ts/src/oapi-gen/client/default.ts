@@ -2541,6 +2541,11 @@ export async function createModeration(
   args: CreateModerationParams = {},
 ): Promise<{
   id?: string;
+  meta?: {
+    generation_ms?: number;
+    latency_ms?: number;
+    [key: string]: unknown;
+  };
   model?: string;
   results?: {
     categories?: {
@@ -2576,6 +2581,11 @@ export async function createModeration(
   const resolvedPath = "/moderations";
   return client.request<{
     id?: string;
+    meta?: {
+      generation_ms?: number;
+      latency_ms?: number;
+      [key: string]: unknown;
+    };
     model?: string;
     results?: {
       categories?: {
@@ -3496,6 +3506,7 @@ export type CreateVideoParams = {
     duration?: number;
     enhance_prompt?: boolean;
     generate_audio?: boolean;
+    input_audio_duration?: number;
     input_references?: (
       | {
           image_url: {
@@ -3821,6 +3832,7 @@ export type CreateVideoAliasParams = {
     duration?: number;
     enhance_prompt?: boolean;
     generate_audio?: boolean;
+    input_audio_duration?: number;
     input_references?: (
       | {
           image_url: {
@@ -6878,6 +6890,7 @@ export type ListDataModelsParams = {
       | "amazon"
       | "anthropic"
       | "arcee-ai"
+      | "baai"
       | "baidu"
       | "black-forest-labs"
       | "bytedance"
@@ -6895,6 +6908,7 @@ export type ListDataModelsParams = {
       | "inflection"
       | "kwaipilot"
       | "lg"
+      | "lightricks"
       | "liquid-ai"
       | "meituan"
       | "meta"
@@ -6914,8 +6928,10 @@ export type ListDataModelsParams = {
       | "poolside"
       | "prime-intellect"
       | "qwen"
+      | "reka"
       | "relace"
       | "runway"
+      | "sakana"
       | "sourceful"
       | "spacex-ai"
       | "stepfun"
@@ -6937,6 +6953,7 @@ export type ListDataModelsParams = {
           | "amazon"
           | "anthropic"
           | "arcee-ai"
+          | "baai"
           | "baidu"
           | "black-forest-labs"
           | "bytedance"
@@ -6954,6 +6971,7 @@ export type ListDataModelsParams = {
           | "inflection"
           | "kwaipilot"
           | "lg"
+          | "lightricks"
           | "liquid-ai"
           | "meituan"
           | "meta"
@@ -6973,8 +6991,10 @@ export type ListDataModelsParams = {
           | "poolside"
           | "prime-intellect"
           | "qwen"
+          | "reka"
           | "relace"
           | "runway"
+          | "sakana"
           | "sourceful"
           | "spacex-ai"
           | "stepfun"
@@ -7433,6 +7453,7 @@ export type ListModelsParams = {
       | "amazon"
       | "anthropic"
       | "arcee-ai"
+      | "baai"
       | "baidu"
       | "black-forest-labs"
       | "bytedance"
@@ -7450,6 +7471,7 @@ export type ListModelsParams = {
       | "inflection"
       | "kwaipilot"
       | "lg"
+      | "lightricks"
       | "liquid-ai"
       | "meituan"
       | "meta"
@@ -7469,8 +7491,10 @@ export type ListModelsParams = {
       | "poolside"
       | "prime-intellect"
       | "qwen"
+      | "reka"
       | "relace"
       | "runway"
+      | "sakana"
       | "sourceful"
       | "spacex-ai"
       | "stepfun"
@@ -7492,6 +7516,7 @@ export type ListModelsParams = {
           | "amazon"
           | "anthropic"
           | "arcee-ai"
+          | "baai"
           | "baidu"
           | "black-forest-labs"
           | "bytedance"
@@ -7509,6 +7534,7 @@ export type ListModelsParams = {
           | "inflection"
           | "kwaipilot"
           | "lg"
+          | "lightricks"
           | "liquid-ai"
           | "meituan"
           | "meta"
@@ -7528,8 +7554,10 @@ export type ListModelsParams = {
           | "poolside"
           | "prime-intellect"
           | "qwen"
+          | "reka"
           | "relace"
           | "runway"
+          | "sakana"
           | "sourceful"
           | "spacex-ai"
           | "stepfun"
@@ -8040,6 +8068,7 @@ export type ListTeamModelsParams = {
       | "amazon"
       | "anthropic"
       | "arcee-ai"
+      | "baai"
       | "baidu"
       | "black-forest-labs"
       | "bytedance"
@@ -8057,6 +8086,7 @@ export type ListTeamModelsParams = {
       | "inflection"
       | "kwaipilot"
       | "lg"
+      | "lightricks"
       | "liquid-ai"
       | "meituan"
       | "meta"
@@ -8076,8 +8106,10 @@ export type ListTeamModelsParams = {
       | "poolside"
       | "prime-intellect"
       | "qwen"
+      | "reka"
       | "relace"
       | "runway"
+      | "sakana"
       | "sourceful"
       | "spacex-ai"
       | "stepfun"
@@ -8099,6 +8131,7 @@ export type ListTeamModelsParams = {
           | "amazon"
           | "anthropic"
           | "arcee-ai"
+          | "baai"
           | "baidu"
           | "black-forest-labs"
           | "bytedance"
@@ -8116,6 +8149,7 @@ export type ListTeamModelsParams = {
           | "inflection"
           | "kwaipilot"
           | "lg"
+          | "lightricks"
           | "liquid-ai"
           | "meituan"
           | "meta"
@@ -8135,8 +8169,10 @@ export type ListTeamModelsParams = {
           | "poolside"
           | "prime-intellect"
           | "qwen"
+          | "reka"
           | "relace"
           | "runway"
+          | "sakana"
           | "sourceful"
           | "spacex-ai"
           | "stepfun"

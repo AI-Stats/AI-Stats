@@ -1054,6 +1054,7 @@ pub struct ModerationsRequest {
 
 pub struct ModerationsResponse {
 	pub id: Option<String>,
+	pub meta: Option<HashMap<String, String>>,
 	pub model: Option<String>,
 	pub results: Option<Vec<HashMap<String, String>>>,
 }
@@ -1392,6 +1393,7 @@ pub struct VideoGenerationRequest {
 	pub duration: Option<i64>,
 	pub enhance_prompt: Option<bool>,
 	pub generate_audio: Option<bool>,
+	pub input_audio_duration: Option<f64>,
 	pub input_references: Option<Vec<String>>,
 	pub input_video_duration: Option<f64>,
 	pub model: String,

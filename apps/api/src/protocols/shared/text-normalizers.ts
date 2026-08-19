@@ -145,6 +145,7 @@ export function normalizeThinkingConfig(thinking: unknown): IRReasoning | undefi
 		effort,
 		maxTokens,
 		includeThoughts,
+		context: value.keep === "all" ? "all_turns" : undefined,
 	};
 
 	if (
@@ -308,5 +309,4 @@ export function normalizeProviderCacheOptions(rawRequest: any): {
 		),
 	};
 }
-
 

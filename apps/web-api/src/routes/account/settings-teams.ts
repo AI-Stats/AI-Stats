@@ -196,13 +196,12 @@ accountSettingsTeamsRouter.post("/teams", async (c) => {
 	if (memberships.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	const adminIds = Array.from(new Set((memberships.data ?? []).filter((row) => ["owner", "admin"].includes(String(row.role ?? "").toLowerCase())).map((row) => row.workspace_id).filter(Boolean)));
 	if (!adminIds.length) return c.json({ error: "paid_workspace_required" }, 403, PRIVATE_NO_STORE_HEADERS);
-	const [topUps, invoices, enterprise] = await Promise.all([
+	const [topUps, enterprise] = await Promise.all([
 		client.from("credit_ledger").select("id", { count: "exact", head: true }).in("workspace_id", adminIds).in("kind", ["top_up", "top_up_one_off", "auto_top_up"]).in("status", ["Succeeded", "succeeded", "paid", "Paid"]).gt("amount_nanos", 0),
-		client.from("workspace_invoices").select("id", { count: "exact", head: true }).in("workspace_id", adminIds).eq("status", "paid").gt("amount_nanos", 0),
 		client.from("workspaces").select("id", { count: "exact", head: true }).in("id", adminIds).eq("tier", "enterprise"),
 	]);
-	if ([topUps, invoices, enterprise].some((result) => result.error)) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-	if (![topUps.count, invoices.count, enterprise.count].some((count) => (count ?? 0) > 0)) return c.json({ error: "paid_workspace_required" }, 403, PRIVATE_NO_STORE_HEADERS);
+	if ([topUps, enterprise].some((result) => result.error)) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	if (![topUps.count, enterprise.count].some((count) => (count ?? 0) > 0)) return c.json({ error: "paid_workspace_required" }, 403, PRIVATE_NO_STORE_HEADERS);
 	const slugBase = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 42) || "workspace";
 	const slug = `${slugBase}-${crypto.randomUUID().replace(/-/g, "").slice(0, 8)}`.slice(0, 50);
 	const created = await client.from("workspaces").insert({ name, slug, owner_user_id: user.id }).select("id").maybeSingle();

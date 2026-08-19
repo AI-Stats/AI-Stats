@@ -52,7 +52,6 @@ import { FIREWORKS_OPENAI_COMPAT_CONFIGS } from "../fireworks/config";
 import { PERPLEXITY_OPENAI_COMPAT_CONFIGS } from "../perplexity/config";
 import { POOLSIDE_OPENAI_COMPAT_CONFIGS } from "../poolside/config";
 import { NEBIUS_TOKEN_FACTORY_OPENAI_COMPAT_CONFIGS } from "../nebius-token-factory/config";
-import { SOURCEFUL_OPENAI_COMPAT_CONFIGS } from "../sourceful/config";
 import { RELACE_OPENAI_COMPAT_CONFIGS } from "../relace/config";
 import { AION_OPENAI_COMPAT_CONFIGS } from "../aion/config";
 import { Z_AI_OPENAI_COMPAT_CONFIGS } from "../z-ai/config";
@@ -129,7 +128,6 @@ export const OPENAI_COMPAT_CONFIG = {
 	...PERPLEXITY_OPENAI_COMPAT_CONFIGS,
 	...POOLSIDE_OPENAI_COMPAT_CONFIGS,
 	...NEBIUS_TOKEN_FACTORY_OPENAI_COMPAT_CONFIGS,
-	...SOURCEFUL_OPENAI_COMPAT_CONFIGS,
 	...RELACE_OPENAI_COMPAT_CONFIGS,
 	...AION_OPENAI_COMPAT_CONFIGS,
 	...Z_AI_OPENAI_COMPAT_CONFIGS,

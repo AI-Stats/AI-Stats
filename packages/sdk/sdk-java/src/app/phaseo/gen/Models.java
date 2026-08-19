@@ -1066,6 +1066,7 @@ public final class Models {
 
 	public static class ModerationsResponse {
 		public String id;
+		public Object meta;
 		public String model;
 		public java.util.List<Object> results;
 	}
@@ -1410,6 +1411,7 @@ public final class Models {
 		public Integer duration;
 		public Boolean enhance_prompt;
 		public Boolean generate_audio;
+		public Double input_audio_duration;
 		public java.util.List<Object> input_references;
 		public Double input_video_duration;
 		public String model;

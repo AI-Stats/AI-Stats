@@ -21,6 +21,7 @@
     "global"
   ],
   "zero_data_retention": "optional",
+  "data_retention_days": 30,
   "residency_source_url": "https://developers.openai.com/api/docs/guides/your-data",
   "prompt_training_policy": "no_train",
   "prompt_training_notes": "OpenAI says API and other business data is not used to train or improve its models by default.",

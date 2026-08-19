@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ChangeEvent } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import { MessageScroller } from "@shadcn/react/message-scroller";
 import { ChatConversationComposer } from "@/components/(chat)/ChatConversationComposer";
 import { ChatConversationMessages } from "@/components/(chat)/ChatConversationMessages";
@@ -27,6 +28,11 @@ import {
 	getSupportedRecordingMimeType,
 } from "./chatConversationHelpers";
 import { startChatSendPerformanceRun } from "@/components/(chat)/playground/chat-performance";
+import {
+	clearChatAuthDraft,
+	readChatAuthDraft,
+	saveChatAuthDraft,
+} from "@/components/(chat)/chatAuthDraft";
 import type {
 	ChatResponseLayout,
 	ModelOption,
@@ -153,6 +159,10 @@ export function ChatConversation({
 	responseLayout = "sequential",
 }: ChatConversationProps) {
 	const isUnified = mode === "unified";
+	const pathname = usePathname();
+	const searchParams = useSearchParams();
+	const search = searchParams.toString();
+	const authReturnUrl = `${pathname}${search ? `?${search}` : ""}`;
 	const [composer, setComposer] = useState("");
 	const handleSelectionAction = useCallback((prompt: string) => {
 		setComposer((current) => appendChatSelectionPrompt(current, prompt));
@@ -201,6 +211,17 @@ export function ChatConversation({
 	useEffect(() => {
 		setPlaceholder(getRandomPlaceholder());
 	}, []);
+
+	useEffect(() => {
+		if (!isAuthenticated) return;
+		const restoredDraft = readChatAuthDraft();
+		if (!restoredDraft) return;
+		const timeout = window.setTimeout(() => {
+			setComposer(restoredDraft);
+			clearChatAuthDraft();
+		}, 1_000);
+		return () => window.clearTimeout(timeout);
+	}, [isAuthenticated]);
 
 	useEffect(() => {
 		setRecordingSupported(
@@ -681,6 +702,7 @@ export function ChatConversation({
 			Boolean(selectedModelId);
 		if (!hasSelectedModel) return;
 		if (!isAuthenticated) {
+			saveChatAuthDraft(composer);
 			setSendGateType("auth");
 			return;
 		}
@@ -707,6 +729,11 @@ export function ChatConversation({
 		setComposer("");
 		setAttachments([]);
 	};
+
+	const handleComposerChange = useCallback((value: string) => {
+		setComposer(value);
+		if (!isAuthenticated) saveChatAuthDraft(value);
+	}, [isAuthenticated]);
 
 	const handleEditQueuedPrompt = (id: string) => {
 		const promptIndex = queuedPrompts.findIndex((prompt) => prompt.id === id);
@@ -823,9 +850,7 @@ export function ChatConversation({
 								scrollViewportRef={scrollViewportRef}
 								responseLayout={responseLayout}
 								modelOrderIds={selectedModelIds}
-								modelOptions={modelOptions}
-								selectedModelIds={selectedModelIds}
-								onAddModelSet={onAddModelSet}
+								onSelectPrompt={handleSelectEvaluationPrompt}
 								temporaryMode={temporaryMode}
 								onSelectionAction={handleSelectionAction}
 							/>
@@ -843,6 +868,7 @@ export function ChatConversation({
 			<ChatConversationComposer
 				sendGateType={effectiveSendGateType}
 				isSending={isSending}
+				authReturnUrl={authReturnUrl}
 				composer={composer}
 				promptHistory={promptHistory}
 				attachments={attachments}
@@ -894,7 +920,7 @@ export function ChatConversation({
 				onEditQueuedPrompt={handleEditQueuedPrompt}
 				onReorderQueuedPrompt={handleReorderQueuedPrompt}
 				onSelectEvaluationPrompt={handleSelectEvaluationPrompt}
-				onComposerChange={setComposer}
+				onComposerChange={handleComposerChange}
 				onRemoveAttachment={(index) =>
 					setAttachments((prev) => prev.filter((_, i) => i !== index))
 				}

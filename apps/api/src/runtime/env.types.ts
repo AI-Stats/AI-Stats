@@ -44,7 +44,8 @@ export type GatewayBindings = {
     AXIOM_DETAIL_SAMPLE_RATE?: string;
     AXIOM_SLOW_REQUEST_MS?: string;
     AXIOM_LOG_FAILURE_COOLDOWN_MS?: string;
-    OPENAI_API_KEY?: string;
+	OPENAI_API_KEY?: string;
+	OPENAI_EU_BASE_URL?: string;
     OPENAI_BASE_URL?: string;
     OPENAI_WEBHOOK_SECRET?: string;
     OPENAI_VIDEO_WEBHOOK_SECRET?: string;
@@ -55,7 +56,10 @@ export type GatewayBindings = {
     GOOGLE_VIDEO_OAUTH_BEARER_TOKEN?: string;
     GOOGLE_AI_STUDIO_BASE_URL?: string;
     GOOGLE_BASE_URL?: string;
-    ANTHROPIC_API_KEY?: string;
+	ANTHROPIC_API_KEY?: string;
+	ANTHROPIC_AWS_API_KEY?: string;
+	ANTHROPIC_AWS_BASE_URL?: string;
+	ANTHROPIC_AWS_WORKSPACE_ID?: string;
     ANTHROPIC_BASE_URL?: string;
     X_AI_API_KEY?: string;
     XAI_BASE_URL?: string;
@@ -65,9 +69,12 @@ export type GatewayBindings = {
     AKASHML_API_KEY?: string;
     AKASHML_BASE_URL?: string;
     ALIBABA_CLOUD_API_KEY?: string;
+    DASHSCOPE_API_KEY?: string;
     ALIBABA_BASE_URL?: string;
     ALIBABA_VIDEO_WEBHOOK_SECRET?: string;
 	AMAZON_BEDROCK_API_KEY?: string;
+	AMAZON_BEDROCK_MANTLE_API_KEY?: string;
+	AWS_BEARER_TOKEN_BEDROCK?: string;
 	AMAZON_BEDROCK_MANTLE_BASE_URL?: string;
 	AMAZON_BEDROCK_REGION?: string;
     AWS_ACCESS_KEY_ID?: string;
@@ -148,10 +155,13 @@ export type GatewayBindings = {
     INFERMATIC_BASE_URL?: string;
     INFLECTION_API_KEY?: string;
     INFLECTION_BASE_URL?: string;
+    INFERENCE_API_KEY?: string;
     INFERENCE_NET_API_KEY?: string;
     INFERENCE_NET_BASE_URL?: string;
     IONROUTER_API_KEY?: string;
-    IONROUTER_BASE_URL?: string;
+	IONROUTER_BASE_URL?: string;
+	IONROUTER_KIMI_BASE_URL?: string;
+	IONROUTER_MINIMAX_BASE_URL?: string;
     LIQUID_API_KEY?: string;
     LIQUID_BASE_URL?: string;
     LIQUID_AI_API_KEY?: string;
@@ -165,6 +175,9 @@ export type GatewayBindings = {
     MODEL_API_KEY?: string;
     MINIMAX_API_KEY?: string;
     MINIMAX_BASE_URL?: string;
+    LTX_API_KEY?: string;
+    LTX_BASE_URL?: string;
+    MISTRAL_API_KEY?: string;
     MISTRAL_AI_API_KEY?: string;
     MISTRAL_BASE_URL?: string;
     MISTRAL_EU_BASE_URL?: string;
@@ -174,6 +187,7 @@ export type GatewayBindings = {
     SUNO_API_KEY?: string;
     SUNO_BASE_URL?: string;
     MOONSHOT_AI_API_KEY?: string;
+    MOONSHOT_API_KEY?: string;
     MOONSHOT_AI_BASE_URL?: string;
     MORPH_API_KEY?: string;
     MORPH_BASE_URL?: string;
@@ -214,6 +228,7 @@ export type GatewayBindings = {
     PARASAIL_API_KEY?: string;
     PARASAIL_BASE_URL?: string;
     RUNWAY_API_KEY?: string;
+    RUNWAYML_API_SECRET?: string;
     RUNWAY_BASE_URL?: string;
     RUNWAY_API_VERSION?: string;
     FAL_KEY?: string;
@@ -256,6 +271,7 @@ export type GatewayBindings = {
     ZAI_API_KEY?: string;
     ZAI_BASE_URL?: string;
     AZURE_OPENAI_API_KEY?: string;
+	AZURE_OPENAI_AUTH_TOKEN?: string;
     AZURE_OPENAI_BASE_URL?: string;
     AZURE_OPENAI_API_VERSION?: string;
     RESEND_API_KEY?: string;

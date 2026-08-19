@@ -12,7 +12,21 @@ import { buildTextExecutor, cherryPickIRParams } from "@executors/_shared/text-g
 import type { ProviderExecutor } from "../../types";
 
 export function preprocess(ir: IRChatRequest, args: ExecutorExecuteArgs): IRChatRequest {
-	return cherryPickIRParams(ir, args.capabilityParams);
+	const next = cherryPickIRParams(ir, args.capabilityParams);
+	const mistral = (ir.vendor as any)?.mistral;
+	const openaiPrediction = (ir.vendor as any)?.openai?.prediction;
+	if (mistral || openaiPrediction !== undefined) {
+		next.vendor = {
+			...(next.vendor ?? {}),
+			mistral: {
+				...(mistral ?? {}),
+				...(openaiPrediction !== undefined && mistral?.prediction === undefined
+					? { prediction: openaiPrediction }
+					: {}),
+			},
+		};
+	}
+	return next;
 }
 
 export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult> {
@@ -33,5 +47,4 @@ export const executor: ProviderExecutor = buildTextExecutor({
 	postprocess,
 	transformStream,
 });
-
 

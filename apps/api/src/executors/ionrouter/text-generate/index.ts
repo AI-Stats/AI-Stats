@@ -7,13 +7,18 @@ import type { ExecutorExecuteArgs, ExecutorResult } from "@executors/types";
 import { executeOpenAIWire } from "@executors/_shared/text-generate/openai-compat";
 import { buildTextExecutor, cherryPickIRParams } from "@executors/_shared/text-generate/shared";
 import type { ProviderExecutor } from "../../types";
+import { resolveIonRouterUrlProvider } from "@providers/ionrouter/config";
 
 export function preprocess(ir: IRChatRequest, args: ExecutorExecuteArgs): IRChatRequest {
 	return cherryPickIRParams(ir, args.capabilityParams);
 }
 
 export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult> {
-	return executeOpenAIWire(args, { transientRetries: 1 });
+	const model = args.providerModelSlug?.trim() || args.ir.model;
+	return executeOpenAIWire(args, {
+		transientRetries: 1,
+		urlProviderId: resolveIonRouterUrlProvider(model),
+	});
 }
 
 export function postprocess(ir: IRChatRequest): IRChatRequest {

@@ -3,7 +3,7 @@
   "displayName": "Infermatic",
   "source": {
     "kind": "official-docs",
-    "url": "https://infermatic.ai/docs"
+    "url": "https://ui.infermatic.ai/docs"
   },
   "operations": [
     {
