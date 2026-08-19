@@ -33,6 +33,26 @@ function sseResponse(frames: string[]): Response {
 }
 
 describe("bufferStreamToIR", () => {
+	it.each([
+		"data: [DONE]\r\n\r\n",
+		"data: [DONE]",
+	])("accepts a clean empty terminal stream: %j", async (body) => {
+		const buffered = await bufferStreamToIR(
+			sseResponse([body]),
+			{
+				...buildArgs(),
+				providerId: "novita",
+				providerModelSlug: "mindai/macaron-v1-tall",
+			},
+			"chat",
+			Date.now(),
+			"length",
+		);
+
+		expect(buffered.ir.choices[0]?.message?.content).toEqual([]);
+		expect(buffered.ir.choices[0]?.finishReason).toBe("length");
+	});
+
 	it("captures trailing native chat text frames without a terminating separator", async () => {
 		const response = sseResponse([
 			`data: ${JSON.stringify({

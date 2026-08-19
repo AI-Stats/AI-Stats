@@ -853,7 +853,7 @@ export async function bufferStreamToIR(
 		const { value, done } = await reader.read();
 		if (done) break;
 		buf += decoder.decode(value, { stream: true });
-		const frames = buf.split(/\n\n/);
+		const frames = buf.split(/\r?\n\r?\n/);
 		buf = frames.pop() ?? "";
 
 		for (const raw of frames) {
@@ -905,7 +905,9 @@ export async function bufferStreamToIR(
 			}
 		}
 
-		if (data && data !== "[DONE]") {
+		if (data === "[DONE]") {
+			sawDone = true;
+		} else if (data) {
 			try {
 				const payload = JSON.parse(data);
 				applyStreamPayload(payload);
