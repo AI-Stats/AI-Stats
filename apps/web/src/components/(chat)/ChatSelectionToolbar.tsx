@@ -143,7 +143,7 @@ export function ChatSelectionToolbar({ onAction }: ChatSelectionToolbarProps) {
 			data-chat-selection-toolbar
 			role="toolbar"
 			aria-label="Actions for selected assistant text"
-			className="fixed z-50 flex max-w-[calc(100vw-1.5rem)] -translate-x-1/2 items-center gap-0.5 overflow-x-auto rounded-xl border border-border bg-popover p-1 text-popover-foreground shadow-lg"
+			className="fixed z-50 flex max-w-[calc(100vw-1.5rem)] -translate-x-1/2 items-center gap-0.5 overflow-x-auto rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-lg"
 			style={{ left: position.left, top: position.top }}
 			onPointerDown={(event) => event.preventDefault()}
 		>
