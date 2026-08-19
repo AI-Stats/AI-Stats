@@ -214,7 +214,7 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 				<DropdownMenuTrigger render={<Button
 						variant="ghost"
 						size="icon-sm"
-						className={mobile ? "size-10" : undefined}
+						className={mobile ? "size-10 rounded-md" : "rounded-md"}
 						aria-label={`Manage ${app.title}`} />}>
 
 						<MoreHorizontal className="size-4" />
@@ -351,9 +351,10 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 										</TableCell>
 										<TableCell>
 											<Button
-												type="button"
-												size="xs"
+								type="button"
+								size="xs"
 								variant="outline"
+								className="rounded-md"
 								disabled={isBusy}
 								onClick={() =>
 									handleVisibilityToggle(app, !app.is_public)
@@ -380,8 +381,9 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 											<div className="flex items-center justify-end gap-1">
 												<Button
 													asChild
-													size="icon-sm"
-													variant="ghost"
+									size="icon-sm"
+									variant="ghost"
+									className="rounded-md"
 													aria-label={`View stats for ${app.title}`}
 												>
 													<Link href={`/apps/${encodeURIComponent(app.id)}`}>
