@@ -206,6 +206,7 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 
 	const renderActions = (app: AppItem, mobile = false) => {
 		const canMerge = sortedApps.length > 1;
+		const isBusy = pending[app.id];
 		const attributionHeaders = getAttributionHeaders(app);
 
 		return (
@@ -220,6 +221,31 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 
 				</DropdownMenuTrigger>
 				<DropdownMenuContent align="end" className="w-44">
+					{mobile ? (
+						<>
+							<DropdownMenuItem
+								render={
+									<Link href={`/apps/${encodeURIComponent(app.id)}`} />
+								}
+							>
+								<BarChart2 className="mr-2 size-4" />
+								View stats
+							</DropdownMenuItem>
+							<DropdownMenuItem
+								disabled={isBusy}
+								onClick={() =>
+									handleVisibilityToggle(app, !app.is_public)
+								}
+							>
+								{app.is_public ? (
+									<Lock className="mr-2 size-4" />
+								) : (
+									<Globe className="mr-2 size-4" />
+								)}
+								{app.is_public ? "Make private" : "Make public"}
+							</DropdownMenuItem>
+						</>
+					) : null}
 					<DropdownMenuItem
 						onClick={() => {
 							navigator.clipboard
@@ -327,11 +353,11 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 											<Button
 												type="button"
 												size="xs"
-												variant="outline"
-												disabled={isBusy}
-												onClick={() =>
-												handleVisibilityToggle(app, !app.is_public)
-												}
+								variant="outline"
+								disabled={isBusy}
+								onClick={() =>
+									handleVisibilityToggle(app, !app.is_public)
+								}
 												aria-label={`Make ${app.title} ${
 													app.is_public ? "private" : "public"
 												}`}
@@ -375,7 +401,6 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 				<div className="divide-y divide-border/60 lg:hidden">
 					{sortedApps.map((app) => {
 						const displayUrl = app.url && app.url !== "about:blank";
-						const isBusy = pending[app.id];
 
 						return (
 							<div key={app.id} className="space-y-3 p-3">
@@ -406,41 +431,6 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 										</div>
 									</div>
 									{renderActions(app, true)}
-								</div>
-
-								<div className="flex flex-wrap items-center gap-2">
-									<Button
-										type="button"
-										size="xs"
-										variant="outline"
-										className="h-10"
-										disabled={isBusy}
-										onClick={() =>
-										handleVisibilityToggle(app, !app.is_public)
-										}
-										aria-label={`Make ${app.title} ${
-											app.is_public ? "private" : "public"
-										}`}
-									>
-										{app.is_public ? (
-											<Globe className="size-3" />
-										) : (
-											<Lock className="size-3" />
-										)}
-										{app.is_public ? "Public" : "Private"}
-									</Button>
-									<Button
-										asChild
-										size="xs"
-										variant="outline"
-										className="h-10"
-										aria-label={`View stats for ${app.title}`}
-									>
-										<Link href={`/apps/${encodeURIComponent(app.id)}`}>
-											<BarChart2 className="size-3" />
-											Stats
-										</Link>
-									</Button>
 								</div>
 
 								<div className="grid grid-cols-2 gap-3 text-xs">
