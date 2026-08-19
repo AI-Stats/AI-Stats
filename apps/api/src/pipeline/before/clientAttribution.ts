@@ -1,4 +1,4 @@
-export type ClientSourceKind = "sdk" | "agent_sdk" | "coding_agent" | "http_client" | "app" | "api" | "unknown";
+export type ClientSourceKind = "sdk" | "agent_sdk" | "coding_agent" | "http_client" | "api" | "unknown";
 
 export type ClientAttribution = {
     id: string;
@@ -9,7 +9,6 @@ export type ClientAttribution = {
 };
 
 const DECLARED_CLIENTS: Record<string, { name: string; kind: ClientSourceKind }> = {
-	"phaseo-chat": { name: "Phaseo Chat", kind: "app" },
     "phaseo-typescript": { name: "Phaseo TypeScript SDK", kind: "sdk" },
     "phaseo-python": { name: "Phaseo Python SDK", kind: "sdk" },
     "phaseo-agent-typescript": { name: "Phaseo Agent SDK", kind: "agent_sdk" },

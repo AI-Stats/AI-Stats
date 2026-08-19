@@ -18,7 +18,6 @@ describe("detectClientAttribution", () => {
     });
 
 	it.each([
-		["phaseo-chat", "Phaseo Chat", "app"],
 		["phaseo-go", "Phaseo Go SDK", "sdk"],
 		["phaseo-cpp", "Phaseo C++ SDK", "sdk"],
 		["phaseo-agent-python", "Phaseo Agent Python SDK", "agent_sdk"],
@@ -29,6 +28,16 @@ describe("detectClientAttribution", () => {
 			name,
 			kind,
 			detection: "declared",
+		});
+	});
+
+	it("does not treat App attribution as a client source", () => {
+		expect(detectClientAttribution(new Headers({ "x-phaseo-client": "phaseo-chat" }))).toEqual({
+			id: "api",
+			name: "Direct API",
+			kind: "api",
+			version: null,
+			detection: "unknown",
 		});
 	});
 
