@@ -22,6 +22,10 @@ import {
 	supportsAnthropicThinkingDisabled,
 	usesClaudeAdaptiveThinkingControls,
 } from "@core/claudeModelCapabilities";
+import {
+	parseBedrockCredentialMaterial,
+	signAwsV4Request,
+} from "@executors/amazon-bedrock/text-generate/bedrock-utils";
 
 const ANTHROPIC_FAST_MODE_BETA = "fast-mode-2026-02-01";
 const ANTHROPIC_ADVISOR_BETA = "advisor-tool-2026-03-01";
@@ -29,6 +33,104 @@ const ANTHROPIC_ADVISOR_BETA = "advisor-tool-2026-03-01";
 function anthropicBaseUrl(): string {
 	const bindings = getBindings() as unknown as Record<string, string | undefined>;
 	return String(bindings.ANTHROPIC_BASE_URL || "https://api.anthropic.com").replace(/\/+$/, "");
+}
+
+type AnthropicAwsAuth = {
+	baseUrl: string;
+	region: string;
+	workspaceId: string;
+	mode: "api_key" | "sigv4";
+	apiKey?: string;
+	credentials?: NonNullable<ReturnType<typeof parseBedrockCredentialMaterial>>;
+};
+
+function isAnthropicAwsProvider(providerId: string): boolean {
+	return providerId === "anthropic-aws" || providerId === "anthropic-aws-us";
+}
+
+function optionalJsonRecord(value: string): Record<string, unknown> | null {
+	if (!value.trim().startsWith("{")) return null;
+	try {
+		const parsed = JSON.parse(value);
+		return parsed && typeof parsed === "object" && !Array.isArray(parsed)
+			? parsed as Record<string, unknown>
+			: null;
+	} catch {
+		return null;
+	}
+}
+
+function stringField(record: Record<string, unknown> | null, ...keys: string[]): string | undefined {
+	for (const key of keys) {
+		const value = record?.[key];
+		if (typeof value === "string" && value.trim()) return value.trim();
+	}
+	return undefined;
+}
+
+export function resolveAnthropicAwsAuth(
+	rawKey: string,
+	bindings: Record<string, unknown>,
+): AnthropicAwsAuth {
+	const key = rawKey.trim();
+	if (!key) throw new Error("anthropic_aws_key_missing");
+	const material = optionalJsonRecord(key);
+	const credentials = parseBedrockCredentialMaterial(key);
+	const baseUrlHint = stringField(material, "baseUrl", "base_url", "endpoint")
+		?? (typeof bindings.ANTHROPIC_AWS_BASE_URL === "string" ? bindings.ANTHROPIC_AWS_BASE_URL : undefined);
+	const region = (
+		stringField(material, "region", "aws_region", "AWS_REGION")
+		?? (typeof bindings.ANTHROPIC_AWS_REGION === "string" ? bindings.ANTHROPIC_AWS_REGION : undefined)
+		?? (typeof bindings.AWS_REGION === "string" ? bindings.AWS_REGION : undefined)
+		?? baseUrlHint?.match(/^https?:\/\/aws-external-anthropic\.([a-z0-9-]+)\.api\.aws/i)?.[1]
+		?? "us-west-2"
+	).trim();
+	const baseUrl = String(baseUrlHint ?? `https://aws-external-anthropic.${region}.api.aws`).replace(/\/+$/, "");
+	const workspaceId = (
+		stringField(material, "workspaceId", "workspace_id", "anthropic_workspace_id")
+		?? (typeof bindings.ANTHROPIC_AWS_WORKSPACE_ID === "string" ? bindings.ANTHROPIC_AWS_WORKSPACE_ID : "")
+	).trim();
+	if (!/^wrkspc_[A-Za-z0-9]+$/.test(workspaceId)) {
+		throw new Error("anthropic_aws_workspace_id_missing");
+	}
+	let hostname: string;
+	try {
+		hostname = new URL(baseUrl).hostname.toLowerCase();
+	} catch {
+		throw new Error("anthropic_aws_base_url_invalid");
+	}
+	const testEndpoint = hostname === "localhost" || hostname === "127.0.0.1" || hostname.endsWith(".example");
+	if (!testEndpoint && !/^aws-external-anthropic\.[a-z0-9-]+\.api\.aws$/.test(hostname)) {
+		throw new Error("anthropic_aws_endpoint_required");
+	}
+	return credentials
+		? { baseUrl, region, workspaceId, mode: "sigv4", credentials }
+		: { baseUrl, region, workspaceId, mode: "api_key", apiKey: key };
+}
+
+export async function buildAnthropicAwsHeaders(
+	auth: AnthropicAwsAuth,
+	body: string,
+	headers: Record<string, string>,
+): Promise<Record<string, string>> {
+	const scopedHeaders = {
+		...headers,
+		"anthropic-workspace-id": auth.workspaceId,
+	};
+	if (auth.mode === "api_key") {
+		return { "x-api-key": auth.apiKey!, ...scopedHeaders };
+	}
+	return signAwsV4Request({
+		method: "POST",
+		url: `${auth.baseUrl}/v1/messages`,
+		body,
+		region: auth.region,
+		service: "aws-external-anthropic",
+		accessKeyId: auth.credentials!.accessKeyId,
+		secretAccessKey: auth.credentials!.secretAccessKey,
+		sessionToken: auth.credentials!.sessionToken,
+		headers: scopedHeaders,
+	});
 }
 
 function usesAnthropicNativeWebFetch(requestBody: any): boolean {
@@ -41,10 +143,20 @@ function usesAnthropicNativeAdvisor(requestBody: any): boolean {
 		requestBody.tools.some((tool: any) => tool?.type === "advisor_20260301");
 }
 
+function usesAnthropicFileReference(value: unknown): boolean {
+	if (Array.isArray(value)) return value.some(usesAnthropicFileReference);
+	if (!value || typeof value !== "object") return false;
+	const record = value as Record<string, unknown>;
+	if (record.type === "file" && typeof record.file_id === "string") return true;
+	return Object.values(record).some(usesAnthropicFileReference);
+}
+
 /**
  * Executes IR requests using Anthropic Messages API
  */
 export async function executeAnthropic(args: ExecutorExecuteArgs): Promise<ExecutorResult> {
+		const awsPlatform = isAnthropicAwsProvider(args.providerId);
+		const bindings = getBindings() as any;
 		// Resolve API key (gateway or BYOK)
 		const keyInfo = resolveProviderKey(
 			{
@@ -52,8 +164,15 @@ export async function executeAnthropic(args: ExecutorExecuteArgs): Promise<Execu
 				byokMeta: args.byokMeta,
 			} as any,
 			() => {
-				const bindings = getBindings() as any;
-				return bindings.ANTHROPIC_API_KEY;
+				if (!awsPlatform) return bindings.ANTHROPIC_API_KEY;
+				if (typeof bindings.ANTHROPIC_AWS_API_KEY === "string" && bindings.ANTHROPIC_AWS_API_KEY.trim()) {
+					return bindings.ANTHROPIC_AWS_API_KEY;
+				}
+				const accessKeyId = String(bindings.ANTHROPIC_AWS_ACCESS_KEY_ID ?? bindings.AWS_ACCESS_KEY_ID ?? "").trim();
+				const secretAccessKey = String(bindings.ANTHROPIC_AWS_SECRET_ACCESS_KEY ?? bindings.AWS_SECRET_ACCESS_KEY ?? "").trim();
+				const sessionToken = String(bindings.ANTHROPIC_AWS_SESSION_TOKEN ?? bindings.AWS_SESSION_TOKEN ?? "").trim();
+				if (!accessKeyId || !secretAccessKey) return undefined;
+				return JSON.stringify({ accessKeyId, secretAccessKey, sessionToken: sessionToken || undefined });
 			},
 		);
 
@@ -72,24 +191,37 @@ export async function executeAnthropic(args: ExecutorExecuteArgs): Promise<Execu
 			model: args.providerModelSlug || args.ir.model,
 			stream: true,
 		};
+		if (awsPlatform && requestBody.speed === "fast") {
+			delete requestBody.speed;
+			requestBody.service_tier = "auto";
+		}
 		const requestPayloadJson = JSON.stringify(requestBody);
 		const mappedRequest = (args.meta.echoUpstreamRequest || args.meta.returnUpstreamRequest) ? requestPayloadJson : undefined;
 	const anthropicBetas = [
 		requestBody.speed === "fast" ? ANTHROPIC_FAST_MODE_BETA : null,
 		usesAnthropicNativeWebFetch(requestBody) ? "web-fetch-2026-02-09" : null,
 		usesAnthropicNativeAdvisor(requestBody) ? ANTHROPIC_ADVISOR_BETA : null,
+		usesAnthropicFileReference(requestBody) ? "files-api-2025-04-14" : null,
 	].filter((entry): entry is string => Boolean(entry));
 
 		// Execute upstream call
-		const res = await fetchUpstream(args, `${anthropicBaseUrl()}/v1/messages`, {
+	const baseHeaders = {
+		"Content-Type": "application/json",
+		"anthropic-version": "2023-06-01",
+		...(anthropicBetas.length > 0 ? { "anthropic-beta": anthropicBetas.join(",") } : {}),
+		...upstreamTestHeaders(args.meta),
+	};
+	const awsAuth = awsPlatform
+		? resolveAnthropicAwsAuth(keyInfo.key, bindings)
+		: null;
+	const url = awsAuth ? `${awsAuth.baseUrl}/v1/messages` : `${anthropicBaseUrl()}/v1/messages`;
+	const headers = awsAuth
+		? await buildAnthropicAwsHeaders(awsAuth, requestPayloadJson, baseHeaders)
+		: { "x-api-key": keyInfo.key, ...baseHeaders };
+
+		const res = await fetchUpstream(args, url, {
 			method: "POST",
-			headers: {
-				"x-api-key": keyInfo.key,
-				"Content-Type": "application/json",
-				"anthropic-version": "2023-06-01",
-				...(anthropicBetas.length > 0 ? { "anthropic-beta": anthropicBetas.join(",") } : {}),
-				...upstreamTestHeaders(args.meta),
-			},
+			headers,
 			body: requestPayloadJson,
 		});
 
@@ -98,7 +230,9 @@ export async function executeAnthropic(args: ExecutorExecuteArgs): Promise<Execu
                         cost_cents: 0,
                         currency: "USD",
                         usage: undefined,
-                        upstream_id: res.headers.get("request-id") || undefined,
+                        upstream_id: awsPlatform
+							? res.headers.get("x-amzn-requestid") || res.headers.get("request-id") || undefined
+							: res.headers.get("request-id") || undefined,
                         finish_reason: null,
                 };
                 if (!res.ok) {
@@ -118,9 +252,10 @@ export async function executeAnthropic(args: ExecutorExecuteArgs): Promise<Execu
                         if (!res.body) {
                                 throw new Error("anthropic_stream_missing_body");
                         }
+						const [clientBody, accountingBody] = res.body.tee();
 
                         const model = args.providerModelSlug || args.ir.model;
-                        const responsesStream = res.body.pipeThrough(
+						const responsesStream = clientBody.pipeThrough(
                                 createAnthropicToResponsesStreamTransformer(args.requestId, model),
                         );
                         const normalized = resolveStreamForProtocol(
@@ -135,7 +270,14 @@ export async function executeAnthropic(args: ExecutorExecuteArgs): Promise<Execu
                         return {
                                 kind: "stream",
                                 stream: normalized,
-                                usageFinalizer: createUsageFinalizer(res, args),
+								usageFinalizer: async () => {
+									const final = await collectAnthropicStreamUsage(accountingBody);
+									return {
+										...bill,
+										usage: normalizeTextUsageForPricing(final.usage) ?? undefined,
+										finish_reason: mapAnthropicStopReason(final.stopReason),
+									};
+								},
                                 bill,
                                 upstream: res,
                                 keySource: keyInfo.source,
@@ -177,6 +319,52 @@ export async function executeAnthropic(args: ExecutorExecuteArgs): Promise<Execu
                 }
 }
 
+export async function collectAnthropicStreamUsage(
+	stream: ReadableStream<Uint8Array>,
+): Promise<{ usage: Record<string, unknown>; stopReason: string | null }> {
+	const reader = stream.getReader();
+	const decoder = new TextDecoder();
+	let buffer = "";
+	let usage: Record<string, unknown> = {};
+	let stopReason: string | null = null;
+	const consume = (frame: string) => {
+		const data = frame
+			.split(/\r?\n/)
+			.filter((line) => line.startsWith("data:"))
+			.map((line) => line.slice(5).trim())
+			.join("\n");
+		if (!data || data === "[DONE]") return;
+		try {
+			const event = JSON.parse(data);
+			const eventUsage = event?.message?.usage ?? event?.usage;
+			if (eventUsage && typeof eventUsage === "object") usage = { ...usage, ...eventUsage };
+			if (typeof event?.delta?.stop_reason === "string") stopReason = event.delta.stop_reason;
+			if (typeof event?.message?.stop_reason === "string") stopReason = event.message.stop_reason;
+		} catch {
+			// The client stream remains authoritative and is forwarded unchanged.
+		}
+	};
+	while (true) {
+		const { value, done } = await reader.read();
+		buffer += decoder.decode(value ?? new Uint8Array(), { stream: !done });
+		let boundary: number;
+		while ((boundary = buffer.search(/\r?\n\r?\n/)) >= 0) {
+			consume(buffer.slice(0, boundary));
+			buffer = buffer.slice(boundary).replace(/^\r?\n\r?\n/, "");
+		}
+		if (done) break;
+	}
+	if (buffer.trim()) consume(buffer);
+	return { usage, stopReason };
+}
+
+function mapAnthropicStopReason(stopReason: string | null): Bill["finish_reason"] {
+	if (stopReason === "max_tokens" || stopReason === "model_context_window_exceeded") return "length";
+	if (stopReason === "tool_use") return "tool_calls";
+	if (stopReason === "refusal") return "content_filter";
+	return stopReason ? "stop" : null;
+}
+
 async function bufferAnthropicStreamToMessage(res: Response, upstreamStartMs: number): Promise<{ message: any; firstFrameMs: number | null; totalMs: number | null }> {
 	if (!res.body) throw new Error("anthropic_stream_missing_body");
 	const reader = res.body.getReader();
@@ -189,6 +377,8 @@ async function bufferAnthropicStreamToMessage(res: Response, upstreamStartMs: nu
 	type AnthropicBlock = {
 		type: string;
 		text?: string;
+		thinking?: string;
+		signature?: string;
 		id?: string;
 		name?: string;
 		input?: any;
@@ -288,9 +478,10 @@ async function bufferAnthropicStreamToMessage(res: Response, upstreamStartMs: nu
 					block.type = "tool_use";
 					block._partialInputJson = `${block._partialInputJson ?? ""}${delta.partial_json}`;
 				} else if (delta?.type === "thinking_delta" && typeof delta?.thinking === "string") {
-					// Keep reasoning-like deltas as text in-place for non-stream buffered responses.
-					block.type = block.type ?? "text";
-					block.text = `${block.text ?? ""}${delta.thinking}`;
+					block.type = "thinking";
+					block.thinking = `${block.thinking ?? ""}${delta.thinking}`;
+				} else if (delta?.type === "signature_delta" && typeof delta?.signature === "string") {
+					block.signature = `${block.signature ?? ""}${delta.signature}`;
 				}
 				continue;
 			}
@@ -493,6 +684,7 @@ export function irToAnthropicMessages(
 				name: t.name,
 				description: t.description,
 				input_schema: t.parameters,
+				...(typeof t.strict === "boolean" ? { strict: t.strict } : {}),
 				...(cacheControl ? { cache_control: cacheControl } : {}),
 			};
 		});
@@ -506,6 +698,9 @@ export function irToAnthropicMessages(
 		} else {
 			request.tool_choice = { type: "tool", name: ir.toolChoice.name };
 		}
+	}
+	if (request.tool_choice && ir.parallelToolCalls === false) {
+		request.tool_choice.disable_parallel_tool_use = true;
 	}
 
 	// Add other parameters
@@ -546,7 +741,7 @@ export function irToAnthropicMessages(
 			if (typeof reasoningMaxTokens === "number" && reasoningMaxTokens > 0) {
 				request.thinking = { type: "enabled", budget_tokens: reasoningMaxTokens };
 			} else if (ir.reasoning.enabled === true) {
-				request.thinking = { type: "enabled" };
+				request.thinking = { type: "enabled", budget_tokens: 1024 };
 			}
 		}
 
@@ -559,7 +754,18 @@ export function irToAnthropicMessages(
 		}
 	}
 
-	const structuredOutputInstruction = buildAnthropicStructuredOutputInstruction(ir);
+	if (ir.responseFormat?.type === "json_schema") {
+		request.output_config = {
+			...(request.output_config ?? {}),
+			format: {
+				type: "json_schema",
+				schema: ir.responseFormat.schema,
+			},
+		};
+	}
+	const structuredOutputInstruction = ir.responseFormat?.type === "json_schema"
+		? null
+		: buildAnthropicStructuredOutputInstruction(ir);
 	if (structuredOutputInstruction) {
 		system = appendAnthropicSystemText(system, structuredOutputInstruction);
 		request.system = system;
@@ -802,10 +1008,12 @@ export function anthropicMessagesToIR(
 
 	// Determine finish reason
 	let finishReason: IRChoice["finishReason"] = "stop";
-	if (json.stop_reason === "max_tokens") {
+	if (json.stop_reason === "max_tokens" || json.stop_reason === "model_context_window_exceeded") {
 		finishReason = "length";
 	} else if (json.stop_reason === "tool_use" || toolCalls.length > 0) {
 		finishReason = "tool_calls";
+	} else if (json.stop_reason === "refusal") {
+		finishReason = "content_filter";
 	} else if (json.stop_reason === "stop_sequence") {
 		finishReason = "stop";
 	}
@@ -887,16 +1095,4 @@ function resolveAnthropicServiceTierFromResponse(json: any): string | undefined 
 	return undefined;
 }
 
-/**
- * Create finalizer for streaming responses
- */
-function createUsageFinalizer(res: Response, args: ExecutorExecuteArgs): () => Promise<Bill | null> {
-	return async () => {
-		// For streaming, usage will be in the final chunk
-		// This is handled by the existing streaming infrastructure
-		return null;
-	};
-}
-
 export const executor: ProviderExecutor = async (args) => executeAnthropic(args);
-

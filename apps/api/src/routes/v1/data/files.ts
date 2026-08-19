@@ -29,7 +29,11 @@ import {
 	parseUpstreamJson,
 } from "@core/batch-provider-adapters";
 
-const MAX_BATCH_FILE_UPLOAD_BYTES = 20 * 1024 * 1024;
+// OpenAI accepts Batch input JSONL files up to 200 MB (distinct from the
+// general Files API's larger per-file ceiling).
+const MAX_BATCH_FILE_UPLOAD_BYTES = 200 * 1024 * 1024;
+const MAX_MOONSHOT_BATCH_FILE_UPLOAD_BYTES = 100 * 1024 * 1024;
+const MAX_PARASAIL_BATCH_FILE_UPLOAD_BYTES = 100 * 1024 * 1024;
 
 class BatchFileTooLargeError extends Error {
 	constructor() {
@@ -198,13 +202,18 @@ async function handleUpload(req: Request) {
 	const providerResolution = resolveUploadProvider(req);
 	if (providerResolution.ok === false) return providerResolution.response;
 	const providerId = providerResolution.providerId;
+	const maxUploadBytes = providerId === "moonshotai"
+		? MAX_MOONSHOT_BATCH_FILE_UPLOAD_BYTES
+		: providerId === "parasail"
+			? MAX_PARASAIL_BATCH_FILE_UPLOAD_BYTES
+			: MAX_BATCH_FILE_UPLOAD_BYTES;
 	const declaredLength = Number(req.headers.get("content-length") ?? 0);
-	if (Number.isFinite(declaredLength) && declaredLength > MAX_BATCH_FILE_UPLOAD_BYTES) {
+	if (Number.isFinite(declaredLength) && declaredLength > maxUploadBytes) {
 		return jsonPayload({ error: { type: "validation_error", reason: "batch_file_too_large" } }, 413);
 	}
 	let uploadBody: ArrayBuffer;
 	try {
-		uploadBody = await readRequestBodyWithLimit(req.body, MAX_BATCH_FILE_UPLOAD_BYTES);
+		uploadBody = await readRequestBodyWithLimit(req.body, maxUploadBytes);
 	} catch (error) {
 		if (error instanceof BatchFileTooLargeError) {
 			return jsonPayload({ error: { type: "validation_error", reason: "batch_file_too_large" } }, 413);
@@ -213,6 +222,19 @@ async function handleUpload(req: Request) {
 	}
 	if (uploadBody.byteLength <= 0) {
 		return jsonPayload({ error: { type: "validation_error", reason: "batch_file_empty" } }, 400);
+	}
+	if (providerId === "moonshotai") {
+		try {
+			const contentType = req.headers.get("content-type") ?? "";
+			if (!contentType.toLowerCase().startsWith("multipart/form-data")) throw new Error("multipart_required");
+			const form = await new Response(uploadBody, { headers: { "Content-Type": contentType } }).formData();
+			const file = form.get("file") as { name?: unknown; size?: unknown } | null;
+			if (!file || typeof file.name !== "string" || !file.name.toLowerCase().endsWith(".jsonl")) throw new Error("jsonl_required");
+			if (file.size === 0) throw new Error("empty_file");
+			if (form.get("purpose") !== "batch") throw new Error("batch_purpose_required");
+		} catch {
+			return jsonPayload({ error: { type: "validation_error", reason: "moonshot_batch_file_invalid" } }, 400);
+		}
 	}
 	const claim = await getSupabaseAdmin().rpc("gateway_claim_batch_file_upload", {
 		p_workspace_id: auth.workspaceId,
@@ -229,7 +251,7 @@ async function handleUpload(req: Request) {
 	let upstream: Response;
 	try {
 		upstream = await fetchProviderBatchApi(providerId, {
-			endpointPath: "/files",
+			endpointPath: providerId === "together" ? "/files/upload" : "/files",
 			method: "POST",
 			body: uploadBody,
 			contentType: req.headers.get("content-type"),
@@ -409,4 +431,3 @@ filesRoutes.post("/", withRuntime(handleUpload));
 filesRoutes.get("/", withRuntime(handleList));
 filesRoutes.get("/:id", withRuntime((req) => handleRetrieve(req, (req as any).param?.("id") ?? req.url.split("/").pop() ?? "")));
 filesRoutes.get("/:id/content", withRuntime((req) => handleRetrieveContent(req, (req as any).param?.("id") ?? new URL(req.url).pathname.split("/").slice(-2, -1)[0] ?? "")));
-

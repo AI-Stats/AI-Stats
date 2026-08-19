@@ -61,6 +61,8 @@ describe("audit request detail persistence", () => {
 	it("stores replay-ready details for successful requests", async () => {
 		const gatewayRequestRows: any[] = [];
 		const detailRows: any[] = [];
+		const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+		ensureAppIdMock.mockResolvedValueOnce(null);
 
 		getSupabaseAdminMock.mockReturnValue({
 			rpc: vi.fn(async () => ({ data: "v2_request_event_1", error: null })),
@@ -120,6 +122,14 @@ describe("audit request detail persistence", () => {
 			providerRequest: { model: "openai/gpt-5-nano", messages: [{ role: "user", content: "hello" }] },
 			providerResponse: { id: "chatcmpl_1" },
 			detailMetadata: { replay_supported: true },
+			userAgent: "phaseo-typescript/2.2.0",
+			clientSource: {
+				id: "phaseo-typescript",
+				name: "Phaseo TypeScript SDK",
+				kind: "sdk",
+				version: "2.2.0",
+				detection: "declared",
+			},
 			providerAttempts: [
 				{
 					attempt_number: 1,
@@ -147,6 +157,11 @@ describe("audit request detail persistence", () => {
 				usage_input_quad_tokens: expect.any(Number),
 				usage_output_quad_tokens: expect.any(Number),
 				usage_total_quad_tokens: expect.any(Number),
+				detail_metadata: expect.objectContaining({
+					replay_supported: true,
+					client_source: expect.objectContaining({ id: "phaseo-typescript" }),
+					request: expect.objectContaining({ user_agent: "phaseo-typescript/2.2.0" }),
+				}),
 			}),
 		);
 		expect(gatewayRequestRows[0].usage_input_quad_tokens).toBeGreaterThan(0);
@@ -164,6 +179,11 @@ describe("audit request detail persistence", () => {
 				metadata: expect.objectContaining({ replay_supported: true }),
 			}),
 		);
+		expect(consoleErrorSpy).not.toHaveBeenCalledWith(
+			"[audit] ensureAppId returned null",
+			expect.anything(),
+		);
+		consoleErrorSpy.mockRestore();
 	});
 
 	it("stores replay-ready details for execute-stage failures", async () => {

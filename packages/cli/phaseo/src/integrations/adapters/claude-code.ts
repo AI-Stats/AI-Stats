@@ -3,7 +3,7 @@ import { isCommandAvailable, readOptionalFile } from "../files.js";
 import type { FileChange, IntegrationAdapter, IntegrationOptions } from "../types.js";
 
 const BASE_URL = "https://api.phaseo.app";
-const HELPER = "phaseo integrations credential";
+const HELPER = "phaseo integrations credential claude-code";
 const HELPER_TTL_MS = "300000";
 const MANAGED_PATH = ["env", "ANTHROPIC_BASE_URL"] as const;
 const SHADOWING_CREDENTIALS = ["ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN"] as const;

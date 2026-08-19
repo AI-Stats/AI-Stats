@@ -70,10 +70,17 @@
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [
+    {
+      "url": "https://docs.arcee.ai/get-started/pricing",
+      "kind": "pricing",
+      "accessed_at": "2026-08-14T00:00:00Z",
+      "notes": "Official Arcee AI pricing page."
+    }
+  ],
   "verification": {
-    "status": "partial",
-    "checked_at": "2026-08-11T04:15:54.906+00:00",
-    "notes": "Pricing synchronized from the provider models API."
+    "status": "verified",
+    "checked_at": "2026-08-14T00:00:00Z",
+    "notes": "Input, output, and cached-read rates verified against the official Arcee AI pricing page."
   }
 }

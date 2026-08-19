@@ -322,6 +322,63 @@ describe("beforeRequest pricing loss-prevention", () => {
 		await expect(pending).resolves.toMatchObject({ ok: true });
 	});
 
+	it("records gateway context submetrics for Server-Timing", async () => {
+		const provider = providerWithPricingRules(1);
+		guardContextMock.mockResolvedValue({
+			ok: true,
+			value: {
+				context: {
+					pricing: { openai: provider.pricingCard },
+					key: { ok: true, reason: null, resetAt: null },
+					keyLimit: { ok: true, reason: null, resetAt: null },
+					credit: { ok: true, reason: null, resetAt: null },
+					teamSettings: { billingMode: "wallet" },
+					contextTelemetry: {
+						cacheStatus: "hit",
+						totalMs: 28.5,
+						keyVersionMs: 4.25,
+						cacheReadMs: 21.75,
+						creditRefreshMs: null,
+						rpcMs: null,
+						enrichMs: 1.5,
+						cacheWriteMs: null,
+						fallbackRemap: false,
+					},
+				},
+				providers: [provider],
+				resolvedModel: "openai/gpt-4.1-mini",
+				candidateDiagnostics: {
+					totalProviders: 1,
+					supportsEndpointCount: 1,
+					droppedUnsupportedEndpoint: [],
+					droppedMissingAdapter: [],
+					candidateCount: 1,
+				},
+			},
+		});
+		const req = new Request("https://gateway.local/v1/responses", {
+			method: "POST",
+			headers: { "content-type": "application/json" },
+			body: JSON.stringify({ model: "openai/gpt-4.1-mini" }),
+		});
+		const timer = new Timer();
+
+		await expect(beforeRequest(req, "responses", timer, null)).resolves.toMatchObject({ ok: true });
+
+		expect(timer.snapshot()).toMatchObject({
+			context_total: 28.5,
+			context_key_version: 4.25,
+			context_cache_read: 21.75,
+			context_enrich: 1.5,
+		});
+		expect(timer.serverTiming()).not.toContain("context_credit_refresh");
+		expect(timer.serverTiming()).not.toContain("context_rpc");
+		expect(timer.serverTiming()).not.toContain("context_cache_write");
+		const serverTiming = timer.attachTo(new Response()).headers.get("Server-Timing");
+		expect(serverTiming).toContain("context_total;dur=28.500");
+		expect(serverTiming).toContain("context_cache_read;dur=21.750");
+	});
+
 	it("rejects request when pricing card has zero rules", async () => {
 		const provider = providerWithPricingRules(0);
 		guardContextMock.mockResolvedValue({
@@ -329,6 +386,7 @@ describe("beforeRequest pricing loss-prevention", () => {
 			value: {
 				context: {
 					pricing: { openai: provider.pricingCard },
+					contextTelemetry: { totalMs: 12.5, cacheReadMs: 8.25 },
 					key: { ok: true, reason: null, resetAt: null },
 					keyLimit: { ok: true, reason: null, resetAt: null },
 					credit: { ok: true, reason: null, resetAt: null },
@@ -351,7 +409,8 @@ describe("beforeRequest pricing loss-prevention", () => {
 			headers: { "content-type": "application/json" },
 			body: JSON.stringify({ model: "openai/gpt-4.1-mini" }),
 		});
-		const result = await beforeRequest(req, "responses", new Timer(), null);
+		const timer = new Timer();
+		const result = await beforeRequest(req, "responses", timer, null);
 		expect(result.ok).toBe(false);
 		if (result.ok) return;
 		expect(result.response.status).toBe(400);
@@ -372,6 +431,7 @@ describe("beforeRequest pricing loss-prevention", () => {
 			dropped: [{ providerId: "openai", reason: "pricing_missing" }],
 		});
 		expect(payload.missing_pricing_providers).toEqual(["openai"]);
+		expect(timer.attachTo(new Response()).headers.get("Server-Timing")).toContain("context_total;dur=12.500");
 	});
 
 	it("rejects request when workspace policy blocks the resolved model", async () => {
@@ -789,4 +849,3 @@ describe("beforeRequest pricing loss-prevention", () => {
 		expect((result.ctx as any).guardrailEnforcement?.source).toBe("sensitive_info");
 	});
 });
-

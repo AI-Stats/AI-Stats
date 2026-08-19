@@ -254,7 +254,12 @@
             "provider_max": null,
             "provider_default": null,
             "notes": "Meta Model API offers built-in web search grounding."
-          }
+          },
+          "reasoning",
+          "include_reasoning",
+          "repetition_penalty",
+          "top_k",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,

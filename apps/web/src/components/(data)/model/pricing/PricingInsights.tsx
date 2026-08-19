@@ -34,7 +34,10 @@ import { Logo } from "@/components/Logo";
 import {
 	buildProviderSections,
 	buildProviderTablePriceSummary,
+	calculateDailyAveragePricingMeterPrice,
 	fmtUSD,
+	getUtcPricingScheduleTimes,
+	resolvePricingMeterPrice,
 } from "@/components/(data)/model/pricing/pricingHelpers";
 import { assignSeriesColours, keyForSeries } from "@/components/(rankings)/chart-colors";
 import type { ProviderPricing } from "@/lib/fetchers/models/getModelPricing";
@@ -144,6 +147,7 @@ const CACHED_WRITE_TEXT_1H_METER_PREFERENCE = [
 	"cached_write_text_tokens",
 	"cached_write_tokens",
 ] as const;
+const dailyAveragePricePer1MCache = new WeakMap<ModelPricingHistoryRule, number>();
 
 function formatPercent(value: number | null): string {
 	if (value == null || !Number.isFinite(value)) return "--";
@@ -173,6 +177,19 @@ function formatDayLabel(day: string): string {
 	return date.toLocaleDateString("en-GB", {
 		day: "2-digit",
 		month: "short",
+	});
+}
+
+function formatHistoryTimestamp(value: string): string {
+	const date = new Date(value);
+	if (!Number.isFinite(date.getTime())) return value;
+	return date.toLocaleString("en-GB", {
+		day: "2-digit",
+		month: "short",
+		hour: "2-digit",
+		minute: "2-digit",
+		timeZone: "UTC",
+		hour12: false,
 	});
 }
 
@@ -363,14 +380,34 @@ function getPriceForMeter(
 	rules: ModelPricingHistoryRule[],
 	meterPreference: readonly string[],
 	timestampMs: number,
+	mode: "daily_average" | "exact" = "daily_average",
 ): number | null {
-	return chooseRuleForTimestamp(rules, meterPreference, timestampMs)?.pricePer1MUnits ?? null;
+	const rule = chooseRuleForTimestamp(rules, meterPreference, timestampMs);
+	if (!rule) return null;
+	if (!rule.timeWindows?.length) return rule.pricePer1MUnits;
+	if (mode === "exact") {
+		const date = new Date(timestampMs);
+		const utcTime = `${String(date.getUTCHours()).padStart(2, "0")}:${String(date.getUTCMinutes()).padStart(2, "0")}`;
+		return resolvePricingMeterPrice({
+			price_per_unit: String(rule.pricePerUnit),
+			time_windows: rule.timeWindows,
+		}, utcTime).pricePerUnit * (1_000_000 / rule.unitSize);
+	}
+	const cached = dailyAveragePricePer1MCache.get(rule);
+	if (cached !== undefined) return cached;
+	const average = calculateDailyAveragePricingMeterPrice({
+		price_per_unit: String(rule.pricePerUnit),
+		time_windows: rule.timeWindows,
+	}) * (1_000_000 / rule.unitSize);
+	dailyAveragePricePer1MCache.set(rule, average);
+	return average;
 }
 
 function calculateEffectiveInputPricePer1M(args: {
 	usage: DailyUsagePoint;
 	rules: ModelPricingHistoryRule[];
 	timestampMs: number;
+	priceMode?: "daily_average" | "exact";
 }): number | null {
 	const inputTokens = args.usage.inputTokens;
 	if (inputTokens <= 0) return null;
@@ -379,30 +416,35 @@ function calculateEffectiveInputPricePer1M(args: {
 		args.rules,
 		INPUT_METER_PREFERENCE,
 		args.timestampMs,
+		args.priceMode,
 	);
 	const cachedReadPrice =
 		getPriceForMeter(
 			args.rules,
 			CACHED_READ_TEXT_METER_PREFERENCE,
 			args.timestampMs,
+			args.priceMode,
 		) ?? inputPrice;
 	const cachedWritePrice =
 		getPriceForMeter(
 			args.rules,
 			CACHED_WRITE_TEXT_METER_PREFERENCE,
 			args.timestampMs,
+			args.priceMode,
 		) ?? inputPrice;
 	const cachedWrite5mPrice =
 		getPriceForMeter(
 			args.rules,
 			CACHED_WRITE_TEXT_5M_METER_PREFERENCE,
 			args.timestampMs,
+			args.priceMode,
 		) ?? cachedWritePrice;
 	const cachedWrite1hPrice =
 		getPriceForMeter(
 			args.rules,
 			CACHED_WRITE_TEXT_1H_METER_PREFERENCE,
 			args.timestampMs,
+			args.priceMode,
 		) ?? cachedWritePrice;
 
 	const cachedReadTokens = Math.min(
@@ -437,6 +479,7 @@ function calculateEffectiveOutputPricePer1M(args: {
 	usage: DailyUsagePoint;
 	rules: ModelPricingHistoryRule[];
 	timestampMs: number;
+	priceMode?: "daily_average" | "exact";
 }): number | null {
 	const outputTokens = args.usage.outputTokens;
 	if (outputTokens <= 0) return null;
@@ -444,6 +487,7 @@ function calculateEffectiveOutputPricePer1M(args: {
 		args.rules,
 		OUTPUT_METER_PREFERENCE,
 		args.timestampMs,
+		args.priceMode,
 	);
 	return outputPrice == null ? null : outputPrice;
 }
@@ -513,6 +557,25 @@ function buildEffectivePriceHistoryState(args: {
 	hasData: boolean;
 } {
 	const dayBuckets = buildDayBuckets(7);
+	const planRules = args.historyRules.filter((rule) => rule.pricingPlan === args.plan);
+	const effectiveTimes = planRules.flatMap((rule) =>
+		[rule.effectiveFrom, rule.effectiveTo].flatMap((value) => {
+			if (!value) return [];
+			const date = new Date(value);
+			if (!Number.isFinite(date.getTime())) return [];
+			return [`${String(date.getUTCHours()).padStart(2, "0")}:${String(date.getUTCMinutes()).padStart(2, "0")}`];
+		}),
+	);
+	const scheduleTimes = [...new Set([
+		...getUtcPricingScheduleTimes(planRules.flatMap((rule) => rule.timeWindows ?? [])),
+		...effectiveTimes,
+	])].sort();
+	const timeBuckets = dayBuckets.flatMap((day) =>
+		scheduleTimes.map((time) => ({
+			day,
+			timestamp: `${day}T${time}:00.000Z`,
+		})),
+	);
 	const providerNameBySeries = new Map<string, string>();
 	const chartConfig: ChartConfig = {};
 
@@ -524,9 +587,9 @@ function buildEffectivePriceHistoryState(args: {
 		};
 	}
 
-	const chartData = dayBuckets.map((day) => {
-		const timestampMs = Date.parse(`${day}T12:00:00.000Z`);
-		const entry: Record<string, string | number | null> = { day };
+	const chartData = timeBuckets.map(({ day, timestamp }) => {
+		const timestampMs = Date.parse(timestamp);
+		const entry: Record<string, string | number | null> = { day, timestamp };
 		for (const row of args.rows) {
 			const usage = args.usageByProvider.get(row.providerId)?.usageByDay.get(day);
 			if (!usage) {
@@ -544,11 +607,13 @@ function buildEffectivePriceHistoryState(args: {
 							usage,
 							rules: matchingRules,
 							timestampMs,
+							priceMode: "exact",
 						})
 					: calculateEffectiveOutputPricePer1M({
 							usage,
 							rules: matchingRules,
 							timestampMs,
+							priceMode: "exact",
 						});
 		}
 		return entry;
@@ -591,8 +656,8 @@ function HistoryChart({
 				<LineChart data={chartData} margin={{ top: 12, right: 12, bottom: 0, left: 0 }}>
 					<CartesianGrid vertical={false} className="stroke-muted" />
 					<XAxis
-						dataKey="day"
-						tickFormatter={(value) => formatDayLabel(String(value))}
+						dataKey="timestamp"
+						tickFormatter={(value) => formatHistoryTimestamp(String(value))}
 						tickLine={false}
 						axisLine={false}
 						minTickGap={24}
@@ -614,7 +679,7 @@ function HistoryChart({
 							return (
 								<div className="rounded-lg border border-zinc-200/60 bg-background px-3 py-2 text-xs shadow-xl dark:border-zinc-800/60">
 									<p className="mb-1 font-medium text-foreground">
-										{formatDayLabel(String(label ?? ""))}
+										{formatHistoryTimestamp(String(label ?? ""))} UTC
 									</p>
 									<div className="space-y-1.5">
 										{items.map((item) => {
@@ -647,7 +712,7 @@ function HistoryChart({
 					{seriesKeys.map((seriesKey) => (
 						<Line
 							key={seriesKey}
-							type="monotone"
+							type="stepAfter"
 							dataKey={seriesKey}
 							stroke={`var(--color-${seriesKey})`}
 							strokeWidth={2}
@@ -929,7 +994,8 @@ export default function PricingInsights({
 						<h2 className="text-lg font-semibold">Pricing</h2>
 						<p className="text-xs text-muted-foreground">
 							List prices are current provider rates. Effective prices are weighted
-							by observed gateway traffic over the last 30 days.
+							by observed gateway traffic over the last 30 days. Summary values
+							average time-windowed schedules; history charts show each UTC change.
 						</p>
 					</div>
 					{availablePlans.length > 1 && onPlanChange ? (

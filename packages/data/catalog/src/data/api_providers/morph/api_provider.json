@@ -1,8 +1,8 @@
 {
   "api_provider_id": "morph",
   "api_provider_name": "Morph",
-  "description": null,
-  "link": "https://www.morphllm.com/pricing",
+  "description": "Morph provides an OpenAI-compatible API for coding-focused general models and specialized code-editing, search, compaction, routing, and classification models.",
+  "link": "https://docs.morphllm.com/llms.txt",
   "residency_mode": "customer_selectable",
   "default_execution_regions": null,
   "default_data_regions": ["US"],
@@ -20,19 +20,30 @@
   "prompt_training_policy": "no_train",
   "prompt_training_notes": "Morph says it does not use inputs and outputs to train its models by default, with limited support/debugging exceptions and stronger zero-retention protections for enterprise customers.",
   "prompt_training_source_url": "https://www.morphllm.com/privacy",
-  "gateway_kind": null,
-  "routable": null,
-  "routing_enabled": null,
-  "sdk_package": null,
-  "api_base_url": null,
-  "docs_url": "https://www.morphllm.com/pricing",
-  "auth_env": null,
-  "api_formats": [],
+  "gateway_kind": "openai_compatible",
+  "routable": true,
+  "routing_enabled": true,
+  "sdk_package": "openai",
+  "api_base_url": "https://api.morphllm.com/v1",
+  "docs_url": "https://docs.morphllm.com/llms.txt",
+  "auth_env": "MORPH_API_KEY",
+  "api_formats": ["openai-chat-completions"],
   "service_tiers": [],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "documentation",
+      "url": "https://docs.morphllm.com/llms.txt",
+      "accessed_at": "2026-08-12T00:00:00Z"
+    },
+    {
+      "kind": "pricing",
+      "url": "https://www.morphllm.com/pricing",
+      "accessed_at": "2026-08-12T00:00:00Z"
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-12T00:00:00Z",
+    "notes": "Verified OpenAI-compatible base URL, Bearer authentication, current model lineup, adjacent APIs, and pricing against Morph's first-party documentation."
   }
 }

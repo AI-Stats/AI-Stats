@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { moonshotQuirks } from "../../providers/moonshot-ai/quirks";
 
 describe("Moonshot quirks", () => {
-	it("rewrites developer role and downgrades json_schema payloads", () => {
+	it("rewrites developer role and preserves documented json_schema payloads", () => {
 		const request: Record<string, any> = {
 			model: "moonshot-v1-8k",
 			messages: [
@@ -27,8 +27,8 @@ describe("Moonshot quirks", () => {
 		moonshotQuirks.transformRequest?.({ request, ir: {} as any });
 
 		expect(request.messages[0].role).toBe("system");
-		expect(request.response_format).toEqual({ type: "json_object" });
-		expect(String(request.messages[0].content)).toContain("The JSON must match this schema");
+		expect(request.response_format.type).toBe("json_schema");
+		expect(request.response_format.json_schema.name).toBe("answer");
 	});
 
 	it("normalizes K2.7 Code request fields to Moonshot's documented constraints", () => {
@@ -94,7 +94,7 @@ describe("Moonshot quirks", () => {
 			ir: { reasoning: { effort: "low" } } as any,
 		});
 
-		expect(request.reasoning_effort).toBe("max");
+		expect(request.reasoning_effort).toBe("low");
 		expect(request.thinking).toBeUndefined();
 		expect(request.max_completion_tokens).toBe(131072);
 		expect(request.max_tokens).toBeUndefined();
@@ -105,6 +105,32 @@ describe("Moonshot quirks", () => {
 		expect(request.messages[0].content[0].type).toBe("video_url");
 		expect(request.response_format.type).toBe("json_schema");
 		expect(request.response_format.json_schema.strict).toBe(true);
+	});
+
+	it("maps K2 thinking, preserved context, modern output limit, and video input", () => {
+		const request: Record<string, any> = {
+			model: "kimi-k2.6",
+			max_tokens: 4096,
+			messages: [{ role: "user", content: [{ type: "input_video", video_url: { url: "ms://video" } }] }],
+			temperature: 0.2,
+			top_p: 0.5,
+			n: 2,
+			tool_choice: "required",
+			tools: [{ type: "function", function: { name: "lookup" } }],
+		};
+		moonshotQuirks.transformRequest?.({
+			request,
+			ir: { reasoning: { enabled: true, context: "all_turns" } } as any,
+		});
+
+		expect(request.max_completion_tokens).toBe(4096);
+		expect(request.max_tokens).toBeUndefined();
+		expect(request.thinking).toEqual({ type: "enabled", keep: "all" });
+		expect(request.messages[0].content[0].type).toBe("video_url");
+		expect(request.temperature).toBeUndefined();
+		expect(request.top_p).toBeUndefined();
+		expect(request.n).toBeUndefined();
+		expect(request.tool_choice).toBe("auto");
 	});
 
 	it("extracts K3 reasoning_content for multi-turn continuity", () => {

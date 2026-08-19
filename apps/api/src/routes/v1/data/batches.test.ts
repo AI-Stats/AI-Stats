@@ -107,6 +107,18 @@ describe("normalizeBatchEndpoint", () => {
 		expect(normalizeBatchEndpoint("/v1/chat/completions")).toBe("/v1/chat/completions");
 		expect(normalizeBatchEndpoint("https://api.phaseo.app/v1/messages")).toBe("/v1/messages");
 		expect(normalizeBatchEndpoint("/v1/embeddings/")).toBe("/v1/embeddings");
+		expect(normalizeBatchEndpoint("/completions")).toBe("/v1/completions");
+		expect(normalizeBatchEndpoint("/moderations")).toBe("/v1/moderations");
+		expect(normalizeBatchEndpoint("/fim/completions")).toBe("/v1/fim/completions");
+		expect(normalizeBatchEndpoint("/chat/moderations")).toBe("/v1/chat/moderations");
+		expect(normalizeBatchEndpoint("/ocr")).toBe("/v1/ocr");
+		expect(normalizeBatchEndpoint("/classifications")).toBe("/v1/classifications");
+		expect(normalizeBatchEndpoint("/chat/classifications")).toBe("/v1/chat/classifications");
+		expect(normalizeBatchEndpoint("/conversations")).toBe("/v1/conversations");
+		expect(normalizeBatchEndpoint("/audio/transcriptions")).toBe("/v1/audio/transcriptions");
+		expect(normalizeBatchEndpoint("/images/generations")).toBe("/v1/images/generations");
+		expect(normalizeBatchEndpoint("/images/edits")).toBe("/v1/images/edits");
+		expect(normalizeBatchEndpoint("/videos")).toBe("/v1/videos");
 	});
 
 	it("rejects unknown endpoint shapes", () => {
