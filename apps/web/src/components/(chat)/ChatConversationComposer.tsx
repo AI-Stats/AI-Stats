@@ -870,6 +870,7 @@ function ComposerTimezoneSelectField({
 interface ChatConversationComposerProps {
 	sendGateType: SendGateType;
 	isSending: boolean;
+	authReturnUrl: string;
 	composer: string;
 	promptHistory?: string[];
 	attachments: File[];
@@ -928,6 +929,7 @@ export function ChatConversationComposer(props: ChatConversationComposerProps) {
 	const {
 		sendGateType,
 		isSending,
+		authReturnUrl,
 		composer,
 		promptHistory = [],
 		attachments,
@@ -3029,10 +3031,10 @@ export function ChatConversationComposer(props: ChatConversationComposerProps) {
 						</div>
 						<div className="flex items-center gap-2">
 							<Button asChild size="sm">
-								<Link href="/sign-up">Create account</Link>
+								<Link href={`/sign-up?returnUrl=${encodeURIComponent(authReturnUrl)}`}>Create account</Link>
 							</Button>
 							<Button asChild variant="outline" size="sm">
-								<Link href="/sign-in">Sign in</Link>
+								<Link href={`/sign-in?returnUrl=${encodeURIComponent(authReturnUrl)}`}>Sign in</Link>
 							</Button>
 						</div>
 					</div>
