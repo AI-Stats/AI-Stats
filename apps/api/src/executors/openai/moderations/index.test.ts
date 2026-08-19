@@ -243,8 +243,8 @@ describe("openai moderations executor", () => {
 
 		const result = await execute({
 			...buildArgs(
-				{ model: "mistral/mistral-moderation-latest", input: "test input" },
-				"mistral-moderation-latest",
+				{ model: "mistral/mistral-moderation-2", input: "test input" },
+				"mistral-moderation-2603",
 				"mistral",
 			),
 			upstreamTiming,
