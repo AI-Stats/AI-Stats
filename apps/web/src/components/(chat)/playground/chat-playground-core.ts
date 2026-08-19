@@ -233,8 +233,61 @@ export function getRoomStorageKeys(roomId: ChatRoomId) {
 
 export const STORAGE_KEYS = getRoomStorageKeys("text");
 
-export type ChatApiTarget = "default" | "public" | "local" | "custom";
+export type ChatApiTarget =
+	| "default"
+	| "public"
+	| "staging"
+	| "local"
+	| "custom";
 export const LOCAL_CHAT_API_BASE_URL = "http://127.0.0.1:8787/v1";
+export const STAGING_CHAT_API_BASE_URL =
+	process.env.NEXT_PUBLIC_STAGING_GATEWAY_BASE_URL?.trim().replace(/\/+$/, "") ??
+	"";
+
+const CHAT_API_TARGETS = new Set<ChatApiTarget>([
+	"default",
+	"public",
+	"staging",
+	"local",
+	"custom",
+]);
+
+export function inferChatApiTarget(
+	storedTarget: string | null,
+	storedBaseUrl: string | null,
+	stagingBaseUrl = STAGING_CHAT_API_BASE_URL,
+): ChatApiTarget {
+	if (storedTarget === "staging" && !stagingBaseUrl) {
+		return "default";
+	}
+	if (storedTarget && CHAT_API_TARGETS.has(storedTarget as ChatApiTarget)) {
+		return storedTarget as ChatApiTarget;
+	}
+	const normalizedBaseUrl = (storedBaseUrl ?? "")
+		.trim()
+		.replace(/\/+$/, "");
+	if (!normalizedBaseUrl) return "default";
+	if (normalizedBaseUrl === BASE_URL) return "public";
+	if (stagingBaseUrl && normalizedBaseUrl === stagingBaseUrl) {
+		return "staging";
+	}
+	if (normalizedBaseUrl === LOCAL_CHAT_API_BASE_URL) return "local";
+	return "custom";
+}
+
+export function resolveChatApiBaseUrl(
+	apiTarget: ChatApiTarget,
+	customBaseUrl: string,
+	stagingBaseUrl = STAGING_CHAT_API_BASE_URL,
+): string | undefined {
+	if (apiTarget === "default") return undefined;
+	if (apiTarget === "staging") {
+		return stagingBaseUrl || BASE_URL;
+	}
+	if (apiTarget === "local") return LOCAL_CHAT_API_BASE_URL;
+	if (apiTarget === "custom") return customBaseUrl.trim() || BASE_URL;
+	return BASE_URL;
+}
 
 export const PERSONALIZATION_ACCENT_COLORS: Array<{
 	label: string;

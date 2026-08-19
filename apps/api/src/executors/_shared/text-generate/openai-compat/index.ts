@@ -66,7 +66,10 @@ async function sleep(ms: number): Promise<void> {
 
 export type OpenAIWirePolicy = {
 	forceChat?: boolean;
+	useClientStreamingMode?: boolean;
 	transientRetries?: 0 | 1;
+	urlProviderId?: string;
+	emptyDoneBehavior?: "length";
 };
 
 export async function executeOpenAIWire(
@@ -95,11 +98,12 @@ export async function executeOpenAIWire(
 			? irToOpenAIResponses(args.ir, modelForRouting, args.providerId, args.capabilityParams)
 			: irToOpenAIChat(args.ir, modelForRouting, args.providerId, args.capabilityParams);
 
+		const upstreamStream = policy.useClientStreamingMode ? args.ir.stream : true;
 		const payload: Record<string, any> = {
 			...requestPayload,
-			stream: true,
+			stream: upstreamStream,
 		};
-		if (targetRoute === "chat") {
+		if (targetRoute === "chat" && upstreamStream && args.providerId !== "ai21" && args.providerId !== "mancer") {
 			payload.stream_options = {
 				...(payload.stream_options ?? {}),
 				include_usage: true,
@@ -134,9 +138,15 @@ export async function executeOpenAIWire(
 		}
 
 		const fetchStartMs = Date.now();
-		const response = await fetchUpstream(args, openAICompatUrl(args.providerId, endpointForRoute(targetRoute)), {
+		const bytePlusMcpBeta = args.providerId === "byteplus"
+			&& Array.isArray(sanitized.request.tools)
+			&& sanitized.request.tools.some((tool: any) => tool?.type === "mcp");
+		const response = await fetchUpstream(args, openAICompatUrl(policy.urlProviderId ?? args.providerId, endpointForRoute(targetRoute)), {
 			method: "POST",
-			headers: openAICompatHeaders(args.providerId, keyInfo.key, upstreamTestHeaders(args.meta)),
+			headers: openAICompatHeaders(args.providerId, keyInfo.key, {
+				...upstreamTestHeaders(args.meta),
+				...(bytePlusMcpBeta ? { "ark-beta-mcp": "true" } : {}),
+			}),
 			body: requestBody,
 		});
 
@@ -239,7 +249,7 @@ export async function executeOpenAIWire(
 		cost_cents: 0,
 		currency: "USD",
 		usage: undefined,
-		upstream_id: res.headers.get("x-request-id") || undefined,
+		upstream_id: res.headers.get("x-request-id") || res.headers.get("inference-id") || undefined,
 		finish_reason: null,
 	};
 	if (!res.ok) {
@@ -252,6 +262,32 @@ export async function executeOpenAIWire(
 			keySource: keyInfo.source,
 			byokKeyId: keyInfo.byokId,
 			mappedRequest,
+			timing: {
+				requestBuildMs,
+				upstreamFetchStartMs,
+				upstreamHeadersMs,
+				transientRetryDelayMs,
+			},
+		};
+	}
+
+	const upstreamIsStreaming = attempt.request.stream === true;
+	if (!upstreamIsStreaming) {
+		const json = await res.json();
+		const ir = route === "responses"
+			? openAIResponsesToIR(json, args.requestId, modelForRouting, args.providerId)
+			: openAIChatToIR(json, args.requestId, modelForRouting, args.providerId);
+		const usageMeters = normalizeTextUsageForPricing(ir?.usage ?? json?.usage);
+		if (usageMeters) bill.usage = usageMeters;
+		return {
+			kind: "completed",
+			ir,
+			bill,
+			upstream: res,
+			keySource: keyInfo.source,
+			byokKeyId: keyInfo.byokId,
+			mappedRequest,
+			rawResponse: json,
 			timing: {
 				requestBuildMs,
 				upstreamFetchStartMs,
@@ -291,6 +327,7 @@ export async function executeOpenAIWire(
 			args,
 			route,
 			selectedDispatchAtMs,
+			policy.emptyDoneBehavior,
 		);
 		if (ir) {
 			(ir as any).rawResponse = rawResponse;
@@ -424,7 +461,7 @@ function transformResponsesStreamToAnthropic(
 	const encoder = new TextEncoder();
 	let buf = "";
 
-	const emit = async (
+	const emit = (
 		controller: ReadableStreamDefaultController<Uint8Array>,
 		eventName: string,
 		payload: any,
@@ -434,7 +471,184 @@ function transformResponsesStreamToAnthropic(
 
 	return new ReadableStream<Uint8Array>({
 		async start(controller) {
-			let finalResponse: any = null;
+			let messageStarted = false;
+			let nextBlockIndex = 0;
+			let terminalEmitted = false;
+			let latestResponse: any = null;
+			type AnthropicBlock = {
+				index: number;
+				type: "text" | "thinking" | "tool_use";
+				open: boolean;
+				emittedContent: boolean;
+				toolId?: string;
+				toolName?: string;
+			};
+			const blocksByAlias = new Map<string, AnthropicBlock>();
+			const blocks: AnthropicBlock[] = [];
+			let activeBlock: AnthropicBlock | null = null;
+
+			const aliasesFor = (value: {
+				id?: unknown;
+				itemId?: unknown;
+				callId?: unknown;
+				outputIndex?: unknown;
+			}) => {
+				const aliases: string[] = [];
+				const add = (prefix: string, candidate: unknown) => {
+					if (candidate !== undefined && candidate !== null && candidate !== "") {
+						aliases.push(`${prefix}:${String(candidate)}`);
+					}
+				};
+				add("id", value.id);
+				add("id", value.itemId);
+				add("call", value.callId);
+				add("output", value.outputIndex);
+				return aliases;
+			};
+
+			const ensureMessageStart = (response?: any) => {
+				if (messageStarted) return;
+				messageStarted = true;
+				emit(controller, "message_start", {
+					type: "message_start",
+					message: {
+						id: response?.nativeResponseId ?? response?.id ?? args.requestId,
+						type: "message",
+						role: "assistant",
+						model: response?.model ?? args.providerModelSlug ?? args.ir.model,
+						content: [],
+						stop_reason: null,
+						stop_sequence: null,
+						usage: normalizeUsageToAnthropic(response?.usage),
+					},
+				});
+			};
+
+			const ensureBlock = (
+				aliases: string[],
+				type: "text" | "thinking" | "tool_use",
+				tool?: { id?: string; name?: string },
+			) => {
+				const existing = aliases.map((alias) => blocksByAlias.get(alias)).find(Boolean);
+				if (existing) {
+					for (const alias of aliases) blocksByAlias.set(alias, existing);
+					if (tool?.id) existing.toolId = tool.id;
+					if (tool?.name) existing.toolName = tool.name;
+					if (activeBlock !== existing) {
+						if (activeBlock) stopBlock(activeBlock);
+						activeBlock = existing.open ? existing : null;
+					}
+					return existing;
+				}
+				ensureMessageStart();
+				if (activeBlock) stopBlock(activeBlock);
+				const block = {
+					index: nextBlockIndex++,
+					type,
+					open: true,
+					emittedContent: false,
+					toolId: tool?.id,
+					toolName: tool?.name,
+				};
+				blocks.push(block);
+				for (const alias of aliases) blocksByAlias.set(alias, block);
+				activeBlock = block;
+				emit(controller, "content_block_start", {
+					type: "content_block_start",
+					index: block.index,
+					content_block: type === "tool_use"
+						? {
+							type: "tool_use",
+							id: block.toolId ?? `tool_${args.requestId}_${block.index}`,
+							name: block.toolName ?? "tool",
+							input: {},
+						}
+						: type === "thinking"
+							? { type: "thinking", thinking: "" }
+							: { type: "text", text: "" },
+				});
+				return block;
+			};
+
+			function stopBlock(block: { index: number; open: boolean }) {
+				if (!block.open) return;
+				block.open = false;
+				if (activeBlock === block) activeBlock = null;
+				emit(controller, "content_block_stop", {
+					type: "content_block_stop",
+					index: block.index,
+				});
+			}
+
+			const finishMessage = (response: any) => {
+				if (terminalEmitted) return;
+				terminalEmitted = true;
+				ensureMessageStart(response);
+
+				const outputItems = Array.isArray(response?.output)
+					? response.output
+					: (Array.isArray(response?.output_items) ? response.output_items : []);
+				let hasToolUse = false;
+				for (let outputIndex = 0; outputIndex < outputItems.length; outputIndex += 1) {
+					const item = outputItems[outputIndex];
+					const itemType = String(item?.type ?? "").toLowerCase();
+					if (itemType === "reasoning" || itemType === "message") {
+						const blockType = itemType === "reasoning" ? "thinking" : "text";
+						const block = ensureBlock(aliasesFor({ id: item?.id, outputIndex }), blockType);
+						if (!block.emittedContent) {
+							const text = extractOutputText(item?.content);
+							if (text) {
+								emit(controller, "content_block_delta", {
+									type: "content_block_delta",
+									index: block.index,
+									delta: blockType === "thinking"
+										? { type: "thinking_delta", thinking: text }
+										: { type: "text_delta", text },
+								});
+								block.emittedContent = true;
+							}
+						}
+						stopBlock(block);
+						continue;
+					}
+
+					if (itemType === "function_call" || itemType === "tool_call") {
+						hasToolUse = true;
+						const toolId = item?.call_id ?? item?.id ?? `tool_${outputIndex}`;
+						const block = ensureBlock(aliasesFor({
+							id: item?.id,
+							callId: item?.call_id,
+							outputIndex,
+						}), "tool_use", {
+							id: toolId,
+							name: item?.name ?? "tool",
+						});
+						if (!block.emittedContent && typeof item?.arguments === "string" && item.arguments.length > 0) {
+							emit(controller, "content_block_delta", {
+								type: "content_block_delta",
+								index: block.index,
+								delta: { type: "input_json_delta", partial_json: item.arguments },
+							});
+							block.emittedContent = true;
+						}
+						stopBlock(block);
+					}
+				}
+
+				for (const block of blocks) stopBlock(block);
+				hasToolUse ||= blocks.some((block) => block.type === "tool_use");
+				const usage = normalizeUsageToAnthropic(response?.usage);
+				emit(controller, "message_delta", {
+					type: "message_delta",
+					delta: {
+						stop_reason: mapResponsesStatusToAnthropicStopReason(response, hasToolUse),
+						stop_sequence: null,
+					},
+					usage,
+				});
+				emit(controller, "message_stop", { type: "message_stop" });
+			};
+
 			try {
 				while (true) {
 					const { value, done } = await reader.read();
@@ -454,128 +668,98 @@ function transformResponsesStreamToAnthropic(
 						}
 
 						const normalizedEvent = normalizeResponsesEvent(event);
-						if (normalizedEvent === "response.completed") {
-							finalResponse = payload?.response ?? payload;
+						if (normalizedEvent === "response.created") {
+							latestResponse = payload?.response ?? payload;
+							ensureMessageStart(latestResponse);
 							continue;
 						}
-
+						if (normalizedEvent === "response.output_text.delta" && typeof payload?.delta === "string") {
+							const block = ensureBlock(aliasesFor({
+								itemId: payload?.item_id,
+								outputIndex: payload?.output_index ?? 0,
+							}), "text");
+							emit(controller, "content_block_delta", {
+								type: "content_block_delta",
+								index: block.index,
+								delta: { type: "text_delta", text: payload.delta },
+							});
+							block.emittedContent = true;
+							continue;
+						}
+						if (normalizedEvent === "response.reasoning_text.delta" && typeof payload?.delta === "string") {
+							const block = ensureBlock(aliasesFor({
+								itemId: payload?.item_id,
+								outputIndex: payload?.output_index ?? 0,
+							}), "thinking");
+							emit(controller, "content_block_delta", {
+								type: "content_block_delta",
+								index: block.index,
+								delta: { type: "thinking_delta", thinking: payload.delta },
+							});
+							block.emittedContent = true;
+							continue;
+						}
+						if (normalizedEvent === "response.output_item.added") {
+							const item = payload?.item;
+							const itemType = String(item?.type ?? "").toLowerCase();
+							if (itemType === "function_call" || itemType === "tool_call") {
+								const toolId = item?.call_id ?? item?.id ?? payload?.item_id;
+								ensureBlock(aliasesFor({
+									id: item?.id,
+									itemId: payload?.item_id,
+									callId: item?.call_id,
+									outputIndex: payload?.output_index,
+								}), "tool_use", { id: toolId, name: item?.name });
+							}
+							continue;
+						}
+						if (normalizedEvent === "response.function_call_arguments.delta" && typeof payload?.delta === "string") {
+							const toolId = payload?.call_id ?? payload?.item_id ?? payload?.output_index ?? 0;
+							const block = ensureBlock(aliasesFor({
+								itemId: payload?.item_id,
+								callId: payload?.call_id,
+								outputIndex: payload?.output_index,
+							}), "tool_use", { id: payload?.call_id ?? toolId });
+							emit(controller, "content_block_delta", {
+								type: "content_block_delta",
+								index: block.index,
+								delta: { type: "input_json_delta", partial_json: payload.delta },
+							});
+							block.emittedContent = true;
+							continue;
+						}
+						if (
+							normalizedEvent === "response.output_text.done" ||
+							normalizedEvent === "response.reasoning_text.done" ||
+							normalizedEvent === "response.output_item.done"
+						) {
+							const item = payload?.item;
+							const block = aliasesFor({
+								id: item?.id,
+								itemId: payload?.item_id,
+								callId: item?.call_id ?? payload?.call_id,
+								outputIndex: payload?.output_index,
+							}).map((alias) => blocksByAlias.get(alias)).find(Boolean);
+							if (block) stopBlock(block);
+							continue;
+						}
+						if (normalizedEvent === "response.completed") {
+							latestResponse = payload?.response ?? payload;
+							finishMessage(latestResponse);
+							continue;
+						}
 						if (!normalizedEvent && payload?.object === "response") {
-							finalResponse = payload;
+							latestResponse = payload;
+							finishMessage(payload);
 						}
 					}
 				}
-
-				if (!finalResponse) return;
-
-				const outputItems = Array.isArray(finalResponse?.output)
-					? finalResponse.output
-					: (Array.isArray(finalResponse?.output_items) ? finalResponse.output_items : []);
-				const usage = normalizeUsageToAnthropic(finalResponse?.usage);
-				const messageId = finalResponse?.nativeResponseId ?? finalResponse?.id ?? args.requestId;
-				const model = finalResponse?.model ?? args.providerModelSlug ?? args.ir.model;
-
-				await emit(controller, "message_start", {
-					type: "message_start",
-					message: {
-						id: messageId,
-						type: "message",
-						role: "assistant",
-						model,
-						content: [],
-						stop_reason: null,
-						stop_sequence: null,
-						usage,
-					},
-				});
-
-				let blockIndex = 0;
-				let hasToolUse = false;
-
-				for (const item of outputItems) {
-					const type = String(item?.type ?? "").toLowerCase();
-
-					if (type === "reasoning") {
-						const text = extractOutputText(item?.content);
-						const idx = blockIndex++;
-						await emit(controller, "content_block_start", {
-							type: "content_block_start",
-							index: idx,
-							content_block: { type: "thinking", thinking: "" },
-						});
-						if (text) {
-							await emit(controller, "content_block_delta", {
-								type: "content_block_delta",
-								index: idx,
-								delta: { type: "thinking_delta", thinking: text },
-							});
-						}
-						await emit(controller, "content_block_stop", {
-							type: "content_block_stop",
-							index: idx,
-						});
-						continue;
-					}
-
-					if (type === "message") {
-						const content = Array.isArray(item?.content) ? item.content : [];
-						for (const part of content) {
-							const text = extractTextPart(part);
-							if (!text) continue;
-							const idx = blockIndex++;
-							await emit(controller, "content_block_start", {
-								type: "content_block_start",
-								index: idx,
-								content_block: { type: "text", text: "" },
-							});
-							await emit(controller, "content_block_delta", {
-								type: "content_block_delta",
-								index: idx,
-								delta: { type: "text_delta", text },
-							});
-							await emit(controller, "content_block_stop", {
-								type: "content_block_stop",
-								index: idx,
-							});
-						}
-						continue;
-					}
-
-					if (type === "function_call" || type === "tool_call") {
-						hasToolUse = true;
-						const idx = blockIndex++;
-						await emit(controller, "content_block_start", {
-							type: "content_block_start",
-							index: idx,
-							content_block: {
-								type: "tool_use",
-								id: item?.call_id ?? item?.id ?? `tool_${idx}`,
-								name: item?.name ?? "tool",
-								input: parseFunctionArguments(item?.arguments),
-							},
-						});
-						await emit(controller, "content_block_stop", {
-							type: "content_block_stop",
-							index: idx,
-						});
-					}
-				}
-
-				const stopReason = mapResponsesStatusToAnthropicStopReason(finalResponse, hasToolUse);
-				await emit(controller, "message_delta", {
-					type: "message_delta",
-					delta: {
-						stop_reason: stopReason,
-						stop_sequence: null,
-					},
-					usage: {
-						input_tokens: usage.input_tokens,
-						output_tokens: usage.output_tokens,
-					},
-				});
-				await emit(controller, "message_stop", { type: "message_stop" });
 			} catch (err) {
 				console.error("openai compat responses->anthropic stream transform failed:", err);
 			} finally {
+				if (messageStarted && !terminalEmitted) {
+					finishMessage({ ...latestResponse, status: "incomplete" });
+				}
 				controller.close();
 			}
 		},
@@ -616,23 +800,6 @@ function extractTextPart(part: any): string {
 	return "";
 }
 
-function parseFunctionArguments(argumentsRaw: unknown): Record<string, any> {
-	if (argumentsRaw && typeof argumentsRaw === "object" && !Array.isArray(argumentsRaw)) {
-		return argumentsRaw as Record<string, any>;
-	}
-	if (typeof argumentsRaw === "string" && argumentsRaw.length > 0) {
-		try {
-			const parsed = JSON.parse(argumentsRaw);
-			if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
-				return parsed as Record<string, any>;
-			}
-		} catch {
-			// ignore parse errors
-		}
-	}
-	return {};
-}
-
 function mapResponsesStatusToAnthropicStopReason(
 	response: any,
 	hasToolUse: boolean,
@@ -654,6 +821,7 @@ export async function bufferStreamToIR(
 	args: ExecutorExecuteArgs,
 	route: "responses" | "chat",
 	upstreamStartMs: number,
+	emptyDoneBehavior?: "length",
 ): Promise<{ ir: IRChatResponse; usage: any; rawResponse: any; firstByteMs: number | null; totalMs: number }> {
 	if (!res.body) {
 		throw new Error("openai_stream_missing_body");
@@ -663,6 +831,7 @@ export async function bufferStreamToIR(
 	const decoder = new TextDecoder();
 	let buf = "";
 	let finalResponse: any = null;
+	let sawDone = false;
 	const applyStreamPayload = (payload: any) => {
 		// Responses API sends response in payload.response
 		if (route === "responses" && payload?.response) {
@@ -684,7 +853,7 @@ export async function bufferStreamToIR(
 		const { value, done } = await reader.read();
 		if (done) break;
 		buf += decoder.decode(value, { stream: true });
-		const frames = buf.split(/\n\n/);
+		const frames = buf.split(/\r?\n\r?\n/);
 		buf = frames.pop() ?? "";
 
 		for (const raw of frames) {
@@ -698,7 +867,11 @@ export async function bufferStreamToIR(
 				}
 			}
 
-			if (!data || data === "[DONE]") continue;
+			if (!data) continue;
+			if (data === "[DONE]") {
+				sawDone = true;
+				continue;
+			}
 
 			let payload: any;
 			try {
@@ -732,7 +905,9 @@ export async function bufferStreamToIR(
 			}
 		}
 
-		if (data && data !== "[DONE]") {
+		if (data === "[DONE]") {
+			sawDone = true;
+		} else if (data) {
 			try {
 				const payload = JSON.parse(data);
 				applyStreamPayload(payload);
@@ -756,6 +931,22 @@ export async function bufferStreamToIR(
 			} catch {
 				// Keep existing error path below.
 			}
+		}
+	}
+
+	if (!finalResponse) {
+		if (route === "chat" && sawDone && emptyDoneBehavior === "length") {
+			finalResponse = {
+				id: args.requestId,
+				object: "chat.completion",
+				created: Math.floor(Date.now() / 1000),
+				model: args.providerModelSlug ?? args.ir.model,
+				choices: [{
+					index: 0,
+					message: { role: "assistant", content: "" },
+					finish_reason: "length",
+				}],
+			};
 		}
 	}
 
@@ -1011,5 +1202,3 @@ function accumulateChatCompletion(finalResponse: any, payload: any): any {
 
 	return response;
 }
-
-

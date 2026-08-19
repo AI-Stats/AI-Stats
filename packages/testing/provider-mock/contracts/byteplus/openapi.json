@@ -42,6 +42,44 @@
         "description": "Reference-derived BytePlus ModelArk chat contract. See manifest provenance."
       }
     },
+    "/api/v3/responses": {
+      "post": {
+        "operationId": "byteplus_responses",
+        "description": "Current BytePlus ModelArk OpenAI-compatible Responses API for 250615-and-later text models.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["model", "input"],
+                "properties": {
+                  "model": { "type": "string" },
+                  "input": {},
+                  "instructions": { "type": "string" },
+                  "max_output_tokens": { "type": "integer", "minimum": 1 },
+                  "thinking": {
+                    "type": "object",
+                    "properties": { "type": { "type": "string", "enum": ["enabled", "disabled"] } },
+                    "required": ["type"]
+                  },
+                  "text": { "type": "object" },
+                  "tools": { "type": "array", "items": { "type": "object" } },
+                  "previous_response_id": { "type": "string" },
+                  "stream": { "type": "boolean" }
+                },
+                "additionalProperties": true
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OpenAI-compatible Response object or event stream."
+          }
+        }
+      }
+    },
     "/api/v3/contents/generations/tasks": {
       "post": {
         "operationId": "byteplus_video_generate_1",

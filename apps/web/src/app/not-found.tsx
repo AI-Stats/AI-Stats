@@ -1,140 +1,64 @@
-import Link from "next/link";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
+import Footer from "@/components/footer";
+import Header from "@/components/header/header";
 import { Button } from "@/components/ui/button";
-import { Home, BookOpen, Layers, Network } from "lucide-react";
-import {
-	Card,
-	CardHeader,
-	CardTitle,
-	CardDescription,
-} from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 
 const externalLinks = {
 	github: "https://github.com/phaseoteam/Phaseo",
 	discord: "https://discord.gg/aQyywCvgZ5",
 };
 
-const suggestions = [
-	{
-		href: "/",
-		label: "Go back home",
-		description: "Return to the main page and start from a clean slate.",
-		icon: Home,
-	},
-	{
-		href: "/models",
-		label: "Browse models",
-		description: "Explore the catalogue of AI models and their details.",
-		icon: Layers,
-	},
-	{
-		href: "https://phaseo.app/docs/v1",
-		label: "Read the docs",
-		description:
-			"Check the documentation for guides, references, and examples.",
-		icon: BookOpen,
-	},
-	{
-		href: "/api-providers",
-		label: "Explore providers",
-		description:
-			"Browse supported providers and see where coverage is available today.",
-		icon: Network,
-	},
-];
-
 export default function NotFound() {
 	return (
-		<div className="flex min-h-[80vh] flex-col items-center justify-center px-4 py-10">
-			<div className="w-full max-w-3xl">
-				{/* Top-left branding */}
-				<div className="mb-8 flex items-center justify-start">
-					<Link
-						href="/"
-						className="text-sm font-semibold tracking-tight text-muted-foreground hover:text-foreground"
-					>
-						Phaseo
-					</Link>
-				</div>
-
-				<div className="text-center">
-					<p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
-						404
-					</p>
-
-					<h1 className="mt-2 text-4xl font-bold tracking-tight sm:text-5xl">
-						This page doesn&apos;t exist
+		<div className="flex min-h-dvh flex-col">
+			<Header />
+			<main className="flex min-h-dvh flex-none items-center justify-center px-4 py-16 sm:px-6">
+				<div className="-translate-y-16 text-center">
+					<h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
+						404: Page not found
 					</h1>
-
-					<p className="mt-4 text-sm text-muted-foreground sm:text-base">
-						The URL may be out of date, the page might have been
-						moved, or it never existed in the first place.
-						Don&apos;t worry - you can jump back into the important
-						parts of the site from here.
+					<p className="mt-2 text-sm text-muted-foreground">
+						The page may have moved or the address may be incorrect.
 					</p>
-
-					<div className="mt-8 flex justify-center">
-						<Button asChild>
-							<Link href="/">Return home</Link>
+					<div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+						<Button asChild variant="outline" className="rounded-md">
+							<Link href="/">
+								<ArrowLeft className="size-4" aria-hidden="true" />
+								Go Home
+							</Link>
+						</Button>
+						<span className="text-sm text-muted-foreground">or</span>
+						<Button asChild variant="outline" className="rounded-md">
+							<Link href="/models">
+								Browse Models
+								<ArrowRight className="size-4" aria-hidden="true" />
+							</Link>
 						</Button>
 					</div>
-
-					<div className="mt-10 grid gap-4 text-left sm:grid-cols-2">
-						{suggestions.map((item) => {
-							const Icon = item.icon;
-							return (
-								<Link
-									key={item.href}
-									href={item.href}
-									className="group"
-								>
-									<Card className="h-full cursor-pointer border-border bg-card/70 transition hover:border-primary/60 hover:bg-accent/40">
-										<CardHeader className="flex flex-row items-start gap-3">
-											<div className="mt-1 rounded-full border bg-background p-2 transition group-hover:border-primary/70">
-												<Icon className="h-4 w-4" />
-											</div>
-											<div>
-												<CardTitle className="text-base">
-													{item.label}
-												</CardTitle>
-												<CardDescription className="mt-1 text-xs sm:text-sm">
-													{item.description}
-												</CardDescription>
-											</div>
-										</CardHeader>
-									</Card>
-								</Link>
-							);
-						})}
-					</div>
-
-					<Separator className="my-6" />
-
-					<div className="mt-3 text-sm">
-						<p className="text-center text-muted-foreground">
+					<div className="mt-8 border-t border-border/70 pt-5 text-sm">
+						<p className="text-muted-foreground">
 							If you believe this is an error, please let us know:
 						</p>
 						<div className="mt-2 flex flex-wrap justify-center gap-2">
-							<Button variant="ghost" size="sm" asChild>
+							<Button asChild size="sm" variant="ghost" className="rounded-md">
 								<Link
 									href={externalLinks.github}
 									target="_blank"
-									rel="noreferrer"
-									className="inline-flex items-center"
+									rel="noopener noreferrer"
 								>
-									<span className="mr-1 inline-flex h-4 w-4 items-center justify-center">
-										{/* Light / dark GitHub icons */}
+									<span className="inline-flex size-4 items-center justify-center">
 										<Image
 											src="/social/github_light.svg"
-											alt="GitHub"
+											alt=""
 											width={16}
 											height={16}
 											className="block dark:hidden"
 										/>
 										<Image
 											src="/social/github_dark.svg"
-											alt="GitHub"
+											alt=""
 											width={16}
 											height={16}
 											className="hidden dark:block"
@@ -143,28 +67,26 @@ export default function NotFound() {
 									GitHub
 								</Link>
 							</Button>
-							<Button variant="ghost" size="sm" asChild>
+							<Button asChild size="sm" variant="ghost" className="rounded-md">
 								<Link
 									href={externalLinks.discord}
 									target="_blank"
-									rel="noreferrer"
-									className="inline-flex items-center"
+									rel="noopener noreferrer"
 								>
-									<span className="mr-1 inline-flex h-4 w-4 items-center justify-center">
-										<Image
-											src="/social/discord.svg"
-											alt="Discord"
-											width={16}
-											height={16}
-										/>
-									</span>
+									<Image
+										src="/social/discord.svg"
+										alt=""
+										width={16}
+										height={16}
+									/>
 									Discord
 								</Link>
 							</Button>
 						</div>
 					</div>
 				</div>
-			</div>
+			</main>
+			<Footer />
 		</div>
 	);
 }

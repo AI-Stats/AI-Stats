@@ -594,7 +594,7 @@ export function getUsageRangeLabel(args: {
 					args.customFrom.includes("T") || args.customTo.includes("T");
 				return formatFriendlyCustomRange({ from, to, includeTime });
 			}
-			return "Custom range";
+			return "Custom Range";
 		default:
 			return "Past 1 Day";
 	}

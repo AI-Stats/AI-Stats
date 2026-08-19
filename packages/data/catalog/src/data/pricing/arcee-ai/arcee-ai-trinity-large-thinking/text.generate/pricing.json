@@ -22,6 +22,22 @@
       "source": null
     },
     {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.06,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": null,
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-14T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    },
+    {
       "meter": "output_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
@@ -49,6 +65,24 @@
       "match": [],
       "priority": 100,
       "effective_from": "2026-05-11T00:00:00Z",
+      "effective_to": "2026-08-14T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.8,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": null,
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-14T00:00:00Z",
+      "effective_to": null,
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -59,10 +93,17 @@
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [
+    {
+      "url": "https://docs.arcee.ai/get-started/pricing",
+      "kind": "pricing",
+      "accessed_at": "2026-08-14T00:00:00Z",
+      "notes": "Official Arcee AI pricing page."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-14T00:00:00Z",
+    "notes": "Input, output, and cached-read rates verified against the official Arcee AI pricing page."
   }
 }

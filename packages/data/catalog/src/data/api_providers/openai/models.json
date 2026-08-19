@@ -4163,15 +4163,15 @@
     "internal_model_id": "openai/gpt-4o-transcribe-diarize",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": null,
-    "max_output_tokens": null,
+    "input_modalities": "text,audio",
+    "output_modalities": "text,audio_stt",
+    "context_length": 16000,
+    "max_output_tokens": 2000,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "text.generate",
+        "capability_id": "audio.transcription",
         "status": "active",
         "params": [],
         "reasoning": null,
@@ -4333,7 +4333,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -4713,7 +4714,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -4903,7 +4905,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -5093,7 +5096,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -5335,7 +5339,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -5918,7 +5923,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -6354,7 +6360,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -6573,7 +6580,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "include_reasoning",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -6776,7 +6786,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "include_reasoning",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -6952,7 +6965,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "include_reasoning",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -7302,7 +7318,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "include_reasoning",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -7482,7 +7501,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "include_reasoning",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -7662,7 +7684,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "include_reasoning",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -7833,7 +7858,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "include_reasoning",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -8004,7 +8031,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "include_reasoning",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -8175,7 +8204,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "include_reasoning",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -8346,7 +8377,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "include_reasoning",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -8517,7 +8550,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "include_reasoning",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -8688,7 +8723,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "include_reasoning",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -9232,7 +9269,7 @@
     "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text,image",
-    "output_modalities": "text,image",
+    "output_modalities": "image",
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": "2025-12-16T00:00:00",
@@ -9326,7 +9363,7 @@
     "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text,image",
-    "output_modalities": "text,image",
+    "output_modalities": "image",
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": "2026-04-21T00:00:00",
@@ -9523,15 +9560,15 @@
     "internal_model_id": "openai/gpt-live-transcribe",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
+    "input_modalities": "text,audio",
+    "output_modalities": "text",
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "text.generate",
+        "capability_id": "audio.realtime",
         "status": "active",
         "params": [],
         "reasoning": null,
@@ -9575,15 +9612,15 @@
     "internal_model_id": "openai/gpt-realtime",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": null,
-    "max_output_tokens": null,
+    "input_modalities": "text,image,audio",
+    "output_modalities": "text,audio",
+    "context_length": 32000,
+    "max_output_tokens": 4096,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "text.generate",
+        "capability_id": "audio.realtime",
         "status": "active",
         "params": [],
         "reasoning": null,
@@ -9623,7 +9660,7 @@
   {
     "api_model_id": "openai/gpt-realtime",
     "provider_api_model_id": "openai:openai/gpt-realtime",
-    "provider_model_slug": "gpt-realtime-2025-08-28",
+    "provider_model_slug": "gpt-realtime",
     "internal_model_id": "openai/gpt-realtime",
     "is_active_gateway": true,
     "quantization_scheme": null,
@@ -9633,7 +9670,21 @@
     "max_output_tokens": 4096,
     "effective_from": "2026-03-25T00:00:00",
     "effective_to": null,
-    "capabilities": [],
+    "capabilities": [
+      {
+        "capability_id": "audio.realtime",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
     "routing_status": null,
     "routable": false,
     "regions": {
@@ -9769,15 +9820,15 @@
     "internal_model_id": "openai/gpt-realtime-2.1",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": null,
-    "max_output_tokens": null,
+    "input_modalities": "text,image,audio",
+    "output_modalities": "text,audio",
+    "context_length": 128000,
+    "max_output_tokens": 32000,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "text.generate",
+        "capability_id": "audio.realtime",
         "status": "active",
         "params": [],
         "reasoning": null,
@@ -9821,15 +9872,15 @@
     "internal_model_id": "openai/gpt-realtime-2.1-mini",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": null,
-    "max_output_tokens": null,
+    "input_modalities": "text,image,audio",
+    "output_modalities": "text,audio",
+    "context_length": 128000,
+    "max_output_tokens": 32000,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "text.generate",
+        "capability_id": "audio.realtime",
         "status": "active",
         "params": [],
         "reasoning": null,
@@ -9873,15 +9924,15 @@
     "internal_model_id": "openai/gpt-realtime-mini",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": null,
-    "max_output_tokens": null,
+    "input_modalities": "text,image,audio",
+    "output_modalities": "text,audio",
+    "context_length": 32000,
+    "max_output_tokens": 4096,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "text.generate",
+        "capability_id": "audio.realtime",
         "status": "active",
         "params": [],
         "reasoning": null,
@@ -9931,7 +9982,21 @@
     "max_output_tokens": 4096,
     "effective_from": "2025-10-06T00:00:00",
     "effective_to": "2026-07-23T00:00:00",
-    "capabilities": [],
+    "capabilities": [
+      {
+        "capability_id": "audio.realtime",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
     "routing_status": null,
     "routable": false,
     "regions": {
@@ -9971,7 +10036,7 @@
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "audio.translations",
+        "capability_id": "audio.realtime",
         "status": "active",
         "params": [],
         "reasoning": null,
@@ -10023,7 +10088,7 @@
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "audio.transcription",
+        "capability_id": "audio.realtime",
         "status": "active",
         "params": [],
         "reasoning": null,
@@ -10315,7 +10380,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "include_reasoning"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -11213,7 +11280,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "include_reasoning"
         ],
         "reasoning": null,
         "tool_call": null,

@@ -22,19 +22,24 @@
   "prompt_training_policy": "may_train",
   "prompt_training_notes": "Moonshot says user content helps optimize its models and that content may be used to provide, maintain, develop, and improve the services.",
   "prompt_training_source_url": "https://platform.kimi.ai/docs/agreement/userprivacy",
-  "gateway_kind": null,
-  "routable": null,
-  "routing_enabled": null,
+  "gateway_kind": "openai_compatible",
+  "routable": true,
+  "routing_enabled": true,
   "sdk_package": null,
-  "api_base_url": null,
-  "docs_url": "https://platform.moonshot.ai/",
-  "auth_env": null,
-  "api_formats": [],
+  "api_base_url": "https://api.moonshot.ai",
+  "docs_url": "https://platform.kimi.ai/docs/api/chat",
+  "auth_env": "MOONSHOT_API_KEY",
+  "api_formats": ["openai.chat.completions"],
   "service_tiers": [],
-  "sources": [],
+  "sources": [{
+    "kind": "api_reference",
+    "url": "https://platform.kimi.ai/docs/api/chat",
+    "accessed_at": "2026-08-12T00:00:00Z",
+    "notes": "Official Chat reference confirms the OpenAI-compatible endpoint, Bearer authentication, request parameters, multimodal content, streaming, reasoning, tools, and usage."
+  }],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-12T00:00:00Z",
+    "notes": "Runtime and Chat contract verified against the current Kimi API reference."
   }
 }

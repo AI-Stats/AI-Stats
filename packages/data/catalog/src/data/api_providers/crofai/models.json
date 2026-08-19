@@ -29,16 +29,9 @@
     ],
     "routing_status": "active",
     "routable": true,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
+    "regions": { "execution": null, "data": null },
     "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
+    "api": { "formats": [], "endpoint": null, "deployment": null },
     "sources": [],
     "verification": {
       "status": "unverified",
@@ -144,10 +137,71 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "deepseek/deepseek-v4-pro-lightning",
+    "api_model_id": "deepseek/deepseek-v4-pro-0813",
+    "provider_api_model_id": "crofai:deepseek-v4-pro-0813",
+    "provider_model_slug": "deepseek-v4-pro-0813",
+    "internal_model_id": "deepseek/deepseek-v4-pro-0813",
+    "is_active_gateway": true,
+    "quantization_scheme": "Q8_0",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-08-14T20:02:16",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api",
+        "url": "https://crof.ai/v1/models",
+        "accessed_at": "2026-08-14T00:00:00Z",
+        "notes": "Official CrofAI live model payload lists deepseek-v4-pro-0813 with Q8_0 quantization, a 1M context window, 131,072 maximum output tokens, and token rates."
+      },
+      {
+        "kind": "announcement",
+        "url": "https://x.com/nahcrof/status/2088355545329643983",
+        "accessed_at": "2026-08-14T00:00:00Z",
+        "notes": "CrofAI announced deepseek-v4-pro-0813 as live on 14 August 2026."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-14T00:00:00Z",
+      "notes": "Confirmed against CrofAI's live /v1/models response and launch announcement."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v4-pro",
     "provider_api_model_id": "crofai:deepseek-v4-pro-lightning",
     "provider_model_slug": "deepseek-v4-pro-lightning",
-    "internal_model_id": "deepseek/deepseek-v4-pro-lightning",
+    "internal_model_id": "deepseek/deepseek-v4-pro",
     "is_active_gateway": true,
     "quantization_scheme": "Q8_0",
     "input_modalities": "text",
@@ -177,7 +231,9 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "priority"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,
@@ -192,22 +248,22 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "deepseek/deepseek-v4-pro-lightning",
+    "api_model_id": "deepseek/deepseek-v4-pro",
     "provider_api_model_id": "crofai:deepseek-v4-pro-lightning",
     "provider_model_slug": "deepseek-v4-pro-lightning",
-    "internal_model_id": "deepseek/deepseek-v4-pro-lightning",
-    "is_active_gateway": true,
+    "internal_model_id": "deepseek/deepseek-v4-pro",
+    "is_active_gateway": false,
     "quantization_scheme": "Q8_0",
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 1000000,
     "max_output_tokens": 131072,
     "effective_from": "2026-06-01T05:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-13T18:30:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -219,23 +275,32 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": null,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "priority"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+        "sources": [
+      {
+        "kind": "provider_notice",
+        "url": null,
+        "accessed_at": null,
+        "notes": "CrofAI Discord notice supplied by the maintainer: the seven listed routes were scheduled for removal at 13:30 CDT on 8/13/2026."
+      }
+    ],
     "verification": {
-      "status": "unverified",
+      "status": "verified",
       "checked_at": null,
-      "notes": null
+      "notes": "Retirement boundary is taken from the provider notice rather than inferred from a later live API observation."
     },
     "rate_limits": []
   },
@@ -317,9 +382,16 @@
     ],
     "routing_status": "active",
     "routable": true,
-    "regions": { "execution": null, "data": null },
+    "regions": {
+      "execution": null,
+      "data": null
+    },
     "service_tiers": [],
-    "api": { "formats": [], "endpoint": null, "deployment": null },
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
     "sources": [
       {
         "kind": "pricing",
@@ -724,7 +796,7 @@
     "provider_api_model_id": "crofai:greg",
     "provider_model_slug": "greg",
     "internal_model_id": "crofai/greg",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "greg",
     "input_modalities": "text",
     "output_modalities": "text",
@@ -747,8 +819,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "inactive",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -820,7 +892,7 @@
     "provider_api_model_id": "crofai:greg-1",
     "provider_model_slug": "greg-1",
     "internal_model_id": "crofai/greg-1",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "Q4_0",
     "input_modalities": "text",
     "output_modalities": "text",
@@ -843,8 +915,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "inactive",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -868,7 +940,7 @@
     "provider_api_model_id": "crofai:greg-1-super",
     "provider_model_slug": "greg-1-super",
     "internal_model_id": "crofai/greg-1-super",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "Q4_0",
     "input_modalities": "text",
     "output_modalities": "text",
@@ -891,8 +963,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "inactive",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -1252,18 +1324,18 @@
     "provider_api_model_id": "crofai:kimi-k2.5",
     "provider_model_slug": "kimi-k2.5",
     "internal_model_id": "moonshotai/kimi-k2.5",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "Q4_K_M",
     "input_modalities": "text,image",
     "output_modalities": "text",
     "context_length": 262144,
     "max_output_tokens": 262144,
     "effective_from": "2026-04-27T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-13T18:30:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -1275,8 +1347,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": null,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -1287,31 +1359,38 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+        "sources": [
+      {
+        "kind": "provider_notice",
+        "url": null,
+        "accessed_at": null,
+        "notes": "CrofAI Discord notice supplied by the maintainer: the seven listed routes were scheduled for removal at 13:30 CDT on 8/13/2026."
+      }
+    ],
     "verification": {
-      "status": "unverified",
+      "status": "verified",
       "checked_at": null,
-      "notes": null
+      "notes": "Retirement boundary is taken from the provider notice rather than inferred from a later live API observation."
     },
     "rate_limits": []
   },
   {
-    "api_model_id": "moonshotai/kimi-k2.5-lightning",
+    "api_model_id": "moonshotai/kimi-k2.5",
     "provider_api_model_id": "crofai:kimi-k2.5-lightning",
     "provider_model_slug": "kimi-k2.5-lightning",
     "internal_model_id": "moonshotai/kimi-k2.5",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "530b-int4",
     "input_modalities": "text,image",
     "output_modalities": "text",
     "context_length": 131072,
     "max_output_tokens": 32768,
     "effective_from": "2026-04-27T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-13T18:30:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -1323,23 +1402,32 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": null,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "priority"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+        "sources": [
+      {
+        "kind": "provider_notice",
+        "url": null,
+        "accessed_at": null,
+        "notes": "CrofAI Discord notice supplied by the maintainer: the seven listed routes were scheduled for removal at 13:30 CDT on 8/13/2026."
+      }
+    ],
     "verification": {
-      "status": "unverified",
+      "status": "verified",
       "checked_at": null,
-      "notes": null
+      "notes": "Retirement boundary is taken from the provider notice rather than inferred from a later live API observation."
     },
     "rate_limits": []
   },
@@ -1348,18 +1436,18 @@
     "provider_api_model_id": "crofai:glm-5",
     "provider_model_slug": "glm-5",
     "internal_model_id": "z-ai/glm-5",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "Q4_0",
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 202752,
     "max_output_tokens": 202752,
     "effective_from": "2026-04-27T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-13T18:30:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -1371,8 +1459,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": null,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -1383,11 +1471,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+        "sources": [
+      {
+        "kind": "provider_notice",
+        "url": null,
+        "accessed_at": null,
+        "notes": "CrofAI Discord notice supplied by the maintainer: the seven listed routes were scheduled for removal at 13:30 CDT on 8/13/2026."
+      }
+    ],
     "verification": {
-      "status": "unverified",
+      "status": "verified",
       "checked_at": null,
-      "notes": null
+      "notes": "Retirement boundary is taken from the provider notice rather than inferred from a later live API observation."
     },
     "rate_limits": []
   },
@@ -1396,18 +1491,18 @@
     "provider_api_model_id": "crofai:glm-4.7",
     "provider_model_slug": "glm-4.7",
     "internal_model_id": "z-ai/glm-4.7",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "Q8_0",
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 202752,
     "max_output_tokens": 202752,
     "effective_from": "2026-04-27T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-13T18:30:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -1419,8 +1514,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": null,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -1431,11 +1526,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+        "sources": [
+      {
+        "kind": "provider_notice",
+        "url": null,
+        "accessed_at": null,
+        "notes": "CrofAI Discord notice supplied by the maintainer: the seven listed routes were scheduled for removal at 13:30 CDT on 8/13/2026."
+      }
+    ],
     "verification": {
-      "status": "unverified",
+      "status": "verified",
       "checked_at": null,
-      "notes": null
+      "notes": "Retirement boundary is taken from the provider notice rather than inferred from a later live API observation."
     },
     "rate_limits": []
   },
@@ -1444,18 +1546,18 @@
     "provider_api_model_id": "crofai:glm-4.7-flash",
     "provider_model_slug": "glm-4.7-flash",
     "internal_model_id": "z-ai/glm-4.7-flash",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "fp8",
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 202752,
     "max_output_tokens": 131072,
     "effective_from": "2026-04-27T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-13T18:30:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -1467,8 +1569,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": null,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -1479,11 +1581,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+        "sources": [
+      {
+        "kind": "provider_notice",
+        "url": null,
+        "accessed_at": null,
+        "notes": "CrofAI Discord notice supplied by the maintainer: the seven listed routes were scheduled for removal at 13:30 CDT on 8/13/2026."
+      }
+    ],
     "verification": {
-      "status": "unverified",
+      "status": "verified",
       "checked_at": null,
-      "notes": null
+      "notes": "Retirement boundary is taken from the provider notice rather than inferred from a later live API observation."
     },
     "rate_limits": []
   },
@@ -1540,18 +1649,18 @@
     "provider_api_model_id": "crofai:minimax-m2.5",
     "provider_model_slug": "minimax-m2.5",
     "internal_model_id": "minimax/minimax-m2.5",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "awq",
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 204800,
     "max_output_tokens": 131072,
     "effective_from": "2026-04-27T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-13T18:30:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -1563,8 +1672,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": null,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -1575,11 +1684,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+        "sources": [
+      {
+        "kind": "provider_notice",
+        "url": null,
+        "accessed_at": null,
+        "notes": "CrofAI Discord notice supplied by the maintainer: the seven listed routes were scheduled for removal at 13:30 CDT on 8/13/2026."
+      }
+    ],
     "verification": {
-      "status": "unverified",
+      "status": "verified",
       "checked_at": null,
-      "notes": null
+      "notes": "Retirement boundary is taken from the provider notice rather than inferred from a later live API observation."
     },
     "rate_limits": []
   },
@@ -1809,7 +1925,7 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": ["standard", "flex"],
+    "service_tiers": ["standard"],
     "api": {
       "formats": [],
       "endpoint": null,
@@ -1864,7 +1980,7 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": ["flex"],
+    "service_tiers": ["standard"],
     "api": {
       "formats": [],
       "endpoint": null,

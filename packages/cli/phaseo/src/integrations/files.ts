@@ -39,10 +39,6 @@ export async function applyChanges(changes: FileChange[]): Promise<void> {
 				throw new Error(`Refusing to apply stale file change: ${change.path}`);
 			}
 			await mkdir(dirname(change.path), { recursive: true });
-			if (change.before !== null) {
-				const backup = `${change.path}.phaseo-backup-${Date.now()}`;
-				await writeFile(backup, change.before, { mode: 0o600 });
-			}
 			applied.push({ path: change.path, before: change.before });
 			if (change.after === null) {
 				await unlink(change.path).catch((error: NodeJS.ErrnoException) => {

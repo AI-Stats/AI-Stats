@@ -7,6 +7,7 @@
   "default_execution_regions": null,
   "default_data_regions": null,
   "zero_data_retention": "default",
+  "data_retention_days": 0,
   "residency_source_url": "https://docs.baseten.co/deployment/regional-environments",
   "residency_notes": "Baseten does not store model inputs or outputs by default for synchronous inference. Regional environments require Baseten configuration and expose a regional endpoint that keeps inference within the designated region; standard endpoints do not provide that guarantee. Async inputs are temporarily stored until processed, while outputs are not stored.",
   "pricing_source_url": "https://www.baseten.co/pricing",
@@ -25,15 +26,22 @@
   "routable": null,
   "routing_enabled": null,
   "sdk_package": null,
-  "api_base_url": null,
+  "api_base_url": "https://inference.baseten.co/v1",
   "docs_url": "https://docs.baseten.co/",
-  "auth_env": null,
+  "auth_env": "BASETEN_API_KEY",
   "api_formats": [],
   "service_tiers": [],
-  "sources": [],
+  "sources": [
+    {
+      "url": "https://docs.baseten.co/reference/inference-api/chat-completions",
+      "title": "Baseten Chat Completions",
+      "kind": "official_docs",
+      "checked_at": "2026-08-12T00:00:00.000Z"
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-12T00:00:00.000Z",
+    "notes": "Official Baseten reference confirms the Model APIs base URL, Chat Completions route, and BASETEN_API_KEY authorization."
   }
 }

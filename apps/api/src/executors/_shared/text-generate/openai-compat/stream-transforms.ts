@@ -821,6 +821,11 @@ export function transformChatStreamToResponses(
 							output,
 							usage,
 							nativeResponseId: ir.nativeId ?? nativeResponseId,
+							...(encoded.citations ? { citations: encoded.citations } : {}),
+							...(encoded.search_results ? { search_results: encoded.search_results } : {}),
+							...(encoded.images ? { images: encoded.images } : {}),
+							...(encoded.related_questions ? { related_questions: encoded.related_questions } : {}),
+							...(encoded.reasoning_steps ? { reasoning_steps: encoded.reasoning_steps } : {}),
 						};
 						await emitEvent("response.completed", { response }, controller);
 					}
@@ -980,6 +985,10 @@ function encodeResponsesUsageFromIR(usage?: IRChatResponse["usage"]) {
 		output_tokens: usage.outputTokens,
 		total_tokens: usage.totalTokens,
 	};
+	if (typeof usage._ext?.citationTokens === "number") out.citation_tokens = usage._ext.citationTokens;
+	if (typeof usage._ext?.numSearchQueries === "number") out.num_search_queries = usage._ext.numSearchQueries;
+	if (typeof usage._ext?.searchContextSize === "string") out.search_context_size = usage._ext.searchContextSize;
+	if (usage._ext?.providerCost) out.cost = usage._ext.providerCost;
 	if (usage.cachedReadTokensAreSubsetOfInput === true) {
 		out.cached_read_tokens_are_subset_of_input = true;
 	}
@@ -1103,6 +1112,11 @@ function accumulateChatCompletion(finalResponse: any, payload: any): any {
 		if (payload?.usage && finalResponse) {
 			finalResponse.usage = mergeUsageSnapshots(finalResponse.usage, payload.usage);
 		}
+		if (finalResponse) {
+			for (const field of ["citations", "search_results", "images", "related_questions", "reasoning_steps"]) {
+				if (Array.isArray(payload?.[field])) finalResponse[field] = payload[field];
+			}
+		}
 		return finalResponse;
 	}
 
@@ -1199,8 +1213,9 @@ function accumulateChatCompletion(finalResponse: any, payload: any): any {
 	if (payload?.usage) {
 		response.usage = mergeUsageSnapshots(response.usage, payload.usage);
 	}
+	for (const field of ["citations", "search_results", "images", "related_questions", "reasoning_steps"]) {
+		if (Array.isArray(payload?.[field])) response[field] = payload[field];
+	}
 
 	return response;
 }
-
-

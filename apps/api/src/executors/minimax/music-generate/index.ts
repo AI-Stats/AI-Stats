@@ -1,6 +1,6 @@
 // Purpose: Executor for minimax / music-generate.
 // Why: Uses MiniMax native music APIs directly instead of relay providers.
-// How: Submits jobs to /v1/music_generation and normalizes the async task response.
+// How: Calls MiniMax's synchronous /v1/music_generation endpoint and normalizes its audio response.
 
 import type { IRMusicGenerateRequest, IRMusicGenerateResponse } from "@core/ir";
 import type { ExecutorExecuteArgs, ExecutorResult } from "@executors/types";
@@ -8,20 +8,12 @@ import { fetchUpstream } from "@executors/_shared/timing/upstream";
 import type { ProviderExecutor } from "@executors/types";
 import { getBindings } from "@/runtime/env";
 import { resolveProviderKey } from "@providers/keys";
-import { saveMusicJobMeta } from "@core/music-jobs";
-
-const MINIMAX_MUSIC_PREFIX = "mmxmus_";
 const DEFAULT_MINIMAX_BASE_URL = "https://api.minimax.io";
 
 type MiniMaxAudioPayload = {
 	audioUrl?: string;
 	audioBase64?: string;
 };
-
-function encodeMiniMaxMusicId(taskId: string): string {
-	const b64 = btoa(taskId).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
-	return `${MINIMAX_MUSIC_PREFIX}${b64}`;
-}
 
 function toMusicStatus(value: unknown): IRMusicGenerateResponse["status"] {
 	if (typeof value === "number" && Number.isFinite(value)) {
@@ -38,13 +30,6 @@ function toMusicStatus(value: unknown): IRMusicGenerateResponse["status"] {
 	if (status === "failed" || status === "error" || status === "cancelled" || status === "canceled") return "failed";
 	if (status === "running" || status === "processing" || status === "in_progress") return "in_progress";
 	return "queued";
-}
-
-function extractTaskId(json: any): string | undefined {
-	const taskId = json?.task_id ?? json?.taskId ?? json?.id ?? json?.data?.task_id ?? json?.data?.taskId;
-	if (taskId == null) return undefined;
-	const value = String(taskId).trim();
-	return value.length > 0 ? value : undefined;
 }
 
 function isLikelyBase64(value: string): boolean {
@@ -112,33 +97,33 @@ function toPositiveNumber(value: unknown): number | undefined {
 	return undefined;
 }
 
+function miniMaxApplicationErrorStatus(code: number): number {
+	if (code === 1004 || code === 2049) return 401;
+	if (code === 1008) return 402;
+	if (code === 1002 || code === 2056) return 429;
+	if (code === 2013 || code === 1026 || code === 1027) return 400;
+	return 502;
+}
+
 export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult> {
 	const ir = args.ir as IRMusicGenerateRequest;
 	const model = args.providerModelSlug || ir.model || "music-01";
 	const rawRequest = (ir.rawRequest ?? {}) as Record<string, any>;
 	const minimaxExtensions = (ir.vendor?.minimax ?? rawRequest.minimax ?? {}) as Record<string, any>;
-	const passthroughRequest =
-		minimaxExtensions.request &&
-		typeof minimaxExtensions.request === "object" &&
-		!Array.isArray(minimaxExtensions.request)
-			? { ...(minimaxExtensions.request as Record<string, any>) }
-			: {};
-
-	if (passthroughRequest.model == null) passthroughRequest.model = model;
-	if (passthroughRequest.prompt == null) {
-		passthroughRequest.prompt = minimaxExtensions.prompt ?? ir.prompt ?? "";
+	const passthroughRequest: Record<string, any> = {
+		model,
+		prompt: minimaxExtensions.prompt ?? ir.prompt ?? "",
+	};
+	for (const field of [
+		"lyrics", "lyrics_optimizer", "is_instrumental", "audio_url", "audio_base64",
+		"cover_feature_id", "audio_setting",
+	] as const) {
+		if (minimaxExtensions[field] !== undefined) passthroughRequest[field] = minimaxExtensions[field];
 	}
-	if (passthroughRequest.lyrics == null) {
-		const explicitLyrics =
-			typeof minimaxExtensions.lyrics === "string" && minimaxExtensions.lyrics.trim()
-				? minimaxExtensions.lyrics.trim()
-				: typeof rawRequest.lyrics === "string" && rawRequest.lyrics.trim()
-					? rawRequest.lyrics.trim()
-					: null;
-		if (explicitLyrics) {
-			passthroughRequest.lyrics = explicitLyrics;
-		}
+	if (passthroughRequest.lyrics == null && typeof rawRequest.lyrics === "string" && rawRequest.lyrics.trim()) {
+		passthroughRequest.lyrics = rawRequest.lyrics.trim();
 	}
+	const isCover = /^music-cover(?:-free)?$/i.test(model);
 	if (passthroughRequest.is_instrumental == null) {
 		const explicitInstrumental =
 			typeof minimaxExtensions.is_instrumental === "boolean"
@@ -148,12 +133,12 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 					: null;
 		if (explicitInstrumental != null) {
 			passthroughRequest.is_instrumental = explicitInstrumental;
-		} else if (passthroughRequest.lyrics == null) {
+		} else if (!isCover && passthroughRequest.lyrics == null && passthroughRequest.lyrics_optimizer !== true) {
 			// Prompt-only chat should steer musical style, not become literal sung lyrics.
 			passthroughRequest.is_instrumental = true;
 		}
 	}
-	if (passthroughRequest.is_instrumental === false && passthroughRequest.lyrics == null) {
+	if (!isCover && passthroughRequest.is_instrumental === false && passthroughRequest.lyrics == null && passthroughRequest.lyrics_optimizer !== true) {
 		const validationBody = {
 			error: "validation_error",
 			reason: "lyrics_required_for_non_instrumental_minimax_music",
@@ -177,16 +162,46 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 			mappedRequest: undefined,
 		};
 	}
-	if (passthroughRequest.duration == null) {
-		const duration = toPositiveNumber(minimaxExtensions.duration ?? ir.duration);
-		if (duration != null) passthroughRequest.duration = duration;
+	if (typeof passthroughRequest.prompt !== "string" || passthroughRequest.prompt.length > 2000 || (passthroughRequest.is_instrumental === true && passthroughRequest.prompt.length < 1)) {
+		return {
+			kind: "completed", ir: undefined,
+			bill: { cost_cents: 0, currency: "USD", usage: undefined, upstream_id: undefined, finish_reason: null },
+			upstream: new Response(JSON.stringify({ error: "validation_error", reason: "invalid_minimax_music_prompt" }), { status: 400, headers: { "Content-Type": "application/json" } }),
+			keySource: "gateway", mappedRequest: undefined,
+		};
 	}
-	if (passthroughRequest.output_format == null) {
-		passthroughRequest.output_format = "url";
+	if (isCover) {
+		const referenceCount = [passthroughRequest.audio_url, passthroughRequest.audio_base64, passthroughRequest.cover_feature_id]
+			.filter((value) => typeof value === "string" && value.length > 0).length;
+		if (referenceCount !== 1 || passthroughRequest.prompt.length < 10 || passthroughRequest.prompt.length > 300) {
+			return {
+				kind: "completed", ir: undefined,
+				bill: { cost_cents: 0, currency: "USD", usage: undefined, upstream_id: undefined, finish_reason: null },
+				upstream: new Response(JSON.stringify({ error: "validation_error", reason: "invalid_minimax_music_cover_request" }), { status: 400, headers: { "Content-Type": "application/json" } }),
+				keySource: "gateway", mappedRequest: undefined,
+			};
+		}
 	}
-	if (passthroughRequest.format == null && typeof ir.format === "string") passthroughRequest.format = ir.format;
-	if (passthroughRequest.callback_url == null && typeof minimaxExtensions.callback_url === "string") {
-		passthroughRequest.callback_url = minimaxExtensions.callback_url;
+	if (minimaxExtensions.stream === true) {
+		return {
+			kind: "completed", ir: undefined,
+			bill: { cost_cents: 0, currency: "USD", usage: undefined, upstream_id: undefined, finish_reason: null },
+			upstream: new Response(JSON.stringify({ error: "not_supported", reason: "minimax_music_streaming_not_supported_by_gateway" }), { status: 400, headers: { "Content-Type": "application/json" } }),
+			keySource: "gateway", mappedRequest: undefined,
+		};
+	}
+	passthroughRequest.stream = false;
+	passthroughRequest.output_format = minimaxExtensions.output_format ?? "url";
+	if (typeof ir.format === "string") {
+		if (!["mp3", "wav"].includes(ir.format)) {
+			return {
+				kind: "completed", ir: undefined,
+				bill: { cost_cents: 0, currency: "USD", usage: undefined, upstream_id: undefined, finish_reason: null },
+				upstream: new Response(JSON.stringify({ error: "validation_error", reason: "unsupported_minimax_music_audio_format" }), { status: 400, headers: { "Content-Type": "application/json" } }),
+				keySource: "gateway", mappedRequest: undefined,
+			};
+		}
+		passthroughRequest.audio_setting = { ...(passthroughRequest.audio_setting ?? {}), format: ir.format };
 	}
 
 	const keyInfo = resolveProviderKey(
@@ -261,7 +276,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 			ir: undefined,
 			bill,
 			upstream: new Response(JSON.stringify(upstreamErrorBody), {
-				status: 400,
+			status: miniMaxApplicationErrorStatus(baseStatusCode),
 				headers: { "Content-Type": "application/json" },
 			}),
 			keySource: keyInfo.source,
@@ -270,38 +285,17 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 			rawResponse: json,
 		};
 	}
-	const taskId = extractTaskId(json);
-	const encodedId = taskId ? encodeMiniMaxMusicId(taskId) : undefined;
-	if (encodedId) {
-		try {
-			await saveMusicJobMeta(args.workspaceId, encodedId, {
-				provider: args.providerId,
-				model,
-				duration: toPositiveNumber(passthroughRequest.duration) ?? null,
-				format: typeof passthroughRequest.format === "string" ? passthroughRequest.format : null,
-				createdAt: Date.now(),
-			});
-		} catch (error) {
-			console.error("minimax_music_job_meta_store_failed", {
-				error,
-				workspaceId: args.workspaceId,
-				musicId: encodedId,
-				requestId: args.requestId,
-			});
-		}
-	}
-
+	const durationSeconds = toPositiveNumber(json?.extra_info?.music_duration);
+	const normalizedDurationSeconds = durationSeconds != null ? durationSeconds / 1000 : undefined;
 	const usageMeters: Record<string, number> = {
 		requests: 1,
-		...(toPositiveNumber(passthroughRequest.duration) != null
-			? { output_audio_seconds: toPositiveNumber(passthroughRequest.duration)! }
-			: {}),
+		...(normalizedDurationSeconds != null ? { output_audio_seconds: normalizedDurationSeconds } : {}),
 	};
 	bill.usage = usageMeters;
 
 	const irResponse: IRMusicGenerateResponse = {
 		id: args.requestId,
-		nativeId: encodedId,
+		nativeId: typeof json?.trace_id === "string" ? json.trace_id : undefined,
 		model,
 		provider: args.providerId,
 		status: toMusicStatus(json?.status ?? json?.task_status ?? json?.data?.status),

@@ -1,7 +1,7 @@
 {
   "api_provider_id": "suno",
   "api_provider_name": "Suno",
-  "description": null,
+  "description": "Suno's official music platform. An official REST API portal is available at platform.suno.com, but its authenticated contract is not represented by the former third-party sunoapi.org adapter.",
   "link": "https://suno.com/",
   "country_code": "US",
   "status": "NotReady",
@@ -16,14 +16,19 @@
   "routing_enabled": null,
   "sdk_package": null,
   "api_base_url": null,
-  "docs_url": "https://suno.com/",
+  "docs_url": "https://platform.suno.com/",
   "auth_env": null,
   "api_formats": [],
   "service_tiers": [],
-  "sources": [],
+  "sources": [{
+    "kind": "documentation",
+    "url": "https://platform.suno.com/",
+    "accessed_at": "2026-08-12T00:00:00Z",
+    "notes": "Official authenticated Suno API portal; public page confirms songs, covers and mashups through REST but does not expose the signed-in wire reference."
+  }],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "partial",
+    "checked_at": "2026-08-12T00:00:00Z",
+    "notes": "False third-party sunoapi.org execution registration removed. Native implementation remains blocked until the official authenticated API contract can be verified."
   }
 }

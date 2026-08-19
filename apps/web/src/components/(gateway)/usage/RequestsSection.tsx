@@ -5,7 +5,6 @@ import { Loader2, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import UnifiedRequestsTable from "./UnifiedRequestsTable";
 import ExportDropdown from "./ExportDropdown";
-import InvestigateGeneration from "./UsageHeader/InvestigateGeneration";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { runUsageViewRefresh } from "@/lib/gateway/usage/refreshBus";
@@ -75,7 +74,6 @@ export default function RequestsSection({
 				<div className="flex items-center justify-between">
 					<h2 className="text-2xl font-bold">{title}</h2>
 					<div className="flex items-center gap-2">
-						<InvestigateGeneration iconOnly />
 						<ExportDropdown
 							onExportCSV={() => handleExport("csv")}
 							onExportPDF={() => handleExport("pdf")}

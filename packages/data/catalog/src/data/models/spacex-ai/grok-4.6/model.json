@@ -1,0 +1,140 @@
+{
+  "model_id": "spacex-ai/grok-4.6",
+  "organisation_id": "spacex-ai",
+  "name": "Grok 4.6",
+  "status": "Available",
+  "previous_model_id": "spacex-ai/grok-4.5",
+  "description": "Grok 4.6 is SpaceXAI's frontier model for coding, agentic tasks, and knowledge work. It supports text and image input, a 500k-token context window, configurable reasoning, function calling, structured outputs, and xAI's server-side web search, X search, and code execution tools.",
+  "announced_date": "2026-08-12T00:00:00",
+  "release_date": "2026-08-12T00:00:00",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text,image",
+  "output_types": "text",
+  "api_model_id": "spacex-ai/grok-4.6",
+  "links": [
+    {
+      "title": "Grok 4.6 developer overview",
+      "kind": "api_reference",
+      "url": "https://docs.x.ai/developers/models/grok-4.6"
+    },
+    {
+      "title": "Grok 4.6 announcement",
+      "kind": "announcement",
+      "url": "https://x.ai/news/grok-4-6"
+    },
+    {
+      "title": "Model Card",
+      "kind": "model_card",
+      "url": "https://media.x.ai/v1/website/card-4p6-4cd2dc57.pdf"
+    },
+    {
+      "title": "xAI API pricing",
+      "kind": "pricing",
+      "url": "https://docs.x.ai/developers/pricing"
+    }
+  ],
+  "details": [
+    {
+      "name": "api_model_id",
+      "value": "grok-4.6"
+    },
+    {
+      "name": "input_context_length",
+      "value": 500000
+    },
+    {
+      "name": "input_modalities",
+      "value": "text,image"
+    },
+    {
+      "name": "output_modalities",
+      "value": "text"
+    },
+    {
+      "name": "rate_limits",
+      "value": "150 requests/sec, 7200 requests/min, 50000000 tokens/min"
+    },
+    {
+      "name": "pricing",
+      "value": "Short context below 200k prompt tokens: $2.00 input, $0.50 cached input, and $6.00 output per 1M tokens. Long context at or above 200k prompt tokens: $4.00 input, $1.00 cached input, and $12.00 output per 1M tokens. Priority Processing is 2x the applicable standard tier."
+    },
+    {
+      "name": "regions",
+      "value": "us-east-1,us-west-2"
+    }
+  ],
+  "benchmarks": [],
+  "family_id": null,
+  "page_notice": null,
+  "model_type": null,
+  "knowledge_cutoff": "2026-02-01T00:00:00",
+  "limits": {
+    "context": 500000,
+    "input": 500000,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text",
+      "image/*"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": true,
+    "options": [
+      "low",
+      "medium",
+      "high",
+      "xhigh"
+    ]
+  },
+  "capabilities": {
+    "attachment": true,
+    "tool_call": true,
+    "structured_output": true,
+    "temperature": null,
+    "streaming": true,
+    "web_search": true
+  },
+  "open_weights": false,
+  "sources": [
+    {
+      "kind": "api_reference",
+      "url": "https://docs.x.ai/developers/models/grok-4.6",
+      "accessed_at": "2026-08-13T00:00:00Z",
+      "notes": "Official model slug, context, knowledge cutoff, modalities, capabilities, regions, rate limits, and headline token pricing."
+    },
+    {
+      "kind": "documentation",
+      "url": "https://docs.x.ai/developers/release-notes",
+      "accessed_at": "2026-08-13T00:00:00Z",
+      "notes": "Official API availability, modalities, context, pricing tiers, and supported reasoning levels."
+    },
+    {
+      "kind": "announcement",
+      "url": "https://x.ai/news/grok-4-6",
+      "accessed_at": "2026-08-13T00:00:00Z",
+      "notes": "Official Grok 4.6 launch announcement."
+    },
+    {
+      "kind": "pricing",
+      "url": "https://docs.x.ai/developers/pricing",
+      "accessed_at": "2026-08-13T00:00:00Z",
+      "notes": "Official short- and long-context token prices plus Priority Processing terms."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-13T00:00:00Z",
+    "notes": "Verified against the official Grok 4.6 model page, release notes, launch announcement, and xAI pricing documentation."
+  },
+  "last_updated": "2026-08-12T00:00:00",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

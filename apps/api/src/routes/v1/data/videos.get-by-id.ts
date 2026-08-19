@@ -597,6 +597,18 @@ export async function getVideoByIdHandler(req: Request): Promise<Response> {
 			});
 		}
 		const json = await res.clone().json().catch(() => null);
+		const minimaxStatusCode = Number(json?.base_resp?.status_code ?? 0);
+		if (Number.isFinite(minimaxStatusCode) && minimaxStatusCode !== 0) {
+			return err("upstream_error", {
+				reason: "minimax_api_error",
+				request_id: authValue.requestId,
+				workspace_id: authValue.workspaceId,
+				upstream_error: {
+					code: minimaxStatusCode,
+					message: String(json?.base_resp?.status_msg ?? "MiniMax task query failed."),
+				},
+			});
+		}
 			const status = mapMiniMaxVideoStatus(json?.status ?? json?.task_status ?? json?.data?.status);
 			const output = extractVideoOutputFromPayload(json);
 			const providerId = videoMeta?.provider ?? MINIMAX_PROVIDER_ID;
@@ -981,4 +993,3 @@ export async function getVideoByIdHandler(req: Request): Promise<Response> {
 		headers: { "Content-Type": "application/json" },
 	});
 }
-

@@ -1,0 +1,199 @@
+[
+  {
+    "api_model_id": "minimax/minimax-m2.7",
+    "provider_api_model_id": "sambanova:MiniMax-M2.7",
+    "provider_model_slug": "MiniMax-M2.7",
+    "internal_model_id": "minimax/minimax-m2.7",
+    "is_active_gateway": true,
+    "quantization_scheme": "unknown",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 196608,
+    "max_output_tokens": 196608,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "top_k",
+          "stop",
+          "tools",
+          "tool_choice",
+          "structured_outputs"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": ["global"],
+      "data": ["global"]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": ["openai.chat.completions", "openai.responses"],
+      "endpoint": "https://api.sambanova.ai/v1",
+      "deployment": "SambaCloud"
+    },
+    "sources": [
+      {
+        "kind": "provider_docs",
+        "url": "https://docs.sambanova.ai/docs/en/models/sambacloud-models",
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Official production model inventory and 192K context."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Official model slug, production status, context, endpoints and pricing verified."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v3.2",
+    "provider_api_model_id": "sambanova:DeepSeek-V3.2",
+    "provider_model_slug": "DeepSeek-V3.2",
+    "internal_model_id": "deepseek/deepseek-v3.2",
+    "is_active_gateway": true,
+    "quantization_scheme": "unknown",
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 32768,
+    "max_output_tokens": 7168,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "top_k",
+          "stop",
+          "logprobs",
+          "top_logprobs"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": ["global"],
+      "data": ["global"]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": ["openai.chat.completions", "openai.responses"],
+      "endpoint": "https://api.sambanova.ai/v1",
+      "deployment": "SambaCloud preview"
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.sambanova.ai/docs/en/models/sambacloud-models",
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Official preview model inventory and 32K context."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Official preview slug, context, endpoints and pricing verified."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-oss-120b",
+    "provider_api_model_id": "sambanova:gpt-oss-120b",
+    "provider_model_slug": "gpt-oss-120b",
+    "internal_model_id": "openai/gpt-oss-120b",
+    "is_active_gateway": true,
+    "quantization_scheme": "unknown",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 131072,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "top_k",
+          "stop",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": ["global"],
+      "data": ["global"]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": ["openai.chat.completions", "openai.responses"],
+      "endpoint": "https://api.sambanova.ai/v1",
+      "deployment": "SambaCloud"
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.sambanova.ai/docs/en/models/sambacloud-models",
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Official production model inventory and 128K context."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Official production slug, context, endpoints and pricing verified."
+    },
+    "rate_limits": []
+  }
+]

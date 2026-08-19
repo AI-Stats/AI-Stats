@@ -1,4 +1,4 @@
-export type ClientSourceKind = "sdk" | "agent_sdk" | "coding_agent" | "http_client" | "app" | "api" | "unknown";
+export type ClientSourceKind = "sdk" | "agent_sdk" | "coding_agent" | "http_client" | "api" | "unknown";
 
 export type ClientAttribution = {
     id: string;
@@ -8,10 +8,10 @@ export type ClientAttribution = {
     detection: "declared" | "user_agent" | "unknown";
 };
 
-const DECLARED_CLIENTS: Record<string, { name: string; kind: ClientSourceKind }> = {
+export const DECLARED_CLIENTS = {
     "phaseo-typescript": { name: "Phaseo TypeScript SDK", kind: "sdk" },
     "phaseo-python": { name: "Phaseo Python SDK", kind: "sdk" },
-    "phaseo-agent-typescript": { name: "Phaseo Agent SDK", kind: "agent_sdk" },
+    "phaseo-agent-typescript": { name: "Phaseo Agent TypeScript SDK", kind: "agent_sdk" },
 	"phaseo-go": { name: "Phaseo Go SDK", kind: "sdk" },
 	"phaseo-java": { name: "Phaseo Java SDK", kind: "sdk" },
 	"phaseo-csharp": { name: "Phaseo C# SDK", kind: "sdk" },
@@ -38,7 +38,7 @@ const DECLARED_CLIENTS: Record<string, { name: string; kind: ClientSourceKind }>
     insomnia: { name: "Insomnia", kind: "http_client" },
     axios: { name: "Axios", kind: "http_client" },
     "python-requests": { name: "Python Requests", kind: "http_client" },
-};
+} as const satisfies Record<string, { name: string; kind: ClientSourceKind }>;
 
 function bounded(value: string | null, max = 64): string | null {
     const normalized = value?.trim();
@@ -103,5 +103,5 @@ export function detectClientAttribution(headers: Headers): ClientAttribution {
         };
     }
 
-    return { id: "api", name: "Direct API", kind: "api", version: null, detection: "unknown" };
+    return { id: "api", name: "Direct HTTP", kind: "api", version: null, detection: "unknown" };
 }

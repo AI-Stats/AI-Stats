@@ -7,6 +7,7 @@
   "default_execution_regions": null,
   "default_data_regions": null,
   "zero_data_retention": "optional",
+  "data_retention_days": 0,
   "residency_source_url": "https://maas.gmicloud.ai/",
   "residency_notes": "GMI Cloud advertises zero-retention configurations for sensitive workloads and says it hosts and operates models on its own data-center infrastructure. The public MaaS material does not identify the available data-center geographies or a customer-selectable region.",
   "data_policy_tier": "logs",
