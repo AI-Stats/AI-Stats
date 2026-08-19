@@ -120,6 +120,8 @@ export function normalizeTextUsageForPricing(
 		"server_tool_use.web_search_requests",
 		"serverToolUse.web_search_requests",
 		"_ext.serverToolUse.web_search_requests",
+		"num_search_queries",
+		"_ext.numSearchQueries",
 	]);
 	const usageRecord = usageRaw as Record<string, any>;
 	const explicitSubsetHint =
@@ -169,6 +171,16 @@ export function normalizeTextUsageForPricing(
 	if (typeof nativeWebSearchRequests === "number") meters.native_web_search_requests = nativeWebSearchRequests;
 	if (cachedReadAsSubset && typeof cachedReadTokens === "number") {
 		(meters as Record<string, any>).cached_read_tokens_are_subset_of_input = true;
+	}
+	const observedServiceTier =
+		typeof usageRaw.service_tier === "string"
+			? usageRaw.service_tier
+			: typeof usageRaw.serviceTier === "string"
+				? usageRaw.serviceTier
+				: undefined;
+	if (observedServiceTier) {
+		meters.service_tier = observedServiceTier;
+		meters.serviceTier = observedServiceTier;
 	}
 
 	return meters;

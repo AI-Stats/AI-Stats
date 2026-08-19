@@ -199,10 +199,14 @@ export async function proxyOpenAIVideoRequest(
 	}
 
 	const requestUrl = new URL(req.url);
-	requestUrl.searchParams.delete("download_token");
-	requestUrl.searchParams.delete("download_sig");
-	requestUrl.searchParams.delete("expires_at");
-	const url = openAICompatUrl(providerId, path) + requestUrl.search;
+	const upstreamUrl = new URL(openAICompatUrl(providerId, path));
+	if (path.endsWith("/content")) {
+		const variant = requestUrl.searchParams.get("variant");
+		if (variant === "video" || variant === "thumbnail" || variant === "spritesheet") {
+			upstreamUrl.searchParams.set("variant", variant);
+		}
+	}
+	const url = upstreamUrl.toString();
 	const timeoutMs = resolveOpenAIVideoProxyTimeoutMs(bindings);
 	const controller = new AbortController();
 	const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
@@ -633,5 +637,4 @@ export async function fetchGoogleVertexVideoContent(
 	}
 	return res;
 }
-
 

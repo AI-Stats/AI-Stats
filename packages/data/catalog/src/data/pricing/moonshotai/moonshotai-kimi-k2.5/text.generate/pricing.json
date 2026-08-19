@@ -52,16 +52,65 @@
       "cache_duration_seconds": null,
       "conditions": [],
       "source": null
+    },
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.36,
+      "currency": "USD",
+      "pricing_plan": "batch",
+      "note": "Kimi Batch API charges 60% of standard token pricing.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-12T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://platform.kimi.ai/docs/guide/use-batch-api"
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.06,
+      "currency": "USD",
+      "pricing_plan": "batch",
+      "note": "Kimi Batch API charges 60% of standard token pricing.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-12T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://platform.kimi.ai/docs/guide/use-batch-api"
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 1.8,
+      "currency": "USD",
+      "pricing_plan": "batch",
+      "note": "Kimi Batch API charges 60% of standard token pricing.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-12T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://platform.kimi.ai/docs/guide/use-batch-api"
     }
   ],
   "regions": [],
   "service_tiers": [
-    "standard"
+    "standard",
+    "batch"
   ],
-  "sources": [],
+  "sources": ["https://platform.kimi.ai/docs/guide/use-batch-api"],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-12T00:00:00Z",
+    "notes": "Batch pricing verified against the first-party Kimi Batch guide."
   }
 }

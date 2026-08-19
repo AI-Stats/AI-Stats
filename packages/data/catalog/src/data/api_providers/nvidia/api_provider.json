@@ -8,23 +8,39 @@
   "colour": "#76B900",
   "privacy_policy_url": "https://www.nvidia.com/en-us/about-nvidia/privacy-policy/",
   "terms_of_service_url": "https://assets.ngc.nvidia.com/products/api-catalog/legal/NVIDIA%20API%20Trial%20Terms%20of%20Service.pdf",
-  "prompt_training_policy": "no_train",
-  "prompt_training_notes": "NVIDIA's API trial terms and model trial notices say user content is used to provide the API service and, unless a specific service discloses otherwise, inputs and outputs are not stored after the session or used beyond service delivery.",
-  "prompt_training_source_url": "https://assets.ngc.nvidia.com/products/api-catalog/legal/NVIDIA%20API%20Trial%20Terms%20of%20Service.pdf",
+  "data_policy_tier": "unknown",
+  "data_policy_confidence": "unknown",
+  "data_policy_contract_mode": "none",
+  "zero_data_retention": "unknown",
+  "data_retention_days": null,
+  "prompt_training_policy": "unknown",
   "offer_scope": "global",
   "gateway_kind": null,
   "routable": null,
   "routing_enabled": null,
   "sdk_package": null,
-  "api_base_url": null,
-  "docs_url": "https://build.nvidia.com/",
-  "auth_env": null,
-  "api_formats": [],
+  "api_base_url": "https://integrate.api.nvidia.com/v1",
+  "docs_url": "https://docs.api.nvidia.com/nim/reference/llm-apis",
+  "auth_env": "NVIDIA_API_KEY",
+  "api_formats": ["openai.chat.completions"],
   "service_tiers": [],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "provider_docs",
+      "url": "https://docs.api.nvidia.com/nim/reference/llm-apis",
+      "accessed_at": "2026-08-12T00:00:00Z",
+      "notes": "Official hosted NIM model API references document the shared integrate.api.nvidia.com Chat Completions endpoint and model-specific schemas."
+    },
+    {
+      "kind": "provider_docs",
+      "url": "https://docs.nvidia.com/nim/large-language-models/latest/api-reference.html",
+      "accessed_at": "2026-08-12T00:00:00Z",
+      "notes": "Official self-hosted NIM reference documents Chat Completions, Completions, Responses, Anthropic Messages, streaming, tools, usage, management endpoints, and the absence of Batch support."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-12T00:00:00Z",
+    "notes": "Hosted Chat transport/authentication and configurable self-hosted NIM transport verified against first-party NVIDIA references."
   }
 }

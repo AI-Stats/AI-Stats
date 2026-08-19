@@ -1,10 +1,10 @@
 {
   "api_provider_id": "stepfun",
   "api_provider_name": "StepFun",
-  "description": null,
+  "description": "StepFun's OpenAI-compatible Chat and Responses APIs with native multimodal image, audio, realtime, search, file, and vector-store services.",
   "link": "https://platform.stepfun.com/",
   "country_code": "CN",
-  "status": "NotReady",
+  "status": "Active",
   "colour": "#0064FF",
   "privacy_policy_url": "https://stepfun.ai/legal/privacy",
   "terms_of_service_url": "https://platform.stepfun.ai/docs/en/agreement/userservice",
@@ -15,15 +15,30 @@
   "routable": null,
   "routing_enabled": null,
   "sdk_package": null,
-  "api_base_url": null,
-  "docs_url": "https://platform.stepfun.com/",
-  "auth_env": null,
-  "api_formats": [],
+  "api_base_url": "https://api.stepfun.com/v1",
+  "docs_url": "https://platform.stepfun.com/docs/zh/api-reference/chat/chat-completion-create",
+  "auth_env": "STEPFUN_API_KEY",
+  "api_formats": ["openai.chat.completions", "openai.responses", "anthropic.messages"],
   "service_tiers": [],
-  "sources": [],
+  "sources": [{
+    "kind": "documentation",
+    "url": "https://platform.stepfun.com/docs/zh/api-reference/chat/chat-completion-create",
+    "accessed_at": "2026-08-12T00:00:00Z",
+    "notes": "Documents the global Chat Completions host, Bearer authentication, multimodal input/output, tools, structured output, reasoning, streaming, and usage."
+  }, {
+    "kind": "documentation",
+    "url": "https://platform.stepfun.com/docs/zh/api-reference/responses/responses-create",
+    "accessed_at": "2026-08-12T00:00:00Z",
+    "notes": "Documents the OpenAI-compatible Responses endpoint and its current step-3.7-flash-only availability."
+  }, {
+    "kind": "documentation",
+    "url": "https://platform.stepfun.com/docs/llms.txt",
+    "accessed_at": "2026-08-12T00:00:00Z",
+    "notes": "Complete first-party index used to inspect image, audio, realtime, Files, vector stores, search, and absent Batch and video-generation surfaces."
+  }],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-12T00:00:00Z",
+    "notes": "Global host, Bearer auth, Chat and Responses routing, streaming, tools, structured output, reasoning, multimodal inputs, usage, errors, and adjacent modalities verified."
   }
 }

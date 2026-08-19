@@ -416,6 +416,19 @@ export async function beforeRequest(
     );
     if (!c.ok) return c as { ok: false; response: Response };
     let { context, providers, resolvedModel, candidateDiagnostics } = c.value;
+    const contextTelemetry = context.contextTelemetry ?? null;
+    const contextTimingSpans = {
+        context_total: contextTelemetry?.totalMs,
+        context_key_version: contextTelemetry?.keyVersionMs,
+        context_cache_read: contextTelemetry?.cacheReadMs,
+        context_credit_refresh: contextTelemetry?.creditRefreshMs,
+        context_rpc: contextTelemetry?.rpcMs,
+        context_enrich: contextTelemetry?.enrichMs,
+        context_cache_write: contextTelemetry?.cacheWriteMs,
+    };
+    for (const [name, durationMs] of Object.entries(contextTimingSpans)) {
+        if (typeof durationMs === "number") timer.record(name, durationMs);
+    }
 
     const workspacePolicyLoad = await workspacePolicyPromise;
     if ("error" in workspacePolicyLoad) {
@@ -988,7 +1001,6 @@ export async function beforeRequest(
             trace_level: traceLevel ?? (debugTrace ? "full" : undefined),
         }
         : undefined;
-    const contextTelemetry = context.contextTelemetry ?? null;
     const meta: RequestMeta = makeMeta({
         endpoint,
         apiKeyId,

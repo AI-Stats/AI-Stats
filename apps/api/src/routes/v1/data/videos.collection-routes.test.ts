@@ -235,7 +235,7 @@ describe("videosRoutes collection endpoints", () => {
 		});
 		expect(listTeamVideoJobs).toHaveBeenCalledWith({
 			workspaceId: "ws_video_collection_test",
-			limit: 2,
+			limit: 101,
 			statuses: ["completed", "complete", "success", "succeeded", "failed", "error"],
 		});
 	});
@@ -254,7 +254,7 @@ describe("videosRoutes collection endpoints", () => {
 		expect(response.status).toBe(200);
 		expect(listTeamVideoJobs).toHaveBeenCalledWith({
 			workspaceId: "ws_video_collection_test",
-			limit: 3,
+			limit: 101,
 			statuses: [
 				"completed",
 				"complete",

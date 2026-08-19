@@ -9,7 +9,7 @@ import { buildTextExecutor, cherryPickIRParams } from "@executors/_shared/text-g
 import { irToOpenAIResponses } from "@executors/_shared/text-generate/openai-compat/transform";
 import { irToOpenAIChat, openAIChatToIR } from "@executors/_shared/text-generate/openai-compat/transform-chat";
 import { bufferStreamToIR, resolveStreamForProtocol } from "@executors/_shared/text-generate/openai-compat";
-import { azureDeployment, azureHeaders, azureOpenAIV1Url, azureUrl, resolveAzureConfig, resolveAzureKey } from "@providers/azure/config";
+import { azureDeployment, azureHeaders, azureOpenAIV1Url, azureUrl, resolveAzureConfig, resolveAzureCredential, usesAzureV1 } from "@providers/azure/config";
 import { normalizeTextUsageForPricing } from "@executors/_shared/usage/text";
 
 export function preprocess(ir: IRChatRequest, args: ExecutorExecuteArgs): IRChatRequest {
@@ -29,19 +29,31 @@ export function normalizeAzureChatRequest(
 	return request;
 }
 
-export function shouldUseAzureResponsesRoute(args: Pick<ExecutorExecuteArgs, "providerModelSlug" | "ir">): boolean {
+export function shouldUseAzureResponsesRoute(args: Pick<ExecutorExecuteArgs, "providerModelSlug" | "ir" | "protocol">): boolean {
+	if (args.protocol === "openai.responses") return true;
+	if (args.protocol === "openai.chat.completions") return false;
 	const model = String(args.providerModelSlug || args.ir.model || "").toLowerCase();
 	return /^(?:openai\/)?gpt-5\.6-(?:luna|sol|terra)$/.test(model);
 }
 
+export function resolveAzureTextUrl(args: {
+	route: "chat" | "responses";
+	deployment: string;
+	baseUrl: string;
+	apiVersion: string;
+}): string {
+	if (args.route === "responses" || usesAzureV1(args.apiVersion)) {
+		return azureOpenAIV1Url(args.route === "responses" ? "responses" : "chat/completions", args.baseUrl, args.apiVersion);
+	}
+	return azureUrl(`openai/deployments/${args.deployment}/chat/completions`, args.apiVersion, args.baseUrl);
+}
+
 export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult> {
-	const keyInfo = resolveAzureKey({ providerId: args.providerId, byokMeta: args.byokMeta } as any);
+	const keyInfo = resolveAzureCredential({ providerId: args.providerId, byokMeta: args.byokMeta } as any);
 	const config = resolveAzureConfig();
 	const route = shouldUseAzureResponsesRoute(args) ? "responses" : "chat";
 	const deployment = azureDeployment({ providerModelSlug: args.providerModelSlug, model: args.ir.model } as any);
-	const url = route === "responses"
-		? azureOpenAIV1Url("responses", config.baseUrl)
-		: azureUrl(`openai/deployments/${deployment}/chat/completions`, config.apiVersion, config.baseUrl);
+	const url = resolveAzureTextUrl({ route, deployment, baseUrl: config.baseUrl, apiVersion: config.apiVersion });
 
 	const requestPayload = route === "responses"
 		? irToOpenAIResponses(args.ir, args.providerModelSlug, "openai", args.capabilityParams)
@@ -63,7 +75,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 
 	const res = await fetchUpstream(args, url, {
 		method: "POST",
-		headers: azureHeaders(keyInfo.key),
+		headers: azureHeaders(keyInfo.key, keyInfo.authType),
 		body: requestBody,
 	});
 	const selectedDispatchAtMs = args.upstreamTiming?.timingFor(res)?.dispatchAtMs ?? Date.now();

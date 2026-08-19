@@ -8,7 +8,11 @@
 import type { ProviderQuirks } from "../../quirks/types";
 
 export const zaiQuirks: ProviderQuirks = {
-	transformRequest: ({ request, ir }) => {
+	transformRequest: ({ request, ir, model }) => {
+		const zaiOptions = (ir.vendor as any)?.zai;
+		if (typeof zaiOptions?.tool_stream === "boolean") {
+			request.tool_stream = zaiOptions.tool_stream;
+		}
 		// Z.AI chat compatibility docs do not define a "developer" role.
 		// Normalize it to "system" before upstream dispatch.
 		if (Array.isArray(request.messages)) {
@@ -19,7 +23,28 @@ export const zaiQuirks: ProviderQuirks = {
 			);
 		}
 
-		// Z.AI 4.7 supports boolean thinking toggle via reasoning.enabled.
+		const upstreamModel = String(request.model ?? ir.model ?? "").toLowerCase();
+		const isGlm53 = /(^|\/)glm-5\.3(?:\[1m\])?$/.test(upstreamModel);
+
+		// GLM-5.3 always reasons. Normalise Phaseo's effort vocabulary to the
+		// three upstream levels and map attempts to disable thinking to low.
+		if (isGlm53) {
+			const effort = ir.reasoning?.effort;
+			request.thinking = {
+				type: "enabled",
+				clear_thinking: false,
+			};
+			if (ir.reasoning?.enabled === false || effort === "none" || effort === "minimal" || effort === "low") {
+				request.reasoning_effort = "low";
+			} else if (effort === "medium" || effort === "high") {
+				request.reasoning_effort = "high";
+			} else if (effort === "xhigh" || effort === "max") {
+				request.reasoning_effort = "max";
+			}
+			return;
+		}
+
+		// Older Z.AI models support a boolean thinking toggle via reasoning.enabled.
 		// Keep effort-based fallback for older calls, but treat enabled=false as authoritative.
 		const reasoningEnabled =
 			ir.reasoning?.enabled ??
@@ -35,6 +60,23 @@ export const zaiQuirks: ProviderQuirks = {
 				type: "disabled",
 				clear_thinking: false,
 			};
+		}
+
+		// GLM-5.2 accepts only high/max reasoning levels. Preserve the
+		// requested intent while mapping the generic lower levels to high.
+		if (String(model ?? "").toLowerCase() === "glm-5.2") {
+			const effort = ir.reasoning?.effort;
+			if (typeof effort === "string") {
+				request.reasoning_effort = effort === "none"
+					? "none"
+					: effort === "max" || effort === "xhigh"
+						? "max"
+						: "high";
+			} else if (ir.reasoning?.enabled === false) {
+				request.reasoning_effort = "none";
+			} else if (ir.reasoning?.enabled === true) {
+				request.reasoning_effort = "max";
+			}
 		}
 	},
 
@@ -121,5 +163,3 @@ export const zaiQuirks: ProviderQuirks = {
 		}
 	},
 };
-
-

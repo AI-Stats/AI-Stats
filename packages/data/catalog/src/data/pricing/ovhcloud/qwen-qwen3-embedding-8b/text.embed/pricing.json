@@ -18,17 +18,22 @@
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": "https://www.ovhcloud.com/en/public-cloud/ai-endpoints/catalog/qwen3-embedding-8b/"
     }
   ],
   "regions": [],
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [{
+    "kind": "pricing",
+    "url": "https://www.ovhcloud.com/en/public-cloud/ai-endpoints/catalog/qwen3-embedding-8b/",
+    "accessed_at": "2026-08-12T00:00:00Z",
+    "notes": "Official catalogue price: EUR 0.10 per million input tokens."
+  }],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-12T00:00:00Z",
+    "notes": "Verified against the current first-party model page."
   }
 }

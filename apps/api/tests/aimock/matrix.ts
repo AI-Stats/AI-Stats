@@ -91,22 +91,25 @@ export const AIMOCK_SEQUENCE_PROVIDERS = [
 
 export const AIMOCK_IMAGE_PROVIDERS = AIMOCK_OPENAI_V1_PROVIDERS.filter((providerId) =>
     supportsCapability(providerId, "image.generate") &&
-    providerId !== "google-ai-studio");
+    providerId !== "google-ai-studio" &&
+	providerId !== "minimax");
 
 export const AIMOCK_SPEECH_PROVIDERS = AIMOCK_OPENAI_V1_PROVIDERS.filter((providerId) =>
     supportsCapability(providerId, "audio.speech") &&
     providerId !== "google-ai-studio" &&
-    providerId !== "xiaomi");
+    providerId !== "xiaomi" &&
+	providerId !== "minimax");
 
 export const AIMOCK_TRANSCRIPTION_PROVIDERS = AIMOCK_OPENAI_V1_PROVIDERS.filter((providerId) =>
     supportsCapability(providerId, "audio.transcription") &&
-    providerId !== "google-ai-studio");
+    providerId !== "google-ai-studio" &&
+	!new Set(["mistral", "scaleway", "spacex-ai"]).has(providerId));
 
 export const AIMOCK_MODERATION_PROVIDERS = AIMOCK_OPENAI_V1_PROVIDERS.filter((providerId) =>
-    supportsCapability(providerId, "moderations"));
+    supportsCapability(providerId, "moderations") && providerId !== "ovhcloud");
 
 export const AIMOCK_RERANK_PROVIDERS = AIMOCK_OPENAI_V1_PROVIDERS.filter((providerId) =>
-    supportsCapability(providerId, "rerank"));
+    supportsCapability(providerId, "rerank") && providerId !== "scaleway");
 
 export const AIMOCK_VIDEO_PROVIDERS = [
     "amazon-bedrock",

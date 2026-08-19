@@ -41,6 +41,25 @@ describe("image-request-options", () => {
 		});
 	});
 
+	it("normalizes Grok Imagine Image 2.0 pricing options and applies documented defaults", () => {
+		expect(buildImagePricingRequestOptions({ model: "grok-imagine-image-2.0" })).toMatchObject({
+			size: "1k",
+			quality: "low",
+			image_params: { resolution: "1k", quality: "low" },
+		});
+		expect(
+			buildImagePricingRequestOptions({
+				model: "spacex-ai/grok-imagine-image-2.0",
+				resolution: "2K",
+				quality: "MEDIUM",
+			}),
+		).toMatchObject({
+			size: "2k",
+			quality: "medium",
+			image_params: { resolution: "2k", quality: "medium" },
+		});
+	});
+
 	it("infers pricing quality and resolution from image output tokens when request used auto defaults", () => {
 		const options = buildImagePricingRequestOptions(
 			{

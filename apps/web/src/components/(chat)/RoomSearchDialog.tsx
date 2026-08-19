@@ -22,6 +22,10 @@ type RoomSearchDialogProps = {
 	onOpenChange: (open: boolean) => void;
 	conversations: RoomSearchConversation[];
 	onSelectConversation: (conversation: RoomSearchConversation) => void;
+	title?: string;
+	placeholder?: string;
+	emptyLabel?: string;
+	groupLabel?: string;
 };
 
 export function RoomSearchDialog({
@@ -29,16 +33,20 @@ export function RoomSearchDialog({
 	onOpenChange,
 	conversations,
 	onSelectConversation,
+	title = "Search chats",
+	placeholder = "Search chats...",
+	emptyLabel = "No chats found.",
+	groupLabel = "Chats",
 }: RoomSearchDialogProps) {
 	return (
 		<CommandDialog open={open} onOpenChange={onOpenChange}>
 			<DialogHeader className="sr-only">
-				<DialogTitle>Search chats</DialogTitle>
+				<DialogTitle>{title}</DialogTitle>
 			</DialogHeader>
-			<CommandInput placeholder="Search chats..." />
+			<CommandInput placeholder={placeholder} />
 			<CommandList>
-				<CommandEmpty>No chats found.</CommandEmpty>
-				<CommandGroup heading="Chats">
+				<CommandEmpty>{emptyLabel}</CommandEmpty>
+				<CommandGroup heading={groupLabel}>
 					{conversations.map((conversation) => (
 						<CommandItem
 							key={conversation.id}
@@ -57,4 +65,3 @@ export function RoomSearchDialog({
 		</CommandDialog>
 	);
 }
-

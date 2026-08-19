@@ -23,6 +23,7 @@ function stripProviderPrefix(providerId: string, model: string): string {
 		anthropic: ["anthropic/"],
 		"google-ai-studio": ["google/", "gemini/"],
 		mistral: ["mistral/"],
+		moonshotai: ["moonshotai/", "moonshot-ai/"],
 		"x-ai": ["x-ai/", "xai/", "spacex-ai/"],
 		groq: ["groq/"],
 		together: ["together/", "together-ai/"],

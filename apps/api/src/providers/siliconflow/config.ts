@@ -7,5 +7,6 @@ export const SILICONFLOW_OPENAI_COMPAT_CONFIGS = {
 		pathPrefix: "/v1",
 		apiKeyEnv: "SILICONFLOW_API_KEY",
 		baseUrlEnv: "SILICONFLOW_BASE_URL",
+		supportsResponses: false,
 	},
 } satisfies Record<string, OpenAICompatConfig>;

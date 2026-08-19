@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { minimaxQuirks, parseMinimaxInterleavedText } from "../../providers/minimax/quirks";
+import { irToOpenAIChat, openAIChatToIR } from "../../transform-chat";
 
 describe("MiniMax quirks", () => {
 	it("normalizes request roles and MiniMax-specific defaults", () => {
@@ -28,6 +29,21 @@ describe("MiniMax quirks", () => {
 		expect(request.reasoning_split).toBe(true);
 	});
 
+	it("uses the schema-instruction fallback without sending unsupported response_format", () => {
+		const request: Record<string, any> = {
+			messages: [{ role: "user", content: "Return a result." }],
+			response_format: {
+				type: "json_schema",
+				json_schema: { schema: { type: "object", properties: { ok: { type: "boolean" } } } },
+			},
+		};
+
+		minimaxQuirks.transformRequest?.({ request, ir: {} as any });
+
+		expect(request.response_format).toBeUndefined();
+		expect(request.messages[0].content).toContain("The JSON must match this schema");
+	});
+
 	it("sets reasoning_split when reasoning is enabled", () => {
 		const request: Record<string, any> = {
 			messages: [{ role: "user", content: "hello" }],
@@ -43,6 +59,59 @@ describe("MiniMax quirks", () => {
 		});
 
 		expect(request.reasoning_split).toBe(true);
+	});
+
+	it("maps M3 thinking, current token limit, video, and native options", () => {
+		const request = irToOpenAIChat({
+			model: "minimax/minimax-m3",
+			stream: false,
+			messages: [{
+				role: "user",
+				content: [
+					{ type: "text", text: "Summarize this clip." },
+					{ type: "video", source: "url", url: "https://example.com/clip.mp4" },
+				],
+			}],
+			maxTokens: 4096,
+			reasoning: { enabled: false },
+			tools: [{ name: "inspect", parameters: { type: "object" } }],
+			toolChoice: { name: "inspect" },
+			vendor: { minimax: { reasoning_split: false } },
+		} as any, "MiniMax-M3", "minimax");
+
+		expect(request.max_completion_tokens).toBe(4096);
+		expect(request.max_tokens).toBeUndefined();
+		expect(request.thinking).toEqual({ type: "disabled" });
+		expect(request.reasoning_split).toBe(false);
+		expect(request.tool_choice).toBeUndefined();
+		expect(request.messages[0].content[1]).toEqual({
+			type: "video_url",
+			video_url: { url: "https://example.com/clip.mp4" },
+		});
+	});
+
+	it("enables M3 adaptive thinking and normalizes lightning reasoning", () => {
+		const request = irToOpenAIChat({
+			model: "minimax/minimax-m3",
+			stream: false,
+			messages: [{ role: "user", content: [{ type: "text", text: "Think." }] }],
+			reasoning: { effort: "high" },
+		} as any, "MiniMax-M3", "minimax-lightning");
+		expect(request.thinking).toEqual({ type: "adaptive" });
+
+		const ir = openAIChatToIR({
+			id: "chatcmpl_minimax",
+			choices: [{
+				index: 0,
+				finish_reason: "stop",
+				message: { role: "assistant", content: "answer", reasoning_content: "thought" },
+			}],
+			usage: { prompt_tokens: 2, completion_tokens: 3, total_tokens: 5 },
+		}, "req", "minimax/minimax-m3", "minimax-lightning");
+		expect(ir.choices[0].message.content).toEqual([
+			{ type: "reasoning_text", text: "thought" },
+			{ type: "text", text: "answer" },
+		]);
 	});
 
 	it("parses interleaved thinking and invoke tool calls", () => {
@@ -272,5 +341,25 @@ describe("MiniMax quirks", () => {
 		};
 		minimaxQuirks.transformStreamChunk?.({ chunk: finalChunk, accumulated });
 		expect(finalChunk.choices[0].message.reasoning_content).toBe("reasoning extended");
+	});
+
+	it("does not duplicate the same reasoning emitted through multiple MiniMax fields", () => {
+		const accumulated: any = { requestId: "req_minimax" };
+		const chunk: any = {
+			object: "chat.completion.chunk",
+			choices: [{
+				index: 0,
+				delta: {
+					content: "<think>The user is greeting casually.</think>",
+					reasoning_content: "The user is greeting casually.",
+					reasoning_details: [{ type: "text", text: "The user is greeting casually." }],
+				},
+			}],
+		};
+
+		minimaxQuirks.transformStreamChunk?.({ chunk, accumulated });
+
+		expect(chunk.choices[0].delta.content).toBe("");
+		expect(chunk.choices[0].delta.reasoning_content).toBe("The user is greeting casually.");
 	});
 });

@@ -75,10 +75,17 @@
     "standard",
     "batch"
   ],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "pricing",
+      "url": "https://mistral.ai/pricing/api/",
+      "accessed_at": "2026-08-12T00:00:00Z",
+      "notes": "Mistral documents Batch processing at a 50% discount; eligibility depends on the model and Batch endpoint."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "partial",
+    "checked_at": "2026-08-12T00:00:00Z",
+    "notes": "Standard prices are model-specific. Batch and Priority reference prices use Mistral's published multipliers; model eligibility is tracked separately from pricing metadata."
   }
 }

@@ -14,6 +14,7 @@ export const DEFAULT_ANTHROPIC_MAX_TOKENS =
 
 export const REASONING_EFFORT_ORDER = [
 	"none",
+	"instant",
 	"minimal",
 	"low",
 	"medium",

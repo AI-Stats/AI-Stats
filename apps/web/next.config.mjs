@@ -16,11 +16,14 @@ const configuredAllowedDevOrigins =
 
 const mintlifyProxyOrigin = "https://aistats.mintlify.site";
 const configuredWebApiOrigin = process.env.WEB_API_ORIGIN?.trim().replace(/\/$/, "");
+const legacyAiStatsHost = ["ai-stats", "phaseo", "app"].join(".");
 // Cloudflare owns /api/_web on phaseo.app, but Vercel preview deployments need
 // an explicit rewrite so browser-side same-origin fetches reach that API.
 const webApiOrigin =
   configuredWebApiOrigin ||
-  (process.env.VERCEL_ENV === "preview" ? "https://phaseo.app" : "");
+  (process.env.VERCEL_ENV === "preview" || process.env.NODE_ENV === "development"
+    ? "https://phaseo.app"
+    : "");
 const docsProxyRewrites = [
   {
     source: "/docs",
@@ -96,6 +99,22 @@ const nextConfig = {
         source: "/:path*",
         has: [{ type: "host", value: "docs.phaseo.app" }],
         destination: "https://phaseo.app/docs/:path*",
+        permanent: true,
+      },
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: `docs.${legacyAiStatsHost}` }],
+        destination: "https://phaseo.app/docs/:path*",
+        permanent: true,
+      },
+      {
+        source: "/models/:organisation/:model/pricing",
+        destination: "/models/:organisation/:model#pricing",
+        permanent: true,
+      },
+      {
+        source: "/models/:organisation/:model/gateway",
+        destination: "/models/:organisation/:model",
         permanent: true,
       },
       {

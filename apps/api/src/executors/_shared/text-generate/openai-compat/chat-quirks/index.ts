@@ -11,8 +11,10 @@ import type {
 import { aionChatQuirk } from "./aion";
 import { minimaxChatQuirk } from "./minimax";
 import { zaiChatQuirk } from "./zai";
+import { bytePlusChatQuirk } from "./byteplus";
+import { crofAIChatQuirk } from "./crofai";
 
-const QUIRKS: ChatQuirk[] = [aionChatQuirk, minimaxChatQuirk, zaiChatQuirk];
+const QUIRKS: ChatQuirk[] = [aionChatQuirk, bytePlusChatQuirk, crofAIChatQuirk, minimaxChatQuirk, zaiChatQuirk];
 
 function matchingQuirks(providerId?: string): ChatQuirk[] {
 	return QUIRKS.filter((quirk) => quirk.matches(providerId));
@@ -43,4 +45,3 @@ export function applyChatResponseQuirks(
 
 	return { main, reasoning };
 }
-

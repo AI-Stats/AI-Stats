@@ -56,14 +56,20 @@ module PhaseoSdk
       warnings_as_errors: false,
       logger: nil,
       lifecycle_resolver: nil,
-      devtools: nil
+      devtools: nil,
+      client_source: "phaseo-ruby",
+      client_source_version: "2.1.0"
     )
       api_key ||= ENV["PHASEO_API_KEY"]
       raise ArgumentError, "Missing API key. Pass api_key or set PHASEO_API_KEY." if api_key.to_s.empty?
 
       @raw_client = ::Phaseo::Gen::Client.new(
         base_url: base_path,
-        headers: { "Authorization" => "Bearer #{api_key}" }
+        headers: {
+          "Authorization" => "Bearer #{api_key}",
+          "X-Phaseo-Client" => client_source,
+          "X-Phaseo-Client-Version" => client_source_version
+        }
       )
       @base_path = base_path.sub(%r{/+\z}, "")
       @enable_deprecation_warnings = enable_deprecation_warnings

@@ -4,6 +4,9 @@
 
 // Z.AI Quirks Tests
 import { describe, expect, it } from "vitest";
+import { decodeOpenAIChatRequest } from "@protocols/openai-chat/decode";
+import { supportsAdapterBackedCapability } from "@providers/capabilities";
+import { getProviderProfile } from "@providers/providerProfiles";
 import { zaiQuirks } from "../../providers/z-ai/quirks";
 
 describe("Z.AI Quirks", () => {
@@ -48,6 +51,56 @@ describe("Z.AI Quirks", () => {
 				type: "disabled",
 				clear_thinking: false,
 			});
+		});
+
+		it("maps GLM-5.2 reasoning effort to its high/max contract", () => {
+			const request: Record<string, any> = {};
+			zaiQuirks.transformRequest!({
+				request,
+				model: "glm-5.2",
+				ir: { reasoning: { effort: "xhigh" } } as any,
+			});
+			expect(request.reasoning_effort).toBe("max");
+
+			zaiQuirks.transformRequest!({
+				request,
+				model: "glm-5.2",
+				ir: { reasoning: { effort: "low" } } as any,
+			});
+			expect(request.reasoning_effort).toBe("high");
+		});
+
+		it.each([
+			["none", "low"],
+			["minimal", "low"],
+			["low", "low"],
+			["medium", "high"],
+			["high", "high"],
+			["xhigh", "max"],
+			["max", "max"],
+		])("maps GLM-5.3 effort %s to %s", (effort, expected) => {
+			const request: Record<string, any> = { model: "glm-5.3" };
+			zaiQuirks.transformRequest!({
+				request,
+				ir: { reasoning: { effort } } as any,
+			});
+
+			expect(request.thinking).toEqual({
+				type: "enabled",
+				clear_thinking: false,
+			});
+			expect(request.reasoning_effort).toBe(expected);
+		});
+
+		it("maps disabled thinking to low for GLM-5.3", () => {
+			const request: Record<string, any> = { model: "glm-5.3[1m]" };
+			zaiQuirks.transformRequest!({
+				request,
+				ir: { reasoning: { enabled: false } } as any,
+			});
+
+			expect(request.thinking.type).toBe("enabled");
+			expect(request.reasoning_effort).toBe("low");
 		});
 	});
 
@@ -138,3 +191,23 @@ describe("Z.AI Quirks", () => {
 	});
 });
 
+describe("Z.AI audited gateway contract", () => {
+	it("preserves the documented streaming tool-call switch through IR", () => {
+		const ir = decodeOpenAIChatRequest({
+			model: "glm-5.1",
+			messages: [{ role: "user", content: "weather" }],
+			stream: true,
+			tool_stream: true,
+		} as any);
+		const request: Record<string, any> = { messages: [] };
+		zaiQuirks.transformRequest?.({ request, ir });
+		expect(request.tool_stream).toBe(true);
+	});
+
+	it("shares the audited text policy across aliases without claiming native media adapters", () => {
+		expect(getProviderProfile("zai")?.id).toBe("z-ai");
+		expect(getProviderProfile("z-ai")?.text?.normalize?.maxTemperature).toBe(1);
+		expect(supportsAdapterBackedCapability("z-ai", "video.generate")).toBe(false);
+		expect(supportsAdapterBackedCapability("zai", "audio.transcription")).toBe(false);
+	});
+});

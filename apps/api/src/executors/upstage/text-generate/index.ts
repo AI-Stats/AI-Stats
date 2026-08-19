@@ -13,7 +13,7 @@ export function preprocess(ir: IRChatRequest, args: ExecutorExecuteArgs): IRChat
 }
 
 export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult> {
-	return executeOpenAIWire(args, { transientRetries: 1 });
+	return executeOpenAIWire(args, { transientRetries: 1, forceChat: true, useClientStreamingMode: true });
 }
 
 export function postprocess(ir: IRChatRequest): IRChatRequest {

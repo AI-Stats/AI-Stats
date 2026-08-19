@@ -9,11 +9,27 @@ import { buildTextExecutor, cherryPickIRParams } from "@executors/_shared/text-g
 import type { ProviderExecutor } from "../../types";
 
 export function preprocess(ir: IRChatRequest, args: ExecutorExecuteArgs): IRChatRequest {
-	return cherryPickIRParams(ir, args.capabilityParams);
+	const filtered = cherryPickIRParams(ir, args.capabilityParams);
+	const model = String(args.providerModelSlug ?? filtered.model ?? "").split("/").pop();
+	if (model === "step-3.7-flash") {
+		const unsupported = [
+			["n", (filtered.vendor as any)?.stepfun?.n],
+			["stop", filtered.stop],
+			["frequency_penalty", filtered.frequencyPenalty],
+			["modalities", filtered.modalities],
+			["audio", filtered.audioConfig],
+		] as const;
+		const field = unsupported.find(([, value]) => value !== undefined)?.[0];
+		if (field) throw new Error(`stepfun_responses_unsupported_${field}`);
+		if (filtered.toolChoice !== undefined && filtered.toolChoice !== "auto") {
+			throw new Error("stepfun_responses_tool_choice_must_be_auto");
+		}
+	}
+	return filtered;
 }
 
 export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult> {
-	return executeOpenAIWire(args);
+	return executeOpenAIWire(args, { transientRetries: 1 });
 }
 
 export function postprocess(ir: IRChatRequest): IRChatRequest {

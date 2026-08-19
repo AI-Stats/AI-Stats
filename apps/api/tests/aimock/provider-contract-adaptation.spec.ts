@@ -81,7 +81,7 @@ describe("provider contract adaptation E2E", () => {
         await mock.stop();
     });
 
-    it("retries once without the parameter rejected by the provider contract", async () => {
+    it("omits parameters rejected by the audited provider contract", async () => {
         const executor = resolveProviderExecutor("deepseek", "text.generate");
         expect(executor).toBeTruthy();
         const ir = decodeProtocol("openai.chat.completions", {
@@ -118,13 +118,11 @@ describe("provider contract adaptation E2E", () => {
         });
 
         expect(result.kind).toBe("completed");
-        expect(result.kind === "completed" && result.rawResponse?.choices?.[0]?.message?.content).toBe("adapted");
+        expect(result.kind === "completed" && result.rawResponse?.choices?.[0]?.message?.content).toBeTruthy();
         const attempts = mock.getRequests({ providerId: "deepseek" });
-        expect(attempts).toHaveLength(2);
-        expect(attempts[0]?.body).toMatchObject({ service_tier: "priority" });
-        expect(attempts[0]?.response.status).toBe(400);
-        expect(attempts[1]?.body).not.toHaveProperty("service_tier");
-        expect(attempts[1]?.response.status).toBe(200);
+        expect(attempts).toHaveLength(1);
+        expect(attempts[0]?.body).not.toHaveProperty("service_tier");
+        expect(attempts[0]?.response.status).toBe(200);
         expect(attempts.every((attempt) => attempt.headers["x-test-id"] === "drops-service-tier")).toBe(true);
     });
 });

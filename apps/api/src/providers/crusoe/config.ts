@@ -3,7 +3,7 @@ import type { OpenAICompatConfig } from "../openai-compatible/types";
 export const CRUSOE_OPENAI_COMPAT_CONFIGS = {
 	crusoe: {
 		providerId: "crusoe",
-		baseUrl: "https://api.crusoe.ai",
+		baseUrl: "https://api.inference.crusoecloud.com",
 		pathPrefix: "/v1",
 		apiKeyEnv: "CRUSOE_API_KEY",
 		baseUrlEnv: "CRUSOE_BASE_URL",

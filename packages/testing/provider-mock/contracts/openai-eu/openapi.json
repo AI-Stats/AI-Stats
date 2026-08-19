@@ -654,34 +654,6 @@
           }
         }
       }
-    },
-    "/rerank": {
-      "post": {
-        "operationId": "openai_rerank_1",
-        "description": "Phaseo executor-derived rerank operation.",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": true
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Deterministic mock success"
-          },
-          "400": {
-            "description": "Validation error"
-          },
-          "429": {
-            "description": "Rate limit"
-          }
-        }
-      }
     }
   },
   "components": {

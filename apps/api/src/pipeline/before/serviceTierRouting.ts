@@ -138,6 +138,16 @@ function getHiddenTierSiblingLookupApiModelId(
 }
 
 function supportsRequestedTier(candidate: ProviderCandidate, requestedPlan: ServiceTierPlan): boolean {
+    // Mistral publishes reference Priority pricing more broadly than it enables
+    // model-specific Priority inference. Require an explicit route capability so
+    // catalog-only price metadata cannot make a model routable on that tier.
+    if (
+        requestedPlan === "priority" &&
+        (candidate.providerId === "mistral" || candidate.providerId === "mistral-eu") &&
+        !("service_tier" in (candidate.capabilityParams ?? {}) || "serviceTier" in (candidate.capabilityParams ?? {}))
+    ) {
+        return false;
+    }
     if (requestedPlan === "priority" || requestedPlan === "flex") {
         return (
             hasPricingPlan(candidate.pricingCard, requestedPlan) ||
