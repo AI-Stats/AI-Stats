@@ -1,12 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, type ReactNode } from "react";
-import { Coins, Database, Gauge, LogOut, UserRound } from "lucide-react";
+import { type ReactNode } from "react";
+import { Coins, Gauge, LogOut, UserRound } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ChatRoomSwitcher } from "@/components/(chat)/ChatRoomSwitcher";
 import { useChatCredits } from "@/components/(chat)/use-chat-credits";
-import { CHAT_SIDEBAR_ACTIONS_CLASS } from "@/components/(chat)/chatSidebarStyles";
+import {
+	MobileChatSidebarBrand,
+	MobileChatSidebarTrigger,
+} from "@/components/(chat)/MobileChatSidebarBrand";
 import { ThemeSelector } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -18,7 +21,6 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
 	Sidebar,
 	SidebarContent,
@@ -27,8 +29,6 @@ import {
 	SidebarInset,
 	SidebarProvider,
 	SidebarRail,
-	SidebarSeparator,
-	useSidebar,
 } from "@/components/ui/sidebar";
 
 type RoomScaffoldProps = {
@@ -37,60 +37,21 @@ type RoomScaffoldProps = {
 
 export const ROOM_SIDEBAR_SLOT_ID = "room-scaffold-sidebar-slot";
 
-function RoomSidebarDatabaseButton() {
-	const { state: sidebarState, isMobile } = useSidebar();
-	const collapsed = sidebarState === "collapsed" && !isMobile;
-	const button = (
-		<Button
-			variant="ghost"
-			asChild
-			className="h-8 min-w-0 w-full flex-1 justify-start gap-0 px-2 text-sm font-medium"
-			aria-label="Database"
-		>
-			<Link
-				href="/"
-				className="group/db flex w-full min-w-0 items-center justify-start gap-2"
-			>
-				<Database className="h-4 w-4 shrink-0" />
-				<span className="truncate group-data-[collapsible=icon]:hidden">Database</span>
-			</Link>
-		</Button>
-	);
-
-	if (!collapsed) {
-		return button;
-	}
-
+function RoomSidebarHeader() {
 	return (
-		<Tooltip>
-			<TooltipTrigger asChild>{button}</TooltipTrigger>
-			<TooltipContent side="right" align="center" sideOffset={10}>
-				Database
-			</TooltipContent>
-		</Tooltip>
+		<SidebarHeader className="h-[57px] gap-0 border-b border-border px-0 py-0">
+			<div className="flex h-full min-w-0 items-center">
+				<MobileChatSidebarBrand />
+				<ChatRoomSwitcher className="min-w-0 flex-1" />
+				<MobileChatSidebarTrigger />
+			</div>
+		</SidebarHeader>
 	);
 }
 
 export function RoomScaffold({ children }: RoomScaffoldProps) {
-	const [hasCustomSidebarContent, setHasCustomSidebarContent] = useState(false);
 	const { authUser, authLoading, handleSignOut } = useChatAuth();
 	const { creditsLabel, creditsLoading } = useChatCredits(authUser?.id);
-
-	useEffect(() => {
-		const slot = document.getElementById(ROOM_SIDEBAR_SLOT_ID);
-		if (!slot) return;
-		const updateHasContent = () => {
-			setHasCustomSidebarContent(slot.childElementCount > 0);
-		};
-		updateHasContent();
-		const observer = new MutationObserver(() => {
-			updateHasContent();
-		});
-		observer.observe(slot, { childList: true });
-		return () => {
-			observer.disconnect();
-		};
-	}, []);
 
 	const nameParts = authUser?.name?.trim().split(" ").filter(Boolean) ?? [];
 	const firstName = nameParts[0] ?? "Account";
@@ -103,20 +64,8 @@ export function RoomScaffold({ children }: RoomScaffoldProps) {
 	return (
 		<SidebarProvider defaultOpen contained className="h-full overflow-hidden">
 			<Sidebar collapsible="icon" className="border-r border-border bg-background">
-				<SidebarHeader className="h-[57px] gap-0 border-b border-border px-0 py-0">
-					<div className="flex h-full min-w-0 items-center">
-						<ChatRoomSwitcher className="min-w-0 flex-1" />
-					</div>
-				</SidebarHeader>
+				<RoomSidebarHeader />
 				<SidebarContent className="gap-0">
-					{!hasCustomSidebarContent ? (
-						<>
-							<div data-chat-sidebar-actions="true" className={CHAT_SIDEBAR_ACTIONS_CLASS}>
-								<RoomSidebarDatabaseButton />
-							</div>
-							<SidebarSeparator className="mx-0 my-0 w-full" />
-						</>
-					) : null}
 					<div
 						id={ROOM_SIDEBAR_SLOT_ID}
 						className="flex min-h-0 flex-1 flex-col gap-0"

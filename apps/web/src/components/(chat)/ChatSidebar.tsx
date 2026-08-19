@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState, type ReactElement } from "react";
+import { useMemo, useState, type ReactElement } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	Collapsible,
@@ -38,6 +38,10 @@ import {
 } from "@/components/(chat)/playground/use-grouped-chat-threads";
 import type { ChatTag, ChatThread } from "@/lib/indexeddb/chats";
 import { ChatRoomSwitcher } from "@/components/(chat)/ChatRoomSwitcher";
+import {
+	MobileChatSidebarBrand,
+	MobileChatSidebarTrigger,
+} from "@/components/(chat)/MobileChatSidebarBrand";
 import { useChatCredits } from "@/components/(chat)/use-chat-credits";
 import {
 	CHAT_SIDEBAR_ACTIONS_CLASS,
@@ -46,15 +50,12 @@ import {
 import { ThemeSelector } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
 import {
-	ArrowUpRight,
 	Check,
 	ChevronRight,
 	Coins,
-	Database,
 	Gauge,
 	LogOut,
 	MoreHorizontal,
-	PanelLeftClose,
 	PencilLine,
 	Pin,
 	PinOff,
@@ -201,7 +202,7 @@ export function ChatSidebar({
 	authLoading,
 	onSignOut,
 }: ChatSidebarProps) {
-	const { toggleSidebar, state: sidebarState, isMobile } = useSidebar();
+	const { state: sidebarState, isMobile } = useSidebar();
 	const [tagsOpen, setTagsOpen] = useState(true);
 	const [chatEditMode, setChatEditMode] = useState(false);
 	const [visibleTagCount, setVisibleTagCount] = useState(5);
@@ -343,16 +344,9 @@ export function ChatSidebar({
 		<>
 			<SidebarHeader className="h-[57px] gap-0 border-b border-border px-0 py-0">
 				<div className="flex h-full min-w-0 items-center px-0">
+					<MobileChatSidebarBrand />
 					<ChatRoomSwitcher className="min-w-0 flex-1" />
-					<Button
-						variant="ghost"
-						size="icon"
-						className="ml-auto md:hidden"
-						onClick={toggleSidebar}
-						aria-label="Close sidebar"
-					>
-						<PanelLeftClose className="h-4 w-4" />
-					</Button>
+					<MobileChatSidebarTrigger />
 				</div>
 			</SidebarHeader>
 			<SidebarContent className="gap-0">
@@ -374,38 +368,6 @@ export function ChatSidebar({
 							{collapsed ? null : (
 								<span className="truncate text-left">New Chat</span>
 							)}
-						</Button>,
-					)}
-					{withCollapsedTooltip(
-						"Database",
-						<Button
-							variant="ghost"
-							className={cn(
-								"h-8 min-w-0 w-full gap-2 text-sm font-medium",
-								collapsed
-									? "justify-start px-2"
-									: "w-full flex-1 justify-start px-2",
-							)}
-							asChild
-							aria-label="Database"
-						>
-							<Link
-								href="/"
-								className={cn(
-									"group/db flex w-full min-w-0 items-center gap-2",
-									collapsed && "justify-start",
-								)}
-							>
-								<Database className="h-4 w-4 shrink-0" />
-								{collapsed ? null : (
-									<>
-										<span className="flex-1 min-w-0 truncate text-left">
-											Database
-										</span>
-										<ArrowUpRight className="ml-auto h-4 w-4 shrink-0 text-muted-foreground opacity-0 transition group-hover/db:opacity-100" />
-									</>
-								)}
-							</Link>
 						</Button>,
 					)}
 					{withCollapsedTooltip(
