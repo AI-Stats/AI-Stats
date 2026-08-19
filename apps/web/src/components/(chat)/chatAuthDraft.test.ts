@@ -41,8 +41,18 @@ describe("Chat auth drafts", () => {
 		saveChatAuthDraft("Old prompt", { storage, now: 1_000 });
 		expect(consumeChatAuthDraft({ storage, now: 1_000 + 31 * 60 * 1_000 })).toBeNull();
 
-		storage.setItem("phaseo:chat:auth-draft:v1", "not-json");
-		expect(consumeChatAuthDraft({ storage, now: 2_000 })).toBeNull();
+		const invalidDrafts = [
+			"not-json",
+			JSON.stringify({ version: 2, content: "Prompt", createdAt: 1_000 }),
+			JSON.stringify({ version: 1, content: "   ", createdAt: 1_000 }),
+			JSON.stringify({ version: 1, content: "x".repeat(100_001), createdAt: 1_000 }),
+			JSON.stringify({ version: 1, content: "Prompt" }),
+			JSON.stringify({ version: 1, content: "Prompt", createdAt: 3_000 }),
+		];
+		for (const draft of invalidDrafts) {
+			storage.setItem("phaseo:chat:auth-draft:v1", draft);
+			expect(consumeChatAuthDraft({ storage, now: 2_000 })).toBeNull();
+		}
 	});
 
 	it("does not persist empty prompts", () => {

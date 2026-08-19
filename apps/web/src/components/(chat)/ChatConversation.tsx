@@ -203,14 +203,15 @@ export function ChatConversation({
 	}, []);
 
 	useEffect(() => {
+		if (!isAuthenticated) return;
 		const restoredDraft = readChatAuthDraft();
 		if (!restoredDraft) return;
 		const timeout = window.setTimeout(() => {
-			setComposer((current) => current || restoredDraft);
+			setComposer(restoredDraft);
 			clearChatAuthDraft();
 		}, 1_000);
 		return () => window.clearTimeout(timeout);
-	}, []);
+	}, [isAuthenticated]);
 
 	useEffect(() => {
 		setRecordingSupported(

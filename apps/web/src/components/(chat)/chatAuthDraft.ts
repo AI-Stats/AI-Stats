@@ -12,7 +12,11 @@ type ChatAuthDraft = {
 function resolveStorage(storage?: Storage): Storage | null {
 	if (storage) return storage;
 	if (typeof window === "undefined") return null;
-	return window.localStorage;
+	try {
+		return window.localStorage;
+	} catch {
+		return null;
+	}
 }
 
 export function saveChatAuthDraft(
