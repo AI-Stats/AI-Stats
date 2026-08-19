@@ -165,7 +165,7 @@ function getClientSource(row: RequestRow) {
 	if (!source || typeof source !== "object" || Array.isArray(source)) {
 		return {
 			id: "api",
-			name: "Direct API",
+			name: "Direct HTTP",
 			version: null,
 			detection: "unknown",
 			kind: "api",
@@ -175,7 +175,7 @@ function getClientSource(row: RequestRow) {
 	if (!id) {
 		return {
 			id: "api",
-			name: "Direct API",
+			name: "Direct HTTP",
 			version: null,
 			detection: "unknown",
 			kind: "api",
@@ -634,7 +634,7 @@ export default function UnifiedRequestsTable({
 					),
 					"Routed Model ID": routedModelId || "-",
 					Provider: providerLabel,
-					Source: source?.name ?? "Direct API",
+					Source: source?.name ?? "Direct HTTP",
 					"Source ID": source?.id ?? "api",
 					"Source Type": source?.kind ?? "api",
 					"Source Version": source?.version ?? "-",

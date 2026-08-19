@@ -91,7 +91,7 @@ const SAMPLE_CLIENT_SOURCES = [
 	{ id: "phaseo-typescript", name: "Phaseo TypeScript SDK", kind: "sdk", version: "2.2.0", detection: "declared" },
 	{ id: "openai-python", name: "OpenAI Python SDK", kind: "sdk", version: "1.99.1", detection: "user_agent" },
 	{ id: "curl", name: "cURL", kind: "http_client", version: "8.12.1", detection: "user_agent" },
-	{ id: "api", name: "Direct API", kind: "api", version: null, detection: "unknown" },
+	{ id: "api", name: "Direct HTTP", kind: "api", version: null, detection: "unknown" },
 ] as const;
 
 function buildSampleSourceRows(rows: RequestRow[]): RequestRow[] {
