@@ -219,7 +219,12 @@ accountSettingsUsageRouter.get("/usage/logs", async (c) => {
 			.limit(500);
 		const v2UpstreamRequests = (v2Result.data ?? []).flatMap((fact: any) => {
 			const attempts = Array.isArray(fact.v2_request_attempts) ? fact.v2_request_attempts : [];
-			return attempts.map((attempt: any) => {
+			const newestAttemptsFirst = [...attempts].sort((left: any, right: any) => {
+				const startedAtDifference = Date.parse(right.started_at ?? "") - Date.parse(left.started_at ?? "");
+				if (Number.isFinite(startedAtDifference) && startedAtDifference !== 0) return startedAtDifference;
+				return Number(right.attempt_number ?? 0) - Number(left.attempt_number ?? 0);
+			});
+			return newestAttemptsFirst.map((attempt: any) => {
 				const safeMetadata = attempt.safe_metadata && typeof attempt.safe_metadata === "object" && !Array.isArray(attempt.safe_metadata)
 					? attempt.safe_metadata as Record<string, unknown>
 					: {};
@@ -278,7 +283,7 @@ accountSettingsUsageRouter.get("/usage/logs", async (c) => {
 				};
 			});
 		});
-		let upstreamRequests = v2UpstreamRequests;
+		let upstreamRequests: any[] = v2UpstreamRequests;
 		if (upstreamRequests.length === 0) {
 			const legacyResult = await context.client
 				.from("gateway_upstream_requests")
