@@ -362,6 +362,8 @@ describe("resolveProviderExecutor", () => {
 		expect(resolveProviderExecutor("google-vertex", "audio.transcription")).toBeNull();
 		expect(resolveProviderExecutor("google-vertex", "video.generation")).toBeTruthy();
 		expect(resolveProviderExecutor("mistral", "ocr")).toBeTruthy();
+		expect(resolveProviderExecutor("mistral", "audio.speech")).toBeTruthy();
+		expect(resolveProviderExecutor("mistral", "audio/speech")).toBeTruthy();
 		// Regional model availability must be confirmed from the regional models endpoint;
 		// the current catalog has no EU OCR offer, so do not advertise one speculatively.
 		expect(resolveProviderExecutor("mistral-eu", "ocr")).toBeNull();

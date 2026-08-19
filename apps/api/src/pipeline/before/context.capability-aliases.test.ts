@@ -79,12 +79,23 @@ describe("getContextCapabilityCandidates", () => {
 	it("expands audio speech capability aliases", () => {
 		expect(getContextCapabilityCandidates("audio.speech")).toEqual([
 			"audio.speech",
+			"audio/speech",
+			"audio.generate",
+		]);
+		expect(getContextCapabilityCandidates("audio/speech")).toEqual([
+			"audio/speech",
+			"audio.speech",
 			"audio.generate",
 		]);
 		expect(getContextCapabilityCandidates("audio.generate")).toEqual([
 			"audio.generate",
 			"audio.speech",
+			"audio/speech",
 		]);
+	});
+
+	it("does not treat the generic audio capability as text-to-speech", () => {
+		expect(getContextCapabilityCandidates("audio")).toEqual(["audio"]);
 	});
 
 	it("keeps unrelated capabilities unchanged", () => {

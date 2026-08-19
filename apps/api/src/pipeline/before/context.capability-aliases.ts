@@ -20,6 +20,7 @@ const IMAGE_CONTEXT_CAPABILITY_ALIASES = [
 ] as const;
 const AUDIO_SPEECH_CONTEXT_CAPABILITY_ALIASES = [
 	"audio.speech",
+	"audio/speech",
 	"audio.generate",
 ] as const;
 const TEXT_CONTEXT_CAPABILITY_ALIASES = [
