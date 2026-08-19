@@ -340,6 +340,7 @@ class Phaseo:
         enable_deprecation_warnings: bool = True,
         warnings_as_errors: bool = False,
         logger: Optional[PhaseoLogger] = None,
+        app: Optional[dict[str, str]] = None,
     ):
         api_key = api_key or os.getenv("PHASEO_API_KEY")
         if not api_key:
@@ -353,6 +354,17 @@ class Phaseo:
             "X-Phaseo-Client": "phaseo-python",
             "X-Phaseo-Client-Version": "2.0.7",
         }
+        if app:
+            app_headers = {
+                "X-App-Id": app.get("id"),
+                "X-App-Name": app.get("name"),
+                "HTTP-Referer": app.get("url"),
+            }
+            self._headers.update({
+                key: value.strip()
+                for key, value in app_headers.items()
+                if isinstance(value, str) and value.strip()
+            })
         self._client = Client(base_url=host, headers=self._headers)
         self._timeout = timeout
         self.chat = _ChatResource(self)
