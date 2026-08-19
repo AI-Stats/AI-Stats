@@ -31,8 +31,6 @@ const developerLinks = [
 		external: true,
 	},
 	{ href: "/methodology", label: "Methodology" },
-	{ href: "/compare/openrouter", label: "Gateway Comparisons" },
-	{ href: "/migrate/openrouter", label: "OpenRouter Migration" },
 ];
 
 const companyLinks = [
