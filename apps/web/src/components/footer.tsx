@@ -93,7 +93,7 @@ function FooterLinkList({
 			<h3 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
 				{title}
 			</h3>
-			<ul className="space-y-0.5">
+			<ul className="space-y-0.5 lg:space-y-1.5">
 				{links.map((link) => (
 					<li key={`${title}-${link.href}`}>
 						<Link
@@ -101,7 +101,7 @@ function FooterLinkList({
 							prefetch={link.external ? undefined : false}
 							target={link.external ? "_blank" : undefined}
 							rel={link.external ? "noopener noreferrer" : undefined}
-							className={`group inline-flex min-h-9 max-w-full items-center break-words py-1.5 text-sm text-zinc-600 hover:text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/70 dark:text-zinc-400 dark:hover:text-zinc-50 ${link.logoId ? "lg:w-28" : ""}`}
+							className={`group inline-flex min-h-9 max-w-full items-center break-words py-1.5 text-sm text-zinc-600 hover:text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/70 lg:min-h-0 lg:py-0 dark:text-zinc-400 dark:hover:text-zinc-50 ${link.logoId ? "lg:w-28" : ""}`}
 						>
 							{link.logoId ? (
 								<span
