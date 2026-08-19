@@ -7,12 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { handleOAuthRedirect } from "@/app/(auth)/sign-in/actions";
 import { Logo } from "@/components/Logo";
-import { beginOAuthAttempt, type OAuthProviderId } from "./oauthPending";
+import {
+	isSocialProviderId,
+	SOCIAL_PROVIDER_IDS,
+	type SocialProviderId,
+} from "./oauthProviders";
 
-type SocialProviderId = OAuthProviderId;
 type LastAuthProvider = SocialProviderId | "email";
 
-const SOCIAL_PROVIDER_IDS: SocialProviderId[] = ["google", "github", "gitlab"];
 const LAST_AUTH_PROVIDER_STORAGE_KEY = "phaseo:last-auth-provider";
 
 type ProviderMeta = {
@@ -33,23 +35,25 @@ const META: Record<SocialProviderId, ProviderMeta> = {
 };
 
 function OAuthSubmitButton({
+	provider,
 	meta,
 	isLastUsed = false,
-	isOAuthPending = false,
 }: {
+	provider: SocialProviderId;
 	meta: ProviderMeta;
 	isLastUsed?: boolean;
-	isOAuthPending?: boolean;
 }) {
-	const { pending } = useFormStatus();
-	const disabled = pending || isOAuthPending;
+	const { pending, data } = useFormStatus();
+	const isActiveProvider = pending && data?.get("provider") === provider;
 	return (
 		<Button
 			type="submit"
+			name="provider"
+			value={provider}
 			variant="outline"
 			aria-label={`Continue with ${meta.label}`}
 			className="relative h-12 w-full justify-center gap-2 px-2"
-			disabled={disabled}
+			disabled={pending}
 		>
 			{isLastUsed ? (
 				<span className="absolute -bottom-2 left-1/2 -translate-x-1/2 rounded-full border border-border bg-background px-2 py-0.5 text-[10px] font-medium leading-none text-muted-foreground shadow-sm">
@@ -57,7 +61,7 @@ function OAuthSubmitButton({
 				</span>
 			) : null}
 			<span className="flex items-center justify-center">
-				{pending ? (
+				{isActiveProvider ? (
 					<Spinner aria-label={`Opening ${meta.label}`} />
 				) : meta.logoId ? (
 					<Logo
@@ -103,7 +107,6 @@ export default function OAuthButtons({
 }) {
 	const [lastUsedProvider, setLastUsedProvider] =
 		useState<LastAuthProvider | null>(null);
-	const [pendingProvider, setPendingProvider] = useState<SocialProviderId | null>(null);
 
 	useEffect(() => {
 		try {
@@ -121,50 +124,42 @@ export default function OAuthButtons({
 		}
 	}, []);
 
-	useEffect(() => {
-		const clearPending = () => setPendingProvider(null);
-		window.addEventListener("pageshow", clearPending);
-		return () => window.removeEventListener("pageshow", clearPending);
-	}, []);
-
 	return (
-		<div className="grid grid-cols-3 gap-2.5">
+		<form
+			action={handleOAuthRedirect}
+			onSubmit={(event) => {
+				const submitter = (event.nativeEvent as SubmitEvent)
+					.submitter as HTMLButtonElement | null;
+				const provider = submitter?.value;
+				if (!isSocialProviderId(provider)) return;
+				try {
+					window.localStorage.setItem(
+						LAST_AUTH_PROVIDER_STORAGE_KEY,
+						provider,
+					);
+				} catch {
+					// Ignore storage failures; auth still proceeds.
+				}
+			}}
+		>
+			<input type="hidden" name="authFlow" value="signin" />
+			{returnUrl ? (
+				<input type="hidden" name="returnUrl" value={returnUrl} />
+			) : null}
+			<div className="grid grid-cols-3 gap-2.5">
 				{SOCIAL_PROVIDER_IDS.map((id) => {
 					const meta = META[id];
 					return (
-						<form
-							action={handleOAuthRedirect}
-							key={id}
-							onSubmit={(event) => {
-								const attempt = beginOAuthAttempt(pendingProvider, id);
-								if (!attempt.accepted) {
-									event.preventDefault();
-									return;
-								}
-								setPendingProvider(attempt.pendingProvider);
-								try {
-									window.localStorage.setItem(
-										LAST_AUTH_PROVIDER_STORAGE_KEY,
-										id
-									);
-								} catch {
-									// Ignore storage failures; auth still proceeds.
-								}
-							}}
-						>
-							<input type="hidden" name="authFlow" value="signin" />
-							<input type="hidden" name="provider" value={id} />
-							{returnUrl ? (
-								<input type="hidden" name="returnUrl" value={returnUrl} />
-							) : null}
+						<div key={id}>
 							<OAuthSubmitButton
+								provider={id}
 								meta={meta}
 								isLastUsed={lastUsedProvider === id}
-								isOAuthPending={pendingProvider !== null}
 							/>
-						</form>
+						</div>
 					);
 				})}
-		</div>
+			</div>
+		</form>
 	);
 }
