@@ -1,9 +1,8 @@
 "use client";
 
 import React from "react";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { ExternalLink, Calendar, Activity, AlertTriangle } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import RevokeDialog from "./RevokeDialog";
@@ -20,10 +19,10 @@ export default function AuthorizationCard({ authorization }: AuthorizationCardPr
 		: [];
 
 	return (
-		<Card>
+		<Card className="min-w-0 overflow-hidden">
 			<CardHeader className="pb-3">
-				<div className="flex items-start justify-between gap-4">
-					<div className="flex items-start gap-3 flex-1 min-w-0">
+				<div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+					<div className="flex min-w-0 flex-1 items-start gap-3">
 						{authorization.app_logo_url ? (
 							<img
 								src={authorization.app_logo_url}
@@ -35,11 +34,11 @@ export default function AuthorizationCard({ authorization }: AuthorizationCardPr
 								<Activity className="size-6 text-muted-foreground" />
 							</div>
 						)}
-						<div className="flex-1 min-w-0">
-							<CardTitle className="text-lg truncate">
+						<div className="min-w-0 flex-1">
+							<CardTitle className="line-clamp-2 wrap-break-word text-lg">
 								{authorization.app_name}
 							</CardTitle>
-							<CardDescription className="mt-1">
+							<CardDescription className="mt-1 wrap-break-word">
 								{authorization.app_description || "No description provided"}
 							</CardDescription>
 							{authorization.app_homepage_url && (
@@ -47,7 +46,7 @@ export default function AuthorizationCard({ authorization }: AuthorizationCardPr
 									href={authorization.app_homepage_url}
 									target="_blank"
 									rel="noopener noreferrer"
-									className="inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 underline decoration-transparent hover:decoration-current transition-colors duration-200 mt-2"
+									className="mt-2 inline-flex min-h-9 max-w-full items-center gap-1 wrap-break-word text-xs text-blue-600 underline decoration-transparent transition-colors duration-200 hover:decoration-current dark:text-blue-400"
 								>
 									<ExternalLink className="size-3" />
 									<span>Visit website</span>
@@ -66,9 +65,9 @@ export default function AuthorizationCard({ authorization }: AuthorizationCardPr
 				{/* Scopes */}
 				<div>
 					<div className="text-sm font-medium mb-2">Permissions</div>
-					<div className="flex flex-wrap gap-2">
+					<div className="flex min-w-0 flex-wrap gap-2">
 						{(Array.isArray(authorization.scopes) ? authorization.scopes : []).map((scope: string) => (
-							<Badge key={scope} variant="secondary" className="text-xs">
+							<Badge key={scope} variant="secondary" className="max-w-full whitespace-normal break-all text-left text-xs">
 								{oauthScopeLabel(scope)}
 							</Badge>
 						))}
@@ -79,14 +78,14 @@ export default function AuthorizationCard({ authorization }: AuthorizationCardPr
 					<div className="rounded-md border border-amber-300 bg-amber-50 p-3 dark:border-amber-900 dark:bg-amber-950/30">
 						<div className="flex items-start gap-2">
 							<AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-700 dark:text-amber-300" />
-							<div className="space-y-2">
+							<div className="min-w-0 space-y-2">
 								<div className="text-sm font-medium text-amber-900 dark:text-amber-100">Additional permissions available</div>
 								<p className="text-xs text-amber-800 dark:text-amber-200">
 									This app can now request more permissions. Your existing access has not changed; review and approve any new request in the OAuth consent screen, or revoke this authorization to decline access.
 								</p>
 								<div className="flex flex-wrap gap-2">
 									{additionalScopes.map((scope) => (
-										<Badge key={scope} variant="outline" className="border-amber-300 bg-transparent text-xs text-amber-900 dark:border-amber-800 dark:text-amber-100">
+										<Badge key={scope} variant="outline" className="max-w-full whitespace-normal break-all border-amber-300 bg-transparent text-left text-xs text-amber-900 dark:border-amber-800 dark:text-amber-100">
 											{oauthScopeLabel(scope)}
 										</Badge>
 									))}
@@ -105,7 +104,7 @@ export default function AuthorizationCard({ authorization }: AuthorizationCardPr
 				</div>
 
 				{/* Metadata */}
-				<div className="grid grid-cols-2 gap-4 text-sm">
+				<div className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
 					<div>
 						<div className="flex items-center gap-1 text-muted-foreground mb-1">
 							<Calendar className="size-3" />
@@ -135,4 +134,3 @@ export default function AuthorizationCard({ authorization }: AuthorizationCardPr
 		</Card>
 	);
 }
-
