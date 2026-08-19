@@ -224,6 +224,7 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 					{mobile ? (
 						<>
 							<DropdownMenuItem
+								className="rounded-md"
 								render={
 									<Link href={`/apps/${encodeURIComponent(app.id)}`} />
 								}
@@ -232,6 +233,7 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 								View Stats
 							</DropdownMenuItem>
 							<DropdownMenuItem
+								className="rounded-md"
 								disabled={isBusy}
 								onClick={() =>
 									handleVisibilityToggle(app, !app.is_public)
@@ -247,6 +249,7 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 						</>
 					) : null}
 					<DropdownMenuItem
+						className="rounded-md"
 						onClick={() => {
 							navigator.clipboard
 								.writeText(attributionHeaders)
@@ -257,11 +260,15 @@ export default function AppsPanel({ apps }: { apps: AppItem[] }) {
 						<Copy className="mr-2 size-4" />
 						Copy Headers
 					</DropdownMenuItem>
-					<DropdownMenuItem onClick={() => setEditAppId(app.id)}>
+					<DropdownMenuItem
+						className="rounded-md"
+						onClick={() => setEditAppId(app.id)}
+					>
 						<Pencil className="mr-2 size-4" />
 						Edit
 					</DropdownMenuItem>
 					<DropdownMenuItem
+						className="rounded-md"
 						disabled={!canMerge}
 						onClick={() => {
 							if (!canMerge) return;
