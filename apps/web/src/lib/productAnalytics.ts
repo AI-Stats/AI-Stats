@@ -48,6 +48,22 @@ export type ProductAnalyticsEventMap = {
 		completed_step_count: number;
 		outcome: "completed" | "skipped";
 	};
+	quickstart_opened: {
+		model_id: string;
+		surface: "model_page";
+	};
+	quickstart_api_key_clicked: { model_id: string };
+	quickstart_code_copied: {
+		code_kind: "api_key_environment" | "request";
+		endpoint: string;
+		language: string;
+		model_id: string;
+	};
+	quickstart_endpoint_selected: { endpoint: string; model_id: string };
+	quickstart_model_id_copied: {
+		model_id: string;
+		selected_model_id: string;
+	};
 };
 
 export type ProductAnalyticsPayload = {

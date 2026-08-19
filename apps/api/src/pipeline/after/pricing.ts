@@ -112,6 +112,21 @@ export async function loadProviderPricing(
             card = await loadPriceCard(result.provider, getBaseModel(ctx.model), ctx.capability);
         }
 
+		const providerAcceptedAtMs = Number(ctx.meta?.upstreamStartMs);
+		const cardBoundaryMs = card?.effective_to ? Date.parse(card.effective_to) : Number.NaN;
+		if (
+			card &&
+			Number.isFinite(providerAcceptedAtMs) &&
+			Number.isFinite(cardBoundaryMs) &&
+			providerAcceptedAtMs >= cardBoundaryMs
+		) {
+			card = await loadPriceCard(
+				result.provider,
+				apiModelId ?? card.model ?? getBaseModel(ctx.model),
+				ctx.capability,
+			);
+		}
+
         return card;
     } catch (err) {
         console.error("pricing card lookup failed", err);

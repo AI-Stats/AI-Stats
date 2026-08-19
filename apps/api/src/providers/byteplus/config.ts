@@ -18,6 +18,7 @@ export const BYTEPLUS_OPENAI_COMPAT_CONFIGS = {
 		baseUrlEnv: "BYTEPLUS_BASE_URL",
 		apiKeyEnv: "BYTEPLUS_API_KEY",
 		pathPrefix: "/api/v3",
-		supportsResponses: false,
+		// BytePlus documents Responses support for current (250615+) models.
+		supportsResponses: true,
 	},
 } satisfies Record<string, OpenAICompatConfig>;

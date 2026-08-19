@@ -82,9 +82,7 @@ describe("minimax music executor", () => {
 				prompt: "epic orchestral pop",
 				vendor: {
 					minimax: {
-						request: {
-							is_instrumental: false,
-						},
+						is_instrumental: false,
 					},
 				},
 			}),
@@ -94,5 +92,76 @@ describe("minimax music executor", () => {
 		expect(result.upstream?.status).toBe(400);
 		const payload = await result.upstream?.json();
 		expect(payload?.reason).toBe("lyrics_required_for_non_instrumental_minimax_music");
+	});
+
+	it("maps current Music 3.0 fields and normalizes the synchronous URL response", async () => {
+		let capturedBody: Record<string, any> | null = null;
+		const mock = installFetchMock([{
+			match: (url) => url.endsWith("/v1/music_generation"),
+			response: jsonResponse({
+				data: { status: 2, audio: "https://mini.example/song.mp3" },
+				trace_id: "trace_music_3",
+				extra_info: { music_duration: 25364 },
+				base_resp: { status_code: 0, status_msg: "success" },
+			}),
+			onRequest: (call) => { capturedBody = call.bodyJson as Record<string, any>; },
+		}]);
+
+		const result = await execute(buildArgs({
+			model: "minimax/music-3.0",
+			prompt: "Indie folk, melancholic",
+			format: "mp3",
+			vendor: { minimax: { lyrics_optimizer: true, output_format: "url" } },
+		}, "music-3.0"));
+
+		mock.restore();
+		expect(capturedBody).toMatchObject({
+			model: "music-3.0",
+			lyrics_optimizer: true,
+			stream: false,
+			output_format: "url",
+			audio_setting: { format: "mp3" },
+		});
+		expect((result.ir as any)?.nativeId).toBe("trace_music_3");
+		expect((result.ir as any)?.status).toBe("completed");
+		expect((result.ir as any)?.audioUrl).toBe("https://mini.example/song.mp3");
+		expect((result.ir as any)?.usage?.output_audio_seconds).toBeCloseTo(25.364);
+	});
+
+	it("validates cover inputs and forwards exactly one reference", async () => {
+		let capturedBody: Record<string, any> | null = null;
+		const mock = installFetchMock([{
+			match: (url) => url.endsWith("/v1/music_generation"),
+			response: jsonResponse({ data: { status: 2, audio: "https://mini.example/cover.mp3" }, base_resp: { status_code: 0 } }),
+			onRequest: (call) => { capturedBody = call.bodyJson as Record<string, any>; },
+		}]);
+
+		const result = await execute(buildArgs({
+			model: "minimax/music-cover",
+			prompt: "Smooth jazz lounge cover",
+			vendor: { minimax: { audio_url: "https://example.com/source.mp3" } },
+		}, "music-cover"));
+
+		mock.restore();
+		expect(result.upstream?.status).toBe(200);
+		expect(capturedBody).toMatchObject({
+			model: "music-cover",
+			audio_url: "https://example.com/source.mp3",
+			prompt: "Smooth jazz lounge cover",
+		});
+		expect(capturedBody?.is_instrumental).toBeUndefined();
+	});
+
+	it("maps HTTP-200 application failures to useful HTTP status", async () => {
+		const mock = installFetchMock([{
+			match: (url) => url.endsWith("/v1/music_generation"),
+			response: jsonResponse({ base_resp: { status_code: 1008, status_msg: "insufficient balance" } }),
+		}]);
+		const result = await execute(buildArgs({
+			model: "minimax/music-3.0",
+			prompt: "Ambient piano",
+		}, "music-3.0"));
+		mock.restore();
+		expect(result.upstream?.status).toBe(402);
 	});
 });

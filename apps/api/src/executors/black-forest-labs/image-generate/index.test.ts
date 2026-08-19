@@ -1,8 +1,15 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { execute } from "./index";
 import type { ExecutorExecuteArgs } from "@executors/types";
+import { setupRuntimeFromEnv, teardownTestRuntime } from "../../../../tests/helpers/runtime";
 
 const originalFetch = globalThis.fetch;
+
+beforeAll(() => setupRuntimeFromEnv({
+	BFL_API_KEY: "test-bfl-key",
+	BFL_BASE_URL: "https://api.bfl.ai",
+}));
+afterAll(() => teardownTestRuntime());
 
 function baseArgs(overrides?: Partial<ExecutorExecuteArgs>): ExecutorExecuteArgs {
 	return {
@@ -71,7 +78,7 @@ describe("black-forest-labs image executor", () => {
 		if (result.kind !== "completed") return;
 
 		expect(globalThis.fetch).toHaveBeenCalledTimes(3);
-		expect((globalThis.fetch as any).mock.calls[0][0]).toBe("https://api.us1.bfl.ai/v1/flux-2-pro");
+		expect((globalThis.fetch as any).mock.calls[0][0]).toBe("https://api.bfl.ai/v1/flux-2-pro");
 		expect(result.upstream.status).toBe(200);
 		expect(result.ir).toBeTruthy();
 		expect(result.ir?.data?.[0]?.b64Json).toBe("AQID");
@@ -162,5 +169,16 @@ describe("black-forest-labs image executor", () => {
 		if (result.kind !== "completed") return;
 		expect(result.ir).toBeUndefined();
 		expect(result.upstream.status).toBe(400);
+	});
+
+	it("maps all eight documented FLUX.2 API reference images", async () => {
+		globalThis.fetch = vi.fn()
+			.mockResolvedValueOnce(new Response(JSON.stringify({ id: "job_8", polling_url: "https://api.bfl.ai/v1/get_result?id=job_8" }), { status: 200, headers: { "Content-Type": "application/json" } }))
+			.mockResolvedValueOnce(new Response(JSON.stringify({ id: "job_8", status: "Ready", result: { sample: "https://cdn.bfl.ai/results/job_8.png" } }), { status: 200, headers: { "Content-Type": "application/json" } })) as any;
+		const images = Array.from({ length: 8 }, (_, index) => `https://example.com/reference-${index + 1}.png`);
+		await execute(baseArgs({ endpoint: "images.edits", capability: "image.edit", meta: { returnUpstreamRequest: true }, ir: { model: "black-forest-labs/flux-2-pro", prompt: "compose these", image: images } }));
+		const body = JSON.parse((globalThis.fetch as any).mock.calls[0][1].body);
+		expect(body.input_image).toBe(images[0]);
+		expect(body.input_image_8).toBe(images[7]);
 	});
 });

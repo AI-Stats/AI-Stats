@@ -17,10 +17,27 @@ function normalizeModelName(model?: string | null): string {
     return parts[parts.length - 1] || value;
 }
 
-function defaultTranslationResponseFormat(model?: string | null): string {
-    const normalized = normalizeModelName(model).toLowerCase();
-    if (normalized.includes("transcribe")) return "json";
-    return "verbose_json";
+function defaultTranslationResponseFormat(): string {
+    return "json";
+}
+
+function extensionForAudioMimeType(mimeType?: string): string {
+    switch ((mimeType || "").toLowerCase().split(";", 1)[0]) {
+        case "audio/flac": return "flac";
+        case "audio/mpeg": return "mp3";
+        case "audio/mp4":
+        case "video/mp4": return "mp4";
+        case "audio/mpga": return "mpga";
+        case "audio/x-m4a":
+        case "audio/m4a": return "m4a";
+        case "audio/ogg":
+        case "application/ogg": return "ogg";
+        case "audio/wav":
+        case "audio/x-wav": return "wav";
+        case "audio/webm":
+        case "video/webm": return "webm";
+        default: return "wav";
+    }
 }
 
 function invalidParameterResponse(param: string, message: string): Response {
@@ -55,7 +72,7 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
     };
 
     const modelName = normalizeModelName(body.model).toLowerCase();
-    const responseFormat = body.response_format ?? defaultTranslationResponseFormat(body.model);
+    const responseFormat = body.response_format ?? defaultTranslationResponseFormat();
     const isOpenAI = args.providerId === "openai" || args.providerId === "openai-eu";
     if (isOpenAI && modelName !== "whisper-1") {
         return {
@@ -83,7 +100,7 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
     form.append("model", body.model);
     const filename = typeof File !== "undefined" && body.file instanceof File && body.file.name
         ? body.file.name
-        : "audio";
+        : `audio.${extensionForAudioMimeType(body.file.type)}`;
     form.append("file", body.file, filename);
     if (body.prompt) form.append("prompt", body.prompt);
     if (typeof body.temperature === "number") form.append("temperature", String(body.temperature));
@@ -129,4 +146,3 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
         byokKeyId: keyInfo.byokId,
     };
 }
-

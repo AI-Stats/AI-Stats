@@ -3,12 +3,12 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import {
-	Dialog,
-	DialogContent,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from "@/components/ui/dialog";
+	ProviderInspectorSheet,
+	ProviderInspectorSheetContent,
+	ProviderInspectorSheetDescription,
+	ProviderInspectorSheetHeader,
+	ProviderInspectorSheetTitle,
+} from "@/components/(data)/model/pricing/ProviderInspectorSheet";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Search } from "lucide-react";
@@ -21,13 +21,7 @@ import type {
 } from "@/app/(dashboard)/gateway/usage/server-actions";
 import type { ModelMetadataMap } from "../model-display";
 
-interface InvestigateGenerationProps {
-	iconOnly?: boolean;
-}
-
-export default function InvestigateGeneration({
-	iconOnly = false,
-}: InvestigateGenerationProps) {
+export default function InvestigateGeneration() {
 	const [open, setOpen] = React.useState(false);
 	const [id, setId] = React.useState("");
 	const [loading, setLoading] = React.useState(false);
@@ -101,39 +95,44 @@ export default function InvestigateGeneration({
 
 	return (
 		<>
-			<Dialog open={open} onOpenChange={setOpen}>
-				<DialogTrigger asChild>
-					<Button
-						variant="outline"
-						size={iconOnly ? "icon" : "default"}
-						aria-label="Investigate generation"
-						title="Investigate generation"
-					>
-						<Search className={iconOnly ? "h-4 w-4" : "mr-2 h-4 w-4"} />
-						{iconOnly ? null : "Investigate Generation"}
-					</Button>
-				</DialogTrigger>
-				<DialogContent>
-					<DialogHeader>
-						<DialogTitle>Investigate Generation</DialogTitle>
-					</DialogHeader>
-					<form onSubmit={onSubmit} className="space-y-3">
+			<Button
+				type="button"
+				variant="outline"
+				className="h-9 gap-2 rounded-md px-3 text-xs font-medium"
+				onClick={() => setOpen(true)}
+			>
+				<Search className="size-3.5" />
+				Investigate
+			</Button>
+
+			<ProviderInspectorSheet open={open} onOpenChange={setOpen}>
+				<ProviderInspectorSheetContent className="!w-full max-w-none gap-0 overflow-hidden p-0 sm:max-w-none md:!w-[44vw] lg:!w-[40vw] xl:!w-[36vw] 2xl:!w-[32vw] data-[side=right]:sm:max-w-none">
+					<ProviderInspectorSheetHeader className="border-b border-border/70 px-5 py-4 pr-14 sm:px-6 sm:py-5">
+						<ProviderInspectorSheetTitle>Investigate generation</ProviderInspectorSheetTitle>
+						<ProviderInspectorSheetDescription>
+							Enter a request ID to inspect its generation details.
+						</ProviderInspectorSheetDescription>
+					</ProviderInspectorSheetHeader>
+					<form onSubmit={onSubmit} className="space-y-4 p-5 sm:p-6">
 						<div className="flex gap-2">
 							<Input
-								placeholder="Enter request_id"
+								placeholder="Request ID"
 								value={id}
 								onChange={(e) => setId(e.target.value)}
+								className="rounded-md"
+								autoFocus
 							/>
-							<Button type="submit" disabled={loading}>
+							<Button type="submit" className="rounded-md" disabled={loading}>
 								{loading ? "Loading..." : "Lookup"}
 							</Button>
 						</div>
 					</form>
-				</DialogContent>
-			</Dialog>
+				</ProviderInspectorSheetContent>
+			</ProviderInspectorSheet>
 
 			<RequestDetailDialog
 				open={detailOpen}
+				presentation="sheet"
 				onOpenChange={setDetailOpen}
 				request={request}
 				appName={appName}

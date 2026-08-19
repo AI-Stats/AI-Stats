@@ -21,9 +21,14 @@ function normalizeModelName(model?: string | null): string {
 }
 
 function mapOpenAIResult(entry: any): IRModerationsResult {
+	const categories = entry?.categories && typeof entry.categories === "object"
+		? entry.categories as Record<string, boolean | null>
+		: undefined;
 	return {
-		flagged: Boolean(entry?.flagged),
-		categories: entry?.categories ?? undefined,
+		flagged: typeof entry?.flagged === "boolean"
+			? entry.flagged
+			: categories ? Object.values(categories).some((value) => value === true) : false,
+		categories,
 		categoryScores: entry?.category_scores ?? undefined,
 		categoryAppliedInputTypes: entry?.category_applied_input_types ?? undefined,
 	};
@@ -37,12 +42,21 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	const requestBody = {
 		input: ir.input,
 		model: normalizeModelName(args.providerModelSlug || ir.model) || ir.model,
+		...((args.providerId === "mistral" || args.providerId === "mistral-eu") && ir.metadata !== undefined
+			? { metadata: ir.metadata }
+			: {}),
 	};
+	const firstInput = Array.isArray(ir.input) ? ir.input[0] : undefined;
+	const isMistralChatInput = (args.providerId === "mistral" || args.providerId === "mistral-eu") && (
+		(firstInput && typeof firstInput === "object" && !Array.isArray(firstInput) && typeof (firstInput as any).role === "string") ||
+		(Array.isArray(firstInput) && firstInput[0] && typeof firstInput[0] === "object" && typeof firstInput[0].role === "string")
+	);
+	const moderationPath = isMistralChatInput ? "/chat/moderations" : "/moderations";
 
 	const captureRequest = Boolean(args.meta.returnUpstreamRequest || args.meta.echoUpstreamRequest);
 	const mappedRequest = captureRequest ? JSON.stringify(requestBody) : undefined;
 
-	const res = await fetchUpstream(args, openAICompatUrl(args.providerId, "/moderations"), {
+	const res = await fetchUpstream(args, openAICompatUrl(args.providerId, moderationPath), {
 		method: "POST",
 		headers: openAICompatHeaders(args.providerId, key, {
 			"Idempotency-Key": args.requestId,

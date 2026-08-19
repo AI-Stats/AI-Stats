@@ -6,9 +6,9 @@ import { createClient } from "@supabase/supabase-js";
 type SourceMode = "json" | "db";
 type DiscoveredRow = { provider_id: string; model_id: string };
 type ConfiguredDbRow = {
-	provider_id: string | null;
+	provider_slug: string | null;
 	provider_model_slug: string | null;
-	api_model_id: string | null;
+	model_slug: string | null;
 };
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
@@ -176,21 +176,22 @@ async function loadConfiguredFromDb(): Promise<Map<string, Set<string>>> {
 
 	while (true) {
 		const { data, error } = await supabase
-		.from("v2_rpc_routes_legacy_shape")
-			.select("provider_id, provider_model_slug, api_model_id")
+		.from("v2_model_provider_routes")
+			.select("provider_slug, provider_model_slug, model_slug")
 			.range(from, from + PAGE_SIZE - 1);
-		if (error) throw new Error(error.message || "Failed loading data_api_provider_models");
+		if (error) throw new Error(error.message || "Failed loading V2 provider routes");
 
 		const rows = (data ?? []) as ConfiguredDbRow[];
 		if (rows.length === 0) break;
 		for (const row of rows) {
-			if (!row.provider_id) continue;
-			const set = ensureProviderSet(out, row.provider_id);
+			const providerId = row.provider_slug;
+			if (!providerId) continue;
+			const set = ensureProviderSet(out, providerId);
 			if (typeof row.provider_model_slug === "string" && row.provider_model_slug.trim()) {
 				set.add(canonicalModelId(row.provider_model_slug));
 			}
-			if (typeof row.api_model_id === "string" && row.api_model_id.includes("/")) {
-				const tail = row.api_model_id.split("/").slice(1).join("/").trim();
+			if (typeof row.model_slug === "string" && row.model_slug.includes("/")) {
+				const tail = row.model_slug.split("/").slice(1).join("/").trim();
 				if (tail) set.add(canonicalModelId(tail));
 			}
 		}

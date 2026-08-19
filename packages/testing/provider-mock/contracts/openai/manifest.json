@@ -103,18 +103,9 @@
       "method": "post",
       "path": "/batches/{batch_id}/cancel",
       "operationId": "cancelBatch"
-    },
-    {
-      "capability": "rerank",
-      "method": "post",
-      "path": "/rerank",
-      "operationId": "openai_rerank_1",
-      "sourceOverlay": true,
-      "notes": "Derived from the enabled Phaseo executor URL and provider API reference."
     }
   ],
   "overlays": [
-    "OpenAPI cannot model SSE event ordering, binary response bodies, async polling transitions, or model-specific parameter restrictions.",
-    "Enabled capability operations derived from Phaseo executor routing."
+    "OpenAPI cannot model SSE event ordering, binary response bodies, async polling transitions, or model-specific parameter restrictions."
   ]
 }

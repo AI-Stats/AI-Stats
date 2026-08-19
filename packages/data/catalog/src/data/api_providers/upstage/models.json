@@ -17,33 +17,97 @@
         "capability_id": "text.generate",
         "status": "active",
         "params": [
-          { "param_id": "max_tokens", "provider_min": null, "provider_max": 131072, "provider_default": null, "notes": null },
-          { "param_id": "reasoning", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null },
-          { "param_id": "response_format", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null },
-          { "param_id": "temperature", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null },
-          { "param_id": "tool_choice", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null },
-          { "param_id": "tools", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null },
-          { "param_id": "top_p", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null }
+          {
+            "param_id": "max_tokens",
+            "provider_min": null,
+            "provider_max": 131072,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "response_format",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "temperature",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tool_choice",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          }
         ],
         "reasoning": true,
         "tool_call": true,
         "structured_output": true,
         "temperature": true,
         "attachment": false,
-        "input_modalities": ["text"],
-        "output_modalities": ["text"],
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
         "modes": []
       }
     ],
     "routing_status": "active",
     "routable": true,
-    "regions": { "execution": null, "data": null },
+    "regions": {
+      "execution": null,
+      "data": null
+    },
     "service_tiers": [],
-    "api": { "formats": ["openai.chat.completions"], "endpoint": null, "deployment": null },
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
     "sources": [
-      { "kind": "documentation", "url": "https://console.upstage.ai/docs/models/solar-pro-4", "accessed_at": "2026-08-06T00:00:00Z", "notes": "Official model page confirms alias, limits, and capabilities." }
+      {
+        "kind": "documentation",
+        "url": "https://console.upstage.ai/docs/models/solar-pro-4",
+        "accessed_at": "2026-08-06T00:00:00Z",
+        "notes": "Official model page confirms alias, limits, and capabilities."
+      }
     ],
-    "verification": { "status": "verified", "checked_at": "2026-08-06T00:00:00Z", "notes": "Verified against official Upstage documentation." },
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-06T00:00:00Z",
+      "notes": "Verified against official Upstage documentation."
+    },
     "rate_limits": []
   },
   {
@@ -64,33 +128,101 @@
         "capability_id": "text.generate",
         "status": "active",
         "params": [
-          { "param_id": "max_tokens", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null },
-          { "param_id": "reasoning", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null },
-          { "param_id": "response_format", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null },
-          { "param_id": "temperature", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null },
-          { "param_id": "tool_choice", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null },
-          { "param_id": "tools", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null },
-          { "param_id": "top_p", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null }
+          {
+            "param_id": "max_tokens",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "response_format",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "temperature",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tool_choice",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          "include_reasoning",
+          "structured_outputs",
+          "frequency_penalty",
+          "presence_penalty"
         ],
         "reasoning": true,
         "tool_call": true,
         "structured_output": true,
         "temperature": true,
         "attachment": false,
-        "input_modalities": ["text"],
-        "output_modalities": ["text"],
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
         "modes": []
       }
     ],
     "routing_status": "active",
     "routable": true,
-    "regions": { "execution": null, "data": null },
+    "regions": {
+      "execution": null,
+      "data": null
+    },
     "service_tiers": [],
-    "api": { "formats": ["openai.chat.completions"], "endpoint": null, "deployment": null },
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
     "sources": [
-      { "kind": "documentation", "url": "https://console.upstage.ai/docs/models/solar-pro-3", "accessed_at": "2026-08-06T00:00:00Z", "notes": "Official model page confirms alias, limits, and capabilities." }
+      {
+        "kind": "documentation",
+        "url": "https://console.upstage.ai/docs/models/solar-pro-3",
+        "accessed_at": "2026-08-06T00:00:00Z",
+        "notes": "Official model page confirms alias, limits, and capabilities."
+      }
     ],
-    "verification": { "status": "verified", "checked_at": "2026-08-06T00:00:00Z", "notes": "Verified against official Upstage documentation." },
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-06T00:00:00Z",
+      "notes": "Verified against official Upstage documentation."
+    },
     "rate_limits": []
   },
   {
@@ -111,33 +243,97 @@
         "capability_id": "text.generate",
         "status": "active",
         "params": [
-          { "param_id": "max_tokens", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null },
-          { "param_id": "reasoning", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null },
-          { "param_id": "response_format", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null },
-          { "param_id": "temperature", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null },
-          { "param_id": "tool_choice", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null },
-          { "param_id": "tools", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null },
-          { "param_id": "top_p", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null }
+          {
+            "param_id": "max_tokens",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "response_format",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "temperature",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tool_choice",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          }
         ],
         "reasoning": true,
         "tool_call": true,
         "structured_output": true,
         "temperature": true,
         "attachment": false,
-        "input_modalities": ["text"],
-        "output_modalities": ["text"],
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
         "modes": []
       }
     ],
     "routing_status": "active",
     "routable": true,
-    "regions": { "execution": null, "data": null },
+    "regions": {
+      "execution": null,
+      "data": null
+    },
     "service_tiers": [],
-    "api": { "formats": ["openai.chat.completions"], "endpoint": null, "deployment": null },
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
     "sources": [
-      { "kind": "documentation", "url": "https://console.upstage.ai/docs/models/solar-pro-2", "accessed_at": "2026-08-06T00:00:00Z", "notes": "Official model page confirms alias, limits, and capabilities." }
+      {
+        "kind": "documentation",
+        "url": "https://console.upstage.ai/docs/models/solar-pro-2",
+        "accessed_at": "2026-08-06T00:00:00Z",
+        "notes": "Official model page confirms alias, limits, and capabilities."
+      }
     ],
-    "verification": { "status": "verified", "checked_at": "2026-08-06T00:00:00Z", "notes": "Verified against official Upstage documentation." },
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-06T00:00:00Z",
+      "notes": "Verified against official Upstage documentation."
+    },
     "rate_limits": []
   },
   {
@@ -158,32 +354,90 @@
         "capability_id": "text.generate",
         "status": "active",
         "params": [
-          { "param_id": "max_tokens", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null },
-          { "param_id": "response_format", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null },
-          { "param_id": "temperature", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null },
-          { "param_id": "tool_choice", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null },
-          { "param_id": "tools", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null },
-          { "param_id": "top_p", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null }
+          {
+            "param_id": "max_tokens",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "response_format",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "temperature",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tool_choice",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          }
         ],
         "reasoning": false,
         "tool_call": true,
         "structured_output": true,
         "temperature": true,
         "attachment": false,
-        "input_modalities": ["text"],
-        "output_modalities": ["text"],
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
         "modes": []
       }
     ],
     "routing_status": "active",
     "routable": true,
-    "regions": { "execution": null, "data": null },
+    "regions": {
+      "execution": null,
+      "data": null
+    },
     "service_tiers": [],
-    "api": { "formats": ["openai.chat.completions"], "endpoint": null, "deployment": null },
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
     "sources": [
-      { "kind": "documentation", "url": "https://console.upstage.ai/docs/models/solar-mini", "accessed_at": "2026-08-06T00:00:00Z", "notes": "Official model page confirms alias, limits, and capabilities." }
+      {
+        "kind": "documentation",
+        "url": "https://console.upstage.ai/docs/models/solar-mini",
+        "accessed_at": "2026-08-06T00:00:00Z",
+        "notes": "Official model page confirms alias, limits, and capabilities."
+      }
     ],
-    "verification": { "status": "verified", "checked_at": "2026-08-06T00:00:00Z", "notes": "Verified against official Upstage documentation." },
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-06T00:00:00Z",
+      "notes": "Verified against official Upstage documentation."
+    },
     "rate_limits": []
   },
   {
@@ -204,32 +458,90 @@
         "capability_id": "text.generate",
         "status": "active",
         "params": [
-          { "param_id": "max_tokens", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null },
-          { "param_id": "reasoning", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null },
-          { "param_id": "temperature", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null },
-          { "param_id": "tool_choice", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null },
-          { "param_id": "tools", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null },
-          { "param_id": "top_p", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null }
+          {
+            "param_id": "max_tokens",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "temperature",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tool_choice",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          }
         ],
         "reasoning": true,
         "tool_call": true,
         "structured_output": null,
         "temperature": true,
         "attachment": false,
-        "input_modalities": ["text"],
-        "output_modalities": ["text"],
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
         "modes": []
       }
     ],
     "routing_status": "inactive",
     "routable": false,
-    "regions": { "execution": null, "data": null },
+    "regions": {
+      "execution": null,
+      "data": null
+    },
     "service_tiers": [],
-    "api": { "formats": ["openai.chat.completions"], "endpoint": null, "deployment": null },
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
     "sources": [
-      { "kind": "documentation", "url": "https://console.upstage.ai/docs/capabilities/generate/chat", "accessed_at": "2026-08-06T00:00:00Z", "notes": "Official chat model table lists the solar-open2 API alias; public token pricing is not published." }
+      {
+        "kind": "documentation",
+        "url": "https://console.upstage.ai/docs/capabilities/generate/chat",
+        "accessed_at": "2026-08-06T00:00:00Z",
+        "notes": "Official chat model table lists the solar-open2 API alias; public token pricing is not published."
+      }
     ],
-    "verification": { "status": "verified", "checked_at": "2026-08-06T00:00:00Z", "notes": "Availability verified, but kept non-routable until official billing terms are published." },
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-06T00:00:00Z",
+      "notes": "Availability verified, but kept non-routable until official billing terms are published."
+    },
     "rate_limits": []
   }
 ]

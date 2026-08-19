@@ -5,8 +5,6 @@
 import type { ProviderQuirks } from "../../quirks/types";
 
 const MISTRAL_UNSUPPORTED_CHAT_FIELDS = [
-	"service_tier",
-	"prompt_cache_key",
 	"safety_identifier",
 	"background",
 	"modalities",
@@ -35,11 +33,24 @@ export const mistralQuirks: ProviderQuirks = {
 			delete request.seed;
 		}
 
-		// Mistral chat schema does not support OpenAI-specific advanced controls.
+		// Phaseo exposes OpenAI-style tier names. Mistral's Priority Tier uses
+		// `auto` for priority-with-standard-fallback and `standard_only` to opt out.
+		if (request.service_tier === "priority" || request.service_tier === "fast") {
+			request.service_tier = "auto";
+		} else if (request.service_tier === "standard") {
+			request.service_tier = "standard_only";
+		} else if (
+			request.service_tier !== "auto" &&
+			request.service_tier !== "standard_only"
+		) {
+			delete request.service_tier;
+		}
+
+		// Mistral supports prompt_cache_key natively. Drop only OpenAI-specific
+		// controls that are absent from Mistral's Chat Completion schema.
 		// Drop these proactively so /responses-surface requests convert cleanly to chat.
 		for (const key of MISTRAL_UNSUPPORTED_CHAT_FIELDS) {
 			delete request[key];
 		}
 	},
 };
-

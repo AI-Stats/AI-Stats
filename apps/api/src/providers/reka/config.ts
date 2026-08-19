@@ -7,5 +7,8 @@ export const REKA_OPENAI_COMPAT_CONFIGS = {
 		pathPrefix: "/v1",
 		apiKeyEnv: "REKA_API_KEY",
 		baseUrlEnv: "REKA_BASE_URL",
+		apiKeyHeader: "X-Api-Key",
+		apiKeyPrefix: "",
+		supportsResponses: false,
 	},
 } satisfies Record<string, OpenAICompatConfig>;

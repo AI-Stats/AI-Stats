@@ -73,7 +73,9 @@ class Phaseo
         ?callable $lifecycleResolver = null,
         ?string $caBundlePath = null,
         bool $verifyTls = true,
-        ?array $devtools = null
+        ?array $devtools = null,
+        string $clientSource = "phaseo-php",
+        string $clientSourceVersion = "2.1.0"
     ) {
         $apiKey = $apiKey ?? getenv("PHASEO_API_KEY") ?: null;
         if (!$apiKey) {
@@ -82,7 +84,11 @@ class Phaseo
         $this->basePath = rtrim($basePath, "/");
         $this->client = new GenClient(
             $this->basePath,
-            ["Authorization" => "Bearer " . $apiKey],
+            [
+                "Authorization" => "Bearer " . $apiKey,
+                "X-Phaseo-Client" => $clientSource,
+                "X-Phaseo-Client-Version" => $clientSourceVersion,
+            ],
             $caBundlePath,
             $verifyTls
         );

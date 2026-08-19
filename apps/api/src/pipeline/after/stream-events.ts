@@ -617,6 +617,8 @@ function extractAnthropicMessagesEvents(
 				type: "delta_tool",
 				argumentsDelta: frame.delta.partial_json,
 				choiceIndex: 0,
+				toolIndex:
+					typeof frame?.index === "number" ? frame.index : undefined,
 				payload: frame,
 			});
 		}
@@ -637,10 +639,14 @@ function extractAnthropicMessagesEvents(
 						? frame.content_block.name
 						: undefined,
 				arguments:
-					frame?.content_block?.input != null
+					frame?.content_block?.input != null &&
+					(typeof frame.content_block.input !== "object" ||
+						Object.keys(frame.content_block.input).length > 0)
 						? JSON.stringify(frame.content_block.input)
 						: undefined,
 				choiceIndex: 0,
+				toolIndex:
+					typeof frame?.index === "number" ? frame.index : undefined,
 				payload: frame,
 			});
 		}

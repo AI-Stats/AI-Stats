@@ -10,6 +10,7 @@ import {
 	pricingRule,
 	readJson,
 	safePricingRules,
+	type PricingRuleOptions,
 	writeJsonIfChanged as writeSharedJsonIfChanged,
 } from "./catalogue-sync-shared";
 
@@ -18,20 +19,21 @@ export type OfficialPriceCandidate = {
 	capabilityId?: string;
 	currency?: "USD" | "CNY";
 	meters: Record<string, number>;
+	ruleOptions?: Record<string, PricingRuleOptions>;
 };
 
-type OfficialPricingComparison = {
+export type OfficialPricingComparison = {
 	providerModel: string;
 	apiModelId: string;
 	capabilityId: string;
 	meter: string;
-	currency: string;
+	currency?: string;
 	officialPrice: number;
 	currentPrices: number[];
 	status: "equal" | "different" | "missing" | "complex";
 };
 
-type OfficialPricingReport = {
+export type OfficialPricingProviderReport = {
 	provider: string;
 	sourceUrl: string | null;
 	rowsParsed: number;
@@ -45,13 +47,35 @@ type OfficialPricingReport = {
 	reason?: string;
 };
 
+export type OfficialPricingReport = {
+	providers: OfficialPricingProviderReport[];
+	rowsParsed: number;
+	pricingCreated: number;
+	pricingUpdated: number;
+	unmatched: string[];
+	ambiguous: string[];
+	skippedComplex: string[];
+	changedFiles: string[];
+};
+
 const DATA_ROOT = path.resolve(process.cwd(), "../../packages/data/catalog/src/data");
 const PROVIDERS_ROOT = path.join(DATA_ROOT, "api_providers");
 const PRICING_ROOT = path.join(DATA_ROOT, "pricing");
-const PROVIDER = process.argv.find((value) => value.startsWith("--provider="))?.split("=", 2)[1]?.trim().toLowerCase();
+
+function requestedProviders(): string[] | null {
+	const values = process.argv.flatMap((value) => {
+		if (!value.startsWith("--provider=") && !value.startsWith("--providers=")) return [];
+		return value.split("=", 2)[1]?.split(",") ?? [];
+	});
+	const providers = [...new Set(values.map((value) => value.trim().toLowerCase()).filter(Boolean))];
+	return providers.length > 0 ? providers : null;
+}
+
+const REQUESTED_PROVIDERS = requestedProviders();
 const DRY_RUN = process.argv.includes("--dry-run");
 const SUPPORTED_PROVIDERS = new Set([
 	"anthropic",
+	"cloudflare",
 	"deepseek",
 	"fireworks",
 	"moonshotai",
@@ -158,6 +182,65 @@ function horizontalCandidates(tables: string[][][]): OfficialPriceCandidate[] {
 	return candidates;
 }
 
+function markdownText(value: string): string {
+	return value
+		.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+		.replaceAll("**", "")
+		.replaceAll("`", "")
+		.trim();
+}
+
+function effectiveOn(label: string, now: Date): boolean {
+	const through = label.match(/\bthrough ([A-Z][a-z]+ \d{1,2}, \d{4})/i)?.[1];
+	if (through !== undefined && now.getTime() > Date.parse(`${through} 23:59:59 UTC`)) return false;
+	const starting = label.match(/\bstarting ([A-Z][a-z]+ \d{1,2}, \d{4})/i)?.[1];
+	if (starting !== undefined && now.getTime() < Date.parse(`${starting} 00:00:00 UTC`)) return false;
+	return true;
+}
+
+function markdownPrice(value: string): number | null {
+	const match = markdownText(value).match(/\$([\d.]+)\s*\/\s*MTok/i);
+	if (!match) return null;
+	const parsed = Number(match[1]);
+	return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
+}
+
+export function anthropicMarkdownCandidates(markdown: string, now = new Date()): OfficialPriceCandidate[] {
+	const section = markdown.split(/^## Model pricing\s*$/m)[1]?.split(/^## /m)[0];
+	if (section === undefined) return [];
+	const rows = section.split("\n")
+		.filter((line) => line.trimStart().startsWith("|"))
+		.map((line) => line.split("|").slice(1, -1).map((cell) => cell.trim()));
+	const header = rows[0]?.map(markdownText);
+	if (!header) return [];
+	const indexes = {
+		model: header.indexOf("Model"),
+		input: header.indexOf("Base Input Tokens"),
+		cacheWrite: header.indexOf("5m Cache Writes"),
+		cacheRead: header.indexOf("Cache Hits & Refreshes"),
+		output: header.indexOf("Output Tokens"),
+	};
+	if (Object.values(indexes).some((index) => index < 0)) return [];
+	return rows.slice(2).flatMap((row) => {
+		const providerModel = markdownText(row[indexes.model] ?? "");
+		if (!providerModel || !effectiveOn(providerModel, now)) return [];
+		const input = markdownPrice(row[indexes.input] ?? "");
+		const cacheWrite = markdownPrice(row[indexes.cacheWrite] ?? "");
+		const cacheRead = markdownPrice(row[indexes.cacheRead] ?? "");
+		const output = markdownPrice(row[indexes.output] ?? "");
+		if (input === null || cacheWrite === null || cacheRead === null || output === null) return [];
+		return [{
+			providerModel,
+			meters: {
+				input_text_tokens: input,
+				cached_write_text_tokens_5m: cacheWrite,
+				cached_read_text_tokens: cacheRead,
+				output_text_tokens: output,
+			},
+		}];
+	});
+}
+
 function deepseekCandidates(tables: string[][][]): OfficialPriceCandidate[] {
 	const candidates: OfficialPriceCandidate[] = [];
 	for (const table of tables) {
@@ -260,6 +343,44 @@ function weightsAndBiasesCandidates(tables: string[][][]): OfficialPriceCandidat
 	});
 }
 
+function cloudflareCandidates(tables: string[][][]): OfficialPriceCandidate[] {
+	const candidates: OfficialPriceCandidate[] = [];
+	for (const table of tables) {
+		const headers = table[0]?.map(normalized) ?? [];
+		if (headers[0] !== "model" || !headers.some((header) => header.includes("price in tokens"))) continue;
+		for (const row of table.slice(1)) {
+			const providerModel = row[0]?.trim().replace(/^@cf\//i, "");
+			const priceText = row[1] ?? "";
+			if (!providerModel || !priceText) continue;
+			const input = priceText.match(/\$\s*(\d+(?:\.\d+)?)\s+per\s+m\s+input\s+tokens/i);
+			const cached = priceText.match(/\$\s*(\d+(?:\.\d+)?)\s+per\s+m\s+cached\s+input\s+tokens/i);
+			const output = priceText.match(/\$\s*(\d+(?:\.\d+)?)\s+per\s+m\s+output\s+tokens/i);
+			if (input) {
+				candidates.push({
+					providerModel,
+					capabilityId: output ? "text.generate" : "text.embed",
+					meters: {
+						input_text_tokens: Number(input[1]),
+						...(cached ? { cached_read_text_tokens: Number(cached[1]) } : {}),
+						...(output ? { output_text_tokens: Number(output[1]) } : {}),
+					},
+				});
+				continue;
+			}
+			const audio = priceText.match(/\$\s*(\d+(?:\.\d+)?)\s+per\s+audio\s+minute(?:\s+input)?/i);
+			if (audio) {
+				candidates.push({
+					providerModel,
+					capabilityId: "audio.transcribe",
+					meters: { input_audio_minutes: Number(audio[1]) },
+					ruleOptions: { input_audio_minutes: { unit: "minute", unitSize: 1 } },
+				});
+			}
+		}
+	}
+	return candidates;
+}
+
 function stepfunCandidates(tables: string[][][]): OfficialPriceCandidate[] {
 	const candidates: OfficialPriceCandidate[] = [];
 	for (const table of tables) {
@@ -303,7 +424,9 @@ function xiaomiCandidates(html: string): OfficialPriceCandidate[] {
 export function extractOfficialPricing(providerId: string, html: string): OfficialPriceCandidate[] {
 	if (providerId === "moonshotai") return moonshotCandidates(html);
 	if (providerId === "xiaomi") return xiaomiCandidates(html);
+	if (providerId === "anthropic" && /^## Model pricing\s*$/m.test(html)) return anthropicMarkdownCandidates(html);
 	const tables = extractHtmlTableRows(html);
+	if (providerId === "cloudflare") return cloudflareCandidates(tables);
 	if (providerId === "deepseek") return deepseekCandidates(tables);
 	if (providerId === "fireworks") return fireworksCandidates(tables);
 	if (providerId === "stepfun") return stepfunCandidates(tables);
@@ -312,7 +435,7 @@ export function extractOfficialPricing(providerId: string, html: string): Offici
 	return horizontalCandidates(tables);
 }
 
-async function writeJsonIfChanged(filePath: string, value: unknown, report: OfficialPricingReport): Promise<boolean> {
+async function writeJsonIfChanged(filePath: string, value: unknown, report: OfficialPricingProviderReport): Promise<boolean> {
 	return writeSharedJsonIfChanged(filePath, value, report, { dataRoot: DATA_ROOT, dryRun: DRY_RUN });
 }
 
@@ -320,14 +443,19 @@ function pricingFileSlug(value: string): string {
 	return normalized(value).replace(/[^a-z0-9._-]+/g, "-").replace(/^-+|-+$/g, "");
 }
 
-export function safeOfficialPricingRules(pricing: JsonObject, meters: Record<string, number>, currency = "USD"): boolean {
+export function safeOfficialPricingRules(
+	pricing: JsonObject,
+	meters: Record<string, number>,
+	currency = "USD",
+	ruleOptions: Record<string, PricingRuleOptions> = {},
+): boolean {
 	if (!safePricingRules(pricing)) return false;
 	const officialMeters = new Set(Object.keys(meters));
 	const relevantRules = (pricing.rules as JsonObject[])
 		.filter((rule) => officialMeters.has(String(rule.meter)))
 	if (currency !== "USD" && relevantRules.length !== officialMeters.size) return false;
-	return relevantRules.every((rule) => rule.unit === "token"
-			&& Number(rule.unit_size) === 1_000_000
+	return relevantRules.every((rule) => rule.unit === (ruleOptions[String(rule.meter)]?.unit ?? "token")
+			&& Number(rule.unit_size) === (ruleOptions[String(rule.meter)]?.unitSize ?? 1_000_000)
 			&& rule.currency === currency
 			&& Number.isFinite(Number(rule.price_per_unit))
 			&& Number(rule.price_per_unit) >= 0);
@@ -339,11 +467,10 @@ async function writeReport(report: OfficialPricingReport): Promise<void> {
 	await writeFile(path.join(directory, "official-pricing-sync.json"), `${JSON.stringify(report, null, 2)}\n`, "utf8");
 }
 
-async function main(): Promise<void> {
-	if (!PROVIDER) throw new Error("--provider=<provider-id> is required");
-	const source = PRICING_TABLE_SOURCES.find((value) => value.providerId === PROVIDER);
-	const report: OfficialPricingReport = {
-		provider: PROVIDER,
+async function syncProvider(provider: string): Promise<OfficialPricingProviderReport> {
+	const source = PRICING_TABLE_SOURCES.find((value) => value.providerId === provider);
+	const report: OfficialPricingProviderReport = {
+		provider,
 		sourceUrl: source?.sourceUrl ?? null,
 		rowsParsed: 0,
 		pricingCreated: 0,
@@ -356,23 +483,28 @@ async function main(): Promise<void> {
 	};
 	if (!source) {
 		report.reason = "No official pricing source is configured";
-		await writeReport(report);
-		console.log(JSON.stringify(report));
-		return;
+		return report;
 	}
-	if (!SUPPORTED_PROVIDERS.has(PROVIDER)) {
+	if (!SUPPORTED_PROVIDERS.has(provider)) {
 		report.reason = "Official source is monitored for changes but does not yet have a structured parser";
-		await writeReport(report);
-		console.log(JSON.stringify(report));
-		return;
+		return report;
 	}
 
-	const response = await fetch(source.sourceUrl, {
-		headers: { "User-Agent": "Phaseo official pricing sync" },
-		signal: AbortSignal.timeout(30_000),
-	});
-	if (!response.ok) throw new Error(`${source.providerName} pricing source returned HTTP ${response.status}`);
-	const extracted = extractOfficialPricing(PROVIDER, await response.text());
+	let response: Response;
+	try {
+		response = await fetch(source.sourceUrl, {
+			headers: {
+				"User-Agent": "Phaseo official pricing sync",
+				...(provider === "anthropic" ? { Accept: "text/markdown" } : {}),
+			},
+			signal: AbortSignal.timeout(30_000),
+		});
+		if (!response.ok) throw new Error(`${source.providerName} pricing source returned HTTP ${response.status}`);
+	} catch (error) {
+		report.reason = error instanceof Error ? error.message : String(error);
+		return report;
+	}
+	const extracted = extractOfficialPricing(provider, await response.text());
 	report.rowsParsed = extracted.length;
 	if (extracted.length === 0) throw new Error(`${source.providerName} official pricing parser returned zero rows`);
 
@@ -391,7 +523,7 @@ async function main(): Promise<void> {
 		candidates.set(key, values[0]!);
 	}
 
-	const mappings = await readJson<JsonObject[]>(path.join(PROVIDERS_ROOT, PROVIDER, "models.json")).catch((error) => {
+	const mappings = await readJson<JsonObject[]>(path.join(PROVIDERS_ROOT, provider, "models.json")).catch((error) => {
 		if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
 		return [];
 	});
@@ -426,11 +558,11 @@ async function main(): Promise<void> {
 			report.skippedComplex.push(`${candidate.providerModel} is not mapped as ${capabilityId}`);
 			continue;
 		}
-		const pricingKey = `${PROVIDER}:${normalized(apiModelId)}:${capabilityId}`;
+		const pricingKey = `${provider}:${normalized(apiModelId)}:${capabilityId}`;
 		const currency = candidate.currency ?? "USD";
 		const existing = pricingByKey.get(pricingKey);
 		if (existing) {
-			const simple = safeOfficialPricingRules(existing.value, candidate.meters, currency);
+			const simple = safeOfficialPricingRules(existing.value, candidate.meters, currency, candidate.ruleOptions);
 			for (const [meter, officialPrice] of Object.entries(candidate.meters)) {
 				const currentPrices = (existing.value.rules as JsonObject[])
 					.filter((rule) => rule.meter === meter && rule.currency === currency && rule.pricing_plan === "standard" && !rule.effective_to)
@@ -453,7 +585,7 @@ async function main(): Promise<void> {
 				report.skippedComplex.push(candidate.providerModel);
 				continue;
 			}
-			const merged = mergeSimplePricing(existing.value, candidate.meters);
+			const merged = mergeSimplePricing(existing.value, candidate.meters, candidate.ruleOptions);
 			if (!merged.changed) continue;
 			existing.value.verification = {
 				status: "partial",
@@ -477,12 +609,12 @@ async function main(): Promise<void> {
 		}
 
 		const pricing: JsonObject = {
-			key: `${PROVIDER}:${apiModelId}:${capabilityId}`,
-			api_provider_id: PROVIDER,
-			provider_slug: PROVIDER,
+			key: `${provider}:${apiModelId}:${capabilityId}`,
+			api_provider_id: provider,
+			provider_slug: provider,
 			api_model_id: apiModelId,
 			capability_id: capabilityId,
-			rules: Object.entries(candidate.meters).map(([meter, price]) => pricingRule(meter, price, currency)),
+			rules: Object.entries(candidate.meters).map(([meter, price]) => pricingRule(meter, price, currency, candidate.ruleOptions?.[meter])),
 			regions: [],
 			service_tiers: ["standard"],
 			sources: [{
@@ -497,7 +629,7 @@ async function main(): Promise<void> {
 				notes: "Pricing synchronized from the official provider source for review.",
 			},
 		};
-		const target = path.join(PRICING_ROOT, PROVIDER, pricingFileSlug(apiModelId), capabilityId, "pricing.json");
+		const target = path.join(PRICING_ROOT, provider, pricingFileSlug(apiModelId), capabilityId, "pricing.json");
 		if (await writeJsonIfChanged(target, pricing, report)) report.pricingCreated += 1;
 	}
 
@@ -507,6 +639,40 @@ async function main(): Promise<void> {
 	report.comparisons.sort((left, right) => left.apiModelId.localeCompare(right.apiModelId)
 		|| left.capabilityId.localeCompare(right.capabilityId) || left.meter.localeCompare(right.meter));
 	report.changedFiles = [...new Set(report.changedFiles)].sort();
+	return report;
+}
+
+async function main(): Promise<void> {
+	const providers = REQUESTED_PROVIDERS ?? PRICING_TABLE_SOURCES.map((source) => source.providerId);
+	const reports = await Promise.all(providers.map(async (provider) => {
+		try {
+			return await syncProvider(provider);
+		} catch (error) {
+			return {
+				provider,
+				sourceUrl: PRICING_TABLE_SOURCES.find((source) => source.providerId === provider)?.sourceUrl ?? null,
+				rowsParsed: 0,
+				pricingCreated: 0,
+				pricingUpdated: 0,
+				unmatched: [],
+				ambiguous: [],
+				skippedComplex: [],
+				comparisons: [],
+				changedFiles: [],
+				reason: error instanceof Error ? error.message : String(error),
+			} satisfies OfficialPricingProviderReport;
+		}
+	}));
+	const report: OfficialPricingReport = {
+		providers: reports,
+		rowsParsed: reports.reduce((total, value) => total + value.rowsParsed, 0),
+		pricingCreated: reports.reduce((total, value) => total + value.pricingCreated, 0),
+		pricingUpdated: reports.reduce((total, value) => total + value.pricingUpdated, 0),
+		unmatched: [...new Set(reports.flatMap((value) => value.unmatched))].sort(),
+		ambiguous: [...new Set(reports.flatMap((value) => value.ambiguous))].sort(),
+		skippedComplex: [...new Set(reports.flatMap((value) => value.skippedComplex))].sort(),
+		changedFiles: [...new Set(reports.flatMap((value) => value.changedFiles))].sort(),
+	};
 	await writeReport(report);
 	console.log(JSON.stringify(report));
 }

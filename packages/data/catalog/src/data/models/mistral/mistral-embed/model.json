@@ -21,7 +21,7 @@
   "model_type": "embedding",
   "knowledge_cutoff": null,
   "limits": {
-    "context": null,
+    "context": 8192,
     "input": null,
     "output": null
   },
@@ -46,11 +46,18 @@
     "web_search": null
   },
   "open_weights": null,
-  "sources": [],
+  "sources": [
+    {
+      "kind": "model_card",
+      "url": "https://docs.mistral.ai/models/model-cards/mistral-embed-23-12",
+      "accessed_at": "2026-08-12T00:00:00Z",
+      "notes": "Official model card confirms mistral-embed-2312, text embeddings, 8k context, and /v1/embeddings support."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-12T00:00:00Z",
+    "notes": "Verified against the official Mistral model card."
   },
   "last_updated": null,
   "removal_date": null,
