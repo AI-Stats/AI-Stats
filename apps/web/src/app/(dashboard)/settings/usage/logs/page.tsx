@@ -9,6 +9,7 @@ import AsyncJobsPanel from "@/components/(gateway)/usage/AsyncJobsPanel";
 import SessionsPanel from "@/components/(gateway)/usage/SessionsPanel";
 import UsageLogsToolbar from "@/components/(gateway)/usage/UsageLogsToolbar";
 import UsageViewFilters from "@/components/(gateway)/usage/UsageViewFilters";
+import InvestigateGeneration from "@/components/(gateway)/usage/UsageHeader/InvestigateGeneration";
 import UpstreamRequestsTable from "@/components/(gateway)/usage/UpstreamRequestsTable";
 import {
 	getUsageRangeParamKeys,
@@ -379,6 +380,8 @@ export async function UsageLogsContent({
 								? buildLogsRequestHref(sp, rows[currentIndex + 1].request_id)
 								: null
 						}
+						position={currentIndex >= 0 ? currentIndex + 1 : null}
+						total={rows.length}
 					/>
 				);
 			} else {
@@ -402,6 +405,7 @@ export async function UsageLogsContent({
 				</div>
 				<div className="flex min-w-0 flex-wrap items-center gap-2 lg:justify-end">
 					{filters}
+					{view === "logs" ? <InvestigateGeneration /> : null}
 					<UsageLogsToolbar
 						view={view}
 						preset={preset}

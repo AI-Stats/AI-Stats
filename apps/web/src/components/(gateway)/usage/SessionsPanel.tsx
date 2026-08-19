@@ -21,11 +21,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CopyButton } from "@/components/ui/copy-button";
 import {
-	Dialog,
-	DialogContent,
-	DialogHeader,
-	DialogTitle,
-} from "@/components/ui/dialog";
+	ProviderInspectorSheet,
+	ProviderInspectorSheetContent,
+	ProviderInspectorSheetDescription,
+	ProviderInspectorSheetHeader,
+	ProviderInspectorSheetTitle,
+} from "@/components/(data)/model/pricing/ProviderInspectorSheet";
 import {
 	HoverCard,
 	HoverCardContent,
@@ -46,10 +47,7 @@ import { cn } from "@/lib/utils";
 import {
 	AppWindow,
 	Check,
-	Clock3,
-	Coins,
 	Copy,
-	Layers3,
 	RefreshCw,
 } from "lucide-react";
 import {
@@ -66,7 +64,6 @@ import {
 } from "./usageMeters";
 import {
         DetailKeyValueGrid,
-        DetailMetricTile,
         DetailSection,
 } from "./DetailDialogPrimitives";
 
@@ -75,6 +72,15 @@ const RequestDetailDialog = dynamic(() => import("./RequestDetailDialog"));
 function formatMoneyFromNanos(value: number | null | undefined): string {
 	if (value == null || !Number.isFinite(value)) return "-";
 	return `$${(value / 1e9).toFixed(5)}`;
+}
+
+function formatDuration(milliseconds: number): string {
+	if (milliseconds < 1_000) return `${Math.max(0, Math.round(milliseconds))} ms`;
+	const seconds = milliseconds / 1_000;
+	if (seconds < 60) return `${seconds.toFixed(seconds < 10 ? 1 : 0)} s`;
+	const minutes = seconds / 60;
+	if (minutes < 60) return `${minutes.toFixed(minutes < 10 ? 1 : 0)} min`;
+	return `${(minutes / 60).toFixed(1)} hr`;
 }
 
 function getModelDetailsHref(modelId: string | null): string | null {
@@ -148,7 +154,7 @@ function AppBadge({
 	compact?: boolean;
 }) {
 	if (!appId) {
-		return <Badge variant="outline">-</Badge>;
+		return <Badge variant="outline" className="rounded-md">-</Badge>;
 	}
 
 	const appLabel = buildAppLabel(app, appId);
@@ -156,12 +162,13 @@ function AppBadge({
 	return (
 		<Link
 			href={`/apps/${encodeURIComponent(appId)}`}
-			className="underline decoration-transparent transition-colors duration-200 hover:text-primary hover:decoration-current"
+			className="rounded-md underline decoration-transparent transition-colors duration-200 hover:decoration-current"
+			onClick={stopRowClick}
 		>
 			<Badge
 				variant="outline"
 				className={cn(
-					"hover:bg-muted cursor-pointer inline-flex items-center gap-2",
+					"inline-flex cursor-pointer items-center gap-2 rounded-md hover:bg-muted",
 					compact ? "max-w-[220px]" : undefined,
 				)}
 			>
@@ -193,11 +200,12 @@ function RequestStatusBadge({
 	return (
 		<Badge
 			variant="outline"
-			className={
+			className={cn(
+				"rounded-md",
 				success
-					? "border-emerald-200 bg-emerald-50 text-emerald-700"
-					: "border-red-200 bg-red-50 text-red-700"
-			}
+					? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800/70 dark:bg-emerald-950/40 dark:text-emerald-300"
+					: "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-800/70 dark:bg-rose-950/40 dark:text-rose-300",
+			)}
 		>
 			{success ? "Success" : statusCode ? `Error ${statusCode}` : "Error"}
 		</Badge>
@@ -366,7 +374,7 @@ function SessionModelsCell({
 						{modelHref ? (
 							<Link
 								href={modelHref}
-								className="truncate underline decoration-transparent transition-colors duration-200 hover:text-primary hover:decoration-current"
+								className="truncate underline decoration-transparent transition-colors duration-200 hover:decoration-current"
 								title={modelId}
 								onClick={stopRowClick}
 							>
@@ -385,7 +393,7 @@ function SessionModelsCell({
 					<HoverCardTrigger asChild>
 						<Badge
 							variant="outline"
-							className="cursor-help rounded-md underline decoration-transparent transition-colors duration-200 hover:text-primary hover:decoration-current"
+							className="cursor-help rounded-md underline decoration-transparent transition-colors duration-200 hover:bg-muted hover:decoration-current"
 						>
 							+{hiddenCount} more
 						</Badge>
@@ -418,7 +426,7 @@ function SessionModelsCell({
 											{modelHref ? (
 												<Link
 													href={modelHref}
-													className="truncate underline decoration-transparent transition-colors duration-200 hover:text-primary hover:decoration-current"
+											className="truncate underline decoration-transparent transition-colors duration-200 hover:decoration-current"
 													title={modelId}
 													onClick={stopRowClick}
 												>
@@ -441,7 +449,7 @@ function SessionModelsCell({
 	);
 }
 
-function SessionDetailDialog({
+function SessionDetailSheet({
 	session,
 	requests,
 	appMetadata,
@@ -478,14 +486,54 @@ function SessionDetailDialog({
 
 	if (!session) return null;
 
-	const appCounts = session.app_counts ?? [];
+	const primaryAppId =
+		session.app_counts?.[0]?.app_id ??
+		requests.find((request) => request.app_id)?.app_id ??
+		null;
+	const primaryAppRequest = primaryAppId
+		? requests.find((request) => request.app_id === primaryAppId)
+		: null;
+	const primaryApp = primaryAppId
+		? appMetadata.get(primaryAppId) ?? {
+				title: primaryAppRequest?.app_title ?? primaryAppId,
+				imageUrl: primaryAppRequest?.app_image_url ?? null,
+			}
+		: null;
 	const modelCounts =
 		session.model_counts ??
 		(session.model_ids ?? []).map((modelId) => ({ model_id: modelId, request_count: 0 }));
+	const tokenTotals = requests.reduce(
+		(totals, request) => {
+			const tokens = getUsageTokenCounts(request);
+			totals.input += tokens.input ?? 0;
+			totals.output += tokens.output ?? 0;
+			return totals;
+		},
+		{ input: 0, output: 0 },
+	);
+	const failedRequestCount = requests.filter((request) => !request.success).length;
+	const successRate = requests.length
+		? ((requests.length - failedRequestCount) / requests.length) * 100
+		: null;
+	const sessionDuration = Math.max(
+		0,
+		new Date(session.last_request_at).getTime() -
+			new Date(session.first_request_at).getTime(),
+	);
+	const headlineMetrics = [
+		{ label: "Requests", value: session.request_count.toLocaleString() },
+		{ label: "Duration", value: formatDuration(sessionDuration) },
+		{ label: "Input tokens", value: formatUsageNumber(tokenTotals.input) },
+		{ label: "Output tokens", value: formatUsageNumber(tokenTotals.output) },
+		{ label: "Cost", value: formatMoneyFromNanos(session.total_cost_nanos) },
+		{
+			label: "Success rate",
+			value: successRate == null ? "-" : `${successRate.toFixed(successRate === 100 ? 0 : 1)}%`,
+		},
+	];
 	const subtitle = [
 		formatWordyRange(session.first_request_at, session.last_request_at),
 		`${session.request_count.toLocaleString()} reqs`,
-		`${appCounts.length} apps`,
 		`${modelCounts.length} models`,
 	]
 		.filter(Boolean)
@@ -528,14 +576,6 @@ function SessionDetailDialog({
 			label: "Last request",
 			value: formatWordyDateTime(session.last_request_at, { includeTime: true }),
 		},
-		{
-			label: "Total requests",
-			value: session.request_count.toLocaleString(),
-		},
-		{
-			label: "Total cost",
-			value: formatMoneyFromNanos(session.total_cost_nanos),
-		},
 	];
 
 	const selectedRequestAppName =
@@ -548,101 +588,64 @@ function SessionDetailDialog({
 
 	return (
 		<>
-			<Dialog open={open} onOpenChange={onOpenChange}>
-				<DialogContent className="max-h-[90vh] max-w-7xl overflow-hidden p-0">
-					<DialogHeader className="sr-only">
-						<DialogTitle>Session details</DialogTitle>
-					</DialogHeader>
-
-					<div>
-						<div className="px-5 py-4 sm:px-6 sm:py-5">
-							<div className="pr-10">
-								<DialogTitle className="min-w-0 truncate text-lg font-semibold">
+			<ProviderInspectorSheet
+				open={open}
+				onOpenChange={(nextOpen) => {
+					if (!nextOpen && requestDetailOpen) {
+						return;
+					}
+					onOpenChange(nextOpen);
+				}}
+			>
+				<ProviderInspectorSheetContent className="!w-full max-w-none gap-0 overflow-hidden p-0 sm:max-w-none md:!w-[72vw] lg:!w-[68vw] xl:!w-[64vw] 2xl:!w-[60vw] data-[side=right]:sm:max-w-none">
+					<div className="flex min-h-0 flex-1 flex-col">
+						<ProviderInspectorSheetHeader className="border-b border-border/70 px-5 py-4 pr-14 sm:px-6 sm:py-5">
+							<ProviderInspectorSheetTitle className="min-w-0 truncate text-lg font-semibold">
 									Session {shortenIdentifier(session.session_id, 6)}
-								</DialogTitle>
-								<div className="mt-2 text-sm text-muted-foreground">{subtitle}</div>
-							</div>
-						</div>
-						<div className="border-t" />
+							</ProviderInspectorSheetTitle>
+							<ProviderInspectorSheetDescription>{subtitle}</ProviderInspectorSheetDescription>
+						</ProviderInspectorSheetHeader>
 
-						<div className="max-h-[calc(90vh-110px)] space-y-6 overflow-y-auto p-5 sm:p-6">
-							<div className="grid grid-cols-2 gap-2 md:grid-cols-3">
-								<DetailMetricTile
-									icon={Coins}
-									label="Total cost"
-									value={<span className="font-mono">{formatMoneyFromNanos(session.total_cost_nanos)}</span>}
-									tone="amber"
-									compact
-								/>
-								<DetailMetricTile
-									icon={Layers3}
-									label="Total requests"
-									value={session.request_count.toLocaleString()}
-									tone="sky"
-									compact
-								/>
-								<DetailMetricTile
-									icon={AppWindow}
-									label="Apps"
-									value={appCounts.length}
-									tone="violet"
-									compact
-								/>
-								<DetailMetricTile
-									icon={Layers3}
-									label="Models"
-									value={modelCounts.length}
-									tone="slate"
-									compact
-								/>
-								<DetailMetricTile
-									icon={Clock3}
-									label="First request"
-									value={formatWordyDateTime(session.first_request_at, { includeTime: true })}
-									tone="slate"
-									compact
-								/>
-								<DetailMetricTile
-									icon={Clock3}
-									label="Last request"
-									value={formatWordyDateTime(session.last_request_at, { includeTime: true })}
-									tone="slate"
-									compact
-								/>
+						<div className="min-h-0 flex-1 space-y-6 overflow-y-auto p-5 sm:p-6">
+							<div className="grid grid-cols-2 gap-x-6 gap-y-5 border-b border-border/70 pb-3 sm:grid-cols-3">
+								{headlineMetrics.map((metric) => (
+									<div key={metric.label} className="min-w-0">
+										<div className="text-xs text-muted-foreground">{metric.label}</div>
+										<div className="mt-1 truncate font-mono text-sm font-semibold tabular-nums" title={metric.value}>
+											{metric.value}
+										</div>
+									</div>
+								))}
 							</div>
 
 							<DetailSection title="Session details" className="border-none bg-transparent p-0">
 								<DetailKeyValueGrid columns={2} items={sessionDetailItems} />
 							</DetailSection>
 
-							<DetailSection title="Apps in session">
-								<div className="flex flex-wrap gap-1.5">
-									{appCounts.length > 0 ? (
-										appCounts.map((appCount) => (
-											<AppBadge
-												key={appCount.app_id}
-												appId={appCount.app_id}
-												app={appMetadata.get(appCount.app_id)}
-												compact
-											/>
-										))
+							<div className="grid gap-6 sm:grid-cols-2">
+								<DetailSection title="App" className="border-none bg-transparent p-0">
+									{primaryAppId ? (
+										<AppBadge appId={primaryAppId} app={primaryApp} />
 									) : (
-										<div className="text-sm text-muted-foreground">
-											No app metadata recorded.
-										</div>
+										<div className="text-sm text-muted-foreground">No app metadata recorded.</div>
 									)}
-								</div>
-							</DetailSection>
+								</DetailSection>
+								<DetailSection
+									title="Models in session"
+									className="border-none bg-transparent p-0"
+								>
+									<SessionModelsCell
+										modelCounts={modelCounts}
+										modelMetadata={modelMetadata}
+										maxVisible={6}
+									/>
+								</DetailSection>
+							</div>
 
-							<DetailSection title="Models in session">
-								<SessionModelsCell
-									modelCounts={modelCounts}
-									modelMetadata={modelMetadata}
-									maxVisible={6}
-								/>
-							</DetailSection>
-
-							<DetailSection title="Request timeline">
+							<DetailSection
+								title="Request timeline"
+								className="border-none bg-transparent p-0"
+							>
 								{requests.length === 0 ? (
 									<div className="rounded-lg border border-dashed px-4 py-8 text-sm text-muted-foreground">
 										No requests found for this session in the selected period.
@@ -654,14 +657,12 @@ function SessionDetailDialog({
 										<TableRow className="h-9">
 											<TableHead>Time</TableHead>
 											<TableHead>Source</TableHead>
-											<TableHead>App</TableHead>
 											<TableHead>Model</TableHead>
 											<TableHead>Provider</TableHead>
 											<TableHead className="text-right">In</TableHead>
 											<TableHead className="text-right">Out</TableHead>
 											<TableHead className="text-right">Cost</TableHead>
 											<TableHead>Status</TableHead>
-											<TableHead className="text-right">Inspect</TableHead>
 										</TableRow>
 									</TableHeader>
 									<TableBody>
@@ -678,21 +679,28 @@ function SessionDetailDialog({
 											const providerLabel = request.provider
 												? providerNames.get(request.provider) ?? request.provider
 												: null;
-											const appInfo = request.app_id
-												? appMetadata.get(request.app_id)
-												: null;
-											const appLabel = request.app_id
-												? buildAppLabel(appInfo, request.app_title ?? request.app_id)
-												: request.app_title ?? "-";
 											const tokens = getUsageTokenCounts(request);
 											const errorSummary = request.success
 												? null
 												: formatErrorListSummary(request);
 
 											return (
-												<TableRow
-													key={`${request.request_id}-${request.created_at}-${index}`}
-													className="h-12"
+											<TableRow
+												key={`${request.request_id}-${request.created_at}-${index}`}
+												role="button"
+												tabIndex={0}
+												className="h-12 cursor-pointer hover:bg-muted/40"
+												onClick={() => {
+													setSelectedRequest(request);
+													setRequestDetailOpen(true);
+												}}
+												onKeyDown={(event) => {
+													if (event.key === "Enter" || event.key === " ") {
+														event.preventDefault();
+														setSelectedRequest(request);
+														setRequestDetailOpen(true);
+													}
+												}}
 												>
 													<TableCell className="py-2 font-mono text-xs">
 														<TimeHover
@@ -701,23 +709,10 @@ function SessionDetailDialog({
 															relativeNowMs={relativeNowMs}
 														/>
 													</TableCell>
-													<TableCell className="py-2">
+											<TableCell className="py-2">
 												{request.client_source_name ?? request.client_source_id ?? "Direct HTTP"}
-													</TableCell>
-													<TableCell className="py-2">
-														{request.app_id ? (
-															<AppBadge
-																appId={request.app_id}
-																app={appInfo ?? {
-																	title: appLabel,
-																	imageUrl: request.app_image_url ?? null,
-																}}
-															/>
-														) : (
-															appLabel
-														)}
-													</TableCell>
-													<TableCell className="py-2">
+											</TableCell>
+											<TableCell className="py-2">
 														<div className="flex max-w-[280px] items-center gap-2">
 															{modelLogoId ? (
 																<Logo
@@ -731,8 +726,9 @@ function SessionDetailDialog({
 																{modelHref ? (
 																	<Link
 																		href={modelHref}
-																		className="truncate underline decoration-transparent transition-colors duration-200 hover:text-primary hover:decoration-current"
+																	className="truncate underline decoration-transparent transition-colors duration-200 hover:decoration-current"
 																		title={request.model_id ?? undefined}
+																		onClick={stopRowClick}
 																	>
 																		{modelLabel}
 																	</Link>
@@ -744,9 +740,6 @@ function SessionDetailDialog({
 																		{modelLabel}
 																	</div>
 																)}
-																<div className="truncate text-[11px] text-muted-foreground">
-																	{request.endpoint ?? "-"}
-																</div>
 															</div>
 														</div>
 													</TableCell>
@@ -754,7 +747,7 @@ function SessionDetailDialog({
 														{request.provider ? (
 															<Badge
 																variant="outline"
-																className="inline-flex items-center gap-2"
+																className="inline-flex items-center gap-2 rounded-md"
 															>
 																<Logo
 																	id={request.provider}
@@ -765,7 +758,7 @@ function SessionDetailDialog({
 																<span className="truncate">{providerLabel}</span>
 															</Badge>
 														) : (
-															<Badge variant="outline">-</Badge>
+															<Badge variant="outline" className="rounded-md">-</Badge>
 														)}
 													</TableCell>
 													<TableCell className="py-2 text-right font-mono text-xs">
@@ -794,20 +787,6 @@ function SessionDetailDialog({
 															) : null}
 														</div>
 													</TableCell>
-													<TableCell className="py-2 text-right">
-														<Button
-															type="button"
-															variant="ghost"
-															size="sm"
-															className="h-7 px-2 text-xs"
-															onClick={() => {
-																setSelectedRequest(request);
-																setRequestDetailOpen(true);
-															}}
-														>
-															Inspect
-														</Button>
-													</TableCell>
 												</TableRow>
 											);
 										})}
@@ -818,11 +797,12 @@ function SessionDetailDialog({
 							</DetailSection>
 						</div>
 					</div>
-				</DialogContent>
-			</Dialog>
+				</ProviderInspectorSheetContent>
+			</ProviderInspectorSheet>
 
 			<RequestDetailDialog
 				open={requestDetailOpen}
+				presentation="sheet"
 				onOpenChange={(nextOpen) => {
 					setRequestDetailOpen(nextOpen);
 					if (!nextOpen) {
@@ -1104,11 +1084,18 @@ export default function SessionsPanel({
 						}));
 
 					return (
-						<button
+						<div
 							key={`mobile-${session.session_id}`}
-							type="button"
+							role="button"
+							tabIndex={0}
 							className="w-full rounded-lg border bg-card px-4 py-3 text-left transition-colors hover:bg-muted/40"
 							onClick={() => openDetail(session)}
+							onKeyDown={(event) => {
+								if (event.key === "Enter" || event.key === " ") {
+									event.preventDefault();
+									openDetail(session);
+								}
+							}}
 						>
 							<div className="flex items-start justify-between gap-3">
 								<div className="min-w-0 space-y-1">
@@ -1155,7 +1142,7 @@ export default function SessionsPanel({
 									maxVisible={2}
 								/>
 							</div>
-						</button>
+						</div>
 					);
 				})}
 			</div>
@@ -1271,7 +1258,7 @@ export default function SessionsPanel({
 				{table}
 			</div>
 
-			<SessionDetailDialog
+			<SessionDetailSheet
 				session={selectedSession}
 				requests={selectedRequests}
 				appMetadata={appMetadata}

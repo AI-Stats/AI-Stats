@@ -77,9 +77,11 @@ interface RequestDetailDialogProps {
 	providerName?: string | null;
 	providerNames?: Map<string, string>;
 	providerMetadata?: Map<string, ProviderMetadataEntry>;
+	headerNavigation?: React.ReactNode;
 	headerActions?: React.ReactNode;
 	ioLog?: GatewayIoLog | null;
 	presentation?: "dialog" | "sheet";
+	disablePointerDismissal?: boolean;
 	loading?: boolean;
 }
 
@@ -775,14 +777,19 @@ function buildUsageSummary(usage: any): {
 
 function RequestHeader({
 	request,
+	headerNavigation,
 }: {
 	request: RequestRow;
+	headerNavigation?: React.ReactNode;
 }) {
 	const timestamp = formatWordyDateTime(request.created_at, { includeTime: true });
 	return (
-		<div>
+		<div className="relative">
+			{headerNavigation ? (
+				<div className="absolute right-14 top-4 z-10">{headerNavigation}</div>
+			) : null}
 			<div className="px-5 py-4 sm:px-6 sm:py-5">
-				<div className="pr-10">
+				<div className={cn("pr-10", headerNavigation && "pr-36")}>
 					<DialogTitle className="text-base font-semibold">Generation details</DialogTitle>
 					<div className="mt-2 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
 						<span>{timestamp}</span>
@@ -805,9 +812,11 @@ export default function RequestDetailDialog({
 	providerName,
 	providerNames,
 	providerMetadata,
+	headerNavigation,
 	headerActions,
 	ioLog,
 	presentation = "dialog",
+	disablePointerDismissal = false,
 	loading = false,
 }: RequestDetailDialogProps) {
 	const searchParams = useSearchParams();
@@ -1474,7 +1483,7 @@ export default function RequestDetailDialog({
 
 	const detailContent = (
 		<>
-				<RequestHeader request={request} />
+				<RequestHeader request={request} headerNavigation={headerNavigation} />
 				{loading ? (
 					<div className="flex items-center gap-2 border-b border-border/70 px-5 py-2 text-xs text-muted-foreground sm:px-6">
 						<LoaderCircle className="size-3.5 animate-spin" />
@@ -2687,7 +2696,11 @@ export default function RequestDetailDialog({
 
 	if (presentation === "sheet") {
 		return (
-			<ProviderInspectorSheet open={open} onOpenChange={onOpenChange}>
+			<ProviderInspectorSheet
+				open={open}
+				onOpenChange={onOpenChange}
+				disablePointerDismissal={disablePointerDismissal}
+			>
 				<ProviderInspectorSheetContent
 					className="!w-full max-w-none gap-0 overflow-hidden p-0 sm:max-w-none md:!w-[58vw] lg:!w-[54vw] xl:!w-[50vw] 2xl:!w-[46vw] data-[side=right]:sm:max-w-none"
 				>
