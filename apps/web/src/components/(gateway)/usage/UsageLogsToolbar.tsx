@@ -598,13 +598,13 @@ export default function UsageLogsToolbar({
 										type="button"
 										variant="ghost"
 										size="sm"
-										className="-ml-2 h-8 px-2 text-xs text-muted-foreground"
+										className="-ml-2 h-8 rounded-md px-2 text-xs text-muted-foreground"
 										onClick={() => setShowCustomRange(false)}
 									>
 										<ChevronLeft className="h-3.5 w-3.5" />
 										Back
 									</Button>
-									<div className="text-xs font-medium">Custom range</div>
+									<div className="text-xs font-medium">Custom Range</div>
 								</div>
 								<Separator />
 								<div className="px-4 py-3">
@@ -623,6 +623,7 @@ export default function UsageLogsToolbar({
 										type="button"
 										variant="ghost"
 										size="sm"
+										className="rounded-md"
 										onClick={() => setPopoverOpen(false)}
 									>
 										Cancel
@@ -630,6 +631,7 @@ export default function UsageLogsToolbar({
 									<Button
 										type="button"
 										size="sm"
+										className="rounded-md"
 										onClick={applyCustomRange}
 										disabled={!draftRange?.from}
 									>
@@ -671,7 +673,7 @@ export default function UsageLogsToolbar({
 									<RangeOptionButton
 										badge={<CalendarDays className="h-3.5 w-3.5 text-muted-foreground" />}
 										badgeVariant="plain"
-										label="Custom range"
+										label="Custom Range"
 										active={effectivePreset === "custom"}
 										onClick={() => setShowCustomRange(true)}
 									/>
