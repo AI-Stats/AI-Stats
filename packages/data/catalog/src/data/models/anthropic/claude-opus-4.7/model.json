@@ -313,16 +313,16 @@
     ]
   },
   "reasoning": {
-    "supported": null,
+    "supported": true,
     "options": []
   },
   "capabilities": {
-    "attachment": null,
-    "tool_call": null,
-    "structured_output": null,
-    "temperature": null,
-    "streaming": null,
-    "web_search": null
+    "attachment": true,
+    "tool_call": true,
+    "structured_output": true,
+    "temperature": false,
+    "streaming": true,
+    "web_search": true
   },
   "open_weights": null,
   "sources": [
