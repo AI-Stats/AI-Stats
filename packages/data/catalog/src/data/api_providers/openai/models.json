@@ -35,7 +35,7 @@
     "max_output_tokens": 4096,
     "effective_from": "2023-11-06T00:00:00Z",
     "effective_to": "2024-12-06T00:00:00Z",
-    "capabilities": [{ "capability_id": "text.generate", "status": "active", "params": [], "reasoning": false, "tool_call": true, "structured_output": false, "temperature": true, "attachment": true, "input_modalities": ["text", "image"], "output_modalities": ["text"], "modes": [] }],
+    "capabilities": [{ "capability_id": "text.generate", "status": "active", "params": [], "reasoning": false, "tool_call": false, "structured_output": false, "temperature": true, "attachment": true, "input_modalities": ["text", "image"], "output_modalities": ["text"], "modes": [] }],
     "routing_status": "disabled",
     "routable": false,
     "regions": { "execution": ["global"], "data": ["global"] },

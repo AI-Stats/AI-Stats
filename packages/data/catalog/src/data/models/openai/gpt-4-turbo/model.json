@@ -3,7 +3,7 @@
   "organisation_id": "openai",
   "name": "GPT 4 Turbo (2024-04-09)",
   "status": "Deprecated",
-  "previous_model_id": "openai/gpt-4-turbo-2023-11-06",
+  "previous_model_id": "openai/gpt-4-0125-preview",
   "description": "GPT 4 Turbo is the production GPT-4 Turbo model with text and image input. The stable alias resolves to the April 9, 2024 snapshot.",
   "announced_date": null,
   "release_date": "2024-04-09T00:00:00",
