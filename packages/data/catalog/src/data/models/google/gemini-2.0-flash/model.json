@@ -355,6 +355,6 @@
   },
   "last_updated": null,
   "removal_date": null,
-  "replacement_model_id": null,
+  "replacement_model_id": "google/gemini-3.6-flash",
   "license_url": null
 }
