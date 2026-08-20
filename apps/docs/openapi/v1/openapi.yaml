@@ -9777,9 +9777,6 @@ components:
         - openai/gpt-3.5-turbo-16k
         - openai/gpt-3.5-turbo-2023-03-21
         - openai/gpt-4-2023-06-13
-        - openai/gpt-4-turbo-2023-03-14
-        - openai/gpt-4-turbo-2023-11-06
-        - openai/gpt-4-turbo-2024-01-25
         - openai/gpt-4.1
         - openai/gpt-4.1-mini
         - openai/gpt-4.1-nano
