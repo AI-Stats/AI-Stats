@@ -97,6 +97,18 @@ function stringParam(url: URL, name: string) { return url.searchParams.get(name)
 const OBSERVABILITY_SELECT = "created_at,model_id,provider,app_id,key_id,usage,cost_nanos,success,error_payload,error_message,pricing_lines";
 const OBSERVABILITY_EXCLUDED_ENDPOINTS = '("video.generation","batch","music.generate")';
 
+export function sortUpstreamRequestsNewestFirst<
+	T extends { attempt_number?: number | null; created_at?: string | null; request_id?: string | null },
+>(rows: T[]): T[] {
+	return rows.sort((left, right) => {
+		const startedAtDifference = Date.parse(right.created_at ?? "") - Date.parse(left.created_at ?? "");
+		if (Number.isFinite(startedAtDifference) && startedAtDifference !== 0) return startedAtDifference;
+		const requestDifference = String(left.request_id ?? "").localeCompare(String(right.request_id ?? ""));
+		if (requestDifference !== 0) return requestDifference;
+		return Number(right.attempt_number ?? 0) - Number(left.attempt_number ?? 0);
+	});
+}
+
 accountSettingsUsageRouter.get("/usage/metadata", async (c) => {
 	const user = await requireUser(c.req.raw, c.env);
 	if (!user) return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
@@ -217,9 +229,14 @@ accountSettingsUsageRouter.get("/usage/logs", async (c) => {
 			.lte("occurred_at", timeRange.to)
 			.order("occurred_at", { ascending: false })
 			.limit(500);
-		const v2UpstreamRequests = (v2Result.data ?? []).flatMap((fact: any) => {
+		const v2UpstreamRequests = sortUpstreamRequestsNewestFirst((v2Result.data ?? []).flatMap((fact: any) => {
 			const attempts = Array.isArray(fact.v2_request_attempts) ? fact.v2_request_attempts : [];
-			return attempts.map((attempt: any) => {
+			const newestAttemptsFirst = [...attempts].sort((left: any, right: any) => {
+				const startedAtDifference = Date.parse(right.started_at ?? "") - Date.parse(left.started_at ?? "");
+				if (Number.isFinite(startedAtDifference) && startedAtDifference !== 0) return startedAtDifference;
+				return Number(right.attempt_number ?? 0) - Number(left.attempt_number ?? 0);
+			});
+			return newestAttemptsFirst.map((attempt: any) => {
 				const safeMetadata = attempt.safe_metadata && typeof attempt.safe_metadata === "object" && !Array.isArray(attempt.safe_metadata)
 					? attempt.safe_metadata as Record<string, unknown>
 					: {};
@@ -277,8 +294,8 @@ accountSettingsUsageRouter.get("/usage/logs", async (c) => {
 					metadata: { ...safeMetadata, throughput: fact.throughput },
 				};
 			});
-		});
-		let upstreamRequests = v2UpstreamRequests;
+		}));
+		let upstreamRequests: any[] = v2UpstreamRequests;
 		if (upstreamRequests.length === 0) {
 			const legacyResult = await context.client
 				.from("gateway_upstream_requests")
