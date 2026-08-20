@@ -1,4 +1,4 @@
-import { matchesProviderCoverage } from "./providerFilters";
+import { matchesProviderCoverage, toggleProviderCoverage } from "./providerFilters";
 import type { APIProviderCard } from "@/lib/fetchers/api-providers/providerDataTypes";
 
 function makeProvider(overrides: Partial<APIProviderCard> = {}): APIProviderCard {
@@ -43,5 +43,17 @@ describe("matchesProviderCoverage", () => {
 		expect(matchesProviderCoverage(makeProvider({ free_models: 1 }), "free")).toBe(true);
 		expect(matchesProviderCoverage(makeProvider(), "active")).toBe(false);
 		expect(matchesProviderCoverage(makeProvider(), "free")).toBe(false);
+	});
+});
+
+describe("toggleProviderCoverage", () => {
+	it("replaces the default active filter when inactive is selected", () => {
+		expect(toggleProviderCoverage(["active"], "inactive")).toEqual(["inactive"]);
+		expect(toggleProviderCoverage(["inactive"], "active")).toEqual(["active"]);
+	});
+
+	it("preserves other coverage filters", () => {
+		expect(toggleProviderCoverage(["active", "free"], "inactive")).toEqual(["free", "inactive"]);
+		expect(toggleProviderCoverage(["inactive", "free"], "free")).toEqual(["inactive"]);
 	});
 });

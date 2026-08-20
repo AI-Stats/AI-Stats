@@ -2,6 +2,23 @@ import type { APIProviderCard } from "@/lib/fetchers/api-providers/providerDataT
 
 export type ProviderCoverageFilter = "active" | "free" | "inactive";
 
+export function toggleProviderCoverage(
+	values: string[],
+	value: string,
+): string[] {
+	if (value === "active" || value === "inactive") {
+		if (values.includes(value)) return values.filter((item) => item !== value);
+		return [
+			...values.filter((item) => item !== "active" && item !== "inactive"),
+			value,
+		];
+	}
+
+	return values.includes(value)
+		? values.filter((item) => item !== value)
+		: [...values, value];
+}
+
 export function matchesProviderCoverage(
 	provider: APIProviderCard,
 	filter: string,
