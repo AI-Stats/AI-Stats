@@ -470,14 +470,81 @@
     "provider_api_model_id": "together:google/gemini-3-pro-image",
     "provider_model_slug": "google/gemini-3-pro-image",
     "internal_model_id": "google/gemini-3-pro-image",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
+    "input_modalities": "text,image",
+    "output_modalities": "image",
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": null,
     "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "image.generate",
+        "status": "active",
+        "params": [
+          "n",
+          "size",
+          "width",
+          "height",
+          "response_format",
+          "seed",
+          "steps"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": [
+          "text",
+          "image"
+        ],
+        "output_modalities": [
+          "image"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-20T00:00:00Z",
+      "notes": "Verified against Together image generation documentation and serverless catalogue."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemma-3n-e4b",
+    "provider_api_model_id": "together:google/gemma-3n-e4b",
+    "provider_model_slug": "google/gemma-3n-E4B-it",
+    "internal_model_id": "google/gemma-3n-e4b",
+    "is_active_gateway": false,
+    "quantization_scheme": "FP8",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 32768,
+    "max_output_tokens": 32768,
+    "effective_from": null,
+    "effective_to": "2026-08-04T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -495,58 +562,6 @@
     ],
     "routing_status": "active",
     "routable": false,
-    "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-11T04:15:59.253+00:00",
-      "notes": "Discovered from the provider models API; routing remains disabled pending review."
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "google/gemma-3n-e4b",
-    "provider_api_model_id": "together:google/gemma-3n-e4b",
-    "provider_model_slug": "google/gemma-3n-E4B-it",
-    "internal_model_id": "google/gemma-3n-e4b",
-    "is_active_gateway": true,
-    "quantization_scheme": "FP8",
-    "input_modalities": "text",
-    "output_modalities": "text",
-    "context_length": 32768,
-    "max_output_tokens": 32768,
-    "effective_from": null,
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": true,
     "regions": {
       "execution": null,
       "data": null
@@ -572,7 +587,7 @@
     "internal_model_id": "google/gemma-4-31b",
     "is_active_gateway": true,
     "quantization_scheme": "FP8",
-    "input_modalities": "text",
+    "input_modalities": "text,image",
     "output_modalities": "text",
     "context_length": 262144,
     "max_output_tokens": 262144,
@@ -587,7 +602,7 @@
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
+        "attachment": true,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
@@ -618,31 +633,44 @@
     "provider_api_model_id": "together:google/imagen-4.0-preview",
     "provider_model_slug": "google/imagen-4.0-preview",
     "internal_model_id": "google/imagen-4.0-preview",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
+    "input_modalities": "text,image",
+    "output_modalities": "image",
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "text.generate",
+        "capability_id": "image.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "n",
+          "size",
+          "width",
+          "height",
+          "response_format",
+          "seed",
+          "steps"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
+        "attachment": true,
+        "input_modalities": [
+          "text",
+          "image"
+        ],
+        "output_modalities": [
+          "image"
+        ],
         "modes": []
       }
     ],
     "routing_status": "active",
-    "routable": false,
+    "routable": true,
     "regions": {
       "execution": [
         "global"
@@ -653,15 +681,17 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai"
+      ],
       "endpoint": null,
       "deployment": null
     },
     "sources": [],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-11T04:15:59.253+00:00",
-      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+      "status": "verified",
+      "checked_at": "2026-08-20T00:00:00Z",
+      "notes": "Verified against Together image generation documentation and serverless catalogue."
     },
     "rate_limits": []
   },
@@ -718,14 +748,14 @@
     "provider_api_model_id": "together:meta/llama-3-8b-lite",
     "provider_model_slug": "meta-llama/Meta-Llama-3-8B-Instruct-Lite",
     "internal_model_id": "meta/llama-3-8b-lite",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 8192,
     "max_output_tokens": 8192,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-07-10T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -742,7 +772,7 @@
       }
     ],
     "routing_status": "active",
-    "routable": true,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -1068,7 +1098,7 @@
     "internal_model_id": "minimax/minimax-m3",
     "is_active_gateway": true,
     "quantization_scheme": "FP4",
-    "input_modalities": "text",
+    "input_modalities": "text,image",
     "output_modalities": "text",
     "context_length": 524288,
     "max_output_tokens": 524288,
@@ -1100,7 +1130,7 @@
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
+        "attachment": true,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
@@ -1181,7 +1211,7 @@
     "internal_model_id": "moonshotai/kimi-k2.6",
     "is_active_gateway": true,
     "quantization_scheme": "FP4",
-    "input_modalities": "text",
+    "input_modalities": "text,image",
     "output_modalities": "text",
     "context_length": 262144,
     "max_output_tokens": 262144,
@@ -1213,7 +1243,7 @@
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
+        "attachment": true,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
@@ -1246,7 +1276,7 @@
     "internal_model_id": "moonshotai/kimi-k2.7-code",
     "is_active_gateway": true,
     "quantization_scheme": "FP4",
-    "input_modalities": "text",
+    "input_modalities": "text,image",
     "output_modalities": "text",
     "context_length": 262144,
     "max_output_tokens": 262144,
@@ -1278,7 +1308,7 @@
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
+        "attachment": true,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
@@ -1408,11 +1438,11 @@
     "provider_api_model_id": "together:nvidia/nemotron-3-ultra-550b-a55b",
     "provider_model_slug": "nvidia/nemotron-3-ultra-550b-a55b",
     "internal_model_id": "nvidia/nemotron-3-ultra-550b-a55b",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
-    "context_length": 512288,
+    "context_length": 512300,
     "max_output_tokens": null,
     "effective_from": null,
     "effective_to": null,
@@ -1432,7 +1462,7 @@
       }
     ],
     "routing_status": "active",
-    "routable": false,
+    "routable": true,
     "regions": {
       "execution": [
         "global"
@@ -1449,9 +1479,9 @@
     },
     "sources": [],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-11T04:15:59.253+00:00",
-      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+      "status": "verified",
+      "checked_at": "2026-08-20T00:00:00Z",
+      "notes": "Verified against the current Together serverless model catalogue."
     },
     "rate_limits": []
   },
@@ -1512,31 +1542,44 @@
     "provider_api_model_id": "together:openai/gpt-image-1.5",
     "provider_model_slug": "openai/gpt-image-1.5",
     "internal_model_id": "openai/gpt-image-1.5",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
+    "input_modalities": "text,image",
+    "output_modalities": "image",
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "text.generate",
+        "capability_id": "image.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "n",
+          "size",
+          "width",
+          "height",
+          "response_format",
+          "seed",
+          "steps"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
+        "attachment": true,
+        "input_modalities": [
+          "text",
+          "image"
+        ],
+        "output_modalities": [
+          "image"
+        ],
         "modes": []
       }
     ],
     "routing_status": "active",
-    "routable": false,
+    "routable": true,
     "regions": {
       "execution": [
         "global"
@@ -1547,15 +1590,17 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai"
+      ],
       "endpoint": null,
       "deployment": null
     },
     "sources": [],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-11T04:15:59.253+00:00",
-      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+      "status": "verified",
+      "checked_at": "2026-08-20T00:00:00Z",
+      "notes": "Verified against Together image generation documentation and serverless catalogue."
     },
     "rate_limits": []
   },
@@ -1564,31 +1609,44 @@
     "provider_api_model_id": "together:openai/gpt-image-2",
     "provider_model_slug": "openai/gpt-image-2",
     "internal_model_id": "openai/gpt-image-2",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
+    "input_modalities": "text,image",
+    "output_modalities": "image",
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "text.generate",
+        "capability_id": "image.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "n",
+          "size",
+          "width",
+          "height",
+          "response_format",
+          "seed",
+          "steps"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
+        "attachment": true,
+        "input_modalities": [
+          "text",
+          "image"
+        ],
+        "output_modalities": [
+          "image"
+        ],
         "modes": []
       }
     ],
     "routing_status": "active",
-    "routable": false,
+    "routable": true,
     "regions": {
       "execution": [
         "global"
@@ -1599,15 +1657,17 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai"
+      ],
       "endpoint": null,
       "deployment": null
     },
     "sources": [],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-11T04:15:59.253+00:00",
-      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+      "status": "verified",
+      "checked_at": "2026-08-20T00:00:00Z",
+      "notes": "Verified against Together image generation documentation and serverless catalogue."
     },
     "rate_limits": []
   },
@@ -1850,31 +1910,62 @@
     "provider_api_model_id": "together:openai/whisper-large-v3",
     "provider_model_slug": "openai/whisper-large-v3",
     "internal_model_id": "openai/whisper-large-v3",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": 1,
+    "input_modalities": "audio",
+    "output_modalities": "text",
+    "context_length": null,
     "max_output_tokens": null,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "text.generate",
+        "capability_id": "audio.transcription",
         "status": "active",
-        "params": [],
+        "params": [
+          "language",
+          "prompt",
+          "response_format",
+          "temperature",
+          "timestamp_granularities"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
+        "attachment": true,
+        "input_modalities": [
+          "audio"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      },
+      {
+        "capability_id": "audio.translations",
+        "status": "active",
+        "params": [
+          "prompt",
+          "response_format",
+          "temperature"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": [
+          "audio"
+        ],
+        "output_modalities": [
+          "text"
+        ],
         "modes": []
       }
     ],
     "routing_status": "active",
-    "routable": false,
+    "routable": true,
     "regions": {
       "execution": [
         "global"
@@ -1885,15 +1976,17 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai"
+      ],
       "endpoint": null,
       "deployment": null
     },
     "sources": [],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-11T04:15:59.253+00:00",
-      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+      "status": "verified",
+      "checked_at": "2026-08-20T00:00:00Z",
+      "notes": "Verified against Together OpenAI compatibility and audio transcription documentation."
     },
     "rate_limits": []
   },
@@ -1902,31 +1995,44 @@
     "provider_api_model_id": "together:qwen/qwen-image",
     "provider_model_slug": "Qwen/Qwen-Image",
     "internal_model_id": "qwen/qwen-image",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
+    "input_modalities": "text,image",
+    "output_modalities": "image",
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "text.generate",
+        "capability_id": "image.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "n",
+          "size",
+          "width",
+          "height",
+          "response_format",
+          "seed",
+          "steps"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
+        "attachment": true,
+        "input_modalities": [
+          "text",
+          "image"
+        ],
+        "output_modalities": [
+          "image"
+        ],
         "modes": []
       }
     ],
     "routing_status": "active",
-    "routable": false,
+    "routable": true,
     "regions": {
       "execution": [
         "global"
@@ -1937,15 +2043,17 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai"
+      ],
       "endpoint": null,
       "deployment": null
     },
     "sources": [],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-11T04:15:59.253+00:00",
-      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+      "status": "verified",
+      "checked_at": "2026-08-20T00:00:00Z",
+      "notes": "Verified against Together image generation documentation and serverless catalogue."
     },
     "rate_limits": []
   },
@@ -2574,14 +2682,14 @@
     "provider_api_model_id": "together:qwen/qwen3-235b-a22b-2507",
     "provider_model_slug": "Qwen/Qwen3-235B-A22B-Instruct-2507-tput",
     "internal_model_id": "qwen/qwen3-235b-a22b-2507",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "FP8",
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 262144,
     "max_output_tokens": 262144,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-07-10T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -2598,7 +2706,7 @@
       }
     ],
     "routing_status": "active",
-    "routable": true,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -2830,14 +2938,14 @@
     "provider_api_model_id": "together:qwen/qwen3-coder-480b-a35b",
     "provider_model_slug": "Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8",
     "internal_model_id": "qwen/qwen3-coder-480b-a35b",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "FP8",
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 256000,
     "max_output_tokens": 256000,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-06-04T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -2854,7 +2962,7 @@
       }
     ],
     "routing_status": "active",
-    "routable": true,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -3186,14 +3294,14 @@
     "provider_api_model_id": "together:qwen/qwen3.5-397b-a17b",
     "provider_model_slug": "Qwen/Qwen3.5-397B-A17B",
     "internal_model_id": "qwen/qwen3.5-397b-a17b",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "FP4",
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 262144,
     "max_output_tokens": 262144,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-06-29T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -3210,7 +3318,7 @@
       }
     ],
     "routing_status": "active",
-    "routable": true,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -3236,7 +3344,7 @@
     "internal_model_id": "qwen/qwen3.5-9b",
     "is_active_gateway": true,
     "quantization_scheme": "FP8",
-    "input_modalities": "text",
+    "input_modalities": "text,image",
     "output_modalities": "text",
     "context_length": 262144,
     "max_output_tokens": 262144,
@@ -3268,7 +3376,7 @@
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
+        "attachment": true,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
@@ -3347,7 +3455,7 @@
     "provider_api_model_id": "together:qwen/qwen3.7-max",
     "provider_model_slug": "Qwen/Qwen3.7-Max",
     "internal_model_id": "qwen/qwen3.7-max",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
@@ -3371,7 +3479,7 @@
       }
     ],
     "routing_status": "active",
-    "routable": false,
+    "routable": true,
     "regions": {
       "execution": [
         "global"
@@ -3388,9 +3496,9 @@
     },
     "sources": [],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-11T04:15:59.253+00:00",
-      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+      "status": "verified",
+      "checked_at": "2026-08-20T00:00:00Z",
+      "notes": "Verified against the current Together serverless model catalogue."
     },
     "rate_limits": []
   },
@@ -3399,7 +3507,7 @@
     "provider_api_model_id": "together:qwen/qwen3.7-plus",
     "provider_model_slug": "Qwen/Qwen3.7-Plus",
     "internal_model_id": "qwen/qwen3.7-plus",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
@@ -3423,7 +3531,7 @@
       }
     ],
     "routing_status": "active",
-    "routable": false,
+    "routable": true,
     "regions": {
       "execution": [
         "global"
@@ -3440,9 +3548,9 @@
     },
     "sources": [],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-11T04:15:59.253+00:00",
-      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+      "status": "verified",
+      "checked_at": "2026-08-20T00:00:00Z",
+      "notes": "Verified against the current Together serverless model catalogue."
     },
     "rate_limits": []
   },
@@ -3551,14 +3659,14 @@
     "provider_api_model_id": "together:z-ai/glm-5",
     "provider_model_slug": "zai-org/GLM-5",
     "internal_model_id": "z-ai/glm-5",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "FP4",
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 202752,
     "max_output_tokens": 202752,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-06-22T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -3575,7 +3683,7 @@
       }
     ],
     "routing_status": "active",
-    "routable": true,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -3599,14 +3707,14 @@
     "provider_api_model_id": "together:z-ai/glm-5.1",
     "provider_model_slug": "zai-org/GLM-5.1",
     "internal_model_id": "z-ai/glm-5.1",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "FP4",
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 202752,
     "max_output_tokens": 202752,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-07-10T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -3623,7 +3731,7 @@
       }
     ],
     "routing_status": "active",
-    "routable": true,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -3651,7 +3759,7 @@
     "quantization_scheme": "FP4",
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": 262144,
+    "context_length": 512000,
     "max_output_tokens": 262144,
     "effective_from": "2026-06-17T00:00:00",
     "effective_to": null,
@@ -3693,20 +3801,20 @@
   {
     "api_model_id": "deepseek/deepseek-v4-flash-0731",
     "provider_api_model_id": "together:deepseek/deepseek-v4-flash-0731",
-    "provider_model_slug": "deepseek/deepseek-v4-flash-0731",
+    "provider_model_slug": "deepseek-ai/DeepSeek-V4-Flash-0731",
     "internal_model_id": "deepseek/deepseek-v4-flash-0731",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": "unknown",
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": 1048576,
+    "context_length": 1000000,
     "max_output_tokens": 384000,
     "effective_from": "2026-08-12T00:00:00Z",
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "disabled",
+        "status": "active",
         "params": [
           "reasoning",
           "include_reasoning",
@@ -3726,9 +3834,9 @@
           "tool_choice",
           "reasoning_effort"
         ],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
         "temperature": null,
         "attachment": null,
         "input_modalities": null,
@@ -3736,15 +3844,17 @@
         "modes": []
       }
     ],
-    "routing_status": "disabled",
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai"
+      ],
       "endpoint": null,
       "deployment": null
     },
@@ -3757,9 +3867,9 @@
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-12T00:00:00Z",
-      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+      "status": "verified",
+      "checked_at": "2026-08-20T00:00:00Z",
+      "notes": "Verified against the current Together serverless model catalogue."
     },
     "rate_limits": []
   },
@@ -3768,7 +3878,7 @@
     "provider_api_model_id": "together:qwen/qwen3.8-2.4t-a95b",
     "provider_model_slug": "Qwen/Qwen3.8-2.4T-A95B",
     "internal_model_id": "qwen/qwen3.8-2.4t-a95b",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
@@ -3792,7 +3902,7 @@
       }
     ],
     "routing_status": "active",
-    "routable": false,
+    "routable": true,
     "regions": {
       "execution": [
         "global"
@@ -3816,9 +3926,382 @@
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-12T00:00:00Z",
-      "notes": "Provider availability and pricing verified; routing remains disabled until Together endpoint behavior is verified."
+      "status": "verified",
+      "checked_at": "2026-08-20T00:00:00Z",
+      "notes": "Verified against the current Together serverless model catalogue."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v4-pro-0813",
+    "provider_api_model_id": "together:deepseek/deepseek-v4-pro-0813",
+    "provider_model_slug": "deepseek-ai/DeepSeek-V4-Pro-0813",
+    "internal_model_id": "deepseek/deepseek-v4-pro-0813",
+    "is_active_gateway": true,
+    "quantization_scheme": "NVFP4",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "top_k",
+          "repetition_penalty",
+          "logit_bias",
+          "min_p",
+          "tools",
+          "tool_choice",
+          "structured_outputs",
+          "response_format",
+          "reasoning_effort"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://docs.together.ai/docs/serverless/models",
+        "accessed_at": "2026-08-20T00:00:00Z",
+        "notes": "Current Together serverless model catalogue."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-20T00:00:00Z",
+      "notes": "Verified against the current Together serverless model catalogue."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "thinking-machines/inkling-small",
+    "provider_api_model_id": "together:thinking-machines/inkling-small",
+    "provider_model_slug": "thinkingmachines/Inkling-Small",
+    "internal_model_id": "thinking-machines/inkling-small",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 524288,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://docs.together.ai/docs/serverless/models",
+        "accessed_at": "2026-08-20T00:00:00Z",
+        "notes": "Current Together serverless model catalogue."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-20T00:00:00Z",
+      "notes": "Verified against the current Together serverless model catalogue."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "hexgrad/kokoro-82m",
+    "provider_api_model_id": "together:hexgrad/kokoro-82m",
+    "provider_model_slug": "hexgrad/Kokoro-82M",
+    "internal_model_id": "hexgrad/kokoro-82m",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "audio",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "audio.speech",
+        "status": "active",
+        "params": [
+          "voice",
+          "response_format",
+          "speed"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "audio"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://docs.together.ai/docs/serverless/models",
+        "accessed_at": "2026-08-20T00:00:00Z",
+        "notes": "Current Together serverless model catalogue."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-20T00:00:00Z",
+      "notes": "Verified against the current Together serverless model catalogue."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "meta/llama-guard-4-12b",
+    "provider_api_model_id": "together:meta/llama-guard-4-12b",
+    "provider_model_slug": "meta-llama/Llama-Guard-4-12B",
+    "internal_model_id": "meta/llama-guard-4-12b",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://docs.together.ai/docs/serverless/models",
+        "accessed_at": "2026-08-20T00:00:00Z",
+        "notes": "Current Together serverless model catalogue."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-20T00:00:00Z",
+      "notes": "Verified against the current Together serverless model catalogue."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "liquid-ai/lfm-2.5-8b-a1b",
+    "provider_api_model_id": "together:liquid-ai/lfm-2.5-8b-a1b",
+    "provider_model_slug": "LiquidAI/LFM2.5-8B-A1B",
+    "internal_model_id": "liquid-ai/lfm-2.5-8b-a1b",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 32768,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://docs.together.ai/docs/serverless/models",
+        "accessed_at": "2026-08-20T00:00:00Z",
+        "notes": "Current Together serverless model catalogue."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-20T00:00:00Z",
+      "notes": "Verified against the current Together serverless model catalogue."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "prism-ml/ternary-bonsai-27b",
+    "provider_api_model_id": "together:prism-ml/ternary-bonsai-27b",
+    "provider_model_slug": "Prism-ML/Ternary-Bonsai-27B",
+    "internal_model_id": "prism-ml/ternary-bonsai-27b",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://docs.together.ai/docs/serverless/models",
+        "accessed_at": "2026-08-20T00:00:00Z",
+        "notes": "Current Together serverless model catalogue."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-20T00:00:00Z",
+      "notes": "Verified against the current Together serverless model catalogue."
     },
     "rate_limits": []
   }
