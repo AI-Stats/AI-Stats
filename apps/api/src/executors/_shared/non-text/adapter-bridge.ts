@@ -169,7 +169,7 @@ function irToAdapterBody(endpoint: NonTextEndpoint, ir: ExecutorExecuteArgs["ir"
 		case "images.generations": {
 			const request = ir as IRImageGenerationRequest;
 			const raw = (request.rawRequest ?? {}) as Record<string, any>;
-			return {
+			return withDefinedValues({
 				model: providerModel,
 				prompt: request.prompt,
 				size: request.size,
@@ -189,7 +189,14 @@ function irToAdapterBody(endpoint: NonTextEndpoint, ir: ExecutorExecuteArgs["ir"
 				height: raw.height,
 				seed: raw.seed,
 				prompt_optimizer: raw.prompt_optimizer,
-			};
+				steps: raw.steps,
+				negative_prompt: raw.negative_prompt,
+				guidance_scale: raw.guidance_scale,
+				image_url: raw.image_url,
+				reference_images: raw.reference_images,
+				disable_safety_checker: raw.disable_safety_checker,
+				provider_params: raw.provider_params ?? raw.providerParams,
+			});
 		}
 
 		case "images.edits": {

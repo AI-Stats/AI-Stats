@@ -7426,6 +7426,7 @@ components:
         - essential-ai
         - github
         - google
+        - hexgrad
         - ibm
         - inception
         - inclusionai
@@ -7451,6 +7452,7 @@ components:
         - poe
         - poolside
         - prime-intellect
+        - prism-ml
         - qwen
         - reka
         - relace
@@ -9641,12 +9643,12 @@ components:
         - google/gemini-robotics-er-1.6-preview
         - google/gemini-robotics-er-2-preview
         - google/gemma-3-27b
-        - google/gemma-3n-e4b
         - google/gemma-4-26b-a4b
         - google/gemma-4-26b-a4b:free
         - google/gemma-4-31b
         - google/gemma-4-31b-it
         - google/gemma-4-31b:free
+        - google/imagen-4.0-preview
         - google/lyria-3-clip-preview
         - google/lyria-3-pro-preview
         - google/veo-2
@@ -9672,13 +9674,13 @@ components:
         - kwaipilot/kat-coder-pro-v2
         - kwaipilot/kat-coder-pro-v2.5
         - liquid-ai/lfm-2-24b-a2b
+        - liquid-ai/lfm-2.5-8b-a1b
         - ltx-2-3-fast
         - ltx-2-3-pro
         - ltx-2-5-fast
         - ltx-2-5-pro
         - meituan/longcat-2.0
         - meta/llama-3-8b
-        - meta/llama-3-8b-lite
         - meta/llama-3.1-70b
         - meta/llama-3.1-8b
         - meta/llama-3.2-11b-vision
@@ -9844,10 +9846,12 @@ components:
         - poolside/laguna-m.1:free
         - poolside/laguna-s-2.1:free
         - poolside/laguna-xs-2.1:free
+        - prism-ml/ternary-bonsai-27b
         - qwen/qvq-max
         - qwen/qwen-3.6-plus
         - qwen/qwen-flash
         - qwen/qwen-flash-character
+        - qwen/qwen-image
         - qwen/qwen-max
         - qwen/qwen-mt-flash
         - qwen/qwen-mt-lite
@@ -9948,6 +9952,7 @@ components:
         - qwen/qwen3.7-max-2026-05-17
         - qwen/qwen3.7-plus
         - qwen/qwen3.7-plus-2026-05-26
+        - qwen/qwen3.8-2.4t-a95b
         - qwen/qwen3.8-max
         - qwen/qwq-32b
         - qwen/qwq-plus
