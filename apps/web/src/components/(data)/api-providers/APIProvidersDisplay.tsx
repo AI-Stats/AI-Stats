@@ -12,6 +12,7 @@ import {
 	BadgeAlert,
 	Binary,
 	CircleDollarSign,
+	CircleOff,
 	ExternalLink,
 	Globe2,
 	ImageIcon,
@@ -52,6 +53,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Logo } from "@/components/Logo";
 import { cn } from "@/lib/utils";
 import { ProviderModalityBadge } from "./ProviderModalityBadge";
+import { matchesProviderCoverage } from "./providerFilters";
 import type {
 	APIProviderCard as APIProviderCardType,
 	ProviderModalityKey,
@@ -224,6 +226,7 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 	const coverageOptions = useMemo<FilterOption[]>(() => [
 		{ value: "active", label: "Gateway Providers", count: providers.filter((provider) => provider.is_gateway_provider).length, icon: Activity },
 		{ value: "free", label: "Has Free Models", count: providers.filter((provider) => provider.free_models > 0).length, icon: CircleDollarSign },
+		{ value: "inactive", label: "Inactive Providers", count: providers.filter((provider) => matchesProviderCoverage(provider, "inactive")).length, icon: CircleOff },
 	], [providers]);
 
 	const filteredProviders = useMemo(() => {
@@ -232,7 +235,7 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 			.filter((provider) => !query || provider.api_provider_name.toLowerCase().includes(query) || provider.api_provider_id.toLowerCase().includes(query))
 			.filter((provider) => modalities.length === 0 || modalities.every((value) => supportsModality(provider, value as ProviderModalityKey)))
 			.filter((provider) => countries.length === 0 || countries.includes(provider.country_code?.trim().toLowerCase() || "unknown"))
-			.filter((provider) => coverage.length === 0 || coverage.every((value) => value === "active" ? provider.is_gateway_provider : provider.free_models > 0))
+			.filter((provider) => coverage.length === 0 || coverage.every((value) => matchesProviderCoverage(provider, value)))
 			.sort((a, b) => {
 				if (sortOption === "daily_tokens_desc") {
 					const delta = Number(b.total_daily_tokens ?? 0) - Number(a.total_daily_tokens ?? 0);
