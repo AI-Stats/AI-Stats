@@ -184,7 +184,7 @@ function ProviderFilterList({ options, selected, onToggle, showFlags = false }: 
 					>
 						<span className="flex min-w-0 items-center gap-2">
 							{showFlags && option.value !== "unknown" ? (
-								<Image src={`/flags/${option.value.toLowerCase()}.svg`} alt="" width={16} height={12} className="h-3 w-4 rounded-[2px] object-cover" />
+								<Image src={`/flags/${option.value.toLowerCase()}.svg`} alt="" width={20} height={15} className="h-[15px] w-5 shrink-0 rounded-[2px] object-contain" />
 							) : Icon ? <Icon className={cn("size-3.5 shrink-0", checked ? "text-primary" : "text-muted-foreground")} /> : null}
 							<span className="truncate">{option.label}</span>
 						</span>
@@ -310,7 +310,6 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 							<Button variant="outline" size="sm" className="relative h-8 rounded-md px-2 lg:hidden" onClick={() => setMobileFiltersOpen(true)}><SlidersHorizontal className="size-3.5" /><span className="sr-only">Filters</span>{activeFilterCount ? <span className="absolute -right-1 -top-1 min-w-4 rounded-sm bg-primary px-1 text-[10px] text-primary-foreground">{activeFilterCount}</span> : null}</Button>
 						</div>
 					</div>
-					<div className="mt-1.5 text-xs text-muted-foreground">{filteredProviders.length.toLocaleString()} of {providers.length.toLocaleString()} providers</div>
 				</div>
 
 				<div className="w-full px-4 pt-1 pb-5 lg:px-8 lg:pt-1 lg:pb-6">
