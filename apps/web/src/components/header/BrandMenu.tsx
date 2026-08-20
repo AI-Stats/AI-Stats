@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Check, Copy } from "lucide-react";
+import { Check, Copy, Download } from "lucide-react";
 import { useTheme } from "next-themes";
 import {
 	cloneElement,
@@ -14,7 +14,6 @@ import { toast } from "sonner";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
-	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
@@ -83,31 +82,50 @@ export function BrandMenu({
 				<div className="grid grid-cols-1 gap-2 min-[22rem]:grid-cols-2">
 					{brandAssets.map(({ name, file, width, height }) => {
 						const copied = copiedAsset === name;
+						const assetPath = `/${file}_${assetTheme}.svg`;
 
 						return (
-							<DropdownMenuItem
+							<div
 								key={name}
-								onSelect={() => void copyAsset(name, file)}
-								className="group flex cursor-pointer flex-col items-stretch gap-2 rounded-lg p-2 focus:bg-zinc-100 dark:focus:bg-zinc-900"
+								className="overflow-hidden rounded-lg border bg-muted/30"
 							>
-								<div className="flex h-20 items-center justify-center rounded-md border bg-white p-4 dark:bg-black">
+								<div className="flex h-14 items-center justify-center bg-white px-4 dark:bg-black">
 									<Image
-										src={`/${file}_${assetTheme}.svg`}
+										src={assetPath}
 										alt={`Phaseo ${name.toLowerCase()}`}
 										width={width}
 										height={height}
-										className={file === "logo" ? "size-10" : "h-8 w-auto"}
+										className={file === "logo" ? "size-8" : "h-6 w-auto"}
 									/>
 								</div>
-								<span className="flex w-full items-center justify-between px-1 text-sm font-medium">
-									Copy {name}
-									{copied ? (
-										<Check className="size-4 text-emerald-500" aria-hidden="true" />
-									) : (
-										<Copy className="size-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 group-focus:opacity-100" aria-hidden="true" />
-									)}
-								</span>
-							</DropdownMenuItem>
+								<div className="flex items-center gap-1 border-t px-2 py-1.5">
+									<span className="min-w-0 flex-1 truncate text-xs font-medium">
+										{name}
+									</span>
+									<button
+										type="button"
+										onClick={() => void copyAsset(name, file)}
+										className="flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+										aria-label={`Copy ${name.toLowerCase()} SVG code`}
+										title="Copy SVG code"
+									>
+										{copied ? (
+											<Check className="size-4 text-emerald-500" aria-hidden="true" />
+										) : (
+											<Copy className="size-4" aria-hidden="true" />
+										)}
+									</button>
+									<a
+										href={assetPath}
+										download={`phaseo-${file}-${assetTheme}.svg`}
+										className="flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+										aria-label={`Download ${name.toLowerCase()} SVG`}
+										title="Download SVG"
+									>
+										<Download className="size-4" aria-hidden="true" />
+									</a>
+								</div>
+							</div>
 						);
 					})}
 				</div>
