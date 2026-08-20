@@ -40,6 +40,7 @@ export async function fetchModelPricingSources(
 	modelIds: string[],
 	includeInternal = false,
 	includeExpiredPricing = false,
+	pricingWindow?: { startMs: number; endMs: number },
 ): Promise<ModelPricingSource> {
 	const variants = uniqueModelVariants(modelIds);
 	if (variants.length === 0) return { providerRows: [], pricingRows: [] };
@@ -53,10 +54,18 @@ export async function fetchModelPricingSources(
 	);
 	const routeIds = routes.map((row) => id(row.provider_model_id)).filter(Boolean);
 	const providerIds = [...new Set(routes.map((row) => id(row.provider_slug)).filter(Boolean))];
+	let skusQuery = client.from("v2_pricing_skus")
+		.select("sku_id,provider_model_id,service_tier_slug,operation,status,currency,effective_from,effective_to,metadata")
+		.in("provider_model_id", routeIds);
+	if (pricingWindow) {
+		skusQuery = skusQuery
+			.lte("effective_from", new Date(pricingWindow.endMs).toISOString())
+			.or(`effective_to.is.null,effective_to.gte.${new Date(pricingWindow.startMs).toISOString()}`);
+	}
 	const [capabilitiesResult, providersResult, skusResult] = await Promise.all([
 		routeIds.length ? client.from("v2_route_capabilities").select("provider_model_id,capability_id,params,max_input_tokens,max_output_tokens,status").in("provider_model_id", routeIds) : Promise.resolve({ data: [], error: null }),
 		providerIds.length ? client.from("v2_providers").select("provider_slug,name,provider_family_slug,offer_label,offer_scope,country_code,status,routing_enabled,residency_mode,default_execution_regions,default_data_regions,zero_data_retention,data_retention_days,prompt_training_policy,data_policy_tier,data_policy_confidence,data_policy_contract_mode,metadata").in("provider_slug", providerIds) : Promise.resolve({ data: [], error: null }),
-		routeIds.length ? client.from("v2_pricing_skus").select("sku_id,provider_model_id,service_tier_slug,operation,status,currency,effective_from,effective_to,metadata").in("provider_model_id", routeIds) : Promise.resolve({ data: [], error: null }),
+		routeIds.length ? skusQuery : Promise.resolve({ data: [], error: null }),
 	]);
 	for (const result of [capabilitiesResult, providersResult, skusResult]) if (result.error) throw result.error;
 	const skuIds = (skusResult.data ?? []).map((row) => id(row.sku_id)).filter(Boolean);
