@@ -30,7 +30,7 @@
   "docs_url": "https://novita.ai/docs/api-reference/model-apis-llm-create-chat-completion",
   "auth_env": "NOVITA_API_KEY",
   "api_formats": ["openai.chat.completions", "openai.embeddings", "openai.rerank"],
-  "service_tiers": [],
+  "service_tiers": ["standard", "priority"],
   "sources": [
     {
       "kind": "provider_docs",

@@ -61,7 +61,8 @@
     "lightricks",
     "baai",
     "reka",
-    "sakana"
+    "sakana",
+    "sao10k"
   ],
   "models": {
     "ai21": [
@@ -162,7 +163,8 @@
       "baidu/qianfan-vl-3b",
       "baidu/qianfan-vl-70b",
       "baidu/qianfan-vl-8b",
-      "baidu/ernie-4.5-vl-28b-a3b-thinking"
+      "baidu/ernie-4.5-vl-28b-a3b-thinking",
+      "baidu/cobuddy"
     ],
     "black-forest-labs": [
       "black-forest-labs/flux-2-dev",
@@ -267,7 +269,8 @@
       "deepseek/deepseek-r1",
       "deepseek/deepseek-r1-turbo",
       "deepseek/deepseek-v3",
-      "deepseek/deepseek-v3-turbo"
+      "deepseek/deepseek-v3-turbo",
+      "deepseek/deepseek-r1-distill-llama-70b"
     ],
     "eleven-labs": [
       "eleven-labs/eleven-english-sts-v2",
@@ -487,7 +490,9 @@
       "inclusionai/ling-flash-2.0",
       "inclusionai/ring-flash-2.0",
       "inclusionai/ling-3.0-flash:free",
-      "inclusionai/ling-3.0-tiny"
+      "inclusionai/ling-3.0-tiny",
+      "inclusionai/ling-2.6-flash",
+      "inclusionai/ring-2.6-1t"
     ],
     "kwaipilot": [
       "kwaipilot/kat-coder-air-v2.5",
@@ -577,7 +582,8 @@
       "microsoft/phi-ground",
       "microsoft/phi-ground-any",
       "microsoft/phi-mini-moe-instruct",
-      "microsoft/phi-tiny-moe-instruct"
+      "microsoft/phi-tiny-moe-instruct",
+      "microsoft/wizardlm-2-8x22b"
     ],
     "minimax": [
       "minimax/hailuo-02",
@@ -1133,7 +1139,8 @@
       "qwen/text-embedding-v3",
       "qwen/text-embedding-v4",
       "qwen/wan2.7-t2v",
-      "qwen/qwen3.8-2.4t-a95b"
+      "qwen/qwen3.8-2.4t-a95b",
+      "qwen/qwen3-omni-30b-a3b"
     ],
     "relace": [
       "relace/relace-search"
@@ -1288,7 +1295,8 @@
       "z-ai/glm-5v-turbo",
       "z-ai/glm-image",
       "z-ai/glm-4.7-flash:free",
-      "z-ai/glm-5.3"
+      "z-ai/glm-5.3",
+      "z-ai/autoglm-phone-9b-multilingual"
     ],
     "crofai": [
       "crofai/greg-1-mini",
@@ -1346,6 +1354,11 @@
     "sakana": [
       "sakana/fugu-ultra",
       "sakana/namazu"
+    ],
+    "sao10k": [
+      "sao10k/l3-8b-lunaris",
+      "sao10k/l3-8b-stheno-v3.2",
+      "sao10k/l31-70b-euryale-v2.2"
     ]
   },
   "benchmarks": [

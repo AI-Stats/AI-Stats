@@ -7456,6 +7456,7 @@ components:
         - relace
         - runway
         - sakana
+        - sao10k
         - sourceful
         - spacex-ai
         - stepfun
@@ -9560,11 +9561,9 @@ components:
         - baai/bge-m3
         - baai/bge-multilingual-gemma2
         - baai/bge-reranker-v2-m3
+        - baidu/cobuddy
         - baidu/ernie-4.5-21b-a3b
-        - baidu/ernie-4.5-21b-a3b-thinking
         - baidu/ernie-4.5-300b-a47b
-        - baidu/ernie-4.5-vl-28b-a3b
-        - baidu/ernie-4.5-vl-28b-a3b-thinking
         - baidu/ernie-4.5-vl-424b-a47b
         - black-forest-labs/flux-1-dev
         - black-forest-labs/flux-1-schnell
@@ -9591,10 +9590,10 @@ components:
         - crofai/greg-rp
         - deepseek/deepseek-ocr
         - deepseek/deepseek-ocr-2
-        - deepseek/deepseek-prover-v2-671b
         - deepseek/deepseek-r1
         - deepseek/deepseek-r1-0528
         - deepseek/deepseek-r1-2025-05-28
+        - deepseek/deepseek-r1-distill-llama-70b
         - deepseek/deepseek-r1-turbo
         - deepseek/deepseek-v3
         - deepseek/deepseek-v3-0324
@@ -9658,9 +9657,10 @@ components:
         - inception/mercury-2
         - inception/mercury-edit-2
         - inclusionai/ling-2.6-1t
+        - inclusionai/ling-2.6-flash
         - inclusionai/ling-3.0-flash
-        - inclusionai/ling-3.0-tiny
         - inclusionai/ling-flash-2.0
+        - inclusionai/ring-2.6-1t
         - inclusionai/ring-flash-2.0
         - inflection/inflection-3-pi
         - inflection/inflection-3-productivity
@@ -9676,7 +9676,6 @@ components:
         - ltx-2-5-fast
         - ltx-2-5-pro
         - meituan/longcat-2.0
-        - meta/llama-3-70b
         - meta/llama-3-8b
         - meta/llama-3-8b-lite
         - meta/llama-3.1-70b
@@ -9693,8 +9692,9 @@ components:
         - meta/muse-spark-1.2
         - microsoft/phi-4
         - microsoft/phi-4-mini
+        - microsoft/wizardlm-2-8x22b
         - mindai/macaron-v1-tall
-        - mindai/macaron-v1-venti:free
+        - mindai/macaron-v1-venti
         - minimax/hailuo-02
         - minimax/hailuo-2.3
         - minimax/hailuo-2.3-fast
@@ -9752,7 +9752,6 @@ components:
         - morph/morph-v3-fast
         - morph/morph-v3-large
         - nex-agi/deepseek-v3.1-nex-n1
-        - nex-agi/nex-n2-pro
         - nous/hermes-3-llama-3.1-405b
         - nousresearch/hermes-3-llama-3.1-70b
         - nousresearch/hermes-4-405b
@@ -9878,6 +9877,7 @@ components:
         - qwen/qwen3-0.6b
         - qwen/qwen3-1.7b
         - qwen/qwen3-14b
+        - qwen/qwen3-235b-a22b
         - qwen/qwen3-235b-a22b-2507
         - qwen/qwen3-235b-a22b-instruct-2507
         - qwen/qwen3-235b-a22b-thinking-2507
@@ -9907,6 +9907,7 @@ components:
         - qwen/qwen3-next-80b-a3b
         - qwen/qwen3-next-80b-a3b-instruct
         - qwen/qwen3-next-80b-a3b-thinking
+        - qwen/qwen3-omni-30b-a3b
         - qwen/qwen3-omni-30b-a3b-thinking
         - qwen/qwen3-reranker
         - qwen/qwen3-reranker-8b
@@ -9955,6 +9956,9 @@ components:
         - relace/relace-search
         - sakana/fugu-ultra
         - sakana/namazu
+        - sao10k/l3-8b-lunaris
+        - sao10k/l3-8b-stheno-v3.2
+        - sao10k/l31-70b-euryale-v2.2
         - spacex-ai/grok-4.20-beta-0309
         - spacex-ai/grok-4.20-multi-agent-beta-0309
         - spacex-ai/grok-4.3
@@ -10013,6 +10017,7 @@ components:
         - xiaomi/mimo-v2.5
         - xiaomi/mimo-v2.5-pro
         - xiaomi/mimo-v2.5-tts:free
+        - z-ai/autoglm-phone-9b-multilingual
         - z-ai/glm-4-32b
         - z-ai/glm-4-7-flash:free
         - z-ai/glm-4.5
