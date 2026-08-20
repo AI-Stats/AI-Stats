@@ -676,6 +676,7 @@
       "mistral/voxtral-mini",
       "mistral/voxtral-mini-transcribe",
       "mistral/voxtral-mini-transcribe-2",
+      "mistral/voxtral-mini-transcribe-realtime",
       "mistral/voxtral-small",
       "mistral/voxtral-tts",
       "mistral/mistral-medium-3.5",
