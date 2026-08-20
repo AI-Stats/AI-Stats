@@ -70,4 +70,25 @@ describe("providerOffers", () => {
             }),
         ).toBe("OpenAI (EU)");
     });
+
+    test("keeps regional offers distinct when an older pricing projection omits offer metadata", () => {
+        expect(
+            formatProviderOfferDisplayName({
+                providerId: "anthropic-us",
+                providerName: "Anthropic",
+            }),
+        ).toBe("Anthropic (US)");
+        expect(
+            formatProviderOfferDisplayName({
+                providerId: "anthropic-aws-us",
+                providerName: "Anthropic",
+            }),
+		).toBe("Claude Platform for AWS (US)");
+        expect(
+            formatProviderOfferDisplayName({
+                providerId: "google-vertex-eu",
+                providerName: "Google Vertex",
+            }),
+        ).toBe("Google Vertex (EU)");
+    });
 });

@@ -38,6 +38,16 @@ SUPABASE_URL = "https://xansbgjaduxypzsmjwct.supabase.co"
 binding = "PROFILE_AVATARS_BUCKET"
 bucket_name = "phaseo-profile-avatars-preview"
 
+# Anonymous provenance checks are intentionally approximate and scoped per
+# Cloudflare location. The upstream OpenAI project remains the spend boundary.
+[[ratelimits]]
+name = "CONTENT_PROVENANCE_RATE_LIMITER"
+namespace_id = "42001"
+
+[ratelimits.simple]
+limit = 5
+period = 60
+
 # Cloudflare owns the explicit application API namespaces below. Vercel owns
 # page rendering and normal web assets, but no application API handlers.
 [[routes]]

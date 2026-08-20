@@ -30,6 +30,12 @@ function authenticatedFetch(input: RequestInfo | URL): Response {
 	if (url.includes("workspace_members") && url.includes("select=workspace_id")) {
 		return new Response(JSON.stringify([{ workspace_id: "workspace-1" }]), { status: 200 });
 	}
+	if (url.includes("workspaces") && url.includes("id%2Cname") && url.includes("owner_user_id=eq.user-1")) {
+		return new Response(JSON.stringify([{
+			id: "workspace-2",
+			name: "Owned Workspace",
+		}]), { status: 200 });
+	}
 	if (url.includes("workspace_members")) {
 		return new Response(JSON.stringify([{ role: "admin" }]), { status: 200 });
 	}
@@ -402,7 +408,10 @@ describe("account settings routes", () => {
 		await expect(danger.json()).resolves.toEqual({ signedIn: true });
 		await expect(details.json()).resolves.toEqual({
 			hasPassword: true,
-			teams: [{ id: "workspace-1", name: "Team One" }],
+			teams: [
+				{ id: "workspace-2", name: "Owned Workspace" },
+				{ id: "workspace-1", name: "Team One" },
+			],
 			user: {
 				id: "user-1",
 				displayName: "Test User",

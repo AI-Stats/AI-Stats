@@ -193,25 +193,37 @@ accountSettingsTeamsRouter.post("/teams", async (c) => {
 	if (!name) return c.json({ error: "invalid_name" }, 400, PRIVATE_NO_STORE_HEADERS);
 	const client = getDataClient(c.env);
 	const memberships = await client.from("workspace_members").select("workspace_id,role").eq("user_id", user.id);
-	if (memberships.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	if (memberships.error) {
+		console.error("[web-api/teams] workspace eligibility lookup failed", memberships.error);
+		return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	}
 	const adminIds = Array.from(new Set((memberships.data ?? []).filter((row) => ["owner", "admin"].includes(String(row.role ?? "").toLowerCase())).map((row) => row.workspace_id).filter(Boolean)));
 	if (!adminIds.length) return c.json({ error: "paid_workspace_required" }, 403, PRIVATE_NO_STORE_HEADERS);
 	const [topUps, enterprise] = await Promise.all([
 		client.from("credit_ledger").select("id", { count: "exact", head: true }).in("workspace_id", adminIds).in("kind", ["top_up", "top_up_one_off", "auto_top_up"]).in("status", ["Succeeded", "succeeded", "paid", "Paid"]).gt("amount_nanos", 0),
 		client.from("workspaces").select("id", { count: "exact", head: true }).in("id", adminIds).eq("tier", "enterprise"),
 	]);
-	if ([topUps, enterprise].some((result) => result.error)) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	if ([topUps, enterprise].some((result) => result.error)) {
+		console.error("[web-api/teams] workspace eligibility check failed", { topUps: topUps.error, enterprise: enterprise.error });
+		return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	}
 	if (![topUps.count, enterprise.count].some((count) => (count ?? 0) > 0)) return c.json({ error: "paid_workspace_required" }, 403, PRIVATE_NO_STORE_HEADERS);
 	const slugBase = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 42) || "workspace";
 	const slug = `${slugBase}-${crypto.randomUUID().replace(/-/g, "").slice(0, 8)}`.slice(0, 50);
 	const created = await client.from("workspaces").insert({ name, slug, owner_user_id: user.id }).select("id").maybeSingle();
-	if (created.error || !created.data?.id) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	if (created.error || !created.data?.id) {
+		console.error("[web-api/teams] workspace insert failed", created.error);
+		return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	}
 	const workspaceId = created.data.id;
-	const [member, wallet] = await Promise.all([
+	const [member, settings] = await Promise.all([
 		client.from("workspace_members").upsert({ workspace_id: workspaceId, user_id: user.id, role: "owner" }, { onConflict: "workspace_id,user_id", ignoreDuplicates: true }),
-		client.from("wallets").upsert({ workspace_id: workspaceId }, { onConflict: "workspace_id", ignoreDuplicates: true }),
+		client.from("workspace_settings").upsert({ workspace_id: workspaceId }, { onConflict: "workspace_id", ignoreDuplicates: true }),
 	]);
-	if (member.error || wallet.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	if (member.error || settings.error) {
+		console.error("[web-api/teams] workspace bootstrap failed", { member: member.error, settings: settings.error });
+		return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	}
 	c.executionCtx.waitUntil(upsertLinearCustomer(c.env, { workspaceId, name }).catch((error) => console.error("[web-api/teams] Linear upsert failed", error)));
 	return c.json({ id: workspaceId }, 200, PRIVATE_NO_STORE_HEADERS);
 });

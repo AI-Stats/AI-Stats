@@ -53,6 +53,11 @@ const CACHE_PROFILES = {
 		staleWhileRevalidateSeconds: 15 * 60,
 		cacheTags: ["web-api-model-usage-daily"],
 	},
+	effectivePricing: {
+		edgeTtlSeconds: 15 * 60,
+		staleWhileRevalidateSeconds: 15 * 60,
+		cacheTags: ["web-api-model-effective-pricing"],
+	},
 	catalogPricing: {
 		edgeTtlSeconds: 60 * 60,
 		staleWhileRevalidateSeconds: 24 * 60 * 60,
@@ -257,6 +262,21 @@ function mapUsageDailyRow(row: Record<string, unknown>) {
 	for (const [source, target] of [["image_megapixels", "imageMegapixels"], ["audio_seconds", "audioSeconds"], ["video_pixel_seconds", "videoPixelSeconds"]] as const) mapped[target] = Number(row[source] ?? 0) || 0;
 	for (const [source, target] of [["avg_latency_ms", "avgLatencyMs"], ["avg_generation_ms", "avgGenerationMs"], ["avg_throughput", "avgThroughput"]] as const) mapped[target] = numberOrNull(row[source]);
 	return mapped;
+}
+
+function mapEffectivePricingDailyRow(row: Record<string, unknown>) {
+	return {
+		dayBucket: String(row.day_bucket ?? "").slice(0, 10),
+		providerId: String(row.provider_id ?? ""),
+		pricingPlan: String(row.pricing_plan ?? "standard"),
+		inputTokens: Math.max(0, Number(row.input_tokens ?? 0) || 0),
+		outputTokens: Math.max(0, Number(row.output_tokens ?? 0) || 0),
+		cachedReadTokens: Math.max(0, Number(row.cached_read_tokens ?? 0) || 0),
+		cachedWriteTokens: Math.max(0, Number(row.cached_write_tokens ?? 0) || 0),
+		inputCostNanos: Math.max(0, Number(row.input_cost_nanos ?? 0) || 0),
+		outputCostNanos: Math.max(0, Number(row.output_cost_nanos ?? 0) || 0),
+		totalCostNanos: Math.max(0, Number(row.total_cost_nanos ?? 0) || 0),
+	};
 }
 
 async function modelAliases(env: Env, modelId: string): Promise<string[]> {
@@ -1146,6 +1166,30 @@ publicModelsRouter.get("/:modelId/usage-daily", async (c) => {
 	} catch (error) { console.error("[web-api/models] usage daily failed", { modelId, error }); return c.json({ error: "model_usage_daily_unavailable" }, 503); }
 });
 
+publicModelsRouter.get("/:modelId/effective-pricing-daily", async (c) => {
+	const modelId = c.req.param("modelId");
+	try {
+		const days = Math.max(1, Math.min(365, parseBoundedInt(c.req.query("days"), 365, 365)));
+		const now = new Date();
+		const defaultSince = new Date(now);
+		defaultSince.setUTCDate(defaultSince.getUTCDate() - days);
+		const providerIds = [...new Set((c.req.query("provider_ids") ?? "").split(",").map((id) => id.trim()).filter(Boolean))].sort();
+		if (providerIds.length > 100) return c.json({ error: "too_many_provider_ids" }, 400);
+		const result = await getDataClient(c.env).rpc("get_v2_model_effective_pricing_daily", {
+			p_model_slug: modelId,
+			p_provider_ids: providerIds.length ? providerIds : null,
+			p_since: c.req.query("since")?.slice(0, 10) || defaultSince.toISOString().slice(0, 10),
+			p_until: c.req.query("until")?.slice(0, 10) || now.toISOString().slice(0, 10),
+		});
+		if (result.error) throw result.error;
+		if (!Array.isArray(result.data)) throw new Error("Effective pricing query returned an invalid payload");
+		return withPublicCache(c.json({ rows: (result.data as Array<Record<string, unknown>>).map(mapEffectivePricingDailyRow) }), sectionPolicy("effectivePricing", modelId));
+	} catch (error) {
+		console.error("[web-api/models] effective pricing daily failed", { modelId, error });
+		return c.json({ error: "model_effective_pricing_unavailable" }, 503);
+	}
+});
+
 publicModelsRouter.get("/:modelId/provider-health", async (c) => {
 	const modelId = c.req.param("modelId");
 	const percentile = parsePercentile(c.req.query("percentile"));
@@ -1163,9 +1207,15 @@ publicModelsRouter.get("/:modelId/provider-health", async (c) => {
 });
 
 publicModelsRouter.get("/:modelId/pricing-history", async (c) => {
-	const modelId = c.req.param("modelId"); const days = Math.max(1, Math.min(365, parseBoundedInt(c.req.query("days"), 30, 365))); const now = Date.now(); const windowStart = now - days * 24 * 60 * 60 * 1_000;
+	const modelId = c.req.param("modelId"); const days = Math.max(1, Math.min(3650, parseBoundedInt(c.req.query("days"), 30, 3650))); const now = Date.now(); const windowStart = now - days * 24 * 60 * 60 * 1_000;
 	try {
-		const { providerRows, pricingRows } = await fetchModelPricingSources(c.env, [modelId], false, true);
+		const { providerRows, pricingRows } = await fetchModelPricingSources(
+			c.env,
+			[modelId],
+			false,
+			true,
+			{ startMs: windowStart, endMs: now },
+		);
 		const providerNames = new Map(providerRows.map((row) => {
 			const provider = Array.isArray(row.data_api_providers) ? row.data_api_providers[0] : row.data_api_providers as Record<string, unknown> | null;
 			return [String(row.provider_id ?? ""), String(provider?.api_provider_name ?? row.provider_id ?? "")];
@@ -1303,10 +1353,29 @@ publicModelsRouter.get("/:modelId/subscription-plans", async (c) => {
 		const client = getDataClient(c.env);
 		const v2 = await client.rpc("get_v2_model_subscription_plans", { p_model_slug: modelId });
 		if (!v2.error && (v2.data == null || Array.isArray(v2.data))) {
+			const subscriptionRows = (v2.data ?? []) as Array<Record<string, unknown>>;
+			const labSlugs = Array.from(new Set(
+				subscriptionRows.map((row) => String(row.lab_slug ?? "").trim()).filter(Boolean),
+			));
+			const labResult = labSlugs.length
+				? await client.from("v2_labs").select("lab_slug,name,metadata").in("lab_slug", labSlugs)
+				: { data: [], error: null };
+			if (labResult.error) throw labResult.error;
+			const labsBySlug = new Map(
+				((labResult.data ?? []) as Array<Record<string, unknown>>).map((lab) => [
+					String(lab.lab_slug ?? ""),
+					lab,
+				]),
+			);
 			const grouped = new Map<string, Record<string, unknown>>();
-			for (const row of (v2.data ?? []) as Array<Record<string, unknown>>) {
+			for (const row of subscriptionRows) {
 				const planId = String(row.plan_id ?? "").trim(); if (!planId) continue;
-				const plan = grouped.get(planId) ?? { plan_id: planId, plan_uuid: row.plan_uuid, name: row.name, organisation_id: row.lab_slug, description: row.description, link: row.link, other_info: row.other_info, created_at: row.created_at, updated_at: row.updated_at, organisation: row.lab_slug ? { organisation_id: row.lab_slug, name: row.lab_slug } : null, prices: [], model_info: { model_info: row.model_info, rate_limit: row.rate_limit, other_info: row.model_other_info } };
+				const labSlug = String(row.lab_slug ?? "").trim();
+				const lab = labsBySlug.get(labSlug);
+				const labMetadata = lab?.metadata && typeof lab.metadata === "object"
+					? lab.metadata as Record<string, unknown>
+					: null;
+				const plan = grouped.get(planId) ?? { plan_id: planId, plan_uuid: row.plan_uuid, name: row.name, organisation_id: labSlug || null, description: row.description, link: row.link, other_info: row.other_info, created_at: row.created_at, updated_at: row.updated_at, organisation: labSlug ? { organisation_id: labSlug, name: String(lab?.name ?? labSlug), colour: labMetadata?.colour ?? null } : null, prices: [], model_info: { model_info: row.model_info, rate_limit: row.rate_limit, other_info: row.model_other_info } };
 				(plan.prices as Array<Record<string, unknown>>).push({ price: row.price, currency: row.currency, frequency: row.frequency }); grouped.set(planId, plan);
 			}
 			return withPublicCache(c.json({ subscription_plans: Array.from(grouped.values()), source: "v2" }), sectionPolicy("subscriptions", modelId));

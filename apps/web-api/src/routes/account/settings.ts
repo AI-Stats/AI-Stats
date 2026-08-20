@@ -388,7 +388,7 @@ accountSettingsRouter.get("/account/details", async (c) => {
 		return c.json({ hasPassword: false, teams: [], user: null }, 200, PRIVATE_NO_STORE_HEADERS);
 	}
 	const client = getDataClient(c.env);
-	const [userResult, teamsResult, countryResult] = await Promise.all([
+	const [userResult, teamsResult, ownedTeamsResult, countryResult] = await Promise.all([
 		client
 			.from("users")
 			.select("user_id,display_name,default_workspace_id,obfuscate_info,created_at")
@@ -399,6 +399,10 @@ accountSettingsRouter.get("/account/details", async (c) => {
 			.select("workspace_id,teams:workspaces(id,name)")
 			.eq("user_id", user.id),
 		client
+			.from("workspaces")
+			.select("id,name")
+			.eq("owner_user_id", user.id),
+		client
 			.from("users")
 			.select("declared_country_code")
 			.eq("user_id", user.id)
@@ -408,7 +412,7 @@ accountSettingsRouter.get("/account/details", async (c) => {
 	const countryColumnMissing =
 		countryResult.error?.code === "42703" ||
 		String(countryResult.error?.message ?? "").includes("declared_country_code");
-	if (userResult.error || teamsResult.error || (countryResult.error && !countryColumnMissing)) {
+	if (userResult.error || teamsResult.error || ownedTeamsResult.error || (countryResult.error && !countryColumnMissing)) {
 		return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	}
 	const cookieOverride = c.req.query("obfuscateInfo");
@@ -418,12 +422,16 @@ accountSettingsRouter.get("/account/details", async (c) => {
 			? false
 			: Boolean(userResult.data?.obfuscate_info);
 	const provider = String(user.appMetadata.provider ?? "").trim();
-	const teams = (teamsResult.data ?? []).flatMap((membership) => {
+	const membershipTeams = (teamsResult.data ?? []).flatMap((membership) => {
 		const team = Array.isArray(membership.teams)
 			? membership.teams[0]
 			: membership.teams;
 		return team?.id && team?.name ? [{ id: team.id, name: team.name }] : [];
 	});
+	const teams = Array.from(new Map([
+		...membershipTeams,
+		...(ownedTeamsResult.data ?? []).flatMap((team) => team?.id && team?.name ? [{ id: team.id, name: team.name }] : []),
+	].map((team) => [team.id, team])).values()).sort((left, right) => left.name.localeCompare(right.name));
 	return c.json({
 		hasPassword: !provider || provider === "email",
 		teams,

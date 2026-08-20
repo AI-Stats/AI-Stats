@@ -84,6 +84,7 @@ import type {
 } from "@/components/(chat)/chatPayload";
 import { ChatMessagesEmptyState } from "@/components/(chat)/ChatMessagesEmptyState";
 import { ChatVirtualMessageList } from "@/components/(chat)/ChatVirtualMessageList";
+import { ChatSelectionToolbar } from "@/components/(chat)/ChatSelectionToolbar";
 import { markChatUserMessageRendered } from "@/components/(chat)/playground/chat-performance";
 import {
 	chatMarkdownPlugins,
@@ -313,6 +314,7 @@ type ChatConversationMessagesProps = {
 	modelOrderIds?: string[];
 	onSelectPrompt: (prompt: string) => void;
 	temporaryMode?: boolean;
+	onSelectionAction: (prompt: string) => void;
 };
 
 export function ChatConversationMessages({
@@ -341,6 +343,7 @@ export function ChatConversationMessages({
 	modelOrderIds = [],
 	onSelectPrompt,
 	temporaryMode = false,
+	onSelectionAction,
 }: ChatConversationMessagesProps) {
 	const [copiedMessageKey, setCopiedMessageKey] = useState<string | null>(null);
 	const copiedResetTimeoutRef = useRef<number | null>(null);
@@ -757,6 +760,7 @@ export function ChatConversationMessages({
 								) : (
 									<div
 										data-slot="message-panel"
+										data-chat-assistant-content={isUser ? undefined : "true"}
 										className={cn(
 											isUser
 												? cn(
@@ -1539,5 +1543,10 @@ export function ChatConversationMessages({
 		temporaryMode,
 	]);
 
-	return <>{messagesContent}</>;
+	return (
+		<>
+			{messagesContent}
+			<ChatSelectionToolbar onAction={onSelectionAction} />
+		</>
+	);
 }
