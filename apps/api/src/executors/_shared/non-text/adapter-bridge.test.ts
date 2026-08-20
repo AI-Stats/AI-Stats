@@ -278,4 +278,50 @@ describe("non-text adapter bridge", () => {
 			});
 		}
 	});
+
+	it("preserves Together image controls through the IR bridge", async () => {
+		let capturedBody: any = null;
+		const mock = installFetchMock([{
+			match: (url) => url.includes("/images/generations"),
+			response: jsonResponse({ data: [{ b64_json: "together-image" }] }),
+			onRequest: (call) => { capturedBody = call.bodyJson; },
+		}]);
+
+		const result = await executeNonTextAdapter({
+			ir: {
+				type: "image.generation",
+				model: "qwen/qwen-image",
+				prompt: "A geometric fox",
+				rawRequest: {
+					steps: 12,
+					negative_prompt: "blurry",
+					guidance_scale: 4.5,
+					image_url: "https://example.com/reference.png",
+					reference_images: ["https://example.com/second.png"],
+					disable_safety_checker: false,
+					provider_params: { seed: 42 },
+				},
+			},
+			requestId: "req_non_text_together_image_1",
+			workspaceId: "team_test",
+			providerId: "together",
+			endpoint: "images.generations",
+			providerModelSlug: "Qwen/Qwen-Image",
+			byokMeta: [],
+			pricingCard: { ...PRICING_CARD, provider: "together" },
+			meta: {},
+		} as any);
+
+		mock.restore();
+		expect(capturedBody).toMatchObject({
+			steps: 12,
+			negative_prompt: "blurry",
+			guidance_scale: 4.5,
+			image_url: "https://example.com/reference.png",
+			reference_images: ["https://example.com/second.png"],
+			disable_safety_checker: false,
+			seed: 42,
+		});
+		expect(result.kind).toBe("completed");
+	});
 });

@@ -309,6 +309,36 @@ describe("OpenAI media endpoints", () => {
 		]));
 	});
 
+	it("uses Together's documented 1024-square default for image pixel billing", async () => {
+		const mock = installFetchMock([{
+			match: (url) => url.includes("/images/generations"),
+			response: jsonResponse({ data: [{ b64_json: "image" }] }),
+		}]);
+
+		const result = await execImages({
+			endpoint: "images.generations",
+			model: "qwen/qwen-image",
+			body: { model: "qwen/qwen-image", prompt: "A poster" },
+			meta: REQUEST_META,
+			workspaceId: "team_test",
+			providerId: "together",
+			byokMeta: [],
+			pricingCard: {
+				key: "together:qwen/qwen-image:image.generate",
+				currency: "USD",
+				rules: [{ meter: "image_pixels", unit: "pixel", unit_size: 1_000_000, price_per_unit: 0.0058, pricing_plan: "standard" }],
+			},
+			providerModelSlug: "Qwen/Qwen-Image",
+			stream: false,
+		} as any);
+
+		mock.restore();
+		expect(result.bill.usage?.image_pixels).toBe(1_048_576);
+		expect(result.bill.usage?.pricing?.lines).toEqual(expect.arrayContaining([
+			expect.objectContaining({ dimension: "image_pixels" }),
+		]));
+	});
+
 	it("prices GPT Image 2 from image tokens for every documented preset resolution", async () => {
 		const sizes = ["2048x2048", "2048x1152", "3840x2160", "2160x3840"];
 

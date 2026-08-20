@@ -100,6 +100,7 @@ function mapGatewayToOpenAIImages(body: ImagesGenerationRequest, rawBody: Record
         guidance_scale: rawBody.guidance_scale ?? providerParams.guidance_scale,
         image_url: rawBody.image_url ?? providerParams.image_url,
         reference_images: rawBody.reference_images ?? providerParams.reference_images,
+        disable_safety_checker: rawBody.disable_safety_checker ?? providerParams.disable_safety_checker,
     } : {};
     return {
         prompt: body.prompt,
@@ -120,14 +121,14 @@ function mapGatewayToOpenAIImages(body: ImagesGenerationRequest, rawBody: Record
     };
 }
 
-function resolveOutputImagePixels(request: Record<string, any>, count: number): number | undefined {
+function resolveOutputImagePixels(request: Record<string, any>, count: number, providerId: string): number | undefined {
     const width = Number(request.width);
     const height = Number(request.height);
     if (Number.isFinite(width) && width > 0 && Number.isFinite(height) && height > 0) {
         return width * height * count;
     }
     const size = typeof request.size === "string" ? request.size.match(/^(\d+)x(\d+)$/i) : null;
-    if (!size) return undefined;
+    if (!size) return providerId === "together" ? 1024 * 1024 * count : undefined;
     const parsedWidth = Number(size[1]);
     const parsedHeight = Number(size[2]);
     return parsedWidth > 0 && parsedHeight > 0 ? parsedWidth * parsedHeight * count : undefined;
@@ -221,7 +222,7 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
                 ? normalizeOpenAIImageTokenUsage(completedUsage)
                 : completedUsage;
             usageMeters.requests = 1;
-            const imagePixels = resolveOutputImagePixels(req, modifiedBody.n ?? 1);
+            const imagePixels = resolveOutputImagePixels(req, modifiedBody.n ?? 1, args.providerId);
             if (imagePixels !== undefined) usageMeters.image_pixels = imagePixels;
             const pricedUsage = computeBill(usageMeters as Record<string, any>, args.pricingCard, buildImagePricingRequestOptions(modifiedBody, usageMeters));
             return {
@@ -267,7 +268,7 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
         if (!usesGptImageTokenPricing(args.model, modifiedBody.model) && typeof usageMeters.output_image !== "number") {
             usageMeters.output_image = outputImageCount;
         }
-        const imagePixels = resolveOutputImagePixels(req, outputImageCount);
+        const imagePixels = resolveOutputImagePixels({ ...req, size: normalized?.size ?? req.size }, outputImageCount, args.providerId);
         if (imagePixels !== undefined) usageMeters.image_pixels = imagePixels;
         if (typeof normalized?.size === "string") usageMeters.size = normalized.size;
         if (typeof normalized?.quality === "string") usageMeters.quality = normalized.quality;
@@ -285,8 +286,6 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
     
     return { kind: "completed", upstream: res, bill, normalized, keySource: keyInfo.source, byokKeyId: keyInfo.byokId };
 }
-
-
 
 
 
