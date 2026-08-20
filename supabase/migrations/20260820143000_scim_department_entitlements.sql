@@ -75,19 +75,62 @@ end $$;
 create or replace function public.capture_manual_workspace_grant() returns trigger language plpgsql set search_path='' as $$
 begin
   if current_setting('phaseo.entitlement_reconcile',true)='on' then return coalesce(new,old); end if;
-  if tg_op='DELETE' then delete from public.workspace_access_grants where workspace_id=old.workspace_id and user_id=old.user_id and source_type='manual'; return old; end if;
+  if tg_op='DELETE' then
+    delete from public.workspace_access_grants where workspace_id=old.workspace_id and user_id=old.user_id and source_type='manual';
+    perform public.reconcile_scim_entitlements(old.workspace_id);
+    return old;
+  end if;
   insert into public.workspace_access_grants(workspace_id,user_id,source_type,source_id,access_role) values(new.workspace_id,new.user_id,'manual',new.user_id,lower(new.role::text))
-  on conflict(workspace_id,user_id,source_type,source_id) do update set access_role=excluded.access_role,updated_at=now(); return new;
+  on conflict(workspace_id,user_id,source_type,source_id) do update set access_role=excluded.access_role,updated_at=now();
+  perform public.reconcile_scim_entitlements(new.workspace_id);
+  return new;
 end $$;
 create trigger workspace_members_capture_manual_grant after insert or delete or update of role on public.workspace_members for each row execute function public.capture_manual_workspace_grant();
 
 create or replace function public.reconcile_scim_entitlements_trigger() returns trigger language plpgsql set search_path='' as $$
-begin perform public.reconcile_scim_entitlements(coalesce(new.workspace_id,old.workspace_id)); return coalesce(new,old); end $$;
+begin
+  if current_setting('phaseo.scim_group_replace',true)='on' then return coalesce(new,old); end if;
+  perform public.reconcile_scim_entitlements(coalesce(new.workspace_id,old.workspace_id));
+  return coalesce(new,old);
+end $$;
 create trigger scim_group_mappings_reconcile after insert or update or delete on public.scim_group_mappings for each row execute function public.reconcile_scim_entitlements_trigger();
 create trigger scim_group_members_reconcile after insert or delete on public.scim_group_members for each row execute function public.reconcile_scim_entitlements_trigger();
 
 create or replace function public.sync_scim_user_workspace_access() returns trigger language plpgsql set search_path='' as $$
 begin perform public.reconcile_scim_entitlements(new.workspace_id); return new; end $$;
+
+drop trigger if exists scim_users_sync_workspace_access on public.scim_users;
+create trigger scim_users_sync_workspace_access after insert or update of active,auth_user_id,department on public.scim_users
+for each row execute function public.sync_scim_user_workspace_access();
+
+create trigger workspace_departments_reconcile after update of name on public.workspace_departments
+for each row execute function public.reconcile_scim_entitlements_trigger();
+
+create or replace function public.replace_scim_group_members(p_workspace_id uuid,p_group_id uuid,p_user_ids uuid[]) returns void language plpgsql set search_path='' as $$
+begin
+  if not exists(select 1 from public.scim_groups where id=p_group_id and workspace_id=p_workspace_id) then raise exception 'SCIM group not found' using errcode='P0002'; end if;
+  if exists(select 1 from unnest(coalesce(p_user_ids,'{}'::uuid[])) candidate(user_id) where not exists(select 1 from public.scim_users where id=candidate.user_id and workspace_id=p_workspace_id)) then raise exception 'SCIM user not found in workspace' using errcode='23503'; end if;
+  perform set_config('phaseo.scim_group_replace','on',true);
+  delete from public.scim_group_members where workspace_id=p_workspace_id and group_id=p_group_id;
+  insert into public.scim_group_members(workspace_id,group_id,user_id) select p_workspace_id,p_group_id,user_id from (select distinct unnest(coalesce(p_user_ids,'{}'::uuid[])) user_id) users;
+  update public.scim_groups set updated_at=now() where id=p_group_id and workspace_id=p_workspace_id;
+  perform public.reconcile_scim_entitlements(p_workspace_id);
+  perform set_config('phaseo.scim_group_replace','off',true);
+end $$;
+
+create or replace function public.replace_scim_group(p_workspace_id uuid,p_group_id uuid,p_external_id text,p_display_name text,p_user_ids uuid[]) returns public.scim_groups language plpgsql set search_path='' as $$
+declare replaced public.scim_groups;
+begin
+  if not exists(select 1 from public.scim_groups where id=p_group_id and workspace_id=p_workspace_id) then raise exception 'SCIM group not found' using errcode='P0002'; end if;
+  if exists(select 1 from unnest(coalesce(p_user_ids,'{}'::uuid[])) candidate(user_id) where not exists(select 1 from public.scim_users where id=candidate.user_id and workspace_id=p_workspace_id)) then raise exception 'SCIM user not found in workspace' using errcode='23503'; end if;
+  perform set_config('phaseo.scim_group_replace','on',true);
+  update public.scim_groups set external_id=p_external_id,display_name=p_display_name where id=p_group_id and workspace_id=p_workspace_id returning * into replaced;
+  delete from public.scim_group_members where workspace_id=p_workspace_id and group_id=p_group_id;
+  insert into public.scim_group_members(workspace_id,group_id,user_id) select p_workspace_id,p_group_id,user_id from (select distinct unnest(coalesce(p_user_ids,'{}'::uuid[])) user_id) users;
+  perform public.reconcile_scim_entitlements(p_workspace_id);
+  perform set_config('phaseo.scim_group_replace','off',true);
+  return replaced;
+end $$;
 
 alter table public.workspace_departments enable row level security; alter table public.scim_group_mappings enable row level security;
 alter table public.workspace_access_grants enable row level security; alter table public.workspace_department_grants enable row level security;
