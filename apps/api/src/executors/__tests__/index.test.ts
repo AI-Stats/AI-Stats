@@ -111,7 +111,6 @@ describe("resolveProviderExecutor", () => {
 		expect(resolveProviderExecutor("google-ai-studio", "embeddings")).toBeTruthy();
 		expect(resolveProviderExecutor("together", "embeddings")).toBeTruthy();
 		expect(resolveProviderExecutor("together", "image.generate")).toBeTruthy();
-		expect(resolveProviderExecutor("together", "audio.speech")).toBeTruthy();
 		expect(resolveProviderExecutor("together", "audio.transcription")).toBeTruthy();
 		expect(resolveProviderExecutor("together", "audio.translations")).toBeTruthy();
 		for (const providerId of ["alibaba-cloud", "alibaba", "qwen"]) {

@@ -119,7 +119,6 @@ export type KnownModelId =
   | "google/veo-3.1-lite-generate-preview"
   | "google/veo-3.1-lite-preview"
   | "google/veo-3.1-preview"
-  | "hexgrad/kokoro-82m"
   | "ibm/granite-4.1-8b"
   | "inception/mercury-2"
   | "inception/mercury-edit-2"

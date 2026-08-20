@@ -174,7 +174,6 @@ export const EXECUTORS_BY_PROVIDER: Record<string, ProviderCapabilityMap> = {
 		moderations: openaiModerations,
 		"image.generate": nonTextAdapterExecutor,
 		"image.edit": nonTextAdapterExecutor,
-		"audio.speech": nonTextAdapterExecutor,
 		"audio.transcription": nonTextAdapterExecutor,
 		"audio.translations": nonTextAdapterExecutor,
 		"video.generate": openaiVideo,
