@@ -490,7 +490,7 @@
         ],
         "reasoning": true,
         "tool_call": true,
-        "structured_output": true,
+        "structured_output": null,
         "temperature": true,
         "attachment": false,
         "input_modalities": ["text"],
