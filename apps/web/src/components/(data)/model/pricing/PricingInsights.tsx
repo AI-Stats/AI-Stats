@@ -70,7 +70,9 @@ import { Logo } from "@/components/Logo";
 import {
 	buildProviderSections,
 	buildProviderTablePriceSummary,
+	calculateDailyAveragePricingMeterPrice,
 	fmtUSD,
+	resolvePricingMeterPrice,
 } from "@/components/(data)/model/pricing/pricingHelpers";
 import { assignSeriesColours, keyForSeries } from "@/components/(rankings)/chart-colors";
 import type { ProviderPricing } from "@/lib/fetchers/models/getModelPricing";
@@ -99,6 +101,8 @@ import {
 	dispatchProviderInspectorOpen,
 	subscribeProviderInspector,
 } from "@/components/(data)/model/pricing/providerInspectorSync";
+
+const dailyAveragePricePer1MCache = new WeakMap<ModelPricingHistoryRule, number>();
 
 type PricingInsightsProps = {
 	providers: ProviderPricing[];
@@ -401,19 +405,42 @@ function getPriceForMeter(
 	meterPreference: readonly string[],
 	timestampMs: number,
 	preferredPricePer1M?: number | null,
+	mode: "daily_average" | "exact" = "daily_average",
 ): number | null {
 	const selectedRule = chooseRuleForTimestamp(rules, meterPreference, timestampMs);
-	if (!selectedRule || preferredPricePer1M == null) return selectedRule?.pricePer1MUnits ?? null;
-	const ambiguousRules = rules.filter((rule) =>
-		rule.meter === selectedRule.meter && isRuleActiveAt(rule, timestampMs),
-	);
-	if (ambiguousRules.length < 2) return selectedRule.pricePer1MUnits;
-	const preferredRule = chooseRuleForTimestamp(
-		ambiguousRules.filter((rule) => Math.abs(rule.pricePer1MUnits - preferredPricePer1M) < 1e-9),
-		meterPreference,
-		timestampMs,
-	);
-	return preferredRule?.pricePer1MUnits ?? selectedRule.pricePer1MUnits;
+	if (!selectedRule) return null;
+	const preferredPrice = preferredPricePer1M;
+	const ambiguousRules = preferredPrice == null
+		? []
+		: rules.filter((rule) =>
+			rule.meter === selectedRule.meter && isRuleActiveAt(rule, timestampMs),
+		);
+	const rule = ambiguousRules.length < 2
+		? selectedRule
+		: chooseRuleForTimestamp(
+			ambiguousRules.filter((candidate) =>
+				Math.abs(candidate.pricePer1MUnits - Number(preferredPrice)) < 1e-9,
+			),
+			meterPreference,
+			timestampMs,
+		) ?? selectedRule;
+	if (!rule.timeWindows?.length) return rule.pricePer1MUnits;
+	if (mode === "exact") {
+		const date = new Date(timestampMs);
+		const utcTime = `${String(date.getUTCHours()).padStart(2, "0")}:${String(date.getUTCMinutes()).padStart(2, "0")}`;
+		return resolvePricingMeterPrice({
+			price_per_unit: String(rule.pricePerUnit),
+			time_windows: rule.timeWindows,
+		}, utcTime).pricePerUnit * (1_000_000 / rule.unitSize);
+	}
+	const cached = dailyAveragePricePer1MCache.get(rule);
+	if (cached !== undefined) return cached;
+	const average = calculateDailyAveragePricingMeterPrice({
+		price_per_unit: String(rule.pricePerUnit),
+		time_windows: rule.timeWindows,
+	}) * (1_000_000 / rule.unitSize);
+	dailyAveragePricePer1MCache.set(rule, average);
+	return average;
 }
 
 const RANGE_LABELS: Array<{ value: PricingRange; label: string }> = [
@@ -611,7 +638,13 @@ function buildPricingHistoryState(args: {
 					: isOutputMeter
 						? row.listedOutputPricePer1M
 						: null;
-				entry[row.seriesKey] = getPriceForMeter(rules, [args.meter], timestampMs, preferredListedPrice);
+				entry[row.seriesKey] = getPriceForMeter(
+					rules,
+					[args.meter],
+					timestampMs,
+					preferredListedPrice,
+					args.range === "7d" ? "exact" : "daily_average",
+				);
 			}
 		}
 		return entry;
@@ -1323,7 +1356,8 @@ export default function PricingInsights({
 						<h2 className="text-lg font-semibold">Pricing</h2>
 						<p className="text-xs text-muted-foreground">
 							List prices are current provider rates. Effective prices are weighted
-							by observed gateway traffic over the last 30 days.
+							by observed gateway traffic over the last 30 days. Summary values
+							average time-windowed schedules; one-week history shows each UTC change.
 						</p>
 					</div>
 				</div>

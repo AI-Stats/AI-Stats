@@ -1,4 +1,5 @@
 import type { ModelPricingHistoryRule } from "@/lib/fetchers/models/getModelPricingHistoryRules";
+import { getUtcPricingScheduleTimes } from "@/components/(data)/model/pricing/pricingHelpers";
 
 export type PricingRange = "7d" | "30d" | "90d" | "1y" | "all";
 
@@ -54,6 +55,21 @@ export function getPricingHistoryTimestamps({
 	const timestamps = new Set<number>([rangeStart, rangeEnd]);
 	for (const timestamp of [...ruleBoundaries, ...usageTimestamps]) {
 		if (timestamp >= rangeStart && timestamp <= rangeEnd) timestamps.add(timestamp);
+	}
+	if (range === "7d") {
+		const scheduleTimes = getUtcPricingScheduleTimes(
+			rules.flatMap((rule) => rule.timeWindows ?? []),
+		);
+		const day = new Date(rangeStart);
+		day.setUTCHours(0, 0, 0, 0);
+		while (day.getTime() <= rangeEnd) {
+			const dayPrefix = day.toISOString().slice(0, 10);
+			for (const time of scheduleTimes) {
+				const timestamp = Date.parse(`${dayPrefix}T${time}:00.000Z`);
+				if (timestamp >= rangeStart && timestamp <= rangeEnd) timestamps.add(timestamp);
+			}
+			day.setUTCDate(day.getUTCDate() + 1);
+		}
 	}
 	return Array.from(timestamps).sort((a, b) => a - b);
 }

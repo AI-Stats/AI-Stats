@@ -22,6 +22,7 @@ function rule(overrides: Partial<ModelPricingHistoryRule>): ModelPricingHistoryR
 		effectiveTo: null,
 		note: null,
 		match: [],
+		timeWindows: [],
 		...overrides,
 	};
 }
@@ -42,6 +43,25 @@ describe("pricing history timeline", () => {
 
 		expect(timestamps).toContain(Date.parse(firstChange));
 		expect(timestamps).toContain(Date.parse(secondChange));
+	});
+
+	it("includes recurring UTC schedule changes in the one-week view", () => {
+		const timestamps = getPricingHistoryTimestamps({
+			range: "7d",
+			rules: [rule({
+				timeWindows: [{
+					label: "off peak",
+					timezone: "UTC",
+					start_time: "00:00",
+					end_time: "16:30",
+					price_per_unit: "0.5",
+				}],
+			})],
+			usageDays: [],
+			nowMs: Date.parse("2026-08-10T20:00:00.000Z"),
+		});
+
+		expect(timestamps).toContain(Date.parse("2026-08-10T16:30:00.000Z"));
 	});
 
 	it("clips timestamps to a custom date range", () => {
