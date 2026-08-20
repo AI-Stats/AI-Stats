@@ -48,6 +48,16 @@ namespace_id = "42001"
 limit = 5
 period = 60
 
+# SCIM clients retry and burst during directory synchronization. This limit is
+# workspace-token scoped in application code and allows the documented 25 rps.
+[[ratelimits]]
+name = "SCIM_RATE_LIMITER"
+namespace_id = "42002"
+
+[ratelimits.simple]
+limit = 3000
+period = 60
+
 # Cloudflare owns the explicit application API namespaces below. Vercel owns
 # page rendering and normal web assets, but no application API handlers.
 [[routes]]
@@ -60,6 +70,10 @@ zone_name = "phaseo.app"
 
 [[routes]]
 pattern = "phaseo.app/api/chat/*"
+zone_name = "phaseo.app"
+
+[[routes]]
+pattern = "phaseo.app/scim/v2/*"
 zone_name = "phaseo.app"
 
 [[routes]]

@@ -1,7 +1,8 @@
 import type { Session, User } from "@supabase/supabase-js";
 import { Resend } from "resend";
 import { createAdminClient } from "@/utils/supabase/admin";
-import { classifyAuthMethodFromSession } from "@/lib/auth/method";
+import { classifyAuthMethodFromSession, ssoProviderIdFromSession } from "@/lib/auth/method";
+import { linkScimDirectoryUser } from "@/lib/auth/scimDirectory";
 import { evaluateTeamSsoEnforcementNoop } from "@/lib/auth/ssoEnforcement";
 import { sendAccountLifecycleDiscordWebhook } from "@/lib/auth/accountLifecycleDiscord";
 import {
@@ -450,12 +451,11 @@ export async function finalizePostLogin(
 		"User";
 
 	const supabaseAdmin = createAdminClient();
-
-	const provisionedTeam = await provisionPersonalWorkspace({
-		supabaseAdmin,
-		userId: user.id,
-		displayName,
-	});
+	const session = input.session ?? (await input.supabaseUser.auth.getSession()).data.session;
+	const directoryLink = await linkScimDirectoryUser({ admin: supabaseAdmin, authUserId: user.id, email: user.email, ssoProviderId: ssoProviderIdFromSession(session) });
+	const provisionedTeam = directoryLink
+		? { workspaceId: directoryLink.workspaceId, createdPersonalTeam: false }
+		: await provisionPersonalWorkspace({ supabaseAdmin, userId: user.id, displayName });
 	const workspaceId = provisionedTeam.workspaceId;
 	await setActiveWorkspaceCookie(workspaceId);
 
@@ -522,11 +522,6 @@ export async function finalizePostLogin(
 	}
 
 	try {
-		const session =
-			input.session ??
-			(
-				await input.supabaseUser.auth.getSession()
-			).data.session;
 		await evaluateTeamSsoEnforcementNoop({
 			workspaceId,
 			userId: user.id,
