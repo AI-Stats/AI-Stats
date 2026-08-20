@@ -30,6 +30,7 @@ import { encodeOpenAIChatResponse } from "@protocols/openai-chat/encode";
 import { createSyntheticResponsesStreamFromIR } from "@executors/_shared/text-generate/synthetic-responses-stream";
 import { buildSyntheticServerToolStream } from "@pipeline/surfaces/server-tools.stream";
 import { sanitizeGeminiSchema } from "@executors/google/shared/schema";
+import { supportsTextProviderInteractionsModel } from "@providers/textProfiles";
 
 const DEFAULT_LYRIA_RETRY_ATTEMPTS = 3;
 const DEFAULT_LYRIA_RETRY_DELAY_MS = 300;
@@ -60,29 +61,11 @@ function supportsInteractionsThinkingLevels(value: string): boolean {
 	return modelSupportsGoogleThinkingLevels(value) || normalized.includes("gemini-2.5");
 }
 
-const GOOGLE_INTERACTIONS_MODELS = new Set([
-	"gemini-2.5-flash",
-	"gemini-2.5-flash-lite",
-	"gemini-2.5-pro",
-	"gemini-3-flash-preview",
-	"gemini-3.1-flash-image",
-	"gemini-3.1-flash-lite",
-	"gemini-3.1-flash-tts-preview",
-	"gemini-3.1-pro-preview",
-	"gemini-3-pro-image",
-	"gemini-3.5-flash",
-	"gemini-3.5-flash-lite",
-	"gemini-3.6-flash",
-	"gemini-3.7-flash",
-	"gemini-robotics-er-2-preview",
-	"gemma-4-26b-a4b-it",
-	"gemma-4-31b-it",
-	"lyria-3-clip-preview",
-	"lyria-3-pro-preview",
-]);
-
 export function supportsGoogleInteractions(value: string): boolean {
-	return GOOGLE_INTERACTIONS_MODELS.has(normalizeGoogleModelSlug(value).toLowerCase());
+	return supportsTextProviderInteractionsModel(
+		"google-ai-studio",
+		normalizeGoogleModelSlug(value).toLowerCase(),
+	);
 }
 
 function hasUsableIRResponse(response: IRChatResponse | undefined): boolean {
