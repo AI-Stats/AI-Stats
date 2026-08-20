@@ -180,5 +180,6 @@ as $$
   order by grouped.provider_name, grouped.offer_label nulls first;
 $$;
 
+revoke all on function public.get_v2_model_pricing(text, text, text) from public;
 grant execute on function public.get_v2_model_pricing(text, text, text)
   to anon, authenticated, service_role;

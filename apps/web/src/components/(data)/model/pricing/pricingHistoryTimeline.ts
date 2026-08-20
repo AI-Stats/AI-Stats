@@ -43,7 +43,8 @@ export function getPricingHistoryTimestamps({
 	const usageTimestamps = usageDays
 		.map((day) => Date.parse(`${day}T12:00:00.000Z`))
 		.filter(Number.isFinite);
-	const earliestAvailable = Math.min(...ruleBoundaries, ...usageTimestamps);
+	const earliestAvailable = [...ruleBoundaries, ...usageTimestamps]
+		.reduce((earliest, timestamp) => Math.min(earliest, timestamp), Number.POSITIVE_INFINITY);
 	const presetRangeStart = range === "all"
 		? Number.isFinite(earliestAvailable)
 			? Math.max(earliestAvailable, nowMs - 3_650 * 86_400_000)

@@ -1174,11 +1174,12 @@ publicModelsRouter.get("/:modelId/effective-pricing-daily", async (c) => {
 		const defaultSince = new Date(now);
 		defaultSince.setUTCDate(defaultSince.getUTCDate() - days);
 		const providerIds = [...new Set((c.req.query("provider_ids") ?? "").split(",").map((id) => id.trim()).filter(Boolean))].sort();
+		if (providerIds.length > 100) return c.json({ error: "too_many_provider_ids" }, 400);
 		const result = await getDataClient(c.env).rpc("get_v2_model_effective_pricing_daily", {
 			p_model_slug: modelId,
 			p_provider_ids: providerIds.length ? providerIds : null,
-			p_since: defaultSince.toISOString().slice(0, 10),
-			p_until: now.toISOString().slice(0, 10),
+			p_since: c.req.query("since")?.slice(0, 10) || defaultSince.toISOString().slice(0, 10),
+			p_until: c.req.query("until")?.slice(0, 10) || now.toISOString().slice(0, 10),
 		});
 		if (result.error) throw result.error;
 		if (!Array.isArray(result.data)) throw new Error("Effective pricing query returned an invalid payload");
