@@ -17,6 +17,7 @@ returns table (
   prompt_training_policy text,
   data_policy_tier text,
   zero_data_retention text,
+  data_retention_days integer,
   privacy_policy_url text,
   terms_of_service_url text,
   total_model_ids text[],
@@ -56,7 +57,8 @@ as $$
       provider.status,
       provider.prompt_training_policy,
       provider.data_policy_tier,
-      provider.zero_data_retention
+      provider.zero_data_retention,
+      provider.data_retention_days
     from public.v2_providers provider
     where lower(provider.provider_slug) not in ('inception', 'inceptron', 'nextbit')
   ),
@@ -135,6 +137,7 @@ as $$
     provider.prompt_training_policy,
     provider.data_policy_tier,
     provider.zero_data_retention,
+    provider.data_retention_days,
     nullif(provider.metadata->>'privacy_policy_url', ''),
     nullif(provider.metadata->>'terms_of_service_url', ''),
     coverage.total_model_ids,
