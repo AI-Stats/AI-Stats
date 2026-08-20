@@ -16,7 +16,7 @@
       "match": [
         {
           "path": "input_tokens",
-          "op": "lte",
+          "op": "lt",
           "or_group": 1,
           "and_index": 1,
           "value": 200000
@@ -29,7 +29,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "lte",
+          "op": "lt",
           "or_group": 1,
           "and_index": 1,
           "value": 200000
@@ -41,14 +41,14 @@
       "meter": "cached_read_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.5,
+      "price_per_unit": 0.3,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
       "match": [
         {
           "path": "input_tokens",
-          "op": "lte",
+          "op": "lt",
           "or_group": 1,
           "and_index": 1,
           "value": 200000
@@ -61,7 +61,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "lte",
+          "op": "lt",
           "or_group": 1,
           "and_index": 1,
           "value": 200000
@@ -80,7 +80,7 @@
       "match": [
         {
           "path": "input_tokens",
-          "op": "lte",
+          "op": "lt",
           "or_group": 1,
           "and_index": 1,
           "value": 200000
@@ -93,7 +93,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "lte",
+          "op": "lt",
           "or_group": 1,
           "and_index": 1,
           "value": 200000
@@ -112,7 +112,7 @@
       "match": [
         {
           "path": "input_tokens",
-          "op": "gt",
+          "op": "gte",
           "or_group": 1,
           "and_index": 1,
           "value": 200000
@@ -125,7 +125,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "gt",
+          "op": "gte",
           "or_group": 1,
           "and_index": 1,
           "value": 200000
@@ -137,14 +137,14 @@
       "meter": "cached_read_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 1,
+      "price_per_unit": 0.6,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": "Higher-context pricing applies when requests exceed the 200k context threshold.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "gt",
+          "op": "gte",
           "or_group": 1,
           "and_index": 1,
           "value": 200000
@@ -157,7 +157,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "gt",
+          "op": "gte",
           "or_group": 1,
           "and_index": 1,
           "value": 200000
@@ -176,7 +176,7 @@
       "match": [
         {
           "path": "input_tokens",
-          "op": "gt",
+          "op": "gte",
           "or_group": 1,
           "and_index": 1,
           "value": 200000
@@ -189,7 +189,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "gt",
+          "op": "gte",
           "or_group": 1,
           "and_index": 1,
           "value": 200000
@@ -208,7 +208,7 @@
       "match": [
         {
           "path": "input_tokens",
-          "op": "lte",
+          "op": "lt",
           "or_group": 1,
           "and_index": 1,
           "value": 200000
@@ -221,7 +221,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "lte",
+          "op": "lt",
           "or_group": 1,
           "and_index": 1,
           "value": 200000
@@ -233,14 +233,14 @@
       "meter": "cached_read_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 1,
+      "price_per_unit": 0.6,
       "currency": "USD",
       "pricing_plan": "priority",
       "note": "Priority Processing is billed at a 2x premium over standard rates.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "lte",
+          "op": "lt",
           "or_group": 1,
           "and_index": 1,
           "value": 200000
@@ -253,7 +253,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "lte",
+          "op": "lt",
           "or_group": 1,
           "and_index": 1,
           "value": 200000
@@ -272,7 +272,7 @@
       "match": [
         {
           "path": "input_tokens",
-          "op": "lte",
+          "op": "lt",
           "or_group": 1,
           "and_index": 1,
           "value": 200000
@@ -285,7 +285,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "lte",
+          "op": "lt",
           "or_group": 1,
           "and_index": 1,
           "value": 200000
@@ -304,7 +304,7 @@
       "match": [
         {
           "path": "input_tokens",
-          "op": "gt",
+          "op": "gte",
           "or_group": 1,
           "and_index": 1,
           "value": 200000
@@ -317,7 +317,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "gt",
+          "op": "gte",
           "or_group": 1,
           "and_index": 1,
           "value": 200000
@@ -329,14 +329,14 @@
       "meter": "cached_read_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 2,
+      "price_per_unit": 1.2,
       "currency": "USD",
       "pricing_plan": "priority",
       "note": "Priority Processing is billed at a 2x premium over higher-context standard rates.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "gt",
+          "op": "gte",
           "or_group": 1,
           "and_index": 1,
           "value": 200000
@@ -349,7 +349,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "gt",
+          "op": "gte",
           "or_group": 1,
           "and_index": 1,
           "value": 200000
@@ -368,7 +368,7 @@
       "match": [
         {
           "path": "input_tokens",
-          "op": "gt",
+          "op": "gte",
           "or_group": 1,
           "and_index": 1,
           "value": 200000
@@ -381,13 +381,30 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "gt",
+          "op": "gte",
           "or_group": 1,
           "and_index": 1,
           "value": 200000
         }
       ],
       "source": null
+    },
+    {
+      "meter": "native_web_search_requests",
+      "unit": "request",
+      "unit_size": 1,
+      "price_per_unit": 0.005,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "xAI bills Web Search at $5 per 1,000 tool invocations; model token usage is billed separately.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-20T00:00:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://docs.x.ai/developers/pricing"
     }
   ],
   "regions": [],
@@ -395,10 +412,23 @@
     "standard",
     "priority"
   ],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "pricing",
+      "url": "https://docs.x.ai/developers/pricing",
+      "accessed_at": "2026-08-20T00:00:00Z",
+      "notes": "Official short- and long-context token rates and Priority Processing multiplier."
+    },
+    {
+      "kind": "api_reference",
+      "url": "https://docs.x.ai/developers/models/grok-4.5",
+      "accessed_at": "2026-08-20T00:00:00Z",
+      "notes": "Official model page confirming the base and cached-input rates."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-20T00:00:00Z",
+    "notes": "Confirmed at $2/$0.30/$6 per 1M short-context input/cached-input/output tokens and $4/$0.60/$12 at long context; Priority Processing is 2x."
   }
 }
