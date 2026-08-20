@@ -784,8 +784,9 @@
       "openai/gpt-4-32k",
       "openai/gpt-4-32k-0314",
       "openai/gpt-4-32k-0613",
+      "openai/gpt-4-0125-preview",
+      "openai/gpt-4-1106-vision-preview",
       "openai/gpt-4-turbo",
-      "openai/gpt-4-turbo-2023-03-14",
       "openai/gpt-4-turbo-2023-11-06",
       "openai/gpt-4.1",
       "openai/gpt-4.1-mini",
@@ -914,7 +915,10 @@
       "openai/gpt-image-2",
       "openai/gpt-transcribe",
       "openai/whisper-large-v3",
-      "openai/whisper-large-v3-turbo"
+      "openai/whisper-large-v3-turbo",
+      "openai/daybreak-blue-latest",
+      "openai/daybreak-red-latest",
+      "openai/gpt-5.6-cyber"
     ],
     "perplexity": [
       "perplexity/pplx-embed-v1-0.6b",

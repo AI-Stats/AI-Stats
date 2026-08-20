@@ -1,8 +1,8 @@
 {
-  "key": "openai:openai/gpt-4-turbo-2024-01-25:text.generate",
+  "key": "openai:openai/gpt-4-0125-preview:text.generate",
   "api_provider_id": "openai",
   "provider_slug": "openai",
-  "api_model_id": "openai/gpt-4-turbo-2024-01-25",
+  "api_model_id": "openai/gpt-4-0125-preview",
   "capability_id": "text.generate",
   "rules": [
     {
@@ -16,10 +16,11 @@
       "match": [],
       "priority": 100,
       "effective_from": "2024-01-25T00:00:00Z",
+      "effective_to": "2026-03-26T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": "https://developers.openai.com/api/docs/models/gpt-4-turbo-preview"
     },
     {
       "meter": "output_text_tokens",
@@ -32,20 +33,19 @@
       "match": [],
       "priority": 100,
       "effective_from": "2024-01-25T00:00:00Z",
+      "effective_to": "2026-03-26T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": "https://developers.openai.com/api/docs/models/gpt-4-turbo-preview"
     }
   ],
   "regions": [],
-  "service_tiers": [
-    "standard"
-  ],
-  "sources": [],
+  "service_tiers": ["standard"],
+  "sources": ["https://developers.openai.com/api/docs/models/gpt-4-turbo-preview"],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-20T00:00:00Z",
+    "notes": "Verified against the official OpenAI GPT-4 Turbo Preview model documentation."
   }
 }
