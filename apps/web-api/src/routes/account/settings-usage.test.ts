@@ -1,11 +1,26 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import app from "@/index";
+import { sortUpstreamRequestsNewestFirst } from "./settings-usage";
 
 const env = { ENV: "development" as const, SUPABASE_URL: "https://example.supabase.co", SUPABASE_ANON_KEY: "anon-key", SUPABASE_SERVICE_ROLE_KEY: "service-role-key" };
 
 afterEach(() => vi.unstubAllGlobals());
 
 describe("account usage settings routes", () => {
+	it("sorts flattened upstream attempts globally by start time", () => {
+		const attempts = sortUpstreamRequestsNewestFirst([
+			{ request_id: "request-a", attempt_number: 2, created_at: "2026-07-17T00:00:10Z" },
+			{ request_id: "request-b", attempt_number: 1, created_at: "2026-07-17T00:00:12Z" },
+			{ request_id: "request-a", attempt_number: 1, created_at: "2026-07-17T00:00:09Z" },
+		]);
+
+		expect(attempts.map((attempt) => `${attempt.request_id}:${attempt.attempt_number}`)).toEqual([
+			"request-b:1",
+			"request-a:2",
+			"request-a:1",
+		]);
+	});
+
 	it("returns workspace-private lifecycle warnings with usage and replacement context", async () => {
 		const retirementDate = new Date(Date.now() + 5 * 86_400_000).toISOString().slice(0, 10);
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
