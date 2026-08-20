@@ -48,6 +48,7 @@ export type OrganisationIdList = (
   | "relace"
   | "runway"
   | "sakana"
+  | "sao10k"
   | "sourceful"
   | "spacex-ai"
   | "stepfun"
