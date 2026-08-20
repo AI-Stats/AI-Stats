@@ -703,7 +703,7 @@
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": "2025-10-02T00:00:00",
-    "effective_to": "2026-04-30T00:00:00",
+    "effective_to": "2026-10-02T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -4017,7 +4017,7 @@
     "provider_api_model_id": "google-ai-studio:google/gemma-3-12b:free",
     "provider_model_slug": "gemma-3-12b-it",
     "internal_model_id": "google/gemma-3-12b",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
@@ -4028,7 +4028,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [
           {
             "param_id": "frequency_penalty",
@@ -4132,8 +4132,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": null,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -4158,7 +4158,7 @@
     "provider_api_model_id": "google-ai-studio:google/gemma-3-1b:free",
     "provider_model_slug": "gemma-3-1b-it",
     "internal_model_id": "google/gemma-3-1b",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
@@ -4169,7 +4169,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [
           {
             "param_id": "max_tokens",
@@ -4245,8 +4245,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": null,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -4271,7 +4271,7 @@
     "provider_api_model_id": "google-ai-studio:google/gemma-3-27b:free",
     "provider_model_slug": "gemma-3-27b-it",
     "internal_model_id": "google/gemma-3-27b",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
@@ -4282,7 +4282,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [
           {
             "param_id": "frequency_penalty",
@@ -4400,8 +4400,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": null,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -4426,7 +4426,7 @@
     "provider_api_model_id": "google-ai-studio:google/gemma-3-4b:free",
     "provider_model_slug": "gemma-3-4b-it",
     "internal_model_id": "google/gemma-3-4b",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
@@ -4437,7 +4437,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [
           {
             "param_id": "frequency_penalty",
@@ -4527,8 +4527,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": null,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -4553,7 +4553,7 @@
     "provider_api_model_id": "google-ai-studio:google/gemma-3n-e2b:free",
     "provider_model_slug": "gemma-3n-e2b-it",
     "internal_model_id": "google/gemma-3n-e2b",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
@@ -4564,7 +4564,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [
           {
             "param_id": "max_tokens",
@@ -4640,8 +4640,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": null,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -4666,7 +4666,7 @@
     "provider_api_model_id": "google-ai-studio:google/gemma-3n-e4b:free",
     "provider_model_slug": "gemma-3n-e4b-it",
     "internal_model_id": "google/gemma-3n-e4b",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
@@ -4677,7 +4677,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [
           {
             "param_id": "frequency_penalty",
@@ -4760,8 +4760,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": null,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
