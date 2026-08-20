@@ -41,6 +41,33 @@ afterAll(() => {
 });
 
 describe("google-ai-studio embeddings executor", () => {
+	it("omits unsupported task metadata for Gemini Embedding 2", async () => {
+		const mock = installFetchMock([{
+			match: (url) => url.includes("/models/gemini-embedding-2:embedContent"),
+			response: jsonResponse({
+				embedding: { values: [0.1, 0.2] },
+				usageMetadata: { promptTokenCount: 2, totalTokenCount: 2 },
+			}),
+		}]);
+
+		const result = await executor(buildArgs({
+			model: "google/gemini-embedding-2",
+			providerOptions: {
+				google: {
+					taskType: "RETRIEVAL_DOCUMENT",
+					title: "Document title",
+				},
+			},
+		}));
+		mock.restore();
+
+		expect(result.kind).toBe("completed");
+		expect(mock.calls).toHaveLength(1);
+		expect(mock.calls[0]?.bodyJson?.content?.parts).toEqual([{ text: "hello world" }]);
+		expect(mock.calls[0]?.bodyJson).not.toHaveProperty("taskType");
+		expect(mock.calls[0]?.bodyJson).not.toHaveProperty("title");
+	});
+
 	it("maps multimodal embedding input into Gemini content.parts", async () => {
 		const mock = installFetchMock([
 			{

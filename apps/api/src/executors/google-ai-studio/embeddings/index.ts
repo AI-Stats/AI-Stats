@@ -305,8 +305,9 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	const isBatch = inputItems.length > 1;
 	const googleOptions = ir.providerOptions?.google;
 	const outputDimensionality = ir.dimensions;
-	const taskType = googleOptions?.taskType;
-	const title = googleOptions?.title;
+	const supportsTaskMetadata = modelForUrl !== "gemini-embedding-2";
+	const taskType = supportsTaskMetadata ? googleOptions?.taskType : undefined;
+	const title = supportsTaskMetadata ? googleOptions?.title : undefined;
 	const requestModel = `models/${modelForUrl}`;
 	const payload = isBatch
 		? {
