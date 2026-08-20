@@ -22,6 +22,15 @@ describe("SCIM User PATCH", () => {
 		expect(parseUserPatch({ schemas: [SCIM_URNS.patch], Operations: [{ op: "replace", value: { displayName: "Alice", title: "Engineer" } }] })).toEqual({ display_name: "Alice", title: "Engineer" });
 	});
 
+	it("appends multivalued attributes for add operations", () => {
+		expect(parseUserPatch({ schemas: [SCIM_URNS.patch], Operations: [
+			{ op: "add", path: "emails", value: [{ value: "new@example.com", type: "home" }] },
+		] }, { emails: [{ value: "existing@example.com", type: "work" }] })).toEqual({ emails: [
+			{ value: "existing@example.com", type: "work" },
+			{ value: "new@example.com", type: "home" },
+		] });
+	});
+
 	it("rejects unknown paths", () => {
 		expect(() => parseUserPatch({ schemas: [SCIM_URNS.patch], Operations: [{ op: "replace", path: "password", value: "secret" }] })).toThrow(ScimProtocolError);
 	});

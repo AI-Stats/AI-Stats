@@ -51,7 +51,10 @@ export class ScimUserService {
 	}
 
 	async patch(id: string, value: unknown) {
-		const changes = parseUserPatch(value);
+		const current = await this.client.from("scim_users").select(USER_COLUMNS).eq("workspace_id", this.workspaceId).eq("id", id).maybeSingle();
+		if (current.error) databaseError(current.error, "Unable to retrieve User.");
+		if (!current.data) throw new ScimProtocolError(404, "User not found.", "noTarget");
+		const changes = parseUserPatch(value, current.data);
 		const result = await this.client.from("scim_users").update(changes).eq("workspace_id", this.workspaceId).eq("id", id).select(USER_COLUMNS).maybeSingle();
 		if (result.error) databaseError(result.error, "Unable to patch User.");
 		if (!result.data) throw new ScimProtocolError(404, "User not found.", "noTarget");

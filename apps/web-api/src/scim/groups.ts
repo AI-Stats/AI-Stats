@@ -10,6 +10,7 @@ const FILTER_COLUMNS: Record<string, string> = { displayName: "display_name_norm
 function databaseError(error: { code?: string } | null, fallback: string): never {
 	if (error?.code === "23505") throw new ScimProtocolError(409, "A Group with the same unique attribute already exists.", "uniqueness");
 	if (error?.code === "23503") throw new ScimProtocolError(400, "A referenced User does not exist in this workspace.", "invalidValue");
+	if (error?.code === "P0002") throw new ScimProtocolError(404, "Group not found.", "noTarget");
 	throw new ScimProtocolError(500, fallback);
 }
 
@@ -29,13 +30,18 @@ export class ScimGroupService {
 		if (result.error) databaseError(result.error, "Unable to replace Group members.");
 	}
 
+	private async touch(groupId: string) {
+		const result = await this.client.from("scim_groups").update({ updated_at: new Date().toISOString() }).eq("workspace_id", this.workspaceId).eq("id", groupId);
+		if (result.error) databaseError(result.error, "Unable to update Group metadata.");
+	}
+
 	async create(value: unknown) {
 		const input = parseScimGroupInput(value);
 		const result = await this.client.from("scim_groups").insert({ workspace_id: this.workspaceId, external_id: input.externalId ?? null, display_name: input.displayName }).select(GROUP_COLUMNS).single();
 		if (result.error) databaseError(result.error, "Unable to create Group.");
 		try { await this.replaceMembers(result.data.id, input.members.map((member) => member.value)); }
 		catch (error) { await this.client.from("scim_groups").delete().eq("workspace_id", this.workspaceId).eq("id", result.data.id); throw error; }
-		return this.representation(result.data as ScimGroupRow);
+		return this.get(result.data.id);
 	}
 
 	async get(id: string) {
@@ -55,9 +61,9 @@ export class ScimGroupService {
 
 	async replace(id: string, value: unknown) {
 		const input = parseScimGroupInput(value);
-		const result = await this.client.from("scim_groups").update({ external_id: input.externalId ?? null, display_name: input.displayName }).eq("workspace_id", this.workspaceId).eq("id", id).select(GROUP_COLUMNS).maybeSingle();
+		const result = await this.client.rpc("replace_scim_group", { p_workspace_id: this.workspaceId, p_group_id: id, p_external_id: input.externalId ?? null, p_display_name: input.displayName, p_user_ids: [...new Set(input.members.map((member) => member.value))] }).select(GROUP_COLUMNS).maybeSingle();
 		if (result.error) databaseError(result.error, "Unable to replace Group."); if (!result.data) throw new ScimProtocolError(404, "Group not found.", "noTarget");
-		await this.replaceMembers(id, input.members.map((member) => member.value)); return this.representation(result.data as ScimGroupRow);
+		return this.representation(result.data as ScimGroupRow);
 	}
 
 	async patch(id: string, value: unknown) {
@@ -65,8 +71,8 @@ export class ScimGroupService {
 		for (const change of parseGroupPatch(value)) {
 			if (change.kind === "attributes") { const result = await this.client.from("scim_groups").update(change.values).eq("workspace_id", this.workspaceId).eq("id", id); if (result.error) databaseError(result.error, "Unable to patch Group."); }
 			else if (change.kind === "members-replace") await this.replaceMembers(id, change.userIds);
-			else if (change.kind === "members-add") { const result = await this.client.from("scim_group_members").upsert(change.userIds.map((userId) => ({ workspace_id: this.workspaceId, group_id: id, user_id: userId })), { onConflict: "group_id,user_id", ignoreDuplicates: true }); if (result.error) databaseError(result.error, "Unable to add Group members."); }
-			else { const result = await this.client.from("scim_group_members").delete().eq("workspace_id", this.workspaceId).eq("group_id", id).in("user_id", change.userIds); if (result.error) databaseError(result.error, "Unable to remove Group members."); }
+			else if (change.kind === "members-add") { const result = await this.client.from("scim_group_members").upsert(change.userIds.map((userId) => ({ workspace_id: this.workspaceId, group_id: id, user_id: userId })), { onConflict: "group_id,user_id", ignoreDuplicates: true }); if (result.error) databaseError(result.error, "Unable to add Group members."); await this.touch(id); }
+			else { const result = await this.client.from("scim_group_members").delete().eq("workspace_id", this.workspaceId).eq("group_id", id).in("user_id", change.userIds); if (result.error) databaseError(result.error, "Unable to remove Group members."); await this.touch(id); }
 		}
 		return this.get(id);
 	}

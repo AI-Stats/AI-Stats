@@ -19,7 +19,7 @@ const SIMPLE_PATHS: Record<string, string> = {
 	emails: "emails", phoneNumbers: "phone_numbers", addresses: "addresses",
 };
 
-export function parseUserPatch(value: unknown): Record<string, unknown> {
+export function parseUserPatch(value: unknown, current: Record<string, unknown> = {}): Record<string, unknown> {
 	const parsed = patchSchema.safeParse(value);
 	if (!parsed.success) throw new ScimProtocolError(400, parsed.error.issues[0]?.message ?? "Invalid PATCH request.", "invalidSyntax");
 	const changes: Record<string, unknown> = {};
@@ -29,7 +29,10 @@ export function parseUserPatch(value: unknown): Record<string, unknown> {
 				for (const [path, item] of Object.entries(operation.value)) {
 					const column = SIMPLE_PATHS[path];
 					if (!column) throw new ScimProtocolError(400, `PATCH path ${path} is not supported.`, "invalidPath");
-					changes[column] = item;
+					const existing = changes[column] ?? current[column];
+					changes[column] = operation.op === "add" && ["emails", "phone_numbers", "addresses"].includes(column)
+						? [...(Array.isArray(existing) ? existing : []), ...(Array.isArray(item) ? item : [item])]
+						: item;
 				}
 				continue;
 			}
@@ -44,7 +47,12 @@ export function parseUserPatch(value: unknown): Record<string, unknown> {
 		}
 		if (!column) throw new ScimProtocolError(400, `PATCH path ${operation.path} is not supported.`, "invalidPath");
 		if (["emails", "phone_numbers", "addresses"].includes(column) && operation.op !== "remove" && (!Array.isArray(operation.value) || operation.value.length > 20)) throw new ScimProtocolError(400, `${operation.path} must be an array with at most 20 values.`, "invalidValue");
-		changes[column] = operation.op === "remove" ? (["emails", "phone_numbers", "addresses"].includes(column) ? [] : null) : operation.value;
+		const multivalued = ["emails", "phone_numbers", "addresses"].includes(column);
+		const existing = changes[column] ?? current[column];
+		changes[column] = operation.op === "remove" ? (multivalued ? [] : null)
+			: operation.op === "add" && multivalued ? [...(Array.isArray(existing) ? existing : []), ...(operation.value as unknown[])]
+				: operation.value;
+		if (multivalued && Array.isArray(changes[column]) && changes[column].length > 20) throw new ScimProtocolError(400, `${operation.path} may contain at most 20 values.`, "invalidValue");
 	}
 	if (typeof changes.user_name === "string" && !changes.user_name.trim()) throw new ScimProtocolError(400, "userName cannot be empty.", "invalidValue");
 	if (changes.active !== undefined && typeof changes.active !== "boolean") throw new ScimProtocolError(400, "active must be a boolean.", "invalidValue");
