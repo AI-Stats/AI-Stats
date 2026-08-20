@@ -1,3 +1,5 @@
+-- phaseo:allow-destructive-migration reason: SCIM deprovisioning and atomic membership replacement require scoped row deletion.
+
 create table if not exists public.scim_endpoints (
   id uuid primary key default gen_random_uuid(),
   workspace_id uuid not null references public.workspaces(id) on delete cascade,

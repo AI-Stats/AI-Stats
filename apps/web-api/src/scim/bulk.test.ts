@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { SCIM_URNS } from "./constants";
 import { executeBulk, type BulkResourceService } from "./bulk";
 
-function resource(id: string) { return { id, meta: { location: `https://phaseo.ai/scim/v2/Users/${id}`, version: 'W/"1"' } }; }
+function resource(id: string) { return { id, meta: { location: `https://phaseo.app/scim/v2/Users/${id}`, version: 'W/"1"' } }; }
 
 describe("SCIM Bulk", () => {
 	it("resolves bulkId references through shared resource services", async () => {

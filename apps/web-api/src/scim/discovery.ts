@@ -3,7 +3,7 @@ import { scimListResponse } from "./http";
 
 export const serviceProviderConfig = {
 	schemas: [SCIM_URNS.serviceProviderConfig],
-	documentationUri: "https://docs.phaseo.ai/v1/security/scim",
+	documentationUri: "https://docs.phaseo.app/v1/security/scim",
 	patch: { supported: true },
 	bulk: { supported: true, ...SCIM_BULK_LIMITS },
 	filter: { supported: true, maxResults: 100 },
