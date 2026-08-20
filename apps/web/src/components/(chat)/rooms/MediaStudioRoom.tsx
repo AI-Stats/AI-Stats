@@ -77,6 +77,7 @@ import {
 import { ImageModelSettingsDialog } from "@/components/(chat)/rooms/settings/ImageModelSettingsDialog";
 import { VideoModelSettingsDialog } from "@/components/(chat)/rooms/settings/VideoModelSettingsDialog";
 import { RoomErrorNotice } from "@/components/(chat)/rooms/RoomErrorNotice";
+import { RoomResponseTimestamp } from "@/components/(chat)/RoomResponseTimestamp";
 import {
 	RoomComposerFooter,
 	RoomComposerSurface,
@@ -1584,6 +1585,9 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 				const pendingEntryByModelId = new Map(
 					pendingEntries.map((entry) => [entry.modelId, entry]),
 				);
+				if (clearPromptAfterSuccess) {
+					setPrompt("");
+				}
 				if (retryEntryId) {
 					await replaceEntry(retryEntryId, pendingEntries);
 				} else {
@@ -1593,7 +1597,6 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 					setPrompt("");
 				}
 
-				let hasSuccess = false;
 				const failures: string[] = [];
 				await Promise.all(
 					effectiveSubmitModelIds.map(async (targetModelId) => {
@@ -1668,7 +1671,6 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 										progressPercent: 100,
 									},
 								]);
-								hasSuccess = true;
 								return;
 							}
 
@@ -1716,7 +1718,6 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 								void pollVideoEntryUntilSettled(nextEntries[0]?.id ?? pendingEntry.id);
 							}
 							if (nextStatus !== "failed") {
-								hasSuccess = true;
 							}
 						} catch (err) {
 							failures.push(
@@ -1734,9 +1735,6 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 					}),
 				);
 
-				if (roomId !== "image" && hasSuccess && clearPromptAfterSuccess) {
-					setPrompt("");
-				}
 				if (failures.length > 0) {
 					setError(
 						failures.length === 1
@@ -1899,7 +1897,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 							return (
 								<div
 									key={entry.id}
-									className="overflow-hidden rounded-md border border-border bg-card"
+									className="group/response overflow-hidden rounded-md border border-border bg-card"
 								>
 									<div className="relative aspect-[4/5] bg-muted/20">
 										{entry.status === "failed" ? (
@@ -1929,12 +1927,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 											</button>
 										) : (
 											<div className="flex h-full w-full flex-col items-center justify-center gap-2 px-4 text-center">
-											<RoomWorkingIndicator
-												label={pendingState.label}
-												size={28}
-												showLabel={false}
-											/>
-												<p className="text-xs font-medium text-foreground">{pendingState.label}</p>
+												<RoomWorkingIndicator label={pendingState.label} size={28} />
 												{pendingState.progress !== null ? (
 													<div className="w-24">
 														<div className="h-1.5 overflow-hidden rounded-full bg-muted">
@@ -1958,8 +1951,11 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 											{modelLabel}
 										</p>
 										<div className="flex items-center justify-between gap-2">
-											<p className="text-[11px] text-muted-foreground">Cost: {formatCost(entry.costUsd)}</p>
-											{entry.status !== "completed" ? (
+										<p className="text-[11px] text-muted-foreground">Cost: {formatCost(entry.costUsd)}</p>
+										{entry.status === "completed" ? (
+											<RoomResponseTimestamp createdAt={entry.createdAt} className="order-last ml-auto" />
+										) : null}
+										{entry.status !== "completed" ? (
 												<div className="flex items-center gap-1">
 													{entry.status === "failed" ? (
 														<Button
@@ -2045,7 +2041,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 							const modelLabel = modelLabelById.get(entry.modelId) ?? entry.modelId;
 							const pendingState = getPendingGenerationState(entry, "video");
 							return (
-								<div className="flex min-h-[460px] flex-col overflow-hidden rounded-md border border-border bg-card">
+								<div className="group/response flex min-h-[460px] flex-col overflow-hidden rounded-md border border-border bg-card">
 									<div className="flex items-start justify-between gap-3 border-b border-border px-4 py-3">
 										<div className="min-w-0">
 											<p className="truncate text-sm font-medium text-foreground" title={modelLabel}>
@@ -2056,6 +2052,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 											</p>
 										</div>
 										<div className="flex items-center gap-2">
+											<RoomResponseTimestamp createdAt={entry.createdAt} className="order-last" />
 											<p className="text-xs text-muted-foreground">Cost: {formatCost(entry.costUsd)}</p>
 											{entry.status === "failed" ? (
 												<div className="flex items-center gap-1">
@@ -2169,8 +2166,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 											</MediaPlayer>
 										) : (
 											<div className="flex max-w-lg flex-col items-center gap-3 text-center">
-												<Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-												<p className="text-sm font-medium text-foreground">{pendingState.label}</p>
+											<RoomWorkingIndicator label={pendingState.label} />
 												{pendingState.progress !== null ? (
 													<div className="w-56 max-w-full">
 														<div className="h-2 overflow-hidden rounded-full bg-muted">
@@ -2246,7 +2242,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 							>
 								{roomId === "video" && (hasPendingEntries || isLoading)
 									? <RoomWorkingIndicator
-										label={roomId === "video" ? "Generating..." : "Creating..."}
+										label="Generating video..."
 									/>
 									: submitModelIds.length > 1
 										? `Create (${submitModelIds.length})`

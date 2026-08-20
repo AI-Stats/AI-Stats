@@ -68,6 +68,7 @@ import {
 } from "@/lib/chat/roomModelSettings";
 import { ModerationModelSettingsDialog } from "@/components/(chat)/rooms/settings/ModerationModelSettingsDialog";
 import { RoomErrorNotice } from "@/components/(chat)/rooms/RoomErrorNotice";
+import { RoomResponseTimestamp } from "@/components/(chat)/RoomResponseTimestamp";
 import {
 	RoomComposerFooter,
 	RoomComposerSurface,
@@ -128,6 +129,7 @@ type ModerationEntry = {
 	result: NormalizedModerationResult | null;
 	raw: unknown;
 	isTemporary?: boolean;
+	isPending?: boolean;
 };
 
 type ModerationConversation = {
@@ -1026,6 +1028,7 @@ export function ModerationRoom({ models }: { models: GatewaySupportedModel[] }) 
 		}
 		setError(null);
 		setIsLoading(true);
+		let pendingEntryId: string | null = null;
 		try {
 			const resolvedImageUrls: string[] = [];
 			if (overrides?.forcedImageUrls?.length) {
@@ -1080,6 +1083,35 @@ export function ModerationRoom({ models }: { models: GatewaySupportedModel[] }) 
 				text: inputText,
 				imageUrls: resolvedImageUrls,
 			});
+			const scoreThreshold = getModerationThreshold(
+				(selectedProfile?.params as ModerationRoomParams) ??
+					getDefaultModerationRoomParams(),
+			);
+			pendingEntryId = crypto.randomUUID();
+			setEntries((prev) => [
+				{
+					id: pendingEntryId!,
+					createdAt: nowIso(),
+					conversationId,
+					conversationTitle,
+					modelId: targetModelId,
+					providerId:
+						selectedProviderId && selectedProviderId !== "auto"
+							? selectedProviderId
+							: undefined,
+					text: inputText,
+					imageUrls: resolvedImageUrls,
+					scoreThreshold,
+					result: null,
+					raw: null,
+					isTemporary: true,
+					isPending: true,
+				},
+				...prev,
+			]);
+			if (!overrides?.forcedText) {
+				setText("");
+			}
 
 			const response = await fetchChatWebApi("/api/chat/moderation", {
 				method: "POST",
@@ -1112,10 +1144,8 @@ export function ModerationRoom({ models }: { models: GatewaySupportedModel[] }) 
 			const payload = await response.json();
 			const normalized = normalizeModerationResult(payload);
 			const generationMs = getGenerationMs(payload);
-			const scoreThreshold = getModerationThreshold(
-				(selectedProfile?.params as ModerationRoomParams) ??
-					getDefaultModerationRoomParams(),
-			);
+			setEntries((prev) => prev.filter((item) => item.id !== pendingEntryId));
+			pendingEntryId = null;
 			const entry: ModerationEntry = {
 				id: crypto.randomUUID(),
 				createdAt: nowIso(),
@@ -1141,8 +1171,14 @@ export function ModerationRoom({ models }: { models: GatewaySupportedModel[] }) 
 				setImageFile(null);
 			}
 		} catch (err) {
+			if (!overrides?.forcedText) {
+				setText(inputText);
+			}
 			setError(err instanceof Error ? err.message : "Moderation failed");
 		} finally {
+			if (pendingEntryId) {
+				setEntries((prev) => prev.filter((item) => item.id !== pendingEntryId));
+			}
 			setIsLoading(false);
 		}
 	};
@@ -1513,9 +1549,30 @@ export function ModerationRoom({ models }: { models: GatewaySupportedModel[] }) 
 							const promptCopied = copiedKey === promptCopyKey;
 							const resultCopied = copiedKey === resultCopyKey;
 							const isEditing = editingEntryId === entry.id;
+							if (entry.isPending) {
+								return (
+									<div key={entry.id} className="group/response space-y-3">
+										<div className="ml-auto w-full max-w-2xl rounded-2xl bg-foreground px-4 py-3 text-sm text-background">
+											<p className="whitespace-pre-wrap">
+												{entry.text || "Image moderation request"}
+											</p>
+										</div>
+										<div className="mr-auto w-full max-w-3xl">
+											<Link
+												href={modelHref}
+												className="mb-2 inline-flex items-center gap-2 text-xs text-muted-foreground transition-colors hover:text-foreground"
+											>
+												<Logo id={logoId} alt={logoAlt} width={16} height={16} className="shrink-0 rounded-none" />
+												<span className="truncate">{modelLabel}</span>
+											</Link>
+											<RoomWorkingIndicator label="Generating moderation response..." />
+										</div>
+									</div>
+								);
+							}
 
 							return (
-								<div key={entry.id} className="space-y-3">
+								<div key={entry.id} className="group/response space-y-3">
 									<div className="ml-auto w-full max-w-2xl">
 										{isEditing ? (
 										<div className="grid gap-3 rounded-md bg-foreground px-4 py-3 text-sm text-background">
@@ -1626,7 +1683,7 @@ export function ModerationRoom({ models }: { models: GatewaySupportedModel[] }) 
 											/>
 											<span className="truncate">{modelLabel}</span>
 										</Link>
-								<div className="space-y-3 rounded-md border border-border bg-card p-3">
+										<div className="space-y-3 py-1">
 											<div className="flex items-center justify-end">
 												<span
 													className={`rounded-full px-2 py-1 text-xs font-medium ${
@@ -1809,6 +1866,7 @@ export function ModerationRoom({ models }: { models: GatewaySupportedModel[] }) 
 											)}
 										</div>
 										<div className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
+											<RoomResponseTimestamp createdAt={entry.createdAt} className="order-last" />
 											<Tooltip>
 												<TooltipTrigger asChild>
 													<Button
@@ -2009,7 +2067,7 @@ export function ModerationRoom({ models }: { models: GatewaySupportedModel[] }) 
 								}}
 								disabled={isLoading || !modelId || !selectedModelEnabled}
 							>
-								{isLoading ? <RoomWorkingIndicator label="Moderating..." /> : "Moderate"}
+								{isLoading ? <RoomWorkingIndicator label="Generating moderation response..." /> : "Moderate"}
 							</Button>
 						</div>
 					</RoomComposerSurface>

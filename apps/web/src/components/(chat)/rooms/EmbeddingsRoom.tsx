@@ -70,6 +70,7 @@ import {
 } from "@/lib/chat/roomModelSettings";
 import { EmbeddingsModelSettingsDialog } from "@/components/(chat)/rooms/settings/EmbeddingsModelSettingsDialog";
 import { RoomErrorNotice } from "@/components/(chat)/rooms/RoomErrorNotice";
+import { RoomResponseTimestamp } from "@/components/(chat)/RoomResponseTimestamp";
 import {
 	RoomComposerFooter,
 	RoomComposerSurface,
@@ -145,6 +146,7 @@ type EmbeddingEntry = {
 	summary: string;
 	raw: unknown;
 	isTemporary?: boolean;
+	isPending?: boolean;
 };
 
 type EmbeddingConversation = {
@@ -706,10 +708,12 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 	}) => {
 		const targetModelId = overrides?.forcedModelId ?? modelId;
 		if (!targetModelId || isLoading || !selectedModelEnabled) return;
+		const submittedTextInput = overrides?.inputOverride?.textInput ?? textInput;
 		setError(null);
 		setIsLoading(true);
+		let pendingEntryId: string | null = null;
 		try {
-			const effectiveTextInput = overrides?.inputOverride?.textInput ?? textInput;
+			const effectiveTextInput = submittedTextInput;
 			const effectiveImageUrl = overrides?.inputOverride?.imageUrl ?? imageUrl;
 			const effectiveAudioUrl = overrides?.inputOverride?.audioUrl ?? audioUrl;
 			const effectiveVideoUrl = overrides?.inputOverride?.videoUrl ?? videoUrl;
@@ -800,6 +804,33 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 			const conversationTitle =
 				overrides?.forcedConversationTitle ||
 				(temporaryMode ? "Temporary chat" : existingTitle || candidateTitle);
+			pendingEntryId = crypto.randomUUID();
+			setEntries((prev) => [
+				{
+					id: pendingEntryId!,
+					createdAt: nowIso(),
+					conversationId,
+					conversationTitle,
+					modelId: targetModelId,
+					providerId:
+						selectedProviderId && selectedProviderId !== "auto"
+							? selectedProviderId
+							: undefined,
+					inputText: trimmedText || undefined,
+					imageUrl: effectiveImageUrl.trim() || undefined,
+					audioUrl: effectiveAudioUrl.trim() || undefined,
+					videoUrl: effectiveVideoUrl.trim() || undefined,
+					fileNames: effectiveFiles.map((file) => file.name),
+					summary: trimmedText || "Embedding request",
+					raw: null,
+					isTemporary: true,
+					isPending: true,
+				},
+				...prev,
+			]);
+			if (!overrides?.inputOverride) {
+				setTextInput("");
+			}
 
 			const response = await fetchChatWebApi("/api/chat/embeddings", {
 				method: "POST",
@@ -831,6 +862,8 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 				throw new Error(text || `Request failed (${response.status})`);
 			}
 			const payload = await response.json();
+			setEntries((prev) => prev.filter((item) => item.id !== pendingEntryId));
+			pendingEntryId = null;
 			const summary = [
 				shouldSplitTextLines
 					? `${textLines.length} text lines`
@@ -874,8 +907,14 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 				setShowVideoUrlInput(false);
 			}
 		} catch (err) {
+			if (!overrides?.inputOverride) {
+				setTextInput(submittedTextInput);
+			}
 			setError(err instanceof Error ? err.message : "Embeddings request failed");
 		} finally {
+			if (pendingEntryId) {
+				setEntries((prev) => prev.filter((item) => item.id !== pendingEntryId));
+			}
 			setIsLoading(false);
 		}
 	};
@@ -1388,8 +1427,29 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 							);
 							const activeLabel =
 								activeRow ? rowLabelByIndex.get(activeRow.index) ?? "No source text" : null;
+							if (entry.isPending) {
+								return (
+									<div key={entry.id} className="group/response space-y-3">
+										<div className="ml-auto w-full max-w-[85%] rounded-2xl bg-foreground px-4 py-3 text-sm text-background">
+											<p className="whitespace-pre-wrap">
+												{entry.inputText || entry.summary}
+											</p>
+										</div>
+										<div className="mr-auto w-full max-w-[92%]">
+											<Link
+												href={modelHref}
+												className="mb-2 inline-flex items-center gap-2 text-xs text-muted-foreground transition-colors hover:text-foreground"
+											>
+												<Logo id={logoId} alt={logoAlt} width={18} height={18} className="shrink-0 rounded-none" />
+												<span className="truncate">{modelLabel}</span>
+											</Link>
+											<RoomWorkingIndicator label="Generating embeddings..." />
+										</div>
+									</div>
+								);
+							}
 							return (
-								<div key={entry.id} className="space-y-3">
+								<div key={entry.id} className="group/response space-y-3">
 									<div className="ml-auto w-full max-w-[85%]">
 									<div className="rounded-md bg-foreground px-4 py-3 text-sm text-background">
 											<p className="whitespace-pre-wrap">
@@ -1463,7 +1523,7 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 											/>
 											<span className="truncate">{modelLabel}</span>
 										</Link>
-								<div className="space-y-3 rounded-md border border-border bg-card p-4">
+										<div className="space-y-3 py-1">
 											<div className="flex flex-wrap items-center gap-2">
 												<h2 className="text-sm font-semibold">2D projection (PCA)</h2>
 												<span className="rounded-full border border-border bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
@@ -1582,6 +1642,7 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 											</div>
 										</div>
 										<div className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
+											<RoomResponseTimestamp createdAt={entry.createdAt} className="order-last" />
 											<Tooltip>
 												<TooltipTrigger asChild>
 													<Button
@@ -1843,7 +1904,7 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 								}}
 								disabled={isLoading || !modelId || !selectedModelEnabled}
 							>
-								{isLoading ? <RoomWorkingIndicator label="Embedding..." /> : "Embed"}
+								{isLoading ? <RoomWorkingIndicator label="Generating embeddings..." /> : "Embed"}
 							</Button>
 						</div>
 					</RoomComposerSurface>
