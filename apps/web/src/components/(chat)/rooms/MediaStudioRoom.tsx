@@ -1593,10 +1593,6 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 				} else {
 					await addEntries(pendingEntries);
 				}
-				if (roomId === "image" && clearPromptAfterSuccess) {
-					setPrompt("");
-				}
-
 				const failures: string[] = [];
 				await Promise.all(
 					effectiveSubmitModelIds.map(async (targetModelId) => {

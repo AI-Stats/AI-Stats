@@ -897,7 +897,6 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 				isTemporary: temporaryMode,
 			});
 			if (!overrides?.inputOverride) {
-				setTextInput("");
 				setImageUrl("");
 				setAudioUrl("");
 				setVideoUrl("");
@@ -908,7 +907,7 @@ export function EmbeddingsRoom({ models }: { models: GatewaySupportedModel[] }) 
 			}
 		} catch (err) {
 			if (!overrides?.inputOverride) {
-				setTextInput(submittedTextInput);
+				setTextInput((current) => current || submittedTextInput);
 			}
 			setError(err instanceof Error ? err.message : "Embeddings request failed");
 		} finally {

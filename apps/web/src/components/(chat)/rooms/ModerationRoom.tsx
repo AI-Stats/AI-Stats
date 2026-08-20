@@ -1166,13 +1166,12 @@ export function ModerationRoom({ models }: { models: GatewaySupportedModel[] }) 
 			};
 			await addEntry(entry);
 			if (!overrides?.forcedText) {
-				setText("");
 				setImageUrl("");
 				setImageFile(null);
 			}
 		} catch (err) {
 			if (!overrides?.forcedText) {
-				setText(inputText);
+				setText((current) => current || inputText);
 			}
 			setError(err instanceof Error ? err.message : "Moderation failed");
 		} finally {
