@@ -12,7 +12,6 @@ export type KnownModelId =
   | "allenai/olmo-3.1-32b"
   | "anthropic/claude-fable-5"
   | "anthropic/claude-haiku-4.5"
-  | "anthropic/claude-opus-4.1"
   | "anthropic/claude-opus-4.5"
   | "anthropic/claude-opus-4.6"
   | "anthropic/claude-opus-4.7"
