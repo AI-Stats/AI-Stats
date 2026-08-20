@@ -13,7 +13,7 @@
   "input_types": "text,image,video",
   "output_types": "video",
   "api_model_id": "google/gemini-omni-flash",
-  "family_id": null,
+  "family_id": "google/gemini-omni",
   "links": [{"title":"Models","kind":"api_reference","url":"https://ai.google.dev/gemini-api/docs/models"}],
   "details": [{"name":"provider_model_slug","value":"gemini-omni-flash"}],
   "benchmarks": [],

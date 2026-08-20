@@ -2,7 +2,7 @@
   "model_id": "google/lyria-realtime-exp",
   "organisation_id": "google",
   "name": "Lyria RealTime Experimental",
-  "status": "Experimental",
+  "status": "Preview",
   "previous_model_id": null,
   "description": "Google's real-time streaming music generation model with interactive creative controls.",
   "announced_date": "2025-05-20T00:00:00Z",
