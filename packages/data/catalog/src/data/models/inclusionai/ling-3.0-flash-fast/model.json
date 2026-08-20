@@ -1,0 +1,72 @@
+{
+  "model_id": "inclusionai/ling-3.0-flash-fast",
+  "organisation_id": "inclusionai",
+  "name": "Ling 3.0 Flash Fast",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Ling-3.0-flash is a 124B-parameter Mixture-of-Experts (MoE) model, with approximately 5.1B parameters activated per token.",
+  "announced_date": null,
+  "release_date": null,
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": null,
+  "input_types": null,
+  "output_types": null,
+  "api_model_id": "inclusionai/ling-3.0-flash-fast",
+  "links": [
+    {
+      "title": "Novita model page",
+      "kind": "provider_model",
+      "url": "https://novita.ai/models/model-detail/inclusionai-ling-3.0-flash-fast"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "family_id": null,
+  "page_notice": null,
+  "model_type": null,
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": 262144,
+    "input": 262144,
+    "output": 32768
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": true,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": false,
+    "tool_call": true,
+    "structured_output": false,
+    "temperature": true,
+    "streaming": null,
+    "web_search": null
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_model",
+      "url": "https://novita.ai/models/model-detail/inclusionai-ling-3.0-flash-fast",
+      "accessed_at": "2026-08-20T00:00:00Z",
+      "notes": "Provider availability and operational limits; creator metadata remains limited."
+    }
+  ],
+  "verification": {
+    "status": "partial",
+    "checked_at": "2026-08-20T00:00:00Z",
+    "notes": "Novita availability verified; creator release metadata is not asserted from the provider listing."
+  },
+  "last_updated": "2026-08-20T00:00:00",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

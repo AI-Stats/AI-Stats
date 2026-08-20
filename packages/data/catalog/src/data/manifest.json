@@ -2,34 +2,41 @@
   "organisations": [
     "ai21",
     "aion-labs",
+    "alibaba",
     "allenai",
     "amazon",
     "anthropic",
     "arcee-ai",
+    "baai",
     "baidu",
     "black-forest-labs",
     "bytedance",
     "cohere",
+    "crofai",
     "cursor",
     "deepseek",
     "eleven-labs",
     "essential-ai",
-    "google",
     "github",
+    "google",
     "ibm",
     "inception",
     "inclusionai",
+    "inflection",
     "kwaipilot",
     "lg",
+    "lightricks",
     "liquid-ai",
     "meituan",
     "meta",
     "microsoft",
+    "mindai",
     "minimax",
     "mistral",
     "moonshotai",
-    "nex-agi",
+    "morph",
     "naver-hyperclova",
+    "nex-agi",
     "nous",
     "nvidia",
     "openai",
@@ -38,30 +45,24 @@
     "poolside",
     "prime-intellect",
     "qwen",
+    "reka",
     "relace",
+    "runway",
+    "sakana",
+    "sao10k",
     "sourceful",
+    "spacex-ai",
     "stepfun",
     "suno",
     "tencent",
+    "thinking-machines",
     "upstage",
+    "venice",
     "vercel",
     "voyage",
     "windsurf",
-    "spacex-ai",
     "xiaomi",
-    "z-ai",
-    "crofai",
-    "inflection",
-    "mindai",
-    "morph",
-    "thinking-machines",
-    "venice",
-    "alibaba",
-    "runway",
-    "lightricks",
-    "baai",
-    "reka",
-    "sakana"
+    "z-ai"
   ],
   "models": {
     "ai21": [
@@ -148,11 +149,13 @@
       "arcee-ai/trinity-nano-preview"
     ],
     "baidu": [
+      "baidu/cobuddy",
       "baidu/ernie-4.5-21b-a3b",
       "baidu/ernie-4.5-21b-a3b-thinking",
       "baidu/ernie-4.5-300b-a47b",
       "baidu/ernie-4.5-turbo",
       "baidu/ernie-4.5-vl-28b-a3b",
+      "baidu/ernie-4.5-vl-28b-a3b-thinking",
       "baidu/ernie-4.5-vl-424b-a47b",
       "baidu/ernie-5.0",
       "baidu/ernie-5.0-0110",
@@ -161,8 +164,7 @@
       "baidu/ernie-x1.1",
       "baidu/qianfan-vl-3b",
       "baidu/qianfan-vl-70b",
-      "baidu/qianfan-vl-8b",
-      "baidu/ernie-4.5-vl-28b-a3b-thinking"
+      "baidu/qianfan-vl-8b"
     ],
     "black-forest-labs": [
       "black-forest-labs/flux-2-dev",
@@ -267,7 +269,8 @@
       "deepseek/deepseek-r1",
       "deepseek/deepseek-r1-turbo",
       "deepseek/deepseek-v3",
-      "deepseek/deepseek-v3-turbo"
+      "deepseek/deepseek-v3-turbo",
+      "deepseek/deepseek-r1-distill-llama-70b"
     ],
     "eleven-labs": [
       "eleven-labs/eleven-english-sts-v2",
@@ -481,13 +484,16 @@
       "inception/mercury-edit-2"
     ],
     "inclusionai": [
-      "inclusionai/ring-1t-2.5",
       "inclusionai/ling-2.6-1t",
+      "inclusionai/ling-2.6-flash",
       "inclusionai/ling-3.0-flash",
-      "inclusionai/ling-flash-2.0",
-      "inclusionai/ring-flash-2.0",
+      "inclusionai/ling-3.0-flash-fast",
       "inclusionai/ling-3.0-flash:free",
-      "inclusionai/ling-3.0-tiny"
+      "inclusionai/ling-3.0-tiny",
+      "inclusionai/ling-flash-2.0",
+      "inclusionai/ring-1t-2.5",
+      "inclusionai/ring-2.6-1t",
+      "inclusionai/ring-flash-2.0"
     ],
     "kwaipilot": [
       "kwaipilot/kat-coder-air-v2.5",
@@ -556,10 +562,10 @@
       "microsoft/phi-1",
       "microsoft/phi-1.5",
       "microsoft/phi-2",
-      "microsoft/phi-3-mini-4k-instruct",
       "microsoft/phi-3-medium-128k-instruct",
       "microsoft/phi-3-medium-4k-instruct",
       "microsoft/phi-3-mini-128k-instruct",
+      "microsoft/phi-3-mini-4k-instruct",
       "microsoft/phi-3-small-128k-instruct",
       "microsoft/phi-3-small-8k-instruct",
       "microsoft/phi-3-vision-128k-instruct",
@@ -577,7 +583,8 @@
       "microsoft/phi-ground",
       "microsoft/phi-ground-any",
       "microsoft/phi-mini-moe-instruct",
-      "microsoft/phi-tiny-moe-instruct"
+      "microsoft/phi-tiny-moe-instruct",
+      "microsoft/wizardlm-2-8x22b"
     ],
     "minimax": [
       "minimax/hailuo-02",
@@ -1133,7 +1140,8 @@
       "qwen/text-embedding-v3",
       "qwen/text-embedding-v4",
       "qwen/wan2.7-t2v",
-      "qwen/qwen3.8-2.4t-a95b"
+      "qwen/qwen3.8-2.4t-a95b",
+      "qwen/qwen3-omni-30b-a3b"
     ],
     "relace": [
       "relace/relace-search"
@@ -1262,6 +1270,7 @@
       "xiaomi/mimo-v2.5-tts:free"
     ],
     "z-ai": [
+      "z-ai/autoglm-phone-9b-multilingual",
       "z-ai/glm-4-32b",
       "z-ai/glm-4-9b",
       "z-ai/glm-4-9b-2024-06-04",
@@ -1279,16 +1288,16 @@
       "z-ai/glm-4.6v-flash",
       "z-ai/glm-4.7",
       "z-ai/glm-4.7-flash",
+      "z-ai/glm-4.7-flash:free",
       "z-ai/glm-4v-9b",
       "z-ai/glm-5",
       "z-ai/glm-5-code",
       "z-ai/glm-5-turbo",
       "z-ai/glm-5.1",
       "z-ai/glm-5.2",
+      "z-ai/glm-5.3",
       "z-ai/glm-5v-turbo",
-      "z-ai/glm-image",
-      "z-ai/glm-4.7-flash:free",
-      "z-ai/glm-5.3"
+      "z-ai/glm-image"
     ],
     "crofai": [
       "crofai/greg-1-mini",
@@ -1346,6 +1355,11 @@
     "sakana": [
       "sakana/fugu-ultra",
       "sakana/namazu"
+    ],
+    "sao10k": [
+      "sao10k/l3-8b-lunaris",
+      "sao10k/l3-8b-stheno-v3.2",
+      "sao10k/l31-70b-euryale-v2.2"
     ]
   },
   "benchmarks": [
