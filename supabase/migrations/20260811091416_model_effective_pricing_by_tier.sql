@@ -74,7 +74,7 @@ group by
   fact.occurred_at::date,
   route.provider_slug,
   coalesce(sku.service_tier_slug, 'standard')
-having sum(line.quantity) > 0;
+having sum(line.quantity) > 0 or sum(line.charged_nanos) > 0;
 
 create or replace function public.sync_v2_public_effective_pricing_daily()
 returns trigger

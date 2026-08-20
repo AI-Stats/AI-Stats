@@ -1075,6 +1075,9 @@ export default function PricingInsights({
 		);
 		for (const rule of historyRules) {
 			if (!availableProviderPlans.has(`${rule.providerId}\u0000${rule.pricingPlan}`)) continue;
+			if (pricingView === "effective"
+				&& !INPUT_METER_PREFERENCE.includes(rule.meter as (typeof INPUT_METER_PREFERENCE)[number])
+				&& !OUTPUT_METER_PREFERENCE.includes(rule.meter as (typeof OUTPUT_METER_PREFERENCE)[number])) continue;
 			if (!meters.has(rule.meter)) meters.set(rule.meter, rule);
 		}
 		const preferred = [
@@ -1091,7 +1094,7 @@ export default function PricingInsights({
 			if (aRank !== bRank) return (aRank < 0 ? 999 : aRank) - (bRank < 0 ? 999 : bRank);
 			return a.meter.localeCompare(b.meter);
 		});
-	}, [historyRows, historyRules]);
+	}, [historyRows, historyRules, pricingView]);
 	const activeMeter = meterOptions.some((option) => option.meter === selectedMeter)
 		? selectedMeter
 		: meterOptions[0]?.meter ?? "input_text_tokens";
