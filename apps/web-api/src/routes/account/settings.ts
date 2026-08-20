@@ -21,6 +21,7 @@ import { accountSettingsDataContributionRouter } from "./settings-data-contribut
 import { callDataContributionGateway } from "./settings-data-contribution";
 import { accountSettingsDynamicRoutesRouter } from "./settings-dynamic-routes";
 import { accountSettingsAccountPrivacyRouter } from "./settings-account-privacy";
+import { accountSettingsScimRouter } from "./settings-scim";
 import { purgeWorkerCacheTags } from "@/http/invalidation";
 
 // Mirrors the first-party CLI allowlist enforced by the gateway OAuth service.
@@ -114,6 +115,7 @@ accountSettingsRouter.route("/", accountSettingsWebhooksRouter);
 accountSettingsRouter.route("/", accountSettingsDataContributionRouter);
 accountSettingsRouter.route("/", accountSettingsDynamicRoutesRouter);
 accountSettingsRouter.route("/", accountSettingsAccountPrivacyRouter);
+accountSettingsRouter.route("/", accountSettingsScimRouter);
 
 accountSettingsRouter.get("/layout", async (c) => {
 	const user = await requireUser(c.req.raw, c.env);

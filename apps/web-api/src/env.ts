@@ -8,6 +8,7 @@ export type Env = {
 	REVALIDATION_SECRET?: string;
 	INVITE_ENCRYPTION_KEY?: string;
 	HMAC_ENCRYPTION_KEY?: string;
+	SCIM_TOKEN_PEPPER?: string;
 	LINEAR_API_KEY?: string;
 	LINEAR_DEFAULT_ASSIGNED_USER_ID?: string;
 	LINEAR_DEFAULT_TIER_ID?: string;
@@ -50,6 +51,7 @@ export type Env = {
 	OPENROUTER_API_KEY?: string;
 	OPENAI_API_KEY?: string;
 	CONTENT_PROVENANCE_RATE_LIMITER?: RateLimit;
+	SCIM_RATE_LIMITER?: RateLimit;
 	PERFORMANCE_KEY_LLMGATEWAY?: string;
 	LLM_GATEWAY_API_KEY?: string;
 	LLMGATEWAY_API_KEY?: string;
