@@ -82,6 +82,7 @@ export type KnownModelId =
   | "eleven-labs/scribe-v2"
   | "essential-ai/rnj-1"
   | "google/gemini-2.5-flash"
+  | "google/gemini-2.5-flash-image"
   | "google/gemini-2.5-flash-lite"
   | "google/gemini-2.5-pro"
   | "google/gemini-3-flash-preview"
