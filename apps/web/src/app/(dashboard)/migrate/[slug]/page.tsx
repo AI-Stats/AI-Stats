@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { MigrationPostView } from "@/components/(migrate)/MigrationPostView";
+import { JsonLdScript } from "@/components/seo/JsonLdScript";
 import { getMigrationPost, getMigrationPosts } from "@/lib/content/migrations";
-import { buildMetadata } from "@/lib/seo";
+import { absoluteUrl, buildMetadata } from "@/lib/seo";
 
 type PageProps = {
 	params: Promise<{ slug: string }>;
@@ -42,5 +43,49 @@ export default async function MigrationPostPage({ params }: PageProps) {
 		notFound();
 	}
 
-	return <MigrationPostView post={post} />;
+	const pageUrl = absoluteUrl(`/migrate/${post.slug}`);
+	const howTo = {
+		"@context": "https://schema.org",
+		"@type": "HowTo",
+		name: post.title,
+		description: post.description,
+		url: pageUrl,
+		dateModified: post.updatedAt,
+		step: post.sections
+			.filter((section) => /^\d/.test(section.title))
+			.map((section, index) => ({
+				"@type": "HowToStep",
+				position: index + 1,
+				name: section.title,
+				text: section.paragraphs.join(" "),
+				url: `${pageUrl}#${section.id}`,
+			})),
+	};
+	const faq = {
+		"@context": "https://schema.org",
+		"@type": "FAQPage",
+		mainEntity: post.faq.map((item) => ({
+			"@type": "Question",
+			name: item.question,
+			acceptedAnswer: { "@type": "Answer", text: item.answer },
+		})),
+	};
+	const breadcrumbs = {
+		"@context": "https://schema.org",
+		"@type": "BreadcrumbList",
+		itemListElement: [
+			{ "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl("/") },
+			{ "@type": "ListItem", position: 2, name: "Migration guides", item: absoluteUrl("/migrate") },
+			{ "@type": "ListItem", position: 3, name: post.sourceLabel, item: pageUrl },
+		],
+	};
+
+	return (
+		<>
+			<JsonLdScript id={`migration-howto-${post.slug}`} data={howTo} />
+			<JsonLdScript id={`migration-faq-${post.slug}`} data={faq} />
+			<JsonLdScript id={`migration-breadcrumbs-${post.slug}`} data={breadcrumbs} />
+			<MigrationPostView post={post} />
+		</>
+	);
 }

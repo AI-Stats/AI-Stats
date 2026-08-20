@@ -959,6 +959,7 @@ function safeParsePinned(value: string | null): Record<string, boolean> {
 
 type AudioRoomProps = {
 	models: GatewaySupportedModel[];
+	modelsLoadFailed?: boolean;
 	roomId?: AudioRoomId;
 	initialMode?: AudioMode;
 	allowedModes?: AudioMode[];
@@ -976,6 +977,7 @@ function modeSupportFromModes(modes: AudioMode[]): AudioModeSupport {
 
 export function AudioRoom({
 	models,
+	modelsLoadFailed = false,
 	roomId = "speech",
 	initialMode = "speech",
 	allowedModes = ["speech"],
@@ -2065,6 +2067,17 @@ export function AudioRoom({
 			(isAudioSourceMode &&
 				(showAudioUrlInput || audioUrlInput.trim() || audioFile)),
 	);
+	const hasEligibleModels = filteredModels.length > 0;
+	const emptyStateTitle: string | undefined = modelsLoadFailed
+		? "Music models couldn't load"
+		: mode === "music" && !hasEligibleModels
+			? "No music models available"
+			: undefined;
+	const emptyStateDescription = modelsLoadFailed
+		? "Refresh the page to try loading the model catalogue again."
+		: mode === "music" && !hasEligibleModels
+			? "No routable music providers are available right now."
+			: modeEmptyDescription(mode);
 
 	return (
 		<div className="flex min-h-0 flex-1 flex-col overflow-hidden">
@@ -2136,9 +2149,12 @@ export function AudioRoom({
 				<div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-5">
 					{activeEntries.length === 0 ? (
 						<RoomEmptyState
-							description={modeEmptyDescription(mode)}
+							title={emptyStateTitle}
+							description={emptyStateDescription}
 							suggestions={
-								mode === "speech"
+								modelsLoadFailed || !hasEligibleModels
+									? []
+									: mode === "speech"
 									? [
 											{ label: "Narrate an introduction", prompt: "Welcome. Today, we're exploring an idea that could change how we work." },
 											{ label: "Read a calm reflection", prompt: "Take a slow breath, settle into the moment, and let the day unfold." },

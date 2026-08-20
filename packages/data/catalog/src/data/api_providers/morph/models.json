@@ -1204,7 +1204,7 @@
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "text.rerank",
+        "capability_id": "rerank",
         "status": "active",
         "params": [
           {

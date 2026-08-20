@@ -1066,6 +1066,7 @@ public final class Models {
 
 	public static class ModerationsResponse {
 		public String id;
+		public Object meta;
 		public String model;
 		public java.util.List<Object> results;
 	}

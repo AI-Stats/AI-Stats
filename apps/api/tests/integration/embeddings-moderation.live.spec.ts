@@ -68,6 +68,11 @@ describeLive("Embeddings and moderation live coverage", () => {
             if (!("json" in result)) throw new Error("Expected JSON response");
             expect(Array.isArray(result.json?.results), "moderations should return results").toBe(true);
             expect(result.json?.results?.length ?? 0).toBeGreaterThan(0);
+			expect(result.json?.meta?.latency_ms, "moderations should return latency_ms").toBeTypeOf("number");
+			expect(result.json?.meta?.generation_ms, "moderations should return generation_ms").toBeTypeOf("number");
+			expect(result.json.meta.latency_ms).toBeGreaterThanOrEqual(0);
+			expect(result.json.meta.generation_ms).toBeGreaterThanOrEqual(0);
+			expect(result.json.meta.latency_ms).toBeGreaterThanOrEqual(result.json.meta.generation_ms);
             // OpenAI moderation can be free and may omit billable usage.
             assertUsageIfPresent(result.json, "openai_omni_moderation");
         },

@@ -167,6 +167,51 @@ describe("doRequestWithIR pricing behavior in testing mode", () => {
 		]);
 	});
 
+	it("retains executor timing for a successful moderation response", async () => {
+		const candidate = {
+			providerId: "openai",
+			pricingCard: {
+				provider: "openai",
+				model: "openai/omni-moderation-latest",
+				endpoint: "moderations",
+				currency: "USD",
+				rules: [],
+			},
+			byokMeta: [],
+			providerModelSlug: "omni-moderation-latest",
+			capabilityParams: {},
+			maxInputTokens: null,
+			maxOutputTokens: null,
+		};
+		guardCandidatesMock.mockResolvedValue({ ok: true, value: [candidate] });
+		rankProvidersMock.mockResolvedValue([{ candidate, health: {} }]);
+		const executor = vi.fn().mockResolvedValue({
+			kind: "completed",
+			ir: { results: [] },
+			upstream: new Response(JSON.stringify({ results: [] }), { status: 200 }),
+			bill: { cost_cents: 0, currency: "USD" },
+			keySource: "gateway",
+			byokKeyId: null,
+			timing: { latencyMs: 41, generationMs: 17 },
+		});
+		resolveProviderExecutorMock.mockReturnValue(executor);
+		const ctx = createCtx({
+			endpoint: "moderations",
+			capability: "moderations",
+			model: "openai/omni-moderation-latest",
+		});
+
+		const result = await doRequestWithIR(
+			ctx,
+			{ model: "openai/omni-moderation-latest", input: "test input" } as any,
+			createTiming(),
+		);
+
+		expect((result as any).ok).toBe(true);
+		expect(ctx.meta.latency_ms).toBe(41);
+		expect(ctx.meta.generation_ms).toBe(17);
+	});
+
 	it("still returns pricing guard failure on non-testing traffic when no pricing is preloaded", async () => {
 		const candidate = {
 			providerId: "openai",
@@ -517,7 +562,7 @@ describe("doRequestWithIR pricing behavior in testing mode", () => {
 		expect(guardAllFailedMock).toHaveBeenCalledTimes(1);
 	});
 
-	it("fails immediately for single-provider upstream failures", async () => {
+	it("does not expose timing for a failed moderation attempt", async () => {
 		const pricingCard = {
 			provider: "openai",
 			model: "openai/gpt-image-1-mini",
@@ -549,15 +594,21 @@ describe("doRequestWithIR pricing behavior in testing mode", () => {
 			bill: { cost_cents: 0, currency: "USD" },
 			keySource: "gateway",
 			byokKeyId: null,
+			timing: { latencyMs: 41, generationMs: 17 },
 		});
 		resolveProviderExecutorMock.mockImplementation((providerId: string) =>
 			providerId === "only" ? onlyExecutor : null,
 		);
-		const ctx = createCtx({ testingMode: false });
+		const ctx = createCtx({
+			testingMode: false,
+			endpoint: "moderations",
+			capability: "moderations",
+			model: "openai/omni-moderation-latest",
+		});
 
 		const result = await doRequestWithIR(
 			ctx,
-			{ model: "openai/gpt-image-1-mini", prompt: "tiny blue square" } as any,
+			{ model: "openai/omni-moderation-latest", input: "test input" } as any,
 			createTiming(),
 		);
 
@@ -575,6 +626,8 @@ describe("doRequestWithIR pricing behavior in testing mode", () => {
 				response_kind: "completed",
 			}),
 		]);
+		expect(ctx.meta.latency_ms).toBeUndefined();
+		expect(ctx.meta.generation_ms).toBeUndefined();
 	});
 
 	it("captures AWS-style upstream exception codes from response headers", async () => {

@@ -2580,6 +2580,9 @@ public sealed class ModerationsResponse
 	[JsonPropertyName("id")]
 	public string? Id { get; set; }
 
+	[JsonPropertyName("meta")]
+	public Dictionary<string, object>? Meta { get; set; }
+
 	[JsonPropertyName("model")]
 	public string? Model { get; set; }
 

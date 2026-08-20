@@ -74,7 +74,7 @@ const staticRoutes: Array<{
         { path: "/tools/json-formatter", changeFrequency: "monthly", priority: 0.55 },
         { path: "/tools/markdown-preview", changeFrequency: "monthly", priority: 0.55 },
         { path: "/tools/pricing-calculator", changeFrequency: "weekly", priority: 0.6 },
-        { path: "/tools/nano-banana-parser", changeFrequency: "monthly", priority: 0.55 },
+        { path: "/tools/content-provenance", changeFrequency: "monthly", priority: 0.6 },
         { path: "/tools/request-builder", changeFrequency: "monthly", priority: 0.55 },
         { path: "/chat", changeFrequency: "weekly", priority: 0.55 },
         { path: "/chat/image", changeFrequency: "weekly", priority: 0.5 },
@@ -424,7 +424,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 	];
 
 	const migrationItems = getMigrationPosts().map((post) =>
-		createItem(`/migrate/${post.slug}`, "weekly", 0.6, post.updatedAt),
+		createItem(
+			`/migrate/${post.slug}`,
+			"weekly",
+			post.slug === "openrouter" ? 0.82 : 0.6,
+			post.updatedAt,
+		),
 	);
 
 	const helpCategoryParams = fromSettled(

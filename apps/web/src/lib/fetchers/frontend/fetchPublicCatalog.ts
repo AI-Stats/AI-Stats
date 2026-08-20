@@ -64,6 +64,7 @@ import {
 	getModelProviderRuntimeStats,
 } from "@/lib/fetchers/models/getModelProviderRuntimeStats";
 import type { ModelUsageDailyBreakdownRow } from "@/lib/fetchers/models/getModelUsageDailyBreakdown";
+import type { ModelEffectivePricingDailyRow } from "@/lib/fetchers/models/getModelEffectivePricingDaily";
 import type { ProviderRoutingStatusMap } from "@/lib/fetchers/models/getModelProviderRoutingHealth";
 import type { ModelRealtimeWindowStats } from "@/lib/fetchers/models/getModelRealtimeWindowStats";
 import {
@@ -490,6 +491,19 @@ export async function fetchFrontendModelUsageDailyBreakdown(args: {
 	if (args.until) query.set("until", args.until);
 	void args.modelAliases;
 	return (await fetchPublicWebApi<{ rows: ModelUsageDailyBreakdownRow[] }>(`/api/_web/models/${encodeURIComponent(args.modelId)}/usage-daily?${query.toString()}`)).rows;
+}
+
+export async function fetchFrontendModelEffectivePricingDaily(args: {
+	modelId: string;
+	providerIds?: string[];
+	days?: number;
+}): Promise<ModelEffectivePricingDailyRow[]> {
+	const query = new URLSearchParams();
+	if (args.providerIds?.length) query.set("provider_ids", [...new Set(args.providerIds)].sort().join(","));
+	if (args.days != null) query.set("days", String(args.days));
+	return (await fetchPublicWebApi<{ rows: ModelEffectivePricingDailyRow[] }>(
+		`/api/_web/models/${encodeURIComponent(args.modelId)}/effective-pricing-daily?${query.toString()}`,
+	)).rows;
 }
 
 export async function fetchFrontendModelProviderRoutingHealth(args: {

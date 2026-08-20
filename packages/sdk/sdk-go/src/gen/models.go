@@ -2274,6 +2274,7 @@ type ModerationsRequest struct {
 
 type ModerationsResponse struct {
 	Id *string `json:"id,omitempty"`
+	Meta *map[string]interface{} `json:"meta,omitempty"`
 	Model *string `json:"model,omitempty"`
 	Results *[]map[string]interface{} `json:"results,omitempty"`
 }

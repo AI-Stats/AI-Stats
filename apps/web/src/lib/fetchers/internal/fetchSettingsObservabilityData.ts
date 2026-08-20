@@ -29,19 +29,42 @@ export type SettingsObservabilityData = {
 	workspaceId: string | null;
 };
 
+export type FetchSettingsObservabilityDataResult =
+	| { status: "loaded"; data: SettingsObservabilityData }
+	| { status: "unauthenticated" }
+	| { status: "no-workspace" }
+	| { status: "load-failed" };
+
 export async function fetchSettingsObservabilityData(args: {
 	from: string;
 	to: string;
 	previousFrom: string;
 	previousTo: string;
-}): Promise<SettingsObservabilityData | null> {
+}): Promise<FetchSettingsObservabilityDataResult> {
 	const context = await getServerAccountContext();
-	if (!context.accessToken) return null;
-	const workspaceId = context.workspaceId ?? await resolveAccessibleWorkspaceIdFromCookie();
-	if (!workspaceId) return null;
-	const params = new URLSearchParams({ workspaceId, ...args });
-	return fetchAccountWebApi<SettingsObservabilityData>(
-		`/api/account/settings/usage/observability?${params.toString()}`,
-		context.accessToken,
-	);
+	if (!context.accessToken) return { status: "unauthenticated" };
+
+	// Validate even a non-empty cookie value. It can outlive a user's access
+	// to that workspace, and forwarding it directly produces a 403.
+	let workspaceId: string | undefined;
+	try {
+		workspaceId = await resolveAccessibleWorkspaceIdFromCookie({ throwOnFailure: true });
+	} catch {
+		return { status: "load-failed" };
+	}
+	if (!workspaceId) return { status: "no-workspace" };
+
+	try {
+		const params = new URLSearchParams({ workspaceId, ...args });
+		const data = await fetchAccountWebApi<SettingsObservabilityData>(
+			`/api/account/settings/usage/observability?${params.toString()}`,
+			context.accessToken,
+		);
+		return { status: "loaded", data };
+	} catch (error) {
+		console.warn("[settings-observability] failed to load data", {
+			error: String(error),
+		});
+		return { status: "load-failed" };
+	}
 }

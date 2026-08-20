@@ -5,6 +5,7 @@ import { ArrowUpRight } from "lucide-react";
 import { useInitialChatAuth } from "@/components/(chat)/ChatAuthProvider";
 
 type RoomEmptyStateProps = {
+	title?: string;
 	description: string;
 	suggestions: Array<{ label: string; prompt: string }>;
 	onSelectPrompt: (prompt: string) => void;
@@ -19,6 +20,7 @@ function getDayPeriod(hour: number): DayPeriod {
 }
 
 export function RoomEmptyState({
+	title,
 	description,
 	suggestions,
 	onSelectPrompt,
@@ -38,7 +40,7 @@ export function RoomEmptyState({
 			<section className="w-full max-w-2xl">
 				<div className="text-center">
 					<h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-						Good {period}{firstName ? `, ${firstName}` : ""}
+						{title ?? <>Good {period}{firstName ? `, ${firstName}` : ""}</>}
 					</h1>
 					<p className="mt-2 text-sm text-muted-foreground">{description}</p>
 				</div>

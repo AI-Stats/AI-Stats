@@ -1,16 +1,20 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { IRModerationsRequest } from "@core/ir";
-import type { ExecutorExecuteArgs } from "@executors/types";
+import type { ExecutorExecuteArgs, ExecutorUpstreamTiming } from "@executors/types";
 import { execute } from "./index";
 import { installFetchMock, jsonResponse } from "../../../../tests/helpers/mock-fetch";
 import { setupTestRuntime, teardownTestRuntime } from "../../../../tests/helpers/runtime";
 
-function buildArgs(ir: IRModerationsRequest, providerModelSlug: string | null = null): ExecutorExecuteArgs {
+function buildArgs(
+	ir: IRModerationsRequest,
+	providerModelSlug: string | null = null,
+	providerId = "openai",
+): ExecutorExecuteArgs {
 	return {
 		ir,
 		requestId: "req_openai_moderations_test",
 		workspaceId: "team_test",
-		providerId: "openai",
+		providerId,
 		endpoint: "moderations",
 		protocol: "openai.moderations",
 		capability: "moderations",
@@ -143,5 +147,143 @@ describe("openai moderations executor", () => {
 
 		expect(result.upstream.status).toBe(200);
 		expect(capturedBody?.model).toBe("omni-moderation-latest");
+	});
+
+	it("records upstream latency and OpenAI processing time in milliseconds", async () => {
+		const mock = installFetchMock([
+			{
+				match: (url) => url.includes("/moderations"),
+				response: jsonResponse(
+					{
+						id: "modr_timing_openai",
+						model: "omni-moderation-latest",
+						results: [{ flagged: false, categories: {}, category_scores: {} }],
+					},
+					{ headers: { "openai-processing-ms": "12.5" } },
+				),
+			},
+		]);
+		const upstreamTiming: ExecutorUpstreamTiming = {
+			fetch: (input, init) => globalThis.fetch(input, init),
+			timingFor: () => ({
+				phase: "provider",
+				sequence: 1,
+				dispatchAtMs: Date.now() - 27,
+				headersAtMs: Date.now(),
+				headersMs: 27,
+			}),
+		};
+
+		const result = await execute({
+			...buildArgs({ model: "openai/omni-moderation-latest", input: "test input" }),
+			upstreamTiming,
+		});
+
+		mock.restore();
+
+		expect(result.timing).toMatchObject({ latencyMs: 27, generationMs: 12.5 });
+	});
+
+	it("keeps latency at least as large as OpenAI processing time", async () => {
+		const mock = installFetchMock([
+			{
+				match: (url) => url.includes("/moderations"),
+				response: jsonResponse(
+					{
+						id: "modr_timing_precision",
+						model: "omni-moderation-latest",
+						results: [{ flagged: false, categories: {}, category_scores: {} }],
+					},
+					{ headers: { "openai-processing-ms": "27.25" } },
+				),
+			},
+		]);
+		const upstreamTiming: ExecutorUpstreamTiming = {
+			fetch: (input, init) => globalThis.fetch(input, init),
+			timingFor: () => ({
+				phase: "provider",
+				sequence: 1,
+				dispatchAtMs: Date.now() - 27,
+				headersAtMs: Date.now(),
+				headersMs: 27,
+			}),
+		};
+
+		const result = await execute({
+			...buildArgs({ model: "openai/omni-moderation-latest", input: "test input" }),
+			upstreamTiming,
+		});
+
+		mock.restore();
+
+		expect(result.timing).toMatchObject({ latencyMs: 27.25, generationMs: 27.25 });
+	});
+
+	it("falls back to observed upstream latency when a compatible provider omits processing time", async () => {
+		const mock = installFetchMock([
+			{
+				match: (url) => url.includes("/moderations"),
+				response: jsonResponse({
+					id: "modr_timing_mistral",
+					model: "mistral-moderation-latest",
+					results: [{ flagged: false, categories: {}, category_scores: {} }],
+				}),
+			},
+		]);
+		const upstreamTiming: ExecutorUpstreamTiming = {
+			fetch: (input, init) => globalThis.fetch(input, init),
+			timingFor: () => ({
+				phase: "provider",
+				sequence: 1,
+				dispatchAtMs: Date.now() - 31,
+				headersAtMs: Date.now(),
+				headersMs: 31,
+			}),
+		};
+
+		const result = await execute({
+			...buildArgs(
+				{ model: "mistral/mistral-moderation-2", input: "test input" },
+				"mistral-moderation-2603",
+				"mistral",
+			),
+			upstreamTiming,
+		});
+
+		mock.restore();
+
+		expect(result.timing).toMatchObject({ latencyMs: 31, generationMs: 31 });
+	});
+
+	it("records timing for failed upstream moderation attempts without treating them as successful responses", async () => {
+		const mock = installFetchMock([
+			{
+				match: (url) => url.includes("/moderations"),
+				response: jsonResponse(
+					{ error: { message: "rate limited" } },
+					{ status: 429, headers: { "openai-processing-ms": "9" } },
+				),
+			},
+		]);
+		const upstreamTiming: ExecutorUpstreamTiming = {
+			fetch: (input, init) => globalThis.fetch(input, init),
+			timingFor: () => ({
+				phase: "provider",
+				sequence: 1,
+				dispatchAtMs: Date.now() - 18,
+				headersAtMs: Date.now(),
+				headersMs: 18,
+			}),
+		};
+
+		const result = await execute({
+			...buildArgs({ model: "openai/omni-moderation-latest", input: "test input" }),
+			upstreamTiming,
+		});
+
+		mock.restore();
+
+		expect(result.upstream.ok).toBe(false);
+		expect(result.timing).toMatchObject({ latencyMs: 18, generationMs: 9 });
 	});
 });

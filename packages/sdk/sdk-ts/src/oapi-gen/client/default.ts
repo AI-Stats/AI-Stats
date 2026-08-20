@@ -2541,6 +2541,11 @@ export async function createModeration(
   args: CreateModerationParams = {},
 ): Promise<{
   id?: string;
+  meta?: {
+    generation_ms?: number;
+    latency_ms?: number;
+    [key: string]: unknown;
+  };
   model?: string;
   results?: {
     categories?: {
@@ -2576,6 +2581,11 @@ export async function createModeration(
   const resolvedPath = "/moderations";
   return client.request<{
     id?: string;
+    meta?: {
+      generation_ms?: number;
+      latency_ms?: number;
+      [key: string]: unknown;
+    };
     model?: string;
     results?: {
       categories?: {

@@ -238,10 +238,6 @@
       "rank": 17
     }
   ],
-  "page_notice": {
-    "tone": "info",
-    "markdown": "Anthropic has made Claude Sonnet 5's $2 per 1M input tokens and $10 per 1M output tokens pricing permanent. [View the announcement](https://x.com/claudeai/status/2086891169217122586)."
-  },
   "model_type": null,
   "knowledge_cutoff": "January 2026",
   "limits": {

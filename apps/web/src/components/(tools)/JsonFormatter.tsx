@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle, XCircle } from "lucide-react";
+import { ToolPageHeader } from "@/components/(tools)/ToolPageHeader";
 
 export default function JsonFormatter() {
 	const [input, setInput] = useState('{"name": "John", "age": 30, "city": "New York"}');
@@ -54,13 +55,8 @@ export default function JsonFormatter() {
 	};
 
 	return (
-		<div className="container mx-auto py-8 px-4">
-			<div className="mb-8">
-				<h1 className="text-3xl font-bold mb-2">JSON Formatter</h1>
-				<p className="text-muted-foreground">
-					Format, validate, and beautify JSON data.
-				</p>
-			</div>
+		<div className="container mx-auto px-4 py-8 sm:py-12">
+			<ToolPageHeader title="JSON Formatter" description="Format, validate, and beautify JSON data." />
 
 			<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 				<Card>

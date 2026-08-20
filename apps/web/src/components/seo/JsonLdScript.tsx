@@ -1,5 +1,3 @@
-import Script from "next/script";
-
 export function serializeJsonLd(value: unknown): string {
 	return JSON.stringify(value)
 		.replace(/</g, "\\u003c")
@@ -11,7 +9,7 @@ export function serializeJsonLd(value: unknown): string {
 
 export function JsonLdScript(props: { data: unknown; id: string }) {
 	return (
-		<Script
+		<script
 			id={props.id}
 			type="application/ld+json"
 			dangerouslySetInnerHTML={{ __html: serializeJsonLd(props.data) }}

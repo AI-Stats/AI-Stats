@@ -243,7 +243,12 @@ export default function EditAppDialog({
 			{!hideTrigger ? (
 				<DialogTrigger asChild>
 					{trigger ?? (
-						<Button variant="outline" size="sm" disabled={disabled}>
+						<Button
+							variant="outline"
+							size="sm"
+							className="rounded-md"
+							disabled={disabled}
+						>
 							Edit
 						</Button>
 					)}
@@ -261,6 +266,7 @@ export default function EditAppDialog({
 						<Label htmlFor="app-title">App name</Label>
 						<Input
 							id="app-title"
+							className="rounded-md"
 							value={title}
 							onChange={(event) => setTitle(event.target.value)}
 							placeholder="Acme Assistant"
@@ -270,6 +276,7 @@ export default function EditAppDialog({
 						<Label htmlFor="app-url">App URL</Label>
 						<Input
 							id="app-url"
+							className="rounded-md"
 							value={url}
 							onChange={(event) => setUrl(event.target.value)}
 							placeholder="https://example.com"
@@ -284,7 +291,7 @@ export default function EditAppDialog({
 								value={docsUrl}
 								onChange={(event) => setDocsUrl(event.target.value)}
 								placeholder="https://docs.example.com"
-								className="pl-9"
+								className="rounded-md pl-9"
 							/>
 						</div>
 					</div>
@@ -292,6 +299,7 @@ export default function EditAppDialog({
 						<Label htmlFor="app-image">Image URL</Label>
 						<Input
 							id="app-image"
+							className="rounded-md"
 							value={imageUrl}
 							onChange={(event) => updateImageUrl(event.target.value)}
 							placeholder="https://example.com/logo.png"
@@ -341,7 +349,7 @@ export default function EditAppDialog({
 										id="app-category"
 										type="button"
 										variant="outline"
-										className="h-auto min-h-9 w-full justify-between gap-3 rounded-lg bg-input/50 px-3 py-2 text-left font-normal" />}>
+										className="h-auto min-h-9 w-full justify-between gap-3 rounded-md bg-input/50 px-3 py-2 text-left font-normal" />}>
 
 										<span className="flex min-w-0 items-center gap-2">
 											<Folder className="size-4 shrink-0 text-muted-foreground" />
@@ -352,7 +360,7 @@ export default function EditAppDialog({
 										<ChevronDown className="size-4 shrink-0 text-muted-foreground" />
 
 								</DropdownMenuTrigger>
-								<DropdownMenuContent align="start" className="w-72 rounded-lg">
+								<DropdownMenuContent align="start" className="w-72 rounded-md">
 									{APP_CATEGORY_OPTIONS.map((option) => {
 										const checked = categories.includes(option.value);
 										const disabled =
@@ -366,7 +374,7 @@ export default function EditAppDialog({
 												checked={checked}
 												disabled={disabled}
 												closeOnClick={false}
-												className="group/category rounded-lg"
+												className="group/category rounded-md"
 												onCheckedChange={(nextChecked) => {
 													setCategoryChecked(option.value, Boolean(nextChecked));
 												}}
@@ -383,11 +391,17 @@ export default function EditAppDialog({
 						</div>
 					</div>
 					<DialogFooter>
-						<Button type="button" variant="ghost" onClick={() => setOpen(false)}>
+						<Button
+							type="button"
+							variant="ghost"
+							className="rounded-md"
+							onClick={() => setOpen(false)}
+						>
 							Cancel
 						</Button>
 						<Button
 							type="submit"
+							className="rounded-md"
 							disabled={
 								loading ||
 								imageValidation === "validating" ||

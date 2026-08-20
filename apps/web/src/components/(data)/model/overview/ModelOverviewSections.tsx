@@ -74,6 +74,9 @@ import {
 	getModelLineageLinks,
 	resolveModelLineageNames,
 } from "@/components/(data)/model/overview/modelOverviewMetadata";
+import ModelVerificationSection, {
+	supportsProvenanceVerification,
+} from "@/components/(data)/model/overview/ModelVerificationSection";
 
 type ModelOverviewSectionsProps = {
 	modelId: string;
@@ -1322,6 +1325,7 @@ export default function ModelOverviewSections({
 }: ModelOverviewSectionsProps) {
 	const hasInternalModelData = Boolean(model);
 	const isRetired = status === "Retired";
+	const showVerification = supportsProvenanceVerification(model?.output_types);
 
 	if (isRetired) {
 		return (
@@ -1340,7 +1344,12 @@ export default function ModelOverviewSections({
 				) : null}
 				{hasInternalModelData ? (
 					<>
-						<Section id="about" showDivider={showBenchmarks}>
+						{showVerification ? (
+							<Section id="verification" showDivider={showBenchmarks}>
+								<ModelVerificationSection outputTypes={model?.output_types} />
+							</Section>
+						) : null}
+						<Section id="about" showDivider={showBenchmarks || showVerification}>
 							<SectionHeader
 								title="About"
 								description="Archived dates, capabilities, links, and model metadata."
@@ -1395,6 +1404,11 @@ export default function ModelOverviewSections({
 								hideWhenEmpty
 							/>
 						</Suspense>
+					</Section>
+				) : null}
+				{showVerification ? (
+					<Section id="verification">
+						<ModelVerificationSection outputTypes={model?.output_types} />
 					</Section>
 				) : null}
 				{hasInternalModelData ? (
@@ -1503,6 +1517,11 @@ export default function ModelOverviewSections({
 					/>
 				</Suspense>
 			</Section>
+			{showVerification ? (
+				<Section id="verification">
+					<ModelVerificationSection outputTypes={model?.output_types} />
+				</Section>
+			) : null}
 			{hasInternalModelData ? (
 				<>
 					<Section id="about">

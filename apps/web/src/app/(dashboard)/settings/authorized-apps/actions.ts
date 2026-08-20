@@ -40,6 +40,48 @@ export async function revokeAuthorizationAction(
 	}
 }
 
+export async function updateAuthorizationScopesAction(
+	authorizationId: string,
+	scopes: string[],
+): Promise<ActionResult> {
+	try {
+		const { accessToken } = await getServerAccountContext();
+		if (!accessToken) return { error: "Unauthorized" };
+		const response = await fetchAccountWebApi<{ success: boolean; scopes: string[] }>(
+			`/api/account/settings/authorized-apps/${encodeURIComponent(authorizationId)}/scopes`,
+			accessToken,
+			{ method: "PATCH", body: JSON.stringify({ scopes }) },
+		);
+		revalidatePath("/settings/authorized-apps");
+		return { data: response };
+	} catch (error: any) {
+		return { error: error.message || "Failed to update permissions" };
+	}
+}
+
+export async function reauthorizeCliScopesAction(
+	authorizationId: string,
+	scopes: string[],
+): Promise<ActionResult> {
+	try {
+		const { accessToken } = await getServerAccountContext();
+		if (!accessToken) return { error: "Unauthorized" };
+		const response = await fetchAccountWebApi<{
+			success: boolean;
+			scopes: string[];
+			applies_on_next_refresh: boolean;
+		}>(
+			`/api/account/settings/authorized-apps/${encodeURIComponent(authorizationId)}/reauthorize`,
+			accessToken,
+			{ method: "POST", body: JSON.stringify({ scopes }) },
+		);
+		revalidatePath("/settings/authorized-apps");
+		return { data: response };
+	} catch (error: any) {
+		return { error: error.message || "Failed to reauthorize CLI permissions" };
+	}
+}
+
 /**
  * Get authorization details
  *

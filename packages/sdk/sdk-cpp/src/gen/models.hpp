@@ -1058,6 +1058,7 @@ struct ModerationsRequest {
 
 struct ModerationsResponse {
 	std::string id;
+	std::map<std::string, std::any> meta;
 	std::string model;
 	std::vector<std::map<std::string, std::any>> results;
 };
