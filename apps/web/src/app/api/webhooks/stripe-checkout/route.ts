@@ -8,6 +8,7 @@ import {
 } from "@/lib/automations/resend-events";
 import { getStripe } from "@/lib/stripe";
 import { readBoundedTextBody } from "@/lib/server/boundedRequestBody";
+import { IDENTITY_ADDON_KEY } from "@/lib/billing/identityAddon";
 
 const TOP_UP_PURPOSES = new Set(["top_up", "top_up_one_off", "auto_top_up", "credits_topup_offsession"]);
 type AppliedCreditRow = { applied?: boolean; before_balance_nanos?: number; after_balance_nanos?: number };
@@ -259,6 +260,52 @@ function getSupabase() {
     });
 }
 
+function stripeResourceId(value: string | { id?: string } | null | undefined): string | null {
+    if (typeof value === "string" && value.trim()) return value;
+    const id = value && typeof value === "object" ? value.id : null;
+    return typeof id === "string" && id.trim() ? id : null;
+}
+
+function subscriptionPeriod(subscription: Stripe.Subscription) {
+    const item = subscription.items.data[0];
+    return {
+        start: item?.current_period_start ?? null,
+        end: item?.current_period_end ?? null,
+    };
+}
+
+async function syncAddonSubscriptionFromStripe(args: {
+    supabase: ReturnType<typeof getSupabase>;
+    subscription: Stripe.Subscription;
+    eventCreated: number;
+}) {
+    const { subscription, eventCreated, supabase } = args;
+    const workspaceId = String(subscription.metadata?.workspace_id ?? "").trim();
+    const addonKey = String(subscription.metadata?.addon_key ?? "").trim();
+    if (!workspaceId || addonKey !== IDENTITY_ADDON_KEY) return;
+
+    const period = subscriptionPeriod(subscription);
+    const priceId = subscription.items.data[0]?.price?.id ?? null;
+    const graceUntil = subscription.status === "past_due"
+        ? new Date((eventCreated + 7 * 24 * 60 * 60) * 1000).toISOString()
+        : null;
+    const { error } = await supabase.rpc("sync_workspace_addon_subscription", {
+        p_workspace_id: workspaceId,
+        p_addon_key: addonKey,
+        p_provider_customer_id: stripeResourceId(subscription.customer),
+        p_provider_subscription_id: subscription.id,
+        p_provider_price_id: priceId,
+        p_status: subscription.status,
+        p_current_period_start: period.start ? new Date(period.start * 1000).toISOString() : null,
+        p_current_period_end: period.end ? new Date(period.end * 1000).toISOString() : null,
+        p_cancel_at_period_end: subscription.cancel_at_period_end,
+        p_grace_until: graceUntil,
+        p_provider_event_created: eventCreated,
+        p_metadata: { source: "stripe_webhook" },
+    });
+    if (error) throw error;
+}
+
 async function enqueueAutoTopUpFailureFromWebhook(args: {
     supabase: ReturnType<typeof getSupabase>;
     paymentIntent: Stripe.PaymentIntent;
@@ -464,6 +511,19 @@ export async function POST(req: Request) {
 
     try {
         switch (event.type) {
+            case "customer.subscription.created":
+            case "customer.subscription.updated":
+            case "customer.subscription.deleted":
+            case "customer.subscription.paused":
+            case "customer.subscription.resumed": {
+                await syncAddonSubscriptionFromStripe({
+                    supabase,
+                    subscription: event.data.object as Stripe.Subscription,
+                    eventCreated: event.created,
+                });
+                break;
+            }
+
             case "payment_intent.created": {
                 const pi = event.data.object as Stripe.PaymentIntent;
                 const purpose = readPaymentIntentPurpose(pi);
