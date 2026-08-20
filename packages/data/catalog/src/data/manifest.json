@@ -1144,7 +1144,8 @@
       "qwen/text-embedding-v4",
       "qwen/wan2.7-t2v",
       "qwen/qwen3.8-2.4t-a95b",
-      "qwen/qwen3-omni-30b-a3b"
+      "qwen/qwen3-omni-30b-a3b",
+      "qwen/qwen3.8-27b"
     ],
     "relace": [
       "relace/relace-search"
@@ -1319,7 +1320,9 @@
     ],
     "morph": [
       "morph/morph-v3-fast",
-      "morph/morph-v3-large"
+      "morph/morph-v3-large",
+      "morph/morph-compactor",
+      "morph/morph-warp-grep-v2.1"
     ],
     "thinking-machines": [
       "thinking-machines/inkling",
