@@ -388,6 +388,23 @@
         }
       ],
       "source": "https://docs.x.ai/developers/grok-4-6"
+    },
+    {
+      "meter": "native_web_search_requests",
+      "unit": "request",
+      "unit_size": 1,
+      "price_per_unit": 0.005,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "xAI bills Web Search at $5 per 1,000 tool invocations; model token usage is billed separately.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-20T00:00:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://docs.x.ai/developers/pricing"
     }
   ],
   "regions": [],
