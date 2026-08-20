@@ -30,9 +30,9 @@
   "model_type": null,
   "knowledge_cutoff": null,
   "limits": {
-    "context": null,
+    "context": 64000,
     "input": null,
-    "output": null
+    "output": 16384
   },
   "modalities": {
     "input": null,
