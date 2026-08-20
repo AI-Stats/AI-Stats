@@ -12948,7 +12948,7 @@
     "provider_api_model_id": "openai:openai/daybreak-blue-latest",
     "provider_model_slug": "daybreak-blue-latest",
     "internal_model_id": "openai/daybreak-blue-latest",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "text",
@@ -12971,8 +12971,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "disabled",
+    "routable": false,
     "regions": { "execution": ["global"], "data": ["global"] },
     "service_tiers": ["standard"],
     "api": { "formats": ["responses"], "endpoint": "/v1/responses", "deployment": null },
@@ -12985,7 +12985,7 @@
     "provider_api_model_id": "openai:openai/daybreak-red-latest",
     "provider_model_slug": "daybreak-red-latest",
     "internal_model_id": "openai/daybreak-red-latest",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "text",
@@ -13008,8 +13008,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "disabled",
+    "routable": false,
     "regions": { "execution": ["global"], "data": ["global"] },
     "service_tiers": ["standard"],
     "api": { "formats": ["responses"], "endpoint": "/v1/responses", "deployment": null },
@@ -13022,7 +13022,7 @@
     "provider_api_model_id": "openai:openai/gpt-5.6-cyber",
     "provider_model_slug": "gpt-5.6-cyber",
     "internal_model_id": "openai/gpt-5.6-cyber",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "text",
@@ -13045,8 +13045,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "disabled",
+    "routable": false,
     "regions": { "execution": ["global"], "data": ["global"] },
     "service_tiers": ["standard"],
     "api": { "formats": ["responses"], "endpoint": "/v1/responses", "deployment": null },
