@@ -18,7 +18,7 @@ import { normalizeTextUsageForPricing } from "@executors/_shared/usage/text";
 import { bufferStreamToIR, resolveStreamForProtocol } from "@executors/_shared/text-generate/openai-compat";
 import { withNormalizedReasoning } from "./normalize-reasoning";
 import { irPartsToGeminiParts } from "../../google/shared/media";
-import { resolveGoogleModelCandidates } from "../../google/shared/model";
+import { normalizeGoogleModelSlug, resolveGoogleModelCandidates } from "../../google/shared/model";
 import { applyGoogleOutputTokenFallback, applyOpenAIUsageFallback } from "../../google/shared/usage-fallback";
 import {
 	getDefaultGoogleThinkingLevel,
@@ -30,6 +30,7 @@ import { encodeOpenAIChatResponse } from "@protocols/openai-chat/encode";
 import { createSyntheticResponsesStreamFromIR } from "@executors/_shared/text-generate/synthetic-responses-stream";
 import { buildSyntheticServerToolStream } from "@pipeline/surfaces/server-tools.stream";
 import { sanitizeGeminiSchema } from "@executors/google/shared/schema";
+import { supportsTextProviderInteractionsModel } from "@providers/textProfiles";
 
 const DEFAULT_LYRIA_RETRY_ATTEMPTS = 3;
 const DEFAULT_LYRIA_RETRY_DELAY_MS = 300;
@@ -58,6 +59,13 @@ function isGeminiImageModelName(value: string): boolean {
 function supportsInteractionsThinkingLevels(value: string): boolean {
 	const normalized = String(value ?? "").toLowerCase();
 	return modelSupportsGoogleThinkingLevels(value) || normalized.includes("gemini-2.5");
+}
+
+export function supportsGoogleInteractions(value: string): boolean {
+	return supportsTextProviderInteractionsModel(
+		"google-ai-studio",
+		normalizeGoogleModelSlug(value).toLowerCase(),
+	);
 }
 
 function hasUsableIRResponse(response: IRChatResponse | undefined): boolean {
@@ -1032,24 +1040,6 @@ export function preprocess(ir: IRChatRequest, args: ExecutorExecuteArgs): IRChat
 export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult> {
 	const { ir, providerId, providerModelSlug, requestId, pricingCard, meta } = args;
 	const bindings = getBindings() as any;
-	if (ir.googleCachedContent !== undefined) {
-		return {
-			kind: "completed",
-			ir: undefined,
-			upstream: new Response(JSON.stringify({
-				error: {
-					code: "google_interactions_explicit_cache_unsupported",
-					message: "Explicit cached content is not supported by the Google Interactions API.",
-					type: "invalid_request_error",
-					param: "cached_content",
-				},
-			}), {
-				status: 400,
-				headers: { "Content-Type": "application/json" },
-			}),
-			bill: { cost_cents: 0, currency: "USD" },
-		};
-	}
 
 	// Resolve API key: prefer decrypted BYOK for this provider, else use gateway keys.
 	const keyInfo = resolveProviderKey(args, () => {
@@ -1058,14 +1048,14 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 
 	// Determine model candidates (must be in URL, not body)
 	const requestedModel = providerModelSlug || ir.model || "gemini-2.0-flash-exp";
-	// Google AI Studio text generation uses the Interactions API exclusively.
-	const isInteractionsRequest = true;
-	const forceSyntheticStream = Boolean(ir.stream) && (
-		isGeminiImageModelName(requestedModel) ||
-		isInteractionsRequest
-	);
+	// Interactions is preferred where Google documents model support. Keep the
+	// fully supported generateContent path for other active models and explicit caches.
 	const modelCandidates = resolveGoogleModelCandidates(requestedModel);
 	let model = modelCandidates[0] || "gemini-2.0-flash-exp";
+	let forceSyntheticStream = Boolean(ir.stream) && (
+		isGeminiImageModelName(model) ||
+		(ir.googleCachedContent === undefined && supportsGoogleInteractions(model))
+	);
 
 	// Google AI Studio base URL (allow env override for proxy/self-host routing)
 	const baseRoot = String(
@@ -1075,9 +1065,13 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	).replace(/\/+$/, "");
 	const baseUrl = /\/v1(beta)?$/i.test(baseRoot) ? baseRoot : `${baseRoot}/v1beta`;
 
-	const makeEndpoint = (candidateModel: string) => {
+	const makeEndpoint = (
+		candidateModel: string,
+		isInteractionsRequest: boolean,
+		candidateForceSyntheticStream: boolean,
+	) => {
 		if (isInteractionsRequest) return `${baseUrl}/interactions`;
-		return Boolean(ir.stream) && !forceSyntheticStream
+		return Boolean(ir.stream) && !candidateForceSyntheticStream
 			? `${baseUrl}/models/${encodeURIComponent(candidateModel)}:streamGenerateContent?alt=sse`
 			: `${baseUrl}/models/${encodeURIComponent(candidateModel)}:generateContent`;
 	};
@@ -1094,13 +1088,19 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 
 	try {
 		const doRequest = async (candidateModel: string) => {
+			const isInteractionsRequest =
+				ir.googleCachedContent === undefined && supportsGoogleInteractions(candidateModel);
+			const candidateForceSyntheticStream = Boolean(ir.stream) && (
+				isGeminiImageModelName(candidateModel) ||
+				isInteractionsRequest
+			);
 			const requestBody = isInteractionsRequest
 				? await irToGemini(ir, candidateModel, args.upstreamTiming)
 				: await irToLegacyGemini(ir, candidateModel, args.upstreamTiming);
-			if (isInteractionsRequest && Boolean(ir.stream) && !forceSyntheticStream) {
+			if (isInteractionsRequest && Boolean(ir.stream) && !candidateForceSyntheticStream) {
 				requestBody.stream = true;
 			}
-			const endpoint = makeEndpoint(candidateModel);
+			const endpoint = makeEndpoint(candidateModel, isInteractionsRequest, candidateForceSyntheticStream);
 			const response = await fetchUpstream(args, endpoint, {
 				method: "POST",
 				headers: {
@@ -1110,7 +1110,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 				},
 				body: JSON.stringify(requestBody),
 			});
-			return { candidateModel, requestBody, response };
+			return { candidateModel, requestBody, response, candidateForceSyntheticStream };
 		};
 
 		let attempted: Awaited<ReturnType<typeof doRequest>> | null = null;
@@ -1139,6 +1139,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 		}
 
 		model = attempted.candidateModel;
+		forceSyntheticStream = attempted.candidateForceSyntheticStream;
 		const googleInteractionRequest = attempted.requestBody;
 		const response = attempted.response;
 		const selectedDispatchAtMs =

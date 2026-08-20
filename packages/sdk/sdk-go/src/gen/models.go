@@ -1668,6 +1668,7 @@ const (
 	KnownModelIdElevenLabsScribeV2 KnownModelId = "eleven-labs/scribe-v2"
 	KnownModelIdEssentialAiRnj1 KnownModelId = "essential-ai/rnj-1"
 	KnownModelIdGoogleGemini25Flash KnownModelId = "google/gemini-2.5-flash"
+	KnownModelIdGoogleGemini25FlashImage KnownModelId = "google/gemini-2.5-flash-image"
 	KnownModelIdGoogleGemini25FlashLite KnownModelId = "google/gemini-2.5-flash-lite"
 	KnownModelIdGoogleGemini25Pro KnownModelId = "google/gemini-2.5-pro"
 	KnownModelIdGoogleGemini3FlashPreview KnownModelId = "google/gemini-3-flash-preview"
