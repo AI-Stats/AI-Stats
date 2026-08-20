@@ -1,5 +1,51 @@
 [
   {
+    "api_model_id": "openai/gpt-4-0125-preview",
+    "provider_api_model_id": "openai:openai/gpt-4-0125-preview",
+    "provider_model_slug": "gpt-4-0125-preview",
+    "internal_model_id": "openai/gpt-4-0125-preview",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 128000,
+    "max_output_tokens": 4096,
+    "effective_from": "2024-01-25T00:00:00Z",
+    "effective_to": "2026-03-26T00:00:00Z",
+    "capabilities": [{ "capability_id": "text.generate", "status": "active", "params": [], "reasoning": false, "tool_call": false, "structured_output": false, "temperature": true, "attachment": false, "input_modalities": ["text"], "output_modalities": ["text"], "modes": [] }],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": { "execution": ["global"], "data": ["global"] },
+    "service_tiers": ["standard"],
+    "api": { "formats": ["chat_completions"], "endpoint": "/v1/chat/completions", "deployment": null },
+    "sources": ["https://developers.openai.com/api/docs/models/gpt-4-turbo-preview"],
+    "verification": { "status": "verified", "checked_at": "2026-08-20T00:00:00Z", "notes": "Retired OpenAI snapshot; retained for historical coverage." },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-4-1106-vision-preview",
+    "provider_api_model_id": "openai:openai/gpt-4-1106-vision-preview",
+    "provider_model_slug": "gpt-4-1106-vision-preview",
+    "internal_model_id": "openai/gpt-4-1106-vision-preview",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 128000,
+    "max_output_tokens": 4096,
+    "effective_from": "2023-11-06T00:00:00Z",
+    "effective_to": "2024-12-06T00:00:00Z",
+    "capabilities": [{ "capability_id": "text.generate", "status": "active", "params": [], "reasoning": false, "tool_call": false, "structured_output": false, "temperature": true, "attachment": true, "input_modalities": ["text", "image"], "output_modalities": ["text"], "modes": [] }],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": { "execution": ["global"], "data": ["global"] },
+    "service_tiers": ["standard"],
+    "api": { "formats": ["chat_completions"], "endpoint": "/v1/chat/completions", "deployment": null },
+    "sources": ["https://developers.openai.com/api/docs/deprecations"],
+    "verification": { "status": "verified", "checked_at": "2026-08-20T00:00:00Z", "notes": "Retired OpenAI snapshot; retained for historical coverage." },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "openai/ada",
     "provider_api_model_id": "openai:openai/ada",
     "provider_model_slug": "ada",
@@ -1772,8 +1818,8 @@
     "api_model_id": "openai/gpt-4-turbo-2023-03-14",
     "provider_api_model_id": "openai:openai/gpt-4-turbo-2023-03-14",
     "provider_model_slug": "gpt-4-turbo-2023-03-14",
-    "internal_model_id": "openai/gpt-4-turbo-2023-03-14",
-    "is_active_gateway": true,
+    "internal_model_id": "openai/gpt-4-2023-03-14",
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
@@ -1796,8 +1842,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "disabled",
+    "routable": false,
     "regions": {
       "execution": [
         "global"
@@ -1823,9 +1869,9 @@
   {
     "api_model_id": "openai/gpt-4-turbo-2023-11-06",
     "provider_api_model_id": "openai:openai/gpt-4-turbo-2023-11-06",
-    "provider_model_slug": "gpt-4-turbo-2023-11-06",
+    "provider_model_slug": "gpt-4-1106-preview",
     "internal_model_id": "openai/gpt-4-turbo-2023-11-06",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
@@ -1848,8 +1894,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "disabled",
+    "routable": false,
     "regions": {
       "execution": [
         "global"
@@ -1877,7 +1923,7 @@
     "provider_api_model_id": "openai:openai/gpt-4-turbo-2024-01-25",
     "provider_model_slug": "gpt-4-turbo-2024-01-25",
     "internal_model_id": "openai/gpt-4-turbo",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
@@ -1900,8 +1946,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "disabled",
+    "routable": false,
     "regions": {
       "execution": [
         "global"
@@ -12895,6 +12941,117 @@
       "checked_at": null,
       "notes": null
     },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/daybreak-blue-latest",
+    "provider_api_model_id": "openai:openai/daybreak-blue-latest",
+    "provider_model_slug": "daybreak-blue-latest",
+    "internal_model_id": "openai/daybreak-blue-latest",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1050000,
+    "max_output_tokens": 128000,
+    "effective_from": "2026-08-10T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": ["max_tokens", "reasoning", "response_format", "structured_outputs", "tools", "tool_choice", "include_reasoning", "reasoning_effort"],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": ["text", "image"],
+        "output_modalities": ["text"],
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": { "execution": ["global"], "data": ["global"] },
+    "service_tiers": ["standard"],
+    "api": { "formats": ["responses"], "endpoint": "/v1/responses", "deployment": null },
+    "sources": ["https://developers.openai.com/api/docs/models/daybreak-blue-latest"],
+    "verification": { "status": "verified", "checked_at": "2026-08-20T00:00:00Z", "notes": "Requires separate OpenAI Daybreak approval and provisioning." },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/daybreak-red-latest",
+    "provider_api_model_id": "openai:openai/daybreak-red-latest",
+    "provider_model_slug": "daybreak-red-latest",
+    "internal_model_id": "openai/daybreak-red-latest",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 400000,
+    "max_output_tokens": 128000,
+    "effective_from": "2026-08-10T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": ["max_tokens", "reasoning", "response_format", "structured_outputs", "tools", "tool_choice", "include_reasoning", "reasoning_effort"],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": ["text", "image"],
+        "output_modalities": ["text"],
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": { "execution": ["global"], "data": ["global"] },
+    "service_tiers": ["standard"],
+    "api": { "formats": ["responses"], "endpoint": "/v1/responses", "deployment": null },
+    "sources": ["https://developers.openai.com/api/docs/models/daybreak-red-latest"],
+    "verification": { "status": "verified", "checked_at": "2026-08-20T00:00:00Z", "notes": "Requires separate OpenAI Daybreak approval and provisioning." },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.6-cyber",
+    "provider_api_model_id": "openai:openai/gpt-5.6-cyber",
+    "provider_model_slug": "gpt-5.6-cyber",
+    "internal_model_id": "openai/gpt-5.6-cyber",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 400000,
+    "max_output_tokens": 128000,
+    "effective_from": "2026-08-10T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": ["max_tokens", "reasoning", "response_format", "structured_outputs", "tools", "tool_choice", "include_reasoning", "reasoning_effort"],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": ["text", "image"],
+        "output_modalities": ["text"],
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": { "execution": ["global"], "data": ["global"] },
+    "service_tiers": ["standard"],
+    "api": { "formats": ["responses"], "endpoint": "/v1/responses", "deployment": null },
+    "sources": ["https://developers.openai.com/api/docs/models/gpt-5.6-cyber"],
+    "verification": { "status": "verified", "checked_at": "2026-08-20T00:00:00Z", "notes": "Requires separate OpenAI Daybreak approval and provisioning." },
     "rate_limits": []
   }
 ]

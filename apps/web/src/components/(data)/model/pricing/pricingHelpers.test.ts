@@ -129,6 +129,39 @@ function makeProviderPricing(): ProviderPricing {
 }
 
 describe("buildProviderSections", () => {
+	test("surfaces per-request web search pricing in provider sheet sections", () => {
+		const provider = makeProviderPricing();
+		provider.pricing_rules.push({
+			id: "std-web-search",
+			model_key: "openai:openai/gpt-5.5:responses",
+			pricing_plan: "standard",
+			meter: "native_web_search_requests",
+			unit: "request",
+			unit_size: 1,
+			price_per_unit: 0.01,
+			currency: "USD",
+			note: "Web search content tokens are billed at the model's input-token rate.",
+			priority: 100,
+			effective_from: "2026-08-20T00:00:00.000Z",
+			effective_to: null,
+			match: [],
+		});
+
+		const sections = buildProviderSections(
+			provider,
+			"standard",
+			new Date("2026-08-20T12:00:00.000Z"),
+		);
+
+		expect(sections.requests).toEqual([
+			expect.objectContaining({
+				meter: "native_web_search_requests",
+				price: 0.01,
+				unitLabel: "Per request",
+			}),
+		]);
+	});
+
 	test("shows only the base conditional context price in the provider table summary", () => {
 		const sections = buildProviderSections(makeProviderPricing(), "standard", new Date("2026-02-01T00:00:00.000Z"));
 		const summary = buildProviderTablePriceSummary(sections, "input");

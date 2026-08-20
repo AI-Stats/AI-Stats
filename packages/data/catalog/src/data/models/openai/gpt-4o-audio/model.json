@@ -1,10 +1,10 @@
 {
   "model_id": "openai/gpt-4o-audio",
   "organisation_id": "openai",
-  "name": "GPT 4o Audio (2025-06-03)",
-  "status": "Available",
+  "name": "GPT 4o Audio Preview (2025-06-03)",
+  "status": "Retired",
   "previous_model_id": "openai/gpt-4o-audio-2024-12-17",
-  "description": "The gpt-4o-audio-preview model adds support for audio inputs as prompts. This enhancement allows the model to detect nuances within audio recordings and add depth to generated user experiences.",
+  "description": "The June 3, 2025 GPT-4o Audio Preview snapshot supported text and audio input and output through Chat Completions. OpenAI retired the GPT-4o Audio preview family in favor of GPT Audio 1.5.",
   "announced_date": null,
   "release_date": "2025-06-03T00:00:00",
   "deprecation_date": null,
