@@ -7,6 +7,7 @@ import { useDeferredValue, useMemo, useState } from "react";
 import { debounce, parseAsArrayOf, parseAsString, useQueryState } from "nuqs";
 import {
 	Activity,
+	ArrowUpRight,
 	ArrowUpDown,
 	AudioLines,
 	BadgeAlert,
@@ -320,8 +321,9 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 									<TableHeader><TableRow className="h-9"><TableHead className="w-[240px]">Provider</TableHead><TableHead>Headquarters</TableHead><TableHead className="text-center">Models</TableHead><TableHead className="text-center">Free Models</TableHead><TableHead>Modalities</TableHead><TableHead className="text-center">Daily Tokens</TableHead><TableHead className="text-center">Monthly Tokens</TableHead><TableHead>Training</TableHead><TableHead>Retention</TableHead><TableHead>Privacy</TableHead><TableHead>Terms</TableHead></TableRow></TableHeader>
 									<TableBody>{filteredProviders.map((provider) => {
 										const supported = MODALITIES.filter((modality) => supportsModality(provider, modality.value));
+										const isExternal = String(provider.provider_status ?? "").trim().toLowerCase() === "external";
 										return <TableRow key={provider.api_provider_id} className="h-11 hover:bg-muted/35">
-											<TableCell className="py-0"><Link href={`/api-providers/${provider.api_provider_id}`} prefetch={false} className="inline-flex h-11 min-w-0 items-center gap-2 font-medium leading-none hover:underline hover:underline-offset-4"><span className="relative size-6 shrink-0"><Logo id={provider.api_provider_id} alt={provider.api_provider_name} fill className="object-contain" /></span><span className="truncate leading-none">{provider.api_provider_name}</span></Link></TableCell>
+											<TableCell className="py-0"><Link href={`/api-providers/${provider.api_provider_id}`} prefetch={false} className="inline-flex h-11 min-w-0 items-center gap-2 font-medium leading-none hover:underline hover:underline-offset-4"><span className="relative size-6 shrink-0"><Logo id={provider.api_provider_id} alt={provider.api_provider_name} fill className="object-contain" /></span><span className="flex min-w-0 items-center gap-1.5"><span className="truncate">{provider.api_provider_name}</span>{isExternal ? <span className="inline-flex shrink-0 items-center gap-1 rounded-md border border-violet-200 bg-violet-50 px-1.5 py-0.5 text-[10px] font-medium text-violet-700 dark:border-violet-900/60 dark:bg-violet-950/40 dark:text-violet-300"><ArrowUpRight className="size-3" />External</span> : null}</span></Link></TableCell>
 											<TableCell>{provider.country_code ? <Link href={`/countries/${provider.country_code.toLowerCase()}`} prefetch={false} className="inline-flex items-center gap-2 hover:underline hover:underline-offset-4"><Image src={`/flags/${provider.country_code.toLowerCase()}.svg`} alt="" width={16} height={12} className="h-3 w-4 rounded-[2px] object-cover" />{countryLabel(provider.country_code)}</Link> : "—"}</TableCell>
 											<TableCell className="text-center tabular-nums">{provider.total_models.toLocaleString()}</TableCell>
 											<TableCell className="text-center tabular-nums">{provider.free_models ? provider.free_models.toLocaleString() : "—"}</TableCell>
