@@ -346,14 +346,14 @@
     "provider_api_model_id": "google-ai-studio:google/gemini-2.0-flash",
     "provider_model_slug": "gemini-2.0-flash",
     "internal_model_id": "google/gemini-2.0-flash",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image,audio,video",
     "output_modalities": "text",
     "context_length": null,
     "max_output_tokens": null,
-    "effective_from": "2026-03-25T00:00:00",
-    "effective_to": "2026-05-25T00:00:00",
+    "effective_from": "2025-02-05T00:00:00",
+    "effective_to": "2026-06-01T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -433,8 +433,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": null,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -458,7 +458,7 @@
     "provider_api_model_id": "google-ai-studio:google/gemini-2.0-flash-lite",
     "provider_model_slug": "gemini-2.0-flash-lite",
     "internal_model_id": "google/gemini-2.0-flash-lite",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image,video,audio",
     "output_modalities": "text",
@@ -545,8 +545,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": null,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -1129,14 +1129,14 @@
     "provider_api_model_id": "google-ai-studio:google/gemini-2.5-flash-preview-2025-05-20",
     "provider_model_slug": "gemini-2-5-flash-preview-2025-05-20",
     "internal_model_id": "google/gemini-2.5-flash-preview-2025-05-20",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image,video,audio",
     "output_modalities": "text",
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": "2025-05-20T00:00:00",
-    "effective_to": "2025-07-15T00:00:00",
+    "effective_to": "2025-11-18T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -1230,8 +1230,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": null,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -1255,7 +1255,7 @@
     "provider_api_model_id": "google-ai-studio:google/gemini-2.5-flash-preview-2025-09-25",
     "provider_model_slug": "gemini-2.5-flash-preview-09-2025",
     "internal_model_id": "google/gemini-2.5-flash-preview-2025-09-25",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image,video,audio",
     "output_modalities": "text",
@@ -1356,8 +1356,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": null,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -1887,7 +1887,7 @@
     "provider_api_model_id": "google-ai-studio:google/gemini-3-pro-image-preview",
     "provider_model_slug": "gemini-3-pro-image-preview",
     "internal_model_id": "google/gemini-3-pro-image-preview",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "text,image",
@@ -1987,8 +1987,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": null,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -2012,7 +2012,7 @@
     "provider_api_model_id": "google-ai-studio:google/gemini-3-pro-preview",
     "provider_model_slug": "gemini-3-pro-preview",
     "internal_model_id": "google/gemini-3-pro-preview",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image,video,audio",
     "output_modalities": "text",
@@ -2113,8 +2113,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": null,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -2264,7 +2264,7 @@
     "provider_api_model_id": "google-ai-studio:google/gemini-3.1-flash-image-preview",
     "provider_model_slug": "gemini-3.1-flash-image-preview",
     "internal_model_id": "google/gemini-3.1-flash-image-preview",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "text,image",
@@ -2365,8 +2365,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": null,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -3518,14 +3518,14 @@
     "provider_api_model_id": "google-ai-studio:google/gemini-embedding-2-preview",
     "provider_model_slug": "gemini-embedding-2-preview",
     "internal_model_id": "google/gemini-embedding-2-preview",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image,audio,video",
     "output_modalities": "embeddings",
     "context_length": 8192,
     "max_output_tokens": null,
     "effective_from": "2026-03-10T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-10T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.embed",
@@ -3541,8 +3541,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": null,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -5757,6 +5757,121 @@
       "checked_at": "2026-08-10T00:00:00Z",
       "notes": "Gemini API Veo 3.1 long-running REST contract, polling, media inputs and pricing verified."
     },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/antigravity-preview-05-2026",
+    "provider_api_model_id": "google-ai-studio:google/antigravity-preview-05-2026",
+    "provider_model_slug": "antigravity-preview-05-2026",
+    "internal_model_id": "google/antigravity-preview-05-2026",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [],
+    "routing_status": null,
+    "routable": false,
+    "regions": {"execution":null,"data":null},
+    "service_tiers": [],
+    "api": {"formats":[],"endpoint":null,"deployment":null},
+    "sources": [{"kind":"documentation","url":"https://ai.google.dev/gemini-api/docs/models","accessed_at":"2026-08-20T00:00:00Z","notes":"Managed agent inventory only; not a Phaseo gateway route."}],
+    "verification": {"status":"verified","checked_at":"2026-08-20T00:00:00Z","notes":"Current Google model catalogue."},
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-2.5-computer-use-preview",
+    "provider_api_model_id": "google-ai-studio:google/gemini-2.5-computer-use-preview",
+    "provider_model_slug": "gemini-2.5-computer-use-preview-10-2025",
+    "internal_model_id": "google/gemini-2.5-computer-use-preview",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2025-10-07T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [{"capability_id":"text.generate","status":"active","params":[],"reasoning":null,"tool_call":true,"structured_output":null,"temperature":null,"attachment":true,"input_modalities":null,"output_modalities":null,"modes":[]}],
+    "routing_status": null,
+    "routable": false,
+    "regions": {"execution":["global"],"data":null},
+    "service_tiers": ["standard"],
+    "api": {"formats":["google.generateContent"],"endpoint":null,"deployment":null},
+    "sources": [{"kind":"documentation","url":"https://ai.google.dev/gemini-api/docs/computer-use","accessed_at":"2026-08-20T00:00:00Z","notes":"Current provider endpoint; gateway executor support is not enabled."}],
+    "verification": {"status":"verified","checked_at":"2026-08-20T00:00:00Z","notes":"Current Google model catalogue."},
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-2.5-flash-native-audio-preview-2025-12-12",
+    "provider_api_model_id": "google-ai-studio:google/gemini-2.5-flash-native-audio-preview-2025-12-12",
+    "provider_model_slug": "gemini-2.5-flash-native-audio-preview-12-2025",
+    "internal_model_id": "google/gemini-2.5-flash-native-audio-preview-2025-12-12",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,audio,video",
+    "output_modalities": "text,audio",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2025-12-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [],
+    "routing_status": null,
+    "routable": false,
+    "regions": {"execution":["global"],"data":null},
+    "service_tiers": ["standard"],
+    "api": {"formats":["google.live"],"endpoint":null,"deployment":null},
+    "sources": [{"kind":"documentation","url":"https://ai.google.dev/gemini-api/docs/models","accessed_at":"2026-08-20T00:00:00Z","notes":"Current Live API endpoint; gateway routing is not enabled."}],
+    "verification": {"status":"verified","checked_at":"2026-08-20T00:00:00Z","notes":"Current Google model catalogue."},
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-omni-flash",
+    "provider_api_model_id": "google-ai-studio:google/gemini-omni-flash",
+    "provider_model_slug": "gemini-omni-flash",
+    "internal_model_id": "google/gemini-omni-flash",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "video",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [],
+    "routing_status": null,
+    "routable": false,
+    "regions": {"execution":["global"],"data":null},
+    "service_tiers": ["standard"],
+    "api": {"formats":[],"endpoint":null,"deployment":null},
+    "sources": [{"kind":"documentation","url":"https://ai.google.dev/gemini-api/docs/models","accessed_at":"2026-08-20T00:00:00Z","notes":"Current preview endpoint; Phaseo video routing is not enabled."}],
+    "verification": {"status":"verified","checked_at":"2026-08-20T00:00:00Z","notes":"Current Google model catalogue."},
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/lyria-realtime-exp",
+    "provider_api_model_id": "google-ai-studio:google/lyria-realtime-exp",
+    "provider_model_slug": "lyria-realtime-exp",
+    "internal_model_id": "google/lyria-realtime-exp",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,audio",
+    "output_modalities": "audio",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2025-05-20T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [{"capability_id":"music.generate","status":"active","params":[],"reasoning":null,"tool_call":null,"structured_output":null,"temperature":null,"attachment":true,"input_modalities":null,"output_modalities":null,"modes":[]}],
+    "routing_status": null,
+    "routable": false,
+    "regions": {"execution":["global"],"data":null},
+    "service_tiers": ["standard"],
+    "api": {"formats":[],"endpoint":null,"deployment":null},
+    "sources": [{"kind":"documentation","url":"https://ai.google.dev/gemini-api/docs/models","accessed_at":"2026-08-20T00:00:00Z","notes":"Current experimental endpoint; realtime music routing is not enabled."}],
+    "verification": {"status":"verified","checked_at":"2026-08-20T00:00:00Z","notes":"Current Google model catalogue."},
     "rate_limits": []
   }
 ]
