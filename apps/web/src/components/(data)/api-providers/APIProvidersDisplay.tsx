@@ -12,6 +12,7 @@ import {
 	BadgeAlert,
 	Binary,
 	CircleDollarSign,
+	CircleOff,
 	ExternalLink,
 	Globe2,
 	ImageIcon,
@@ -52,6 +53,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Logo } from "@/components/Logo";
 import { cn } from "@/lib/utils";
 import { ProviderModalityBadge } from "./ProviderModalityBadge";
+import { matchesProviderCoverage, toggleProviderCoverage } from "./providerFilters";
 import type {
 	APIProviderCard as APIProviderCardType,
 	ProviderModalityKey,
@@ -164,7 +166,7 @@ function ProviderFilterList({ options, selected, onToggle, showFlags = false }: 
 	showFlags?: boolean;
 }) {
 	return (
-		<div className="space-y-0.5 pb-2">
+		<div className="space-y-1.5">
 			{options.map((option) => {
 				const Icon = option.icon;
 				const checked = selected.includes(option.value);
@@ -175,7 +177,7 @@ function ProviderFilterList({ options, selected, onToggle, showFlags = false }: 
 						onClick={() => onToggle(option.value)}
 						aria-pressed={checked}
 						className={cn(
-							"group flex min-h-8 w-full cursor-pointer items-center justify-between gap-2 rounded-md px-2 text-sm transition-colors",
+							"group flex w-full cursor-pointer items-center justify-between gap-2 rounded-md px-2 py-1.5 text-sm transition-colors",
 							checked ? "bg-muted/45 text-foreground hover:bg-muted/55" : "hover:bg-muted/50",
 						)}
 					>
@@ -185,7 +187,7 @@ function ProviderFilterList({ options, selected, onToggle, showFlags = false }: 
 							) : Icon ? <Icon className={cn("size-3.5 shrink-0", checked ? "text-primary" : "text-muted-foreground")} /> : null}
 							<span className="truncate">{option.label}</span>
 						</span>
-						<span className={cn("shrink-0 text-xs tabular-nums", checked ? "text-foreground" : "text-muted-foreground")}>{option.count}</span>
+						<span className={cn("inline-flex min-w-5 shrink-0 justify-center text-[11px] tabular-nums", checked ? "text-foreground" : "text-muted-foreground")}>{option.count}</span>
 					</button>
 				);
 			})}
@@ -224,6 +226,7 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 	const coverageOptions = useMemo<FilterOption[]>(() => [
 		{ value: "active", label: "Gateway Providers", count: providers.filter((provider) => provider.is_gateway_provider).length, icon: Activity },
 		{ value: "free", label: "Has Free Models", count: providers.filter((provider) => provider.free_models > 0).length, icon: CircleDollarSign },
+		{ value: "inactive", label: "Inactive Providers", count: providers.filter((provider) => matchesProviderCoverage(provider, "inactive")).length, icon: CircleOff },
 	], [providers]);
 
 	const filteredProviders = useMemo(() => {
@@ -232,7 +235,7 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 			.filter((provider) => !query || provider.api_provider_name.toLowerCase().includes(query) || provider.api_provider_id.toLowerCase().includes(query))
 			.filter((provider) => modalities.length === 0 || modalities.every((value) => supportsModality(provider, value as ProviderModalityKey)))
 			.filter((provider) => countries.length === 0 || countries.includes(provider.country_code?.trim().toLowerCase() || "unknown"))
-			.filter((provider) => coverage.length === 0 || coverage.every((value) => value === "active" ? provider.is_gateway_provider : provider.free_models > 0))
+			.filter((provider) => coverage.length === 0 || coverage.every((value) => matchesProviderCoverage(provider, value)))
 			.sort((a, b) => {
 				if (sortOption === "daily_tokens_desc") {
 					const delta = Number(b.total_daily_tokens ?? 0) - Number(a.total_daily_tokens ?? 0);
@@ -258,21 +261,21 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 	const filtersContent = (
 		<Accordion type="multiple" value={openSections} onValueChange={setOpenSections}>
 			<AccordionItem value="coverage" className="border-border/70">
-				<AccordionTrigger className="px-2 py-3 text-sm hover:no-underline"><span className="flex items-center gap-2"><Activity className="size-4 text-muted-foreground" />Gateway Coverage</span></AccordionTrigger>
-				<AccordionContent disableAnimation><ProviderFilterList options={coverageOptions} selected={coverage} onToggle={(value) => void setCoverage(toggleValue(coverage, value))} /></AccordionContent>
+				<AccordionTrigger className="px-2 py-3 text-sm no-underline hover:no-underline"><span className="flex items-center gap-2"><Activity className="size-4 text-muted-foreground" />Gateway Coverage</span></AccordionTrigger>
+				<AccordionContent className="pt-1" disableAnimation><ProviderFilterList options={coverageOptions} selected={coverage} onToggle={(value) => void setCoverage(toggleProviderCoverage(coverage, value))} /></AccordionContent>
 			</AccordionItem>
 			<AccordionItem value="modalities" className="border-border/70">
-				<AccordionTrigger className="px-2 py-3 text-sm hover:no-underline"><span className="flex items-center gap-2"><Layers3 className="size-4 text-muted-foreground" />Modalities</span></AccordionTrigger>
-				<AccordionContent disableAnimation><ProviderFilterList options={modalityOptions} selected={modalities} onToggle={(value) => void setModalities(toggleValue(modalities, value))} /></AccordionContent>
+				<AccordionTrigger className="px-2 py-3 text-sm no-underline hover:no-underline"><span className="flex items-center gap-2"><Layers3 className="size-4 text-muted-foreground" />Modalities</span></AccordionTrigger>
+				<AccordionContent className="pt-1" disableAnimation><ProviderFilterList options={modalityOptions} selected={modalities} onToggle={(value) => void setModalities(toggleValue(modalities, value))} /></AccordionContent>
 			</AccordionItem>
 			<AccordionItem value="headquarters" className="border-border/70">
-				<AccordionTrigger className="px-2 py-3 text-sm hover:no-underline"><span className="flex items-center gap-2"><Globe2 className="size-4 text-muted-foreground" />Headquarters</span></AccordionTrigger>
-				<AccordionContent disableAnimation><ProviderFilterList options={countryOptions} selected={countries} onToggle={(value) => void setCountries(toggleValue(countries, value))} showFlags /></AccordionContent>
+				<AccordionTrigger className="px-2 py-3 text-sm no-underline hover:no-underline"><span className="flex items-center gap-2"><Globe2 className="size-4 text-muted-foreground" />Headquarters</span></AccordionTrigger>
+				<AccordionContent className="pt-1" disableAnimation><ProviderFilterList options={countryOptions} selected={countries} onToggle={(value) => void setCountries(toggleValue(countries, value))} showFlags /></AccordionContent>
 			</AccordionItem>
 		</Accordion>
 	);
 
-	const lgFillers = (2 - (filteredProviders.length % 2)) % 2;
+	const mdFillers = (2 - (filteredProviders.length % 2)) % 2;
 	const twoXlFillers = (3 - (filteredProviders.length % 3)) % 3;
 	const viewSwitcher = (
 		<div className="inline-flex h-8 shrink-0 overflow-hidden rounded-md border border-border/70 bg-background shadow-xs">
@@ -282,18 +285,14 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 	);
 	return (
 		<div className="flex w-full flex-1">
-			<aside className="hidden w-[20rem] shrink-0 border-r border-border/70 bg-background/95 lg:block">
+			<aside className="hidden w-[20rem] shrink-0 border-r border-border/70 bg-background/95 lg:block [&_[data-slot=separator]]:-mx-4">
 				<div className="sticky top-16 flex h-[calc(100dvh-4rem)] min-h-0 flex-col">
-					<div className="flex h-11 items-center justify-between border-b border-border/70 px-4">
-						<span className="text-xs font-medium text-muted-foreground">Filter Providers</span>
-						{activeFilterCount ? <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={resetFilters}>Reset</Button> : null}
-					</div>
-					<ScrollArea className="min-h-0 flex-1 overscroll-y-contain"><div className="px-4 pb-6 pt-2">{filtersContent}</div></ScrollArea>
+					<ScrollArea className="min-h-0 flex-1 overscroll-y-contain [&>[data-orientation=vertical]]:opacity-0 [&>[data-orientation=vertical]]:transition-opacity [&>[data-orientation=vertical]]:duration-150 hover:[&>[data-orientation=vertical]]:opacity-100 focus-within:[&>[data-orientation=vertical]]:opacity-100"><div className="space-y-4 px-4 py-2 pb-6">{filtersContent}</div></ScrollArea>
 				</div>
 			</aside>
 
 			<section className="min-w-0 flex flex-1 flex-col">
-				<div className="z-40 border-b border-border/70 bg-background/95 px-4 pb-2 pt-2.5 backdrop-blur md:sticky md:top-[3.75rem] lg:px-8">
+				<div className="z-40 shrink-0 border-b border-border/70 bg-background/95 px-4 pb-1 pt-2.5 backdrop-blur md:sticky md:top-[3.75rem] lg:px-8">
 					<div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
 						{showPrimaryHeader ? <h1 className="text-xl font-bold">Providers</h1> : <div className="hidden md:block" />}
 						<div className="flex min-w-0 flex-1 items-center gap-2 md:max-w-[42rem] md:justify-end">
@@ -310,10 +309,10 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 							<Button variant="outline" size="sm" className="relative h-8 rounded-md px-2 lg:hidden" onClick={() => setMobileFiltersOpen(true)}><SlidersHorizontal className="size-3.5" /><span className="sr-only">Filters</span>{activeFilterCount ? <span className="absolute -right-1 -top-1 min-w-4 rounded-sm bg-primary px-1 text-[10px] text-primary-foreground">{activeFilterCount}</span> : null}</Button>
 						</div>
 					</div>
-					<div className="mt-2 text-xs text-muted-foreground">{filteredProviders.length.toLocaleString()} of {providers.length.toLocaleString()} providers</div>
+					<div className="mt-1.5 text-xs text-muted-foreground">{filteredProviders.length.toLocaleString()} of {providers.length.toLocaleString()} providers</div>
 				</div>
 
-				<div className="px-4 py-5 lg:px-8">
+				<div className="w-full px-4 pt-1 pb-5 lg:px-8 lg:pt-1 lg:pb-6">
 					<div className={cn("overflow-hidden", isTable ? "rounded-md border border-border/70 bg-background" : "bg-border/70")}>
 						{filteredProviders.length && isTable ? (
 							<ScrollArea className="w-full" scrollBarOrientation="horizontal" keepScrollbarMounted viewportClassName="pb-2">
@@ -337,9 +336,9 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 									})}</TableBody>
 								</Table>
 							</ScrollArea>
-						) : filteredProviders.length ? <div className="grid grid-cols-1 gap-px lg:grid-cols-2 2xl:grid-cols-3">
-							{filteredProviders.map((provider) => <div key={provider.api_provider_id} className="bg-background"><APIProviderCard api_provider={provider} /></div>)}
-							{Array.from({ length: lgFillers }).map((_, index) => <div key={`lg-filler-${index}`} aria-hidden className="hidden bg-background lg:block 2xl:hidden" />)}
+						) : filteredProviders.length ? <div className="grid grid-cols-1 gap-px md:grid-cols-2 2xl:grid-cols-3">
+							{filteredProviders.map((provider, index) => <div key={provider.api_provider_id} className={cn("bg-background", index % 2 === 1 ? "md:pl-3" : "md:pr-3", index % 3 === 1 ? "2xl:px-3" : index % 3 === 2 ? "2xl:pl-3" : "2xl:pr-3")}><APIProviderCard api_provider={provider} /></div>)}
+							{Array.from({ length: mdFillers }).map((_, index) => <div key={`md-filler-${index}`} aria-hidden className="hidden bg-background md:block 2xl:hidden" />)}
 							{Array.from({ length: twoXlFillers }).map((_, index) => <div key={`2xl-filler-${index}`} aria-hidden className="hidden bg-background 2xl:block" />)}
 						</div> : <div className="flex min-h-64 flex-col items-center justify-center gap-2 bg-background px-4 text-center"><Search className="size-5 text-muted-foreground" /><p className="text-sm font-medium">No providers found</p><p className="text-xs text-muted-foreground">Try changing your search or filters.</p>{activeFilterCount ? <Button variant="outline" size="sm" className="mt-2 rounded-md" onClick={resetFilters}>Reset Filters</Button> : null}</div>}
 					</div>
@@ -347,10 +346,9 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 			</section>
 
 			<Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
-				<SheetContent side="right" className="flex w-[min(24rem,92vw)] flex-col p-0">
-					<SheetHeader className="border-b border-border/70 px-4 py-3"><SheetTitle>Provider Filters</SheetTitle><SheetDescription>Narrow providers by gateway coverage and capability.</SheetDescription></SheetHeader>
-					<ScrollArea className="min-h-0 flex-1"><div className="px-4 pb-8 pt-2">{filtersContent}</div></ScrollArea>
-					{activeFilterCount ? <div className="border-t border-border/70 p-3"><Button variant="outline" className="w-full rounded-md" onClick={resetFilters}>Reset Filters</Button></div> : null}
+				<SheetContent side="right" className="w-[86vw] max-w-sm gap-0 p-0 lg:hidden">
+					<SheetHeader className="border-b border-border/70 px-4 py-3 text-left"><div className="flex items-start justify-between gap-3 pr-8"><div><SheetTitle>Filters</SheetTitle><SheetDescription>Refine the providers list.</SheetDescription></div>{activeFilterCount ? <Button variant="ghost" size="sm" className="h-8 px-2" onClick={resetFilters}>Reset</Button> : null}</div></SheetHeader>
+					<ScrollArea className="min-h-0 flex-1 overscroll-y-contain px-4 py-2"><div className="space-y-4 pb-6">{filtersContent}</div></ScrollArea>
 				</SheetContent>
 			</Sheet>
 		</div>
