@@ -1,4 +1,4 @@
-import { matchesProviderCoverage, toggleProviderCoverage } from "./providerFilters";
+import { matchesProviderCoverage, matchesProviderPolicy, toggleProviderCoverage } from "./providerFilters";
 import type { APIProviderCard } from "@/lib/fetchers/api-providers/providerDataTypes";
 
 function makeProvider(overrides: Partial<APIProviderCard> = {}): APIProviderCard {
@@ -7,6 +7,7 @@ function makeProvider(overrides: Partial<APIProviderCard> = {}): APIProviderCard
 		api_provider_name: "Test Provider",
 		country_code: "US",
 		is_gateway_provider: false,
+		byok_available: false,
 		prompt_training_policy: null,
 		data_policy_tier: null,
 		zero_data_retention: null,
@@ -55,5 +56,34 @@ describe("toggleProviderCoverage", () => {
 	it("preserves other coverage filters", () => {
 		expect(toggleProviderCoverage(["active", "free"], "inactive")).toEqual(["free", "inactive"]);
 		expect(toggleProviderCoverage(["inactive", "free"], "free")).toEqual(["inactive"]);
+	});
+});
+
+describe("matchesProviderPolicy", () => {
+	it("matches legal and BYOK availability", () => {
+		const provider = makeProvider({
+			byok_available: true,
+			privacy_policy_url: "https://example.com/privacy",
+			terms_of_service_url: "https://example.com/terms",
+		});
+		expect(matchesProviderPolicy(provider, "byok")).toBe(true);
+		expect(matchesProviderPolicy(provider, "privacy")).toBe(true);
+		expect(matchesProviderPolicy(provider, "terms")).toBe(true);
+	});
+
+	it("matches training and retention categories", () => {
+		const provider = makeProvider({ prompt_training_policy: "may_train", data_retention_days: 30 });
+		expect(matchesProviderPolicy(provider, "training:may_train")).toBe(true);
+		expect(matchesProviderPolicy(provider, "retention:published")).toBe(true);
+		expect(matchesProviderPolicy(makeProvider({ data_retention_days: 0 }), "retention:none")).toBe(true);
+		expect(matchesProviderPolicy(makeProvider({ zero_data_retention: "optional" }), "retention:zdr")).toBe(true);
+		expect(matchesProviderPolicy(makeProvider(), "training:unknown")).toBe(true);
+		expect(matchesProviderPolicy(makeProvider(), "retention:unknown")).toBe(true);
+	});
+
+	it("treats the legacy opt_out training value as opt-out available", () => {
+		const provider = makeProvider({ prompt_training_policy: "opt_out" });
+
+		expect(matchesProviderPolicy(provider, "training:opt_out_available")).toBe(true);
 	});
 });

@@ -33,6 +33,10 @@ export default function NewAPIProviderPage() {
 						<div className="mb-1 text-muted-foreground">Country code</div>
 						<input name="country_code" className="w-full rounded-md border px-3 py-2 text-sm" />
 					</label>
+					<label className="flex items-center gap-2 self-end pb-2 text-sm">
+						<input name="byok_available" type="checkbox" className="size-4 rounded border" />
+						<span>BYOK available</span>
+					</label>
 					<label className="text-sm">
 						<div className="mb-1 text-muted-foreground">Prompt training policy</div>
 						<select
@@ -76,4 +80,3 @@ export default function NewAPIProviderPage() {
 		</div>
 	);
 }
-

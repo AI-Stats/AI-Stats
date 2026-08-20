@@ -14,13 +14,18 @@ import {
 	Binary,
 	CircleDollarSign,
 	CircleOff,
+	Clock3,
 	ExternalLink,
+	GraduationCap,
 	Globe2,
 	ImageIcon,
+	KeyRound,
 	Layers3,
 	LayoutGrid,
 	Search,
 	Scale,
+	ScrollText,
+	ShieldCheck,
 	SlidersHorizontal,
 	Table2,
 	Type,
@@ -54,7 +59,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Logo } from "@/components/Logo";
 import { cn } from "@/lib/utils";
 import { ProviderModalityBadge } from "./ProviderModalityBadge";
-import { matchesProviderCoverage, toggleProviderCoverage } from "./providerFilters";
+import { matchesProviderCoverage, matchesProviderPolicy, toggleProviderCoverage } from "./providerFilters";
 import type {
 	APIProviderCard as APIProviderCardType,
 	ProviderModalityKey,
@@ -93,6 +98,7 @@ const TRAINING_LABELS: Record<string, string> = {
 	no_train: "No training",
 	may_train: "May train",
 	opt_out_available: "Opt-out available",
+	opt_out: "Opt-out available",
 	enterprise_no_train: "Enterprise no-train",
 };
 
@@ -205,6 +211,9 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 	const [modalities, setModalities] = useQueryState("modalities", arrayParser);
 	const [coverage, setCoverage] = useQueryState("coverage", coverageParser);
 	const [countries, setCountries] = useQueryState("countries", arrayParser);
+	const [policies, setPolicies] = useQueryState("policies", arrayParser);
+	const [training, setTraining] = useQueryState("training", arrayParser);
+	const [retention, setRetention] = useQueryState("retention", arrayParser);
 	const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 	const [openSections, setOpenSections] = useState(["coverage", "modalities"]);
 	const sortOption = normalizeSortOption(sort);
@@ -230,6 +239,27 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 		{ value: "inactive", label: "Inactive Providers", count: providers.filter((provider) => matchesProviderCoverage(provider, "inactive")).length, icon: CircleOff },
 	], [providers]);
 
+	const policyOptions = useMemo<FilterOption[]>(() => [
+		{ value: "byok", label: "BYOK Available", count: providers.filter((provider) => matchesProviderPolicy(provider, "byok")).length, icon: KeyRound },
+		{ value: "privacy", label: "Privacy Policy", count: providers.filter((provider) => matchesProviderPolicy(provider, "privacy")).length, icon: ShieldCheck },
+		{ value: "terms", label: "Terms of Service", count: providers.filter((provider) => matchesProviderPolicy(provider, "terms")).length, icon: ScrollText },
+	].filter((option) => option.count > 0), [providers]);
+
+	const trainingOptions = useMemo<FilterOption[]>(() => [
+		{ value: "training:no_train", label: "No training", count: providers.filter((provider) => matchesProviderPolicy(provider, "training:no_train")).length },
+		{ value: "training:may_train", label: "May train", count: providers.filter((provider) => matchesProviderPolicy(provider, "training:may_train")).length },
+		{ value: "training:opt_out_available", label: "Opt-out available", count: providers.filter((provider) => matchesProviderPolicy(provider, "training:opt_out_available")).length },
+		{ value: "training:enterprise_no_train", label: "Enterprise no-train", count: providers.filter((provider) => matchesProviderPolicy(provider, "training:enterprise_no_train")).length },
+		{ value: "training:unknown", label: "Unknown", count: providers.filter((provider) => matchesProviderPolicy(provider, "training:unknown")).length },
+	].filter((option) => option.count > 0), [providers]);
+
+	const retentionOptions = useMemo<FilterOption[]>(() => [
+		{ value: "retention:none", label: "No retention", count: providers.filter((provider) => matchesProviderPolicy(provider, "retention:none")).length },
+		{ value: "retention:published", label: "Published retention", count: providers.filter((provider) => matchesProviderPolicy(provider, "retention:published")).length },
+		{ value: "retention:zdr", label: "Zero-retention option", count: providers.filter((provider) => matchesProviderPolicy(provider, "retention:zdr")).length },
+		{ value: "retention:unknown", label: "Unknown", count: providers.filter((provider) => matchesProviderPolicy(provider, "retention:unknown")).length },
+	].filter((option) => option.count > 0), [providers]);
+
 	const filteredProviders = useMemo(() => {
 		const query = deferredSearch.trim().toLowerCase();
 		return [...providers]
@@ -237,6 +267,9 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 			.filter((provider) => modalities.length === 0 || modalities.every((value) => supportsModality(provider, value as ProviderModalityKey)))
 			.filter((provider) => countries.length === 0 || countries.includes(provider.country_code?.trim().toLowerCase() || "unknown"))
 			.filter((provider) => coverage.length === 0 || coverage.every((value) => matchesProviderCoverage(provider, value)))
+			.filter((provider) => policies.length === 0 || policies.every((value) => matchesProviderPolicy(provider, value)))
+			.filter((provider) => training.length === 0 || training.some((value) => matchesProviderPolicy(provider, value)))
+			.filter((provider) => retention.length === 0 || retention.some((value) => matchesProviderPolicy(provider, value)))
 			.sort((a, b) => {
 				if (sortOption === "daily_tokens_desc") {
 					const delta = Number(b.total_daily_tokens ?? 0) - Number(a.total_daily_tokens ?? 0);
@@ -254,16 +287,28 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 				}
 				return a.api_provider_name.localeCompare(b.api_provider_name);
 			});
-	}, [countries, coverage, deferredSearch, modalities, providers, sortOption]);
+	}, [countries, coverage, deferredSearch, modalities, policies, providers, retention, sortOption, training]);
 
 	const customCoverageCount = coverage.length === 1 && coverage[0] === "active" ? 0 : coverage.length;
-	const activeFilterCount = modalities.length + customCoverageCount + countries.length;
-	const resetFilters = () => { void setModalities([]); void setCoverage(["active"]); void setCountries([]); };
+	const activeFilterCount = modalities.length + customCoverageCount + countries.length + policies.length + training.length + retention.length;
+	const resetFilters = () => { void setModalities([]); void setCoverage(["active"]); void setCountries([]); void setPolicies([]); void setTraining([]); void setRetention([]); };
 	const filtersContent = (
 		<Accordion type="multiple" value={openSections} onValueChange={setOpenSections}>
 			<AccordionItem value="coverage" className="border-border/70">
 				<AccordionTrigger className="px-2 py-3 text-sm no-underline hover:no-underline"><span className="flex items-center gap-2"><Activity className="size-4 text-muted-foreground" />Gateway Coverage</span></AccordionTrigger>
 				<AccordionContent className="pt-1" disableAnimation><ProviderFilterList options={coverageOptions} selected={coverage} onToggle={(value) => void setCoverage(toggleProviderCoverage(coverage, value))} /></AccordionContent>
+			</AccordionItem>
+			<AccordionItem value="policies" className="border-border/70">
+				<AccordionTrigger className="px-2 py-3 text-sm no-underline hover:no-underline"><span className="flex items-center gap-2"><ShieldCheck className="size-4 text-muted-foreground" />Policies</span></AccordionTrigger>
+				<AccordionContent className="pt-1" disableAnimation><ProviderFilterList options={policyOptions} selected={policies} onToggle={(value) => void setPolicies(toggleValue(policies, value))} /></AccordionContent>
+			</AccordionItem>
+			<AccordionItem value="training" className="border-border/70">
+				<AccordionTrigger className="px-2 py-3 text-sm no-underline hover:no-underline"><span className="flex items-center gap-2"><GraduationCap className="size-4 text-muted-foreground" />Training on Data</span></AccordionTrigger>
+				<AccordionContent className="pt-1" disableAnimation><ProviderFilterList options={trainingOptions} selected={training} onToggle={(value) => void setTraining(toggleValue(training, value))} /></AccordionContent>
+			</AccordionItem>
+			<AccordionItem value="retention" className="border-border/70">
+				<AccordionTrigger className="px-2 py-3 text-sm no-underline hover:no-underline"><span className="flex items-center gap-2"><Clock3 className="size-4 text-muted-foreground" />Data Retention</span></AccordionTrigger>
+				<AccordionContent className="pt-1" disableAnimation><ProviderFilterList options={retentionOptions} selected={retention} onToggle={(value) => void setRetention(toggleValue(retention, value))} /></AccordionContent>
 			</AccordionItem>
 			<AccordionItem value="modalities" className="border-border/70">
 				<AccordionTrigger className="px-2 py-3 text-sm no-underline hover:no-underline"><span className="flex items-center gap-2"><Layers3 className="size-4 text-muted-foreground" />Modalities</span></AccordionTrigger>

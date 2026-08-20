@@ -10,7 +10,7 @@ const CANONICAL_SERVICE_TIERS = ["standard", "priority", "batch", "flex"] as con
 
 const catalogMutationSchemas = {
 	organisations: z.object({ organisation_id: z.string().trim().min(1).optional(), name: z.string().trim().min(1), description: z.string().nullable().optional(), country_code: z.string().trim().min(2).max(3).nullable().optional(), colour: z.string().nullable().optional(), social_links: z.array(z.object({ platform: z.string().trim().min(1), url: z.url() })).default([]) }),
-	providers: z.object({ api_provider_id: z.string().trim().min(1).optional(), api_provider_name: z.string().trim().min(1), description: z.string().nullable().optional(), link: z.string().nullable().optional(), country_code: z.string().trim().min(2).max(3).nullable().optional(), prompt_training_policy: z.string().nullable().optional(), prompt_training_notes: z.string().nullable().optional(), prompt_training_source_url: z.string().nullable().optional(), data_policy_tier: z.string().nullable().optional(), data_policy_confidence: z.string().nullable().optional(), data_policy_contract_mode: z.string().nullable().optional(), data_policy_contract_notes: z.string().nullable().optional(), status: z.string().nullable().optional() }),
+	providers: z.object({ api_provider_id: z.string().trim().min(1).optional(), api_provider_name: z.string().trim().min(1), description: z.string().nullable().optional(), link: z.string().nullable().optional(), country_code: z.string().trim().min(2).max(3).nullable().optional(), byok_available: z.boolean().optional(), prompt_training_policy: z.string().nullable().optional(), prompt_training_notes: z.string().nullable().optional(), prompt_training_source_url: z.string().nullable().optional(), data_policy_tier: z.string().nullable().optional(), data_policy_confidence: z.string().nullable().optional(), data_policy_contract_mode: z.string().nullable().optional(), data_policy_contract_notes: z.string().nullable().optional(), status: z.string().nullable().optional() }),
 	benchmarks: z.object({ id: z.string().trim().min(1).optional(), name: z.string().trim().min(1), category: z.string().nullable().optional(), link: z.string().nullable().optional(), ascending_order: z.boolean().nullable().optional() }),
 	"subscription-plans": z.object({ plan_uuid: z.uuid().optional(), plan_id: z.string().trim().min(1), name: z.string().trim().min(1), organisation_id: z.string().nullable().optional(), description: z.string().nullable().optional(), frequency: z.string().nullable().optional(), price: z.number().finite().nullable().optional(), currency: z.string().nullable().optional(), link: z.string().nullable().optional(), other_info: z.record(z.string(), z.unknown()).default({}) }),
 	models: z.object({ modelId: z.string().trim().min(1).optional(), name: z.string().trim().min(1), organisationId: z.string().trim().min(1).optional(), familyId: z.string().nullable().optional(), status: z.string().nullable().optional(), hidden: z.boolean().optional(), inputTypes: z.union([z.string(), z.array(z.string())]).nullable().optional(), outputTypes: z.union([z.string(), z.array(z.string())]).nullable().optional(), announcementDate: z.string().nullable().optional(), releaseDate: z.string().nullable().optional(), deprecationDate: z.string().nullable().optional(), retirementDate: z.string().nullable().optional(), license: z.string().nullable().optional(), previousModelId: z.string().nullable().optional() }),
@@ -263,7 +263,7 @@ accountModelsRouter.get("/catalog/record", async (c) => {
 			return c.json({ row: data ? { ...data, colour: data.metadata?.colour ?? null } : null, links: links.data ?? [] }, 200, PRIVATE_NO_STORE_HEADERS);
 		}
 		const configs: Record<string, { table: string; select: string; column: string }> = {
-			provider: { table: "v2_providers", select: "api_provider_id:provider_slug,api_provider_name:name,base_url,country_code,metadata", column: "provider_slug" },
+			provider: { table: "v2_providers", select: "api_provider_id:provider_slug,api_provider_name:name,base_url,country_code,byok_available,metadata", column: "provider_slug" },
 			benchmark: { table: "v2_benchmarks", select: "id:benchmark_id,name,category,link,ascending_order", column: "benchmark_id" },
 			model: { table: "v2_models", select: "model_id:model_slug,name", column: "model_slug" },
 		};
@@ -274,7 +274,7 @@ accountModelsRouter.get("/catalog/record", async (c) => {
 		if (resource === "provider" && result.data) {
 			const data = result.data as Record<string, any>;
 			const metadata = data.metadata && typeof data.metadata === "object" ? data.metadata : {};
-			return c.json({ row: { ...data, description: metadata.description ?? null, link: metadata.link ?? data.base_url ?? null, prompt_training_policy: metadata.prompt_training_policy ?? null } }, 200, PRIVATE_NO_STORE_HEADERS);
+			return c.json({ row: { ...data, description: metadata.description ?? null, link: metadata.link ?? data.base_url ?? null, byok_available: data.byok_available === true, prompt_training_policy: metadata.prompt_training_policy ?? null } }, 200, PRIVATE_NO_STORE_HEADERS);
 		}
 		return c.json({ row: result.data ?? null }, 200, PRIVATE_NO_STORE_HEADERS);
 	} catch (error) {
