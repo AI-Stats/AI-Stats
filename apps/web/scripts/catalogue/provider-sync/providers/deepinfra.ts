@@ -42,8 +42,13 @@ export const provider: ProviderSyncProvider = {
 	name: "DeepInfra",
 	sourceUrl: MODEL_DETAILS_URL,
 	async fetchModels(fetcher = fetch): Promise<unknown> {
+		const apiKey = process.env.DEEPINFRA_API_KEY?.trim();
+		const currentHeaders = {
+			accept: "application/json",
+			...(apiKey ? { authorization: `Bearer ${apiKey}` } : {}),
+		};
 		const [currentResponse, detailsResponse] = await Promise.all([
-			fetcher(CURRENT_MODELS_URL, { headers: { accept: "application/json" }, signal: AbortSignal.timeout(30_000) }),
+			fetcher(CURRENT_MODELS_URL, { headers: currentHeaders, signal: AbortSignal.timeout(30_000) }),
 			fetcher(MODEL_DETAILS_URL, { headers: { accept: "application/json" }, signal: AbortSignal.timeout(30_000) }),
 		]);
 		if (!currentResponse.ok) throw new Error(`Current models HTTP ${currentResponse.status}`);

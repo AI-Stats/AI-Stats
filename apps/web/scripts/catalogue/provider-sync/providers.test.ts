@@ -39,7 +39,16 @@ describe("provider sync registry", () => {
 
 	test("joins DeepInfra's current inventory to its detailed pricing feed", async () => {
 		const provider = getProviderSyncProvider("deepinfra");
-		const request = jest.fn(async (input: RequestInfo | URL) => new Response(JSON.stringify(
+		const originalKey = process.env.DEEPINFRA_API_KEY;
+		process.env.DEEPINFRA_API_KEY = "test-deepinfra-key";
+		const request = jest.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+			if (String(input).includes("v1/openai/models")) {
+				expect(init?.headers).toEqual({
+					accept: "application/json",
+					authorization: "Bearer test-deepinfra-key",
+				});
+			}
+			return new Response(JSON.stringify(
 			String(input).includes("v1/openai/models")
 				? { data: [{ id: "example/model" }] }
 				: [{
@@ -53,16 +62,22 @@ describe("provider sync registry", () => {
 						rate_per_input_token_cached: 0.2,
 					},
 				}],
-		), { status: 200 }));
+			), { status: 200 });
+		});
 
-		const payload = await provider!.fetchModels(request);
-		expect(provider!.parseModels(payload)).toEqual([expect.objectContaining({
-			id: "example/model",
-			details: expect.objectContaining({
-				context_length: 131072,
-				metadata: { pricing: { input_tokens: 0.1, output_tokens: 0.2, cache_read_tokens: 0.02 } },
-			}),
-		})]);
+		try {
+			const payload = await provider!.fetchModels(request);
+			expect(provider!.parseModels(payload)).toEqual([expect.objectContaining({
+				id: "example/model",
+				details: expect.objectContaining({
+					context_length: 131072,
+					metadata: { pricing: { input_tokens: 0.1, output_tokens: 0.2, cache_read_tokens: 0.02 } },
+				}),
+			})]);
+		} finally {
+			if (originalKey === undefined) delete process.env.DEEPINFRA_API_KEY;
+			else process.env.DEEPINFRA_API_KEY = originalKey;
+		}
 	});
 
 	test("parses common provider model list envelopes", () => {
