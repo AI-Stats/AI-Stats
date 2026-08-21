@@ -468,10 +468,14 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 		syncHeaderScroll();
 		tableContainer.addEventListener("scroll", syncHeaderScroll, { passive: true });
 		return () => tableContainer.removeEventListener("scroll", syncHeaderScroll);
-	}, []);
+	}, [filteredProviders.length, isTable]);
 
 	const sortSelect = (className: string) => (
-		<Select value={sortOption} onValueChange={(value) => void setSort(normalizeSortOption(value))}>
+		<Select value={sortOption} onValueChange={(value) => {
+			void setSort(normalizeSortOption(value));
+			void setTableSort(null);
+			void setTableSortDirection(null);
+		}}>
 			<SelectTrigger className={cn("rounded-md border-border", className)} aria-label="Sort providers"><span className="flex min-w-0 items-center gap-2"><ArrowUpDown className="size-3.5 shrink-0 text-muted-foreground" /><span className="truncate">{SORT_OPTION_LABELS[sortOption]}</span></span></SelectTrigger>
 			<SelectContent align="end">{(Object.keys(SORT_OPTION_LABELS) as ProviderSortOption[]).map((option) => <SelectItem key={option} value={option}>{SORT_OPTION_LABELS[option]}</SelectItem>)}</SelectContent>
 		</Select>
