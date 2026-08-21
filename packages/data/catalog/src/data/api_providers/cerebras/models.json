@@ -48,7 +48,7 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": ["standard", "auto", "flex"],
+    "service_tiers": ["standard", "auto"],
     "api": {
       "formats": [],
       "endpoint": null,
@@ -318,7 +318,7 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": ["standard", "auto", "flex"],
+    "service_tiers": ["standard", "auto"],
     "api": {
       "formats": [],
       "endpoint": null,

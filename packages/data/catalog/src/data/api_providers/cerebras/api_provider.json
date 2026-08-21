@@ -29,7 +29,7 @@
   "docs_url": "https://inference-docs.cerebras.ai/",
   "auth_env": ["CEREBRAS_API_KEY"],
   "api_formats": ["openai.chat.completions"],
-  "service_tiers": ["standard", "auto", "flex"],
+  "service_tiers": ["standard", "auto"],
   "sources": [
     {
       "kind": "documentation",
@@ -47,7 +47,7 @@
       "kind": "documentation",
       "url": "https://inference-docs.cerebras.ai/capabilities/service-tiers",
       "accessed_at": "2026-08-21T00:00:00Z",
-      "notes": "Cerebras documents default, auto, and flex request service tiers."
+      "notes": "Cerebras documents default, auto, and flex request service tiers; Phaseo exposes standard/default and auto while flex lacks a distinct routable pricing plan."
     }
   ],
   "verification": {

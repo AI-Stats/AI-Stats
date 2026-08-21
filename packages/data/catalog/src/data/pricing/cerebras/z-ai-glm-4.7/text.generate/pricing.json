@@ -15,6 +15,7 @@
       "note": null,
       "match": [],
       "priority": 100,
+      "effective_to": "2026-08-17T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -30,6 +31,7 @@
       "note": null,
       "match": [],
       "priority": 100,
+      "effective_to": "2026-08-17T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -45,6 +47,7 @@
       "note": null,
       "match": [],
       "priority": 100,
+      "effective_to": "2026-08-17T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -55,10 +58,17 @@
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "deprecation",
+      "url": "https://inference-docs.cerebras.ai/support/deprecation",
+      "accessed_at": "2026-08-21T00:00:00Z",
+      "notes": "Cerebras deprecated zai-glm-4.7 on August 17, 2026."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-21T00:00:00Z",
+    "notes": "Historical pricing availability now closes at the documented route retirement boundary."
   }
 }
