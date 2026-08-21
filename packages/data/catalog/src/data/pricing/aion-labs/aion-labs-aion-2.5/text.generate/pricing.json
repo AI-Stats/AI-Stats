@@ -16,6 +16,7 @@
       "match": [],
       "priority": 100,
       "effective_from": "2026-03-10T00:00:00Z",
+      "effective_to": "2026-08-14T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -32,6 +33,7 @@
       "match": [],
       "priority": 100,
       "effective_from": "2026-03-10T00:00:00Z",
+      "effective_to": "2026-08-14T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -48,6 +50,7 @@
       "match": [],
       "priority": 100,
       "effective_from": "2026-03-10T00:00:00Z",
+      "effective_to": "2026-08-14T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -58,10 +61,10 @@
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [{ "kind": "pricing", "url": "https://www.aionlabs.ai/docs/models/", "accessed_at": "2026-08-21T00:00:00Z" }],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-21T00:00:00Z",
+    "notes": "Historical pricing retained through the model's 2026-08-14 sunset."
   }
 }

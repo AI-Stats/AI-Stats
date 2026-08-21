@@ -32,10 +32,13 @@
     "openai_responses"
   ],
   "service_tiers": [],
-  "sources": [],
+  "sources": [
+    { "kind": "api_reference", "url": "https://api.aionlabs.ai/v1/models", "accessed_at": "2026-08-21T00:00:00Z" },
+    { "kind": "documentation", "url": "https://api.aionlabs.ai/docs/api-reference/", "accessed_at": "2026-08-21T00:00:00Z" }
+  ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-12",
-    "notes": "Verified against the official API reference. Both provider IDs use the same Aion Labs OpenAI-compatible API."
+    "checked_at": "2026-08-21",
+    "notes": "Verified against the official API reference and live unauthenticated model endpoint."
   }
 }
