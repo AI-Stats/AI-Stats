@@ -1113,7 +1113,7 @@
     "context_length": 262144,
     "max_output_tokens": null,
     "effective_from": "2026-01-27T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-21T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -1129,7 +1129,7 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "retired",
     "routable": false,
     "regions": {
       "execution": null,
@@ -1403,7 +1403,7 @@
     "context_length": 262144,
     "max_output_tokens": null,
     "effective_from": "2026-08-07T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-21T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -1419,7 +1419,7 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "retired",
     "routable": false,
     "regions": {
       "execution": null,
@@ -1669,7 +1669,7 @@
     "context_length": 262144,
     "max_output_tokens": null,
     "effective_from": "2026-04-05T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-21T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -1685,7 +1685,7 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "retired",
     "routable": false,
     "regions": {
       "execution": null,
