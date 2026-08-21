@@ -372,6 +372,8 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 	const mdFillers = (2 - (filteredProviders.length % 2)) % 2;
 	const twoXlFillers = (3 - (filteredProviders.length % 3)) % 3;
 	const toolbarRef = useRef<HTMLDivElement | null>(null);
+	const tableContainerRef = useRef<HTMLDivElement | null>(null);
+	const tableHeaderTrackRef = useRef<HTMLDivElement | null>(null);
 	const [stickyOffsets, setStickyOffsets] = useState({ toolbarTop: 60, tableHeaderTop: 60 });
 
 	useEffect(() => {
@@ -398,6 +400,18 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 		};
 	}, []);
 
+	useEffect(() => {
+		const tableContainer = tableContainerRef.current;
+		const headerTrack = tableHeaderTrackRef.current;
+		if (!tableContainer || !headerTrack) return;
+		const syncHeaderScroll = () => {
+			headerTrack.style.transform = `translate3d(${-tableContainer.scrollLeft}px, 0, 0)`;
+		};
+		syncHeaderScroll();
+		tableContainer.addEventListener("scroll", syncHeaderScroll, { passive: true });
+		return () => tableContainer.removeEventListener("scroll", syncHeaderScroll);
+	}, []);
+
 	const sortSelect = (className: string) => (
 		<Select value={sortOption} onValueChange={(value) => void setSort(normalizeSortOption(value))}>
 			<SelectTrigger className={cn("rounded-md border-border", className)} aria-label="Sort providers"><span className="flex min-w-0 items-center gap-2"><ArrowUpDown className="size-3.5 shrink-0 text-muted-foreground" /><span className="truncate">{SORT_OPTION_LABELS[sortOption]}</span></span></SelectTrigger>
@@ -412,6 +426,28 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 			<Link href="/api-providers" prefetch={false} aria-label="Card view" aria-current={!isTable ? "page" : undefined} className={cn("inline-flex h-8 w-9 items-center justify-center text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring/45", !isTable && "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground")}><LayoutGrid className="size-4" /></Link>
 			<Link href="/api-providers/table" prefetch={false} aria-label="Table view" aria-current={isTable ? "page" : undefined} className={cn("inline-flex h-8 w-9 items-center justify-center border-l border-border/70 text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring/45", isTable && "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground")}><Table2 className="size-4" /></Link>
 		</div>
+	);
+	const providerTableColgroup = () => (
+		<colgroup>
+			{[240, 150, 80, 90, 220, 120, 130, 160, 150, 110, 110].map((width, index) => <col key={`provider-col-${index}`} style={{ width: `${width}px` }} />)}
+		</colgroup>
+	);
+	const providerTableHeader = () => (
+		<TableHeader>
+			<TableRow className="bg-background hover:bg-background">
+				<TableHead className="bg-background">Provider</TableHead>
+				<TableHead className="bg-background">Headquarters</TableHead>
+				<TableHead className="bg-background text-center">Models</TableHead>
+				<TableHead className="bg-background text-center">Free Models</TableHead>
+				<TableHead className="bg-background">Modalities</TableHead>
+				<TableHead className="bg-background text-center">Daily Tokens</TableHead>
+				<TableHead className="bg-background text-center">Monthly Tokens</TableHead>
+				<TableHead className="bg-background">Training</TableHead>
+				<TableHead className="bg-background">Retention</TableHead>
+				<TableHead className="bg-background">Privacy</TableHead>
+				<TableHead className="bg-background">Terms</TableHead>
+			</TableRow>
+		</TableHeader>
 	);
 	return (
 		<div className="flex w-full flex-1">
@@ -469,12 +505,21 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 				</div>
 
 				<div className="w-full px-4 pt-1 pb-5 lg:px-8 lg:pt-1 lg:pb-6">
-					<div className={cn("overflow-hidden", isTable ? "bg-background" : "bg-border/70")}>
+					<div className={cn(isTable ? "bg-background" : "overflow-hidden bg-border/70")}>
 						{filteredProviders.length && isTable ? (
-							<ScrollArea className="w-full" scrollBarOrientation="horizontal" keepScrollbarMounted viewportClassName="pb-2">
-								<Table wrapInContainer={false} className="min-w-[1400px] bg-background text-xs">
-									<TableHeader className="sticky z-30 bg-background" style={{ top: `${stickyOffsets.tableHeaderTop}px` }}><TableRow className="bg-background hover:bg-background"><TableHead className="w-[240px] bg-background">Provider</TableHead><TableHead className="bg-background">Headquarters</TableHead><TableHead className="bg-background text-center">Models</TableHead><TableHead className="bg-background text-center">Free Models</TableHead><TableHead className="bg-background">Modalities</TableHead><TableHead className="bg-background text-center">Daily Tokens</TableHead><TableHead className="bg-background text-center">Monthly Tokens</TableHead><TableHead className="bg-background">Training</TableHead><TableHead className="bg-background">Retention</TableHead><TableHead className="bg-background">Privacy</TableHead><TableHead className="bg-background">Terms</TableHead></TableRow></TableHeader>
-									<TableBody className="bg-background">{filteredProviders.map((provider) => {
+							<div className="relative">
+								<div className="sticky z-30 w-full overflow-hidden bg-background" style={{ top: `${stickyOffsets.tableHeaderTop}px` }}>
+									<div ref={tableHeaderTrackRef} className="will-change-transform" style={{ width: "1560px", minWidth: "1560px" }}>
+										<Table wrapInContainer={false} aria-label="Providers table column headers" className="table-fixed w-max bg-background text-xs" style={{ width: "1560px", minWidth: "1560px" }}>
+											{providerTableColgroup()}
+											{providerTableHeader()}
+										</Table>
+									</div>
+								</div>
+								<div ref={tableContainerRef} className="relative overflow-x-auto overflow-y-clip">
+									<Table wrapInContainer={false} aria-label="Providers table rows" className="table-fixed w-max bg-background text-xs" style={{ width: "1560px", minWidth: "1560px" }}>
+										{providerTableColgroup()}
+										<TableBody className="bg-background">{filteredProviders.map((provider) => {
 										const supported = MODALITIES.filter((modality) => supportsModality(provider, modality.value));
 										const isExternal = String(provider.provider_status ?? "").trim().toLowerCase() === "external";
 										return <TableRow key={provider.api_provider_id} className="hover:bg-muted/35">
@@ -490,9 +535,10 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 											<TableCell>{provider.privacy_policy_url ? <a href={provider.privacy_policy_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-medium hover:underline hover:underline-offset-4">Privacy <ExternalLink className="size-3 text-muted-foreground" /></a> : <span className="text-muted-foreground">—</span>}</TableCell>
 											<TableCell>{provider.terms_of_service_url ? <a href={provider.terms_of_service_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-medium hover:underline hover:underline-offset-4">Terms <ExternalLink className="size-3 text-muted-foreground" /></a> : <span className="text-muted-foreground">—</span>}</TableCell>
 										</TableRow>;
-									})}</TableBody>
-								</Table>
-							</ScrollArea>
+										})}</TableBody>
+									</Table>
+								</div>
+							</div>
 						) : filteredProviders.length ? <div className="grid grid-cols-1 gap-px md:grid-cols-2 2xl:grid-cols-3">
 							{filteredProviders.map((provider, index) => <div key={provider.api_provider_id} className={cn("bg-background", index % 2 === 1 ? "md:pl-3" : "md:pr-3", index % 3 === 1 ? "2xl:px-3" : index % 3 === 2 ? "2xl:pl-3" : "2xl:pr-3")}><APIProviderCard api_provider={provider} /></div>)}
 							{Array.from({ length: mdFillers }).map((_, index) => <div key={`md-filler-${index}`} aria-hidden className="hidden bg-background md:block 2xl:hidden" />)}
