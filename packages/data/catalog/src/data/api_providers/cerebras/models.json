@@ -6,17 +6,32 @@
     "internal_model_id": "google/gemma-4-31b",
     "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": "text,image,video",
+    "input_modalities": "text,image",
     "output_modalities": "text",
-    "context_length": 131000,
-    "max_output_tokens": 40000,
+    "context_length": 131072,
+    "max_output_tokens": 40960,
     "effective_from": "2026-06-30T00:00:00",
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "parallel_tool_calls",
+          "response_format",
+          "temperature",
+          "top_p",
+          "seed",
+          "stop",
+          "max_tokens",
+          "frequency_penalty",
+          "presence_penalty",
+          "logit_bias"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -33,7 +48,7 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": ["standard", "auto", "flex"],
     "api": {
       "formats": [],
       "endpoint": null,
@@ -49,14 +64,14 @@
       {
         "kind": "provider_models",
         "url": "https://api.cerebras.ai/public/v1/models",
-        "accessed_at": "2026-08-15T00:00:00Z",
-        "notes": "The model remains available in the public Cerebras catalog."
+        "accessed_at": "2026-08-21T00:00:00Z",
+        "notes": "The live public model record confirms text and image input, capabilities, pricing, and 131,072/40,960 token limits."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-15T00:00:00Z",
-      "notes": "Currently active; scheduled shared-tier removal is recorded without inventing an exact effective_to date."
+      "status": "verified",
+      "checked_at": "2026-08-21T00:00:00Z",
+      "notes": "Active public route, modalities, capabilities, limits, and pricing verified against the live Cerebras public model endpoint."
     },
     "rate_limits": []
   },
@@ -194,54 +209,6 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "openai/gpt-5.6-sol",
-    "provider_api_model_id": "cerebras:openai/gpt-5.6-sol",
-    "provider_model_slug": "gpt-5.6-sol",
-    "internal_model_id": "openai/gpt-5.6-sol",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": "text",
-    "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": "2026-07-01T00:00:00",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "coming_soon",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": null,
-    "routable": false,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
     "api_model_id": "openai/gpt-oss-120b",
     "provider_api_model_id": "cerebras:openai/gpt-oss-120b",
     "provider_model_slug": "gpt-oss-120b",
@@ -288,13 +255,6 @@
             "notes": null
           },
           {
-            "param_id": "logprobs",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
             "param_id": "max_tokens",
             "provider_min": null,
             "provider_max": null,
@@ -330,13 +290,6 @@
             "notes": null
           },
           {
-            "param_id": "top_logprobs",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
             "param_id": "top_p",
             "provider_min": null,
             "provider_max": null,
@@ -365,17 +318,24 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": ["standard", "auto", "flex"],
     "api": {
       "formats": [],
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.cerebras.ai/public/v1/models/gpt-oss-120b",
+        "accessed_at": "2026-08-21T00:00:00Z",
+        "notes": "Live public model record confirms capabilities, supported parameters, pricing, and 131,072/40,960 token limits."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-21T00:00:00Z",
+      "notes": "Active public route, parameters, capabilities, limits, and pricing verified against the live Cerebras public model endpoint."
     },
     "rate_limits": []
   },
@@ -517,18 +477,18 @@
     "provider_api_model_id": "cerebras:z-ai/glm-4.7",
     "provider_model_slug": "zai-glm-4.7",
     "internal_model_id": "z-ai/glm-4.7",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "FP16",
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 131000,
     "max_output_tokens": 40000,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-17T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [
           {
             "param_id": "logprobs",
@@ -623,8 +583,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "disabled",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -635,11 +595,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "deprecation",
+        "url": "https://inference-docs.cerebras.ai/support/deprecation",
+        "accessed_at": "2026-08-21T00:00:00Z",
+        "notes": "Cerebras lists zai-glm-4.7 as deprecated on August 17, 2026."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-21T00:00:00Z",
+      "notes": "Retirement verified against the Cerebras deprecations page and the model is absent from the live public model endpoint."
     },
     "rate_limits": []
   }

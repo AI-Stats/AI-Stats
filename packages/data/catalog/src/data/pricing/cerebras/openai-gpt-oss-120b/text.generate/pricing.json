@@ -58,10 +58,23 @@
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.cerebras.ai/public/v1/models/gpt-oss-120b",
+      "accessed_at": "2026-08-21T00:00:00Z",
+      "notes": "The live Cerebras model record lists $0.35 per million prompt tokens and $0.75 per million completion tokens."
+    },
+    {
+      "kind": "documentation",
+      "url": "https://inference-docs.cerebras.ai/capabilities/prompt-caching",
+      "accessed_at": "2026-08-21T00:00:00Z",
+      "notes": "Cerebras states cached prompt tokens are billed at the standard input-token rate."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-21T00:00:00Z",
+    "notes": "Input, cached-input, and output prices and units verified against official Cerebras sources."
   }
 }
