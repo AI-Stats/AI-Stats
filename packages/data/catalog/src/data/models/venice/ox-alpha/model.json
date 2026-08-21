@@ -4,7 +4,7 @@
   "name": "Stealth Ox Alpha",
   "status": "Available",
   "previous_model_id": null,
-  "description": "Stealth Ox Alpha is a reasoning model designed for coding, sustained agentic work, and production workloads. It is suited for long-horizon software engineering, complex reasoning, and workflows that combine text with visual context.",
+  "description": "Stealth Ox Alpha is a reasoning model available during a stealth release, with its developer currently undisclosed. It is designed for coding, sustained agentic work, complex reasoning and workflows combining text with visual context.",
   "announced_date": null,
   "release_date": "2026-08-21",
   "deprecation_date": null,
@@ -82,7 +82,7 @@
   "verification": {
     "status": "partial",
     "checked_at": "2026-08-22",
-    "notes": "Model availability and capabilities are verified against Venice's live models API. The creator is intentionally undisclosed and represented as Stealth Lab based on the public stealth model listing."
+    "notes": "Model availability and capabilities are verified against Venice's live models API. The developer is currently undisclosed, so the model is grouped under Phaseo's generic Stealth Lab organisation."
   },
   "last_updated": "2026-08-22",
   "removal_date": null,
