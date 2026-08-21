@@ -56,6 +56,7 @@ type MatrixRow = {
 	featureHref?: string;
 	free: Cell;
 	payg: Cell;
+	enterprise?: Cell;
 };
 
 type MatrixSection = {
@@ -442,6 +443,7 @@ const MATRIX_SECTIONS: MatrixSection[] = [
 				feature: "Credit purchase fee",
 				free: { type: "not_applicable", inlineText: "No top-up required" },
 				payg: { type: "text", value: `${basicTier.feePct.toFixed(0)}% ($1 minimum) when credits are purchased` },
+				enterprise: { type: "text", value: "Core: 5%. Included Payments: fee-free allowance" },
 			},
 			{
 				feature: "Models",
@@ -554,16 +556,19 @@ const MATRIX_SECTIONS: MatrixSection[] = [
 				feature: "Team workspaces",
 				free: { type: "text", value: "Single team" },
 				payg: { type: "included", inlineText: "Multi-team" },
+				enterprise: { type: "included", inlineText: "Managed workspace controls" },
 			},
 			{
 				feature: "Payment method",
 				free: { type: "not_applicable", inlineText: "None required" },
 				payg: { type: "text", value: "Credit or debit card" },
+				enterprise: { type: "text", value: "Card and supported USD bank transfer" },
 			},
 			{
 				feature: "Billing method",
 				free: { type: "text", value: "No charge" },
 				payg: { type: "text", value: "Prepaid credits" },
+				enterprise: { type: "text", value: "Monthly subscription + prepaid credits" },
 			},
 			{
 				feature: "Bring your own provider keys",
@@ -597,7 +602,19 @@ const MATRIX_SECTIONS: MatrixSection[] = [
 				feature: "Support",
 				free: { type: "included", inlineText: "Docs" },
 				payg: { type: "included", inlineText: "Included" },
+				enterprise: { type: "included", inlineText: "Priority support" },
 			},
+		],
+	},
+	{
+		id: "enterprise-controls",
+		title: "Enterprise identity and governance",
+		rows: [
+			{ feature: "SAML single sign-on", free: { type: "excluded" }, payg: { type: "excluded" }, enterprise: included("Configure a workspace identity provider without a sales-led setup.") },
+			{ feature: "SCIM users, groups, and bulk operations", free: { type: "excluded" }, payg: { type: "excluded" }, enterprise: included("Provision users and organisational groups from a compatible identity provider.") },
+			{ feature: "Departments and workspace roles", free: { type: "excluded" }, payg: { type: "excluded" }, enterprise: included("Keep member permissions separate from department structure.") },
+			{ feature: "Enterprise audit and governance controls", free: { type: "excluded" }, payg: { type: "excluded" }, enterprise: included() },
+			{ feature: "Included payment benefits", free: { type: "not_applicable" }, payg: { type: "excluded" }, enterprise: { type: "text", value: "Available with Included Payments" } },
 		],
 	},
 	{
@@ -1091,19 +1108,14 @@ export default function PricingPage() {
 					<Separator className="bg-zinc-200/70 dark:bg-zinc-800/70" />
 				</div>
 
-				<EnterprisePricingSection />
-
-				<div className="my-10 sm:my-12">
-					<Separator className="bg-zinc-200/70 dark:bg-zinc-800/70" />
-				</div>
-
 				<section className="space-y-6">
 					<PricingComparisonShell>
-						<table className="w-full min-w-[760px] table-fixed text-left text-sm">
+						<table className="w-full min-w-[940px] table-fixed text-left text-sm">
 							<colgroup>
-								<col className="feature-column w-[36%]" />
-								<col className="free-column w-[32%]" />
-								<col className="phaseo-column w-[32%]" />
+								<col className="feature-column w-[28%]" />
+								<col className="free-column w-[24%]" />
+								<col className="phaseo-column w-[24%]" />
+								<col className="enterprise-column w-[24%]" />
 								{COMPETITORS.map((competitor) => <col key={competitor.key} className="competitor-col hidden w-[16%]" />)}
 							</colgroup>
 							<thead className="border-b border-zinc-200/70 bg-zinc-50/80 dark:border-zinc-800/70 dark:bg-zinc-900/60">
@@ -1120,6 +1132,7 @@ export default function PricingPage() {
 											</span>
 										</span>
 									</th>
+									<th className="enterprise-column px-4 py-3 text-center font-bold text-foreground">Enterprise</th>
 									{COMPETITORS.map((competitor) => (
 										<th key={competitor.key} className="competitor-cell hidden px-4 py-3 text-center font-semibold text-foreground">
 											<a href={competitor.href} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 underline decoration-transparent underline-offset-4 hover:decoration-current">
@@ -1138,7 +1151,7 @@ export default function PricingPage() {
 											className="bg-zinc-50/70 dark:bg-zinc-900/40"
 										>
 											<td
-												colSpan={3 + COMPETITORS.length}
+												colSpan={4 + COMPETITORS.length}
 												className="px-4 py-3 text-base font-semibold text-foreground"
 											>
 												{section.title}
@@ -1162,6 +1175,9 @@ export default function PricingPage() {
 										<td className={`${isBestChoice(row.feature, "phaseo", row.payg) ? "best-cell " : ""}px-4 py-3 align-middle text-center`}>
 											<PlanCell cell={row.payg} label={`${row.feature}, Pay As You Go`} />
 										</td>
+										<td className="enterprise-column px-4 py-3 align-middle text-center">
+											<PlanCell cell={row.enterprise ?? row.payg} label={`${row.feature}, Enterprise`} />
+										</td>
 										{COMPETITORS.map((competitor) => (
 											<td key={competitor.key} className={`${isBestChoice(row.feature, competitor.key, getCompetitorCell(row.feature, competitor.key)) ? "best-cell " : ""}competitor-cell hidden px-4 py-3 align-middle text-center`}>
 												<PlanCell cell={getCompetitorCell(row.feature, competitor.key)} label={`${row.feature}, ${competitor.name}`} />
@@ -1175,6 +1191,12 @@ export default function PricingPage() {
 						</table>
 					</PricingComparisonShell>
 				</section>
+
+				<div className="my-10 sm:my-12">
+					<Separator className="bg-zinc-200/70 dark:bg-zinc-800/70" />
+				</div>
+
+				<EnterprisePricingSection />
 
 				<section className="space-y-6 py-10 sm:py-12">
 					<div className="space-y-2">
