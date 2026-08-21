@@ -64,7 +64,8 @@
     "sakana",
     "sao10k",
     "hexgrad",
-    "prism-ml"
+    "prism-ml",
+    "jetbrains"
   ],
   "models": {
     "ai21": [
@@ -1380,6 +1381,9 @@
     ],
     "prism-ml": [
       "prism-ml/ternary-bonsai-27b"
+    ],
+    "jetbrains": [
+      "jetbrains/mellum2-12b-a2.5b"
     ]
   },
   "benchmarks": [

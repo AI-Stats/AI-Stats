@@ -26,6 +26,7 @@ export type OrganisationId =
   | "inception"
   | "inclusionai"
   | "inflection"
+  | "jetbrains"
   | "kwaipilot"
   | "lg"
   | "lightricks"
