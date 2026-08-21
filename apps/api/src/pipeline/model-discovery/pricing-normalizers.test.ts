@@ -170,18 +170,6 @@ describe("normalizeProviderModelPricing", () => {
 		});
 	});
 
-	it("normalizes NanoGPT per-million prices and cache prices", () => {
-		expect(normalizeProviderModelPricing("nano-gpt", {
-			pricing: {
-				prompt: 0.06,
-				completion: 0.3,
-				cacheReadInputPer1kTokens: 0.00003,
-				unit: "per_million_tokens",
-			},
-		})).toMatchObject({
-			meters: { input_text_tokens: 0.06, cached_read_text_tokens: 0.03, output_text_tokens: 0.3 },
-		});
-	});
 
 	it("normalizes only unconditional ZenMux token prices", () => {
 		expect(normalizeProviderModelPricing("zenmux", {

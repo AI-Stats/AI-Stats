@@ -6,8 +6,6 @@ describe("provider sync registry", () => {
 		expect(getProviderSyncProviderIds()).toEqual([
 			"deepinfra",
 			"fastrouter",
-			"kilo",
-			"nano-gpt",
 			"novita-ai",
 			"openrouter",
 			"orcarouter",

@@ -1,5 +1,6 @@
 import {
 	extractDiscoveryLimits,
+	hasUsableDiscoveryDetails,
 	mergeSimplePricing,
 	parseLiveDiscoveryRows,
 	renderSyncMarkdown,
@@ -7,6 +8,16 @@ import {
 } from "./sync-provider-discovery";
 
 describe("provider discovery catalog sync", () => {
+	test("accepts only non-empty payload objects as usable discovery details", () => {
+		expect(hasUsableDiscoveryDetails(null)).toBe(false);
+		expect(hasUsableDiscoveryDetails(undefined)).toBe(false);
+		expect(hasUsableDiscoveryDetails({})).toBe(false);
+		expect(hasUsableDiscoveryDetails([])).toBe(false);
+		expect(hasUsableDiscoveryDetails("pricing")).toBe(false);
+		expect(hasUsableDiscoveryDetails(42)).toBe(false);
+		expect(hasUsableDiscoveryDetails({ pricing: { input: 1 } })).toBe(true);
+	});
+
 	test("extracts nested provider limits", () => {
 		expect(extractDiscoveryLimits({
 			metadata: { context_length: 200_000, max_output_tokens: 16_384 },
