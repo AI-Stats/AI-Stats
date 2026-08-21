@@ -33,7 +33,6 @@
     "openai.chat.completions",
     "openai.responses",
     "openai.embeddings",
-    "openai.images",
     "fireworks.rerank"
   ],
   "service_tiers": [

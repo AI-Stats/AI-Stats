@@ -1396,14 +1396,14 @@
     "provider_api_model_id": "fireworks:nvidia/nemotron-3.5-lightning",
     "provider_model_slug": "accounts/fireworks/models/nemotron-lightning-3p5-30b-a3b",
     "internal_model_id": "nvidia/nemotron-3.5-lightning",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": "BF16",
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 262144,
     "max_output_tokens": null,
     "effective_from": "2026-08-07T00:00:00",
-    "effective_to": "2026-08-21T00:00:00Z",
+    "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -1419,8 +1419,8 @@
         "modes": []
       }
     ],
-    "routing_status": "retired",
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
@@ -1437,13 +1437,13 @@
       {
         "kind": "api_reference",
         "url": "https://fireworks.ai/models/fireworks/nemotron-lightning-3p5-30b-a3b",
-        "accessed_at": "2026-08-11T00:00:00Z",
+        "accessed_at": "2026-08-21T00:00:00Z",
         "notes": "Official Fireworks model page confirms the public serverless model path, BF16 NVIDIA checkpoint, reasoning traces, function calling, and 262K context."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-11T00:00:00Z",
+      "checked_at": "2026-08-21T00:00:00Z",
       "notes": "Verified against Fireworks' live public model page."
     },
     "rate_limits": []
