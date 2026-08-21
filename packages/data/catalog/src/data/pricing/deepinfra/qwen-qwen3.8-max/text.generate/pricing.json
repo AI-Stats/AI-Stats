@@ -25,7 +25,7 @@
       "meter": "output_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 4.9510000000000005,
+      "price_per_unit": 4.951,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": "Verified from DeepInfra's live model API on 2026-08-03.",

@@ -24,7 +24,7 @@
       "meter": "output_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 5.999999999999999,
+      "price_per_unit": 6,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,

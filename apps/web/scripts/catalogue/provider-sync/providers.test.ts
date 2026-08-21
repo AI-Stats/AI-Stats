@@ -37,6 +37,27 @@ describe("provider sync registry", () => {
 		expect(model?.details.metadata).toEqual({ pricing: { input_tokens: 0.1, output_tokens: 0.2 } });
 	});
 
+	test("parses DeepInfra embedding input-token pricing", () => {
+		const provider = getProviderSyncProvider("deepinfra");
+		const [model] = provider!.parseModels({
+			current: { data: [{ id: "example/embedding-model" }] },
+			details: [{
+				model_name: "example/embedding-model",
+				reported_type: "embeddings",
+				pricing: {
+					type: "input_tokens",
+					cents_per_input_token: 0.000001,
+				},
+			}],
+		});
+		expect(model).toEqual(expect.objectContaining({
+			details: expect.objectContaining({
+				type: "embedding",
+				metadata: { pricing: { input_tokens: 0.01 } },
+			}),
+		}));
+	});
+
 	test("joins DeepInfra's current inventory to its detailed pricing feed", async () => {
 		const provider = getProviderSyncProvider("deepinfra");
 		const originalKey = process.env.DEEPINFRA_API_KEY;

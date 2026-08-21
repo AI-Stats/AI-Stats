@@ -82,6 +82,6 @@
   "verification": {
     "status": "verified",
     "checked_at": "2026-08-21T00:00:00Z",
-    "notes": "Current standard, cached-input, priority, and flex pricing reconciled against the live DeepInfra model-details endpoint."
+    "notes": "Current standard, cached-input, priority, and flex pricing reconciled against DeepInfra's live /models/list detail feed."
   }
 }

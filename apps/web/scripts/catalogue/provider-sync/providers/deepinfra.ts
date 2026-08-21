@@ -22,18 +22,22 @@ function modelType(value: unknown): string {
 	}
 }
 
+function normalizePrice(value: number): number {
+	return Math.round(value * 1_000_000_000_000) / 1_000_000_000_000;
+}
+
 function tokenPricing(value: unknown): JsonObject | null {
 	const pricing = asRecord(value);
-	if (!pricing || pricing.type !== "tokens") return null;
+	if (!pricing || (pricing.type !== "tokens" && pricing.type !== "input_tokens")) return null;
 	const input = Number(pricing.cents_per_input_token) * 10_000;
 	const output = Number(pricing.cents_per_output_token) * 10_000;
 	const cacheRate = pricing.rate_per_input_token_cached == null
 		? null
 		: Number(pricing.rate_per_input_token_cached);
 	return {
-		...(Number.isFinite(input) ? { input_tokens: input } : {}),
-		...(Number.isFinite(output) ? { output_tokens: output } : {}),
-		...(cacheRate !== null && Number.isFinite(input * cacheRate) ? { cache_read_tokens: input * cacheRate } : {}),
+		...(Number.isFinite(input) ? { input_tokens: normalizePrice(input) } : {}),
+		...(Number.isFinite(output) ? { output_tokens: normalizePrice(output) } : {}),
+		...(cacheRate !== null && Number.isFinite(input * cacheRate) ? { cache_read_tokens: normalizePrice(input * cacheRate) } : {}),
 	};
 }
 
