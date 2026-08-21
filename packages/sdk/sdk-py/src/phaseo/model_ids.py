@@ -278,6 +278,10 @@ class ModelIds:
     # Model page: https://phaseo.app/models/deepseek/deepseek-v4-flash-0731
     DEEPSEEK_DEEPSEEK_V4_FLASH_0731: Final[str] = "deepseek/deepseek-v4-flash-0731"
 
+    # Model ID: deepseek/deepseek-v4-flash-vision-exp
+    # Model page: https://phaseo.app/models/deepseek/deepseek-v4-flash-vision-exp
+    DEEPSEEK_DEEPSEEK_V4_FLASH_VISION_EXP: Final[str] = "deepseek/deepseek-v4-flash-vision-exp"
+
     # Model ID: deepseek/deepseek-v4-pro
     # Model page: https://phaseo.app/models/deepseek/deepseek-v4-pro
     DEEPSEEK_DEEPSEEK_V4_PRO: Final[str] = "deepseek/deepseek-v4-pro"
@@ -2131,6 +2135,7 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.DEEPSEEK_DEEPSEEK_V3_2_SPECIALE,
         ModelIds.DEEPSEEK_DEEPSEEK_V4_FLASH,
         ModelIds.DEEPSEEK_DEEPSEEK_V4_FLASH_0731,
+        ModelIds.DEEPSEEK_DEEPSEEK_V4_FLASH_VISION_EXP,
         ModelIds.DEEPSEEK_DEEPSEEK_V4_PRO,
         ModelIds.DEEPSEEK_DEEPSEEK_V4_PRO_0813,
         ModelIds.ELEVEN_LABS_ELEVEN_FLASH_V2,
