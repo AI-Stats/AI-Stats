@@ -1,7 +1,7 @@
 import fs from "node:fs";
-import { createHash } from "node:crypto";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { extractProviderApiModelSnapshot } from "../../apps/api/src/pipeline/model-discovery/watch-snapshot";
 import { createAdminClient } from "../../apps/web/src/utils/supabase/admin";
 import { getProviderDiscoveryRule } from "./providers/discovery-policy";
 import type { ProviderDefinition, ProviderModel } from "./providers/_shared";
@@ -478,21 +478,8 @@ function extractPricingDetails(modelPayload: Record<string, unknown>): unknown {
     return null;
 }
 
-function buildWatchSnapshot(modelPayload: Record<string, unknown>): Record<string, unknown> {
-    const pricingDetails = extractPricingDetails(modelPayload);
-    const toNullableInteger = (value: unknown): number | null => {
-        const parsed = typeof value === "string" ? Number(value.trim()) : value;
-        return typeof parsed === "number" && Number.isFinite(parsed) ? Math.trunc(parsed) : null;
-    };
-    const pricingFingerprint = pricingDetails === null || pricingDetails === undefined
-        ? null
-        : createHash("sha256").update(JSON.stringify(sortKeysDeep(pricingDetails))).digest("hex");
-    return {
-        contextLength: toNullableInteger(modelPayload.contextLength ?? modelPayload.context_length),
-        maxCompletionTokens: toNullableInteger(modelPayload.maxCompletionTokens ?? modelPayload.max_completion_tokens),
-        pricingDetails,
-        pricingFingerprint,
-    };
+function buildWatchSnapshot(providerId: string, modelPayload: Record<string, unknown>): Record<string, unknown> {
+    return extractProviderApiModelSnapshot(providerId, modelPayload, extractPricingDetails(modelPayload));
 }
 
 async function insertRunStart(
@@ -1000,7 +987,7 @@ async function main(): Promise<void> {
                         provider_id: provider.id,
                         provider_name: provider.name,
                         model_id: model.id,
-                        watch_snapshot: buildWatchSnapshot(modelDetails),
+                        watch_snapshot: buildWatchSnapshot(provider.id, modelDetails),
                         model_details: null,
                         pricing_details: null,
                         last_seen_at: fetchedAt,

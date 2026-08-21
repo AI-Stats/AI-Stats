@@ -19,7 +19,7 @@ create table if not exists public.model_discovery_pricing_pages (
   provider_id text not null,
   source_url text not null,
   fingerprint text not null,
-  content text not null,
+  content_lines jsonb not null default '[]'::jsonb,
   updated_at timestamp with time zone not null default (now() at time zone 'utc'::text),
   constraint model_discovery_pricing_pages_pkey primary key (provider_id)
 );

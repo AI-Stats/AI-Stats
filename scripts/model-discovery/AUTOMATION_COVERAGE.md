@@ -18,10 +18,7 @@ Phaseo fetches provider and aggregator sources directly. It also uses the public
 | DigitalOcean | Direct public GenAI catalog | Standard token prices auto-normalized; extended-context variants are review-only | None for catalog; a token is still needed for account-visible deployment state |
 | EmpirioLabs | Direct public `/v1/models` | Single-tier prices auto-normalized; tier arrays are review-only | None |
 | Google | Direct Gemini and Vertex model APIs | Model metadata only; official API responses do not contain authoritative prices | API key/access token |
-| Hugging Face Router | Direct router API | Changes detected; provider-selection pricing is review-only | Optional token |
-| Kilo Gateway | Direct aggregator API | Token prices auto-normalized | Optional API key |
 | LLM Gateway | Direct aggregator API | Token prices auto-normalized | Optional API key |
-| NanoGPT | Direct public detailed `/v1/models` | Per-million token and cache prices auto-normalized | Optional API key for account-specific visibility |
 | NovitaAI | Direct public OpenAI-compatible `/models` | Per-million token prices auto-normalized, including Novita's documented integer scale | Optional API key |
 | OpenAI | Direct `/v1/models` plus official documentation parser | Model API is availability-only; simple docs prices may update safe rules | API key for model list; docs are public |
 | OpenRouter | Direct aggregator API | Token, cache, multimodal token, and reasoning prices auto-normalized | Optional API key |
@@ -76,9 +73,7 @@ These sources cannot currently produce a safe, complete automatic pricing PR and
 | Vercel AI Gateway | Simple per-image/audio meters are automatic; tiered token, video-duration, and provider-specific prices remain manual. |
 | Pioneer | Simple per-million token prices are automatic; model IDs not present in the canonical mapping remain unmatched. |
 | ZenMux | Conditional prompt-length arrays are preserved for review rather than flattened. |
-| NanoGPT | Retired/stale local IDs and account/subscription-specific variants remain unmatched without a matching live row. |
 | Poe | The public feed uses bot IDs that do not always match the namespaced local model slugs; unmatched variants remain manual. |
-| Hugging Face Router / GitHub Models | Public model discovery does not expose authoritative current provider prices; credentials or provider-level billing metadata are required. |
 | StepFun mappings without capabilities | The official CNY table is parsed, but a PR cannot create pricing until the provider mapping declares the applicable capability. |
 
 EmpirioLabs and LLM Gateway are watched and can notify on upstream changes, but Phaseo does not currently have canonical API-provider directories for them. Their sync jobs therefore report unmatched providers and do not create catalog files until those integrations are added.
