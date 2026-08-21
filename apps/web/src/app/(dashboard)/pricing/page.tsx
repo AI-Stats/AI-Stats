@@ -1095,8 +1095,10 @@ export default function PricingPage() {
 									<Icon className="mt-0.5 h-5 w-5 shrink-0 text-foreground" aria-hidden="true" />
 									<div>
 										<dt className="text-sm font-semibold text-foreground">{item.term}</dt>
-										<dd className="mt-1 text-base font-semibold text-foreground">{item.value}</dd>
-										<p className="mt-2 text-sm leading-5 text-muted-foreground">{item.detail}</p>
+										<dd className="mt-2 text-sm leading-6 text-muted-foreground">
+											<span className="font-medium text-foreground">{item.value}.</span>{" "}
+											{item.detail}
+										</dd>
 									</div>
 								</div>
 							);
