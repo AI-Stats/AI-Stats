@@ -15,7 +15,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "retired",
+        "status": "disabled",
         "params": [
           "response_format",
           "max_tokens",
@@ -71,7 +71,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "retired",
+        "status": "disabled",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -119,7 +119,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "retired",
+        "status": "disabled",
         "params": [],
         "reasoning": null,
         "tool_call": null,
