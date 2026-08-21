@@ -1274,7 +1274,15 @@ export async function syncV2Catalogue(): Promise<void> {
     }
     const pricingRows = [...pricingRowsByKey.values()];
     const canonicalServiceTiers = new Set(["standard", "priority", "batch", "flex"]);
-    const tierSlugs = [...new Set([...pricingRules.map(rule => slug(rule.pricing_plan)), ...canonicalServiceTiers])];
+    const routeServiceTiers = [...source.providerModels.values()].flatMap((providerModel) => {
+        const tiers = asTextArray(providerModel.service_tiers).map((tier) => slug(tier));
+        return tiers.length ? tiers : ["standard"];
+    });
+    const tierSlugs = [...new Set([
+        ...pricingRules.map(rule => slug(rule.pricing_plan)),
+        ...routeServiceTiers,
+        ...canonicalServiceTiers,
+    ])];
     await upsertChunks(supa, "v2_service_tiers", tierSlugs.map(service_tier_slug => ({
         service_tier_slug,
         display_name: service_tier_slug.split(/[-_.:]+/g).filter(Boolean).map(part => part[0]?.toUpperCase() + part.slice(1)).join(" "),

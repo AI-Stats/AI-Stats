@@ -485,7 +485,8 @@ jobs:
             always() && needs.data.result == 'success' &&
             (needs.migrate-production.result == 'success' || needs.migrate-production.result == 'skipped') &&
             github.ref == 'refs/heads/main' &&
-            ((github.event_name == 'push' && needs.check-paths.outputs.data-changed == 'true') ||
+            ((github.event_name == 'push' &&
+            (needs.check-paths.outputs.data-changed == 'true' || needs.check-paths.outputs.migrations-changed == 'true')) ||
             (github.event_name == 'workflow_dispatch' && inputs.importer_mode != 'skip'))
         env:
             SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
