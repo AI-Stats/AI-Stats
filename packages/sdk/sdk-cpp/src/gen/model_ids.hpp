@@ -24,6 +24,9 @@ inline constexpr std::string_view ALLENAI_MOLMO_2_8B = "allenai/molmo-2-8b";
 // Model ID: allenai/olmo-3.1-32b
 // Model page: https://phaseo.app/models/allenai/olmo-3.1-32b
 inline constexpr std::string_view ALLENAI_OLMO_3_1_32B = "allenai/olmo-3.1-32b";
+// Model ID: anthropic/claude-3-haiku
+// Model page: https://phaseo.app/models/anthropic/claude-3-haiku
+inline constexpr std::string_view ANTHROPIC_CLAUDE_3_HAIKU = "anthropic/claude-3-haiku";
 // Model ID: anthropic/claude-fable-5
 // Model page: https://phaseo.app/models/anthropic/claude-fable-5
 inline constexpr std::string_view ANTHROPIC_CLAUDE_FABLE_5 = "anthropic/claude-fable-5";
@@ -258,18 +261,12 @@ inline constexpr std::string_view GOOGLE_GEMINI_3_PRO_IMAGE = "google/gemini-3-p
 // Model ID: google/gemini-3.1-flash-image
 // Model page: https://phaseo.app/models/google/gemini-3.1-flash-image
 inline constexpr std::string_view GOOGLE_GEMINI_3_1_FLASH_IMAGE = "google/gemini-3.1-flash-image";
-// Model ID: google/gemini-3.1-flash-image-preview
-// Model page: https://phaseo.app/models/google/gemini-3.1-flash-image-preview
-inline constexpr std::string_view GOOGLE_GEMINI_3_1_FLASH_IMAGE_PREVIEW = "google/gemini-3.1-flash-image-preview";
 // Model ID: google/gemini-3.1-flash-lite
 // Model page: https://phaseo.app/models/google/gemini-3.1-flash-lite
 inline constexpr std::string_view GOOGLE_GEMINI_3_1_FLASH_LITE = "google/gemini-3.1-flash-lite";
 // Model ID: google/gemini-3.1-flash-lite-image
 // Model page: https://phaseo.app/models/google/gemini-3.1-flash-lite-image
 inline constexpr std::string_view GOOGLE_GEMINI_3_1_FLASH_LITE_IMAGE = "google/gemini-3.1-flash-lite-image";
-// Model ID: google/gemini-3.1-flash-lite-preview
-// Model page: https://phaseo.app/models/google/gemini-3.1-flash-lite-preview
-inline constexpr std::string_view GOOGLE_GEMINI_3_1_FLASH_LITE_PREVIEW = "google/gemini-3.1-flash-lite-preview";
 // Model ID: google/gemini-3.1-flash-live-preview
 // Model page: https://phaseo.app/models/google/gemini-3.1-flash-live-preview
 inline constexpr std::string_view GOOGLE_GEMINI_3_1_FLASH_LIVE_PREVIEW = "google/gemini-3.1-flash-live-preview";
@@ -300,9 +297,6 @@ inline constexpr std::string_view GOOGLE_GEMINI_EMBEDDING_001 = "google/gemini-e
 // Model ID: google/gemini-embedding-2
 // Model page: https://phaseo.app/models/google/gemini-embedding-2
 inline constexpr std::string_view GOOGLE_GEMINI_EMBEDDING_2 = "google/gemini-embedding-2";
-// Model ID: google/gemini-embedding-2-preview
-// Model page: https://phaseo.app/models/google/gemini-embedding-2-preview
-inline constexpr std::string_view GOOGLE_GEMINI_EMBEDDING_2_PREVIEW = "google/gemini-embedding-2-preview";
 // Model ID: google/gemini-robotics-er-1.6-preview
 // Model page: https://phaseo.app/models/google/gemini-robotics-er-1.6-preview
 inline constexpr std::string_view GOOGLE_GEMINI_ROBOTICS_ER_1_6_PREVIEW = "google/gemini-robotics-er-1.6-preview";
@@ -336,15 +330,15 @@ inline constexpr std::string_view GOOGLE_LYRIA_3_CLIP_PREVIEW = "google/lyria-3-
 // Model ID: google/lyria-3-pro-preview
 // Model page: https://phaseo.app/models/google/lyria-3-pro-preview
 inline constexpr std::string_view GOOGLE_LYRIA_3_PRO_PREVIEW = "google/lyria-3-pro-preview";
-// Model ID: google/veo-2
-// Model page: https://phaseo.app/models/google/veo-2
-inline constexpr std::string_view GOOGLE_VEO_2 = "google/veo-2";
+// Model ID: google/veo-3.1
+// Model page: https://phaseo.app/models/google/veo-3.1
+inline constexpr std::string_view GOOGLE_VEO_3_1 = "google/veo-3.1";
+// Model ID: google/veo-3.1-fast
+// Model page: https://phaseo.app/models/google/veo-3.1-fast
+inline constexpr std::string_view GOOGLE_VEO_3_1_FAST = "google/veo-3.1-fast";
 // Model ID: google/veo-3.1-fast-preview
 // Model page: https://phaseo.app/models/google/veo-3.1-fast-preview
 inline constexpr std::string_view GOOGLE_VEO_3_1_FAST_PREVIEW = "google/veo-3.1-fast-preview";
-// Model ID: google/veo-3.1-lite-generate-preview
-// Model page: https://phaseo.app/models/google/veo-3.1-lite-generate-preview
-inline constexpr std::string_view GOOGLE_VEO_3_1_LITE_GENERATE_PREVIEW = "google/veo-3.1-lite-generate-preview";
 // Model ID: google/veo-3.1-lite-preview
 // Model page: https://phaseo.app/models/google/veo-3.1-lite-preview
 inline constexpr std::string_view GOOGLE_VEO_3_1_LITE_PREVIEW = "google/veo-3.1-lite-preview";
@@ -1551,13 +1545,14 @@ inline constexpr std::string_view ZAI_GLM_5 = "zai/glm-5";
 // Deprecated alias for deepseek/deepseek-v4; use deepseek/deepseek-v4-pro. Remove in the next major SDK release.
 inline constexpr std::string_view DEEPSEEK_DEEPSEEK_V4 = DEEPSEEK_DEEPSEEK_V4_PRO;
 
-inline constexpr std::array<std::string_view, 514> ALL = {
+inline constexpr std::array<std::string_view, 512> ALL = {
 	AION_LABS_AION_2_0,
 	AION_LABS_AION_3_0,
 	AION_LABS_AION_3_0_MINI,
 	AION_LABS_AION_RP_LLAMA_3_1_8B,
 	ALLENAI_MOLMO_2_8B,
 	ALLENAI_OLMO_3_1_32B,
+	ANTHROPIC_CLAUDE_3_HAIKU,
 	ANTHROPIC_CLAUDE_FABLE_5,
 	ANTHROPIC_CLAUDE_HAIKU_4_5,
 	ANTHROPIC_CLAUDE_OPUS_4_5,
@@ -1636,10 +1631,8 @@ inline constexpr std::array<std::string_view, 514> ALL = {
 	GOOGLE_GEMINI_3_FLASH_PREVIEW,
 	GOOGLE_GEMINI_3_PRO_IMAGE,
 	GOOGLE_GEMINI_3_1_FLASH_IMAGE,
-	GOOGLE_GEMINI_3_1_FLASH_IMAGE_PREVIEW,
 	GOOGLE_GEMINI_3_1_FLASH_LITE,
 	GOOGLE_GEMINI_3_1_FLASH_LITE_IMAGE,
-	GOOGLE_GEMINI_3_1_FLASH_LITE_PREVIEW,
 	GOOGLE_GEMINI_3_1_FLASH_LIVE_PREVIEW,
 	GOOGLE_GEMINI_3_1_FLASH_TTS_PREVIEW,
 	GOOGLE_GEMINI_3_1_PRO_PREVIEW,
@@ -1650,7 +1643,6 @@ inline constexpr std::array<std::string_view, 514> ALL = {
 	GOOGLE_GEMINI_3_7_FLASH,
 	GOOGLE_GEMINI_EMBEDDING_001,
 	GOOGLE_GEMINI_EMBEDDING_2,
-	GOOGLE_GEMINI_EMBEDDING_2_PREVIEW,
 	GOOGLE_GEMINI_ROBOTICS_ER_1_6_PREVIEW,
 	GOOGLE_GEMINI_ROBOTICS_ER_2_PREVIEW,
 	GOOGLE_GEMMA_3_27B,
@@ -1662,9 +1654,9 @@ inline constexpr std::array<std::string_view, 514> ALL = {
 	GOOGLE_IMAGEN_4_0_PREVIEW,
 	GOOGLE_LYRIA_3_CLIP_PREVIEW,
 	GOOGLE_LYRIA_3_PRO_PREVIEW,
-	GOOGLE_VEO_2,
+	GOOGLE_VEO_3_1,
+	GOOGLE_VEO_3_1_FAST,
 	GOOGLE_VEO_3_1_FAST_PREVIEW,
-	GOOGLE_VEO_3_1_LITE_GENERATE_PREVIEW,
 	GOOGLE_VEO_3_1_LITE_PREVIEW,
 	GOOGLE_VEO_3_1_PREVIEW,
 	IBM_GRANITE_4_1_8B,

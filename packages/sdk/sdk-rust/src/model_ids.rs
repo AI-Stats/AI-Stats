@@ -21,6 +21,9 @@ pub mod model_ids {
     /// Model ID: `allenai/olmo-3.1-32b`.
     /// Model page: https://phaseo.app/models/allenai/olmo-3.1-32b
     pub const ALLENAI_OLMO_3_1_32B: &str = "allenai/olmo-3.1-32b";
+    /// Model ID: `anthropic/claude-3-haiku`.
+    /// Model page: https://phaseo.app/models/anthropic/claude-3-haiku
+    pub const ANTHROPIC_CLAUDE_3_HAIKU: &str = "anthropic/claude-3-haiku";
     /// Model ID: `anthropic/claude-fable-5`.
     /// Model page: https://phaseo.app/models/anthropic/claude-fable-5
     pub const ANTHROPIC_CLAUDE_FABLE_5: &str = "anthropic/claude-fable-5";
@@ -255,18 +258,12 @@ pub mod model_ids {
     /// Model ID: `google/gemini-3.1-flash-image`.
     /// Model page: https://phaseo.app/models/google/gemini-3.1-flash-image
     pub const GOOGLE_GEMINI_3_1_FLASH_IMAGE: &str = "google/gemini-3.1-flash-image";
-    /// Model ID: `google/gemini-3.1-flash-image-preview`.
-    /// Model page: https://phaseo.app/models/google/gemini-3.1-flash-image-preview
-    pub const GOOGLE_GEMINI_3_1_FLASH_IMAGE_PREVIEW: &str = "google/gemini-3.1-flash-image-preview";
     /// Model ID: `google/gemini-3.1-flash-lite`.
     /// Model page: https://phaseo.app/models/google/gemini-3.1-flash-lite
     pub const GOOGLE_GEMINI_3_1_FLASH_LITE: &str = "google/gemini-3.1-flash-lite";
     /// Model ID: `google/gemini-3.1-flash-lite-image`.
     /// Model page: https://phaseo.app/models/google/gemini-3.1-flash-lite-image
     pub const GOOGLE_GEMINI_3_1_FLASH_LITE_IMAGE: &str = "google/gemini-3.1-flash-lite-image";
-    /// Model ID: `google/gemini-3.1-flash-lite-preview`.
-    /// Model page: https://phaseo.app/models/google/gemini-3.1-flash-lite-preview
-    pub const GOOGLE_GEMINI_3_1_FLASH_LITE_PREVIEW: &str = "google/gemini-3.1-flash-lite-preview";
     /// Model ID: `google/gemini-3.1-flash-live-preview`.
     /// Model page: https://phaseo.app/models/google/gemini-3.1-flash-live-preview
     pub const GOOGLE_GEMINI_3_1_FLASH_LIVE_PREVIEW: &str = "google/gemini-3.1-flash-live-preview";
@@ -297,9 +294,6 @@ pub mod model_ids {
     /// Model ID: `google/gemini-embedding-2`.
     /// Model page: https://phaseo.app/models/google/gemini-embedding-2
     pub const GOOGLE_GEMINI_EMBEDDING_2: &str = "google/gemini-embedding-2";
-    /// Model ID: `google/gemini-embedding-2-preview`.
-    /// Model page: https://phaseo.app/models/google/gemini-embedding-2-preview
-    pub const GOOGLE_GEMINI_EMBEDDING_2_PREVIEW: &str = "google/gemini-embedding-2-preview";
     /// Model ID: `google/gemini-robotics-er-1.6-preview`.
     /// Model page: https://phaseo.app/models/google/gemini-robotics-er-1.6-preview
     pub const GOOGLE_GEMINI_ROBOTICS_ER_1_6_PREVIEW: &str = "google/gemini-robotics-er-1.6-preview";
@@ -333,15 +327,15 @@ pub mod model_ids {
     /// Model ID: `google/lyria-3-pro-preview`.
     /// Model page: https://phaseo.app/models/google/lyria-3-pro-preview
     pub const GOOGLE_LYRIA_3_PRO_PREVIEW: &str = "google/lyria-3-pro-preview";
-    /// Model ID: `google/veo-2`.
-    /// Model page: https://phaseo.app/models/google/veo-2
-    pub const GOOGLE_VEO_2: &str = "google/veo-2";
+    /// Model ID: `google/veo-3.1`.
+    /// Model page: https://phaseo.app/models/google/veo-3.1
+    pub const GOOGLE_VEO_3_1: &str = "google/veo-3.1";
+    /// Model ID: `google/veo-3.1-fast`.
+    /// Model page: https://phaseo.app/models/google/veo-3.1-fast
+    pub const GOOGLE_VEO_3_1_FAST: &str = "google/veo-3.1-fast";
     /// Model ID: `google/veo-3.1-fast-preview`.
     /// Model page: https://phaseo.app/models/google/veo-3.1-fast-preview
     pub const GOOGLE_VEO_3_1_FAST_PREVIEW: &str = "google/veo-3.1-fast-preview";
-    /// Model ID: `google/veo-3.1-lite-generate-preview`.
-    /// Model page: https://phaseo.app/models/google/veo-3.1-lite-generate-preview
-    pub const GOOGLE_VEO_3_1_LITE_GENERATE_PREVIEW: &str = "google/veo-3.1-lite-generate-preview";
     /// Model ID: `google/veo-3.1-lite-preview`.
     /// Model page: https://phaseo.app/models/google/veo-3.1-lite-preview
     pub const GOOGLE_VEO_3_1_LITE_PREVIEW: &str = "google/veo-3.1-lite-preview";
@@ -1556,6 +1550,7 @@ pub mod model_ids {
         AION_LABS_AION_RP_LLAMA_3_1_8B,
         ALLENAI_MOLMO_2_8B,
         ALLENAI_OLMO_3_1_32B,
+        ANTHROPIC_CLAUDE_3_HAIKU,
         ANTHROPIC_CLAUDE_FABLE_5,
         ANTHROPIC_CLAUDE_HAIKU_4_5,
         ANTHROPIC_CLAUDE_OPUS_4_5,
@@ -1634,10 +1629,8 @@ pub mod model_ids {
         GOOGLE_GEMINI_3_FLASH_PREVIEW,
         GOOGLE_GEMINI_3_PRO_IMAGE,
         GOOGLE_GEMINI_3_1_FLASH_IMAGE,
-        GOOGLE_GEMINI_3_1_FLASH_IMAGE_PREVIEW,
         GOOGLE_GEMINI_3_1_FLASH_LITE,
         GOOGLE_GEMINI_3_1_FLASH_LITE_IMAGE,
-        GOOGLE_GEMINI_3_1_FLASH_LITE_PREVIEW,
         GOOGLE_GEMINI_3_1_FLASH_LIVE_PREVIEW,
         GOOGLE_GEMINI_3_1_FLASH_TTS_PREVIEW,
         GOOGLE_GEMINI_3_1_PRO_PREVIEW,
@@ -1648,7 +1641,6 @@ pub mod model_ids {
         GOOGLE_GEMINI_3_7_FLASH,
         GOOGLE_GEMINI_EMBEDDING_001,
         GOOGLE_GEMINI_EMBEDDING_2,
-        GOOGLE_GEMINI_EMBEDDING_2_PREVIEW,
         GOOGLE_GEMINI_ROBOTICS_ER_1_6_PREVIEW,
         GOOGLE_GEMINI_ROBOTICS_ER_2_PREVIEW,
         GOOGLE_GEMMA_3_27B,
@@ -1660,9 +1652,9 @@ pub mod model_ids {
         GOOGLE_IMAGEN_4_0_PREVIEW,
         GOOGLE_LYRIA_3_CLIP_PREVIEW,
         GOOGLE_LYRIA_3_PRO_PREVIEW,
-        GOOGLE_VEO_2,
+        GOOGLE_VEO_3_1,
+        GOOGLE_VEO_3_1_FAST,
         GOOGLE_VEO_3_1_FAST_PREVIEW,
-        GOOGLE_VEO_3_1_LITE_GENERATE_PREVIEW,
         GOOGLE_VEO_3_1_LITE_PREVIEW,
         GOOGLE_VEO_3_1_PREVIEW,
         IBM_GRANITE_4_1_8B,

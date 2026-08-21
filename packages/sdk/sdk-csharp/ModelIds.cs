@@ -18,6 +18,8 @@ namespace PhaseoSdk
         public const string AllenaiMolmo28b = "allenai/molmo-2-8b";
         /// <summary>Model ID: <c>allenai/olmo-3.1-32b</c>. Model page: https://phaseo.app/models/allenai/olmo-3.1-32b</summary>
         public const string AllenaiOlmo3132b = "allenai/olmo-3.1-32b";
+        /// <summary>Model ID: <c>anthropic/claude-3-haiku</c>. Model page: https://phaseo.app/models/anthropic/claude-3-haiku</summary>
+        public const string AnthropicClaude3Haiku = "anthropic/claude-3-haiku";
         /// <summary>Model ID: <c>anthropic/claude-fable-5</c>. Model page: https://phaseo.app/models/anthropic/claude-fable-5</summary>
         public const string AnthropicClaudeFable5 = "anthropic/claude-fable-5";
         /// <summary>Model ID: <c>anthropic/claude-haiku-4.5</c>. Model page: https://phaseo.app/models/anthropic/claude-haiku-4.5</summary>
@@ -174,14 +176,10 @@ namespace PhaseoSdk
         public const string GoogleGemini3ProImage = "google/gemini-3-pro-image";
         /// <summary>Model ID: <c>google/gemini-3.1-flash-image</c>. Model page: https://phaseo.app/models/google/gemini-3.1-flash-image</summary>
         public const string GoogleGemini31FlashImage = "google/gemini-3.1-flash-image";
-        /// <summary>Model ID: <c>google/gemini-3.1-flash-image-preview</c>. Model page: https://phaseo.app/models/google/gemini-3.1-flash-image-preview</summary>
-        public const string GoogleGemini31FlashImagePreview = "google/gemini-3.1-flash-image-preview";
         /// <summary>Model ID: <c>google/gemini-3.1-flash-lite</c>. Model page: https://phaseo.app/models/google/gemini-3.1-flash-lite</summary>
         public const string GoogleGemini31FlashLite = "google/gemini-3.1-flash-lite";
         /// <summary>Model ID: <c>google/gemini-3.1-flash-lite-image</c>. Model page: https://phaseo.app/models/google/gemini-3.1-flash-lite-image</summary>
         public const string GoogleGemini31FlashLiteImage = "google/gemini-3.1-flash-lite-image";
-        /// <summary>Model ID: <c>google/gemini-3.1-flash-lite-preview</c>. Model page: https://phaseo.app/models/google/gemini-3.1-flash-lite-preview</summary>
-        public const string GoogleGemini31FlashLitePreview = "google/gemini-3.1-flash-lite-preview";
         /// <summary>Model ID: <c>google/gemini-3.1-flash-live-preview</c>. Model page: https://phaseo.app/models/google/gemini-3.1-flash-live-preview</summary>
         public const string GoogleGemini31FlashLivePreview = "google/gemini-3.1-flash-live-preview";
         /// <summary>Model ID: <c>google/gemini-3.1-flash-tts-preview</c>. Model page: https://phaseo.app/models/google/gemini-3.1-flash-tts-preview</summary>
@@ -202,8 +200,6 @@ namespace PhaseoSdk
         public const string GoogleGeminiEmbedding001 = "google/gemini-embedding-001";
         /// <summary>Model ID: <c>google/gemini-embedding-2</c>. Model page: https://phaseo.app/models/google/gemini-embedding-2</summary>
         public const string GoogleGeminiEmbedding2 = "google/gemini-embedding-2";
-        /// <summary>Model ID: <c>google/gemini-embedding-2-preview</c>. Model page: https://phaseo.app/models/google/gemini-embedding-2-preview</summary>
-        public const string GoogleGeminiEmbedding2Preview = "google/gemini-embedding-2-preview";
         /// <summary>Model ID: <c>google/gemini-robotics-er-1.6-preview</c>. Model page: https://phaseo.app/models/google/gemini-robotics-er-1.6-preview</summary>
         public const string GoogleGeminiRoboticsEr16Preview = "google/gemini-robotics-er-1.6-preview";
         /// <summary>Model ID: <c>google/gemini-robotics-er-2-preview</c>. Model page: https://phaseo.app/models/google/gemini-robotics-er-2-preview</summary>
@@ -226,12 +222,12 @@ namespace PhaseoSdk
         public const string GoogleLyria3ClipPreview = "google/lyria-3-clip-preview";
         /// <summary>Model ID: <c>google/lyria-3-pro-preview</c>. Model page: https://phaseo.app/models/google/lyria-3-pro-preview</summary>
         public const string GoogleLyria3ProPreview = "google/lyria-3-pro-preview";
-        /// <summary>Model ID: <c>google/veo-2</c>. Model page: https://phaseo.app/models/google/veo-2</summary>
-        public const string GoogleVeo2 = "google/veo-2";
+        /// <summary>Model ID: <c>google/veo-3.1</c>. Model page: https://phaseo.app/models/google/veo-3.1</summary>
+        public const string GoogleVeo31 = "google/veo-3.1";
+        /// <summary>Model ID: <c>google/veo-3.1-fast</c>. Model page: https://phaseo.app/models/google/veo-3.1-fast</summary>
+        public const string GoogleVeo31Fast = "google/veo-3.1-fast";
         /// <summary>Model ID: <c>google/veo-3.1-fast-preview</c>. Model page: https://phaseo.app/models/google/veo-3.1-fast-preview</summary>
         public const string GoogleVeo31FastPreview = "google/veo-3.1-fast-preview";
-        /// <summary>Model ID: <c>google/veo-3.1-lite-generate-preview</c>. Model page: https://phaseo.app/models/google/veo-3.1-lite-generate-preview</summary>
-        public const string GoogleVeo31LiteGeneratePreview = "google/veo-3.1-lite-generate-preview";
         /// <summary>Model ID: <c>google/veo-3.1-lite-preview</c>. Model page: https://phaseo.app/models/google/veo-3.1-lite-preview</summary>
         public const string GoogleVeo31LitePreview = "google/veo-3.1-lite-preview";
         /// <summary>Model ID: <c>google/veo-3.1-preview</c>. Model page: https://phaseo.app/models/google/veo-3.1-preview</summary>
