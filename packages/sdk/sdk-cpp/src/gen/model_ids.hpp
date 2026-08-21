@@ -1359,18 +1359,12 @@ inline constexpr std::string_view UPSTAGE_SOLAR_PRO_3 = "upstage/solar-pro-3";
 // Model ID: upstage/solar-pro-4
 // Model page: https://phaseo.app/models/upstage/solar-pro-4
 inline constexpr std::string_view UPSTAGE_SOLAR_PRO_4 = "upstage/solar-pro-4";
-// Model ID: venice/gemma-4-26b-a4b-uncensored
-// Model page: https://phaseo.app/models/venice/gemma-4-26b-a4b-uncensored
-inline constexpr std::string_view VENICE_GEMMA_4_26B_A4B_UNCENSORED = "venice/gemma-4-26b-a4b-uncensored";
 // Model ID: venice/gemma-4-uncensored
 // Model page: https://phaseo.app/models/venice/gemma-4-uncensored
 inline constexpr std::string_view VENICE_GEMMA_4_UNCENSORED = "venice/gemma-4-uncensored";
 // Model ID: venice/ox-alpha
 // Model page: https://phaseo.app/models/venice/ox-alpha
 inline constexpr std::string_view VENICE_OX_ALPHA = "venice/ox-alpha";
-// Model ID: venice/qwen3.6-35b-a3b-uncensored
-// Model page: https://phaseo.app/models/venice/qwen3.6-35b-a3b-uncensored
-inline constexpr std::string_view VENICE_QWEN3_6_35B_A3B_UNCENSORED = "venice/qwen3.6-35b-a3b-uncensored";
 // Model ID: venice/venice-role-play-uncensored
 // Model page: https://phaseo.app/models/venice/venice-role-play-uncensored
 inline constexpr std::string_view VENICE_VENICE_ROLE_PLAY_UNCENSORED = "venice/venice-role-play-uncensored";
@@ -1539,7 +1533,7 @@ inline constexpr std::string_view ZAI_GLM_5 = "zai/glm-5";
 // Deprecated alias for deepseek/deepseek-v4; use deepseek/deepseek-v4-pro. Remove in the next major SDK release.
 inline constexpr std::string_view DEEPSEEK_DEEPSEEK_V4 = DEEPSEEK_DEEPSEEK_V4_PRO;
 
-inline constexpr std::array<std::string_view, 510> ALL = {
+inline constexpr std::array<std::string_view, 508> ALL = {
 	AION_LABS_AION_2_0,
 	AION_LABS_AION_3_0,
 	AION_LABS_AION_3_0_MINI,
@@ -1991,10 +1985,8 @@ inline constexpr std::array<std::string_view, 510> ALL = {
 	UPSTAGE_SOLAR_PRO_2,
 	UPSTAGE_SOLAR_PRO_3,
 	UPSTAGE_SOLAR_PRO_4,
-	VENICE_GEMMA_4_26B_A4B_UNCENSORED,
 	VENICE_GEMMA_4_UNCENSORED,
 	VENICE_OX_ALPHA,
-	VENICE_QWEN3_6_35B_A3B_UNCENSORED,
 	VENICE_VENICE_ROLE_PLAY_UNCENSORED,
 	VENICE_VENICE_UNCENSORED_1_2,
 	VOYAGE_RERANK_1,

@@ -905,14 +905,10 @@ export const ModelIds = {
   UPSTAGE_SOLAR_PRO_3: "upstage/solar-pro-3",
   /** Model ID: `upstage/solar-pro-4`. Model page: https://phaseo.app/models/upstage/solar-pro-4 */
   UPSTAGE_SOLAR_PRO_4: "upstage/solar-pro-4",
-  /** Model ID: `venice/gemma-4-26b-a4b-uncensored`. Model page: https://phaseo.app/models/venice/gemma-4-26b-a4b-uncensored */
-  VENICE_GEMMA_4_26B_A4B_UNCENSORED: "venice/gemma-4-26b-a4b-uncensored",
   /** Model ID: `venice/gemma-4-uncensored`. Model page: https://phaseo.app/models/venice/gemma-4-uncensored */
   VENICE_GEMMA_4_UNCENSORED: "venice/gemma-4-uncensored",
   /** Model ID: `venice/ox-alpha`. Model page: https://phaseo.app/models/venice/ox-alpha */
   VENICE_OX_ALPHA: "venice/ox-alpha",
-  /** Model ID: `venice/qwen3.6-35b-a3b-uncensored`. Model page: https://phaseo.app/models/venice/qwen3.6-35b-a3b-uncensored */
-  VENICE_QWEN3_6_35B_A3B_UNCENSORED: "venice/qwen3.6-35b-a3b-uncensored",
   /** Model ID: `venice/venice-role-play-uncensored`. Model page: https://phaseo.app/models/venice/venice-role-play-uncensored */
   VENICE_VENICE_ROLE_PLAY_UNCENSORED: "venice/venice-role-play-uncensored",
   /** Model ID: `venice/venice-uncensored-1.2`. Model page: https://phaseo.app/models/venice/venice-uncensored-1.2 */

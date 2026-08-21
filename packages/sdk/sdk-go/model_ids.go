@@ -1360,18 +1360,12 @@ const (
 	// Model ID: upstage/solar-pro-4
 	// Model page: https://phaseo.app/models/upstage/solar-pro-4
 	ModelIDUpstageSolarPro4 gen.ModelId = "upstage/solar-pro-4"
-	// Model ID: venice/gemma-4-26b-a4b-uncensored
-	// Model page: https://phaseo.app/models/venice/gemma-4-26b-a4b-uncensored
-	ModelIDVeniceGemma426bA4bUncensored gen.ModelId = "venice/gemma-4-26b-a4b-uncensored"
 	// Model ID: venice/gemma-4-uncensored
 	// Model page: https://phaseo.app/models/venice/gemma-4-uncensored
 	ModelIDVeniceGemma4Uncensored gen.ModelId = "venice/gemma-4-uncensored"
 	// Model ID: venice/ox-alpha
 	// Model page: https://phaseo.app/models/venice/ox-alpha
 	ModelIDVeniceOxAlpha gen.ModelId = "venice/ox-alpha"
-	// Model ID: venice/qwen3.6-35b-a3b-uncensored
-	// Model page: https://phaseo.app/models/venice/qwen3.6-35b-a3b-uncensored
-	ModelIDVeniceQwen3635bA3bUncensored gen.ModelId = "venice/qwen3.6-35b-a3b-uncensored"
 	// Model ID: venice/venice-role-play-uncensored
 	// Model page: https://phaseo.app/models/venice/venice-role-play-uncensored
 	ModelIDVeniceVeniceRolePlayUncensored gen.ModelId = "venice/venice-role-play-uncensored"
@@ -1993,10 +1987,8 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDUpstageSolarPro2,
 	ModelIDUpstageSolarPro3,
 	ModelIDUpstageSolarPro4,
-	ModelIDVeniceGemma426bA4bUncensored,
 	ModelIDVeniceGemma4Uncensored,
 	ModelIDVeniceOxAlpha,
-	ModelIDVeniceQwen3635bA3bUncensored,
 	ModelIDVeniceVeniceRolePlayUncensored,
 	ModelIDVeniceVeniceUncensored12,
 	ModelIDVoyageRerank1,

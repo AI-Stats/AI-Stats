@@ -1360,17 +1360,11 @@ public final class ModelIds {
     /** Model ID: <code>upstage/solar-pro-4</code>. Model page: https://phaseo.app/models/upstage/solar-pro-4 */
     public static final String UPSTAGE_SOLAR_PRO_4 = "upstage/solar-pro-4";
 
-    /** Model ID: <code>venice/gemma-4-26b-a4b-uncensored</code>. Model page: https://phaseo.app/models/venice/gemma-4-26b-a4b-uncensored */
-    public static final String VENICE_GEMMA_4_26B_A4B_UNCENSORED = "venice/gemma-4-26b-a4b-uncensored";
-
     /** Model ID: <code>venice/gemma-4-uncensored</code>. Model page: https://phaseo.app/models/venice/gemma-4-uncensored */
     public static final String VENICE_GEMMA_4_UNCENSORED = "venice/gemma-4-uncensored";
 
     /** Model ID: <code>venice/ox-alpha</code>. Model page: https://phaseo.app/models/venice/ox-alpha */
     public static final String VENICE_OX_ALPHA = "venice/ox-alpha";
-
-    /** Model ID: <code>venice/qwen3.6-35b-a3b-uncensored</code>. Model page: https://phaseo.app/models/venice/qwen3.6-35b-a3b-uncensored */
-    public static final String VENICE_QWEN3_6_35B_A3B_UNCENSORED = "venice/qwen3.6-35b-a3b-uncensored";
 
     /** Model ID: <code>venice/venice-role-play-uncensored</code>. Model page: https://phaseo.app/models/venice/venice-role-play-uncensored */
     public static final String VENICE_VENICE_ROLE_PLAY_UNCENSORED = "venice/venice-role-play-uncensored";

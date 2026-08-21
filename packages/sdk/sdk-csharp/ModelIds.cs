@@ -908,14 +908,10 @@ namespace PhaseoSdk
         public const string UpstageSolarPro3 = "upstage/solar-pro-3";
         /// <summary>Model ID: <c>upstage/solar-pro-4</c>. Model page: https://phaseo.app/models/upstage/solar-pro-4</summary>
         public const string UpstageSolarPro4 = "upstage/solar-pro-4";
-        /// <summary>Model ID: <c>venice/gemma-4-26b-a4b-uncensored</c>. Model page: https://phaseo.app/models/venice/gemma-4-26b-a4b-uncensored</summary>
-        public const string VeniceGemma426bA4bUncensored = "venice/gemma-4-26b-a4b-uncensored";
         /// <summary>Model ID: <c>venice/gemma-4-uncensored</c>. Model page: https://phaseo.app/models/venice/gemma-4-uncensored</summary>
         public const string VeniceGemma4Uncensored = "venice/gemma-4-uncensored";
         /// <summary>Model ID: <c>venice/ox-alpha</c>. Model page: https://phaseo.app/models/venice/ox-alpha</summary>
         public const string VeniceOxAlpha = "venice/ox-alpha";
-        /// <summary>Model ID: <c>venice/qwen3.6-35b-a3b-uncensored</c>. Model page: https://phaseo.app/models/venice/qwen3.6-35b-a3b-uncensored</summary>
-        public const string VeniceQwen3635bA3bUncensored = "venice/qwen3.6-35b-a3b-uncensored";
         /// <summary>Model ID: <c>venice/venice-role-play-uncensored</c>. Model page: https://phaseo.app/models/venice/venice-role-play-uncensored</summary>
         public const string VeniceVeniceRolePlayUncensored = "venice/venice-role-play-uncensored";
         /// <summary>Model ID: <c>venice/venice-uncensored-1.2</c>. Model page: https://phaseo.app/models/venice/venice-uncensored-1.2</summary>

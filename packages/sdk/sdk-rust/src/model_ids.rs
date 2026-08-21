@@ -1356,18 +1356,12 @@ pub mod model_ids {
     /// Model ID: `upstage/solar-pro-4`.
     /// Model page: https://phaseo.app/models/upstage/solar-pro-4
     pub const UPSTAGE_SOLAR_PRO_4: &str = "upstage/solar-pro-4";
-    /// Model ID: `venice/gemma-4-26b-a4b-uncensored`.
-    /// Model page: https://phaseo.app/models/venice/gemma-4-26b-a4b-uncensored
-    pub const VENICE_GEMMA_4_26B_A4B_UNCENSORED: &str = "venice/gemma-4-26b-a4b-uncensored";
     /// Model ID: `venice/gemma-4-uncensored`.
     /// Model page: https://phaseo.app/models/venice/gemma-4-uncensored
     pub const VENICE_GEMMA_4_UNCENSORED: &str = "venice/gemma-4-uncensored";
     /// Model ID: `venice/ox-alpha`.
     /// Model page: https://phaseo.app/models/venice/ox-alpha
     pub const VENICE_OX_ALPHA: &str = "venice/ox-alpha";
-    /// Model ID: `venice/qwen3.6-35b-a3b-uncensored`.
-    /// Model page: https://phaseo.app/models/venice/qwen3.6-35b-a3b-uncensored
-    pub const VENICE_QWEN3_6_35B_A3B_UNCENSORED: &str = "venice/qwen3.6-35b-a3b-uncensored";
     /// Model ID: `venice/venice-role-play-uncensored`.
     /// Model page: https://phaseo.app/models/venice/venice-role-play-uncensored
     pub const VENICE_VENICE_ROLE_PLAY_UNCENSORED: &str = "venice/venice-role-play-uncensored";
@@ -1989,10 +1983,8 @@ pub mod model_ids {
         UPSTAGE_SOLAR_PRO_2,
         UPSTAGE_SOLAR_PRO_3,
         UPSTAGE_SOLAR_PRO_4,
-        VENICE_GEMMA_4_26B_A4B_UNCENSORED,
         VENICE_GEMMA_4_UNCENSORED,
         VENICE_OX_ALPHA,
-        VENICE_QWEN3_6_35B_A3B_UNCENSORED,
         VENICE_VENICE_ROLE_PLAY_UNCENSORED,
         VENICE_VENICE_UNCENSORED_1_2,
         VOYAGE_RERANK_1,
