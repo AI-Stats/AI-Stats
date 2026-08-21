@@ -225,7 +225,7 @@ export function openAICompatHeaders(
 		// Both products share this provider and API host, so send both accepted forms.
 		...(providerId === "reka" && key ? { Authorization: `Bearer ${key}` } : {}),
 		...(providerId === "cloudflare"
-			? { "cf-aig-gateway-id": readFirstBinding(["CLOUDFLARE_AI_GATEWAY_ID"]) ?? "default" }
+			? { "cf-aig-gateway-id": readFirstBinding(["CLOUDFLARE_AI_GATEWAY_ID"])?.trim() || "default" }
 			: {}),
 		"Content-Type": "application/json",
 		...(extraHeaders

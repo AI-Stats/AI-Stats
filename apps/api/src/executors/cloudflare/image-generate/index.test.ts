@@ -31,4 +31,18 @@ describe("Cloudflare image generation executor", () => {
 		if (result.kind === "completed") expect((result.ir as any)?.data[0].b64Json).toBe("aW1hZ2U=");
 		mock.restore();
 	});
+
+	it("rejects unsupported image counts before dispatch", async () => {
+		await expect(execute({
+			ir: { model: "black-forest-labs/flux-1-schnell", prompt: "cloud", n: 2 },
+			requestId: "req-image-count",
+			workspaceId: "workspace",
+			providerId: "cloudflare",
+			providerModelSlug: "@cf/black-forest-labs/flux-1-schnell",
+			endpoint: "images.generations",
+			byokMeta: [],
+			pricingCard: { rules: [] },
+			meta: {},
+		} as ExecutorExecuteArgs)).rejects.toThrow("cloudflare_image_count_unsupported");
+	});
 });

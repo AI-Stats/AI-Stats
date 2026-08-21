@@ -34,12 +34,22 @@ describe("Cloudflare Workers AI configuration", () => {
 	it("uses an explicitly configured AI Gateway ID", () => {
 		teardownTestRuntime();
 		setupRuntimeFromEnv({
+			CLOUDFLARE_ACCOUNT_ID: "account-123",
 			CLOUDFLARE_AI_GATEWAY_ID: "phaseo-production",
 		} as any);
 
 		expect(openAICompatHeaders("cloudflare", "token-123")).toMatchObject({
 			"cf-aig-gateway-id": "phaseo-production",
 		});
+	});
+
+	it("normalizes whitespace around an AI Gateway ID", () => {
+		teardownTestRuntime();
+		setupRuntimeFromEnv({
+			CLOUDFLARE_ACCOUNT_ID: "account-123",
+			CLOUDFLARE_AI_GATEWAY_ID: "  phaseo-production  ",
+		} as any);
+		expect(openAICompatHeaders("cloudflare", "token-123")["cf-aig-gateway-id"]).toBe("phaseo-production");
 	});
 
 	it("prefers an explicit AI Gateway or custom Workers AI base URL", () => {

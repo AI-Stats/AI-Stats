@@ -31,4 +31,25 @@ describe("Cloudflare transcription executor", () => {
 		if (result.kind === "completed") expect(result.ir).toMatchObject({ text: "hello", language: "en" });
 		mock.restore();
 	});
+
+	it("maps Whisper Turbo JSON fields and detected language", async () => {
+		const mock = installFetchMock([{
+			match: (url) => url.endsWith("/ai/run/@cf/openai/whisper-large-v3-turbo"),
+			response: jsonResponse({ success: true, result: { text: "bonjour", transcription_info: { language: "fr" } } }),
+		}]);
+		const result = await execute({
+			ir: { model: "openai/whisper-large-v3-turbo", file: new Blob([new Uint8Array([1, 2, 3])], { type: "audio/wav" }), language: "fr", prompt: "names" },
+			requestId: "req-turbo",
+			workspaceId: "workspace",
+			providerId: "cloudflare",
+			providerModelSlug: "@cf/openai/whisper-large-v3-turbo",
+			endpoint: "audio.transcription",
+			byokMeta: [],
+			pricingCard: { rules: [] },
+			meta: {},
+		} as ExecutorExecuteArgs);
+		expect(mock.calls[0]?.bodyJson).toMatchObject({ audio: "AQID", language: "fr", initial_prompt: "names" });
+		if (result.kind === "completed") expect(result.ir).toMatchObject({ text: "bonjour", language: "fr" });
+		mock.restore();
+	});
 });

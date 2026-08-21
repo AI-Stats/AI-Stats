@@ -50,6 +50,12 @@
       "url": "https://www.cloudflare.com/about/",
       "accessed_at": "2026-08-09T00:00:00Z",
       "notes": "Cloudflare's official About page identifies San Francisco as its headquarters and lists 101 Townsend St., San Francisco, CA 94107."
+    },
+    {
+      "kind": "documentation",
+      "url": "https://developers.cloudflare.com/ai-gateway/usage/rest-api/",
+      "accessed_at": "2026-08-21T00:00:00Z",
+      "notes": "Official unified Cloudflare AI REST API documentation supporting retirement of the separate provider boundary."
     }
   ],
   "verification": {

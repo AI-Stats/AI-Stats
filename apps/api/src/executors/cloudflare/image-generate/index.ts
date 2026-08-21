@@ -8,6 +8,8 @@ function dimensions(size?: string): { width?: number; height?: number } {
 }
 
 async function requestBody(ir: IRImageGenerationRequest): Promise<Record<string, unknown>> {
+	if (ir.n !== undefined && ir.n !== 1) throw new Error("cloudflare_image_count_unsupported");
+	if (Array.isArray(ir.image) && ir.image.length > 1) throw new Error("cloudflare_multiple_input_images_unsupported");
 	const raw = ir.rawRequest && typeof ir.rawRequest === "object" ? ir.rawRequest : {};
 	const firstImage = Array.isArray(ir.image) ? ir.image[0] : ir.image;
 	return {

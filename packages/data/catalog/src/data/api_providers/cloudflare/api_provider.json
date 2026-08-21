@@ -33,7 +33,8 @@
   ],
   "api_formats": [
     "openai_chat",
-    "openai_responses"
+    "openai_responses",
+    "openai.embeddings"
   ],
   "service_tiers": [],
   "sources": [
