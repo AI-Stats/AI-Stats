@@ -95,7 +95,8 @@ function normalizedReferenceValue(reference: NonNullable<IRVideoGenerationReques
 function irToVertexVideoRequest(ir: IRVideoGenerationRequest): any {
 	const durationSeconds = toGoogleVideoDurationSeconds(ir);
 	const aspectRatio = ir.aspectRatio ?? ir.ratio;
-	const size = resolveVideoSize({ size: ir.size, resolution: ir.resolution });
+	const size = resolveVideoSize({ size: ir.size, resolution: ir.resolution }) ?? "720p";
+	const generateAudio = ir.generateAudio ?? true;
 	const providerParams =
 		ir.providerParams && typeof ir.providerParams === "object" && !Array.isArray(ir.providerParams)
 			? { ...(ir.providerParams as Record<string, any>) }
@@ -142,7 +143,7 @@ function irToVertexVideoRequest(ir: IRVideoGenerationRequest): any {
 		...(typeof sampleCount === "number" ? { sampleCount } : {}),
 		...(typeof ir.seed === "number" ? { seed: ir.seed } : {}),
 		...(ir.personGeneration ? { personGeneration: ir.personGeneration } : {}),
-		...(typeof ir.generateAudio === "boolean" ? { generateAudio: ir.generateAudio } : {}),
+		generateAudio,
 		...(typeof ir.enhancePrompt === "boolean" ? { enhancePrompt: ir.enhancePrompt } : {}),
 		...(ir.outputStorageUri ? { storageUri: ir.outputStorageUri } : {}),
 	};
@@ -229,7 +230,8 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	const requestedSeconds = toGoogleVideoDurationSeconds(ir) ?? null;
 	const outputCount = resolveVideoOutputCount({ sampleCount: ir.sampleCount, numberOfVideos: ir.numberOfVideos });
 	const reservedOutputSeconds = requestedSeconds == null ? null : requestedSeconds * outputCount;
-	const size = resolveVideoSize({ size: ir.size, resolution: ir.resolution });
+	const size = resolveVideoSize({ size: ir.size, resolution: ir.resolution }) ?? "720p";
+	const generateAudio = ir.generateAudio ?? true;
 	const quality = ir.quality ?? null;
 	let reservationId: string | null = null;
 	let reservationStatus: string | null = null;
@@ -244,12 +246,15 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 			model: modelForMeta,
 			seconds: reservedOutputSeconds,
 			pricingCard: args.pricingCard,
-			requestOptions: buildVideoPricingRequestOptions({
-				size,
-				resolution: ir.resolution,
-				quality,
-				audio: ir.generateAudio,
-			}),
+			requestOptions: {
+				...buildVideoPricingRequestOptions({
+					size,
+					resolution: ir.resolution,
+					quality,
+					audio: generateAudio,
+				}),
+				sample_count: outputCount,
+			},
 			isByok: keyInfo.source === "byok",
 		});
 		reservationId = reserved.reservationId;
@@ -461,7 +466,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 				outputCount,
 				resolution: size ?? null,
 				quality,
-				audio: typeof ir.generateAudio === "boolean" ? ir.generateAudio : null,
+				audio: generateAudio,
 				outputAccess: ir.outputAccess ?? "bytes",
 				webhook: ir.webhook as Record<string, unknown> | null,
 				googleOperationName: (json as any)?.name ?? null,
@@ -512,4 +517,3 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 }
 
 export const executor: ProviderExecutor = execute;
-

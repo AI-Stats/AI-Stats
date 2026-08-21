@@ -1880,7 +1880,7 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": ["include_reasoning", "max_tokens", "reasoning", "response_format", "seed", "stop", "structured_outputs", "temperature", "tool_choice", "tools", "top_p"],
+        "params": [],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
