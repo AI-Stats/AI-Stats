@@ -15,6 +15,8 @@ export const ModelIds = {
   ALLENAI_MOLMO_2_8B: "allenai/molmo-2-8b",
   /** Model ID: `allenai/olmo-3.1-32b`. Model page: https://phaseo.app/models/allenai/olmo-3.1-32b */
   ALLENAI_OLMO_3_1_32B: "allenai/olmo-3.1-32b",
+  /** Model ID: `anthropic/claude-3-haiku`. Model page: https://phaseo.app/models/anthropic/claude-3-haiku */
+  ANTHROPIC_CLAUDE_3_HAIKU: "anthropic/claude-3-haiku",
   /** Model ID: `anthropic/claude-fable-5`. Model page: https://phaseo.app/models/anthropic/claude-fable-5 */
   ANTHROPIC_CLAUDE_FABLE_5: "anthropic/claude-fable-5",
   /** Model ID: `anthropic/claude-haiku-4.5`. Model page: https://phaseo.app/models/anthropic/claude-haiku-4.5 */
@@ -171,14 +173,10 @@ export const ModelIds = {
   GOOGLE_GEMINI_3_PRO_IMAGE: "google/gemini-3-pro-image",
   /** Model ID: `google/gemini-3.1-flash-image`. Model page: https://phaseo.app/models/google/gemini-3.1-flash-image */
   GOOGLE_GEMINI_3_1_FLASH_IMAGE: "google/gemini-3.1-flash-image",
-  /** Model ID: `google/gemini-3.1-flash-image-preview`. Model page: https://phaseo.app/models/google/gemini-3.1-flash-image-preview */
-  GOOGLE_GEMINI_3_1_FLASH_IMAGE_PREVIEW: "google/gemini-3.1-flash-image-preview",
   /** Model ID: `google/gemini-3.1-flash-lite`. Model page: https://phaseo.app/models/google/gemini-3.1-flash-lite */
   GOOGLE_GEMINI_3_1_FLASH_LITE: "google/gemini-3.1-flash-lite",
   /** Model ID: `google/gemini-3.1-flash-lite-image`. Model page: https://phaseo.app/models/google/gemini-3.1-flash-lite-image */
   GOOGLE_GEMINI_3_1_FLASH_LITE_IMAGE: "google/gemini-3.1-flash-lite-image",
-  /** Model ID: `google/gemini-3.1-flash-lite-preview`. Model page: https://phaseo.app/models/google/gemini-3.1-flash-lite-preview */
-  GOOGLE_GEMINI_3_1_FLASH_LITE_PREVIEW: "google/gemini-3.1-flash-lite-preview",
   /** Model ID: `google/gemini-3.1-flash-live-preview`. Model page: https://phaseo.app/models/google/gemini-3.1-flash-live-preview */
   GOOGLE_GEMINI_3_1_FLASH_LIVE_PREVIEW: "google/gemini-3.1-flash-live-preview",
   /** Model ID: `google/gemini-3.1-flash-tts-preview`. Model page: https://phaseo.app/models/google/gemini-3.1-flash-tts-preview */
@@ -199,8 +197,6 @@ export const ModelIds = {
   GOOGLE_GEMINI_EMBEDDING_001: "google/gemini-embedding-001",
   /** Model ID: `google/gemini-embedding-2`. Model page: https://phaseo.app/models/google/gemini-embedding-2 */
   GOOGLE_GEMINI_EMBEDDING_2: "google/gemini-embedding-2",
-  /** Model ID: `google/gemini-embedding-2-preview`. Model page: https://phaseo.app/models/google/gemini-embedding-2-preview */
-  GOOGLE_GEMINI_EMBEDDING_2_PREVIEW: "google/gemini-embedding-2-preview",
   /** Model ID: `google/gemini-robotics-er-1.6-preview`. Model page: https://phaseo.app/models/google/gemini-robotics-er-1.6-preview */
   GOOGLE_GEMINI_ROBOTICS_ER_1_6_PREVIEW: "google/gemini-robotics-er-1.6-preview",
   /** Model ID: `google/gemini-robotics-er-2-preview`. Model page: https://phaseo.app/models/google/gemini-robotics-er-2-preview */
@@ -223,12 +219,12 @@ export const ModelIds = {
   GOOGLE_LYRIA_3_CLIP_PREVIEW: "google/lyria-3-clip-preview",
   /** Model ID: `google/lyria-3-pro-preview`. Model page: https://phaseo.app/models/google/lyria-3-pro-preview */
   GOOGLE_LYRIA_3_PRO_PREVIEW: "google/lyria-3-pro-preview",
-  /** Model ID: `google/veo-2`. Model page: https://phaseo.app/models/google/veo-2 */
-  GOOGLE_VEO_2: "google/veo-2",
+  /** Model ID: `google/veo-3.1`. Model page: https://phaseo.app/models/google/veo-3.1 */
+  GOOGLE_VEO_3_1: "google/veo-3.1",
+  /** Model ID: `google/veo-3.1-fast`. Model page: https://phaseo.app/models/google/veo-3.1-fast */
+  GOOGLE_VEO_3_1_FAST: "google/veo-3.1-fast",
   /** Model ID: `google/veo-3.1-fast-preview`. Model page: https://phaseo.app/models/google/veo-3.1-fast-preview */
   GOOGLE_VEO_3_1_FAST_PREVIEW: "google/veo-3.1-fast-preview",
-  /** Model ID: `google/veo-3.1-lite-generate-preview`. Model page: https://phaseo.app/models/google/veo-3.1-lite-generate-preview */
-  GOOGLE_VEO_3_1_LITE_GENERATE_PREVIEW: "google/veo-3.1-lite-generate-preview",
   /** Model ID: `google/veo-3.1-lite-preview`. Model page: https://phaseo.app/models/google/veo-3.1-lite-preview */
   GOOGLE_VEO_3_1_LITE_PREVIEW: "google/veo-3.1-lite-preview",
   /** Model ID: `google/veo-3.1-preview`. Model page: https://phaseo.app/models/google/veo-3.1-preview */

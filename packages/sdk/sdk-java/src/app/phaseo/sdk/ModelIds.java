@@ -25,6 +25,9 @@ public final class ModelIds {
     /** Model ID: <code>allenai/olmo-3.1-32b</code>. Model page: https://phaseo.app/models/allenai/olmo-3.1-32b */
     public static final String ALLENAI_OLMO_3_1_32B = "allenai/olmo-3.1-32b";
 
+    /** Model ID: <code>anthropic/claude-3-haiku</code>. Model page: https://phaseo.app/models/anthropic/claude-3-haiku */
+    public static final String ANTHROPIC_CLAUDE_3_HAIKU = "anthropic/claude-3-haiku";
+
     /** Model ID: <code>anthropic/claude-fable-5</code>. Model page: https://phaseo.app/models/anthropic/claude-fable-5 */
     public static final String ANTHROPIC_CLAUDE_FABLE_5 = "anthropic/claude-fable-5";
 
@@ -259,17 +262,11 @@ public final class ModelIds {
     /** Model ID: <code>google/gemini-3.1-flash-image</code>. Model page: https://phaseo.app/models/google/gemini-3.1-flash-image */
     public static final String GOOGLE_GEMINI_3_1_FLASH_IMAGE = "google/gemini-3.1-flash-image";
 
-    /** Model ID: <code>google/gemini-3.1-flash-image-preview</code>. Model page: https://phaseo.app/models/google/gemini-3.1-flash-image-preview */
-    public static final String GOOGLE_GEMINI_3_1_FLASH_IMAGE_PREVIEW = "google/gemini-3.1-flash-image-preview";
-
     /** Model ID: <code>google/gemini-3.1-flash-lite</code>. Model page: https://phaseo.app/models/google/gemini-3.1-flash-lite */
     public static final String GOOGLE_GEMINI_3_1_FLASH_LITE = "google/gemini-3.1-flash-lite";
 
     /** Model ID: <code>google/gemini-3.1-flash-lite-image</code>. Model page: https://phaseo.app/models/google/gemini-3.1-flash-lite-image */
     public static final String GOOGLE_GEMINI_3_1_FLASH_LITE_IMAGE = "google/gemini-3.1-flash-lite-image";
-
-    /** Model ID: <code>google/gemini-3.1-flash-lite-preview</code>. Model page: https://phaseo.app/models/google/gemini-3.1-flash-lite-preview */
-    public static final String GOOGLE_GEMINI_3_1_FLASH_LITE_PREVIEW = "google/gemini-3.1-flash-lite-preview";
 
     /** Model ID: <code>google/gemini-3.1-flash-live-preview</code>. Model page: https://phaseo.app/models/google/gemini-3.1-flash-live-preview */
     public static final String GOOGLE_GEMINI_3_1_FLASH_LIVE_PREVIEW = "google/gemini-3.1-flash-live-preview";
@@ -300,9 +297,6 @@ public final class ModelIds {
 
     /** Model ID: <code>google/gemini-embedding-2</code>. Model page: https://phaseo.app/models/google/gemini-embedding-2 */
     public static final String GOOGLE_GEMINI_EMBEDDING_2 = "google/gemini-embedding-2";
-
-    /** Model ID: <code>google/gemini-embedding-2-preview</code>. Model page: https://phaseo.app/models/google/gemini-embedding-2-preview */
-    public static final String GOOGLE_GEMINI_EMBEDDING_2_PREVIEW = "google/gemini-embedding-2-preview";
 
     /** Model ID: <code>google/gemini-robotics-er-1.6-preview</code>. Model page: https://phaseo.app/models/google/gemini-robotics-er-1.6-preview */
     public static final String GOOGLE_GEMINI_ROBOTICS_ER_1_6_PREVIEW = "google/gemini-robotics-er-1.6-preview";
@@ -337,14 +331,14 @@ public final class ModelIds {
     /** Model ID: <code>google/lyria-3-pro-preview</code>. Model page: https://phaseo.app/models/google/lyria-3-pro-preview */
     public static final String GOOGLE_LYRIA_3_PRO_PREVIEW = "google/lyria-3-pro-preview";
 
-    /** Model ID: <code>google/veo-2</code>. Model page: https://phaseo.app/models/google/veo-2 */
-    public static final String GOOGLE_VEO_2 = "google/veo-2";
+    /** Model ID: <code>google/veo-3.1</code>. Model page: https://phaseo.app/models/google/veo-3.1 */
+    public static final String GOOGLE_VEO_3_1 = "google/veo-3.1";
+
+    /** Model ID: <code>google/veo-3.1-fast</code>. Model page: https://phaseo.app/models/google/veo-3.1-fast */
+    public static final String GOOGLE_VEO_3_1_FAST = "google/veo-3.1-fast";
 
     /** Model ID: <code>google/veo-3.1-fast-preview</code>. Model page: https://phaseo.app/models/google/veo-3.1-fast-preview */
     public static final String GOOGLE_VEO_3_1_FAST_PREVIEW = "google/veo-3.1-fast-preview";
-
-    /** Model ID: <code>google/veo-3.1-lite-generate-preview</code>. Model page: https://phaseo.app/models/google/veo-3.1-lite-generate-preview */
-    public static final String GOOGLE_VEO_3_1_LITE_GENERATE_PREVIEW = "google/veo-3.1-lite-generate-preview";
 
     /** Model ID: <code>google/veo-3.1-lite-preview</code>. Model page: https://phaseo.app/models/google/veo-3.1-lite-preview */
     public static final String GOOGLE_VEO_3_1_LITE_PREVIEW = "google/veo-3.1-lite-preview";

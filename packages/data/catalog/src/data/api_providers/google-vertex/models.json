@@ -11,7 +11,7 @@
     "context_length": 200000,
     "max_output_tokens": 4096,
     "effective_from": "2024-03-13T00:00:00",
-    "effective_to": "2026-04-20T00:00:00",
+    "effective_to": "2026-08-23T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -120,18 +120,18 @@
     "provider_api_model_id": "google-vertex:anthropic/claude-3.5-haiku",
     "provider_model_slug": "claude-3-5-haiku@20241022",
     "internal_model_id": "anthropic/claude-3.5-haiku",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 200000,
+    "max_output_tokens": 8192,
     "effective_from": "2024-11-04T00:00:00",
-    "effective_to": "2026-06-15T00:00:00",
+    "effective_to": "2026-07-05T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [
           {
             "param_id": "max_tokens",
@@ -207,8 +207,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": [
         "global"
@@ -236,18 +236,18 @@
     "provider_api_model_id": "google-vertex:anthropic/claude-3.7-sonnet",
     "provider_model_slug": "claude-3-7-sonnet@20250219",
     "internal_model_id": "anthropic/claude-3.7-sonnet",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 200000,
+    "max_output_tokens": 128000,
     "effective_from": "2025-03-20T00:00:00",
-    "effective_to": "2026-06-15T00:00:00",
+    "effective_to": "2026-05-11T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [
           {
             "param_id": "include_reasoning",
@@ -330,8 +330,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": [
         "global"
@@ -371,7 +371,7 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": ["include_reasoning", "max_tokens", "reasoning", "response_format", "stop", "structured_outputs", "tool_choice", "tools", "verbosity"],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -1265,7 +1265,7 @@
     "provider_api_model_id": "google-vertex:anthropic/claude-opus-5",
     "provider_model_slug": "claude-opus-5",
     "internal_model_id": "anthropic/claude-opus-5",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "text",
@@ -1342,58 +1342,6 @@
             "notes": null
           }
         ],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": null,
-    "routable": false,
-    "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "anthropic/claude-opus-5",
-    "provider_api_model_id": "google-vertex:anthropic/claude-opus-5",
-    "provider_model_slug": "claude-opus-5",
-    "internal_model_id": "anthropic/claude-opus-5",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": "text,image",
-    "output_modalities": "text",
-    "context_length": 1000000,
-    "max_output_tokens": 128000,
-    "effective_from": null,
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -1816,7 +1764,7 @@
     "provider_api_model_id": "google-vertex:anthropic/claude-sonnet-5",
     "provider_model_slug": "claude-sonnet-5",
     "internal_model_id": "anthropic/claude-sonnet-5",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "text",
@@ -1828,7 +1776,7 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": ["include_reasoning", "max_tokens", "reasoning", "response_format", "stop", "structured_outputs", "tool_choice", "tools", "verbosity"],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -1839,8 +1787,8 @@
         "modes": []
       }
     ],
-    "routing_status": null,
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": [
         "global"
@@ -1920,14 +1868,14 @@
     "provider_api_model_id": "google-vertex:google/gemini-2.5-flash",
     "provider_model_slug": "gemini-2.5-flash",
     "internal_model_id": "google/gemini-2.5-flash",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": null,
-    "max_output_tokens": null,
+    "input_modalities": "text,image,video,audio",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 65536,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-10-16T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -1944,7 +1892,7 @@
       }
     ],
     "routing_status": "active",
-    "routable": false,
+    "routable": true,
     "regions": {
       "execution": [
         "global"
@@ -1972,19 +1920,19 @@
     "provider_api_model_id": "google-vertex:google/gemini-2.5-flash-lite",
     "provider_model_slug": "gemini-2.5-flash-lite",
     "internal_model_id": "google/gemini-2.5-flash-lite",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": null,
-    "max_output_tokens": null,
+    "input_modalities": "text,image,video,audio",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 65536,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-10-16T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": ["include_reasoning", "max_tokens", "reasoning", "response_format", "seed", "stop", "structured_outputs", "temperature", "tool_choice", "tools", "top_p"],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -1996,7 +1944,7 @@
       }
     ],
     "routing_status": "active",
-    "routable": false,
+    "routable": true,
     "regions": {
       "execution": [
         "global"
@@ -2024,19 +1972,19 @@
     "provider_api_model_id": "google-vertex:google/gemini-2.5-pro",
     "provider_model_slug": "gemini-2.5-pro",
     "internal_model_id": "google/gemini-2.5-pro",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": null,
-    "max_output_tokens": null,
+    "input_modalities": "text,image,video,audio",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 65536,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-10-16T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": ["include_reasoning", "max_tokens", "reasoning", "response_format", "seed", "stop", "structured_outputs", "temperature", "tool_choice", "tools", "top_p"],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -2048,7 +1996,7 @@
       }
     ],
     "routing_status": "active",
-    "routable": false,
+    "routable": true,
     "regions": {
       "execution": [
         "global"
@@ -2076,19 +2024,19 @@
     "provider_api_model_id": "google-vertex:google/gemini-3-flash-preview",
     "provider_model_slug": "gemini-3-flash-preview",
     "internal_model_id": "google/gemini-3-flash-preview",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 1048576,
+    "max_output_tokens": 65536,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": ["include_reasoning", "max_tokens", "reasoning", "response_format", "seed", "stop", "structured_outputs", "temperature", "tool_choice", "tools", "top_p"],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -2100,7 +2048,7 @@
       }
     ],
     "routing_status": "active",
-    "routable": false,
+    "routable": true,
     "regions": {
       "execution": [
         "global"
@@ -2128,7 +2076,7 @@
     "provider_api_model_id": "google-vertex:google/gemini-3-pro-image",
     "provider_model_slug": "gemini-3-pro-image",
     "internal_model_id": "google/gemini-3-pro-image",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
@@ -2140,7 +2088,7 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": ["include_reasoning", "max_tokens", "reasoning", "response_format", "seed", "stop", "structured_outputs", "temperature", "tool_choice", "tools", "top_p"],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -2152,7 +2100,7 @@
       }
     ],
     "routing_status": "active",
-    "routable": false,
+    "routable": true,
     "regions": {
       "execution": [
         "global"
@@ -2180,19 +2128,19 @@
     "provider_api_model_id": "google-vertex:google/gemini-3.1-flash-image",
     "provider_model_slug": "gemini-3.1-flash-image",
     "internal_model_id": "google/gemini-3.1-flash-image",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 131072,
+    "max_output_tokens": 32768,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": ["include_reasoning", "max_tokens", "reasoning", "response_format", "seed", "stop", "structured_outputs", "temperature", "tool_choice", "tools", "top_p"],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -2204,7 +2152,7 @@
       }
     ],
     "routing_status": "active",
-    "routable": false,
+    "routable": true,
     "regions": {
       "execution": [
         "global"
@@ -2232,18 +2180,18 @@
     "provider_api_model_id": "google-vertex:google/gemini-3.1-flash-image-preview",
     "provider_model_slug": "gemini-3.1-flash-image-preview",
     "internal_model_id": "google/gemini-3.1-flash-image-preview",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "text,image",
     "context_length": 65536,
     "max_output_tokens": 32768,
     "effective_from": "2026-02-26T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-06-25T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [
           {
             "param_id": "include_reasoning",
@@ -2319,8 +2267,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": [
         "global"
@@ -2579,18 +2527,18 @@
     "provider_api_model_id": "google-vertex:google/gemini-3.1-flash-lite-preview",
     "provider_model_slug": "gemini-3.1-flash-lite-preview",
     "internal_model_id": "google/gemini-3.1-flash-lite-preview",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image,audio,video",
     "output_modalities": "text",
     "context_length": 1048576,
     "max_output_tokens": 65536,
     "effective_from": "2026-03-03T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-05-25T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [
           {
             "param_id": "structured_outputs",
@@ -2666,8 +2614,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": [
         "global"
@@ -2941,7 +2889,7 @@
     "provider_api_model_id": "google-vertex:google/gemini-3.5-flash-lite",
     "provider_model_slug": "gemini-3.5-flash-lite",
     "internal_model_id": "google/gemini-3.5-flash-lite",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text,image,video,audio",
     "output_modalities": "text",
@@ -2952,8 +2900,8 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "coming_soon",
-        "params": [],
+        "status": "active",
+        "params": ["include_reasoning", "max_tokens", "reasoning", "response_format", "seed", "stop", "structured_outputs", "temperature", "tool_choice", "tools", "top_p"],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -2964,8 +2912,8 @@
         "modes": []
       }
     ],
-    "routing_status": null,
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": [
         "global"
@@ -3045,7 +2993,7 @@
     "provider_api_model_id": "google-vertex:google/gemini-3.6-flash",
     "provider_model_slug": "gemini-3.6-flash",
     "internal_model_id": "google/gemini-3.6-flash",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text,image,video,audio",
     "output_modalities": "text",
@@ -3056,8 +3004,8 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "coming_soon",
-        "params": [],
+        "status": "active",
+        "params": ["include_reasoning", "max_tokens", "reasoning", "response_format", "seed", "stop", "structured_outputs", "temperature", "tool_choice", "tools", "top_p"],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -3068,8 +3016,8 @@
         "modes": []
       }
     ],
-    "routing_status": null,
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": [
         "global"
@@ -3132,7 +3080,7 @@
       {
         "capability_id": "text.embed",
         "status": "active",
-        "params": [],
+        "params": ["include_reasoning", "max_tokens", "reasoning", "response_format", "seed", "stop", "structured_outputs", "temperature", "tool_choice", "tools", "top_p"],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -3172,18 +3120,18 @@
     "provider_api_model_id": "google-vertex:google/gemini-embedding-2-preview",
     "provider_model_slug": "gemini-embedding-2-preview",
     "internal_model_id": "google/gemini-embedding-2-preview",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image,audio,video",
     "output_modalities": "embeddings",
     "context_length": 8192,
     "max_output_tokens": null,
     "effective_from": "2026-03-10T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-10T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.embed",
-        "status": "active",
+        "status": "disabled",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -3195,8 +3143,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": [
         "global"
@@ -3224,18 +3172,18 @@
     "provider_api_model_id": "google-vertex:google/veo-2",
     "provider_model_slug": "veo-2.0-generate-001",
     "internal_model_id": "google/veo-2",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "video",
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": "2025-04-09T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-06-30T00:00:00",
     "capabilities": [
       {
         "capability_id": "video.generate",
-        "status": "coming_soon",
+        "status": "disabled",
         "params": {
           "prompt": {
             "type": "string"
@@ -3274,8 +3222,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": [
         "global"
@@ -3303,18 +3251,18 @@
     "provider_api_model_id": "google-vertex:google/veo-3.1-fast-preview",
     "provider_model_slug": "veo-3.1-fast-generate-preview",
     "internal_model_id": "google/veo-3.1-fast-preview",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image,video",
     "output_modalities": "video,audio",
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": "2026-03-24T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-04-02T00:00:00",
     "capabilities": [
       {
         "capability_id": "video.generate",
-        "status": "coming_soon",
+        "status": "disabled",
         "params": {
           "prompt": {
             "type": "string"
@@ -3361,8 +3309,8 @@
         "modes": ["text-to-video", "image-to-video", "reference-to-video", "video-extension"]
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": [
         "global"
@@ -3386,11 +3334,11 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "google/veo-3.1-lite-generate-preview",
-    "provider_api_model_id": "google-vertex:google/veo-3.1-lite-generate-preview",
+    "api_model_id": "google/veo-3.1-lite-preview",
+    "provider_api_model_id": "google-vertex:google/veo-3.1-lite-preview",
     "provider_model_slug": "veo-3.1-lite-generate-001",
     "internal_model_id": "google/veo-3.1-lite-preview",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "video,audio",
@@ -3444,8 +3392,8 @@
         "modes": ["text-to-video", "image-to-video"]
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "disabled",
+    "routable": false,
     "regions": {
       "execution": [
         "global"
@@ -3473,18 +3421,18 @@
     "provider_api_model_id": "google-vertex:google/veo-3.1-preview",
     "provider_model_slug": "veo-3.1-generate-preview",
     "internal_model_id": "google/veo-3.1-preview",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image,video",
     "output_modalities": "video,audio",
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": "2026-03-24T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-04-02T00:00:00",
     "capabilities": [
       {
         "capability_id": "video.generate",
-        "status": "coming_soon",
+        "status": "disabled",
         "params": {
           "prompt": {
             "type": "string"
@@ -3531,8 +3479,8 @@
         "modes": ["text-to-video", "image-to-video", "reference-to-video", "video-extension"]
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": [
         "global"
@@ -4326,6 +4274,80 @@
       "checked_at": "2026-08-12T00:00:00Z",
       "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
     },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/veo-3.1",
+    "provider_api_model_id": "google-vertex:google/veo-3.1",
+    "provider_model_slug": "veo-3.1-generate-001",
+    "internal_model_id": "google/veo-3.1",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "video,audio",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2025-11-17T00:00:00",
+    "effective_to": null,
+    "capabilities": [{
+      "capability_id": "video.generate",
+      "status": "active",
+      "params": {
+        "prompt": { "type": "string" },
+        "duration": { "type": "number", "min": 4, "max": 8, "aliases": ["seconds", "duration_seconds"] },
+        "size": { "type": "enum", "values": ["720p", "1080p", "4k"], "aliases": ["resolution"] },
+        "aspect_ratio": { "type": "string" },
+        "input_image": { "type": "string" },
+        "last_frame": { "type": "string" },
+        "generate_audio": { "type": "boolean" }
+      },
+      "reasoning": null, "tool_call": null, "structured_output": null, "temperature": null,
+      "attachment": null, "input_modalities": null, "output_modalities": null, "modes": []
+    }],
+    "routing_status": "active",
+    "routable": true,
+    "regions": { "execution": ["global"], "data": ["global"] },
+    "service_tiers": [],
+    "api": { "formats": ["google.predictLongRunning"], "endpoint": ":predictLongRunning", "deployment": null },
+    "sources": [{ "kind": "documentation", "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/veo/3-1-generate", "accessed_at": "2026-08-21T00:00:00Z" }],
+    "verification": { "status": "verified", "checked_at": "2026-08-21T00:00:00Z", "notes": "Verified as the current GA Veo 3.1 endpoint." },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/veo-3.1-fast",
+    "provider_api_model_id": "google-vertex:google/veo-3.1-fast",
+    "provider_model_slug": "veo-3.1-fast-generate-001",
+    "internal_model_id": "google/veo-3.1-fast",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "video,audio",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2025-11-17T00:00:00",
+    "effective_to": null,
+    "capabilities": [{
+      "capability_id": "video.generate",
+      "status": "active",
+      "params": {
+        "prompt": { "type": "string" },
+        "duration": { "type": "number", "min": 4, "max": 8, "aliases": ["seconds", "duration_seconds"] },
+        "size": { "type": "enum", "values": ["720p", "1080p", "4k"], "aliases": ["resolution"] },
+        "aspect_ratio": { "type": "string" },
+        "input_image": { "type": "string" },
+        "last_frame": { "type": "string" },
+        "generate_audio": { "type": "boolean" }
+      },
+      "reasoning": null, "tool_call": null, "structured_output": null, "temperature": null,
+      "attachment": null, "input_modalities": null, "output_modalities": null, "modes": []
+    }],
+    "routing_status": "active",
+    "routable": true,
+    "regions": { "execution": ["global"], "data": ["global"] },
+    "service_tiers": [],
+    "api": { "formats": ["google.predictLongRunning"], "endpoint": ":predictLongRunning", "deployment": null },
+    "sources": [{ "kind": "documentation", "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/veo/3-1-generate", "accessed_at": "2026-08-21T00:00:00Z" }],
+    "verification": { "status": "verified", "checked_at": "2026-08-21T00:00:00Z", "notes": "Verified as the current GA Veo 3.1 Fast endpoint." },
     "rate_limits": []
   }
 ]

@@ -34,6 +34,10 @@ class ModelIds:
     # Model page: https://phaseo.app/models/allenai/olmo-3.1-32b
     ALLENAI_OLMO_3_1_32B: Final[str] = "allenai/olmo-3.1-32b"
 
+    # Model ID: anthropic/claude-3-haiku
+    # Model page: https://phaseo.app/models/anthropic/claude-3-haiku
+    ANTHROPIC_CLAUDE_3_HAIKU: Final[str] = "anthropic/claude-3-haiku"
+
     # Model ID: anthropic/claude-fable-5
     # Model page: https://phaseo.app/models/anthropic/claude-fable-5
     ANTHROPIC_CLAUDE_FABLE_5: Final[str] = "anthropic/claude-fable-5"
@@ -346,10 +350,6 @@ class ModelIds:
     # Model page: https://phaseo.app/models/google/gemini-3.1-flash-image
     GOOGLE_GEMINI_3_1_FLASH_IMAGE: Final[str] = "google/gemini-3.1-flash-image"
 
-    # Model ID: google/gemini-3.1-flash-image-preview
-    # Model page: https://phaseo.app/models/google/gemini-3.1-flash-image-preview
-    GOOGLE_GEMINI_3_1_FLASH_IMAGE_PREVIEW: Final[str] = "google/gemini-3.1-flash-image-preview"
-
     # Model ID: google/gemini-3.1-flash-lite
     # Model page: https://phaseo.app/models/google/gemini-3.1-flash-lite
     GOOGLE_GEMINI_3_1_FLASH_LITE: Final[str] = "google/gemini-3.1-flash-lite"
@@ -357,10 +357,6 @@ class ModelIds:
     # Model ID: google/gemini-3.1-flash-lite-image
     # Model page: https://phaseo.app/models/google/gemini-3.1-flash-lite-image
     GOOGLE_GEMINI_3_1_FLASH_LITE_IMAGE: Final[str] = "google/gemini-3.1-flash-lite-image"
-
-    # Model ID: google/gemini-3.1-flash-lite-preview
-    # Model page: https://phaseo.app/models/google/gemini-3.1-flash-lite-preview
-    GOOGLE_GEMINI_3_1_FLASH_LITE_PREVIEW: Final[str] = "google/gemini-3.1-flash-lite-preview"
 
     # Model ID: google/gemini-3.1-flash-live-preview
     # Model page: https://phaseo.app/models/google/gemini-3.1-flash-live-preview
@@ -401,10 +397,6 @@ class ModelIds:
     # Model ID: google/gemini-embedding-2
     # Model page: https://phaseo.app/models/google/gemini-embedding-2
     GOOGLE_GEMINI_EMBEDDING_2: Final[str] = "google/gemini-embedding-2"
-
-    # Model ID: google/gemini-embedding-2-preview
-    # Model page: https://phaseo.app/models/google/gemini-embedding-2-preview
-    GOOGLE_GEMINI_EMBEDDING_2_PREVIEW: Final[str] = "google/gemini-embedding-2-preview"
 
     # Model ID: google/gemini-robotics-er-1.6-preview
     # Model page: https://phaseo.app/models/google/gemini-robotics-er-1.6-preview
@@ -450,17 +442,17 @@ class ModelIds:
     # Model page: https://phaseo.app/models/google/lyria-3-pro-preview
     GOOGLE_LYRIA_3_PRO_PREVIEW: Final[str] = "google/lyria-3-pro-preview"
 
-    # Model ID: google/veo-2
-    # Model page: https://phaseo.app/models/google/veo-2
-    GOOGLE_VEO_2: Final[str] = "google/veo-2"
+    # Model ID: google/veo-3.1
+    # Model page: https://phaseo.app/models/google/veo-3.1
+    GOOGLE_VEO_3_1: Final[str] = "google/veo-3.1"
+
+    # Model ID: google/veo-3.1-fast
+    # Model page: https://phaseo.app/models/google/veo-3.1-fast
+    GOOGLE_VEO_3_1_FAST: Final[str] = "google/veo-3.1-fast"
 
     # Model ID: google/veo-3.1-fast-preview
     # Model page: https://phaseo.app/models/google/veo-3.1-fast-preview
     GOOGLE_VEO_3_1_FAST_PREVIEW: Final[str] = "google/veo-3.1-fast-preview"
-
-    # Model ID: google/veo-3.1-lite-generate-preview
-    # Model page: https://phaseo.app/models/google/veo-3.1-lite-generate-preview
-    GOOGLE_VEO_3_1_LITE_GENERATE_PREVIEW: Final[str] = "google/veo-3.1-lite-generate-preview"
 
     # Model ID: google/veo-3.1-lite-preview
     # Model page: https://phaseo.app/models/google/veo-3.1-lite-preview
@@ -2078,6 +2070,7 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.AION_LABS_AION_RP_LLAMA_3_1_8B,
         ModelIds.ALLENAI_MOLMO_2_8B,
         ModelIds.ALLENAI_OLMO_3_1_32B,
+        ModelIds.ANTHROPIC_CLAUDE_3_HAIKU,
         ModelIds.ANTHROPIC_CLAUDE_FABLE_5,
         ModelIds.ANTHROPIC_CLAUDE_HAIKU_4_5,
         ModelIds.ANTHROPIC_CLAUDE_OPUS_4_5,
@@ -2156,10 +2149,8 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.GOOGLE_GEMINI_3_FLASH_PREVIEW,
         ModelIds.GOOGLE_GEMINI_3_PRO_IMAGE,
         ModelIds.GOOGLE_GEMINI_3_1_FLASH_IMAGE,
-        ModelIds.GOOGLE_GEMINI_3_1_FLASH_IMAGE_PREVIEW,
         ModelIds.GOOGLE_GEMINI_3_1_FLASH_LITE,
         ModelIds.GOOGLE_GEMINI_3_1_FLASH_LITE_IMAGE,
-        ModelIds.GOOGLE_GEMINI_3_1_FLASH_LITE_PREVIEW,
         ModelIds.GOOGLE_GEMINI_3_1_FLASH_LIVE_PREVIEW,
         ModelIds.GOOGLE_GEMINI_3_1_FLASH_TTS_PREVIEW,
         ModelIds.GOOGLE_GEMINI_3_1_PRO_PREVIEW,
@@ -2170,7 +2161,6 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.GOOGLE_GEMINI_3_7_FLASH,
         ModelIds.GOOGLE_GEMINI_EMBEDDING_001,
         ModelIds.GOOGLE_GEMINI_EMBEDDING_2,
-        ModelIds.GOOGLE_GEMINI_EMBEDDING_2_PREVIEW,
         ModelIds.GOOGLE_GEMINI_ROBOTICS_ER_1_6_PREVIEW,
         ModelIds.GOOGLE_GEMINI_ROBOTICS_ER_2_PREVIEW,
         ModelIds.GOOGLE_GEMMA_3_27B,
@@ -2182,9 +2172,9 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.GOOGLE_IMAGEN_4_0_PREVIEW,
         ModelIds.GOOGLE_LYRIA_3_CLIP_PREVIEW,
         ModelIds.GOOGLE_LYRIA_3_PRO_PREVIEW,
-        ModelIds.GOOGLE_VEO_2,
+        ModelIds.GOOGLE_VEO_3_1,
+        ModelIds.GOOGLE_VEO_3_1_FAST,
         ModelIds.GOOGLE_VEO_3_1_FAST_PREVIEW,
-        ModelIds.GOOGLE_VEO_3_1_LITE_GENERATE_PREVIEW,
         ModelIds.GOOGLE_VEO_3_1_LITE_PREVIEW,
         ModelIds.GOOGLE_VEO_3_1_PREVIEW,
         ModelIds.IBM_GRANITE_4_1_8B,

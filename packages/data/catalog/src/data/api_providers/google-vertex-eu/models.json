@@ -108,7 +108,7 @@
     "provider_api_model_id": "google-vertex-eu:anthropic/claude-sonnet-5",
     "provider_model_slug": "claude-sonnet-5",
     "internal_model_id": "anthropic/claude-sonnet-5",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "text",
@@ -120,7 +120,7 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": ["include_reasoning", "max_tokens", "reasoning", "response_format", "stop", "structured_outputs", "tool_choice", "tools", "verbosity"],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -131,8 +131,8 @@
         "modes": []
       }
     ],
-    "routing_status": null,
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": [
         "eu"

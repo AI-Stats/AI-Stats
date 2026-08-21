@@ -25,6 +25,9 @@ const (
 	// Model ID: allenai/olmo-3.1-32b
 	// Model page: https://phaseo.app/models/allenai/olmo-3.1-32b
 	ModelIDAllenaiOlmo3132b gen.ModelId = "allenai/olmo-3.1-32b"
+	// Model ID: anthropic/claude-3-haiku
+	// Model page: https://phaseo.app/models/anthropic/claude-3-haiku
+	ModelIDAnthropicClaude3Haiku gen.ModelId = "anthropic/claude-3-haiku"
 	// Model ID: anthropic/claude-fable-5
 	// Model page: https://phaseo.app/models/anthropic/claude-fable-5
 	ModelIDAnthropicClaudeFable5 gen.ModelId = "anthropic/claude-fable-5"
@@ -259,18 +262,12 @@ const (
 	// Model ID: google/gemini-3.1-flash-image
 	// Model page: https://phaseo.app/models/google/gemini-3.1-flash-image
 	ModelIDGoogleGemini31FlashImage gen.ModelId = "google/gemini-3.1-flash-image"
-	// Model ID: google/gemini-3.1-flash-image-preview
-	// Model page: https://phaseo.app/models/google/gemini-3.1-flash-image-preview
-	ModelIDGoogleGemini31FlashImagePreview gen.ModelId = "google/gemini-3.1-flash-image-preview"
 	// Model ID: google/gemini-3.1-flash-lite
 	// Model page: https://phaseo.app/models/google/gemini-3.1-flash-lite
 	ModelIDGoogleGemini31FlashLite gen.ModelId = "google/gemini-3.1-flash-lite"
 	// Model ID: google/gemini-3.1-flash-lite-image
 	// Model page: https://phaseo.app/models/google/gemini-3.1-flash-lite-image
 	ModelIDGoogleGemini31FlashLiteImage gen.ModelId = "google/gemini-3.1-flash-lite-image"
-	// Model ID: google/gemini-3.1-flash-lite-preview
-	// Model page: https://phaseo.app/models/google/gemini-3.1-flash-lite-preview
-	ModelIDGoogleGemini31FlashLitePreview gen.ModelId = "google/gemini-3.1-flash-lite-preview"
 	// Model ID: google/gemini-3.1-flash-live-preview
 	// Model page: https://phaseo.app/models/google/gemini-3.1-flash-live-preview
 	ModelIDGoogleGemini31FlashLivePreview gen.ModelId = "google/gemini-3.1-flash-live-preview"
@@ -301,9 +298,6 @@ const (
 	// Model ID: google/gemini-embedding-2
 	// Model page: https://phaseo.app/models/google/gemini-embedding-2
 	ModelIDGoogleGeminiEmbedding2 gen.ModelId = "google/gemini-embedding-2"
-	// Model ID: google/gemini-embedding-2-preview
-	// Model page: https://phaseo.app/models/google/gemini-embedding-2-preview
-	ModelIDGoogleGeminiEmbedding2Preview gen.ModelId = "google/gemini-embedding-2-preview"
 	// Model ID: google/gemini-robotics-er-1.6-preview
 	// Model page: https://phaseo.app/models/google/gemini-robotics-er-1.6-preview
 	ModelIDGoogleGeminiRoboticsEr16Preview gen.ModelId = "google/gemini-robotics-er-1.6-preview"
@@ -337,15 +331,15 @@ const (
 	// Model ID: google/lyria-3-pro-preview
 	// Model page: https://phaseo.app/models/google/lyria-3-pro-preview
 	ModelIDGoogleLyria3ProPreview gen.ModelId = "google/lyria-3-pro-preview"
-	// Model ID: google/veo-2
-	// Model page: https://phaseo.app/models/google/veo-2
-	ModelIDGoogleVeo2 gen.ModelId = "google/veo-2"
+	// Model ID: google/veo-3.1
+	// Model page: https://phaseo.app/models/google/veo-3.1
+	ModelIDGoogleVeo31 gen.ModelId = "google/veo-3.1"
+	// Model ID: google/veo-3.1-fast
+	// Model page: https://phaseo.app/models/google/veo-3.1-fast
+	ModelIDGoogleVeo31Fast gen.ModelId = "google/veo-3.1-fast"
 	// Model ID: google/veo-3.1-fast-preview
 	// Model page: https://phaseo.app/models/google/veo-3.1-fast-preview
 	ModelIDGoogleVeo31FastPreview gen.ModelId = "google/veo-3.1-fast-preview"
-	// Model ID: google/veo-3.1-lite-generate-preview
-	// Model page: https://phaseo.app/models/google/veo-3.1-lite-generate-preview
-	ModelIDGoogleVeo31LiteGeneratePreview gen.ModelId = "google/veo-3.1-lite-generate-preview"
 	// Model ID: google/veo-3.1-lite-preview
 	// Model page: https://phaseo.app/models/google/veo-3.1-lite-preview
 	ModelIDGoogleVeo31LitePreview gen.ModelId = "google/veo-3.1-lite-preview"
@@ -1560,6 +1554,7 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDAionLabsAionRpLlama318b,
 	ModelIDAllenaiMolmo28b,
 	ModelIDAllenaiOlmo3132b,
+	ModelIDAnthropicClaude3Haiku,
 	ModelIDAnthropicClaudeFable5,
 	ModelIDAnthropicClaudeHaiku45,
 	ModelIDAnthropicClaudeOpus45,
@@ -1638,10 +1633,8 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDGoogleGemini3FlashPreview,
 	ModelIDGoogleGemini3ProImage,
 	ModelIDGoogleGemini31FlashImage,
-	ModelIDGoogleGemini31FlashImagePreview,
 	ModelIDGoogleGemini31FlashLite,
 	ModelIDGoogleGemini31FlashLiteImage,
-	ModelIDGoogleGemini31FlashLitePreview,
 	ModelIDGoogleGemini31FlashLivePreview,
 	ModelIDGoogleGemini31FlashTtsPreview,
 	ModelIDGoogleGemini31ProPreview,
@@ -1652,7 +1645,6 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDGoogleGemini37Flash,
 	ModelIDGoogleGeminiEmbedding001,
 	ModelIDGoogleGeminiEmbedding2,
-	ModelIDGoogleGeminiEmbedding2Preview,
 	ModelIDGoogleGeminiRoboticsEr16Preview,
 	ModelIDGoogleGeminiRoboticsEr2Preview,
 	ModelIDGoogleGemma327b,
@@ -1664,9 +1656,9 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDGoogleImagen40Preview,
 	ModelIDGoogleLyria3ClipPreview,
 	ModelIDGoogleLyria3ProPreview,
-	ModelIDGoogleVeo2,
+	ModelIDGoogleVeo31,
+	ModelIDGoogleVeo31Fast,
 	ModelIDGoogleVeo31FastPreview,
-	ModelIDGoogleVeo31LiteGeneratePreview,
 	ModelIDGoogleVeo31LitePreview,
 	ModelIDGoogleVeo31Preview,
 	ModelIDIbmGranite418b,

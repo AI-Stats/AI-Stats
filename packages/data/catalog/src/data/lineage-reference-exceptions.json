@@ -63,7 +63,6 @@
     "google/text-embedding-gecko-002": "google/text-embedding-gecko-001-2023-06-07",
     "google/text-embedding-gecko-003": "google/text-embedding-gecko-002-2023-11-02",
     "google/veo-3": "google/veo-3-0-generate-preview-2025-07-17",
-    "google/veo-3.1-fast-preview": "google/veo-3-0-fast-generate-preview-2025-07-17",
     "google/veo-3.1-preview": "google/veo-3-0-generate-preview-2025-07-17",
     "google/veo-3-fast": "google/veo-3-0-fast-generate-preview-2025-07-17",
     "google/veo-4": "google/veo-3-1-preview-2025-10-15",
