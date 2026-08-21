@@ -82,3 +82,13 @@ export function matchesProviderPolicy(
 			return false;
 	}
 }
+
+export function matchesProviderDatacenter(
+	provider: APIProviderCard,
+	filter: string,
+): boolean {
+	const regions = (provider.default_execution_regions ?? [])
+		.map((region) => region.trim().toLowerCase())
+		.filter(Boolean);
+	return filter === "unknown" ? regions.length === 0 : regions.includes(filter.trim().toLowerCase());
+}

@@ -72,7 +72,7 @@ export function BrandMenu({
 				if (!nextOpen) setOpen(false);
 			}}
 		>
-			<DropdownMenuTrigger asChild>
+			<DropdownMenuTrigger asChild nativeButton={false}>
 				{trigger}
 			</DropdownMenuTrigger>
 			<DropdownMenuContent

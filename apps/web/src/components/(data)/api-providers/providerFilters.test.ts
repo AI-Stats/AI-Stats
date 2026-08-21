@@ -1,4 +1,4 @@
-import { matchesProviderCoverage, matchesProviderPolicy, toggleProviderCoverage } from "./providerFilters";
+import { matchesProviderCoverage, matchesProviderDatacenter, matchesProviderPolicy, toggleProviderCoverage } from "./providerFilters";
 import type { APIProviderCard } from "@/lib/fetchers/api-providers/providerDataTypes";
 
 function makeProvider(overrides: Partial<APIProviderCard> = {}): APIProviderCard {
@@ -6,6 +6,7 @@ function makeProvider(overrides: Partial<APIProviderCard> = {}): APIProviderCard
 		api_provider_id: "test-provider",
 		api_provider_name: "Test Provider",
 		country_code: "US",
+		default_execution_regions: [],
 		is_gateway_provider: false,
 		byok_available: false,
 		prompt_training_policy: null,
@@ -85,5 +86,13 @@ describe("matchesProviderPolicy", () => {
 		const provider = makeProvider({ prompt_training_policy: "opt_out" });
 
 		expect(matchesProviderPolicy(provider, "training:opt_out_available")).toBe(true);
+	});
+});
+
+describe("matchesProviderDatacenter", () => {
+	it("matches known execution regions and unknown metadata", () => {
+		expect(matchesProviderDatacenter(makeProvider({ default_execution_regions: ["US", "EU"] }), "us")).toBe(true);
+		expect(matchesProviderDatacenter(makeProvider({ default_execution_regions: ["US", "EU"] }), "apac")).toBe(false);
+		expect(matchesProviderDatacenter(makeProvider(), "unknown")).toBe(true);
 	});
 });

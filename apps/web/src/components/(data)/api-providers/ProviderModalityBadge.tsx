@@ -41,7 +41,6 @@ export function ProviderModalityBadge({
 					</span>
 					<div>
 						<p className="font-medium text-foreground">{label}</p>
-						<p className="text-xs text-muted-foreground">Provider model coverage</p>
 					</div>
 				</div>
 				<div className="mt-3 grid grid-cols-2 gap-2 border-t border-border/60 pt-3">

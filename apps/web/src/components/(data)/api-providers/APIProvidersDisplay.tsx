@@ -3,10 +3,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useDeferredValue, useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { debounce, parseAsArrayOf, parseAsString, useQueryState } from "nuqs";
 import {
 	Activity,
+	ArrowDown,
+	ArrowUp,
 	ArrowUpRight,
 	ArrowUpDown,
 	AudioLines,
@@ -15,6 +17,7 @@ import {
 	CircleDollarSign,
 	CircleOff,
 	Clock3,
+	ChevronsUpDown,
 	ExternalLink,
 	GraduationCap,
 	Globe2,
@@ -24,6 +27,7 @@ import {
 	LayoutGrid,
 	Search,
 	Scale,
+	Server,
 	ScrollText,
 	ShieldCheck,
 	SlidersHorizontal,
@@ -59,7 +63,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Logo } from "@/components/Logo";
 import { cn } from "@/lib/utils";
 import { ProviderModalityBadge } from "./ProviderModalityBadge";
-import { matchesProviderCoverage, matchesProviderPolicy, toggleProviderCoverage } from "./providerFilters";
+import { matchesProviderCoverage, matchesProviderDatacenter, matchesProviderPolicy, toggleProviderCoverage } from "./providerFilters";
 import type {
 	APIProviderCard as APIProviderCardType,
 	ProviderModalityKey,
@@ -75,6 +79,17 @@ type ProviderSortOption =
 	| "daily_tokens_desc"
 	| "total_models_desc"
 	| "free_models_desc";
+
+type ProviderTableSortField =
+	| "provider"
+	| "headquarters"
+	| "models"
+	| "free_models"
+	| "modalities"
+	| "daily_tokens"
+	| "monthly_tokens"
+	| "training"
+	| "retention";
 
 type FilterOption = { value: string; label: string; count: number; icon?: LucideIcon };
 
@@ -135,6 +150,12 @@ function normalizeSortOption(value: string | null | undefined): ProviderSortOpti
 	}
 }
 
+function normalizeTableSortField(value: string | null | undefined): ProviderTableSortField | null {
+	return ["provider", "headquarters", "models", "free_models", "modalities", "daily_tokens", "monthly_tokens", "training", "retention"].includes(value ?? "")
+		? value as ProviderTableSortField
+		: null;
+}
+
 function toggleValue(values: string[], value: string) {
 	return values.includes(value) ? values.filter((item) => item !== value) : [...values, value];
 }
@@ -151,6 +172,28 @@ function countryLabel(code: string) {
 	} catch {
 		return code.toUpperCase();
 	}
+}
+
+function normalizeRegion(value: string) {
+	return value.trim().toLowerCase();
+}
+
+function datacenterLabel(value: string) {
+	const normalized = normalizeRegion(value);
+	const labels: Record<string, string> = {
+		global: "Global",
+		us: "US",
+		eu: "EU",
+		uk: "UK",
+		apac: "APAC",
+		au: "Australia",
+		ca: "Canada",
+		jp: "Japan",
+		kr: "South Korea",
+		sg: "Singapore",
+	};
+	if (labels[normalized]) return labels[normalized];
+	return value.trim().replace(/[-_]+/g, " ").replace(/\b\w/g, (character) => character.toUpperCase());
 }
 
 function formatTokens(value: number) {
@@ -190,7 +233,7 @@ function ProviderFilterList({ options, selected, onToggle, showFlags = false }: 
 					>
 						<span className="flex min-w-0 items-center gap-2">
 							{showFlags && option.value !== "unknown" ? (
-								<Image src={`/flags/${option.value.toLowerCase()}.svg`} alt="" width={20} height={15} className="h-[15px] w-5 shrink-0 rounded-[2px] object-contain" />
+								<Image src={`/flags/${option.value.toLowerCase()}.svg`} alt="" width={20} height={15} className="h-[15px] w-5 shrink-0 object-contain" />
 							) : Icon ? <Icon className={cn("size-3.5 shrink-0", checked ? "text-primary" : "text-muted-foreground")} /> : null}
 							<span className="truncate">{option.label}</span>
 						</span>
@@ -208,15 +251,20 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 	const [search, setSearch] = useQueryState("search", { defaultValue: "", shallow: true });
 	const deferredSearch = useDeferredValue(search);
 	const [sort, setSort] = useQueryState("sort", { defaultValue: "daily_tokens_desc", shallow: true });
+	const [tableSort, setTableSort] = useQueryState("tableSort", { defaultValue: "", shallow: true });
+	const [tableSortDirection, setTableSortDirection] = useQueryState("tableDir", { defaultValue: "desc", shallow: true });
 	const [modalities, setModalities] = useQueryState("modalities", arrayParser);
 	const [coverage, setCoverage] = useQueryState("coverage", coverageParser);
 	const [countries, setCountries] = useQueryState("countries", arrayParser);
+	const [datacenters, setDatacenters] = useQueryState("datacenters", arrayParser);
 	const [policies, setPolicies] = useQueryState("policies", arrayParser);
 	const [training, setTraining] = useQueryState("training", arrayParser);
 	const [retention, setRetention] = useQueryState("retention", arrayParser);
 	const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 	const [openSections, setOpenSections] = useState(["coverage", "modalities"]);
 	const sortOption = normalizeSortOption(sort);
+	const tableSortField = normalizeTableSortField(tableSort);
+	const normalizedTableSortDirection = tableSortDirection === "asc" ? "asc" : "desc";
 
 	const countryOptions = useMemo<FilterOption[]>(() => {
 		const counts = new Map<string, number>();
@@ -226,6 +274,26 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 		}
 		return Array.from(counts, ([value, count]) => ({ value, count, label: value === "unknown" ? "Unknown" : countryLabel(value) }))
 			.sort((a, b) => a.label.localeCompare(b.label));
+	}, [providers]);
+
+	const datacenterOptions = useMemo<FilterOption[]>(() => {
+		const counts = new Map<string, number>();
+		for (const provider of providers) {
+			const regions = (provider.default_execution_regions ?? [])
+				.map(normalizeRegion)
+				.filter(Boolean);
+			if (regions.length === 0) {
+				counts.set("unknown", (counts.get("unknown") ?? 0) + 1);
+				continue;
+			}
+			for (const region of new Set(regions)) counts.set(region, (counts.get(region) ?? 0) + 1);
+		}
+		return Array.from(counts, ([value, count]) => ({
+			value,
+			count,
+			label: value === "unknown" ? "Unknown" : datacenterLabel(value),
+			icon: Server,
+		})).sort((a, b) => a.label.localeCompare(b.label));
 	}, [providers]);
 
 	const modalityOptions = useMemo<FilterOption[]>(() => MODALITIES.map((item) => ({
@@ -267,10 +335,44 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 			.filter((provider) => modalities.length === 0 || modalities.every((value) => supportsModality(provider, value as ProviderModalityKey)))
 			.filter((provider) => countries.length === 0 || countries.includes(provider.country_code?.trim().toLowerCase() || "unknown"))
 			.filter((provider) => coverage.length === 0 || coverage.every((value) => matchesProviderCoverage(provider, value)))
+			.filter((provider) => datacenters.length === 0 || datacenters.every((value) => matchesProviderDatacenter(provider, value)))
 			.filter((provider) => policies.length === 0 || policies.every((value) => matchesProviderPolicy(provider, value)))
 			.filter((provider) => training.length === 0 || training.some((value) => matchesProviderPolicy(provider, value)))
 			.filter((provider) => retention.length === 0 || retention.some((value) => matchesProviderPolicy(provider, value)))
 			.sort((a, b) => {
+				if (tableSortField) {
+					let delta = 0;
+					switch (tableSortField) {
+						case "provider":
+							delta = a.api_provider_name.localeCompare(b.api_provider_name);
+							break;
+						case "headquarters":
+							delta = countryLabel(a.country_code).localeCompare(countryLabel(b.country_code));
+							break;
+						case "models":
+							delta = Number(a.total_models ?? 0) - Number(b.total_models ?? 0);
+							break;
+						case "free_models":
+							delta = Number(a.free_models ?? 0) - Number(b.free_models ?? 0);
+							break;
+						case "modalities":
+							delta = MODALITIES.reduce((left, modality) => left + Number(a.modality_support[modality.value]?.input ?? 0) + Number(a.modality_support[modality.value]?.output ?? 0), 0) - MODALITIES.reduce((left, modality) => left + Number(b.modality_support[modality.value]?.input ?? 0) + Number(b.modality_support[modality.value]?.output ?? 0), 0);
+							break;
+						case "daily_tokens":
+							delta = Number(a.total_daily_tokens ?? 0) - Number(b.total_daily_tokens ?? 0);
+							break;
+						case "monthly_tokens":
+							delta = Number(a.total_monthly_tokens ?? 0) - Number(b.total_monthly_tokens ?? 0);
+							break;
+						case "training":
+							delta = policyLabel(a.prompt_training_policy, TRAINING_LABELS).localeCompare(policyLabel(b.prompt_training_policy, TRAINING_LABELS));
+							break;
+						case "retention":
+							delta = Number(a.data_retention_days ?? -1) - Number(b.data_retention_days ?? -1);
+							break;
+					}
+					if (delta) return normalizedTableSortDirection === "asc" ? delta : -delta;
+				}
 				if (sortOption === "daily_tokens_desc") {
 					const delta = Number(b.total_daily_tokens ?? 0) - Number(a.total_daily_tokens ?? 0);
 					if (delta) return delta;
@@ -287,16 +389,20 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 				}
 				return a.api_provider_name.localeCompare(b.api_provider_name);
 			});
-	}, [countries, coverage, deferredSearch, modalities, policies, providers, retention, sortOption, training]);
+	}, [countries, coverage, datacenters, deferredSearch, modalities, normalizedTableSortDirection, policies, providers, retention, sortOption, tableSortField, training]);
 
 	const customCoverageCount = coverage.length === 1 && coverage[0] === "active" ? 0 : coverage.length;
-	const activeFilterCount = modalities.length + customCoverageCount + countries.length + policies.length + training.length + retention.length;
-	const resetFilters = () => { void setModalities([]); void setCoverage(["active"]); void setCountries([]); void setPolicies([]); void setTraining([]); void setRetention([]); };
+	const activeFilterCount = modalities.length + customCoverageCount + countries.length + datacenters.length + policies.length + training.length + retention.length;
+	const resetFilters = () => { void setModalities([]); void setCoverage(["active"]); void setCountries([]); void setDatacenters([]); void setPolicies([]); void setTraining([]); void setRetention([]); };
 	const filtersContent = (
 		<Accordion type="multiple" value={openSections} onValueChange={setOpenSections}>
 			<AccordionItem value="coverage" className="border-border/70">
 				<AccordionTrigger className="px-2 py-3 text-sm no-underline hover:no-underline"><span className="flex items-center gap-2"><Activity className="size-4 text-muted-foreground" />Gateway Coverage</span></AccordionTrigger>
 				<AccordionContent className="pt-1" disableAnimation><ProviderFilterList options={coverageOptions} selected={coverage} onToggle={(value) => void setCoverage(toggleProviderCoverage(coverage, value))} /></AccordionContent>
+			</AccordionItem>
+			<AccordionItem value="modalities" className="border-border/70">
+				<AccordionTrigger className="px-2 py-3 text-sm no-underline hover:no-underline"><span className="flex items-center gap-2"><Layers3 className="size-4 text-muted-foreground" />Modalities</span></AccordionTrigger>
+				<AccordionContent className="pt-1" disableAnimation><ProviderFilterList options={modalityOptions} selected={modalities} onToggle={(value) => void setModalities(toggleValue(modalities, value))} /></AccordionContent>
 			</AccordionItem>
 			<AccordionItem value="policies" className="border-border/70">
 				<AccordionTrigger className="px-2 py-3 text-sm no-underline hover:no-underline"><span className="flex items-center gap-2"><ShieldCheck className="size-4 text-muted-foreground" />Policies</span></AccordionTrigger>
@@ -310,65 +416,200 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 				<AccordionTrigger className="px-2 py-3 text-sm no-underline hover:no-underline"><span className="flex items-center gap-2"><Clock3 className="size-4 text-muted-foreground" />Data Retention</span></AccordionTrigger>
 				<AccordionContent className="pt-1" disableAnimation><ProviderFilterList options={retentionOptions} selected={retention} onToggle={(value) => void setRetention(toggleValue(retention, value))} /></AccordionContent>
 			</AccordionItem>
-			<AccordionItem value="modalities" className="border-border/70">
-				<AccordionTrigger className="px-2 py-3 text-sm no-underline hover:no-underline"><span className="flex items-center gap-2"><Layers3 className="size-4 text-muted-foreground" />Modalities</span></AccordionTrigger>
-				<AccordionContent className="pt-1" disableAnimation><ProviderFilterList options={modalityOptions} selected={modalities} onToggle={(value) => void setModalities(toggleValue(modalities, value))} /></AccordionContent>
-			</AccordionItem>
 			<AccordionItem value="headquarters" className="border-border/70">
 				<AccordionTrigger className="px-2 py-3 text-sm no-underline hover:no-underline"><span className="flex items-center gap-2"><Globe2 className="size-4 text-muted-foreground" />Headquarters</span></AccordionTrigger>
 				<AccordionContent className="pt-1" disableAnimation><ProviderFilterList options={countryOptions} selected={countries} onToggle={(value) => void setCountries(toggleValue(countries, value))} showFlags /></AccordionContent>
+			</AccordionItem>
+			<AccordionItem value="datacenters" className="border-border/70">
+				<AccordionTrigger className="px-2 py-3 text-sm no-underline hover:no-underline"><span className="flex items-center gap-2"><Server className="size-4 text-muted-foreground" />Datacenters</span></AccordionTrigger>
+				<AccordionContent className="pt-1" disableAnimation><ProviderFilterList options={datacenterOptions} selected={datacenters} onToggle={(value) => void setDatacenters(toggleValue(datacenters, value))} /></AccordionContent>
 			</AccordionItem>
 		</Accordion>
 	);
 
 	const mdFillers = (2 - (filteredProviders.length % 2)) % 2;
 	const twoXlFillers = (3 - (filteredProviders.length % 3)) % 3;
+	const toolbarRef = useRef<HTMLDivElement | null>(null);
+	const tableContainerRef = useRef<HTMLDivElement | null>(null);
+	const tableHeaderTrackRef = useRef<HTMLDivElement | null>(null);
+	const [stickyOffsets, setStickyOffsets] = useState({ toolbarTop: 60, tableHeaderTop: 60 });
+
+	useEffect(() => {
+		const toolbar = toolbarRef.current;
+		if (!toolbar || typeof window === "undefined") return;
+		const siteHeader = document.querySelector<HTMLElement>("#dashboard-shell > header");
+		const mediumViewport = window.matchMedia("(min-width: 768px)");
+		const updateOffsets = () => {
+			const toolbarTop = Math.ceil(siteHeader?.getBoundingClientRect().height ?? 60);
+			const toolbarHeight = mediumViewport.matches ? Math.ceil(toolbar.getBoundingClientRect().height) : 0;
+			const tableHeaderTop = toolbarTop + toolbarHeight;
+			setStickyOffsets((current) => current.toolbarTop === toolbarTop && current.tableHeaderTop === tableHeaderTop ? current : { toolbarTop, tableHeaderTop });
+		};
+		updateOffsets();
+		const resizeObserver = new ResizeObserver(updateOffsets);
+		resizeObserver.observe(toolbar);
+		if (siteHeader) resizeObserver.observe(siteHeader);
+		mediumViewport.addEventListener("change", updateOffsets);
+		window.addEventListener("resize", updateOffsets);
+		return () => {
+			resizeObserver.disconnect();
+			mediumViewport.removeEventListener("change", updateOffsets);
+			window.removeEventListener("resize", updateOffsets);
+		};
+	}, []);
+
+	useEffect(() => {
+		const tableContainer = tableContainerRef.current;
+		const headerTrack = tableHeaderTrackRef.current;
+		if (!tableContainer || !headerTrack) return;
+		const syncHeaderScroll = () => {
+			headerTrack.style.transform = `translate3d(${-tableContainer.scrollLeft}px, 0, 0)`;
+		};
+		syncHeaderScroll();
+		tableContainer.addEventListener("scroll", syncHeaderScroll, { passive: true });
+		return () => tableContainer.removeEventListener("scroll", syncHeaderScroll);
+	}, [filteredProviders.length, isTable]);
+
+	const sortSelect = (className: string) => (
+		<Select value={sortOption} onValueChange={(value) => {
+			void setSort(normalizeSortOption(value));
+			void setTableSort(null);
+			void setTableSortDirection(null);
+		}}>
+			<SelectTrigger className={cn("rounded-md border-border", className)} aria-label="Sort providers"><span className="flex min-w-0 items-center gap-2"><ArrowUpDown className="size-3.5 shrink-0 text-muted-foreground" /><span className="truncate">{SORT_OPTION_LABELS[sortOption]}</span></span></SelectTrigger>
+			<SelectContent align="end">{(Object.keys(SORT_OPTION_LABELS) as ProviderSortOption[]).map((option) => <SelectItem key={option} value={option}>{SORT_OPTION_LABELS[option]}</SelectItem>)}</SelectContent>
+		</Select>
+	);
+	const filterButton = () => (
+		<Button variant="outline" size="sm" className="relative h-8 rounded-md px-2 lg:hidden" onClick={() => setMobileFiltersOpen(true)} aria-label="Open filters"><SlidersHorizontal className="size-3.5" /><span className="sr-only">Filters</span>{activeFilterCount ? <span className="absolute -right-1 -top-1 min-w-4 rounded-sm bg-primary px-1 text-[10px] text-primary-foreground">{activeFilterCount}</span> : null}</Button>
+	);
 	const viewSwitcher = (
 		<div className="inline-flex h-8 shrink-0 overflow-hidden rounded-md border border-border/70 bg-background shadow-xs">
-			<Link href="/api-providers" prefetch={false} aria-label="Card view" aria-current={!isTable ? "page" : undefined} className={cn("inline-flex w-9 items-center justify-center text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground", !isTable && "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground")}><LayoutGrid className="size-4" /></Link>
-			<Link href="/api-providers/table" prefetch={false} aria-label="Table view" aria-current={isTable ? "page" : undefined} className={cn("inline-flex w-9 items-center justify-center border-l border-border/70 text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground", isTable && "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground")}><Table2 className="size-4" /></Link>
+			<Link href="/api-providers" prefetch={false} aria-label="Card view" aria-current={!isTable ? "page" : undefined} className={cn("inline-flex h-8 w-9 items-center justify-center text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring/45", !isTable && "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground")}><LayoutGrid className="size-4" /></Link>
+			<Link href="/api-providers/table" prefetch={false} aria-label="Table view" aria-current={isTable ? "page" : undefined} className={cn("inline-flex h-8 w-9 items-center justify-center border-l border-border/70 text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring/45", isTable && "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground")}><Table2 className="size-4" /></Link>
 		</div>
+	);
+	const handleTableSort = (field: ProviderTableSortField) => {
+		if (tableSortField !== field) {
+			void setTableSort(field);
+			void setTableSortDirection("desc");
+			return;
+		}
+		if (normalizedTableSortDirection === "desc") {
+			void setTableSortDirection("asc");
+			return;
+		}
+		void setTableSort(null);
+		void setTableSortDirection(null);
+	};
+	const tableSortIcon = (field: ProviderTableSortField) => {
+		if (tableSortField !== field) return <ChevronsUpDown className="size-3.5 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100" />;
+		return normalizedTableSortDirection === "asc" ? <ArrowUp className="size-3.5" /> : <ArrowDown className="size-3.5" />;
+	};
+	const renderTableSortHead = (label: string, field: ProviderTableSortField, align: "left" | "center" = "left") => (
+		<button type="button" onClick={() => handleTableSort(field)} className={cn("group inline-flex w-full items-center gap-1.5 text-xs font-medium transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40", align === "center" ? "justify-center text-center" : "justify-start text-left", tableSortField === field ? "text-foreground" : "text-muted-foreground")} aria-label={`Sort providers by ${label.toLowerCase()}`}>
+			<span>{label}</span>
+			{tableSortIcon(field)}
+		</button>
+	);
+	const providerTableColgroup = () => (
+		<colgroup>
+			{[240, 150, 80, 90, 220, 120, 130, 160, 150, 110, 110].map((width, index) => <col key={`provider-col-${index}`} style={{ width: `${width}px` }} />)}
+		</colgroup>
+	);
+	const providerTableHeader = () => (
+		<TableHeader>
+			<TableRow className="bg-background hover:bg-background">
+				<TableHead className="bg-background">{renderTableSortHead("Provider", "provider")}</TableHead>
+				<TableHead className="bg-background">{renderTableSortHead("Headquarters", "headquarters")}</TableHead>
+				<TableHead className="bg-background text-center">{renderTableSortHead("Models", "models", "center")}</TableHead>
+				<TableHead className="bg-background text-center">{renderTableSortHead("Free Models", "free_models", "center")}</TableHead>
+				<TableHead className="bg-background">{renderTableSortHead("Modalities", "modalities")}</TableHead>
+				<TableHead className="bg-background text-center">{renderTableSortHead("Daily Tokens", "daily_tokens", "center")}</TableHead>
+				<TableHead className="bg-background text-center">{renderTableSortHead("Monthly Tokens", "monthly_tokens", "center")}</TableHead>
+				<TableHead className="bg-background">{renderTableSortHead("Training", "training")}</TableHead>
+				<TableHead className="bg-background">{renderTableSortHead("Retention", "retention")}</TableHead>
+				<TableHead className="bg-background">Privacy</TableHead>
+				<TableHead className="bg-background">Terms</TableHead>
+			</TableRow>
+		</TableHeader>
 	);
 	return (
 		<div className="flex w-full flex-1">
-			<aside className="hidden w-[20rem] shrink-0 border-r border-border/70 bg-background/95 lg:block [&_[data-slot=separator]]:-mx-4">
+			<aside className="hidden lg:block w-[20rem] shrink-0 border-r border-border/70 bg-background/95 [&_[data-slot=separator]]:-mx-4">
 				<div className="sticky top-16 flex h-[calc(100dvh-4rem)] min-h-0 flex-col">
 					<ScrollArea className="min-h-0 flex-1 overscroll-y-contain [&>[data-orientation=vertical]]:opacity-0 [&>[data-orientation=vertical]]:transition-opacity [&>[data-orientation=vertical]]:duration-150 hover:[&>[data-orientation=vertical]]:opacity-100 focus-within:[&>[data-orientation=vertical]]:opacity-100"><div className="space-y-4 px-4 py-2 pb-6">{filtersContent}</div></ScrollArea>
 				</div>
 			</aside>
 
 			<section className="min-w-0 flex flex-1 flex-col">
-				<div className="z-40 shrink-0 border-b border-border/70 bg-background/95 px-4 pb-1 pt-2.5 backdrop-blur md:sticky md:top-[3.75rem] lg:px-8">
-					<div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-						{showPrimaryHeader ? <h1 className="text-xl font-bold">Providers</h1> : <div className="hidden md:block" />}
-						<div className="flex min-w-0 flex-1 items-center gap-2 md:max-w-[42rem] md:justify-end">
-							<div className="relative min-w-0 flex-1">
-								<Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-								<Input placeholder="Search providers" value={search} onChange={(event) => void setSearch(event.target.value, { limitUrlUpdates: debounce(250) })} className="h-8 w-full rounded-md border-border bg-background pl-9 text-sm" />
+				<div ref={toolbarRef} className="z-40 shrink-0 border-b border-border/70 bg-background/95 px-4 pb-1 pt-2.5 backdrop-blur md:sticky lg:px-8" style={{ top: `${stickyOffsets.toolbarTop}px` }}>
+					<div className="space-y-2 md:hidden">
+						{showPrimaryHeader ? <div className="flex items-center gap-2"><h1 className="font-bold text-xl leading-8">Providers</h1></div> : null}
+						<div className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-2">
+							{sortSelect("h-8 min-w-0 bg-background text-sm")}
+							{filterButton()}
+							{showPrimaryHeader ? viewSwitcher : null}
+						</div>
+						<div className="relative w-full">
+							<Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+							<Input placeholder="Search" value={search} onChange={(event) => void setSearch(event.target.value, { limitUrlUpdates: debounce(250) })} className="h-8 w-full rounded-md border border-border bg-background pl-9 pr-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-primary" style={{ minWidth: 0 }} />
+						</div>
+					</div>
+
+					<div className="hidden md:block">
+						<div className="hidden lg:block">
+							<div className="flex items-center justify-between gap-4">
+								<div className="flex h-8 min-w-0 shrink-0 items-center">{showPrimaryHeader ? <h1 className="font-bold text-xl leading-8">Providers</h1> : null}</div>
+								<div className="flex min-w-0 flex-1 items-center justify-end gap-3">
+									<div className="relative min-w-[15rem] max-w-[22rem] flex-1 2xl:max-w-[28rem]">
+										<Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+										<Input placeholder="Search" value={search} onChange={(event) => void setSearch(event.target.value, { limitUrlUpdates: debounce(250) })} className="h-8 w-full rounded-md border border-border bg-background pl-9 pr-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-primary" style={{ minWidth: 0 }} />
+									</div>
+									{sortSelect("h-8 w-[12.5rem] bg-background text-sm 2xl:w-[13.5rem]")}
+									{showPrimaryHeader ? viewSwitcher : null}
+									<Button asChild variant="outline" size="sm" className="h-8 rounded-md px-2.5"><Link href="/api-providers/compare" prefetch={false}><Scale className="size-3.5" /><span className="hidden sm:inline">Compare</span></Link></Button>
+								</div>
 							</div>
-							<Select value={sortOption} onValueChange={(value) => void setSort(normalizeSortOption(value))}>
-								<SelectTrigger className="h-8 w-[10.5rem] rounded-md border-border bg-background text-sm" aria-label="Sort providers"><span className="flex min-w-0 items-center gap-2"><ArrowUpDown className="size-3.5 shrink-0 text-muted-foreground" /><span className="truncate">{SORT_OPTION_LABELS[sortOption]}</span></span></SelectTrigger>
-								<SelectContent align="end">{(Object.keys(SORT_OPTION_LABELS) as ProviderSortOption[]).map((option) => <SelectItem key={option} value={option}>{SORT_OPTION_LABELS[option]}</SelectItem>)}</SelectContent>
-							</Select>
-							{viewSwitcher}
-							<Button asChild variant="outline" size="sm" className="h-8 rounded-md px-2.5"><Link href="/api-providers/compare" prefetch={false}><Scale className="size-3.5" /><span className="hidden sm:inline">Compare</span></Link></Button>
-							<Button variant="outline" size="sm" className="relative h-8 rounded-md px-2 lg:hidden" onClick={() => setMobileFiltersOpen(true)}><SlidersHorizontal className="size-3.5" /><span className="sr-only">Filters</span>{activeFilterCount ? <span className="absolute -right-1 -top-1 min-w-4 rounded-sm bg-primary px-1 text-[10px] text-primary-foreground">{activeFilterCount}</span> : null}</Button>
+						</div>
+
+						<div className="lg:hidden">
+							<div className="flex h-8 items-center justify-between gap-3">
+								{showPrimaryHeader ? <h1 className="font-bold text-xl leading-8">Providers</h1> : <div />}
+								<div className="flex shrink-0 items-center justify-end gap-2">{filterButton()}{showPrimaryHeader ? viewSwitcher : null}</div>
+							</div>
+							<div className="mt-2 grid grid-cols-[minmax(9rem,12rem)_minmax(0,1fr)] items-center gap-2">
+								{sortSelect("h-8 min-w-0 bg-background text-sm")}
+								<div className="relative min-w-0">
+									<Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+									<Input placeholder="Search" value={search} onChange={(event) => void setSearch(event.target.value, { limitUrlUpdates: debounce(250) })} className="h-8 w-full rounded-md border border-border bg-background pl-9 pr-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-primary" style={{ minWidth: 0 }} />
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
 
 				<div className="w-full px-4 pt-1 pb-5 lg:px-8 lg:pt-1 lg:pb-6">
-					<div className={cn("overflow-hidden", isTable ? "rounded-md border border-border/70 bg-background" : "bg-border/70")}>
+					<div className={cn(isTable ? "bg-background" : "overflow-hidden bg-border/70")}>
 						{filteredProviders.length && isTable ? (
-							<ScrollArea className="w-full" scrollBarOrientation="horizontal" keepScrollbarMounted viewportClassName="pb-2">
-								<Table wrapInContainer={false} className="min-w-[1400px] text-xs">
-									<TableHeader><TableRow className="h-9"><TableHead className="w-[240px]">Provider</TableHead><TableHead>Headquarters</TableHead><TableHead className="text-center">Models</TableHead><TableHead className="text-center">Free Models</TableHead><TableHead>Modalities</TableHead><TableHead className="text-center">Daily Tokens</TableHead><TableHead className="text-center">Monthly Tokens</TableHead><TableHead>Training</TableHead><TableHead>Retention</TableHead><TableHead>Privacy</TableHead><TableHead>Terms</TableHead></TableRow></TableHeader>
-									<TableBody>{filteredProviders.map((provider) => {
+							<div className="relative">
+								<div className="sticky z-30 w-full overflow-hidden bg-background" style={{ top: `${stickyOffsets.tableHeaderTop}px` }}>
+									<div ref={tableHeaderTrackRef} className="will-change-transform" style={{ width: "1560px", minWidth: "1560px" }}>
+										<Table wrapInContainer={false} aria-label="Providers table column headers" className="table-fixed w-max bg-background text-xs" style={{ width: "1560px", minWidth: "1560px" }}>
+											{providerTableColgroup()}
+											{providerTableHeader()}
+										</Table>
+									</div>
+								</div>
+								<div ref={tableContainerRef} className="relative overflow-x-auto overflow-y-clip">
+									<Table wrapInContainer={false} aria-label="Providers table rows" className="table-fixed w-max bg-background text-xs" style={{ width: "1560px", minWidth: "1560px" }}>
+										{providerTableColgroup()}
+										<TableBody className="bg-background">{filteredProviders.map((provider) => {
 										const supported = MODALITIES.filter((modality) => supportsModality(provider, modality.value));
 										const isExternal = String(provider.provider_status ?? "").trim().toLowerCase() === "external";
-										return <TableRow key={provider.api_provider_id} className="h-11 hover:bg-muted/35">
+										return <TableRow key={provider.api_provider_id} className="hover:bg-muted/35">
 											<TableCell className="py-0"><Link href={`/api-providers/${provider.api_provider_id}`} prefetch={false} className="inline-flex h-11 min-w-0 items-center gap-2 font-medium leading-none hover:underline hover:underline-offset-4"><span className="relative size-6 shrink-0"><Logo id={provider.api_provider_id} alt={provider.api_provider_name} fill className="object-contain" /></span><span className="flex min-w-0 items-center gap-1.5"><span className="truncate">{provider.api_provider_name}</span>{isExternal ? <span className="inline-flex shrink-0 items-center gap-1 rounded-md border border-violet-200 bg-violet-50 px-1.5 py-0.5 text-[10px] font-medium text-violet-700 dark:border-violet-900/60 dark:bg-violet-950/40 dark:text-violet-300"><ArrowUpRight className="size-3" />External</span> : null}</span></Link></TableCell>
-											<TableCell>{provider.country_code ? <Link href={`/countries/${provider.country_code.toLowerCase()}`} prefetch={false} className="inline-flex items-center gap-2 hover:underline hover:underline-offset-4"><Image src={`/flags/${provider.country_code.toLowerCase()}.svg`} alt="" width={16} height={12} className="h-3 w-4 rounded-[2px] object-cover" />{countryLabel(provider.country_code)}</Link> : "—"}</TableCell>
+											<TableCell>{provider.country_code ? <Link href={`/countries/${provider.country_code.toLowerCase()}`} prefetch={false} className="inline-flex items-center gap-2 hover:underline hover:underline-offset-4"><Image src={`/flags/${provider.country_code.toLowerCase()}.svg`} alt="" width={16} height={12} className="h-3 w-4 object-cover" />{countryLabel(provider.country_code)}</Link> : "—"}</TableCell>
 											<TableCell className="text-center tabular-nums">{provider.total_models.toLocaleString()}</TableCell>
 											<TableCell className="text-center tabular-nums">{provider.free_models ? provider.free_models.toLocaleString() : "—"}</TableCell>
 											<TableCell><div className="flex items-center gap-1.5">{supported.map(({ value, icon: Icon, label }) => <ProviderModalityBadge key={value} label={label} modality={value} icon={Icon} inputCount={provider.modality_support[value]?.input ?? 0} outputCount={provider.modality_support[value]?.output ?? 0} />)}</div></TableCell>
@@ -379,9 +620,10 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 											<TableCell>{provider.privacy_policy_url ? <a href={provider.privacy_policy_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-medium hover:underline hover:underline-offset-4">Privacy <ExternalLink className="size-3 text-muted-foreground" /></a> : <span className="text-muted-foreground">—</span>}</TableCell>
 											<TableCell>{provider.terms_of_service_url ? <a href={provider.terms_of_service_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-medium hover:underline hover:underline-offset-4">Terms <ExternalLink className="size-3 text-muted-foreground" /></a> : <span className="text-muted-foreground">—</span>}</TableCell>
 										</TableRow>;
-									})}</TableBody>
-								</Table>
-							</ScrollArea>
+										})}</TableBody>
+									</Table>
+								</div>
+							</div>
 						) : filteredProviders.length ? <div className="grid grid-cols-1 gap-px md:grid-cols-2 2xl:grid-cols-3">
 							{filteredProviders.map((provider, index) => <div key={provider.api_provider_id} className={cn("bg-background", index % 2 === 1 ? "md:pl-3" : "md:pr-3", index % 3 === 1 ? "2xl:px-3" : index % 3 === 2 ? "2xl:pl-3" : "2xl:pr-3")}><APIProviderCard api_provider={provider} /></div>)}
 							{Array.from({ length: mdFillers }).map((_, index) => <div key={`md-filler-${index}`} aria-hidden className="hidden bg-background md:block 2xl:hidden" />)}

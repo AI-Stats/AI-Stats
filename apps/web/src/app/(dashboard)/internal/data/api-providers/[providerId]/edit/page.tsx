@@ -46,6 +46,10 @@ export default async function EditAPIProviderPage({
 						<div className="mb-1 text-muted-foreground">Country code</div>
 						<input name="country_code" defaultValue={row.country_code ?? ""} className="w-full rounded-md border px-3 py-2 text-sm" />
 					</label>
+					<label className="text-sm">
+						<div className="mb-1 text-muted-foreground">Datacenters</div>
+						<input name="default_execution_regions" defaultValue={row.default_execution_regions?.join(", ") ?? ""} placeholder="US, EU, APAC" className="w-full rounded-md border px-3 py-2 text-sm" />
+					</label>
 					<label className="flex items-center gap-2 self-end pb-2 text-sm">
 						<input name="byok_available" type="checkbox" defaultChecked={row.byok_available === true} className="size-4 rounded border" />
 						<span>BYOK available</span>
