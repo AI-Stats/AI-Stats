@@ -6,14 +6,13 @@ import { Fragment } from "react";
 import {
 	ArrowRight,
 	Calculator,
-	CalendarOff,
 	Check,
 	Coins,
 	ExternalLink,
-	FileX2,
 	KeyRound,
 	Minus,
 	ReceiptText,
+	ShieldCheck,
 	WalletCards,
 	X,
 } from "lucide-react";
@@ -30,11 +29,12 @@ import {
 } from "@/components/ui/accordion";
 import { GATEWAY_TIERS } from "@/components/(gateway)/credits/tiers";
 import { PricingComparisonShell } from "./PricingComparisonShell";
+import { EnterprisePricingSection } from "./EnterprisePricingSection";
 
 export const metadata: Metadata = buildMetadata({
 	title: "Pricing",
 	description:
-		"Simple pay-as-you-go AI gateway pricing with no enterprise plan, contracts, subscriptions, or monthly commitments.",
+		"Simple pay-as-you-go AI gateway pricing with optional self-serve Enterprise identity, governance, and included-payment plans.",
 	path: "/pricing",
 	keywords: [
 		"AI gateway pricing",
@@ -760,7 +760,7 @@ const FAQ_SECTIONS: FAQSection[] = [
 				id: "how-is-billing-structured",
 				question: "How is billing structured?",
 				answer:
-					"Free access includes supported free models in the API and chat, the public model catalog, rankings, benchmarks, calculators, SDKs, and integrations. For paid model usage, purchase credits and draw down that balance as you make requests. There is no subscription tier to select and no recurring commitment.",
+					"Free access includes supported free models, public data, SDKs, and integrations. Paid model usage draws down prepaid credits. Teams that need SSO, SCIM, governance, or included payment benefits can add a separate monthly Enterprise subscription without changing how model usage is metered.",
 			},
 			{
 				id: "are-sdks-priced-separately",
@@ -772,13 +772,13 @@ const FAQ_SECTIONS: FAQSection[] = [
 				id: "enterprise-plan",
 				question: "Do you offer an enterprise plan?",
 				answer:
-					"No. Phaseo does not sell an enterprise plan or require an enterprise contract. Teams of every size use the same pay-as-you-go offering and receive the same core product capabilities.",
+					"Yes. Enterprise Core and Included Payments are self-serve monthly workspace subscriptions with public seat-band pricing. Core includes identity and governance with the standard credit fee. Included Payments adds a monthly fee-free card allowance and no Phaseo surcharge on supported USD bank transfers.",
 			},
 			{
 				id: "contracts-commitments",
 				question: "Do I need a contract or monthly commitment?",
 				answer:
-					"No. There are no contracts, subscriptions, minimum monthly spends, or annual commitments. Some optional features may have separate transparent pricing in the future, but they will not require an enterprise agreement.",
+					"Pay As You Go has no contract, subscription, or minimum monthly spend. Enterprise is an optional monthly subscription that can be activated self-serve; it does not require a negotiated enterprise agreement.",
 			},
 			{
 				id: "are-failed-or-fallback-attempts-billed",
@@ -802,7 +802,7 @@ const FAQ_SECTIONS: FAQSection[] = [
 				id: "payment-methods",
 				question: "What payment methods do you accept?",
 				answer:
-					"Phaseo currently accepts credit and debit cards for credit top-ups. Cryptocurrency payments are not currently available. Credits are the billing balance used for managed model usage, not a separate payment method.",
+					"Phaseo accepts credit and debit cards for credit top-ups. Supported Enterprise Included Payments workspaces can also fund credits by USD bank transfer as that payment method is enabled for their Stripe customer. Credits remain the billing balance used for managed model usage.",
 			},
 			{
 				id: "refunds",
@@ -970,10 +970,10 @@ export default function PricingPage() {
 			<div className="container mx-auto max-w-7xl px-4 py-12 sm:py-16">
 				<section className="space-y-7">
 					<h1 className="max-w-4xl text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
-						One pay-as-you-go offering. Every team, every size.
+						Pay as you go by default. Add Enterprise when your team needs it.
 					</h1>
 					<p className="max-w-3xl text-base leading-7 text-muted-foreground">
-						Buy credits when you need them and pay for what you use. There is no enterprise plan, no contract, and no monthly or annual commitment. For model-level cost estimates, use the{" "}
+						Buy credits when you need them and pay for what you use. Enterprise identity and payment benefits are optional, priced openly, and activated without a sales call. For model-level cost estimates, use the{" "}
 						<Link className="underline underline-offset-4" href="/tools/pricing-calculator">
 							Pricing Calculator
 						</Link>
@@ -1014,14 +1014,14 @@ export default function PricingPage() {
 								body: "Top up credits only when you need them.",
 							},
 							{
-								icon: FileX2,
-								title: "No enterprise plan",
-								body: "The same core product is available to every team.",
+								icon: ShieldCheck,
+								title: "Enterprise is optional",
+								body: "Add SSO, SCIM and governance without changing usage pricing.",
 							},
 							{
-								icon: CalendarOff,
-								title: "No commitments",
-								body: "No contracts, subscriptions, or minimum spend.",
+								icon: ReceiptText,
+								title: "Prices stay public",
+								body: "Answer a short questionnaire and subscribe immediately.",
 							},
 						].map((item) => {
 							const Icon = item.icon;
@@ -1086,6 +1086,12 @@ export default function PricingPage() {
 						})}
 					</dl>
 				</section>
+
+				<div className="my-10 sm:my-12">
+					<Separator className="bg-zinc-200/70 dark:bg-zinc-800/70" />
+				</div>
+
+				<EnterprisePricingSection />
 
 				<div className="my-10 sm:my-12">
 					<Separator className="bg-zinc-200/70 dark:bg-zinc-800/70" />

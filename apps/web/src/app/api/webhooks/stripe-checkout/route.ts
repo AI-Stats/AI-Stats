@@ -274,6 +274,19 @@ function subscriptionPeriod(subscription: Stripe.Subscription) {
     };
 }
 
+function integerMetadata(metadata: Stripe.Metadata | null | undefined, key: string): number | null {
+    const value = Number(metadata?.[key]);
+    return Number.isSafeInteger(value) && value >= 0 ? value : null;
+}
+
+function paymentIntentRail(paymentIntent: Stripe.PaymentIntent): "card" | "ach" | "bank_transfer" | "unknown" {
+    const types = paymentIntent.payment_method_types ?? [];
+    if (types.includes("customer_balance")) return "bank_transfer";
+    if (types.includes("us_bank_account")) return "ach";
+    if (types.includes("card")) return "card";
+    return "unknown";
+}
+
 async function syncAddonSubscriptionFromStripe(args: {
     supabase: ReturnType<typeof getSupabase>;
     subscription: Stripe.Subscription;
@@ -295,6 +308,12 @@ async function syncAddonSubscriptionFromStripe(args: {
         p_provider_customer_id: stripeResourceId(subscription.customer),
         p_provider_subscription_id: subscription.id,
         p_provider_price_id: priceId,
+        p_quote_id: String(subscription.metadata?.quote_id ?? "").trim() || null,
+        p_plan_key: String(subscription.metadata?.plan_key ?? "").trim() || null,
+        p_pricing_version: String(subscription.metadata?.pricing_version ?? "").trim() || null,
+        p_included_members: integerMetadata(subscription.metadata, "included_members"),
+        p_fee_policy: String(subscription.metadata?.fee_policy ?? "").trim() || null,
+        p_included_card_top_up_nanos: integerMetadata(subscription.metadata, "included_card_top_up_nanos") ?? 0,
         p_status: subscription.status,
         p_current_period_start: period.start ? new Date(period.start * 1000).toISOString() : null,
         p_current_period_end: period.end ? new Date(period.end * 1000).toISOString() : null,
@@ -304,6 +323,16 @@ async function syncAddonSubscriptionFromStripe(args: {
         p_metadata: { source: "stripe_webhook" },
     });
     if (error) throw error;
+
+    const quoteId = String(subscription.metadata?.quote_id ?? "").trim();
+    if (quoteId && (subscription.status === "active" || subscription.status === "trialing")) {
+        const { error: quoteError } = await supabase
+            .from("workspace_enterprise_quotes")
+            .update({ consumed_at: new Date(eventCreated * 1000).toISOString(), updated_at: new Date().toISOString() })
+            .eq("id", quoteId)
+            .eq("workspace_id", workspaceId);
+        if (quoteError) throw quoteError;
+    }
 }
 
 async function enqueueAutoTopUpFailureFromWebhook(args: {
@@ -625,7 +654,21 @@ export async function POST(req: Request) {
                     }
                 }
 
-                const { netNanos, feeNanos } = computeNetAndFeeFromGross(grossNanos, feePct);
+                const { data: feePolicyRows, error: feePolicyError } = await supabase.rpc(
+                    "claim_workspace_top_up_fee_policy",
+                    {
+                        p_workspace_id: wallet.workspace_id,
+                        p_stripe_payment_intent_id: pi.id,
+                        p_gross_nanos: grossNanos,
+                        p_payment_rail: paymentIntentRail(pi),
+                        p_seen_at: new Date(event.created * 1000).toISOString(),
+                    },
+                );
+                if (feePolicyError) throw feePolicyError;
+                const feeWaived = Boolean(Array.isArray(feePolicyRows) ? feePolicyRows[0]?.fee_waived : (feePolicyRows as any)?.fee_waived);
+                const { netNanos, feeNanos } = feeWaived
+                    ? { netNanos: grossNanos, feeNanos: 0 }
+                    : computeNetAndFeeFromGross(grossNanos, feePct);
                 const kind = toLedgerKind(purpose);
                 const { data: appliedRows, error: applyErr } = await supabase.rpc("stripe_apply_payment_intent_credit", {
                     p_workspace_id: wallet.workspace_id,

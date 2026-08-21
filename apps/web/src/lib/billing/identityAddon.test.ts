@@ -1,10 +1,7 @@
-import { identityAddonPricing, isWorkspaceAddonActive } from "./identityAddon";
+import { isWorkspaceAddonActive } from "./identityAddon";
 
 describe("identity addon", () => {
-	const originalEnv = process.env;
-
 	afterEach(() => {
-		process.env = originalEnv;
 		jest.restoreAllMocks();
 	});
 
@@ -31,18 +28,4 @@ describe("identity addon", () => {
 		expect(isWorkspaceAddonActive(null)).toBe(false);
 	});
 
-	it("uses configurable pricing with the public defaults", () => {
-		process.env = {
-			...originalEnv,
-			IDENTITY_ADDON_MONTHLY_PRICE_USD: "149",
-			IDENTITY_ADDON_INCLUDED_SSO_USERS: "750",
-			IDENTITY_ADDON_OVERAGE_USD: "0.15",
-		};
-		expect(identityAddonPricing()).toEqual({
-			currency: "usd",
-			monthlyUsd: 149,
-			includedSsoUsers: 750,
-			overageUsd: 0.15,
-		});
-	});
 });

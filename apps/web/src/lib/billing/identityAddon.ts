@@ -16,22 +16,13 @@ export type IdentityAddonSummary = {
 	cancelAtPeriodEnd: boolean;
 	currentPeriodEnd: string | null;
 	grandfathered: boolean;
-	price: {
-		currency: "usd";
-		monthlyUsd: number;
-		includedSsoUsers: number;
-		overageUsd: number;
-	};
+	planKey: string | null;
+	pricingVersion: string | null;
+	includedMembers: number | null;
+	feePolicy: "standard_5_percent" | "included_allowance" | null;
+	includedCardTopUpUsd: number;
+	remainingCardTopUpUsd: number;
 };
-
-export function identityAddonPricing() {
-	return {
-		currency: "usd" as const,
-		monthlyUsd: Number(process.env.IDENTITY_ADDON_MONTHLY_PRICE_USD ?? 99),
-		includedSsoUsers: Number(process.env.IDENTITY_ADDON_INCLUDED_SSO_USERS ?? 500),
-		overageUsd: Number(process.env.IDENTITY_ADDON_OVERAGE_USD ?? 0.2),
-	};
-}
 
 export function isWorkspaceAddonActive(row: {
 	status?: string | null;

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ArrowUpRight, Building2, Check, Loader2, RefreshCw, ShieldCheck, Users } from "lucide-react";
+import { ArrowUpRight, Building2, Check, RefreshCw, ShieldCheck, Users } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { IdentityAddonSummary } from "@/lib/billing/identityAddon";
 import type { TeamSsoSettingsRow } from "@/lib/auth/teamSsoSettings";
 import WorkspaceSamlSettingsCard from "./WorkspaceSamlSettingsCard";
+import EnterprisePlanQuestionnaire from "./EnterprisePlanQuestionnaire";
 
 type Props = {
 	workspaceId: string;
@@ -30,9 +31,9 @@ export default function WorkspaceIdentitySettings({ workspaceId, initialSettings
 
 	React.useEffect(() => {
 		let cancelled = false;
-		void responseJson<IdentityAddonSummary>(
-			fetch("/api/stripe/addons/identity", { cache: "no-store" }),
-		).then((result) => {
+		void fetch("/api/stripe/addons/identity", { cache: "no-store" })
+			.then((response) => responseJson<IdentityAddonSummary>(response))
+			.then((result) => {
 			if (!cancelled) setSummary(result);
 		}).catch((error) => {
 			if (!cancelled) toast.error(error instanceof Error ? error.message : "Identity billing is unavailable");
@@ -41,17 +42,6 @@ export default function WorkspaceIdentitySettings({ workspaceId, initialSettings
 		});
 		return () => { cancelled = true; };
 	}, [workspaceId]);
-
-	async function beginCheckout() {
-		setWorking(true);
-		try {
-			const result = await responseJson<{ url: string }>(await fetch("/api/stripe/addons/identity", { method: "POST" }));
-			window.location.assign(result.url);
-		} catch (error) {
-			toast.error(error instanceof Error ? error.message : "Could not start checkout");
-			setWorking(false);
-		}
-	}
 
 	async function openPortal() {
 		setWorking(true);
@@ -71,6 +61,7 @@ export default function WorkspaceIdentitySettings({ workspaceId, initialSettings
 	if (loading) return <Skeleton className="h-72 w-full rounded-xl" />;
 
 	const active = Boolean(summary?.active);
+	if (!active) return <EnterprisePlanQuestionnaire canEdit={canEdit} />;
 	const periodEnd = summary?.currentPeriodEnd
 		? new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(new Date(summary.currentPeriodEnd))
 		: null;
@@ -90,7 +81,7 @@ export default function WorkspaceIdentitySettings({ workspaceId, initialSettings
 								<CardDescription>SSO, SCIM provisioning and directory controls.</CardDescription>
 							</div>
 						</div>
-						<Badge variant={active ? "default" : "secondary"}>{active ? "Active" : "Optional add-on"}</Badge>
+						<Badge>Active</Badge>
 					</div>
 				</CardHeader>
 				<CardContent className="grid gap-3 sm:grid-cols-3">
@@ -108,21 +99,16 @@ export default function WorkspaceIdentitySettings({ workspaceId, initialSettings
 				</CardContent>
 				<CardFooter className="flex flex-wrap items-center justify-between gap-3 border-t bg-muted/10">
 					<div className="text-sm">
-						{active ? (
-							<p className="flex items-center gap-2"><Check className="h-4 w-4 text-emerald-500" />{summary?.grandfathered ? "Included for this workspace" : periodEnd ? `Renews ${periodEnd}` : "Subscription active"}</p>
-						) : (
-							<p><span className="font-medium">${summary?.price.monthlyUsd ?? 99}/month</span><span className="text-muted-foreground"> · {summary?.price.includedSsoUsers ?? 500} active SSO users included</span></p>
-						)}
+						<p className="flex items-center gap-2"><Check className="h-4 w-4 text-emerald-500" />{summary?.grandfathered ? "Included for this workspace" : periodEnd ? `Renews ${periodEnd}` : "Subscription active"}</p>
+						{summary?.includedMembers ? <p className="mt-1 text-xs text-muted-foreground">Up to {summary.includedMembers} members{summary.feePolicy === "included_allowance" ? ` · $${summary.remainingCardTopUpUsd.toLocaleString("en-US")} fee-free card allowance remaining` : " · Standard credit top-up fee"}</p> : null}
 					</div>
-					{active && !summary?.grandfathered ? (
+					{!summary?.grandfathered ? (
 						<Button variant="outline" onClick={openPortal} disabled={working || !canEdit}>Manage billing <ArrowUpRight className="ml-2 h-4 w-4" /></Button>
-					) : !active ? (
-						<Button onClick={beginCheckout} disabled={working || !canEdit}>{working && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Activate Identity</Button>
 					) : null}
 				</CardFooter>
 			</Card>
 
-			{active ? <WorkspaceSamlSettingsCard workspaceId={workspaceId} initialSettings={initialSettings} canEdit={canEdit} /> : null}
+			<WorkspaceSamlSettingsCard workspaceId={workspaceId} initialSettings={initialSettings} canEdit={canEdit} />
 		</div>
 	);
 }
