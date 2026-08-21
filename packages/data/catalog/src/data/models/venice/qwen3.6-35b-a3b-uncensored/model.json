@@ -4,7 +4,7 @@
   "name": "Qwen3.6 35B A3B Uncensored",
   "status": "Available",
   "previous_model_id": null,
-  "description": "Qwen3.6 35B A3B Uncensored running in a Trusted Execution Environment (TEE). An uncensored variant of Alibaba's Qwen3.6 MoE model with 35B total parameters and ~3B active, supporting 262K context and multimodal input across text, images, and video, with hardware attestation evidence available for independent verification.",
+  "description": "Qwen3.6 35B A3B Uncensored is an uncensored Qwen3.6 MoE variant offered by Venice in a Trusted Execution Environment, with 128K context and text input on this route.",
   "announced_date": null,
   "release_date": "2026-05-24",
   "deprecation_date": null,
