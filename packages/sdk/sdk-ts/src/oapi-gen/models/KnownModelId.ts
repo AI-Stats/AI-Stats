@@ -371,6 +371,7 @@ export type KnownModelId =
   | "qwen/qwen3-coder-next"
   | "qwen/qwen3-coder-plus-2025-07-22"
   | "qwen/qwen3-coder-plus-2025-09-23"
+  | "qwen/qwen3-embedding-0.6b"
   | "qwen/qwen3-embedding-8b"
   | "qwen/qwen3-guard-gen-0.6b"
   | "qwen/qwen3-guard-gen-8b"

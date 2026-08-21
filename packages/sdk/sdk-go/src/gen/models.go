@@ -1957,6 +1957,7 @@ const (
 	KnownModelIdQwenQwen3CoderNext KnownModelId = "qwen/qwen3-coder-next"
 	KnownModelIdQwenQwen3CoderPlus20250722 KnownModelId = "qwen/qwen3-coder-plus-2025-07-22"
 	KnownModelIdQwenQwen3CoderPlus20250923 KnownModelId = "qwen/qwen3-coder-plus-2025-09-23"
+	KnownModelIdQwenQwen3Embedding06b KnownModelId = "qwen/qwen3-embedding-0.6b"
 	KnownModelIdQwenQwen3Embedding8b KnownModelId = "qwen/qwen3-embedding-8b"
 	KnownModelIdQwenQwen3GuardGen06b KnownModelId = "qwen/qwen3-guard-gen-0.6b"
 	KnownModelIdQwenQwen3GuardGen8b KnownModelId = "qwen/qwen3-guard-gen-8b"

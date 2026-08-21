@@ -126,6 +126,12 @@ describe("resolveProviderExecutor", () => {
 		expect(resolveProviderExecutor("voyage", "embeddings")).toBeTruthy();
 		expect(resolveProviderExecutor("voyageai", "embeddings")).toBeTruthy();
 		expect(resolveProviderExecutor("anthropic", "embeddings")).toBeNull();
+		expect(resolveProviderExecutor("cloudflare", "embeddings")).toBeTruthy();
+	});
+
+	it("resolves Cloudflare-hosted native media capabilities", () => {
+		expect(resolveProviderExecutor("cloudflare", "image.generate")).toBeTruthy();
+		expect(resolveProviderExecutor("cloudflare", "audio.transcribe")).toBeTruthy();
 	});
 
 	it("does not route Alibaba native media APIs through OpenAI-shaped endpoints", () => {
