@@ -618,7 +618,12 @@
       "minimax/speech-2.6",
       "minimax/t2v-01-director",
       "minimax/minimax-m2.5-highspeed",
-      "minimax/minimax-m3"
+      "minimax/minimax-m3",
+      "minimax/music-3.0",
+      "minimax/speech-2.6-hd",
+      "minimax/speech-2.6-turbo",
+      "minimax/speech-2.8-hd",
+      "minimax/speech-2.8-turbo"
     ],
     "mistral": [
       "mistral/codestral",

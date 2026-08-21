@@ -330,6 +330,10 @@ class ModelIds:
     # Model page: https://phaseo.app/models/google/gemini-2.5-flash
     GOOGLE_GEMINI_2_5_FLASH: Final[str] = "google/gemini-2.5-flash"
 
+    # Model ID: google/gemini-2.5-flash-image
+    # Model page: https://phaseo.app/models/google/gemini-2.5-flash-image
+    GOOGLE_GEMINI_2_5_FLASH_IMAGE: Final[str] = "google/gemini-2.5-flash-image"
+
     # Model ID: google/gemini-2.5-flash-lite
     # Model page: https://phaseo.app/models/google/gemini-2.5-flash-lite
     GOOGLE_GEMINI_2_5_FLASH_LITE: Final[str] = "google/gemini-2.5-flash-lite"
@@ -422,10 +426,6 @@ class ModelIds:
     # Model page: https://phaseo.app/models/google/gemma-3-27b
     GOOGLE_GEMMA_3_27B: Final[str] = "google/gemma-3-27b"
 
-    # Model ID: google/gemma-3n-e4b
-    # Model page: https://phaseo.app/models/google/gemma-3n-e4b
-    GOOGLE_GEMMA_3N_E4B: Final[str] = "google/gemma-3n-e4b"
-
     # Model ID: google/gemma-4-26b-a4b
     # Model page: https://phaseo.app/models/google/gemma-4-26b-a4b
     GOOGLE_GEMMA_4_26B_A4B: Final[str] = "google/gemma-4-26b-a4b"
@@ -445,6 +445,10 @@ class ModelIds:
     # Model ID: google/gemma-4-31b:free
     # Model page: https://phaseo.app/models/google/gemma-4-31b%3Afree
     GOOGLE_GEMMA_4_31B_FREE: Final[str] = "google/gemma-4-31b:free"
+
+    # Model ID: google/imagen-4.0-preview
+    # Model page: https://phaseo.app/models/google/imagen-4.0-preview
+    GOOGLE_IMAGEN_4_0_PREVIEW: Final[str] = "google/imagen-4.0-preview"
 
     # Model ID: google/lyria-3-clip-preview
     # Model page: https://phaseo.app/models/google/lyria-3-clip-preview
@@ -546,6 +550,10 @@ class ModelIds:
     # Model page: https://phaseo.app/models/liquid-ai/lfm-2-24b-a2b
     LIQUID_AI_LFM_2_24B_A2B: Final[str] = "liquid-ai/lfm-2-24b-a2b"
 
+    # Model ID: liquid-ai/lfm-2.5-8b-a1b
+    # Model page: https://phaseo.app/models/liquid-ai/lfm-2.5-8b-a1b
+    LIQUID_AI_LFM_2_5_8B_A1B: Final[str] = "liquid-ai/lfm-2.5-8b-a1b"
+
     # Model ID: ltx-2-3-fast
     # Model page: https://phaseo.app/models/ltx-2-3-fast
     LTX_2_3_FAST: Final[str] = "ltx-2-3-fast"
@@ -569,10 +577,6 @@ class ModelIds:
     # Model ID: meta/llama-3-8b
     # Model page: https://phaseo.app/models/meta/llama-3-8b
     META_LLAMA_3_8B: Final[str] = "meta/llama-3-8b"
-
-    # Model ID: meta/llama-3-8b-lite
-    # Model page: https://phaseo.app/models/meta/llama-3-8b-lite
-    META_LLAMA_3_8B_LITE: Final[str] = "meta/llama-3-8b-lite"
 
     # Model ID: meta/llama-3.1-70b
     # Model page: https://phaseo.app/models/meta/llama-3.1-70b
@@ -654,6 +658,10 @@ class ModelIds:
     # Model page: https://phaseo.app/models/minimax/hailuo-2.3-fast
     MINIMAX_HAILUO_2_3_FAST: Final[str] = "minimax/hailuo-2.3-fast"
 
+    # Model ID: minimax/image-01
+    # Model page: https://phaseo.app/models/minimax/image-01
+    MINIMAX_IMAGE_01: Final[str] = "minimax/image-01"
+
     # Model ID: minimax/m2-her
     # Model page: https://phaseo.app/models/minimax/m2-her
     MINIMAX_M2_HER: Final[str] = "minimax/m2-her"
@@ -690,9 +698,25 @@ class ModelIds:
     # Model page: https://phaseo.app/models/minimax/music-2.6
     MINIMAX_MUSIC_2_6: Final[str] = "minimax/music-2.6"
 
-    # Model ID: minimax/music-2.6-free
-    # Model page: https://phaseo.app/models/minimax/music-2.6-free
-    MINIMAX_MUSIC_2_6_FREE: Final[str] = "minimax/music-2.6-free"
+    # Model ID: minimax/music-3.0
+    # Model page: https://phaseo.app/models/minimax/music-3.0
+    MINIMAX_MUSIC_3_0: Final[str] = "minimax/music-3.0"
+
+    # Model ID: minimax/speech-2.6-hd
+    # Model page: https://phaseo.app/models/minimax/speech-2.6-hd
+    MINIMAX_SPEECH_2_6_HD: Final[str] = "minimax/speech-2.6-hd"
+
+    # Model ID: minimax/speech-2.6-turbo
+    # Model page: https://phaseo.app/models/minimax/speech-2.6-turbo
+    MINIMAX_SPEECH_2_6_TURBO: Final[str] = "minimax/speech-2.6-turbo"
+
+    # Model ID: minimax/speech-2.8-hd
+    # Model page: https://phaseo.app/models/minimax/speech-2.8-hd
+    MINIMAX_SPEECH_2_8_HD: Final[str] = "minimax/speech-2.8-hd"
+
+    # Model ID: minimax/speech-2.8-turbo
+    # Model page: https://phaseo.app/models/minimax/speech-2.8-turbo
+    MINIMAX_SPEECH_2_8_TURBO: Final[str] = "minimax/speech-2.8-turbo"
 
     # Model ID: mistral/codestral
     # Model page: https://phaseo.app/models/mistral/codestral
@@ -874,6 +898,10 @@ class ModelIds:
     # Model page: https://phaseo.app/models/moonshotai/moonshot-v1-8k-vision-preview
     MOONSHOTAI_MOONSHOT_V1_8K_VISION_PREVIEW: Final[str] = "moonshotai/moonshot-v1-8k-vision-preview"
 
+    # Model ID: morph/morph-compactor
+    # Model page: https://phaseo.app/models/morph/morph-compactor
+    MORPH_MORPH_COMPACTOR: Final[str] = "morph/morph-compactor"
+
     # Model ID: morph/morph-v3-fast
     # Model page: https://phaseo.app/models/morph/morph-v3-fast
     MORPH_MORPH_V3_FAST: Final[str] = "morph/morph-v3-fast"
@@ -881,6 +909,10 @@ class ModelIds:
     # Model ID: morph/morph-v3-large
     # Model page: https://phaseo.app/models/morph/morph-v3-large
     MORPH_MORPH_V3_LARGE: Final[str] = "morph/morph-v3-large"
+
+    # Model ID: morph/morph-warp-grep-v2.1
+    # Model page: https://phaseo.app/models/morph/morph-warp-grep-v2.1
+    MORPH_MORPH_WARP_GREP_V2_1: Final[str] = "morph/morph-warp-grep-v2.1"
 
     # Model ID: nex-agi/deepseek-v3.1-nex-n1
     # Model page: https://phaseo.app/models/nex-agi/deepseek-v3.1-nex-n1
@@ -1234,6 +1266,10 @@ class ModelIds:
     # Model page: https://phaseo.app/models/poolside/laguna-xs-2.1%3Afree
     POOLSIDE_LAGUNA_XS_2_1_FREE: Final[str] = "poolside/laguna-xs-2.1:free"
 
+    # Model ID: prism-ml/ternary-bonsai-27b
+    # Model page: https://phaseo.app/models/prism-ml/ternary-bonsai-27b
+    PRISM_ML_TERNARY_BONSAI_27B: Final[str] = "prism-ml/ternary-bonsai-27b"
+
     # Model ID: qwen/qvq-max
     # Model page: https://phaseo.app/models/qwen/qvq-max
     QWEN_QVQ_MAX: Final[str] = "qwen/qvq-max"
@@ -1249,6 +1285,10 @@ class ModelIds:
     # Model ID: qwen/qwen-flash-character
     # Model page: https://phaseo.app/models/qwen/qwen-flash-character
     QWEN_QWEN_FLASH_CHARACTER: Final[str] = "qwen/qwen-flash-character"
+
+    # Model ID: qwen/qwen-image
+    # Model page: https://phaseo.app/models/qwen/qwen-image
+    QWEN_QWEN_IMAGE: Final[str] = "qwen/qwen-image"
 
     # Model ID: qwen/qwen-max
     # Model page: https://phaseo.app/models/qwen/qwen-max
@@ -1650,6 +1690,14 @@ class ModelIds:
     # Model page: https://phaseo.app/models/qwen/qwen3.7-plus-2026-05-26
     QWEN_QWEN3_7_PLUS_2026_05_26: Final[str] = "qwen/qwen3.7-plus-2026-05-26"
 
+    # Model ID: qwen/qwen3.8-2.4t-a95b
+    # Model page: https://phaseo.app/models/qwen/qwen3.8-2.4t-a95b
+    QWEN_QWEN3_8_2_4T_A95B: Final[str] = "qwen/qwen3.8-2.4t-a95b"
+
+    # Model ID: qwen/qwen3.8-27b
+    # Model page: https://phaseo.app/models/qwen/qwen3.8-27b
+    QWEN_QWEN3_8_27B: Final[str] = "qwen/qwen3.8-27b"
+
     # Model ID: qwen/qwen3.8-max
     # Model page: https://phaseo.app/models/qwen/qwen3.8-max
     QWEN_QWEN3_8_MAX: Final[str] = "qwen/qwen3.8-max"
@@ -1954,10 +2002,6 @@ class ModelIds:
     # Model page: https://phaseo.app/models/z-ai/glm-4-32b
     Z_AI_GLM_4_32B: Final[str] = "z-ai/glm-4-32b"
 
-    # Model ID: z-ai/glm-4-7-flash:free
-    # Model page: https://phaseo.app/models/z-ai/glm-4-7-flash%3Afree
-    Z_AI_GLM_4_7_FLASH_FREE: Final[str] = "z-ai/glm-4-7-flash:free"
-
     # Model ID: z-ai/glm-4.5
     # Model page: https://phaseo.app/models/z-ai/glm-4.5
     Z_AI_GLM_4_5: Final[str] = "z-ai/glm-4.5"
@@ -2001,10 +2045,6 @@ class ModelIds:
     # Model ID: z-ai/glm-5
     # Model page: https://phaseo.app/models/z-ai/glm-5
     Z_AI_GLM_5: Final[str] = "z-ai/glm-5"
-
-    # Model ID: z-ai/glm-5-code
-    # Model page: https://phaseo.app/models/z-ai/glm-5-code
-    Z_AI_GLM_5_CODE: Final[str] = "z-ai/glm-5-code"
 
     # Model ID: z-ai/glm-5-turbo
     # Model page: https://phaseo.app/models/z-ai/glm-5-turbo
@@ -2120,6 +2160,7 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.ELEVEN_LABS_SCRIBE_V2,
         ModelIds.ESSENTIAL_AI_RNJ_1,
         ModelIds.GOOGLE_GEMINI_2_5_FLASH,
+        ModelIds.GOOGLE_GEMINI_2_5_FLASH_IMAGE,
         ModelIds.GOOGLE_GEMINI_2_5_FLASH_LITE,
         ModelIds.GOOGLE_GEMINI_2_5_PRO,
         ModelIds.GOOGLE_GEMINI_3_FLASH_PREVIEW,
@@ -2143,12 +2184,12 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.GOOGLE_GEMINI_ROBOTICS_ER_1_6_PREVIEW,
         ModelIds.GOOGLE_GEMINI_ROBOTICS_ER_2_PREVIEW,
         ModelIds.GOOGLE_GEMMA_3_27B,
-        ModelIds.GOOGLE_GEMMA_3N_E4B,
         ModelIds.GOOGLE_GEMMA_4_26B_A4B,
         ModelIds.GOOGLE_GEMMA_4_26B_A4B_FREE,
         ModelIds.GOOGLE_GEMMA_4_31B,
         ModelIds.GOOGLE_GEMMA_4_31B_IT,
         ModelIds.GOOGLE_GEMMA_4_31B_FREE,
+        ModelIds.GOOGLE_IMAGEN_4_0_PREVIEW,
         ModelIds.GOOGLE_LYRIA_3_CLIP_PREVIEW,
         ModelIds.GOOGLE_LYRIA_3_PRO_PREVIEW,
         ModelIds.GOOGLE_VEO_2,
@@ -2174,13 +2215,13 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.KWAIPILOT_KAT_CODER_PRO_V2,
         ModelIds.KWAIPILOT_KAT_CODER_PRO_V2_5,
         ModelIds.LIQUID_AI_LFM_2_24B_A2B,
+        ModelIds.LIQUID_AI_LFM_2_5_8B_A1B,
         ModelIds.LTX_2_3_FAST,
         ModelIds.LTX_2_3_PRO,
         ModelIds.LTX_2_5_FAST,
         ModelIds.LTX_2_5_PRO,
         ModelIds.MEITUAN_LONGCAT_2_0,
         ModelIds.META_LLAMA_3_8B,
-        ModelIds.META_LLAMA_3_8B_LITE,
         ModelIds.META_LLAMA_3_1_70B,
         ModelIds.META_LLAMA_3_1_8B,
         ModelIds.META_LLAMA_3_2_11B_VISION,
@@ -2201,6 +2242,7 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.MINIMAX_HAILUO_02,
         ModelIds.MINIMAX_HAILUO_2_3,
         ModelIds.MINIMAX_HAILUO_2_3_FAST,
+        ModelIds.MINIMAX_IMAGE_01,
         ModelIds.MINIMAX_M2_HER,
         ModelIds.MINIMAX_MINIMAX_M1_80K,
         ModelIds.MINIMAX_MINIMAX_M2,
@@ -2210,7 +2252,11 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.MINIMAX_MINIMAX_M2_7,
         ModelIds.MINIMAX_MINIMAX_M3,
         ModelIds.MINIMAX_MUSIC_2_6,
-        ModelIds.MINIMAX_MUSIC_2_6_FREE,
+        ModelIds.MINIMAX_MUSIC_3_0,
+        ModelIds.MINIMAX_SPEECH_2_6_HD,
+        ModelIds.MINIMAX_SPEECH_2_6_TURBO,
+        ModelIds.MINIMAX_SPEECH_2_8_HD,
+        ModelIds.MINIMAX_SPEECH_2_8_TURBO,
         ModelIds.MISTRAL_CODESTRAL,
         ModelIds.MISTRAL_CODESTRAL_EMBED,
         ModelIds.MISTRAL_DEVSTRAL_2,
@@ -2256,8 +2302,10 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.MOONSHOTAI_MOONSHOT_V1_32K_VISION_PREVIEW,
         ModelIds.MOONSHOTAI_MOONSHOT_V1_8K,
         ModelIds.MOONSHOTAI_MOONSHOT_V1_8K_VISION_PREVIEW,
+        ModelIds.MORPH_MORPH_COMPACTOR,
         ModelIds.MORPH_MORPH_V3_FAST,
         ModelIds.MORPH_MORPH_V3_LARGE,
+        ModelIds.MORPH_MORPH_WARP_GREP_V2_1,
         ModelIds.NEX_AGI_DEEPSEEK_V3_1_NEX_N1,
         ModelIds.NOUS_HERMES_3_LLAMA_3_1_405B,
         ModelIds.NOUSRESEARCH_HERMES_3_LLAMA_3_1_70B,
@@ -2346,10 +2394,12 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.POOLSIDE_LAGUNA_M_1_FREE,
         ModelIds.POOLSIDE_LAGUNA_S_2_1_FREE,
         ModelIds.POOLSIDE_LAGUNA_XS_2_1_FREE,
+        ModelIds.PRISM_ML_TERNARY_BONSAI_27B,
         ModelIds.QWEN_QVQ_MAX,
         ModelIds.QWEN_QWEN_3_6_PLUS,
         ModelIds.QWEN_QWEN_FLASH,
         ModelIds.QWEN_QWEN_FLASH_CHARACTER,
+        ModelIds.QWEN_QWEN_IMAGE,
         ModelIds.QWEN_QWEN_MAX,
         ModelIds.QWEN_QWEN_MT_FLASH,
         ModelIds.QWEN_QWEN_MT_LITE,
@@ -2450,6 +2500,8 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.QWEN_QWEN3_7_MAX_2026_05_17,
         ModelIds.QWEN_QWEN3_7_PLUS,
         ModelIds.QWEN_QWEN3_7_PLUS_2026_05_26,
+        ModelIds.QWEN_QWEN3_8_2_4T_A95B,
+        ModelIds.QWEN_QWEN3_8_27B,
         ModelIds.QWEN_QWEN3_8_MAX,
         ModelIds.QWEN_QWQ_32B,
         ModelIds.QWEN_QWQ_PLUS,
@@ -2526,7 +2578,6 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.XIAOMI_MIMO_V2_5_TTS_FREE,
         ModelIds.Z_AI_AUTOGLM_PHONE_9B_MULTILINGUAL,
         ModelIds.Z_AI_GLM_4_32B,
-        ModelIds.Z_AI_GLM_4_7_FLASH_FREE,
         ModelIds.Z_AI_GLM_4_5,
         ModelIds.Z_AI_GLM_4_5_AIR,
         ModelIds.Z_AI_GLM_4_5_AIR_X,
@@ -2538,7 +2589,6 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.Z_AI_GLM_4_7,
         ModelIds.Z_AI_GLM_4_7_FLASH,
         ModelIds.Z_AI_GLM_5,
-        ModelIds.Z_AI_GLM_5_CODE,
         ModelIds.Z_AI_GLM_5_TURBO,
         ModelIds.Z_AI_GLM_5_1,
         ModelIds.Z_AI_GLM_5_2,

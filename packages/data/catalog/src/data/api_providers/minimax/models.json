@@ -449,7 +449,7 @@
     "provider_api_model_id": "minimax:minimax/image-01",
     "provider_model_slug": "image-01",
     "internal_model_id": "minimax/image-01",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "image,text",
     "output_modalities": "image",
@@ -485,8 +485,8 @@
         "modes": []
       }
     ],
-    "routing_status": null,
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
@@ -688,7 +688,7 @@
     "input_modalities": "text",
     "output_modalities": "text",
 	"context_length": 204800,
-	"max_output_tokens": 204800,
+    "max_output_tokens": 128000,
     "effective_from": "2025-10-27T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -793,7 +793,7 @@
     "input_modalities": "text",
     "output_modalities": "text",
 	"context_length": 204800,
-	"max_output_tokens": 204800,
+    "max_output_tokens": null,
     "effective_from": "2025-12-23T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -898,7 +898,7 @@
     "input_modalities": "text",
     "output_modalities": "text",
 	"context_length": 204800,
-	"max_output_tokens": 204800,
+    "max_output_tokens": null,
     "effective_from": "2026-02-12T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -955,7 +955,7 @@
 	"input_modalities": "text",
 	"output_modalities": "text",
 	"context_length": 204800,
-	"max_output_tokens": 204800,
+    "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -1003,7 +1003,7 @@
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 204800,
-	"max_output_tokens": 204800,
+    "max_output_tokens": null,
     "effective_from": "2026-03-18T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -1374,18 +1374,18 @@
     "provider_api_model_id": "minimax:minimax/music-2.6-free",
     "provider_model_slug": "music-2.6-free",
     "internal_model_id": "minimax/music-2.6",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "music",
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": "2026-04-11T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-20T00:00:00",
     "capabilities": [
       {
         "capability_id": "music.generate",
-        "status": "active",
+        "status": "retired",
         "params": ["prompt", "lyrics", "format", "provider_options.minimax"],
         "reasoning": null,
         "tool_call": null,
@@ -1397,8 +1397,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -1426,7 +1426,7 @@
     "provider_api_model_id": "minimax:minimax/music-3.0",
     "provider_model_slug": "music-3.0",
     "internal_model_id": "minimax/music-3.0",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "music",
@@ -1438,7 +1438,12 @@
       {
         "capability_id": "music.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "prompt",
+          "lyrics",
+          "format",
+          "provider_options.minimax"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -1450,9 +1455,9 @@
       }
     ],
     "provider_status": "available",
-    "phaseo_status": "unsupported",
+    "phaseo_status": "supported",
     "routing_status": "active",
-    "routable": false,
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
@@ -1461,7 +1466,7 @@
       "standard"
     ],
     "api": {
-      "formats": [],
+      "formats": ["minimax-music-v1"],
       "endpoint": "/v1/music_generation",
       "deployment": null
     },
@@ -1539,6 +1544,98 @@
       "checked_at": null,
       "notes": null
     },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "minimax/speech-2.8-hd",
+    "provider_api_model_id": "minimax:minimax/speech-2.8-hd",
+    "provider_model_slug": "speech-2.8-hd",
+    "internal_model_id": "minimax/speech-2.8-hd",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "audio",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-01-23T00:00:00",
+    "effective_to": null,
+    "capabilities": [{"capability_id":"audio.speech","status":"active","params":["voice","response_format","speed","provider_options.minimax"],"reasoning":null,"tool_call":null,"structured_output":null,"temperature":null,"attachment":false,"input_modalities":["text"],"output_modalities":["audio"],"modes":[]}],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {"execution":null,"data":null},
+    "service_tiers": [],
+    "api": {"formats":["minimax-t2a-v2"],"endpoint":"/v1/t2a_v2","deployment":null},
+    "sources": [{"kind":"documentation","url":"https://platform.minimax.io/docs/api-reference/speech-t2a-http","accessed_at":"2026-08-21T00:00:00Z"},{"kind":"pricing","url":"https://platform.minimax.io/docs/guides/pricing-paygo","accessed_at":"2026-08-21T00:00:00Z"}],
+    "verification": {"status":"verified","checked_at":"2026-08-21T00:00:00Z","notes":"Verified current HD T2A route and pricing."},
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "minimax/speech-2.8-turbo",
+    "provider_api_model_id": "minimax:minimax/speech-2.8-turbo",
+    "provider_model_slug": "speech-2.8-turbo",
+    "internal_model_id": "minimax/speech-2.8-turbo",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "audio",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-01-23T00:00:00",
+    "effective_to": null,
+    "capabilities": [{"capability_id":"audio.speech","status":"active","params":["voice","response_format","speed","provider_options.minimax"],"reasoning":null,"tool_call":null,"structured_output":null,"temperature":null,"attachment":false,"input_modalities":["text"],"output_modalities":["audio"],"modes":[]}],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {"execution":null,"data":null},
+    "service_tiers": [],
+    "api": {"formats":["minimax-t2a-v2"],"endpoint":"/v1/t2a_v2","deployment":null},
+    "sources": [{"kind":"documentation","url":"https://platform.minimax.io/docs/api-reference/speech-t2a-http","accessed_at":"2026-08-21T00:00:00Z"},{"kind":"pricing","url":"https://platform.minimax.io/docs/guides/pricing-paygo","accessed_at":"2026-08-21T00:00:00Z"}],
+    "verification": {"status":"verified","checked_at":"2026-08-21T00:00:00Z","notes":"Verified current Turbo T2A route and pricing."},
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "minimax/speech-2.6-hd",
+    "provider_api_model_id": "minimax:minimax/speech-2.6-hd",
+    "provider_model_slug": "speech-2.6-hd",
+    "internal_model_id": "minimax/speech-2.6-hd",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "audio",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2025-10-29T00:00:00",
+    "effective_to": null,
+    "capabilities": [{"capability_id":"audio.speech","status":"active","params":["voice","response_format","speed","provider_options.minimax"],"reasoning":null,"tool_call":null,"structured_output":null,"temperature":null,"attachment":false,"input_modalities":["text"],"output_modalities":["audio"],"modes":[]}],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {"execution":null,"data":null},
+    "service_tiers": [],
+    "api": {"formats":["minimax-t2a-v2"],"endpoint":"/v1/t2a_v2","deployment":null},
+    "sources": [{"kind":"documentation","url":"https://platform.minimax.io/docs/api-reference/speech-t2a-http","accessed_at":"2026-08-21T00:00:00Z"},{"kind":"pricing","url":"https://platform.minimax.io/docs/guides/pricing-paygo","accessed_at":"2026-08-21T00:00:00Z"}],
+    "verification": {"status":"verified","checked_at":"2026-08-21T00:00:00Z","notes":"Verified available legacy HD T2A route and pricing."},
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "minimax/speech-2.6-turbo",
+    "provider_api_model_id": "minimax:minimax/speech-2.6-turbo",
+    "provider_model_slug": "speech-2.6-turbo",
+    "internal_model_id": "minimax/speech-2.6-turbo",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "audio",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2025-10-29T00:00:00",
+    "effective_to": null,
+    "capabilities": [{"capability_id":"audio.speech","status":"active","params":["voice","response_format","speed","provider_options.minimax"],"reasoning":null,"tool_call":null,"structured_output":null,"temperature":null,"attachment":false,"input_modalities":["text"],"output_modalities":["audio"],"modes":[]}],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {"execution":null,"data":null},
+    "service_tiers": [],
+    "api": {"formats":["minimax-t2a-v2"],"endpoint":"/v1/t2a_v2","deployment":null},
+    "sources": [{"kind":"documentation","url":"https://platform.minimax.io/docs/api-reference/speech-t2a-http","accessed_at":"2026-08-21T00:00:00Z"},{"kind":"pricing","url":"https://platform.minimax.io/docs/guides/pricing-paygo","accessed_at":"2026-08-21T00:00:00Z"}],
+    "verification": {"status":"verified","checked_at":"2026-08-21T00:00:00Z","notes":"Verified available legacy Turbo T2A route and pricing."},
     "rate_limits": []
   },
   {

@@ -246,6 +246,9 @@ inline constexpr std::string_view ESSENTIAL_AI_RNJ_1 = "essential-ai/rnj-1";
 // Model ID: google/gemini-2.5-flash
 // Model page: https://phaseo.app/models/google/gemini-2.5-flash
 inline constexpr std::string_view GOOGLE_GEMINI_2_5_FLASH = "google/gemini-2.5-flash";
+// Model ID: google/gemini-2.5-flash-image
+// Model page: https://phaseo.app/models/google/gemini-2.5-flash-image
+inline constexpr std::string_view GOOGLE_GEMINI_2_5_FLASH_IMAGE = "google/gemini-2.5-flash-image";
 // Model ID: google/gemini-2.5-flash-lite
 // Model page: https://phaseo.app/models/google/gemini-2.5-flash-lite
 inline constexpr std::string_view GOOGLE_GEMINI_2_5_FLASH_LITE = "google/gemini-2.5-flash-lite";
@@ -315,9 +318,6 @@ inline constexpr std::string_view GOOGLE_GEMINI_ROBOTICS_ER_2_PREVIEW = "google/
 // Model ID: google/gemma-3-27b
 // Model page: https://phaseo.app/models/google/gemma-3-27b
 inline constexpr std::string_view GOOGLE_GEMMA_3_27B = "google/gemma-3-27b";
-// Model ID: google/gemma-3n-e4b
-// Model page: https://phaseo.app/models/google/gemma-3n-e4b
-inline constexpr std::string_view GOOGLE_GEMMA_3N_E4B = "google/gemma-3n-e4b";
 // Model ID: google/gemma-4-26b-a4b
 // Model page: https://phaseo.app/models/google/gemma-4-26b-a4b
 inline constexpr std::string_view GOOGLE_GEMMA_4_26B_A4B = "google/gemma-4-26b-a4b";
@@ -333,6 +333,9 @@ inline constexpr std::string_view GOOGLE_GEMMA_4_31B_IT = "google/gemma-4-31b-it
 // Model ID: google/gemma-4-31b:free
 // Model page: https://phaseo.app/models/google/gemma-4-31b%3Afree
 inline constexpr std::string_view GOOGLE_GEMMA_4_31B_FREE = "google/gemma-4-31b:free";
+// Model ID: google/imagen-4.0-preview
+// Model page: https://phaseo.app/models/google/imagen-4.0-preview
+inline constexpr std::string_view GOOGLE_IMAGEN_4_0_PREVIEW = "google/imagen-4.0-preview";
 // Model ID: google/lyria-3-clip-preview
 // Model page: https://phaseo.app/models/google/lyria-3-clip-preview
 inline constexpr std::string_view GOOGLE_LYRIA_3_CLIP_PREVIEW = "google/lyria-3-clip-preview";
@@ -408,6 +411,9 @@ inline constexpr std::string_view KWAIPILOT_KAT_CODER_PRO_V2_5 = "kwaipilot/kat-
 // Model ID: liquid-ai/lfm-2-24b-a2b
 // Model page: https://phaseo.app/models/liquid-ai/lfm-2-24b-a2b
 inline constexpr std::string_view LIQUID_AI_LFM_2_24B_A2B = "liquid-ai/lfm-2-24b-a2b";
+// Model ID: liquid-ai/lfm-2.5-8b-a1b
+// Model page: https://phaseo.app/models/liquid-ai/lfm-2.5-8b-a1b
+inline constexpr std::string_view LIQUID_AI_LFM_2_5_8B_A1B = "liquid-ai/lfm-2.5-8b-a1b";
 // Model ID: ltx-2-3-fast
 // Model page: https://phaseo.app/models/ltx-2-3-fast
 inline constexpr std::string_view LTX_2_3_FAST = "ltx-2-3-fast";
@@ -426,9 +432,6 @@ inline constexpr std::string_view MEITUAN_LONGCAT_2_0 = "meituan/longcat-2.0";
 // Model ID: meta/llama-3-8b
 // Model page: https://phaseo.app/models/meta/llama-3-8b
 inline constexpr std::string_view META_LLAMA_3_8B = "meta/llama-3-8b";
-// Model ID: meta/llama-3-8b-lite
-// Model page: https://phaseo.app/models/meta/llama-3-8b-lite
-inline constexpr std::string_view META_LLAMA_3_8B_LITE = "meta/llama-3-8b-lite";
 // Model ID: meta/llama-3.1-70b
 // Model page: https://phaseo.app/models/meta/llama-3.1-70b
 inline constexpr std::string_view META_LLAMA_3_1_70B = "meta/llama-3.1-70b";
@@ -489,6 +492,9 @@ inline constexpr std::string_view MINIMAX_HAILUO_2_3 = "minimax/hailuo-2.3";
 // Model ID: minimax/hailuo-2.3-fast
 // Model page: https://phaseo.app/models/minimax/hailuo-2.3-fast
 inline constexpr std::string_view MINIMAX_HAILUO_2_3_FAST = "minimax/hailuo-2.3-fast";
+// Model ID: minimax/image-01
+// Model page: https://phaseo.app/models/minimax/image-01
+inline constexpr std::string_view MINIMAX_IMAGE_01 = "minimax/image-01";
 // Model ID: minimax/m2-her
 // Model page: https://phaseo.app/models/minimax/m2-her
 inline constexpr std::string_view MINIMAX_M2_HER = "minimax/m2-her";
@@ -516,9 +522,21 @@ inline constexpr std::string_view MINIMAX_MINIMAX_M3 = "minimax/minimax-m3";
 // Model ID: minimax/music-2.6
 // Model page: https://phaseo.app/models/minimax/music-2.6
 inline constexpr std::string_view MINIMAX_MUSIC_2_6 = "minimax/music-2.6";
-// Model ID: minimax/music-2.6-free
-// Model page: https://phaseo.app/models/minimax/music-2.6-free
-inline constexpr std::string_view MINIMAX_MUSIC_2_6_FREE = "minimax/music-2.6-free";
+// Model ID: minimax/music-3.0
+// Model page: https://phaseo.app/models/minimax/music-3.0
+inline constexpr std::string_view MINIMAX_MUSIC_3_0 = "minimax/music-3.0";
+// Model ID: minimax/speech-2.6-hd
+// Model page: https://phaseo.app/models/minimax/speech-2.6-hd
+inline constexpr std::string_view MINIMAX_SPEECH_2_6_HD = "minimax/speech-2.6-hd";
+// Model ID: minimax/speech-2.6-turbo
+// Model page: https://phaseo.app/models/minimax/speech-2.6-turbo
+inline constexpr std::string_view MINIMAX_SPEECH_2_6_TURBO = "minimax/speech-2.6-turbo";
+// Model ID: minimax/speech-2.8-hd
+// Model page: https://phaseo.app/models/minimax/speech-2.8-hd
+inline constexpr std::string_view MINIMAX_SPEECH_2_8_HD = "minimax/speech-2.8-hd";
+// Model ID: minimax/speech-2.8-turbo
+// Model page: https://phaseo.app/models/minimax/speech-2.8-turbo
+inline constexpr std::string_view MINIMAX_SPEECH_2_8_TURBO = "minimax/speech-2.8-turbo";
 // Model ID: mistral/codestral
 // Model page: https://phaseo.app/models/mistral/codestral
 inline constexpr std::string_view MISTRAL_CODESTRAL = "mistral/codestral";
@@ -654,12 +672,18 @@ inline constexpr std::string_view MOONSHOTAI_MOONSHOT_V1_8K = "moonshotai/moonsh
 // Model ID: moonshotai/moonshot-v1-8k-vision-preview
 // Model page: https://phaseo.app/models/moonshotai/moonshot-v1-8k-vision-preview
 inline constexpr std::string_view MOONSHOTAI_MOONSHOT_V1_8K_VISION_PREVIEW = "moonshotai/moonshot-v1-8k-vision-preview";
+// Model ID: morph/morph-compactor
+// Model page: https://phaseo.app/models/morph/morph-compactor
+inline constexpr std::string_view MORPH_MORPH_COMPACTOR = "morph/morph-compactor";
 // Model ID: morph/morph-v3-fast
 // Model page: https://phaseo.app/models/morph/morph-v3-fast
 inline constexpr std::string_view MORPH_MORPH_V3_FAST = "morph/morph-v3-fast";
 // Model ID: morph/morph-v3-large
 // Model page: https://phaseo.app/models/morph/morph-v3-large
 inline constexpr std::string_view MORPH_MORPH_V3_LARGE = "morph/morph-v3-large";
+// Model ID: morph/morph-warp-grep-v2.1
+// Model page: https://phaseo.app/models/morph/morph-warp-grep-v2.1
+inline constexpr std::string_view MORPH_MORPH_WARP_GREP_V2_1 = "morph/morph-warp-grep-v2.1";
 // Model ID: nex-agi/deepseek-v3.1-nex-n1
 // Model page: https://phaseo.app/models/nex-agi/deepseek-v3.1-nex-n1
 inline constexpr std::string_view NEX_AGI_DEEPSEEK_V3_1_NEX_N1 = "nex-agi/deepseek-v3.1-nex-n1";
@@ -924,6 +948,9 @@ inline constexpr std::string_view POOLSIDE_LAGUNA_S_2_1_FREE = "poolside/laguna-
 // Model ID: poolside/laguna-xs-2.1:free
 // Model page: https://phaseo.app/models/poolside/laguna-xs-2.1%3Afree
 inline constexpr std::string_view POOLSIDE_LAGUNA_XS_2_1_FREE = "poolside/laguna-xs-2.1:free";
+// Model ID: prism-ml/ternary-bonsai-27b
+// Model page: https://phaseo.app/models/prism-ml/ternary-bonsai-27b
+inline constexpr std::string_view PRISM_ML_TERNARY_BONSAI_27B = "prism-ml/ternary-bonsai-27b";
 // Model ID: qwen/qvq-max
 // Model page: https://phaseo.app/models/qwen/qvq-max
 inline constexpr std::string_view QWEN_QVQ_MAX = "qwen/qvq-max";
@@ -936,6 +963,9 @@ inline constexpr std::string_view QWEN_QWEN_FLASH = "qwen/qwen-flash";
 // Model ID: qwen/qwen-flash-character
 // Model page: https://phaseo.app/models/qwen/qwen-flash-character
 inline constexpr std::string_view QWEN_QWEN_FLASH_CHARACTER = "qwen/qwen-flash-character";
+// Model ID: qwen/qwen-image
+// Model page: https://phaseo.app/models/qwen/qwen-image
+inline constexpr std::string_view QWEN_QWEN_IMAGE = "qwen/qwen-image";
 // Model ID: qwen/qwen-max
 // Model page: https://phaseo.app/models/qwen/qwen-max
 inline constexpr std::string_view QWEN_QWEN_MAX = "qwen/qwen-max";
@@ -1236,6 +1266,12 @@ inline constexpr std::string_view QWEN_QWEN3_7_PLUS = "qwen/qwen3.7-plus";
 // Model ID: qwen/qwen3.7-plus-2026-05-26
 // Model page: https://phaseo.app/models/qwen/qwen3.7-plus-2026-05-26
 inline constexpr std::string_view QWEN_QWEN3_7_PLUS_2026_05_26 = "qwen/qwen3.7-plus-2026-05-26";
+// Model ID: qwen/qwen3.8-2.4t-a95b
+// Model page: https://phaseo.app/models/qwen/qwen3.8-2.4t-a95b
+inline constexpr std::string_view QWEN_QWEN3_8_2_4T_A95B = "qwen/qwen3.8-2.4t-a95b";
+// Model ID: qwen/qwen3.8-27b
+// Model page: https://phaseo.app/models/qwen/qwen3.8-27b
+inline constexpr std::string_view QWEN_QWEN3_8_27B = "qwen/qwen3.8-27b";
 // Model ID: qwen/qwen3.8-max
 // Model page: https://phaseo.app/models/qwen/qwen3.8-max
 inline constexpr std::string_view QWEN_QWEN3_8_MAX = "qwen/qwen3.8-max";
@@ -1464,9 +1500,6 @@ inline constexpr std::string_view Z_AI_AUTOGLM_PHONE_9B_MULTILINGUAL = "z-ai/aut
 // Model ID: z-ai/glm-4-32b
 // Model page: https://phaseo.app/models/z-ai/glm-4-32b
 inline constexpr std::string_view Z_AI_GLM_4_32B = "z-ai/glm-4-32b";
-// Model ID: z-ai/glm-4-7-flash:free
-// Model page: https://phaseo.app/models/z-ai/glm-4-7-flash%3Afree
-inline constexpr std::string_view Z_AI_GLM_4_7_FLASH_FREE = "z-ai/glm-4-7-flash:free";
 // Model ID: z-ai/glm-4.5
 // Model page: https://phaseo.app/models/z-ai/glm-4.5
 inline constexpr std::string_view Z_AI_GLM_4_5 = "z-ai/glm-4.5";
@@ -1500,9 +1533,6 @@ inline constexpr std::string_view Z_AI_GLM_4_7_FLASH = "z-ai/glm-4.7-flash";
 // Model ID: z-ai/glm-5
 // Model page: https://phaseo.app/models/z-ai/glm-5
 inline constexpr std::string_view Z_AI_GLM_5 = "z-ai/glm-5";
-// Model ID: z-ai/glm-5-code
-// Model page: https://phaseo.app/models/z-ai/glm-5-code
-inline constexpr std::string_view Z_AI_GLM_5_CODE = "z-ai/glm-5-code";
 // Model ID: z-ai/glm-5-turbo
 // Model page: https://phaseo.app/models/z-ai/glm-5-turbo
 inline constexpr std::string_view Z_AI_GLM_5_TURBO = "z-ai/glm-5-turbo";
@@ -1527,7 +1557,7 @@ inline constexpr std::string_view ZAI_GLM_5 = "zai/glm-5";
 // Deprecated alias for deepseek/deepseek-v4; use deepseek/deepseek-v4-pro. Remove in the next major SDK release.
 inline constexpr std::string_view DEEPSEEK_DEEPSEEK_V4 = DEEPSEEK_DEEPSEEK_V4_PRO;
 
-inline constexpr std::array<std::string_view, 506> ALL = {
+inline constexpr std::array<std::string_view, 516> ALL = {
 	AI21_JAMBA_LARGE_1_7,
 	AI21_JAMBA_MINI_2,
 	AION_LABS_AION_2_0,
@@ -1608,6 +1638,7 @@ inline constexpr std::array<std::string_view, 506> ALL = {
 	ELEVEN_LABS_SCRIBE_V2,
 	ESSENTIAL_AI_RNJ_1,
 	GOOGLE_GEMINI_2_5_FLASH,
+	GOOGLE_GEMINI_2_5_FLASH_IMAGE,
 	GOOGLE_GEMINI_2_5_FLASH_LITE,
 	GOOGLE_GEMINI_2_5_PRO,
 	GOOGLE_GEMINI_3_FLASH_PREVIEW,
@@ -1631,12 +1662,12 @@ inline constexpr std::array<std::string_view, 506> ALL = {
 	GOOGLE_GEMINI_ROBOTICS_ER_1_6_PREVIEW,
 	GOOGLE_GEMINI_ROBOTICS_ER_2_PREVIEW,
 	GOOGLE_GEMMA_3_27B,
-	GOOGLE_GEMMA_3N_E4B,
 	GOOGLE_GEMMA_4_26B_A4B,
 	GOOGLE_GEMMA_4_26B_A4B_FREE,
 	GOOGLE_GEMMA_4_31B,
 	GOOGLE_GEMMA_4_31B_IT,
 	GOOGLE_GEMMA_4_31B_FREE,
+	GOOGLE_IMAGEN_4_0_PREVIEW,
 	GOOGLE_LYRIA_3_CLIP_PREVIEW,
 	GOOGLE_LYRIA_3_PRO_PREVIEW,
 	GOOGLE_VEO_2,
@@ -1662,13 +1693,13 @@ inline constexpr std::array<std::string_view, 506> ALL = {
 	KWAIPILOT_KAT_CODER_PRO_V2,
 	KWAIPILOT_KAT_CODER_PRO_V2_5,
 	LIQUID_AI_LFM_2_24B_A2B,
+	LIQUID_AI_LFM_2_5_8B_A1B,
 	LTX_2_3_FAST,
 	LTX_2_3_PRO,
 	LTX_2_5_FAST,
 	LTX_2_5_PRO,
 	MEITUAN_LONGCAT_2_0,
 	META_LLAMA_3_8B,
-	META_LLAMA_3_8B_LITE,
 	META_LLAMA_3_1_70B,
 	META_LLAMA_3_1_8B,
 	META_LLAMA_3_2_11B_VISION,
@@ -1689,6 +1720,7 @@ inline constexpr std::array<std::string_view, 506> ALL = {
 	MINIMAX_HAILUO_02,
 	MINIMAX_HAILUO_2_3,
 	MINIMAX_HAILUO_2_3_FAST,
+	MINIMAX_IMAGE_01,
 	MINIMAX_M2_HER,
 	MINIMAX_MINIMAX_M1_80K,
 	MINIMAX_MINIMAX_M2,
@@ -1698,7 +1730,11 @@ inline constexpr std::array<std::string_view, 506> ALL = {
 	MINIMAX_MINIMAX_M2_7,
 	MINIMAX_MINIMAX_M3,
 	MINIMAX_MUSIC_2_6,
-	MINIMAX_MUSIC_2_6_FREE,
+	MINIMAX_MUSIC_3_0,
+	MINIMAX_SPEECH_2_6_HD,
+	MINIMAX_SPEECH_2_6_TURBO,
+	MINIMAX_SPEECH_2_8_HD,
+	MINIMAX_SPEECH_2_8_TURBO,
 	MISTRAL_CODESTRAL,
 	MISTRAL_CODESTRAL_EMBED,
 	MISTRAL_DEVSTRAL_2,
@@ -1744,8 +1780,10 @@ inline constexpr std::array<std::string_view, 506> ALL = {
 	MOONSHOTAI_MOONSHOT_V1_32K_VISION_PREVIEW,
 	MOONSHOTAI_MOONSHOT_V1_8K,
 	MOONSHOTAI_MOONSHOT_V1_8K_VISION_PREVIEW,
+	MORPH_MORPH_COMPACTOR,
 	MORPH_MORPH_V3_FAST,
 	MORPH_MORPH_V3_LARGE,
+	MORPH_MORPH_WARP_GREP_V2_1,
 	NEX_AGI_DEEPSEEK_V3_1_NEX_N1,
 	NOUS_HERMES_3_LLAMA_3_1_405B,
 	NOUSRESEARCH_HERMES_3_LLAMA_3_1_70B,
@@ -1834,10 +1872,12 @@ inline constexpr std::array<std::string_view, 506> ALL = {
 	POOLSIDE_LAGUNA_M_1_FREE,
 	POOLSIDE_LAGUNA_S_2_1_FREE,
 	POOLSIDE_LAGUNA_XS_2_1_FREE,
+	PRISM_ML_TERNARY_BONSAI_27B,
 	QWEN_QVQ_MAX,
 	QWEN_QWEN_3_6_PLUS,
 	QWEN_QWEN_FLASH,
 	QWEN_QWEN_FLASH_CHARACTER,
+	QWEN_QWEN_IMAGE,
 	QWEN_QWEN_MAX,
 	QWEN_QWEN_MT_FLASH,
 	QWEN_QWEN_MT_LITE,
@@ -1938,6 +1978,8 @@ inline constexpr std::array<std::string_view, 506> ALL = {
 	QWEN_QWEN3_7_MAX_2026_05_17,
 	QWEN_QWEN3_7_PLUS,
 	QWEN_QWEN3_7_PLUS_2026_05_26,
+	QWEN_QWEN3_8_2_4T_A95B,
+	QWEN_QWEN3_8_27B,
 	QWEN_QWEN3_8_MAX,
 	QWEN_QWQ_32B,
 	QWEN_QWQ_PLUS,
@@ -2014,7 +2056,6 @@ inline constexpr std::array<std::string_view, 506> ALL = {
 	XIAOMI_MIMO_V2_5_TTS_FREE,
 	Z_AI_AUTOGLM_PHONE_9B_MULTILINGUAL,
 	Z_AI_GLM_4_32B,
-	Z_AI_GLM_4_7_FLASH_FREE,
 	Z_AI_GLM_4_5,
 	Z_AI_GLM_4_5_AIR,
 	Z_AI_GLM_4_5_AIR_X,
@@ -2026,7 +2067,6 @@ inline constexpr std::array<std::string_view, 506> ALL = {
 	Z_AI_GLM_4_7,
 	Z_AI_GLM_4_7_FLASH,
 	Z_AI_GLM_5,
-	Z_AI_GLM_5_CODE,
 	Z_AI_GLM_5_TURBO,
 	Z_AI_GLM_5_1,
 	Z_AI_GLM_5_2,
