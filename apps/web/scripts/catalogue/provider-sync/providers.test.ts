@@ -4,6 +4,7 @@ import { parseProviderModelList } from "./provider";
 describe("provider sync registry", () => {
 	test("registers explicit provider modules", () => {
 		expect(getProviderSyncProviderIds()).toEqual([
+			"deepinfra",
 			"fastrouter",
 			"kilo",
 			"nano-gpt",
@@ -16,6 +17,52 @@ describe("provider sync registry", () => {
 			"vercel",
 			"zenmux",
 		]);
+	});
+
+	test("does not invent a zero DeepInfra cache price when no cache rate is published", () => {
+		const provider = getProviderSyncProvider("deepinfra");
+		const [model] = provider!.parseModels({
+			current: { data: [{ id: "example/model" }] },
+			details: [{
+				model_name: "example/model",
+				reported_type: "text-generation",
+				pricing: {
+					type: "tokens",
+					cents_per_input_token: 0.00001,
+					cents_per_output_token: 0.00002,
+					rate_per_input_token_cached: null,
+				},
+			}],
+		});
+		expect(model?.details.metadata).toEqual({ pricing: { input_tokens: 0.1, output_tokens: 0.2 } });
+	});
+
+	test("joins DeepInfra's current inventory to its detailed pricing feed", async () => {
+		const provider = getProviderSyncProvider("deepinfra");
+		const request = jest.fn(async (input: RequestInfo | URL) => new Response(JSON.stringify(
+			String(input).includes("v1/openai/models")
+				? { data: [{ id: "example/model" }] }
+				: [{
+					model_name: "example/model",
+					reported_type: "text-generation",
+					max_tokens: 131072,
+					pricing: {
+						type: "tokens",
+						cents_per_input_token: 0.00001,
+						cents_per_output_token: 0.00002,
+						rate_per_input_token_cached: 0.2,
+					},
+				}],
+		), { status: 200 }));
+
+		const payload = await provider!.fetchModels(request);
+		expect(provider!.parseModels(payload)).toEqual([expect.objectContaining({
+			id: "example/model",
+			details: expect.objectContaining({
+				context_length: 131072,
+				metadata: { pricing: { input_tokens: 0.1, output_tokens: 0.2, cache_read_tokens: 0.02 } },
+			}),
+		})]);
 	});
 
 	test("parses common provider model list envelopes", () => {

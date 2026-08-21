@@ -1,15 +1,15 @@
 {
-  "key": "deepinfra:mistral/mistral-small-24b-2501:text.generate",
+  "key": "deepinfra:qwen/qwen3.8-2.4t-a95b:text.generate",
   "api_provider_id": "deepinfra",
   "provider_slug": "deepinfra",
-  "api_model_id": "mistral/mistral-small-24b-2501",
+  "api_model_id": "qwen/qwen3.8-2.4t-a95b",
   "capability_id": "text.generate",
   "rules": [
     {
       "meter": "input_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.05,
+      "price_per_unit": 2,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
@@ -24,7 +24,7 @@
       "meter": "output_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.08,
+      "price_per_unit": 5.999999999999999,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
@@ -36,27 +36,12 @@
       "source": null
     },
     {
-      "meter": "input_text_tokens",
+      "meter": "cached_read_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.04000000000000001,
+      "price_per_unit": 0.2,
       "currency": "USD",
-      "pricing_plan": "flex",
-      "note": null,
-      "match": [],
-      "priority": 100,
-      "region": null,
-      "cache_duration_seconds": null,
-      "conditions": [],
-      "source": null
-    },
-    {
-      "meter": "output_text_tokens",
-      "unit": "token",
-      "unit_size": 1000000,
-      "price_per_unit": 0.064,
-      "currency": "USD",
-      "pricing_plan": "flex",
+      "pricing_plan": "standard",
       "note": null,
       "match": [],
       "priority": 100,
@@ -68,8 +53,7 @@
   ],
   "regions": [],
   "service_tiers": [
-    "standard",
-    "flex"
+    "standard"
   ],
   "sources": [
     {
