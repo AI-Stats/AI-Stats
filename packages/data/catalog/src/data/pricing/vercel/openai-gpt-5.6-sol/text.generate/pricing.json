@@ -9,6 +9,74 @@
       "meter": "cached_read_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
+      "price_per_unit": 0.25,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "50% promotional price through September 18, 2026.",
+      "match": [],
+      "priority": 200,
+      "effective_from": "2026-08-19T00:00:00Z",
+      "effective_to": "2026-09-19T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://vercel.com/ai-gateway/models/gpt-5.6-sol"
+    },
+    {
+      "meter": "cached_write_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 3.125,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "50% promotional price through September 18, 2026.",
+      "match": [],
+      "priority": 200,
+      "effective_from": "2026-08-19T00:00:00Z",
+      "effective_to": "2026-09-19T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://vercel.com/ai-gateway/models/gpt-5.6-sol"
+    },
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 2.5,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "50% promotional price through September 18, 2026.",
+      "match": [],
+      "priority": 200,
+      "effective_from": "2026-08-19T00:00:00Z",
+      "effective_to": "2026-09-19T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://vercel.com/ai-gateway/models/gpt-5.6-sol"
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 15,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "50% promotional price through September 18, 2026.",
+      "match": [],
+      "priority": 200,
+      "effective_from": "2026-08-19T00:00:00Z",
+      "effective_to": "2026-09-19T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://vercel.com/ai-gateway/models/gpt-5.6-sol"
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
       "price_per_unit": 0.5,
       "currency": "USD",
       "pricing_plan": "standard",
@@ -71,6 +139,7 @@
     "standard"
   ],
   "sources": [
+    "https://vercel.com/ai-gateway/models/gpt-5.6-sol",
     {
       "kind": "provider_models",
       "url": "https://ai-gateway.vercel.sh/v1/models",
@@ -79,8 +148,8 @@
     }
   ],
   "verification": {
-    "status": "partial",
-    "checked_at": "2026-08-11T12:09:32.551Z",
-    "notes": "Pricing synchronized from the provider models API."
+    "status": "verified",
+    "checked_at": "2026-08-21T00:00:00Z",
+    "notes": "Verified against Vercel AI Gateway's GPT-5.6 Sol pricing page. The 50% promotion runs through September 18, 2026."
   }
 }
