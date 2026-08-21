@@ -7,31 +7,41 @@ const sharedFeatures = ["SAML SSO and SCIM", "Departments and workspace roles", 
 
 export function EnterprisePricingSection() {
 	return (
-		<section className="relative overflow-hidden rounded-[1.75rem] border border-zinc-200/80 bg-zinc-950 px-5 py-8 text-zinc-50 shadow-[0_28px_90px_-58px_rgba(16,185,129,0.9)] dark:border-zinc-800 sm:px-8 sm:py-10">
-			<div className="pointer-events-none absolute -right-28 -top-32 h-80 w-80 rounded-full bg-emerald-400/15 blur-3xl" />
-			<div className="relative grid gap-8 lg:grid-cols-[0.75fr_1.25fr]">
-				<div>
-					<p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300">Enterprise, self-serve</p>
-					<h2 className="mt-3 max-w-lg text-3xl font-semibold tracking-[-0.035em] sm:text-4xl">Identity and payment terms that switch on immediately.</h2>
-					<p className="mt-4 max-w-lg text-sm leading-6 text-zinc-300">Choose Core for enterprise controls with standard credit pricing. Choose Included Payments to remove Phaseo’s surcharge within a monthly allowance and on supported USD bank transfers.</p>
-					<ul className="mt-6 grid gap-2 text-sm text-zinc-200 sm:grid-cols-2 lg:grid-cols-1">
-						{sharedFeatures.map((feature) => <li key={feature} className="flex gap-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />{feature}</li>)}
+		<section className="space-y-6">
+			<div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+				<div className="max-w-3xl">
+					<p className="text-sm font-medium text-muted-foreground">Enterprise, self-serve</p>
+					<h2 className="mt-2 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">Identity and payment terms for larger teams</h2>
+					<p className="mt-2 text-sm leading-6 text-muted-foreground">Add SSO, SCIM, governance and priority support without changing how model usage is billed. Included Payments adds a monthly fee-free card allowance and supported USD bank transfers.</p>
+				</div>
+				<Button asChild className="h-10 shrink-0"><Link href="/settings/workspaces/settings?enterprise=configure">Build my plan <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
+			</div>
+
+			<div className="grid border-y border-zinc-200/80 dark:border-zinc-800/80 lg:grid-cols-[0.72fr_1.28fr] lg:divide-x lg:divide-zinc-200/80 lg:dark:divide-zinc-800/80">
+				<div className="py-6 lg:pr-8">
+					<div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-1">
+						<div><div className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-foreground" /><h3 className="text-sm font-semibold">Core</h3></div><p className="mt-2 text-sm leading-6 text-muted-foreground">Enterprise controls with the standard 5% credit top-up fee.</p></div>
+						<div><div className="flex items-center gap-2"><Landmark className="h-4 w-4 text-foreground" /><h3 className="text-sm font-semibold">Included Payments</h3></div><p className="mt-2 text-sm leading-6 text-muted-foreground">The same controls, plus included payment benefits for predictable monthly funding.</p></div>
+					</div>
+					<ul className="mt-6 grid gap-2 text-sm text-foreground sm:grid-cols-2 lg:grid-cols-1">
+						{sharedFeatures.map((feature) => <li key={feature} className="flex gap-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />{feature}</li>)}
 					</ul>
-					<Button asChild className="mt-7 bg-emerald-300 text-zinc-950 hover:bg-emerald-200"><Link href="/settings/workspaces/settings?enterprise=configure">Build my plan <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
-					<p className="mt-3 text-xs text-zinc-500">USD monthly billing. No sales call required.</p>
+					<p className="mt-6 text-xs text-muted-foreground">USD monthly billing. No sales call required.</p>
 				</div>
 
-				<div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.045] backdrop-blur">
-					<div className="grid grid-cols-[1.1fr_0.9fr_0.9fr] border-b border-white/10 px-4 py-3 text-xs font-medium uppercase tracking-wider text-zinc-400">
-						<span>Active members</span><span className="flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5" />Core</span><span className="flex items-center gap-1.5"><Landmark className="h-3.5 w-3.5" />Included</span>
-					</div>
-					{ENTERPRISE_TIERS.map((tier) => (
-						<div key={tier.key} className="grid grid-cols-[1.1fr_0.9fr_0.9fr] items-center border-b border-white/10 px-4 py-4 last:border-0">
-							<p className="text-sm font-medium">{tier.label}</p>
-							<div><p><span className="text-lg font-semibold">${tier.coreMonthlyUsd}</span><span className="text-xs text-zinc-500">/mo</span></p><p className="mt-1 text-[11px] text-zinc-500">Standard top-up fee</p></div>
-							<div><p><span className="text-lg font-semibold text-emerald-300">${tier.includedPaymentsMonthlyUsd}</span><span className="text-xs text-zinc-500">/mo</span></p><p className="mt-1 text-[11px] text-zinc-500">${tier.includedCardTopUpUsd.toLocaleString("en-US")} allowance</p></div>
+				<div className="overflow-x-auto py-2 lg:pl-8">
+					<div className="min-w-[34rem]">
+						<div className="grid grid-cols-[1.1fr_0.9fr_0.9fr] border-b border-zinc-200/80 px-3 py-3 text-xs font-medium text-muted-foreground dark:border-zinc-800/80">
+							<span>Active members</span><span>Core</span><span>Included Payments</span>
 						</div>
-					))}
+						{ENTERPRISE_TIERS.map((tier) => (
+							<div key={tier.key} className="grid grid-cols-[1.1fr_0.9fr_0.9fr] items-center border-b border-zinc-200/70 px-3 py-4 last:border-0 dark:border-zinc-800/70">
+								<p className="text-sm font-medium text-foreground">{tier.label}</p>
+								<div><p><span className="text-base font-semibold text-foreground">${tier.coreMonthlyUsd}</span><span className="text-xs text-muted-foreground">/month</span></p><p className="mt-1 text-xs text-muted-foreground">Standard top-up fee</p></div>
+								<div><p><span className="text-base font-semibold text-foreground">${tier.includedPaymentsMonthlyUsd}</span><span className="text-xs text-muted-foreground">/month</span></p><p className="mt-1 text-xs text-muted-foreground">${tier.includedCardTopUpUsd.toLocaleString("en-US")} allowance</p></div>
+							</div>
+						))}
+					</div>
 				</div>
 			</div>
 		</section>
