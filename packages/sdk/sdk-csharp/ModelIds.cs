@@ -6,10 +6,6 @@ namespace PhaseoSdk
     /// <summary>Known model ID constants for editor autocomplete and hover docs.</summary>
     public static class ModelIds
     {
-        /// <summary>Model ID: <c>ai21/jamba-large-1.7</c>. Model page: https://phaseo.app/models/ai21/jamba-large-1.7</summary>
-        public const string Ai21JambaLarge17 = "ai21/jamba-large-1.7";
-        /// <summary>Model ID: <c>ai21/jamba-mini-2</c>. Model page: https://phaseo.app/models/ai21/jamba-mini-2</summary>
-        public const string Ai21JambaMini2 = "ai21/jamba-mini-2";
         /// <summary>Model ID: <c>aion-labs/aion-2.0</c>. Model page: https://phaseo.app/models/aion-labs/aion-2.0</summary>
         public const string AionLabsAion20 = "aion-labs/aion-2.0";
         /// <summary>Model ID: <c>aion-labs/aion-3.0</c>. Model page: https://phaseo.app/models/aion-labs/aion-3.0</summary>

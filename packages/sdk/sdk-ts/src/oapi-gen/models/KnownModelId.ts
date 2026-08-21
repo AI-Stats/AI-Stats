@@ -2,8 +2,6 @@
  * Known callable model identifier snapshot used for SDK helper constants and autocomplete.
  */
 export type KnownModelId =
-  | "ai21/jamba-large-1.7"
-  | "ai21/jamba-mini-2"
   | "aion-labs/aion-2.0"
   | "aion-labs/aion-3.0"
   | "aion-labs/aion-3.0-mini"

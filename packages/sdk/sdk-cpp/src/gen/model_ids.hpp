@@ -6,12 +6,6 @@
 #include <string_view>
 
 namespace phaseo::sdk::model_ids {
-// Model ID: ai21/jamba-large-1.7
-// Model page: https://phaseo.app/models/ai21/jamba-large-1.7
-inline constexpr std::string_view AI21_JAMBA_LARGE_1_7 = "ai21/jamba-large-1.7";
-// Model ID: ai21/jamba-mini-2
-// Model page: https://phaseo.app/models/ai21/jamba-mini-2
-inline constexpr std::string_view AI21_JAMBA_MINI_2 = "ai21/jamba-mini-2";
 // Model ID: aion-labs/aion-2.0
 // Model page: https://phaseo.app/models/aion-labs/aion-2.0
 inline constexpr std::string_view AION_LABS_AION_2_0 = "aion-labs/aion-2.0";
@@ -1557,9 +1551,7 @@ inline constexpr std::string_view ZAI_GLM_5 = "zai/glm-5";
 // Deprecated alias for deepseek/deepseek-v4; use deepseek/deepseek-v4-pro. Remove in the next major SDK release.
 inline constexpr std::string_view DEEPSEEK_DEEPSEEK_V4 = DEEPSEEK_DEEPSEEK_V4_PRO;
 
-inline constexpr std::array<std::string_view, 516> ALL = {
-	AI21_JAMBA_LARGE_1_7,
-	AI21_JAMBA_MINI_2,
+inline constexpr std::array<std::string_view, 514> ALL = {
 	AION_LABS_AION_2_0,
 	AION_LABS_AION_3_0,
 	AION_LABS_AION_3_0_MINI,
