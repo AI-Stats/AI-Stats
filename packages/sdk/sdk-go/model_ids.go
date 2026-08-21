@@ -7,12 +7,6 @@ import gen "github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/v2/src/gen"
 
 // ModelIds contains known model IDs for editor autocomplete and hover docs.
 const (
-	// Model ID: ai21/jamba-large-1.7
-	// Model page: https://phaseo.app/models/ai21/jamba-large-1.7
-	ModelIDAi21JambaLarge17 gen.ModelId = "ai21/jamba-large-1.7"
-	// Model ID: ai21/jamba-mini-2
-	// Model page: https://phaseo.app/models/ai21/jamba-mini-2
-	ModelIDAi21JambaMini2 gen.ModelId = "ai21/jamba-mini-2"
 	// Model ID: aion-labs/aion-2.0
 	// Model page: https://phaseo.app/models/aion-labs/aion-2.0
 	ModelIDAionLabsAion20 gen.ModelId = "aion-labs/aion-2.0"
@@ -1560,8 +1554,6 @@ const (
 )
 
 var KnownModelIDs = []gen.ModelId{
-	ModelIDAi21JambaLarge17,
-	ModelIDAi21JambaMini2,
 	ModelIDAionLabsAion20,
 	ModelIDAionLabsAion30,
 	ModelIDAionLabsAion30Mini,

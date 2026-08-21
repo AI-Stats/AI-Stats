@@ -3,10 +3,6 @@
 
 /** Known callable model ID constants for editor autocomplete and hover docs. */
 export const ModelIds = {
-  /** Model ID: `ai21/jamba-large-1.7`. Model page: https://phaseo.app/models/ai21/jamba-large-1.7 */
-  AI21_JAMBA_LARGE_1_7: "ai21/jamba-large-1.7",
-  /** Model ID: `ai21/jamba-mini-2`. Model page: https://phaseo.app/models/ai21/jamba-mini-2 */
-  AI21_JAMBA_MINI_2: "ai21/jamba-mini-2",
   /** Model ID: `aion-labs/aion-2.0`. Model page: https://phaseo.app/models/aion-labs/aion-2.0 */
   AION_LABS_AION_2_0: "aion-labs/aion-2.0",
   /** Model ID: `aion-labs/aion-3.0`. Model page: https://phaseo.app/models/aion-labs/aion-3.0 */

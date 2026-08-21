@@ -1588,8 +1588,6 @@ type KeyInvalidateResponse struct {
 type KnownModelId string
 
 const (
-	KnownModelIdAi21JambaLarge17 KnownModelId = "ai21/jamba-large-1.7"
-	KnownModelIdAi21JambaMini2 KnownModelId = "ai21/jamba-mini-2"
 	KnownModelIdAionLabsAion20 KnownModelId = "aion-labs/aion-2.0"
 	KnownModelIdAionLabsAion30 KnownModelId = "aion-labs/aion-3.0"
 	KnownModelIdAionLabsAion30Mini KnownModelId = "aion-labs/aion-3.0-mini"

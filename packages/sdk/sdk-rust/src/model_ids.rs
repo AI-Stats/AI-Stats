@@ -3,12 +3,6 @@
 
 /// Known model ID constants for editor autocomplete and hover docs.
 pub mod model_ids {
-    /// Model ID: `ai21/jamba-large-1.7`.
-    /// Model page: https://phaseo.app/models/ai21/jamba-large-1.7
-    pub const AI21_JAMBA_LARGE_1_7: &str = "ai21/jamba-large-1.7";
-    /// Model ID: `ai21/jamba-mini-2`.
-    /// Model page: https://phaseo.app/models/ai21/jamba-mini-2
-    pub const AI21_JAMBA_MINI_2: &str = "ai21/jamba-mini-2";
     /// Model ID: `aion-labs/aion-2.0`.
     /// Model page: https://phaseo.app/models/aion-labs/aion-2.0
     pub const AION_LABS_AION_2_0: &str = "aion-labs/aion-2.0";
@@ -1556,8 +1550,6 @@ pub mod model_ids {
     pub const DEEPSEEK_DEEPSEEK_V4: &str = DEEPSEEK_DEEPSEEK_V4_PRO;
 
     pub const ALL: &[&str] = &[
-        AI21_JAMBA_LARGE_1_7,
-        AI21_JAMBA_MINI_2,
         AION_LABS_AION_2_0,
         AION_LABS_AION_3_0,
         AION_LABS_AION_3_0_MINI,

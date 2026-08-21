@@ -8,12 +8,6 @@ namespace Phaseo\Sdk;
 
 final class ModelIds
 {
-    /** Model ID: ai21/jamba-large-1.7. Model page: https://phaseo.app/models/ai21/jamba-large-1.7 */
-    public const AI21_JAMBA_LARGE_1_7 = 'ai21/jamba-large-1.7';
-
-    /** Model ID: ai21/jamba-mini-2. Model page: https://phaseo.app/models/ai21/jamba-mini-2 */
-    public const AI21_JAMBA_MINI_2 = 'ai21/jamba-mini-2';
-
     /** Model ID: aion-labs/aion-2.0. Model page: https://phaseo.app/models/aion-labs/aion-2.0 */
     public const AION_LABS_AION_2_0 = 'aion-labs/aion-2.0';
 

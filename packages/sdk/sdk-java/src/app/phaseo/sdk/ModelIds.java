@@ -7,12 +7,6 @@ package app.phaseo.sdk;
 public final class ModelIds {
     private ModelIds() {}
 
-    /** Model ID: <code>ai21/jamba-large-1.7</code>. Model page: https://phaseo.app/models/ai21/jamba-large-1.7 */
-    public static final String AI21_JAMBA_LARGE_1_7 = "ai21/jamba-large-1.7";
-
-    /** Model ID: <code>ai21/jamba-mini-2</code>. Model page: https://phaseo.app/models/ai21/jamba-mini-2 */
-    public static final String AI21_JAMBA_MINI_2 = "ai21/jamba-mini-2";
-
     /** Model ID: <code>aion-labs/aion-2.0</code>. Model page: https://phaseo.app/models/aion-labs/aion-2.0 */
     public static final String AION_LABS_AION_2_0 = "aion-labs/aion-2.0";
 
