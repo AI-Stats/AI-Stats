@@ -733,6 +733,9 @@ const (
 	// Model ID: openai/gpt-4.1-nano
 	// Model page: https://phaseo.app/models/openai/gpt-4.1-nano
 	ModelIDOpenaiGpt41Nano gen.ModelId = "openai/gpt-4.1-nano"
+	// Model ID: openai/gpt-4o
+	// Model page: https://phaseo.app/models/openai/gpt-4o
+	ModelIDOpenaiGpt4o gen.ModelId = "openai/gpt-4o"
 	// Model ID: openai/gpt-4o-2024-05-13
 	// Model page: https://phaseo.app/models/openai/gpt-4o-2024-05-13
 	ModelIDOpenaiGpt4o20240513 gen.ModelId = "openai/gpt-4o-2024-05-13"
@@ -1285,9 +1288,12 @@ const (
 	// Model ID: sao10k/l31-70b-euryale-v2.2
 	// Model page: https://phaseo.app/models/sao10k/l31-70b-euryale-v2.2
 	ModelIDSao10kL3170bEuryaleV22 gen.ModelId = "sao10k/l31-70b-euryale-v2.2"
-	// Model ID: spacex-ai/grok-4.20-beta-0309
-	// Model page: https://phaseo.app/models/spacex-ai/grok-4.20-beta-0309
-	ModelIDSpacexAiGrok420Beta0309 gen.ModelId = "spacex-ai/grok-4.20-beta-0309"
+	// Model ID: spacex-ai/grok-4.20
+	// Model page: https://phaseo.app/models/spacex-ai/grok-4.20
+	ModelIDSpacexAiGrok420 gen.ModelId = "spacex-ai/grok-4.20"
+	// Model ID: spacex-ai/grok-4.20-multi-agent-beta
+	// Model page: https://phaseo.app/models/spacex-ai/grok-4.20-multi-agent-beta
+	ModelIDSpacexAiGrok420MultiAgentBeta gen.ModelId = "spacex-ai/grok-4.20-multi-agent-beta"
 	// Model ID: spacex-ai/grok-4.20-multi-agent-beta-0309
 	// Model page: https://phaseo.app/models/spacex-ai/grok-4.20-multi-agent-beta-0309
 	ModelIDSpacexAiGrok420MultiAgentBeta0309 gen.ModelId = "spacex-ai/grok-4.20-multi-agent-beta-0309"
@@ -1303,9 +1309,6 @@ const (
 	// Model ID: spacex-ai/grok-build-0.1
 	// Model page: https://phaseo.app/models/spacex-ai/grok-build-0.1
 	ModelIDSpacexAiGrokBuild01 gen.ModelId = "spacex-ai/grok-build-0.1"
-	// Model ID: spacex-ai/grok-code-fast-1
-	// Model page: https://phaseo.app/models/spacex-ai/grok-code-fast-1
-	ModelIDSpacexAiGrokCodeFast1 gen.ModelId = "spacex-ai/grok-code-fast-1"
 	// Model ID: spacex-ai/grok-imagine-image
 	// Model page: https://phaseo.app/models/spacex-ai/grok-imagine-image
 	ModelIDSpacexAiGrokImagineImage gen.ModelId = "spacex-ai/grok-imagine-image"
@@ -1357,12 +1360,24 @@ const (
 	// Model ID: upstage/solar-pro-4
 	// Model page: https://phaseo.app/models/upstage/solar-pro-4
 	ModelIDUpstageSolarPro4 gen.ModelId = "upstage/solar-pro-4"
-	// Model ID: venice/venice-uncensored
-	// Model page: https://phaseo.app/models/venice/venice-uncensored
-	ModelIDVeniceVeniceUncensored gen.ModelId = "venice/venice-uncensored"
-	// Model ID: venice/venice-uncensored-1.1
-	// Model page: https://phaseo.app/models/venice/venice-uncensored-1.1
-	ModelIDVeniceVeniceUncensored11 gen.ModelId = "venice/venice-uncensored-1.1"
+	// Model ID: venice/gemma-4-26b-a4b-uncensored
+	// Model page: https://phaseo.app/models/venice/gemma-4-26b-a4b-uncensored
+	ModelIDVeniceGemma426bA4bUncensored gen.ModelId = "venice/gemma-4-26b-a4b-uncensored"
+	// Model ID: venice/gemma-4-uncensored
+	// Model page: https://phaseo.app/models/venice/gemma-4-uncensored
+	ModelIDVeniceGemma4Uncensored gen.ModelId = "venice/gemma-4-uncensored"
+	// Model ID: venice/ox-alpha
+	// Model page: https://phaseo.app/models/venice/ox-alpha
+	ModelIDVeniceOxAlpha gen.ModelId = "venice/ox-alpha"
+	// Model ID: venice/qwen3.6-35b-a3b-uncensored
+	// Model page: https://phaseo.app/models/venice/qwen3.6-35b-a3b-uncensored
+	ModelIDVeniceQwen3635bA3bUncensored gen.ModelId = "venice/qwen3.6-35b-a3b-uncensored"
+	// Model ID: venice/venice-role-play-uncensored
+	// Model page: https://phaseo.app/models/venice/venice-role-play-uncensored
+	ModelIDVeniceVeniceRolePlayUncensored gen.ModelId = "venice/venice-role-play-uncensored"
+	// Model ID: venice/venice-uncensored-1.2
+	// Model page: https://phaseo.app/models/venice/venice-uncensored-1.2
+	ModelIDVeniceVeniceUncensored12 gen.ModelId = "venice/venice-uncensored-1.2"
 	// Model ID: voyage/rerank-1
 	// Model page: https://phaseo.app/models/voyage/rerank-1
 	ModelIDVoyageRerank1 gen.ModelId = "voyage/rerank-1"
@@ -1495,6 +1510,9 @@ const (
 	// Model ID: z-ai/glm-4.7-flash
 	// Model page: https://phaseo.app/models/z-ai/glm-4.7-flash
 	ModelIDZAiGlm47Flash gen.ModelId = "z-ai/glm-4.7-flash"
+	// Model ID: z-ai/glm-4.7-flash-heretic
+	// Model page: https://phaseo.app/models/z-ai/glm-4.7-flash-heretic
+	ModelIDZAiGlm47FlashHeretic gen.ModelId = "z-ai/glm-4.7-flash-heretic"
 	// Model ID: z-ai/glm-5
 	// Model page: https://phaseo.app/models/z-ai/glm-5
 	ModelIDZAiGlm5 gen.ModelId = "z-ai/glm-5"
@@ -1766,6 +1784,7 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDOpenaiGpt41,
 	ModelIDOpenaiGpt41Mini,
 	ModelIDOpenaiGpt41Nano,
+	ModelIDOpenaiGpt4o,
 	ModelIDOpenaiGpt4o20240513,
 	ModelIDOpenaiGpt4o20240806,
 	ModelIDOpenaiGpt4o20241120,
@@ -1950,13 +1969,13 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDSao10kL38bLunaris,
 	ModelIDSao10kL38bSthenoV32,
 	ModelIDSao10kL3170bEuryaleV22,
-	ModelIDSpacexAiGrok420Beta0309,
+	ModelIDSpacexAiGrok420,
+	ModelIDSpacexAiGrok420MultiAgentBeta,
 	ModelIDSpacexAiGrok420MultiAgentBeta0309,
 	ModelIDSpacexAiGrok43,
 	ModelIDSpacexAiGrok45,
 	ModelIDSpacexAiGrok46,
 	ModelIDSpacexAiGrokBuild01,
-	ModelIDSpacexAiGrokCodeFast1,
 	ModelIDSpacexAiGrokImagineImage,
 	ModelIDSpacexAiGrokImagineImage20,
 	ModelIDSpacexAiGrokImagineImageQuality,
@@ -1974,8 +1993,12 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDUpstageSolarPro2,
 	ModelIDUpstageSolarPro3,
 	ModelIDUpstageSolarPro4,
-	ModelIDVeniceVeniceUncensored,
-	ModelIDVeniceVeniceUncensored11,
+	ModelIDVeniceGemma426bA4bUncensored,
+	ModelIDVeniceGemma4Uncensored,
+	ModelIDVeniceOxAlpha,
+	ModelIDVeniceQwen3635bA3bUncensored,
+	ModelIDVeniceVeniceRolePlayUncensored,
+	ModelIDVeniceVeniceUncensored12,
 	ModelIDVoyageRerank1,
 	ModelIDVoyageRerank2,
 	ModelIDVoyageRerank2Lite,
@@ -2020,6 +2043,7 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDZAiGlm46vFlash,
 	ModelIDZAiGlm47,
 	ModelIDZAiGlm47Flash,
+	ModelIDZAiGlm47FlashHeretic,
 	ModelIDZAiGlm5,
 	ModelIDZAiGlm5Turbo,
 	ModelIDZAiGlm51,

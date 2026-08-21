@@ -1,0 +1,76 @@
+{
+  "model_id": "venice/qwen3.6-35b-a3b-uncensored",
+  "organisation_id": "venice",
+  "name": "Qwen3.6 35B A3B Uncensored",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Qwen3.6 35B A3B Uncensored running in a Trusted Execution Environment (TEE). An uncensored variant of Alibaba's Qwen3.6 MoE model with 35B total parameters and ~3B active, supporting 262K context and multimodal input across text, images, and video, with hardware attestation evidence available for independent verification.",
+  "announced_date": null,
+  "release_date": "2026-05-24",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": null,
+  "input_types": [
+    "text"
+  ],
+  "output_types": [
+    "text"
+  ],
+  "api_model_id": "venice/qwen3.6-35b-a3b-uncensored",
+  "links": [
+    {
+      "platform": "model",
+      "title": "Model source",
+      "url": "https://www.redpill.ai/models/phala/qwen3.6-35b-a3b-uncensored"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "family_id": null,
+  "page_notice": null,
+  "model_type": "language",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": 128000,
+    "input": null,
+    "output": 4096
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": false,
+    "tool_call": false,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": true,
+    "web_search": true
+  },
+  "open_weights": false,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.venice.ai/api/v1/models",
+      "accessed_at": "2026-08-21T00:00:00Z",
+      "notes": "Venice live model metadata."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-21",
+    "notes": "Verified against Venice's live models API."
+  },
+  "last_updated": "2026-08-21",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

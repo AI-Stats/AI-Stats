@@ -978,6 +978,10 @@ class ModelIds:
     # Model page: https://phaseo.app/models/openai/gpt-4.1-nano
     OPENAI_GPT_4_1_NANO: Final[str] = "openai/gpt-4.1-nano"
 
+    # Model ID: openai/gpt-4o
+    # Model page: https://phaseo.app/models/openai/gpt-4o
+    OPENAI_GPT_4O: Final[str] = "openai/gpt-4o"
+
     # Model ID: openai/gpt-4o-2024-05-13
     # Model page: https://phaseo.app/models/openai/gpt-4o-2024-05-13
     OPENAI_GPT_4O_2024_05_13: Final[str] = "openai/gpt-4o-2024-05-13"
@@ -1714,9 +1718,13 @@ class ModelIds:
     # Model page: https://phaseo.app/models/sao10k/l31-70b-euryale-v2.2
     SAO10K_L31_70B_EURYALE_V2_2: Final[str] = "sao10k/l31-70b-euryale-v2.2"
 
-    # Model ID: spacex-ai/grok-4.20-beta-0309
-    # Model page: https://phaseo.app/models/spacex-ai/grok-4.20-beta-0309
-    SPACEX_AI_GROK_4_20_BETA_0309: Final[str] = "spacex-ai/grok-4.20-beta-0309"
+    # Model ID: spacex-ai/grok-4.20
+    # Model page: https://phaseo.app/models/spacex-ai/grok-4.20
+    SPACEX_AI_GROK_4_20: Final[str] = "spacex-ai/grok-4.20"
+
+    # Model ID: spacex-ai/grok-4.20-multi-agent-beta
+    # Model page: https://phaseo.app/models/spacex-ai/grok-4.20-multi-agent-beta
+    SPACEX_AI_GROK_4_20_MULTI_AGENT_BETA: Final[str] = "spacex-ai/grok-4.20-multi-agent-beta"
 
     # Model ID: spacex-ai/grok-4.20-multi-agent-beta-0309
     # Model page: https://phaseo.app/models/spacex-ai/grok-4.20-multi-agent-beta-0309
@@ -1737,10 +1745,6 @@ class ModelIds:
     # Model ID: spacex-ai/grok-build-0.1
     # Model page: https://phaseo.app/models/spacex-ai/grok-build-0.1
     SPACEX_AI_GROK_BUILD_0_1: Final[str] = "spacex-ai/grok-build-0.1"
-
-    # Model ID: spacex-ai/grok-code-fast-1
-    # Model page: https://phaseo.app/models/spacex-ai/grok-code-fast-1
-    SPACEX_AI_GROK_CODE_FAST_1: Final[str] = "spacex-ai/grok-code-fast-1"
 
     # Model ID: spacex-ai/grok-imagine-image
     # Model page: https://phaseo.app/models/spacex-ai/grok-imagine-image
@@ -1810,13 +1814,29 @@ class ModelIds:
     # Model page: https://phaseo.app/models/upstage/solar-pro-4
     UPSTAGE_SOLAR_PRO_4: Final[str] = "upstage/solar-pro-4"
 
-    # Model ID: venice/venice-uncensored
-    # Model page: https://phaseo.app/models/venice/venice-uncensored
-    VENICE_VENICE_UNCENSORED: Final[str] = "venice/venice-uncensored"
+    # Model ID: venice/gemma-4-26b-a4b-uncensored
+    # Model page: https://phaseo.app/models/venice/gemma-4-26b-a4b-uncensored
+    VENICE_GEMMA_4_26B_A4B_UNCENSORED: Final[str] = "venice/gemma-4-26b-a4b-uncensored"
 
-    # Model ID: venice/venice-uncensored-1.1
-    # Model page: https://phaseo.app/models/venice/venice-uncensored-1.1
-    VENICE_VENICE_UNCENSORED_1_1: Final[str] = "venice/venice-uncensored-1.1"
+    # Model ID: venice/gemma-4-uncensored
+    # Model page: https://phaseo.app/models/venice/gemma-4-uncensored
+    VENICE_GEMMA_4_UNCENSORED: Final[str] = "venice/gemma-4-uncensored"
+
+    # Model ID: venice/ox-alpha
+    # Model page: https://phaseo.app/models/venice/ox-alpha
+    VENICE_OX_ALPHA: Final[str] = "venice/ox-alpha"
+
+    # Model ID: venice/qwen3.6-35b-a3b-uncensored
+    # Model page: https://phaseo.app/models/venice/qwen3.6-35b-a3b-uncensored
+    VENICE_QWEN3_6_35B_A3B_UNCENSORED: Final[str] = "venice/qwen3.6-35b-a3b-uncensored"
+
+    # Model ID: venice/venice-role-play-uncensored
+    # Model page: https://phaseo.app/models/venice/venice-role-play-uncensored
+    VENICE_VENICE_ROLE_PLAY_UNCENSORED: Final[str] = "venice/venice-role-play-uncensored"
+
+    # Model ID: venice/venice-uncensored-1.2
+    # Model page: https://phaseo.app/models/venice/venice-uncensored-1.2
+    VENICE_VENICE_UNCENSORED_1_2: Final[str] = "venice/venice-uncensored-1.2"
 
     # Model ID: voyage/rerank-1
     # Model page: https://phaseo.app/models/voyage/rerank-1
@@ -1993,6 +2013,10 @@ class ModelIds:
     # Model ID: z-ai/glm-4.7-flash
     # Model page: https://phaseo.app/models/z-ai/glm-4.7-flash
     Z_AI_GLM_4_7_FLASH: Final[str] = "z-ai/glm-4.7-flash"
+
+    # Model ID: z-ai/glm-4.7-flash-heretic
+    # Model page: https://phaseo.app/models/z-ai/glm-4.7-flash-heretic
+    Z_AI_GLM_4_7_FLASH_HERETIC: Final[str] = "z-ai/glm-4.7-flash-heretic"
 
     # Model ID: z-ai/glm-5
     # Model page: https://phaseo.app/models/z-ai/glm-5
@@ -2274,6 +2298,7 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.OPENAI_GPT_4_1,
         ModelIds.OPENAI_GPT_4_1_MINI,
         ModelIds.OPENAI_GPT_4_1_NANO,
+        ModelIds.OPENAI_GPT_4O,
         ModelIds.OPENAI_GPT_4O_2024_05_13,
         ModelIds.OPENAI_GPT_4O_2024_08_06,
         ModelIds.OPENAI_GPT_4O_2024_11_20,
@@ -2458,13 +2483,13 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.SAO10K_L3_8B_LUNARIS,
         ModelIds.SAO10K_L3_8B_STHENO_V3_2,
         ModelIds.SAO10K_L31_70B_EURYALE_V2_2,
-        ModelIds.SPACEX_AI_GROK_4_20_BETA_0309,
+        ModelIds.SPACEX_AI_GROK_4_20,
+        ModelIds.SPACEX_AI_GROK_4_20_MULTI_AGENT_BETA,
         ModelIds.SPACEX_AI_GROK_4_20_MULTI_AGENT_BETA_0309,
         ModelIds.SPACEX_AI_GROK_4_3,
         ModelIds.SPACEX_AI_GROK_4_5,
         ModelIds.SPACEX_AI_GROK_4_6,
         ModelIds.SPACEX_AI_GROK_BUILD_0_1,
-        ModelIds.SPACEX_AI_GROK_CODE_FAST_1,
         ModelIds.SPACEX_AI_GROK_IMAGINE_IMAGE,
         ModelIds.SPACEX_AI_GROK_IMAGINE_IMAGE_2_0,
         ModelIds.SPACEX_AI_GROK_IMAGINE_IMAGE_QUALITY,
@@ -2482,8 +2507,12 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.UPSTAGE_SOLAR_PRO_2,
         ModelIds.UPSTAGE_SOLAR_PRO_3,
         ModelIds.UPSTAGE_SOLAR_PRO_4,
-        ModelIds.VENICE_VENICE_UNCENSORED,
-        ModelIds.VENICE_VENICE_UNCENSORED_1_1,
+        ModelIds.VENICE_GEMMA_4_26B_A4B_UNCENSORED,
+        ModelIds.VENICE_GEMMA_4_UNCENSORED,
+        ModelIds.VENICE_OX_ALPHA,
+        ModelIds.VENICE_QWEN3_6_35B_A3B_UNCENSORED,
+        ModelIds.VENICE_VENICE_ROLE_PLAY_UNCENSORED,
+        ModelIds.VENICE_VENICE_UNCENSORED_1_2,
         ModelIds.VOYAGE_RERANK_1,
         ModelIds.VOYAGE_RERANK_2,
         ModelIds.VOYAGE_RERANK_2_LITE,
@@ -2528,6 +2557,7 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.Z_AI_GLM_4_6V_FLASH,
         ModelIds.Z_AI_GLM_4_7,
         ModelIds.Z_AI_GLM_4_7_FLASH,
+        ModelIds.Z_AI_GLM_4_7_FLASH_HERETIC,
         ModelIds.Z_AI_GLM_5,
         ModelIds.Z_AI_GLM_5_TURBO,
         ModelIds.Z_AI_GLM_5_1,

@@ -734,6 +734,9 @@ final class ModelIds
     /** Model ID: openai/gpt-4.1-nano. Model page: https://phaseo.app/models/openai/gpt-4.1-nano */
     public const OPENAI_GPT_4_1_NANO = 'openai/gpt-4.1-nano';
 
+    /** Model ID: openai/gpt-4o. Model page: https://phaseo.app/models/openai/gpt-4o */
+    public const OPENAI_GPT_4O = 'openai/gpt-4o';
+
     /** Model ID: openai/gpt-4o-2024-05-13. Model page: https://phaseo.app/models/openai/gpt-4o-2024-05-13 */
     public const OPENAI_GPT_4O_2024_05_13 = 'openai/gpt-4o-2024-05-13';
 
@@ -1286,8 +1289,11 @@ final class ModelIds
     /** Model ID: sao10k/l31-70b-euryale-v2.2. Model page: https://phaseo.app/models/sao10k/l31-70b-euryale-v2.2 */
     public const SAO10K_L31_70B_EURYALE_V2_2 = 'sao10k/l31-70b-euryale-v2.2';
 
-    /** Model ID: spacex-ai/grok-4.20-beta-0309. Model page: https://phaseo.app/models/spacex-ai/grok-4.20-beta-0309 */
-    public const SPACEX_AI_GROK_4_20_BETA_0309 = 'spacex-ai/grok-4.20-beta-0309';
+    /** Model ID: spacex-ai/grok-4.20. Model page: https://phaseo.app/models/spacex-ai/grok-4.20 */
+    public const SPACEX_AI_GROK_4_20 = 'spacex-ai/grok-4.20';
+
+    /** Model ID: spacex-ai/grok-4.20-multi-agent-beta. Model page: https://phaseo.app/models/spacex-ai/grok-4.20-multi-agent-beta */
+    public const SPACEX_AI_GROK_4_20_MULTI_AGENT_BETA = 'spacex-ai/grok-4.20-multi-agent-beta';
 
     /** Model ID: spacex-ai/grok-4.20-multi-agent-beta-0309. Model page: https://phaseo.app/models/spacex-ai/grok-4.20-multi-agent-beta-0309 */
     public const SPACEX_AI_GROK_4_20_MULTI_AGENT_BETA_0309 = 'spacex-ai/grok-4.20-multi-agent-beta-0309';
@@ -1303,9 +1309,6 @@ final class ModelIds
 
     /** Model ID: spacex-ai/grok-build-0.1. Model page: https://phaseo.app/models/spacex-ai/grok-build-0.1 */
     public const SPACEX_AI_GROK_BUILD_0_1 = 'spacex-ai/grok-build-0.1';
-
-    /** Model ID: spacex-ai/grok-code-fast-1. Model page: https://phaseo.app/models/spacex-ai/grok-code-fast-1 */
-    public const SPACEX_AI_GROK_CODE_FAST_1 = 'spacex-ai/grok-code-fast-1';
 
     /** Model ID: spacex-ai/grok-imagine-image. Model page: https://phaseo.app/models/spacex-ai/grok-imagine-image */
     public const SPACEX_AI_GROK_IMAGINE_IMAGE = 'spacex-ai/grok-imagine-image';
@@ -1358,11 +1361,23 @@ final class ModelIds
     /** Model ID: upstage/solar-pro-4. Model page: https://phaseo.app/models/upstage/solar-pro-4 */
     public const UPSTAGE_SOLAR_PRO_4 = 'upstage/solar-pro-4';
 
-    /** Model ID: venice/venice-uncensored. Model page: https://phaseo.app/models/venice/venice-uncensored */
-    public const VENICE_VENICE_UNCENSORED = 'venice/venice-uncensored';
+    /** Model ID: venice/gemma-4-26b-a4b-uncensored. Model page: https://phaseo.app/models/venice/gemma-4-26b-a4b-uncensored */
+    public const VENICE_GEMMA_4_26B_A4B_UNCENSORED = 'venice/gemma-4-26b-a4b-uncensored';
 
-    /** Model ID: venice/venice-uncensored-1.1. Model page: https://phaseo.app/models/venice/venice-uncensored-1.1 */
-    public const VENICE_VENICE_UNCENSORED_1_1 = 'venice/venice-uncensored-1.1';
+    /** Model ID: venice/gemma-4-uncensored. Model page: https://phaseo.app/models/venice/gemma-4-uncensored */
+    public const VENICE_GEMMA_4_UNCENSORED = 'venice/gemma-4-uncensored';
+
+    /** Model ID: venice/ox-alpha. Model page: https://phaseo.app/models/venice/ox-alpha */
+    public const VENICE_OX_ALPHA = 'venice/ox-alpha';
+
+    /** Model ID: venice/qwen3.6-35b-a3b-uncensored. Model page: https://phaseo.app/models/venice/qwen3.6-35b-a3b-uncensored */
+    public const VENICE_QWEN3_6_35B_A3B_UNCENSORED = 'venice/qwen3.6-35b-a3b-uncensored';
+
+    /** Model ID: venice/venice-role-play-uncensored. Model page: https://phaseo.app/models/venice/venice-role-play-uncensored */
+    public const VENICE_VENICE_ROLE_PLAY_UNCENSORED = 'venice/venice-role-play-uncensored';
+
+    /** Model ID: venice/venice-uncensored-1.2. Model page: https://phaseo.app/models/venice/venice-uncensored-1.2 */
+    public const VENICE_VENICE_UNCENSORED_1_2 = 'venice/venice-uncensored-1.2';
 
     /** Model ID: voyage/rerank-1. Model page: https://phaseo.app/models/voyage/rerank-1 */
     public const VOYAGE_RERANK_1 = 'voyage/rerank-1';
@@ -1495,6 +1510,9 @@ final class ModelIds
 
     /** Model ID: z-ai/glm-4.7-flash. Model page: https://phaseo.app/models/z-ai/glm-4.7-flash */
     public const Z_AI_GLM_4_7_FLASH = 'z-ai/glm-4.7-flash';
+
+    /** Model ID: z-ai/glm-4.7-flash-heretic. Model page: https://phaseo.app/models/z-ai/glm-4.7-flash-heretic */
+    public const Z_AI_GLM_4_7_FLASH_HERETIC = 'z-ai/glm-4.7-flash-heretic';
 
     /** Model ID: z-ai/glm-5. Model page: https://phaseo.app/models/z-ai/glm-5 */
     public const Z_AI_GLM_5 = 'z-ai/glm-5';
