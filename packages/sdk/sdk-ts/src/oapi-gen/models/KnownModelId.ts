@@ -307,7 +307,6 @@ export type KnownModelId =
   | "poolside/laguna-xs-2.1:free"
   | "prism-ml/ternary-bonsai-27b"
   | "qwen/qvq-max"
-  | "qwen/qwen-3.6-plus"
   | "qwen/qwen-flash"
   | "qwen/qwen-flash-character"
   | "qwen/qwen-image"
