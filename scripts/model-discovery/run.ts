@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import { createHash } from "node:crypto";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { createAdminClient } from "../../apps/web/src/utils/supabase/admin";
@@ -126,8 +127,9 @@ type SeenModelUpsertRow = {
     provider_id: string;
     provider_name: string;
     model_id: string;
-    model_details: Record<string, unknown>;
-    pricing_details: unknown;
+    watch_snapshot: Record<string, unknown>;
+    model_details: null;
+    pricing_details: null;
     last_seen_at: string;
     last_run_id: string;
     removal_pending: boolean;
@@ -474,6 +476,23 @@ function extractPricingDetails(modelPayload: Record<string, unknown>): unknown {
         }
     }
     return null;
+}
+
+function buildWatchSnapshot(modelPayload: Record<string, unknown>): Record<string, unknown> {
+    const pricingDetails = extractPricingDetails(modelPayload);
+    const toNullableInteger = (value: unknown): number | null => {
+        const parsed = typeof value === "string" ? Number(value.trim()) : value;
+        return typeof parsed === "number" && Number.isFinite(parsed) ? Math.trunc(parsed) : null;
+    };
+    const pricingFingerprint = pricingDetails === null || pricingDetails === undefined
+        ? null
+        : createHash("sha256").update(JSON.stringify(sortKeysDeep(pricingDetails))).digest("hex");
+    return {
+        contextLength: toNullableInteger(modelPayload.contextLength ?? modelPayload.context_length),
+        maxCompletionTokens: toNullableInteger(modelPayload.maxCompletionTokens ?? modelPayload.max_completion_tokens),
+        pricingDetails,
+        pricingFingerprint,
+    };
 }
 
 async function insertRunStart(
@@ -981,8 +1000,9 @@ async function main(): Promise<void> {
                         provider_id: provider.id,
                         provider_name: provider.name,
                         model_id: model.id,
-                        model_details: sortKeysDeep(modelDetails) as Record<string, unknown>,
-                        pricing_details: extractPricingDetails(modelDetails),
+                        watch_snapshot: buildWatchSnapshot(modelDetails),
+                        model_details: null,
+                        pricing_details: null,
                         last_seen_at: fetchedAt,
                         last_run_id: runId,
                         removal_pending: false,

@@ -153,6 +153,8 @@ type PricingTableMonitorSummary = {
 		sourceUrl: string;
 		tableCount: number;
 		pricingSamples: string[];
+		addedSamples?: string[];
+		removedSamples?: string[];
 	}>;
 	errors: string[];
 	error?: string | null;
@@ -1404,6 +1406,59 @@ export async function loadLatestPricingTableState(source?: string): Promise<Pric
 	return [...latestByProvider.values()];
 }
 
+export type PricingPageStateRow = {
+	provider_id: string;
+	source_url: string;
+	fingerprint: string;
+	content_lines: string[];
+};
+
+export function parsePricingPageStateRows(rows: unknown[]): Map<string, PricingPageStateRow> {
+	const byProvider = new Map<string, PricingPageStateRow>();
+	for (const value of rows) {
+		const record = asRecord(value);
+		const providerId = canonicalProviderId(typeof record?.provider_id === "string" ? record.provider_id : "");
+		const fingerprint = typeof record?.fingerprint === "string" ? record.fingerprint.trim() : "";
+		if (!providerId || !fingerprint) continue;
+		byProvider.set(providerId, {
+			provider_id: providerId,
+			source_url: typeof record?.source_url === "string" ? record.source_url : "",
+			fingerprint,
+			content_lines: asArray(record?.content_lines).filter(
+				(line): line is string => typeof line === "string" && line.trim().length > 0
+			),
+		});
+	}
+	return byProvider;
+}
+
+export async function loadPricingPageStates(): Promise<Map<string, PricingPageStateRow>> {
+	const supabase = getSupabaseAdmin();
+	const { data, error } = await supabase
+		.from("model_discovery_pricing_pages")
+		.select("provider_id,source_url,fingerprint,content_lines");
+	if (error) throw new Error(error.message || "Failed to load pricing page state");
+	return parsePricingPageStateRows((data ?? []) as unknown[]);
+}
+
+export async function savePricingPageStates(
+	snapshots: Array<{ providerId: string; sourceUrl: string; fingerprint: string; contentLines: string[] }>
+): Promise<void> {
+	if (snapshots.length === 0) return;
+	const supabase = getSupabaseAdmin();
+	const rows = snapshots.map((snapshot) => ({
+		provider_id: snapshot.providerId,
+		source_url: snapshot.sourceUrl,
+		fingerprint: snapshot.fingerprint,
+		content_lines: snapshot.contentLines,
+		updated_at: new Date().toISOString(),
+	}));
+	const { error } = await supabase
+		.from("model_discovery_pricing_pages")
+		.upsert(rows, { onConflict: "provider_id" });
+	if (error) throw new Error(error.message || "Failed to persist pricing page state");
+}
+
 export async function fetchLatestPricingUpdatedAt(): Promise<string | null> {
 	const rows = await loadV2PricingRows();
 	return rows.reduce<string | null>((latest, row) => {
@@ -1711,7 +1766,15 @@ export function buildPricingTableDiscordSection(pricing: PricingTableMonitorSumm
 	if (pricing.updatesDetected > 0) {
 		lines.push(`Pricing page monitor detected ${pricing.updatesDetected} changed provider source${pricing.updatesDetected === 1 ? "" : "s"}.`);
 		for (const change of pricing.providerChanges.slice(0, MAX_PRICING_PROVIDER_LINES)) {
-			lines.push(`- ${change.providerName}: ${change.tableCount} price-bearing section${change.tableCount === 1 ? "" : "s"} (${change.sourceUrl})`);
+			const added = change.addedSamples ?? [];
+			const removed = change.removedSamples ?? [];
+			if (added.length === 0 && removed.length === 0) {
+				lines.push(`- ${change.providerName}: pricing content changed (${change.sourceUrl})`);
+				continue;
+			}
+			lines.push(`${change.providerName} (${change.sourceUrl}) — ${added.length} added, ${removed.length} removed:`);
+			for (const sample of added) lines.push(`+ ${sample}`);
+			for (const sample of removed) lines.push(`- ${sample}`);
 		}
 	}
 	return lines.join("\n").trim();

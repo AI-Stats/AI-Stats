@@ -295,7 +295,9 @@ async function fetchDiscoveryRows(): Promise<DiscoveryRow[]> {
 		const { data, error } = await query;
 		if (error) throw new Error(error.message || "Failed to load model discovery state");
 		const rows = (data ?? []) as DiscoveryRow[];
-		output.push(...rows);
+		// Watcher state is ID-plus-snapshot only; enrichment data comes from live
+		// provider fetches, so persisted rows without payload details are skipped.
+		output.push(...rows.filter((row) => row.model_details && Object.keys(row.model_details).length > 0));
 		if (rows.length < 1_000) break;
 		from += 1_000;
 	}

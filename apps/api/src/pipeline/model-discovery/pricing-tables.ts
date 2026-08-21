@@ -13,6 +13,12 @@ export type PricingTableSnapshot = PricingTableSource & {
 	fingerprint: string;
 	tableCount: number;
 	pricingSamples: string[];
+	/** Normalized price-bearing lines retained for next-run diffing. */
+	contentLines: string[];
+	/** Lines present now that were absent in the previous snapshot (empty without a baseline). */
+	addedSamples: string[];
+	/** Lines present in the previous snapshot that are gone now (empty without a baseline). */
+	removedSamples: string[];
 };
 
 export type PricingTableFetchResult = {
@@ -28,7 +34,6 @@ export const PRICING_TABLE_SOURCES: PricingTableSource[] = [
 	{ providerId: "cohere", providerName: "Cohere", sourceUrl: "https://cohere.com/pricing", extraction: "price-content" },
 	{ providerId: "cloudflare", providerName: "Cloudflare Workers AI", sourceUrl: "https://developers.cloudflare.com/workers-ai/platform/pricing/" },
 	{ providerId: "deepseek", providerName: "DeepSeek", sourceUrl: "https://api-docs.deepseek.com/quick_start/pricing" },
-	{ providerId: "elevenlabs", providerName: "ElevenLabs", sourceUrl: "https://elevenlabs.io/pricing/api?price.platform=api", extraction: "price-content" },
 	{ providerId: "fireworks", providerName: "Fireworks", sourceUrl: "https://docs.fireworks.ai/serverless/pricing" },
 	{ providerId: "google-ai-studio", providerName: "Google AI Studio", sourceUrl: "https://ai.google.dev/gemini-api/docs/pricing" },
 	{ providerId: "mistral", providerName: "Mistral", sourceUrl: "https://mistral.ai/pricing/", extraction: "price-content" },
@@ -36,11 +41,9 @@ export const PRICING_TABLE_SOURCES: PricingTableSource[] = [
 	{ providerId: "openai", providerName: "OpenAI", sourceUrl: "https://developers.openai.com/api/docs/pricing" },
 	{ providerId: "perplexity", providerName: "Perplexity", sourceUrl: "https://docs.perplexity.ai/docs/getting-started/pricing" },
 	{ providerId: "stepfun", providerName: "StepFun", sourceUrl: "https://platform.stepfun.com/docs/zh/guides/pricing/details" },
-	{ providerId: "together", providerName: "Together", sourceUrl: "https://docs.together.ai/docs/serverless/models" },
 	{ providerId: "voyage", providerName: "Voyage", sourceUrl: "https://docs.voyageai.com/docs/pricing" },
 	{ providerId: "weights-and-biases", providerName: "Weights & Biases", sourceUrl: "https://wandb.ai/site/pricing/tokens/" },
 	{ providerId: "xiaomi", providerName: "Xiaomi MiMo", sourceUrl: "https://mimo.mi.com/docs/en-US/pricing", extraction: "price-content" },
-	{ providerId: "spacex-ai", providerName: "xAI", sourceUrl: "https://docs.x.ai/developers/pricing" },
 	{ providerId: "z-ai", providerName: "Z.AI", sourceUrl: "https://docs.z.ai/guides/overview/pricing" },
 ];
 
@@ -51,6 +54,35 @@ const NON_CONTENT_PATTERN = /<(?:script|style|svg|noscript|template)\b[^>]*>[\s\
 const PRICE_VALUE_PATTERN = /(?:\$|¥|€)\s*\d+(?:\.\d+)?(?:\s*\/?\s*(?:1?m|million|mtok|month|mo|hour|user|1000))?/gi;
 const MDX_TABLE_PATTERN = /<DocTable\b[\s\S]*?\n\s*\/>/gi;
 const MAX_PRICING_SAMPLES = 6;
+const MAX_STORED_CONTENT_LINES = 120;
+const MAX_STORED_CONTENT_LINE_CHARS = 240;
+
+export function pricingContentLines(text: string): string[] {
+	return text
+		.split("\n")
+		.map((line) => line.trim())
+		.filter(Boolean)
+		.slice(0, MAX_STORED_CONTENT_LINES)
+		.map((line) => truncateLine(line));
+}
+
+function truncateLine(line: string): string {
+	if (line.length <= MAX_STORED_CONTENT_LINE_CHARS) return line;
+	return `${line.slice(0, MAX_STORED_CONTENT_LINE_CHARS - 1)}…`;
+}
+
+export function diffPricingTableContent(
+	previousLines: string[] | null,
+	currentLines: string[],
+): { added: string[]; removed: string[] } {
+	if (!previousLines) return { added: [], removed: [] };
+	const previous = new Set(previousLines);
+	const current = new Set(currentLines);
+	return {
+		added: currentLines.filter((line) => !previous.has(line)),
+		removed: previousLines.filter((line) => !current.has(line)),
+	};
+}
 
 function decodeHtml(value: string): string {
 	return value
@@ -114,6 +146,7 @@ async function sha256(value: string): Promise<string> {
 }
 
 export async function fetchPricingTableSnapshots(
+	previousContentByProvider: Map<string, string[]> = new Map(),
 	request: typeof fetch = fetch,
 ): Promise<PricingTableFetchResult> {
 	const results = await Promise.allSettled(
@@ -125,7 +158,20 @@ export async function fetchPricingTableSnapshots(
 			if (!response.ok) throw new Error(`${source.providerName} pricing table returned HTTP ${response.status}`);
 			const { text, tableCount } = extractPricingSourceText(await response.text(), source.extraction);
 			if (!text) throw new Error(`${source.providerName} pricing table did not contain price-bearing HTML tables`);
-			return { ...source, fingerprint: await sha256(text), tableCount, pricingSamples: extractPricingSamples(text) };
+			const contentLines = pricingContentLines(text);
+			const { added, removed } = diffPricingTableContent(
+				previousContentByProvider.get(source.providerId) ?? null,
+				contentLines,
+			);
+			return {
+				...source,
+				fingerprint: await sha256(text),
+				tableCount,
+				pricingSamples: extractPricingSamples(text),
+				contentLines,
+				addedSamples: added.slice(0, MAX_PRICING_SAMPLES),
+				removedSamples: removed.slice(0, MAX_PRICING_SAMPLES),
+			};
 		}),
 	);
 	const snapshots: PricingTableSnapshot[] = [];

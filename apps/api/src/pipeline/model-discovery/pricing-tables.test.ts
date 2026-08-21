@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
+	diffPricingTableContent,
 	extractMdxPricingText,
 	extractPriceContentText,
 	extractPricingTableText,
+	pricingContentLines,
 } from "./pricing-tables";
 
 describe("extractPricingTableText", () => {
@@ -62,5 +64,38 @@ describe("extractPricingTableText", () => {
 			tableCount: 1,
 			text: 'columns={[{ title: "Input Price" }]} rows={[["example", $0.16]]}',
 		});
+	});
+});
+
+describe("diffPricingTableContent", () => {
+	it("reports added and removed price lines", () => {
+		const previous = ["Command A input $2.50 / 1M tokens", "Command A output $10 / 1M tokens"];
+		const current = ["Command A input $2.00 / 1M tokens", "Command A output $10 / 1M tokens"];
+
+		expect(diffPricingTableContent(previous, current)).toEqual({
+			added: ["Command A input $2.00 / 1M tokens"],
+			removed: ["Command A input $2.50 / 1M tokens"],
+		});
+	});
+
+	it("treats a missing baseline as no diff", () => {
+		expect(diffPricingTableContent(null, ["$1 / M tokens"])).toEqual({ added: [], removed: [] });
+	});
+});
+
+describe("pricingContentLines", () => {
+	it("splits normalized content into capped trimmed lines", () => {
+		const lines = pricingContentLines("  $2 / M tokens  \n\n$3 / M output tokens");
+		expect(lines).toEqual(["$2 / M tokens", "$3 / M output tokens"]);
+	});
+
+	it("caps line count and length", () => {
+		const many = Array.from({ length: 200 }, (_, index) => `$${index} / M`).join("\n");
+		expect(pricingContentLines(many)).toHaveLength(120);
+		const longLine = "$1 / M tokens".repeat(30);
+		const truncated = pricingContentLines(longLine);
+		expect(truncated).toHaveLength(1);
+		expect(truncated[0]).toHaveLength(240);
+		expect(truncated[0]!.endsWith("…")).toBe(true);
 	});
 });

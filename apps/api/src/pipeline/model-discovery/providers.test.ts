@@ -53,8 +53,11 @@ describe("MODEL_DISCOVERY_PROVIDERS", () => {
 
 	it("includes models.dev parity aggregator and public catalog endpoints", () => {
 		const providers = new Map(MODEL_DISCOVERY_PROVIDERS.map((provider) => [provider.providerId, provider]));
-		for (const providerId of ["crossmodel", "digitalocean", "empiriolabs", "huggingface", "kilo", "llmgateway", "openrouter", "ovhcloud", "pioneer", "vercel"]) {
+		for (const providerId of ["crossmodel", "digitalocean", "empiriolabs", "llmgateway", "openrouter", "ovhcloud", "pioneer", "vercel"]) {
 			expect(providers.has(providerId), providerId).toBe(true);
+		}
+		for (const providerId of ["huggingface", "kilo", "nano-gpt"]) {
+			expect(providers.has(providerId), providerId).toBe(false);
 		}
 		expect(providers.get("ambient")).toMatchObject({
 			modelsEndpoint: "https://api.ambient.xyz/v1/models",

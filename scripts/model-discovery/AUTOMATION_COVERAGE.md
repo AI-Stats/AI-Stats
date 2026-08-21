@@ -35,9 +35,10 @@ Phaseo fetches provider and aggregator sources directly. It also uses the public
 | Venice | Direct model API | Token prices auto-normalized | API key |
 | Vercel AI Gateway | Direct public catalog | Changes detected; tiered pricing is review-only | None |
 | Weights & Biases | Direct provider-owned catalog | Per-million token and cache prices auto-normalized | None |
-| xAI | Direct typed model endpoints and official page fingerprint | Base token prices auto-normalized; long-context tiers are review-only | API key |
+| xAI | Direct typed model endpoints | Base token prices auto-normalized; long-context tiers are review-only | API key |
 
-The Phaseo watcher additionally has structured official-documentation parsers for DeepSeek, Fireworks, Moonshot AI, Perplexity, StepFun, Together, Voyage, Xiaomi, and Z.AI.
+The Phaseo watcher additionally has structured official-documentation parsers for Anthropic, Cloudflare Workers AI, DeepSeek, Fireworks, Moonshot AI, StepFun, Voyage, Weights & Biases, and Xiaomi.
+Official pages for ElevenLabs, Together, and xAI are not separately page-monitored because their provider `/models` APIs already expose watched pricing.
 
 ## What an automated PR is allowed to change
 
@@ -84,7 +85,9 @@ EmpirioLabs and LLM Gateway are watched and can notify on upstream changes, but 
 
 ## Operational behavior
 
-- The Cloudflare Worker polls provider catalogs, stores snapshots, compares model metadata and price-bearing payloads, and dispatches only affected providers.
+- The Cloudflare Worker polls provider catalogs, stores compact per-model watch snapshots instead of raw payloads, compares model metadata and price-bearing payloads, and dispatches only affected providers.
+- Official pricing pages are diffed line-by-line against the previous snapshot in `model_discovery_pricing_pages`; notifications list the added and removed price lines.
+- Discovery run summaries persist only cross-run state (fingerprints, cursors, coverage baselines); catalog enrichment runs from live provider fetches only.
 - The repository watcher keeps provider-specific source modules with `fetchModels`, `parseModels`, and a shared canonical translation stage; adding a source is a registry change rather than another endpoint switch in the runner.
 - Repository dispatches start the affected provider sync immediately; a single hourly batch run checks all configured providers as a backstop.
 - The sync creates or updates one shared ready-for-review PR and runs data, pricing, and gateway validation before notification.
