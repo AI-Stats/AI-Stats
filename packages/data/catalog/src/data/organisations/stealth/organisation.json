@@ -2,22 +2,15 @@
   "organisation_id": "stealth",
   "name": "Stealth Lab",
   "country_code": null,
-  "description": "Stealth Lab represents the intentionally undisclosed organisation associated with Stealth Ox Alpha.",
+  "description": "Stealth Lab is a placeholder organisation for models whose developer has not been publicly disclosed while they are being tested or released in stealth.",
   "colour": null,
   "organisation_links": [],
   "status": "active",
   "routable": null,
-  "sources": [
-    {
-      "kind": "models",
-      "url": "https://openrouter.ai/stealth/ox-alpha",
-      "accessed_at": "2026-08-22T00:00:00Z",
-      "notes": "Public model listing places Ox Alpha under the stealth namespace; the underlying lab identity is undisclosed."
-    }
-  ],
+  "sources": [],
   "verification": {
-    "status": "partial",
-    "checked_at": "2026-08-22T00:00:00Z",
-    "notes": "The model's stealth attribution is public, but the organisation's real-world identity has not been disclosed."
+    "status": "unverified",
+    "checked_at": null,
+    "notes": "Stealth Lab is a generic catalogue placeholder and does not represent a verified legal entity or specific model developer."
   }
 }
