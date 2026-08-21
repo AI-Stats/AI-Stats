@@ -60,6 +60,18 @@
   ],
   "sources": [
     {
+      "kind": "documentation",
+      "url": "https://inference-docs.cerebras.ai/models/zai-glm-47",
+      "accessed_at": "2026-08-21T00:00:00Z",
+      "notes": "The official model page documented $2.25 per million input tokens and $2.75 per million output tokens before retirement."
+    },
+    {
+      "kind": "documentation",
+      "url": "https://inference-docs.cerebras.ai/capabilities/prompt-caching",
+      "accessed_at": "2026-08-21T00:00:00Z",
+      "notes": "Cerebras states cached prompt tokens are billed at the standard input-token rate."
+    },
+    {
       "kind": "deprecation",
       "url": "https://inference-docs.cerebras.ai/support/deprecation",
       "accessed_at": "2026-08-21T00:00:00Z",
