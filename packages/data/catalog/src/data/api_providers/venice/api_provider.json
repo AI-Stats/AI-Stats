@@ -1,7 +1,7 @@
 {
   "api_provider_id": "venice",
   "api_provider_name": "Venice",
-  "description": null,
+  "description": "Venice provides OpenAI-compatible private and anonymized inference routes, with live per-model capability and pricing metadata.",
   "link": "https://docs.venice.ai/",
   "residency_mode": "unknown",
   "default_execution_regions": null,
@@ -21,19 +21,26 @@
   "prompt_training_policy": "no_train",
   "prompt_training_notes": "Venice says its proxy does not store or log prompt and response content for normal inference. Private models use zero-data-retention infrastructure, but Anonymous models are relayed to upstream providers whose own retention policies apply; operational metadata is still processed.",
   "prompt_training_source_url": "https://docs.venice.ai/overview/privacy",
-  "gateway_kind": null,
-  "routable": null,
-  "routing_enabled": null,
+  "gateway_kind": "direct",
+  "routable": true,
+  "routing_enabled": true,
   "sdk_package": null,
-  "api_base_url": null,
-  "docs_url": "https://docs.venice.ai/",
-  "auth_env": null,
-  "api_formats": [],
+  "api_base_url": "https://api.venice.ai/api/v1",
+  "docs_url": "https://docs.venice.ai/api-reference/endpoint/chat/completions",
+  "auth_env": ["VENICE_API_KEY"],
+  "api_formats": ["openai.chat.completions", "openai.responses"],
   "service_tiers": [],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.venice.ai/api/v1/models",
+      "accessed_at": "2026-08-21T00:00:00Z",
+      "notes": "Official live model inventory, capabilities, limits, privacy modes, deprecations, and pricing."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-21",
+    "notes": "Verified against Venice's official live models API and API reference."
   }
 }

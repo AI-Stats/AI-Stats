@@ -732,6 +732,9 @@ inline constexpr std::string_view OPENAI_GPT_4_1_MINI = "openai/gpt-4.1-mini";
 // Model ID: openai/gpt-4.1-nano
 // Model page: https://phaseo.app/models/openai/gpt-4.1-nano
 inline constexpr std::string_view OPENAI_GPT_4_1_NANO = "openai/gpt-4.1-nano";
+// Model ID: openai/gpt-4o
+// Model page: https://phaseo.app/models/openai/gpt-4o
+inline constexpr std::string_view OPENAI_GPT_4O = "openai/gpt-4o";
 // Model ID: openai/gpt-4o-2024-05-13
 // Model page: https://phaseo.app/models/openai/gpt-4o-2024-05-13
 inline constexpr std::string_view OPENAI_GPT_4O_2024_05_13 = "openai/gpt-4o-2024-05-13";
@@ -1284,9 +1287,12 @@ inline constexpr std::string_view SAO10K_L3_8B_STHENO_V3_2 = "sao10k/l3-8b-sthen
 // Model ID: sao10k/l31-70b-euryale-v2.2
 // Model page: https://phaseo.app/models/sao10k/l31-70b-euryale-v2.2
 inline constexpr std::string_view SAO10K_L31_70B_EURYALE_V2_2 = "sao10k/l31-70b-euryale-v2.2";
-// Model ID: spacex-ai/grok-4.20-beta-0309
-// Model page: https://phaseo.app/models/spacex-ai/grok-4.20-beta-0309
-inline constexpr std::string_view SPACEX_AI_GROK_4_20_BETA_0309 = "spacex-ai/grok-4.20-beta-0309";
+// Model ID: spacex-ai/grok-4.20
+// Model page: https://phaseo.app/models/spacex-ai/grok-4.20
+inline constexpr std::string_view SPACEX_AI_GROK_4_20 = "spacex-ai/grok-4.20";
+// Model ID: spacex-ai/grok-4.20-multi-agent-beta
+// Model page: https://phaseo.app/models/spacex-ai/grok-4.20-multi-agent-beta
+inline constexpr std::string_view SPACEX_AI_GROK_4_20_MULTI_AGENT_BETA = "spacex-ai/grok-4.20-multi-agent-beta";
 // Model ID: spacex-ai/grok-4.20-multi-agent-beta-0309
 // Model page: https://phaseo.app/models/spacex-ai/grok-4.20-multi-agent-beta-0309
 inline constexpr std::string_view SPACEX_AI_GROK_4_20_MULTI_AGENT_BETA_0309 = "spacex-ai/grok-4.20-multi-agent-beta-0309";
@@ -1302,9 +1308,6 @@ inline constexpr std::string_view SPACEX_AI_GROK_4_6 = "spacex-ai/grok-4.6";
 // Model ID: spacex-ai/grok-build-0.1
 // Model page: https://phaseo.app/models/spacex-ai/grok-build-0.1
 inline constexpr std::string_view SPACEX_AI_GROK_BUILD_0_1 = "spacex-ai/grok-build-0.1";
-// Model ID: spacex-ai/grok-code-fast-1
-// Model page: https://phaseo.app/models/spacex-ai/grok-code-fast-1
-inline constexpr std::string_view SPACEX_AI_GROK_CODE_FAST_1 = "spacex-ai/grok-code-fast-1";
 // Model ID: spacex-ai/grok-imagine-image
 // Model page: https://phaseo.app/models/spacex-ai/grok-imagine-image
 inline constexpr std::string_view SPACEX_AI_GROK_IMAGINE_IMAGE = "spacex-ai/grok-imagine-image";
@@ -1356,12 +1359,18 @@ inline constexpr std::string_view UPSTAGE_SOLAR_PRO_3 = "upstage/solar-pro-3";
 // Model ID: upstage/solar-pro-4
 // Model page: https://phaseo.app/models/upstage/solar-pro-4
 inline constexpr std::string_view UPSTAGE_SOLAR_PRO_4 = "upstage/solar-pro-4";
-// Model ID: venice/venice-uncensored
-// Model page: https://phaseo.app/models/venice/venice-uncensored
-inline constexpr std::string_view VENICE_VENICE_UNCENSORED = "venice/venice-uncensored";
-// Model ID: venice/venice-uncensored-1.1
-// Model page: https://phaseo.app/models/venice/venice-uncensored-1.1
-inline constexpr std::string_view VENICE_VENICE_UNCENSORED_1_1 = "venice/venice-uncensored-1.1";
+// Model ID: venice/gemma-4-uncensored
+// Model page: https://phaseo.app/models/venice/gemma-4-uncensored
+inline constexpr std::string_view VENICE_GEMMA_4_UNCENSORED = "venice/gemma-4-uncensored";
+// Model ID: venice/ox-alpha
+// Model page: https://phaseo.app/models/venice/ox-alpha
+inline constexpr std::string_view VENICE_OX_ALPHA = "venice/ox-alpha";
+// Model ID: venice/venice-role-play-uncensored
+// Model page: https://phaseo.app/models/venice/venice-role-play-uncensored
+inline constexpr std::string_view VENICE_VENICE_ROLE_PLAY_UNCENSORED = "venice/venice-role-play-uncensored";
+// Model ID: venice/venice-uncensored-1.2
+// Model page: https://phaseo.app/models/venice/venice-uncensored-1.2
+inline constexpr std::string_view VENICE_VENICE_UNCENSORED_1_2 = "venice/venice-uncensored-1.2";
 // Model ID: voyage/rerank-1
 // Model page: https://phaseo.app/models/voyage/rerank-1
 inline constexpr std::string_view VOYAGE_RERANK_1 = "voyage/rerank-1";
@@ -1494,6 +1503,9 @@ inline constexpr std::string_view Z_AI_GLM_4_7 = "z-ai/glm-4.7";
 // Model ID: z-ai/glm-4.7-flash
 // Model page: https://phaseo.app/models/z-ai/glm-4.7-flash
 inline constexpr std::string_view Z_AI_GLM_4_7_FLASH = "z-ai/glm-4.7-flash";
+// Model ID: z-ai/glm-4.7-flash-heretic
+// Model page: https://phaseo.app/models/z-ai/glm-4.7-flash-heretic
+inline constexpr std::string_view Z_AI_GLM_4_7_FLASH_HERETIC = "z-ai/glm-4.7-flash-heretic";
 // Model ID: z-ai/glm-5
 // Model page: https://phaseo.app/models/z-ai/glm-5
 inline constexpr std::string_view Z_AI_GLM_5 = "z-ai/glm-5";
@@ -1521,7 +1533,7 @@ inline constexpr std::string_view ZAI_GLM_5 = "zai/glm-5";
 // Deprecated alias for deepseek/deepseek-v4; use deepseek/deepseek-v4-pro. Remove in the next major SDK release.
 inline constexpr std::string_view DEEPSEEK_DEEPSEEK_V4 = DEEPSEEK_DEEPSEEK_V4_PRO;
 
-inline constexpr std::array<std::string_view, 504> ALL = {
+inline constexpr std::array<std::string_view, 508> ALL = {
 	AION_LABS_AION_2_0,
 	AION_LABS_AION_3_0,
 	AION_LABS_AION_3_0_MINI,
@@ -1764,6 +1776,7 @@ inline constexpr std::array<std::string_view, 504> ALL = {
 	OPENAI_GPT_4_1,
 	OPENAI_GPT_4_1_MINI,
 	OPENAI_GPT_4_1_NANO,
+	OPENAI_GPT_4O,
 	OPENAI_GPT_4O_2024_05_13,
 	OPENAI_GPT_4O_2024_08_06,
 	OPENAI_GPT_4O_2024_11_20,
@@ -1948,13 +1961,13 @@ inline constexpr std::array<std::string_view, 504> ALL = {
 	SAO10K_L3_8B_LUNARIS,
 	SAO10K_L3_8B_STHENO_V3_2,
 	SAO10K_L31_70B_EURYALE_V2_2,
-	SPACEX_AI_GROK_4_20_BETA_0309,
+	SPACEX_AI_GROK_4_20,
+	SPACEX_AI_GROK_4_20_MULTI_AGENT_BETA,
 	SPACEX_AI_GROK_4_20_MULTI_AGENT_BETA_0309,
 	SPACEX_AI_GROK_4_3,
 	SPACEX_AI_GROK_4_5,
 	SPACEX_AI_GROK_4_6,
 	SPACEX_AI_GROK_BUILD_0_1,
-	SPACEX_AI_GROK_CODE_FAST_1,
 	SPACEX_AI_GROK_IMAGINE_IMAGE,
 	SPACEX_AI_GROK_IMAGINE_IMAGE_2_0,
 	SPACEX_AI_GROK_IMAGINE_IMAGE_QUALITY,
@@ -1972,8 +1985,10 @@ inline constexpr std::array<std::string_view, 504> ALL = {
 	UPSTAGE_SOLAR_PRO_2,
 	UPSTAGE_SOLAR_PRO_3,
 	UPSTAGE_SOLAR_PRO_4,
-	VENICE_VENICE_UNCENSORED,
-	VENICE_VENICE_UNCENSORED_1_1,
+	VENICE_GEMMA_4_UNCENSORED,
+	VENICE_OX_ALPHA,
+	VENICE_VENICE_ROLE_PLAY_UNCENSORED,
+	VENICE_VENICE_UNCENSORED_1_2,
 	VOYAGE_RERANK_1,
 	VOYAGE_RERANK_2,
 	VOYAGE_RERANK_2_LITE,
@@ -2018,6 +2033,7 @@ inline constexpr std::array<std::string_view, 504> ALL = {
 	Z_AI_GLM_4_6V_FLASH,
 	Z_AI_GLM_4_7,
 	Z_AI_GLM_4_7_FLASH,
+	Z_AI_GLM_4_7_FLASH_HERETIC,
 	Z_AI_GLM_5,
 	Z_AI_GLM_5_TURBO,
 	Z_AI_GLM_5_1,

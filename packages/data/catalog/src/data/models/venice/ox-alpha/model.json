@@ -1,0 +1,85 @@
+{
+  "model_id": "venice/ox-alpha",
+  "organisation_id": "venice",
+  "name": "Ox Alpha",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Ox Alpha is a reasoning model designed for coding, sustained agentic work, and production workloads. It is suited for long-horizon software engineering, complex reasoning, and workflows that combine text with visual context.",
+  "announced_date": null,
+  "release_date": "2026-08-21",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": null,
+  "input_types": [
+    "text",
+    "image",
+    "video"
+  ],
+  "output_types": [
+    "text"
+  ],
+  "api_model_id": "venice/ox-alpha",
+  "links": [
+    {
+      "platform": "model",
+      "title": "Model source",
+      "url": "https://openrouter.ai/stealth/ox-alpha"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "family_id": null,
+  "page_notice": null,
+  "model_type": "language",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": 1048576,
+    "input": null,
+    "output": 131072
+  },
+  "modalities": {
+    "input": [
+      "text",
+      "image",
+      "video"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": true,
+    "options": [
+      "none",
+      "low",
+      "medium",
+      "high"
+    ]
+  },
+  "capabilities": {
+    "attachment": true,
+    "tool_call": true,
+    "structured_output": true,
+    "temperature": null,
+    "streaming": true,
+    "web_search": true
+  },
+  "open_weights": false,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.venice.ai/api/v1/models",
+      "accessed_at": "2026-08-21T00:00:00Z",
+      "notes": "Venice live model metadata."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-21",
+    "notes": "Verified against Venice's live models API."
+  },
+  "last_updated": "2026-08-21",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}
