@@ -1,7 +1,7 @@
 {
   "api_provider_id": "wafer",
   "api_provider_name": "Wafer",
-  "description": "OpenAI-compatible serverless inference API.",
+  "description": "OpenAI-compatible serverless inference for a curated catalogue of open models.",
   "link": "https://app.wafer.ai/models",
   "residency_mode": "provider_managed",
   "default_execution_regions": ["US"],
@@ -27,20 +27,20 @@
   "sdk_package": null,
   "api_base_url": "https://pass.wafer.ai/v1",
   "docs_url": "https://app.wafer.ai/models",
-  "auth_env": "WAFER_API_KEY",
-  "api_formats": ["openai_chat_completions"],
-  "service_tiers": ["standard", "priority"],
+  "auth_env": ["WAFER_API_KEY"],
+  "api_formats": ["openai.chat.completions"],
+  "service_tiers": ["standard"],
   "sources": [
     {
       "url": "https://app.wafer.ai/models",
       "kind": "api_reference",
-      "accessed_at": "2026-08-12T00:00:00Z",
+      "accessed_at": "2026-08-21T00:00:00Z",
       "notes": "Official model cards document the bearer-authenticated /v1/chat/completions endpoint and current serverless model slugs."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-12T00:00:00Z",
+    "checked_at": "2026-08-21T00:00:00Z",
     "notes": "Verified against Wafer's first-party model quick starts and model catalogue."
   }
 }
