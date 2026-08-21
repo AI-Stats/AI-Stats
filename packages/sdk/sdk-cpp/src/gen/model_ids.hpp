@@ -207,6 +207,9 @@ inline constexpr std::string_view DEEPSEEK_DEEPSEEK_V4_FLASH = "deepseek/deepsee
 // Model ID: deepseek/deepseek-v4-flash-0731
 // Model page: https://phaseo.app/models/deepseek/deepseek-v4-flash-0731
 inline constexpr std::string_view DEEPSEEK_DEEPSEEK_V4_FLASH_0731 = "deepseek/deepseek-v4-flash-0731";
+// Model ID: deepseek/deepseek-v4-flash-vision-exp
+// Model page: https://phaseo.app/models/deepseek/deepseek-v4-flash-vision-exp
+inline constexpr std::string_view DEEPSEEK_DEEPSEEK_V4_FLASH_VISION_EXP = "deepseek/deepseek-v4-flash-vision-exp";
 // Model ID: deepseek/deepseek-v4-pro
 // Model page: https://phaseo.app/models/deepseek/deepseek-v4-pro
 inline constexpr std::string_view DEEPSEEK_DEEPSEEK_V4_PRO = "deepseek/deepseek-v4-pro";
@@ -1545,7 +1548,7 @@ inline constexpr std::string_view ZAI_GLM_5 = "zai/glm-5";
 // Deprecated alias for deepseek/deepseek-v4; use deepseek/deepseek-v4-pro. Remove in the next major SDK release.
 inline constexpr std::string_view DEEPSEEK_DEEPSEEK_V4 = DEEPSEEK_DEEPSEEK_V4_PRO;
 
-inline constexpr std::array<std::string_view, 512> ALL = {
+inline constexpr std::array<std::string_view, 513> ALL = {
 	AION_LABS_AION_2_0,
 	AION_LABS_AION_3_0,
 	AION_LABS_AION_3_0_MINI,
@@ -1613,6 +1616,7 @@ inline constexpr std::array<std::string_view, 512> ALL = {
 	DEEPSEEK_DEEPSEEK_V3_2_SPECIALE,
 	DEEPSEEK_DEEPSEEK_V4_FLASH,
 	DEEPSEEK_DEEPSEEK_V4_FLASH_0731,
+	DEEPSEEK_DEEPSEEK_V4_FLASH_VISION_EXP,
 	DEEPSEEK_DEEPSEEK_V4_PRO,
 	DEEPSEEK_DEEPSEEK_V4_PRO_0813,
 	ELEVEN_LABS_ELEVEN_FLASH_V2,
