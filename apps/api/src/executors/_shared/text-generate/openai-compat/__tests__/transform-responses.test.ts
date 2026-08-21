@@ -676,6 +676,29 @@ describe("irToOpenAIResponses", () => {
 		]);
 	});
 
+	it("maps DeepSeek Vision image inputs to the documented Responses shape", () => {
+		const request = irToOpenAIResponses({
+			model: "deepseek/deepseek-v4-flash-vision-exp",
+			messages: [{
+				role: "user",
+				content: [
+					{ type: "text", text: "Read this chart." },
+					{ type: "image", source: "url", data: "https://example.com/chart.png", detail: "low" },
+				],
+			}],
+			stream: false,
+		} as any, "deepseek-v4-flash-vision-exp", "deepseek");
+
+		expect(request.input).toEqual([{
+			type: "message",
+			role: "user",
+			content: [
+				{ type: "input_text", text: "Read this chart." },
+				{ type: "input_image", image_url: "https://example.com/chart.png", detail: "low" },
+			],
+		}]);
+	});
+
 	it("maps Meta disabled reasoning to minimal effort", () => {
 		const request = irToOpenAIResponses({
 			model: "meta/muse-spark-1.1",

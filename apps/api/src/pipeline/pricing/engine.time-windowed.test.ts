@@ -15,6 +15,10 @@ const deepSeekV4FlashPricingPath = path.join(
     repoRoot,
     "packages/data/catalog/src/data/pricing/deepseek/deepseek-deepseek-v4-flash-0731/text.generate/pricing.json",
 );
+const deepSeekV4FlashVisionPricingPath = path.join(
+    repoRoot,
+    "packages/data/catalog/src/data/pricing/deepseek/deepseek-deepseek-v4-flash-vision-exp/text.generate/pricing.json",
+);
 
 const makeDeepSeekCard = (): PriceCard => ({
     provider: "deepseek",
@@ -379,6 +383,23 @@ describe("pricing engine time-windowed rules", () => {
 });
 
 describe("DeepSeek V4 catalog time-period pricing", () => {
+	it("bills DeepSeek Vision image tokens once through aggregate input usage", () => {
+		const card = loadActiveCatalogPriceCard(deepSeekV4FlashVisionPricingPath, "2026-08-21T00:00:00.000Z");
+
+		const result = computeBillSummary(
+			// DeepSeek reports image-derived tokens within the aggregate input total.
+			{ input_text_tokens: 512, input_image_tokens: 384 },
+			card,
+			{ request_started_at: "2026-08-21T05:00:00Z", upstreamStartMs: Date.parse("2026-08-21T05:00:00Z") },
+			"standard",
+		);
+
+		expect(result.lines).toEqual([
+			expect.objectContaining({ dimension: "input_text_tokens", quantity: 512 }),
+		]);
+		expect(result.cost_usd_str).toBe("0.000112640");
+	});
+
     it.each(deepSeekV4CatalogCases)(
         "keeps current prices active for $label before the scheduled cutover",
         ({ pricingPath, baseTotal }) => {
