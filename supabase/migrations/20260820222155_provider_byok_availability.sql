@@ -1,5 +1,6 @@
 -- Make provider-level BYOK support explicit so catalogue filters do not need
 -- to infer availability from the frontend credential-format registry.
+-- phaseo:allow-destructive-migration reason: Replaces the audited admin catalogue mutation function while preserving its scoped admin-authorized deletes and audit trail.
 
 alter table public.v2_providers
   add column if not exists byok_available boolean not null default false;
