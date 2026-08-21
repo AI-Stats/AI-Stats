@@ -22,8 +22,8 @@
   "prompt_training_notes": "Venice's E2EE mode encrypts prompts on the client and decrypts them only inside a verified TEE, on top of Venice's normal no-content-retention proxy architecture. Operational metadata is still processed.",
   "prompt_training_source_url": "https://docs.venice.ai/overview/privacy",
   "gateway_kind": "direct",
-  "routable": true,
-  "routing_enabled": true,
+  "routable": false,
+  "routing_enabled": false,
   "sdk_package": null,
   "api_base_url": "https://api.venice.ai/api/v1",
   "docs_url": "https://docs.venice.ai/api-reference/endpoint/chat/completions",
@@ -41,6 +41,6 @@
   "verification": {
     "status": "verified",
     "checked_at": "2026-08-21",
-    "notes": "Verified against Venice's official live model metadata; Responses remains intentionally unsupported for E2EE routes."
+    "notes": "Verified against Venice's official live model metadata. Gateway routing remains disabled until Phaseo implements Venice's required client-side E2EE encryption and response decryption protocol."
   }
 }
