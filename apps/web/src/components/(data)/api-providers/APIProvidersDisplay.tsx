@@ -89,9 +89,7 @@ type ProviderTableSortField =
 	| "daily_tokens"
 	| "monthly_tokens"
 	| "training"
-	| "retention"
-	| "privacy"
-	| "terms";
+	| "retention";
 
 type FilterOption = { value: string; label: string; count: number; icon?: LucideIcon };
 
@@ -153,7 +151,7 @@ function normalizeSortOption(value: string | null | undefined): ProviderSortOpti
 }
 
 function normalizeTableSortField(value: string | null | undefined): ProviderTableSortField | null {
-	return ["provider", "headquarters", "models", "free_models", "modalities", "daily_tokens", "monthly_tokens", "training", "retention", "privacy", "terms"].includes(value ?? "")
+	return ["provider", "headquarters", "models", "free_models", "modalities", "daily_tokens", "monthly_tokens", "training", "retention"].includes(value ?? "")
 		? value as ProviderTableSortField
 		: null;
 }
@@ -372,12 +370,6 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 						case "retention":
 							delta = Number(a.data_retention_days ?? -1) - Number(b.data_retention_days ?? -1);
 							break;
-						case "privacy":
-							delta = Number(Boolean(a.privacy_policy_url)) - Number(Boolean(b.privacy_policy_url));
-							break;
-						case "terms":
-							delta = Number(Boolean(a.terms_of_service_url)) - Number(Boolean(b.terms_of_service_url));
-							break;
 					}
 					if (delta) return normalizedTableSortDirection === "asc" ? delta : -delta;
 				}
@@ -533,8 +525,8 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 				<TableHead className="bg-background text-center">{renderTableSortHead("Monthly Tokens", "monthly_tokens", "center")}</TableHead>
 				<TableHead className="bg-background">{renderTableSortHead("Training", "training")}</TableHead>
 				<TableHead className="bg-background">{renderTableSortHead("Retention", "retention")}</TableHead>
-				<TableHead className="bg-background">{renderTableSortHead("Privacy", "privacy")}</TableHead>
-				<TableHead className="bg-background">{renderTableSortHead("Terms", "terms")}</TableHead>
+				<TableHead className="bg-background">Privacy</TableHead>
+				<TableHead className="bg-background">Terms</TableHead>
 			</TableRow>
 		</TableHeader>
 	);
