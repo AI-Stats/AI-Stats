@@ -6,6 +6,62 @@
   "capability_id": "text.generate",
   "rules": [
     {
+      "meter": "input_text_tokens", "unit": "token", "unit_size": 1000000, "price_per_unit": 4, "currency": "USD", "pricing_plan": "standard",
+      "note": "Promotional price available at least through November 21, 2026. Short context pricing for requests at or below 272K input tokens.",
+      "match": [{ "path": "input_tokens", "op": "lte", "or_group": 1, "and_index": 1, "value": 272000 }], "priority": 200,
+      "effective_from": "2026-08-21T19:34:00Z", "effective_to": null, "region": null, "cache_duration_seconds": null,
+      "conditions": [{ "path": "input_tokens", "op": "lte", "or_group": 1, "and_index": 1, "value": 272000 }], "source": "https://platform.openai.com/pricing"
+    },
+    {
+      "meter": "cached_read_text_tokens", "unit": "token", "unit_size": 1000000, "price_per_unit": 0.4, "currency": "USD", "pricing_plan": "standard",
+      "note": "Promotional price available at least through November 21, 2026. Short context pricing for requests at or below 272K input tokens.",
+      "match": [{ "path": "input_tokens", "op": "lte", "or_group": 1, "and_index": 1, "value": 272000 }], "priority": 200,
+      "effective_from": "2026-08-21T19:34:00Z", "effective_to": null, "region": null, "cache_duration_seconds": null,
+      "conditions": [{ "path": "input_tokens", "op": "lte", "or_group": 1, "and_index": 1, "value": 272000 }], "source": "https://platform.openai.com/pricing"
+    },
+    {
+      "meter": "cached_write_text_tokens", "unit": "token", "unit_size": 1000000, "price_per_unit": 5, "currency": "USD", "pricing_plan": "standard",
+      "note": "Promotional price available at least through November 21, 2026. Short context pricing for requests at or below 272K input tokens.",
+      "match": [{ "path": "input_tokens", "op": "lte", "or_group": 1, "and_index": 1, "value": 272000 }], "priority": 200,
+      "effective_from": "2026-08-21T19:34:00Z", "effective_to": null, "region": null, "cache_duration_seconds": null,
+      "conditions": [{ "path": "input_tokens", "op": "lte", "or_group": 1, "and_index": 1, "value": 272000 }], "source": "https://platform.openai.com/pricing"
+    },
+    {
+      "meter": "output_text_tokens", "unit": "token", "unit_size": 1000000, "price_per_unit": 20, "currency": "USD", "pricing_plan": "standard",
+      "note": "Promotional price available at least through November 21, 2026. Short context pricing for requests at or below 272K input tokens.",
+      "match": [{ "path": "input_tokens", "op": "lte", "or_group": 1, "and_index": 1, "value": 272000 }], "priority": 200,
+      "effective_from": "2026-08-21T19:34:00Z", "effective_to": null, "region": null, "cache_duration_seconds": null,
+      "conditions": [{ "path": "input_tokens", "op": "lte", "or_group": 1, "and_index": 1, "value": 272000 }], "source": "https://platform.openai.com/pricing"
+    },
+    {
+      "meter": "input_text_tokens", "unit": "token", "unit_size": 1000000, "price_per_unit": 8, "currency": "USD", "pricing_plan": "standard",
+      "note": "Promotional price available at least through November 21, 2026. Long context pricing for requests above 272K input tokens.",
+      "match": [{ "path": "input_tokens", "op": "gt", "or_group": 1, "and_index": 1, "value": 272000 }], "priority": 200,
+      "effective_from": "2026-08-21T19:34:00Z", "effective_to": null, "region": null, "cache_duration_seconds": null,
+      "conditions": [{ "path": "input_tokens", "op": "gt", "or_group": 1, "and_index": 1, "value": 272000 }], "source": "https://platform.openai.com/pricing"
+    },
+    {
+      "meter": "cached_read_text_tokens", "unit": "token", "unit_size": 1000000, "price_per_unit": 0.8, "currency": "USD", "pricing_plan": "standard",
+      "note": "Promotional price available at least through November 21, 2026. Long context pricing for requests above 272K input tokens.",
+      "match": [{ "path": "input_tokens", "op": "gt", "or_group": 1, "and_index": 1, "value": 272000 }], "priority": 200,
+      "effective_from": "2026-08-21T19:34:00Z", "effective_to": null, "region": null, "cache_duration_seconds": null,
+      "conditions": [{ "path": "input_tokens", "op": "gt", "or_group": 1, "and_index": 1, "value": 272000 }], "source": "https://platform.openai.com/pricing"
+    },
+    {
+      "meter": "cached_write_text_tokens", "unit": "token", "unit_size": 1000000, "price_per_unit": 10, "currency": "USD", "pricing_plan": "standard",
+      "note": "Promotional price available at least through November 21, 2026. Long context pricing for requests above 272K input tokens.",
+      "match": [{ "path": "input_tokens", "op": "gt", "or_group": 1, "and_index": 1, "value": 272000 }], "priority": 200,
+      "effective_from": "2026-08-21T19:34:00Z", "effective_to": null, "region": null, "cache_duration_seconds": null,
+      "conditions": [{ "path": "input_tokens", "op": "gt", "or_group": 1, "and_index": 1, "value": 272000 }], "source": "https://platform.openai.com/pricing"
+    },
+    {
+      "meter": "output_text_tokens", "unit": "token", "unit_size": 1000000, "price_per_unit": 30, "currency": "USD", "pricing_plan": "standard",
+      "note": "Promotional price available at least through November 21, 2026. Long context pricing for requests above 272K input tokens.",
+      "match": [{ "path": "input_tokens", "op": "gt", "or_group": 1, "and_index": 1, "value": 272000 }], "priority": 200,
+      "effective_from": "2026-08-21T19:34:00Z", "effective_to": null, "region": null, "cache_duration_seconds": null,
+      "conditions": [{ "path": "input_tokens", "op": "gt", "or_group": 1, "and_index": 1, "value": 272000 }], "source": "https://platform.openai.com/pricing"
+    },
+    {
       "meter": "input_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
@@ -1357,11 +1413,13 @@
     "priority"
   ],
   "sources": [
+    "https://x.com/OpenAI/status/2090885187634905500",
+    "https://platform.openai.com/pricing",
     "https://developers.openai.com/api/docs/pricing"
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-07-30T00:00:00Z",
-    "notes": "Verified against OpenAI's July 30, 2026 pricing. Phaseo keeps Priority as the canonical tier name and accepts fast as an OpenAI-compatible alias."
+    "checked_at": "2026-08-21T00:00:00Z",
+    "notes": "Verified against OpenAI's pricing page and August 21 announcement. Priority-200 promotional rules are available at least through November 21, 2026; Phaseo keeps Priority as the canonical tier name and accepts fast as an OpenAI-compatible alias."
   }
 }
