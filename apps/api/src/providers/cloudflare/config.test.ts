@@ -26,7 +26,19 @@ describe("Cloudflare Workers AI configuration", () => {
 		);
 		expect(openAICompatHeaders("cloudflare", "token-123")).toMatchObject({
 			Authorization: "Bearer token-123",
+			"cf-aig-gateway-id": "default",
 			"Content-Type": "application/json",
+		});
+	});
+
+	it("uses an explicitly configured AI Gateway ID", () => {
+		teardownTestRuntime();
+		setupRuntimeFromEnv({
+			CLOUDFLARE_AI_GATEWAY_ID: "phaseo-production",
+		} as any);
+
+		expect(openAICompatHeaders("cloudflare", "token-123")).toMatchObject({
+			"cf-aig-gateway-id": "phaseo-production",
 		});
 	});
 

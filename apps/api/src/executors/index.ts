@@ -59,6 +59,8 @@ import { executor as bytedanceSeedText } from "./bytedance-seed/text-generate";
 import { executor as chutesText } from "./chutes/text-generate";
 import { executor as clarifaiText } from "./clarifai/text-generate";
 import { executor as cloudflareText } from "./cloudflare/text-generate";
+import { executor as cloudflareImage } from "./cloudflare/image-generate";
+import { executor as cloudflareAudioTranscription } from "./cloudflare/audio-transcription";
 import { executor as crusoeText } from "./crusoe/text-generate";
 import { executor as featherlessText } from "./featherless/text-generate";
 import { executor as friendliText } from "./friendli/text-generate";
@@ -281,6 +283,9 @@ export const EXECUTORS_BY_PROVIDER: Record<string, ProviderCapabilityMap> = {
 	},
 	cloudflare: {
 		"text.generate": cloudflareText,
+		embeddings: openaiEmbeddings,
+		"image.generate": cloudflareImage,
+		"audio.transcription": cloudflareAudioTranscription,
 	},
 	cohere: {
 		"text.generate": cohereText,
