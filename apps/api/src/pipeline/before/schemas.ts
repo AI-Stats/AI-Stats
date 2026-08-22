@@ -96,6 +96,10 @@ const priceRuleSchema = z
         time_windows: z.array(z.object({
             label: z.string(),
             timezone: z.literal("UTC"),
+            days_of_week: z.array(z.enum(["mon", "tue", "wed", "thu", "fri", "sat", "sun"]))
+                .min(1)
+                .max(7)
+                .optional(),
             start_time: utcMinuteTimeSchema,
             end_time: utcMinuteTimeSchema,
             price_per_unit: z.union([z.string(), z.number()]).nullable().optional()
