@@ -153,6 +153,10 @@ export const logoManifest = {
 	essentialai: {
 		color: "/logos/essential-ai.svg",
 	},
+	stealth: {
+		light: "/logos/stealth_light.svg",
+		dark: "/logos/stealth_dark.svg",
+	},
 	featherless: {
 		color: "/logos/featherless.svg",
 	},
