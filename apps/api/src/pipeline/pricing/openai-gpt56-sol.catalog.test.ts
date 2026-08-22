@@ -41,8 +41,8 @@ describe("GPT-5.6 Sol catalogue billing", () => {
 	});
 
 	it.each([
-		["Sol canonical slug", canonicalCard, "15.000000000", "20.000000000", "90.000000000"],
-		["Sol Pro compatibility alias", proAliasCard, "15.000000000", "20.000000000", "90.000000000"],
+		["Sol canonical slug", canonicalCard, "10.800000000", "16.000000000", "60.000000000"],
+		["Sol Pro compatibility alias", proAliasCard, "10.800000000", "16.000000000", "60.000000000"],
 		["Terra canonical slug", terraCard, "6.000000000", "8.000000000", "36.000000000"],
 		["Terra Pro compatibility alias", terraProAliasCard, "6.000000000", "8.000000000", "36.000000000"],
 		["Luna canonical slug", lunaCard, "0.600000000", "0.800000000", "3.600000000"],
@@ -67,8 +67,8 @@ describe("GPT-5.6 Sol catalogue billing", () => {
 	});
 
 	it.each([
-		[272_000, "8.720000000", "10.000000000", "60.000000000"],
-		[272_001, "14.440020000", "20.000000000", "90.000000000"],
+		[272_000, "6.176000000", "8.000000000", "40.000000000"],
+		[272_001, "10.352016000", "16.000000000", "60.000000000"],
 	])(
 		"switches Priority pricing only above 272K input tokens (%i)",
 		(inputTokens, total, inputRate, outputRate) => {
