@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
 import {
@@ -728,15 +728,6 @@ function formatRequestMeterUnit(unitLabel: string | null | undefined): string {
 	return `/ ${fmtCompact(Number(match[1].replace(/,/g, "")))} req`;
 }
 
-function formatRulePrice(
-	rule: ProviderPricing["pricing_rules"][number],
-	price: string | number | null | undefined,
-): string {
-	const numeric = Number(price);
-	if (!Number.isFinite(numeric)) return "--";
-	return `${fmtUSD(numeric)} ${formatRuleUnitLabel(rule)}`;
-}
-
 function parseUtcClockMinutes(value: string | null | undefined): number | null {
 	const match = String(value ?? "").match(/^([01]\d|2[0-3]):([0-5]\d)$/);
 	if (!match) return null;
@@ -748,6 +739,10 @@ function isUtcTimeWindowActiveNow(
 	now: Date,
 ): boolean {
 	if (window.timezone !== "UTC") return false;
+	const utcDay = PRICING_UTC_DAY_KEYS[now.getUTCDay()];
+	if (window.days_of_week?.length && !window.days_of_week.includes(utcDay)) {
+		return false;
+	}
 	const start = parseUtcClockMinutes(window.start_time);
 	const end = parseUtcClockMinutes(window.end_time);
 	if (start == null || end == null) return false;
@@ -755,6 +750,70 @@ function isUtcTimeWindowActiveNow(
 	if (start === end) return true;
 	if (start < end) return nowMinutes >= start && nowMinutes < end;
 	return nowMinutes >= start || nowMinutes < end;
+}
+
+type PricingTimezoneMode = "local" | "utc";
+
+const PRICING_TIMEZONE_MODE_KEY = "phaseo:pricing-timezone-mode:v1";
+const PRICING_TIMEZONE_MODE_EVENT = "phaseo:pricing-timezone-mode-change";
+const PRICING_UTC_DAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
+const PRICING_DAY_LABELS: Record<string, string> = {
+	mon: "Mon",
+	tue: "Tue",
+	wed: "Wed",
+	thu: "Thu",
+	fri: "Fri",
+	sat: "Sat",
+	sun: "Sun",
+};
+
+function getPricingTimezoneModeSnapshot(): PricingTimezoneMode {
+	const mode = window.localStorage.getItem(PRICING_TIMEZONE_MODE_KEY);
+	return mode === "utc" ? "utc" : "local";
+}
+
+function getServerPricingTimezoneModeSnapshot(): PricingTimezoneMode {
+	return "local";
+}
+
+function subscribeToPricingTimezoneMode(onChange: () => void): () => void {
+	window.addEventListener(PRICING_TIMEZONE_MODE_EVENT, onChange);
+	window.addEventListener("storage", onChange);
+	return () => {
+		window.removeEventListener(PRICING_TIMEZONE_MODE_EVENT, onChange);
+		window.removeEventListener("storage", onChange);
+	};
+}
+
+function formatPricingWindowDays(days: string[] | undefined): string {
+	if (!days?.length) return "Every day";
+	if (days.join(",") === "mon,tue,wed,thu,fri") return "Mon–Fri";
+	if (days.join(",") === "sat,sun") return "Sat–Sun";
+	return days.map((day) => PRICING_DAY_LABELS[day] ?? day).join(", ");
+}
+
+function formatPricingWindowRange(
+	window: NonNullable<ProviderPricing["pricing_rules"][number]["time_windows"]>[number],
+	mode: PricingTimezoneMode,
+	now: Date,
+): string {
+	if (mode === "utc") return `${window.start_time}–${window.end_time} UTC`;
+	const start = parseUtcClockMinutes(window.start_time);
+	const end = parseUtcClockMinutes(window.end_time);
+	if (start == null || end == null) return `${window.start_time}–${window.end_time} UTC`;
+	const allowedDays: Set<string> | null = window.days_of_week?.length ? new Set(window.days_of_week) : null;
+	const day = new Date(now);
+	day.setUTCHours(0, 0, 0, 0);
+	for (let offset = 0; offset < 8; offset += 1) {
+		const candidateDay = new Date(day.getTime() + offset * 86_400_000);
+		if (allowedDays && !allowedDays.has(PRICING_UTC_DAY_KEYS[candidateDay.getUTCDay()])) continue;
+		const startAt = new Date(candidateDay.getTime() + start * 60_000);
+		const endAt = new Date(candidateDay.getTime() + end * 60_000 + (end <= start ? 86_400_000 : 0));
+		const weekday = new Intl.DateTimeFormat(undefined, { weekday: "short" }).format(startAt);
+		const timeFormatter = new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit", hour12: false });
+		return `${weekday} ${timeFormatter.format(startAt)}–${timeFormatter.format(endAt)}`;
+	}
+	return `${window.start_time}–${window.end_time} UTC`;
 }
 
 function renderTablePriceSummary(
@@ -1539,6 +1598,11 @@ export default function ProviderCard({
 	const [disableInspectorAnimation, setDisableInspectorAnimation] = useState(false);
 	const [inspectorNavigationProviderIds, setInspectorNavigationProviderIds] = useState<string[] | null>(null);
 	const [copiedInspectorValue, setCopiedInspectorValue] = useState<string | null>(null);
+	const pricingTimezoneMode = useSyncExternalStore(
+		subscribeToPricingTimezoneMode,
+		getPricingTimezoneModeSnapshot,
+		getServerPricingTimezoneModeSnapshot,
+	);
 	const inspectorAnimationResetRef = useRef<number | null>(null);
 	const inspectorStateClearRef = useRef<number | null>(null);
 	const inspectorProviderId = provider.provider.api_provider_id;
@@ -1551,6 +1615,11 @@ export default function ProviderCard({
 	useEffect(() => {
 		setSelectedPlan(defaultPlan);
 	}, [defaultPlan]);
+
+	const updatePricingTimezoneMode = (mode: PricingTimezoneMode) => {
+		window.localStorage.setItem(PRICING_TIMEZONE_MODE_KEY, mode);
+		window.dispatchEvent(new CustomEvent(PRICING_TIMEZONE_MODE_EVENT, { detail: mode }));
+	};
 
 	useEffect(() => {
 		const handleOpen = (event: Event) => {
@@ -2686,6 +2755,12 @@ export default function ProviderCard({
 			),
 		}))
 		.filter((entry) => entry.windows.length > 0);
+	const representativePricingWindows = timeWindowPricingRules[0]?.windows ?? [];
+	const peakPricingActiveNow = representativePricingWindows.some((window) =>
+		isUtcTimeWindowActiveNow(window, now),
+	);
+	const weekdayOnlyPricing = representativePricingWindows[0]?.days_of_week?.join(",") === "mon,tue,wed,thu,fri";
+	const localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "Local time";
 	const sheetSectionPrefix = `provider-${sec.providerId.replace(/[^a-z0-9_-]/gi, "-")}-${selectedPlan}`;
 	const pricingSectionId = `${sheetSectionPrefix}-pricing`;
 	const performanceSectionId = `${sheetSectionPrefix}-performance`;
@@ -3122,74 +3197,89 @@ export default function ProviderCard({
 						{pricingPrimaryContent}
 						{pricingGeneratedOutputContent}
 						{timeWindowPricingRules.length > 0 ? (
-									<div className="py-2">
-										<div className="pb-2">
-											<div className="text-xs font-semibold text-foreground">
-												Time-window pricing
-											</div>
-											<div className="mt-0.5 text-[11px] text-muted-foreground">
-												Selected by {formatBillingTimestampBasis(timeWindowPricingRules[0]?.rule.billing_timestamp_basis)} time.
-											</div>
-										</div>
-										<div className="divide-y divide-zinc-200/80 dark:divide-zinc-800">
-											{timeWindowPricingRules.map(({ rule, windows }) => {
-												const windowsWithActiveState = windows.map((window) => ({
-													window,
-													active: isUtcTimeWindowActiveNow(window, now),
-												}));
-												const baseActive = !windowsWithActiveState.some((entry) => entry.active);
-												return (
-													<div key={rule.id} className="py-2.5">
-														<div className="flex items-center justify-between gap-3">
-															<div className="min-w-0 text-xs font-medium text-foreground">
-																{formatMeterLabel(rule.meter)}
-															</div>
-															<div
-																className={cn(
-																	"shrink-0 text-xs tabular-nums",
-																	baseActive ? selectedPlanTheme.accent : "text-muted-foreground",
-																)}
-															>
-																Base {formatRulePrice(rule, rule.price_per_unit)}
-																{baseActive ? <span className="ml-2 font-semibold">Active now</span> : null}
-															</div>
-														</div>
-														<div className="mt-2 divide-y divide-zinc-200/70 text-xs dark:divide-zinc-800">
-															{windowsWithActiveState.map(({ window, active }, index) => (
-																<div
-																	key={`${rule.id}-${window.label}-${window.start_time}-${index}`}
-																	className="flex items-center justify-between gap-3 py-1.5"
-																>
-																	<div className="min-w-0">
-																		<span className="font-medium text-foreground">
-																			{window.label}
-																		</span>
-																		<span className="ml-2 tabular-nums text-muted-foreground">
-																			{window.start_time}-{window.end_time} UTC
-																		</span>
-																		{active ? (
-																			<span className={cn("ml-2 font-semibold", selectedPlanTheme.accent)}>
-																				Active now
-																			</span>
-																		) : null}
-																	</div>
-																	<div
-																		className={cn(
-																			"shrink-0 font-semibold tabular-nums",
-																			active ? selectedPlanTheme.accent : "text-foreground",
-																		)}
-																	>
-																		{formatRulePrice(rule, window.price_per_unit)}
-																	</div>
-																</div>
-															))}
-														</div>
-													</div>
-												);
-											})}
+							<div className="py-3">
+								<div className="flex items-start justify-between gap-3">
+									<div>
+										<div className="text-xs font-semibold text-foreground">Scheduled pricing</div>
+										<div className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
+											Selected by {formatBillingTimestampBasis(timeWindowPricingRules[0]?.rule.billing_timestamp_basis)} time.
 										</div>
 									</div>
-								) : null}
+									<div className="inline-flex shrink-0 rounded-md border border-zinc-200 p-0.5 text-[11px] dark:border-zinc-800" aria-label="Pricing schedule timezone">
+										{(["local", "utc"] as const).map((mode) => (
+											<button
+												key={mode}
+												type="button"
+												aria-pressed={pricingTimezoneMode === mode}
+												onClick={() => updatePricingTimezoneMode(mode)}
+												className={cn(
+													"rounded px-2 py-1 font-medium transition-colors",
+													pricingTimezoneMode === mode ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground",
+												)}
+											>
+												{mode === "local" ? "Your time" : "UTC"}
+											</button>
+										))}
+									</div>
+								</div>
+
+								<div className="mt-3 rounded-lg border border-zinc-200/80 dark:border-zinc-800">
+									<div className="grid grid-cols-[1fr_auto] gap-3 border-b border-zinc-200/80 px-3 py-2.5 dark:border-zinc-800">
+										<div>
+											<div className="flex items-center gap-2 text-xs font-semibold text-foreground">
+												Off Peak
+												{!peakPricingActiveNow ? <span className={selectedPlanTheme.accent}>Active now</span> : null}
+											</div>
+											<div className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
+												{weekdayOnlyPricing
+													? "Weekends all day and outside the weekday periods below."
+													: "Outside the periods below."}
+											</div>
+										</div>
+									</div>
+									<div className="border-b border-zinc-200/80 px-3 py-2.5 dark:border-zinc-800">
+										<div className="flex items-center gap-2 text-xs font-semibold text-foreground">
+											Peak · {formatPricingWindowDays(representativePricingWindows[0]?.days_of_week)}
+											{peakPricingActiveNow ? <span className={selectedPlanTheme.accent}>Active now</span> : null}
+										</div>
+										<div className="mt-1 space-y-0.5 text-[11px] tabular-nums text-muted-foreground">
+											{representativePricingWindows.map((window, index) => (
+												<div key={`${window.start_time}-${window.end_time}-${index}`}>
+													{formatPricingWindowRange(window, pricingTimezoneMode, now)}
+												</div>
+											))}
+										</div>
+										<div className="mt-1 text-[10px] text-muted-foreground">
+											{pricingTimezoneMode === "local" ? localTimezone : "Coordinated Universal Time"}
+										</div>
+									</div>
+									<div className="divide-y divide-zinc-200/70 px-3 dark:divide-zinc-800">
+										{timeWindowPricingRules.map(({ rule, windows }) => (
+											<div key={rule.id} className="py-2.5">
+												<div className="flex items-baseline justify-between gap-3">
+													<div className="min-w-0 text-xs font-medium text-foreground">{formatMeterLabel(rule.meter)}</div>
+													<div className="shrink-0 text-[10px] text-muted-foreground">{formatRuleUnitLabel(rule).replace(/^\//, "per")}</div>
+												</div>
+												<div className="mt-1.5 grid grid-cols-2 gap-2">
+													<div>
+														<div className="text-[10px] font-medium text-muted-foreground">Off Peak</div>
+														<div className={cn("mt-0.5 text-xs font-semibold tabular-nums", !peakPricingActiveNow ? selectedPlanTheme.accent : "text-foreground")}>
+															{fmtUSD(Number(rule.price_per_unit))}
+														</div>
+													</div>
+													<div>
+														<div className="text-[10px] font-medium text-muted-foreground">Peak</div>
+														<div className={cn("mt-0.5 text-xs font-semibold tabular-nums", peakPricingActiveNow ? selectedPlanTheme.accent : "text-foreground")}>
+															{fmtUSD(Number(windows[0]?.price_per_unit))}
+														</div>
+													</div>
+												</div>
+											</div>
+										))}
+									</div>
+								</div>
+							</div>
+						) : null}
 								{pricingAdditionalContent}
 							</section>
 

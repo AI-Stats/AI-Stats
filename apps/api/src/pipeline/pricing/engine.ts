@@ -498,6 +498,8 @@ function isMinuteInsideWindow(minute: number, startMinute: number, endMinute: nu
     return minute >= startMinute || minute < endMinute;
 }
 
+const UTC_DAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
+
 type ResolvedRulePrice = {
     price_per_unit: string;
     billing_timestamp_basis: PricingTimestampBasis;
@@ -515,10 +517,12 @@ function resolveRulePrice(rule: PriceRule, requestOptions?: Record<string, any>)
     if (timestampMs !== null && windows.length > 0) {
         const date = new Date(timestampMs);
         const utcMinute = date.getUTCHours() * 60 + date.getUTCMinutes();
+        const utcDay = UTC_DAY_KEYS[date.getUTCDay()];
         const matches = windows
             .map((window, index) => ({ window, index }))
             .filter(({ window }) => {
                 if (!window || window.timezone !== "UTC") return false;
+                if (window.days_of_week?.length && !window.days_of_week.includes(utcDay)) return false;
                 const startMinute = parseUtcMinute(window.start_time);
                 const endMinute = parseUtcMinute(window.end_time);
                 if (startMinute === null || endMinute === null) return false;
@@ -538,6 +542,7 @@ function resolveRulePrice(rule: PriceRule, requestOptions?: Record<string, any>)
                 pricing_time_window: {
                     label: matched.label,
                     timezone: "UTC",
+                    ...(matched.days_of_week?.length ? { days_of_week: matched.days_of_week } : {}),
                     start_time: matched.start_time,
                     end_time: matched.end_time,
                 },

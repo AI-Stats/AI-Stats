@@ -24,6 +24,7 @@ export type PricingTimestampBasis =
 export type PricingTimeWindow = {
     label: string;
     timezone: "UTC";
+    days_of_week?: Array<"mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun">;
     start_time: string;
     end_time: string;
     price_per_unit?: string | null;
@@ -144,6 +145,7 @@ export type PricingBreakdownLine = {
     pricing_time_window?: {
         label: string;
         timezone: "UTC";
+        days_of_week?: Array<"mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun">;
         start_time: string;
         end_time: string;
     } | null;
@@ -156,7 +158,6 @@ export type PricingResult = {
     currency: "USD";
     lines: PricingBreakdownLine[];
 };
-
 
 
 

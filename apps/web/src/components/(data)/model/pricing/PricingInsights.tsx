@@ -431,7 +431,7 @@ function getPriceForMeter(
 		return resolvePricingMeterPrice({
 			price_per_unit: String(rule.pricePerUnit),
 			time_windows: rule.timeWindows,
-		}, utcTime).pricePerUnit * (1_000_000 / rule.unitSize);
+		}, utcTime, date).pricePerUnit * (1_000_000 / rule.unitSize);
 	}
 	const cached = dailyAveragePricePer1MCache.get(rule);
 	if (cached !== undefined) return cached;

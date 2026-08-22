@@ -146,6 +146,21 @@ const deepSeekV4CatalogCases = [
     },
 ];
 
+const deepSeekWeekendCatalogCases = [
+    ...deepSeekV4CatalogCases.map(({ label, pricingPath, offPeakTotal, peakTotal }) => ({
+        label,
+        pricingPath,
+        offPeakTotal,
+        peakTotal,
+    })),
+    {
+        label: "DeepSeek V4 Flash Vision Exp",
+        pricingPath: deepSeekV4FlashVisionPricingPath,
+        offPeakTotal: "0.887000000",
+        peakTotal: "1.774000000",
+    },
+];
+
 describe("pricing engine time-windowed rules", () => {
     it("uses the regular rule price outside UTC peak windows", () => {
         const result = computeBillSummary(
@@ -203,6 +218,41 @@ describe("pricing engine time-windowed rules", () => {
                 },
             }),
         ]);
+    });
+
+    it("applies weekday-constrained windows only on matching UTC weekdays", () => {
+        const card = makeDeepSeekCard();
+        card.rules = card.rules.map((rule) => ({
+            ...rule,
+            time_windows: rule.time_windows?.map((window) => ({
+                ...window,
+                days_of_week: ["mon", "tue", "wed", "thu", "fri"],
+            })),
+        }));
+
+        const sunday = computeBillSummary(
+            { input_text_tokens: 1_000_000 },
+            card,
+            { request_started_at: "2026-08-23T06:30:00Z" },
+            "standard",
+        );
+        const monday = computeBillSummary(
+            { input_text_tokens: 1_000_000 },
+            card,
+            { request_started_at: "2026-08-24T06:30:00Z" },
+            "standard",
+        );
+
+        expect(sunday.lines[0]).toMatchObject({
+            unit_price_usd: "0.435000000",
+            pricing_time_window: null,
+        });
+        expect(monday.lines[0]).toMatchObject({
+            unit_price_usd: "0.870000000",
+            pricing_time_window: expect.objectContaining({
+                days_of_week: ["mon", "tue", "wed", "thu", "fri"],
+            }),
+        });
     });
 
     it("uses the upstream send time for provider-accept pricing windows", () => {
@@ -508,6 +558,47 @@ describe("DeepSeek V4 catalog time-period pricing", () => {
                     },
                 }),
             ]);
+        },
+    );
+
+    it.each(deepSeekWeekendCatalogCases)(
+        "keeps $label off-peak all weekend after the weekend-pricing cutover",
+        ({ pricingPath, offPeakTotal, peakTotal }) => {
+            const card = loadActiveCatalogPriceCard(pricingPath, "2026-08-22T16:00:00.000Z");
+            const usage = {
+                input_text_tokens: 1_000_000,
+                cached_read_text_tokens: 1_000_000,
+                output_text_tokens: 1_000_000,
+            };
+            const sunday = computeBillSummary(
+                usage,
+                card,
+                { upstreamStartMs: Date.parse("2026-08-23T06:30:00Z") },
+                "standard",
+            );
+            const saturday = computeBillSummary(
+                usage,
+                card,
+                { upstreamStartMs: Date.parse("2026-08-29T06:30:00Z") },
+                "standard",
+            );
+            const monday = computeBillSummary(
+                usage,
+                card,
+                { upstreamStartMs: Date.parse("2026-08-24T06:30:00Z") },
+                "standard",
+            );
+
+            expect(card.rules).toHaveLength(3);
+            expect(card.rules.every((rule) => rule.time_windows?.every((window) =>
+                window.days_of_week?.join(",") === "mon,tue,wed,thu,fri"
+            ))).toBe(true);
+            expect(sunday.cost_usd_str).toBe(offPeakTotal);
+            expect(sunday.lines.every((line) => line.pricing_time_window === null)).toBe(true);
+            expect(saturday.cost_usd_str).toBe(offPeakTotal);
+            expect(saturday.lines.every((line) => line.pricing_time_window === null)).toBe(true);
+            expect(monday.cost_usd_str).toBe(peakTotal);
+            expect(monday.lines.every((line) => line.pricing_time_window !== null)).toBe(true);
         },
     );
 });
