@@ -576,6 +576,12 @@ describe("DeepSeek V4 catalog time-period pricing", () => {
                 { upstreamStartMs: Date.parse("2026-08-23T06:30:00Z") },
                 "standard",
             );
+            const saturday = computeBillSummary(
+                usage,
+                card,
+                { upstreamStartMs: Date.parse("2026-08-29T06:30:00Z") },
+                "standard",
+            );
             const monday = computeBillSummary(
                 usage,
                 card,
@@ -589,6 +595,8 @@ describe("DeepSeek V4 catalog time-period pricing", () => {
             ))).toBe(true);
             expect(sunday.cost_usd_str).toBe(offPeakTotal);
             expect(sunday.lines.every((line) => line.pricing_time_window === null)).toBe(true);
+            expect(saturday.cost_usd_str).toBe(offPeakTotal);
+            expect(saturday.lines.every((line) => line.pricing_time_window === null)).toBe(true);
             expect(monday.cost_usd_str).toBe(peakTotal);
             expect(monday.lines.every((line) => line.pricing_time_window !== null)).toBe(true);
         },
