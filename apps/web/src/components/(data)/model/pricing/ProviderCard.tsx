@@ -3227,7 +3227,7 @@ export default function ProviderCard({
 									<div className="grid grid-cols-[1fr_auto] gap-3 border-b border-zinc-200/80 px-3 py-2.5 dark:border-zinc-800">
 										<div>
 											<div className="flex items-center gap-2 text-xs font-semibold text-foreground">
-												Off-peak
+												Off Peak
 												{!peakPricingActiveNow ? <span className={selectedPlanTheme.accent}>Active now</span> : null}
 											</div>
 											<div className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
@@ -3262,13 +3262,13 @@ export default function ProviderCard({
 												</div>
 												<div className="mt-1.5 grid grid-cols-2 gap-2">
 													<div>
-														<div className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">Off-peak</div>
+														<div className="text-[10px] font-medium text-muted-foreground">Off Peak</div>
 														<div className={cn("mt-0.5 text-xs font-semibold tabular-nums", !peakPricingActiveNow ? selectedPlanTheme.accent : "text-foreground")}>
 															{fmtUSD(Number(rule.price_per_unit))}
 														</div>
 													</div>
 													<div>
-														<div className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">Peak</div>
+														<div className="text-[10px] font-medium text-muted-foreground">Peak</div>
 														<div className={cn("mt-0.5 text-xs font-semibold tabular-nums", peakPricingActiveNow ? selectedPlanTheme.accent : "text-foreground")}>
 															{fmtUSD(Number(windows[0]?.price_per_unit))}
 														</div>
