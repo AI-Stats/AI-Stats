@@ -2035,7 +2035,9 @@ export default function ProviderCard({
 	const uptimeTrendPoints = getUptimeTrendPoints(runtimeStats);
 	const throughputValue = formatThroughputValue(runtimeStats?.throughput30m);
 	const activeDiscountEntries = collectDiscountEntriesFromSections(sec);
-	const activePromotionEntries = activeDiscountEntries.filter((entry) => entry.endsAt);
+	// A promotion can have an open-ended published duration. Show its discount
+	// without fabricating a deadline; the countdown remains conditional below.
+	const activePromotionEntries = activeDiscountEntries;
 	const tableActiveDiscountEntries = collectDiscountEntriesFromSections(tableSec);
 	const discountCount = activePromotionEntries.length;
 	const tableDiscountCount = tableActiveDiscountEntries.length;
