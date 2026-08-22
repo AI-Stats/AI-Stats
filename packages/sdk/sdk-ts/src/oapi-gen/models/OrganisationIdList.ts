@@ -54,6 +54,7 @@ export type OrganisationIdList = (
   | "sao10k"
   | "sourceful"
   | "spacex-ai"
+  | "stealth"
   | "stepfun"
   | "suno"
   | "tencent"

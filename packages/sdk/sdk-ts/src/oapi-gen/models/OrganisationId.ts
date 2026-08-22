@@ -57,6 +57,7 @@ export type OrganisationId =
   | "sao10k"
   | "sourceful"
   | "spacex-ai"
+  | "stealth"
   | "stepfun"
   | "suno"
   | "tencent"
