@@ -1,5 +1,5 @@
 {
-  "model_id": "venice/ox-alpha",
+  "model_id": "stealth/ox-alpha",
   "organisation_id": "stealth",
   "name": "Stealth Ox Alpha",
   "status": "Available",
@@ -18,7 +18,7 @@
   "output_types": [
     "text"
   ],
-  "api_model_id": "venice/ox-alpha",
+  "api_model_id": "stealth/ox-alpha",
   "links": [
     {
       "platform": "model",

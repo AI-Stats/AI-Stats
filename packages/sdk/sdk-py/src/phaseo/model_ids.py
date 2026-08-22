@@ -1766,6 +1766,10 @@ class ModelIds:
     # Model page: https://phaseo.app/models/spacex-ai/grok-tts
     SPACEX_AI_GROK_TTS: Final[str] = "spacex-ai/grok-tts"
 
+    # Model ID: stealth/ox-alpha
+    # Model page: https://phaseo.app/models/stealth/ox-alpha
+    STEALTH_OX_ALPHA: Final[str] = "stealth/ox-alpha"
+
     # Model ID: stepfun/step-3.5-flash
     # Model page: https://phaseo.app/models/stepfun/step-3.5-flash
     STEPFUN_STEP_3_5_FLASH: Final[str] = "stepfun/step-3.5-flash"
@@ -1817,10 +1821,6 @@ class ModelIds:
     # Model ID: venice/gemma-4-uncensored
     # Model page: https://phaseo.app/models/venice/gemma-4-uncensored
     VENICE_GEMMA_4_UNCENSORED: Final[str] = "venice/gemma-4-uncensored"
-
-    # Model ID: venice/ox-alpha
-    # Model page: https://phaseo.app/models/venice/ox-alpha
-    VENICE_OX_ALPHA: Final[str] = "venice/ox-alpha"
 
     # Model ID: venice/venice-role-play-uncensored
     # Model page: https://phaseo.app/models/venice/venice-role-play-uncensored
@@ -2487,6 +2487,7 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.SPACEX_AI_GROK_IMAGINE_IMAGE_QUALITY,
         ModelIds.SPACEX_AI_GROK_TRANSCRIBE,
         ModelIds.SPACEX_AI_GROK_TTS,
+        ModelIds.STEALTH_OX_ALPHA,
         ModelIds.STEPFUN_STEP_3_5_FLASH,
         ModelIds.STEPFUN_STEP_3_7_FLASH,
         ModelIds.TENCENT_HUNYUAN_A13B_INSTRUCT,
@@ -2500,7 +2501,6 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.UPSTAGE_SOLAR_PRO_3,
         ModelIds.UPSTAGE_SOLAR_PRO_4,
         ModelIds.VENICE_GEMMA_4_UNCENSORED,
-        ModelIds.VENICE_OX_ALPHA,
         ModelIds.VENICE_VENICE_ROLE_PLAY_UNCENSORED,
         ModelIds.VENICE_VENICE_UNCENSORED_1_2,
         ModelIds.VOYAGE_RERANK_1,

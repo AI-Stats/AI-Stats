@@ -1323,6 +1323,9 @@ inline constexpr std::string_view SPACEX_AI_GROK_TRANSCRIBE = "spacex-ai/grok-tr
 // Model ID: spacex-ai/grok-tts
 // Model page: https://phaseo.app/models/spacex-ai/grok-tts
 inline constexpr std::string_view SPACEX_AI_GROK_TTS = "spacex-ai/grok-tts";
+// Model ID: stealth/ox-alpha
+// Model page: https://phaseo.app/models/stealth/ox-alpha
+inline constexpr std::string_view STEALTH_OX_ALPHA = "stealth/ox-alpha";
 // Model ID: stepfun/step-3.5-flash
 // Model page: https://phaseo.app/models/stepfun/step-3.5-flash
 inline constexpr std::string_view STEPFUN_STEP_3_5_FLASH = "stepfun/step-3.5-flash";
@@ -1362,9 +1365,6 @@ inline constexpr std::string_view UPSTAGE_SOLAR_PRO_4 = "upstage/solar-pro-4";
 // Model ID: venice/gemma-4-uncensored
 // Model page: https://phaseo.app/models/venice/gemma-4-uncensored
 inline constexpr std::string_view VENICE_GEMMA_4_UNCENSORED = "venice/gemma-4-uncensored";
-// Model ID: venice/ox-alpha
-// Model page: https://phaseo.app/models/venice/ox-alpha
-inline constexpr std::string_view VENICE_OX_ALPHA = "venice/ox-alpha";
 // Model ID: venice/venice-role-play-uncensored
 // Model page: https://phaseo.app/models/venice/venice-role-play-uncensored
 inline constexpr std::string_view VENICE_VENICE_ROLE_PLAY_UNCENSORED = "venice/venice-role-play-uncensored";
@@ -1973,6 +1973,7 @@ inline constexpr std::array<std::string_view, 508> ALL = {
 	SPACEX_AI_GROK_IMAGINE_IMAGE_QUALITY,
 	SPACEX_AI_GROK_TRANSCRIBE,
 	SPACEX_AI_GROK_TTS,
+	STEALTH_OX_ALPHA,
 	STEPFUN_STEP_3_5_FLASH,
 	STEPFUN_STEP_3_7_FLASH,
 	TENCENT_HUNYUAN_A13B_INSTRUCT,
@@ -1986,7 +1987,6 @@ inline constexpr std::array<std::string_view, 508> ALL = {
 	UPSTAGE_SOLAR_PRO_3,
 	UPSTAGE_SOLAR_PRO_4,
 	VENICE_GEMMA_4_UNCENSORED,
-	VENICE_OX_ALPHA,
 	VENICE_VENICE_ROLE_PLAY_UNCENSORED,
 	VENICE_VENICE_UNCENSORED_1_2,
 	VOYAGE_RERANK_1,

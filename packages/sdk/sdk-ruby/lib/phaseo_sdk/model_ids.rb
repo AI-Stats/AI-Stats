@@ -1320,6 +1320,9 @@ module PhaseoSdk
     # Model ID: spacex-ai/grok-tts
     # Model page: https://phaseo.app/models/spacex-ai/grok-tts
     SPACEX_AI_GROK_TTS = "spacex-ai/grok-tts"
+    # Model ID: stealth/ox-alpha
+    # Model page: https://phaseo.app/models/stealth/ox-alpha
+    STEALTH_OX_ALPHA = "stealth/ox-alpha"
     # Model ID: stepfun/step-3.5-flash
     # Model page: https://phaseo.app/models/stepfun/step-3.5-flash
     STEPFUN_STEP_3_5_FLASH = "stepfun/step-3.5-flash"
@@ -1359,9 +1362,6 @@ module PhaseoSdk
     # Model ID: venice/gemma-4-uncensored
     # Model page: https://phaseo.app/models/venice/gemma-4-uncensored
     VENICE_GEMMA_4_UNCENSORED = "venice/gemma-4-uncensored"
-    # Model ID: venice/ox-alpha
-    # Model page: https://phaseo.app/models/venice/ox-alpha
-    VENICE_OX_ALPHA = "venice/ox-alpha"
     # Model ID: venice/venice-role-play-uncensored
     # Model page: https://phaseo.app/models/venice/venice-role-play-uncensored
     VENICE_VENICE_ROLE_PLAY_UNCENSORED = "venice/venice-role-play-uncensored"
@@ -1971,6 +1971,7 @@ module PhaseoSdk
     ModelIds::SPACEX_AI_GROK_IMAGINE_IMAGE_QUALITY,
     ModelIds::SPACEX_AI_GROK_TRANSCRIBE,
     ModelIds::SPACEX_AI_GROK_TTS,
+    ModelIds::STEALTH_OX_ALPHA,
     ModelIds::STEPFUN_STEP_3_5_FLASH,
     ModelIds::STEPFUN_STEP_3_7_FLASH,
     ModelIds::TENCENT_HUNYUAN_A13B_INSTRUCT,
@@ -1984,7 +1985,6 @@ module PhaseoSdk
     ModelIds::UPSTAGE_SOLAR_PRO_3,
     ModelIds::UPSTAGE_SOLAR_PRO_4,
     ModelIds::VENICE_GEMMA_4_UNCENSORED,
-    ModelIds::VENICE_OX_ALPHA,
     ModelIds::VENICE_VENICE_ROLE_PLAY_UNCENSORED,
     ModelIds::VENICE_VENICE_UNCENSORED_1_2,
     ModelIds::VOYAGE_RERANK_1,

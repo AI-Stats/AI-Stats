@@ -1324,6 +1324,9 @@ const (
 	// Model ID: spacex-ai/grok-tts
 	// Model page: https://phaseo.app/models/spacex-ai/grok-tts
 	ModelIDSpacexAiGrokTts gen.ModelId = "spacex-ai/grok-tts"
+	// Model ID: stealth/ox-alpha
+	// Model page: https://phaseo.app/models/stealth/ox-alpha
+	ModelIDStealthOxAlpha gen.ModelId = "stealth/ox-alpha"
 	// Model ID: stepfun/step-3.5-flash
 	// Model page: https://phaseo.app/models/stepfun/step-3.5-flash
 	ModelIDStepfunStep35Flash gen.ModelId = "stepfun/step-3.5-flash"
@@ -1363,9 +1366,6 @@ const (
 	// Model ID: venice/gemma-4-uncensored
 	// Model page: https://phaseo.app/models/venice/gemma-4-uncensored
 	ModelIDVeniceGemma4Uncensored gen.ModelId = "venice/gemma-4-uncensored"
-	// Model ID: venice/ox-alpha
-	// Model page: https://phaseo.app/models/venice/ox-alpha
-	ModelIDVeniceOxAlpha gen.ModelId = "venice/ox-alpha"
 	// Model ID: venice/venice-role-play-uncensored
 	// Model page: https://phaseo.app/models/venice/venice-role-play-uncensored
 	ModelIDVeniceVeniceRolePlayUncensored gen.ModelId = "venice/venice-role-play-uncensored"
@@ -1975,6 +1975,7 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDSpacexAiGrokImagineImageQuality,
 	ModelIDSpacexAiGrokTranscribe,
 	ModelIDSpacexAiGrokTts,
+	ModelIDStealthOxAlpha,
 	ModelIDStepfunStep35Flash,
 	ModelIDStepfunStep37Flash,
 	ModelIDTencentHunyuanA13bInstruct,
@@ -1988,7 +1989,6 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDUpstageSolarPro3,
 	ModelIDUpstageSolarPro4,
 	ModelIDVeniceGemma4Uncensored,
-	ModelIDVeniceOxAlpha,
 	ModelIDVeniceVeniceRolePlayUncensored,
 	ModelIDVeniceVeniceUncensored12,
 	ModelIDVoyageRerank1,
