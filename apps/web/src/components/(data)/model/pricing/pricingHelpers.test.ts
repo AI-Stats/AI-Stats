@@ -558,6 +558,30 @@ describe("buildProviderSections", () => {
 		expect(buildProviderTablePriceSummary(atEnd, "input").sortValue).toBe(0.28);
 	});
 
+	test("keeps weekday-constrained peak windows off-peak on weekends", () => {
+		const provider = makeProviderPricing();
+		provider.pricing_rules = [{
+			...provider.pricing_rules[0]!,
+			id: "deepseek-weekday-input",
+			price_per_unit: 0.22,
+			match: [],
+			time_windows: [{
+				label: "Peak",
+				timezone: "UTC",
+				days_of_week: ["mon", "tue", "wed", "thu", "fri"],
+				start_time: "06:00",
+				end_time: "10:00",
+				price_per_unit: 0.44,
+			}],
+		}];
+
+		const sunday = buildProviderSections(provider, "standard", new Date("2026-08-23T06:30:00Z"));
+		const monday = buildProviderSections(provider, "standard", new Date("2026-08-24T06:30:00Z"));
+
+		expect(buildProviderTablePriceSummary(sunday, "input").sortValue).toBe(0.22);
+		expect(buildProviderTablePriceSummary(monday, "input").sortValue).toBe(0.44);
+	});
+
 	test("averages recurring UTC pricing windows into one daily chart rate", () => {
 		expect(calculateDailyAveragePricingMeterPrice({
 			price_per_unit: "0.22",
@@ -566,6 +590,16 @@ describe("buildProviderSections", () => {
 				{ label: "Peak", timezone: "UTC", start_time: "06:00", end_time: "10:00", price_per_unit: 0.44 },
 			],
 		})).toBeCloseTo((0.22 * 17 + 0.44 * 7) / 24, 12);
+	});
+
+	test("includes all-day weekend off-peak rates in the recurring average", () => {
+		expect(calculateDailyAveragePricingMeterPrice({
+			price_per_unit: "0.22",
+			time_windows: [
+				{ label: "Peak", timezone: "UTC", days_of_week: ["mon", "tue", "wed", "thu", "fri"], start_time: "01:00", end_time: "04:00", price_per_unit: 0.44 },
+				{ label: "Peak", timezone: "UTC", days_of_week: ["mon", "tue", "wed", "thu", "fri"], start_time: "06:00", end_time: "10:00", price_per_unit: 0.44 },
+			],
+		})).toBeCloseTo((0.22 * (7 * 24 - 5 * 7) + 0.44 * 5 * 7) / (7 * 24), 12);
 	});
 
 	test("returns distinct UTC boundaries for a recurring pricing chart", () => {

@@ -893,6 +893,7 @@ export function buildProviderSections(
             const nextPriceRaw = resolvePricingMeterPrice(
                 nextUpcoming,
                 pricingTimeUtc,
+                now,
             ).pricePerUnit;
             const nextPrice = Number.isFinite(nextPriceRaw) ? nextPriceRaw : null;
             const exactCurrentCandidate = [...currentRules].sort(sortByPriorityAndFromDesc)[0];
@@ -903,7 +904,7 @@ export function buildProviderSections(
                 .sort(sortByPriorityAndFromDesc)[0];
             const currentCandidate = exactCurrentCandidate ?? coverageCurrentCandidate;
             const currentPriceRaw = currentCandidate
-                ? resolvePricingMeterPrice(currentCandidate, pricingTimeUtc).pricePerUnit
+                ? resolvePricingMeterPrice(currentCandidate, pricingTimeUtc, now).pricePerUnit
                 : Number.NaN;
             const currentPrice = Number.isFinite(currentPriceRaw) ? currentPriceRaw : null;
             let trend: UpcomingPricingChange["trend"] = null;
@@ -941,6 +942,7 @@ export function buildProviderSections(
         const currentPrice = resolvePricingMeterPrice(
             current,
             pricingTimeUtc,
+            now,
         ).pricePerUnit;
         const currentFrom = toMs(current.effective_from) ?? -Infinity;
 
@@ -964,6 +966,7 @@ export function buildProviderSections(
                 const candidatePrice = resolvePricingMeterPrice(
                     candidate,
                     pricingTimeUtc,
+                    now,
                 ).pricePerUnit;
                 if (!Number.isFinite(candidatePrice) || !Number.isFinite(currentPrice)) {
                     return false;
@@ -976,6 +979,7 @@ export function buildProviderSections(
                       const nextPrice = resolvePricingMeterPrice(
                           nextUpcoming,
                           pricingTimeUtc,
+                          now,
                       ).pricePerUnit;
                       if (!Number.isFinite(nextPrice) || !Number.isFinite(currentPrice)) {
                           return null;
@@ -1029,7 +1033,7 @@ export function buildProviderSections(
             entry.endpoint,
         );
         const unitSize = r.unit_size ?? 1;
-        const price = resolvePricingMeterPrice(r, pricingTimeUtc).pricePerUnit;
+        const price = resolvePricingMeterPrice(r, pricingTimeUtc, now).pricePerUnit;
         const per1M = perMillionIfTokens(unit, price, unitSize);
         const current = isCurrentWindow(r.effective_from, r.effective_to);
         const conds: Condition[] = Array.isArray(r.match)
@@ -1037,7 +1041,7 @@ export function buildProviderSections(
             : [];
 
         const basePriceRaw = base
-            ? resolvePricingMeterPrice(base, pricingTimeUtc).pricePerUnit
+            ? resolvePricingMeterPrice(base, pricingTimeUtc, now).pricePerUnit
             : Number.NaN;
         const basePrice = Number.isFinite(basePriceRaw) ? basePriceRaw : null;
         const effectiveToMs = toMs(r.effective_to);
@@ -1443,6 +1447,7 @@ export type PricingTimestampBasis =
 export type PricingTimeWindow = {
     label: string;
     timezone: "UTC";
+    days_of_week?: Array<"mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun">;
     start_time: string;
     end_time: string;
     price_per_unit?: string | number | null;
@@ -1468,6 +1473,8 @@ function isMinuteInsideWindow(minute: number, startMinute: number, endMinute: nu
     return minute >= startMinute || minute < endMinute;
 }
 
+const UTC_DAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
+
 export function formatUtcPricingMinute(value: Date | number): string {
     const date = value instanceof Date ? value : new Date(value);
     if (!Number.isFinite(date.getTime())) return "00:00";
@@ -1476,17 +1483,23 @@ export function formatUtcPricingMinute(value: Date | number): string {
 
 export function resolvePricingMeterPrice(
     meter: Pick<PricingMeter, "price_per_unit" | "time_windows">,
-    pricingTimeUtc?: string | null
+    pricingTimeUtc?: string | null,
+    pricingDate: Date | number = new Date(),
 ): ResolvedPricingMeterPrice {
     const basePrice = String(meter.price_per_unit ?? "0");
     const utcMinute = parseUtcMinute(pricingTimeUtc);
     const windows = Array.isArray(meter.time_windows) ? meter.time_windows : [];
+    const date = pricingDate instanceof Date ? pricingDate : new Date(pricingDate);
+    const utcDay = Number.isFinite(date.getTime()) ? UTC_DAY_KEYS[date.getUTCDay()] : null;
 
     if (utcMinute !== null && windows.length > 0) {
         const matched = windows
             .map((window, index) => ({ window, index }))
             .filter(({ window }) => {
                 if (!window || window.timezone !== "UTC") return false;
+                if (window.days_of_week?.length && (!utcDay || !window.days_of_week.includes(utcDay))) {
+                    return false;
+                }
                 if (window.price_per_unit === undefined || window.price_per_unit === null) {
                     return false;
                 }
@@ -1521,11 +1534,14 @@ export function calculateDailyAveragePricingMeterPrice(
     meter: Pick<PricingMeter, "price_per_unit" | "time_windows">
 ): number {
     let total = 0;
-    for (let minute = 0; minute < 24 * 60; minute += 1) {
-        const time = `${String(Math.floor(minute / 60)).padStart(2, "0")}:${String(minute % 60).padStart(2, "0")}`;
-        total += resolvePricingMeterPrice(meter, time).pricePerUnit;
+    const referenceMonday = Date.parse("2026-01-05T00:00:00Z");
+    const minutesPerWeek = 7 * 24 * 60;
+    for (let minute = 0; minute < minutesPerWeek; minute += 1) {
+        const minuteOfDay = minute % (24 * 60);
+        const clock = `${String(Math.floor(minuteOfDay / 60)).padStart(2, "0")}:${String(minuteOfDay % 60).padStart(2, "0")}`;
+        total += resolvePricingMeterPrice(meter, clock, referenceMonday + minute * 60_000).pricePerUnit;
     }
-    return total / (24 * 60);
+    return total / minutesPerWeek;
 }
 
 export function getUtcPricingScheduleTimes(

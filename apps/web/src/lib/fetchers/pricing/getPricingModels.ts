@@ -6,7 +6,7 @@ export interface PricingMeter {
 	currency: string;
 	conditions?: any[];
 	billing_timestamp_basis?: "request_start" | "provider_accept" | "completion" | "unknown";
-	time_windows?: Array<{ label: string; timezone: "UTC"; start_time: string; end_time: string; price_per_unit?: string | number | null; priority?: number | null }>;
+	time_windows?: Array<{ label: string; timezone: "UTC"; days_of_week?: Array<"mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun">; start_time: string; end_time: string; price_per_unit?: string | number | null; priority?: number | null }>;
 }
 
 export interface PricingModel {
