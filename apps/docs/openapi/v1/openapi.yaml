@@ -9980,6 +9980,7 @@ components:
         - spacex-ai/grok-imagine-image-quality
         - spacex-ai/grok-transcribe
         - spacex-ai/grok-tts
+        - stealth/ox-alpha
         - stepfun/step-3.5-flash
         - stepfun/step-3.7-flash
         - tencent/hunyuan-a13b-instruct
@@ -9993,7 +9994,6 @@ components:
         - upstage/solar-pro-3
         - upstage/solar-pro-4
         - venice/gemma-4-uncensored
-        - venice/ox-alpha
         - venice/venice-role-play-uncensored
         - venice/venice-uncensored-1.2
         - voyage/rerank-1

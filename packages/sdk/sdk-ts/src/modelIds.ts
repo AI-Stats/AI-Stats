@@ -881,6 +881,8 @@ export const ModelIds = {
   SPACEX_AI_GROK_TRANSCRIBE: "spacex-ai/grok-transcribe",
   /** Model ID: `spacex-ai/grok-tts`. Model page: https://phaseo.app/models/spacex-ai/grok-tts */
   SPACEX_AI_GROK_TTS: "spacex-ai/grok-tts",
+  /** Model ID: `stealth/ox-alpha`. Model page: https://phaseo.app/models/stealth/ox-alpha */
+  STEALTH_OX_ALPHA: "stealth/ox-alpha",
   /** Model ID: `stepfun/step-3.5-flash`. Model page: https://phaseo.app/models/stepfun/step-3.5-flash */
   STEPFUN_STEP_3_5_FLASH: "stepfun/step-3.5-flash",
   /** Model ID: `stepfun/step-3.7-flash`. Model page: https://phaseo.app/models/stepfun/step-3.7-flash */
@@ -907,8 +909,6 @@ export const ModelIds = {
   UPSTAGE_SOLAR_PRO_4: "upstage/solar-pro-4",
   /** Model ID: `venice/gemma-4-uncensored`. Model page: https://phaseo.app/models/venice/gemma-4-uncensored */
   VENICE_GEMMA_4_UNCENSORED: "venice/gemma-4-uncensored",
-  /** Model ID: `venice/ox-alpha`. Model page: https://phaseo.app/models/venice/ox-alpha */
-  VENICE_OX_ALPHA: "venice/ox-alpha",
   /** Model ID: `venice/venice-role-play-uncensored`. Model page: https://phaseo.app/models/venice/venice-role-play-uncensored */
   VENICE_VENICE_ROLE_PLAY_UNCENSORED: "venice/venice-role-play-uncensored",
   /** Model ID: `venice/venice-uncensored-1.2`. Model page: https://phaseo.app/models/venice/venice-uncensored-1.2 */

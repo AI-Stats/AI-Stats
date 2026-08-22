@@ -7917,10 +7917,10 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "venice/ox-alpha",
-    "provider_api_model_id": "venice:venice/ox-alpha",
+    "api_model_id": "stealth/ox-alpha",
+    "provider_api_model_id": "venice:stealth/ox-alpha",
     "provider_model_slug": "stealth-ox-alpha",
-    "internal_model_id": "venice/ox-alpha",
+    "internal_model_id": "stealth/ox-alpha",
     "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text,image,video",

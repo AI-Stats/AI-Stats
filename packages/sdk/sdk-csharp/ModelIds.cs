@@ -884,6 +884,8 @@ namespace PhaseoSdk
         public const string SpacexAiGrokTranscribe = "spacex-ai/grok-transcribe";
         /// <summary>Model ID: <c>spacex-ai/grok-tts</c>. Model page: https://phaseo.app/models/spacex-ai/grok-tts</summary>
         public const string SpacexAiGrokTts = "spacex-ai/grok-tts";
+        /// <summary>Model ID: <c>stealth/ox-alpha</c>. Model page: https://phaseo.app/models/stealth/ox-alpha</summary>
+        public const string StealthOxAlpha = "stealth/ox-alpha";
         /// <summary>Model ID: <c>stepfun/step-3.5-flash</c>. Model page: https://phaseo.app/models/stepfun/step-3.5-flash</summary>
         public const string StepfunStep35Flash = "stepfun/step-3.5-flash";
         /// <summary>Model ID: <c>stepfun/step-3.7-flash</c>. Model page: https://phaseo.app/models/stepfun/step-3.7-flash</summary>
@@ -910,8 +912,6 @@ namespace PhaseoSdk
         public const string UpstageSolarPro4 = "upstage/solar-pro-4";
         /// <summary>Model ID: <c>venice/gemma-4-uncensored</c>. Model page: https://phaseo.app/models/venice/gemma-4-uncensored</summary>
         public const string VeniceGemma4Uncensored = "venice/gemma-4-uncensored";
-        /// <summary>Model ID: <c>venice/ox-alpha</c>. Model page: https://phaseo.app/models/venice/ox-alpha</summary>
-        public const string VeniceOxAlpha = "venice/ox-alpha";
         /// <summary>Model ID: <c>venice/venice-role-play-uncensored</c>. Model page: https://phaseo.app/models/venice/venice-role-play-uncensored</summary>
         public const string VeniceVeniceRolePlayUncensored = "venice/venice-role-play-uncensored";
         /// <summary>Model ID: <c>venice/venice-uncensored-1.2</c>. Model page: https://phaseo.app/models/venice/venice-uncensored-1.2</summary>

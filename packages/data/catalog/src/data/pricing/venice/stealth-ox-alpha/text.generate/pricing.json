@@ -1,8 +1,8 @@
 {
-  "key": "venice:venice/ox-alpha:text.generate",
+  "key": "venice:stealth/ox-alpha:text.generate",
   "api_provider_id": "venice",
   "provider_slug": "venice",
-  "api_model_id": "venice/ox-alpha",
+  "api_model_id": "stealth/ox-alpha",
   "capability_id": "text.generate",
   "rules": [
     {
