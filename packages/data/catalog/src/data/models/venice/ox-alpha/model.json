@@ -1,10 +1,10 @@
 {
   "model_id": "venice/ox-alpha",
-  "organisation_id": "venice",
-  "name": "Ox Alpha",
+  "organisation_id": "stealth",
+  "name": "Stealth Ox Alpha",
   "status": "Available",
   "previous_model_id": null,
-  "description": "Ox Alpha is a reasoning model designed for coding, sustained agentic work, and production workloads. It is suited for long-horizon software engineering, complex reasoning, and workflows that combine text with visual context.",
+  "description": "Stealth Ox Alpha is a reasoning model available during a stealth release, with its developer currently undisclosed. It is designed for coding, sustained agentic work, complex reasoning and workflows combining text with visual context.",
   "announced_date": null,
   "release_date": "2026-08-21",
   "deprecation_date": null,
@@ -70,15 +70,21 @@
       "kind": "provider_models",
       "url": "https://api.venice.ai/api/v1/models",
       "accessed_at": "2026-08-21T00:00:00Z",
-      "notes": "Venice live model metadata."
+      "notes": "Venice live model metadata and public inference availability."
+    },
+    {
+      "kind": "models",
+      "url": "https://openrouter.ai/stealth/ox-alpha",
+      "accessed_at": "2026-08-22T00:00:00Z",
+      "notes": "Public model listing identifies Ox Alpha under the stealth namespace."
     }
   ],
   "verification": {
-    "status": "verified",
-    "checked_at": "2026-08-21",
-    "notes": "Verified against Venice's live models API."
+    "status": "partial",
+    "checked_at": "2026-08-22",
+    "notes": "Model availability and capabilities are verified against Venice's live models API. The developer is currently undisclosed, so the model is grouped under Phaseo's generic Stealth Lab organisation."
   },
-  "last_updated": "2026-08-21",
+  "last_updated": "2026-08-22",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

@@ -4,7 +4,7 @@ export interface Organisation {
     organisation_id: string;
     name: string;
     website: string | null;
-    country_code: string;
+    country_code: string | null;
     description: string | null;
     colour: string | null;
     created_at: string;

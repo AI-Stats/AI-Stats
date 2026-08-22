@@ -65,7 +65,8 @@
     "sao10k",
     "hexgrad",
     "prism-ml",
-    "jetbrains"
+    "jetbrains",
+    "stealth"
   ],
   "models": {
     "ai21": [
