@@ -20,7 +20,9 @@
   "sdk_package": "openai",
   "api_base_url": "https://inference.do-ai.run",
   "docs_url": "https://docs.digitalocean.com/products/inference/",
-  "auth_env": "DIGITALOCEAN_INFERENCE_API_KEY",
+  "auth_env": [
+    "DIGITALOCEAN_INFERENCE_API_KEY"
+  ],
   "api_formats": [
     "openai_chat"
   ],
