@@ -126,7 +126,7 @@
   "sources": ["https://platform.kimi.ai/docs/guide/use-batch-api", "https://platform.kimi.ai/docs/pricing/tools"],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-12T00:00:00Z",
-    "notes": "Batch pricing verified against the first-party Kimi Batch guide."
+    "checked_at": "2026-08-23T00:00:00Z",
+    "notes": "Batch token pricing and native web-search request pricing verified against first-party Kimi documentation."
   }
 }
