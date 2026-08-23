@@ -1593,6 +1593,7 @@ const (
 	KnownModelIdAionLabsAion30Mini KnownModelId = "aion-labs/aion-3.0-mini"
 	KnownModelIdAionLabsAionRpLlama318b KnownModelId = "aion-labs/aion-rp-llama-3.1-8b"
 	KnownModelIdAllenaiMolmo28b KnownModelId = "allenai/molmo-2-8b"
+	KnownModelIdAnthropicClaude3Haiku KnownModelId = "anthropic/claude-3-haiku"
 	KnownModelIdAnthropicClaudeFable5 KnownModelId = "anthropic/claude-fable-5"
 	KnownModelIdAnthropicClaudeHaiku45 KnownModelId = "anthropic/claude-haiku-4.5"
 	KnownModelIdAnthropicClaudeOpus45 KnownModelId = "anthropic/claude-opus-4.5"

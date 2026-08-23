@@ -6002,7 +6002,7 @@
     "output_modalities": "text",
     "context_length": 202752,
     "max_output_tokens": 131072,
-    "effective_from": "2026-06-16T00:00:00",
+    "effective_from": "2026-06-16T00:00:00Z",
     "effective_to": null,
     "capabilities": [
       {
@@ -6059,7 +6059,7 @@
     "output_modalities": "text",
     "context_length": 1000000,
     "max_output_tokens": 65536,
-    "effective_from": "2026-04-16T00:00:00",
+    "effective_from": "2026-04-16T00:00:00Z",
     "effective_to": null,
     "capabilities": [
       {
@@ -6124,6 +6124,20 @@
           },
           {
             "param_id": "response_format",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "include_reasoning",
             "provider_min": null,
             "provider_max": null,
             "provider_default": null,

@@ -16,6 +16,8 @@ namespace PhaseoSdk
         public const string AionLabsAionRpLlama318b = "aion-labs/aion-rp-llama-3.1-8b";
         /// <summary>Model ID: <c>allenai/molmo-2-8b</c>. Model page: https://phaseo.app/models/allenai/molmo-2-8b</summary>
         public const string AllenaiMolmo28b = "allenai/molmo-2-8b";
+        /// <summary>Model ID: <c>anthropic/claude-3-haiku</c>. Model page: https://phaseo.app/models/anthropic/claude-3-haiku</summary>
+        public const string AnthropicClaude3Haiku = "anthropic/claude-3-haiku";
         /// <summary>Model ID: <c>anthropic/claude-fable-5</c>. Model page: https://phaseo.app/models/anthropic/claude-fable-5</summary>
         public const string AnthropicClaudeFable5 = "anthropic/claude-fable-5";
         /// <summary>Model ID: <c>anthropic/claude-haiku-4.5</c>. Model page: https://phaseo.app/models/anthropic/claude-haiku-4.5</summary>

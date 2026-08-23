@@ -22,6 +22,9 @@ public final class ModelIds {
     /** Model ID: <code>allenai/molmo-2-8b</code>. Model page: https://phaseo.app/models/allenai/molmo-2-8b */
     public static final String ALLENAI_MOLMO_2_8B = "allenai/molmo-2-8b";
 
+    /** Model ID: <code>anthropic/claude-3-haiku</code>. Model page: https://phaseo.app/models/anthropic/claude-3-haiku */
+    public static final String ANTHROPIC_CLAUDE_3_HAIKU = "anthropic/claude-3-haiku";
+
     /** Model ID: <code>anthropic/claude-fable-5</code>. Model page: https://phaseo.app/models/anthropic/claude-fable-5 */
     public static final String ANTHROPIC_CLAUDE_FABLE_5 = "anthropic/claude-fable-5";
 

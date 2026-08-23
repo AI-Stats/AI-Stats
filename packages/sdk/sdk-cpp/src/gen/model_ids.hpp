@@ -21,6 +21,9 @@ inline constexpr std::string_view AION_LABS_AION_RP_LLAMA_3_1_8B = "aion-labs/ai
 // Model ID: allenai/molmo-2-8b
 // Model page: https://phaseo.app/models/allenai/molmo-2-8b
 inline constexpr std::string_view ALLENAI_MOLMO_2_8B = "allenai/molmo-2-8b";
+// Model ID: anthropic/claude-3-haiku
+// Model page: https://phaseo.app/models/anthropic/claude-3-haiku
+inline constexpr std::string_view ANTHROPIC_CLAUDE_3_HAIKU = "anthropic/claude-3-haiku";
 // Model ID: anthropic/claude-fable-5
 // Model page: https://phaseo.app/models/anthropic/claude-fable-5
 inline constexpr std::string_view ANTHROPIC_CLAUDE_FABLE_5 = "anthropic/claude-fable-5";
@@ -1533,12 +1536,13 @@ inline constexpr std::string_view ZAI_GLM_5 = "zai/glm-5";
 // Deprecated alias for deepseek/deepseek-v4; use deepseek/deepseek-v4-pro. Remove in the next major SDK release.
 inline constexpr std::string_view DEEPSEEK_DEEPSEEK_V4 = DEEPSEEK_DEEPSEEK_V4_PRO;
 
-inline constexpr std::array<std::string_view, 508> ALL = {
+inline constexpr std::array<std::string_view, 509> ALL = {
 	AION_LABS_AION_2_0,
 	AION_LABS_AION_3_0,
 	AION_LABS_AION_3_0_MINI,
 	AION_LABS_AION_RP_LLAMA_3_1_8B,
 	ALLENAI_MOLMO_2_8B,
+	ANTHROPIC_CLAUDE_3_HAIKU,
 	ANTHROPIC_CLAUDE_FABLE_5,
 	ANTHROPIC_CLAUDE_HAIKU_4_5,
 	ANTHROPIC_CLAUDE_OPUS_4_5,

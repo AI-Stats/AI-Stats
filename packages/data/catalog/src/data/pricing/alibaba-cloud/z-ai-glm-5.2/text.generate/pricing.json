@@ -47,7 +47,8 @@
       "note": "Singapore fast-preview deployment exposed through Phaseo's priority service tier.",
       "match": [
         {
-          "key": "service_tier",
+          "path": "service_tier",
+          "op": "eq",
           "value": "priority"
         }
       ],
@@ -68,7 +69,8 @@
       "note": "Singapore fast-preview deployment exposed through Phaseo's priority service tier.",
       "match": [
         {
-          "key": "service_tier",
+          "path": "service_tier",
+          "op": "eq",
           "value": "priority"
         }
       ],

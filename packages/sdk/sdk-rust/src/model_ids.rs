@@ -18,6 +18,9 @@ pub mod model_ids {
     /// Model ID: `allenai/molmo-2-8b`.
     /// Model page: https://phaseo.app/models/allenai/molmo-2-8b
     pub const ALLENAI_MOLMO_2_8B: &str = "allenai/molmo-2-8b";
+    /// Model ID: `anthropic/claude-3-haiku`.
+    /// Model page: https://phaseo.app/models/anthropic/claude-3-haiku
+    pub const ANTHROPIC_CLAUDE_3_HAIKU: &str = "anthropic/claude-3-haiku";
     /// Model ID: `anthropic/claude-fable-5`.
     /// Model page: https://phaseo.app/models/anthropic/claude-fable-5
     pub const ANTHROPIC_CLAUDE_FABLE_5: &str = "anthropic/claude-fable-5";
@@ -1537,6 +1540,7 @@ pub mod model_ids {
         AION_LABS_AION_3_0_MINI,
         AION_LABS_AION_RP_LLAMA_3_1_8B,
         ALLENAI_MOLMO_2_8B,
+        ANTHROPIC_CLAUDE_3_HAIKU,
         ANTHROPIC_CLAUDE_FABLE_5,
         ANTHROPIC_CLAUDE_HAIKU_4_5,
         ANTHROPIC_CLAUDE_OPUS_4_5,
