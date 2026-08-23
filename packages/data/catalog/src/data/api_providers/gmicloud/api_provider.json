@@ -21,19 +21,24 @@
   "prompt_training_policy": "no_train",
   "prompt_training_notes": "GMI Cloud's public MaaS materials state that request data is ephemeral, is not stored for training, and zero-retention configurations are available for sensitive workloads.",
   "prompt_training_source_url": "https://www.gmicloud.ai/en/blog/where-to-find-pre-built-llm-inference-models-for-chatbot-development-2026-guide",
-  "gateway_kind": null,
-  "routable": null,
-  "routing_enabled": null,
+  "gateway_kind": "openai_compatible",
+  "routable": true,
+  "routing_enabled": true,
   "sdk_package": null,
-  "api_base_url": null,
+  "api_base_url": "https://api.gmi-serving.com/v1",
   "docs_url": "https://docs.gmicloud.ai/",
-  "auth_env": null,
-  "api_formats": [],
-  "service_tiers": [],
-  "sources": [],
+  "auth_env": "GMI_API_KEY",
+  "api_formats": ["openai.chat.completions"],
+  "service_tiers": ["standard"],
+  "sources": [{
+    "kind": "documentation",
+    "url": "https://docs.gmicloud.ai/",
+    "accessed_at": "2026-08-23T00:00:00Z",
+    "notes": "OpenAI-compatible chat endpoint and authentication contract. Live serverless availability and pricing were verified in the authenticated Model Hub."
+  }],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-23T00:00:00Z",
+    "notes": "Provider gateway contract and current serverless catalog verified in the authenticated GMI Cloud console."
   }
 }

@@ -1,67 +1,69 @@
 {
-  "key": "gmicloud:deepseek/deepseek-v4-flash-0731:text.generate",
+  "key": "gmicloud:qwen/qwen3.8-27b:text.generate",
   "api_provider_id": "gmicloud",
   "provider_slug": "gmicloud",
-  "api_model_id": "deepseek/deepseek-v4-flash-0731",
+  "api_model_id": "qwen/qwen3.8-27b",
   "capability_id": "text.generate",
   "rules": [
     {
       "meter": "input_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.0672,
+      "price_per_unit": 0.45,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
       "match": [],
       "priority": 100,
-      "effective_from": "2026-07-31T00:00:00Z",
+      "effective_from": "2026-08-23T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": "https://console.gmicloud.ai/user-console/ie/model-hub/llm/ed878143-66b2-4dbb-a2ee-c05667f8312a"
     },
     {
       "meter": "cached_read_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.01344,
+      "price_per_unit": 0.25,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
       "match": [],
       "priority": 100,
-      "effective_from": "2026-07-31T00:00:00Z",
+      "effective_from": "2026-08-23T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": "https://console.gmicloud.ai/user-console/ie/model-hub/llm/ed878143-66b2-4dbb-a2ee-c05667f8312a"
     },
     {
       "meter": "output_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.1344,
+      "price_per_unit": 3.2,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
       "match": [],
       "priority": 100,
-      "effective_from": "2026-07-31T00:00:00Z",
+      "effective_from": "2026-08-23T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": "https://console.gmicloud.ai/user-console/ie/model-hub/llm/ed878143-66b2-4dbb-a2ee-c05667f8312a"
     }
   ],
   "regions": [],
-  "service_tiers": ["standard"],
+  "service_tiers": [
+    "standard"
+  ],
   "sources": [
     {
       "kind": "pricing",
-      "url": "https://docs.gmicloud.ai/",
+      "url": "https://console.gmicloud.ai/user-console/ie/model-hub/llm/ed878143-66b2-4dbb-a2ee-c05667f8312a",
       "accessed_at": "2026-08-23T00:00:00Z",
-      "notes": "Current promotional serverless rates shown in the authenticated GMI Cloud Model Hub; list prices are $0.14 input, $0.028 cache read, and $0.28 output per million tokens."
+      "notes": "Current serverless pricing verified in the authenticated GMI Cloud Model Hub."
     }
   ],
   "verification": {
@@ -70,3 +72,4 @@
     "notes": "Current effective serverless prices verified in the authenticated GMI Cloud Model Hub."
   }
 }
+

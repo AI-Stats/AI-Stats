@@ -261,7 +261,6 @@ export type KnownModelId =
   | "nvidia/llama-3.1-nemotron-ultra-253b"
   | "nvidia/nemotron-3-nano-30b-a3b"
   | "nvidia/nemotron-3-nano-omni"
-  | "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning"
   | "nvidia/nemotron-3-super-120b-a12b"
   | "nvidia/nemotron-3-ultra-550b-a55b"
   | "nvidia/nemotron-3.5-lightning"
