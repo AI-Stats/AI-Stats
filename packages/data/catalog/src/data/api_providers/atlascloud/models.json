@@ -1,7 +1,7 @@
 [
   {
     "api_model_id": "bytedance/seed-1.6-2025-10-15",
-    "provider_api_model_id": "atlascloud:bytedance/doubao-seed-1.6-251015",
+    "provider_api_model_id": "atlascloud:bytedance/seed-1.6-2025-10-15",
     "provider_model_slug": "bytedance/doubao-seed-1.6-251015",
     "internal_model_id": "bytedance/seed-1.6-2025-10-15",
     "is_active_gateway": true,
@@ -56,7 +56,7 @@
   },
   {
     "api_model_id": "bytedance/seed-1.6-flash-2025-08-28",
-    "provider_api_model_id": "atlascloud:bytedance/doubao-seed-1.6-flash-250828",
+    "provider_api_model_id": "atlascloud:bytedance/seed-1.6-flash-2025-08-28",
     "provider_model_slug": "bytedance/doubao-seed-1.6-flash-250828",
     "internal_model_id": "bytedance/seed-1.6-flash-2025-08-28",
     "is_active_gateway": true,
@@ -111,7 +111,7 @@
   },
   {
     "api_model_id": "bytedance/seed-1.8-2025-12-28",
-    "provider_api_model_id": "atlascloud:bytedance/doubao-seed-1.8-251228",
+    "provider_api_model_id": "atlascloud:bytedance/seed-1.8-2025-12-28",
     "provider_model_slug": "bytedance/doubao-seed-1.8-251228",
     "internal_model_id": "bytedance/seed-1.8-2025-12-28",
     "is_active_gateway": true,
@@ -166,7 +166,7 @@
   },
   {
     "api_model_id": "bytedance/seed-2.0-code-preview-2026-02-15",
-    "provider_api_model_id": "atlascloud:bytedance/doubao-seed-2.0-code-preview-260215",
+    "provider_api_model_id": "atlascloud:bytedance/seed-2.0-code-preview-2026-02-15",
     "provider_model_slug": "bytedance/doubao-seed-2.0-code-preview-260215",
     "internal_model_id": "bytedance/seed-2.0-code-preview-2026-02-15",
     "is_active_gateway": true,
@@ -221,7 +221,7 @@
   },
   {
     "api_model_id": "bytedance/seed-2.0-lite-2026-04-28",
-    "provider_api_model_id": "atlascloud:bytedance/doubao-seed-2.0-lite-260428",
+    "provider_api_model_id": "atlascloud:bytedance/seed-2.0-lite-2026-04-28",
     "provider_model_slug": "bytedance/doubao-seed-2.0-lite-260428",
     "internal_model_id": "bytedance/seed-2.0-lite-2026-04-28",
     "is_active_gateway": true,
@@ -276,7 +276,7 @@
   },
   {
     "api_model_id": "bytedance/seed-2.0-mini-2026-04-28",
-    "provider_api_model_id": "atlascloud:bytedance/doubao-seed-2.0-mini-260428",
+    "provider_api_model_id": "atlascloud:bytedance/seed-2.0-mini-2026-04-28",
     "provider_model_slug": "bytedance/doubao-seed-2.0-mini-260428",
     "internal_model_id": "bytedance/seed-2.0-mini-2026-04-28",
     "is_active_gateway": true,
@@ -331,7 +331,7 @@
   },
   {
     "api_model_id": "bytedance/seed-2.0-pro",
-    "provider_api_model_id": "atlascloud:bytedance/doubao-seed-2.0-pro-260215",
+    "provider_api_model_id": "atlascloud:bytedance/seed-2.0-pro",
     "provider_model_slug": "bytedance/doubao-seed-2.0-pro-260215",
     "internal_model_id": "bytedance/seed-2.0-pro",
     "is_active_gateway": true,
@@ -447,7 +447,7 @@
   },
   {
     "api_model_id": "deepseek/deepseek-ocr",
-    "provider_api_model_id": "atlascloud:deepseek-ai/deepseek-ocr",
+    "provider_api_model_id": "atlascloud:deepseek/deepseek-ocr",
     "provider_model_slug": "deepseek-ai/deepseek-ocr",
     "internal_model_id": "deepseek/deepseek-ocr",
     "is_active_gateway": true,
@@ -612,7 +612,7 @@
   },
   {
     "api_model_id": "deepseek/deepseek-v3.1",
-    "provider_api_model_id": "atlascloud:deepseek-ai/DeepSeek-V3.1",
+    "provider_api_model_id": "atlascloud:deepseek/deepseek-v3.1",
     "provider_model_slug": "deepseek-ai/DeepSeek-V3.1",
     "internal_model_id": "deepseek/deepseek-v3.1",
     "is_active_gateway": true,
@@ -667,7 +667,7 @@
   },
   {
     "api_model_id": "deepseek/deepseek-v3.1-terminus",
-    "provider_api_model_id": "atlascloud:deepseek-ai/DeepSeek-V3.1-Terminus",
+    "provider_api_model_id": "atlascloud:deepseek/deepseek-v3.1-terminus",
     "provider_model_slug": "deepseek-ai/DeepSeek-V3.1-Terminus",
     "internal_model_id": "deepseek/deepseek-v3.1-terminus",
     "is_active_gateway": true,
@@ -722,7 +722,7 @@
   },
   {
     "api_model_id": "deepseek/deepseek-v3.2",
-    "provider_api_model_id": "atlascloud:deepseek-ai/deepseek-v3.2",
+    "provider_api_model_id": "atlascloud:deepseek/deepseek-v3.2",
     "provider_model_slug": "deepseek-ai/deepseek-v3.2",
     "internal_model_id": "deepseek/deepseek-v3.2",
     "is_active_gateway": true,
@@ -777,7 +777,7 @@
   },
   {
     "api_model_id": "deepseek/deepseek-v3.2-exp",
-    "provider_api_model_id": "atlascloud:deepseek-ai/DeepSeek-V3.2-Exp",
+    "provider_api_model_id": "atlascloud:deepseek/deepseek-v3.2-exp",
     "provider_model_slug": "deepseek-ai/DeepSeek-V3.2-Exp",
     "internal_model_id": "deepseek/deepseek-v3.2-exp",
     "is_active_gateway": true,
@@ -887,7 +887,7 @@
   },
   {
     "api_model_id": "deepseek/deepseek-v4-flash",
-    "provider_api_model_id": "atlascloud:deepseek-ai/deepseek-v4-flash",
+    "provider_api_model_id": "atlascloud:deepseek/deepseek-v4-flash",
     "provider_model_slug": "deepseek-ai/deepseek-v4-flash",
     "internal_model_id": "deepseek/deepseek-v4-flash",
     "is_active_gateway": true,
@@ -942,7 +942,7 @@
   },
   {
     "api_model_id": "deepseek/deepseek-v4-flash-0731",
-    "provider_api_model_id": "atlascloud:deepseek-ai/deepseek-v4-flash-0731",
+    "provider_api_model_id": "atlascloud:deepseek/deepseek-v4-flash-0731",
     "provider_model_slug": "deepseek-ai/deepseek-v4-flash-0731",
     "internal_model_id": "deepseek/deepseek-v4-flash-0731",
     "is_active_gateway": true,
@@ -999,7 +999,7 @@
   },
   {
     "api_model_id": "deepseek/deepseek-v4-pro",
-    "provider_api_model_id": "atlascloud:deepseek-ai/deepseek-v4-pro",
+    "provider_api_model_id": "atlascloud:deepseek/deepseek-v4-pro",
     "provider_model_slug": "deepseek-ai/deepseek-v4-pro",
     "internal_model_id": "deepseek/deepseek-v4-pro",
     "is_active_gateway": true,
@@ -1573,7 +1573,7 @@
   },
   {
     "api_model_id": "meituan/longcat-2.0",
-    "provider_api_model_id": "atlascloud:meituan-longcat/longcat-2.0",
+    "provider_api_model_id": "atlascloud:meituan/longcat-2.0",
     "provider_model_slug": "meituan-longcat/longcat-2.0",
     "internal_model_id": "meituan/longcat-2.0",
     "is_active_gateway": true,
@@ -1629,77 +1629,6 @@
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
       "notes": "Verified against AtlasCloud's live official model catalogue."
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "meituan/longcat-2.0",
-    "provider_api_model_id": "atlascloud:meituan/longcat-2.0",
-    "provider_model_slug": "meituan/longcat-2.0",
-    "internal_model_id": "meituan/longcat-2.0",
-    "is_active_gateway": false,
-    "quantization_scheme": "fp8",
-    "input_modalities": "text",
-    "output_modalities": "text",
-    "context_length": 1048756,
-    "max_output_tokens": 262144,
-    "effective_from": "2026-08-12T00:00:00Z",
-    "effective_to": "2026-08-23T00:00:00Z",
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "retired",
-        "params": [
-          "reasoning",
-          "include_reasoning",
-          "max_tokens",
-          "temperature",
-          "top_p",
-          "top_k",
-          "min_p",
-          "frequency_penalty",
-          "presence_penalty",
-          "repetition_penalty",
-          "seed",
-          "logit_bias",
-          "stop",
-          "tools",
-          "tool_choice"
-        ],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "retired",
-    "routable": false,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [
-      {
-        "url": "https://www.atlascloud.ai/pricing/models?sort=new",
-        "kind": "pricing",
-        "accessed_at": "2026-08-23T00:00:00Z",
-        "notes": "Official live AtlasCloud model and pricing catalogue."
-      }
-    ],
-    "verification": {
-      "status": "verified",
-      "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "No longer listed in AtlasCloud's live text model catalogue; retained as disabled history."
     },
     "rate_limits": []
   },
@@ -1870,7 +1799,7 @@
   },
   {
     "api_model_id": "minimax/minimax-m2.5",
-    "provider_api_model_id": "atlascloud:minimaxai/minimax-m2.5",
+    "provider_api_model_id": "atlascloud:minimax/minimax-m2.5",
     "provider_model_slug": "minimaxai/minimax-m2.5",
     "internal_model_id": "minimax/minimax-m2.5",
     "is_active_gateway": true,
@@ -1925,7 +1854,7 @@
   },
   {
     "api_model_id": "minimax/minimax-m2.7",
-    "provider_api_model_id": "atlascloud:minimaxai/minimax-m2.7",
+    "provider_api_model_id": "atlascloud:minimax/minimax-m2.7",
     "provider_model_slug": "minimaxai/minimax-m2.7",
     "internal_model_id": "minimax/minimax-m2.7",
     "is_active_gateway": true,
@@ -1980,7 +1909,7 @@
   },
   {
     "api_model_id": "minimax/minimax-m3",
-    "provider_api_model_id": "atlascloud:minimaxai/minimax-m3",
+    "provider_api_model_id": "atlascloud:minimax/minimax-m3",
     "provider_model_slug": "minimaxai/minimax-m3",
     "internal_model_id": "minimax/minimax-m3",
     "is_active_gateway": true,
@@ -2841,7 +2770,7 @@
   },
   {
     "api_model_id": "qwen/qwen3-235b-a22b-2507",
-    "provider_api_model_id": "atlascloud:Qwen/Qwen3-235B-A22B-Instruct-2507",
+    "provider_api_model_id": "atlascloud:qwen/qwen3-235b-a22b-instruct-2507",
     "provider_model_slug": "Qwen/Qwen3-235B-A22B-Instruct-2507",
     "internal_model_id": "qwen/qwen3-235b-a22b-2507",
     "is_active_gateway": true,
@@ -4826,7 +4755,7 @@
   },
   {
     "api_model_id": "z-ai/glm-4.6",
-    "provider_api_model_id": "atlascloud:zai-org/GLM-4.6",
+    "provider_api_model_id": "atlascloud:z-ai/glm-4.6",
     "provider_model_slug": "zai-org/GLM-4.6",
     "internal_model_id": "z-ai/glm-4.6",
     "is_active_gateway": true,
@@ -4881,7 +4810,7 @@
   },
   {
     "api_model_id": "z-ai/glm-4.7",
-    "provider_api_model_id": "atlascloud:zai-org/glm-4.7",
+    "provider_api_model_id": "atlascloud:z-ai/glm-4.7",
     "provider_model_slug": "zai-org/glm-4.7",
     "internal_model_id": "z-ai/glm-4.7",
     "is_active_gateway": true,
@@ -4936,7 +4865,7 @@
   },
   {
     "api_model_id": "z-ai/glm-5",
-    "provider_api_model_id": "atlascloud:zai-org/glm-5",
+    "provider_api_model_id": "atlascloud:z-ai/glm-5",
     "provider_model_slug": "zai-org/glm-5",
     "internal_model_id": "z-ai/glm-5",
     "is_active_gateway": true,
@@ -5046,7 +4975,7 @@
   },
   {
     "api_model_id": "z-ai/glm-5.1",
-    "provider_api_model_id": "atlascloud:zai-org/glm-5.1",
+    "provider_api_model_id": "atlascloud:z-ai/glm-5.1",
     "provider_model_slug": "zai-org/glm-5.1",
     "internal_model_id": "z-ai/glm-5.1",
     "is_active_gateway": true,
@@ -5106,81 +5035,8 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "z-ai/glm-5.1",
-    "provider_api_model_id": "atlascloud:z-ai/glm-5.1",
-    "provider_model_slug": "z-ai/glm-5.1",
-    "internal_model_id": "z-ai/glm-5.1",
-    "is_active_gateway": false,
-    "quantization_scheme": "fp8",
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": 202752,
-    "max_output_tokens": 202752,
-    "effective_from": "2026-08-12T00:00:00Z",
-    "effective_to": "2026-08-23T00:00:00Z",
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "retired",
-        "params": [
-          "reasoning",
-          "include_reasoning",
-          "max_tokens",
-          "temperature",
-          "top_p",
-          "top_k",
-          "min_p",
-          "frequency_penalty",
-          "presence_penalty",
-          "repetition_penalty",
-          "stop",
-          "seed",
-          "logit_bias",
-          "response_format",
-          "structured_outputs",
-          "tools",
-          "tool_choice"
-        ],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "retired",
-    "routable": false,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [
-      {
-        "url": "https://www.atlascloud.ai/pricing/models?sort=new",
-        "kind": "pricing",
-        "accessed_at": "2026-08-23T00:00:00Z",
-        "notes": "Official live AtlasCloud model and pricing catalogue."
-      }
-    ],
-    "verification": {
-      "status": "verified",
-      "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "No longer listed in AtlasCloud's live text model catalogue; retained as disabled history."
-    },
-    "rate_limits": []
-  },
-  {
     "api_model_id": "z-ai/glm-5.2",
-    "provider_api_model_id": "atlascloud:zai-org/glm-5.2",
+    "provider_api_model_id": "atlascloud:z-ai/glm-5.2",
     "provider_model_slug": "zai-org/glm-5.2",
     "internal_model_id": "z-ai/glm-5.2",
     "is_active_gateway": true,
