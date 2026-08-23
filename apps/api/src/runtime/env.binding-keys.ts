@@ -127,6 +127,8 @@ export const BINDING_KEYS: Array<keyof GatewayBindings> = [
     "COHERE_API_KEY",
     "COHERE_BASE_URL",
     "CROFAI_API_KEY",
+    "CANOPYWAVE_API_KEY",
+    "CANOPYWAVE_BASE_URL",
     "CROFAI_BASE_URL",
     "CROF_AI_API_KEY",
     "CROF_AI_BASE_URL",
