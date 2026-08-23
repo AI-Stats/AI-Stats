@@ -63,9 +63,9 @@ export {
 const CONTEXT_CACHE_PREFIX = "gateway:context";
 
 // Multi-tier caching constants (respecting Cloudflare KV 60s minimum)
-const STATIC_CACHE_PREFIX = "gateway:static:v2";
+const STATIC_CACHE_PREFIX = "gateway:static:v3";
 const DYNAMIC_CACHE_PREFIX = "gateway:dynamic";
-const PRESET_CACHE_PREFIX = "gateway:preset:v2";
+const PRESET_CACHE_PREFIX = "gateway:preset:v3";
 
 const PRESET_TTL = 120;      // 2 minutes
 const CONTEXT_INFLIGHT_MAX_ENTRIES = 512;
@@ -1760,7 +1760,6 @@ export async function fetchGatewayContext(args: {
         }
     }
 }
-
 
 
 
