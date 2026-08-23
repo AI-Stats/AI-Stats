@@ -18,7 +18,8 @@
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": null,
+      "effective_to": "2026-08-23T00:00:00Z"
     }
   ],
   "regions": [],
@@ -27,8 +28,8 @@
   ],
   "sources": [],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-23T00:00:00Z",
+    "notes": "Route is no longer in AtlasCloud's live text catalogue; pricing retained as historical."
   }
 }
