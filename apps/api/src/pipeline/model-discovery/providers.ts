@@ -223,27 +223,6 @@ const NATIVE_DISCOVERY_PROVIDERS: ProviderConfig[] = [
 		authStyle: "optional_bearer",
 	},
 	{
-		providerId: "huggingface",
-		providerName: "Hugging Face Router",
-		modelsEndpoint: "https://router.huggingface.co/v1/models",
-		apiKeyEnv: ["HF_TOKEN", "HUGGINGFACE_API_KEY"],
-		authStyle: "optional_bearer",
-	},
-	{
-		providerId: "kilo",
-		providerName: "Kilo Gateway",
-		modelsEndpoint: "https://api.kilo.ai/api/gateway/models",
-		apiKeyEnv: ["KILO_API_KEY"],
-		authStyle: "optional_bearer",
-	},
-	{
-		providerId: "nano-gpt",
-		providerName: "NanoGPT",
-		modelsEndpoint: "https://nano-gpt.com/api/v1/models?detailed=true",
-		apiKeyEnv: ["NANO_GPT_API_KEY", "NANOGPT_API_KEY"],
-		authStyle: "optional_bearer",
-	},
-	{
 		providerId: "llmgateway",
 		providerName: "LLM Gateway",
 		modelsEndpoint: "https://api.llmgateway.io/v1/models",

@@ -412,6 +412,37 @@ describe("buildDiscordMessage", () => {
 		} as any)).toBe("");
 	});
 
+	it("reports pricing page changes with added and removed price lines", () => {
+		setupRuntimeFromEnv({} as any);
+		const message = buildDiscordMessage({
+			modelChanges: [],
+			pricing: { updatesDetected: 0, providerChanges: [] },
+			providerApiPricing: { updatesDetected: 0, providerChanges: [] },
+			pricingTable: {
+				updatesDetected: 1,
+				providerChanges: [{
+					providerId: "cohere",
+					providerName: "Cohere",
+					sourceUrl: "https://cohere.com/pricing",
+					fingerprint: "next",
+					tableCount: 3,
+					pricingSamples: [],
+					contentLines: ["Command A input $2.00 / 1M tokens"],
+					addedSamples: ["Command A input $2.00 / 1M tokens"],
+					removedSamples: ["Command A input $2.50 / 1M tokens"],
+				}],
+				errors: [],
+			},
+			configuredModelCoverage: { updatesDetected: 0, providerChanges: [] },
+		} as any);
+
+		expect(message).toContain("Pricing page monitor detected 1 changed provider source.");
+		expect(message).toContain("Cohere (https://cohere.com/pricing) — 1 added, 1 removed:");
+		expect(message).toContain("+ Command A input $2.00 / 1M tokens");
+		expect(message).toContain("- Command A input $2.50 / 1M tokens");
+		expect(message).not.toContain("price-bearing section");
+	});
+
 	it("prefers an explicit catalog endpoint over the gateway base URL", () => {
 		expect(resolveProviderModelsEndpoint({
 			providerId: "catalog",

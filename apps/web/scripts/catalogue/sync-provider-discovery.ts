@@ -276,6 +276,11 @@ async function fetchLiveDiscoveryRows(): Promise<{ rows: DiscoveryRow[]; errors:
 	};
 }
 
+export function hasUsableDiscoveryDetails(details: unknown): boolean {
+	const record = asRecord(details);
+	return Boolean(record) && Object.keys(record as JsonObject).length > 0;
+}
+
 async function fetchDiscoveryRows(): Promise<DiscoveryRow[]> {
 	const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
 	const key = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
@@ -295,7 +300,9 @@ async function fetchDiscoveryRows(): Promise<DiscoveryRow[]> {
 		const { data, error } = await query;
 		if (error) throw new Error(error.message || "Failed to load model discovery state");
 		const rows = (data ?? []) as DiscoveryRow[];
-		output.push(...rows);
+		// Watcher state is ID-plus-snapshot only; enrichment data comes from live
+		// provider fetches, so persisted rows without a usable payload object are skipped.
+		output.push(...rows.filter((row) => hasUsableDiscoveryDetails(row.model_details)));
 		if (rows.length < 1_000) break;
 		from += 1_000;
 	}

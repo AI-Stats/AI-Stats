@@ -224,6 +224,9 @@ export function openAICompatHeaders(
 		// Reka Chat documents X-Api-Key while Reka Research documents Bearer auth.
 		// Both products share this provider and API host, so send both accepted forms.
 		...(providerId === "reka" && key ? { Authorization: `Bearer ${key}` } : {}),
+		...(providerId === "cloudflare"
+			? { "cf-aig-gateway-id": readFirstBinding(["CLOUDFLARE_AI_GATEWAY_ID"])?.trim() || "default" }
+			: {}),
 		"Content-Type": "application/json",
 		...(extraHeaders
 			? Object.fromEntries(
@@ -323,6 +326,15 @@ export function resolveOpenAICompatRoute(providerId: string, model?: string | nu
 	if (isNebiusTokenFactoryProvider(providerId)) {
 		return nebiusModelSupportsResponses(model) ? "responses" : "chat";
 	}
+	if (providerId === "deepseek") {
+		return (
+			normalized === "deepseek-v4-flash" ||
+			normalized === "deepseek-v4-pro" ||
+			normalized === "deepseek-v4-flash-vision-exp"
+		)
+			? "responses"
+			: "chat";
+	}
 
 	if (providerId === "cloudflare") {
 		return CLOUDFLARE_RESPONSES_MODELS.has(normalized) ? "responses" : "chat";
@@ -345,6 +357,7 @@ export function resolveOpenAICompatRoute(providerId: string, model?: string | nu
 }
 
 export function supportsOpenAICompatResponses(providerId: string, model?: string | null): boolean {
+	if (providerId === "deepseek") return resolveOpenAICompatRoute(providerId, model) === "responses";
 	const config = resolveOpenAICompatConfig(providerId);
 	if (typeof config.supportsResponses === "boolean") return config.supportsResponses;
 	return resolveOpenAICompatRoute(providerId, model) === "responses";

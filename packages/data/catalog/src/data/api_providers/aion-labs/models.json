@@ -178,7 +178,7 @@
     "output_modalities": "text",
     "context_length": 131072,
     "max_output_tokens": 32768,
-    "effective_from": "2026-03-25T00:00:00",
+    "effective_from": "2025-12-21T00:00:00",
     "effective_to": null,
     "capabilities": [
       {
@@ -271,11 +271,11 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [{ "kind": "api_reference", "url": "https://api.aionlabs.ai/v1/models", "accessed_at": "2026-08-21T00:00:00Z" }],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-21T00:00:00Z",
+      "notes": "Verified as currently available against Aion Labs' live model endpoint."
     },
     "rate_limits": []
   },
@@ -284,7 +284,7 @@
     "provider_api_model_id": "aion-labs:aion-labs/aion-2.5",
     "provider_model_slug": "aion-labs/aion-2.5",
     "internal_model_id": "aion-labs/aion-2.5",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
@@ -295,7 +295,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [
           {
             "param_id": "max_output_tokens",
@@ -364,8 +364,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -376,11 +376,11 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [{ "kind": "api_reference", "url": "https://www.aionlabs.ai/docs/models/", "accessed_at": "2026-08-21T00:00:00Z" }],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-21T00:00:00Z",
+      "notes": "Expired on 2026-08-14 and replaced by aion-labs/aion-3.0."
     },
     "rate_limits": []
   },
@@ -486,11 +486,11 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [{ "kind": "api_reference", "url": "https://api.aionlabs.ai/v1/models", "accessed_at": "2026-08-21T00:00:00Z" }],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-21T00:00:00Z",
+      "notes": "Verified as currently available against Aion Labs' live model endpoint."
     },
     "rate_limits": []
   },
@@ -596,11 +596,11 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [{ "kind": "api_reference", "url": "https://api.aionlabs.ai/v1/models", "accessed_at": "2026-08-21T00:00:00Z" }],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-21T00:00:00Z",
+      "notes": "Verified as currently available against Aion Labs' live model endpoint."
     },
     "rate_limits": []
   },
@@ -615,7 +615,7 @@
     "output_modalities": "text",
     "context_length": 32768,
     "max_output_tokens": 32768,
-    "effective_from": "2026-03-25T00:00:00",
+    "effective_from": "2024-11-30T00:00:00",
     "effective_to": null,
     "capabilities": [
       {
@@ -694,11 +694,11 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [{ "kind": "api_reference", "url": "https://api.aionlabs.ai/v1/models", "accessed_at": "2026-08-21T00:00:00Z" }],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-21T00:00:00Z",
+      "notes": "Verified as currently available against Aion Labs' live model endpoint."
     },
     "rate_limits": []
   }

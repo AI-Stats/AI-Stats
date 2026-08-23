@@ -28,19 +28,34 @@
   "sdk_package": null,
   "api_base_url": "https://api.deepinfra.com/v1/openai",
   "docs_url": "https://docs.deepinfra.com/chat/overview",
-  "auth_env": "DEEPINFRA_API_KEY",
+  "auth_env": ["DEEPINFRA_API_KEY"],
   "api_formats": [
-    "openai_chat"
+    "openai.chat.completions",
+    "openai.embeddings",
+    "openai.images"
   ],
   "service_tiers": [
     "default",
     "priority",
     "flex"
   ],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.deepinfra.com/v1/openai/models",
+      "accessed_at": "2026-08-21T00:00:00Z",
+      "notes": "Authoritative current OpenAI-compatible model inventory."
+    },
+    {
+      "kind": "provider_models",
+      "url": "https://api.deepinfra.com/models/list",
+      "accessed_at": "2026-08-21T00:00:00Z",
+      "notes": "Authoritative model types, limits, lifecycle metadata, pricing, cache discounts, and service-tier multipliers."
+    }
+  ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-12",
-    "notes": "Verified against DeepInfra's current Chat documentation and live first-party OpenAPI specification."
+    "checked_at": "2026-08-21T00:00:00Z",
+    "notes": "Current inventory, API formats, model types, limits, lifecycle, pricing, cache discounts, and service tiers verified against DeepInfra's first-party endpoints and documentation."
   }
 }

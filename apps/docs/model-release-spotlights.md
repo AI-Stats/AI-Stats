@@ -244,7 +244,7 @@ Fable 5 note: Claude Fable 5 remains the 09 June 2026 launch spotlight and has a
 | 06 December 2024 | [Google: Gemini Exp 1206](https://phaseo.app/models/google/gemini-exp-1206) | 2 | Meta: Llama 3.3 70B Instruct |
 | 04 December 2024 | [Amazon: Nova Pro 1.0](https://phaseo.app/models/amazon/nova-pro-1.0) | 3 | Amazon: Nova Lite 1.0; Amazon: Nova Micro 1.0 |
 | 03 December 2024 | [Amazon: Nova Canvas](https://phaseo.app/models/amazon/nova-canvas) | 2 | Amazon: Nova Reel |
-| 30 November 2024 | [Aion Labs: Aion RP Llama 3.1 8B](https://phaseo.app/models/aion-labs/aion-rp-llama-3.1-8b) | 1 | - |
+| 30 November 2024 | [Aion Labs: Aion-RP 1.0 (8B)](https://phaseo.app/models/aion-labs/aion-rp-llama-3.1-8b) | 1 | - |
 | 21 November 2024 | [Google: Gemini Exp 1121](https://phaseo.app/models/google/gemini-exp-1121) | 1 | - |
 | 20 November 2024 | [OpenAI: GPT 4o (2024-11-20)](https://phaseo.app/models/openai/gpt-4o) | 2 | DeepSeek: DeepSeek R1 Lite Preview |
 | 19 November 2024 | [Google: LearnLM 1.5 Pro Experimental](https://phaseo.app/models/google/learnlm-1.5-pro-experimental) | 2 | Suno: Suno V4 |

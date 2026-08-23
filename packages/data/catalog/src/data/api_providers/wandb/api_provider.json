@@ -23,7 +23,7 @@
   "pricing_source_url": null,
   "regional_pricing_notes": null,
   "country_code": "US",
-  "status": "Active",
+  "status": "Retired",
   "colour": null,
   "gateway_kind": "catalogue",
   "routable": false,
@@ -53,6 +53,6 @@
   "verification": {
     "status": "partial",
     "checked_at": "2026-08-09T00:00:00Z",
-    "notes": "Location metadata verified; other provider policy and catalogue fields were not re-audited. Existing provider verification note: Provider metadata and model support enrichment; not a Phaseo-routable offer."
+    "notes": "Legacy models.dev import retained for history. The active gateway provider is weights-and-biases."
   }
 }

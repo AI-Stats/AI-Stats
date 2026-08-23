@@ -64,7 +64,9 @@
     "sakana",
     "sao10k",
     "hexgrad",
-    "prism-ml"
+    "prism-ml",
+    "jetbrains",
+    "stealth"
   ],
   "models": {
     "ai21": [
@@ -262,6 +264,7 @@
       "deepseek/deepseek-v3.2-speciale",
       "deepseek/deepseek-v4-flash",
       "deepseek/deepseek-v4-flash-0731",
+      "deepseek/deepseek-v4-flash-vision-exp",
       "deepseek/deepseek-v4-pro",
       "deepseek/deepseek-v4-pro-0813",
       "deepseek/deepseek-vl2",
@@ -433,7 +436,9 @@
       "google/gemma-4-26b-a4b:free",
       "google/gemma-4-31b:free",
       "google/gemini-3.7-flash",
-      "google/gemini-robotics-er-2-preview"
+      "google/gemini-robotics-er-2-preview",
+      "google/veo-3.1",
+      "google/veo-3.1-fast"
     ],
     "ibm": [
       "ibm/granite-20b-code-instruct-8k",
@@ -761,7 +766,8 @@
       "nvidia/nemotron-3-ultra-550b-a55b",
       "nvidia/nvidia-nemotron-nano-12b-v2-vl",
       "nvidia/nemotron-3.5-lightning",
-      "nvidia/nemotron-3-nano-omni"
+      "nvidia/nemotron-3-nano-omni",
+      "nvidia/nemotron-nano-9b-v2"
     ],
     "openai": [
       "openai/ada",
@@ -1150,7 +1156,8 @@
       "qwen/wan2.7-t2v",
       "qwen/qwen3.8-2.4t-a95b",
       "qwen/qwen3-omni-30b-a3b",
-      "qwen/qwen3.8-27b"
+      "qwen/qwen3.8-27b",
+      "qwen/qwen3.6-flash"
     ],
     "relace": [
       "relace/relace-search"
@@ -1306,7 +1313,8 @@
       "z-ai/glm-image",
       "z-ai/glm-4.7-flash:free",
       "z-ai/glm-5.3",
-      "z-ai/autoglm-phone-9b-multilingual"
+      "z-ai/autoglm-phone-9b-multilingual",
+      "z-ai/glm-4.7-flash-heretic"
     ],
     "crofai": [
       "crofai/greg-1-mini",
@@ -1335,7 +1343,12 @@
     ],
     "venice": [
       "venice/venice-uncensored",
-      "venice/venice-uncensored-1.1"
+      "venice/venice-uncensored-1.1",
+      "venice/gemma-4-26b-a4b-uncensored",
+      "venice/gemma-4-uncensored",
+      "venice/qwen3.6-35b-a3b-uncensored",
+      "venice/venice-role-play-uncensored",
+      "venice/venice-uncensored-1.2"
     ],
     "alibaba": [
       "alibaba/happyhorse-1.0",
@@ -1377,6 +1390,12 @@
     ],
     "prism-ml": [
       "prism-ml/ternary-bonsai-27b"
+    ],
+    "jetbrains": [
+      "jetbrains/mellum2-12b-a2.5b"
+    ],
+    "stealth": [
+      "stealth/ox-alpha"
     ]
   },
   "benchmarks": [

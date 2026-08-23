@@ -40,10 +40,17 @@
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.deepinfra.com/models/list",
+      "accessed_at": "2026-08-21T00:00:00Z",
+      "notes": "Authoritative DeepInfra token pricing, cache multiplier, and per-model priority/flex multipliers."
+    }
+  ],
   "verification": {
-    "status": "partial",
-    "checked_at": "2026-08-11T04:15:56.347+00:00",
-    "notes": "Pricing synchronized from the provider models API."
+    "status": "verified",
+    "checked_at": "2026-08-21T00:00:00Z",
+    "notes": "Current standard, cached-input, priority, and flex pricing reconciled against the live DeepInfra model-details endpoint."
   }
 }

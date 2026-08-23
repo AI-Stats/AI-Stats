@@ -22,6 +22,7 @@ export interface PricingRule {
     time_windows?: Array<{
         label: string;
         timezone: "UTC";
+        days_of_week?: Array<"mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun">;
         start_time: string;
         end_time: string;
         price_per_unit?: number | string | null;

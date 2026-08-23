@@ -938,5 +938,167 @@
       "notes": "Historical direct deployment retained for the pre-0813 model."
     },
     "rate_limits": []
-  }
+  },
+{
+  "api_model_id": "deepseek/deepseek-v4-flash-vision-exp",
+  "provider_api_model_id": "deepseek:deepseek/deepseek-v4-flash-vision-exp",
+  "provider_model_slug": "deepseek-v4-flash-vision-exp",
+  "internal_model_id": "deepseek/deepseek-v4-flash-vision-exp",
+  "is_active_gateway": true,
+  "quantization_scheme": null,
+  "input_modalities": "text,image",
+  "output_modalities": "text",
+  "context_length": 1000000,
+  "max_output_tokens": 384000,
+  "effective_from": "2026-08-21T00:00:00",
+  "effective_to": null,
+  "capabilities": [
+    {
+      "capability_id": "text.generate",
+      "status": "active",
+      "params": [
+        {
+          "param_id": "frequency_penalty",
+          "provider_min": null,
+          "provider_max": null,
+          "provider_default": null,
+          "notes": null
+        },
+        {
+          "param_id": "include_reasoning",
+          "provider_min": null,
+          "provider_max": null,
+          "provider_default": null,
+          "notes": null
+        },
+        {
+          "param_id": "logprobs",
+          "provider_min": null,
+          "provider_max": null,
+          "provider_default": null,
+          "notes": null
+        },
+        {
+          "param_id": "max_tokens",
+          "provider_min": null,
+          "provider_max": null,
+          "provider_default": null,
+          "notes": null
+        },
+        {
+          "param_id": "presence_penalty",
+          "provider_min": null,
+          "provider_max": null,
+          "provider_default": null,
+          "notes": null
+        },
+        {
+          "param_id": "reasoning",
+          "provider_min": null,
+          "provider_max": null,
+          "provider_default": null,
+          "notes": null
+        },
+        {
+          "param_id": "response_format",
+          "provider_min": null,
+          "provider_max": null,
+          "provider_default": null,
+          "notes": null
+        },
+        {
+          "param_id": "stop",
+          "provider_min": null,
+          "provider_max": null,
+          "provider_default": null,
+          "notes": null
+        },
+        {
+          "param_id": "temperature",
+          "provider_min": null,
+          "provider_max": null,
+          "provider_default": null,
+          "notes": null
+        },
+        {
+          "param_id": "tool_choice",
+          "provider_min": null,
+          "provider_max": null,
+          "provider_default": null,
+          "notes": null
+        },
+        {
+          "param_id": "tools",
+          "provider_min": null,
+          "provider_max": null,
+          "provider_default": null,
+          "notes": null
+        },
+        {
+          "param_id": "top_logprobs",
+          "provider_min": null,
+          "provider_max": null,
+          "provider_default": null,
+          "notes": null
+        },
+        {
+          "param_id": "top_p",
+          "provider_min": null,
+          "provider_max": null,
+          "provider_default": null,
+          "notes": null
+        }
+      ],
+      "reasoning": true,
+      "tool_call": true,
+      "structured_output": true,
+      "temperature": true,
+      "attachment": true,
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "modes": []
+    }
+  ],
+  "routing_status": "active",
+  "routable": true,
+  "regions": {
+    "execution": null,
+    "data": null
+  },
+  "service_tiers": [],
+  "api": {
+    "formats": [
+      "openai.chat.completions",
+      "openai.responses",
+      "anthropic.messages"
+    ],
+    "endpoint": null,
+    "deployment": null
+  },
+  "sources": [
+    {
+      "kind": "announcement",
+      "url": "https://api-docs.deepseek.com/updates/",
+      "accessed_at": "2026-08-21T00:00:00Z",
+      "notes": "Official release announcement and API model identifier."
+    },
+    {
+      "kind": "pricing",
+      "url": "https://api-docs.deepseek.com/quick_start/pricing/",
+      "accessed_at": "2026-08-21T00:00:00Z",
+      "notes": "Official model version, limits, features, pricing, and API formats."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-21T00:00:00Z",
+    "notes": "Verified against official DeepSeek documentation."
+  },
+  "rate_limits": []
+}
 ]

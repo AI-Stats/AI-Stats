@@ -1,0 +1,91 @@
+{
+  "model_id": "stealth/ox-alpha",
+  "organisation_id": "stealth",
+  "name": "Stealth Ox Alpha",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Stealth Ox Alpha is a reasoning model available during a stealth release, with its developer currently undisclosed. It is designed for coding, sustained agentic work, complex reasoning and workflows combining text with visual context.",
+  "announced_date": null,
+  "release_date": "2026-08-21",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": null,
+  "input_types": [
+    "text",
+    "image",
+    "video"
+  ],
+  "output_types": [
+    "text"
+  ],
+  "api_model_id": "stealth/ox-alpha",
+  "links": [
+    {
+      "platform": "model",
+      "title": "Model source",
+      "url": "https://openrouter.ai/stealth/ox-alpha"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "family_id": null,
+  "page_notice": null,
+  "model_type": "language",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": 1048576,
+    "input": null,
+    "output": 131072
+  },
+  "modalities": {
+    "input": [
+      "text",
+      "image",
+      "video"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": true,
+    "options": [
+      "none",
+      "low",
+      "medium",
+      "high"
+    ]
+  },
+  "capabilities": {
+    "attachment": true,
+    "tool_call": true,
+    "structured_output": true,
+    "temperature": null,
+    "streaming": true,
+    "web_search": true
+  },
+  "open_weights": false,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.venice.ai/api/v1/models",
+      "accessed_at": "2026-08-21T00:00:00Z",
+      "notes": "Venice live model metadata and public inference availability."
+    },
+    {
+      "kind": "models",
+      "url": "https://openrouter.ai/stealth/ox-alpha",
+      "accessed_at": "2026-08-22T00:00:00Z",
+      "notes": "Public model listing identifies Ox Alpha under the stealth namespace."
+    }
+  ],
+  "verification": {
+    "status": "partial",
+    "checked_at": "2026-08-22",
+    "notes": "Model availability and capabilities are verified against Venice's live models API. The developer is currently undisclosed, so the model is grouped under Phaseo's generic Stealth organisation."
+  },
+  "last_updated": "2026-08-22",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

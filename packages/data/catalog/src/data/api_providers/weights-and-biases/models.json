@@ -604,14 +604,14 @@
         "provider_api_model_id":  "weights-and-biases:meta/llama-4-scout",
         "provider_model_slug":  "meta-llama/Llama-4-Scout-17B-16E-Instruct",
         "internal_model_id":  "meta/llama-4-scout",
-        "is_active_gateway":  true,
+        "is_active_gateway":  false,
         "quantization_scheme":  null,
         "input_modalities":  "text,image",
         "output_modalities":  "text",
         "context_length":  null,
         "max_output_tokens":  null,
         "effective_from":  "2026-03-25T00:00:00",
-        "effective_to":  null,
+        "effective_to":  "2026-08-21T00:00:00Z",
         "capabilities":  [
                              {
                                  "capability_id":  "text.generate",
@@ -631,8 +631,8 @@
                                            ]
                              }
                          ],
-        "routing_status":  "active",
-        "routable":  true,
+        "routing_status":  "retired",
+        "routable":  false,
         "regions":  {
                         "execution":  null,
                         "data":  null
@@ -664,14 +664,14 @@
         "provider_api_model_id":  "weights-and-biases:microsoft/phi-4-mini",
         "provider_model_slug":  "microsoft/Phi-4-mini-instruct",
         "internal_model_id":  "microsoft/phi-4-mini",
-        "is_active_gateway":  true,
+        "is_active_gateway":  false,
         "quantization_scheme":  null,
         "input_modalities":  "text",
         "output_modalities":  "text",
         "context_length":  null,
         "max_output_tokens":  null,
         "effective_from":  "2026-03-25T00:00:00",
-        "effective_to":  null,
+        "effective_to":  "2026-08-21T00:00:00Z",
         "capabilities":  [
                              {
                                  "capability_id":  "text.generate",
@@ -691,8 +691,8 @@
                                            ]
                              }
                          ],
-        "routing_status":  "active",
-        "routable":  true,
+        "routing_status":  "retired",
+        "routable":  false,
         "regions":  {
                         "execution":  null,
                         "data":  null
@@ -904,14 +904,14 @@
         "provider_api_model_id":  "weights-and-biases:moonshotai/kimi-k2.5",
         "provider_model_slug":  "moonshotai/Kimi-K2.5",
         "internal_model_id":  "moonshotai/kimi-k2.5",
-        "is_active_gateway":  true,
+        "is_active_gateway":  false,
         "quantization_scheme":  null,
         "input_modalities":  "text,image",
         "output_modalities":  "text",
         "context_length":  null,
         "max_output_tokens":  null,
         "effective_from":  "2026-03-25T00:00:00",
-        "effective_to":  null,
+        "effective_to":  "2026-08-21T00:00:00Z",
         "capabilities":  [
                              {
                                  "capability_id":  "text.generate",
@@ -931,8 +931,8 @@
                                            ]
                              }
                          ],
-        "routing_status":  "active",
-        "routable":  true,
+        "routing_status":  "retired",
+        "routable":  false,
         "regions":  {
                         "execution":  null,
                         "data":  null
@@ -1091,7 +1091,7 @@
         "context_length":  null,
         "max_output_tokens":  null,
         "effective_from":  null,
-        "effective_to":  null,
+        "effective_to":  "2026-08-21T00:00:00Z",
         "capabilities":  [
                              {
                                  "capability_id":  "text.generate",
@@ -1111,7 +1111,7 @@
                                            ]
                              }
                          ],
-        "routing_status":  "active",
+        "routing_status":  "retired",
         "routable":  false,
         "regions":  {
                         "execution":  [
@@ -1463,14 +1463,14 @@
         "provider_api_model_id":  "weights-and-biases:qwen/qwen3-235b-a22b-2507",
         "provider_model_slug":  "Qwen/Qwen3-235B-A22B-Instruct-2507",
         "internal_model_id":  "qwen/qwen3-235b-a22b-2507",
-        "is_active_gateway":  true,
+        "is_active_gateway":  false,
         "quantization_scheme":  null,
         "input_modalities":  "text",
         "output_modalities":  "text",
         "context_length":  null,
         "max_output_tokens":  null,
         "effective_from":  "2026-03-25T00:00:00",
-        "effective_to":  null,
+        "effective_to":  "2026-08-21T00:00:00Z",
         "capabilities":  [
                              {
                                  "capability_id":  "text.generate",
@@ -1490,8 +1490,8 @@
                                            ]
                              }
                          ],
-        "routing_status":  "active",
-        "routable":  true,
+        "routing_status":  "retired",
+        "routable":  false,
         "regions":  {
                         "execution":  null,
                         "data":  null
@@ -1523,14 +1523,14 @@
         "provider_api_model_id":  "weights-and-biases:qwen/qwen3-235b-a22b-thinking-2507",
         "provider_model_slug":  "Qwen/Qwen3-235B-A22B-Thinking-2507",
         "internal_model_id":  "qwen/qwen3-235b-a22b-thinking-2507",
-        "is_active_gateway":  true,
+        "is_active_gateway":  false,
         "quantization_scheme":  null,
         "input_modalities":  "text",
         "output_modalities":  "text",
         "context_length":  null,
         "max_output_tokens":  null,
         "effective_from":  "2026-03-25T00:00:00",
-        "effective_to":  null,
+        "effective_to":  "2026-08-21T00:00:00Z",
         "capabilities":  [
                              {
                                  "capability_id":  "text.generate",
@@ -1550,8 +1550,8 @@
                                            ]
                              }
                          ],
-        "routing_status":  "active",
-        "routable":  true,
+        "routing_status":  "retired",
+        "routable":  false,
         "regions":  {
                         "execution":  null,
                         "data":  null
@@ -1703,14 +1703,14 @@
         "provider_api_model_id":  "weights-and-biases:qwen/qwen3.5-27b",
         "provider_model_slug":  "Qwen/Qwen3.5-27B",
         "internal_model_id":  "qwen/qwen3.5-27b",
-        "is_active_gateway":  true,
+        "is_active_gateway":  false,
         "quantization_scheme":  null,
         "input_modalities":  "text,image",
         "output_modalities":  "text",
         "context_length":  262000,
         "max_output_tokens":  null,
         "effective_from":  "2026-05-11T00:00:00",
-        "effective_to":  null,
+        "effective_to":  "2026-08-21T00:00:00Z",
         "capabilities":  [
                              {
                                  "capability_id":  "text.generate",
@@ -1730,8 +1730,8 @@
                                            ]
                              }
                          ],
-        "routing_status":  "active",
-        "routable":  true,
+        "routing_status":  "retired",
+        "routable":  false,
         "regions":  {
                         "execution":  null,
                         "data":  null
@@ -1883,7 +1883,7 @@
         "provider_api_model_id":  "weights-and-biases:qwen/qwen3.6-35b-a3b",
         "provider_model_slug":  "Qwen/Qwen3.6-35B-A3B",
         "internal_model_id":  "qwen/qwen3.6-35b-a3b",
-        "is_active_gateway":  false,
+        "is_active_gateway":  true,
         "quantization_scheme":  null,
         "input_modalities":  null,
         "output_modalities":  null,
@@ -1911,7 +1911,7 @@
                              }
                          ],
         "routing_status":  "active",
-        "routable":  false,
+        "routable":  true,
         "regions":  {
                         "execution":  [
                                           "global"
@@ -2007,14 +2007,14 @@
         "provider_api_model_id":  "weights-and-biases:z-ai/glm-5",
         "provider_model_slug":  "zai-org/GLM-5-FP8",
         "internal_model_id":  "z-ai/glm-5",
-        "is_active_gateway":  true,
+        "is_active_gateway":  false,
         "quantization_scheme":  "FP8",
         "input_modalities":  "text",
         "output_modalities":  "text",
         "context_length":  null,
         "max_output_tokens":  null,
         "effective_from":  "2026-03-25T00:00:00",
-        "effective_to":  null,
+        "effective_to":  "2026-08-21T00:00:00Z",
         "capabilities":  [
                              {
                                  "capability_id":  "text.generate",
@@ -2034,8 +2034,8 @@
                                            ]
                              }
                          ],
-        "routing_status":  "active",
-        "routable":  true,
+        "routing_status":  "retired",
+        "routable":  false,
         "regions":  {
                         "execution":  null,
                         "data":  null
@@ -2185,9 +2185,9 @@
     {
         "api_model_id":  "deepseek/deepseek-v4-flash-0731",
         "provider_api_model_id":  "weights-and-biases:deepseek/deepseek-v4-flash-0731",
-        "provider_model_slug":  "deepseek/deepseek-v4-flash-0731",
+        "provider_model_slug":  "deepseek-ai/DeepSeek-V4-Flash-0731",
         "internal_model_id":  "deepseek/deepseek-v4-flash-0731",
-        "is_active_gateway":  false,
+        "is_active_gateway":  true,
         "quantization_scheme":  "fp8",
         "input_modalities":  "text",
         "output_modalities":  "text",
@@ -2198,7 +2198,7 @@
         "capabilities":  [
                              {
                                  "capability_id":  "text.generate",
-                                 "status":  "disabled",
+                                 "status":  "active",
                                  "params":  [
                                                 "reasoning",
                                                 "include_reasoning",
@@ -2229,8 +2229,8 @@
                                            ]
                              }
                          ],
-        "routing_status":  "disabled",
-        "routable":  false,
+        "routing_status":  "active",
+        "routable":  true,
         "regions":  {
                         "execution":  null,
                         "data":  null
@@ -2340,5 +2340,120 @@
         "rate_limits":  [
 
                         ]
+    },
+    {
+      "api_model_id": "minimax/minimax-m3",
+      "provider_api_model_id": "weights-and-biases:minimax/minimax-m3",
+      "provider_model_slug": "MiniMaxAI/MiniMax-M3",
+      "internal_model_id": "minimax/minimax-m3",
+      "is_active_gateway": true,
+      "quantization_scheme": null,
+      "input_modalities": "text,image",
+      "output_modalities": "text",
+      "context_length": 262144,
+      "max_output_tokens": null,
+      "effective_from": "2026-08-21T00:00:00Z",
+      "effective_to": null,
+      "capabilities": [{"capability_id":"text.generate","status":"active","params":[],"reasoning":true,"tool_call":true,"structured_output":null,"temperature":null,"attachment":true,"input_modalities":null,"output_modalities":null,"modes":[]}],
+      "routing_status": "active",
+      "routable": true,
+      "regions": {"execution":null,"data":null},
+      "service_tiers": [],
+      "api": {"formats":[],"endpoint":null,"deployment":null},
+      "sources": [{"kind":"provider_models","url":"https://docs.wandb.ai/inference/models","accessed_at":"2026-08-21T00:00:00Z","notes":"Official W&B catalogue lists MiniMaxAI/MiniMax-M3 as generally available with vision and 262K context."}],
+      "verification": {"status":"verified","checked_at":"2026-08-21T00:00:00Z","notes":"Verified against the current W&B serverless catalogue."},
+      "rate_limits": []
+    },
+    {
+      "api_model_id": "nvidia/nemotron-3-ultra-550b-a55b",
+      "provider_api_model_id": "weights-and-biases:nvidia/nemotron-3-ultra-550b-a55b",
+      "provider_model_slug": "nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B",
+      "internal_model_id": "nvidia/nemotron-3-ultra-550b-a55b",
+      "is_active_gateway": true,
+      "quantization_scheme": null,
+      "input_modalities": "text",
+      "output_modalities": "text",
+      "context_length": 262144,
+      "max_output_tokens": null,
+      "effective_from": "2026-08-21T00:00:00Z",
+      "effective_to": null,
+      "capabilities": [{"capability_id":"text.generate","status":"active","params":[],"reasoning":true,"tool_call":true,"structured_output":null,"temperature":null,"attachment":null,"input_modalities":null,"output_modalities":null,"modes":[]}],
+      "routing_status": "active",
+      "routable": true,
+      "regions": {"execution":null,"data":null},
+      "service_tiers": [],
+      "api": {"formats":[],"endpoint":null,"deployment":null},
+      "sources": [{"kind":"provider_models","url":"https://docs.wandb.ai/inference/models","accessed_at":"2026-08-21T00:00:00Z","notes":"Official W&B catalogue lists the 550B A55B slug as generally available with 262K context."}],
+      "verification": {"status":"verified","checked_at":"2026-08-21T00:00:00Z","notes":"Verified against the current W&B serverless catalogue."},
+      "rate_limits": []
+    },
+    {
+      "api_model_id": "qwen/qwen3-14b",
+      "provider_api_model_id": "weights-and-biases:qwen/qwen3-14b",
+      "provider_model_slug": "OpenPipe/Qwen3-14B-Instruct",
+      "internal_model_id": "qwen/qwen3-14b",
+      "is_active_gateway": true,
+      "quantization_scheme": null,
+      "input_modalities": "text",
+      "output_modalities": "text",
+      "context_length": 32768,
+      "max_output_tokens": null,
+      "effective_from": "2026-08-21T00:00:00Z",
+      "effective_to": null,
+      "capabilities": [{"capability_id":"text.generate","status":"active","params":[],"reasoning":true,"tool_call":true,"structured_output":null,"temperature":null,"attachment":null,"input_modalities":null,"output_modalities":null,"modes":[]}],
+      "routing_status": "active",
+      "routable": true,
+      "regions": {"execution":null,"data":null},
+      "service_tiers": [],
+      "api": {"formats":[],"endpoint":null,"deployment":null},
+      "sources": [{"kind":"provider_models","url":"https://docs.wandb.ai/inference/models","accessed_at":"2026-08-21T00:00:00Z","notes":"Official W&B catalogue lists OpenPipe/Qwen3-14B-Instruct with 32.8K context."}],
+      "verification": {"status":"verified","checked_at":"2026-08-21T00:00:00Z","notes":"Verified against the current W&B serverless catalogue."},
+      "rate_limits": []
+    },
+    {
+      "api_model_id": "qwen/qwen3.8-27b",
+      "provider_api_model_id": "weights-and-biases:qwen/qwen3.8-27b",
+      "provider_model_slug": "Qwen/Qwen3.8-27B",
+      "internal_model_id": "qwen/qwen3.8-27b",
+      "is_active_gateway": true,
+      "quantization_scheme": null,
+      "input_modalities": "text,image",
+      "output_modalities": "text",
+      "context_length": 262144,
+      "max_output_tokens": null,
+      "effective_from": "2026-08-21T00:00:00Z",
+      "effective_to": null,
+      "capabilities": [{"capability_id":"text.generate","status":"active","params":[],"reasoning":true,"tool_call":true,"structured_output":null,"temperature":null,"attachment":true,"input_modalities":null,"output_modalities":null,"modes":[]}],
+      "routing_status": "active",
+      "routable": true,
+      "regions": {"execution":null,"data":null},
+      "service_tiers": [],
+      "api": {"formats":[],"endpoint":null,"deployment":null},
+      "sources": [{"kind":"provider_models","url":"https://docs.wandb.ai/inference/models","accessed_at":"2026-08-21T00:00:00Z","notes":"Official W&B catalogue lists Qwen/Qwen3.8-27B as generally available with vision and 262K context."}],
+      "verification": {"status":"verified","checked_at":"2026-08-21T00:00:00Z","notes":"Verified against the current W&B serverless catalogue."},
+      "rate_limits": []
+    },
+    {
+      "api_model_id": "jetbrains/mellum2-12b-a2.5b",
+      "provider_api_model_id": "weights-and-biases:jetbrains/mellum2-12b-a2.5b",
+      "provider_model_slug": "JetBrains/Mellum2-12B-A2.5B-Instruct",
+      "internal_model_id": "jetbrains/mellum2-12b-a2.5b",
+      "is_active_gateway": true,
+      "quantization_scheme": null,
+      "input_modalities": "text",
+      "output_modalities": "text",
+      "context_length": 131072,
+      "max_output_tokens": null,
+      "effective_from": "2026-08-21T00:00:00Z",
+      "effective_to": null,
+      "capabilities": [{"capability_id":"text.generate","status":"active","params":[],"reasoning":null,"tool_call":true,"structured_output":null,"temperature":null,"attachment":null,"input_modalities":null,"output_modalities":null,"modes":[]}],
+      "routing_status": "active",
+      "routable": true,
+      "regions": {"execution":null,"data":null},
+      "service_tiers": [],
+      "api": {"formats":[],"endpoint":null,"deployment":null},
+      "sources": [{"kind":"provider_models","url":"https://docs.wandb.ai/inference/models","accessed_at":"2026-08-21T00:00:00Z","notes":"Official W&B catalogue lists JetBrains/Mellum2-12B-A2.5B-Instruct with 131K context."}],
+      "verification": {"status":"verified","checked_at":"2026-08-21T00:00:00Z","notes":"Verified against the current W&B serverless catalogue."},
+      "rate_limits": []
     }
 ]

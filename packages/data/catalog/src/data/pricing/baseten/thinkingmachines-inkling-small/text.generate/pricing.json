@@ -75,15 +75,15 @@
   ],
   "sources": [
     {
-      "url": "https://www.baseten.co/pricing/",
       "kind": "pricing",
-      "accessed_at": "2026-07-30T00:00:00Z",
-      "notes": "Official Baseten Model API pricing table."
+      "url": "https://www.baseten.co/pricing/",
+      "accessed_at": "2026-08-23T00:00:00Z",
+      "notes": "Current Baseten Model API pricing."
     }
   ],
   "verification": {
-    "status": "partial",
-    "checked_at": "2026-08-11T04:00:58.022+00:00",
-    "notes": "Pricing synchronized from the provider models API."
+    "status": "verified",
+    "checked_at": "2026-08-23T00:00:00Z",
+    "notes": "Verified against Baseten's current Model API pricing."
   }
 }

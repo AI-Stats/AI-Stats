@@ -110,6 +110,7 @@ export type GatewayBindings = {
     CLOUDFLARE_API_TOKEN?: string;
     CLOUDFLARE_ACCOUNT_ID?: string;
     CLOUDFLARE_AI_GATEWAY_BASE_URL?: string;
+    CLOUDFLARE_AI_GATEWAY_ID?: string;
     COHERE_API_KEY?: string;
     COHERE_BASE_URL?: string;
     CROFAI_API_KEY?: string;

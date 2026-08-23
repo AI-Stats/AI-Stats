@@ -1,0 +1,16 @@
+{
+  "organisation_id": "stealth",
+  "name": "Stealth",
+  "country_code": null,
+  "description": "Stealth is a placeholder organisation for models whose developer has not been publicly disclosed while they are being tested or released in stealth.",
+  "colour": null,
+  "organisation_links": [],
+  "status": "active",
+  "routable": null,
+  "sources": [],
+  "verification": {
+    "status": "unverified",
+    "checked_at": null,
+    "notes": "Stealth is a generic catalogue placeholder and does not represent a verified legal entity or specific model developer."
+  }
+}

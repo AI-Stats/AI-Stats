@@ -7,12 +7,12 @@ import gen "github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/v2/src/gen"
 
 // ModelIds contains known model IDs for editor autocomplete and hover docs.
 const (
-	// Model ID: ai21/jamba-large-1.7
-	// Model page: https://phaseo.app/models/ai21/jamba-large-1.7
-	ModelIDAi21JambaLarge17 gen.ModelId = "ai21/jamba-large-1.7"
-	// Model ID: ai21/jamba-mini-2
-	// Model page: https://phaseo.app/models/ai21/jamba-mini-2
-	ModelIDAi21JambaMini2 gen.ModelId = "ai21/jamba-mini-2"
+	// Model ID: ai21/jamba-1.5-large
+	// Model page: https://phaseo.app/models/ai21/jamba-1.5-large
+	ModelIDAi21Jamba15Large gen.ModelId = "ai21/jamba-1.5-large"
+	// Model ID: ai21/jamba-1.5-mini
+	// Model page: https://phaseo.app/models/ai21/jamba-1.5-mini
+	ModelIDAi21Jamba15Mini gen.ModelId = "ai21/jamba-1.5-mini"
 	// Model ID: aion-labs/aion-2.0
 	// Model page: https://phaseo.app/models/aion-labs/aion-2.0
 	ModelIDAionLabsAion20 gen.ModelId = "aion-labs/aion-2.0"
@@ -28,15 +28,42 @@ const (
 	// Model ID: allenai/molmo-2-8b
 	// Model page: https://phaseo.app/models/allenai/molmo-2-8b
 	ModelIDAllenaiMolmo28b gen.ModelId = "allenai/molmo-2-8b"
-	// Model ID: allenai/olmo-3.1-32b
-	// Model page: https://phaseo.app/models/allenai/olmo-3.1-32b
-	ModelIDAllenaiOlmo3132b gen.ModelId = "allenai/olmo-3.1-32b"
+	// Model ID: amazon/nova-2-lite
+	// Model page: https://phaseo.app/models/amazon/nova-2-lite
+	ModelIDAmazonNova2Lite gen.ModelId = "amazon/nova-2-lite"
+	// Model ID: amazon/nova-lite-1.0
+	// Model page: https://phaseo.app/models/amazon/nova-lite-1.0
+	ModelIDAmazonNovaLite10 gen.ModelId = "amazon/nova-lite-1.0"
+	// Model ID: amazon/nova-micro-1.0
+	// Model page: https://phaseo.app/models/amazon/nova-micro-1.0
+	ModelIDAmazonNovaMicro10 gen.ModelId = "amazon/nova-micro-1.0"
+	// Model ID: amazon/nova-premier
+	// Model page: https://phaseo.app/models/amazon/nova-premier
+	ModelIDAmazonNovaPremier gen.ModelId = "amazon/nova-premier"
+	// Model ID: amazon/nova-pro-1.0
+	// Model page: https://phaseo.app/models/amazon/nova-pro-1.0
+	ModelIDAmazonNovaPro10 gen.ModelId = "amazon/nova-pro-1.0"
+	// Model ID: anthropic/claude-3-haiku
+	// Model page: https://phaseo.app/models/anthropic/claude-3-haiku
+	ModelIDAnthropicClaude3Haiku gen.ModelId = "anthropic/claude-3-haiku"
+	// Model ID: anthropic/claude-3.5-haiku
+	// Model page: https://phaseo.app/models/anthropic/claude-3.5-haiku
+	ModelIDAnthropicClaude35Haiku gen.ModelId = "anthropic/claude-3.5-haiku"
+	// Model ID: anthropic/claude-3.7-sonnet
+	// Model page: https://phaseo.app/models/anthropic/claude-3.7-sonnet
+	ModelIDAnthropicClaude37Sonnet gen.ModelId = "anthropic/claude-3.7-sonnet"
 	// Model ID: anthropic/claude-fable-5
 	// Model page: https://phaseo.app/models/anthropic/claude-fable-5
 	ModelIDAnthropicClaudeFable5 gen.ModelId = "anthropic/claude-fable-5"
 	// Model ID: anthropic/claude-haiku-4.5
 	// Model page: https://phaseo.app/models/anthropic/claude-haiku-4.5
 	ModelIDAnthropicClaudeHaiku45 gen.ModelId = "anthropic/claude-haiku-4.5"
+	// Model ID: anthropic/claude-opus-4
+	// Model page: https://phaseo.app/models/anthropic/claude-opus-4
+	ModelIDAnthropicClaudeOpus4 gen.ModelId = "anthropic/claude-opus-4"
+	// Model ID: anthropic/claude-opus-4.1
+	// Model page: https://phaseo.app/models/anthropic/claude-opus-4.1
+	ModelIDAnthropicClaudeOpus41 gen.ModelId = "anthropic/claude-opus-4.1"
 	// Model ID: anthropic/claude-opus-4.5
 	// Model page: https://phaseo.app/models/anthropic/claude-opus-4.5
 	ModelIDAnthropicClaudeOpus45 gen.ModelId = "anthropic/claude-opus-4.5"
@@ -52,6 +79,9 @@ const (
 	// Model ID: anthropic/claude-opus-5
 	// Model page: https://phaseo.app/models/anthropic/claude-opus-5
 	ModelIDAnthropicClaudeOpus5 gen.ModelId = "anthropic/claude-opus-5"
+	// Model ID: anthropic/claude-sonnet-4
+	// Model page: https://phaseo.app/models/anthropic/claude-sonnet-4
+	ModelIDAnthropicClaudeSonnet4 gen.ModelId = "anthropic/claude-sonnet-4"
 	// Model ID: anthropic/claude-sonnet-4.5
 	// Model page: https://phaseo.app/models/anthropic/claude-sonnet-4.5
 	ModelIDAnthropicClaudeSonnet45 gen.ModelId = "anthropic/claude-sonnet-4.5"
@@ -172,9 +202,6 @@ const (
 	// Model ID: deepseek/deepseek-r1-0528
 	// Model page: https://phaseo.app/models/deepseek/deepseek-r1-0528
 	ModelIDDeepseekDeepseekR10528 gen.ModelId = "deepseek/deepseek-r1-0528"
-	// Model ID: deepseek/deepseek-r1-2025-05-28
-	// Model page: https://phaseo.app/models/deepseek/deepseek-r1-2025-05-28
-	ModelIDDeepseekDeepseekR120250528 gen.ModelId = "deepseek/deepseek-r1-2025-05-28"
 	// Model ID: deepseek/deepseek-r1-distill-llama-70b
 	// Model page: https://phaseo.app/models/deepseek/deepseek-r1-distill-llama-70b
 	ModelIDDeepseekDeepseekR1DistillLlama70b gen.ModelId = "deepseek/deepseek-r1-distill-llama-70b"
@@ -211,6 +238,9 @@ const (
 	// Model ID: deepseek/deepseek-v4-flash-0731
 	// Model page: https://phaseo.app/models/deepseek/deepseek-v4-flash-0731
 	ModelIDDeepseekDeepseekV4Flash0731 gen.ModelId = "deepseek/deepseek-v4-flash-0731"
+	// Model ID: deepseek/deepseek-v4-flash-vision-exp
+	// Model page: https://phaseo.app/models/deepseek/deepseek-v4-flash-vision-exp
+	ModelIDDeepseekDeepseekV4FlashVisionExp gen.ModelId = "deepseek/deepseek-v4-flash-vision-exp"
 	// Model ID: deepseek/deepseek-v4-pro
 	// Model page: https://phaseo.app/models/deepseek/deepseek-v4-pro
 	ModelIDDeepseekDeepseekV4Pro gen.ModelId = "deepseek/deepseek-v4-pro"
@@ -265,18 +295,12 @@ const (
 	// Model ID: google/gemini-3.1-flash-image
 	// Model page: https://phaseo.app/models/google/gemini-3.1-flash-image
 	ModelIDGoogleGemini31FlashImage gen.ModelId = "google/gemini-3.1-flash-image"
-	// Model ID: google/gemini-3.1-flash-image-preview
-	// Model page: https://phaseo.app/models/google/gemini-3.1-flash-image-preview
-	ModelIDGoogleGemini31FlashImagePreview gen.ModelId = "google/gemini-3.1-flash-image-preview"
 	// Model ID: google/gemini-3.1-flash-lite
 	// Model page: https://phaseo.app/models/google/gemini-3.1-flash-lite
 	ModelIDGoogleGemini31FlashLite gen.ModelId = "google/gemini-3.1-flash-lite"
 	// Model ID: google/gemini-3.1-flash-lite-image
 	// Model page: https://phaseo.app/models/google/gemini-3.1-flash-lite-image
 	ModelIDGoogleGemini31FlashLiteImage gen.ModelId = "google/gemini-3.1-flash-lite-image"
-	// Model ID: google/gemini-3.1-flash-lite-preview
-	// Model page: https://phaseo.app/models/google/gemini-3.1-flash-lite-preview
-	ModelIDGoogleGemini31FlashLitePreview gen.ModelId = "google/gemini-3.1-flash-lite-preview"
 	// Model ID: google/gemini-3.1-flash-live-preview
 	// Model page: https://phaseo.app/models/google/gemini-3.1-flash-live-preview
 	ModelIDGoogleGemini31FlashLivePreview gen.ModelId = "google/gemini-3.1-flash-live-preview"
@@ -307,18 +331,21 @@ const (
 	// Model ID: google/gemini-embedding-2
 	// Model page: https://phaseo.app/models/google/gemini-embedding-2
 	ModelIDGoogleGeminiEmbedding2 gen.ModelId = "google/gemini-embedding-2"
-	// Model ID: google/gemini-embedding-2-preview
-	// Model page: https://phaseo.app/models/google/gemini-embedding-2-preview
-	ModelIDGoogleGeminiEmbedding2Preview gen.ModelId = "google/gemini-embedding-2-preview"
 	// Model ID: google/gemini-robotics-er-1.6-preview
 	// Model page: https://phaseo.app/models/google/gemini-robotics-er-1.6-preview
 	ModelIDGoogleGeminiRoboticsEr16Preview gen.ModelId = "google/gemini-robotics-er-1.6-preview"
 	// Model ID: google/gemini-robotics-er-2-preview
 	// Model page: https://phaseo.app/models/google/gemini-robotics-er-2-preview
 	ModelIDGoogleGeminiRoboticsEr2Preview gen.ModelId = "google/gemini-robotics-er-2-preview"
+	// Model ID: google/gemma-3-12b
+	// Model page: https://phaseo.app/models/google/gemma-3-12b
+	ModelIDGoogleGemma312b gen.ModelId = "google/gemma-3-12b"
 	// Model ID: google/gemma-3-27b
 	// Model page: https://phaseo.app/models/google/gemma-3-27b
 	ModelIDGoogleGemma327b gen.ModelId = "google/gemma-3-27b"
+	// Model ID: google/gemma-3-4b
+	// Model page: https://phaseo.app/models/google/gemma-3-4b
+	ModelIDGoogleGemma34b gen.ModelId = "google/gemma-3-4b"
 	// Model ID: google/gemma-4-26b-a4b
 	// Model page: https://phaseo.app/models/google/gemma-4-26b-a4b
 	ModelIDGoogleGemma426bA4b gen.ModelId = "google/gemma-4-26b-a4b"
@@ -343,15 +370,15 @@ const (
 	// Model ID: google/lyria-3-pro-preview
 	// Model page: https://phaseo.app/models/google/lyria-3-pro-preview
 	ModelIDGoogleLyria3ProPreview gen.ModelId = "google/lyria-3-pro-preview"
-	// Model ID: google/veo-2
-	// Model page: https://phaseo.app/models/google/veo-2
-	ModelIDGoogleVeo2 gen.ModelId = "google/veo-2"
+	// Model ID: google/veo-3.1
+	// Model page: https://phaseo.app/models/google/veo-3.1
+	ModelIDGoogleVeo31 gen.ModelId = "google/veo-3.1"
+	// Model ID: google/veo-3.1-fast
+	// Model page: https://phaseo.app/models/google/veo-3.1-fast
+	ModelIDGoogleVeo31Fast gen.ModelId = "google/veo-3.1-fast"
 	// Model ID: google/veo-3.1-fast-preview
 	// Model page: https://phaseo.app/models/google/veo-3.1-fast-preview
 	ModelIDGoogleVeo31FastPreview gen.ModelId = "google/veo-3.1-fast-preview"
-	// Model ID: google/veo-3.1-lite-generate-preview
-	// Model page: https://phaseo.app/models/google/veo-3.1-lite-generate-preview
-	ModelIDGoogleVeo31LiteGeneratePreview gen.ModelId = "google/veo-3.1-lite-generate-preview"
 	// Model ID: google/veo-3.1-lite-preview
 	// Model page: https://phaseo.app/models/google/veo-3.1-lite-preview
 	ModelIDGoogleVeo31LitePreview gen.ModelId = "google/veo-3.1-lite-preview"
@@ -391,6 +418,9 @@ const (
 	// Model ID: inflection/inflection-3-productivity
 	// Model page: https://phaseo.app/models/inflection/inflection-3-productivity
 	ModelIDInflectionInflection3Productivity gen.ModelId = "inflection/inflection-3-productivity"
+	// Model ID: jetbrains/mellum2-12b-a2.5b
+	// Model page: https://phaseo.app/models/jetbrains/mellum2-12b-a2.5b
+	ModelIDJetbrainsMellum212bA25b gen.ModelId = "jetbrains/mellum2-12b-a2.5b"
 	// Model ID: kwaipilot/kat-coder-air-v2.5
 	// Model page: https://phaseo.app/models/kwaipilot/kat-coder-air-v2.5
 	ModelIDKwaipilotKatCoderAirV25 gen.ModelId = "kwaipilot/kat-coder-air-v2.5"
@@ -430,18 +460,12 @@ const (
 	// Model ID: meituan/longcat-2.0
 	// Model page: https://phaseo.app/models/meituan/longcat-2.0
 	ModelIDMeituanLongcat20 gen.ModelId = "meituan/longcat-2.0"
-	// Model ID: meta/llama-3-8b
-	// Model page: https://phaseo.app/models/meta/llama-3-8b
-	ModelIDMetaLlama38b gen.ModelId = "meta/llama-3-8b"
 	// Model ID: meta/llama-3.1-70b
 	// Model page: https://phaseo.app/models/meta/llama-3.1-70b
 	ModelIDMetaLlama3170b gen.ModelId = "meta/llama-3.1-70b"
 	// Model ID: meta/llama-3.1-8b
 	// Model page: https://phaseo.app/models/meta/llama-3.1-8b
 	ModelIDMetaLlama318b gen.ModelId = "meta/llama-3.1-8b"
-	// Model ID: meta/llama-3.2-11b-vision
-	// Model page: https://phaseo.app/models/meta/llama-3.2-11b-vision
-	ModelIDMetaLlama3211bVision gen.ModelId = "meta/llama-3.2-11b-vision"
 	// Model ID: meta/llama-3.2-3b
 	// Model page: https://phaseo.app/models/meta/llama-3.2-3b
 	ModelIDMetaLlama323b gen.ModelId = "meta/llama-3.2-3b"
@@ -472,9 +496,6 @@ const (
 	// Model ID: microsoft/phi-4
 	// Model page: https://phaseo.app/models/microsoft/phi-4
 	ModelIDMicrosoftPhi4 gen.ModelId = "microsoft/phi-4"
-	// Model ID: microsoft/phi-4-mini
-	// Model page: https://phaseo.app/models/microsoft/phi-4-mini
-	ModelIDMicrosoftPhi4Mini gen.ModelId = "microsoft/phi-4-mini"
 	// Model ID: microsoft/wizardlm-2-8x22b
 	// Model page: https://phaseo.app/models/microsoft/wizardlm-2-8x22b
 	ModelIDMicrosoftWizardlm28x22b gen.ModelId = "microsoft/wizardlm-2-8x22b"
@@ -547,6 +568,9 @@ const (
 	// Model ID: mistral/devstral-2
 	// Model page: https://phaseo.app/models/mistral/devstral-2
 	ModelIDMistralDevstral2 gen.ModelId = "mistral/devstral-2"
+	// Model ID: mistral/devstral-2.0
+	// Model page: https://phaseo.app/models/mistral/devstral-2.0
+	ModelIDMistralDevstral20 gen.ModelId = "mistral/devstral-2.0"
 	// Model ID: mistral/devstral-medium-1.0
 	// Model page: https://phaseo.app/models/mistral/devstral-medium-1.0
 	ModelIDMistralDevstralMedium10 gen.ModelId = "mistral/devstral-medium-1.0"
@@ -559,6 +583,9 @@ const (
 	// Model ID: mistral/magistral-medium-1.2
 	// Model page: https://phaseo.app/models/mistral/magistral-medium-1.2
 	ModelIDMistralMagistralMedium12 gen.ModelId = "mistral/magistral-medium-1.2"
+	// Model ID: mistral/magistral-small-1.2
+	// Model page: https://phaseo.app/models/mistral/magistral-small-1.2
+	ModelIDMistralMagistralSmall12 gen.ModelId = "mistral/magistral-small-1.2"
 	// Model ID: mistral/ministral-3-14b
 	// Model page: https://phaseo.app/models/mistral/ministral-3-14b
 	ModelIDMistralMinistral314b gen.ModelId = "mistral/ministral-3-14b"
@@ -568,6 +595,15 @@ const (
 	// Model ID: mistral/ministral-3-8b
 	// Model page: https://phaseo.app/models/mistral/ministral-3-8b
 	ModelIDMistralMinistral38b gen.ModelId = "mistral/ministral-3-8b"
+	// Model ID: mistral/ministral-3.0-14b
+	// Model page: https://phaseo.app/models/mistral/ministral-3.0-14b
+	ModelIDMistralMinistral3014b gen.ModelId = "mistral/ministral-3.0-14b"
+	// Model ID: mistral/ministral-3.0-3b
+	// Model page: https://phaseo.app/models/mistral/ministral-3.0-3b
+	ModelIDMistralMinistral303b gen.ModelId = "mistral/ministral-3.0-3b"
+	// Model ID: mistral/ministral-3.0-8b
+	// Model page: https://phaseo.app/models/mistral/ministral-3.0-8b
+	ModelIDMistralMinistral308b gen.ModelId = "mistral/ministral-3.0-8b"
 	// Model ID: mistral/mistral-embed
 	// Model page: https://phaseo.app/models/mistral/mistral-embed
 	ModelIDMistralMistralEmbed gen.ModelId = "mistral/mistral-embed"
@@ -577,6 +613,9 @@ const (
 	// Model ID: mistral/mistral-large-3
 	// Model page: https://phaseo.app/models/mistral/mistral-large-3
 	ModelIDMistralMistralLarge3 gen.ModelId = "mistral/mistral-large-3"
+	// Model ID: mistral/mistral-large-3.0
+	// Model page: https://phaseo.app/models/mistral/mistral-large-3.0
+	ModelIDMistralMistralLarge30 gen.ModelId = "mistral/mistral-large-3.0"
 	// Model ID: mistral/mistral-medium-3.0
 	// Model page: https://phaseo.app/models/mistral/mistral-medium-3.0
 	ModelIDMistralMistralMedium30 gen.ModelId = "mistral/mistral-medium-3.0"
@@ -607,9 +646,6 @@ const (
 	// Model ID: mistral/mistral-small-4
 	// Model page: https://phaseo.app/models/mistral/mistral-small-4
 	ModelIDMistralMistralSmall4 gen.ModelId = "mistral/mistral-small-4"
-	// Model ID: mistral/mixtral-8x7b
-	// Model page: https://phaseo.app/models/mistral/mixtral-8x7b
-	ModelIDMistralMixtral8x7b gen.ModelId = "mistral/mixtral-8x7b"
 	// Model ID: mistral/ocr-3
 	// Model page: https://phaseo.app/models/mistral/ocr-3
 	ModelIDMistralOcr3 gen.ModelId = "mistral/ocr-3"
@@ -622,9 +658,15 @@ const (
 	// Model ID: mistral/pixtral-large
 	// Model page: https://phaseo.app/models/mistral/pixtral-large
 	ModelIDMistralPixtralLarge gen.ModelId = "mistral/pixtral-large"
+	// Model ID: mistral/voxtral-mini
+	// Model page: https://phaseo.app/models/mistral/voxtral-mini
+	ModelIDMistralVoxtralMini gen.ModelId = "mistral/voxtral-mini"
 	// Model ID: mistral/voxtral-mini-transcribe-2
 	// Model page: https://phaseo.app/models/mistral/voxtral-mini-transcribe-2
 	ModelIDMistralVoxtralMiniTranscribe2 gen.ModelId = "mistral/voxtral-mini-transcribe-2"
+	// Model ID: mistral/voxtral-small
+	// Model page: https://phaseo.app/models/mistral/voxtral-small
+	ModelIDMistralVoxtralSmall gen.ModelId = "mistral/voxtral-small"
 	// Model ID: moonshotai/kimi-k2
 	// Model page: https://phaseo.app/models/moonshotai/kimi-k2
 	ModelIDMoonshotaiKimiK2 gen.ModelId = "moonshotai/kimi-k2"
@@ -703,15 +745,9 @@ const (
 	// Model ID: nvidia/cosmos3-super-reasoner
 	// Model page: https://phaseo.app/models/nvidia/cosmos3-super-reasoner
 	ModelIDNvidiaCosmos3SuperReasoner gen.ModelId = "nvidia/cosmos3-super-reasoner"
-	// Model ID: nvidia/llama-3.1-nemotron-70b-instruct
-	// Model page: https://phaseo.app/models/nvidia/llama-3.1-nemotron-70b-instruct
-	ModelIDNvidiaLlama31Nemotron70bInstruct gen.ModelId = "nvidia/llama-3.1-nemotron-70b-instruct"
 	// Model ID: nvidia/llama-3.1-nemotron-ultra-253b
 	// Model page: https://phaseo.app/models/nvidia/llama-3.1-nemotron-ultra-253b
 	ModelIDNvidiaLlama31NemotronUltra253b gen.ModelId = "nvidia/llama-3.1-nemotron-ultra-253b"
-	// Model ID: nvidia/llama-3.3-nemotron-super-49b-v1.5
-	// Model page: https://phaseo.app/models/nvidia/llama-3.3-nemotron-super-49b-v1.5
-	ModelIDNvidiaLlama33NemotronSuper49bV15 gen.ModelId = "nvidia/llama-3.3-nemotron-super-49b-v1.5"
 	// Model ID: nvidia/nemotron-3-nano-30b-a3b
 	// Model page: https://phaseo.app/models/nvidia/nemotron-3-nano-30b-a3b
 	ModelIDNvidiaNemotron3Nano30bA3b gen.ModelId = "nvidia/nemotron-3-nano-30b-a3b"
@@ -730,6 +766,9 @@ const (
 	// Model ID: nvidia/nemotron-3.5-lightning
 	// Model page: https://phaseo.app/models/nvidia/nemotron-3.5-lightning
 	ModelIDNvidiaNemotron35Lightning gen.ModelId = "nvidia/nemotron-3.5-lightning"
+	// Model ID: nvidia/nemotron-nano-9b-v2
+	// Model page: https://phaseo.app/models/nvidia/nemotron-nano-9b-v2
+	ModelIDNvidiaNemotronNano9bV2 gen.ModelId = "nvidia/nemotron-nano-9b-v2"
 	// Model ID: nvidia/nvidia-nemotron-3-nano-30b-a3b
 	// Model page: https://phaseo.app/models/nvidia/nvidia-nemotron-3-nano-30b-a3b
 	ModelIDNvidiaNvidiaNemotron3Nano30bA3b gen.ModelId = "nvidia/nvidia-nemotron-3-nano-30b-a3b"
@@ -766,6 +805,9 @@ const (
 	// Model ID: openai/gpt-4.1-nano
 	// Model page: https://phaseo.app/models/openai/gpt-4.1-nano
 	ModelIDOpenaiGpt41Nano gen.ModelId = "openai/gpt-4.1-nano"
+	// Model ID: openai/gpt-4o
+	// Model page: https://phaseo.app/models/openai/gpt-4o
+	ModelIDOpenaiGpt4o gen.ModelId = "openai/gpt-4o"
 	// Model ID: openai/gpt-4o-2024-05-13
 	// Model page: https://phaseo.app/models/openai/gpt-4o-2024-05-13
 	ModelIDOpenaiGpt4o20240513 gen.ModelId = "openai/gpt-4o-2024-05-13"
@@ -868,6 +910,9 @@ const (
 	// Model ID: openai/gpt-oss-20b
 	// Model page: https://phaseo.app/models/openai/gpt-oss-20b
 	ModelIDOpenaiGptOss20b gen.ModelId = "openai/gpt-oss-20b"
+	// Model ID: openai/gpt-oss-safeguard-120b
+	// Model page: https://phaseo.app/models/openai/gpt-oss-safeguard-120b
+	ModelIDOpenaiGptOssSafeguard120b gen.ModelId = "openai/gpt-oss-safeguard-120b"
 	// Model ID: openai/gpt-oss-safeguard-20b
 	// Model page: https://phaseo.app/models/openai/gpt-oss-safeguard-20b
 	ModelIDOpenaiGptOssSafeguard20b gen.ModelId = "openai/gpt-oss-safeguard-20b"
@@ -955,9 +1000,6 @@ const (
 	// Model ID: qwen/qvq-max
 	// Model page: https://phaseo.app/models/qwen/qvq-max
 	ModelIDQwenQvqMax gen.ModelId = "qwen/qvq-max"
-	// Model ID: qwen/qwen-3.6-plus
-	// Model page: https://phaseo.app/models/qwen/qwen-3.6-plus
-	ModelIDQwenQwen36Plus gen.ModelId = "qwen/qwen-3.6-plus"
 	// Model ID: qwen/qwen-flash
 	// Model page: https://phaseo.app/models/qwen/qwen-flash
 	ModelIDQwenQwenFlash gen.ModelId = "qwen/qwen-flash"
@@ -1123,6 +1165,9 @@ const (
 	// Model ID: qwen/qwen3-coder-plus-2025-09-23
 	// Model page: https://phaseo.app/models/qwen/qwen3-coder-plus-2025-09-23
 	ModelIDQwenQwen3CoderPlus20250923 gen.ModelId = "qwen/qwen3-coder-plus-2025-09-23"
+	// Model ID: qwen/qwen3-embedding-0.6b
+	// Model page: https://phaseo.app/models/qwen/qwen3-embedding-0.6b
+	ModelIDQwenQwen3Embedding06b gen.ModelId = "qwen/qwen3-embedding-0.6b"
 	// Model ID: qwen/qwen3-embedding-8b
 	// Model page: https://phaseo.app/models/qwen/qwen3-embedding-8b
 	ModelIDQwenQwen3Embedding8b gen.ModelId = "qwen/qwen3-embedding-8b"
@@ -1225,9 +1270,6 @@ const (
 	// Model ID: qwen/qwen3.5-397b-a17b
 	// Model page: https://phaseo.app/models/qwen/qwen3.5-397b-a17b
 	ModelIDQwenQwen35397bA17b gen.ModelId = "qwen/qwen3.5-397b-a17b"
-	// Model ID: qwen/qwen3.5-4b
-	// Model page: https://phaseo.app/models/qwen/qwen3.5-4b
-	ModelIDQwenQwen354b gen.ModelId = "qwen/qwen3.5-4b"
 	// Model ID: qwen/qwen3.5-9b
 	// Model page: https://phaseo.app/models/qwen/qwen3.5-9b
 	ModelIDQwenQwen359b gen.ModelId = "qwen/qwen3.5-9b"
@@ -1249,12 +1291,15 @@ const (
 	// Model ID: qwen/qwen3.6-35b-a3b
 	// Model page: https://phaseo.app/models/qwen/qwen3.6-35b-a3b
 	ModelIDQwenQwen3635bA3b gen.ModelId = "qwen/qwen3.6-35b-a3b"
+	// Model ID: qwen/qwen3.6-flash
+	// Model page: https://phaseo.app/models/qwen/qwen3.6-flash
+	ModelIDQwenQwen36Flash gen.ModelId = "qwen/qwen3.6-flash"
 	// Model ID: qwen/qwen3.6-max-preview
 	// Model page: https://phaseo.app/models/qwen/qwen3.6-max-preview
 	ModelIDQwenQwen36MaxPreview gen.ModelId = "qwen/qwen3.6-max-preview"
 	// Model ID: qwen/qwen3.6-plus
 	// Model page: https://phaseo.app/models/qwen/qwen3.6-plus
-	ModelIDQwenQwen36Plus_2 gen.ModelId = "qwen/qwen3.6-plus"
+	ModelIDQwenQwen36Plus gen.ModelId = "qwen/qwen3.6-plus"
 	// Model ID: qwen/qwen3.7-max
 	// Model page: https://phaseo.app/models/qwen/qwen3.7-max
 	ModelIDQwenQwen37Max gen.ModelId = "qwen/qwen3.7-max"
@@ -1321,9 +1366,12 @@ const (
 	// Model ID: sao10k/l31-70b-euryale-v2.2
 	// Model page: https://phaseo.app/models/sao10k/l31-70b-euryale-v2.2
 	ModelIDSao10kL3170bEuryaleV22 gen.ModelId = "sao10k/l31-70b-euryale-v2.2"
-	// Model ID: spacex-ai/grok-4.20-beta-0309
-	// Model page: https://phaseo.app/models/spacex-ai/grok-4.20-beta-0309
-	ModelIDSpacexAiGrok420Beta0309 gen.ModelId = "spacex-ai/grok-4.20-beta-0309"
+	// Model ID: spacex-ai/grok-4.20
+	// Model page: https://phaseo.app/models/spacex-ai/grok-4.20
+	ModelIDSpacexAiGrok420 gen.ModelId = "spacex-ai/grok-4.20"
+	// Model ID: spacex-ai/grok-4.20-multi-agent-beta
+	// Model page: https://phaseo.app/models/spacex-ai/grok-4.20-multi-agent-beta
+	ModelIDSpacexAiGrok420MultiAgentBeta gen.ModelId = "spacex-ai/grok-4.20-multi-agent-beta"
 	// Model ID: spacex-ai/grok-4.20-multi-agent-beta-0309
 	// Model page: https://phaseo.app/models/spacex-ai/grok-4.20-multi-agent-beta-0309
 	ModelIDSpacexAiGrok420MultiAgentBeta0309 gen.ModelId = "spacex-ai/grok-4.20-multi-agent-beta-0309"
@@ -1339,9 +1387,6 @@ const (
 	// Model ID: spacex-ai/grok-build-0.1
 	// Model page: https://phaseo.app/models/spacex-ai/grok-build-0.1
 	ModelIDSpacexAiGrokBuild01 gen.ModelId = "spacex-ai/grok-build-0.1"
-	// Model ID: spacex-ai/grok-code-fast-1
-	// Model page: https://phaseo.app/models/spacex-ai/grok-code-fast-1
-	ModelIDSpacexAiGrokCodeFast1 gen.ModelId = "spacex-ai/grok-code-fast-1"
 	// Model ID: spacex-ai/grok-imagine-image
 	// Model page: https://phaseo.app/models/spacex-ai/grok-imagine-image
 	ModelIDSpacexAiGrokImagineImage gen.ModelId = "spacex-ai/grok-imagine-image"
@@ -1357,6 +1402,9 @@ const (
 	// Model ID: spacex-ai/grok-tts
 	// Model page: https://phaseo.app/models/spacex-ai/grok-tts
 	ModelIDSpacexAiGrokTts gen.ModelId = "spacex-ai/grok-tts"
+	// Model ID: stealth/ox-alpha
+	// Model page: https://phaseo.app/models/stealth/ox-alpha
+	ModelIDStealthOxAlpha gen.ModelId = "stealth/ox-alpha"
 	// Model ID: stepfun/step-3.5-flash
 	// Model page: https://phaseo.app/models/stepfun/step-3.5-flash
 	ModelIDStepfunStep35Flash gen.ModelId = "stepfun/step-3.5-flash"
@@ -1393,12 +1441,15 @@ const (
 	// Model ID: upstage/solar-pro-4
 	// Model page: https://phaseo.app/models/upstage/solar-pro-4
 	ModelIDUpstageSolarPro4 gen.ModelId = "upstage/solar-pro-4"
-	// Model ID: venice/venice-uncensored
-	// Model page: https://phaseo.app/models/venice/venice-uncensored
-	ModelIDVeniceVeniceUncensored gen.ModelId = "venice/venice-uncensored"
-	// Model ID: venice/venice-uncensored-1.1
-	// Model page: https://phaseo.app/models/venice/venice-uncensored-1.1
-	ModelIDVeniceVeniceUncensored11 gen.ModelId = "venice/venice-uncensored-1.1"
+	// Model ID: venice/gemma-4-uncensored
+	// Model page: https://phaseo.app/models/venice/gemma-4-uncensored
+	ModelIDVeniceGemma4Uncensored gen.ModelId = "venice/gemma-4-uncensored"
+	// Model ID: venice/venice-role-play-uncensored
+	// Model page: https://phaseo.app/models/venice/venice-role-play-uncensored
+	ModelIDVeniceVeniceRolePlayUncensored gen.ModelId = "venice/venice-role-play-uncensored"
+	// Model ID: venice/venice-uncensored-1.2
+	// Model page: https://phaseo.app/models/venice/venice-uncensored-1.2
+	ModelIDVeniceVeniceUncensored12 gen.ModelId = "venice/venice-uncensored-1.2"
 	// Model ID: voyage/rerank-1
 	// Model page: https://phaseo.app/models/voyage/rerank-1
 	ModelIDVoyageRerank1 gen.ModelId = "voyage/rerank-1"
@@ -1531,6 +1582,9 @@ const (
 	// Model ID: z-ai/glm-4.7-flash
 	// Model page: https://phaseo.app/models/z-ai/glm-4.7-flash
 	ModelIDZAiGlm47Flash gen.ModelId = "z-ai/glm-4.7-flash"
+	// Model ID: z-ai/glm-4.7-flash-heretic
+	// Model page: https://phaseo.app/models/z-ai/glm-4.7-flash-heretic
+	ModelIDZAiGlm47FlashHeretic gen.ModelId = "z-ai/glm-4.7-flash-heretic"
 	// Model ID: z-ai/glm-5
 	// Model page: https://phaseo.app/models/z-ai/glm-5
 	ModelIDZAiGlm5 gen.ModelId = "z-ai/glm-5"
@@ -1560,21 +1614,31 @@ const (
 )
 
 var KnownModelIDs = []gen.ModelId{
-	ModelIDAi21JambaLarge17,
-	ModelIDAi21JambaMini2,
+	ModelIDAi21Jamba15Large,
+	ModelIDAi21Jamba15Mini,
 	ModelIDAionLabsAion20,
 	ModelIDAionLabsAion30,
 	ModelIDAionLabsAion30Mini,
 	ModelIDAionLabsAionRpLlama318b,
 	ModelIDAllenaiMolmo28b,
-	ModelIDAllenaiOlmo3132b,
+	ModelIDAmazonNova2Lite,
+	ModelIDAmazonNovaLite10,
+	ModelIDAmazonNovaMicro10,
+	ModelIDAmazonNovaPremier,
+	ModelIDAmazonNovaPro10,
+	ModelIDAnthropicClaude3Haiku,
+	ModelIDAnthropicClaude35Haiku,
+	ModelIDAnthropicClaude37Sonnet,
 	ModelIDAnthropicClaudeFable5,
 	ModelIDAnthropicClaudeHaiku45,
+	ModelIDAnthropicClaudeOpus4,
+	ModelIDAnthropicClaudeOpus41,
 	ModelIDAnthropicClaudeOpus45,
 	ModelIDAnthropicClaudeOpus46,
 	ModelIDAnthropicClaudeOpus47,
 	ModelIDAnthropicClaudeOpus48,
 	ModelIDAnthropicClaudeOpus5,
+	ModelIDAnthropicClaudeSonnet4,
 	ModelIDAnthropicClaudeSonnet45,
 	ModelIDAnthropicClaudeSonnet46,
 	ModelIDAnthropicClaudeSonnet5,
@@ -1615,7 +1679,6 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDDeepseekDeepseekOcr2,
 	ModelIDDeepseekDeepseekR1,
 	ModelIDDeepseekDeepseekR10528,
-	ModelIDDeepseekDeepseekR120250528,
 	ModelIDDeepseekDeepseekR1DistillLlama70b,
 	ModelIDDeepseekDeepseekR1Turbo,
 	ModelIDDeepseekDeepseekV3,
@@ -1628,6 +1691,7 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDDeepseekDeepseekV32Speciale,
 	ModelIDDeepseekDeepseekV4Flash,
 	ModelIDDeepseekDeepseekV4Flash0731,
+	ModelIDDeepseekDeepseekV4FlashVisionExp,
 	ModelIDDeepseekDeepseekV4Pro,
 	ModelIDDeepseekDeepseekV4Pro0813,
 	ModelIDElevenLabsElevenFlashV2,
@@ -1646,10 +1710,8 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDGoogleGemini3FlashPreview,
 	ModelIDGoogleGemini3ProImage,
 	ModelIDGoogleGemini31FlashImage,
-	ModelIDGoogleGemini31FlashImagePreview,
 	ModelIDGoogleGemini31FlashLite,
 	ModelIDGoogleGemini31FlashLiteImage,
-	ModelIDGoogleGemini31FlashLitePreview,
 	ModelIDGoogleGemini31FlashLivePreview,
 	ModelIDGoogleGemini31FlashTtsPreview,
 	ModelIDGoogleGemini31ProPreview,
@@ -1660,10 +1722,11 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDGoogleGemini37Flash,
 	ModelIDGoogleGeminiEmbedding001,
 	ModelIDGoogleGeminiEmbedding2,
-	ModelIDGoogleGeminiEmbedding2Preview,
 	ModelIDGoogleGeminiRoboticsEr16Preview,
 	ModelIDGoogleGeminiRoboticsEr2Preview,
+	ModelIDGoogleGemma312b,
 	ModelIDGoogleGemma327b,
+	ModelIDGoogleGemma34b,
 	ModelIDGoogleGemma426bA4b,
 	ModelIDGoogleGemma426bA4bFree,
 	ModelIDGoogleGemma431b,
@@ -1672,9 +1735,9 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDGoogleImagen40Preview,
 	ModelIDGoogleLyria3ClipPreview,
 	ModelIDGoogleLyria3ProPreview,
-	ModelIDGoogleVeo2,
+	ModelIDGoogleVeo31,
+	ModelIDGoogleVeo31Fast,
 	ModelIDGoogleVeo31FastPreview,
-	ModelIDGoogleVeo31LiteGeneratePreview,
 	ModelIDGoogleVeo31LitePreview,
 	ModelIDGoogleVeo31Preview,
 	ModelIDIbmGranite418b,
@@ -1688,6 +1751,7 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDInclusionaiRingFlash20,
 	ModelIDInflectionInflection3Pi,
 	ModelIDInflectionInflection3Productivity,
+	ModelIDJetbrainsMellum212bA25b,
 	ModelIDKwaipilotKatCoderAirV25,
 	ModelIDKwaipilotKatCoderExp72b1010,
 	ModelIDKwaipilotKatCoderPro,
@@ -1701,10 +1765,8 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDLtx25Fast,
 	ModelIDLtx25Pro,
 	ModelIDMeituanLongcat20,
-	ModelIDMetaLlama38b,
 	ModelIDMetaLlama3170b,
 	ModelIDMetaLlama318b,
-	ModelIDMetaLlama3211bVision,
 	ModelIDMetaLlama323b,
 	ModelIDMetaLlama3370b,
 	ModelIDMetaLlama4Maverick,
@@ -1715,7 +1777,6 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDMetaMuseGlimmer30b,
 	ModelIDMetaMuseSpark12,
 	ModelIDMicrosoftPhi4,
-	ModelIDMicrosoftPhi4Mini,
 	ModelIDMicrosoftWizardlm28x22b,
 	ModelIDMindaiMacaronV1Tall,
 	ModelIDMindaiMacaronV1Venti,
@@ -1740,16 +1801,22 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDMistralCodestral,
 	ModelIDMistralCodestralEmbed,
 	ModelIDMistralDevstral2,
+	ModelIDMistralDevstral20,
 	ModelIDMistralDevstralMedium10,
 	ModelIDMistralDevstralSmall11,
 	ModelIDMistralLeanstral15Free,
 	ModelIDMistralMagistralMedium12,
+	ModelIDMistralMagistralSmall12,
 	ModelIDMistralMinistral314b,
 	ModelIDMistralMinistral33b,
 	ModelIDMistralMinistral38b,
+	ModelIDMistralMinistral3014b,
+	ModelIDMistralMinistral303b,
+	ModelIDMistralMinistral308b,
 	ModelIDMistralMistralEmbed,
 	ModelIDMistralMistralLarge21,
 	ModelIDMistralMistralLarge3,
+	ModelIDMistralMistralLarge30,
 	ModelIDMistralMistralMedium30,
 	ModelIDMistralMistralMedium31,
 	ModelIDMistralMistralMedium35,
@@ -1760,12 +1827,13 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDMistralMistralSmall24b2501,
 	ModelIDMistralMistralSmall32,
 	ModelIDMistralMistralSmall4,
-	ModelIDMistralMixtral8x7b,
 	ModelIDMistralOcr3,
 	ModelIDMistralOcr4,
 	ModelIDMistralOcr41,
 	ModelIDMistralPixtralLarge,
+	ModelIDMistralVoxtralMini,
 	ModelIDMistralVoxtralMiniTranscribe2,
+	ModelIDMistralVoxtralSmall,
 	ModelIDMoonshotaiKimiK2,
 	ModelIDMoonshotaiKimiK20905,
 	ModelIDMoonshotaiKimiK2Instruct,
@@ -1792,15 +1860,14 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDNousresearchHermes4405b,
 	ModelIDNousresearchHermes470b,
 	ModelIDNvidiaCosmos3SuperReasoner,
-	ModelIDNvidiaLlama31Nemotron70bInstruct,
 	ModelIDNvidiaLlama31NemotronUltra253b,
-	ModelIDNvidiaLlama33NemotronSuper49bV15,
 	ModelIDNvidiaNemotron3Nano30bA3b,
 	ModelIDNvidiaNemotron3NanoOmni,
 	ModelIDNvidiaNemotron3NanoOmni30bA3bReasoning,
 	ModelIDNvidiaNemotron3Super120bA12b,
 	ModelIDNvidiaNemotron3Ultra550bA55b,
 	ModelIDNvidiaNemotron35Lightning,
+	ModelIDNvidiaNemotronNano9bV2,
 	ModelIDNvidiaNvidiaNemotron3Nano30bA3b,
 	ModelIDNvidiaNvidiaNemotronNano12bV2Vl,
 	ModelIDOpenaiBabbage002,
@@ -1813,6 +1880,7 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDOpenaiGpt41,
 	ModelIDOpenaiGpt41Mini,
 	ModelIDOpenaiGpt41Nano,
+	ModelIDOpenaiGpt4o,
 	ModelIDOpenaiGpt4o20240513,
 	ModelIDOpenaiGpt4o20240806,
 	ModelIDOpenaiGpt4o20241120,
@@ -1847,6 +1915,7 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDOpenaiGptImage2,
 	ModelIDOpenaiGptOss120b,
 	ModelIDOpenaiGptOss20b,
+	ModelIDOpenaiGptOssSafeguard120b,
 	ModelIDOpenaiGptOssSafeguard20b,
 	ModelIDOpenaiGptRealtime,
 	ModelIDOpenaiGptRealtime15,
@@ -1876,7 +1945,6 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDPoolsideLagunaXs21Free,
 	ModelIDPrismMlTernaryBonsai27b,
 	ModelIDQwenQvqMax,
-	ModelIDQwenQwen36Plus,
 	ModelIDQwenQwenFlash,
 	ModelIDQwenQwenFlashCharacter,
 	ModelIDQwenQwenImage,
@@ -1932,6 +2000,7 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDQwenQwen3CoderNext,
 	ModelIDQwenQwen3CoderPlus20250722,
 	ModelIDQwenQwen3CoderPlus20250923,
+	ModelIDQwenQwen3Embedding06b,
 	ModelIDQwenQwen3Embedding8b,
 	ModelIDQwenQwen3GuardGen06b,
 	ModelIDQwenQwen3GuardGen8b,
@@ -1966,7 +2035,6 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDQwenQwen3527b,
 	ModelIDQwenQwen3535bA3b,
 	ModelIDQwenQwen35397bA17b,
-	ModelIDQwenQwen354b,
 	ModelIDQwenQwen359b,
 	ModelIDQwenQwen35Flash,
 	ModelIDQwenQwen35LivetranslateFlashRealtime20260519,
@@ -1974,8 +2042,9 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDQwenQwen35Plus20260420,
 	ModelIDQwenQwen3627b,
 	ModelIDQwenQwen3635bA3b,
+	ModelIDQwenQwen36Flash,
 	ModelIDQwenQwen36MaxPreview,
-	ModelIDQwenQwen36Plus_2,
+	ModelIDQwenQwen36Plus,
 	ModelIDQwenQwen37Max,
 	ModelIDQwenQwen37Max20260517,
 	ModelIDQwenQwen37Plus,
@@ -1998,18 +2067,19 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDSao10kL38bLunaris,
 	ModelIDSao10kL38bSthenoV32,
 	ModelIDSao10kL3170bEuryaleV22,
-	ModelIDSpacexAiGrok420Beta0309,
+	ModelIDSpacexAiGrok420,
+	ModelIDSpacexAiGrok420MultiAgentBeta,
 	ModelIDSpacexAiGrok420MultiAgentBeta0309,
 	ModelIDSpacexAiGrok43,
 	ModelIDSpacexAiGrok45,
 	ModelIDSpacexAiGrok46,
 	ModelIDSpacexAiGrokBuild01,
-	ModelIDSpacexAiGrokCodeFast1,
 	ModelIDSpacexAiGrokImagineImage,
 	ModelIDSpacexAiGrokImagineImage20,
 	ModelIDSpacexAiGrokImagineImageQuality,
 	ModelIDSpacexAiGrokTranscribe,
 	ModelIDSpacexAiGrokTts,
+	ModelIDStealthOxAlpha,
 	ModelIDStepfunStep35Flash,
 	ModelIDStepfunStep37Flash,
 	ModelIDTencentHunyuanA13bInstruct,
@@ -2022,8 +2092,9 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDUpstageSolarPro2,
 	ModelIDUpstageSolarPro3,
 	ModelIDUpstageSolarPro4,
-	ModelIDVeniceVeniceUncensored,
-	ModelIDVeniceVeniceUncensored11,
+	ModelIDVeniceGemma4Uncensored,
+	ModelIDVeniceVeniceRolePlayUncensored,
+	ModelIDVeniceVeniceUncensored12,
 	ModelIDVoyageRerank1,
 	ModelIDVoyageRerank2,
 	ModelIDVoyageRerank2Lite,
@@ -2068,6 +2139,7 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDZAiGlm46vFlash,
 	ModelIDZAiGlm47,
 	ModelIDZAiGlm47Flash,
+	ModelIDZAiGlm47FlashHeretic,
 	ModelIDZAiGlm5,
 	ModelIDZAiGlm5Turbo,
 	ModelIDZAiGlm51,

@@ -91,15 +91,6 @@ function singleUnconditionalPerMillion(pricings: unknown): number | null {
 	return asNumber(asRecord(candidates[0])?.value);
 }
 
-function nanoGptPricing(pricing: JsonRecord): NormalizedProviderPricing | null {
-	const cacheRead = asNumber(pricing.cacheReadInputPer1kTokens);
-	return fromMeters({
-		input_text_tokens: asNumber(pricing.prompt),
-		cached_read_text_tokens: cacheRead === null ? null : Math.round(cacheRead * 1_000 * 1_000_000_000) / 1_000_000_000,
-		output_text_tokens: asNumber(pricing.completion),
-	});
-}
-
 function zenmuxPricing(pricings: JsonRecord): NormalizedProviderPricing | null {
 	return fromMeters({
 		input_text_tokens: singleUnconditionalPerMillion(pricings.prompt),
@@ -114,7 +105,6 @@ export function normalizeProviderModelPricing(providerId: string, modelDetails: 
 
 	switch (providerId) {
 		case "ambient":
-		case "kilo":
 		case "llmgateway":
 		case "orcarouter":
 		case "openrouter":
@@ -125,10 +115,6 @@ export function normalizeProviderModelPricing(providerId: string, modelDetails: 
 		case "vercel": {
 			const pricing = asRecord(model.pricing);
 			return pricing ? promptCompletionPricing(pricing, true) : null;
-		}
-		case "nano-gpt": {
-			const pricing = asRecord(model.pricing);
-			return pricing ? nanoGptPricing(pricing) : null;
 		}
 		case "fastrouter":
 		case "poe": {

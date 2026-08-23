@@ -4,7 +4,7 @@
 
 import { computeBill } from "@pipeline/pricing/engine";
 import type { PriceCard } from "@pipeline/pricing/types";
-import { buildVideoPricingRequestOptions } from "@core/video-request-options";
+import { buildVideoPricingRequestOptions, resolveVideoOutputCount } from "@core/video-request-options";
 
 const DEFAULT_VIDEO_FRAME_RATE = 24;
 const SEEDANCE_MIN_TOKENS_480P: Record<number, number> = {
@@ -376,7 +376,7 @@ export function computeVideoPricedUsage(args: {
 		normalizeLegacyResolutionCase: true,
 	});
 	priced = computeBill(
-		{ output_video: 1 },
+		{ output_video: resolveVideoOutputCount(args.requestOptions ?? {}) },
 		args.card,
 		legacyContext,
 	);

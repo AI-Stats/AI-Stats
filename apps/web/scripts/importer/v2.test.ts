@@ -319,6 +319,20 @@ describe("v2PricingMeterMetadata", () => {
 });
 
 describe("preflightV2Models", () => {
+    it("accepts a canonical stealth model without a legacy alias", () => {
+        const model = {
+            model_id: "stealth/ox-alpha",
+            organisation_id: "stealth",
+            name: "Stealth Ox Alpha",
+        };
+
+        const result = preflightV2Models([model], new Map());
+
+        expect(result.models).toEqual([model]);
+        expect(result.modelSlugAliases.size).toBe(0);
+        expect(result.issues).toEqual([]);
+    });
+
     it("canonicalizes authored legacy aliases without mutating the legacy row", () => {
         const legacyRow = {
             model_id: "nousresearch/hermes-3-llama-3.1-405b",

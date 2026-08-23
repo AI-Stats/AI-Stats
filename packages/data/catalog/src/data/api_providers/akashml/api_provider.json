@@ -25,15 +25,28 @@
   "routable": null,
   "routing_enabled": null,
   "sdk_package": null,
-  "api_base_url": null,
-  "docs_url": "https://akashml.com/#pricing",
-  "auth_env": null,
-  "api_formats": [],
+  "api_base_url": "https://api.akashml.com/v1",
+  "docs_url": "https://akashml.com/docs",
+  "auth_env": "AKASHML_API_KEY",
+  "api_formats": [
+    "openai_chat"
+  ],
   "service_tiers": [],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "documentation",
+      "url": "https://akashml.com/docs/platform/models",
+      "accessed_at": "2026-08-21T00:00:00Z"
+    },
+    {
+      "kind": "api_reference",
+      "url": "https://akashml.com/docs/api-reference/models",
+      "accessed_at": "2026-08-21T00:00:00Z"
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-21",
+    "notes": "Verified against AkashML's official model catalogue, pricing documentation, and API reference."
   }
 }

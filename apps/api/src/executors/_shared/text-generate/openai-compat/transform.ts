@@ -79,6 +79,7 @@ function usesOpenAIResponsesShape(providerId?: string): boolean {
 	return (
 		providerId === "openai" ||
 		providerId === "openai-eu" ||
+		providerId === "deepseek" ||
 		providerId === "meta" ||
 		providerId === "meta-contributor" ||
 		providerId === "amazon-bedrock" ||

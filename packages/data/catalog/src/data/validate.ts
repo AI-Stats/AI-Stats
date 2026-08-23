@@ -230,6 +230,19 @@ export function checkPricingEntrySafety(p: any): string[] {
                                 `pricing: time window ${index} timezone must be UTC for ${api_provider_id ?? '?'}:${model_id ?? '?'}:${endpoint ?? '?'}:${meter}`
                             );
                         }
+                        if (window?.days_of_week !== undefined) {
+                            const allowedDays = new Set(['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']);
+                            if (
+                                !Array.isArray(window.days_of_week) ||
+                                window.days_of_week.length === 0 ||
+                                new Set(window.days_of_week).size !== window.days_of_week.length ||
+                                window.days_of_week.some((day: unknown) => !allowedDays.has(String(day)))
+                            ) {
+                                errs.push(
+                                    `pricing: time window ${index} days_of_week must contain unique weekday keys for ${api_provider_id ?? '?'}:${model_id ?? '?'}:${endpoint ?? '?'}:${meter}`
+                                );
+                            }
+                        }
                         if (startMinute === null || endMinute === null || startMinute === endMinute) {
                             errs.push(
                                 `pricing: time window ${index} must use HH:mm UTC start/end times for ${api_provider_id ?? '?'}:${model_id ?? '?'}:${endpoint ?? '?'}:${meter}`
@@ -901,7 +914,7 @@ function checkOrganisations(state: ValidationState): string[] {
             errors.push(`Organisation ${organisationId} missing name`);
         }
         const countryCode = typeof data.country_code === 'string' ? data.country_code.trim() : '';
-        if (!/^[A-Z]{2,3}$/.test(countryCode)) {
+        if (data.country_code !== null && !/^[A-Z]{2,3}$/.test(countryCode)) {
             errors.push(`Organisation ${organisationId} has invalid country_code`);
         }
         const links = Array.isArray(data.organisation_links) ? data.organisation_links : [];

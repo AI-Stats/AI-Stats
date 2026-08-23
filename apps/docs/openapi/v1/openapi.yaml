@@ -7402,7 +7402,7 @@ components:
       description: >-
         Model identifier. This is a runtime string so newly released models can
         be used without waiting for an SDK update.
-      example: ai21/jamba-large-1.7
+      example: ai21/jamba-1.5-large
     OrganisationId:
       type: string
       description: Organisation identifier.
@@ -7431,6 +7431,7 @@ components:
         - inception
         - inclusionai
         - inflection
+        - jetbrains
         - kwaipilot
         - lg
         - lightricks
@@ -7461,6 +7462,7 @@ components:
         - sao10k
         - sourceful
         - spacex-ai
+        - stealth
         - stepfun
         - suno
         - tencent
@@ -9539,21 +9541,31 @@ components:
         Known callable model identifier snapshot used for SDK helper constants
         and autocomplete.
       enum:
-        - ai21/jamba-large-1.7
-        - ai21/jamba-mini-2
+        - ai21/jamba-1.5-large
+        - ai21/jamba-1.5-mini
         - aion-labs/aion-2.0
         - aion-labs/aion-3.0
         - aion-labs/aion-3.0-mini
         - aion-labs/aion-rp-llama-3.1-8b
         - allenai/molmo-2-8b
-        - allenai/olmo-3.1-32b
+        - amazon/nova-2-lite
+        - amazon/nova-lite-1.0
+        - amazon/nova-micro-1.0
+        - amazon/nova-premier
+        - amazon/nova-pro-1.0
+        - anthropic/claude-3-haiku
+        - anthropic/claude-3.5-haiku
+        - anthropic/claude-3.7-sonnet
         - anthropic/claude-fable-5
         - anthropic/claude-haiku-4.5
+        - anthropic/claude-opus-4
+        - anthropic/claude-opus-4.1
         - anthropic/claude-opus-4.5
         - anthropic/claude-opus-4.6
         - anthropic/claude-opus-4.7
         - anthropic/claude-opus-4.8
         - anthropic/claude-opus-5
+        - anthropic/claude-sonnet-4
         - anthropic/claude-sonnet-4.5
         - anthropic/claude-sonnet-4.6
         - anthropic/claude-sonnet-5
@@ -9594,7 +9606,6 @@ components:
         - deepseek/deepseek-ocr-2
         - deepseek/deepseek-r1
         - deepseek/deepseek-r1-0528
-        - deepseek/deepseek-r1-2025-05-28
         - deepseek/deepseek-r1-distill-llama-70b
         - deepseek/deepseek-r1-turbo
         - deepseek/deepseek-v3
@@ -9607,6 +9618,7 @@ components:
         - deepseek/deepseek-v3.2-speciale
         - deepseek/deepseek-v4-flash
         - deepseek/deepseek-v4-flash-0731
+        - deepseek/deepseek-v4-flash-vision-exp
         - deepseek/deepseek-v4-pro
         - deepseek/deepseek-v4-pro-0813
         - eleven-labs/eleven-flash-v2
@@ -9625,10 +9637,8 @@ components:
         - google/gemini-3-flash-preview
         - google/gemini-3-pro-image
         - google/gemini-3.1-flash-image
-        - google/gemini-3.1-flash-image-preview
         - google/gemini-3.1-flash-lite
         - google/gemini-3.1-flash-lite-image
-        - google/gemini-3.1-flash-lite-preview
         - google/gemini-3.1-flash-live-preview
         - google/gemini-3.1-flash-tts-preview
         - google/gemini-3.1-pro-preview
@@ -9639,10 +9649,11 @@ components:
         - google/gemini-3.7-flash
         - google/gemini-embedding-001
         - google/gemini-embedding-2
-        - google/gemini-embedding-2-preview
         - google/gemini-robotics-er-1.6-preview
         - google/gemini-robotics-er-2-preview
+        - google/gemma-3-12b
         - google/gemma-3-27b
+        - google/gemma-3-4b
         - google/gemma-4-26b-a4b
         - google/gemma-4-26b-a4b:free
         - google/gemma-4-31b
@@ -9651,9 +9662,9 @@ components:
         - google/imagen-4.0-preview
         - google/lyria-3-clip-preview
         - google/lyria-3-pro-preview
-        - google/veo-2
+        - google/veo-3.1
+        - google/veo-3.1-fast
         - google/veo-3.1-fast-preview
-        - google/veo-3.1-lite-generate-preview
         - google/veo-3.1-lite-preview
         - google/veo-3.1-preview
         - ibm/granite-4.1-8b
@@ -9667,6 +9678,7 @@ components:
         - inclusionai/ring-flash-2.0
         - inflection/inflection-3-pi
         - inflection/inflection-3-productivity
+        - jetbrains/mellum2-12b-a2.5b
         - kwaipilot/kat-coder-air-v2.5
         - kwaipilot/kat-coder-exp-72b-1010
         - kwaipilot/kat-coder-pro
@@ -9680,10 +9692,8 @@ components:
         - ltx-2-5-fast
         - ltx-2-5-pro
         - meituan/longcat-2.0
-        - meta/llama-3-8b
         - meta/llama-3.1-70b
         - meta/llama-3.1-8b
-        - meta/llama-3.2-11b-vision
         - meta/llama-3.2-3b
         - meta/llama-3.3-70b
         - meta/llama-4-maverick
@@ -9694,7 +9704,6 @@ components:
         - meta/muse-glimmer-30b
         - meta/muse-spark-1.2
         - microsoft/phi-4
-        - microsoft/phi-4-mini
         - microsoft/wizardlm-2-8x22b
         - mindai/macaron-v1-tall
         - mindai/macaron-v1-venti
@@ -9719,16 +9728,22 @@ components:
         - mistral/codestral
         - mistral/codestral-embed
         - mistral/devstral-2
+        - mistral/devstral-2.0
         - mistral/devstral-medium-1.0
         - mistral/devstral-small-1.1
         - mistral/leanstral-1.5:free
         - mistral/magistral-medium-1.2
+        - mistral/magistral-small-1.2
         - mistral/ministral-3-14b
         - mistral/ministral-3-3b
         - mistral/ministral-3-8b
+        - mistral/ministral-3.0-14b
+        - mistral/ministral-3.0-3b
+        - mistral/ministral-3.0-8b
         - mistral/mistral-embed
         - mistral/mistral-large-2.1
         - mistral/mistral-large-3
+        - mistral/mistral-large-3.0
         - mistral/mistral-medium-3.0
         - mistral/mistral-medium-3.1
         - mistral/mistral-medium-3.5
@@ -9739,12 +9754,13 @@ components:
         - mistral/mistral-small-24b-2501
         - mistral/mistral-small-3.2
         - mistral/mistral-small-4
-        - mistral/mixtral-8x7b
         - mistral/ocr-3
         - mistral/ocr-4
         - mistral/ocr-4.1
         - mistral/pixtral-large
+        - mistral/voxtral-mini
         - mistral/voxtral-mini-transcribe-2
+        - mistral/voxtral-small
         - moonshotai/kimi-k2
         - moonshotai/kimi-k2-0905
         - moonshotai/kimi-k2-instruct
@@ -9771,15 +9787,14 @@ components:
         - nousresearch/hermes-4-405b
         - nousresearch/hermes-4-70b
         - nvidia/cosmos3-super-reasoner
-        - nvidia/llama-3.1-nemotron-70b-instruct
         - nvidia/llama-3.1-nemotron-ultra-253b
-        - nvidia/llama-3.3-nemotron-super-49b-v1.5
         - nvidia/nemotron-3-nano-30b-a3b
         - nvidia/nemotron-3-nano-omni
         - nvidia/nemotron-3-nano-omni-30b-a3b-reasoning
         - nvidia/nemotron-3-super-120b-a12b
         - nvidia/nemotron-3-ultra-550b-a55b
         - nvidia/nemotron-3.5-lightning
+        - nvidia/nemotron-nano-9b-v2
         - nvidia/nvidia-nemotron-3-nano-30b-a3b
         - nvidia/nvidia-nemotron-nano-12b-v2-vl
         - openai/babbage-002
@@ -9792,6 +9807,7 @@ components:
         - openai/gpt-4.1
         - openai/gpt-4.1-mini
         - openai/gpt-4.1-nano
+        - openai/gpt-4o
         - openai/gpt-4o-2024-05-13
         - openai/gpt-4o-2024-08-06
         - openai/gpt-4o-2024-11-20
@@ -9826,6 +9842,7 @@ components:
         - openai/gpt-image-2
         - openai/gpt-oss-120b
         - openai/gpt-oss-20b
+        - openai/gpt-oss-safeguard-120b
         - openai/gpt-oss-safeguard-20b
         - openai/gpt-realtime
         - openai/gpt-realtime-1.5
@@ -9855,7 +9872,6 @@ components:
         - poolside/laguna-xs-2.1:free
         - prism-ml/ternary-bonsai-27b
         - qwen/qvq-max
-        - qwen/qwen-3.6-plus
         - qwen/qwen-flash
         - qwen/qwen-flash-character
         - qwen/qwen-image
@@ -9911,6 +9927,7 @@ components:
         - qwen/qwen3-coder-next
         - qwen/qwen3-coder-plus-2025-07-22
         - qwen/qwen3-coder-plus-2025-09-23
+        - qwen/qwen3-embedding-0.6b
         - qwen/qwen3-embedding-8b
         - qwen/qwen3-guard-gen-0.6b
         - qwen/qwen3-guard-gen-8b
@@ -9945,7 +9962,6 @@ components:
         - qwen/qwen3.5-27b
         - qwen/qwen3.5-35b-a3b
         - qwen/qwen3.5-397b-a17b
-        - qwen/qwen3.5-4b
         - qwen/qwen3.5-9b
         - qwen/qwen3.5-flash
         - qwen/qwen3.5-livetranslate-flash-realtime-2026-05-19
@@ -9953,6 +9969,7 @@ components:
         - qwen/qwen3.5-plus-2026-04-20
         - qwen/qwen3.6-27b
         - qwen/qwen3.6-35b-a3b
+        - qwen/qwen3.6-flash
         - qwen/qwen3.6-max-preview
         - qwen/qwen3.6-plus
         - qwen/qwen3.7-max
@@ -9977,18 +9994,19 @@ components:
         - sao10k/l3-8b-lunaris
         - sao10k/l3-8b-stheno-v3.2
         - sao10k/l31-70b-euryale-v2.2
-        - spacex-ai/grok-4.20-beta-0309
+        - spacex-ai/grok-4.20
+        - spacex-ai/grok-4.20-multi-agent-beta
         - spacex-ai/grok-4.20-multi-agent-beta-0309
         - spacex-ai/grok-4.3
         - spacex-ai/grok-4.5
         - spacex-ai/grok-4.6
         - spacex-ai/grok-build-0.1
-        - spacex-ai/grok-code-fast-1
         - spacex-ai/grok-imagine-image
         - spacex-ai/grok-imagine-image-2.0
         - spacex-ai/grok-imagine-image-quality
         - spacex-ai/grok-transcribe
         - spacex-ai/grok-tts
+        - stealth/ox-alpha
         - stepfun/step-3.5-flash
         - stepfun/step-3.7-flash
         - tencent/hunyuan-a13b-instruct
@@ -10001,8 +10019,9 @@ components:
         - upstage/solar-pro-2
         - upstage/solar-pro-3
         - upstage/solar-pro-4
-        - venice/venice-uncensored
-        - venice/venice-uncensored-1.1
+        - venice/gemma-4-uncensored
+        - venice/venice-role-play-uncensored
+        - venice/venice-uncensored-1.2
         - voyage/rerank-1
         - voyage/rerank-2
         - voyage/rerank-2-lite
@@ -10047,6 +10066,7 @@ components:
         - z-ai/glm-4.6v-flash
         - z-ai/glm-4.7
         - z-ai/glm-4.7-flash
+        - z-ai/glm-4.7-flash-heretic
         - z-ai/glm-5
         - z-ai/glm-5-turbo
         - z-ai/glm-5.1

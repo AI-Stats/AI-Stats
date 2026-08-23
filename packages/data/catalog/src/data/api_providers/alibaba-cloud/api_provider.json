@@ -27,7 +27,10 @@
   "sdk_package": null,
   "api_base_url": "https://dashscope-intl.aliyuncs.com",
   "docs_url": "https://www.alibabacloud.com/help/en/model-studio/models",
-  "auth_env": "DASHSCOPE_API_KEY",
+  "auth_env": [
+    "ALIBABA_CLOUD_API_KEY",
+    "DASHSCOPE_API_KEY"
+  ],
   "api_formats": [
     "openai_compatible",
     "dashscope"
@@ -37,22 +40,32 @@
     {
       "url": "https://www.alibabacloud.com/help/en/model-studio/base-url",
       "title": "Base URL overview",
-      "checked_at": "2026-08-12"
+      "checked_at": "2026-08-23"
     },
     {
       "url": "https://www.alibabacloud.com/help/en/model-studio/qwen-api-reference",
       "title": "Text Generation API Reference",
-      "checked_at": "2026-08-12"
+      "checked_at": "2026-08-23"
     },
     {
       "url": "https://www.alibabacloud.com/help/en/model-studio/batch-interfaces-compatible-with-openai/",
       "title": "OpenAI Batch API",
-      "checked_at": "2026-08-12"
+      "checked_at": "2026-08-23"
+    },
+    {
+      "url": "https://www.alibabacloud.com/help/en/model-studio/text-generation-model",
+      "title": "Text generation models",
+      "checked_at": "2026-08-23"
+    },
+    {
+      "url": "https://www.alibabacloud.com/help/en/model-studio/model-pricing",
+      "title": "Model pricing",
+      "checked_at": "2026-08-23"
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-12T00:00:00.000Z",
-    "notes": "Verified regional OpenAI-compatible text/embeddings/Batch and native DashScope media contracts. Media endpoints require dedicated native adapters."
+    "checked_at": "2026-08-23T00:00:00.000Z",
+    "notes": "Verified the Singapore (International) OpenAI-compatible catalogue and pricing. China-only, Global, and Token Plan deployments require their own regional or dedicated endpoints; they are not activated through the default international route. Media endpoints require dedicated native adapters."
   }
 }
