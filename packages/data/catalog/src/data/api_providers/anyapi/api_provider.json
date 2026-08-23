@@ -42,19 +42,19 @@
     {
       "kind": "official_models",
       "url": "https://anyapi.ai/ai-models",
-      "accessed_at": "2026-08-24T00:00:00.000Z",
+      "accessed_at": "2026-08-23T23:11:00.000Z",
       "notes": "Official public model catalogue; availability is also exposed through the pricing catalogue."
     },
     {
       "kind": "official_pricing",
       "url": "https://anyapi.ai/pricing",
-      "accessed_at": "2026-08-24T00:00:00.000Z",
+      "accessed_at": "2026-08-23T23:11:00.000Z",
       "notes": "Official per-model input/output rates in AnyTokens."
     },
     {
       "kind": "official_docs",
       "url": "https://docs.anyapi.ai/api-reference/models/text-models/overview",
-      "accessed_at": "2026-08-24T00:00:00.000Z",
+      "accessed_at": "2026-08-23T23:11:00.000Z",
       "notes": "Documents the OpenAI-compatible chat endpoint, provider/model identifiers, modalities, and major supported model families."
     },
     {
@@ -66,7 +66,7 @@
   ],
   "verification": {
     "status": "partial",
-    "checked_at": "2026-08-24T00:00:00.000Z",
+    "checked_at": "2026-08-23T23:11:00.000Z",
     "notes": "Public catalogue, AnyToken rates, and API format verified against AnyAPI primary sources. Routing remains disabled; model limits and exact API slugs retain models.dev provenance where AnyAPI's public catalogue does not expose machine-readable identifiers."
   }
 }
