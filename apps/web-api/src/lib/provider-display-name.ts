@@ -23,6 +23,7 @@ function regionalLabel(providerName: string, offerLabel: string): string {
 			.filter(Boolean),
 	);
 	return offerLabel
+		.replace(/[^a-z0-9\s]+/gi, " ")
 		.split(/\s+/)
 		.filter(Boolean)
 		.filter((word) => !providerWords.has(word.toLowerCase()))

@@ -11,6 +11,15 @@ describe("formatProviderOfferDisplayName", () => {
 		})).toBe("OpenAI (EU)");
 	});
 
+	it("removes a punctuated provider name from a regional offer label", () => {
+		expect(formatProviderOfferDisplayName({
+			providerId: "acme-eu",
+			providerName: "Acme, Inc.",
+			offerLabel: "Acme, Inc. EU",
+			offerScope: "regional",
+		})).toBe("Acme, Inc. (EU)");
+	});
+
 	it("does not alter a global provider name", () => {
 		expect(formatProviderOfferDisplayName({
 			providerId: "openai",
