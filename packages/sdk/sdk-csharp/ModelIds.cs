@@ -812,6 +812,8 @@ namespace PhaseoSdk
         public const string QwenQwen3627b = "qwen/qwen3.6-27b";
         /// <summary>Model ID: <c>qwen/qwen3.6-35b-a3b</c>. Model page: https://phaseo.app/models/qwen/qwen3.6-35b-a3b</summary>
         public const string QwenQwen3635bA3b = "qwen/qwen3.6-35b-a3b";
+        /// <summary>Model ID: <c>qwen/qwen3.6-flash</c>. Model page: https://phaseo.app/models/qwen/qwen3.6-flash</summary>
+        public const string QwenQwen36Flash = "qwen/qwen3.6-flash";
         /// <summary>Model ID: <c>qwen/qwen3.6-max-preview</c>. Model page: https://phaseo.app/models/qwen/qwen3.6-max-preview</summary>
         public const string QwenQwen36MaxPreview = "qwen/qwen3.6-max-preview";
         /// <summary>Model ID: <c>qwen/qwen3.6-plus</c>. Model page: https://phaseo.app/models/qwen/qwen3.6-plus</summary>

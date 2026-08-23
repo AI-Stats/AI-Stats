@@ -1215,6 +1215,9 @@ inline constexpr std::string_view QWEN_QWEN3_6_27B = "qwen/qwen3.6-27b";
 // Model ID: qwen/qwen3.6-35b-a3b
 // Model page: https://phaseo.app/models/qwen/qwen3.6-35b-a3b
 inline constexpr std::string_view QWEN_QWEN3_6_35B_A3B = "qwen/qwen3.6-35b-a3b";
+// Model ID: qwen/qwen3.6-flash
+// Model page: https://phaseo.app/models/qwen/qwen3.6-flash
+inline constexpr std::string_view QWEN_QWEN3_6_FLASH = "qwen/qwen3.6-flash";
 // Model ID: qwen/qwen3.6-max-preview
 // Model page: https://phaseo.app/models/qwen/qwen3.6-max-preview
 inline constexpr std::string_view QWEN_QWEN3_6_MAX_PREVIEW = "qwen/qwen3.6-max-preview";
@@ -1533,7 +1536,7 @@ inline constexpr std::string_view ZAI_GLM_5 = "zai/glm-5";
 // Deprecated alias for deepseek/deepseek-v4; use deepseek/deepseek-v4-pro. Remove in the next major SDK release.
 inline constexpr std::string_view DEEPSEEK_DEEPSEEK_V4 = DEEPSEEK_DEEPSEEK_V4_PRO;
 
-inline constexpr std::array<std::string_view, 508> ALL = {
+inline constexpr std::array<std::string_view, 509> ALL = {
 	AION_LABS_AION_2_0,
 	AION_LABS_AION_3_0,
 	AION_LABS_AION_3_0_MINI,
@@ -1937,6 +1940,7 @@ inline constexpr std::array<std::string_view, 508> ALL = {
 	QWEN_QWEN3_5_PLUS_2026_04_20,
 	QWEN_QWEN3_6_27B,
 	QWEN_QWEN3_6_35B_A3B,
+	QWEN_QWEN3_6_FLASH,
 	QWEN_QWEN3_6_MAX_PREVIEW,
 	QWEN_QWEN3_6_PLUS,
 	QWEN_QWEN3_7_MAX,

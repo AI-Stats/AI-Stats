@@ -1622,6 +1622,10 @@ class ModelIds:
     # Model page: https://phaseo.app/models/qwen/qwen3.6-35b-a3b
     QWEN_QWEN3_6_35B_A3B: Final[str] = "qwen/qwen3.6-35b-a3b"
 
+    # Model ID: qwen/qwen3.6-flash
+    # Model page: https://phaseo.app/models/qwen/qwen3.6-flash
+    QWEN_QWEN3_6_FLASH: Final[str] = "qwen/qwen3.6-flash"
+
     # Model ID: qwen/qwen3.6-max-preview
     # Model page: https://phaseo.app/models/qwen/qwen3.6-max-preview
     QWEN_QWEN3_6_MAX_PREVIEW: Final[str] = "qwen/qwen3.6-max-preview"
@@ -2451,6 +2455,7 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.QWEN_QWEN3_5_PLUS_2026_04_20,
         ModelIds.QWEN_QWEN3_6_27B,
         ModelIds.QWEN_QWEN3_6_35B_A3B,
+        ModelIds.QWEN_QWEN3_6_FLASH,
         ModelIds.QWEN_QWEN3_6_MAX_PREVIEW,
         ModelIds.QWEN_QWEN3_6_PLUS,
         ModelIds.QWEN_QWEN3_7_MAX,

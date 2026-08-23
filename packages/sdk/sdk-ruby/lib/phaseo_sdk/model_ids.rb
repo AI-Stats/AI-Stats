@@ -1212,6 +1212,9 @@ module PhaseoSdk
     # Model ID: qwen/qwen3.6-35b-a3b
     # Model page: https://phaseo.app/models/qwen/qwen3.6-35b-a3b
     QWEN_QWEN3_6_35B_A3B = "qwen/qwen3.6-35b-a3b"
+    # Model ID: qwen/qwen3.6-flash
+    # Model page: https://phaseo.app/models/qwen/qwen3.6-flash
+    QWEN_QWEN3_6_FLASH = "qwen/qwen3.6-flash"
     # Model ID: qwen/qwen3.6-max-preview
     # Model page: https://phaseo.app/models/qwen/qwen3.6-max-preview
     QWEN_QWEN3_6_MAX_PREVIEW = "qwen/qwen3.6-max-preview"
@@ -1935,6 +1938,7 @@ module PhaseoSdk
     ModelIds::QWEN_QWEN3_5_PLUS_2026_04_20,
     ModelIds::QWEN_QWEN3_6_27B,
     ModelIds::QWEN_QWEN3_6_35B_A3B,
+    ModelIds::QWEN_QWEN3_6_FLASH,
     ModelIds::QWEN_QWEN3_6_MAX_PREVIEW,
     ModelIds::QWEN_QWEN3_6_PLUS,
     ModelIds::QWEN_QWEN3_7_MAX,

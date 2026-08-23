@@ -1216,6 +1216,9 @@ const (
 	// Model ID: qwen/qwen3.6-35b-a3b
 	// Model page: https://phaseo.app/models/qwen/qwen3.6-35b-a3b
 	ModelIDQwenQwen3635bA3b gen.ModelId = "qwen/qwen3.6-35b-a3b"
+	// Model ID: qwen/qwen3.6-flash
+	// Model page: https://phaseo.app/models/qwen/qwen3.6-flash
+	ModelIDQwenQwen36Flash gen.ModelId = "qwen/qwen3.6-flash"
 	// Model ID: qwen/qwen3.6-max-preview
 	// Model page: https://phaseo.app/models/qwen/qwen3.6-max-preview
 	ModelIDQwenQwen36MaxPreview gen.ModelId = "qwen/qwen3.6-max-preview"
@@ -1939,6 +1942,7 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDQwenQwen35Plus20260420,
 	ModelIDQwenQwen3627b,
 	ModelIDQwenQwen3635bA3b,
+	ModelIDQwenQwen36Flash,
 	ModelIDQwenQwen36MaxPreview,
 	ModelIDQwenQwen36Plus,
 	ModelIDQwenQwen37Max,

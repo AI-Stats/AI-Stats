@@ -1212,6 +1212,9 @@ pub mod model_ids {
     /// Model ID: `qwen/qwen3.6-35b-a3b`.
     /// Model page: https://phaseo.app/models/qwen/qwen3.6-35b-a3b
     pub const QWEN_QWEN3_6_35B_A3B: &str = "qwen/qwen3.6-35b-a3b";
+    /// Model ID: `qwen/qwen3.6-flash`.
+    /// Model page: https://phaseo.app/models/qwen/qwen3.6-flash
+    pub const QWEN_QWEN3_6_FLASH: &str = "qwen/qwen3.6-flash";
     /// Model ID: `qwen/qwen3.6-max-preview`.
     /// Model page: https://phaseo.app/models/qwen/qwen3.6-max-preview
     pub const QWEN_QWEN3_6_MAX_PREVIEW: &str = "qwen/qwen3.6-max-preview";
@@ -1935,6 +1938,7 @@ pub mod model_ids {
         QWEN_QWEN3_5_PLUS_2026_04_20,
         QWEN_QWEN3_6_27B,
         QWEN_QWEN3_6_35B_A3B,
+        QWEN_QWEN3_6_FLASH,
         QWEN_QWEN3_6_MAX_PREVIEW,
         QWEN_QWEN3_6_PLUS,
         QWEN_QWEN3_7_MAX,

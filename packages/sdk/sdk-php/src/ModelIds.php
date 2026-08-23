@@ -1217,6 +1217,9 @@ final class ModelIds
     /** Model ID: qwen/qwen3.6-35b-a3b. Model page: https://phaseo.app/models/qwen/qwen3.6-35b-a3b */
     public const QWEN_QWEN3_6_35B_A3B = 'qwen/qwen3.6-35b-a3b';
 
+    /** Model ID: qwen/qwen3.6-flash. Model page: https://phaseo.app/models/qwen/qwen3.6-flash */
+    public const QWEN_QWEN3_6_FLASH = 'qwen/qwen3.6-flash';
+
     /** Model ID: qwen/qwen3.6-max-preview. Model page: https://phaseo.app/models/qwen/qwen3.6-max-preview */
     public const QWEN_QWEN3_6_MAX_PREVIEW = 'qwen/qwen3.6-max-preview';
 

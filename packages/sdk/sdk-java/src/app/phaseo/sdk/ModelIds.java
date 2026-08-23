@@ -1216,6 +1216,9 @@ public final class ModelIds {
     /** Model ID: <code>qwen/qwen3.6-35b-a3b</code>. Model page: https://phaseo.app/models/qwen/qwen3.6-35b-a3b */
     public static final String QWEN_QWEN3_6_35B_A3B = "qwen/qwen3.6-35b-a3b";
 
+    /** Model ID: <code>qwen/qwen3.6-flash</code>. Model page: https://phaseo.app/models/qwen/qwen3.6-flash */
+    public static final String QWEN_QWEN3_6_FLASH = "qwen/qwen3.6-flash";
+
     /** Model ID: <code>qwen/qwen3.6-max-preview</code>. Model page: https://phaseo.app/models/qwen/qwen3.6-max-preview */
     public static final String QWEN_QWEN3_6_MAX_PREVIEW = "qwen/qwen3.6-max-preview";
 

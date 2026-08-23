@@ -809,6 +809,8 @@ export const ModelIds = {
   QWEN_QWEN3_6_27B: "qwen/qwen3.6-27b",
   /** Model ID: `qwen/qwen3.6-35b-a3b`. Model page: https://phaseo.app/models/qwen/qwen3.6-35b-a3b */
   QWEN_QWEN3_6_35B_A3B: "qwen/qwen3.6-35b-a3b",
+  /** Model ID: `qwen/qwen3.6-flash`. Model page: https://phaseo.app/models/qwen/qwen3.6-flash */
+  QWEN_QWEN3_6_FLASH: "qwen/qwen3.6-flash",
   /** Model ID: `qwen/qwen3.6-max-preview`. Model page: https://phaseo.app/models/qwen/qwen3.6-max-preview */
   QWEN_QWEN3_6_MAX_PREVIEW: "qwen/qwen3.6-max-preview",
   /** Model ID: `qwen/qwen3.6-plus`. Model page: https://phaseo.app/models/qwen/qwen3.6-plus */
