@@ -9,6 +9,7 @@ const ENSURE_APP_ID_L1_TTL_MS = 5_000;
 
 type EnsureAppIdCacheEntry = {
 	id: string;
+	categories: string[];
 	expiresAtMs: number;
 };
 
@@ -19,20 +20,26 @@ function ensureAppIdCacheKey(workspaceId: string, appKey: string): string {
 	return `${workspaceId}:${appKey}`;
 }
 
-function readEnsureAppIdL1(cacheKey: string): string | null | undefined {
+function readEnsureAppIdL1(cacheKey: string): EnsureAppIdCacheEntry | undefined {
 	const entry = ensureAppIdL1.get(cacheKey);
 	if (!entry) return undefined;
 	if (entry.expiresAtMs <= Date.now()) {
 		ensureAppIdL1.delete(cacheKey);
 		return undefined;
 	}
-	return entry.id;
+	return entry;
 }
 
-function writeEnsureAppIdL1(cacheKey: string, id: string, ttlMs = ENSURE_APP_ID_L1_TTL_MS): void {
+function writeEnsureAppIdL1(
+	cacheKey: string,
+	id: string,
+	categories: string[] = [],
+	ttlMs = ENSURE_APP_ID_L1_TTL_MS,
+): void {
 	if (!Number.isFinite(ttlMs) || ttlMs <= 0) return;
 	ensureAppIdL1.set(cacheKey, {
 		id,
+		categories,
 		expiresAtMs: Date.now() + ttlMs,
 	});
 }
@@ -182,11 +189,17 @@ export async function ensureAppId(params: {
     const identityUrl = deriveIdentityUrl({ referer, appId, appTitle, appName });
     const app_key = deriveAppKey(identityUrl);
     const cacheKey = ensureAppIdCacheKey(workspaceId, app_key);
-    const cachedId = readEnsureAppIdL1(cacheKey);
-    if (cachedId !== undefined) return cachedId;
+    const requestedCategories = normalizeAppCategories(appCategories);
+    const cached = readEnsureAppIdL1(cacheKey);
+    if (cached && requestedCategories.every((category) => cached.categories.includes(category))) {
+        return cached.id;
+    }
 
     const inflight = ensureAppIdInflight.get(cacheKey);
-    if (inflight) return inflight;
+    if (inflight) {
+        await inflight;
+        return ensureAppId(params);
+    }
 
     const loader = (async (): Promise<string | null> => {
         const supabase = getSupabaseAdmin();
@@ -213,8 +226,6 @@ export async function ensureAppId(params: {
                 identityUrl,
             },
         };
-
-        const requestedCategories = normalizeAppCategories(appCategories);
 
         const findExisting = async (): Promise<{ id: string; category: string | null } | null> => {
             const { data, error } = await supabase
@@ -253,7 +264,7 @@ export async function ensureAppId(params: {
             if (updateError) {
                 console.error("ensureAppId update error:", updateError);
             }
-            writeEnsureAppIdL1(cacheKey, existing.id);
+            writeEnsureAppIdL1(cacheKey, existing.id, normalizeAppCategories(category));
             return existing.id;
         }
 
@@ -267,7 +278,7 @@ export async function ensureAppId(params: {
             .single();
 
         if (!insertError && inserted?.id) {
-            writeEnsureAppIdL1(cacheKey, inserted.id);
+            writeEnsureAppIdL1(cacheKey, inserted.id, requestedCategories);
             return inserted.id;
         }
 
@@ -276,7 +287,15 @@ export async function ensureAppId(params: {
             if (code === "23505") {
                 const raced = await findExisting();
                 if (raced) {
-                    writeEnsureAppIdL1(cacheKey, raced.id);
+                    const category = mergeAppCategories(raced.category, requestedCategories.join(","));
+                    if (category !== raced.category) {
+                        await supabase
+                            .from("api_apps")
+                            .update({ category, updated_at: nowIso })
+                            .eq("id", raced.id)
+                            .eq("workspace_id", workspaceId);
+                    }
+                    writeEnsureAppIdL1(cacheKey, raced.id, normalizeAppCategories(category));
                     return raced.id;
                 }
             }
@@ -294,7 +313,6 @@ export async function ensureAppId(params: {
         }
     }
 }
-
 
 
 

@@ -9,10 +9,11 @@ function percentile(values: number[], p: number): number {
 const runtime = vi.hoisted(() => {
 	const state = {
 		id: "app_123",
+		category: null as string | null,
 	};
 
 	const selectData = vi.fn(async () => ({
-		data: [{ id: state.id }],
+		data: [{ id: state.id, category: state.category }],
 		error: null,
 	}));
 
@@ -20,9 +21,10 @@ const runtime = vi.hoisted(() => {
 	const updateEqId = vi.fn(() => ({
 		eq: updateEqWorkspace,
 	}));
-	const update = vi.fn(() => ({
-		eq: updateEqId,
-	}));
+	const update = vi.fn((payload: { category?: string | null }) => {
+		if (payload.category !== undefined) state.category = payload.category;
+		return { eq: updateEqId };
+	});
 
 	const insertSingle = vi.fn(async () => ({
 		data: { id: state.id },
@@ -81,6 +83,7 @@ const { __resetEnsureAppIdCacheForTests, ensureAppId } = await import(
 describe("ensureAppId warm-cache performance", () => {
 	beforeEach(() => {
 		runtime.state.id = "app_123";
+		runtime.state.category = null;
 		runtime.selectData.mockClear();
 		runtime.update.mockClear();
 		runtime.updateEqId.mockClear();
@@ -152,5 +155,38 @@ describe("ensureAppId warm-cache performance", () => {
 		expect(runtime.selectData).toHaveBeenCalledTimes(0);
 		expect(runtime.update).toHaveBeenCalledTimes(0);
 		expect(runtime.insert).toHaveBeenCalledTimes(0);
+	});
+
+	it("persists categories missing from a warm cache once", async () => {
+		await ensureAppId({
+			workspaceId: "team_perf_apps",
+			referer: "https://example.com/app",
+		});
+
+		runtime.selectData.mockClear();
+		runtime.update.mockClear();
+
+		await ensureAppId({
+			workspaceId: "team_perf_apps",
+			referer: "https://example.com/app",
+			appCategories: "productivity,developer-tools",
+		});
+
+		expect(runtime.selectData).toHaveBeenCalledTimes(1);
+		expect(runtime.update).toHaveBeenCalledWith(expect.objectContaining({
+			category: "productivity,developer-tools",
+		}));
+
+		runtime.selectData.mockClear();
+		runtime.update.mockClear();
+
+		await ensureAppId({
+			workspaceId: "team_perf_apps",
+			referer: "https://example.com/app",
+			appCategories: "productivity,developer-tools",
+		});
+
+		expect(runtime.selectData).toHaveBeenCalledTimes(0);
+		expect(runtime.update).toHaveBeenCalledTimes(0);
 	});
 });
