@@ -816,7 +816,7 @@ export async function routeProviders(
     const requestedServiceTier = normalizeRequestedServiceTier(ctx.body);
     const suffixRoutingMode = priorityDefaultRoutingMode(priority);
     const mode = normalizeRoutingMode(
-        requestedRoutingMode ?? suffixRoutingMode ?? ctx.routingMode,
+        suffixRoutingMode ?? requestedRoutingMode ?? ctx.routingMode,
     );
     const deterministicRequestSort = Boolean(requestedRoutingMode);
     const preset = applyRoutingMode(PRESETS[priority], mode);
