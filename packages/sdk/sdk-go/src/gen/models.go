@@ -1711,6 +1711,7 @@ const (
 	KnownModelIdGoogleGemma312b KnownModelId = "google/gemma-3-12b"
 	KnownModelIdGoogleGemma327b KnownModelId = "google/gemma-3-27b"
 	KnownModelIdGoogleGemma34b KnownModelId = "google/gemma-3-4b"
+	KnownModelIdGoogleGemma412b KnownModelId = "google/gemma-4-12b"
 	KnownModelIdGoogleGemma426bA4b KnownModelId = "google/gemma-4-26b-a4b"
 	KnownModelIdGoogleGemma426bA4bFree KnownModelId = "google/gemma-4-26b-a4b:free"
 	KnownModelIdGoogleGemma431b KnownModelId = "google/gemma-4-31b"

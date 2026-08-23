@@ -125,6 +125,7 @@ export type KnownModelId =
   | "google/gemma-3-12b"
   | "google/gemma-3-27b"
   | "google/gemma-3-4b"
+  | "google/gemma-4-12b"
   | "google/gemma-4-26b-a4b"
   | "google/gemma-4-26b-a4b:free"
   | "google/gemma-4-31b"
