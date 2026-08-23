@@ -9,6 +9,57 @@
       "meter": "input_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
+      "price_per_unit": 0.4,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": null,
+      "match": [],
+      "priority": 100,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null,
+      "effective_from": "2026-05-11T00:00:00Z",
+      "effective_to": "2026-08-23T00:00:00Z"
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.08,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": null,
+      "match": [],
+      "priority": 100,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null,
+      "effective_from": "2026-05-11T00:00:00Z",
+      "effective_to": "2026-08-23T00:00:00Z"
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 2,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": null,
+      "match": [],
+      "priority": 100,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null,
+      "effective_from": "2026-05-11T00:00:00Z",
+      "effective_to": "2026-08-23T00:00:00Z"
+    },
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
       "price_per_unit": 0.14,
       "currency": "USD",
       "pricing_plan": "standard",
@@ -71,6 +122,6 @@
   "verification": {
     "status": "verified",
     "checked_at": "2026-08-23",
-    "notes": "Rates verified against Canopy Wave's current public serverless pricing table."
+    "notes": "Historical rates are retained through 2026-08-23; replacement rates are verified against Canopy Wave's current public serverless pricing table."
   }
 }

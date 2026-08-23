@@ -27,7 +27,9 @@
   "sdk_package": null,
   "api_base_url": "https://inference.canopywave.io/v1",
   "docs_url": "https://canopywave.com/docs/get-started/quick-start",
-  "auth_env": "CANOPYWAVE_API_KEY",
+  "auth_env": [
+    "CANOPYWAVE_API_KEY"
+  ],
   "api_formats": [
     "openai_chat"
   ],

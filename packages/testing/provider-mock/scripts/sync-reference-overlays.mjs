@@ -77,6 +77,11 @@ function collectRefs(value, refs) {
 }
 
 const requestedProviderIds = new Set(process.argv.slice(2));
+const knownProviderIds = new Set(providers.map((provider) => provider.id));
+const unknownProviderIds = [...requestedProviderIds].filter((id) => !knownProviderIds.has(id));
+if (unknownProviderIds.length > 0) {
+  throw new Error(`Unknown provider IDs: ${unknownProviderIds.join(", ")}`);
+}
 const selectedProviders = requestedProviderIds.size > 0
   ? providers.filter((provider) => requestedProviderIds.has(provider.id))
   : providers;

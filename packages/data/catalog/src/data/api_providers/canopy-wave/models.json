@@ -294,7 +294,7 @@
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 1000000,
-    "max_output_tokens": 1000000,
+    "max_output_tokens": null,
     "effective_from": "2026-08-23T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -420,7 +420,7 @@
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 256000,
-    "max_output_tokens": 256000,
+    "max_output_tokens": null,
     "effective_from": "2026-08-23T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -484,7 +484,7 @@
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 256000,
-    "max_output_tokens": 256000,
+    "max_output_tokens": null,
     "effective_from": "2026-08-23T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -610,7 +610,7 @@
     "input_modalities": "text,image,audio",
     "output_modalities": "text",
     "context_length": 524288,
-    "max_output_tokens": 524288,
+    "max_output_tokens": null,
     "effective_from": "2026-08-23T00:00:00",
     "effective_to": null,
     "capabilities": [
