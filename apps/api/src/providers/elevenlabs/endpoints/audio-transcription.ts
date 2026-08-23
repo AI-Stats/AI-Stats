@@ -123,8 +123,8 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
 				usage: usageMeters,
 			};
 			if (args.pricingCard) {
-				const pricedUsage = computeBill(usageMeters, args.pricingCard, { model: modelId });
-				bill.cost_cents = pricedUsage.pricing.total_cents;
+				const pricedUsage = computeBill(usageMeters, args.pricingCard, { model: modelId, pricing_plan: "standard" }, "standard");
+				bill.cost_cents = Number(pricedUsage.pricing.total_nanos ?? 0) / 10_000_000;
 				bill.currency = pricedUsage.pricing.currency;
 				bill.usage = pricedUsage;
 			}

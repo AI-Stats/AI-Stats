@@ -238,6 +238,32 @@ describe("applyServiceTierRouting", () => {
         expect(loadPriceCardMock).not.toHaveBeenCalled();
     });
 
+    it("does not expose dedicated priority variants to standard or omitted tier requests", async () => {
+        const dedicated = makeCandidate({
+            providerId: "deepinfra",
+            apiModelId: "openai/gpt-oss-120b",
+            providerModelSlug: "openai/gpt-oss-120b-fast",
+            pricingCard: makeCard({ provider: "deepinfra", model: "openai/gpt-oss-120b", plans: ["standard", "priority"] }),
+            offerScope: "specialized",
+            offerLabel: "priority",
+        });
+        const standard = makeCandidate({
+            providerId: "deepinfra-standard",
+            apiModelId: "openai/gpt-oss-120b",
+            providerModelSlug: "openai/gpt-oss-120b",
+            pricingCard: makeCard({ provider: "deepinfra-standard", model: "openai/gpt-oss-120b", plans: ["standard"] }),
+        });
+
+        for (const body of [{}, { service_tier: "standard" }]) {
+            const result = await applyServiceTierRouting({ candidates: [dedicated, standard], body, capability: "text.generate" });
+            expect(result.candidates.map((candidate) => candidate.providerId)).toEqual(["deepinfra-standard"]);
+            expect(result.diagnostics.droppedProviders).toContainEqual(expect.objectContaining({
+                providerId: "deepinfra",
+                reason: "service_tier_priority_required",
+            }));
+        }
+    });
+
     it("remaps Venice priority requests to the hidden fast sibling slug while keeping the public model stable", async () => {
         queryState.providerRows = [
             {
