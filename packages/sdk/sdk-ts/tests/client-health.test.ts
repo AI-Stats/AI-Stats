@@ -39,6 +39,7 @@ describe("Phaseo health helper", () => {
         "X-App-Id": "support-console",
         "X-App-Name": "Support Console",
         "HTTP-Referer": "https://support.example.com",
+        "X-App-Categories": "productivity,developer-tools",
       });
       return new Response(JSON.stringify({ status: "ok", timestamp: "2026-08-19T00:00:00.000Z" }), {
         status: 200,
@@ -50,7 +51,12 @@ describe("Phaseo health helper", () => {
       apiKey: "sk_test_123",
       baseUrl: "https://example.test",
       fetchImpl,
-      app: { id: "support-console", name: "Support Console", url: "https://support.example.com" },
+      app: {
+        id: "support-console",
+        name: "Support Console",
+        url: "https://support.example.com",
+        categories: ["productivity", "developer-tools"],
+      },
     });
 
     await client.getHealth();

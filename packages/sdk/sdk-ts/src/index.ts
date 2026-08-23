@@ -66,6 +66,8 @@ export type AppAttribution = {
   name?: string;
   /** Optional page or deployment URL associated with the application. */
   url?: string;
+  /** Up to three categories used to group the application in app analytics. */
+  categories?: Array<"chat" | "developer-tools" | "research" | "productivity" | "education" | "commerce" | "media" | "finance" | "other">;
 };
 
 type Options = {
@@ -89,6 +91,7 @@ function appAttributionHeaders(app?: AppAttribution): Record<string, string> {
       ["X-App-Id", app.id],
       ["X-App-Name", app.name],
       ["HTTP-Referer", app.url],
+      ["X-App-Categories", app.categories?.join(",")],
     ].filter((entry): entry is [string, string] => typeof entry[1] === "string" && entry[1].trim().length > 0),
   );
 }

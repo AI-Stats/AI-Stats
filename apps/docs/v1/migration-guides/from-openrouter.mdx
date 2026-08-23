@@ -110,16 +110,6 @@ curl -s "https://api.phaseo.app/v1/models" \
   -H "Authorization: Bearer $PHASEO_API_KEY" | jq '.data[0:10] | map(.id)'
 ```
 
-```typescript TypeScript
-const MODEL_ALIASES: Record<string, string> = {
-  "openai/gpt-4.1-mini": "openai/gpt-4.1-mini",
-  "anthropic/claude-3.5-sonnet": "anthropic/claude-3.5-sonnet",
-};
-
-export function resolveModelId(input: string): string {
-  return MODEL_ALIASES[input] ?? input;
-}
-```
 </CodeGroup>
 
 - Keep `Authorization: Bearer` format unchanged.
@@ -128,6 +118,20 @@ export function resolveModelId(input: string): string {
 - If your OpenRouter setup relies on provider allow/deny lists or routing defaults, map those into [Presets](../guides/presets) and [Routing and Fallbacks](../guides/routing-and-fallbacks) instead of scattering them across callers.
 
 Do not copy OpenRouter provider preferences or response-only fields into every call site. Keep those differences in one adapter so rollback remains a base URL and credential change.
+
+### Map provider controls
+
+Several common provider controls have direct Phaseo equivalents:
+
+| Existing field | Phaseo field | Notes |
+| --- | --- | --- |
+| `provider.order` | `provider.order` | Try providers in a preferred sequence. |
+| `provider.only` | `provider.only` | Restrict the request to an approved set. |
+| `provider.ignore` | `provider.ignore` | Remove providers from consideration. |
+| `provider.sort` | `provider.sort` | Supports `price`, `latency`, and `throughput`. |
+| `provider.zdr` | `provider.require_zero_data_retention` | Require a zero-data-retention-capable route. |
+
+Phaseo also supports `provider.required_execution_region` and `provider.required_data_region` when a workload needs regional controls. See [Pin or ignore providers](../cookbook/pin-or-ignore-providers-per-request) and [Route only to EU or ZDR-capable providers](../cookbook/route-only-to-eu-or-zdr-providers) for complete requests.
 
 ## 4) OpenRouter parity checklist
 
