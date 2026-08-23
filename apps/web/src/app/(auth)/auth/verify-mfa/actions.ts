@@ -2,11 +2,12 @@
 
 import { createClient } from '@/utils/supabase/server'
 import { resolveAccessibleWorkspaceIdFromCookie } from '@/utils/workspaceCookie'
+import { finalizePostLogin } from '@/lib/auth/post-login'
 
 /**
  * Verifies a TOTP MFA challenge during login and upgrades the session to AAL2.
  */
-export async function verifyMFALoginAction(code: string) {
+export async function verifyMFALoginAction(code: string, returnUrl: string) {
     const supabase = await createClient()
 
     const {
@@ -51,7 +52,12 @@ export async function verifyMFALoginAction(code: string) {
         throw new Error('Failed to verify code')
     }
 
-    // Session automatically elevated to aal2 by Supabase
+    // Resume post-login finalization after the session is elevated to AAL2.
     await resolveAccessibleWorkspaceIdFromCookie()
-    return { success: true }
+    return finalizePostLogin({
+        supabaseUser: supabase,
+        user,
+        returnUrl,
+        source: 'server_action',
+    })
 }

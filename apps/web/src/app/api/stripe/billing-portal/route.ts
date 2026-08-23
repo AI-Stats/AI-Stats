@@ -25,7 +25,8 @@ function resolveSafeReturnUrl(request: Request, candidate: unknown): string {
 export async function POST(request: Request) {
     try {
         const body = await request.json().catch(() => ({}));
-        const { customerId } = await requireActiveTeamStripeCustomer();
+        const workspaceId = String(body?.workspaceId ?? "").trim();
+        const { customerId } = await requireActiveTeamStripeCustomer({ workspaceId });
         const returnUrl = resolveSafeReturnUrl(request, body?.returnUrl);
 
         const stripe = getStripe();

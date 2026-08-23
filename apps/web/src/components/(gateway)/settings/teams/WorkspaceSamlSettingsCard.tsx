@@ -1,22 +1,13 @@
 "use client";
 
 import * as React from "react";
-import { CheckCircle2, Copy, Loader2, ShieldCheck } from "lucide-react";
+import { CheckCircle2, Copy, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { updateTeamSsoSettingsAction } from "@/app/(dashboard)/settings/teams/actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardFooter,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import {
 	normalizeTeamSsoSettingsInput,
@@ -27,6 +18,7 @@ type Props = {
 	workspaceId: string;
 	initialSettings?: TeamSsoSettingsRow;
 	canEdit: boolean;
+	preview?: boolean;
 };
 
 function domainsToInput(domains: string[] | null | undefined): string {
@@ -37,13 +29,14 @@ export default function WorkspaceSamlSettingsCard({
 	workspaceId,
 	initialSettings,
 	canEdit,
+	preview = false,
 }: Props) {
 	const [enabled, setEnabled] = React.useState(Boolean(initialSettings?.sso_enabled));
 	const [providerId, setProviderId] = React.useState(
-		String(initialSettings?.sso_provider_identifier ?? ""),
+		String(initialSettings?.sso_provider_identifier ?? (preview ? "sp_example_provider" : "")),
 	);
 	const [domains, setDomains] = React.useState(
-		domainsToInput(initialSettings?.sso_domains),
+		domainsToInput(initialSettings?.sso_domains) || (preview ? "acme.example" : ""),
 	);
 	const [saving, setSaving] = React.useState(false);
 
@@ -93,27 +86,10 @@ export default function WorkspaceSamlSettingsCard({
 	}
 
 	return (
-		<Card>
-			<CardHeader className="flex flex-row items-start justify-between gap-4">
-				<div className="space-y-1.5">
-					<CardTitle className="flex items-center gap-2">
-						<ShieldCheck className="h-4 w-4" />
-						SAML single sign-on
-					</CardTitle>
-					<CardDescription>
-						Connect a SAML 2.0 identity provider to this workspace.
-					</CardDescription>
-				</div>
-				<Badge variant={enabled ? "default" : configured ? "secondary" : "outline"}>
-					{enabled ? "Enabled" : configured ? "Ready" : "Not configured"}
-				</Badge>
-			</CardHeader>
-
-			<Separator />
-
-			<CardContent className="grid max-w-2xl gap-6 pt-6">
+		<section className="space-y-6">
+			<div className="grid max-w-2xl gap-6">
 				<div className="grid gap-2">
-					<Label htmlFor="samlMetadataUrl">Phaseo metadata URL</Label>
+					<div className="flex items-center justify-between gap-3"><Label htmlFor="samlMetadataUrl">Phaseo metadata URL</Label><Badge variant={enabled ? "default" : configured ? "secondary" : "outline"}>{enabled ? "Enabled" : configured ? "Ready" : "Not configured"}</Badge></div>
 					<div className="flex gap-2">
 						<Input
 							id="samlMetadataUrl"
@@ -180,9 +156,8 @@ export default function WorkspaceSamlSettingsCard({
 						aria-label="Enable SAML sign-in"
 					/>
 				</div>
-			</CardContent>
-
-			<CardFooter className="justify-between gap-4">
+			</div>
+			<div className="flex items-center justify-between gap-4 border-t border-border/60 pt-5">
 				<p className="flex items-center gap-1.5 text-xs text-muted-foreground">
 					<CheckCircle2 className="h-3.5 w-3.5" />
 					Available to every workspace during rollout.
@@ -195,7 +170,7 @@ export default function WorkspaceSamlSettingsCard({
 					{saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
 					Save SAML settings
 				</Button>
-			</CardFooter>
-		</Card>
+			</div>
+		</section>
 	);
 }

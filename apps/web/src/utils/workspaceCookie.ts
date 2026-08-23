@@ -77,7 +77,7 @@ export async function resolveAccessibleWorkspaceIdFromCookie(options?: {
 		const rawCookieWorkspaceId = await getActiveWorkspaceIdFromCookieRaw();
 		const context = await getServerAccountContext();
 		if (!context.accessToken) { await clearActiveWorkspaceCookie(); return undefined; }
-		const query = rawCookieWorkspaceId ? `?requested=${encodeURIComponent(rawCookieWorkspaceId)}&persist=1` : "";
+		const query = rawCookieWorkspaceId ? `?requested=${encodeURIComponent(rawCookieWorkspaceId)}` : "";
 		const result = await fetchAccountWebApi<{ signedIn: boolean; workspaceId: string | null }>(`/api/account/auth/workspace${query}`, context.accessToken);
 		if (!result.workspaceId) { await clearActiveWorkspaceCookie(); return undefined; }
 		if (result.workspaceId !== rawCookieWorkspaceId) await setActiveWorkspaceCookie(result.workspaceId);
