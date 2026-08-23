@@ -945,6 +945,8 @@ export async function syncV2Catalogue(): Promise<void> {
                 ? row.provider_family_id
                 : null,
         name: row.api_provider_name,
+        offer_label: row.offer_label ?? null,
+        offer_scope: row.offer_scope ?? "global",
         status: sourceRoutable === false ? "external" : providerStatus(row.status),
         routing_enabled: routingEnabled,
         routable,
