@@ -62,10 +62,17 @@
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "pricing",
+      "url": "https://www.siliconflow.com/pricing",
+      "accessed_at": "2026-08-23T00:00:00Z",
+      "notes": "Official SiliconFlow serverless pricing table."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-23T00:00:00Z",
+    "notes": "Current input, cache-read, and output rates verified against the official pricing table."
   }
 }

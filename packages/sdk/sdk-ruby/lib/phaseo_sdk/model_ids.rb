@@ -372,6 +372,9 @@ module PhaseoSdk
     # Model ID: google/gemma-3-4b
     # Model page: https://phaseo.app/models/google/gemma-3-4b
     GOOGLE_GEMMA_3_4B = "google/gemma-3-4b"
+    # Model ID: google/gemma-4-12b
+    # Model page: https://phaseo.app/models/google/gemma-4-12b
+    GOOGLE_GEMMA_4_12B = "google/gemma-4-12b"
     # Model ID: google/gemma-4-26b-a4b
     # Model page: https://phaseo.app/models/google/gemma-4-26b-a4b
     GOOGLE_GEMMA_4_26B_A4B = "google/gemma-4-26b-a4b"
@@ -780,9 +783,6 @@ module PhaseoSdk
     # Model ID: nvidia/nemotron-3-nano-omni
     # Model page: https://phaseo.app/models/nvidia/nemotron-3-nano-omni
     NVIDIA_NEMOTRON_3_NANO_OMNI = "nvidia/nemotron-3-nano-omni"
-    # Model ID: nvidia/nemotron-3-nano-omni-30b-a3b-reasoning
-    # Model page: https://phaseo.app/models/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning
-    NVIDIA_NEMOTRON_3_NANO_OMNI_30B_A3B_REASONING = "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning"
     # Model ID: nvidia/nemotron-3-super-120b-a12b
     # Model page: https://phaseo.app/models/nvidia/nemotron-3-super-120b-a12b
     NVIDIA_NEMOTRON_3_SUPER_120B_A12B = "nvidia/nemotron-3-super-120b-a12b"
@@ -1763,6 +1763,7 @@ module PhaseoSdk
     ModelIds::GOOGLE_GEMMA_3_12B,
     ModelIds::GOOGLE_GEMMA_3_27B,
     ModelIds::GOOGLE_GEMMA_3_4B,
+    ModelIds::GOOGLE_GEMMA_4_12B,
     ModelIds::GOOGLE_GEMMA_4_26B_A4B,
     ModelIds::GOOGLE_GEMMA_4_26B_A4B_FREE,
     ModelIds::GOOGLE_GEMMA_4_31B,
@@ -1899,7 +1900,6 @@ module PhaseoSdk
     ModelIds::NVIDIA_LLAMA_3_1_NEMOTRON_ULTRA_253B,
     ModelIds::NVIDIA_NEMOTRON_3_NANO_30B_A3B,
     ModelIds::NVIDIA_NEMOTRON_3_NANO_OMNI,
-    ModelIds::NVIDIA_NEMOTRON_3_NANO_OMNI_30B_A3B_REASONING,
     ModelIds::NVIDIA_NEMOTRON_3_SUPER_120B_A12B,
     ModelIds::NVIDIA_NEMOTRON_3_ULTRA_550B_A55B,
     ModelIds::NVIDIA_NEMOTRON_3_5_LIGHTNING,

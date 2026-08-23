@@ -376,6 +376,9 @@ const (
 	// Model ID: google/gemma-3-4b
 	// Model page: https://phaseo.app/models/google/gemma-3-4b
 	ModelIDGoogleGemma34b gen.ModelId = "google/gemma-3-4b"
+	// Model ID: google/gemma-4-12b
+	// Model page: https://phaseo.app/models/google/gemma-4-12b
+	ModelIDGoogleGemma412b gen.ModelId = "google/gemma-4-12b"
 	// Model ID: google/gemma-4-26b-a4b
 	// Model page: https://phaseo.app/models/google/gemma-4-26b-a4b
 	ModelIDGoogleGemma426bA4b gen.ModelId = "google/gemma-4-26b-a4b"
@@ -784,9 +787,6 @@ const (
 	// Model ID: nvidia/nemotron-3-nano-omni
 	// Model page: https://phaseo.app/models/nvidia/nemotron-3-nano-omni
 	ModelIDNvidiaNemotron3NanoOmni gen.ModelId = "nvidia/nemotron-3-nano-omni"
-	// Model ID: nvidia/nemotron-3-nano-omni-30b-a3b-reasoning
-	// Model page: https://phaseo.app/models/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning
-	ModelIDNvidiaNemotron3NanoOmni30bA3bReasoning gen.ModelId = "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning"
 	// Model ID: nvidia/nemotron-3-super-120b-a12b
 	// Model page: https://phaseo.app/models/nvidia/nemotron-3-super-120b-a12b
 	ModelIDNvidiaNemotron3Super120bA12b gen.ModelId = "nvidia/nemotron-3-super-120b-a12b"
@@ -1767,6 +1767,7 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDGoogleGemma312b,
 	ModelIDGoogleGemma327b,
 	ModelIDGoogleGemma34b,
+	ModelIDGoogleGemma412b,
 	ModelIDGoogleGemma426bA4b,
 	ModelIDGoogleGemma426bA4bFree,
 	ModelIDGoogleGemma431b,
@@ -1903,7 +1904,6 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDNvidiaLlama31NemotronUltra253b,
 	ModelIDNvidiaNemotron3Nano30bA3b,
 	ModelIDNvidiaNemotron3NanoOmni,
-	ModelIDNvidiaNemotron3NanoOmni30bA3bReasoning,
 	ModelIDNvidiaNemotron3Super120bA12b,
 	ModelIDNvidiaNemotron3Ultra550bA55b,
 	ModelIDNvidiaNemotron35Lightning,

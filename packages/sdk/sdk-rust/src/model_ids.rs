@@ -372,6 +372,9 @@ pub mod model_ids {
     /// Model ID: `google/gemma-3-4b`.
     /// Model page: https://phaseo.app/models/google/gemma-3-4b
     pub const GOOGLE_GEMMA_3_4B: &str = "google/gemma-3-4b";
+    /// Model ID: `google/gemma-4-12b`.
+    /// Model page: https://phaseo.app/models/google/gemma-4-12b
+    pub const GOOGLE_GEMMA_4_12B: &str = "google/gemma-4-12b";
     /// Model ID: `google/gemma-4-26b-a4b`.
     /// Model page: https://phaseo.app/models/google/gemma-4-26b-a4b
     pub const GOOGLE_GEMMA_4_26B_A4B: &str = "google/gemma-4-26b-a4b";
@@ -780,9 +783,6 @@ pub mod model_ids {
     /// Model ID: `nvidia/nemotron-3-nano-omni`.
     /// Model page: https://phaseo.app/models/nvidia/nemotron-3-nano-omni
     pub const NVIDIA_NEMOTRON_3_NANO_OMNI: &str = "nvidia/nemotron-3-nano-omni";
-    /// Model ID: `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning`.
-    /// Model page: https://phaseo.app/models/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning
-    pub const NVIDIA_NEMOTRON_3_NANO_OMNI_30B_A3B_REASONING: &str = "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning";
     /// Model ID: `nvidia/nemotron-3-super-120b-a12b`.
     /// Model page: https://phaseo.app/models/nvidia/nemotron-3-super-120b-a12b
     pub const NVIDIA_NEMOTRON_3_SUPER_120B_A12B: &str = "nvidia/nemotron-3-super-120b-a12b";
@@ -1763,6 +1763,7 @@ pub mod model_ids {
         GOOGLE_GEMMA_3_12B,
         GOOGLE_GEMMA_3_27B,
         GOOGLE_GEMMA_3_4B,
+        GOOGLE_GEMMA_4_12B,
         GOOGLE_GEMMA_4_26B_A4B,
         GOOGLE_GEMMA_4_26B_A4B_FREE,
         GOOGLE_GEMMA_4_31B,
@@ -1899,7 +1900,6 @@ pub mod model_ids {
         NVIDIA_LLAMA_3_1_NEMOTRON_ULTRA_253B,
         NVIDIA_NEMOTRON_3_NANO_30B_A3B,
         NVIDIA_NEMOTRON_3_NANO_OMNI,
-        NVIDIA_NEMOTRON_3_NANO_OMNI_30B_A3B_REASONING,
         NVIDIA_NEMOTRON_3_SUPER_120B_A12B,
         NVIDIA_NEMOTRON_3_ULTRA_550B_A55B,
         NVIDIA_NEMOTRON_3_5_LIGHTNING,
