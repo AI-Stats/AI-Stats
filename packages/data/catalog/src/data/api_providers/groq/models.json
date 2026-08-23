@@ -530,7 +530,7 @@
     "max_output_tokens": 448,
     "effective_from": "2026-03-25T00:00:00",
     "effective_to": null,
-    "capabilities": [{"capability_id":"audio.transcription","status":"active","params":[],"reasoning":null,"tool_call":null,"structured_output":null,"temperature":null,"attachment":null,"input_modalities":null,"output_modalities":null,"modes":[]}],
+    "capabilities": [{"capability_id":"audio.transcription","status":"active","params":[],"reasoning":null,"tool_call":null,"structured_output":null,"temperature":null,"attachment":null,"input_modalities":null,"output_modalities":null,"modes":[]},{"capability_id":"audio.translations","status":"active","params":[],"reasoning":null,"tool_call":null,"structured_output":null,"temperature":null,"attachment":null,"input_modalities":null,"output_modalities":null,"modes":[]}],
     "routing_status": "active",
     "routable": true,
     "regions": {
@@ -564,7 +564,7 @@
     "max_output_tokens": 448,
     "effective_from": "2026-03-25T00:00:00",
     "effective_to": null,
-    "capabilities": [{"capability_id":"audio.transcription","status":"active","params":[],"reasoning":null,"tool_call":null,"structured_output":null,"temperature":null,"attachment":null,"input_modalities":null,"output_modalities":null,"modes":[]}],
+    "capabilities": [{"capability_id":"audio.transcription","status":"active","params":[],"reasoning":null,"tool_call":null,"structured_output":null,"temperature":null,"attachment":null,"input_modalities":null,"output_modalities":null,"modes":[]},{"capability_id":"audio.translations","status":"active","params":[],"reasoning":null,"tool_call":null,"structured_output":null,"temperature":null,"attachment":null,"input_modalities":null,"output_modalities":null,"modes":[]}],
     "routing_status": "active",
     "routable": true,
     "regions": {
