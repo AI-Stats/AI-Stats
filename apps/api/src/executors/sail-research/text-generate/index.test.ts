@@ -8,6 +8,10 @@ function request(serviceTier: string): IRChatRequest {
 	return { model: "test/model", messages: [], stream: false, serviceTier };
 }
 
+function requestWithoutTier(): IRChatRequest {
+	return { model: "test/model", messages: [], stream: false };
+}
+
 function args(providerModelSlug: string): ExecutorExecuteArgs {
 	return {
 		providerModelSlug,
@@ -25,6 +29,15 @@ describe("Sail Research completion windows", () => {
 	it("maps standard to balanced when the model offers it", () => {
 		expect(preprocess(request("standard"), args("zai-org/GLM-5.2-FP8"))).toMatchObject({
 			metadata: { completion_window: "balanced" },
+		});
+	});
+
+	it("maps an omitted tier to the standard completion window", () => {
+		expect(preprocess(requestWithoutTier(), args("zai-org/GLM-5.2-FP8"))).toMatchObject({
+			metadata: { completion_window: "balanced" },
+		});
+		expect(preprocess(requestWithoutTier(), args("deepseek/deepseek-v4-flash-0731"))).toMatchObject({
+			metadata: { completion_window: "asap" },
 		});
 	});
 

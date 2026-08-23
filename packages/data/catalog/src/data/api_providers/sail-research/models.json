@@ -377,7 +377,7 @@
     "provider_api_model_id": "sail-research:nvidia/nemotron-3-super-120b-a12b",
     "provider_model_slug": "nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-BF16",
     "internal_model_id": "nvidia/nemotron-3-super-120b-a12b",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "BF16",
     "input_modalities": "text",
     "output_modalities": "text",
@@ -388,7 +388,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [
           "max_tokens",
           "temperature",
@@ -415,8 +415,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "disabled",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -443,7 +443,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23",
-      "notes": "Verified against Sail Research's first-party model, pricing, completion-window, and API support documentation."
+      "notes": "Current Flex-only model and pricing are retained, but gateway routing is disabled until omitted tiers can exclude Flex-only routes and background completion semantics are supported safely."
     },
     "rate_limits": []
   },
@@ -527,7 +527,7 @@
     "provider_api_model_id": "sail-research:qwen/qwen3.6-35b-a3b",
     "provider_model_slug": "Qwen/Qwen3.6-35B-A3B",
     "internal_model_id": "qwen/qwen3.6-35b-a3b",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "BF16",
     "input_modalities": "text,image",
     "output_modalities": "text",
@@ -538,7 +538,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [
           "max_tokens",
           "temperature",
@@ -565,8 +565,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "disabled",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -593,7 +593,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23",
-      "notes": "Verified against Sail Research's first-party model, pricing, completion-window, and API support documentation."
+      "notes": "Current Flex-only model and pricing are retained, but gateway routing is disabled until omitted tiers can exclude Flex-only routes and background completion semantics are supported safely."
     },
     "rate_limits": []
   },

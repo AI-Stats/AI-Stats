@@ -13,10 +13,11 @@ const BALANCED_MODEL_SLUGS = new Set([
 
 export function preprocess(ir: IRChatRequest, args: ExecutorExecuteArgs): IRChatRequest {
 	const next = cherryPickIRParams(ir, args.capabilityParams);
-	if (next.serviceTier) {
-		const completionWindow = next.serviceTier === "flex"
+	{
+		const requestedTier = next.serviceTier ?? "standard";
+		const completionWindow = requestedTier === "flex"
 			? "flex"
-			: next.serviceTier === "standard" && BALANCED_MODEL_SLUGS.has(args.providerModelSlug ?? "")
+			: requestedTier === "standard" && BALANCED_MODEL_SLUGS.has(args.providerModelSlug ?? "")
 				? "balanced"
 				: "asap";
 		next.metadata = { ...(next.metadata ?? {}), completion_window: completionWindow };
