@@ -1,7 +1,7 @@
 {
   "api_provider_id": "coreweave",
   "api_provider_name": "CoreWeave",
-  "description": "AI inference infrastructure and managed model services.",
+  "description": "AI infrastructure provider whose public Serverless Inference offering is delivered through W&B Inference.",
   "link": "https://www.coreweave.com/",
   "country_code": "US",
   "status": "NotReady",
@@ -16,13 +16,27 @@
   "routing_enabled": false,
   "sdk_package": null,
   "api_base_url": null,
-  "docs_url": "https://docs.coreweave.com/",
+  "docs_url": "https://docs.coreweave.com/products/inference/serverless",
   "auth_env": null,
   "api_formats": [],
   "service_tiers": [],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://docs.coreweave.com/products/inference/serverless",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "CoreWeave states that Serverless Inference is delivered through W&B Inference and that W&B owns the canonical setup, usage, model, and reference documentation."
+    },
+    {
+      "kind": "provider_pricing",
+      "url": "https://www.coreweave.com/products/dedicated-inference",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "CoreWeave distinguishes pay-per-token Serverless Inference from GPU-hour Dedicated Inference; the public serverless API and token pricing surface is W&B Inference."
+    }
+  ],
   "verification": {
-    "status": "partial", "checked_at": "2026-08-03T00:00:00Z",
-    "notes": "Provider-model availability recorded; Phaseo provider onboarding is not ready."
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Verified that CoreWeave does not document a separate public first-party serverless model API. Public Serverless Inference is exposed through W&B Inference, which is catalogued under the weights-and-biases provider."
   }
 }

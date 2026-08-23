@@ -16,6 +16,7 @@
       "match": [],
       "priority": 100,
       "effective_from": "2026-08-03T00:00:00Z",
+      "effective_to": "2026-08-24T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -32,6 +33,7 @@
       "match": [],
       "priority": 100,
       "effective_from": "2026-08-03T00:00:00Z",
+      "effective_to": "2026-08-24T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -48,12 +50,14 @@
       "match": [],
       "priority": 100,
       "effective_from": "2026-08-03T00:00:00Z",
+      "effective_to": "2026-08-24T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
       "source": null
     }
   ],
+  "effective_to": "2026-08-24T00:00:00Z",
   "regions": [],
   "service_tiers": [
     "standard"
@@ -61,14 +65,14 @@
   "sources": [
     {
       "kind": "pricing",
-      "url": "https://docs.coreweave.com/",
-      "accessed_at": "2026-08-03T00:00:00Z",
-      "notes": "Provider deployment pricing recorded for this model route."
+      "url": "https://docs.coreweave.com/products/inference/serverless",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "CoreWeave documents W&B Inference as the canonical public serverless API and pricing surface. No official source was found for this historical direct CoreWeave price."
     }
   ],
   "verification": {
-    "status": "partial",
-    "checked_at": "2026-08-03T00:00:00Z",
-    "notes": "Pricing recorded while direct provider verification remains partial."
+    "status": "unverified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Historical prices retained for auditability but ended because no separate direct CoreWeave public API or official token-pricing source could be verified."
   }
 }

@@ -11,11 +11,11 @@
     "context_length": 1048576,
     "max_output_tokens": null,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-08-24T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": true,
         "tool_call": true,
@@ -27,7 +27,7 @@
         "modes": []
       }
     ],
-    "routing_status": null,
+    "routing_status": "disabled",
     "routable": false,
     "regions": {
       "execution": null,
@@ -37,17 +37,22 @@
       "standard"
     ],
     "api": {
-      "formats": [
-        "openai.chat.completions"
-      ],
+      "formats": [],
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.coreweave.com/products/inference/serverless",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "No separate CoreWeave public API or CoreWeave model ID is documented; the public serverless surface is W&B Inference. This disabled row is retained only as catalogue history."
+      }
+    ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-03T00:00:00Z",
-      "notes": "Availability recorded; exact direct endpoint validation and Phaseo onboarding remain pending."
+      "status": "unverified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "The historical direct CoreWeave upstream ID, limits, and pricing could not be substantiated in CoreWeave's public documentation. The route is inactive and non-routable; current public access is through W&B Inference."
     },
     "rate_limits": []
   }
