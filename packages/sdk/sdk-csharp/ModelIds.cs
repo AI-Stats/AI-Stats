@@ -252,6 +252,8 @@ namespace PhaseoSdk
         public const string GoogleGemma327b = "google/gemma-3-27b";
         /// <summary>Model ID: <c>google/gemma-3-4b</c>. Model page: https://phaseo.app/models/google/gemma-3-4b</summary>
         public const string GoogleGemma34b = "google/gemma-3-4b";
+        /// <summary>Model ID: <c>google/gemma-4-12b</c>. Model page: https://phaseo.app/models/google/gemma-4-12b</summary>
+        public const string GoogleGemma412b = "google/gemma-4-12b";
         /// <summary>Model ID: <c>google/gemma-4-26b-a4b</c>. Model page: https://phaseo.app/models/google/gemma-4-26b-a4b</summary>
         public const string GoogleGemma426bA4b = "google/gemma-4-26b-a4b";
         /// <summary>Model ID: <c>google/gemma-4-26b-a4b:free</c>. Model page: https://phaseo.app/models/google/gemma-4-26b-a4b%3Afree</summary>
@@ -524,8 +526,6 @@ namespace PhaseoSdk
         public const string NvidiaNemotron3Nano30bA3b = "nvidia/nemotron-3-nano-30b-a3b";
         /// <summary>Model ID: <c>nvidia/nemotron-3-nano-omni</c>. Model page: https://phaseo.app/models/nvidia/nemotron-3-nano-omni</summary>
         public const string NvidiaNemotron3NanoOmni = "nvidia/nemotron-3-nano-omni";
-        /// <summary>Model ID: <c>nvidia/nemotron-3-nano-omni-30b-a3b-reasoning</c>. Model page: https://phaseo.app/models/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning</summary>
-        public const string NvidiaNemotron3NanoOmni30bA3bReasoning = "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning";
         /// <summary>Model ID: <c>nvidia/nemotron-3-super-120b-a12b</c>. Model page: https://phaseo.app/models/nvidia/nemotron-3-super-120b-a12b</summary>
         public const string NvidiaNemotron3Super120bA12b = "nvidia/nemotron-3-super-120b-a12b";
         /// <summary>Model ID: <c>nvidia/nemotron-3-ultra-550b-a55b</c>. Model page: https://phaseo.app/models/nvidia/nemotron-3-ultra-550b-a55b</summary>
