@@ -3,9 +3,21 @@ import { sendEmail } from "@/lib/email/resend";
 import { getSupabaseAdmin } from "@/runtime/env";
 
 const DELIVERABLE_KINDS = ["low_balance", "auto_top_up_failed", "payment_method_expiring", "model_deprecation", "notification_test"];
+const EVENT_PAGE_SIZE = 100;
+const WORKSPACE_PAGE_SIZE = 500;
 
 type EventRow = { id: string; kind: string; subject: string | null; workspace_id: string; payload: Record<string, unknown> | null; created_at: string };
 type DestinationRow = { id: string; workspace_id: string; name: string; type: string; target_ciphertext: string; target_iv: string; target_key_version: string; status: string; is_ephemeral?: boolean };
+
+export async function forEachPage<T>(pageSize: number, fetchPage: (from: number, to: number) => Promise<T[]>, visit: (row: T) => Promise<void>): Promise<number> {
+	let count = 0;
+	for (let from = 0; ; from += pageSize) {
+		const rows = await fetchPage(from, from + pageSize - 1);
+		for (const row of rows) await visit(row);
+		count += rows.length;
+		if (rows.length < pageSize) return count;
+	}
+}
 
 export function eventContent(event: EventRow) {
 	const payload = event.payload ?? {};
@@ -112,22 +124,24 @@ export async function deliverNotificationTest(input: {
 export async function runNotificationDeliveryJob(limit = 25): Promise<{ queued: number; sent: number; failed: number }> {
 	const supabase = getSupabaseAdmin();
 	const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
-	const eventsResult = await supabase.from("email_outbox").select("id,kind,subject,workspace_id,payload,created_at").in("kind", DELIVERABLE_KINDS).not("workspace_id", "is", null).gte("created_at", since).order("created_at", { ascending: false }).limit(100);
-	if (eventsResult.error) throw new Error(`notification_events_fetch_failed:${eventsResult.error.message}`);
 	let queued = 0;
-	for (const event of (eventsResult.data ?? []) as EventRow[]) {
-		let destinationQuery = supabase.from("notification_destinations").select("id").eq("workspace_id", event.workspace_id).eq("status", "active");
-		const requestedDestination = typeof event.payload?.destination_id === "string" ? event.payload.destination_id : null;
-		if (requestedDestination) destinationQuery = destinationQuery.eq("id", requestedDestination);
-		const destinations = await destinationQuery;
-		if (destinations.error) throw new Error(`notification_destinations_fetch_failed:${destinations.error.message}`);
-		const rows = (destinations.data ?? []).map((destination) => ({ event_id: event.id, destination_id: destination.id, workspace_id: event.workspace_id, status: "pending" }));
-		if (rows.length) {
-			const inserted = await supabase.from("notification_delivery_attempts").upsert(rows, { onConflict: "event_id,destination_id", ignoreDuplicates: true });
-			if (inserted.error) throw new Error(`notification_attempts_enqueue_failed:${inserted.error.message}`);
-			queued += rows.length;
-		}
-	}
+	await forEachPage(EVENT_PAGE_SIZE, async (from, to) => {
+		const eventsResult = await supabase.from("email_outbox").select("id,kind,subject,workspace_id,payload,created_at").in("kind", DELIVERABLE_KINDS).not("workspace_id", "is", null).gte("created_at", since).order("created_at", { ascending: true }).order("id", { ascending: true }).range(from, to);
+		if (eventsResult.error) throw new Error(`notification_events_fetch_failed:${eventsResult.error.message}`);
+		return (eventsResult.data ?? []) as EventRow[];
+	}, async (event) => {
+			let destinationQuery = supabase.from("notification_destinations").select("id").eq("workspace_id", event.workspace_id).eq("status", "active");
+			const requestedDestination = typeof event.payload?.destination_id === "string" ? event.payload.destination_id : null;
+			if (requestedDestination) destinationQuery = destinationQuery.eq("id", requestedDestination);
+			const destinations = await destinationQuery;
+			if (destinations.error) throw new Error(`notification_destinations_fetch_failed:${destinations.error.message}`);
+			const rows = (destinations.data ?? []).map((destination) => ({ event_id: event.id, destination_id: destination.id, workspace_id: event.workspace_id, status: "pending" }));
+			if (rows.length) {
+				const inserted = await supabase.from("notification_delivery_attempts").upsert(rows, { onConflict: "event_id,destination_id", ignoreDuplicates: true });
+				if (inserted.error) throw new Error(`notification_attempts_enqueue_failed:${inserted.error.message}`);
+				queued += rows.length;
+			}
+	});
 	const attempts = await supabase.from("notification_delivery_attempts").select("id,event_id,destination_id,attempts").in("status", ["pending", "retry"]).lte("next_attempt_at", new Date().toISOString()).order("created_at", { ascending: true }).limit(limit);
 	if (attempts.error) throw new Error(`notification_attempts_fetch_failed:${attempts.error.message}`);
 	let sent = 0; let failed = 0;
@@ -155,22 +169,25 @@ export async function runNotificationDeliveryJob(limit = 25): Promise<{ queued: 
 
 export async function enqueueModelDeprecationNotifications(now = new Date()): Promise<{ workspaces: number; enqueued: number }> {
 	const supabase = getSupabaseAdmin();
-	const settingsResult = await supabase.from("workspace_settings").select("workspace_id").eq("model_deprecation_alerts_enabled", true).limit(500);
-	if (settingsResult.error) throw new Error(`model_deprecation_settings_fetch_failed:${settingsResult.error.message}`);
 	let enqueued = 0;
-	for (const settings of settingsResult.data ?? []) {
+	let workspaces = 0;
+	workspaces = await forEachPage(WORKSPACE_PAGE_SIZE, async (from, to) => {
+		const settingsResult = await supabase.from("workspace_settings").select("workspace_id").eq("model_deprecation_alerts_enabled", true).order("workspace_id", { ascending: true }).range(from, to);
+		if (settingsResult.error) throw new Error(`model_deprecation_settings_fetch_failed:${settingsResult.error.message}`);
+		return settingsResult.data ?? [];
+	}, async (settings) => {
 		const workspaceId = String(settings.workspace_id);
 		const usage = await supabase.from("gateway_requests").select("model_id").eq("workspace_id", workspaceId).not("model_id", "is", null).gte("created_at", new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString()).limit(5000);
-		if (usage.error) continue;
+		if (usage.error) return;
 		const modelIds = [...new Set((usage.data ?? []).map((row) => String(row.model_id ?? "").trim()).filter(Boolean))];
-		if (!modelIds.length) continue;
+		if (!modelIds.length) return;
 		const models = await supabase.from("v2_models").select("model_slug,name,status,deprecated_at,retired_at").in("model_slug", modelIds);
-		if (models.error) continue;
+		if (models.error) return;
 		const workspace = await supabase.from("workspaces").select("name,owner_user_id").eq("id", workspaceId).maybeSingle();
-		if (workspace.error || !workspace.data?.owner_user_id) continue;
+		if (workspace.error || !workspace.data?.owner_user_id) return;
 		const user = await (supabase as any).auth.admin.getUserById(workspace.data.owner_user_id).catch(() => null);
 		const email = String(user?.data?.user?.email ?? "").trim();
-		if (!email) continue;
+		if (!email) return;
 		for (const model of models.data ?? []) {
 			const deprecated = String(model.status ?? "").toLowerCase() === "deprecated" || (model.deprecated_at && Date.parse(String(model.deprecated_at)) <= now.getTime());
 			if (!deprecated) continue;
@@ -178,6 +195,6 @@ export async function enqueueModelDeprecationNotifications(now = new Date()): Pr
 			const inserted = await supabase.from("email_outbox").upsert({ dedupe_key: dedupeKey, kind: "model_deprecation", template: "model_deprecation", to_email: email, subject: `${String(model.name ?? model.model_slug)} has been deprecated`, workspace_id: workspaceId, user_id: workspace.data.owner_user_id, payload: { workspace_name: workspace.data.name ?? "your workspace", model_id: model.model_slug, model_name: model.name ?? model.model_slug, deprecation_date: model.deprecated_at, retirement_date: model.retired_at, title: `${String(model.name ?? model.model_slug)} has been deprecated` } }, { onConflict: "dedupe_key", ignoreDuplicates: true });
 			if (!inserted.error) enqueued += 1;
 		}
-	}
-	return { workspaces: settingsResult.data?.length ?? 0, enqueued };
+	});
+	return { workspaces, enqueued };
 }
