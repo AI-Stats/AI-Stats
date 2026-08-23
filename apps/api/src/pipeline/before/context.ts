@@ -743,6 +743,10 @@ async function fetchTestingProviderSnapshots(args: {
             baseWeight: 1,
             byokMeta: byokByProvider.get(providerId) ?? [],
             providerModelSlug,
+            quantizationScheme:
+				typeof row?.metadata?.quantization_scheme === "string"
+					? row.metadata.quantization_scheme
+					: null,
             capabilityParams: cap?.params ?? {},
             maxInputTokens:
                 cap?.maxInputTokens !== null && Number.isFinite(cap?.maxInputTokens)
@@ -886,6 +890,10 @@ async function fetchFreeRouterProviderPool(args: {
             baseWeight: 1,
             byokMeta: [],
             providerModelSlug,
+            quantizationScheme:
+				typeof row.metadata?.quantization_scheme === "string"
+					? row.metadata.quantization_scheme
+					: null,
             apiModelId,
             pricingKey,
             capabilityParams: (capability.params && typeof capability.params === "object" ? capability.params : {}) as Record<string, any>,
@@ -1752,7 +1760,6 @@ export async function fetchGatewayContext(args: {
         }
     }
 }
-
 
 
 

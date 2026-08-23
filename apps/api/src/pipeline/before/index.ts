@@ -30,6 +30,7 @@ import {
 	applyProviderQualifiedModelConstraint,
 	canonicalizeProviderQualifiedModelRequest,
 	filterProviderQualifiedModelCandidates,
+	filterQuantizationCandidates,
 	collectUnsupportedRoutingFields,
 	getEffectiveRoutingHints,
 	normalizeRequestRoutingBody,
@@ -900,6 +901,43 @@ export async function beforeRequest(
         }
     }
     enabledProviders = serviceTierRoutingResult.candidates;
+	const quantizationCandidates = filterQuantizationCandidates(
+		enabledProviders,
+		getEffectiveRoutingHints(mergedBody).quantizations,
+	);
+	if (quantizationCandidates.ok === false) {
+		const requested = quantizationCandidates.requested.join(", ");
+		const available = quantizationCandidates.diagnostics.available;
+		const description = available.length > 0
+			? `No eligible provider-model offer matches the requested quantization(s): ${requested}. Available quantizations: ${available.join(", ")}`
+			: `No eligible provider-model offer matches the requested quantization(s): ${requested}. The eligible offers have no usable quantization metadata.`;
+		return {
+			ok: false,
+			response: err("unsupported_model_or_endpoint", {
+				model: resolvedModel || model,
+				reason: quantizationCandidates.reason,
+				description,
+				error_type: "user",
+				error_origin: "user",
+				error_operational_kind: quantizationCandidates.reason,
+				details: [{
+					message: description,
+					path: ["provider", "quantizations"],
+					keyword: quantizationCandidates.reason,
+					params: {
+						requested: quantizationCandidates.requested,
+						available,
+					},
+				}],
+				routing_diagnostics: {
+					quantization: quantizationCandidates.diagnostics,
+				},
+				request_id: requestId,
+				workspace_id: workspaceId,
+			}),
+		};
+	}
+	enabledProviders = quantizationCandidates.providers;
     const missingPricingProviders = enabledProviders
         .filter((provider) =>
             !provider.pricingCard ||
