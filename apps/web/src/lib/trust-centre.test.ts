@@ -25,7 +25,13 @@ describe("trust centre claims", () => {
 
 	it("discloses the provider categories named in the privacy posture", () => {
 		expect(disclosedServiceProviders.map(({ name }) => name)).toEqual(
-			expect.arrayContaining(["Supabase", "Stripe", "Model providers"]),
+			expect.arrayContaining([
+				"Hosting providers",
+				"Supabase",
+				"Stripe",
+				"Email and support providers",
+				"Model providers",
+			]),
 		);
 	});
 });

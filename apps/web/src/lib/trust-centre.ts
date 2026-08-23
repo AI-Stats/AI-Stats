@@ -20,7 +20,7 @@ export const trustPractices: Array<{
 	},
 	{
 		title: "Provider key protection",
-		description: "Bring-your-own provider credentials are encrypted with AES-256-GCM before storage. OAuth client secrets are stored as salted, memory-hard hashes.",
+		description: "Bring-your-own provider credentials are encrypted with AES-256-GCM before storage. OAuth client secrets are stored as peppered SHA-256 hashes.",
 		state: "self-attested",
 	},
 	{
@@ -68,9 +68,11 @@ export const dataPractices: Array<{
 ];
 
 export const disclosedServiceProviders = [
+	{ name: "Hosting providers", purpose: "Host and deliver the service", data: "Service traffic and operational metadata needed to run Phaseo" },
 	{ name: "Supabase", purpose: "Database and account infrastructure", data: "Account, workspace, configuration, and request metadata" },
 	{ name: "Stripe", purpose: "Payments and billing", data: "Billing identity and transaction records; Phaseo does not store full card details" },
 	{ name: "Analytics providers", purpose: "Product analytics and error diagnosis", data: "Page, device, and usage telemetry; configured to exclude raw gateway prompts and outputs" },
+	{ name: "Email and support providers", purpose: "Service communications and customer support", data: "Contact details, message contents, and related account context" },
 	{ name: "Model providers", purpose: "Process the inference request you route", data: "Inputs, outputs, and necessary request metadata; provider terms and retention apply" },
 	{ name: "Connected assistant providers", purpose: "Return authorised OAuth tool results", data: "Only the read-only result and scopes approved through the consent flow" },
 ] as const;
