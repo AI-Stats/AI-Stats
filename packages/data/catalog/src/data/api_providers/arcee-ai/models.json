@@ -146,17 +146,26 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://docs.arcee.ai/get-started/models-overview",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official Trinity hosted-model overview."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified against Arcee's current Trinity model and pricing documentation."
     },
     "rate_limits": []
   },
@@ -260,17 +269,26 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://docs.arcee.ai/get-started/models-overview",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official Trinity hosted-model overview."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified against Arcee's current Trinity model and pricing documentation."
     },
     "rate_limits": []
   },
@@ -421,17 +439,26 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://docs.arcee.ai/get-started/models-overview",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official Trinity hosted-model overview."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified against Arcee's current Trinity model and pricing documentation."
     },
     "rate_limits": []
   },
@@ -451,7 +478,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -463,7 +490,7 @@
         "modes": []
       }
     ],
-    "routing_status": null,
+    "routing_status": "disabled",
     "routable": false,
     "regions": {
       "execution": null,
@@ -475,11 +502,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://docs.arcee.ai/get-started/models-overview",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official Trinity hosted-model overview."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current model overview marks Trinity Nano as non-hosted/coming soon; retained disabled for catalogue history."
     },
     "rate_limits": []
   },
@@ -517,7 +551,9 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,
@@ -572,7 +608,9 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,
@@ -627,7 +665,9 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,
@@ -682,7 +722,9 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,
@@ -741,7 +783,9 @@
         "global"
       ]
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,
