@@ -263,6 +263,8 @@ export const BINDING_KEYS: Array<keyof GatewayBindings> = [
     "REKA_BASE_URL",
     "SAKANA_API_KEY",
     "SAKANA_BASE_URL",
+    "SAIL_API_KEY",
+    "SAIL_BASE_URL",
     "SAMBANOVA_API_KEY",
     "SAMBANOVA_BASE_URL",
     "SCW_SECRET_KEY",

@@ -56,6 +56,7 @@ const providers = [
   { id: "reka", name: "Reka", prefix: "/v1", docs: "https://docs.reka.ai/api-reference/chat" },
   { id: "relace", name: "Relace", prefix: "/v1", docs: "https://docs.relace.ai/api-reference" },
   { id: "sakana", name: "Sakana AI", prefix: "/v1", docs: "https://docs.sakana.ai/" },
+  { id: "sail-research", name: "Sail Research", prefix: "/v1", docs: "https://docs.sailresearch.com/support", responses: true },
   { id: "sambanova", name: "SambaNova Cloud", prefix: "/v1", docs: "https://docs.sambanova.ai/cloud/docs/api-reference" },
   { id: "scaleway", name: "Scaleway Generative APIs", prefix: "/v1", docs: "https://www.scaleway.com/en/docs/generative-apis/api-cli/openai-compatibility/" },
   { id: "sourceful", name: "Sourceful", prefix: "/v1", docs: "https://docs.sourceful.ai/" },

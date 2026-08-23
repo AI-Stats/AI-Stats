@@ -140,6 +140,7 @@ const PROVIDER_OVERRIDES: Record<string, ProviderOverride> = {
 	poolside: { providerName: "Poolside" },
 	reka: { providerName: "Reka", authStyle: "x_api_key" },
 	sambanova: { providerName: "SambaNova" },
+	"sail-research": { providerName: "Sail Research", authStyle: "bearer" },
 	stepfun: { providerName: "StepFun" },
 	// StreamLake exposes endpoint-bound models and its public list API requires an undocumented Action parameter.
 	streamlake: { providerName: "StreamLake", disabled: true },

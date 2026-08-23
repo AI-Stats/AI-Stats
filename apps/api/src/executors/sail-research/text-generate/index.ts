@@ -1,0 +1,37 @@
+import type { IRChatRequest } from "@core/ir";
+import { executeOpenAIWire } from "@executors/_shared/text-generate/openai-compat";
+import { buildTextExecutor, cherryPickIRParams } from "@executors/_shared/text-generate/shared";
+import type { ExecutorExecuteArgs, ExecutorResult } from "@executors/types";
+import type { ProviderExecutor } from "../../types";
+
+const BALANCED_MODEL_SLUGS = new Set([
+	"zai-org/GLM-5.2-FP8",
+	"moonshotai/Kimi-K2.6",
+	"google/gemma-4-31B-it",
+	"nvidia/Gemma-4-31B-IT-NVFP4",
+]);
+
+export function preprocess(ir: IRChatRequest, args: ExecutorExecuteArgs): IRChatRequest {
+	const next = cherryPickIRParams(ir, args.capabilityParams);
+	if (next.serviceTier) {
+		const completionWindow = next.serviceTier === "flex"
+			? "flex"
+			: next.serviceTier === "standard" && BALANCED_MODEL_SLUGS.has(args.providerModelSlug ?? "")
+				? "balanced"
+				: "asap";
+		next.metadata = { ...(next.metadata ?? {}), completion_window: completionWindow };
+		delete next.serviceTier;
+	}
+	return next;
+}
+
+export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult> {
+	return executeOpenAIWire(args);
+}
+
+export const executor: ProviderExecutor = buildTextExecutor({
+	preprocess,
+	execute,
+	postprocess: (ir: any) => ir,
+	transformStream: (stream: ReadableStream<Uint8Array>) => stream,
+});

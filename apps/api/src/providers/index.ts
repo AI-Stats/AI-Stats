@@ -106,6 +106,7 @@ const ADAPTERS: Record<string, ProviderAdapter> = {
     qwen: createOpenAICompatibleAdapter("qwen"),
     ovhcloud: createOpenAICompatibleAdapter("ovhcloud"),
     sambanova: createOpenAICompatibleAdapter("sambanova"),
+    "sail-research": createOpenAICompatibleAdapter("sail-research"),
     scaleway: createOpenAICompatibleAdapter("scaleway"),
     siliconflow: createOpenAICompatibleAdapter("siliconflow"),
     together: createOpenAICompatibleAdapter("together"),
