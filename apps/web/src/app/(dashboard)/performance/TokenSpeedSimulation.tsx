@@ -14,33 +14,57 @@ const sampleTokens = [
 	"erat", "faucibus.",
 ];
 
+const playbackSlowdown = 4;
 const lanes = [
-	{ name: "Measured pace", speed: "18 tokens/s", firstToken: 900, interval: 220, color: "bg-amber-500" },
-	{ name: "Fast pace", speed: "45 tokens/s", firstToken: 520, interval: 105, color: "bg-sky-500" },
-	{ name: "Very fast pace", speed: "90 tokens/s", firstToken: 240, interval: 48, color: "bg-emerald-500" },
-];
+	{ name: "Measured pace", rate: 18, firstToken: 900, color: "bg-amber-500" },
+	{ name: "Fast pace", rate: 45, firstToken: 520, color: "bg-sky-500" },
+	{ name: "Very fast pace", rate: 90, firstToken: 240, color: "bg-emerald-500" },
+].map((lane) => ({
+	...lane,
+	speed: `${lane.rate} tokens/s`,
+	interval: (1000 * playbackSlowdown) / lane.rate,
+}));
 
 const windowSize = 72;
 
 export default function TokenSpeedSimulation() {
 	const [elapsed, setElapsed] = useState(0);
-	const [playing, setPlaying] = useState(true);
+	const [playing, setPlaying] = useState(false);
+	const [isVisible, setIsVisible] = useState(false);
+	const simulationRef = useRef<HTMLDivElement>(null);
 	const startRef = useRef(performance.now());
 	const pausedAtRef = useRef(0);
 
 	useEffect(() => {
-		if (!playing) return;
+		if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+			setPlaying(true);
+		}
+	}, []);
+
+	useEffect(() => {
+		const simulation = simulationRef.current;
+		if (!simulation) return;
+		const observer = new IntersectionObserver(
+			([entry]) => setIsVisible(entry.isIntersecting),
+			{ threshold: 0.05 }
+		);
+		observer.observe(simulation);
+		return () => observer.disconnect();
+	}, []);
+
+	useEffect(() => {
+		if (!playing || !isVisible) return;
 		startRef.current = performance.now() - pausedAtRef.current;
-		let frame = 0;
-		const tick = (now: number) => {
+		const tick = () => {
+			const now = performance.now();
 			const next = now - startRef.current;
 			pausedAtRef.current = next;
 			setElapsed(next);
-			frame = requestAnimationFrame(tick);
 		};
-		frame = requestAnimationFrame(tick);
-		return () => cancelAnimationFrame(frame);
-	}, [playing]);
+		tick();
+		const timer = window.setInterval(tick, 40);
+		return () => window.clearInterval(timer);
+	}, [isVisible, playing]);
 
 	const replay = () => {
 		pausedAtRef.current = 0;
@@ -50,7 +74,7 @@ export default function TokenSpeedSimulation() {
 	};
 
 	return (
-		<div className="overflow-hidden rounded-md border border-border/70 bg-background">
+		<div ref={simulationRef} className="overflow-hidden rounded-md border border-border/70 bg-background">
 			<div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/70 bg-muted/30 px-5 py-3">
 				<div>
 					<p className="text-sm font-medium">Live relative-speed playback</p>
@@ -127,7 +151,7 @@ function StreamingOutput({
 		>
 			<div>
 				{waiting && <span className="inline-flex items-center gap-2 text-muted-foreground"><span className="size-1.5 animate-pulse rounded-full bg-muted-foreground" />Waiting for first token</span>}
-				<span aria-live="polite">
+				<span aria-hidden="true">
 					{tokens.map((token, index) => (
 						<span key={`${laneName}-${token.absoluteIndex}`} className={index === tokens.length - 1 ? "bg-foreground px-0.5 text-background" : ""}>{token.value}{" "}</span>
 					))}
