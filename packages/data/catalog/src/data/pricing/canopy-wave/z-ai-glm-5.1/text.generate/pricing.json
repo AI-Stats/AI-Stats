@@ -19,7 +19,8 @@
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": null,
+      "effective_to": "2026-08-23T00:00:00Z"
     },
     {
       "meter": "cached_read_text_tokens",
@@ -35,7 +36,8 @@
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": null,
+      "effective_to": "2026-08-23T00:00:00Z"
     },
     {
       "meter": "output_text_tokens",
@@ -51,7 +53,8 @@
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": null,
+      "effective_to": "2026-08-23T00:00:00Z"
     }
   ],
   "regions": [],
@@ -60,8 +63,8 @@
   ],
   "sources": [],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-23",
+    "notes": "Historical rate interval closed after the model or rate left Canopy Wave's current public rate card."
   }
 }

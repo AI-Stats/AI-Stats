@@ -18,6 +18,7 @@ const providers = [
   { id: "atlascloud", name: "Atlas Cloud", prefix: "/v1", docs: "https://docs.atlascloud.ai/" },
   { id: "avian", name: "Avian", prefix: "/v1", docs: "https://docs.avian.io/" },
   { id: "byteplus", name: "BytePlus ModelArk", prefix: "/api/v3", docs: "https://docs.byteplus.com/en/docs/ModelArk/ChatCompletions", responses: true },
+  { id: "canopy-wave", name: "Canopy Wave", prefix: "/v1", docs: "https://canopywave.com/docs/get-started/quick-start" },
   { id: "cerebras", name: "Cerebras", prefix: "/v1", docs: "https://inference-docs.cerebras.ai/api-reference/chat-completions" },
   { id: "chutes", name: "Chutes", prefix: "/v1", docs: "https://chutes.ai/docs" },
   { id: "clarifai", name: "Clarifai", prefix: "/v2/ext/openai/v1", docs: "https://docs.clarifai.com/compute/inference/open-ai/", responses: true },
@@ -75,7 +76,17 @@ function collectRefs(value, refs) {
   }
 }
 
-for (const provider of providers) {
+const requestedProviderIds = new Set(process.argv.slice(2));
+const knownProviderIds = new Set(providers.map((provider) => provider.id));
+const unknownProviderIds = [...requestedProviderIds].filter((id) => !knownProviderIds.has(id));
+if (unknownProviderIds.length > 0) {
+  throw new Error(`Unknown provider IDs: ${unknownProviderIds.join(", ")}`);
+}
+const selectedProviders = requestedProviderIds.size > 0
+  ? providers.filter((provider) => requestedProviderIds.has(provider.id))
+  : providers;
+
+for (const provider of selectedProviders) {
   const operationDefinitions = [
     { capability: "chat", sourcePath: "/chat/completions", path: `${provider.prefix}/chat/completions` },
     ...(provider.responses ? [{ capability: "responses", sourcePath: "/responses", path: `${provider.prefix}/responses` }] : []),

@@ -1,15 +1,15 @@
 {
-  "key": "canopy-wave:deepseek/deepseek-v3.2:text.generate",
+  "key": "canopy-wave:deepseek/deepseek-v4-pro:text.generate",
   "api_provider_id": "canopy-wave",
   "provider_slug": "canopy-wave",
-  "api_model_id": "deepseek/deepseek-v3.2",
+  "api_model_id": "deepseek/deepseek-v4-pro",
   "capability_id": "text.generate",
   "rules": [
     {
       "meter": "input_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.26,
+      "price_per_unit": 1.74,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
@@ -18,14 +18,15 @@
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null,
-      "effective_to": "2026-08-23T00:00:00Z"
+      "source": "https://canopywave.com/pricing",
+      "effective_from": "2026-08-23T00:00:00Z",
+      "effective_to": null
     },
     {
       "meter": "cached_read_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.052,
+      "price_per_unit": 0.01,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
@@ -34,14 +35,15 @@
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null,
-      "effective_to": "2026-08-23T00:00:00Z"
+      "source": "https://canopywave.com/pricing",
+      "effective_from": "2026-08-23T00:00:00Z",
+      "effective_to": null
     },
     {
       "meter": "output_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.4,
+      "price_per_unit": 3.48,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
@@ -50,18 +52,25 @@
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null,
-      "effective_to": "2026-08-23T00:00:00Z"
+      "source": "https://canopywave.com/pricing",
+      "effective_from": "2026-08-23T00:00:00Z",
+      "effective_to": null
     }
   ],
   "regions": [],
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [
+    {
+      "url": "https://canopywave.com/pricing",
+      "title": "Canopy Wave pricing",
+      "type": "pricing"
+    }
+  ],
   "verification": {
     "status": "verified",
     "checked_at": "2026-08-23",
-    "notes": "Historical rate interval closed after the model or rate left Canopy Wave's current public rate card."
+    "notes": "Rates verified against Canopy Wave's current public serverless pricing table."
   }
 }

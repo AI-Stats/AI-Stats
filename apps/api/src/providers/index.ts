@@ -62,6 +62,7 @@ const ADAPTERS: Record<string, ProviderAdapter> = {
     chutes: createOpenAICompatibleAdapter("chutes"),
     cohere: createOpenAICompatibleAdapter("cohere"),
     crofai: CrofAIAdapter,
+    "canopy-wave": createOpenAICompatibleAdapter("canopy-wave"),
     tensorix: TensorixAdapter,
 	tensorx: createOpenAICompatibleAdapter("tensorx"),
     voyage: createOpenAICompatibleAdapter("voyage"),

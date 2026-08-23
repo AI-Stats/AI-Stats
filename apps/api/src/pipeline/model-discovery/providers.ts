@@ -89,6 +89,7 @@ const PROVIDER_OVERRIDES: Record<string, ProviderOverride> = {
 	},
 	cohere: { providerName: "Cohere" },
 	crofai: { providerName: "CrofAI", authStyle: "none" },
+	"canopy-wave": { providerName: "Canopy Wave", authStyle: "bearer" },
 	deepinfra: { providerName: "DeepInfra", authStyle: "optional_bearer" },
 	deepseek: { providerName: "DeepSeek" },
 	darkbloom: { providerName: "Darkbloom" },

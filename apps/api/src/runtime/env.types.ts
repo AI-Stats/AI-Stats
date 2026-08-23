@@ -114,6 +114,8 @@ export type GatewayBindings = {
     COHERE_API_KEY?: string;
     COHERE_BASE_URL?: string;
     CROFAI_API_KEY?: string;
+    CANOPYWAVE_API_KEY?: string;
+    CANOPYWAVE_BASE_URL?: string;
     CROFAI_BASE_URL?: string;
     CROF_AI_API_KEY?: string;
     CROF_AI_BASE_URL?: string;
