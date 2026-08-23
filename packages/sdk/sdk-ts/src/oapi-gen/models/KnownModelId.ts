@@ -7,7 +7,6 @@ export type KnownModelId =
   | "aion-labs/aion-3.0-mini"
   | "aion-labs/aion-rp-llama-3.1-8b"
   | "allenai/molmo-2-8b"
-  | "anthropic/claude-3-haiku"
   | "anthropic/claude-fable-5"
   | "anthropic/claude-haiku-4.5"
   | "anthropic/claude-opus-4.5"
