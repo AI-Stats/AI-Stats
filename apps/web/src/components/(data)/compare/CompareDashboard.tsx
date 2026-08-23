@@ -8,7 +8,6 @@ import ComparisonDisplay from "./ComparisonDisplay";
 import { ExtendedModel } from "@/data/types";
 import CompareMiniHeader from "./CompareMiniHeader";
 import ModelCombobox from "./ModelCombobox";
-import { ProviderLogo } from "./ProviderLogo";
 import type { CompareGatewayUsageByModel } from "./types";
 
 const decodeModelIdFromUrl = (value: string): string => {
@@ -34,92 +33,6 @@ type CompareDashboardProps = {
 	usageByModel: CompareGatewayUsageByModel;
 };
 
-type ComparisonPreset = {
-	title: string;
-	description: string;
-	models: ExtendedModel[];
-};
-
-function releaseTimestamp(model: ExtendedModel): number {
-	if (!model.release_date) return 0;
-	const timestamp = new Date(model.release_date).getTime();
-	return Number.isFinite(timestamp) ? timestamp : 0;
-}
-
-function takeDistinctProviders(models: ExtendedModel[], count = 3): ExtendedModel[] {
-	const selected: ExtendedModel[] = [];
-	const providers = new Set<string>();
-	for (const model of models) {
-		const providerId = model.provider?.provider_id;
-		if (!providerId || providers.has(providerId)) continue;
-		providers.add(providerId);
-		selected.push(model);
-		if (selected.length === count) break;
-	}
-	return selected;
-}
-
-function takeWithFallback(
-	preferred: ExtendedModel[],
-	fallback: ExtendedModel[]
-): ExtendedModel[] {
-	return takeDistinctProviders([...preferred, ...fallback]);
-}
-
-function buildComparisonPresets(models: ExtendedModel[]): ComparisonPreset[] {
-	const newest = [...models].sort(
-		(a, b) => releaseTimestamp(b) - releaseTimestamp(a)
-	);
-	const candidates: ComparisonPreset[] = [
-		{
-			title: "Latest releases",
-			description: "New models from across the catalogue.",
-			models: takeDistinctProviders(newest),
-		},
-		{
-			title: "Benchmark coverage",
-			description: "Models with the broadest recorded test results.",
-			models: takeWithFallback(
-				models
-					.filter((model) => (model.benchmark_results?.length ?? 0) > 0)
-					.sort(
-					(a, b) =>
-						(b.benchmark_results?.length ?? 0) -
-						(a.benchmark_results?.length ?? 0)
-					),
-				newest.slice(3)
-			),
-		},
-		{
-			title: "Long context",
-			description: "Compare the largest available context windows.",
-			models: takeWithFallback(
-				models
-					.filter((model) => (model.input_context_length ?? 0) > 0)
-					.sort(
-					(a, b) =>
-						(b.input_context_length ?? 0) - (a.input_context_length ?? 0)
-					),
-				newest.slice(6)
-			),
-		},
-		{
-			title: "Provider coverage",
-			description: "Models with the widest pricing coverage.",
-			models: takeWithFallback(
-				models
-					.filter((model) => (model.prices?.length ?? 0) > 0)
-					.sort(
-					(a, b) => (b.prices?.length ?? 0) - (a.prices?.length ?? 0)
-					),
-				newest.slice(9)
-			),
-		},
-	];
-
-	return candidates.filter((preset) => preset.models.length >= 2);
-}
-
 function CompareFrame({
 	models,
 	children,
@@ -144,10 +57,8 @@ function EmptyComparisonState({
 	models: ExtendedModel[];
 	onSelect: (ids: string[]) => void;
 }) {
-	const presets = useMemo(() => buildComparisonPresets(models), [models]);
-
 	return (
-		<div className="mx-auto w-full max-w-7xl px-4 py-8 sm:py-10">
+		<CompareFrame models={models}>
 			<div className="max-w-2xl">
 				<h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
 					Compare AI models
@@ -156,40 +67,6 @@ function EmptyComparisonState({
 					Compare pricing, performance, context, benchmarks, and availability side by side.
 				</p>
 			</div>
-
-			{presets.length > 0 ? (
-				<div className="mt-7 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-					{presets.map((preset) => (
-						<button
-							type="button"
-							key={preset.title}
-							onClick={() => onSelect(preset.models.map((model) => model.id))}
-							className="group flex min-h-40 flex-col rounded-xl border border-border/70 bg-card/40 p-4 text-left transition-colors hover:border-sky-500/50 hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/50"
-					>
-							<div className="flex -space-x-1.5">
-								{preset.models.map((model) => (
-									<ProviderLogo
-										key={model.id}
-										id={model.provider.provider_id}
-										alt={model.provider.name}
-										size="xxs"
-										className="bg-card ring-2 ring-card"
-									/>
-								))}
-							</div>
-							<h2 className="mt-3 text-sm font-semibold text-foreground">
-								{preset.title}
-							</h2>
-							<p className="mt-1 text-sm leading-5 text-muted-foreground">
-								{preset.description}
-							</p>
-							<p className="mt-auto truncate border-t border-border/60 pt-3 text-xs text-muted-foreground group-hover:text-foreground">
-								{preset.models.map((model) => model.name).join(" · ")}
-							</p>
-						</button>
-					))}
-				</div>
-			) : null}
 
 			<div className="mt-8 grid gap-3 sm:grid-cols-2">
 				{["first", "second"].map((slot) => (
@@ -205,7 +82,7 @@ function EmptyComparisonState({
 					/>
 				))}
 			</div>
-		</div>
+		</CompareFrame>
 	);
 }
 

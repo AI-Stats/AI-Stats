@@ -548,7 +548,7 @@ export default function DecisionMatrix({
 				setShowStickyCompareBar(!entry.isIntersecting);
 			},
 			{
-				rootMargin: "-60px 0px 0px 0px",
+				rootMargin: "-144px 0px 0px 0px",
 				threshold: 0,
 			}
 		);
@@ -812,8 +812,8 @@ export default function DecisionMatrix({
 				{renderModelProviderBar("base")}
 			</div>
 			{showStickyCompareBar ? (
-				<div className="fixed left-0 right-0 top-[60px] z-30 border-b border-border/70 bg-background/95 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/85">
-					<div className="container mx-auto px-4 py-3">
+				<div className="fixed left-0 right-0 top-[calc(var(--site-header-height,4rem)+4.5rem)] z-30 border-b border-border/70 bg-background/95 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/85 sm:top-[calc(var(--site-header-height,4rem)+5rem)]">
+					<div className="mx-auto w-full max-w-6xl px-4 py-3">
 						{renderModelProviderBar("sticky")}
 					</div>
 				</div>
