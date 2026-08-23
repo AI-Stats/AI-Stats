@@ -3,6 +3,12 @@
 
 /// Known model ID constants for editor autocomplete and hover docs.
 pub mod model_ids {
+    /// Model ID: `ai21/jamba-1.5-large`.
+    /// Model page: https://phaseo.app/models/ai21/jamba-1.5-large
+    pub const AI21_JAMBA_1_5_LARGE: &str = "ai21/jamba-1.5-large";
+    /// Model ID: `ai21/jamba-1.5-mini`.
+    /// Model page: https://phaseo.app/models/ai21/jamba-1.5-mini
+    pub const AI21_JAMBA_1_5_MINI: &str = "ai21/jamba-1.5-mini";
     /// Model ID: `aion-labs/aion-2.0`.
     /// Model page: https://phaseo.app/models/aion-labs/aion-2.0
     pub const AION_LABS_AION_2_0: &str = "aion-labs/aion-2.0";
@@ -33,6 +39,15 @@ pub mod model_ids {
     /// Model ID: `amazon/nova-pro-1.0`.
     /// Model page: https://phaseo.app/models/amazon/nova-pro-1.0
     pub const AMAZON_NOVA_PRO_1_0: &str = "amazon/nova-pro-1.0";
+    /// Model ID: `anthropic/claude-3-haiku`.
+    /// Model page: https://phaseo.app/models/anthropic/claude-3-haiku
+    pub const ANTHROPIC_CLAUDE_3_HAIKU: &str = "anthropic/claude-3-haiku";
+    /// Model ID: `anthropic/claude-3.5-haiku`.
+    /// Model page: https://phaseo.app/models/anthropic/claude-3.5-haiku
+    pub const ANTHROPIC_CLAUDE_3_5_HAIKU: &str = "anthropic/claude-3.5-haiku";
+    /// Model ID: `anthropic/claude-3.7-sonnet`.
+    /// Model page: https://phaseo.app/models/anthropic/claude-3.7-sonnet
+    pub const ANTHROPIC_CLAUDE_3_7_SONNET: &str = "anthropic/claude-3.7-sonnet";
     /// Model ID: `anthropic/claude-fable-5`.
     /// Model page: https://phaseo.app/models/anthropic/claude-fable-5
     pub const ANTHROPIC_CLAUDE_FABLE_5: &str = "anthropic/claude-fable-5";
@@ -549,6 +564,9 @@ pub mod model_ids {
     /// Model ID: `mistral/devstral-2`.
     /// Model page: https://phaseo.app/models/mistral/devstral-2
     pub const MISTRAL_DEVSTRAL_2: &str = "mistral/devstral-2";
+    /// Model ID: `mistral/devstral-2.0`.
+    /// Model page: https://phaseo.app/models/mistral/devstral-2.0
+    pub const MISTRAL_DEVSTRAL_2_0: &str = "mistral/devstral-2.0";
     /// Model ID: `mistral/devstral-medium-1.0`.
     /// Model page: https://phaseo.app/models/mistral/devstral-medium-1.0
     pub const MISTRAL_DEVSTRAL_MEDIUM_1_0: &str = "mistral/devstral-medium-1.0";
@@ -561,6 +579,9 @@ pub mod model_ids {
     /// Model ID: `mistral/magistral-medium-1.2`.
     /// Model page: https://phaseo.app/models/mistral/magistral-medium-1.2
     pub const MISTRAL_MAGISTRAL_MEDIUM_1_2: &str = "mistral/magistral-medium-1.2";
+    /// Model ID: `mistral/magistral-small-1.2`.
+    /// Model page: https://phaseo.app/models/mistral/magistral-small-1.2
+    pub const MISTRAL_MAGISTRAL_SMALL_1_2: &str = "mistral/magistral-small-1.2";
     /// Model ID: `mistral/ministral-3-14b`.
     /// Model page: https://phaseo.app/models/mistral/ministral-3-14b
     pub const MISTRAL_MINISTRAL_3_14B: &str = "mistral/ministral-3-14b";
@@ -633,6 +654,9 @@ pub mod model_ids {
     /// Model ID: `mistral/pixtral-large`.
     /// Model page: https://phaseo.app/models/mistral/pixtral-large
     pub const MISTRAL_PIXTRAL_LARGE: &str = "mistral/pixtral-large";
+    /// Model ID: `mistral/voxtral-mini`.
+    /// Model page: https://phaseo.app/models/mistral/voxtral-mini
+    pub const MISTRAL_VOXTRAL_MINI: &str = "mistral/voxtral-mini";
     /// Model ID: `mistral/voxtral-mini-transcribe-2`.
     /// Model page: https://phaseo.app/models/mistral/voxtral-mini-transcribe-2
     pub const MISTRAL_VOXTRAL_MINI_TRANSCRIBE_2: &str = "mistral/voxtral-mini-transcribe-2";
@@ -1586,6 +1610,8 @@ pub mod model_ids {
     pub const DEEPSEEK_DEEPSEEK_V4: &str = DEEPSEEK_DEEPSEEK_V4_PRO;
 
     pub const ALL: &[&str] = &[
+        AI21_JAMBA_1_5_LARGE,
+        AI21_JAMBA_1_5_MINI,
         AION_LABS_AION_2_0,
         AION_LABS_AION_3_0,
         AION_LABS_AION_3_0_MINI,
@@ -1596,6 +1622,9 @@ pub mod model_ids {
         AMAZON_NOVA_MICRO_1_0,
         AMAZON_NOVA_PREMIER,
         AMAZON_NOVA_PRO_1_0,
+        ANTHROPIC_CLAUDE_3_HAIKU,
+        ANTHROPIC_CLAUDE_3_5_HAIKU,
+        ANTHROPIC_CLAUDE_3_7_SONNET,
         ANTHROPIC_CLAUDE_FABLE_5,
         ANTHROPIC_CLAUDE_HAIKU_4_5,
         ANTHROPIC_CLAUDE_OPUS_4,
@@ -1768,10 +1797,12 @@ pub mod model_ids {
         MISTRAL_CODESTRAL,
         MISTRAL_CODESTRAL_EMBED,
         MISTRAL_DEVSTRAL_2,
+        MISTRAL_DEVSTRAL_2_0,
         MISTRAL_DEVSTRAL_MEDIUM_1_0,
         MISTRAL_DEVSTRAL_SMALL_1_1,
         MISTRAL_LEANSTRAL_1_5_FREE,
         MISTRAL_MAGISTRAL_MEDIUM_1_2,
+        MISTRAL_MAGISTRAL_SMALL_1_2,
         MISTRAL_MINISTRAL_3_14B,
         MISTRAL_MINISTRAL_3_3B,
         MISTRAL_MINISTRAL_3_8B,
@@ -1796,6 +1827,7 @@ pub mod model_ids {
         MISTRAL_OCR_4,
         MISTRAL_OCR_4_1,
         MISTRAL_PIXTRAL_LARGE,
+        MISTRAL_VOXTRAL_MINI,
         MISTRAL_VOXTRAL_MINI_TRANSCRIBE_2,
         MISTRAL_VOXTRAL_SMALL,
         MOONSHOTAI_KIMI_K2,

@@ -6,6 +6,10 @@ namespace PhaseoSdk
     /// <summary>Known model ID constants for editor autocomplete and hover docs.</summary>
     public static class ModelIds
     {
+        /// <summary>Model ID: <c>ai21/jamba-1.5-large</c>. Model page: https://phaseo.app/models/ai21/jamba-1.5-large</summary>
+        public const string Ai21Jamba15Large = "ai21/jamba-1.5-large";
+        /// <summary>Model ID: <c>ai21/jamba-1.5-mini</c>. Model page: https://phaseo.app/models/ai21/jamba-1.5-mini</summary>
+        public const string Ai21Jamba15Mini = "ai21/jamba-1.5-mini";
         /// <summary>Model ID: <c>aion-labs/aion-2.0</c>. Model page: https://phaseo.app/models/aion-labs/aion-2.0</summary>
         public const string AionLabsAion20 = "aion-labs/aion-2.0";
         /// <summary>Model ID: <c>aion-labs/aion-3.0</c>. Model page: https://phaseo.app/models/aion-labs/aion-3.0</summary>
@@ -26,6 +30,12 @@ namespace PhaseoSdk
         public const string AmazonNovaPremier = "amazon/nova-premier";
         /// <summary>Model ID: <c>amazon/nova-pro-1.0</c>. Model page: https://phaseo.app/models/amazon/nova-pro-1.0</summary>
         public const string AmazonNovaPro10 = "amazon/nova-pro-1.0";
+        /// <summary>Model ID: <c>anthropic/claude-3-haiku</c>. Model page: https://phaseo.app/models/anthropic/claude-3-haiku</summary>
+        public const string AnthropicClaude3Haiku = "anthropic/claude-3-haiku";
+        /// <summary>Model ID: <c>anthropic/claude-3.5-haiku</c>. Model page: https://phaseo.app/models/anthropic/claude-3.5-haiku</summary>
+        public const string AnthropicClaude35Haiku = "anthropic/claude-3.5-haiku";
+        /// <summary>Model ID: <c>anthropic/claude-3.7-sonnet</c>. Model page: https://phaseo.app/models/anthropic/claude-3.7-sonnet</summary>
+        public const string AnthropicClaude37Sonnet = "anthropic/claude-3.7-sonnet";
         /// <summary>Model ID: <c>anthropic/claude-fable-5</c>. Model page: https://phaseo.app/models/anthropic/claude-fable-5</summary>
         public const string AnthropicClaudeFable5 = "anthropic/claude-fable-5";
         /// <summary>Model ID: <c>anthropic/claude-haiku-4.5</c>. Model page: https://phaseo.app/models/anthropic/claude-haiku-4.5</summary>
@@ -370,6 +380,8 @@ namespace PhaseoSdk
         public const string MistralCodestralEmbed = "mistral/codestral-embed";
         /// <summary>Model ID: <c>mistral/devstral-2</c>. Model page: https://phaseo.app/models/mistral/devstral-2</summary>
         public const string MistralDevstral2 = "mistral/devstral-2";
+        /// <summary>Model ID: <c>mistral/devstral-2.0</c>. Model page: https://phaseo.app/models/mistral/devstral-2.0</summary>
+        public const string MistralDevstral20 = "mistral/devstral-2.0";
         /// <summary>Model ID: <c>mistral/devstral-medium-1.0</c>. Model page: https://phaseo.app/models/mistral/devstral-medium-1.0</summary>
         public const string MistralDevstralMedium10 = "mistral/devstral-medium-1.0";
         /// <summary>Model ID: <c>mistral/devstral-small-1.1</c>. Model page: https://phaseo.app/models/mistral/devstral-small-1.1</summary>
@@ -378,6 +390,8 @@ namespace PhaseoSdk
         public const string MistralLeanstral15Free = "mistral/leanstral-1.5:free";
         /// <summary>Model ID: <c>mistral/magistral-medium-1.2</c>. Model page: https://phaseo.app/models/mistral/magistral-medium-1.2</summary>
         public const string MistralMagistralMedium12 = "mistral/magistral-medium-1.2";
+        /// <summary>Model ID: <c>mistral/magistral-small-1.2</c>. Model page: https://phaseo.app/models/mistral/magistral-small-1.2</summary>
+        public const string MistralMagistralSmall12 = "mistral/magistral-small-1.2";
         /// <summary>Model ID: <c>mistral/ministral-3-14b</c>. Model page: https://phaseo.app/models/mistral/ministral-3-14b</summary>
         public const string MistralMinistral314b = "mistral/ministral-3-14b";
         /// <summary>Model ID: <c>mistral/ministral-3-3b</c>. Model page: https://phaseo.app/models/mistral/ministral-3-3b</summary>
@@ -426,6 +440,8 @@ namespace PhaseoSdk
         public const string MistralOcr41 = "mistral/ocr-4.1";
         /// <summary>Model ID: <c>mistral/pixtral-large</c>. Model page: https://phaseo.app/models/mistral/pixtral-large</summary>
         public const string MistralPixtralLarge = "mistral/pixtral-large";
+        /// <summary>Model ID: <c>mistral/voxtral-mini</c>. Model page: https://phaseo.app/models/mistral/voxtral-mini</summary>
+        public const string MistralVoxtralMini = "mistral/voxtral-mini";
         /// <summary>Model ID: <c>mistral/voxtral-mini-transcribe-2</c>. Model page: https://phaseo.app/models/mistral/voxtral-mini-transcribe-2</summary>
         public const string MistralVoxtralMiniTranscribe2 = "mistral/voxtral-mini-transcribe-2";
         /// <summary>Model ID: <c>mistral/voxtral-small</c>. Model page: https://phaseo.app/models/mistral/voxtral-small</summary>

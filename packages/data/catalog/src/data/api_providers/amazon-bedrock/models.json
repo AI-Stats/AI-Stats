@@ -11,7 +11,7 @@
     "context_length": 256000,
     "max_output_tokens": null,
     "effective_from": null,
-    "effective_to": "2026-06-15T00:00:00",
+    "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -70,7 +70,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -86,7 +86,7 @@
     "context_length": 256000,
     "max_output_tokens": null,
     "effective_from": null,
-    "effective_to": "2026-06-15T00:00:00",
+    "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -145,7 +145,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -220,7 +220,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -295,7 +295,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -370,7 +370,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -445,7 +445,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -520,7 +520,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -536,7 +536,7 @@
     "context_length": 200000,
     "max_output_tokens": 4096,
     "effective_from": "2024-03-13T00:00:00",
-    "effective_to": "2026-04-20T00:00:00",
+    "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -595,7 +595,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -611,7 +611,7 @@
     "context_length": 200000,
     "max_output_tokens": null,
     "effective_from": "2024-11-04T00:00:00",
-    "effective_to": "2026-06-19T00:00:00",
+    "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -670,7 +670,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -686,7 +686,7 @@
     "context_length": 200000,
     "max_output_tokens": null,
     "effective_from": "2025-02-24T00:00:00",
-    "effective_to": "2026-04-28T00:00:00",
+    "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -745,7 +745,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -820,7 +820,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -895,7 +895,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -1104,7 +1104,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -1179,7 +1179,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -1254,7 +1254,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -1329,7 +1329,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -1404,7 +1404,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -1479,7 +1479,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -1554,7 +1554,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -1629,7 +1629,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -1704,7 +1704,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -1785,7 +1785,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -1927,7 +1927,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -2002,7 +2002,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -2077,7 +2077,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -2152,7 +2152,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -2227,7 +2227,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -2302,7 +2302,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -2377,7 +2377,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -2452,7 +2452,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -2527,7 +2527,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -2543,7 +2543,7 @@
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": "2026-07-31T00:00:00",
+    "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -2602,7 +2602,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -2618,7 +2618,7 @@
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": "2026-04-30T00:00:00",
+    "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -2677,7 +2677,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -2752,7 +2752,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -2827,7 +2827,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -2902,7 +2902,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -2977,7 +2977,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -2993,7 +2993,7 @@
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": "2026-05-31T00:00:00",
+    "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -3052,7 +3052,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -3127,7 +3127,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -3143,7 +3143,7 @@
     "context_length": 262144,
     "max_output_tokens": 65536,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": "2026-05-25T00:00:00",
+    "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -3202,7 +3202,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -3277,7 +3277,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -3352,7 +3352,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -3427,7 +3427,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -3502,7 +3502,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -3577,7 +3577,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -3652,7 +3652,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -3727,7 +3727,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -3804,7 +3804,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -3881,7 +3881,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -3958,7 +3958,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -4033,7 +4033,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -4108,7 +4108,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -4183,7 +4183,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -4258,7 +4258,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -4333,7 +4333,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -4408,7 +4408,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -4483,7 +4483,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -4625,7 +4625,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -4700,7 +4700,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -4775,7 +4775,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -4850,7 +4850,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -4925,7 +4925,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -5000,7 +5000,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -5075,80 +5075,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "anthropic/claude-opus-5",
-    "provider_api_model_id": "amazon-bedrock:anthropic/claude-opus-5",
-    "provider_model_slug": "anthropic.claude-opus-5",
-    "internal_model_id": "anthropic/claude-opus-5",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": "text,image",
-    "output_modalities": "text",
-    "context_length": 1000000,
-    "max_output_tokens": 128000,
-    "effective_from": null,
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "disabled",
-    "routable": false,
-    "regions": {
-      "execution": [
-        "us",
-        "eu",
-        "apac",
-        "jp",
-        "au"
-      ],
-      "data": [
-        "us",
-        "eu",
-        "apac",
-        "jp",
-        "au"
-      ]
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [
-      {
-        "kind": "models",
-        "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/models-endpoint-availability.html",
-        "accessed_at": "2026-08-23T00:00:00Z",
-        "notes": "AWS endpoint availability catalogue for bedrock-mantle."
-      },
-      {
-        "kind": "pricing",
-        "url": "https://aws.amazon.com/bedrock/pricing/",
-        "accessed_at": "2026-08-23T00:00:00Z",
-        "notes": "Amazon Bedrock on-demand pricing."
-      }
-    ],
-    "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Duplicate historical row retained disabled."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   },
@@ -5223,7 +5150,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as bedrock-mantle compatible with recorded pricing."
+      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
     },
     "rate_limits": []
   }

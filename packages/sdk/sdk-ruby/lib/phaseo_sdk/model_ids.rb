@@ -3,6 +3,12 @@
 
 module PhaseoSdk
   module ModelIds
+    # Model ID: ai21/jamba-1.5-large
+    # Model page: https://phaseo.app/models/ai21/jamba-1.5-large
+    AI21_JAMBA_1_5_LARGE = "ai21/jamba-1.5-large"
+    # Model ID: ai21/jamba-1.5-mini
+    # Model page: https://phaseo.app/models/ai21/jamba-1.5-mini
+    AI21_JAMBA_1_5_MINI = "ai21/jamba-1.5-mini"
     # Model ID: aion-labs/aion-2.0
     # Model page: https://phaseo.app/models/aion-labs/aion-2.0
     AION_LABS_AION_2_0 = "aion-labs/aion-2.0"
@@ -33,6 +39,15 @@ module PhaseoSdk
     # Model ID: amazon/nova-pro-1.0
     # Model page: https://phaseo.app/models/amazon/nova-pro-1.0
     AMAZON_NOVA_PRO_1_0 = "amazon/nova-pro-1.0"
+    # Model ID: anthropic/claude-3-haiku
+    # Model page: https://phaseo.app/models/anthropic/claude-3-haiku
+    ANTHROPIC_CLAUDE_3_HAIKU = "anthropic/claude-3-haiku"
+    # Model ID: anthropic/claude-3.5-haiku
+    # Model page: https://phaseo.app/models/anthropic/claude-3.5-haiku
+    ANTHROPIC_CLAUDE_3_5_HAIKU = "anthropic/claude-3.5-haiku"
+    # Model ID: anthropic/claude-3.7-sonnet
+    # Model page: https://phaseo.app/models/anthropic/claude-3.7-sonnet
+    ANTHROPIC_CLAUDE_3_7_SONNET = "anthropic/claude-3.7-sonnet"
     # Model ID: anthropic/claude-fable-5
     # Model page: https://phaseo.app/models/anthropic/claude-fable-5
     ANTHROPIC_CLAUDE_FABLE_5 = "anthropic/claude-fable-5"
@@ -549,6 +564,9 @@ module PhaseoSdk
     # Model ID: mistral/devstral-2
     # Model page: https://phaseo.app/models/mistral/devstral-2
     MISTRAL_DEVSTRAL_2 = "mistral/devstral-2"
+    # Model ID: mistral/devstral-2.0
+    # Model page: https://phaseo.app/models/mistral/devstral-2.0
+    MISTRAL_DEVSTRAL_2_0 = "mistral/devstral-2.0"
     # Model ID: mistral/devstral-medium-1.0
     # Model page: https://phaseo.app/models/mistral/devstral-medium-1.0
     MISTRAL_DEVSTRAL_MEDIUM_1_0 = "mistral/devstral-medium-1.0"
@@ -561,6 +579,9 @@ module PhaseoSdk
     # Model ID: mistral/magistral-medium-1.2
     # Model page: https://phaseo.app/models/mistral/magistral-medium-1.2
     MISTRAL_MAGISTRAL_MEDIUM_1_2 = "mistral/magistral-medium-1.2"
+    # Model ID: mistral/magistral-small-1.2
+    # Model page: https://phaseo.app/models/mistral/magistral-small-1.2
+    MISTRAL_MAGISTRAL_SMALL_1_2 = "mistral/magistral-small-1.2"
     # Model ID: mistral/ministral-3-14b
     # Model page: https://phaseo.app/models/mistral/ministral-3-14b
     MISTRAL_MINISTRAL_3_14B = "mistral/ministral-3-14b"
@@ -633,6 +654,9 @@ module PhaseoSdk
     # Model ID: mistral/pixtral-large
     # Model page: https://phaseo.app/models/mistral/pixtral-large
     MISTRAL_PIXTRAL_LARGE = "mistral/pixtral-large"
+    # Model ID: mistral/voxtral-mini
+    # Model page: https://phaseo.app/models/mistral/voxtral-mini
+    MISTRAL_VOXTRAL_MINI = "mistral/voxtral-mini"
     # Model ID: mistral/voxtral-mini-transcribe-2
     # Model page: https://phaseo.app/models/mistral/voxtral-mini-transcribe-2
     MISTRAL_VOXTRAL_MINI_TRANSCRIBE_2 = "mistral/voxtral-mini-transcribe-2"
@@ -1586,6 +1610,8 @@ module PhaseoSdk
   end
 
   MODEL_IDS = [
+    ModelIds::AI21_JAMBA_1_5_LARGE,
+    ModelIds::AI21_JAMBA_1_5_MINI,
     ModelIds::AION_LABS_AION_2_0,
     ModelIds::AION_LABS_AION_3_0,
     ModelIds::AION_LABS_AION_3_0_MINI,
@@ -1596,6 +1622,9 @@ module PhaseoSdk
     ModelIds::AMAZON_NOVA_MICRO_1_0,
     ModelIds::AMAZON_NOVA_PREMIER,
     ModelIds::AMAZON_NOVA_PRO_1_0,
+    ModelIds::ANTHROPIC_CLAUDE_3_HAIKU,
+    ModelIds::ANTHROPIC_CLAUDE_3_5_HAIKU,
+    ModelIds::ANTHROPIC_CLAUDE_3_7_SONNET,
     ModelIds::ANTHROPIC_CLAUDE_FABLE_5,
     ModelIds::ANTHROPIC_CLAUDE_HAIKU_4_5,
     ModelIds::ANTHROPIC_CLAUDE_OPUS_4,
@@ -1768,10 +1797,12 @@ module PhaseoSdk
     ModelIds::MISTRAL_CODESTRAL,
     ModelIds::MISTRAL_CODESTRAL_EMBED,
     ModelIds::MISTRAL_DEVSTRAL_2,
+    ModelIds::MISTRAL_DEVSTRAL_2_0,
     ModelIds::MISTRAL_DEVSTRAL_MEDIUM_1_0,
     ModelIds::MISTRAL_DEVSTRAL_SMALL_1_1,
     ModelIds::MISTRAL_LEANSTRAL_1_5_FREE,
     ModelIds::MISTRAL_MAGISTRAL_MEDIUM_1_2,
+    ModelIds::MISTRAL_MAGISTRAL_SMALL_1_2,
     ModelIds::MISTRAL_MINISTRAL_3_14B,
     ModelIds::MISTRAL_MINISTRAL_3_3B,
     ModelIds::MISTRAL_MINISTRAL_3_8B,
@@ -1796,6 +1827,7 @@ module PhaseoSdk
     ModelIds::MISTRAL_OCR_4,
     ModelIds::MISTRAL_OCR_4_1,
     ModelIds::MISTRAL_PIXTRAL_LARGE,
+    ModelIds::MISTRAL_VOXTRAL_MINI,
     ModelIds::MISTRAL_VOXTRAL_MINI_TRANSCRIBE_2,
     ModelIds::MISTRAL_VOXTRAL_SMALL,
     ModelIds::MOONSHOTAI_KIMI_K2,

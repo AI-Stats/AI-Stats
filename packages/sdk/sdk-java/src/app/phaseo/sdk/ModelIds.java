@@ -7,6 +7,12 @@ package app.phaseo.sdk;
 public final class ModelIds {
     private ModelIds() {}
 
+    /** Model ID: <code>ai21/jamba-1.5-large</code>. Model page: https://phaseo.app/models/ai21/jamba-1.5-large */
+    public static final String AI21_JAMBA_1_5_LARGE = "ai21/jamba-1.5-large";
+
+    /** Model ID: <code>ai21/jamba-1.5-mini</code>. Model page: https://phaseo.app/models/ai21/jamba-1.5-mini */
+    public static final String AI21_JAMBA_1_5_MINI = "ai21/jamba-1.5-mini";
+
     /** Model ID: <code>aion-labs/aion-2.0</code>. Model page: https://phaseo.app/models/aion-labs/aion-2.0 */
     public static final String AION_LABS_AION_2_0 = "aion-labs/aion-2.0";
 
@@ -36,6 +42,15 @@ public final class ModelIds {
 
     /** Model ID: <code>amazon/nova-pro-1.0</code>. Model page: https://phaseo.app/models/amazon/nova-pro-1.0 */
     public static final String AMAZON_NOVA_PRO_1_0 = "amazon/nova-pro-1.0";
+
+    /** Model ID: <code>anthropic/claude-3-haiku</code>. Model page: https://phaseo.app/models/anthropic/claude-3-haiku */
+    public static final String ANTHROPIC_CLAUDE_3_HAIKU = "anthropic/claude-3-haiku";
+
+    /** Model ID: <code>anthropic/claude-3.5-haiku</code>. Model page: https://phaseo.app/models/anthropic/claude-3.5-haiku */
+    public static final String ANTHROPIC_CLAUDE_3_5_HAIKU = "anthropic/claude-3.5-haiku";
+
+    /** Model ID: <code>anthropic/claude-3.7-sonnet</code>. Model page: https://phaseo.app/models/anthropic/claude-3.7-sonnet */
+    public static final String ANTHROPIC_CLAUDE_3_7_SONNET = "anthropic/claude-3.7-sonnet";
 
     /** Model ID: <code>anthropic/claude-fable-5</code>. Model page: https://phaseo.app/models/anthropic/claude-fable-5 */
     public static final String ANTHROPIC_CLAUDE_FABLE_5 = "anthropic/claude-fable-5";
@@ -553,6 +568,9 @@ public final class ModelIds {
     /** Model ID: <code>mistral/devstral-2</code>. Model page: https://phaseo.app/models/mistral/devstral-2 */
     public static final String MISTRAL_DEVSTRAL_2 = "mistral/devstral-2";
 
+    /** Model ID: <code>mistral/devstral-2.0</code>. Model page: https://phaseo.app/models/mistral/devstral-2.0 */
+    public static final String MISTRAL_DEVSTRAL_2_0 = "mistral/devstral-2.0";
+
     /** Model ID: <code>mistral/devstral-medium-1.0</code>. Model page: https://phaseo.app/models/mistral/devstral-medium-1.0 */
     public static final String MISTRAL_DEVSTRAL_MEDIUM_1_0 = "mistral/devstral-medium-1.0";
 
@@ -564,6 +582,9 @@ public final class ModelIds {
 
     /** Model ID: <code>mistral/magistral-medium-1.2</code>. Model page: https://phaseo.app/models/mistral/magistral-medium-1.2 */
     public static final String MISTRAL_MAGISTRAL_MEDIUM_1_2 = "mistral/magistral-medium-1.2";
+
+    /** Model ID: <code>mistral/magistral-small-1.2</code>. Model page: https://phaseo.app/models/mistral/magistral-small-1.2 */
+    public static final String MISTRAL_MAGISTRAL_SMALL_1_2 = "mistral/magistral-small-1.2";
 
     /** Model ID: <code>mistral/ministral-3-14b</code>. Model page: https://phaseo.app/models/mistral/ministral-3-14b */
     public static final String MISTRAL_MINISTRAL_3_14B = "mistral/ministral-3-14b";
@@ -636,6 +657,9 @@ public final class ModelIds {
 
     /** Model ID: <code>mistral/pixtral-large</code>. Model page: https://phaseo.app/models/mistral/pixtral-large */
     public static final String MISTRAL_PIXTRAL_LARGE = "mistral/pixtral-large";
+
+    /** Model ID: <code>mistral/voxtral-mini</code>. Model page: https://phaseo.app/models/mistral/voxtral-mini */
+    public static final String MISTRAL_VOXTRAL_MINI = "mistral/voxtral-mini";
 
     /** Model ID: <code>mistral/voxtral-mini-transcribe-2</code>. Model page: https://phaseo.app/models/mistral/voxtral-mini-transcribe-2 */
     public static final String MISTRAL_VOXTRAL_MINI_TRANSCRIBE_2 = "mistral/voxtral-mini-transcribe-2";

@@ -8,6 +8,12 @@ namespace Phaseo\Sdk;
 
 final class ModelIds
 {
+    /** Model ID: ai21/jamba-1.5-large. Model page: https://phaseo.app/models/ai21/jamba-1.5-large */
+    public const AI21_JAMBA_1_5_LARGE = 'ai21/jamba-1.5-large';
+
+    /** Model ID: ai21/jamba-1.5-mini. Model page: https://phaseo.app/models/ai21/jamba-1.5-mini */
+    public const AI21_JAMBA_1_5_MINI = 'ai21/jamba-1.5-mini';
+
     /** Model ID: aion-labs/aion-2.0. Model page: https://phaseo.app/models/aion-labs/aion-2.0 */
     public const AION_LABS_AION_2_0 = 'aion-labs/aion-2.0';
 
@@ -37,6 +43,15 @@ final class ModelIds
 
     /** Model ID: amazon/nova-pro-1.0. Model page: https://phaseo.app/models/amazon/nova-pro-1.0 */
     public const AMAZON_NOVA_PRO_1_0 = 'amazon/nova-pro-1.0';
+
+    /** Model ID: anthropic/claude-3-haiku. Model page: https://phaseo.app/models/anthropic/claude-3-haiku */
+    public const ANTHROPIC_CLAUDE_3_HAIKU = 'anthropic/claude-3-haiku';
+
+    /** Model ID: anthropic/claude-3.5-haiku. Model page: https://phaseo.app/models/anthropic/claude-3.5-haiku */
+    public const ANTHROPIC_CLAUDE_3_5_HAIKU = 'anthropic/claude-3.5-haiku';
+
+    /** Model ID: anthropic/claude-3.7-sonnet. Model page: https://phaseo.app/models/anthropic/claude-3.7-sonnet */
+    public const ANTHROPIC_CLAUDE_3_7_SONNET = 'anthropic/claude-3.7-sonnet';
 
     /** Model ID: anthropic/claude-fable-5. Model page: https://phaseo.app/models/anthropic/claude-fable-5 */
     public const ANTHROPIC_CLAUDE_FABLE_5 = 'anthropic/claude-fable-5';
@@ -554,6 +569,9 @@ final class ModelIds
     /** Model ID: mistral/devstral-2. Model page: https://phaseo.app/models/mistral/devstral-2 */
     public const MISTRAL_DEVSTRAL_2 = 'mistral/devstral-2';
 
+    /** Model ID: mistral/devstral-2.0. Model page: https://phaseo.app/models/mistral/devstral-2.0 */
+    public const MISTRAL_DEVSTRAL_2_0 = 'mistral/devstral-2.0';
+
     /** Model ID: mistral/devstral-medium-1.0. Model page: https://phaseo.app/models/mistral/devstral-medium-1.0 */
     public const MISTRAL_DEVSTRAL_MEDIUM_1_0 = 'mistral/devstral-medium-1.0';
 
@@ -565,6 +583,9 @@ final class ModelIds
 
     /** Model ID: mistral/magistral-medium-1.2. Model page: https://phaseo.app/models/mistral/magistral-medium-1.2 */
     public const MISTRAL_MAGISTRAL_MEDIUM_1_2 = 'mistral/magistral-medium-1.2';
+
+    /** Model ID: mistral/magistral-small-1.2. Model page: https://phaseo.app/models/mistral/magistral-small-1.2 */
+    public const MISTRAL_MAGISTRAL_SMALL_1_2 = 'mistral/magistral-small-1.2';
 
     /** Model ID: mistral/ministral-3-14b. Model page: https://phaseo.app/models/mistral/ministral-3-14b */
     public const MISTRAL_MINISTRAL_3_14B = 'mistral/ministral-3-14b';
@@ -637,6 +658,9 @@ final class ModelIds
 
     /** Model ID: mistral/pixtral-large. Model page: https://phaseo.app/models/mistral/pixtral-large */
     public const MISTRAL_PIXTRAL_LARGE = 'mistral/pixtral-large';
+
+    /** Model ID: mistral/voxtral-mini. Model page: https://phaseo.app/models/mistral/voxtral-mini */
+    public const MISTRAL_VOXTRAL_MINI = 'mistral/voxtral-mini';
 
     /** Model ID: mistral/voxtral-mini-transcribe-2. Model page: https://phaseo.app/models/mistral/voxtral-mini-transcribe-2 */
     public const MISTRAL_VOXTRAL_MINI_TRANSCRIBE_2 = 'mistral/voxtral-mini-transcribe-2';

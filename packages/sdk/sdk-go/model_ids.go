@@ -7,6 +7,12 @@ import gen "github.com/phaseoteam/Phaseo/packages/sdk/sdk-go/v2/src/gen"
 
 // ModelIds contains known model IDs for editor autocomplete and hover docs.
 const (
+	// Model ID: ai21/jamba-1.5-large
+	// Model page: https://phaseo.app/models/ai21/jamba-1.5-large
+	ModelIDAi21Jamba15Large gen.ModelId = "ai21/jamba-1.5-large"
+	// Model ID: ai21/jamba-1.5-mini
+	// Model page: https://phaseo.app/models/ai21/jamba-1.5-mini
+	ModelIDAi21Jamba15Mini gen.ModelId = "ai21/jamba-1.5-mini"
 	// Model ID: aion-labs/aion-2.0
 	// Model page: https://phaseo.app/models/aion-labs/aion-2.0
 	ModelIDAionLabsAion20 gen.ModelId = "aion-labs/aion-2.0"
@@ -37,6 +43,15 @@ const (
 	// Model ID: amazon/nova-pro-1.0
 	// Model page: https://phaseo.app/models/amazon/nova-pro-1.0
 	ModelIDAmazonNovaPro10 gen.ModelId = "amazon/nova-pro-1.0"
+	// Model ID: anthropic/claude-3-haiku
+	// Model page: https://phaseo.app/models/anthropic/claude-3-haiku
+	ModelIDAnthropicClaude3Haiku gen.ModelId = "anthropic/claude-3-haiku"
+	// Model ID: anthropic/claude-3.5-haiku
+	// Model page: https://phaseo.app/models/anthropic/claude-3.5-haiku
+	ModelIDAnthropicClaude35Haiku gen.ModelId = "anthropic/claude-3.5-haiku"
+	// Model ID: anthropic/claude-3.7-sonnet
+	// Model page: https://phaseo.app/models/anthropic/claude-3.7-sonnet
+	ModelIDAnthropicClaude37Sonnet gen.ModelId = "anthropic/claude-3.7-sonnet"
 	// Model ID: anthropic/claude-fable-5
 	// Model page: https://phaseo.app/models/anthropic/claude-fable-5
 	ModelIDAnthropicClaudeFable5 gen.ModelId = "anthropic/claude-fable-5"
@@ -553,6 +568,9 @@ const (
 	// Model ID: mistral/devstral-2
 	// Model page: https://phaseo.app/models/mistral/devstral-2
 	ModelIDMistralDevstral2 gen.ModelId = "mistral/devstral-2"
+	// Model ID: mistral/devstral-2.0
+	// Model page: https://phaseo.app/models/mistral/devstral-2.0
+	ModelIDMistralDevstral20 gen.ModelId = "mistral/devstral-2.0"
 	// Model ID: mistral/devstral-medium-1.0
 	// Model page: https://phaseo.app/models/mistral/devstral-medium-1.0
 	ModelIDMistralDevstralMedium10 gen.ModelId = "mistral/devstral-medium-1.0"
@@ -565,6 +583,9 @@ const (
 	// Model ID: mistral/magistral-medium-1.2
 	// Model page: https://phaseo.app/models/mistral/magistral-medium-1.2
 	ModelIDMistralMagistralMedium12 gen.ModelId = "mistral/magistral-medium-1.2"
+	// Model ID: mistral/magistral-small-1.2
+	// Model page: https://phaseo.app/models/mistral/magistral-small-1.2
+	ModelIDMistralMagistralSmall12 gen.ModelId = "mistral/magistral-small-1.2"
 	// Model ID: mistral/ministral-3-14b
 	// Model page: https://phaseo.app/models/mistral/ministral-3-14b
 	ModelIDMistralMinistral314b gen.ModelId = "mistral/ministral-3-14b"
@@ -637,6 +658,9 @@ const (
 	// Model ID: mistral/pixtral-large
 	// Model page: https://phaseo.app/models/mistral/pixtral-large
 	ModelIDMistralPixtralLarge gen.ModelId = "mistral/pixtral-large"
+	// Model ID: mistral/voxtral-mini
+	// Model page: https://phaseo.app/models/mistral/voxtral-mini
+	ModelIDMistralVoxtralMini gen.ModelId = "mistral/voxtral-mini"
 	// Model ID: mistral/voxtral-mini-transcribe-2
 	// Model page: https://phaseo.app/models/mistral/voxtral-mini-transcribe-2
 	ModelIDMistralVoxtralMiniTranscribe2 gen.ModelId = "mistral/voxtral-mini-transcribe-2"
@@ -1590,6 +1614,8 @@ const (
 )
 
 var KnownModelIDs = []gen.ModelId{
+	ModelIDAi21Jamba15Large,
+	ModelIDAi21Jamba15Mini,
 	ModelIDAionLabsAion20,
 	ModelIDAionLabsAion30,
 	ModelIDAionLabsAion30Mini,
@@ -1600,6 +1626,9 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDAmazonNovaMicro10,
 	ModelIDAmazonNovaPremier,
 	ModelIDAmazonNovaPro10,
+	ModelIDAnthropicClaude3Haiku,
+	ModelIDAnthropicClaude35Haiku,
+	ModelIDAnthropicClaude37Sonnet,
 	ModelIDAnthropicClaudeFable5,
 	ModelIDAnthropicClaudeHaiku45,
 	ModelIDAnthropicClaudeOpus4,
@@ -1772,10 +1801,12 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDMistralCodestral,
 	ModelIDMistralCodestralEmbed,
 	ModelIDMistralDevstral2,
+	ModelIDMistralDevstral20,
 	ModelIDMistralDevstralMedium10,
 	ModelIDMistralDevstralSmall11,
 	ModelIDMistralLeanstral15Free,
 	ModelIDMistralMagistralMedium12,
+	ModelIDMistralMagistralSmall12,
 	ModelIDMistralMinistral314b,
 	ModelIDMistralMinistral33b,
 	ModelIDMistralMinistral38b,
@@ -1800,6 +1831,7 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDMistralOcr4,
 	ModelIDMistralOcr41,
 	ModelIDMistralPixtralLarge,
+	ModelIDMistralVoxtralMini,
 	ModelIDMistralVoxtralMiniTranscribe2,
 	ModelIDMistralVoxtralSmall,
 	ModelIDMoonshotaiKimiK2,
