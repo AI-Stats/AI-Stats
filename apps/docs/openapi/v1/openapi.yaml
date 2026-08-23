@@ -7402,7 +7402,7 @@ components:
       description: >-
         Model identifier. This is a runtime string so newly released models can
         be used without waiting for an SDK update.
-      example: aion-labs/aion-2.0
+      example: ai21/jamba-1.5-large
     OrganisationId:
       type: string
       description: Organisation identifier.
@@ -9541,19 +9541,31 @@ components:
         Known callable model identifier snapshot used for SDK helper constants
         and autocomplete.
       enum:
+        - ai21/jamba-1.5-large
+        - ai21/jamba-1.5-mini
         - aion-labs/aion-2.0
         - aion-labs/aion-3.0
         - aion-labs/aion-3.0-mini
         - aion-labs/aion-rp-llama-3.1-8b
         - allenai/molmo-2-8b
+        - amazon/nova-2-lite
+        - amazon/nova-lite-1.0
+        - amazon/nova-micro-1.0
+        - amazon/nova-premier
+        - amazon/nova-pro-1.0
         - anthropic/claude-3-haiku
+        - anthropic/claude-3.5-haiku
+        - anthropic/claude-3.7-sonnet
         - anthropic/claude-fable-5
         - anthropic/claude-haiku-4.5
+        - anthropic/claude-opus-4
+        - anthropic/claude-opus-4.1
         - anthropic/claude-opus-4.5
         - anthropic/claude-opus-4.6
         - anthropic/claude-opus-4.7
         - anthropic/claude-opus-4.8
         - anthropic/claude-opus-5
+        - anthropic/claude-sonnet-4
         - anthropic/claude-sonnet-4.5
         - anthropic/claude-sonnet-4.6
         - anthropic/claude-sonnet-5
@@ -9639,7 +9651,9 @@ components:
         - google/gemini-embedding-2
         - google/gemini-robotics-er-1.6-preview
         - google/gemini-robotics-er-2-preview
+        - google/gemma-3-12b
         - google/gemma-3-27b
+        - google/gemma-3-4b
         - google/gemma-4-26b-a4b
         - google/gemma-4-26b-a4b:free
         - google/gemma-4-31b
@@ -9714,16 +9728,22 @@ components:
         - mistral/codestral
         - mistral/codestral-embed
         - mistral/devstral-2
+        - mistral/devstral-2.0
         - mistral/devstral-medium-1.0
         - mistral/devstral-small-1.1
         - mistral/leanstral-1.5:free
         - mistral/magistral-medium-1.2
+        - mistral/magistral-small-1.2
         - mistral/ministral-3-14b
         - mistral/ministral-3-3b
         - mistral/ministral-3-8b
+        - mistral/ministral-3.0-14b
+        - mistral/ministral-3.0-3b
+        - mistral/ministral-3.0-8b
         - mistral/mistral-embed
         - mistral/mistral-large-2.1
         - mistral/mistral-large-3
+        - mistral/mistral-large-3.0
         - mistral/mistral-medium-3.0
         - mistral/mistral-medium-3.1
         - mistral/mistral-medium-3.5
@@ -9738,7 +9758,9 @@ components:
         - mistral/ocr-4
         - mistral/ocr-4.1
         - mistral/pixtral-large
+        - mistral/voxtral-mini
         - mistral/voxtral-mini-transcribe-2
+        - mistral/voxtral-small
         - moonshotai/kimi-k2
         - moonshotai/kimi-k2-0905
         - moonshotai/kimi-k2-instruct
@@ -9772,7 +9794,9 @@ components:
         - nvidia/nemotron-3-super-120b-a12b
         - nvidia/nemotron-3-ultra-550b-a55b
         - nvidia/nemotron-3.5-lightning
+        - nvidia/nemotron-nano-9b-v2
         - nvidia/nvidia-nemotron-3-nano-30b-a3b
+        - nvidia/nvidia-nemotron-nano-12b-v2-vl
         - openai/babbage-002
         - openai/chat-latest
         - openai/chatgpt-4o
@@ -9818,6 +9842,7 @@ components:
         - openai/gpt-image-2
         - openai/gpt-oss-120b
         - openai/gpt-oss-20b
+        - openai/gpt-oss-safeguard-120b
         - openai/gpt-oss-safeguard-20b
         - openai/gpt-realtime
         - openai/gpt-realtime-1.5
