@@ -6,12 +6,12 @@ import { fetchFrontendOrganisations } from "@/lib/fetchers/frontend/fetchPublicC
 import { Skeleton } from "@/components/ui/skeleton";
 
 export const metadata: Metadata = {
-	title: "Organisations",
+	title: "AI Labs",
 	description:
-		"Explore a comprehensive directory of AI organisations. Compare providers by their models, features, benchmarks, and pricing, and find the best fit for your use case with Phaseo.",
+		"Explore AI labs and the models they create, with release, availability, pricing, and performance data on Phaseo.",
 	keywords: [
 		"AI providers",
-		"AI companies",
+		"AI labs",
 		"AI models",
 		"machine learning providers",
 		"AI benchmarks",

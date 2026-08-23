@@ -36,10 +36,10 @@ export default async function OrganisationDetailShell({
 							<span className="text-xl">🏢</span>
 						</div>
 						<p className="text-base font-medium">
-							We don&apos;t know that organisation... yet!
+							We don&apos;t know that lab... yet!
 						</p>
 						<p className="mt-1 text-sm text-muted-foreground">
-							If we&apos;re missing an organisation, please
+							If we&apos;re missing a lab, please
 							contribute on Github!
 						</p>
 						<div className="mt-3">
