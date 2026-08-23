@@ -120,6 +120,26 @@ namespace PhaseoSdk
         public const string BytedanceSeedance20Mini260615 = "bytedance/seedance-2.0-mini-260615";
         /// <summary>Model ID: <c>bytedance/seedream-5.0-pro</c>. Model page: https://phaseo.app/models/bytedance/seedream-5.0-pro</summary>
         public const string BytedanceSeedream50Pro = "bytedance/seedream-5.0-pro";
+        /// <summary>Model ID: <c>cohere/command-a</c>. Model page: https://phaseo.app/models/cohere/command-a</summary>
+        public const string CohereCommandA = "cohere/command-a";
+        /// <summary>Model ID: <c>cohere/command-r</c>. Model page: https://phaseo.app/models/cohere/command-r</summary>
+        public const string CohereCommandR = "cohere/command-r";
+        /// <summary>Model ID: <c>cohere/command-r-plus</c>. Model page: https://phaseo.app/models/cohere/command-r-plus</summary>
+        public const string CohereCommandRPlus = "cohere/command-r-plus";
+        /// <summary>Model ID: <c>cohere/command-r7b</c>. Model page: https://phaseo.app/models/cohere/command-r7b</summary>
+        public const string CohereCommandR7b = "cohere/command-r7b";
+        /// <summary>Model ID: <c>cohere/embed-english-v3</c>. Model page: https://phaseo.app/models/cohere/embed-english-v3</summary>
+        public const string CohereEmbedEnglishV3 = "cohere/embed-english-v3";
+        /// <summary>Model ID: <c>cohere/embed-multilingual-v3</c>. Model page: https://phaseo.app/models/cohere/embed-multilingual-v3</summary>
+        public const string CohereEmbedMultilingualV3 = "cohere/embed-multilingual-v3";
+        /// <summary>Model ID: <c>cohere/embed-v4</c>. Model page: https://phaseo.app/models/cohere/embed-v4</summary>
+        public const string CohereEmbedV4 = "cohere/embed-v4";
+        /// <summary>Model ID: <c>cohere/rerank-v3.5</c>. Model page: https://phaseo.app/models/cohere/rerank-v3.5</summary>
+        public const string CohereRerankV35 = "cohere/rerank-v3.5";
+        /// <summary>Model ID: <c>cohere/rerank-v4.0-fast</c>. Model page: https://phaseo.app/models/cohere/rerank-v4.0-fast</summary>
+        public const string CohereRerankV40Fast = "cohere/rerank-v4.0-fast";
+        /// <summary>Model ID: <c>cohere/rerank-v4.0-pro</c>. Model page: https://phaseo.app/models/cohere/rerank-v4.0-pro</summary>
+        public const string CohereRerankV40Pro = "cohere/rerank-v4.0-pro";
         /// <summary>Model ID: <c>crofai/greg-1-mini</c>. Model page: https://phaseo.app/models/crofai/greg-1-mini</summary>
         public const string CrofaiGreg1Mini = "crofai/greg-1-mini";
         /// <summary>Model ID: <c>crofai/greg-2-super</c>. Model page: https://phaseo.app/models/crofai/greg-2-super</summary>

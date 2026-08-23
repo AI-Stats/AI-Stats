@@ -178,6 +178,36 @@ public final class ModelIds {
     /** Model ID: <code>bytedance/seedream-5.0-pro</code>. Model page: https://phaseo.app/models/bytedance/seedream-5.0-pro */
     public static final String BYTEDANCE_SEEDREAM_5_0_PRO = "bytedance/seedream-5.0-pro";
 
+    /** Model ID: <code>cohere/command-a</code>. Model page: https://phaseo.app/models/cohere/command-a */
+    public static final String COHERE_COMMAND_A = "cohere/command-a";
+
+    /** Model ID: <code>cohere/command-r</code>. Model page: https://phaseo.app/models/cohere/command-r */
+    public static final String COHERE_COMMAND_R = "cohere/command-r";
+
+    /** Model ID: <code>cohere/command-r-plus</code>. Model page: https://phaseo.app/models/cohere/command-r-plus */
+    public static final String COHERE_COMMAND_R_PLUS = "cohere/command-r-plus";
+
+    /** Model ID: <code>cohere/command-r7b</code>. Model page: https://phaseo.app/models/cohere/command-r7b */
+    public static final String COHERE_COMMAND_R7B = "cohere/command-r7b";
+
+    /** Model ID: <code>cohere/embed-english-v3</code>. Model page: https://phaseo.app/models/cohere/embed-english-v3 */
+    public static final String COHERE_EMBED_ENGLISH_V3 = "cohere/embed-english-v3";
+
+    /** Model ID: <code>cohere/embed-multilingual-v3</code>. Model page: https://phaseo.app/models/cohere/embed-multilingual-v3 */
+    public static final String COHERE_EMBED_MULTILINGUAL_V3 = "cohere/embed-multilingual-v3";
+
+    /** Model ID: <code>cohere/embed-v4</code>. Model page: https://phaseo.app/models/cohere/embed-v4 */
+    public static final String COHERE_EMBED_V4 = "cohere/embed-v4";
+
+    /** Model ID: <code>cohere/rerank-v3.5</code>. Model page: https://phaseo.app/models/cohere/rerank-v3.5 */
+    public static final String COHERE_RERANK_V3_5 = "cohere/rerank-v3.5";
+
+    /** Model ID: <code>cohere/rerank-v4.0-fast</code>. Model page: https://phaseo.app/models/cohere/rerank-v4.0-fast */
+    public static final String COHERE_RERANK_V4_0_FAST = "cohere/rerank-v4.0-fast";
+
+    /** Model ID: <code>cohere/rerank-v4.0-pro</code>. Model page: https://phaseo.app/models/cohere/rerank-v4.0-pro */
+    public static final String COHERE_RERANK_V4_0_PRO = "cohere/rerank-v4.0-pro";
+
     /** Model ID: <code>crofai/greg-1-mini</code>. Model page: https://phaseo.app/models/crofai/greg-1-mini */
     public static final String CROFAI_GREG_1_MINI = "crofai/greg-1-mini";
 
