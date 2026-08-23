@@ -21,9 +21,6 @@ inline constexpr std::string_view AION_LABS_AION_RP_LLAMA_3_1_8B = "aion-labs/ai
 // Model ID: allenai/molmo-2-8b
 // Model page: https://phaseo.app/models/allenai/molmo-2-8b
 inline constexpr std::string_view ALLENAI_MOLMO_2_8B = "allenai/molmo-2-8b";
-// Model ID: anthropic/claude-3-haiku
-// Model page: https://phaseo.app/models/anthropic/claude-3-haiku
-inline constexpr std::string_view ANTHROPIC_CLAUDE_3_HAIKU = "anthropic/claude-3-haiku";
 // Model ID: anthropic/claude-fable-5
 // Model page: https://phaseo.app/models/anthropic/claude-fable-5
 inline constexpr std::string_view ANTHROPIC_CLAUDE_FABLE_5 = "anthropic/claude-fable-5";
@@ -1215,6 +1212,9 @@ inline constexpr std::string_view QWEN_QWEN3_6_27B = "qwen/qwen3.6-27b";
 // Model ID: qwen/qwen3.6-35b-a3b
 // Model page: https://phaseo.app/models/qwen/qwen3.6-35b-a3b
 inline constexpr std::string_view QWEN_QWEN3_6_35B_A3B = "qwen/qwen3.6-35b-a3b";
+// Model ID: qwen/qwen3.6-flash
+// Model page: https://phaseo.app/models/qwen/qwen3.6-flash
+inline constexpr std::string_view QWEN_QWEN3_6_FLASH = "qwen/qwen3.6-flash";
 // Model ID: qwen/qwen3.6-max-preview
 // Model page: https://phaseo.app/models/qwen/qwen3.6-max-preview
 inline constexpr std::string_view QWEN_QWEN3_6_MAX_PREVIEW = "qwen/qwen3.6-max-preview";
@@ -1539,7 +1539,6 @@ inline constexpr std::array<std::string_view, 508> ALL = {
 	AION_LABS_AION_3_0_MINI,
 	AION_LABS_AION_RP_LLAMA_3_1_8B,
 	ALLENAI_MOLMO_2_8B,
-	ANTHROPIC_CLAUDE_3_HAIKU,
 	ANTHROPIC_CLAUDE_FABLE_5,
 	ANTHROPIC_CLAUDE_HAIKU_4_5,
 	ANTHROPIC_CLAUDE_OPUS_4_5,
@@ -1937,6 +1936,7 @@ inline constexpr std::array<std::string_view, 508> ALL = {
 	QWEN_QWEN3_5_PLUS_2026_04_20,
 	QWEN_QWEN3_6_27B,
 	QWEN_QWEN3_6_35B_A3B,
+	QWEN_QWEN3_6_FLASH,
 	QWEN_QWEN3_6_MAX_PREVIEW,
 	QWEN_QWEN3_6_PLUS,
 	QWEN_QWEN3_7_MAX,

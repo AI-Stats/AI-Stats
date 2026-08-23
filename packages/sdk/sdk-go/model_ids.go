@@ -22,9 +22,6 @@ const (
 	// Model ID: allenai/molmo-2-8b
 	// Model page: https://phaseo.app/models/allenai/molmo-2-8b
 	ModelIDAllenaiMolmo28b gen.ModelId = "allenai/molmo-2-8b"
-	// Model ID: anthropic/claude-3-haiku
-	// Model page: https://phaseo.app/models/anthropic/claude-3-haiku
-	ModelIDAnthropicClaude3Haiku gen.ModelId = "anthropic/claude-3-haiku"
 	// Model ID: anthropic/claude-fable-5
 	// Model page: https://phaseo.app/models/anthropic/claude-fable-5
 	ModelIDAnthropicClaudeFable5 gen.ModelId = "anthropic/claude-fable-5"
@@ -1216,6 +1213,9 @@ const (
 	// Model ID: qwen/qwen3.6-35b-a3b
 	// Model page: https://phaseo.app/models/qwen/qwen3.6-35b-a3b
 	ModelIDQwenQwen3635bA3b gen.ModelId = "qwen/qwen3.6-35b-a3b"
+	// Model ID: qwen/qwen3.6-flash
+	// Model page: https://phaseo.app/models/qwen/qwen3.6-flash
+	ModelIDQwenQwen36Flash gen.ModelId = "qwen/qwen3.6-flash"
 	// Model ID: qwen/qwen3.6-max-preview
 	// Model page: https://phaseo.app/models/qwen/qwen3.6-max-preview
 	ModelIDQwenQwen36MaxPreview gen.ModelId = "qwen/qwen3.6-max-preview"
@@ -1541,7 +1541,6 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDAionLabsAion30Mini,
 	ModelIDAionLabsAionRpLlama318b,
 	ModelIDAllenaiMolmo28b,
-	ModelIDAnthropicClaude3Haiku,
 	ModelIDAnthropicClaudeFable5,
 	ModelIDAnthropicClaudeHaiku45,
 	ModelIDAnthropicClaudeOpus45,
@@ -1939,6 +1938,7 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDQwenQwen35Plus20260420,
 	ModelIDQwenQwen3627b,
 	ModelIDQwenQwen3635bA3b,
+	ModelIDQwenQwen36Flash,
 	ModelIDQwenQwen36MaxPreview,
 	ModelIDQwenQwen36Plus,
 	ModelIDQwenQwen37Max,

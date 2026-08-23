@@ -22,9 +22,6 @@ public final class ModelIds {
     /** Model ID: <code>allenai/molmo-2-8b</code>. Model page: https://phaseo.app/models/allenai/molmo-2-8b */
     public static final String ALLENAI_MOLMO_2_8B = "allenai/molmo-2-8b";
 
-    /** Model ID: <code>anthropic/claude-3-haiku</code>. Model page: https://phaseo.app/models/anthropic/claude-3-haiku */
-    public static final String ANTHROPIC_CLAUDE_3_HAIKU = "anthropic/claude-3-haiku";
-
     /** Model ID: <code>anthropic/claude-fable-5</code>. Model page: https://phaseo.app/models/anthropic/claude-fable-5 */
     public static final String ANTHROPIC_CLAUDE_FABLE_5 = "anthropic/claude-fable-5";
 
@@ -1215,6 +1212,9 @@ public final class ModelIds {
 
     /** Model ID: <code>qwen/qwen3.6-35b-a3b</code>. Model page: https://phaseo.app/models/qwen/qwen3.6-35b-a3b */
     public static final String QWEN_QWEN3_6_35B_A3B = "qwen/qwen3.6-35b-a3b";
+
+    /** Model ID: <code>qwen/qwen3.6-flash</code>. Model page: https://phaseo.app/models/qwen/qwen3.6-flash */
+    public static final String QWEN_QWEN3_6_FLASH = "qwen/qwen3.6-flash";
 
     /** Model ID: <code>qwen/qwen3.6-max-preview</code>. Model page: https://phaseo.app/models/qwen/qwen3.6-max-preview */
     public static final String QWEN_QWEN3_6_MAX_PREVIEW = "qwen/qwen3.6-max-preview";

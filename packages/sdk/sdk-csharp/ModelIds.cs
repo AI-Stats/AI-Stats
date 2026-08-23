@@ -16,8 +16,6 @@ namespace PhaseoSdk
         public const string AionLabsAionRpLlama318b = "aion-labs/aion-rp-llama-3.1-8b";
         /// <summary>Model ID: <c>allenai/molmo-2-8b</c>. Model page: https://phaseo.app/models/allenai/molmo-2-8b</summary>
         public const string AllenaiMolmo28b = "allenai/molmo-2-8b";
-        /// <summary>Model ID: <c>anthropic/claude-3-haiku</c>. Model page: https://phaseo.app/models/anthropic/claude-3-haiku</summary>
-        public const string AnthropicClaude3Haiku = "anthropic/claude-3-haiku";
         /// <summary>Model ID: <c>anthropic/claude-fable-5</c>. Model page: https://phaseo.app/models/anthropic/claude-fable-5</summary>
         public const string AnthropicClaudeFable5 = "anthropic/claude-fable-5";
         /// <summary>Model ID: <c>anthropic/claude-haiku-4.5</c>. Model page: https://phaseo.app/models/anthropic/claude-haiku-4.5</summary>
@@ -812,6 +810,8 @@ namespace PhaseoSdk
         public const string QwenQwen3627b = "qwen/qwen3.6-27b";
         /// <summary>Model ID: <c>qwen/qwen3.6-35b-a3b</c>. Model page: https://phaseo.app/models/qwen/qwen3.6-35b-a3b</summary>
         public const string QwenQwen3635bA3b = "qwen/qwen3.6-35b-a3b";
+        /// <summary>Model ID: <c>qwen/qwen3.6-flash</c>. Model page: https://phaseo.app/models/qwen/qwen3.6-flash</summary>
+        public const string QwenQwen36Flash = "qwen/qwen3.6-flash";
         /// <summary>Model ID: <c>qwen/qwen3.6-max-preview</c>. Model page: https://phaseo.app/models/qwen/qwen3.6-max-preview</summary>
         public const string QwenQwen36MaxPreview = "qwen/qwen3.6-max-preview";
         /// <summary>Model ID: <c>qwen/qwen3.6-plus</c>. Model page: https://phaseo.app/models/qwen/qwen3.6-plus</summary>

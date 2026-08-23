@@ -23,9 +23,6 @@ final class ModelIds
     /** Model ID: allenai/molmo-2-8b. Model page: https://phaseo.app/models/allenai/molmo-2-8b */
     public const ALLENAI_MOLMO_2_8B = 'allenai/molmo-2-8b';
 
-    /** Model ID: anthropic/claude-3-haiku. Model page: https://phaseo.app/models/anthropic/claude-3-haiku */
-    public const ANTHROPIC_CLAUDE_3_HAIKU = 'anthropic/claude-3-haiku';
-
     /** Model ID: anthropic/claude-fable-5. Model page: https://phaseo.app/models/anthropic/claude-fable-5 */
     public const ANTHROPIC_CLAUDE_FABLE_5 = 'anthropic/claude-fable-5';
 
@@ -1216,6 +1213,9 @@ final class ModelIds
 
     /** Model ID: qwen/qwen3.6-35b-a3b. Model page: https://phaseo.app/models/qwen/qwen3.6-35b-a3b */
     public const QWEN_QWEN3_6_35B_A3B = 'qwen/qwen3.6-35b-a3b';
+
+    /** Model ID: qwen/qwen3.6-flash. Model page: https://phaseo.app/models/qwen/qwen3.6-flash */
+    public const QWEN_QWEN3_6_FLASH = 'qwen/qwen3.6-flash';
 
     /** Model ID: qwen/qwen3.6-max-preview. Model page: https://phaseo.app/models/qwen/qwen3.6-max-preview */
     public const QWEN_QWEN3_6_MAX_PREVIEW = 'qwen/qwen3.6-max-preview';

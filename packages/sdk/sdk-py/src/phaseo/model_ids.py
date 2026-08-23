@@ -30,10 +30,6 @@ class ModelIds:
     # Model page: https://phaseo.app/models/allenai/molmo-2-8b
     ALLENAI_MOLMO_2_8B: Final[str] = "allenai/molmo-2-8b"
 
-    # Model ID: anthropic/claude-3-haiku
-    # Model page: https://phaseo.app/models/anthropic/claude-3-haiku
-    ANTHROPIC_CLAUDE_3_HAIKU: Final[str] = "anthropic/claude-3-haiku"
-
     # Model ID: anthropic/claude-fable-5
     # Model page: https://phaseo.app/models/anthropic/claude-fable-5
     ANTHROPIC_CLAUDE_FABLE_5: Final[str] = "anthropic/claude-fable-5"
@@ -1622,6 +1618,10 @@ class ModelIds:
     # Model page: https://phaseo.app/models/qwen/qwen3.6-35b-a3b
     QWEN_QWEN3_6_35B_A3B: Final[str] = "qwen/qwen3.6-35b-a3b"
 
+    # Model ID: qwen/qwen3.6-flash
+    # Model page: https://phaseo.app/models/qwen/qwen3.6-flash
+    QWEN_QWEN3_6_FLASH: Final[str] = "qwen/qwen3.6-flash"
+
     # Model ID: qwen/qwen3.6-max-preview
     # Model page: https://phaseo.app/models/qwen/qwen3.6-max-preview
     QWEN_QWEN3_6_MAX_PREVIEW: Final[str] = "qwen/qwen3.6-max-preview"
@@ -2053,7 +2053,6 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.AION_LABS_AION_3_0_MINI,
         ModelIds.AION_LABS_AION_RP_LLAMA_3_1_8B,
         ModelIds.ALLENAI_MOLMO_2_8B,
-        ModelIds.ANTHROPIC_CLAUDE_3_HAIKU,
         ModelIds.ANTHROPIC_CLAUDE_FABLE_5,
         ModelIds.ANTHROPIC_CLAUDE_HAIKU_4_5,
         ModelIds.ANTHROPIC_CLAUDE_OPUS_4_5,
@@ -2451,6 +2450,7 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.QWEN_QWEN3_5_PLUS_2026_04_20,
         ModelIds.QWEN_QWEN3_6_27B,
         ModelIds.QWEN_QWEN3_6_35B_A3B,
+        ModelIds.QWEN_QWEN3_6_FLASH,
         ModelIds.QWEN_QWEN3_6_MAX_PREVIEW,
         ModelIds.QWEN_QWEN3_6_PLUS,
         ModelIds.QWEN_QWEN3_7_MAX,
