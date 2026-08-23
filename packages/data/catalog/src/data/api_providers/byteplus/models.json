@@ -1276,5 +1276,401 @@
       "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v3.2",
+    "provider_api_model_id": "byteplus:deepseek/deepseek-v3.2",
+    "provider_model_slug": "deepseek-v3-2-251201",
+    "internal_model_id": "deepseek/deepseek-v3.2",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 131072,
+    "max_output_tokens": 65536,
+    "effective_from": "2025-12-01T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://docs.byteplus.com/en/docs/ModelArk/1330310",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "BytePlus ModelArk current model catalogue."
+      },
+      {
+        "kind": "pricing",
+        "url": "https://docs.byteplus.com/docs/ModelArk/1099320",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "BytePlus ModelArk pay-as-you-go pricing table."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified against the current ModelArk model and pricing documentation."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v4-pro",
+    "provider_api_model_id": "byteplus:deepseek/deepseek-v4-pro",
+    "provider_model_slug": "deepseek-v4-pro-260425",
+    "internal_model_id": "deepseek/deepseek-v4-pro",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 393216,
+    "effective_from": "2026-04-25T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://docs.byteplus.com/en/docs/ModelArk/1330310",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "BytePlus ModelArk current model catalogue."
+      },
+      {
+        "kind": "pricing",
+        "url": "https://docs.byteplus.com/docs/ModelArk/1099320",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "BytePlus ModelArk pay-as-you-go pricing table."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified against the current ModelArk model and pricing documentation."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v4-flash",
+    "provider_api_model_id": "byteplus:deepseek/deepseek-v4-flash",
+    "provider_model_slug": "deepseek-v4-flash-260425",
+    "internal_model_id": "deepseek/deepseek-v4-flash",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-04-25T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://docs.byteplus.com/en/docs/ModelArk/1330310",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "BytePlus ModelArk current model catalogue."
+      },
+      {
+        "kind": "pricing",
+        "url": "https://docs.byteplus.com/docs/ModelArk/1099320",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "BytePlus ModelArk pay-as-you-go pricing table."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified against the current ModelArk model and pricing documentation."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-4.7",
+    "provider_api_model_id": "byteplus:z-ai/glm-4.7",
+    "provider_model_slug": "glm-4-7-251222",
+    "internal_model_id": "z-ai/glm-4.7",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 203000,
+    "max_output_tokens": 131072,
+    "effective_from": "2025-12-22T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://docs.byteplus.com/en/docs/ModelArk/1330310",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "BytePlus ModelArk current model catalogue."
+      },
+      {
+        "kind": "pricing",
+        "url": "https://docs.byteplus.com/docs/ModelArk/1099320",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "BytePlus ModelArk pay-as-you-go pricing table."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified against the current ModelArk model and pricing documentation."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-5.2",
+    "provider_api_model_id": "byteplus:z-ai/glm-5.2",
+    "provider_model_slug": "glm-5-2-260617",
+    "internal_model_id": "z-ai/glm-5.2",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 224250,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-06-17T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://docs.byteplus.com/en/docs/ModelArk/1330310",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "BytePlus ModelArk current model catalogue."
+      },
+      {
+        "kind": "pricing",
+        "url": "https://docs.byteplus.com/docs/ModelArk/1099320",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "BytePlus ModelArk pay-as-you-go pricing table."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified against the current ModelArk model and pricing documentation."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-oss-120b",
+    "provider_api_model_id": "byteplus:openai/gpt-oss-120b",
+    "provider_model_slug": "gpt-oss-120b-250805",
+    "internal_model_id": "openai/gpt-oss-120b",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 128000,
+    "max_output_tokens": 32768,
+    "effective_from": "2025-08-05T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://docs.byteplus.com/en/docs/ModelArk/1330310",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "BytePlus ModelArk current model catalogue."
+      },
+      {
+        "kind": "pricing",
+        "url": "https://docs.byteplus.com/docs/ModelArk/1099320",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "BytePlus ModelArk pay-as-you-go pricing table."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified against the current ModelArk model and pricing documentation."
+    },
+    "rate_limits": []
   }
 ]
