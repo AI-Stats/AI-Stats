@@ -576,7 +576,7 @@ export function makeMeta(input: {
     beforeContextFallbackRemap?: boolean | null;
     startedAtMs?: number;
 }): RequestMeta {
-    const { referer, appTitle, appId, appName, sessionId: sessionIdHeader, userId: userIdHeader } = readAttributionHeaders(input.req);
+    const { referer, appTitle, appId, appName, appCategories, sessionId: sessionIdHeader, userId: userIdHeader } = readAttributionHeaders(input.req);
     const rawBody = (input.rawBody && typeof input.rawBody === "object")
         ? input.rawBody
         : {};
@@ -659,6 +659,7 @@ export function makeMeta(input: {
         appTitle,
         appId,
         appName,
+        appCategories,
         requestUserId,
         sessionId,
         trace,

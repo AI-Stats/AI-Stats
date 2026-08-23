@@ -17,7 +17,7 @@ const CORS_HEADERS: Record<string, string> = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
     "Access-Control-Allow-Headers":
-        "Authorization, Content-Type, traceparent, tracestate, x-title, http-referer, x-app-id, x-app-name, x-phaseo-client, x-phaseo-client-version, x-gateway-debug, x-phaseo-debug, X-Phaseo-Strictness, x-phaseo-cache-revalidate",
+        "Authorization, Content-Type, traceparent, tracestate, x-title, http-referer, x-app-id, x-app-name, x-app-categories, x-phaseo-client, x-phaseo-client-version, x-gateway-debug, x-phaseo-debug, X-Phaseo-Strictness, x-phaseo-cache-revalidate",
     "Access-Control-Max-Age": "86400",
 };
 
@@ -49,7 +49,6 @@ v1Router.use(
 v1Router.route("/", inferenceRouter);
 v1Router.route("/", platformRouter);
 v1Router.route("/", experimentsRoutes);
-
 
 
 
