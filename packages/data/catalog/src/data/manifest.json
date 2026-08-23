@@ -66,7 +66,8 @@
     "hexgrad",
     "prism-ml",
     "jetbrains",
-    "stealth"
+    "stealth",
+    "stability-ai"
   ],
   "models": {
     "ai21": [
@@ -1398,6 +1399,9 @@
     ],
     "stealth": [
       "stealth/ox-alpha"
+    ],
+    "stability-ai": [
+      "stability-ai/stable-diffusion-xl-base-1.0"
     ]
   },
   "benchmarks": [
