@@ -196,7 +196,7 @@ function authenticatedFetch(input: RequestInfo | URL): Response {
 		]), { status: 200 });
 	}
 	if (url.includes("workspace_byok_monthly_usage")) {
-		return new Response(JSON.stringify([{ request_count: 100_250 }]), { status: 200 });
+		return new Response(JSON.stringify([{ request_count: 1_000_250 }]), { status: 200 });
 	}
 	if (url.includes("workspace_invoice_profiles")) {
 		return new Response(JSON.stringify([{
@@ -470,7 +470,7 @@ describe("account settings routes", () => {
 				{ id: "byok-old", providerId: "openai", suffix: "0000", lastUsedAt: null, verificationStatus: null, errorMessage: null },
 			],
 			legacyHiddenTotal: 0,
-			monthlyRequestCount: 100250,
+			monthlyRequestCount: 1_000_250,
 			paidTierRequests: 250,
 			workspaceId: "workspace-1",
 		});
