@@ -122,7 +122,7 @@
           "op": "lte",
           "or_group": 1,
           "and_index": 2,
-          "value": 128000
+          "value": 131072
         }
       ],
       "priority": 100,
@@ -142,7 +142,7 @@
           "op": "lte",
           "or_group": 1,
           "and_index": 2,
-          "value": 128000
+          "value": 131072
         }
       ],
       "source": null
@@ -168,7 +168,7 @@
           "op": "lte",
           "or_group": 1,
           "and_index": 2,
-          "value": 128000
+          "value": 131072
         }
       ],
       "priority": 100,
@@ -188,7 +188,7 @@
           "op": "lte",
           "or_group": 1,
           "and_index": 2,
-          "value": 128000
+          "value": 131072
         }
       ],
       "source": null
@@ -214,7 +214,7 @@
           "op": "lte",
           "or_group": 1,
           "and_index": 2,
-          "value": 128000
+          "value": 131072
         }
       ],
       "priority": 100,
@@ -234,7 +234,7 @@
           "op": "lte",
           "or_group": 1,
           "and_index": 2,
-          "value": 128000
+          "value": 131072
         }
       ],
       "source": null
