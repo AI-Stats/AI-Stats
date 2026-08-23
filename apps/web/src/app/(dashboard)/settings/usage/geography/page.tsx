@@ -9,6 +9,7 @@ import {
 	getUsageRangeParamKeys,
 	parseUsageDateInput,
 	parseUsageRangePreset,
+	resolveUsageTimeRange,
 } from "@/lib/gateway/usage/timeRange";
 
 export const metadata: Metadata = {
@@ -33,7 +34,13 @@ export default async function UsageGeographyPage({
 	const preset = parseUsageRangePreset(firstParam(params[rangeKeys.preset]));
 	const customFrom = parseUsageDateInput(firstParam(params[rangeKeys.from]));
 	const customTo = parseUsageDateInput(firstParam(params[rangeKeys.to]));
-	const result = await fetchSettingsGeography(params);
+	const timeRange = resolveUsageTimeRange({ preset, customFrom, customTo });
+	const result = await fetchSettingsGeography({
+		...params,
+		[rangeKeys.preset]: "custom",
+		[rangeKeys.from]: timeRange.from,
+		[rangeKeys.to]: timeRange.to,
+	});
 	if (!result?.signedIn) redirect("/sign-in");
 
 	const rows = (result.data ?? []).map((row) => ({
@@ -57,6 +64,7 @@ export default async function UsageGeographyPage({
 					preset={preset}
 					customFrom={customFrom}
 					customTo={customTo}
+					showRefresh={false}
 					showLivePreset={false}
 				/>
 			</div>
