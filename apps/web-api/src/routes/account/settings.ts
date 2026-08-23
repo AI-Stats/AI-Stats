@@ -60,6 +60,7 @@ const APP_CATEGORIES = new Set([
 const OBSERVABILITY_DESTINATIONS = new Set([
 	"otel_collector", "webhook",
 ]);
+const BYOK_MONTHLY_FREE_REQUESTS = 1_000_000;
 
 function normalizeAppCategories(value: unknown): string | null {
 	if (typeof value !== "string") return null;
@@ -757,7 +758,7 @@ accountSettingsRouter.get("/byok", async (c) => {
 	const nextMonthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
 	const empty = {
 		fallbackEnabled: false,
-		freeRemaining: 100_000,
+		freeRemaining: BYOK_MONTHLY_FREE_REQUESTS,
 		keyEntries: [],
 		legacyHiddenTotal: 0,
 		monthlyRequestCount: 0,
@@ -808,12 +809,12 @@ accountSettingsRouter.get("/byok", async (c) => {
 	const monthlyRequestCount = Number(usageResult.data?.[0]?.request_count ?? 0);
 	return c.json({
 		fallbackEnabled: settingsResult.data?.byok_fallback_enabled === true,
-		freeRemaining: Math.max(0, 100_000 - monthlyRequestCount),
+		freeRemaining: Math.max(0, BYOK_MONTHLY_FREE_REQUESTS - monthlyRequestCount),
 		keyEntries,
 		legacyHiddenTotal: 0,
 		monthlyRequestCount,
 		nextMonthStartIso: nextMonthStart.toISOString(),
-		paidTierRequests: Math.max(0, monthlyRequestCount - 100_000),
+		paidTierRequests: Math.max(0, monthlyRequestCount - BYOK_MONTHLY_FREE_REQUESTS),
 		workspaceId,
 	}, 200, PRIVATE_NO_STORE_HEADERS);
 });
