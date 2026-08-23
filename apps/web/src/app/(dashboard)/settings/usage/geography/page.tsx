@@ -1,13 +1,38 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+
+import SettingsPageHeader from "@/components/(gateway)/settings/SettingsPageHeader";
 import { GeographyUsage } from "@/components/(gateway)/usage/GeographyUsage";
+import UsageLogsToolbar from "@/components/(gateway)/usage/UsageLogsToolbar";
 import { fetchSettingsGeography } from "@/lib/fetchers/internal/fetchSettingsGeography";
+import {
+	getUsageRangeParamKeys,
+	parseUsageDateInput,
+	parseUsageRangePreset,
+} from "@/lib/gateway/usage/timeRange";
+
+export const metadata: Metadata = {
+	title: "Geography - Settings",
+};
+
+type SearchParams = Record<string, string | string[] | undefined>;
+
+function firstParam(value: string | string[] | undefined): string | undefined {
+	if (typeof value === "string") return value;
+	if (Array.isArray(value)) return value[0];
+	return undefined;
+}
 
 export default async function UsageGeographyPage({
 	searchParams,
 }: {
-	searchParams: Promise<Record<string, string | string[] | undefined>>;
+	searchParams: Promise<SearchParams>;
 }) {
 	const params = await searchParams;
+	const rangeKeys = getUsageRangeParamKeys();
+	const preset = parseUsageRangePreset(firstParam(params[rangeKeys.preset]));
+	const customFrom = parseUsageDateInput(firstParam(params[rangeKeys.from]));
+	const customTo = parseUsageDateInput(firstParam(params[rangeKeys.to]));
 	const result = await fetchSettingsGeography(params);
 	if (!result?.signedIn) redirect("/sign-in");
 
@@ -22,11 +47,18 @@ export default async function UsageGeographyPage({
 
 	return (
 		<section className="space-y-6">
-			<div>
-				<h1 className="text-2xl font-semibold tracking-tight">Geography</h1>
-				<p className="mt-1 text-sm text-muted-foreground">
-					Country-level usage for this workspace, inferred by Cloudflare without storing raw IP addresses.
-				</p>
+			<div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+				<SettingsPageHeader
+					title="Geography"
+					description="See where workspace requests originate without storing raw IP addresses."
+				/>
+				<UsageLogsToolbar
+					view="logs"
+					preset={preset}
+					customFrom={customFrom}
+					customTo={customTo}
+					showLivePreset={false}
+				/>
 			</div>
 			<GeographyUsage rows={rows} />
 		</section>
