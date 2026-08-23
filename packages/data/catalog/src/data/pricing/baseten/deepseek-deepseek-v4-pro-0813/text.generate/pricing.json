@@ -61,14 +61,14 @@
   "sources": [
     {
       "kind": "pricing",
-      "url": "https://www.baseten.co/products/model-apis/",
-      "accessed_at": "2026-08-14T00:00:00Z",
-      "notes": "Official Baseten Model API pricing table."
+      "url": "https://www.baseten.co/pricing/",
+      "accessed_at": "2026-08-23T00:00:00Z",
+      "notes": "Current Baseten Model API pricing."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-14T00:00:00Z",
-    "notes": "Verified against Baseten's live Model API pricing table."
+    "checked_at": "2026-08-23T00:00:00Z",
+    "notes": "Verified against Baseten's current Model API pricing."
   }
 }

@@ -545,7 +545,7 @@ describe("executeOpenAIWire", () => {
 		expect(result.kind).toBe("completed");
 		expect(result.upstream.status).toBe(200);
 		expect(callCount).toBe(2);
-		expect(mock.calls[0]?.headers.Authorization).toBe("Api-Key test-baseten-key");
+		expect(mock.calls[0]?.headers.Authorization).toBe("Bearer test-baseten-key");
 	});
 
 	it("retries transient groq 503 responses once before succeeding", async () => {

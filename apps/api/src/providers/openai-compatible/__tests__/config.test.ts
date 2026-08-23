@@ -351,7 +351,7 @@ describe("openAICompatUrl", () => {
 		);
 	});
 
-	it("uses Api-Key Authorization prefix for baseten", () => {
+	it("uses Bearer Authorization for baseten", () => {
 		teardownTestRuntime();
 		setupRuntimeFromEnv({
 			BASETEN_API_KEY: "test-baseten-key",
@@ -359,7 +359,7 @@ describe("openAICompatUrl", () => {
 
 		expect(openAICompatHeaders("baseten", "test-baseten-key")).toEqual(
 			expect.objectContaining({
-				Authorization: "Api-Key test-baseten-key",
+				Authorization: "Bearer test-baseten-key",
 				"Content-Type": "application/json",
 			}),
 		);
