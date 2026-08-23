@@ -1,16 +1,18 @@
 import { NextResponse } from "next/server";
 import { IDENTITY_ADDON_KEY, isWorkspaceAddonActive } from "@/lib/billing/identityAddon";
-import { ENTERPRISE_PRICING_VERSION, enterpriseQuoteOptions, normalizeEnterpriseQuestionnaire, stripePriceIdForEnterprisePlan, type EnterprisePlanVariant } from "@/lib/billing/enterprisePricing";
+import { ENTERPRISE_PRICING_VERSION, enterpriseQuoteOptions, normalizeEnterpriseQuestionnaire, type EnterprisePlanVariant } from "@/lib/billing/enterprisePricing";
 import { readBoundedTextBody } from "@/lib/server/boundedRequestBody";
 import { getStripe } from "@/lib/stripe";
 import { requireActiveWorkspaceBillingAdmin, requireActiveWorkspaceStripeCustomer } from "@/lib/server/activeTeamStripe";
 import { createAdminClient } from "@/utils/supabase/admin";
+import { enterpriseSelfServePreviewEnabled } from "@/lib/flags";
 
-const SETTINGS_PATH = "/settings/workspaces/settings";
+const SETTINGS_PATH = "/settings/workspaces/enterprise";
 
-function settingsUrl(request: Request, result?: string) {
+function settingsUrl(request: Request, workspaceId: string, result?: string) {
 	const base = process.env.NEXT_PUBLIC_BASE_URL || new URL(request.url).origin;
 	const url = new URL(SETTINGS_PATH, base);
+	url.searchParams.set("workspaceId", workspaceId);
 	if (result) url.searchParams.set("identity", result);
 	return url.toString();
 }
@@ -18,7 +20,7 @@ function settingsUrl(request: Request, result?: string) {
 async function currentSubscription(workspaceId: string) {
 	const { data, error } = await createAdminClient()
 		.from("workspace_addon_subscriptions")
-		.select("status,current_period_end,cancel_at_period_end,grace_until,metadata,provider_subscription_id,plan_key,pricing_version,included_members,fee_policy,included_card_top_up_nanos")
+		.select("status,current_period_end,cancel_at_period_end,grace_until,metadata,provider,provider_subscription_id,plan_key,pricing_version,included_members,fee_policy,included_card_top_up_nanos")
 		.eq("workspace_id", workspaceId)
 		.eq("addon_key", IDENTITY_ADDON_KEY)
 		.maybeSingle();
@@ -26,9 +28,10 @@ async function currentSubscription(workspaceId: string) {
 	return data;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
 	try {
-		const { workspaceId } = await requireActiveWorkspaceBillingAdmin();
+		const requestedWorkspaceId = new URL(request.url).searchParams.get("workspaceId")?.trim();
+		const { workspaceId } = await requireActiveWorkspaceBillingAdmin(["owner", "admin"], requestedWorkspaceId);
 		const subscription = await currentSubscription(workspaceId);
 		const periodStart = new Date();
 		periodStart.setUTCDate(1);
@@ -48,6 +51,7 @@ export async function GET() {
 			cancelAtPeriodEnd: Boolean(subscription?.cancel_at_period_end),
 			currentPeriodEnd: subscription?.current_period_end ?? null,
 			grandfathered: subscription?.metadata?.grandfathered === true,
+			provider: subscription?.provider ?? null,
 			planKey: subscription?.plan_key ?? null,
 			pricingVersion: subscription?.pricing_version ?? null,
 			includedMembers: subscription?.included_members ?? null,
@@ -64,19 +68,22 @@ export async function GET() {
 
 export async function POST(request: Request) {
 	try {
+		if (!(await enterpriseSelfServePreviewEnabled())) return NextResponse.json({ error: "Not found" }, { status: 404 });
+		const bodyResult = await readBoundedTextBody(request, 8_192);
+		if (!bodyResult.ok) return NextResponse.json({ error: "Request is too large" }, { status: 413 });
+		const body = JSON.parse(bodyResult.text || "{}");
+		const requestedWorkspaceId = String(body.workspaceId ?? "").trim();
 		const { workspaceId, customerId } = await requireActiveWorkspaceStripeCustomer({
 			createIfMissing: true,
+			workspaceId: requestedWorkspaceId,
 		});
 		const existing = await currentSubscription(workspaceId);
 		if (isWorkspaceAddonActive(existing)) {
 			return NextResponse.json({ error: "Identity is already active" }, { status: 409 });
 		}
-		const bodyResult = await readBoundedTextBody(request, 8_192);
-		if (!bodyResult.ok) return NextResponse.json({ error: "Request is too large" }, { status: 413 });
-		const body = JSON.parse(bodyResult.text || "{}");
 		const quoteId = String(body.quoteId ?? "").trim();
 		const selectedVariant = String(body.variant ?? "") as EnterprisePlanVariant;
-		if (!quoteId || (selectedVariant !== "core" && selectedVariant !== "included_payments")) {
+		if (!quoteId || selectedVariant !== "core") {
 			return NextResponse.json({ error: "A valid quote and plan are required" }, { status: 400 });
 		}
 		const admin = createAdminClient();
@@ -95,13 +102,31 @@ export async function POST(request: Request) {
 		const questionnaire = normalizeEnterpriseQuestionnaire(quoteRow.questionnaire ?? {});
 		const calculated = enterpriseQuoteOptions(questionnaire);
 		const option = calculated.options.find((candidate) => candidate.variant === selectedVariant);
-		if (!option || calculated.tier.key !== quoteRow.tier_key) return NextResponse.json({ error: "Quote no longer matches pricing" }, { status: 409 });
-		const priceId = stripePriceIdForEnterprisePlan(option.planKey);
-		if (!priceId) return NextResponse.json({ error: "Enterprise billing is not configured for this plan" }, { status: 503 });
+		if (
+			!option
+			|| calculated.tier.key !== quoteRow.tier_key
+			|| option.monthlyUsd * 100 !== Number(quoteRow.monthly_price_cents)
+			|| option.includedMembers !== Number(quoteRow.included_members)
+			|| option.feePolicy !== quoteRow.fee_policy
+		) {
+			return NextResponse.json({ error: "Quote no longer matches pricing" }, { status: 409 });
+		}
+		const { count: currentMemberCount, error: memberCountError } = await admin
+			.from("workspace_members")
+			.select("user_id", { count: "exact", head: true })
+			.eq("workspace_id", workspaceId);
+		if (memberCountError) throw memberCountError;
+		if (option.includedMembers < 100_000 && (currentMemberCount ?? 0) > option.includedMembers) {
+			return NextResponse.json({ error: "Your workspace has grown beyond this quote. Please calculate a new one." }, { status: 409 });
+		}
 		const stripe = getStripe();
-		const stripePrice = await stripe.prices.retrieve(priceId);
-		if (!stripePrice.active || stripePrice.currency !== "usd" || stripePrice.unit_amount !== option.monthlyUsd * 100 || stripePrice.recurring?.interval !== "month") {
-			return NextResponse.json({ error: "Enterprise price configuration does not match the quoted plan" }, { status: 503 });
+		const existingSessionId = String(quoteRow.stripe_checkout_session_id ?? "").trim();
+		if (existingSessionId) {
+			const existingSession = await stripe.checkout.sessions.retrieve(existingSessionId);
+			if (existingSession.status === "open" && existingSession.url) {
+				return NextResponse.json({ url: existingSession.url });
+			}
+			return NextResponse.json({ error: "This checkout can no longer be reused. Please calculate a new quote." }, { status: 409 });
 		}
 		const metadata = {
 			workspace_id: workspaceId,
@@ -117,16 +142,32 @@ export async function POST(request: Request) {
 		const session = await stripe.checkout.sessions.create({
 			mode: "subscription",
 			customer: customerId,
-			line_items: [{ price: priceId, quantity: 1 }],
+			client_reference_id: workspaceId,
+			line_items: [{
+				price_data: {
+					currency: "usd",
+					unit_amount: option.monthlyUsd * 100,
+					recurring: { interval: "month" },
+					product_data: {
+						name: "Phaseo Self Serve Enterprise",
+						description: `${option.includedMembers.toLocaleString("en-US")} active members`,
+						metadata: { addon_key: IDENTITY_ADDON_KEY, pricing_version: ENTERPRISE_PRICING_VERSION },
+					},
+				},
+				quantity: 1,
+			}],
 			allow_promotion_codes: false,
 			billing_address_collection: "required",
-			success_url: settingsUrl(request, "success"),
-			cancel_url: settingsUrl(request, "canceled"),
+			success_url: settingsUrl(request, workspaceId, "success"),
+			cancel_url: settingsUrl(request, workspaceId, "canceled"),
 			metadata,
 			subscription_data: {
 				metadata,
 			},
+		}, {
+			idempotencyKey: `enterprise-checkout:${ENTERPRISE_PRICING_VERSION}:${quoteId}`,
 		});
+		if (!session.url) throw new Error("Stripe did not return a checkout URL");
 		const { error: updateError } = await admin.from("workspace_enterprise_quotes").update({
 			selected_variant: selectedVariant,
 			plan_key: option.planKey,
@@ -136,7 +177,7 @@ export async function POST(request: Request) {
 			fee_policy: option.feePolicy,
 			stripe_checkout_session_id: session.id,
 			updated_at: new Date().toISOString(),
-		}).eq("id", quoteId).eq("workspace_id", workspaceId);
+		}).eq("id", quoteId).eq("workspace_id", workspaceId).is("consumed_at", null).is("stripe_checkout_session_id", null);
 		if (updateError) throw updateError;
 
 		return NextResponse.json({ url: session.url });

@@ -1,16 +1,13 @@
 "use client";
 
 import * as React from "react";
-import { ArrowRight, Building2, Check, CreditCard, Landmark, Loader2, MessagesSquare, ShieldCheck, Users } from "lucide-react";
+import { ArrowRight, Check, Loader2, MessagesSquare, ShieldCheck, Users } from "lucide-react";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import type { EnterprisePaymentPreference, EnterprisePlanVariant, EnterpriseQuoteOption, EnterpriseTier } from "@/lib/billing/enterprisePricing";
+import { ENTERPRISE_MAX_QUOTED_MEMBERS, ENTERPRISE_MIN_SELF_SERVE_MEMBERS, type EnterprisePlanVariant, type EnterpriseQuoteOption, type EnterpriseTier } from "@/lib/billing/enterprisePricing";
 
 type QuoteResponse = {
 	quoteId: string;
@@ -20,7 +17,7 @@ type QuoteResponse = {
 	options: EnterpriseQuoteOption[];
 };
 
-type Props = { canEdit: boolean };
+type Props = { canEdit: boolean; workspaceId: string };
 
 async function responseJson<T>(response: Response): Promise<T> {
 	const body = await response.json().catch(() => ({}));
@@ -28,11 +25,8 @@ async function responseJson<T>(response: Response): Promise<T> {
 	return body as T;
 }
 
-export default function EnterprisePlanQuestionnaire({ canEdit }: Props) {
-	const [memberCount, setMemberCount] = React.useState("25");
-	const [expectedMonthlyTopUpUsd, setExpectedMonthlyTopUpUsd] = React.useState("1000");
-	const [typicalTopUpUsd, setTypicalTopUpUsd] = React.useState("500");
-	const [paymentPreference, setPaymentPreference] = React.useState<EnterprisePaymentPreference>("card");
+export default function EnterprisePlanQuestionnaire({ canEdit, workspaceId }: Props) {
+	const [memberCount, setMemberCount] = React.useState(String(ENTERPRISE_MIN_SELF_SERVE_MEMBERS));
 	const [needsSso, setNeedsSso] = React.useState(true);
 	const [needsScim, setNeedsScim] = React.useState(true);
 	const [wantsSlackConnect, setWantsSlackConnect] = React.useState(false);
@@ -46,10 +40,11 @@ export default function EnterprisePlanQuestionnaire({ canEdit }: Props) {
 				method: "POST",
 				headers: { "content-type": "application/json" },
 				body: JSON.stringify({
+					workspaceId,
 					memberCount: Number(memberCount),
-					expectedMonthlyTopUpUsd: Number(expectedMonthlyTopUpUsd),
-					typicalTopUpUsd: Number(typicalTopUpUsd),
-					paymentPreference,
+					expectedMonthlyTopUpUsd: 0,
+					typicalTopUpUsd: 0,
+					paymentPreference: "card",
 					needsSso,
 					needsScim,
 					wantsSlackConnect,
@@ -70,7 +65,7 @@ export default function EnterprisePlanQuestionnaire({ canEdit }: Props) {
 			const result = await responseJson<{ url: string }>(await fetch("/api/stripe/addons/identity", {
 				method: "POST",
 				headers: { "content-type": "application/json" },
-				body: JSON.stringify({ quoteId: quote.quoteId, variant }),
+				body: JSON.stringify({ workspaceId, quoteId: quote.quoteId, variant }),
 			}));
 			window.location.assign(result.url);
 		} catch (error) {
@@ -83,22 +78,19 @@ export default function EnterprisePlanQuestionnaire({ canEdit }: Props) {
 		return (
 			<div className="space-y-4">
 				<div className="flex flex-wrap items-end justify-between gap-3">
-					<div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-600 dark:text-emerald-400">Your recommendation</p><h3 className="mt-1 text-2xl font-semibold tracking-tight">{quote.tier.label}</h3></div>
+					<div><h3 className="text-xl font-semibold tracking-tight">{quote.tier.label}</h3><p className="mt-1 text-sm text-muted-foreground">Your monthly Enterprise subscription</p></div>
 					<Button variant="ghost" size="sm" onClick={() => setQuote(null)} disabled={working}>Change answers</Button>
 				</div>
-				<div className="grid gap-4 lg:grid-cols-2">
+			<div>
 					{quote.options.map((option) => {
-						const recommended = option.variant === quote.recommendedVariant;
-						const included = option.variant === "included_payments";
 						return (
-							<Card key={option.variant} className={recommended ? "relative border-emerald-500/60 shadow-[0_18px_55px_-32px_rgba(16,185,129,0.9)]" : "border-border/70"}>
-								{recommended ? <Badge className="absolute -top-2.5 right-4">Recommended</Badge> : null}
-								<CardHeader><CardTitle className="flex items-center gap-2">{included ? <Landmark className="h-5 w-5" /> : <ShieldCheck className="h-5 w-5" />}{included ? "Included Payments" : "Core"}</CardTitle><div><span className="text-3xl font-semibold tracking-tight">${option.monthlyUsd}</span><span className="text-sm text-muted-foreground"> / month</span></div></CardHeader>
-								<CardContent className="space-y-2 text-sm">
-									{["SSO, SCIM and directory controls", `Up to ${option.includedMembers} active members`, "Audit and governance foundations", included ? `$${option.includedCardTopUpUsd.toLocaleString("en-US")} fee-free card allowance` : "Standard 5% credit top-up fee", included ? "No Phaseo surcharge on supported bank transfers" : "Upgrade payment policy at any time"].map((feature) => <p key={feature} className="flex gap-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />{feature}</p>)}
-								</CardContent>
-								<CardFooter><Button className="w-full" variant={recommended ? "default" : "outline"} onClick={() => checkout(option.variant)} disabled={working || !canEdit}>{working ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}Choose {included ? "Included Payments" : "Core"}</Button></CardFooter>
-							</Card>
+							<section key={option.variant} className="space-y-5 border-y border-border/60 py-5">
+								<div className="flex flex-wrap items-start justify-between gap-3"><h4 className="flex items-center gap-2 font-semibold"><ShieldCheck className="h-4 w-4" />Self Serve Enterprise</h4><div><span className="text-2xl font-semibold tracking-tight">${option.monthlyUsd}</span><span className="text-sm text-muted-foreground"> / month</span></div></div>
+								<div className="space-y-2 text-sm">
+									{["SAML SSO and SCIM provisioning", `${option.includedMembers.toLocaleString("en-US")} active members included`, ...(option.overageMembers > 0 ? [`Estimated ${option.overageMembers.toLocaleString("en-US")} additional members at $${option.overageMemberMonthlyUsd}/member/month`, `Estimated monthly total: $${option.estimatedMonthlyUsd.toLocaleString("en-US")}`] : []), "Departments, roles and governance", "Standard 5% credit top-up fee"].map((feature) => <p key={feature} className="flex gap-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />{feature}</p>)}
+								</div>
+								<div className="flex justify-end"><Button onClick={() => checkout(option.variant)} disabled={working || !canEdit}>{working ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}Subscribe</Button></div>
+							</section>
 						);
 					})}
 				</div>
@@ -108,29 +100,27 @@ export default function EnterprisePlanQuestionnaire({ canEdit }: Props) {
 	}
 
 	return (
-		<Card className="overflow-hidden border-border/70 bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.10),transparent_38%)]">
-			<CardHeader className="border-b border-border/60">
-				<div className="flex items-center gap-3"><div className="rounded-xl bg-foreground p-2.5 text-background"><Building2 className="h-5 w-5" /></div><div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Configure instantly</p><CardTitle className="mt-1 text-2xl">Build your Enterprise plan</CardTitle></div></div>
+		<section className="space-y-6">
+			<div className="border-b border-border/60 pb-5">
+				<h2 className="text-xl font-semibold">Build your Enterprise plan</h2>
 				<p className="max-w-2xl text-sm leading-6 text-muted-foreground">Tell us the shape of your workspace. You will get a fixed USD price immediately—no sales call and no custom contract.</p>
-			</CardHeader>
-			<CardContent className="grid gap-6 pt-6 lg:grid-cols-[1fr_0.85fr]">
-				<div className="grid gap-4 sm:grid-cols-2">
-					<div className="space-y-2"><Label htmlFor="enterprise-members">Active members</Label><div className="relative"><Users className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" /><Input id="enterprise-members" className="pl-9" inputMode="numeric" min={1} max={500} type="number" value={memberCount} onChange={(event) => setMemberCount(event.target.value)} /></div></div>
-					<div className="space-y-2"><Label>Preferred funding</Label><Select value={paymentPreference} onValueChange={(value) => setPaymentPreference(value as EnterprisePaymentPreference)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="card">Card</SelectItem><SelectItem value="ach">ACH Direct Debit</SelectItem><SelectItem value="bank_transfer">USD bank transfer</SelectItem></SelectContent></Select></div>
-					<div className="space-y-2"><Label htmlFor="enterprise-monthly-topup">Expected monthly credit purchases</Label><div className="relative"><span className="absolute left-3 top-2 text-sm text-muted-foreground">$</span><Input id="enterprise-monthly-topup" className="pl-7" inputMode="numeric" min={0} type="number" value={expectedMonthlyTopUpUsd} onChange={(event) => setExpectedMonthlyTopUpUsd(event.target.value)} /></div></div>
-					<div className="space-y-2"><Label htmlFor="enterprise-typical-topup">Typical top-up</Label><div className="relative"><span className="absolute left-3 top-2 text-sm text-muted-foreground">$</span><Input id="enterprise-typical-topup" className="pl-7" inputMode="numeric" min={0} type="number" value={typicalTopUpUsd} onChange={(event) => setTypicalTopUpUsd(event.target.value)} /></div></div>
+			</div>
+			<div className="grid gap-6 lg:grid-cols-[0.75fr_1fr]">
+				<div>
+					<div className="space-y-2"><Label htmlFor="enterprise-members">Active members</Label><div className="relative"><Users className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" /><Input id="enterprise-members" className="pl-9" inputMode="numeric" min={ENTERPRISE_MIN_SELF_SERVE_MEMBERS} max={ENTERPRISE_MAX_QUOTED_MEMBERS} type="number" value={memberCount} onChange={(event) => setMemberCount(event.target.value)} /></div></div>
+					<p className="mt-3 text-xs leading-5 text-muted-foreground">Volume discounts are applied automatically. Credit funding is billed separately.</p>
 				</div>
-				<div className="rounded-xl border border-border/60 bg-background/70 p-4">
+				<div className="border-y border-border/60 py-1">
 					<p className="mb-3 text-sm font-medium">What will you use?</p>
 					{[
 						{ id: "needs-sso", label: "Single sign-on", icon: ShieldCheck, checked: needsSso, set: setNeedsSso },
 						{ id: "needs-scim", label: "SCIM provisioning", icon: Users, checked: needsScim, set: setNeedsScim },
 						{ id: "wants-slack", label: "Slack Connect support", icon: MessagesSquare, checked: wantsSlackConnect, set: setWantsSlackConnect },
 					].map(({ id, label, icon: Icon, checked, set }) => <label key={id} htmlFor={id} className="flex cursor-pointer items-center gap-3 border-b border-border/50 py-3 last:border-0"><Checkbox id={id} checked={checked} onCheckedChange={(value) => set(value === true)} /><Icon className="h-4 w-4 text-muted-foreground" /><span className="text-sm">{label}</span></label>)}
-					<div className="mt-4 flex gap-2 rounded-lg bg-muted/45 p-3 text-xs leading-5 text-muted-foreground"><CreditCard className="mt-0.5 h-4 w-4 shrink-0" />Included Payments is recommended when its allowance saves more than the subscription uplift.</div>
+					<p className="mt-4 text-xs leading-5 text-muted-foreground">All Enterprise features are included in one subscription.</p>
 				</div>
-			</CardContent>
-			<CardFooter className="justify-end border-t bg-muted/15"><Button onClick={calculateQuote} disabled={working || !canEdit}>{working ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}Calculate my price <ArrowRight className="ml-2 h-4 w-4" /></Button></CardFooter>
-		</Card>
+			</div>
+			<div className="flex justify-end border-t border-border/60 pt-5"><Button onClick={calculateQuote} disabled={working || !canEdit}>{working ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}Calculate my price <ArrowRight className="ml-2 h-4 w-4" /></Button></div>
+		</section>
 	);
 }

@@ -30,6 +30,7 @@ import {
 import { GATEWAY_TIERS } from "@/components/(gateway)/credits/tiers";
 import { PricingComparisonShell } from "./PricingComparisonShell";
 import { EnterprisePricingSection } from "./EnterprisePricingSection";
+import { enterpriseSelfServePreviewEnabled } from "@/lib/flags";
 
 export const metadata: Metadata = buildMetadata({
 	title: "Pricing",
@@ -443,7 +444,7 @@ const MATRIX_SECTIONS: MatrixSection[] = [
 				feature: "Credit purchase fee",
 				free: { type: "not_applicable", inlineText: "No top-up required" },
 				payg: { type: "text", value: `${basicTier.feePct.toFixed(0)}% ($1 minimum) when credits are purchased` },
-				enterprise: { type: "text", value: "Core: 5%. Included Payments: fee-free allowance" },
+				enterprise: { type: "text", value: "5% ($1 minimum) when credits are purchased" },
 			},
 			{
 				feature: "Models",
@@ -614,7 +615,7 @@ const MATRIX_SECTIONS: MatrixSection[] = [
 			{ feature: "SCIM users, groups, and bulk operations", free: { type: "excluded" }, payg: { type: "excluded" }, enterprise: included("Provision users and organisational groups from a compatible identity provider.") },
 			{ feature: "Departments and workspace roles", free: { type: "excluded" }, payg: { type: "excluded" }, enterprise: included("Keep member permissions separate from department structure.") },
 			{ feature: "Enterprise audit and governance controls", free: { type: "excluded" }, payg: { type: "excluded" }, enterprise: included() },
-			{ feature: "Included payment benefits", free: { type: "not_applicable" }, payg: { type: "excluded" }, enterprise: { type: "text", value: "Available with Included Payments" } },
+			{ feature: "Volume-discounted member pricing", free: { type: "not_applicable" }, payg: { type: "excluded" }, enterprise: included("Lower marginal member rates are applied automatically as the workspace grows.") },
 		],
 	},
 	{
@@ -786,12 +787,6 @@ const FAQ_SECTIONS: FAQSection[] = [
 					"No. Phaseo client SDKs, Agent SDKs, compatibility layers, and documented integrations do not require a separate plan or subscription. Requests made through them follow the same managed usage or BYOK pricing shown on this page.",
 			},
 			{
-				id: "enterprise-plan",
-				question: "Do you offer an enterprise plan?",
-				answer:
-					"Yes. Enterprise Core and Included Payments are self-serve monthly workspace subscriptions with public seat-band pricing. Core includes identity and governance with the standard credit fee. Included Payments adds a monthly fee-free card allowance and no Phaseo surcharge on supported USD bank transfers.",
-			},
-			{
 				id: "contracts-commitments",
 				question: "Do I need a contract or monthly commitment?",
 				answer:
@@ -819,7 +814,7 @@ const FAQ_SECTIONS: FAQSection[] = [
 				id: "payment-methods",
 				question: "What payment methods do you accept?",
 				answer:
-					"Phaseo accepts credit and debit cards for credit top-ups. Supported Enterprise Included Payments workspaces can also fund credits by USD bank transfer as that payment method is enabled for their Stripe customer. Credits remain the billing balance used for managed model usage.",
+					"Phaseo accepts credit and debit cards for credit top-ups. Supported Enterprise workspaces can also fund credits by USD bank transfer as that payment method is enabled for their Stripe customer. The standard 5% top-up fee applies across supported payment methods.",
 			},
 			{
 				id: "refunds",
@@ -832,6 +827,37 @@ const FAQ_SECTIONS: FAQSection[] = [
 				question: "Can I download an invoice?",
 				answer:
 					"Yes. PDF invoices are available for completed credit purchases from Settings → Credits. If an invoice is missing for a successful payment, contact support with the payment ID and date.",
+			},
+		],
+	},
+	{
+		id: "enterprise",
+		title: "Enterprise",
+		items: [
+			{
+				id: "enterprise-plan",
+				question: "What is Self Serve Enterprise?",
+				answer: "It is a monthly workspace subscription for teams that need SAML SSO, SCIM provisioning, departments and roles, audit and governance controls, and priority support. Exact self-serve pricing is available for teams from 100 to 100,000 active members.",
+			},
+			{
+				id: "enterprise-credit-fees",
+				question: "Does Enterprise change credit top-up fees?",
+				answer: "No. Self Serve Enterprise is a subscription for identity, governance and support. Credit purchases remain separate and use the standard 5% top-up fee, with a $1 minimum, across supported payment methods.",
+			},
+			{
+				id: "enterprise-team-sizes",
+				question: "How does pricing change as my team grows?",
+				answer: "Enterprise is priced for your exact active-member count, with lower marginal per-member rates at larger volumes. The calculator shows an immediate self-serve monthly price for teams up to 100,000 members.",
+			},
+			{
+				id: "enterprise-usage-billing",
+				question: "Does Enterprise include model usage?",
+				answer: "No. The Enterprise subscription pays for identity, governance and support. Managed model usage still draws from the workspace credit balance at catalog prices. There is no committed model spend: use as much or as little as you need and the same subscription price applies.",
+			},
+			{
+				id: "enterprise-bank-transfer",
+				question: "Do USD bank transfers use different pricing?",
+				answer: "Not currently. Supported USD bank transfers use the same 5% credit top-up fee as card funding. Any exceptional wire, refund or banking fee is shown separately when applicable.",
 			},
 		],
 	},
@@ -981,7 +1007,8 @@ const FAQ_SECTIONS: FAQSection[] = [
 	},
 ];
 
-export default function PricingPage() {
+export default async function PricingPage() {
+	const showEnterprisePreview = await enterpriseSelfServePreviewEnabled();
 	return (
 		<main className="relative min-h-screen overflow-hidden">
 			<div className="container mx-auto max-w-7xl px-4 py-12 sm:py-16">
@@ -1198,7 +1225,7 @@ export default function PricingPage() {
 					<Separator className="bg-zinc-200/70 dark:bg-zinc-800/70" />
 				</div>
 
-				<EnterprisePricingSection />
+				{showEnterprisePreview ? <EnterprisePricingSection /> : null}
 
 				<section className="space-y-6 py-10 sm:py-12">
 					<div className="space-y-2">

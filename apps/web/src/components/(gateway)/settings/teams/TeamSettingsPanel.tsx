@@ -40,7 +40,7 @@ type Props = {
 	personalTeamId?: string | null;
 	walletBalances?: Record<string, number>;
 	teamSsoSettingsByTeam?: Record<string, TeamSsoSettingsRow>;
-	samlSsoEnabled?: boolean;
+	canConfigureEnterprise?: boolean;
 };
 
 type Settings = {
@@ -66,7 +66,7 @@ export default function TeamSettingsPanel({
 	personalTeamId,
 	walletBalances,
 	teamSsoSettingsByTeam,
-	samlSsoEnabled = false,
+	canConfigureEnterprise = false,
 }: Props) {
 	const fallbackTeamId =
 		(workspaceId && teams.some((t) => t.id === workspaceId)
@@ -256,12 +256,14 @@ export default function TeamSettingsPanel({
 				</div>
 			</form>
 
-			{samlSsoEnabled && !isPersonalTeam ? (
+			{!isPersonalTeam ? (
 				<WorkspaceIdentitySettings
 					key={fallbackTeamId}
 					workspaceId={fallbackTeamId}
 					initialSettings={teamSsoSettingsByTeam?.[fallbackTeamId]}
 					canEdit={canEdit}
+					canConfigureEnterprise={canConfigureEnterprise}
+					mode="banner"
 				/>
 			) : null}
 

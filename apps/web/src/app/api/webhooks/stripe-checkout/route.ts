@@ -9,6 +9,7 @@ import {
 import { getStripe } from "@/lib/stripe";
 import { readBoundedTextBody } from "@/lib/server/boundedRequestBody";
 import { IDENTITY_ADDON_KEY } from "@/lib/billing/identityAddon";
+import { ENTERPRISE_MEMBER_OVERAGE_USD } from "@/lib/billing/enterprisePricing";
 
 const TOP_UP_PURPOSES = new Set(["top_up", "top_up_one_off", "auto_top_up", "credits_topup_offsession"]);
 type AppliedCreditRow = { applied?: boolean; before_balance_nanos?: number; after_balance_nanos?: number };
@@ -279,6 +280,155 @@ function integerMetadata(metadata: Stripe.Metadata | null | undefined, key: stri
     return Number.isSafeInteger(value) && value >= 0 ? value : null;
 }
 
+async function addEnterpriseMemberOverageToInvoice(args: {
+    supabase: ReturnType<typeof getSupabase>;
+    stripe: Stripe;
+    invoice: Stripe.Invoice;
+}) {
+    const { invoice, stripe, supabase } = args;
+    if (invoice.status !== "draft") return;
+
+    const subscriptionDetails = invoice.parent?.subscription_details;
+    const subscriptionId = stripeResourceId(subscriptionDetails?.subscription);
+    const workspaceId = String(subscriptionDetails?.metadata?.workspace_id ?? "").trim();
+    const customerId = stripeResourceId(invoice.customer);
+    if (!subscriptionId || !workspaceId || !customerId) return;
+
+    const { data: addonSubscription, error: subscriptionError } = await supabase
+        .from("workspace_addon_subscriptions")
+        .select("included_members")
+        .eq("workspace_id", workspaceId)
+        .eq("addon_key", IDENTITY_ADDON_KEY)
+        .eq("provider_subscription_id", subscriptionId)
+        .maybeSingle();
+    if (subscriptionError) throw subscriptionError;
+    if ((addonSubscription?.included_members ?? 0) < 100_000) return;
+
+    const { error: refreshError } = await supabase.rpc("refresh_workspace_enterprise_member_overage", {
+        p_workspace_id: workspaceId,
+    });
+    if (refreshError) throw refreshError;
+
+    const { data: usageRows, error: usageError } = await supabase
+        .from("workspace_addon_usage_monthly")
+        .select("period_start,quantity,reported_quantity")
+        .eq("workspace_id", workspaceId)
+        .eq("addon_key", IDENTITY_ADDON_KEY)
+        .eq("metric_key", "member_overage");
+    if (usageError) throw usageError;
+
+    const unreportedRows = (usageRows ?? []).map((row) => ({
+        periodStart: String(row.period_start),
+        quantity: Number(row.quantity ?? 0),
+        reportedQuantity: Number(row.reported_quantity ?? 0),
+    })).filter((row) => row.quantity > row.reportedQuantity);
+    const overageQuantity = unreportedRows.reduce((total, row) => total + row.quantity - row.reportedQuantity, 0);
+    if (overageQuantity <= 0) return;
+
+    const invoiceItem = await stripe.invoiceItems.create({
+        customer: customerId,
+        invoice: invoice.id,
+        subscription: subscriptionId,
+        currency: "usd",
+        description: `Enterprise member overage (${overageQuantity.toLocaleString("en-US")} unique members)`,
+        quantity: overageQuantity,
+        unit_amount_decimal: Stripe.Decimal.from(String(ENTERPRISE_MEMBER_OVERAGE_USD * 100)),
+        metadata: {
+            purpose: "enterprise_member_overage",
+            workspace_id: workspaceId,
+            period_starts: unreportedRows.map((row) => row.periodStart).join(",").slice(0, 500),
+        },
+    }, { idempotencyKey: `enterprise-member-overage:${invoice.id}` });
+
+    for (const row of unreportedRows) {
+        const { error: updateError } = await supabase
+            .from("workspace_addon_usage_monthly")
+            .update({ reported_quantity: row.quantity, reported_at: new Date().toISOString(), stripe_meter_event_id: invoiceItem.id })
+            .eq("workspace_id", workspaceId)
+            .eq("addon_key", IDENTITY_ADDON_KEY)
+            .eq("metric_key", "member_overage")
+            .eq("period_start", row.periodStart)
+            .eq("reported_quantity", row.reportedQuantity);
+        if (updateError) throw updateError;
+    }
+}
+
+async function createFinalEnterpriseOverageInvoice(args: {
+    supabase: ReturnType<typeof getSupabase>;
+    stripe: Stripe;
+    subscription: Stripe.Subscription;
+}) {
+    const { stripe, subscription, supabase } = args;
+    const workspaceId = String(subscription.metadata?.workspace_id ?? "").trim();
+    const customerId = stripeResourceId(subscription.customer);
+    if (!workspaceId || !customerId || String(subscription.metadata?.addon_key ?? "") !== IDENTITY_ADDON_KEY) return;
+
+    const { error: refreshError } = await supabase.rpc("refresh_workspace_enterprise_member_overage", {
+        p_workspace_id: workspaceId,
+    });
+    if (refreshError) throw refreshError;
+
+    const { data: usageRows, error: usageError } = await supabase
+        .from("workspace_addon_usage_monthly")
+        .select("period_start,quantity,reported_quantity")
+        .eq("workspace_id", workspaceId)
+        .eq("addon_key", IDENTITY_ADDON_KEY)
+        .eq("metric_key", "member_overage");
+    if (usageError) throw usageError;
+
+    const unreportedRows = (usageRows ?? []).map((row) => ({
+        periodStart: String(row.period_start),
+        quantity: Number(row.quantity ?? 0),
+        reportedQuantity: Number(row.reported_quantity ?? 0),
+    })).filter((row) => row.quantity > row.reportedQuantity);
+    const overageQuantity = unreportedRows.reduce((total, row) => total + row.quantity - row.reportedQuantity, 0);
+    if (overageQuantity <= 0) return;
+
+    const invoice = await stripe.invoices.create({
+        customer: customerId,
+        auto_advance: false,
+        collection_method: "charge_automatically",
+        description: "Final Self Serve Enterprise member overage",
+        metadata: {
+            purpose: "enterprise_member_overage_final",
+            workspace_id: workspaceId,
+            subscription_id: subscription.id,
+        },
+    }, { idempotencyKey: `enterprise-member-overage-final-invoice:${subscription.id}` });
+
+    const invoiceItem = await stripe.invoiceItems.create({
+        customer: customerId,
+        invoice: invoice.id,
+        currency: "usd",
+        description: `Final Enterprise member overage (${overageQuantity.toLocaleString("en-US")} unique members)`,
+        quantity: overageQuantity,
+        unit_amount_decimal: Stripe.Decimal.from(String(ENTERPRISE_MEMBER_OVERAGE_USD * 100)),
+        metadata: {
+            purpose: "enterprise_member_overage_final",
+            workspace_id: workspaceId,
+            subscription_id: subscription.id,
+            period_starts: unreportedRows.map((row) => row.periodStart).join(",").slice(0, 500),
+        },
+    }, { idempotencyKey: `enterprise-member-overage-final-item:${subscription.id}` });
+
+    await stripe.invoices.finalizeInvoice(invoice.id, { auto_advance: true }, {
+        idempotencyKey: `enterprise-member-overage-finalize:${subscription.id}`,
+    });
+
+    for (const row of unreportedRows) {
+        const { error: updateError } = await supabase
+            .from("workspace_addon_usage_monthly")
+            .update({ reported_quantity: row.quantity, reported_at: new Date().toISOString(), stripe_meter_event_id: invoiceItem.id })
+            .eq("workspace_id", workspaceId)
+            .eq("addon_key", IDENTITY_ADDON_KEY)
+            .eq("metric_key", "member_overage")
+            .eq("period_start", row.periodStart)
+            .eq("reported_quantity", row.reportedQuantity);
+        if (updateError) throw updateError;
+    }
+
+}
+
 function paymentIntentRail(paymentIntent: Stripe.PaymentIntent): "card" | "ach" | "bank_transfer" | "unknown" {
     const types = paymentIntent.payment_method_types ?? [];
     if (types.includes("customer_balance")) return "bank_transfer";
@@ -542,7 +692,6 @@ export async function POST(req: Request) {
         switch (event.type) {
             case "customer.subscription.created":
             case "customer.subscription.updated":
-            case "customer.subscription.deleted":
             case "customer.subscription.paused":
             case "customer.subscription.resumed": {
                 await syncAddonSubscriptionFromStripe({
@@ -550,6 +699,13 @@ export async function POST(req: Request) {
                     subscription: event.data.object as Stripe.Subscription,
                     eventCreated: event.created,
                 });
+                break;
+            }
+
+            case "customer.subscription.deleted": {
+                const subscription = event.data.object as Stripe.Subscription;
+                await createFinalEnterpriseOverageInvoice({ supabase, stripe, subscription });
+                await syncAddonSubscriptionFromStripe({ supabase, subscription, eventCreated: event.created });
                 break;
             }
 
@@ -976,7 +1132,13 @@ export async function POST(req: Request) {
                 break;
             }
 
-            case "invoice.created":
+            case "invoice.created": {
+                const invoice = event.data.object as Stripe.Invoice;
+                await addEnterpriseMemberOverageToInvoice({ supabase, stripe, invoice });
+                await upsertTeamInvoiceFromStripeInvoice({ supabase, invoice });
+                break;
+            }
+
             case "invoice.finalized":
             case "invoice.updated": {
                 const invoice = event.data.object as Stripe.Invoice;
@@ -1005,6 +1167,11 @@ export async function POST(req: Request) {
                     invoice,
                     forceStatus: "open",
                 });
+				const subscriptionId = stripeResourceId(invoice.parent?.subscription_details?.subscription);
+				if (subscriptionId) {
+					const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+					await syncAddonSubscriptionFromStripe({ supabase, subscription, eventCreated: event.created });
+				}
                 break;
             }
 

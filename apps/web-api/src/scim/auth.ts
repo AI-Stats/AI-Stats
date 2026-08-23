@@ -1,5 +1,6 @@
 import type { Env } from "@/env";
 import { getDataClient } from "@/data/supabase";
+import { workspaceHasAddon } from "@/billing/workspaceAddons";
 
 export type ScimAuthContext = {
 	workspaceId: string;
@@ -51,6 +52,7 @@ export async function authenticateScim(request: Request, env: Env): Promise<Scim
 	if (!endpoint?.enabled || !endpoint.id || !endpoint.workspace_id) return null;
 	const actualHash = await hmacHex(pepper, rawToken);
 	if (!constantTimeEqual(actualHash, result.data.token_hash)) return null;
+	if (!(await workspaceHasAddon(client, endpoint.workspace_id, "identity"))) return null;
 
 	const usage = await client.from("scim_tokens").update({ last_used_at: new Date().toISOString() }).eq("id", result.data.id);
 	if (usage.error) console.error("[web-api/scim] token usage update failed", { tokenId: result.data.id, code: usage.error.code });

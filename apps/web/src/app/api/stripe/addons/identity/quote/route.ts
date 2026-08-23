@@ -7,18 +7,21 @@ import {
 import { readBoundedTextBody } from "@/lib/server/boundedRequestBody";
 import { requireActiveWorkspaceBillingAdmin } from "@/lib/server/activeTeamStripe";
 import { createAdminClient } from "@/utils/supabase/admin";
+import { enterpriseSelfServePreviewEnabled } from "@/lib/flags";
 
 const MAX_BODY_BYTES = 16_384;
 const NANOS_PER_USD = 1_000_000_000;
 
 export async function POST(request: Request) {
 	try {
+		if (!(await enterpriseSelfServePreviewEnabled())) return NextResponse.json({ error: "Not found" }, { status: 404 });
 		const bodyResult = await readBoundedTextBody(request, MAX_BODY_BYTES);
 		if (!bodyResult.ok) return NextResponse.json({ error: "Request is too large" }, { status: 413 });
 		const body = JSON.parse(bodyResult.text || "{}");
 		const questionnaire = normalizeEnterpriseQuestionnaire(body);
 		const quote = enterpriseQuoteOptions(questionnaire);
-		const { workspaceId } = await requireActiveWorkspaceBillingAdmin();
+		const requestedWorkspaceId = String(body.workspaceId ?? "").trim();
+		const { workspaceId } = await requireActiveWorkspaceBillingAdmin(["owner", "admin"], requestedWorkspaceId);
 		const admin = createAdminClient();
 		const { count: currentMembers, error: memberError } = await admin
 			.from("workspace_members")
@@ -28,6 +31,7 @@ export async function POST(request: Request) {
 		if ((currentMembers ?? 0) > questionnaire.memberCount) {
 			return NextResponse.json({ error: `This workspace already has ${currentMembers} members. Choose at least that many.` }, { status: 400 });
 		}
+		const option = quote.options[0];
 		const { data, error } = await admin
 			.from("workspace_enterprise_quotes")
 			.insert({
@@ -42,6 +46,12 @@ export async function POST(request: Request) {
 				needs_scim: questionnaire.needsScim,
 				wants_slack_connect: questionnaire.wantsSlackConnect,
 				recommended_variant: quote.recommendedVariant,
+				selected_variant: option.variant,
+				plan_key: option.planKey,
+				monthly_price_cents: option.monthlyUsd * 100,
+				included_members: option.includedMembers,
+				included_card_top_up_nanos: option.includedCardTopUpUsd * NANOS_PER_USD,
+				fee_policy: option.feePolicy,
 				questionnaire,
 			})
 			.select("id,expires_at")

@@ -1,4 +1,8 @@
-export const ENTERPRISE_PRICING_VERSION = "2026-08-21";
+export const ENTERPRISE_PRICING_VERSION = "2026-08-21-enterprise-entry";
+export const ENTERPRISE_MIN_SELF_SERVE_MEMBERS = 100;
+export const ENTERPRISE_MAX_SELF_SERVE_MEMBERS = 100_000;
+export const ENTERPRISE_MAX_QUOTED_MEMBERS = 2_147_483_647;
+export const ENTERPRISE_MEMBER_OVERAGE_USD = 0.02;
 
 export type EnterprisePlanVariant = "core" | "included_payments";
 export type EnterprisePaymentPreference = "card" | "ach" | "bank_transfer";
@@ -14,7 +18,7 @@ export type EnterpriseQuestionnaire = {
 };
 
 export type EnterpriseTier = {
-	key: "up_to_25" | "up_to_100" | "up_to_250" | "up_to_500";
+	key: string;
 	label: string;
 	maxMembers: number;
 	coreMonthlyUsd: number;
@@ -28,88 +32,67 @@ export type EnterpriseQuoteOption = {
 	monthlyUsd: number;
 	includedMembers: number;
 	includedCardTopUpUsd: number;
+	overageMembers: number;
+	overageMemberMonthlyUsd: number;
+	estimatedOverageMonthlyUsd: number;
+	estimatedMonthlyUsd: number;
 	feePolicy: "standard_5_percent" | "included_allowance";
 };
 
-export const ENTERPRISE_TIERS: readonly EnterpriseTier[] = [
-	{ key: "up_to_25", label: "Up to 25 members", maxMembers: 25, coreMonthlyUsd: 99, includedPaymentsMonthlyUsd: 149, includedCardTopUpUsd: 1_000 },
-	{ key: "up_to_100", label: "Up to 100 members", maxMembers: 100, coreMonthlyUsd: 299, includedPaymentsMonthlyUsd: 499, includedCardTopUpUsd: 5_000 },
-	{ key: "up_to_250", label: "Up to 250 members", maxMembers: 250, coreMonthlyUsd: 599, includedPaymentsMonthlyUsd: 899, includedCardTopUpUsd: 10_000 },
-	{ key: "up_to_500", label: "Up to 500 members", maxMembers: 500, coreMonthlyUsd: 999, includedPaymentsMonthlyUsd: 1_499, includedCardTopUpUsd: 15_000 },
+const ENTERPRISE_PRICE_ANCHORS = [
+	{ members: 100, monthlyUsd: 49 },
+	{ members: 1_000, monthlyUsd: 99 },
+	{ members: 10_000, monthlyUsd: 299 },
+	{ members: 25_000, monthlyUsd: 599 },
+	{ members: 50_000, monthlyUsd: 1_099 },
+	{ members: 100_000, monthlyUsd: 1_999 },
 ] as const;
+
+function enterpriseMonthlyUsd(memberCount: number): number {
+	if (memberCount >= ENTERPRISE_MAX_SELF_SERVE_MEMBERS) return ENTERPRISE_PRICE_ANCHORS.at(-1)!.monthlyUsd;
+	const upperIndex = ENTERPRISE_PRICE_ANCHORS.findIndex((anchor) => memberCount <= anchor.members);
+	if (upperIndex <= 0) return ENTERPRISE_PRICE_ANCHORS[0].monthlyUsd;
+	const lower = ENTERPRISE_PRICE_ANCHORS[upperIndex - 1];
+	const upper = ENTERPRISE_PRICE_ANCHORS[upperIndex];
+	const progress = (memberCount - lower.members) / (upper.members - lower.members);
+	return Math.round(lower.monthlyUsd + (upper.monthlyUsd - lower.monthlyUsd) * progress);
+}
+
+export function enterpriseTierForMembers(memberCount: number): EnterpriseTier {
+	if (!Number.isInteger(memberCount) || memberCount < ENTERPRISE_MIN_SELF_SERVE_MEMBERS || memberCount > ENTERPRISE_MAX_QUOTED_MEMBERS) throw new Error("member_count_out_of_range");
+	const coreMonthlyUsd = enterpriseMonthlyUsd(memberCount);
+	const includedMembers = Math.min(memberCount, ENTERPRISE_MAX_SELF_SERVE_MEMBERS);
+	return {
+		key: `members_${memberCount}`,
+		label: `${memberCount.toLocaleString("en-US")} active ${memberCount === 1 ? "member" : "members"}`,
+		maxMembers: includedMembers,
+		coreMonthlyUsd,
+		includedPaymentsMonthlyUsd: coreMonthlyUsd,
+		includedCardTopUpUsd: 0,
+	};
+}
 
 export function normalizeEnterpriseQuestionnaire(input: Partial<EnterpriseQuestionnaire>): EnterpriseQuestionnaire {
 	const memberCount = Math.round(Number(input.memberCount));
 	const expectedMonthlyTopUpUsd = Math.round(Number(input.expectedMonthlyTopUpUsd));
 	const typicalTopUpUsd = Math.round(Number(input.typicalTopUpUsd));
 	const paymentPreference = input.paymentPreference;
-	if (!Number.isFinite(memberCount) || memberCount < 1 || memberCount > 500) throw new Error("member_count_out_of_range");
+	if (!Number.isFinite(memberCount) || memberCount < ENTERPRISE_MIN_SELF_SERVE_MEMBERS || memberCount > ENTERPRISE_MAX_QUOTED_MEMBERS) throw new Error("member_count_out_of_range");
 	if (!Number.isFinite(expectedMonthlyTopUpUsd) || expectedMonthlyTopUpUsd < 0 || expectedMonthlyTopUpUsd > 10_000_000) throw new Error("monthly_top_up_out_of_range");
 	if (!Number.isFinite(typicalTopUpUsd) || typicalTopUpUsd < 0 || typicalTopUpUsd > 10_000_000) throw new Error("typical_top_up_out_of_range");
 	if (paymentPreference !== "card" && paymentPreference !== "ach" && paymentPreference !== "bank_transfer") throw new Error("invalid_payment_preference");
-	return {
-		memberCount,
-		expectedMonthlyTopUpUsd,
-		typicalTopUpUsd,
-		paymentPreference,
-		needsSso: Boolean(input.needsSso),
-		needsScim: Boolean(input.needsScim),
-		wantsSlackConnect: Boolean(input.wantsSlackConnect),
-	};
+	return { memberCount, expectedMonthlyTopUpUsd, typicalTopUpUsd, paymentPreference, needsSso: Boolean(input.needsSso), needsScim: Boolean(input.needsScim), wantsSlackConnect: Boolean(input.wantsSlackConnect) };
 }
 
-export function enterpriseTierForMembers(memberCount: number): EnterpriseTier {
-	const tier = ENTERPRISE_TIERS.find((candidate) => memberCount <= candidate.maxMembers);
-	if (!tier) throw new Error("member_count_out_of_range");
-	return tier;
-}
-
-export function enterpriseQuoteOptions(questionnaire: EnterpriseQuestionnaire): {
-	tier: EnterpriseTier;
-	recommendedVariant: EnterprisePlanVariant;
-	options: EnterpriseQuoteOption[];
-} {
+export function enterpriseQuoteOptions(questionnaire: EnterpriseQuestionnaire): { tier: EnterpriseTier; recommendedVariant: EnterprisePlanVariant; options: EnterpriseQuoteOption[] } {
 	const tier = enterpriseTierForMembers(questionnaire.memberCount);
-	const recommendedVariant: EnterprisePlanVariant =
-		questionnaire.paymentPreference === "bank_transfer" || questionnaire.expectedMonthlyTopUpUsd >= tier.includedCardTopUpUsd * 0.35
-			? "included_payments"
-			: "core";
+	const overageMembers = Math.max(0, questionnaire.memberCount - tier.maxMembers);
+	const estimatedOverageMonthlyUsd = Number((overageMembers * ENTERPRISE_MEMBER_OVERAGE_USD).toFixed(2));
 	return {
 		tier,
-		recommendedVariant,
+		recommendedVariant: "core",
 		options: [
-			{
-				variant: "core",
-				planKey: `enterprise_core_${tier.key}`,
-				monthlyUsd: tier.coreMonthlyUsd,
-				includedMembers: tier.maxMembers,
-				includedCardTopUpUsd: 0,
-				feePolicy: "standard_5_percent",
-			},
-			{
-				variant: "included_payments",
-				planKey: `enterprise_included_payments_${tier.key}`,
-				monthlyUsd: tier.includedPaymentsMonthlyUsd,
-				includedMembers: tier.maxMembers,
-				includedCardTopUpUsd: tier.includedCardTopUpUsd,
-				feePolicy: "included_allowance",
-			},
+			{ variant: "core", planKey: `enterprise_core_${tier.key}`, monthlyUsd: tier.coreMonthlyUsd, includedMembers: tier.maxMembers, includedCardTopUpUsd: 0, overageMembers, overageMemberMonthlyUsd: ENTERPRISE_MEMBER_OVERAGE_USD, estimatedOverageMonthlyUsd, estimatedMonthlyUsd: tier.coreMonthlyUsd + estimatedOverageMonthlyUsd, feePolicy: "standard_5_percent" },
 		],
 	};
-}
-
-const PRICE_ENV_BY_PLAN_KEY: Record<string, string> = {
-	enterprise_core_up_to_25: "STRIPE_ENTERPRISE_CORE_25_PRICE_ID",
-	enterprise_included_payments_up_to_25: "STRIPE_ENTERPRISE_INCLUDED_25_PRICE_ID",
-	enterprise_core_up_to_100: "STRIPE_ENTERPRISE_CORE_100_PRICE_ID",
-	enterprise_included_payments_up_to_100: "STRIPE_ENTERPRISE_INCLUDED_100_PRICE_ID",
-	enterprise_core_up_to_250: "STRIPE_ENTERPRISE_CORE_250_PRICE_ID",
-	enterprise_included_payments_up_to_250: "STRIPE_ENTERPRISE_INCLUDED_250_PRICE_ID",
-	enterprise_core_up_to_500: "STRIPE_ENTERPRISE_CORE_500_PRICE_ID",
-	enterprise_included_payments_up_to_500: "STRIPE_ENTERPRISE_INCLUDED_500_PRICE_ID",
-};
-
-export function stripePriceIdForEnterprisePlan(planKey: string): string | null {
-	const envKey = PRICE_ENV_BY_PLAN_KEY[planKey];
-	return envKey ? process.env[envKey]?.trim() || null : null;
 }

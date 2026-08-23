@@ -16,6 +16,7 @@ export type IdentityAddonSummary = {
 	cancelAtPeriodEnd: boolean;
 	currentPeriodEnd: string | null;
 	grandfathered: boolean;
+	provider: "stripe" | "manual" | null;
 	planKey: string | null;
 	pricingVersion: string | null;
 	includedMembers: number | null;

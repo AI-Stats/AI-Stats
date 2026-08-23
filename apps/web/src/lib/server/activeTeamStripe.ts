@@ -16,6 +16,7 @@ type RequireActiveTeamStripeCustomerOptions = {
     createIfMissing?: boolean;
     repairInvalidCustomer?: boolean;
     roles?: Array<"owner" | "admin" | "member">;
+    workspaceId?: string;
 };
 
 export type ActiveWorkspaceBillingAdmin = {
@@ -199,6 +200,7 @@ async function resolveWorkspaceStripeCustomer(args: {
 
 export async function requireActiveWorkspaceBillingAdmin(
     roles: Array<"owner" | "admin" | "member"> = ["owner", "admin"],
+    requestedWorkspaceId?: string,
 ): Promise<ActiveWorkspaceBillingAdmin> {
     const supabase = await createClient();
     const {
@@ -210,7 +212,7 @@ export async function requireActiveWorkspaceBillingAdmin(
         throw new Error("unauthorized");
     }
 
-    const workspaceId = await getWorkspaceIdFromCookie();
+    const workspaceId = requestedWorkspaceId?.trim() || await getWorkspaceIdFromCookie();
     if (!workspaceId) {
         throw new Error("missing_team");
     }
@@ -245,6 +247,7 @@ export async function requireActiveTeamStripeCustomer(
 ): Promise<ActiveTeamStripeCustomer> {
     const admin = await requireActiveWorkspaceBillingAdmin(
         options.roles ?? ["owner", "admin"],
+        options.workspaceId,
     );
     const supabase = await createClient();
     const { workspaceId, userId, userEmail, userDisplayName } = admin;
@@ -266,12 +269,12 @@ export async function requireActiveTeamStripeCustomer(
         repairInvalidCustomer: options.repairInvalidCustomer ?? true,
     });
 
-    if (!wallet?.workspace_id || !customerId) {
+    if (!customerId) {
         throw new Error("missing_stripe_customer");
     }
 
     return {
-        workspaceId: String(wallet.workspace_id),
+        workspaceId,
         customerId,
         userId,
         userEmail,
