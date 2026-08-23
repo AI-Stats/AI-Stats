@@ -4,7 +4,7 @@
     "provider_api_model_id": "moonshotai:moonshotai/kimi-k2",
     "provider_model_slug": "kimi-k2-0711-preview",
     "internal_model_id": "moonshotai/kimi-k2-2025-07-11",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
@@ -27,8 +27,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -52,7 +52,7 @@
     "provider_api_model_id": "moonshotai:moonshotai/kimi-k2-0905",
     "provider_model_slug": "kimi-k2-0905-preview",
     "internal_model_id": "moonshotai/kimi-k2",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
@@ -75,8 +75,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -100,7 +100,7 @@
     "provider_api_model_id": "moonshotai:moonshotai/kimi-k2-thinking",
     "provider_model_slug": "kimi-k2-thinking",
     "internal_model_id": "moonshotai/kimi-k2-thinking",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
@@ -123,8 +123,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -155,7 +155,7 @@
     "context_length": 262144,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-31T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -306,7 +306,7 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": ["standard", "priority"],
     "api": {
       "formats": [],
       "endpoint": null,
@@ -354,7 +354,7 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": ["priority"],
     "api": {
       "formats": [],
       "endpoint": null,
@@ -477,7 +477,7 @@
     "context_length": 131072,
     "max_output_tokens": null,
     "effective_from": "2024-01-31T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-31T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -525,7 +525,7 @@
     "context_length": 131072,
     "max_output_tokens": null,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-08-31T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -573,7 +573,7 @@
     "context_length": 32768,
     "max_output_tokens": null,
     "effective_from": "2024-01-31T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-31T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -621,7 +621,7 @@
     "context_length": 32768,
     "max_output_tokens": null,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-08-31T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -669,7 +669,7 @@
     "context_length": 8192,
     "max_output_tokens": null,
     "effective_from": "2024-01-31T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-31T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -717,7 +717,7 @@
     "context_length": 8192,
     "max_output_tokens": null,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-08-31T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
