@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import { detectInstalledPackageManager, type PackageManager } from "../installation.js";
+import type { PackageManager } from "../installation.js";
 import { isCommandAvailable } from "./files.js";
 import type { IntegrationId } from "./types.js";
 
@@ -54,27 +54,9 @@ export function renderInstallInvocation(invocation: InstallInvocation): string {
 	return [invocation.command, ...invocation.args].join(" ");
 }
 
-async function availableManager(): Promise<PackageManager> {
-	const detected = detectInstalledPackageManager();
-	if (detected && await isCommandAvailable([detected, `${detected}.cmd`, `${detected}.exe`])) return detected;
-	for (const manager of ["npm", "pnpm", "yarn", "bun"] as const) {
-		if (await isCommandAvailable([manager, `${manager}.cmd`, `${manager}.exe`])) return manager;
-	}
-	throw new Error("A Node.js package manager is required to install coding harnesses");
-}
-
 export async function harnessInstallPlan(integration: IntegrationId): Promise<InstallInvocation | null> {
 	if (!isPrimaryHarness(integration) || await isCommandAvailable(COMMANDS[integration])) return null;
-	if (integration === "prime-agent") {
-		throw new Error("Prime Agent is not installed. Install it manually from its verified release instructions, then rerun Phaseo setup");
-	}
-	if (integration === "hermes") {
-		throw new Error("Hermes Agent is not installed. Install it manually from its verified release instructions, then rerun Phaseo setup");
-	}
-	if (integration === "pi" && await isCommandAvailable(["npm", "npm.cmd", "npm.exe"])) {
-		return installInvocationFor(integration, "npm");
-	}
-	return installInvocationFor(integration, await availableManager());
+	throw new Error(`${integration} is not installed. Install it manually from a trusted, verified release, then rerun Phaseo setup`);
 }
 
 export async function installHarness(invocation: InstallInvocation, options: { quiet?: boolean; capture?: boolean } = {}): Promise<void> {

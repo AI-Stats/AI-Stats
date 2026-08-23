@@ -117,8 +117,8 @@ const TRAINING_LABELS: Record<string, string> = {
 	enterprise_no_train: "Enterprise no-train",
 };
 
-function retentionLabel(days: number | null | undefined): string {
-	if (days === 0) return "No retention";
+function retentionLabel(days: number | null | undefined, zdr: string | null | undefined): string {
+	if (days === 0) return zdr === "default" ? "No retention" : "Route-dependent retention";
 	if (typeof days === "number" && Number.isInteger(days) && days > 0) {
 		return `Retention for ${days} ${days === 1 ? "day" : "days"}`;
 	}
@@ -616,7 +616,7 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 											<TableCell className="text-center font-medium tabular-nums">{formatTokens(Number(provider.total_daily_tokens))}</TableCell>
 											<TableCell className="text-center font-medium tabular-nums">{formatTokens(Number(provider.total_monthly_tokens))}</TableCell>
 											<TableCell className={cn("whitespace-nowrap", !provider.prompt_training_policy && "text-muted-foreground")}>{policyLabel(provider.prompt_training_policy, TRAINING_LABELS)}</TableCell>
-											<TableCell className={cn("whitespace-nowrap", provider.data_retention_days == null && "text-muted-foreground")}>{retentionLabel(provider.data_retention_days)}</TableCell>
+											<TableCell className={cn("whitespace-nowrap", provider.data_retention_days == null && "text-muted-foreground")}>{retentionLabel(provider.data_retention_days, provider.zero_data_retention)}</TableCell>
 											<TableCell>{provider.privacy_policy_url ? <a href={provider.privacy_policy_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-medium hover:underline hover:underline-offset-4">Privacy <ExternalLink className="size-3 text-muted-foreground" /></a> : <span className="text-muted-foreground">—</span>}</TableCell>
 											<TableCell>{provider.terms_of_service_url ? <a href={provider.terms_of_service_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-medium hover:underline hover:underline-offset-4">Terms <ExternalLink className="size-3 text-muted-foreground" /></a> : <span className="text-muted-foreground">—</span>}</TableCell>
 										</TableRow>;

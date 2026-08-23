@@ -71,7 +71,7 @@ export function matchesProviderPolicy(
 		case "training:unknown":
 			return !provider.prompt_training_policy || provider.prompt_training_policy === "unknown";
 		case "retention:none":
-			return provider.data_retention_days === 0;
+			return provider.data_retention_days === 0 && provider.zero_data_retention === "default";
 		case "retention:published":
 			return typeof provider.data_retention_days === "number" && provider.data_retention_days > 0;
 		case "retention:zdr":

@@ -1045,6 +1045,19 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	const keyInfo = resolveProviderKey(args, () => {
 		return bindings.GOOGLE_AI_STUDIO_API_KEY;
 	});
+	if (ir.googleCachedContent !== undefined && keyInfo.source !== "byok") {
+		return {
+			kind: "completed",
+			ir: undefined,
+			upstream: new Response(JSON.stringify({ error: "cachedContent requires a customer-managed Google API key" }), {
+				status: 400,
+				headers: { "Content-Type": "application/json" },
+			}),
+			bill: { cost_cents: 0, currency: "USD" },
+			keySource: keyInfo.source,
+			byokKeyId: keyInfo.byokId,
+		};
+	}
 
 	// Determine model candidates (must be in URL, not body)
 	const requestedModel = providerModelSlug || ir.model || "gemini-2.0-flash-exp";
