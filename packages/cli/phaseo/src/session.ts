@@ -36,6 +36,17 @@ function secureSessionPath(): string {
 	return join(configDir(), "session.secure");
 }
 
+export function credentialHelperPath(
+	backend: "dpapi-file" | "keychain" | "secret-service",
+	env: NodeJS.ProcessEnv = process.env,
+): string {
+	if (backend === "keychain") return "/usr/bin/security";
+	if (backend === "secret-service") return "/usr/bin/secret-tool";
+	const systemRoot = env.SystemRoot || env.WINDIR;
+	if (!systemRoot) throw new Error("Windows system root is unavailable");
+	return join(systemRoot, "System32", "WindowsPowerShell", "v1.0", "powershell.exe");
+}
+
 export function preferredSessionBackend(
 	env: NodeJS.ProcessEnv = process.env,
 	platform = currentPlatform(),
@@ -162,7 +173,7 @@ async function readDpapiSession(): Promise<Session | null> {
 		const base64 = (await readFile(secureSessionPath(), "utf8")).trim();
 		if (!base64) return null;
 		const raw = await runCommand(
-			"powershell.exe",
+			credentialHelperPath("dpapi-file"),
 			[
 				"-NoProfile",
 				"-NonInteractive",
@@ -182,7 +193,7 @@ async function writeDpapiSession(session: Session): Promise<void> {
 	await mkdir(dirname(file), { recursive: true, mode: 0o700 });
 	const payload = JSON.stringify(session);
 	const protectedPayload = await runCommand(
-		"powershell.exe",
+		credentialHelperPath("dpapi-file"),
 		[
 			"-NoProfile",
 			"-NonInteractive",
@@ -201,7 +212,7 @@ async function clearDpapiSession(): Promise<void> {
 
 async function readKeychainSession(): Promise<Session | null> {
 	try {
-		const raw = await runCommand("security", [
+		const raw = await runCommand(credentialHelperPath("keychain"), [
 			"find-generic-password",
 			"-a",
 			SESSION_ACCOUNT,
@@ -216,7 +227,7 @@ async function readKeychainSession(): Promise<Session | null> {
 }
 
 async function writeKeychainSession(session: Session): Promise<void> {
-	await runCommand("security", [
+	await runCommand(credentialHelperPath("keychain"), [
 		"add-generic-password",
 		"-U",
 		"-a",
@@ -229,7 +240,7 @@ async function writeKeychainSession(session: Session): Promise<void> {
 }
 
 async function clearKeychainSession(): Promise<void> {
-	await runCommand("security", [
+	await runCommand(credentialHelperPath("keychain"), [
 		"delete-generic-password",
 		"-a",
 		SESSION_ACCOUNT,
@@ -240,7 +251,7 @@ async function clearKeychainSession(): Promise<void> {
 
 async function readSecretServiceSession(): Promise<Session | null> {
 	try {
-		const raw = await runCommand("secret-tool", [
+		const raw = await runCommand(credentialHelperPath("secret-service"), [
 			"lookup",
 			"service",
 			SESSION_SERVICE,
@@ -255,7 +266,7 @@ async function readSecretServiceSession(): Promise<Session | null> {
 
 async function writeSecretServiceSession(session: Session): Promise<void> {
 	await runCommand(
-		"secret-tool",
+		credentialHelperPath("secret-service"),
 		[
 			"store",
 			"--label=Phaseo CLI session",
@@ -269,7 +280,7 @@ async function writeSecretServiceSession(session: Session): Promise<void> {
 }
 
 async function clearSecretServiceSession(): Promise<void> {
-	await runCommand("secret-tool", [
+	await runCommand(credentialHelperPath("secret-service"), [
 		"clear",
 		"service",
 		SESSION_SERVICE,

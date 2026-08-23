@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtemp, writeFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { clearSession, preferredSessionBackend, readSession, writeSession } from "../src/session.ts";
+import { clearSession, credentialHelperPath, preferredSessionBackend, readSession, writeSession } from "../src/session.ts";
 
 test("prefers OS-backed storage on supported platforms", () => {
 	assert.equal(preferredSessionBackend({} as NodeJS.ProcessEnv, "win32"), "dpapi-file");
@@ -31,6 +31,15 @@ test("does not select plaintext storage unless explicitly requested", () => {
 	assert.equal(
 		preferredSessionBackend({ PHASEO_SESSION_BACKEND: "file" } as NodeJS.ProcessEnv, "freebsd"),
 		"file",
+	);
+});
+
+test("uses absolute paths for OS credential helpers", () => {
+	assert.equal(credentialHelperPath("keychain"), "/usr/bin/security");
+	assert.equal(credentialHelperPath("secret-service"), "/usr/bin/secret-tool");
+	assert.equal(
+		credentialHelperPath("dpapi-file", { SystemRoot: "C:\\Windows" } as NodeJS.ProcessEnv),
+		"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
 	);
 });
 

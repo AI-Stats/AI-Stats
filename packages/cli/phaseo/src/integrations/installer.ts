@@ -33,12 +33,10 @@ export function isPrimaryHarness(value: IntegrationId): value is (typeof PRIMARY
 
 export function installInvocationFor(integration: (typeof PRIMARY_HARNESSES)[number], manager: PackageManager): InstallInvocation {
 	if (integration === "prime-agent") {
-		return { command: "sh", args: ["-c", "curl -fsSL https://app.primeintellect.ai/prime-agent/install.sh | sh"] };
+		throw new Error("Prime Agent must be installed manually from its verified release instructions");
 	}
 	if (integration === "hermes") {
-		return process.platform === "win32"
-			? { command: "powershell.exe", args: ["-NoProfile", "-Command", "& ([scriptblock]::Create((irm https://hermes-agent.nousresearch.com/install.ps1))) -SkipSetup"] }
-			: { command: "sh", args: ["-c", "curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash -s -- --skip-setup"] };
+		throw new Error("Hermes Agent must be installed manually from its verified release instructions");
 	}
 	const packageName = PACKAGES[integration];
 	if (!packageName) throw new Error(`No installer is defined for ${integration}`);
@@ -68,17 +66,10 @@ async function availableManager(): Promise<PackageManager> {
 export async function harnessInstallPlan(integration: IntegrationId): Promise<InstallInvocation | null> {
 	if (!isPrimaryHarness(integration) || await isCommandAvailable(COMMANDS[integration])) return null;
 	if (integration === "prime-agent") {
-		if (process.platform === "win32") throw new Error("Prime Agent supports macOS and Linux. Run Phaseo setup inside WSL, or use --skip-install for a separately managed installation.");
-		if (!await isCommandAvailable(["sh"]) || !await isCommandAvailable(["curl"])) {
-			throw new Error("Prime Agent installation requires sh and curl");
-		}
-		return installInvocationFor(integration, "npm");
+		throw new Error("Prime Agent is not installed. Install it manually from its verified release instructions, then rerun Phaseo setup");
 	}
 	if (integration === "hermes") {
-		if (process.platform !== "win32" && (!await isCommandAvailable(["sh"]) || !await isCommandAvailable(["curl"]) || !await isCommandAvailable(["bash"]))) {
-			throw new Error("Hermes Agent installation requires sh, bash, and curl");
-		}
-		return installInvocationFor(integration, "npm");
+		throw new Error("Hermes Agent is not installed. Install it manually from its verified release instructions, then rerun Phaseo setup");
 	}
 	if (integration === "pi" && await isCommandAvailable(["npm", "npm.cmd", "npm.exe"])) {
 		return installInvocationFor(integration, "npm");

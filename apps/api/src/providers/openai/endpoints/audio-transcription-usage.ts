@@ -73,7 +73,8 @@ function estimateCompressedAudioDurationSeconds(file: File | Blob, mimeType: str
     const size = Number((file as any)?.size);
     if (!Number.isFinite(size) || size <= 0) return undefined;
 
-    const normalized = String(mimeType ?? "").toLowerCase();
+	const filename = typeof (file as File).name === "string" ? (file as File).name.toLowerCase() : "";
+	const normalized = `${String(mimeType ?? "").toLowerCase()} ${filename}`;
     const bytesPerSecond = (() => {
         if (normalized.includes("mpeg") || normalized.includes("mp3")) return 16_000;
         if (normalized.includes("mp4") || normalized.includes("m4a") || normalized.includes("aac")) return 20_000;
@@ -89,7 +90,7 @@ function estimateCompressedAudioDurationSeconds(file: File | Blob, mimeType: str
     return size / bytesPerSecond;
 }
 
-async function readAudioDurationSeconds(file: File | Blob): Promise<number | undefined> {
+export async function estimateAudioDurationSeconds(file: File | Blob): Promise<number | undefined> {
     const bytes = new Uint8Array(await file.arrayBuffer());
     const mimeType = String((file as any)?.type ?? "").toLowerCase();
     if (mimeType.includes("wav") || (
@@ -150,7 +151,7 @@ export async function estimateOpenAiSpeechToTextUsage(args: {
     const transcriptText = typeof args.text === "string" ? args.text : "";
     const inputTextTokens = promptText ? estimateTextTokensFromChars(promptText.length) : 0;
     const outputTextTokens = transcriptText ? estimateTextTokensFromChars(transcriptText.length) : 0;
-    const inputAudioSeconds = await readAudioDurationSeconds(args.file);
+	const inputAudioSeconds = await estimateAudioDurationSeconds(args.file);
     const inputAudioTokens = inputAudioSeconds != null
         ? Math.max(1, Math.round(inputAudioSeconds * 40))
         : 0;
