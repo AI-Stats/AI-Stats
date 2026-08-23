@@ -4,7 +4,7 @@
     "provider_api_model_id": "baseten:deepseek/deepseek-v3-0324",
     "provider_model_slug": "deepseek-ai/DeepSeek-V3-0324",
     "internal_model_id": "deepseek/deepseek-v3-2025-03-24",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "FP8",
     "input_modalities": "text",
     "output_modalities": "text",
@@ -15,7 +15,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -27,8 +27,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "disabled",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -39,11 +39,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://www.baseten.co/products/model-apis/",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Current Baseten shared Model API catalogue."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Retained as disabled history because it is absent from the current shared Model API catalogue."
     },
     "rate_limits": []
   },
@@ -52,7 +59,7 @@
     "provider_api_model_id": "baseten:deepseek/deepseek-v3.1",
     "provider_model_slug": "deepseek-ai/DeepSeek-V3.1",
     "internal_model_id": "deepseek/deepseek-v3.1",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "FP8",
     "input_modalities": "text",
     "output_modalities": "text",
@@ -63,7 +70,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -75,8 +82,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "disabled",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -87,11 +94,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://www.baseten.co/products/model-apis/",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Current Baseten shared Model API catalogue."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Retained as disabled history because it is absent from the current shared Model API catalogue."
     },
     "rate_limits": []
   },
@@ -100,7 +114,7 @@
     "provider_api_model_id": "baseten:deepseek/deepseek-v4-pro",
     "provider_model_slug": "deepseek-ai/DeepSeek-V4-Pro",
     "internal_model_id": "deepseek/deepseek-v4-pro",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "FP8",
     "input_modalities": "text",
     "output_modalities": "text",
@@ -111,7 +125,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [
           "reasoning",
           "include_reasoning",
@@ -135,8 +149,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "disabled",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -147,11 +161,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://www.baseten.co/products/model-apis/",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Current Baseten shared Model API catalogue."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Retained as disabled history; the current shared Model API card identifies the newer 0813 deployment."
     },
     "rate_limits": []
   },
@@ -211,7 +232,9 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
       "formats": [
         "openai.chat.completions",
@@ -222,34 +245,16 @@
     },
     "sources": [
       {
-        "kind": "announcement",
-        "url": "https://x.com/baseten/status/2087914444625973542",
-        "accessed_at": "2026-08-13T00:00:00Z",
-        "notes": "Baseten announced DeepSeek V4 Pro 0813 for Model APIs on 13 August 2026."
-      },
-      {
-        "kind": "api_reference",
-        "url": "https://docs.baseten.co/inference/model-apis/overview",
-        "accessed_at": "2026-08-13T00:00:00Z",
-        "notes": "Official Model APIs documentation for the stable DeepSeek V4 Pro slug and supported API formats."
-      },
-      {
-        "kind": "api_reference",
-        "url": "https://docs.baseten.co/inference/model-apis/reasoning",
-        "accessed_at": "2026-08-13T00:00:00Z",
-        "notes": "DeepSeek V4 Pro reasoning is enabled by default and supports reasoning_effort values from none through max."
-      },
-      {
-        "kind": "pricing",
+        "kind": "models",
         "url": "https://www.baseten.co/products/model-apis/",
-        "accessed_at": "2026-08-13T00:00:00Z",
-        "notes": "Official DeepSeek V4 Model API token pricing."
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Current Baseten shared Model API catalogue."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-13T00:00:00Z",
-      "notes": "Verified against Baseten's launch announcement, Model APIs documentation, and live pricing table."
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified in Baseten's current shared Model API catalogue."
     },
     "rate_limits": []
   },
@@ -258,7 +263,7 @@
     "provider_api_model_id": "baseten:minimax/minimax-m2.5",
     "provider_model_slug": "MiniMaxAI/MiniMax-M2.5",
     "internal_model_id": "minimax/minimax-m2.5",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "FP8",
     "input_modalities": "text",
     "output_modalities": "text",
@@ -269,7 +274,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -281,55 +286,7 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "moonshotai/kimi-k2",
-    "provider_api_model_id": "baseten:moonshotai/kimi-k2",
-    "provider_model_slug": "kimi-k2",
-    "internal_model_id": "moonshotai/kimi-k2-2025-07-11",
-    "is_active_gateway": true,
-    "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": "2026-03-25T00:00:00",
-    "effective_to": "2026-03-25T00:00:00",
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": null,
+    "routing_status": "disabled",
     "routable": false,
     "regions": {
       "execution": null,
@@ -341,11 +298,73 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://www.baseten.co/products/model-apis/",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Current Baseten shared Model API catalogue."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Retained as disabled history because it is absent from the current shared Model API catalogue."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "moonshotai/kimi-k2",
+    "provider_api_model_id": "baseten:moonshotai/kimi-k2",
+    "provider_model_slug": "kimi-k2",
+    "internal_model_id": "moonshotai/kimi-k2-2025-07-11",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-03-25T00:00:00",
+    "effective_to": "2026-03-25T00:00:00",
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "disabled",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://www.baseten.co/products/model-apis/",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Current Baseten shared Model API catalogue."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Retained as disabled history because it is absent from the current shared Model API catalogue."
     },
     "rate_limits": []
   },
@@ -365,7 +384,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -377,7 +396,7 @@
         "modes": []
       }
     ],
-    "routing_status": null,
+    "routing_status": "disabled",
     "routable": false,
     "regions": {
       "execution": null,
@@ -389,11 +408,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://www.baseten.co/products/model-apis/",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Current Baseten shared Model API catalogue."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Retained as disabled history because it is absent from the current shared Model API catalogue."
     },
     "rate_limits": []
   },
@@ -413,7 +439,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -425,7 +451,7 @@
         "modes": []
       }
     ],
-    "routing_status": null,
+    "routing_status": "disabled",
     "routable": false,
     "regions": {
       "execution": null,
@@ -437,11 +463,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://www.baseten.co/products/model-apis/",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Current Baseten shared Model API catalogue."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Retained as disabled history because it is absent from the current shared Model API catalogue."
     },
     "rate_limits": []
   },
@@ -452,7 +485,7 @@
     "internal_model_id": "moonshotai/kimi-k2.5",
     "is_active_gateway": true,
     "quantization_scheme": "FP4",
-    "input_modalities": "text",
+    "input_modalities": "text,image,video",
     "output_modalities": "text",
     "context_length": 262000,
     "max_output_tokens": 262000,
@@ -479,17 +512,26 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://www.baseten.co/products/model-apis/",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Current Baseten shared Model API catalogue."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified in Baseten's current shared Model API catalogue."
     },
     "rate_limits": []
   },
@@ -540,17 +582,26 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://www.baseten.co/products/model-apis/",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Current Baseten shared Model API catalogue."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified in Baseten's current shared Model API catalogue."
     },
     "rate_limits": []
   },
@@ -588,17 +639,26 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://www.baseten.co/products/model-apis/",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Current Baseten shared Model API catalogue."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified in Baseten's current shared Model API catalogue."
     },
     "rate_limits": []
   },
@@ -648,7 +708,9 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,
@@ -656,16 +718,16 @@
     },
     "sources": [
       {
-        "url": "https://www.baseten.co/talk-to-us/kimi-k3-waitlist/",
-        "kind": "announcement",
-        "accessed_at": "2026-07-26T00:00:00Z",
-        "notes": "Baseten promises Kimi K3 on Model APIs and Dedicated Inference the same day the weights drop."
+        "kind": "models",
+        "url": "https://www.baseten.co/products/model-apis/",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Current Baseten shared Model API catalogue."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-07-27T00:00:00Z",
-      "notes": "Baseten's Kimi K3 Model API card shows the route live at $3.00 per 1M input tokens, $0.30 per 1M cached input tokens, and $15.00 per 1M output tokens, with limits of 100,000 tokens and 15 requests per minute."
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified in Baseten's current shared Model API catalogue."
     },
     "rate_limits": []
   },
@@ -674,7 +736,7 @@
     "provider_api_model_id": "baseten:nvidia/nemotron-3-super-120b-a12b",
     "provider_model_slug": "nvidia/Nemotron-120B-A12B",
     "internal_model_id": "nvidia/nemotron-3-super-120b-a12b",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "FP4",
     "input_modalities": "text",
     "output_modalities": "text",
@@ -685,7 +747,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [
           {
             "param_id": "temperature",
@@ -754,8 +816,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "disabled",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -766,11 +828,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://www.baseten.co/products/model-apis/",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Current Baseten shared Model API catalogue."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Retained as disabled history because it is absent from the current shared Model API catalogue."
     },
     "rate_limits": []
   },
@@ -821,17 +890,26 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://www.baseten.co/products/model-apis/",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Current Baseten shared Model API catalogue."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified in Baseten's current shared Model API catalogue."
     },
     "rate_limits": []
   },
@@ -883,17 +961,26 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://www.baseten.co/products/model-apis/",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Current Baseten shared Model API catalogue."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified in Baseten's current shared Model API catalogue."
     },
     "rate_limits": []
   },
@@ -931,17 +1018,26 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://www.baseten.co/products/model-apis/",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Current Baseten shared Model API catalogue."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified in Baseten's current shared Model API catalogue."
     },
     "rate_limits": []
   },
@@ -979,7 +1075,9 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,
@@ -987,22 +1085,16 @@
     },
     "sources": [
       {
-        "url": "https://www.baseten.co/library/inkling-small/",
-        "kind": "documentation",
-        "accessed_at": "2026-07-30T00:00:00Z",
-        "notes": "Official Baseten Model API page confirms the route and supported modalities."
-      },
-      {
-        "url": "https://www.baseten.co/pricing/",
-        "kind": "pricing",
-        "accessed_at": "2026-07-30T00:00:00Z",
-        "notes": "Official Baseten Model API pricing table."
+        "kind": "models",
+        "url": "https://www.baseten.co/products/model-apis/",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Current Baseten shared Model API catalogue."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-07-30T00:00:00Z",
-      "notes": "Baseten lists thinkingmachines/inkling-small as a live Model API with 1M context and NVFP4 serving on B200."
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified in Baseten's current shared Model API catalogue."
     },
     "rate_limits": []
   },
@@ -1011,7 +1103,7 @@
     "provider_api_model_id": "baseten:z-ai/glm-4.6",
     "provider_model_slug": "zai-org/GLM-4.6",
     "internal_model_id": "z-ai/glm-4.6",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "FP4",
     "input_modalities": "text",
     "output_modalities": "text",
@@ -1022,7 +1114,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -1034,8 +1126,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "disabled",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -1046,11 +1138,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://www.baseten.co/products/model-apis/",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Current Baseten shared Model API catalogue."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Retained as disabled history because it is absent from the current shared Model API catalogue."
     },
     "rate_limits": []
   },
@@ -1088,17 +1187,26 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://www.baseten.co/products/model-apis/",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Current Baseten shared Model API catalogue."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified in Baseten's current shared Model API catalogue."
     },
     "rate_limits": []
   },
@@ -1107,7 +1215,7 @@
     "provider_api_model_id": "baseten:z-ai/glm-5",
     "provider_model_slug": "zai-org/GLM-5",
     "internal_model_id": "z-ai/glm-5",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "FP4",
     "input_modalities": "text",
     "output_modalities": "text",
@@ -1118,7 +1226,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -1130,8 +1238,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "disabled",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -1142,11 +1250,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://www.baseten.co/products/model-apis/",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Current Baseten shared Model API catalogue."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Retained as disabled history because it is absent from the current shared Model API catalogue."
     },
     "rate_limits": []
   },
@@ -1155,7 +1270,7 @@
     "provider_api_model_id": "baseten:z-ai/glm-5.1",
     "provider_model_slug": "zai-org/GLM-5.1",
     "internal_model_id": "z-ai/glm-5.1",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
@@ -1166,7 +1281,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -1178,8 +1293,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "disabled",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -1190,11 +1305,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://www.baseten.co/products/model-apis/",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Current Baseten shared Model API catalogue."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Retained as disabled history because it is absent from the current shared Model API catalogue."
     },
     "rate_limits": []
   },
@@ -1246,26 +1368,35 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://www.baseten.co/products/model-apis/",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Current Baseten shared Model API catalogue."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified in Baseten's current shared Model API catalogue."
     },
     "rate_limits": []
   },
   {
-    "api_model_id": "z-ai/glm-5.2-fast",
-    "provider_api_model_id": "baseten:z-ai/glm-5.2-fast",
+    "api_model_id": "z-ai/glm-5.2",
+    "provider_api_model_id": "baseten:z-ai/glm-5.2:fast",
     "provider_model_slug": "zai-org/GLM-5.2-Fast",
     "internal_model_id": "z-ai/glm-5.2",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "text",
@@ -1288,13 +1419,15 @@
         "modes": []
       }
     ],
-    "routing_status": null,
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "fast"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,
@@ -1302,18 +1435,16 @@
     },
     "sources": [
       {
-        "url": "https://www.baseten.co/library/glm-52-fast/",
-        "kind": "documentation"
-      },
-      {
-        "url": "https://www.baseten.co/pricing/",
-        "kind": "pricing"
+        "kind": "models",
+        "url": "https://www.baseten.co/products/model-apis/",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Current Baseten shared Model API catalogue."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-07-26T00:00:00Z",
-      "notes": "Hidden provider sibling used when a canonical z-ai/glm-5.2 request selects Phaseo's priority service tier; Baseten serves it at zai-org/GLM-5.2-Fast."
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified in Baseten's current shared Model API catalogue."
     },
     "rate_limits": []
   },
@@ -1322,7 +1453,7 @@
     "provider_api_model_id": "baseten:deepseek/deepseek-v4-flash-0731",
     "provider_model_slug": "deepseek/deepseek-v4-flash-0731",
     "internal_model_id": "deepseek/deepseek-v4-flash-0731",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": "fp8",
     "input_modalities": "text",
     "output_modalities": "text",
@@ -1333,7 +1464,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "disabled",
+        "status": "active",
         "params": [
           "reasoning",
           "include_reasoning",
@@ -1357,13 +1488,15 @@
         "modes": []
       }
     ],
-    "routing_status": "disabled",
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,
@@ -1371,16 +1504,16 @@
     },
     "sources": [
       {
-        "kind": "provider_models",
-        "url": null,
-        "accessed_at": "2026-08-12T00:00:00Z",
-        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+        "kind": "models",
+        "url": "https://www.baseten.co/products/model-apis/",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Current Baseten shared Model API catalogue."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-12T00:00:00Z",
-      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified in Baseten's current shared Model API catalogue."
     },
     "rate_limits": []
   }

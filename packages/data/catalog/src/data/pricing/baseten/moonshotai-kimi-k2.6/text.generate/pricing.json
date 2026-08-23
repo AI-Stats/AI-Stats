@@ -109,10 +109,17 @@
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "pricing",
+      "url": "https://www.baseten.co/pricing/",
+      "accessed_at": "2026-08-23T00:00:00Z",
+      "notes": "Current Baseten Model API pricing."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-23T00:00:00Z",
+    "notes": "Verified against Baseten's current Model API pricing."
   }
 }

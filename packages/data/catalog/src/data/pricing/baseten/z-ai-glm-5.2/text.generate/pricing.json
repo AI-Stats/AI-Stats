@@ -100,30 +100,104 @@
       "cache_duration_seconds": null,
       "conditions": [],
       "source": "https://www.baseten.co/pricing/"
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.21,
+      "currency": "USD",
+      "pricing_plan": "fast",
+      "note": "Baseten GLM-5.2 Fast service-tier price.",
+      "match": [
+        {
+          "key": "service_tier",
+          "value": "fast"
+        }
+      ],
+      "priority": 110,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    },
+    {
+      "meter": "input_image_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0,
+      "currency": "USD",
+      "pricing_plan": "fast",
+      "note": "Baseten GLM-5.2 Fast service-tier price.",
+      "match": [
+        {
+          "key": "service_tier",
+          "value": "fast"
+        }
+      ],
+      "priority": 110,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    },
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 2.1,
+      "currency": "USD",
+      "pricing_plan": "fast",
+      "note": "Baseten GLM-5.2 Fast service-tier price.",
+      "match": [
+        {
+          "key": "service_tier",
+          "value": "fast"
+        }
+      ],
+      "priority": 110,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 6.6,
+      "currency": "USD",
+      "pricing_plan": "fast",
+      "note": "Baseten GLM-5.2 Fast service-tier price.",
+      "match": [
+        {
+          "key": "service_tier",
+          "value": "fast"
+        }
+      ],
+      "priority": 110,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
     }
   ],
   "regions": [],
   "service_tiers": [
     "standard",
-    "priority"
+    "fast"
   ],
   "sources": [
     {
-      "url": "https://www.baseten.co/library/glm-52/",
-      "kind": "documentation"
-    },
-    {
-      "url": "https://www.baseten.co/library/glm-52-fast/",
-      "kind": "documentation"
-    },
-    {
+      "kind": "pricing",
       "url": "https://www.baseten.co/pricing/",
-      "kind": "pricing"
+      "accessed_at": "2026-08-23T00:00:00Z",
+      "notes": "Current Baseten Model API pricing."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-07-26T00:00:00Z",
-    "notes": "Standard uses Baseten GLM-5.2 at $1.40/$0.26/$4.40; priority uses GLM-5.2 Fast at $2.10/$0.21/$6.60 per 1M tokens."
+    "checked_at": "2026-08-23T00:00:00Z",
+    "notes": "Standard and fast service-tier prices verified against Baseten pricing."
   }
 }
