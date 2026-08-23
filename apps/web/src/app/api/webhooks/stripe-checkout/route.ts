@@ -430,10 +430,17 @@ async function createFinalEnterpriseOverageInvoice(args: {
 }
 
 function paymentIntentRail(paymentIntent: Stripe.PaymentIntent): "card" | "ach" | "bank_transfer" | "unknown" {
-    const types = paymentIntent.payment_method_types ?? [];
-    if (types.includes("customer_balance")) return "bank_transfer";
-    if (types.includes("us_bank_account")) return "ach";
-    if (types.includes("card")) return "card";
+    const paymentMethod = paymentIntent.payment_method;
+    if (paymentMethod && typeof paymentMethod !== "string") {
+        if (paymentMethod.type === "card") return "card";
+        if (paymentMethod.type === "us_bank_account") return "ach";
+    }
+    const customerBalance = paymentIntent.payment_method_options?.customer_balance;
+    if (
+        paymentIntent.status === "succeeded"
+        && paymentIntent.payment_method_types.includes("customer_balance")
+        && customerBalance?.bank_transfer?.type === "us_bank_transfer"
+    ) return "bank_transfer";
     return "unknown";
 }
 
@@ -694,17 +701,20 @@ export async function POST(req: Request) {
             case "customer.subscription.updated":
             case "customer.subscription.paused":
             case "customer.subscription.resumed": {
+                const eventSubscription = event.data.object as Stripe.Subscription;
+                const subscription = await stripe.subscriptions.retrieve(eventSubscription.id);
                 await syncAddonSubscriptionFromStripe({
                     supabase,
-                    subscription: event.data.object as Stripe.Subscription,
+                    subscription,
                     eventCreated: event.created,
                 });
                 break;
             }
 
             case "customer.subscription.deleted": {
-                const subscription = event.data.object as Stripe.Subscription;
-                await createFinalEnterpriseOverageInvoice({ supabase, stripe, subscription });
+                const eventSubscription = event.data.object as Stripe.Subscription;
+                await createFinalEnterpriseOverageInvoice({ supabase, stripe, subscription: eventSubscription });
+                const subscription = await stripe.subscriptions.retrieve(eventSubscription.id);
                 await syncAddonSubscriptionFromStripe({ supabase, subscription, eventCreated: event.created });
                 break;
             }
@@ -810,13 +820,16 @@ export async function POST(req: Request) {
                     }
                 }
 
+                const settledPaymentIntent = await stripe.paymentIntents.retrieve(pi.id, {
+                    expand: ["payment_method"],
+                });
                 const { data: feePolicyRows, error: feePolicyError } = await supabase.rpc(
                     "claim_workspace_top_up_fee_policy",
                     {
                         p_workspace_id: wallet.workspace_id,
                         p_stripe_payment_intent_id: pi.id,
                         p_gross_nanos: grossNanos,
-                        p_payment_rail: paymentIntentRail(pi),
+                        p_payment_rail: paymentIntentRail(settledPaymentIntent),
                         p_seen_at: new Date(event.created * 1000).toISOString(),
                     },
                 );

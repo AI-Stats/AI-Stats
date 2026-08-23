@@ -1,4 +1,5 @@
 -- Explicit workspace directory overrides, effective state history, immutable request attribution, and audit events.
+-- phaseo:allow-destructive-migration reason: reconciliation deletes stale derived entitlements, user-requested override removal deletes explicit state, and SCIM group replacement atomically replaces authoritative membership
 
 create table public.workspace_member_overrides (
   workspace_id uuid not null references public.workspaces(id) on delete cascade,

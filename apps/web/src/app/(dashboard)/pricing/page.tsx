@@ -563,7 +563,7 @@ const MATRIX_SECTIONS: MatrixSection[] = [
 				feature: "Payment method",
 				free: { type: "not_applicable", inlineText: "None required" },
 				payg: { type: "text", value: "Credit or debit card" },
-				enterprise: { type: "text", value: "Card and supported USD bank transfer" },
+				enterprise: { type: "text", value: "Card; supported USD bank transfer with Included Payments" },
 			},
 			{
 				feature: "Billing method",
