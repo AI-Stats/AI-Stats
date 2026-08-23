@@ -2411,6 +2411,7 @@ const (
 	OrganisationIdSao10k OrganisationId = "sao10k"
 	OrganisationIdSourceful OrganisationId = "sourceful"
 	OrganisationIdSpacexAi OrganisationId = "spacex-ai"
+	OrganisationIdStabilityAi OrganisationId = "stability-ai"
 	OrganisationIdStealth OrganisationId = "stealth"
 	OrganisationIdStepfun OrganisationId = "stepfun"
 	OrganisationIdSuno OrganisationId = "suno"

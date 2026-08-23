@@ -1,7 +1,7 @@
 {
   "api_provider_id": "ovhcloud",
   "api_provider_name": "OVHcloud",
-  "description": "OVHcloud AI Endpoints provides OpenAI-compatible text, embeddings, Batch, Files, and audio transcription APIs plus Qwen3Guard safety classifiers for serverless inference in France.",
+  "description": "OVHcloud AI Endpoints provides OpenAI-compatible text, vision, embeddings, Batch, Files, and audio transcription APIs plus Qwen3Guard safety classifiers for serverless inference in France.",
   "link": "https://www.ovhcloud.com/en/public-cloud/ai-endpoints/catalog/",
   "residency_mode": "provider_managed",
   "default_execution_regions": [
@@ -34,23 +34,23 @@
   "api_base_url": "https://oai.endpoints.kepler.ai.cloud.ovh.net/v1",
   "docs_url": "https://help.ovhcloud.com/csm/en-sg-public-cloud-ai-endpoints-capabilities?id=kb_article_view&sysparm_article=KB0065415",
   "auth_env": "OVH_AI_ENDPOINTS_ACCESS_TOKEN",
-  "api_formats": ["openai-chat-completions", "openai-responses", "openai-embeddings", "openai-batch", "openai-files", "openai-audio-transcription"],
+  "api_formats": ["openai-chat-completions", "openai-responses", "openai-embeddings", "openai-batch", "openai-files", "openai-images", "openai-audio-transcription", "ovh-riva-tts"],
   "service_tiers": [],
   "sources": [
     {
       "kind": "documentation",
       "url": "https://help.ovhcloud.com/csm/en-sg-public-cloud-ai-endpoints-capabilities?id=kb_article_view&sysparm_article=KB0065415",
-      "accessed_at": "2026-08-12T00:00:00Z"
+      "accessed_at": "2026-08-23T00:00:00Z"
     },
     {
       "kind": "pricing",
       "url": "https://www.ovhcloud.com/en/public-cloud/prices/",
-      "accessed_at": "2026-08-12T00:00:00Z"
+      "accessed_at": "2026-08-23T00:00:00Z"
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-12T00:00:00Z",
-    "notes": "Verified endpoint, Bearer access-key authentication, Responses/Chat/Embeddings compatibility, guard-model wire contract, French execution location, privacy, limits, current model catalogue, and pricing against first-party OVHcloud sources."
+    "checked_at": "2026-08-23T00:00:00Z",
+    "notes": "Verified endpoint, Bearer access-key authentication, Responses/Chat/Embeddings compatibility, guard-model wire contract, French execution location, privacy, limits, and current catalogue against first-party OVHcloud sources. Paid catalog prices are normalized to OVHcloud's published USD price list for gateway billing. Free image and speech endpoints remain disabled until their executors are registered."
   }
 }
