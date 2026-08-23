@@ -145,7 +145,7 @@ publicOrganisationsRouter.get("/organisations/:organisationId", async (c) => {
 				.select("lab_slug,name,country_code,description,metadata,updated_at")
 				.eq("lab_slug", organisationId)
 				.maybeSingle(),
-			fetchModelsPageCatalogue(c.env, {}, "v2"),
+			fetchModelsPageCatalogue(c.env, { organisationId }, "v2"),
 			// Organisation links do not yet have a V2 table.
 			client.from("v2_lab_links").select("url,platform").eq("lab_slug", organisationId),
 		]);
@@ -158,11 +158,12 @@ publicOrganisationsRouter.get("/organisations/:organisationId", async (c) => {
 		const organisationMetadata = organisationRow.metadata && typeof organisationRow.metadata === "object" && !Array.isArray(organisationRow.metadata)
 			? organisationRow.metadata as Record<string, unknown>
 			: {};
-		const models = catalogue.models
-			.filter((model) => model.organisation_id === organisationId)
+		const performanceModels = catalogue.models
 			.sort((left, right) =>
 				Number(right.primary_timestamp ?? 0) - Number(left.primary_timestamp ?? 0),
-			)
+			);
+		const models = performanceModels
+			.filter((model) => model.primary_date != null)
 			.slice(0, limit);
 		const groupedModels: Record<string, typeof models> = {};
 		for (const model of models) {
@@ -182,6 +183,7 @@ publicOrganisationsRouter.get("/organisations/:organisationId", async (c) => {
 				url: link.url,
 			})),
 			recent_models: models.slice(0, limit),
+			performance_models: performanceModels,
 			models: groupedModels,
 		};
 		return withPublicCache(c.json({ organisation }), {

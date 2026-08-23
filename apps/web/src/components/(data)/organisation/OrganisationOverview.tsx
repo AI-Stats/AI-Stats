@@ -31,7 +31,7 @@ export default function OrganisationOverview({
 						Recent gateway performance across models from {organisation.name}.
 					</p>
 				</div>
-				<LabPerformance models={organisation.recent_models} />
+				<LabPerformance models={organisation.performance_models} />
 			</section>
 
 			{/* Models section */}

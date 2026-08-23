@@ -292,6 +292,7 @@ export function buildModelsPageFacets(rows: Row[]): ModelsPageFacets {
 }
 
 export type ModelsPageQuery = {
+	organisationId?: string | null;
 	region?: string | null;
 	serviceTier?: string | null;
 };
@@ -300,14 +301,18 @@ async function databasePageRows(env: Env, query: ModelsPageQuery = {}): Promise<
 	const rows: Row[] = [];
 	const client = getDataClient(env);
 	for (let offset = 0; ; offset += 1_000) {
-		const result = await (
+		let request = (
 			query.region || query.serviceTier
 				? client.rpc(
 					"get_v2_public_models_page_rows",
 					{ p_region: query.region ?? null, p_service_tier: query.serviceTier ?? null },
 				)
 				: client.rpc("get_public_models_page_rows")
-		).range(offset, offset + 999);
+		);
+		if (query.organisationId) {
+			request = request.eq("organisation_id", query.organisationId);
+		}
+		const result = await request.range(offset, offset + 999);
 		if (result.error) throw result.error;
 		rows.push(...((result.data ?? []) as Row[]));
 		if ((result.data?.length ?? 0) < 1_000) break;
@@ -315,12 +320,13 @@ async function databasePageRows(env: Env, query: ModelsPageQuery = {}): Promise<
 	return rows;
 }
 
-async function weeklyMetrics(env: Env): Promise<WeeklyMetricRow[]> {
+async function weeklyMetrics(env: Env, modelIds?: string[]): Promise<WeeklyMetricRow[]> {
+	if (modelIds?.length === 0) return [];
 	const rows: WeeklyMetricRow[] = [];
 	for (let offset = 0; ; offset += 1_000) {
-		const result = await getDataClient(env)
-			.rpc("get_v2_public_model_weekly_metrics")
-			.range(offset, offset + 999);
+		let request = getDataClient(env).rpc("get_v2_public_model_weekly_metrics");
+		if (modelIds) request = request.in("model_slug", modelIds);
+		const result = await request.range(offset, offset + 999);
 		if (result.error) {
 			console.error("models_weekly_metrics_failed", {
 				code: result.error.code,
@@ -359,10 +365,13 @@ export async function fetchModelsPageCatalogue(
 	query: ModelsPageQuery = {},
 	_catalogueVersion: "v1" | "v2" = "v2",
 ): Promise<{ models: Row[]; pricingComplete: boolean }> {
-	const [databaseRows, modelWeeklyMetrics] = await Promise.all([
-		databasePageRows(env, query),
-		weeklyMetrics(env),
-	]);
+	const databaseRows = await databasePageRows(env, query);
+	const modelWeeklyMetrics = await weeklyMetrics(
+		env,
+		query.organisationId
+			? databaseRows.map((row) => String(row.model_id ?? "")).filter(Boolean)
+			: undefined,
+	);
 	return {
 		models: attachModelsPageVariants(mergeModelWeeklyMetrics(
 			databaseRows.map(normalizeModelsPagePricing),

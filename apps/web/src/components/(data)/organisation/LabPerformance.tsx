@@ -5,34 +5,40 @@ import type { OrganisationModelCards } from "@/lib/fetchers/organisations/types"
 
 type Metric = {
 	icon: typeof Gauge;
+	id: "throughput" | "latency" | "usage";
 	label: string;
-	format: (value: number) => string;
-	key: "throughput_week" | "latency_week" | "popularity_tokens_week";
+	format: (value: number, model: OrganisationModelCards) => string;
+	value: (model: OrganisationModelCards) => number | null | undefined;
 };
+
+const compactNumber = new Intl.NumberFormat("en", {
+	compactDisplay: "short",
+	notation: "compact",
+	maximumFractionDigits: 1,
+});
 
 const metrics: Metric[] = [
 	{
 		icon: Gauge,
-		key: "throughput_week",
+		id: "throughput",
 		label: "Throughput",
 		format: (value) => `${value.toFixed(1)} t/s`,
+		value: (model) => model.throughput_week,
 	},
 	{
 		icon: Timer,
-		key: "latency_week",
+		id: "latency",
 		label: "Time to first token",
 		format: (value) => `${Math.round(value).toLocaleString()} ms`,
+		value: (model) => model.latency_week,
 	},
 	{
 		icon: Activity,
-		key: "popularity_tokens_week",
+		id: "usage",
 		label: "Weekly usage",
-		format: (value) =>
-			new Intl.NumberFormat("en", {
-				compactDisplay: "short",
-				notation: "compact",
-				maximumFractionDigits: 1,
-			}).format(value),
+		format: (value, model) =>
+			`${compactNumber.format(value)} ${model.weekly_usage_unit ?? "units"}`,
+		value: (model) => model.weekly_usage_quantity,
 	},
 ];
 
@@ -44,13 +50,13 @@ export default function LabPerformance({
 	const panels = metrics.map((metric) => ({
 		...metric,
 		models: models
-			.map((model) => ({ model, value: model[metric.key] }))
+			.map((model) => ({ model, value: metric.value(model) }))
 			.filter(
 				(entry): entry is { model: OrganisationModelCards; value: number } =>
 					typeof entry.value === "number" && Number.isFinite(entry.value),
 			)
 			.sort((a, b) =>
-				metric.key === "latency_week" ? a.value - b.value : b.value - a.value,
+				metric.id === "latency" ? a.value - b.value : b.value - a.value,
 			)
 			.slice(0, 3),
 	}));
@@ -63,7 +69,7 @@ export default function LabPerformance({
 					const Icon = panel.icon;
 					return (
 						<div
-							key={panel.key}
+							key={panel.id}
 							className="min-w-0 border-b border-border/70 p-4 last:border-b-0 md:border-b-0 md:p-5"
 						>
 							<div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
@@ -71,7 +77,7 @@ export default function LabPerformance({
 								{panel.label}
 							</div>
 							<p className="mt-2 text-2xl font-semibold tracking-tight">
-								{panel.models[0] ? panel.format(panel.models[0].value) : "—"}
+								{panel.models[0] ? panel.format(panel.models[0].value, panel.models[0].model) : "—"}
 							</p>
 							<div className="mt-4 space-y-1">
 								{panel.models.map(({ model, value }) => (
@@ -82,7 +88,7 @@ export default function LabPerformance({
 									>
 										<span className="truncate font-medium">{model.name}</span>
 										<span className="flex shrink-0 items-center gap-1 text-muted-foreground">
-											{panel.format(value)}
+											{panel.format(value, model)}
 											<ArrowUpRight className="size-3 opacity-0 transition-opacity group-hover:opacity-100" />
 										</span>
 									</Link>

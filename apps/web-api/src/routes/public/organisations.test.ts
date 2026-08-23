@@ -79,6 +79,7 @@ describe("public organisation routes", () => {
 					organisation_name: "OpenAI",
 					primary_group_key: "2026-07",
 				}],
+				performance_models: [{ model_id: "openai/gpt-test" }],
 				models: { active: [{ model_id: "openai/gpt-test" }] },
 			},
 		});
