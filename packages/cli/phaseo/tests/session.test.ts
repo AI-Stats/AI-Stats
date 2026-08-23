@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mkdtemp, writeFile, rm } from "node:fs/promises";
+import { chmod, mkdtemp, writeFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { clearSession, credentialHelperPath, preferredSessionBackend, readSession, writeSession } from "../src/session.ts";
@@ -34,13 +34,18 @@ test("does not select plaintext storage unless explicitly requested", () => {
 	);
 });
 
-test("uses absolute paths for OS credential helpers", () => {
+test("uses absolute paths for OS credential helpers", async () => {
+	const directory = await mkdtemp(join(tmpdir(), "phaseo-cli-helper-"));
+	const helper = join(directory, "secret-tool");
+	await writeFile(helper, "#!/bin/sh\n");
+	await chmod(helper, 0o700);
 	assert.equal(credentialHelperPath("keychain"), "/usr/bin/security");
-	assert.equal(credentialHelperPath("secret-service"), "/usr/bin/secret-tool");
+	assert.equal(credentialHelperPath("secret-service", { PATH: directory } as NodeJS.ProcessEnv), helper);
 	assert.equal(
 		credentialHelperPath("dpapi-file", { SystemRoot: "C:\\Windows" } as NodeJS.ProcessEnv),
 		"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
 	);
+	await rm(directory, { recursive: true, force: true });
 });
 
 test("fails closed when the selected OS credential store cannot write", async () => {

@@ -264,6 +264,20 @@ describe("applyServiceTierRouting", () => {
         }
     });
 
+    it("keeps canonical fast models on standard and omitted tiers", async () => {
+        const canonicalFast = makeCandidate({
+            providerId: "lightricks",
+            apiModelId: "lightricks/ltx-2.5-fast",
+            providerModelSlug: "ltx-2.5-fast",
+            pricingCard: makeCard({ provider: "lightricks", model: "lightricks/ltx-2.5-fast", plans: ["standard"] }),
+        });
+
+        for (const body of [{}, { service_tier: "standard" }]) {
+            const result = await applyServiceTierRouting({ candidates: [canonicalFast], body, capability: "video.generate" });
+            expect(result.candidates).toEqual([canonicalFast]);
+        }
+    });
+
     it("remaps Venice priority requests to the hidden fast sibling slug while keeping the public model stable", async () => {
         queryState.providerRows = [
             {

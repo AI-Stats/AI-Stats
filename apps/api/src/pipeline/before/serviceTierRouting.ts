@@ -96,15 +96,11 @@ function isTierDedicatedOffer(candidate: ProviderCandidate, requestedPlan: Servi
 
 function isTierSiblingModel(candidate: ProviderCandidate, requestedPlan: ServiceTierPlan): boolean {
     const apiModelId = String(candidate.apiModelId ?? "").trim().toLowerCase();
-    const providerModelSlug = String(candidate.providerModelSlug ?? "").trim().toLowerCase();
     if (requestedPlan === "priority") {
-        return (
-            apiModelId.endsWith("-fast") ||
-            providerModelSlug.endsWith("-fast") ||
-            PRIORITY_SIBLING_VALUE_IDS.has(apiModelId)
-        );
+        return PRIORITY_SIBLING_VALUE_IDS.has(apiModelId);
     }
     if (requestedPlan === "flex") {
+        const providerModelSlug = String(candidate.providerModelSlug ?? "").trim().toLowerCase();
         return apiModelId.endsWith("-flex") || providerModelSlug.endsWith("-flex");
     }
     return false;

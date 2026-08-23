@@ -1,7 +1,8 @@
 import { spawn } from "node:child_process";
+import { accessSync, constants, realpathSync } from "node:fs";
 import { chmod, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { homedir, platform as currentPlatform } from "node:os";
-import { dirname, join } from "node:path";
+import { delimiter, dirname, isAbsolute, join } from "node:path";
 
 export type Session = {
 	accessToken: string;
@@ -41,7 +42,21 @@ export function credentialHelperPath(
 	env: NodeJS.ProcessEnv = process.env,
 ): string {
 	if (backend === "keychain") return "/usr/bin/security";
-	if (backend === "secret-service") return "/usr/bin/secret-tool";
+	if (backend === "secret-service") {
+		const candidates = ["/usr/bin/secret-tool", "/usr/local/bin/secret-tool"];
+		for (const directory of (env.PATH ?? "").split(delimiter)) {
+			if (directory && isAbsolute(directory)) candidates.push(join(directory, "secret-tool"));
+		}
+		for (const candidate of candidates) {
+			try {
+				accessSync(candidate, constants.X_OK);
+				return realpathSync(candidate);
+			} catch {
+				// Continue until an installed executable is found.
+			}
+		}
+		throw new Error("secret-tool is unavailable");
+	}
 	const systemRoot = env.SystemRoot || env.WINDIR;
 	if (!systemRoot) throw new Error("Windows system root is unavailable");
 	return join(systemRoot, "System32", "WindowsPowerShell", "v1.0", "powershell.exe");
