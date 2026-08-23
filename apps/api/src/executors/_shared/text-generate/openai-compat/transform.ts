@@ -88,6 +88,7 @@ function usesOpenAIResponsesShape(providerId?: string): boolean {
 		providerId === "darkbloom" ||
 		providerId === "stepfun" ||
 		providerId === "sakana" ||
+		providerId === "sail-research" ||
 		providerId === "ovhcloud" ||
 		providerId === "nebius-token-factory" ||
 		providerId === "nebius-token-factory-fast" ||
