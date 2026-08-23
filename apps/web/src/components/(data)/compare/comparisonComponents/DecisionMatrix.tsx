@@ -548,7 +548,7 @@ export default function DecisionMatrix({
 				setShowStickyCompareBar(!entry.isIntersecting);
 			},
 			{
-				rootMargin: "-60px 0px 0px 0px",
+				rootMargin: "-144px 0px 0px 0px",
 				threshold: 0,
 			}
 		);
