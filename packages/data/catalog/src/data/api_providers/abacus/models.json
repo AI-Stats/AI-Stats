@@ -5061,7 +5061,7 @@
     "internal_model_id": "openai/gpt-realtime-whisper",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text",
+    "input_modalities": "text,audio",
     "output_modalities": "text",
     "context_length": 16000,
     "max_output_tokens": 2000,
@@ -5069,16 +5069,17 @@
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "text.generate",
+        "capability_id": "audio.transcription",
         "status": "active",
         "params": [],
         "reasoning": false,
-        "tool_call": true,
-        "structured_output": null,
+        "tool_call": false,
+        "structured_output": false,
         "temperature": null,
-        "attachment": false,
+        "attachment": true,
         "input_modalities": [
-          "text"
+          "text",
+          "audio"
         ],
         "output_modalities": [
           "text"
@@ -5112,7 +5113,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-24T00:00:00Z",
-      "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
+      "notes": "Verified against Abacus.AI's live RouteLLM catalogue and classified using the canonical OpenAI audio transcription contract; Phaseo routing remains disabled."
     },
     "rate_limits": []
   },
@@ -5123,27 +5124,29 @@
     "internal_model_id": "openai/gpt-transcribe",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text",
-    "output_modalities": "text",
+    "input_modalities": "text,audio",
+    "output_modalities": "text,audio_stt",
     "context_length": 16000,
     "max_output_tokens": 2000,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "text.generate",
+        "capability_id": "audio.transcription",
         "status": "active",
         "params": [],
         "reasoning": false,
-        "tool_call": true,
-        "structured_output": null,
+        "tool_call": false,
+        "structured_output": false,
         "temperature": null,
-        "attachment": false,
+        "attachment": true,
         "input_modalities": [
-          "text"
+          "text",
+          "audio"
         ],
         "output_modalities": [
-          "text"
+          "text",
+          "audio_stt"
         ],
         "modes": []
       }
@@ -5174,7 +5177,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-24T00:00:00Z",
-      "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
+      "notes": "Verified against Abacus.AI's live RouteLLM catalogue and classified using the canonical OpenAI audio transcription contract; Phaseo routing remains disabled."
     },
     "rate_limits": []
   },
@@ -5185,27 +5188,29 @@
     "internal_model_id": "openai/gpt-4o-transcribe",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text",
-    "output_modalities": "text",
+    "input_modalities": "text,audio",
+    "output_modalities": "text,audio_stt",
     "context_length": 16000,
     "max_output_tokens": 2000,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "text.generate",
+        "capability_id": "audio.transcription",
         "status": "active",
         "params": [],
         "reasoning": false,
-        "tool_call": true,
-        "structured_output": null,
+        "tool_call": false,
+        "structured_output": false,
         "temperature": null,
-        "attachment": false,
+        "attachment": true,
         "input_modalities": [
-          "text"
+          "text",
+          "audio"
         ],
         "output_modalities": [
-          "text"
+          "text",
+          "audio_stt"
         ],
         "modes": []
       }
@@ -5236,7 +5241,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-24T00:00:00Z",
-      "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
+      "notes": "Verified against Abacus.AI's live RouteLLM catalogue and classified using the canonical OpenAI audio transcription contract; Phaseo routing remains disabled."
     },
     "rate_limits": []
   },
@@ -5247,27 +5252,29 @@
     "internal_model_id": "openai/gpt-4o-mini-transcribe",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text",
-    "output_modalities": "text",
+    "input_modalities": "text,audio",
+    "output_modalities": "text,audio_stt",
     "context_length": 16000,
     "max_output_tokens": 2000,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "text.generate",
+        "capability_id": "audio.transcription",
         "status": "active",
         "params": [],
         "reasoning": false,
-        "tool_call": true,
-        "structured_output": null,
+        "tool_call": false,
+        "structured_output": false,
         "temperature": null,
-        "attachment": false,
+        "attachment": true,
         "input_modalities": [
-          "text"
+          "text",
+          "audio"
         ],
         "output_modalities": [
-          "text"
+          "text",
+          "audio_stt"
         ],
         "modes": []
       }
@@ -5298,7 +5305,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-24T00:00:00Z",
-      "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
+      "notes": "Verified against Abacus.AI's live RouteLLM catalogue and classified using the canonical OpenAI audio transcription contract; Phaseo routing remains disabled."
     },
     "rate_limits": []
   },
