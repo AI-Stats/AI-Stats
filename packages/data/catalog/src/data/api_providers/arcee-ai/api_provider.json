@@ -20,7 +20,7 @@
   "prompt_training_policy": "opt_out_available",
   "prompt_training_notes": "Arcee AI says inputs and outputs from unpaid services may be used to train and improve its services unless the user opts out by contacting support. It says paid-service inputs and outputs are not used for training by default, with safety-review and explicitly reported-content exceptions.",
   "prompt_training_source_url": "https://www.arcee.ai/privacy-policy",
-  "gateway_kind": "gateway",
+  "gateway_kind": "openai_compatible",
   "routable": true,
   "routing_enabled": true,
   "sdk_package": null,
