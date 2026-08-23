@@ -476,7 +476,6 @@ export type KnownModelId =
   | "spacex-ai/grok-imagine-image-quality"
   | "spacex-ai/grok-transcribe"
   | "spacex-ai/grok-tts"
-  | "stability-ai/stable-diffusion-xl-base-1.0"
   | "stealth/ox-alpha"
   | "stepfun/step-3.5-flash"
   | "stepfun/step-3.7-flash"

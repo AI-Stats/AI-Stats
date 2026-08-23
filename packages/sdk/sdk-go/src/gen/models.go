@@ -2062,7 +2062,6 @@ const (
 	KnownModelIdSpacexAiGrokImagineImageQuality KnownModelId = "spacex-ai/grok-imagine-image-quality"
 	KnownModelIdSpacexAiGrokTranscribe KnownModelId = "spacex-ai/grok-transcribe"
 	KnownModelIdSpacexAiGrokTts KnownModelId = "spacex-ai/grok-tts"
-	KnownModelIdStabilityAiStableDiffusionXlBase10 KnownModelId = "stability-ai/stable-diffusion-xl-base-1.0"
 	KnownModelIdStealthOxAlpha KnownModelId = "stealth/ox-alpha"
 	KnownModelIdStepfunStep35Flash KnownModelId = "stepfun/step-3.5-flash"
 	KnownModelIdStepfunStep37Flash KnownModelId = "stepfun/step-3.7-flash"
