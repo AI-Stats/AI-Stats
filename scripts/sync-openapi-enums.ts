@@ -11,7 +11,10 @@ const API_PROVIDERS_DIR = path.join(DATA_ROOT, "api_providers");
 const VIRTUAL_CALLABLE_MODEL_IDS = ["phaseo/free"];
 // Preserve released SDK helper IDs after their last gateway route expires.
 // Runtime model IDs remain open strings; this snapshot must not break patch releases.
-const LEGACY_CALLABLE_MODEL_IDS = ["anthropic/claude-3-haiku"];
+const LEGACY_CALLABLE_MODEL_IDS = [
+	"anthropic/claude-3-haiku",
+	"anthropic/claude-3.5-haiku",
+];
 
 function readYaml(file: string): any {
   return yaml.load(fs.readFileSync(file, "utf8"));
