@@ -22,15 +22,33 @@ const (
 	// Model ID: allenai/molmo-2-8b
 	// Model page: https://phaseo.app/models/allenai/molmo-2-8b
 	ModelIDAllenaiMolmo28b gen.ModelId = "allenai/molmo-2-8b"
-	// Model ID: anthropic/claude-3-haiku
-	// Model page: https://phaseo.app/models/anthropic/claude-3-haiku
-	ModelIDAnthropicClaude3Haiku gen.ModelId = "anthropic/claude-3-haiku"
+	// Model ID: amazon/nova-2-lite
+	// Model page: https://phaseo.app/models/amazon/nova-2-lite
+	ModelIDAmazonNova2Lite gen.ModelId = "amazon/nova-2-lite"
+	// Model ID: amazon/nova-lite-1.0
+	// Model page: https://phaseo.app/models/amazon/nova-lite-1.0
+	ModelIDAmazonNovaLite10 gen.ModelId = "amazon/nova-lite-1.0"
+	// Model ID: amazon/nova-micro-1.0
+	// Model page: https://phaseo.app/models/amazon/nova-micro-1.0
+	ModelIDAmazonNovaMicro10 gen.ModelId = "amazon/nova-micro-1.0"
+	// Model ID: amazon/nova-premier
+	// Model page: https://phaseo.app/models/amazon/nova-premier
+	ModelIDAmazonNovaPremier gen.ModelId = "amazon/nova-premier"
+	// Model ID: amazon/nova-pro-1.0
+	// Model page: https://phaseo.app/models/amazon/nova-pro-1.0
+	ModelIDAmazonNovaPro10 gen.ModelId = "amazon/nova-pro-1.0"
 	// Model ID: anthropic/claude-fable-5
 	// Model page: https://phaseo.app/models/anthropic/claude-fable-5
 	ModelIDAnthropicClaudeFable5 gen.ModelId = "anthropic/claude-fable-5"
 	// Model ID: anthropic/claude-haiku-4.5
 	// Model page: https://phaseo.app/models/anthropic/claude-haiku-4.5
 	ModelIDAnthropicClaudeHaiku45 gen.ModelId = "anthropic/claude-haiku-4.5"
+	// Model ID: anthropic/claude-opus-4
+	// Model page: https://phaseo.app/models/anthropic/claude-opus-4
+	ModelIDAnthropicClaudeOpus4 gen.ModelId = "anthropic/claude-opus-4"
+	// Model ID: anthropic/claude-opus-4.1
+	// Model page: https://phaseo.app/models/anthropic/claude-opus-4.1
+	ModelIDAnthropicClaudeOpus41 gen.ModelId = "anthropic/claude-opus-4.1"
 	// Model ID: anthropic/claude-opus-4.5
 	// Model page: https://phaseo.app/models/anthropic/claude-opus-4.5
 	ModelIDAnthropicClaudeOpus45 gen.ModelId = "anthropic/claude-opus-4.5"
@@ -46,6 +64,9 @@ const (
 	// Model ID: anthropic/claude-opus-5
 	// Model page: https://phaseo.app/models/anthropic/claude-opus-5
 	ModelIDAnthropicClaudeOpus5 gen.ModelId = "anthropic/claude-opus-5"
+	// Model ID: anthropic/claude-sonnet-4
+	// Model page: https://phaseo.app/models/anthropic/claude-sonnet-4
+	ModelIDAnthropicClaudeSonnet4 gen.ModelId = "anthropic/claude-sonnet-4"
 	// Model ID: anthropic/claude-sonnet-4.5
 	// Model page: https://phaseo.app/models/anthropic/claude-sonnet-4.5
 	ModelIDAnthropicClaudeSonnet45 gen.ModelId = "anthropic/claude-sonnet-4.5"
@@ -301,9 +322,15 @@ const (
 	// Model ID: google/gemini-robotics-er-2-preview
 	// Model page: https://phaseo.app/models/google/gemini-robotics-er-2-preview
 	ModelIDGoogleGeminiRoboticsEr2Preview gen.ModelId = "google/gemini-robotics-er-2-preview"
+	// Model ID: google/gemma-3-12b
+	// Model page: https://phaseo.app/models/google/gemma-3-12b
+	ModelIDGoogleGemma312b gen.ModelId = "google/gemma-3-12b"
 	// Model ID: google/gemma-3-27b
 	// Model page: https://phaseo.app/models/google/gemma-3-27b
 	ModelIDGoogleGemma327b gen.ModelId = "google/gemma-3-27b"
+	// Model ID: google/gemma-3-4b
+	// Model page: https://phaseo.app/models/google/gemma-3-4b
+	ModelIDGoogleGemma34b gen.ModelId = "google/gemma-3-4b"
 	// Model ID: google/gemma-4-26b-a4b
 	// Model page: https://phaseo.app/models/google/gemma-4-26b-a4b
 	ModelIDGoogleGemma426bA4b gen.ModelId = "google/gemma-4-26b-a4b"
@@ -547,6 +574,15 @@ const (
 	// Model ID: mistral/ministral-3-8b
 	// Model page: https://phaseo.app/models/mistral/ministral-3-8b
 	ModelIDMistralMinistral38b gen.ModelId = "mistral/ministral-3-8b"
+	// Model ID: mistral/ministral-3.0-14b
+	// Model page: https://phaseo.app/models/mistral/ministral-3.0-14b
+	ModelIDMistralMinistral3014b gen.ModelId = "mistral/ministral-3.0-14b"
+	// Model ID: mistral/ministral-3.0-3b
+	// Model page: https://phaseo.app/models/mistral/ministral-3.0-3b
+	ModelIDMistralMinistral303b gen.ModelId = "mistral/ministral-3.0-3b"
+	// Model ID: mistral/ministral-3.0-8b
+	// Model page: https://phaseo.app/models/mistral/ministral-3.0-8b
+	ModelIDMistralMinistral308b gen.ModelId = "mistral/ministral-3.0-8b"
 	// Model ID: mistral/mistral-embed
 	// Model page: https://phaseo.app/models/mistral/mistral-embed
 	ModelIDMistralMistralEmbed gen.ModelId = "mistral/mistral-embed"
@@ -556,6 +592,9 @@ const (
 	// Model ID: mistral/mistral-large-3
 	// Model page: https://phaseo.app/models/mistral/mistral-large-3
 	ModelIDMistralMistralLarge3 gen.ModelId = "mistral/mistral-large-3"
+	// Model ID: mistral/mistral-large-3.0
+	// Model page: https://phaseo.app/models/mistral/mistral-large-3.0
+	ModelIDMistralMistralLarge30 gen.ModelId = "mistral/mistral-large-3.0"
 	// Model ID: mistral/mistral-medium-3.0
 	// Model page: https://phaseo.app/models/mistral/mistral-medium-3.0
 	ModelIDMistralMistralMedium30 gen.ModelId = "mistral/mistral-medium-3.0"
@@ -601,6 +640,9 @@ const (
 	// Model ID: mistral/voxtral-mini-transcribe-2
 	// Model page: https://phaseo.app/models/mistral/voxtral-mini-transcribe-2
 	ModelIDMistralVoxtralMiniTranscribe2 gen.ModelId = "mistral/voxtral-mini-transcribe-2"
+	// Model ID: mistral/voxtral-small
+	// Model page: https://phaseo.app/models/mistral/voxtral-small
+	ModelIDMistralVoxtralSmall gen.ModelId = "mistral/voxtral-small"
 	// Model ID: moonshotai/kimi-k2
 	// Model page: https://phaseo.app/models/moonshotai/kimi-k2
 	ModelIDMoonshotaiKimiK2 gen.ModelId = "moonshotai/kimi-k2"
@@ -700,9 +742,15 @@ const (
 	// Model ID: nvidia/nemotron-3.5-lightning
 	// Model page: https://phaseo.app/models/nvidia/nemotron-3.5-lightning
 	ModelIDNvidiaNemotron35Lightning gen.ModelId = "nvidia/nemotron-3.5-lightning"
+	// Model ID: nvidia/nemotron-nano-9b-v2
+	// Model page: https://phaseo.app/models/nvidia/nemotron-nano-9b-v2
+	ModelIDNvidiaNemotronNano9bV2 gen.ModelId = "nvidia/nemotron-nano-9b-v2"
 	// Model ID: nvidia/nvidia-nemotron-3-nano-30b-a3b
 	// Model page: https://phaseo.app/models/nvidia/nvidia-nemotron-3-nano-30b-a3b
 	ModelIDNvidiaNvidiaNemotron3Nano30bA3b gen.ModelId = "nvidia/nvidia-nemotron-3-nano-30b-a3b"
+	// Model ID: nvidia/nvidia-nemotron-nano-12b-v2-vl
+	// Model page: https://phaseo.app/models/nvidia/nvidia-nemotron-nano-12b-v2-vl
+	ModelIDNvidiaNvidiaNemotronNano12bV2Vl gen.ModelId = "nvidia/nvidia-nemotron-nano-12b-v2-vl"
 	// Model ID: openai/babbage-002
 	// Model page: https://phaseo.app/models/openai/babbage-002
 	ModelIDOpenaiBabbage002 gen.ModelId = "openai/babbage-002"
@@ -838,6 +886,9 @@ const (
 	// Model ID: openai/gpt-oss-20b
 	// Model page: https://phaseo.app/models/openai/gpt-oss-20b
 	ModelIDOpenaiGptOss20b gen.ModelId = "openai/gpt-oss-20b"
+	// Model ID: openai/gpt-oss-safeguard-120b
+	// Model page: https://phaseo.app/models/openai/gpt-oss-safeguard-120b
+	ModelIDOpenaiGptOssSafeguard120b gen.ModelId = "openai/gpt-oss-safeguard-120b"
 	// Model ID: openai/gpt-oss-safeguard-20b
 	// Model page: https://phaseo.app/models/openai/gpt-oss-safeguard-20b
 	ModelIDOpenaiGptOssSafeguard20b gen.ModelId = "openai/gpt-oss-safeguard-20b"
@@ -1544,14 +1595,21 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDAionLabsAion30Mini,
 	ModelIDAionLabsAionRpLlama318b,
 	ModelIDAllenaiMolmo28b,
-	ModelIDAnthropicClaude3Haiku,
+	ModelIDAmazonNova2Lite,
+	ModelIDAmazonNovaLite10,
+	ModelIDAmazonNovaMicro10,
+	ModelIDAmazonNovaPremier,
+	ModelIDAmazonNovaPro10,
 	ModelIDAnthropicClaudeFable5,
 	ModelIDAnthropicClaudeHaiku45,
+	ModelIDAnthropicClaudeOpus4,
+	ModelIDAnthropicClaudeOpus41,
 	ModelIDAnthropicClaudeOpus45,
 	ModelIDAnthropicClaudeOpus46,
 	ModelIDAnthropicClaudeOpus47,
 	ModelIDAnthropicClaudeOpus48,
 	ModelIDAnthropicClaudeOpus5,
+	ModelIDAnthropicClaudeSonnet4,
 	ModelIDAnthropicClaudeSonnet45,
 	ModelIDAnthropicClaudeSonnet46,
 	ModelIDAnthropicClaudeSonnet5,
@@ -1637,7 +1695,9 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDGoogleGeminiEmbedding2,
 	ModelIDGoogleGeminiRoboticsEr16Preview,
 	ModelIDGoogleGeminiRoboticsEr2Preview,
+	ModelIDGoogleGemma312b,
 	ModelIDGoogleGemma327b,
+	ModelIDGoogleGemma34b,
 	ModelIDGoogleGemma426bA4b,
 	ModelIDGoogleGemma426bA4bFree,
 	ModelIDGoogleGemma431b,
@@ -1719,9 +1779,13 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDMistralMinistral314b,
 	ModelIDMistralMinistral33b,
 	ModelIDMistralMinistral38b,
+	ModelIDMistralMinistral3014b,
+	ModelIDMistralMinistral303b,
+	ModelIDMistralMinistral308b,
 	ModelIDMistralMistralEmbed,
 	ModelIDMistralMistralLarge21,
 	ModelIDMistralMistralLarge3,
+	ModelIDMistralMistralLarge30,
 	ModelIDMistralMistralMedium30,
 	ModelIDMistralMistralMedium31,
 	ModelIDMistralMistralMedium35,
@@ -1737,6 +1801,7 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDMistralOcr41,
 	ModelIDMistralPixtralLarge,
 	ModelIDMistralVoxtralMiniTranscribe2,
+	ModelIDMistralVoxtralSmall,
 	ModelIDMoonshotaiKimiK2,
 	ModelIDMoonshotaiKimiK20905,
 	ModelIDMoonshotaiKimiK2Instruct,
@@ -1770,7 +1835,9 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDNvidiaNemotron3Super120bA12b,
 	ModelIDNvidiaNemotron3Ultra550bA55b,
 	ModelIDNvidiaNemotron35Lightning,
+	ModelIDNvidiaNemotronNano9bV2,
 	ModelIDNvidiaNvidiaNemotron3Nano30bA3b,
+	ModelIDNvidiaNvidiaNemotronNano12bV2Vl,
 	ModelIDOpenaiBabbage002,
 	ModelIDOpenaiChatLatest,
 	ModelIDOpenaiChatgpt4o,
@@ -1816,6 +1883,7 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDOpenaiGptImage2,
 	ModelIDOpenaiGptOss120b,
 	ModelIDOpenaiGptOss20b,
+	ModelIDOpenaiGptOssSafeguard120b,
 	ModelIDOpenaiGptOssSafeguard20b,
 	ModelIDOpenaiGptRealtime,
 	ModelIDOpenaiGptRealtime15,

@@ -766,7 +766,8 @@
       "nvidia/nemotron-3-ultra-550b-a55b",
       "nvidia/nvidia-nemotron-nano-12b-v2-vl",
       "nvidia/nemotron-3.5-lightning",
-      "nvidia/nemotron-3-nano-omni"
+      "nvidia/nemotron-3-nano-omni",
+      "nvidia/nemotron-nano-9b-v2"
     ],
     "openai": [
       "openai/ada",

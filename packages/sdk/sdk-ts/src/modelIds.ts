@@ -13,12 +13,24 @@ export const ModelIds = {
   AION_LABS_AION_RP_LLAMA_3_1_8B: "aion-labs/aion-rp-llama-3.1-8b",
   /** Model ID: `allenai/molmo-2-8b`. Model page: https://phaseo.app/models/allenai/molmo-2-8b */
   ALLENAI_MOLMO_2_8B: "allenai/molmo-2-8b",
-  /** Model ID: `anthropic/claude-3-haiku`. Model page: https://phaseo.app/models/anthropic/claude-3-haiku */
-  ANTHROPIC_CLAUDE_3_HAIKU: "anthropic/claude-3-haiku",
+  /** Model ID: `amazon/nova-2-lite`. Model page: https://phaseo.app/models/amazon/nova-2-lite */
+  AMAZON_NOVA_2_LITE: "amazon/nova-2-lite",
+  /** Model ID: `amazon/nova-lite-1.0`. Model page: https://phaseo.app/models/amazon/nova-lite-1.0 */
+  AMAZON_NOVA_LITE_1_0: "amazon/nova-lite-1.0",
+  /** Model ID: `amazon/nova-micro-1.0`. Model page: https://phaseo.app/models/amazon/nova-micro-1.0 */
+  AMAZON_NOVA_MICRO_1_0: "amazon/nova-micro-1.0",
+  /** Model ID: `amazon/nova-premier`. Model page: https://phaseo.app/models/amazon/nova-premier */
+  AMAZON_NOVA_PREMIER: "amazon/nova-premier",
+  /** Model ID: `amazon/nova-pro-1.0`. Model page: https://phaseo.app/models/amazon/nova-pro-1.0 */
+  AMAZON_NOVA_PRO_1_0: "amazon/nova-pro-1.0",
   /** Model ID: `anthropic/claude-fable-5`. Model page: https://phaseo.app/models/anthropic/claude-fable-5 */
   ANTHROPIC_CLAUDE_FABLE_5: "anthropic/claude-fable-5",
   /** Model ID: `anthropic/claude-haiku-4.5`. Model page: https://phaseo.app/models/anthropic/claude-haiku-4.5 */
   ANTHROPIC_CLAUDE_HAIKU_4_5: "anthropic/claude-haiku-4.5",
+  /** Model ID: `anthropic/claude-opus-4`. Model page: https://phaseo.app/models/anthropic/claude-opus-4 */
+  ANTHROPIC_CLAUDE_OPUS_4: "anthropic/claude-opus-4",
+  /** Model ID: `anthropic/claude-opus-4.1`. Model page: https://phaseo.app/models/anthropic/claude-opus-4.1 */
+  ANTHROPIC_CLAUDE_OPUS_4_1: "anthropic/claude-opus-4.1",
   /** Model ID: `anthropic/claude-opus-4.5`. Model page: https://phaseo.app/models/anthropic/claude-opus-4.5 */
   ANTHROPIC_CLAUDE_OPUS_4_5: "anthropic/claude-opus-4.5",
   /** Model ID: `anthropic/claude-opus-4.6`. Model page: https://phaseo.app/models/anthropic/claude-opus-4.6 */
@@ -29,6 +41,8 @@ export const ModelIds = {
   ANTHROPIC_CLAUDE_OPUS_4_8: "anthropic/claude-opus-4.8",
   /** Model ID: `anthropic/claude-opus-5`. Model page: https://phaseo.app/models/anthropic/claude-opus-5 */
   ANTHROPIC_CLAUDE_OPUS_5: "anthropic/claude-opus-5",
+  /** Model ID: `anthropic/claude-sonnet-4`. Model page: https://phaseo.app/models/anthropic/claude-sonnet-4 */
+  ANTHROPIC_CLAUDE_SONNET_4: "anthropic/claude-sonnet-4",
   /** Model ID: `anthropic/claude-sonnet-4.5`. Model page: https://phaseo.app/models/anthropic/claude-sonnet-4.5 */
   ANTHROPIC_CLAUDE_SONNET_4_5: "anthropic/claude-sonnet-4.5",
   /** Model ID: `anthropic/claude-sonnet-4.6`. Model page: https://phaseo.app/models/anthropic/claude-sonnet-4.6 */
@@ -199,8 +213,12 @@ export const ModelIds = {
   GOOGLE_GEMINI_ROBOTICS_ER_1_6_PREVIEW: "google/gemini-robotics-er-1.6-preview",
   /** Model ID: `google/gemini-robotics-er-2-preview`. Model page: https://phaseo.app/models/google/gemini-robotics-er-2-preview */
   GOOGLE_GEMINI_ROBOTICS_ER_2_PREVIEW: "google/gemini-robotics-er-2-preview",
+  /** Model ID: `google/gemma-3-12b`. Model page: https://phaseo.app/models/google/gemma-3-12b */
+  GOOGLE_GEMMA_3_12B: "google/gemma-3-12b",
   /** Model ID: `google/gemma-3-27b`. Model page: https://phaseo.app/models/google/gemma-3-27b */
   GOOGLE_GEMMA_3_27B: "google/gemma-3-27b",
+  /** Model ID: `google/gemma-3-4b`. Model page: https://phaseo.app/models/google/gemma-3-4b */
+  GOOGLE_GEMMA_3_4B: "google/gemma-3-4b",
   /** Model ID: `google/gemma-4-26b-a4b`. Model page: https://phaseo.app/models/google/gemma-4-26b-a4b */
   GOOGLE_GEMMA_4_26B_A4B: "google/gemma-4-26b-a4b",
   /** Model ID: `google/gemma-4-26b-a4b:free`. Model page: https://phaseo.app/models/google/gemma-4-26b-a4b%3Afree */
@@ -363,12 +381,20 @@ export const ModelIds = {
   MISTRAL_MINISTRAL_3_3B: "mistral/ministral-3-3b",
   /** Model ID: `mistral/ministral-3-8b`. Model page: https://phaseo.app/models/mistral/ministral-3-8b */
   MISTRAL_MINISTRAL_3_8B: "mistral/ministral-3-8b",
+  /** Model ID: `mistral/ministral-3.0-14b`. Model page: https://phaseo.app/models/mistral/ministral-3.0-14b */
+  MISTRAL_MINISTRAL_3_0_14B: "mistral/ministral-3.0-14b",
+  /** Model ID: `mistral/ministral-3.0-3b`. Model page: https://phaseo.app/models/mistral/ministral-3.0-3b */
+  MISTRAL_MINISTRAL_3_0_3B: "mistral/ministral-3.0-3b",
+  /** Model ID: `mistral/ministral-3.0-8b`. Model page: https://phaseo.app/models/mistral/ministral-3.0-8b */
+  MISTRAL_MINISTRAL_3_0_8B: "mistral/ministral-3.0-8b",
   /** Model ID: `mistral/mistral-embed`. Model page: https://phaseo.app/models/mistral/mistral-embed */
   MISTRAL_MISTRAL_EMBED: "mistral/mistral-embed",
   /** Model ID: `mistral/mistral-large-2.1`. Model page: https://phaseo.app/models/mistral/mistral-large-2.1 */
   MISTRAL_MISTRAL_LARGE_2_1: "mistral/mistral-large-2.1",
   /** Model ID: `mistral/mistral-large-3`. Model page: https://phaseo.app/models/mistral/mistral-large-3 */
   MISTRAL_MISTRAL_LARGE_3: "mistral/mistral-large-3",
+  /** Model ID: `mistral/mistral-large-3.0`. Model page: https://phaseo.app/models/mistral/mistral-large-3.0 */
+  MISTRAL_MISTRAL_LARGE_3_0: "mistral/mistral-large-3.0",
   /** Model ID: `mistral/mistral-medium-3.0`. Model page: https://phaseo.app/models/mistral/mistral-medium-3.0 */
   MISTRAL_MISTRAL_MEDIUM_3_0: "mistral/mistral-medium-3.0",
   /** Model ID: `mistral/mistral-medium-3.1`. Model page: https://phaseo.app/models/mistral/mistral-medium-3.1 */
@@ -399,6 +425,8 @@ export const ModelIds = {
   MISTRAL_PIXTRAL_LARGE: "mistral/pixtral-large",
   /** Model ID: `mistral/voxtral-mini-transcribe-2`. Model page: https://phaseo.app/models/mistral/voxtral-mini-transcribe-2 */
   MISTRAL_VOXTRAL_MINI_TRANSCRIBE_2: "mistral/voxtral-mini-transcribe-2",
+  /** Model ID: `mistral/voxtral-small`. Model page: https://phaseo.app/models/mistral/voxtral-small */
+  MISTRAL_VOXTRAL_SMALL: "mistral/voxtral-small",
   /** Model ID: `moonshotai/kimi-k2`. Model page: https://phaseo.app/models/moonshotai/kimi-k2 */
   MOONSHOTAI_KIMI_K2: "moonshotai/kimi-k2",
   /** Model ID: `moonshotai/kimi-k2-0905`. Model page: https://phaseo.app/models/moonshotai/kimi-k2-0905 */
@@ -465,8 +493,12 @@ export const ModelIds = {
   NVIDIA_NEMOTRON_3_ULTRA_550B_A55B: "nvidia/nemotron-3-ultra-550b-a55b",
   /** Model ID: `nvidia/nemotron-3.5-lightning`. Model page: https://phaseo.app/models/nvidia/nemotron-3.5-lightning */
   NVIDIA_NEMOTRON_3_5_LIGHTNING: "nvidia/nemotron-3.5-lightning",
+  /** Model ID: `nvidia/nemotron-nano-9b-v2`. Model page: https://phaseo.app/models/nvidia/nemotron-nano-9b-v2 */
+  NVIDIA_NEMOTRON_NANO_9B_V2: "nvidia/nemotron-nano-9b-v2",
   /** Model ID: `nvidia/nvidia-nemotron-3-nano-30b-a3b`. Model page: https://phaseo.app/models/nvidia/nvidia-nemotron-3-nano-30b-a3b */
   NVIDIA_NVIDIA_NEMOTRON_3_NANO_30B_A3B: "nvidia/nvidia-nemotron-3-nano-30b-a3b",
+  /** Model ID: `nvidia/nvidia-nemotron-nano-12b-v2-vl`. Model page: https://phaseo.app/models/nvidia/nvidia-nemotron-nano-12b-v2-vl */
+  NVIDIA_NVIDIA_NEMOTRON_NANO_12B_V2_VL: "nvidia/nvidia-nemotron-nano-12b-v2-vl",
   /** Model ID: `openai/babbage-002`. Model page: https://phaseo.app/models/openai/babbage-002 */
   OPENAI_BABBAGE_002: "openai/babbage-002",
   /** Model ID: `openai/chat-latest`. Model page: https://phaseo.app/models/openai/chat-latest */
@@ -557,6 +589,8 @@ export const ModelIds = {
   OPENAI_GPT_OSS_120B: "openai/gpt-oss-120b",
   /** Model ID: `openai/gpt-oss-20b`. Model page: https://phaseo.app/models/openai/gpt-oss-20b */
   OPENAI_GPT_OSS_20B: "openai/gpt-oss-20b",
+  /** Model ID: `openai/gpt-oss-safeguard-120b`. Model page: https://phaseo.app/models/openai/gpt-oss-safeguard-120b */
+  OPENAI_GPT_OSS_SAFEGUARD_120B: "openai/gpt-oss-safeguard-120b",
   /** Model ID: `openai/gpt-oss-safeguard-20b`. Model page: https://phaseo.app/models/openai/gpt-oss-safeguard-20b */
   OPENAI_GPT_OSS_SAFEGUARD_20B: "openai/gpt-oss-safeguard-20b",
   /** Model ID: `openai/gpt-realtime`. Model page: https://phaseo.app/models/openai/gpt-realtime */

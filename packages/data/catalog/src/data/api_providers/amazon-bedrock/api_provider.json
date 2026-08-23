@@ -29,7 +29,7 @@
   "pricing_source_url": "https://docs.aws.amazon.com/bedrock/latest/userguide/models-region-compatibility.html",
   "regional_pricing_notes": "Bedrock Mantle pricing follows Amazon Bedrock model pricing.",
   "country_code": "US",
-  "status": "Alpha",
+  "status": "Active",
   "colour": "#FF9900",
   "privacy_policy_url": "https://aws.amazon.com/privacy/",
   "terms_of_service_url": "https://aws.amazon.com/service-terms/",
@@ -49,25 +49,45 @@
     "AWS_SESSION_TOKEN",
     "AMAZON_BEDROCK_REGION"
   ],
-  "api_formats": [],
-  "service_tiers": [],
+  "api_formats": [
+    "openai.responses",
+    "openai.chat.completions",
+    "anthropic.messages"
+  ],
+  "service_tiers": [
+    "standard",
+    "priority",
+    "flex"
+  ],
   "sources": [
     {
       "kind": "api_reference",
       "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/apis.html",
-      "accessed_at": "2026-07-27T00:00:00.000Z",
+      "accessed_at": "2026-08-23T00:00:00.000Z",
       "notes": "Mantle supports OpenAI Responses, Chat Completions, and Anthropic Messages; Converse is a Bedrock Runtime API."
     },
     {
       "kind": "api_reference",
       "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/models-api-compatibility.html",
-      "accessed_at": "2026-07-27T00:00:00.000Z",
+      "accessed_at": "2026-08-23T00:00:00.000Z",
       "notes": "Model-level API compatibility reference for Mantle routing."
+    },
+    {
+      "kind": "models",
+      "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/models-endpoint-availability.html",
+      "accessed_at": "2026-08-23T00:00:00.000Z",
+      "notes": "Current endpoint availability by model, including OpenAI GPT-5.6 and xAI Grok 4.3."
+    },
+    {
+      "kind": "pricing",
+      "url": "https://aws.amazon.com/bedrock/pricing/",
+      "accessed_at": "2026-08-23T00:00:00.000Z",
+      "notes": "Regional on-demand and service-tier pricing."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-07-27T00:00:00.000Z",
-    "notes": "Runtime configuration and the active Claude Sonnet 5 route were reviewed against current AWS Mantle documentation."
+    "checked_at": "2026-08-23T00:00:00.000Z",
+    "notes": "Mantle endpoint compatibility was reconciled across the recorded catalogue. Priced US-compatible text routes are active; supported rows without complete pricing or without us-east-1 availability remain disabled. AWS currently documents Grok 4.3, not Grok 4.6."
   }
 }
