@@ -12,9 +12,6 @@ Use one of these patterns to keep model IDs current.
 ```ts
 const response = await fetch("https://api.phaseo.app/v1/models", {
   method: "GET",
-  headers: {
-    Authorization: `Bearer ${process.env.PHASEO_API_KEY}`,
-  },
 });
 
 const filteredResponse = await fetch(
@@ -67,6 +64,9 @@ console.log(result.text);
 ## Notes
 
 - Model IDs use `provider/model` format.
+- The default catalogue is public and only includes currently gateway-routable models. No API key is required.
+- Use an API key with `availability=all` when you need non-routable availability records. Invalid credentials never fall back to anonymous access.
+- `availability.status`, `availability.active_provider_count`, and each offer's `routable` field distinguish catalogue metadata from current gateway routing availability.
 - `/v1/models` supports filters such as `provider`, `status`, `organisation`, `endpoints`, and `availability`.
 - Re-check model availability periodically for routing and deprecations.
 - Prefer selecting IDs from `/v1/models` over hard-coding long-term.
