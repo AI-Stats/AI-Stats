@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { IRChatRequest } from "@core/ir";
 import type { ExecutorExecuteArgs } from "@executors/types";
 import { preprocess } from "./index";
+import { irToOpenAIResponses } from "@executors/_shared/text-generate/openai-compat/transform";
 
 function request(serviceTier: string): IRChatRequest {
 	return { model: "test/model", messages: [], stream: false, serviceTier };
@@ -15,6 +16,12 @@ function args(providerModelSlug: string): ExecutorExecuteArgs {
 }
 
 describe("Sail Research completion windows", () => {
+	it("uses the canonical OpenAI Responses input field", () => {
+		const payload = irToOpenAIResponses(request("standard"), "zai-org/GLM-5.2-FP8", "sail-research");
+		expect(payload.input).toEqual([]);
+		expect(payload.input_items).toBeUndefined();
+	});
+
 	it("maps standard to balanced when the model offers it", () => {
 		expect(preprocess(request("standard"), args("zai-org/GLM-5.2-FP8"))).toMatchObject({
 			metadata: { completion_window: "balanced" },
