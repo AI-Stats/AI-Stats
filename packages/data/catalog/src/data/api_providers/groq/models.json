@@ -4,14 +4,14 @@
     "provider_api_model_id": "groq:meta/llama-3.1-8b",
     "provider_model_slug": "llama-3.1-8b-instant",
     "internal_model_id": "meta/llama-3.1-8b",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 131072,
     "max_output_tokens": 131072,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-16T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -27,8 +27,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -52,14 +52,14 @@
     "provider_api_model_id": "groq:meta/llama-3.3-70b",
     "provider_model_slug": "llama-3.3-70b-versatile",
     "internal_model_id": "meta/llama-3.3-70b",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 131072,
     "max_output_tokens": 32768,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-16T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -75,8 +75,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -521,33 +521,33 @@
     "api_model_id": "openai/whisper-large-v3",
     "provider_api_model_id": "groq:openai/whisper-large-v3",
     "provider_model_slug": "whisper-large-v3",
-    "internal_model_id": "",
-    "is_active_gateway": false,
+    "internal_model_id": "openai/whisper-large-v3",
+    "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
+    "input_modalities": "audio",
+    "output_modalities": "text",
     "context_length": 448,
     "max_output_tokens": 448,
     "effective_from": "2026-03-25T00:00:00",
     "effective_to": null,
-    "capabilities": [],
-    "routing_status": null,
-    "routable": false,
+    "capabilities": [{"capability_id":"audio.transcription","status":"active","params":[],"reasoning":null,"tool_call":null,"structured_output":null,"temperature":null,"attachment":null,"input_modalities":null,"output_modalities":null,"modes":[]},{"capability_id":"audio.translations","status":"active","params":[],"reasoning":null,"tool_call":null,"structured_output":null,"temperature":null,"attachment":null,"input_modalities":null,"output_modalities":null,"modes":[]}],
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": ["standard"],
     "api": {
-      "formats": [],
-      "endpoint": null,
+      "formats": ["openai.audio.transcriptions", "openai.audio.translations"],
+      "endpoint": "/audio/transcriptions",
       "deployment": null
     },
-    "sources": [],
+    "sources": [{"kind":"models","url":"https://console.groq.com/docs/models","accessed_at":"2026-08-23T00:00:00Z","notes":"Current Groq production audio model."}],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified as a current Groq production transcription and translation model."
     },
     "rate_limits": []
   },
@@ -555,33 +555,33 @@
     "api_model_id": "openai/whisper-large-v3-turbo",
     "provider_api_model_id": "groq:openai/whisper-large-v3-turbo",
     "provider_model_slug": "whisper-large-v3-turbo",
-    "internal_model_id": "",
-    "is_active_gateway": false,
+    "internal_model_id": "openai/whisper-large-v3-turbo",
+    "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
+    "input_modalities": "audio",
+    "output_modalities": "text",
     "context_length": 448,
     "max_output_tokens": 448,
     "effective_from": "2026-03-25T00:00:00",
     "effective_to": null,
-    "capabilities": [],
-    "routing_status": null,
-    "routable": false,
+    "capabilities": [{"capability_id":"audio.transcription","status":"active","params":[],"reasoning":null,"tool_call":null,"structured_output":null,"temperature":null,"attachment":null,"input_modalities":null,"output_modalities":null,"modes":[]},{"capability_id":"audio.translations","status":"active","params":[],"reasoning":null,"tool_call":null,"structured_output":null,"temperature":null,"attachment":null,"input_modalities":null,"output_modalities":null,"modes":[]}],
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": ["standard"],
     "api": {
-      "formats": [],
-      "endpoint": null,
+      "formats": ["openai.audio.transcriptions", "openai.audio.translations"],
+      "endpoint": "/audio/transcriptions",
       "deployment": null
     },
-    "sources": [],
+    "sources": [{"kind":"models","url":"https://console.groq.com/docs/models","accessed_at":"2026-08-23T00:00:00Z","notes":"Current Groq production audio model."}],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified as a current Groq production transcription and translation model."
     },
     "rate_limits": []
   },
