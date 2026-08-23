@@ -9,6 +9,7 @@ import { internalBatchWebhookRoutes } from "./batch-webhooks";
 import { internalVideoWebhookRoutes } from "./video-webhooks";
 import { internalCacheRoutes } from "./cache";
 import { internalIoLogRoutes } from "./io-logs";
+import { internalNotificationTestRoutes } from "./notification-tests";
 
 export const internalRouter = new Hono<Env>();
 
@@ -16,3 +17,4 @@ internalRouter.route("/batch-webhooks", internalBatchWebhookRoutes);
 internalRouter.route("/cache", internalCacheRoutes);
 internalRouter.route("/io-logs", internalIoLogRoutes);
 internalRouter.route("/video-webhooks", internalVideoWebhookRoutes);
+internalRouter.route("/notification-tests", internalNotificationTestRoutes);
