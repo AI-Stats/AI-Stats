@@ -4389,7 +4389,8 @@
       "data": null
     },
     "service_tiers": [
-      "standard"
+      "standard",
+      "priority"
     ],
     "api": {
       "formats": [],
@@ -5991,11 +5992,11 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "z-ai/glm-5.2",
-    "provider_api_model_id": "alibaba-cloud:z-ai/glm-5.2:fast",
+    "api_model_id": "z-ai/glm-5.2-fast",
+    "provider_api_model_id": "alibaba-cloud:z-ai/glm-5.2-fast",
     "provider_model_slug": "glm-5.2-fast-preview",
     "internal_model_id": "z-ai/glm-5.2",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
@@ -6018,14 +6019,14 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": null,
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
     },
     "service_tiers": [
-      "fast"
+      "priority"
     ],
     "api": {
       "formats": [],
@@ -6043,7 +6044,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified fast preview deployment for the Singapore (International) Model Studio endpoint."
+      "notes": "Hidden sibling selected when z-ai/glm-5.2 requests the priority service tier; the upstream fast-preview slug serves the same underlying model."
     },
     "rate_limits": []
   },
