@@ -9583,13 +9583,19 @@ components:
         - black-forest-labs/flux-1-dev
         - black-forest-labs/flux-1-schnell
         - bytedance/seed-1.6
+        - bytedance/seed-1.6-2025-10-15
         - bytedance/seed-1.6-250915
         - bytedance/seed-1.6-flash
+        - bytedance/seed-1.6-flash-2025-08-28
         - bytedance/seed-1.6-flash-250715
         - bytedance/seed-1.8
+        - bytedance/seed-1.8-2025-12-28
+        - bytedance/seed-2.0-code-preview-2026-02-15
         - bytedance/seed-2.0-lite
+        - bytedance/seed-2.0-lite-2026-04-28
         - bytedance/seed-2.0-lite-260428
         - bytedance/seed-2.0-mini
+        - bytedance/seed-2.0-mini-2026-04-28
         - bytedance/seed-2.0-mini-260428
         - bytedance/seed-2.0-pro
         - bytedance/seed-2.1-turbo
@@ -9626,7 +9632,6 @@ components:
         - deepseek/deepseek-v3.1-terminus
         - deepseek/deepseek-v3.2
         - deepseek/deepseek-v3.2-exp
-        - deepseek/deepseek-v3.2-speciale
         - deepseek/deepseek-v4-flash
         - deepseek/deepseek-v4-flash-0731
         - deepseek/deepseek-v4-flash-vision-exp
@@ -9692,9 +9697,7 @@ components:
         - inflection/inflection-3-productivity
         - jetbrains/mellum2-12b-a2.5b
         - kwaipilot/kat-coder-air-v2.5
-        - kwaipilot/kat-coder-exp-72b-1010
         - kwaipilot/kat-coder-pro
-        - kwaipilot/kat-coder-pro-v1
         - kwaipilot/kat-coder-pro-v2
         - kwaipilot/kat-coder-pro-v2.5
         - liquid-ai/lfm-2-24b-a2b
@@ -9775,8 +9778,6 @@ components:
         - mistral/voxtral-small
         - moonshotai/kimi-k2
         - moonshotai/kimi-k2-0905
-        - moonshotai/kimi-k2-instruct
-        - moonshotai/kimi-k2-instruct-0905
         - moonshotai/kimi-k2-thinking
         - moonshotai/kimi-k2.5
         - moonshotai/kimi-k2.6
@@ -9931,7 +9932,6 @@ components:
         - qwen/qwen3-32b
         - qwen/qwen3-4b
         - qwen/qwen3-8b
-        - qwen/qwen3-coder
         - qwen/qwen3-coder-30b-a3b
         - qwen/qwen3-coder-480b-a35b
         - qwen/qwen3-coder-flash
@@ -10061,7 +10061,6 @@ components:
         - voyage/voyage-multilingual-2
         - voyage/voyage-multimodal-3
         - voyage/voyage-multimodal-3.5
-        - xiaomi/mimo-v2-flash
         - xiaomi/mimo-v2.5
         - xiaomi/mimo-v2.5-pro
         - xiaomi/mimo-v2.5-tts:free
