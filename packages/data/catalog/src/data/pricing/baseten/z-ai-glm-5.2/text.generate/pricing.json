@@ -111,7 +111,8 @@
       "note": "Baseten GLM-5.2 Fast deployment exposed through Phaseo's priority service tier.",
       "match": [
         {
-          "key": "service_tier",
+          "path": "service_tier",
+          "op": "eq",
           "value": "priority"
         }
       ],
@@ -131,7 +132,8 @@
       "note": "Baseten GLM-5.2 Fast deployment exposed through Phaseo's priority service tier.",
       "match": [
         {
-          "key": "service_tier",
+          "path": "service_tier",
+          "op": "eq",
           "value": "priority"
         }
       ],
@@ -151,7 +153,8 @@
       "note": "Baseten GLM-5.2 Fast deployment exposed through Phaseo's priority service tier.",
       "match": [
         {
-          "key": "service_tier",
+          "path": "service_tier",
+          "op": "eq",
           "value": "priority"
         }
       ],
@@ -171,7 +174,8 @@
       "note": "Baseten GLM-5.2 Fast deployment exposed through Phaseo's priority service tier.",
       "match": [
         {
-          "key": "service_tier",
+          "path": "service_tier",
+          "op": "eq",
           "value": "priority"
         }
       ],
