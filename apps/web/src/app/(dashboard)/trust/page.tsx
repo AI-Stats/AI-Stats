@@ -88,7 +88,13 @@ export default function TrustCentrePage() {
 						<nav aria-label="Trust Centre sections" className="border-l border-border">
 							{sectionLinks.map(([id, label]) => <Link key={id} href={`#${id}`} className="block border-l border-transparent py-1.5 pl-4 text-sm text-muted-foreground hover:border-foreground hover:text-foreground">{label}</Link>)}
 						</nav>
-						<div className="mt-8 border-t border-border pt-5"><p className="text-xs leading-5 text-muted-foreground">Phaseo is not SOC 2 or ISO 27001 certified. Its security programme has not been independently audited.</p></div>
+						<div className="mt-8 border-t border-border pt-5">
+							<h2 className="text-xs font-medium text-foreground">Claim labels</h2>
+							<dl className="mt-3 space-y-3">
+								{trustStates.map((state) => <div key={state.id}><dt><StateBadge state={state.id} /></dt><dd className="mt-1 text-xs leading-5 text-muted-foreground">{state.description}</dd></div>)}
+							</dl>
+							<p className="mt-5 border-t border-border pt-5 text-xs leading-5 text-muted-foreground">Phaseo is not SOC 2 or ISO 27001 certified. Its security programme has not been independently audited.</p>
+						</div>
 					</aside>
 
 					<div className="min-w-0 space-y-16">
@@ -108,10 +114,11 @@ export default function TrustCentrePage() {
 							<h2 className="text-xl font-semibold tracking-tight">Service providers</h2>
 							<p className="mt-2 text-sm leading-6 text-muted-foreground">Categories disclosed in Phaseo&apos;s current privacy policy.</p>
 							<div className="mt-6 overflow-x-auto border-y border-border">
-								<div className="min-w-[640px]">
-									<div className="grid grid-cols-[10rem_12rem_1fr] gap-4 border-b border-border py-3 text-xs font-medium text-muted-foreground"><span>Provider</span><span>Purpose</span><span>Data involved</span></div>
-									{disclosedServiceProviders.map((provider) => <div key={provider.name} className="grid grid-cols-[10rem_12rem_1fr] gap-4 border-b border-border py-4 last:border-0"><div className="text-sm font-medium">{provider.name}</div><div className="text-sm text-muted-foreground">{provider.purpose}</div><div className="text-sm leading-6 text-muted-foreground">{provider.data}</div></div>)}
-								</div>
+								<table className="w-full min-w-[640px] table-fixed text-left">
+									<colgroup><col className="w-40" /><col className="w-48" /><col /></colgroup>
+									<thead><tr className="border-b border-border text-xs font-medium text-muted-foreground"><th scope="col" className="py-3 pr-4 font-medium">Provider</th><th scope="col" className="py-3 pr-4 font-medium">Purpose</th><th scope="col" className="py-3 font-medium">Data involved</th></tr></thead>
+									<tbody>{disclosedServiceProviders.map((provider) => <tr key={provider.name} className="border-b border-border last:border-0"><th scope="row" className="py-4 pr-4 align-top text-sm font-medium">{provider.name}</th><td className="py-4 pr-4 align-top text-sm text-muted-foreground">{provider.purpose}</td><td className="py-4 align-top text-sm leading-6 text-muted-foreground">{provider.data}</td></tr>)}</tbody>
+								</table>
 							</div>
 							<p className="mt-3 text-xs leading-5 text-muted-foreground">This is a public summary, not a contractual subprocessor schedule. Model providers vary by route. See the <Link href="/privacy" className="underline underline-offset-4">Privacy Policy</Link>.</p>
 						</section>
