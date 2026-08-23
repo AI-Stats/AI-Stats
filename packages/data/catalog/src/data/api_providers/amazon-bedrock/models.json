@@ -604,14 +604,14 @@
     "provider_api_model_id": "amazon-bedrock:anthropic/claude-3.5-haiku",
     "provider_model_slug": "anthropic.claude-3-5-haiku-20241022-v1:0",
     "internal_model_id": "anthropic/claude-3.5-haiku",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 200000,
     "max_output_tokens": null,
     "effective_from": "2024-11-04T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-06-19T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -627,8 +627,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": [
         "us",
@@ -670,7 +670,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified as currently available on bedrock-mantle with recorded pricing; stale historical cutoff cleared."
+      "notes": "Retired after AWS marked Claude 3.5 Haiku as Legacy with an end-of-life date of June 19, 2026; bedrock-mantle, Responses, and Chat Completions are unsupported."
     },
     "rate_limits": []
   },

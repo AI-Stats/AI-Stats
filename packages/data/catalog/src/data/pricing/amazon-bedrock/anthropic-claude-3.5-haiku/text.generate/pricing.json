@@ -15,7 +15,8 @@
       "note": "US on-demand price.",
       "match": [],
       "priority": 100,
-      "effective_from": "2026-08-23T00:00:00Z",
+      "effective_from": "2024-11-04T00:00:00Z",
+      "effective_to": "2026-06-19T00:00:00Z",
       "region": "US",
       "cache_duration_seconds": null,
       "conditions": [],
@@ -31,7 +32,8 @@
       "note": "US on-demand price.",
       "match": [],
       "priority": 100,
-      "effective_from": "2026-08-23T00:00:00Z",
+      "effective_from": "2024-11-04T00:00:00Z",
+      "effective_to": "2026-06-19T00:00:00Z",
       "region": "US",
       "cache_duration_seconds": null,
       "conditions": [],
@@ -55,6 +57,6 @@
   "verification": {
     "status": "verified",
     "checked_at": "2026-08-23T00:00:00Z",
-    "notes": "Checked against the Amazon Bedrock pricing page."
+    "notes": "Historical pricing retained for the route retired at AWS end of life on June 19, 2026."
   }
 }
