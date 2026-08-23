@@ -82,7 +82,7 @@
   "verification": {
     "status": "partial",
     "checked_at": "2026-08-22",
-    "notes": "Model availability and capabilities are verified against Venice's live models API. The developer is currently undisclosed, so the model is grouped under Phaseo's generic Stealth Lab organisation."
+    "notes": "Model availability and capabilities are verified against Venice's live models API. The developer is currently undisclosed, so the model is grouped under Phaseo's generic Stealth organisation."
   },
   "last_updated": "2026-08-22",
   "removal_date": null,
