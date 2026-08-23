@@ -107,12 +107,12 @@
       "unit_size": 1000000,
       "price_per_unit": 0.21,
       "currency": "USD",
-      "pricing_plan": "fast",
-      "note": "Baseten GLM-5.2 Fast service-tier price.",
+      "pricing_plan": "priority",
+      "note": "Baseten GLM-5.2 Fast deployment exposed through Phaseo's priority service tier.",
       "match": [
         {
           "key": "service_tier",
-          "value": "fast"
+          "value": "priority"
         }
       ],
       "priority": 110,
@@ -127,12 +127,12 @@
       "unit_size": 1000000,
       "price_per_unit": 0,
       "currency": "USD",
-      "pricing_plan": "fast",
-      "note": "Baseten GLM-5.2 Fast service-tier price.",
+      "pricing_plan": "priority",
+      "note": "Baseten GLM-5.2 Fast deployment exposed through Phaseo's priority service tier.",
       "match": [
         {
           "key": "service_tier",
-          "value": "fast"
+          "value": "priority"
         }
       ],
       "priority": 110,
@@ -147,12 +147,12 @@
       "unit_size": 1000000,
       "price_per_unit": 2.1,
       "currency": "USD",
-      "pricing_plan": "fast",
-      "note": "Baseten GLM-5.2 Fast service-tier price.",
+      "pricing_plan": "priority",
+      "note": "Baseten GLM-5.2 Fast deployment exposed through Phaseo's priority service tier.",
       "match": [
         {
           "key": "service_tier",
-          "value": "fast"
+          "value": "priority"
         }
       ],
       "priority": 110,
@@ -167,12 +167,12 @@
       "unit_size": 1000000,
       "price_per_unit": 6.6,
       "currency": "USD",
-      "pricing_plan": "fast",
-      "note": "Baseten GLM-5.2 Fast service-tier price.",
+      "pricing_plan": "priority",
+      "note": "Baseten GLM-5.2 Fast deployment exposed through Phaseo's priority service tier.",
       "match": [
         {
           "key": "service_tier",
-          "value": "fast"
+          "value": "priority"
         }
       ],
       "priority": 110,
@@ -185,7 +185,7 @@
   "regions": [],
   "service_tiers": [
     "standard",
-    "fast"
+    "priority"
   ],
   "sources": [
     {
