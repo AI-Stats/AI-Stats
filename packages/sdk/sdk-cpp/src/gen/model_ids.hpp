@@ -177,6 +177,36 @@ inline constexpr std::string_view BYTEDANCE_SEEDANCE_2_0_MINI_260615 = "bytedanc
 // Model ID: bytedance/seedream-5.0-pro
 // Model page: https://phaseo.app/models/bytedance/seedream-5.0-pro
 inline constexpr std::string_view BYTEDANCE_SEEDREAM_5_0_PRO = "bytedance/seedream-5.0-pro";
+// Model ID: cohere/command-a
+// Model page: https://phaseo.app/models/cohere/command-a
+inline constexpr std::string_view COHERE_COMMAND_A = "cohere/command-a";
+// Model ID: cohere/command-r
+// Model page: https://phaseo.app/models/cohere/command-r
+inline constexpr std::string_view COHERE_COMMAND_R = "cohere/command-r";
+// Model ID: cohere/command-r-plus
+// Model page: https://phaseo.app/models/cohere/command-r-plus
+inline constexpr std::string_view COHERE_COMMAND_R_PLUS = "cohere/command-r-plus";
+// Model ID: cohere/command-r7b
+// Model page: https://phaseo.app/models/cohere/command-r7b
+inline constexpr std::string_view COHERE_COMMAND_R7B = "cohere/command-r7b";
+// Model ID: cohere/embed-english-v3
+// Model page: https://phaseo.app/models/cohere/embed-english-v3
+inline constexpr std::string_view COHERE_EMBED_ENGLISH_V3 = "cohere/embed-english-v3";
+// Model ID: cohere/embed-multilingual-v3
+// Model page: https://phaseo.app/models/cohere/embed-multilingual-v3
+inline constexpr std::string_view COHERE_EMBED_MULTILINGUAL_V3 = "cohere/embed-multilingual-v3";
+// Model ID: cohere/embed-v4
+// Model page: https://phaseo.app/models/cohere/embed-v4
+inline constexpr std::string_view COHERE_EMBED_V4 = "cohere/embed-v4";
+// Model ID: cohere/rerank-v3.5
+// Model page: https://phaseo.app/models/cohere/rerank-v3.5
+inline constexpr std::string_view COHERE_RERANK_V3_5 = "cohere/rerank-v3.5";
+// Model ID: cohere/rerank-v4.0-fast
+// Model page: https://phaseo.app/models/cohere/rerank-v4.0-fast
+inline constexpr std::string_view COHERE_RERANK_V4_0_FAST = "cohere/rerank-v4.0-fast";
+// Model ID: cohere/rerank-v4.0-pro
+// Model page: https://phaseo.app/models/cohere/rerank-v4.0-pro
+inline constexpr std::string_view COHERE_RERANK_V4_0_PRO = "cohere/rerank-v4.0-pro";
 // Model ID: crofai/greg-1-mini
 // Model page: https://phaseo.app/models/crofai/greg-1-mini
 inline constexpr std::string_view CROFAI_GREG_1_MINI = "crofai/greg-1-mini";
@@ -1611,7 +1641,7 @@ inline constexpr std::string_view ZAI_GLM_5 = "zai/glm-5";
 // Deprecated alias for deepseek/deepseek-v4; use deepseek/deepseek-v4-pro. Remove in the next major SDK release.
 inline constexpr std::string_view DEEPSEEK_DEEPSEEK_V4 = DEEPSEEK_DEEPSEEK_V4_PRO;
 
-inline constexpr std::array<std::string_view, 534> ALL = {
+inline constexpr std::array<std::string_view, 544> ALL = {
 	AI21_JAMBA_1_5_LARGE,
 	AI21_JAMBA_1_5_MINI,
 	AION_LABS_AION_2_0,
@@ -1669,6 +1699,16 @@ inline constexpr std::array<std::string_view, 534> ALL = {
 	BYTEDANCE_SEEDANCE_2_0_FAST,
 	BYTEDANCE_SEEDANCE_2_0_MINI_260615,
 	BYTEDANCE_SEEDREAM_5_0_PRO,
+	COHERE_COMMAND_A,
+	COHERE_COMMAND_R,
+	COHERE_COMMAND_R_PLUS,
+	COHERE_COMMAND_R7B,
+	COHERE_EMBED_ENGLISH_V3,
+	COHERE_EMBED_MULTILINGUAL_V3,
+	COHERE_EMBED_V4,
+	COHERE_RERANK_V3_5,
+	COHERE_RERANK_V4_0_FAST,
+	COHERE_RERANK_V4_0_PRO,
 	CROFAI_GREG_1_MINI,
 	CROFAI_GREG_2_SUPER,
 	CROFAI_GREG_2_ULTRA,

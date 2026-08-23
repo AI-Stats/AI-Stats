@@ -291,6 +291,7 @@ export const EXECUTORS_BY_PROVIDER: Record<string, ProviderCapabilityMap> = {
 		"text.generate": cohereText,
 		embeddings: openaiEmbeddings,
 		rerank: openaiRerank,
+		"audio.transcription": nonTextAdapterExecutor,
 	},
 	crofai: {
 		"text.generate": crofaiText,

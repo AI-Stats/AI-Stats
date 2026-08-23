@@ -174,6 +174,36 @@ pub mod model_ids {
     /// Model ID: `bytedance/seedream-5.0-pro`.
     /// Model page: https://phaseo.app/models/bytedance/seedream-5.0-pro
     pub const BYTEDANCE_SEEDREAM_5_0_PRO: &str = "bytedance/seedream-5.0-pro";
+    /// Model ID: `cohere/command-a`.
+    /// Model page: https://phaseo.app/models/cohere/command-a
+    pub const COHERE_COMMAND_A: &str = "cohere/command-a";
+    /// Model ID: `cohere/command-r`.
+    /// Model page: https://phaseo.app/models/cohere/command-r
+    pub const COHERE_COMMAND_R: &str = "cohere/command-r";
+    /// Model ID: `cohere/command-r-plus`.
+    /// Model page: https://phaseo.app/models/cohere/command-r-plus
+    pub const COHERE_COMMAND_R_PLUS: &str = "cohere/command-r-plus";
+    /// Model ID: `cohere/command-r7b`.
+    /// Model page: https://phaseo.app/models/cohere/command-r7b
+    pub const COHERE_COMMAND_R7B: &str = "cohere/command-r7b";
+    /// Model ID: `cohere/embed-english-v3`.
+    /// Model page: https://phaseo.app/models/cohere/embed-english-v3
+    pub const COHERE_EMBED_ENGLISH_V3: &str = "cohere/embed-english-v3";
+    /// Model ID: `cohere/embed-multilingual-v3`.
+    /// Model page: https://phaseo.app/models/cohere/embed-multilingual-v3
+    pub const COHERE_EMBED_MULTILINGUAL_V3: &str = "cohere/embed-multilingual-v3";
+    /// Model ID: `cohere/embed-v4`.
+    /// Model page: https://phaseo.app/models/cohere/embed-v4
+    pub const COHERE_EMBED_V4: &str = "cohere/embed-v4";
+    /// Model ID: `cohere/rerank-v3.5`.
+    /// Model page: https://phaseo.app/models/cohere/rerank-v3.5
+    pub const COHERE_RERANK_V3_5: &str = "cohere/rerank-v3.5";
+    /// Model ID: `cohere/rerank-v4.0-fast`.
+    /// Model page: https://phaseo.app/models/cohere/rerank-v4.0-fast
+    pub const COHERE_RERANK_V4_0_FAST: &str = "cohere/rerank-v4.0-fast";
+    /// Model ID: `cohere/rerank-v4.0-pro`.
+    /// Model page: https://phaseo.app/models/cohere/rerank-v4.0-pro
+    pub const COHERE_RERANK_V4_0_PRO: &str = "cohere/rerank-v4.0-pro";
     /// Model ID: `crofai/greg-1-mini`.
     /// Model page: https://phaseo.app/models/crofai/greg-1-mini
     pub const CROFAI_GREG_1_MINI: &str = "crofai/greg-1-mini";
@@ -1667,6 +1697,16 @@ pub mod model_ids {
         BYTEDANCE_SEEDANCE_2_0_FAST,
         BYTEDANCE_SEEDANCE_2_0_MINI_260615,
         BYTEDANCE_SEEDREAM_5_0_PRO,
+        COHERE_COMMAND_A,
+        COHERE_COMMAND_R,
+        COHERE_COMMAND_R_PLUS,
+        COHERE_COMMAND_R7B,
+        COHERE_EMBED_ENGLISH_V3,
+        COHERE_EMBED_MULTILINGUAL_V3,
+        COHERE_EMBED_V4,
+        COHERE_RERANK_V3_5,
+        COHERE_RERANK_V4_0_FAST,
+        COHERE_RERANK_V4_0_PRO,
         CROFAI_GREG_1_MINI,
         CROFAI_GREG_2_SUPER,
         CROFAI_GREG_2_ULTRA,

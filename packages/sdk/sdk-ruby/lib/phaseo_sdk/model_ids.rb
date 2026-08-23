@@ -174,6 +174,36 @@ module PhaseoSdk
     # Model ID: bytedance/seedream-5.0-pro
     # Model page: https://phaseo.app/models/bytedance/seedream-5.0-pro
     BYTEDANCE_SEEDREAM_5_0_PRO = "bytedance/seedream-5.0-pro"
+    # Model ID: cohere/command-a
+    # Model page: https://phaseo.app/models/cohere/command-a
+    COHERE_COMMAND_A = "cohere/command-a"
+    # Model ID: cohere/command-r
+    # Model page: https://phaseo.app/models/cohere/command-r
+    COHERE_COMMAND_R = "cohere/command-r"
+    # Model ID: cohere/command-r-plus
+    # Model page: https://phaseo.app/models/cohere/command-r-plus
+    COHERE_COMMAND_R_PLUS = "cohere/command-r-plus"
+    # Model ID: cohere/command-r7b
+    # Model page: https://phaseo.app/models/cohere/command-r7b
+    COHERE_COMMAND_R7B = "cohere/command-r7b"
+    # Model ID: cohere/embed-english-v3
+    # Model page: https://phaseo.app/models/cohere/embed-english-v3
+    COHERE_EMBED_ENGLISH_V3 = "cohere/embed-english-v3"
+    # Model ID: cohere/embed-multilingual-v3
+    # Model page: https://phaseo.app/models/cohere/embed-multilingual-v3
+    COHERE_EMBED_MULTILINGUAL_V3 = "cohere/embed-multilingual-v3"
+    # Model ID: cohere/embed-v4
+    # Model page: https://phaseo.app/models/cohere/embed-v4
+    COHERE_EMBED_V4 = "cohere/embed-v4"
+    # Model ID: cohere/rerank-v3.5
+    # Model page: https://phaseo.app/models/cohere/rerank-v3.5
+    COHERE_RERANK_V3_5 = "cohere/rerank-v3.5"
+    # Model ID: cohere/rerank-v4.0-fast
+    # Model page: https://phaseo.app/models/cohere/rerank-v4.0-fast
+    COHERE_RERANK_V4_0_FAST = "cohere/rerank-v4.0-fast"
+    # Model ID: cohere/rerank-v4.0-pro
+    # Model page: https://phaseo.app/models/cohere/rerank-v4.0-pro
+    COHERE_RERANK_V4_0_PRO = "cohere/rerank-v4.0-pro"
     # Model ID: crofai/greg-1-mini
     # Model page: https://phaseo.app/models/crofai/greg-1-mini
     CROFAI_GREG_1_MINI = "crofai/greg-1-mini"
@@ -1667,6 +1697,16 @@ module PhaseoSdk
     ModelIds::BYTEDANCE_SEEDANCE_2_0_FAST,
     ModelIds::BYTEDANCE_SEEDANCE_2_0_MINI_260615,
     ModelIds::BYTEDANCE_SEEDREAM_5_0_PRO,
+    ModelIds::COHERE_COMMAND_A,
+    ModelIds::COHERE_COMMAND_R,
+    ModelIds::COHERE_COMMAND_R_PLUS,
+    ModelIds::COHERE_COMMAND_R7B,
+    ModelIds::COHERE_EMBED_ENGLISH_V3,
+    ModelIds::COHERE_EMBED_MULTILINGUAL_V3,
+    ModelIds::COHERE_EMBED_V4,
+    ModelIds::COHERE_RERANK_V3_5,
+    ModelIds::COHERE_RERANK_V4_0_FAST,
+    ModelIds::COHERE_RERANK_V4_0_PRO,
     ModelIds::CROFAI_GREG_1_MINI,
     ModelIds::CROFAI_GREG_2_SUPER,
     ModelIds::CROFAI_GREG_2_ULTRA,

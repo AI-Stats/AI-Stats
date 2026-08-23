@@ -178,6 +178,36 @@ const (
 	// Model ID: bytedance/seedream-5.0-pro
 	// Model page: https://phaseo.app/models/bytedance/seedream-5.0-pro
 	ModelIDBytedanceSeedream50Pro gen.ModelId = "bytedance/seedream-5.0-pro"
+	// Model ID: cohere/command-a
+	// Model page: https://phaseo.app/models/cohere/command-a
+	ModelIDCohereCommandA gen.ModelId = "cohere/command-a"
+	// Model ID: cohere/command-r
+	// Model page: https://phaseo.app/models/cohere/command-r
+	ModelIDCohereCommandR gen.ModelId = "cohere/command-r"
+	// Model ID: cohere/command-r-plus
+	// Model page: https://phaseo.app/models/cohere/command-r-plus
+	ModelIDCohereCommandRPlus gen.ModelId = "cohere/command-r-plus"
+	// Model ID: cohere/command-r7b
+	// Model page: https://phaseo.app/models/cohere/command-r7b
+	ModelIDCohereCommandR7b gen.ModelId = "cohere/command-r7b"
+	// Model ID: cohere/embed-english-v3
+	// Model page: https://phaseo.app/models/cohere/embed-english-v3
+	ModelIDCohereEmbedEnglishV3 gen.ModelId = "cohere/embed-english-v3"
+	// Model ID: cohere/embed-multilingual-v3
+	// Model page: https://phaseo.app/models/cohere/embed-multilingual-v3
+	ModelIDCohereEmbedMultilingualV3 gen.ModelId = "cohere/embed-multilingual-v3"
+	// Model ID: cohere/embed-v4
+	// Model page: https://phaseo.app/models/cohere/embed-v4
+	ModelIDCohereEmbedV4 gen.ModelId = "cohere/embed-v4"
+	// Model ID: cohere/rerank-v3.5
+	// Model page: https://phaseo.app/models/cohere/rerank-v3.5
+	ModelIDCohereRerankV35 gen.ModelId = "cohere/rerank-v3.5"
+	// Model ID: cohere/rerank-v4.0-fast
+	// Model page: https://phaseo.app/models/cohere/rerank-v4.0-fast
+	ModelIDCohereRerankV40Fast gen.ModelId = "cohere/rerank-v4.0-fast"
+	// Model ID: cohere/rerank-v4.0-pro
+	// Model page: https://phaseo.app/models/cohere/rerank-v4.0-pro
+	ModelIDCohereRerankV40Pro gen.ModelId = "cohere/rerank-v4.0-pro"
 	// Model ID: crofai/greg-1-mini
 	// Model page: https://phaseo.app/models/crofai/greg-1-mini
 	ModelIDCrofaiGreg1Mini gen.ModelId = "crofai/greg-1-mini"
@@ -1671,6 +1701,16 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDBytedanceSeedance20Fast,
 	ModelIDBytedanceSeedance20Mini260615,
 	ModelIDBytedanceSeedream50Pro,
+	ModelIDCohereCommandA,
+	ModelIDCohereCommandR,
+	ModelIDCohereCommandRPlus,
+	ModelIDCohereCommandR7b,
+	ModelIDCohereEmbedEnglishV3,
+	ModelIDCohereEmbedMultilingualV3,
+	ModelIDCohereEmbedV4,
+	ModelIDCohereRerankV35,
+	ModelIDCohereRerankV40Fast,
+	ModelIDCohereRerankV40Pro,
 	ModelIDCrofaiGreg1Mini,
 	ModelIDCrofaiGreg2Super,
 	ModelIDCrofaiGreg2Ultra,
