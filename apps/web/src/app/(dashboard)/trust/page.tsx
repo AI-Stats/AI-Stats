@@ -1,20 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import {
-	ArrowUpRight,
-	Check,
-	CircleDot,
-	CloudCog,
-	Database,
-	FileWarning,
-	Fingerprint,
-	KeyRound,
-	LockKeyhole,
-	Radar,
-	Scale,
-	ShieldCheck,
-} from "lucide-react";
+import { ArrowUpRight, Check, KeyRound, ShieldCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { buildMetadata } from "@/lib/seo";
@@ -36,33 +23,29 @@ export const metadata: Metadata = buildMetadata({
 });
 
 const stateStyles: Record<TrustState, string> = {
-	available: "border-emerald-500/25 bg-emerald-500/8 text-emerald-700 dark:text-emerald-300",
-	gated: "border-amber-500/25 bg-amber-500/8 text-amber-700 dark:text-amber-300",
-	"self-attested": "border-sky-500/25 bg-sky-500/8 text-sky-700 dark:text-sky-300",
-	planned: "border-violet-500/25 bg-violet-500/8 text-violet-700 dark:text-violet-300",
-	"independently-certified": "border-zinc-500/25 bg-zinc-500/8 text-zinc-700 dark:text-zinc-300",
+	available: "border-emerald-600/25 bg-emerald-500/7 text-emerald-700 dark:text-emerald-300",
+	gated: "border-amber-600/25 bg-amber-500/7 text-amber-700 dark:text-amber-300",
+	"self-attested": "border-sky-600/25 bg-sky-500/7 text-sky-700 dark:text-sky-300",
+	planned: "border-violet-600/25 bg-violet-500/7 text-violet-700 dark:text-violet-300",
+	"independently-certified": "border-border bg-muted/40 text-muted-foreground",
 };
 
 const stateLabels = new Map(trustStates.map((state) => [state.id, state.label]));
 
 function StateBadge({ state }: { state: TrustState }) {
-	return (
-		<Badge variant="outline" className={stateStyles[state]}>
-			{stateLabels.get(state)}
-		</Badge>
-	);
+	return <Badge variant="outline" className={`rounded-md font-normal ${stateStyles[state]}`}>{stateLabels.get(state)}</Badge>;
 }
 
 function PracticeList({ items }: { items: typeof trustPractices }) {
 	return (
-		<div className="divide-y divide-border/70 border-y border-border/70">
+		<div className="border-t border-border">
 			{items.map((item) => (
-				<article key={item.title} className="grid gap-3 py-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
+				<article key={item.title} className="grid gap-2 border-b border-border py-5 sm:grid-cols-[minmax(0,1fr)_9rem] sm:gap-8">
 					<div>
-						<h3 className="text-sm font-semibold text-foreground">{item.title}</h3>
-						<p className="mt-1 max-w-3xl text-sm leading-6 text-muted-foreground">{item.description}</p>
+						<h3 className="text-sm font-medium text-foreground">{item.title}</h3>
+						<p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">{item.description}</p>
 					</div>
-					<StateBadge state={item.state} />
+					<div className="sm:text-right"><StateBadge state={item.state} /></div>
 				</article>
 			))}
 		</div>
@@ -70,139 +53,104 @@ function PracticeList({ items }: { items: typeof trustPractices }) {
 }
 
 function ExternalLink({ href, children }: { href: string; children: ReactNode }) {
-	return (
-		<Link href={href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 underline decoration-border underline-offset-4 hover:decoration-foreground">
-			{children}<ArrowUpRight className="size-3.5" />
-		</Link>
-	);
+	return <Link href={href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 underline decoration-border underline-offset-4 hover:decoration-foreground">{children}<ArrowUpRight className="size-3.5" /></Link>;
 }
+
+const sectionLinks = [
+	["security", "Security"],
+	["data", "Data handling"],
+	["providers", "Service providers"],
+	["availability", "Availability"],
+	["compliance", "Compliance"],
+	["disclosure", "Disclosure"],
+] as const;
 
 export default function TrustCentrePage() {
 	return (
-		<main className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_80%_8%,color-mix(in_oklab,var(--color-emerald-500)_8%,transparent),transparent_28%)]">
-			<div className="mx-auto w-full max-w-[1280px] px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
-				<header className="grid gap-10 border-b border-border/70 pb-12 lg:grid-cols-[minmax(0,1fr)_21rem] lg:items-end">
-					<div className="max-w-3xl">
-						<div className="mb-6 flex items-center gap-2 text-xs font-medium text-muted-foreground">
-							<ShieldCheck className="size-4 text-emerald-600" /> Phaseo Trust Centre
+		<main className="min-h-screen bg-background">
+			<div className="mx-auto w-full max-w-[1120px] px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
+				<header className="border-b border-border pb-10">
+					<div className="flex items-center gap-2 text-sm font-medium text-foreground"><ShieldCheck className="size-4" /> Phaseo Trust Centre</div>
+					<div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_17rem] lg:items-end">
+						<div>
+							<h1 className="max-w-2xl text-balance text-4xl font-semibold tracking-[-0.035em] text-foreground sm:text-5xl">Security and trust at Phaseo</h1>
+							<p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground">Current product safeguards, data practices, and assurance status. Claims on this page are limited to what Phaseo can support today.</p>
 						</div>
-						<h1 className="text-balance text-4xl font-semibold tracking-[-0.04em] text-foreground sm:text-6xl">
-							Trust is a record of what is true now.
-						</h1>
-						<p className="mt-6 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">
-							A plain account of Phaseo&apos;s current security and data posture. Product capabilities, internal assertions, gated features, plans, and external certifications are labelled separately.
-						</p>
-					</div>
-					<div className="rounded-2xl border border-border/70 bg-background/80 p-5 shadow-sm backdrop-blur">
-						<div className="flex items-center justify-between gap-3">
-							<span className="text-sm font-medium">Assurance level</span>
-							<StateBadge state="self-attested" />
-						</div>
-						<p className="mt-4 text-sm leading-6 text-muted-foreground">
-							Phaseo is not SOC 2 or ISO 27001 certified. The practices on this page are supported by current product code, public policies, and operating documentation, but have not been independently audited as a programme.
-						</p>
-						<p className="mt-4 text-xs text-muted-foreground">Reviewed 23 August 2026</p>
+						<dl className="grid grid-cols-2 gap-x-6 gap-y-3 border-l border-border pl-5 text-sm lg:grid-cols-1">
+							<div><dt className="text-xs text-muted-foreground">Assurance</dt><dd className="mt-1"><StateBadge state="self-attested" /></dd></div>
+							<div><dt className="text-xs text-muted-foreground">Last reviewed</dt><dd className="mt-1 font-medium">23 August 2026</dd></div>
+						</dl>
 					</div>
 				</header>
 
-				<section aria-labelledby="legend-heading" className="py-8">
-					<h2 id="legend-heading" className="sr-only">Claim labels</h2>
-					<div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-						{trustStates.map((state) => (
-							<div key={state.id} className="rounded-xl border border-border/60 bg-background/60 p-3">
-								<StateBadge state={state.id} />
-								<p className="mt-2 text-xs leading-5 text-muted-foreground">{state.description}</p>
+				<div className="grid gap-12 pt-10 lg:grid-cols-[12rem_minmax(0,1fr)] lg:gap-16">
+					<aside className="lg:sticky lg:top-24 lg:self-start">
+						<nav aria-label="Trust Centre sections" className="border-l border-border">
+							{sectionLinks.map(([id, label]) => <Link key={id} href={`#${id}`} className="block border-l border-transparent py-1.5 pl-4 text-sm text-muted-foreground hover:border-foreground hover:text-foreground">{label}</Link>)}
+						</nav>
+						<div className="mt-8 border-t border-border pt-5">
+							<h2 className="text-xs font-medium text-foreground">Claim labels</h2>
+							<dl className="mt-3 space-y-3">
+								{trustStates.map((state) => <div key={state.id}><dt><StateBadge state={state.id} /></dt><dd className="mt-1 text-xs leading-5 text-muted-foreground">{state.description}</dd></div>)}
+							</dl>
+							<p className="mt-5 border-t border-border pt-5 text-xs leading-5 text-muted-foreground">Phaseo is not SOC 2 or ISO 27001 certified. Its security programme has not been independently audited.</p>
+						</div>
+					</aside>
+
+					<div className="min-w-0 space-y-16">
+						<section id="security" className="scroll-mt-24">
+							<h2 className="text-xl font-semibold tracking-tight">Security</h2>
+							<p className="mt-2 text-sm leading-6 text-muted-foreground">Product and operational safeguards supported by current code and documentation.</p>
+							<div className="mt-6"><PracticeList items={trustPractices} /></div>
+						</section>
+
+						<section id="data" className="scroll-mt-24">
+							<h2 className="text-xl font-semibold tracking-tight">Data handling</h2>
+							<p className="mt-2 text-sm leading-6 text-muted-foreground">How gateway content is handled by default, where exceptions apply, and what remains provider-dependent.</p>
+							<div className="mt-6"><PracticeList items={dataPractices} /></div>
+						</section>
+
+						<section id="providers" className="scroll-mt-24">
+							<h2 className="text-xl font-semibold tracking-tight">Service providers</h2>
+							<p className="mt-2 text-sm leading-6 text-muted-foreground">Categories disclosed in Phaseo&apos;s current privacy policy.</p>
+							<div className="mt-6 overflow-x-auto border-y border-border">
+								<table className="w-full min-w-[640px] table-fixed text-left">
+									<colgroup><col className="w-40" /><col className="w-48" /><col /></colgroup>
+									<thead><tr className="border-b border-border text-xs font-medium text-muted-foreground"><th scope="col" className="py-3 pr-4 font-medium">Provider</th><th scope="col" className="py-3 pr-4 font-medium">Purpose</th><th scope="col" className="py-3 font-medium">Data involved</th></tr></thead>
+									<tbody>{disclosedServiceProviders.map((provider) => <tr key={provider.name} className="border-b border-border last:border-0"><th scope="row" className="py-4 pr-4 align-top text-sm font-medium">{provider.name}</th><td className="py-4 pr-4 align-top text-sm text-muted-foreground">{provider.purpose}</td><td className="py-4 align-top text-sm leading-6 text-muted-foreground">{provider.data}</td></tr>)}</tbody>
+								</table>
 							</div>
-						))}
-					</div>
-				</section>
+							<p className="mt-3 text-xs leading-5 text-muted-foreground">This is a public summary, not a contractual subprocessor schedule. Model providers vary by route. See the <Link href="/privacy" className="underline underline-offset-4">Privacy Policy</Link>.</p>
+						</section>
 
-				<div className="grid gap-x-14 gap-y-16 py-10 lg:grid-cols-[13rem_minmax(0,1fr)]">
-					<div>
-						<LockKeyhole className="size-5 text-emerald-600" />
-						<h2 className="mt-3 text-xl font-semibold tracking-tight">Security practices</h2>
-						<p className="mt-2 text-sm leading-6 text-muted-foreground">Controls we can point to without disclosing sensitive configuration.</p>
-					</div>
-					<PracticeList items={trustPractices} />
-
-					<div>
-						<Database className="size-5 text-sky-600" />
-						<h2 className="mt-3 text-xl font-semibold tracking-tight">Data handling</h2>
-						<p className="mt-2 text-sm leading-6 text-muted-foreground">The default path, explicit exceptions, and provider boundary.</p>
-					</div>
-					<PracticeList items={dataPractices} />
-
-					<div>
-						<CloudCog className="size-5 text-violet-600" />
-						<h2 className="mt-3 text-xl font-semibold tracking-tight">Service providers</h2>
-						<p className="mt-2 text-sm leading-6 text-muted-foreground">The categories publicly disclosed in Phaseo&apos;s privacy posture.</p>
-					</div>
-					<div className="overflow-hidden rounded-xl border border-border/70">
-						<div className="hidden grid-cols-[11rem_13rem_1fr] gap-4 border-b bg-muted/35 px-4 py-3 text-xs font-medium text-muted-foreground sm:grid">
-							<span>Provider</span><span>Purpose</span><span>Data involved</span>
-						</div>
-						{disclosedServiceProviders.map((provider) => (
-							<div key={provider.name} className="grid gap-2 border-b border-border/70 px-4 py-4 last:border-0 sm:grid-cols-[11rem_13rem_1fr] sm:gap-4">
-								<div className="text-sm font-medium">{provider.name}</div>
-								<div className="text-sm text-muted-foreground">{provider.purpose}</div>
-								<div className="text-sm leading-6 text-muted-foreground">{provider.data}</div>
+						<section id="availability" className="scroll-mt-24">
+							<h2 className="text-xl font-semibold tracking-tight">Availability and incidents</h2>
+							<div className="mt-6 border-y border-border">
+								<div className="grid gap-2 border-b border-border py-5 sm:grid-cols-[10rem_1fr]"><h3 className="text-sm font-medium">Service status</h3><p className="text-sm leading-6 text-muted-foreground">Current health and incidents are published at <ExternalLink href="https://status.phaseo.app">status.phaseo.app</ExternalLink>. Phaseo does not claim a contractual public uptime SLA.</p></div>
+								<div className="grid gap-2 py-5 sm:grid-cols-[10rem_1fr]"><h3 className="text-sm font-medium">Incident response</h3><p className="text-sm leading-6 text-muted-foreground">Operational code includes incident notification and outreach paths. Internal playbooks are not public, and the process has not been independently tested.</p></div>
 							</div>
-						))}
-						<div className="border-t border-border/70 bg-muted/20 px-4 py-3 text-xs leading-5 text-muted-foreground">
-							This is a concise public disclosure, not a contractual subprocessor schedule. Model providers vary by the route selected. See the <Link href="/privacy" className="underline underline-offset-4">Privacy Policy</Link> for the governing description.
-						</div>
-					</div>
+						</section>
 
-					<div>
-						<Radar className="size-5 text-amber-600" />
-						<h2 className="mt-3 text-xl font-semibold tracking-tight">Availability & incidents</h2>
-					</div>
-					<div className="grid gap-4 sm:grid-cols-2">
-						<div className="rounded-xl border border-border/70 p-5">
-							<div className="flex items-center gap-2 text-sm font-semibold"><CircleDot className="size-4 text-emerald-600" /> Public status</div>
-							<p className="mt-2 text-sm leading-6 text-muted-foreground">Current service health and component incidents are published at <ExternalLink href="https://status.phaseo.app">status.phaseo.app</ExternalLink>.</p>
-							<p className="mt-3 text-xs text-muted-foreground">No contractual public uptime SLA is claimed.</p>
-						</div>
-						<div className="rounded-xl border border-border/70 p-5">
-							<div className="flex items-center gap-2 text-sm font-semibold"><FileWarning className="size-4 text-amber-600" /> Incident response</div>
-							<p className="mt-2 text-sm leading-6 text-muted-foreground">Operational code includes incident notification and outreach paths. Phaseo does not publish internal playbooks or claim that this process has been independently tested.</p>
-							<StateBadge state="self-attested" />
-						</div>
-					</div>
+						<section id="compliance" className="scroll-mt-24">
+							<h2 className="text-xl font-semibold tracking-tight">Compliance</h2>
+							<p className="mt-2 text-sm leading-6 text-muted-foreground">Phaseo does not currently hold an independent security certification. A formal assurance programme may be considered when customer need and budget justify it; no framework or date is committed.</p>
+							<ul className="mt-6 border-y border-border">{deliberatelyUnclaimed.map((claim) => <li key={claim} className="flex gap-3 border-b border-border py-3 text-sm leading-6 text-muted-foreground last:border-0"><span aria-hidden="true" className="mt-2.5 size-1 shrink-0 rounded-full bg-muted-foreground" />{claim}</li>)}</ul>
+						</section>
 
-					<div>
-						<Scale className="size-5 text-rose-600" />
-						<h2 className="mt-3 text-xl font-semibold tracking-tight">Compliance posture</h2>
-						<p className="mt-2 text-sm leading-6 text-muted-foreground">Clear negative claims matter as much as positive ones.</p>
-					</div>
-					<div>
-						<div className="rounded-xl border border-rose-500/20 bg-rose-500/[0.035] p-5">
-							<div className="flex flex-wrap items-center gap-2"><h3 className="text-sm font-semibold">No independent certification today</h3><StateBadge state="planned" /></div>
-							<p className="mt-2 text-sm leading-6 text-muted-foreground">A formal assurance programme may be considered as customer need and budget justify it. No framework, auditor, scope, or completion date is committed.</p>
-						</div>
-						<ul className="mt-5 grid gap-3 sm:grid-cols-2">
-							{deliberatelyUnclaimed.map((claim) => (
-								<li key={claim} className="flex gap-3 text-sm leading-6 text-muted-foreground"><span className="mt-2 size-1.5 shrink-0 rounded-full bg-muted-foreground/45" />{claim}</li>
-							))}
-						</ul>
+						<section id="disclosure" className="scroll-mt-24 border-t border-border pt-8">
+							<h2 className="text-xl font-semibold tracking-tight">Responsible disclosure</h2>
+							<p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">Report security issues privately. Do not access other people&apos;s data, run denial-of-service tests, or disclose a vulnerability before a fix is available.</p>
+							<div className="mt-5 flex flex-col gap-2 sm:flex-row">
+								<Button asChild><Link href="mailto:security@phaseo.app"><KeyRound className="mr-2 size-4" />Email security</Link></Button>
+								<Button asChild variant="outline"><Link href="https://github.com/phaseoteam/Phaseo/security/advisories/new" target="_blank" rel="noopener noreferrer">Private GitHub report<ArrowUpRight className="ml-2 size-4" /></Link></Button>
+							</div>
+						</section>
 					</div>
 				</div>
 
-				<section className="grid gap-5 border-t border-border/70 pt-10 lg:grid-cols-[1fr_auto] lg:items-center">
-					<div>
-						<div className="flex items-center gap-2 text-sm font-semibold"><Fingerprint className="size-4" /> Responsible disclosure</div>
-						<h2 className="mt-3 text-2xl font-semibold tracking-tight">Found something that could put users at risk?</h2>
-						<p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">Please report it privately. Avoid accessing other people&apos;s data, denial-of-service testing, or public disclosure before a fix is available.</p>
-					</div>
-					<div className="flex flex-col gap-2 sm:flex-row">
-						<Button asChild><Link href="mailto:security@phaseo.app"><KeyRound className="mr-2 size-4" />Email security</Link></Button>
-						<Button asChild variant="outline"><Link href="https://github.com/phaseoteam/Phaseo/security/advisories/new" target="_blank" rel="noopener noreferrer">Private GitHub report<ArrowUpRight className="ml-2 size-4" /></Link></Button>
-					</div>
-				</section>
-
-				<footer className="mt-12 flex flex-wrap items-center justify-between gap-4 border-t border-border/70 pt-6 text-xs text-muted-foreground">
-					<div className="flex flex-wrap gap-x-5 gap-y-2"><Link href="/privacy" className="hover:text-foreground">Privacy Policy</Link><Link href="/terms" className="hover:text-foreground">Terms of Service</Link><Link href="/contact" className="hover:text-foreground">Contact support</Link></div>
-					<span className="inline-flex items-center gap-1.5"><Check className="size-3.5" /> Claims reviewed against repository evidence</span>
+				<footer className="mt-16 flex flex-wrap items-center justify-between gap-4 border-t border-border pt-6 text-xs text-muted-foreground">
+					<div className="flex flex-wrap gap-x-5 gap-y-2"><Link href="/privacy" className="hover:text-foreground">Privacy Policy</Link><Link href="/terms" className="hover:text-foreground">Terms of Service</Link><Link href="/contact" className="hover:text-foreground">Contact</Link></div>
+					<span className="inline-flex items-center gap-1.5"><Check className="size-3.5" /> Reviewed against repository evidence</span>
 				</footer>
 			</div>
 		</main>
