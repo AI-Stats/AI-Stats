@@ -1,0 +1,39 @@
+import { describe, expect, it } from "vitest";
+import { formatProviderOfferDisplayName } from "./provider-display-name";
+
+describe("formatProviderOfferDisplayName", () => {
+	it("adds the regional offer to a shared provider name", () => {
+		expect(formatProviderOfferDisplayName({
+			providerId: "openai-eu",
+			providerName: "OpenAI",
+			offerLabel: "EU",
+			offerScope: "regional",
+		})).toBe("OpenAI (EU)");
+	});
+
+	it("does not alter a global provider name", () => {
+		expect(formatProviderOfferDisplayName({
+			providerId: "openai",
+			providerName: "OpenAI",
+			offerScope: "global",
+		})).toBe("OpenAI");
+	});
+
+	it("uses the established display name for known specialized offers", () => {
+		expect(formatProviderOfferDisplayName({
+			providerId: "anthropic-aws",
+			providerName: "Anthropic",
+			offerLabel: "AWS",
+			offerScope: "specialized",
+		})).toBe("Claude Platform for AWS");
+	});
+
+	it("appends unknown specialized offer labels", () => {
+		expect(formatProviderOfferDisplayName({
+			providerId: "example-fast",
+			providerName: "Example",
+			offerLabel: "Fast",
+			offerScope: "specialized",
+		})).toBe("Example Fast");
+	});
+});
