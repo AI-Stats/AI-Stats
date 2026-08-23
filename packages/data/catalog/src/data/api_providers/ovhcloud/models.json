@@ -765,12 +765,12 @@
   },
   {
     "api_model_id": "stability-ai/stable-diffusion-xl-base-1.0", "provider_api_model_id": "ovhcloud:stability-ai/stable-diffusion-xl-base-1.0", "provider_model_slug": "stable-diffusion-xl-base-v10", "internal_model_id": "stability-ai/stable-diffusion-xl-base-1.0",
-    "is_active_gateway": true, "quantization_scheme": "fp32", "input_modalities": "text", "output_modalities": "image", "context_length": null, "max_output_tokens": null, "effective_from": null, "effective_to": null,
-    "capabilities": [{ "capability_id": "image.generate", "status": "active", "params": ["prompt", "size"], "reasoning": false, "tool_call": false, "structured_output": false, "temperature": false, "attachment": false, "input_modalities": ["text"], "output_modalities": ["image"], "modes": [] }],
-    "routing_status": "active", "routable": true, "regions": { "execution": ["FR"], "data": ["FR"] }, "service_tiers": ["free"],
+    "is_active_gateway": false, "quantization_scheme": "fp32", "input_modalities": "text", "output_modalities": "image", "context_length": null, "max_output_tokens": null, "effective_from": null, "effective_to": null,
+    "capabilities": [{ "capability_id": "image.generate", "status": "disabled", "params": ["prompt", "size"], "reasoning": false, "tool_call": false, "structured_output": false, "temperature": false, "attachment": false, "input_modalities": ["text"], "output_modalities": ["image"], "modes": [] }],
+    "routing_status": "disabled", "routable": false, "regions": { "execution": ["FR"], "data": ["FR"] }, "service_tiers": ["free"],
     "api": { "formats": ["openai-images"], "endpoint": "/v1/images/generations", "deployment": null },
     "sources": [{ "kind": "documentation", "url": "https://www.ovhcloud.com/en/public-cloud/ai-endpoints/catalog/stable-diffusion-xl/", "accessed_at": "2026-08-23T00:00:00Z", "notes": "Official page documents the unified OpenAI-compatible image generation route and free pricing." }],
-    "verification": { "status": "verified", "checked_at": "2026-08-23T00:00:00Z", "notes": "Verified against OVHcloud's current model page." },
+    "verification": { "status": "verified", "checked_at": "2026-08-23T00:00:00Z", "notes": "Catalogued but intentionally not routable until an OVHcloud image executor is registered." },
     "rate_limits": [{ "requests": 400, "window": "minute", "scope": "provider_model", "source": "https://www.ovhcloud.com/en/public-cloud/ai-endpoints/catalog/stable-diffusion-xl/" }]
   },
   {

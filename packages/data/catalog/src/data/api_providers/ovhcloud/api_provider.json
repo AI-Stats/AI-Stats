@@ -51,6 +51,6 @@
   "verification": {
     "status": "verified",
     "checked_at": "2026-08-23T00:00:00Z",
-    "notes": "Verified endpoint, Bearer access-key authentication, Responses/Chat/Embeddings compatibility, guard-model wire contract, French execution location, privacy, limits, current catalogue, and EUR pricing against first-party OVHcloud sources. Provider-specific free image and speech endpoints remain outside the gateway until their distinct contracts are implemented."
+    "notes": "Verified endpoint, Bearer access-key authentication, Responses/Chat/Embeddings compatibility, guard-model wire contract, French execution location, privacy, limits, and current catalogue against first-party OVHcloud sources. Paid catalog prices are normalized to OVHcloud's published USD price list for gateway billing. Free image and speech endpoints remain disabled until their executors are registered."
   }
 }
