@@ -66,6 +66,7 @@ const staticRoutes: Array<{
         { path: "/contribute", changeFrequency: "monthly", priority: 0.6 },
         { path: "/roadmap", changeFrequency: "monthly", priority: 0.6 },
         { path: "/about", changeFrequency: "monthly", priority: 0.55 },
+		{ path: "/trust", changeFrequency: "monthly", priority: 0.55 },
         { path: "/contact", changeFrequency: "monthly", priority: 0.55 },
         { path: "/works-with", changeFrequency: "weekly", priority: 0.6 },
         { path: "/performance", changeFrequency: "monthly", priority: 0.55 },
