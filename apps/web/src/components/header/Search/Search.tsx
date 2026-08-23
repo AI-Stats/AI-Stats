@@ -1306,7 +1306,7 @@ export default function Search({
 											workspaces: { heading: "Workspaces", type: "workspace" as const, showSubtitle: true },
 											models: { heading: "Models", type: undefined, showSubtitle: false },
 											apiProviders: { heading: "API Providers", type: undefined, showSubtitle: true },
-											organisations: { heading: "Organisations", type: undefined, showSubtitle: true },
+											organisations: { heading: "Labs", type: undefined, showSubtitle: true },
 											benchmarks: { heading: "Benchmarks", type: "benchmark" as const, showSubtitle: true },
 										}[category.name];
 
@@ -1398,4 +1398,3 @@ export default function Search({
 		</div>
 	);
 }
-

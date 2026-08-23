@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { getDataClient } from "@/data/supabase";
 import type { Env } from "@/env";
 import { withPublicCache } from "@/http/cache";
+import { fetchModelsPageCatalogue } from "@/models/page-catalogue";
 
 const ORGANISATION_CACHE = {
 	edgeTtlSeconds: 24 * 60 * 60,
@@ -138,25 +139,17 @@ publicOrganisationsRouter.get("/organisations/:organisationId", async (c) => {
 	const limit = parseLimit(c.req.query("limit"));
 	try {
 		const client = getDataClient(c.env);
-		const [organisationResult, modelsResult, linksResult] = await Promise.all([
+		const [organisationResult, catalogue, linksResult] = await Promise.all([
 			client
 				.from("v2_labs")
 				.select("lab_slug,name,country_code,description,metadata,updated_at")
 				.eq("lab_slug", organisationId)
 				.maybeSingle(),
-			client
-				.from("v2_models")
-				.select("model_slug,name,description,status,released_at,announced_at,hidden,input_modalities,output_modalities,updated_at")
-				.eq("lab_slug", organisationId)
-				.eq("hidden", false)
-				.or("released_at.not.is.null,announced_at.not.is.null")
-				.order("released_at", { ascending: false })
-				.limit(limit),
+			fetchModelsPageCatalogue(c.env, { organisationId }, "v2"),
 			// Organisation links do not yet have a V2 table.
 			client.from("v2_lab_links").select("url,platform").eq("lab_slug", organisationId),
 		]);
 		if (organisationResult.error) throw organisationResult.error;
-		if (modelsResult.error) throw modelsResult.error;
 		if (linksResult.error) throw linksResult.error;
 		if (!organisationResult.data) {
 			return c.json({ error: "organisation_not_found" }, 404);
@@ -165,16 +158,13 @@ publicOrganisationsRouter.get("/organisations/:organisationId", async (c) => {
 		const organisationMetadata = organisationRow.metadata && typeof organisationRow.metadata === "object" && !Array.isArray(organisationRow.metadata)
 			? organisationRow.metadata as Record<string, unknown>
 			: {};
-		const identity: OrganisationIdentity = {
-			organisation_id: organisationId,
-			name: organisationRow.name ?? null,
-			colour: typeof organisationMetadata.colour === "string" ? organisationMetadata.colour : null,
-		};
-		const models = (modelsResult.data ?? [])
-			.map((row) => toModelCard(row, identity))
+		const performanceModels = catalogue.models
 			.sort((left, right) =>
 				Number(right.primary_timestamp ?? 0) - Number(left.primary_timestamp ?? 0),
 			);
+		const models = performanceModels
+			.filter((model) => model.primary_date != null)
+			.slice(0, limit);
 		const groupedModels: Record<string, typeof models> = {};
 		for (const model of models) {
 			const status = String(model.status ?? "unknown");
@@ -193,6 +183,7 @@ publicOrganisationsRouter.get("/organisations/:organisationId", async (c) => {
 				url: link.url,
 			})),
 			recent_models: models.slice(0, limit),
+			performance_models: performanceModels,
 			models: groupedModels,
 		};
 		return withPublicCache(c.json({ organisation }), {

@@ -206,8 +206,8 @@ export default function PerformanceCardsClient(props: PerformanceCardsClientProp
 	].some((value) => value != null && Number.isFinite(value));
 	if (hasPerformanceData) return <PerformanceCardsWithData {...props} />;
 	return (
-		<div className="border-y border-border/70">
-			<div className="grid grid-cols-3 divide-x divide-border/70">
+		<div className="overflow-hidden rounded-lg border border-border/70 bg-background">
+			<div className="grid grid-cols-1 divide-y divide-border/70 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
 				{[props.summary.throughput, props.summary.latency, props.summary.e2e].map((metric) => (
 					<div key={metric.title} className="min-w-0 px-3 py-4 sm:px-5">
 						<p className="truncate text-xs font-medium text-muted-foreground">{metric.title}</p>
@@ -285,7 +285,7 @@ function PerformanceCardsWithData({
 		: [];
 
 	return (
-		<div className="grid grid-cols-1 divide-y divide-border md:grid-cols-3 md:divide-x md:divide-y-0 *:min-w-0">
+		<div className="grid grid-cols-1 divide-y divide-border/70 overflow-hidden rounded-lg border border-border/70 bg-background md:grid-cols-3 md:divide-x md:divide-y-0 *:min-w-0">
 			<PerformanceCard
 				title={summary.throughput.title}
 				value={summary.throughput.value}
