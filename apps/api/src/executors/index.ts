@@ -364,7 +364,11 @@ export const EXECUTORS_BY_PROVIDER: Record<string, ProviderCapabilityMap> = {
 	"google-vertex-eu": { "text.generate": googleVertexText, "video.generate": googleVertexVideo },
 	deepinfra: { "text.generate": deepinfraText },
 	fireworks: { "text.generate": fireworksText, embeddings: openaiEmbeddings, rerank: openaiRerank, "image.generate": nonTextAdapterExecutor },
-	groq: { "text.generate": groqText },
+	groq: {
+		"text.generate": groqText,
+		"audio.transcription": nonTextAdapterExecutor,
+		"audio.translations": nonTextAdapterExecutor,
+	},
 	liquid: { "text.generate": liquidAiText },
 	"liquid-ai": { "text.generate": liquidAiText },
 	novitaai: { "text.generate": novitaaiText, embeddings: openaiEmbeddings, rerank: openaiRerank },
