@@ -40,10 +40,17 @@
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "pricing",
+      "url": "https://developers.inflection.ai/docs/pricing",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official Inflection developer model pricing."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Preview text-token pricing verified against Inflection's developer pricing page; Phaseo routing remains disabled."
   }
 }
