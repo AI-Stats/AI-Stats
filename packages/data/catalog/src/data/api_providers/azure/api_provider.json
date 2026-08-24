@@ -35,25 +35,25 @@
     {
       "kind": "provider_models",
       "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-      "accessed_at": "2026-08-24T00:00:00Z",
+      "accessed_at": "2026-08-23T23:20:00Z",
       "notes": "Authoritative model catalog, deployment-type, capability, and regional-availability reference for models sold directly by Azure."
     },
     {
       "kind": "model_retirement",
       "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-      "accessed_at": "2026-08-24T00:00:00Z",
+      "accessed_at": "2026-08-23T23:20:00Z",
       "notes": "Authoritative lifecycle and retirement schedule for Azure-hosted and Marketplace partner models."
     },
     {
       "kind": "api_reference",
       "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/api-version-lifecycle",
-      "accessed_at": "2026-08-24T00:00:00Z",
+      "accessed_at": "2026-08-23T23:20:00Z",
       "notes": "The GA v1 API uses the /openai/v1 base path; callers pass their deployment name in the model field."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-24T00:00:00Z",
+    "checked_at": "2026-08-23T23:20:00Z",
     "notes": "Verified against Microsoft Learn. Model availability and price depend on deployment type, Azure geography, subscription eligibility, quota, and for Marketplace offers the partner terms."
   }
 }

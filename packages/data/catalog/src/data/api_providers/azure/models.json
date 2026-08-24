@@ -455,19 +455,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle GA; deployment/model identifier gpt-5-nano. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: GA; version 2025-08-07."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -518,19 +518,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle GA; deployment/model identifier gpt-oss-120b. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: GA."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -714,19 +714,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle GA; deployment/model identifier gpt-5.6-luna. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: GA; version 2026-07-09."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -842,19 +842,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle GA; deployment/model identifier gpt-5.6-terra. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: GA; version 2026-07-09."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -970,19 +970,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle GA; deployment/model identifier gpt-5.6-sol. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: GA; version 2026-07-09."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -1235,19 +1235,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle GA; deployment/model identifier gpt-5.5. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: GA; version 2026-04-24."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -1298,19 +1298,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle Preview; deployment/model identifier claude-opus-4-7. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: Preview."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -1361,19 +1361,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle GA; deployment/model identifier gpt-5.4-nano. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: GA; version 2026-03-17."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -1424,19 +1424,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle GA; deployment/model identifier gpt-5.4-mini. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: GA; version 2026-03-17."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -1487,19 +1487,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle GA; deployment/model identifier gpt-5.4-pro. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: GA; version 2026-03-05."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -1550,19 +1550,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle GA; deployment/model identifier gpt-5.4. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: GA; version 2026-03-05."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -1613,19 +1613,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle GA; deployment/model identifier gpt-5.3-codex. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: GA; version 2026-02-24."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -1676,19 +1676,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle Preview; deployment/model identifier claude-sonnet-4-6. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: Preview."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -1739,19 +1739,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle Preview; deployment/model identifier claude-opus-4-6. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: Preview."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -1802,19 +1802,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle GA; deployment/model identifier gpt-5.2-codex. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: GA; version 2026-01-14."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -1927,19 +1927,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle GA; deployment/model identifier gpt-5.2. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: GA; version 2025-12-11."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -1990,19 +1990,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle GA; deployment/model identifier gpt-5.1-codex-max. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: GA; version 2025-12-04."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -2053,19 +2053,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle Preview; deployment/model identifier claude-opus-4-5. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: Preview."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -2116,19 +2116,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle GA; deployment/model identifier gpt-5.1. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: GA; version 2025-11-13."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -2179,19 +2179,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle GA; deployment/model identifier gpt-5.1-codex. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: GA; version 2025-11-13."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -2242,19 +2242,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle GA; deployment/model identifier gpt-5.1-codex-mini. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: GA; version 2025-11-13."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -2305,19 +2305,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle Preview; deployment/model identifier claude-haiku-4-5. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: Preview."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -2368,19 +2368,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle Preview; deployment/model identifier claude-sonnet-4-5. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: Preview."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -2431,19 +2431,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle GA; deployment/model identifier gpt-5. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: GA; version 2025-08-07."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -2494,19 +2494,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle GA; deployment/model identifier gpt-5-mini. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: GA; version 2025-08-07."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -2557,19 +2557,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle Legacy; deployment/model identifier gpt-4.1. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: Legacy; version 2025-04-14."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -2620,19 +2620,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle Legacy; deployment/model identifier gpt-4.1-mini. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: Legacy; version 2025-04-14."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -2683,19 +2683,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle Legacy; deployment/model identifier gpt-4.1-nano. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: Legacy; version 2025-04-14."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -2879,19 +2879,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle Deprecated; deployment/model identifier gpt-4o-mini. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: Deprecated; version 2024-07-18."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -2942,19 +2942,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle Legacy; deployment/model identifier gpt-4o. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: Legacy; version 2024-11-20."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -3285,19 +3285,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle GA; deployment/model identifier DeepSeek-V4-Flash. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: GA; version 2026-04-23."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -3348,19 +3348,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle Preview; deployment/model identifier DeepSeek-V4-Flash-0731. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: Preview; version 2026-07-31."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -3411,19 +3411,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle GA; deployment/model identifier DeepSeek-V4-Pro. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: GA; version 2026-04-23."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -3474,19 +3474,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle GA; deployment/model identifier DeepSeek-V3.2. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: GA."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -3537,19 +3537,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle GA; deployment/model identifier DeepSeek-V3.2-Speciale. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: GA."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -3600,19 +3600,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle GA; deployment/model identifier FLUX-1.1-pro. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: GA."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -3663,19 +3663,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle GA; deployment/model identifier FLUX.1-Kontext-pro. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: GA."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -3726,19 +3726,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle GA; deployment/model identifier FLUX.2-flex. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: GA."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -3789,19 +3789,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle GA; deployment/model identifier FLUX.2-pro. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: GA."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -3852,19 +3852,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle GA; deployment/model identifier Llama-3.3-70B-Instruct. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: GA."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -3915,19 +3915,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle GA; deployment/model identifier Llama-4-Maverick-17B-128E-Instruct-FP8. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: GA."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -3978,19 +3978,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle Preview; deployment/model identifier Kimi-K2.5. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: Preview."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -4041,19 +4041,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle Preview; deployment/model identifier Kimi-K2.6. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: Preview; version 2026-04-20."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -4104,19 +4104,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle Preview; deployment/model identifier Mistral-Large-3. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: Preview."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -4167,19 +4167,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle GA; deployment/model identifier grok-4. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: GA."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -4230,19 +4230,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle GA; deployment/model identifier grok-4-1-fast-non-reasoning. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: GA."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -4293,19 +4293,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle GA; deployment/model identifier grok-4-1-fast-reasoning. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: GA."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -4356,19 +4356,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle Preview; deployment/model identifier grok-4-20-reasoning. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: Preview."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -4419,19 +4419,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle GA; deployment/model identifier grok-code-fast-1. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: GA."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -4482,19 +4482,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle GA; deployment/model identifier Phi-4. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: GA."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -4545,19 +4545,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle GA; deployment/model identifier Phi-4-mini-instruct. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: GA."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -4608,19 +4608,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle GA; deployment/model identifier Phi-4-mini-reasoning. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: GA."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -4671,19 +4671,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle GA; deployment/model identifier Phi-4-multimodal-instruct. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: GA."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -4734,19 +4734,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle GA; deployment/model identifier Phi-4-reasoning. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: GA."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
@@ -4797,19 +4797,19 @@
       {
         "kind": "provider_models",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Official Microsoft Foundry catalog; lifecycle Preview; deployment/model identifier claude-mythos-preview. Availability varies by deployment type, Azure geography, subscription, and quota."
       },
       {
         "kind": "model_retirement",
         "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
-        "accessed_at": "2026-08-24T00:00:00Z",
+        "accessed_at": "2026-08-23T23:20:00Z",
         "notes": "Microsoft lifecycle schedule: Preview."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:20:00Z",
       "notes": "Verified against Microsoft Learn. Route remains disabled because Azure deployments use customer-chosen deployment names and require resource-specific configuration."
     },
     "rate_limits": []
