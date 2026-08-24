@@ -1,10 +1,10 @@
 {
   "api_provider_id": "inception",
   "api_provider_name": "Inception",
-  "description": null,
+  "description": "First-party API for Inception's Mercury diffusion language models, with OpenAI-compatible chat plus dedicated FIM and next-edit endpoints.",
   "link": "https://docs.inceptionlabs.ai/",
   "residency_mode": "provider_managed",
-  "default_execution_regions": null,
+  "default_execution_regions": ["US"],
   "default_data_regions": null,
   "zero_data_retention": "unknown",
   "residency_source_url": "https://www.inceptionlabs.ai/docs/privacy-policy",
@@ -20,19 +20,35 @@
   "prompt_training_policy": "opt_out_available",
   "prompt_training_notes": "Inception says it may use user submissions to train its models, and API Platform users can opt out by turning off 'Improve the model for everyone' in settings.",
   "prompt_training_source_url": "https://www.inceptionlabs.ai/docs/terms-of-use",
-  "gateway_kind": null,
-  "routable": null,
-  "routing_enabled": null,
-  "sdk_package": null,
-  "api_base_url": null,
+  "gateway_kind": "first_party",
+  "routable": true,
+  "routing_enabled": true,
+  "sdk_package": "inceptionai",
+  "api_base_url": "https://api.inceptionlabs.ai/v1",
   "docs_url": "https://docs.inceptionlabs.ai/",
-  "auth_env": null,
-  "api_formats": [],
-  "service_tiers": [],
-  "sources": [],
+  "auth_env": "INCEPTION_API_KEY",
+  "api_formats": ["openai.chat.completions", "inception.fim.completions", "inception.edit.completions"],
+  "service_tiers": ["free", "pay_as_you_go", "enterprise"],
+  "sources": [
+    {
+      "url": "https://docs.inceptionlabs.ai/get-started/models",
+      "kind": "documentation",
+      "notes": "Official model catalogue, endpoint matrix, context windows, and prices."
+    },
+    {
+      "url": "https://docs.inceptionlabs.ai/get-started/rate-limits",
+      "kind": "documentation",
+      "notes": "Official account-tier rate limits."
+    },
+    {
+      "url": "https://docs.inceptionlabs.ai/api-reference/models/list-available-models",
+      "kind": "api_reference",
+      "notes": "Official live model discovery response schema and deployment metadata."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Reconciled against the official models, endpoint, pricing, rate-limit, and model-discovery documentation."
   }
 }

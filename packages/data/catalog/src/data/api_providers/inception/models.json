@@ -9,7 +9,7 @@
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 128000,
-    "max_output_tokens": null,
+    "max_output_tokens": 50000,
     "effective_from": "2026-02-24T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -26,17 +26,17 @@
           },
           {
             "param_id": "max_tokens",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
+            "provider_min": 1,
+            "provider_max": 50000,
+            "provider_default": 16384,
+            "notes": "Official chat-completions request bounds."
           },
           {
             "param_id": "temperature",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
+            "provider_min": 0.5,
+            "provider_max": 1,
+            "provider_default": 0.75,
+            "notes": "Out-of-range values are reset to 0.75 with a response warning."
           },
           {
             "param_id": "stop",
@@ -52,82 +52,103 @@
           "structured_outputs",
           "reasoning_effort"
         ],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
         "attachment": null,
         "input_modalities": null,
         "output_modalities": null,
-        "modes": []
+        "modes": ["streaming"]
       }
     ],
     "routing_status": "active",
     "routable": true,
     "regions": {
-      "execution": null,
+      "execution": ["US"],
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": ["free", "pay_as_you_go", "enterprise"],
     "api": {
-      "formats": [],
-      "endpoint": null,
+      "formats": ["openai.chat.completions"],
+      "endpoint": "/v1/chat/completions",
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      { "url": "https://docs.inceptionlabs.ai/get-started/models", "kind": "documentation" },
+      { "url": "https://docs.inceptionlabs.ai/api-reference/chat/create-a-chat-completion", "kind": "api_reference" },
+      { "url": "https://docs.inceptionlabs.ai/api-reference/models/list-available-models", "kind": "api_reference" }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact model ID, text modalities, 128K context, 50K maximum output, US datacenter, capabilities, and pricing verified from official documentation."
     },
-    "rate_limits": []
+    "rate_limits": [
+      { "type": "requests_per_minute", "limit": 1000, "window": "minute", "scope": "account", "notes": "Free tier; Pay As You Go allows 3,000 RPM and Enterprise is custom." },
+      { "type": "input_tokens_per_minute", "limit": 1000000, "window": "minute", "scope": "account", "notes": "Free tier; Pay As You Go allows 3,000,000 input TPM and Enterprise is custom." },
+      { "type": "output_tokens_per_minute", "limit": 100000, "window": "minute", "scope": "account", "notes": "Free tier; Pay As You Go allows 300,000 output TPM and Enterprise is custom." }
+    ]
   },
   {
     "api_model_id": "inception/mercury-edit-2",
     "provider_api_model_id": "inception:inception/mercury-edit-2",
     "provider_model_slug": "mercury-edit-2",
     "internal_model_id": "inception/mercury-edit-2",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 32000,
-    "max_output_tokens": null,
-    "effective_from": "2026-02-24T00:00:00",
+    "max_output_tokens": 8192,
+    "effective_from": "2026-03-30T00:00:00",
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          { "param_id": "max_tokens", "provider_min": 1, "provider_max": 8192, "provider_default": 512, "notes": "FIM defaults to 512; next-edit defaults to 1024." },
+          { "param_id": "temperature", "provider_min": 0, "provider_max": 2, "provider_default": 0.2, "notes": "Next-edit endpoint bounds and default." },
+          { "param_id": "top_p", "provider_min": 0, "provider_max": 1, "provider_default": 1, "notes": null },
+          { "param_id": "stop", "provider_min": null, "provider_max": null, "provider_default": null, "notes": null }
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
-        "temperature": null,
+        "temperature": true,
         "attachment": null,
         "input_modalities": null,
         "output_modalities": null,
-        "modes": []
+        "modes": ["fim", "edit"]
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": null,
+    "routable": false,
     "regions": {
-      "execution": null,
+      "execution": ["US"],
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": ["free", "pay_as_you_go", "enterprise"],
     "api": {
-      "formats": [],
-      "endpoint": null,
+      "formats": ["inception.fim.completions", "inception.edit.completions"],
+      "endpoint": "/v1/fim/completions, /v1/edit/completions",
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      { "url": "https://docs.inceptionlabs.ai/get-started/models", "kind": "documentation" },
+      { "url": "https://docs.inceptionlabs.ai/api-reference/fim/create-a-fill-in-the-middle-completion", "kind": "api_reference" },
+      { "url": "https://docs.inceptionlabs.ai/api-reference/edit/create-a-code-edit-completion", "kind": "api_reference" }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact model ID, text modalities, 32K FIM/edit context, 8,192-token output limit, dedicated endpoints, and pricing verified. Phaseo routing remains disabled because the gateway currently exposes chat completions only for Inception."
     },
-    "rate_limits": []
+    "rate_limits": [
+      { "type": "requests_per_minute", "limit": 1000, "window": "minute", "scope": "account", "notes": "Free tier; Pay As You Go allows 3,000 RPM and Enterprise is custom." },
+      { "type": "input_tokens_per_minute", "limit": 1000000, "window": "minute", "scope": "account", "notes": "Free tier; Pay As You Go allows 3,000,000 input TPM and Enterprise is custom." },
+      { "type": "output_tokens_per_minute", "limit": 100000, "window": "minute", "scope": "account", "notes": "Free tier; Pay As You Go allows 300,000 output TPM and Enterprise is custom." }
+    ]
   }
 ]

@@ -13,8 +13,14 @@
   "input_types": "text",
   "output_types": "text",
   "api_model_id": "inception/mercury-2",
-  "links": [],
-  "details": [],
+  "links": [
+    { "title": "Announcement", "kind": "announcement", "url": "https://www.inceptionlabs.ai/blog/introducing-mercury-2" },
+    { "title": "API documentation", "kind": "documentation", "url": "https://docs.inceptionlabs.ai/get-started/models" }
+  ],
+  "details": [
+    { "name": "API model ID", "value": "mercury-2" },
+    { "name": "Endpoint", "value": "/v1/chat/completions" }
+  ],
   "benchmarks": [
     {
       "benchmark_id": "aime-2025",
@@ -75,12 +81,12 @@
   ],
   "family_id": null,
   "page_notice": null,
-  "model_type": null,
+  "model_type": "Diffusion language model",
   "knowledge_cutoff": null,
   "limits": {
-    "context": null,
+    "context": 128000,
     "input": null,
-    "output": null
+    "output": 50000
   },
   "modalities": {
     "input": [
@@ -91,25 +97,29 @@
     ]
   },
   "reasoning": {
-    "supported": null,
-    "options": []
+    "supported": true,
+    "options": ["instant", "low", "medium", "high"]
   },
   "capabilities": {
     "attachment": null,
-    "tool_call": null,
-    "structured_output": null,
-    "temperature": null,
-    "streaming": null,
+    "tool_call": true,
+    "structured_output": true,
+    "temperature": true,
+    "streaming": true,
     "web_search": null
   },
   "open_weights": null,
-  "sources": [],
+  "sources": [
+    { "kind": "announcement", "url": "https://www.inceptionlabs.ai/blog/introducing-mercury-2", "accessed_at": "2026-08-24T00:00:00Z", "notes": null },
+    { "kind": "documentation", "url": "https://docs.inceptionlabs.ai/get-started/models", "accessed_at": "2026-08-24T00:00:00Z", "notes": null },
+    { "kind": "api_reference", "url": "https://docs.inceptionlabs.ai/api-reference/models/list-available-models", "accessed_at": "2026-08-24T00:00:00Z", "notes": null }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Official catalogue and model API confirm the active mercury-2 ID, text-only modalities, 128K context, 50K output limit, reasoning, tools, structured outputs, streaming, and US serving."
   },
-  "last_updated": null,
+  "last_updated": "2026-08-24T00:00:00Z",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

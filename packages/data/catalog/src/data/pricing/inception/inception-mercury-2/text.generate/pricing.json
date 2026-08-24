@@ -19,7 +19,7 @@
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": "https://docs.inceptionlabs.ai/get-started/models"
     },
     {
       "meter": "cached_write_text_tokens",
@@ -31,10 +31,11 @@
       "note": null,
       "match": [],
       "priority": 100,
+      "effective_from": "2026-02-24T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": "https://docs.inceptionlabs.ai/get-started/models"
     },
     {
       "meter": "input_text_tokens",
@@ -50,7 +51,7 @@
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": "https://docs.inceptionlabs.ai/get-started/models"
     },
     {
       "meter": "output_text_tokens",
@@ -66,17 +67,28 @@
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": "https://docs.inceptionlabs.ai/get-started/models"
     }
   ],
-  "regions": [],
+  "regions": ["US"],
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [
+    {
+      "url": "https://docs.inceptionlabs.ai/get-started/models",
+      "title": "Models, Endpoints, and Pricing",
+      "retrieved_at": "2026-08-24T00:00:00Z"
+    },
+    {
+      "url": "https://docs.inceptionlabs.ai/api-reference/models/list-available-models",
+      "title": "List available models",
+      "retrieved_at": "2026-08-24T00:00:00Z"
+    }
+  ],
   "verification": {
-    "status": "partial",
-    "checked_at": "2026-08-11T04:00:58.402+00:00",
-    "notes": "Pricing synchronized from the provider models API."
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Official pricing page and model-discovery response agree on input, cached-input, cache-write, and output prices."
   }
 }

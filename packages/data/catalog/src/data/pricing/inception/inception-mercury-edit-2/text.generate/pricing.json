@@ -6,22 +6,6 @@
   "capability_id": "text.generate",
   "rules": [
     {
-      "meter": "input_text_tokens",
-      "unit": "token",
-      "unit_size": 1000000,
-      "price_per_unit": 0.25,
-      "currency": "USD",
-      "pricing_plan": "standard",
-      "note": null,
-      "match": [],
-      "priority": 100,
-      "effective_from": "2026-02-24T00:00:00Z",
-      "region": null,
-      "cache_duration_seconds": null,
-      "conditions": [],
-      "source": null
-    },
-    {
       "meter": "cached_read_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
@@ -31,11 +15,43 @@
       "note": null,
       "match": [],
       "priority": 100,
-      "effective_from": "2026-02-24T00:00:00Z",
+      "effective_from": "2026-03-30T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": "https://docs.inceptionlabs.ai/get-started/models"
+    },
+    {
+      "meter": "cached_write_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": null,
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-03-30T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://docs.inceptionlabs.ai/get-started/models"
+    },
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.25,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": null,
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-03-30T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://docs.inceptionlabs.ai/get-started/models"
     },
     {
       "meter": "output_text_tokens",
@@ -47,21 +63,30 @@
       "note": null,
       "match": [],
       "priority": 100,
-      "effective_from": "2026-02-24T00:00:00Z",
+      "effective_from": "2026-03-30T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": "https://docs.inceptionlabs.ai/get-started/models"
     }
   ],
-  "regions": [],
-  "service_tiers": [
-    "standard"
+  "regions": ["US"],
+  "service_tiers": ["standard"],
+  "sources": [
+    {
+      "url": "https://docs.inceptionlabs.ai/get-started/models",
+      "title": "Models, Endpoints, and Pricing",
+      "retrieved_at": "2026-08-24T00:00:00Z"
+    },
+    {
+      "url": "https://www.inceptionlabs.ai/blog/introducing-mercury-edit-2",
+      "title": "Introducing Mercury Edit 2",
+      "retrieved_at": "2026-08-24T00:00:00Z"
+    }
   ],
-  "sources": [],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Official documentation and announcement agree on input, cached-input, and output token prices."
   }
 }

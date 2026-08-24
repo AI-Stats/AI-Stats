@@ -4,9 +4,9 @@
   "name": "Mercury Edit 2",
   "status": "Available",
   "previous_model_id": null,
-  "description": "Mercury Edit 2 is an extremely fast reasoning LLM, and the first reasoning diffusion LLM (dLLM). It accepts text inputs and produces text outputs.",
-  "announced_date": "2026-02-24T00:00:00",
-  "release_date": "2026-02-24T00:00:00",
+  "description": "Mercury Edit 2 is a purpose-built diffusion language model for low-latency code autocomplete and next-edit prediction. It accepts code as text context and returns text edits.",
+  "announced_date": "2026-03-30T00:00:00",
+  "release_date": "2026-03-30T00:00:00",
   "deprecation_date": null,
   "retirement_date": null,
   "license": "Proprietary",
@@ -15,21 +15,29 @@
   "api_model_id": "inception/mercury-edit-2",
   "links": [
     {
-      "title": "Announcement",
+      "title": "Mercury Edit 2 announcement",
       "kind": "announcement",
-      "url": "https://www.inceptionlabs.ai/blog/introducing-mercury-2"
+      "url": "https://www.inceptionlabs.ai/blog/introducing-mercury-edit-2"
+    },
+    {
+      "title": "API documentation",
+      "kind": "documentation",
+      "url": "https://docs.inceptionlabs.ai/get-started/models"
     }
   ],
-  "details": [],
+  "details": [
+    { "name": "API model ID", "value": "mercury-edit-2" },
+    { "name": "Endpoints", "value": "/v1/fim/completions and /v1/edit/completions" }
+  ],
   "benchmarks": [],
   "family_id": null,
   "page_notice": null,
-  "model_type": null,
+  "model_type": "Diffusion code-editing language model",
   "knowledge_cutoff": null,
   "limits": {
-    "context": null,
+    "context": 32000,
     "input": null,
-    "output": null
+    "output": 8192
   },
   "modalities": {
     "input": [
@@ -40,32 +48,38 @@
     ]
   },
   "reasoning": {
-    "supported": null,
+    "supported": false,
     "options": []
   },
   "capabilities": {
     "attachment": null,
     "tool_call": null,
     "structured_output": null,
-    "temperature": null,
-    "streaming": null,
+    "temperature": true,
+    "streaming": true,
     "web_search": null
   },
   "open_weights": null,
   "sources": [
     {
       "kind": "announcement",
-      "url": "https://www.inceptionlabs.ai/blog/introducing-mercury-2",
-      "accessed_at": null,
-      "notes": null
+      "url": "https://www.inceptionlabs.ai/blog/introducing-mercury-edit-2",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official product announcement and pricing."
+    },
+    {
+      "kind": "documentation",
+      "url": "https://docs.inceptionlabs.ai/get-started/models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official endpoint and context-window matrix."
     }
   ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Official catalogue confirms the active mercury-edit-2 ID, text-only FIM and next-edit endpoints, 32K context, and 8,192-token endpoint maximum."
   },
-  "last_updated": null,
+  "last_updated": "2026-08-24T00:00:00Z",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null
