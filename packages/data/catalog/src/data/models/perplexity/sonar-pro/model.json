@@ -1,0 +1,73 @@
+{
+  "model_id": "perplexity/sonar-pro",
+  "organisation_id": "perplexity",
+  "name": "Perplexity: Sonar Pro",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Sonar Pro is an advanced non-reasoning search model designed for handling complex, multi-step queries that demand deeper content understanding and high citation accuracy. With a large context length of 200k, it excels at retrieving and synthesizing information from extensive text sources. Sonar Pro delivers in-depth answers supported by twice as many citations as the standard Sonar model, thanks to its enhanced information retrieval architecture. Optimized for multi-step tasks, it’s particularly useful for applications such as academic literature reviews, competitor and industry research, and generating curated content like restaurant catalogs with reviews. Its ability to surface comprehensive, well-cited responses makes it a powerful tool for users needing detailed and reliable information.",
+  "announced_date": null,
+  "release_date": "2025-03-07T01:53:43",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": null,
+  "input_types": "text,image",
+  "output_types": "text",
+  "api_model_id": "perplexity/sonar-pro",
+  "links": [
+    {
+      "title": "FastRouter model catalogue",
+      "kind": "api_reference",
+      "url": "https://go.fastrouter.ai/api/v1/models"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "family_id": null,
+  "page_notice": null,
+  "model_type": null,
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": 200000,
+    "input": null,
+    "output": 8000
+  },
+  "modalities": {
+    "input": [
+      "text",
+      "image/*"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": true,
+    "tool_call": false,
+    "structured_output": false,
+    "temperature": true,
+    "streaming": false,
+    "web_search": true
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://go.fastrouter.ai/api/v1/models",
+      "accessed_at": "2026-08-24T00:29:58.321Z",
+      "notes": "Exact identity, creator, description, lifecycle, limits, modalities, and parameters from FastRouter's live catalogue."
+    }
+  ],
+  "verification": {
+    "status": "partial",
+    "checked_at": "2026-08-24T00:29:58.321Z",
+    "notes": "Provider-offer identity and technical metadata verified from FastRouter; upstream creator documentation was not independently re-verified."
+  },
+  "last_updated": "2026-08-24T00:29:58",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}
