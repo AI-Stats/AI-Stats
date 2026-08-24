@@ -1,69 +1,20 @@
 {
-  "key": "ambient:deepseek/deepseek-v4-flash-0731:text.generate",
+  "key": "ambient:google/gemma-4-26b-a4b:text.generate",
   "api_provider_id": "ambient",
   "provider_slug": "ambient",
-  "api_model_id": "deepseek/deepseek-v4-flash-0731",
+  "api_model_id": "google/gemma-4-26b-a4b",
   "capability_id": "text.generate",
   "rules": [
     {
       "meter": "cached_read_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.028,
-      "currency": "USD",
-      "pricing_plan": "standard",
-      "note": "Historical price through the 2026-08-24 audit.",
-      "match": [],
-      "priority": 100,
-      "effective_to": "2026-08-24T00:00:00Z",
-      "region": null,
-      "cache_duration_seconds": null,
-      "conditions": [],
-      "source": null
-    },
-    {
-      "meter": "input_text_tokens",
-      "unit": "token",
-      "unit_size": 1000000,
-      "price_per_unit": 0.14,
-      "currency": "USD",
-      "pricing_plan": "standard",
-      "note": "Historical price through the 2026-08-24 audit.",
-      "match": [],
-      "priority": 100,
-      "effective_to": "2026-08-24T00:00:00Z",
-      "region": null,
-      "cache_duration_seconds": null,
-      "conditions": [],
-      "source": null
-    },
-    {
-      "meter": "output_text_tokens",
-      "unit": "token",
-      "unit_size": 1000000,
-      "price_per_unit": 0.28,
-      "currency": "USD",
-      "pricing_plan": "standard",
-      "note": "Historical price through the 2026-08-24 audit.",
-      "match": [],
-      "priority": 100,
-      "effective_to": "2026-08-24T00:00:00Z",
-      "region": null,
-      "cache_duration_seconds": null,
-      "conditions": [],
-      "source": null
-    },
-    {
-      "meter": "cached_read_text_tokens",
-      "unit": "token",
-      "unit_size": 1000000,
-      "price_per_unit": 0.016,
+      "price_per_unit": 0.02,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
       "match": [],
       "priority": 100,
-      "effective_from": "2026-08-24T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -103,13 +54,12 @@
       "meter": "input_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.08,
+      "price_per_unit": 0.1,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
       "match": [],
       "priority": 100,
-      "effective_from": "2026-08-24T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -119,13 +69,12 @@
       "meter": "output_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.18,
+      "price_per_unit": 0.3,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
       "match": [],
       "priority": 100,
-      "effective_from": "2026-08-24T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -133,20 +82,18 @@
     }
   ],
   "regions": [],
-  "service_tiers": [
-    "standard"
-  ],
+  "service_tiers": ["standard"],
   "sources": [
     {
       "kind": "model_catalog",
       "url": "https://api.ambient.xyz/v1/models",
       "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "Live token pricing for deepseek/deepseek-v4-flash-0731."
+      "notes": "Current token pricing for google/gemma-4-26b-a4b-it and its ambient/small alias."
     }
   ],
   "verification": {
-    "status": "partial",
+    "status": "verified",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Current pricing verified against Ambient's public live models endpoint."
+    "notes": "Pricing verified against Ambient's public live models endpoint; the model is currently listed but not ready."
   }
 }
