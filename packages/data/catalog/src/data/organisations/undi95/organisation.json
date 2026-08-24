@@ -1,0 +1,28 @@
+{
+  "organisation_id": "undi95",
+  "name": "Undi95",
+  "country_code": null,
+  "description": "Undi95 publishes language models hosted by Mancer.",
+  "colour": null,
+  "organisation_links": [
+    {
+      "platform": "hugging_face",
+      "url": "https://huggingface.co/Undi95"
+    }
+  ],
+  "status": "active",
+  "routable": null,
+  "sources": [
+    {
+      "kind": "model_card",
+      "url": "https://huggingface.co/Undi95/ReMM-v2-L2-13B",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Primary model source linked by Mancer's official catalogue."
+    }
+  ],
+  "verification": {
+    "status": "partial",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Identity verified from the primary model source; country was not asserted."
+  }
+}
