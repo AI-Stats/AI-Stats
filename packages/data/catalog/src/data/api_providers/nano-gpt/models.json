@@ -3299,7 +3299,7 @@
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "audio.generate",
+        "capability_id": "audio.speech",
         "status": "active",
         "params": [],
         "reasoning": null,
@@ -3695,7 +3695,7 @@
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "audio.generate",
+        "capability_id": "audio.speech",
         "status": "active",
         "params": [],
         "reasoning": null,
@@ -4646,7 +4646,7 @@
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "audio.generate",
+        "capability_id": "audio.speech",
         "status": "active",
         "params": [],
         "reasoning": null,
@@ -5751,7 +5751,7 @@
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "audio.generate",
+        "capability_id": "audio.transcription",
         "status": "active",
         "params": [],
         "reasoning": null,
@@ -5810,7 +5810,7 @@
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "audio.generate",
+        "capability_id": "audio.speech",
         "status": "active",
         "params": [],
         "reasoning": null,
@@ -8252,7 +8252,7 @@
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "audio.generate",
+        "capability_id": "audio.transcription",
         "status": "active",
         "params": [],
         "reasoning": null,
@@ -8311,7 +8311,7 @@
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "audio.generate",
+        "capability_id": "audio.transcription",
         "status": "active",
         "params": [],
         "reasoning": null,
@@ -8370,7 +8370,7 @@
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "audio.generate",
+        "capability_id": "audio.speech",
         "status": "active",
         "params": [],
         "reasoning": null,
@@ -8429,7 +8429,7 @@
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "audio.generate",
+        "capability_id": "audio.speech",
         "status": "active",
         "params": [],
         "reasoning": null,
@@ -11527,7 +11527,7 @@
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "audio.generate",
+        "capability_id": "audio.speech",
         "status": "active",
         "params": [],
         "reasoning": null,
@@ -11586,7 +11586,7 @@
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "audio.generate",
+        "capability_id": "audio.speech",
         "status": "active",
         "params": [],
         "reasoning": null,
@@ -11645,7 +11645,7 @@
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "audio.generate",
+        "capability_id": "audio.transcription",
         "status": "active",
         "params": [],
         "reasoning": null,
@@ -11704,7 +11704,7 @@
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "audio.generate",
+        "capability_id": "audio.transcription",
         "status": "active",
         "params": [],
         "reasoning": null,

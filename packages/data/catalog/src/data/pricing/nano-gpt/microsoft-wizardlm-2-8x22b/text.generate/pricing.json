@@ -1,0 +1,71 @@
+{
+  "key": "nano-gpt:microsoft/wizardlm-2-8x22b:text.generate",
+  "api_provider_id": "nano-gpt",
+  "provider_slug": "nano-gpt",
+  "api_model_id": "microsoft/wizardlm-2-8x22b",
+  "capability_id": "text.generate",
+  "rules": [
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.49299999999999994,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": null,
+      "match": [],
+      "priority": 100,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://nano-gpt.com/api/v1/models?detailed=true"
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.49299999999999994,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": null,
+      "match": [],
+      "priority": 100,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://nano-gpt.com/api/v1/models?detailed=true"
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000,
+      "price_per_unit": 0.0002465,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": null,
+      "match": [],
+      "priority": 100,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://nano-gpt.com/api/v1/models?detailed=true"
+    }
+  ],
+  "regions": [],
+  "service_tiers": [
+    "standard"
+  ],
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+      "accessed_at": "2026-08-24T00:00:00.000Z",
+      "notes": "NanoGPT public model feed pricing."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00.000Z",
+    "notes": "Exact fixed price from NanoGPT's public model feed."
+  }
+}
