@@ -1,0 +1,76 @@
+{
+  "model_id": "gryphe/mythomax-l2-13b",
+  "organisation_id": "gryphe",
+  "name": "MythoMax 13B",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "One of the highest performing and most popular fine-tunes of Llama 2 13B, with rich descriptions and roleplay. #merge",
+  "announced_date": null,
+  "release_date": "2023-07-02",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": null,
+  "input_types": [
+    "text"
+  ],
+  "output_types": [
+    "text"
+  ],
+  "api_model_id": "gryphe/mythomax-l2-13b",
+  "links": [
+    {
+      "platform": "model",
+      "title": "OpenRouter model page",
+      "url": "https://openrouter.ai/gryphe/mythomax-l2-13b"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "family_id": null,
+  "page_notice": null,
+  "model_type": "language",
+  "knowledge_cutoff": "2023-06-30",
+  "limits": {
+    "context": 8192,
+    "input": null,
+    "output": 4096
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": null,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": false,
+    "tool_call": false,
+    "structured_output": true,
+    "temperature": true,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": true,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://openrouter.ai/api/v1/models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact live OpenRouter ID: gryphe/mythomax-l2-13b."
+    }
+  ],
+  "verification": {
+    "status": "partial",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Availability, modalities, limits and parameters verified against OpenRouter's official models API; upstream publisher metadata remains provider-reported."
+  },
+  "last_updated": "2026-08-24",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

@@ -1,0 +1,76 @@
+{
+  "model_id": "deepseek/deepseek-chat",
+  "organisation_id": "deepseek",
+  "name": "DeepSeek: DeepSeek V3",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "DeepSeek-V3 is the latest model from the DeepSeek team, building upon the instruction following and coding abilities of the previous versions. Pre-trained on nearly 15 trillion tokens, the reported evaluations...",
+  "announced_date": null,
+  "release_date": "2024-12-26",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": null,
+  "input_types": [
+    "text"
+  ],
+  "output_types": [
+    "text"
+  ],
+  "api_model_id": "deepseek/deepseek-chat",
+  "links": [
+    {
+      "platform": "model",
+      "title": "OpenRouter model page",
+      "url": "https://openrouter.ai/deepseek/deepseek-chat"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "family_id": null,
+  "page_notice": null,
+  "model_type": "language",
+  "knowledge_cutoff": "2024-07-31",
+  "limits": {
+    "context": 163840,
+    "input": null,
+    "output": 16000
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": null,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": false,
+    "tool_call": true,
+    "structured_output": true,
+    "temperature": true,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": true,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://openrouter.ai/api/v1/models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact live OpenRouter ID: deepseek/deepseek-chat."
+    }
+  ],
+  "verification": {
+    "status": "partial",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Availability, modalities, limits and parameters verified against OpenRouter's official models API; upstream publisher metadata remains provider-reported."
+  },
+  "last_updated": "2026-08-24",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

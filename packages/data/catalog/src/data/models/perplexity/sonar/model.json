@@ -1,0 +1,78 @@
+{
+  "model_id": "perplexity/sonar",
+  "organisation_id": "perplexity",
+  "name": "Perplexity: Sonar",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Sonar is lightweight, affordable, fast, and simple to use — now featuring citations and the ability to customize sources. It is designed for companies seeking to integrate lightweight question-and-answer features...",
+  "announced_date": null,
+  "release_date": "2025-01-27",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": null,
+  "input_types": [
+    "text",
+    "image/*"
+  ],
+  "output_types": [
+    "text"
+  ],
+  "api_model_id": "perplexity/sonar",
+  "links": [
+    {
+      "platform": "model",
+      "title": "OpenRouter model page",
+      "url": "https://openrouter.ai/perplexity/sonar"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "family_id": null,
+  "page_notice": null,
+  "model_type": "language",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": 127072,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text",
+      "image/*"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": null,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": true,
+    "tool_call": false,
+    "structured_output": false,
+    "temperature": true,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://openrouter.ai/api/v1/models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact live OpenRouter ID: perplexity/sonar."
+    }
+  ],
+  "verification": {
+    "status": "partial",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Availability, modalities, limits and parameters verified against OpenRouter's official models API; upstream publisher metadata remains provider-reported."
+  },
+  "last_updated": "2026-08-24",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

@@ -1,0 +1,76 @@
+{
+  "model_id": "qwen/qwen3-coder-plus",
+  "organisation_id": "qwen",
+  "name": "Qwen: Qwen3 Coder Plus",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Qwen3 Coder Plus is Alibaba's proprietary version of the Open Source Qwen3 Coder 480B A35B. It is a powerful coding agent model specializing in autonomous programming via tool calling and...",
+  "announced_date": null,
+  "release_date": "2025-09-23",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": null,
+  "input_types": [
+    "text"
+  ],
+  "output_types": [
+    "text"
+  ],
+  "api_model_id": "qwen/qwen3-coder-plus",
+  "links": [
+    {
+      "platform": "model",
+      "title": "OpenRouter model page",
+      "url": "https://openrouter.ai/qwen/qwen3-coder-plus"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "family_id": null,
+  "page_notice": null,
+  "model_type": "language",
+  "knowledge_cutoff": "2025-06-30",
+  "limits": {
+    "context": 1000000,
+    "input": null,
+    "output": 65536
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": true,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": false,
+    "tool_call": true,
+    "structured_output": true,
+    "temperature": true,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://openrouter.ai/api/v1/models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact live OpenRouter ID: qwen/qwen3-coder-plus."
+    }
+  ],
+  "verification": {
+    "status": "partial",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Availability, modalities, limits and parameters verified against OpenRouter's official models API; upstream publisher metadata remains provider-reported."
+  },
+  "last_updated": "2026-08-24",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

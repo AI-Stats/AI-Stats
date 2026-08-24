@@ -1,0 +1,78 @@
+{
+  "model_id": "nvidia/nemotron-3.5-content-safety",
+  "organisation_id": "nvidia",
+  "name": "NVIDIA: Nemotron 3.5 Content Safety (free)",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "NVIDIA Nemotron 3.5 Content Safety is a compact 4B-parameter multimodal guardrail model from NVIDIA, fine-tuned from Google Gemma-3-4B. It moderates both inputs to and responses from LLMs and VLMs, accepting...",
+  "announced_date": null,
+  "release_date": "2026-06-04",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": null,
+  "input_types": [
+    "text",
+    "image/*"
+  ],
+  "output_types": [
+    "text"
+  ],
+  "api_model_id": "nvidia/nemotron-3.5-content-safety",
+  "links": [
+    {
+      "platform": "model",
+      "title": "OpenRouter model page",
+      "url": "https://openrouter.ai/nvidia/nemotron-3.5-content-safety:free"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "family_id": null,
+  "page_notice": null,
+  "model_type": "language",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": 128000,
+    "input": null,
+    "output": 8192
+  },
+  "modalities": {
+    "input": [
+      "text",
+      "image/*"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": true,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": true,
+    "tool_call": false,
+    "structured_output": false,
+    "temperature": true,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": true,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://openrouter.ai/api/v1/models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact live OpenRouter ID: nvidia/nemotron-3.5-content-safety:free."
+    }
+  ],
+  "verification": {
+    "status": "partial",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Availability, modalities, limits and parameters verified against OpenRouter's official models API; upstream publisher metadata remains provider-reported."
+  },
+  "last_updated": "2026-08-24",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}
