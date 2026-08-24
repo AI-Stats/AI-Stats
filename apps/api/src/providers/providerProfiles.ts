@@ -927,7 +927,6 @@ const PROVIDER_PROFILES: ProviderProfile[] = [
 	{
 		id: "tensorix",
 		aliases: ["tensorx"],
-		textOnly: true,
 		text: {
 			paramPolicy: {
 				supportedParams: [

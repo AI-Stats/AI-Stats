@@ -127,6 +127,8 @@ describe("resolveProviderExecutor", () => {
 		expect(resolveProviderExecutor("voyageai", "embeddings")).toBeTruthy();
 		expect(resolveProviderExecutor("anthropic", "embeddings")).toBeNull();
 		expect(resolveProviderExecutor("cloudflare", "embeddings")).toBeTruthy();
+		expect(resolveProviderExecutor("tensorix", "embeddings")).toBeTruthy();
+		expect(resolveProviderExecutor("tensorx", "embeddings")).toBeTruthy();
 	});
 
 	it("resolves Cloudflare-hosted native media capabilities", () => {

@@ -3,7 +3,7 @@
   "api_provider_name": "TensorX",
   "provider_family_id": "tensorix",
   "offer_scope": "global",
-  "description": null,
+  "description": "EU-sovereign OpenAI-compatible inference for open-weight text, vision-language, reasoning and embedding models, with zero data retention.",
   "link": "https://tensorx.ai/",
   "residency_mode": "provider_managed",
   "default_execution_regions": [
@@ -13,34 +13,40 @@
     "eu"
   ],
   "zero_data_retention": "default",
+  "data_retention_days": 0,
+  "data_policy_tier": "private",
+  "data_policy_confidence": "confirmed",
+  "data_policy_contract_mode": "none",
   "residency_source_url": "https://tensorx.ai/pricing/",
   "regional_pricing_mode": "same_as_global",
   "pricing_source_url": "https://tensorx.ai/pricing/",
-  "regional_pricing_notes": "Tensorix publicly markets EU-hosted platform pricing rather than separate regional endpoint tiers.",
+  "regional_pricing_notes": "TensorX publishes one pay-as-you-go developer price per model across its EU-hosted platform; dedicated and shared clusters use custom pricing.",
   "country_code": null,
   "status": "Active",
   "colour": "#2563EB",
-  "privacy_policy_url": "https://tensorix.ai/privacy-policy",
-  "terms_of_service_url": "https://tensorix.ai/terms",
+  "privacy_policy_url": "https://tensorx.ai/privacy-policy/",
+  "terms_of_service_url": "https://tensorx.ai/terms-of-service/",
   "prompt_training_policy": "no_train",
-  "prompt_training_notes": "Tensorix publicly states that it does not store prompts or completions and operates with zero data retention on EU-hosted infrastructure.",
-  "prompt_training_source_url": "https://tensorix.ai/privacy-policy",
+  "prompt_training_notes": "TensorX states that every inference request has zero data retention and that no third-party model provider processes requests; models run on TensorX-managed EU infrastructure.",
+  "prompt_training_source_url": "https://tensorx.ai/sub-processors/",
   "gateway_kind": "openai_compatible",
-  "routable": false,
-  "routing_enabled": false,
+  "routable": true,
+  "routing_enabled": true,
   "sdk_package": "openai",
   "api_base_url": "https://api.tensorx.ai/v1",
   "docs_url": "https://docs.tensorx.ai/",
   "auth_env": "TENSORIX_API_KEY",
-  "api_formats": ["openai.chat.completions", "openai.embeddings", "openai.audio.speech", "openai.audio.transcription"],
-  "service_tiers": [],
+  "api_formats": ["openai.chat.completions", "openai.embeddings"],
+  "service_tiers": ["standard"],
   "sources": [
-    { "kind": "provider_docs", "url": "https://docs.tensorx.ai/api-reference/overview", "accessed_at": "2026-08-12T00:00:00Z", "notes": "Current TensorX base URL, Bearer authentication, Chat Completions, errors and rate limits." },
-    { "kind": "pricing", "url": "https://tensorx.ai/pricing/", "accessed_at": "2026-08-12T00:00:00Z", "notes": "Current public model list and token pricing; TensorX was formerly Tensorix." }
+    { "kind": "provider_docs", "url": "https://docs.tensorx.ai/api-reference/overview", "accessed_at": "2026-08-24T00:00:00Z", "notes": "Current TensorX base URL, Bearer authentication and OpenAI-compatible API contract." },
+    { "kind": "provider_models", "url": "https://tensorx.ai/models/", "accessed_at": "2026-08-24T00:00:00Z", "notes": "Live developer catalogue with exact IDs, contexts, modalities and model-level capabilities." },
+    { "kind": "pricing", "url": "https://tensorx.ai/pricing/", "accessed_at": "2026-08-24T00:00:00Z", "notes": "Live public input, cache-read and output token prices for all 21 developer models." },
+    { "kind": "provider_docs", "url": "https://tensorx.ai/sub-processors/", "accessed_at": "2026-08-24T00:00:00Z", "notes": "TensorX hosts models itself and does not send inference requests to model providers." }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-12T00:00:00Z",
-    "notes": "Current TensorX contract verified. Gateway routing remains disabled until current model pricing cards are loaded."
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Complete 21-model live developer catalogue and pricing reconciled with zero unaccounted records; five delisted rows retained as disabled history. Current priced chat and embedding routes are enabled."
   }
 }

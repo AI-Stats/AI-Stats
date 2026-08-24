@@ -153,6 +153,8 @@ export const ModelIds = {
   DEEPSEEK_DEEPSEEK_R1: "deepseek/deepseek-r1",
   /** Model ID: `deepseek/deepseek-r1-0528`. Model page: https://phaseo.app/models/deepseek/deepseek-r1-0528 */
   DEEPSEEK_DEEPSEEK_R1_0528: "deepseek/deepseek-r1-0528",
+  /** Model ID: `deepseek/deepseek-r1-2025-05-28`. Model page: https://phaseo.app/models/deepseek/deepseek-r1-2025-05-28 */
+  DEEPSEEK_DEEPSEEK_R1_2025_05_28: "deepseek/deepseek-r1-2025-05-28",
   /** Model ID: `deepseek/deepseek-r1-distill-llama-70b`. Model page: https://phaseo.app/models/deepseek/deepseek-r1-distill-llama-70b */
   DEEPSEEK_DEEPSEEK_R1_DISTILL_LLAMA_70B: "deepseek/deepseek-r1-distill-llama-70b",
   /** Model ID: `deepseek/deepseek-r1-turbo`. Model page: https://phaseo.app/models/deepseek/deepseek-r1-turbo */
