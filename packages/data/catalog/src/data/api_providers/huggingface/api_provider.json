@@ -4,24 +4,24 @@
   "provider_family_id": null,
   "offer_label": null,
   "offer_scope": "specialized",
-  "description": null,
+  "description": "Hugging Face Inference Providers router. Chat requests sent to the OpenAI-compatible router are fulfilled by a selected external inference provider; this catalogue is distinct from Hugging Face's own HF Inference serverless service and dedicated Inference Endpoints.",
   "link": "https://huggingface.co/docs/inference-providers",
   "residency_mode": null,
   "default_execution_regions": null,
   "default_data_regions": null,
-  "zero_data_retention": null,
-  "residency_source_url": null,
-  "prompt_training_policy": null,
-  "prompt_training_notes": null,
-  "prompt_training_source_url": null,
+  "zero_data_retention": "unknown",
+  "residency_source_url": "https://huggingface.co/docs/inference-providers/security",
+  "prompt_training_policy": "no_training",
+  "prompt_training_notes": "Hugging Face states that it does not store routed request or response bodies and does not use user data for training. Debugging logs are retained for up to 30 days without user data or tokens. The selected external provider's own data policy also applies.",
+  "prompt_training_source_url": "https://huggingface.co/docs/inference-providers/security",
   "user_identifier_policy": null,
   "user_identifier_notes": null,
-  "privacy_policy_url": null,
-  "terms_of_service_url": null,
+  "privacy_policy_url": "https://huggingface.co/privacy",
+  "terms_of_service_url": "https://huggingface.co/terms-of-service",
   "regional_pricing_mode": null,
   "regional_pricing_uplift_percent": null,
-  "pricing_source_url": null,
-  "regional_pricing_notes": null,
+  "pricing_source_url": "https://router.huggingface.co/v1/models",
+  "regional_pricing_notes": "For routed requests, Hugging Face passes through the selected external provider's published rate without markup. HF Inference serverless pricing is instead compute-time based and is not represented by the token prices in this provider catalogue.",
   "country_code": "US",
   "status": "Active",
   "colour": null,
@@ -44,15 +44,39 @@
       "notes": "Hugging Face's official terms identify Hugging Face, Inc. as a Delaware corporation."
     },
     {
+      "kind": "official_docs",
+      "url": "https://huggingface.co/docs/inference-providers",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Documents the Hugging Face router, provider-selection policies, and OpenAI-compatible chat endpoint."
+    },
+    {
+      "kind": "official_api",
+      "url": "https://router.huggingface.co/v1/models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Live OpenAI-compatible chat model catalogue and external-provider routing metadata."
+    },
+    {
+      "kind": "official_docs",
+      "url": "https://huggingface.co/docs/inference-providers/providers/hf-inference",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Defines HF Inference as a separate Hugging Face-hosted serverless service and lists its supported task families."
+    },
+    {
+      "kind": "official_docs",
+      "url": "https://huggingface.co/docs/inference-providers/security",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Documents routed-request retention, training, encryption, and external-provider policy boundaries."
+    },
+    {
       "kind": "models.dev",
       "url": "https://models.dev/api.json",
       "accessed_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider metadata and model support enrichment; not a Phaseo-routable offer."
+      "notes": "Historical provider metadata and model support enrichment; not a Phaseo-routable offer."
     }
   ],
   "verification": {
-    "status": "partial",
-    "checked_at": "2026-07-23T09:08:52.190Z",
-    "notes": "Imported from the public models.dev provider registry."
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Verified against Hugging Face's live router catalogue and official Inference Providers, HF Inference, pricing, and security documentation. Routing remains disabled in Phaseo."
   }
 }
