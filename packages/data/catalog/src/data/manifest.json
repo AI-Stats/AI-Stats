@@ -1287,7 +1287,11 @@
       "xiaomi/mimo-v2.5",
       "xiaomi/mimo-v2.5-pro",
       "xiaomi/mimo-v2.5-tts",
-      "xiaomi/mimo-v2.5-tts:free"
+      "xiaomi/mimo-v2.5-tts:free",
+      "xiaomi/mimo-v2.5-asr",
+      "xiaomi/mimo-v2.5-pro-ultraspeed",
+      "xiaomi/mimo-v2.5-tts-voiceclone:free",
+      "xiaomi/mimo-v2.5-tts-voicedesign:free"
     ],
     "z-ai": [
       "z-ai/glm-4-32b",
