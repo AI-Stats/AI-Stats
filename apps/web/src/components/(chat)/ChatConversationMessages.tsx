@@ -1356,6 +1356,7 @@ export function ChatConversationMessages({
 					renderMessage(message, messageIndex),
 				);
 			}
+			const useScrollableComparisonGrid = modelKeys.length > 2;
 
 			return (
 				<MessageScroller.Item
@@ -1374,9 +1375,12 @@ export function ChatConversationMessages({
 						viewportClassName="overscroll-x-contain"
 					>
 						<div
-							className="grid w-full min-w-max items-stretch gap-x-4 gap-y-5 pr-4"
+							className={cn(
+								"grid w-full items-stretch gap-x-4 gap-y-5 pr-4",
+								useScrollableComparisonGrid ? "min-w-max" : "min-w-0",
+							)}
 							style={{
-								gridTemplateColumns: `repeat(${modelKeys.length}, minmax(min(88vw, 32rem), 1fr))`,
+								gridTemplateColumns: `repeat(${modelKeys.length}, minmax(${useScrollableComparisonGrid ? "min(88vw, 32rem)" : "0px"}, 1fr))`,
 							}}
 						>
 							{turns.flatMap((turn) =>
