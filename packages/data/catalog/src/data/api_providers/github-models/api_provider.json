@@ -4,7 +4,7 @@
   "provider_family_id": null,
   "offer_label": null,
   "offer_scope": "specialized",
-  "description": "GitHub Models is a catalogue/gateway service from GitHub, whose headquarters are in San Francisco, California.",
+  "description": "GitHub Models was a catalogue and inference gateway from GitHub. GitHub fully retired the service on July 30, 2026.",
   "link": "https://docs.github.com/en/github-models",
   "residency_mode": null,
   "default_execution_regions": null,
@@ -23,7 +23,7 @@
   "pricing_source_url": null,
   "regional_pricing_notes": null,
   "country_code": "US",
-  "status": "Active",
+  "status": "Retired",
   "colour": null,
   "gateway_kind": "gateway",
   "routable": false,
@@ -48,11 +48,17 @@
       "url": "https://github.com/about/press",
       "accessed_at": "2026-08-09T00:00:00Z",
       "notes": "GitHub's official press page identifies its headquarters as San Francisco."
+    },
+    {
+      "kind": "official_documentation",
+      "url": "https://docs.github.com/en/github-models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "GitHub states that GitHub Models was fully retired on July 30, 2026. The playground, model catalog, inference API, and BYOK are no longer available to any customer."
     }
   ],
   "verification": {
-    "status": "partial",
-    "checked_at": "2026-08-09T00:00:00Z",
-    "notes": "Location metadata verified; other provider policy and catalogue fields were not re-audited. Existing provider verification note: Gateway metadata seed; verify provider policy and regional semantics before enabling routing."
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Retirement verified from GitHub's official documentation. The 25 imported model routes remain non-routable historical records; there is no current catalog, inference availability, rate-limit tier, free tier, or paid pricing to publish."
   }
 }
