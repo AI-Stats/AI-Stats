@@ -12,6 +12,24 @@
       "path": "/v1/chat/completions",
       "operationId": "minimax_chat",
       "notes": "Reconstructed from the provider's documented OpenAI-compatible API surface; provider-specific restrictions belong in overlays."
+    },
+    {
+      "capability": "video.generate",
+      "method": "post",
+      "path": "/v1/video_generation",
+      "operationId": "minimax_video_generate_1",
+      "enabled": false,
+      "effectiveTo": "2026-08-24T00:00:00Z",
+      "notes": "Historical inherited MiniMax-direct observation retained for provenance. Disabled at audit cutoff: video generation does not belong to the specialized Lightning offer."
+    },
+    {
+      "capability": "music.generate",
+      "method": "post",
+      "path": "/v1/music_generation",
+      "operationId": "minimax_music_generate_1",
+      "enabled": false,
+      "effectiveTo": "2026-08-24T00:00:00Z",
+      "notes": "Historical inherited MiniMax-direct observation retained for provenance. Disabled at audit cutoff: music generation does not belong to the specialized Lightning offer."
     }
   ],
   "overlays": [
