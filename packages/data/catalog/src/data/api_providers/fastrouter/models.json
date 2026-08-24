@@ -501,11 +501,11 @@
     "context_length": 200000,
     "max_output_tokens": 64000,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-08-24",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [],
         "reasoning": true,
         "tool_call": true,
@@ -517,7 +517,7 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "disabled",
     "routable": false,
     "regions": {
       "execution": [
@@ -1777,6 +1777,65 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "google/gemini-3.7-flash",
+    "provider_api_model_id": "fastrouter:google/gemini-3.7-flash",
+    "provider_model_slug": "google/gemini-3.7-flash",
+    "internal_model_id": "google/gemini-3.7-flash",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,audio,video,file",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": ["max_output_tokens", "temperature", "top_p", "top_k", "stop_sequences", "tools", "tool_choice", "response_schema", "response_mime_type", "thinking", "safety_settings", "system_instruction", "metadata", "caching", "request_options"],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://go.fastrouter.ai/api/v1/models",
+        "accessed_at": "2026-08-24T00:29:58.321Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T00:29:58.321Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "google/gemini-embedding-001",
     "provider_api_model_id": "fastrouter:google/gemini-embedding-001",
     "provider_model_slug": "google/gemini-embedding-001",
@@ -1831,6 +1890,65 @@
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T12:20:01.341Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-omni-flash-preview",
+    "provider_api_model_id": "fastrouter:google/gemini-omni-flash-preview",
+    "provider_model_slug": "google/gemini-omni-flash-preview",
+    "internal_model_id": "google/gemini-omni-flash-preview",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video,audio",
+    "output_modalities": "video",
+    "context_length": 1048576,
+    "max_output_tokens": 57920,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "video.generate",
+        "status": "active",
+        "params": ["aspectRatio", "image", "length", "previous_interaction_id", "prompt", "resolution", "response_format", "task", "video", "audio"],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://go.fastrouter.ai/api/v1/models",
+        "accessed_at": "2026-08-24T00:29:58.321Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T00:29:58.321Z",
       "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
@@ -2148,11 +2266,11 @@
     "context_length": 131072,
     "max_output_tokens": 32768,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-08-24",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [],
         "reasoning": false,
         "tool_call": true,
@@ -2164,7 +2282,7 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "disabled",
     "routable": false,
     "regions": {
       "execution": [
@@ -5289,6 +5407,124 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "openai/tts-1",
+    "provider_api_model_id": "fastrouter:openai/tts-1",
+    "provider_model_slug": "openai/tts-1",
+    "internal_model_id": "openai/tts-1",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "audio",
+    "context_length": 4096,
+    "max_output_tokens": 4096,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "audio.generate",
+        "status": "active",
+        "params": ["voice", "response_format", "speed"],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://go.fastrouter.ai/api/v1/models",
+        "accessed_at": "2026-08-24T00:29:58.321Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T00:29:58.321Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/tts-1-hd",
+    "provider_api_model_id": "fastrouter:openai/tts-1-hd",
+    "provider_model_slug": "openai/tts-1-hd",
+    "internal_model_id": "openai/tts-1-hd",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "audio",
+    "context_length": 4096,
+    "max_output_tokens": 4096,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "audio.generate",
+        "status": "active",
+        "params": ["voice", "response_format", "speed"],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://go.fastrouter.ai/api/v1/models",
+        "accessed_at": "2026-08-24T00:29:58.321Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T00:29:58.321Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "openai/whisper-1",
     "provider_api_model_id": "fastrouter:openai/whisper-1",
     "provider_model_slug": "openai/whisper-1",
@@ -6128,6 +6364,65 @@
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T12:20:01.341Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-5.3",
+    "provider_api_model_id": "fastrouter:z-ai/glm-5.3",
+    "provider_model_slug": "z-ai/glm-5.3",
+    "internal_model_id": "z-ai/glm-5.3",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 131072,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": ["max_tokens", "temperature", "top_p", "top_k", "presence_penalty", "frequency_penalty", "stop", "stream", "tools", "tool_choice", "response_format", "reasoning", "logprobs", "top_logprobs", "metadata", "user", "seed"],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://go.fastrouter.ai/api/v1/models",
+        "accessed_at": "2026-08-24T00:29:58.321Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T00:29:58.321Z",
       "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
