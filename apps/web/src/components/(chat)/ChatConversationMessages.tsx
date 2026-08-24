@@ -461,6 +461,10 @@ export function ChatConversationMessages({
 	const metadataProviderLabel =
 		formatProviderIdLabel(metadataProviderId) ?? messageProviderLabel;
 	const messages = activeThread?.messages ?? EMPTY_MESSAGES;
+	const effectiveResponseLayout: ChatResponseLayout =
+		responseLayout === "side-by-side" && selectedModelIds.length < 2
+			? "sequential"
+			: responseLayout;
 	useEffect(() => {
 		const latestUserMessage = messages
 			.slice()
@@ -472,7 +476,7 @@ export function ChatConversationMessages({
 	}, [messages]);
 
 	const shouldVirtualizeMessages =
-		responseLayout === "sequential" &&
+		effectiveResponseLayout === "sequential" &&
 		messages.length > VIRTUALIZE_AFTER_MESSAGES;
 	// TanStack Virtual exposes imperative measurement APIs; keep them local to this list.
 	// eslint-disable-next-line react-hooks/incompatible-library
@@ -1236,7 +1240,7 @@ export function ChatConversationMessages({
 			);
 		}
 
-		if (responseLayout === "side-by-side") {
+		if (effectiveResponseLayout === "side-by-side") {
 			type SideBySideItem = {
 				message: ChatThread["messages"][number];
 				messageIndex: number;
