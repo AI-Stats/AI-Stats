@@ -9,7 +9,16 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import type { NotificationDestination, NotificationEventKind } from "@/lib/fetchers/internal/settingsTypes";
 
-export default function NotificationRouteSelector({ destinations, eventKind, initialDestinationIds }: {
+export default function NotificationRouteSelector(props: {
+	destinations: NotificationDestination[];
+	eventKind: NotificationEventKind;
+	initialDestinationIds: string[];
+}) {
+	const resetKey = `${props.eventKind}:${props.destinations.map((destination) => destination.id).join(",")}:${props.initialDestinationIds.join(",")}`;
+	return <NotificationRouteSelectorState key={resetKey} {...props} />;
+}
+
+function NotificationRouteSelectorState({ destinations, eventKind, initialDestinationIds }: {
 	destinations: NotificationDestination[];
 	eventKind: NotificationEventKind;
 	initialDestinationIds: string[];

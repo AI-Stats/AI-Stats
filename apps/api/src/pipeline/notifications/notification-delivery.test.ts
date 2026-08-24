@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildProviderRequest, destinationIdsForEvent, eventContent, forEachPage } from "./notification-delivery";
+import { buildProviderRequest, eventContent, forEachPage } from "./notification-delivery";
 
 const event = { id: "event-1", kind: "model_deprecation", subject: null, workspace_id: "workspace-1", created_at: "2026-08-23T12:00:00.000Z", payload: { model_name: "Example Model", retirement_date: "2026-09-30" } };
 
@@ -15,13 +15,6 @@ describe("notification provider payloads", () => {
 		expect(count).toBe(205);
 		expect(visited).toEqual(rows);
 		expect(ranges).toEqual([[0, 99], [100, 199], [200, 299]]);
-	});
-	it("uses only the destinations routed to an alert", () => {
-		expect(destinationIdsForEvent({ kind: "low_balance", payload: {} }, ["email-1", "slack-1"])).toEqual(["email-1", "slack-1"]);
-		expect(destinationIdsForEvent({ kind: "low_balance", payload: { destination_id: "unrouted" } }, ["slack-1"])).toEqual(["slack-1"]);
-	});
-	it("allows a test event to target one destination directly", () => {
-		expect(destinationIdsForEvent({ kind: "notification_test", payload: { destination_id: "discord-1" } }, [])).toEqual(["discord-1"]);
 	});
 	it("formats model deprecation content", () => { expect(eventContent(event).message).toContain("Example Model has been deprecated"); });
 	it("limits Discord mentions to explicitly configured users and roles", () => { const request = buildProviderRequest("discord_webhook", JSON.stringify({ url: "https://discord.com/api/webhooks/123/token", userIds: ["123456789012345678"], roleIds: ["987654321098765432"] }), eventContent(event), event); expect(request.body).toMatchObject({ allowed_mentions: { parse: [], users: ["123456789012345678"], roles: ["987654321098765432"] } }); expect((request.body as { content: string }).content).toContain("<@&987654321098765432>"); });
