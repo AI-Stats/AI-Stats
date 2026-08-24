@@ -1,66 +1,15 @@
 {
-  "key": "perplexity-agent:openai/gpt-5.5:text.generate",
+  "key": "perplexity-agent:xai/grok-4.6:text.generate",
   "api_provider_id": "perplexity-agent",
   "provider_slug": "perplexity-agent",
-  "api_model_id": "openai/gpt-5.5",
+  "api_model_id": "xai/grok-4.6",
   "capability_id": "text.generate",
   "rules": [
     {
       "meter": "input_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 5,
-      "currency": "USD",
-      "pricing_plan": "standard",
-      "note": "Historical imported rate retained through the 2026-08-24 official audit.",
-      "match": [],
-      "priority": 100,
-      "region": null,
-      "cache_duration_seconds": null,
-      "conditions": [],
-      "source": null,
-      "effective_from": null,
-      "effective_to": "2026-08-24T00:00:00Z"
-    },
-    {
-      "meter": "cached_read_text_tokens",
-      "unit": "token",
-      "unit_size": 1000000,
-      "price_per_unit": 0.5,
-      "currency": "USD",
-      "pricing_plan": "standard",
-      "note": "Historical imported rate retained through the 2026-08-24 official audit.",
-      "match": [],
-      "priority": 100,
-      "region": null,
-      "cache_duration_seconds": null,
-      "conditions": [],
-      "source": null,
-      "effective_from": null,
-      "effective_to": "2026-08-24T00:00:00Z"
-    },
-    {
-      "meter": "output_text_tokens",
-      "unit": "token",
-      "unit_size": 1000000,
-      "price_per_unit": 30,
-      "currency": "USD",
-      "pricing_plan": "standard",
-      "note": "Historical imported rate retained through the 2026-08-24 official audit.",
-      "match": [],
-      "priority": 100,
-      "region": null,
-      "cache_duration_seconds": null,
-      "conditions": [],
-      "source": null,
-      "effective_from": null,
-      "effective_to": "2026-08-24T00:00:00Z"
-    },
-    {
-      "meter": "input_text_tokens",
-      "unit": "token",
-      "unit_size": 1000000,
-      "price_per_unit": 5,
+      "price_per_unit": 2,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": "Standard context pricing.",
@@ -70,7 +19,7 @@
           "op": "lte",
           "or_group": 1,
           "and_index": 1,
-          "value": 272000
+          "value": 200000
         }
       ],
       "priority": 100,
@@ -84,7 +33,7 @@
           "op": "lte",
           "or_group": 1,
           "and_index": 1,
-          "value": 272000
+          "value": 200000
         }
       ],
       "source": "https://docs.perplexity.ai/docs/agent-api/models"
@@ -103,7 +52,7 @@
           "op": "lte",
           "or_group": 1,
           "and_index": 1,
-          "value": 272000
+          "value": 200000
         }
       ],
       "priority": 100,
@@ -117,7 +66,7 @@
           "op": "lte",
           "or_group": 1,
           "and_index": 1,
-          "value": 272000
+          "value": 200000
         }
       ],
       "source": "https://docs.perplexity.ai/docs/agent-api/models"
@@ -126,7 +75,7 @@
       "meter": "output_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 30,
+      "price_per_unit": 6,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": "Standard context pricing.",
@@ -136,7 +85,7 @@
           "op": "lte",
           "or_group": 1,
           "and_index": 1,
-          "value": 272000
+          "value": 200000
         }
       ],
       "priority": 100,
@@ -150,7 +99,7 @@
           "op": "lte",
           "or_group": 1,
           "and_index": 1,
-          "value": 272000
+          "value": 200000
         }
       ],
       "source": "https://docs.perplexity.ai/docs/agent-api/models"
@@ -159,7 +108,7 @@
       "meter": "input_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 10,
+      "price_per_unit": 4,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": "Long-context pricing.",
@@ -169,7 +118,7 @@
           "op": "gt",
           "or_group": 1,
           "and_index": 1,
-          "value": 272000
+          "value": 200000
         }
       ],
       "priority": 100,
@@ -183,7 +132,7 @@
           "op": "gt",
           "or_group": 1,
           "and_index": 1,
-          "value": 272000
+          "value": 200000
         }
       ],
       "source": "https://docs.perplexity.ai/docs/agent-api/models"
@@ -192,7 +141,7 @@
       "meter": "cached_read_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.5,
+      "price_per_unit": 1,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": "Long-context cache-read pricing.",
@@ -202,7 +151,7 @@
           "op": "gt",
           "or_group": 1,
           "and_index": 1,
-          "value": 272000
+          "value": 200000
         }
       ],
       "priority": 100,
@@ -216,7 +165,7 @@
           "op": "gt",
           "or_group": 1,
           "and_index": 1,
-          "value": 272000
+          "value": 200000
         }
       ],
       "source": "https://docs.perplexity.ai/docs/agent-api/models"
@@ -225,7 +174,7 @@
       "meter": "output_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 45,
+      "price_per_unit": 12,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": "Long-context pricing.",
@@ -235,7 +184,7 @@
           "op": "gt",
           "or_group": 1,
           "and_index": 1,
-          "value": 272000
+          "value": 200000
         }
       ],
       "priority": 100,
@@ -249,7 +198,7 @@
           "op": "gt",
           "or_group": 1,
           "and_index": 1,
-          "value": 272000
+          "value": 200000
         }
       ],
       "source": "https://docs.perplexity.ai/docs/agent-api/models"
