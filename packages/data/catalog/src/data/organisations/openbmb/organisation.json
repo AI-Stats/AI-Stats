@@ -1,0 +1,16 @@
+{
+  "organisation_id": "openbmb",
+  "name": "OpenBMB",
+  "country_code": "CN",
+  "description": "OpenBMB is the Open Lab for Big Model Base and develops the MiniCPM family of open models.",
+  "colour": null,
+  "organisation_links": [
+    {"platform": "website", "url": "https://www.openbmb.cn/en/about-us"},
+    {"platform": "github", "url": "https://github.com/OpenBMB"},
+    {"platform": "hugging_face", "url": "https://huggingface.co/openbmb"}
+  ],
+  "status": "active",
+  "routable": null,
+  "sources": [{"kind": "official_company_page", "url": "https://www.openbmb.cn/en/about-us", "accessed_at": "2026-08-24T00:00:00Z", "notes": "Official organisation identity source."}],
+  "verification": {"status": "verified", "checked_at": "2026-08-24T00:00:00Z", "notes": "Organisation identity and official channels verified."}
+}

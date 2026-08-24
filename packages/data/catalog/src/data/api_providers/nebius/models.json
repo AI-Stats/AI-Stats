@@ -1,16 +1,834 @@
 [
   {
-    "api_model_id": "moonshotai/kimi-k2.5",
-    "provider_api_model_id": "nebius:moonshotai/kimi-k2.5",
-    "provider_model_slug": "moonshotai/kimi-k2.5",
-    "internal_model_id": "moonshotai/kimi-k2.5",
+    "api_model_id": "deepseek/deepseek-v4-flash",
+    "provider_api_model_id": "nebius:deepseek-ai/DeepSeek-V4-Flash",
+    "provider_model_slug": "deepseek-ai/DeepSeek-V4-Flash",
+    "internal_model_id": "deepseek/deepseek-v4-flash",
     "is_active_gateway": false,
-    "quantization_scheme": null,
+    "quantization_scheme": "fp8",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": "2026-06-01T00:00:00.000Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "us-central1"
+      ],
+      "data": [
+        "us-central1"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses"
+      ],
+      "endpoint": "https://api.tokenfactory.nebius.com/v1/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "official_api",
+        "url": "https://tokenfactory.nebius.com/api/public/models_info",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Live flavor cheap; model type text2text; region us-central1."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact active model ID, modality, context limit, region, quantization, and token prices verified against Nebius's live public catalogue."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v4-flash-0731",
+    "provider_api_model_id": "nebius:deepseek-ai/DeepSeek-V4-Flash-0731",
+    "provider_model_slug": "deepseek-ai/DeepSeek-V4-Flash-0731",
+    "internal_model_id": "deepseek/deepseek-v4-flash-0731",
+    "is_active_gateway": false,
+    "quantization_scheme": "fp8",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": "2026-07-31T00:00:00.000Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "us-central1"
+      ],
+      "data": [
+        "us-central1"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses"
+      ],
+      "endpoint": "https://api.tokenfactory.nebius.com/v1/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "official_api",
+        "url": "https://tokenfactory.nebius.com/api/public/models_info",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Live flavor cheap; model type text2text; region us-central1."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact active model ID, modality, context limit, region, quantization, and token prices verified against Nebius's live public catalogue."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v4-pro",
+    "provider_api_model_id": "nebius:deepseek-ai/DeepSeek-V4-Pro",
+    "provider_model_slug": "deepseek-ai/DeepSeek-V4-Pro",
+    "internal_model_id": "deepseek/deepseek-v4-pro",
+    "is_active_gateway": false,
+    "quantization_scheme": "fp8",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": "2026-04-29T00:00:00.000Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "uk-south1"
+      ],
+      "data": [
+        "uk-south1"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses"
+      ],
+      "endpoint": "https://api.tokenfactory.nebius.com/v1/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "official_api",
+        "url": "https://tokenfactory.nebius.com/api/public/models_info",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Live flavor cheap; model type text2text; region uk-south1."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact active model ID, modality, context limit, region, quantization, and token prices verified against Nebius's live public catalogue."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemma-3-27b",
+    "provider_api_model_id": "nebius:google/gemma-3-27b-it",
+    "provider_model_slug": "google/gemma-3-27b-it",
+    "internal_model_id": "google/gemma-3-27b",
+    "is_active_gateway": false,
+    "quantization_scheme": "fp8",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 110000,
+    "max_output_tokens": null,
+    "effective_from": "2025-03-12T00:00:00.000Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": false,
+        "tool_call": true,
+        "structured_output": false,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "eu-north1"
+      ],
+      "data": [
+        "eu-north1"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses"
+      ],
+      "endpoint": "https://api.tokenfactory.nebius.com/v1/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "official_api",
+        "url": "https://tokenfactory.nebius.com/api/public/models_info",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Live flavor cheap; model type text2text; region eu-north1."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact active model ID, modality, context limit, region, quantization, and token prices verified against Nebius's live public catalogue."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "meta/llama-3.3-70b",
+    "provider_api_model_id": "nebius:meta-llama/Llama-3.3-70B-Instruct",
+    "provider_model_slug": "meta-llama/Llama-3.3-70B-Instruct",
+    "internal_model_id": "meta/llama-3.3-70b",
+    "is_active_gateway": false,
+    "quantization_scheme": "fp8",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 131072,
+    "max_output_tokens": null,
+    "effective_from": "2024-12-06T00:00:00.000Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": false,
+        "tool_call": true,
+        "structured_output": false,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "eu-north1"
+      ],
+      "data": [
+        "eu-north1"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses"
+      ],
+      "endpoint": "https://api.tokenfactory.nebius.com/v1/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "official_api",
+        "url": "https://tokenfactory.nebius.com/api/public/models_info",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Live flavor cheap; model type text2text; region eu-north1."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact active model ID, modality, context limit, region, quantization, and token prices verified against Nebius's live public catalogue."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "minimax/minimax-m2.5",
+    "provider_api_model_id": "nebius:MiniMaxAI/MiniMax-M2.5",
+    "provider_model_slug": "MiniMaxAI/MiniMax-M2.5",
+    "internal_model_id": "minimax/minimax-m2.5",
+    "is_active_gateway": false,
+    "quantization_scheme": "fp4",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 196608,
+    "max_output_tokens": null,
+    "effective_from": 1773792000,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": false,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "us-central1"
+      ],
+      "data": [
+        "us-central1"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses"
+      ],
+      "endpoint": "https://api.tokenfactory.nebius.com/v1/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "official_api",
+        "url": "https://tokenfactory.nebius.com/api/public/models_info",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Live flavor cheap; model type text2text; region us-central1."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact active model ID, modality, context limit, region, quantization, and token prices verified against Nebius's live public catalogue."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "minimax/minimax-m3",
+    "provider_api_model_id": "nebius:MiniMaxAI/MiniMax-M3",
+    "provider_model_slug": "MiniMaxAI/MiniMax-M3",
+    "internal_model_id": "minimax/minimax-m3",
+    "is_active_gateway": false,
+    "quantization_scheme": "fp4",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": 1785493267,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": false,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "us-central1"
+      ],
+      "data": [
+        "us-central1"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses"
+      ],
+      "endpoint": "https://api.tokenfactory.nebius.com/v1/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "official_api",
+        "url": "https://tokenfactory.nebius.com/api/public/models_info",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Live flavor cheap; model type text2text; region us-central1."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact active model ID, modality, context limit, region, quantization, and token prices verified against Nebius's live public catalogue."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "moonshotai/kimi-k2.6",
+    "provider_api_model_id": "nebius:moonshotai/Kimi-K2.6",
+    "provider_model_slug": "moonshotai/Kimi-K2.6",
+    "internal_model_id": "moonshotai/kimi-k2.6",
+    "is_active_gateway": false,
+    "quantization_scheme": "int4",
     "input_modalities": "text,image",
     "output_modalities": "text",
-    "context_length": 256000,
-    "max_output_tokens": 8192,
-    "effective_from": null,
+    "context_length": 262144,
+    "max_output_tokens": null,
+    "effective_from": 1778544000,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": false,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": [
+          "text",
+          "image"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "us-central1"
+      ],
+      "data": [
+        "us-central1"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses"
+      ],
+      "endpoint": "https://api.tokenfactory.nebius.com/v1/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "official_api",
+        "url": "https://tokenfactory.nebius.com/api/public/models_info",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Live flavor cheap; model type image2text; region us-central1."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact active model ID, modality, context limit, region, quantization, and token prices verified against Nebius's live public catalogue."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "moonshotai/kimi-k2.7-code",
+    "provider_api_model_id": "nebius:moonshotai/Kimi-K2.7-Code",
+    "provider_model_slug": "moonshotai/Kimi-K2.7-Code",
+    "internal_model_id": "moonshotai/kimi-k2.7-code",
+    "is_active_gateway": false,
+    "quantization_scheme": "fp4",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": null,
+    "effective_from": 1781740800,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": false,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "us-central1"
+      ],
+      "data": [
+        "us-central1"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses"
+      ],
+      "endpoint": "https://api.tokenfactory.nebius.com/v1/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "official_api",
+        "url": "https://tokenfactory.nebius.com/api/public/models_info",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Live flavor cheap; model type text2text; region us-central1."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact active model ID, modality, context limit, region, quantization, and token prices verified against Nebius's live public catalogue."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "moonshotai/kimi-k3",
+    "provider_api_model_id": "nebius:moonshotai/Kimi-K3",
+    "provider_model_slug": "moonshotai/Kimi-K3",
+    "internal_model_id": "moonshotai/kimi-k3",
+    "is_active_gateway": false,
+    "quantization_scheme": "fp4",
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": 1785110400,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": false,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": [
+          "text",
+          "image"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "eu-west2"
+      ],
+      "data": [
+        "eu-west2"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses"
+      ],
+      "endpoint": "https://api.tokenfactory.nebius.com/v1/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "official_api",
+        "url": "https://tokenfactory.nebius.com/api/public/models_info",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Live flavor cheap; model type image2text; region eu-west2."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact active model ID, modality, context limit, region, quantization, and token prices verified against Nebius's live public catalogue."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "nous/hermes-4-405b",
+    "provider_api_model_id": "nebius:NousResearch/Hermes-4-405B",
+    "provider_model_slug": "NousResearch/Hermes-4-405B",
+    "internal_model_id": "nous/hermes-4-405b",
+    "is_active_gateway": false,
+    "quantization_scheme": "fp8",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 131072,
+    "max_output_tokens": null,
+    "effective_from": "2025-08-10T00:00:00.000Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "eu-north1"
+      ],
+      "data": [
+        "eu-north1"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses"
+      ],
+      "endpoint": "https://api.tokenfactory.nebius.com/v1/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "official_api",
+        "url": "https://tokenfactory.nebius.com/api/public/models_info",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Live flavor cheap; model type text2text; region eu-north1."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact active model ID, modality, context limit, region, quantization, and token prices verified against Nebius's live public catalogue."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "nous/hermes-4-70b",
+    "provider_api_model_id": "nebius:NousResearch/Hermes-4-70B",
+    "provider_model_slug": "NousResearch/Hermes-4-70B",
+    "internal_model_id": "nous/hermes-4-70b",
+    "is_active_gateway": false,
+    "quantization_scheme": "fp8",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 131072,
+    "max_output_tokens": null,
+    "effective_from": "2025-08-10T00:00:00.000Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "eu-north1"
+      ],
+      "data": [
+        "eu-north1"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses"
+      ],
+      "endpoint": "https://api.tokenfactory.nebius.com/v1/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "official_api",
+        "url": "https://tokenfactory.nebius.com/api/public/models_info",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Live flavor cheap; model type text2text; region eu-north1."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact active model ID, modality, context limit, region, quantization, and token prices verified against Nebius's live public catalogue."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "nvidia/cosmos3-super-reasoner",
+    "provider_api_model_id": "nebius:nvidia/Cosmos3-Super-Reasoner",
+    "provider_model_slug": "nvidia/Cosmos3-Super-Reasoner",
+    "internal_model_id": "nvidia/cosmos3-super-reasoner",
+    "is_active_gateway": false,
+    "quantization_scheme": "fp16",
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": null,
+    "effective_from": "2026-06-01T00:00:00.000Z",
     "effective_to": null,
     "capabilities": [
       {
@@ -22,12 +840,1239 @@
         "structured_output": true,
         "temperature": null,
         "attachment": true,
+        "input_modalities": [
+          "text",
+          "image",
+          "video"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "eu-north1"
+      ],
+      "data": [
+        "eu-north1"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses"
+      ],
+      "endpoint": "https://api.tokenfactory.nebius.com/v1/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "official_api",
+        "url": "https://tokenfactory.nebius.com/api/public/models_info",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Live flavor cheap; model type image2text; region eu-north1."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact active model ID, modality, context limit, region, quantization, and token prices verified against Nebius's live public catalogue."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "nvidia/llama-3.1-nemotron-ultra-253b-v1",
+    "provider_api_model_id": "nebius:nvidia/Llama-3_1-Nemotron-Ultra-253B-v1",
+    "provider_model_slug": "nvidia/Llama-3_1-Nemotron-Ultra-253B-v1",
+    "internal_model_id": "nvidia/llama-3.1-nemotron-ultra-253b-v1",
+    "is_active_gateway": false,
+    "quantization_scheme": "fp8",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 131072,
+    "max_output_tokens": null,
+    "effective_from": 1740009600,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": false,
+        "structured_output": false,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "eu-north1"
+      ],
+      "data": [
+        "eu-north1"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses"
+      ],
+      "endpoint": "https://api.tokenfactory.nebius.com/v1/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "official_api",
+        "url": "https://tokenfactory.nebius.com/api/public/models_info",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Live flavor cheap; model type text2text; region eu-north1."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact active model ID, modality, context limit, region, quantization, and token prices verified against Nebius's live public catalogue."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "nvidia/nemotron-3-nano-30b-a3b",
+    "provider_api_model_id": "nebius:nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
+    "provider_model_slug": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
+    "internal_model_id": "nvidia/nemotron-3-nano-30b-a3b",
+    "is_active_gateway": false,
+    "quantization_scheme": "fp8",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": null,
+    "effective_from": "2025-02-01T00:00:00.000Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": false,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "eu-north1"
+      ],
+      "data": [
+        "eu-north1"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses"
+      ],
+      "endpoint": "https://api.tokenfactory.nebius.com/v1/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "official_api",
+        "url": "https://tokenfactory.nebius.com/api/public/models_info",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Live flavor cheap; model type text2text; region eu-north1."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact active model ID, modality, context limit, region, quantization, and token prices verified against Nebius's live public catalogue."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "nvidia/nemotron-3-nano-omni",
+    "provider_api_model_id": "nebius:nvidia/Nemotron-3-Nano-Omni",
+    "provider_model_slug": "nvidia/Nemotron-3-Nano-Omni",
+    "internal_model_id": "nvidia/nemotron-3-nano-omni",
+    "is_active_gateway": false,
+    "quantization_scheme": "fp8",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": null,
+    "effective_from": 1776988800,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": false,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "eu-north1"
+      ],
+      "data": [
+        "eu-north1"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses"
+      ],
+      "endpoint": "https://api.tokenfactory.nebius.com/v1/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "official_api",
+        "url": "https://tokenfactory.nebius.com/api/public/models_info",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Live flavor cheap; model type text2text; region eu-north1."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact active model ID, modality, context limit, region, quantization, and token prices verified against Nebius's live public catalogue."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "nvidia/nemotron-3-super-120b-a12b",
+    "provider_api_model_id": "nebius:nvidia/nemotron-3-super-120b-a12b",
+    "provider_model_slug": "nvidia/nemotron-3-super-120b-a12b",
+    "internal_model_id": "nvidia/nemotron-3-super-120b-a12b",
+    "is_active_gateway": false,
+    "quantization_scheme": "fp4",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": null,
+    "effective_from": 1773187200,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": false,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "us-central1"
+      ],
+      "data": [
+        "us-central1"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses"
+      ],
+      "endpoint": "https://api.tokenfactory.nebius.com/v1/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "official_api",
+        "url": "https://tokenfactory.nebius.com/api/public/models_info",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Live flavor cheap; model type text2text; region us-central1."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact active model ID, modality, context limit, region, quantization, and token prices verified against Nebius's live public catalogue."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "nvidia/nemotron-3-ultra-550b-a55b",
+    "provider_api_model_id": "nebius:nvidia/Nemotron-3-Ultra-550b-a55b",
+    "provider_model_slug": "nvidia/Nemotron-3-Ultra-550b-a55b",
+    "internal_model_id": "nvidia/nemotron-3-ultra-550b-a55b",
+    "is_active_gateway": false,
+    "quantization_scheme": "fp4",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": 1780531200,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": false,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "us-central1"
+      ],
+      "data": [
+        "us-central1"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses"
+      ],
+      "endpoint": "https://api.tokenfactory.nebius.com/v1/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "official_api",
+        "url": "https://tokenfactory.nebius.com/api/public/models_info",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Live flavor cheap; model type text2text; region us-central1."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact active model ID, modality, context limit, region, quantization, and token prices verified against Nebius's live public catalogue."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "nvidia/nemotron-3.5-lightning",
+    "provider_api_model_id": "nebius:nvidia/Nemotron-3_5-Lightning",
+    "provider_model_slug": "nvidia/Nemotron-3_5-Lightning",
+    "internal_model_id": "nvidia/nemotron-3.5-lightning",
+    "is_active_gateway": false,
+    "quantization_scheme": "bf16",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-11T00:00:00.000Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": false,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "us-central1"
+      ],
+      "data": [
+        "us-central1"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses"
+      ],
+      "endpoint": "https://api.tokenfactory.nebius.com/v1/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "official_api",
+        "url": "https://tokenfactory.nebius.com/api/public/models_info",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Live flavor cheap; model type text2text; region us-central1."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact active model ID, modality, context limit, region, quantization, and token prices verified against Nebius's live public catalogue."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-oss-120b",
+    "provider_api_model_id": "nebius:openai/gpt-oss-120b",
+    "provider_model_slug": "openai/gpt-oss-120b",
+    "internal_model_id": "openai/gpt-oss-120b",
+    "is_active_gateway": false,
+    "quantization_scheme": "fp4",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 131072,
+    "max_output_tokens": null,
+    "effective_from": "2025-08-01T00:00:00.000Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "eu-north1"
+      ],
+      "data": [
+        "eu-north1"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses"
+      ],
+      "endpoint": "https://api.tokenfactory.nebius.com/v1/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "official_api",
+        "url": "https://tokenfactory.nebius.com/api/public/models_info",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Live flavor cheap; model type text2text; region eu-north1."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact active model ID, modality, context limit, region, quantization, and token prices verified against Nebius's live public catalogue."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openbmb/minicpm-v-4.5",
+    "provider_api_model_id": "nebius:openbmb/MiniCPM-V-4_5",
+    "provider_model_slug": "openbmb/MiniCPM-V-4_5",
+    "internal_model_id": "openbmb/minicpm-v-4.5",
+    "is_active_gateway": false,
+    "quantization_scheme": "fp16",
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 32000,
+    "max_output_tokens": null,
+    "effective_from": "2026-06-01T00:00:00.000Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": false,
+        "tool_call": false,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": [
+          "text",
+          "image"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "eu-north1"
+      ],
+      "data": [
+        "eu-north1"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses"
+      ],
+      "endpoint": "https://api.tokenfactory.nebius.com/v1/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "official_api",
+        "url": "https://tokenfactory.nebius.com/api/public/models_info",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Live flavor cheap; model type image2text; region eu-north1."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact active model ID, modality, context limit, region, quantization, and token prices verified against Nebius's live public catalogue."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen2.5-vl-72b",
+    "provider_api_model_id": "nebius:Qwen/Qwen2.5-VL-72B-Instruct",
+    "provider_model_slug": "Qwen/Qwen2.5-VL-72B-Instruct",
+    "internal_model_id": "qwen/qwen2.5-vl-72b",
+    "is_active_gateway": false,
+    "quantization_scheme": "fp8",
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 32000,
+    "max_output_tokens": null,
+    "effective_from": "2025-01-27T00:00:00.000Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": false,
+        "tool_call": false,
+        "structured_output": false,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": [
+          "text",
+          "image"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "eu-north1"
+      ],
+      "data": [
+        "eu-north1"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses"
+      ],
+      "endpoint": "https://api.tokenfactory.nebius.com/v1/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "official_api",
+        "url": "https://tokenfactory.nebius.com/api/public/models_info",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Live flavor cheap; model type image2text; region eu-north1."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact active model ID, modality, context limit, region, quantization, and token prices verified against Nebius's live public catalogue."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-235b-a22b-2507",
+    "provider_api_model_id": "nebius:Qwen/Qwen3-235B-A22B-Instruct-2507",
+    "provider_model_slug": "Qwen/Qwen3-235B-A22B-Instruct-2507",
+    "internal_model_id": "qwen/qwen3-235b-a22b-2507",
+    "is_active_gateway": false,
+    "quantization_scheme": "fp8",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": null,
+    "effective_from": "2025-07-01T00:00:00.000Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": false,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "eu-north1"
+      ],
+      "data": [
+        "eu-north1"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses"
+      ],
+      "endpoint": "https://api.tokenfactory.nebius.com/v1/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "official_api",
+        "url": "https://tokenfactory.nebius.com/api/public/models_info",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Live flavor cheap; model type text2text; region eu-north1."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact active model ID, modality, context limit, region, quantization, and token prices verified against Nebius's live public catalogue."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-30b-a3b-instruct-2507",
+    "provider_api_model_id": "nebius:Qwen/Qwen3-30B-A3B-Instruct-2507",
+    "provider_model_slug": "Qwen/Qwen3-30B-A3B-Instruct-2507",
+    "internal_model_id": "qwen/qwen3-30b-a3b-instruct-2507",
+    "is_active_gateway": false,
+    "quantization_scheme": "fp8",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": null,
+    "effective_from": "2025-07-01T00:00:00.000Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": false,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "eu-north1"
+      ],
+      "data": [
+        "eu-north1"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses"
+      ],
+      "endpoint": "https://api.tokenfactory.nebius.com/v1/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "official_api",
+        "url": "https://tokenfactory.nebius.com/api/public/models_info",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Live flavor cheap; model type text2text; region eu-north1."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact active model ID, modality, context limit, region, quantization, and token prices verified against Nebius's live public catalogue."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-32b",
+    "provider_api_model_id": "nebius:Qwen/Qwen3-32B",
+    "provider_model_slug": "Qwen/Qwen3-32B",
+    "internal_model_id": "qwen/qwen3-32b",
+    "is_active_gateway": false,
+    "quantization_scheme": "fp8",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 40960,
+    "max_output_tokens": null,
+    "effective_from": "2025-04-29T00:00:00.000Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "eu-north1"
+      ],
+      "data": [
+        "eu-north1"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses"
+      ],
+      "endpoint": "https://api.tokenfactory.nebius.com/v1/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "official_api",
+        "url": "https://tokenfactory.nebius.com/api/public/models_info",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Live flavor cheap; model type text2text; region eu-north1."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact active model ID, modality, context limit, region, quantization, and token prices verified against Nebius's live public catalogue."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-embedding-8b",
+    "provider_api_model_id": "nebius:Qwen/Qwen3-Embedding-8B",
+    "provider_model_slug": "Qwen/Qwen3-Embedding-8B",
+    "internal_model_id": "qwen/qwen3-embedding-8b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "embedding",
+    "context_length": 40960,
+    "max_output_tokens": null,
+    "effective_from": "2025-06-05T00:00:00.000Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "embeddings",
+        "status": "active",
+        "params": [],
+        "reasoning": false,
+        "tool_call": false,
+        "structured_output": false,
+        "temperature": false,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "embedding"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "eu-north1"
+      ],
+      "data": [
+        "eu-north1"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.embeddings"
+      ],
+      "endpoint": "https://api.tokenfactory.nebius.com/v1/embeddings",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "official_api",
+        "url": "https://tokenfactory.nebius.com/api/public/models_info",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Live flavor cheap; model type embedding; region eu-north1."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact active model ID, modality, context limit, region, quantization, and token prices verified against Nebius's live public catalogue."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-next-80b-a3b-thinking",
+    "provider_api_model_id": "nebius:Qwen/Qwen3-Next-80B-A3B-Thinking",
+    "provider_model_slug": "Qwen/Qwen3-Next-80B-A3B-Thinking",
+    "internal_model_id": "qwen/qwen3-next-80b-a3b-thinking",
+    "is_active_gateway": false,
+    "quantization_scheme": "fp8",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 128000,
+    "max_output_tokens": null,
+    "effective_from": "2025-06-01T00:00:00.000Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "eu-north1"
+      ],
+      "data": [
+        "eu-north1"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses"
+      ],
+      "endpoint": "https://api.tokenfactory.nebius.com/v1/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "official_api",
+        "url": "https://tokenfactory.nebius.com/api/public/models_info",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Live flavor cheap; model type text2text; region eu-north1."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact active model ID, modality, context limit, region, quantization, and token prices verified against Nebius's live public catalogue."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.5-397b-a17b",
+    "provider_api_model_id": "nebius:Qwen/Qwen3.5-397B-A17B",
+    "provider_model_slug": "Qwen/Qwen3.5-397B-A17B",
+    "internal_model_id": "qwen/qwen3.5-397b-a17b",
+    "is_active_gateway": false,
+    "quantization_scheme": "fp4",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": null,
+    "effective_from": 1771286400,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": false,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "us-central1"
+      ],
+      "data": [
+        "us-central1"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses"
+      ],
+      "endpoint": "https://api.tokenfactory.nebius.com/v1/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "official_api",
+        "url": "https://tokenfactory.nebius.com/api/public/models_info",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Live flavor cheap; model type text2text; region us-central1."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact active model ID, modality, context limit, region, quantization, and token prices verified against Nebius's live public catalogue."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-5.1",
+    "provider_api_model_id": "nebius:zai-org/GLM-5.1",
+    "provider_model_slug": "zai-org/GLM-5.1",
+    "internal_model_id": "z-ai/glm-5.1",
+    "is_active_gateway": false,
+    "quantization_scheme": "fp8",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 202752,
+    "max_output_tokens": null,
+    "effective_from": "2026-04-07T00:00:00.000Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "eu-north1"
+      ],
+      "data": [
+        "eu-north1"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses"
+      ],
+      "endpoint": "https://api.tokenfactory.nebius.com/v1/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "official_api",
+        "url": "https://tokenfactory.nebius.com/api/public/models_info",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Live flavor cheap; model type text2text; region eu-north1."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact active model ID, modality, context limit, region, quantization, and token prices verified against Nebius's live public catalogue."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-5.2",
+    "provider_api_model_id": "nebius:zai-org/GLM-5.2",
+    "provider_model_slug": "zai-org/GLM-5.2",
+    "internal_model_id": "z-ai/glm-5.2",
+    "is_active_gateway": false,
+    "quantization_scheme": "fp4",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": 1781481600,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": false,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "uk-south1"
+      ],
+      "data": [
+        "uk-south1"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses"
+      ],
+      "endpoint": "https://api.tokenfactory.nebius.com/v1/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "official_api",
+        "url": "https://tokenfactory.nebius.com/api/public/models_info",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Live flavor cheap; model type text2text; region uk-south1."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact active model ID, modality, context limit, region, quantization, and token prices verified against Nebius's live public catalogue."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "moonshotai/kimi-k2.5",
+    "provider_api_model_id": "nebius:moonshotai/kimi-k2.5",
+    "provider_model_slug": "moonshotai/kimi-k2.5",
+    "internal_model_id": "moonshotai/kimi-k2.5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 256000,
+    "max_output_tokens": 8192,
+    "effective_from": null,
+    "effective_to": "2026-08-24T00:00:00Z",
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "disabled",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "inactive",
     "routable": false,
     "regions": {
       "execution": [
@@ -52,9 +2097,9 @@
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Preserved historical catalogue record; exact wire ID is absent from the 2026-08-24 active Nebius feed."
     },
     "rate_limits": []
   },
@@ -70,11 +2115,11 @@
     "context_length": 262144,
     "max_output_tokens": 8000,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-08-24T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [],
         "reasoning": true,
         "tool_call": true,
@@ -86,7 +2131,7 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "inactive",
     "routable": false,
     "regions": {
       "execution": [
@@ -111,9 +2156,9 @@
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Preserved historical catalogue record; exact wire ID is absent from the 2026-08-24 active Nebius feed."
     },
     "rate_limits": []
   },
@@ -129,11 +2174,11 @@
     "context_length": 65536,
     "max_output_tokens": 8192,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-08-24T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [],
         "reasoning": true,
         "tool_call": true,
@@ -145,7 +2190,7 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "inactive",
     "routable": false,
     "regions": {
       "execution": [
@@ -170,127 +2215,9 @@
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "nvidia/nemotron-3-super-120b-a12b",
-    "provider_api_model_id": "nebius:nvidia/nemotron-3-super-120b-a12b",
-    "provider_model_slug": "nvidia/nemotron-3-super-120b-a12b",
-    "internal_model_id": "nvidia/nemotron-3-super-120b-a12b",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": "text",
-    "output_modalities": "text",
-    "context_length": 256000,
-    "max_output_tokens": 32768,
-    "effective_from": null,
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": true,
-        "tool_call": true,
-        "structured_output": true,
-        "temperature": null,
-        "attachment": false,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": false,
-    "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [
-      {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: nvidia/nemotron-3-super-120b-a12b"
-      }
-    ],
-    "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "openai/gpt-oss-120b",
-    "provider_api_model_id": "nebius:openai/gpt-oss-120b",
-    "provider_model_slug": "openai/gpt-oss-120b",
-    "internal_model_id": "openai/gpt-oss-120b",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": "text",
-    "output_modalities": "text",
-    "context_length": 128000,
-    "max_output_tokens": 8192,
-    "effective_from": null,
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": true,
-        "tool_call": true,
-        "structured_output": true,
-        "temperature": null,
-        "attachment": false,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": false,
-    "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [
-      {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: openai/gpt-oss-120b"
-      }
-    ],
-    "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Preserved historical catalogue record; exact wire ID is absent from the 2026-08-24 active Nebius feed."
     },
     "rate_limits": []
   },
@@ -306,11 +2233,11 @@
     "context_length": 128000,
     "max_output_tokens": 8192,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-08-24T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [],
         "reasoning": false,
         "tool_call": true,
@@ -322,7 +2249,7 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "inactive",
     "routable": false,
     "regions": {
       "execution": [
@@ -347,9 +2274,9 @@
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Preserved historical catalogue record; exact wire ID is absent from the 2026-08-24 active Nebius feed."
     },
     "rate_limits": []
   },
@@ -365,11 +2292,11 @@
     "context_length": 128000,
     "max_output_tokens": 8192,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-08-24T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [],
         "reasoning": false,
         "tool_call": true,
@@ -381,7 +2308,7 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "inactive",
     "routable": false,
     "regions": {
       "execution": [
@@ -406,9 +2333,9 @@
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Preserved historical catalogue record; exact wire ID is absent from the 2026-08-24 active Nebius feed."
     },
     "rate_limits": []
   },
@@ -424,11 +2351,11 @@
     "context_length": 32768,
     "max_output_tokens": null,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-08-24T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [],
         "reasoning": false,
         "tool_call": false,
@@ -440,7 +2367,7 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "inactive",
     "routable": false,
     "regions": {
       "execution": [
@@ -465,9 +2392,9 @@
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Preserved historical catalogue record; exact wire ID is absent from the 2026-08-24 active Nebius feed."
     },
     "rate_limits": []
   },
@@ -483,11 +2410,11 @@
     "context_length": 128000,
     "max_output_tokens": 16384,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-08-24T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [],
         "reasoning": true,
         "tool_call": true,
@@ -499,7 +2426,7 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "inactive",
     "routable": false,
     "regions": {
       "execution": [
@@ -524,9 +2451,9 @@
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Preserved historical catalogue record; exact wire ID is absent from the 2026-08-24 active Nebius feed."
     },
     "rate_limits": []
   },
@@ -542,11 +2469,11 @@
     "context_length": 262144,
     "max_output_tokens": 8192,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-08-24T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [],
         "reasoning": true,
         "tool_call": true,
@@ -558,7 +2485,7 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "inactive",
     "routable": false,
     "regions": {
       "execution": [
@@ -583,9 +2510,9 @@
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Preserved historical catalogue record; exact wire ID is absent from the 2026-08-24 active Nebius feed."
     },
     "rate_limits": []
   },
@@ -601,7 +2528,7 @@
     "context_length": 202752,
     "max_output_tokens": null,
     "effective_from": "2026-08-12T00:00:00Z",
-    "effective_to": null,
+    "effective_to": "2026-08-24T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -634,7 +2561,7 @@
         "modes": []
       }
     ],
-    "routing_status": "disabled",
+    "routing_status": "inactive",
     "routable": false,
     "regions": {
       "execution": null,
@@ -655,9 +2582,9 @@
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-12T00:00:00Z",
-      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Preserved historical catalogue record; exact wire ID is absent from the 2026-08-24 active Nebius feed."
     },
     "rate_limits": []
   },
@@ -673,7 +2600,7 @@
     "context_length": 262144,
     "max_output_tokens": null,
     "effective_from": "2026-08-12T00:00:00Z",
-    "effective_to": null,
+    "effective_to": "2026-08-24T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -704,7 +2631,7 @@
         "modes": []
       }
     ],
-    "routing_status": "disabled",
+    "routing_status": "inactive",
     "routable": false,
     "regions": {
       "execution": null,
@@ -725,9 +2652,9 @@
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-12T00:00:00Z",
-      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Preserved historical catalogue record; exact wire ID is absent from the 2026-08-24 active Nebius feed."
     },
     "rate_limits": []
   }

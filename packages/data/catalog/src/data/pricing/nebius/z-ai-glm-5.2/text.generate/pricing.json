@@ -1,21 +1,21 @@
 {
-  "key": "nebius:openai/gpt-oss-120b:text.generate",
+  "key": "nebius:z-ai/glm-5.2:text.generate",
   "api_provider_id": "nebius",
   "provider_slug": "nebius",
-  "api_model_id": "openai/gpt-oss-120b",
+  "api_model_id": "z-ai/glm-5.2",
   "capability_id": "text.generate",
   "rules": [
     {
       "meter": "input_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.15,
+      "price_per_unit": 1.4,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
       "match": [],
       "priority": 100,
-      "region": "eu-north1",
+      "region": "uk-south1",
       "cache_duration_seconds": null,
       "conditions": [],
       "source": null
@@ -24,13 +24,13 @@
       "meter": "output_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.6,
+      "price_per_unit": 4.4,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
       "match": [],
       "priority": 100,
-      "region": "eu-north1",
+      "region": "uk-south1",
       "cache_duration_seconds": null,
       "conditions": [],
       "source": null
@@ -39,20 +39,20 @@
       "meter": "output_reasoning_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.6,
+      "price_per_unit": 4.4,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
       "match": [],
       "priority": 100,
-      "region": "eu-north1",
+      "region": "uk-south1",
       "cache_duration_seconds": null,
       "conditions": [],
       "source": null
     }
   ],
   "regions": [
-    "eu-north1"
+    "uk-south1"
   ],
   "service_tiers": [
     "standard"
