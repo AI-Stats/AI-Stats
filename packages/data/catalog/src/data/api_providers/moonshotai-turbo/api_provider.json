@@ -4,7 +4,7 @@
   "offer_scope": "specialized",
   "offer_label": "priority",
   "api_provider_name": "Moonshot AI Turbo",
-  "description": "Retired Moonshot AI high-speed offer for the legacy Kimi K2 turbo model slugs. Current high-speed access is exposed by the direct Moonshot AI provider as a priority service tier.",
+  "description": "Retired Moonshot AI high-speed offer for the legacy Kimi K2 turbo model slugs. Current high-speed access is exposed by the direct Moonshot AI provider as a priority service tier; inactive ordinary-model records are preserved only as historical discovery observations.",
   "link": "https://platform.moonshot.ai/",
   "residency_mode": "provider_managed",
   "default_execution_regions": null,

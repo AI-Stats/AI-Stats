@@ -2,4 +2,4 @@
 "@phaseo/data-catalog": patch
 ---
 
-Correct the retired Moonshot AI Turbo route inventory, lifecycle metadata, endpoint coverage, and historical pricing end dates.
+Correct the retired Moonshot AI Turbo route inventory, preserve misclassified discovery observations as inactive history, and update lifecycle, endpoint, and pricing end-date metadata.
