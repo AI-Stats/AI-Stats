@@ -12,7 +12,7 @@
       "price_per_unit": 1.4,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Nebius Token Factory public models_info API showed this pricing on 2026-06-16.",
+      "note": null,
       "match": [],
       "priority": 100,
       "region": null,
@@ -27,7 +27,7 @@
       "price_per_unit": 4.4,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Nebius Token Factory public models_info API showed this pricing on 2026-06-16.",
+      "note": null,
       "match": [],
       "priority": 100,
       "region": null,
@@ -36,14 +36,23 @@
       "source": null
     }
   ],
-  "regions": [],
+  "regions": [
+    "uk-south1"
+  ],
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "api",
+      "url": "https://tokenfactory.nebius.com/api/public/models_info",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Live cheap flavor price for zai-org/GLM-5.2."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Current token pricing verified against Nebius Token Factory's live public catalog."
   }
 }

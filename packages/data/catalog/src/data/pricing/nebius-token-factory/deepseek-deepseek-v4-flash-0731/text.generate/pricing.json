@@ -1,15 +1,15 @@
 {
-  "key": "nebius-token-factory:meta/llama-3.3-70b:text.generate",
+  "key": "nebius-token-factory:deepseek/deepseek-v4-flash-0731:text.generate",
   "api_provider_id": "nebius-token-factory",
   "provider_slug": "nebius-token-factory",
-  "api_model_id": "meta/llama-3.3-70b",
+  "api_model_id": "deepseek/deepseek-v4-flash-0731",
   "capability_id": "text.generate",
   "rules": [
     {
       "meter": "input_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.13,
+      "price_per_unit": 0.14,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
@@ -24,7 +24,7 @@
       "meter": "output_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.4,
+      "price_per_unit": 0.28,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
@@ -37,7 +37,7 @@
     }
   ],
   "regions": [
-    "eu-north1"
+    "us-central1"
   ],
   "service_tiers": [
     "standard"
@@ -47,7 +47,7 @@
       "kind": "api",
       "url": "https://tokenfactory.nebius.com/api/public/models_info",
       "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "Live cheap flavor price for meta-llama/Llama-3.3-70B-Instruct."
+      "notes": "Live cheap flavor price for deepseek-ai/DeepSeek-V4-Flash-0731."
     }
   ],
   "verification": {
