@@ -13,6 +13,13 @@
   "input_types": "text",
   "output_types": "audio_music",
   "api_model_id": "minimax/music-3.0",
+  "variants": [
+    {
+      "model_id": "minimax/music-3.0:free",
+      "name": "Music 3.0 (Free)",
+      "variant_kind": "free"
+    }
+  ],
   "family_id": null,
   "links": [
     {
