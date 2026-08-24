@@ -59,13 +59,13 @@
     {
       "kind": "official_api",
       "url": "https://routellm.abacus.ai/v1/models",
-      "accessed_at": "2026-08-24T00:00:00Z",
+      "accessed_at": "2026-08-23T23:11:00Z",
       "notes": "Live RouteLLM pricing for upstream model ID zai-org/GLM-5.3; token rates converted to USD per 1M tokens."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-24T00:00:00Z",
+    "checked_at": "2026-08-23T23:11:00Z",
     "notes": "Pricing and cache rates verified directly from the public Abacus.AI /v1/models response."
   }
 }

@@ -50,19 +50,19 @@
     {
       "kind": "official_api",
       "url": "https://routellm.abacus.ai/v1/models",
-      "accessed_at": "2026-08-24T00:00:00Z",
+      "accessed_at": "2026-08-23T23:11:00Z",
       "notes": "Public live catalogue, model limits, modalities, API formats, and token pricing."
     },
     {
       "kind": "official_documentation",
       "url": "https://abacus.ai/help/developer-platform/route-llm",
-      "accessed_at": "2026-08-24T00:00:00Z",
+      "accessed_at": "2026-08-23T23:11:00Z",
       "notes": "Official RouteLLM endpoints, capabilities, pricing policy, and US hosting statement."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-24T00:00:00Z",
+    "checked_at": "2026-08-23T23:11:00Z",
     "notes": "Verified against Abacus.AI's official RouteLLM documentation and public live model endpoint. Phaseo routing remains disabled."
   }
 }

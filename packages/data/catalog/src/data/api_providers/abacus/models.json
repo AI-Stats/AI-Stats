@@ -11,7 +11,7 @@
     "context_length": 128000,
     "max_output_tokens": 8192,
     "effective_from": null,
-    "effective_to": "2026-08-24T00:00:00Z",
+    "effective_to": "2026-08-23T23:11:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -48,7 +48,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "No longer returned by Abacus.AI's public live /v1/models catalogue; retained as historical support."
     },
     "rate_limits": []
@@ -65,7 +65,7 @@
     "context_length": 32768,
     "max_output_tokens": 32768,
     "effective_from": null,
-    "effective_to": "2026-08-24T00:00:00Z",
+    "effective_to": "2026-08-23T23:11:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -102,7 +102,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "No longer returned by Abacus.AI's public live /v1/models catalogue; retained as historical support."
     },
     "rate_limits": []
@@ -166,7 +166,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -230,7 +230,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -295,7 +295,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -359,7 +359,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -423,7 +423,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -487,7 +487,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -551,7 +551,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -615,7 +615,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -679,7 +679,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -743,7 +743,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -807,7 +807,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -871,7 +871,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -935,7 +935,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -999,7 +999,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -1064,7 +1064,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -1128,7 +1128,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -1192,7 +1192,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -1256,7 +1256,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -1320,7 +1320,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -1382,7 +1382,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -1444,7 +1444,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -1507,7 +1507,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -1570,7 +1570,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -1634,7 +1634,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -1698,7 +1698,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -1761,7 +1761,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -1825,7 +1825,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -1889,7 +1889,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -1953,7 +1953,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -2017,7 +2017,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -2081,7 +2081,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -2145,7 +2145,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -2208,7 +2208,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -2272,7 +2272,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -2334,7 +2334,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -2398,7 +2398,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -2460,7 +2460,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -2523,7 +2523,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -2585,7 +2585,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -2647,7 +2647,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -2709,7 +2709,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -2771,7 +2771,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -2833,7 +2833,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -2895,7 +2895,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -2959,7 +2959,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -3021,7 +3021,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -3085,7 +3085,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -3149,7 +3149,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -3211,7 +3211,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -3273,7 +3273,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -3335,7 +3335,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -3397,7 +3397,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -3461,7 +3461,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -3525,7 +3525,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -3589,7 +3589,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -3653,7 +3653,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -3717,7 +3717,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -3779,7 +3779,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -3841,7 +3841,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -3904,7 +3904,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -3968,7 +3968,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -4032,7 +4032,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -4096,7 +4096,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -4160,7 +4160,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -4222,7 +4222,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -4286,7 +4286,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -4350,7 +4350,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -4414,7 +4414,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -4478,7 +4478,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -4542,7 +4542,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -4606,7 +4606,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -4669,7 +4669,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -4732,7 +4732,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -4795,7 +4795,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -4858,7 +4858,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -4922,7 +4922,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -4986,7 +4986,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -5049,7 +5049,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -5112,7 +5112,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's live RouteLLM catalogue and classified using the canonical OpenAI audio transcription contract; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -5176,7 +5176,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's live RouteLLM catalogue and classified using the canonical OpenAI audio transcription contract; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -5240,7 +5240,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's live RouteLLM catalogue and classified using the canonical OpenAI audio transcription contract; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -5304,7 +5304,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's live RouteLLM catalogue and classified using the canonical OpenAI audio transcription contract; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -5367,7 +5367,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
@@ -5430,7 +5430,7 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
+      "checked_at": "2026-08-23T23:11:00Z",
       "notes": "Verified against Abacus.AI's unauthenticated live RouteLLM model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []

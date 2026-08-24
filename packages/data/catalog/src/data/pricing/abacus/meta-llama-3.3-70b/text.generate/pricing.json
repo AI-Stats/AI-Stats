@@ -24,7 +24,7 @@
       "meter": "output_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.7899999999999999,
+      "price_per_unit": 0.79,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
@@ -44,13 +44,13 @@
     {
       "kind": "official_api",
       "url": "https://routellm.abacus.ai/v1/models",
-      "accessed_at": "2026-08-24T00:00:00Z",
+      "accessed_at": "2026-08-23T23:11:00Z",
       "notes": "Live RouteLLM pricing for upstream model ID meta-llama/Meta-Llama-3.3-70B-Instruct; token rates converted to USD per 1M tokens."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-24T00:00:00Z",
+    "checked_at": "2026-08-23T23:11:00Z",
     "notes": "Pricing and cache rates verified directly from the public Abacus.AI /v1/models response."
   }
 }
