@@ -1530,10 +1530,10 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "z-ai/glm-5.2",
-    "provider_api_model_id": "inference:glm-5.2-fast",
+    "api_model_id": "z-ai/glm-5.2-fast",
+    "provider_api_model_id": "inference:z-ai/glm-5.2-fast",
     "provider_model_slug": "glm-5.2-fast",
-    "internal_model_id": "z-ai/glm-5.2",
+    "internal_model_id": "z-ai/glm-5.2-fast",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
@@ -2697,10 +2697,10 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "moonshotai/kimi-k2.7-code",
-    "provider_api_model_id": "inference:kimi-k3-fast",
+    "api_model_id": "moonshotai/kimi-k3-fast",
+    "provider_api_model_id": "inference:moonshotai/kimi-k3-fast",
     "provider_model_slug": "kimi-k3-fast",
-    "internal_model_id": "moonshotai/kimi-k2.7-code",
+    "internal_model_id": "moonshotai/kimi-k3-fast",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image",
@@ -2916,10 +2916,10 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "meta/llama-3.2-3b",
+    "api_model_id": "inference-net/schematron-v2-small",
     "provider_api_model_id": "inference:inference-net/schematron-v2-small",
     "provider_model_slug": "inference-net/schematron-v2-small",
-    "internal_model_id": "meta/llama-3.2-3b",
+    "internal_model_id": "inference-net/schematron-v2-small",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
@@ -2988,10 +2988,10 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "ibm/granite-4.0-h-micro",
+    "api_model_id": "inference-net/schematron-v2-turbo",
     "provider_api_model_id": "inference:inference-net/schematron-v2-turbo",
     "provider_model_slug": "inference-net/schematron-v2-turbo",
-    "internal_model_id": "ibm/granite-4.0-h-micro",
+    "internal_model_id": "inference-net/schematron-v2-turbo",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",

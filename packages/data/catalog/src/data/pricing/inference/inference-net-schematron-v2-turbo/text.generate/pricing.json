@@ -1,8 +1,8 @@
 {
-  "key": "inference:ibm/granite-4.0-h-micro:text.generate",
+  "key": "inference:inference-net/schematron-v2-turbo:text.generate",
   "api_provider_id": "inference",
   "provider_slug": "inference",
-  "api_model_id": "ibm/granite-4.0-h-micro",
+  "api_model_id": "inference-net/schematron-v2-turbo",
   "capability_id": "text.generate",
   "rules": [
     {

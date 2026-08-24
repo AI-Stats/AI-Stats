@@ -1,8 +1,8 @@
 {
-  "key": "inference:meta/llama-3.2-3b:text.generate",
+  "key": "inference:inference-net/schematron-v2-small:text.generate",
   "api_provider_id": "inference",
   "provider_slug": "inference",
-  "api_model_id": "meta/llama-3.2-3b",
+  "api_model_id": "inference-net/schematron-v2-small",
   "capability_id": "text.generate",
   "rules": [
     {
