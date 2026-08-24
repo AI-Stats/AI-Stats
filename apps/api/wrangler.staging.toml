@@ -40,6 +40,9 @@ EMAIL_OUTBOX_DRAIN_ENABLED = "false"
 PRICING_MONITOR_ENABLED = "false"
 ENTERPRISE_INVOICING_ENABLED = "false"
 
+[triggers]
+crons = ["* * * * *"]
+
 [placement]
 mode = "smart"
 

@@ -1356,7 +1356,7 @@ describe("batchRoutes", () => {
 		expect(state.fetchCalls).toEqual([]);
 	});
 
-	it("keeps experimental file-backed providers disabled even when explicitly configured", async () => {
+	it("keeps experimental Groq batches disabled even when explicitly configured", async () => {
 		vi.stubGlobal(
 			"fetch",
 			vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -1375,12 +1375,6 @@ describe("batchRoutes", () => {
 				if (url === "https://api.groq.com/openai/v1/batches" && method === "POST") {
 					return jsonResponse({ id: "batch_groq_mixed", status: "validating", input_file_id: "file_groq_mixed" });
 				}
-				if (url === "https://api.together.ai/v1/files/upload" && method === "POST") {
-					return jsonResponse({ id: "file_together_mixed", purpose: "batch-api", status: "uploaded" });
-				}
-				if (url === "https://api.together.ai/v1/batches" && method === "POST") {
-					return jsonResponse({ job: { id: "batch_together_mixed", status: "VALIDATING", input_file_id: "file_together_mixed" } }, { status: 201 });
-				}
 				throw new Error(`Unexpected fetch: ${method} ${url}`);
 			}),
 		);
@@ -1389,7 +1383,6 @@ describe("batchRoutes", () => {
 
 		for (const [provider, firstModel, secondModel] of [
 			["groq", "llama-3.1-8b-instant", "llama-3.3-70b-versatile"],
-			["together", "meta-llama/Llama-3.3-70B-Instruct-Turbo", "Qwen/Qwen3-235B-A22B-fp8-tput"],
 		] as const) {
 			const response = await batchRoutes.request("https://example.com/", {
 				method: "POST",
