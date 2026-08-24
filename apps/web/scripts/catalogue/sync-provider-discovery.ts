@@ -354,8 +354,39 @@ async function loadCanonicalModelIndex(): Promise<{ ids: Set<string>; aliases: M
 	return { ids, aliases, uniqueTails, uniqueCompactTails };
 }
 
-function resolveCanonicalModelId(modelId: string, index: Awaited<ReturnType<typeof loadCanonicalModelIndex>>): string | null {
+const PIONEER_CANONICAL_MODELS: Record<string, string> = {
+	"qwen/qwen3-235b-a22b-instruct-2507": "qwen/qwen3-235b-a22b-instruct-2507",
+	"claude-opus-5-fast": "anthropic/claude-opus-5-fast",
+	"devstral-2": "mistral/devstral-2.0",
+	"devstral-small-2": "mistral/devstral-small-2.0",
+	"fastino/fastino-nemotron-3.5-lightning-finance": "fastino/nemotron-3.5-lightning-finance",
+	"fastino/fastino-nemotron-3.5-lightning-healthcare": "fastino/nemotron-3.5-lightning-healthcare",
+	"gemini-3-flash": "google/gemini-3-flash",
+	"gemini-3.1-pro": "google/gemini-3.1-pro",
+	"google/gemma-4-12b-it": "google/gemma-4-12b",
+	"google/gemma-4-31b-it": "google/gemma-4-31b",
+	"magistral-medium": "mistral/magistral-medium-1.2",
+	"meta-llama/llama-3.1-8b-instruct": "meta/llama-3.1-8b",
+	"meta-llama/llama-3.3-70b-instruct": "meta/llama-3.3-70b",
+	"ministral-14b": "mistral/ministral-14b",
+	"mistral-large-3": "mistral/mistral-large-3.0",
+	"mistral-medium": "mistral/mistral-medium-3.0",
+	"mistralai/codestral-22b-v0.1": "mistral/codestral-2024-05-29",
+	"mistralai/ministral-8b-instruct-2410": "mistral/ministral-8b",
+	"mistralai/mistral-nemo-instruct-2407": "mistral/mistral-nemo-2407",
+	"mistralai/mistral-small-4-119b-2603": "mistral/mistral-small-4",
+	"mistralai/pixtral-12b-2409": "mistral/pixtral-12b",
+	"moonshotai/kimi-k3-fast": "moonshotai/kimi-k3-fast",
+	"nvidia/nvidia-nemotron-3-nano-30b-a3b-bf16": "nvidia/nemotron-3-nano-30b-a3b",
+	"nvidia/nvidia-nemotron-3-super-120b-a12b-fp8": "nvidia/nemotron-3-super-120b-a12b",
+	"nvidia/nvidia-nemotron-3-ultra-550b-a55b-bf16": "nvidia/nemotron-3-ultra-550b-a55b",
+	"nvidia/nvidia-nemotron-3.5-lightning-30b-a3b-bf16": "nvidia/nemotron-3.5-lightning",
+	"zai-org/glm-5.2-fast": "z-ai/glm-5.2-fast",
+};
+
+function resolveCanonicalModelId(modelId: string, index: Awaited<ReturnType<typeof loadCanonicalModelIndex>>, providerId?: string): string | null {
 	const id = normalized(modelId).replace(/^models\//, "");
+	if (providerId === "pioneer" && PIONEER_CANONICAL_MODELS[id]) return PIONEER_CANONICAL_MODELS[id];
 	if (index.ids.has(id)) return id;
 	const alias = index.aliases.get(id);
 	if (alias) return alias;
@@ -412,7 +443,7 @@ async function main(): Promise<void> {
 		for (const row of providerRows) {
 			let mapping = models.find((model) => normalized(model.provider_model_slug) === normalized(row.model_id));
 			if (!mapping) {
-				const canonicalModelId = resolveCanonicalModelId(row.model_id, canonical);
+				const canonicalModelId = resolveCanonicalModelId(row.model_id, canonical, discoveryProviderId);
 				if (!canonicalModelId) {
 					report.unmatched.push(`${discoveryProviderId}:${row.model_id}`);
 					continue;

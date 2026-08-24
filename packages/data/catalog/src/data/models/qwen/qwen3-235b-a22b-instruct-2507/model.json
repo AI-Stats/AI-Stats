@@ -1,0 +1,7 @@
+{
+  "model_id": "qwen/qwen3-235b-a22b-instruct-2507", "organisation_id": "qwen", "name": "Qwen3 235B A22B Instruct 2507", "status": "Available", "previous_model_id": null,
+  "description": "Qwen3 235B A22B Instruct 2507 is the instruction-tuned 235B-parameter mixture-of-experts Qwen3 checkpoint exposed by Pioneer.", "announced_date": null, "release_date": "2025-07-01T00:00:00", "deprecation_date": null, "retirement_date": null, "license": null,
+  "input_types": "text", "output_types": "text", "api_model_id": "qwen/qwen3-235b-a22b-instruct-2507", "links": [], "details": [], "benchmarks": [], "family_id": null, "page_notice": null, "model_type": null, "knowledge_cutoff": null,
+  "limits": { "context": 262144, "input": 262144, "output": 131072 }, "modalities": { "input": ["text"], "output": ["text"] }, "reasoning": { "supported": null, "options": [] }, "capabilities": { "attachment": false, "tool_call": null, "structured_output": null, "temperature": null, "streaming": true, "web_search": false }, "open_weights": null,
+  "sources": [{ "kind": "provider_models", "url": "https://api.pioneer.ai/v1/models", "accessed_at": "2026-08-24T03:30:00Z", "notes": "Pioneer live catalog identity and limits." }], "verification": { "status": "partial", "checked_at": "2026-08-24T03:30:00Z", "notes": "Identity and availability verified from Pioneer." }, "last_updated": "2026-08-24T03:30:00Z", "removal_date": null, "replacement_model_id": null, "license_url": null
+}

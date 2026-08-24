@@ -2,4 +2,4 @@
 "@phaseo/data-catalog": patch
 ---
 
-Verify Pioneer's provider metadata and refresh changed live token and cache pricing.
+Verify Pioneer's complete live provider catalog, add missing canonical models, and refresh structured token and cache pricing.
