@@ -360,6 +360,10 @@ function getServiceTiers(option: ProviderOption | undefined): string[] {
 	).sort((a, b) => a.localeCompare(b));
 }
 
+function getDefaultServiceTier(tiers: string[]): string | null {
+	return tiers.find((tier) => tier.toLowerCase() === "standard") ?? tiers[0] ?? null;
+}
+
 function selectDefaultProviderId(model: ExtendedModel): string | null {
 	let best: { id: string; score: number } | null = null;
 
@@ -577,7 +581,7 @@ export default function DecisionMatrix({
 				setShowStickyCompareBar(!entry.isIntersecting);
 			},
 			{
-				rootMargin: "-144px 0px 0px 0px",
+				rootMargin: "-64px 0px 0px 0px",
 				threshold: 0,
 			}
 		);
@@ -604,7 +608,7 @@ export default function DecisionMatrix({
 			const tiers = getServiceTiers(options.find((option) => option.id === providerId));
 			const tier = tiers.includes(selectedTierByModel[model.id])
 				? selectedTierByModel[model.id]
-				: tiers[0] ?? null;
+				: getDefaultServiceTier(tiers);
 			return [model.id, getPriceBundle(model, providerId, tier)];
 		})
 	);
@@ -717,16 +721,14 @@ export default function DecisionMatrix({
 					<Switch checked={highlightBest} onCheckedChange={setHighlightBest} />
 					<span>Highlight best</span>
 				</label>
-				{selectedIds.length < 4 ? (
-					<ModelCombobox
-						models={models}
-						selected={selectedIds}
-						setSelected={onSelectedIdsChange}
-						labelWhenSelected="Add model"
-						showSelectionCount={false}
-						className="h-9 border border-zinc-800 bg-black px-3 text-white hover:bg-zinc-900 hover:text-white dark:border-zinc-700"
-					/>
-				) : null}
+				<ModelCombobox
+					models={models}
+					selected={selectedIds}
+					setSelected={onSelectedIdsChange}
+					labelWhenSelected={selectedIds.length >= 4 ? "Edit models" : "Add model"}
+					showSelectionCount={false}
+					className="h-9 border border-zinc-800 bg-black px-3 text-white hover:bg-zinc-900 hover:text-white dark:border-zinc-700"
+				/>
 				<Button asChild variant="outline" size="sm">
 					<Link href="/chat">
 						<MessageSquare className="size-4" />
@@ -744,7 +746,7 @@ export default function DecisionMatrix({
 					const serviceTiers = getServiceTiers(selectedProvider);
 					const selectedTier = serviceTiers.includes(selectedTierByModel[model.id])
 						? selectedTierByModel[model.id]
-						: serviceTiers[0];
+						: getDefaultServiceTier(serviceTiers) ?? undefined;
 
 					return (
 						<div key={`${keyPrefix}-${model.id}`} className="space-y-2">
