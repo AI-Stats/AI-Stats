@@ -1,0 +1,81 @@
+{
+  "model_id": "deepseek/deepseek-r1-0528",
+  "organisation_id": "deepseek",
+  "name": "DeepSeek: R1 0528",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "May 28th update to the [original DeepSeek R1](/deepseek/deepseek-r1) Performance on par with [OpenAI o1](/openai/o1), but open-sourced and with fully open reasoning tokens. It's 671B parameters in size, with 37B active...",
+  "announced_date": null,
+  "release_date": null,
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": null,
+  "input_types": [
+    "text"
+  ],
+  "output_types": [
+    "text"
+  ],
+  "api_model_id": "deepseek/deepseek-r1-0528",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Kilo Gateway models",
+      "kind": "api_reference",
+      "url": "https://api.kilo.ai/api/gateway/models"
+    }
+  ],
+  "details": [
+    {
+      "name": "kilo_catalog_created",
+      "value": "2025-05-28T17:59:30.000Z"
+    }
+  ],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "inference",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": 163840,
+    "input": 163840,
+    "output": 32768
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": true,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": false,
+    "tool_call": true,
+    "structured_output": true,
+    "temperature": true,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "official_models",
+      "url": "https://api.kilo.ai/api/gateway/models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact Kilo Gateway model identity, description, availability, modalities, limits, and supported parameters."
+    }
+  ],
+  "verification": {
+    "status": "partial",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Kilo Gateway availability and technical metadata verified; upstream release lifecycle was not published by Kilo."
+  },
+  "last_updated": "2026-08-24T00:00:00Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

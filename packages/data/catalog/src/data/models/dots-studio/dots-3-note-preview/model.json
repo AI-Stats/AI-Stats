@@ -1,0 +1,90 @@
+{
+  "model_id": "dots-studio/dots-3-note-preview",
+  "organisation_id": "dots-studio",
+  "name": "Dots Studio: Dots3-Note Preview (free)",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Dots3-Note Preview is an open-weight mixture-of-experts model from Dots Studio, with 16B active parameters out of 280B total. It is the lightest model in the Dots 3 family and is...",
+  "announced_date": null,
+  "release_date": null,
+  "deprecation_date": null,
+  "retirement_date": "2026-09-30T00:00:00",
+  "license": null,
+  "input_types": [
+    "text",
+    "image"
+  ],
+  "output_types": [
+    "text"
+  ],
+  "api_model_id": "dots-studio/dots-3-note-preview",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Kilo Gateway models",
+      "kind": "api_reference",
+      "url": "https://api.kilo.ai/api/gateway/models"
+    }
+  ],
+  "details": [
+    {
+      "name": "kilo_catalog_created",
+      "value": "2026-08-14T04:06:01.000Z"
+    }
+  ],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "inference",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": 512000,
+    "input": 512000,
+    "output": 512000
+  },
+  "modalities": {
+    "input": [
+      "text",
+      "image"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": true,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": true,
+    "tool_call": true,
+    "structured_output": true,
+    "temperature": true,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "official_models",
+      "url": "https://api.kilo.ai/api/gateway/models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact Kilo Gateway model identity, description, availability, modalities, limits, and supported parameters."
+    }
+  ],
+  "verification": {
+    "status": "partial",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Kilo Gateway availability and technical metadata verified; upstream release lifecycle was not published by Kilo."
+  },
+  "last_updated": "2026-08-24T00:00:00Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null,
+  "variants": [
+    {
+      "model_id": "dots-studio/dots-3-note-preview:free",
+      "name": "Dots Studio: Dots3-Note Preview (free) (Free)",
+      "variant_kind": "free"
+    }
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "model_id": "relace/relace-apply-3",
+  "organisation_id": "relace",
+  "name": "Relace: Relace Apply 3",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Relace Apply 3 is a specialized code-patching LLM that merges AI-suggested edits straight into your source files. It can apply updates from GPT-4o, Claude, and others into your files at...",
+  "announced_date": null,
+  "release_date": null,
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": null,
+  "input_types": [
+    "text"
+  ],
+  "output_types": [
+    "text"
+  ],
+  "api_model_id": "relace/relace-apply-3",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Kilo Gateway models",
+      "kind": "api_reference",
+      "url": "https://api.kilo.ai/api/gateway/models"
+    }
+  ],
+  "details": [
+    {
+      "name": "kilo_catalog_created",
+      "value": "2025-09-26T12:59:32.000Z"
+    }
+  ],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "inference",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": 256000,
+    "input": 256000,
+    "output": 128000
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": false,
+    "tool_call": false,
+    "structured_output": false,
+    "temperature": false,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "official_models",
+      "url": "https://api.kilo.ai/api/gateway/models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact Kilo Gateway model identity, description, availability, modalities, limits, and supported parameters."
+    }
+  ],
+  "verification": {
+    "status": "partial",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Kilo Gateway availability and technical metadata verified; upstream release lifecycle was not published by Kilo."
+  },
+  "last_updated": "2026-08-24T00:00:00Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}
