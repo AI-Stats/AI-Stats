@@ -741,10 +741,10 @@
     ]
   },
   {
-    "api_model_id": "baidu/ernie-5.0",
-    "provider_api_model_id": "baidu:baidu/ernie-5.0:ernie-5.1",
+    "api_model_id": "baidu/ernie-5.1",
+    "provider_api_model_id": "baidu:baidu/ernie-5.1:ernie-5.1",
     "provider_model_slug": "ernie-5.1",
-    "internal_model_id": "baidu/ernie-5.0",
+    "internal_model_id": "baidu/ernie-5.1",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image,video",
