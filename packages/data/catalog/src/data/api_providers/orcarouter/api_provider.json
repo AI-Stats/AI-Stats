@@ -4,23 +4,24 @@
   "provider_family_id": null,
   "offer_label": null,
   "offer_scope": "specialized",
-  "description": null,
+  "description": "OpenAI-compatible multi-provider gateway with native OpenAI, Anthropic, and Gemini protocol surfaces and zero-markup model pricing.",
   "link": "https://docs.orcarouter.ai",
-  "residency_mode": null,
+  "residency_mode": "provider_managed",
   "default_execution_regions": null,
   "default_data_regions": null,
-  "zero_data_retention": null,
-  "residency_source_url": null,
-  "prompt_training_policy": null,
-  "prompt_training_notes": null,
-  "prompt_training_source_url": null,
+  "zero_data_retention": "default",
+  "data_retention_days": 0,
+  "residency_source_url": "https://docs.orcarouter.ai/operations/data-handling",
+  "prompt_training_policy": "no_train",
+  "prompt_training_notes": "OrcaRouter does not persist prompt or response content or train on it; upstream provider policies still apply.",
+  "prompt_training_source_url": "https://docs.orcarouter.ai/operations/zero-data-retention",
   "user_identifier_policy": null,
   "user_identifier_notes": null,
-  "privacy_policy_url": null,
-  "terms_of_service_url": null,
+  "privacy_policy_url": "https://www.orcarouter.ai/privacy.html",
+  "terms_of_service_url": "https://api.orcarouter.ai/terms.html",
   "regional_pricing_mode": null,
   "regional_pricing_uplift_percent": null,
-  "pricing_source_url": null,
+  "pricing_source_url": "https://api.orcarouter.ai/v1/models",
   "regional_pricing_notes": null,
   "country_code": "SG",
   "status": "Active",
@@ -34,25 +35,42 @@
   "auth_env": [
     "ORCAROUTER_API_KEY"
   ],
-  "api_formats": [],
+  "api_formats": [
+    "openai.chat.completions",
+    "openai.responses",
+    "anthropic.messages",
+    "google.generateContent"
+  ],
   "service_tiers": [],
   "sources": [
     {
+      "kind": "official_docs",
+      "url": "https://docs.orcarouter.ai/introduction",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official compatibility, supported providers, protocol surfaces, and zero-markup positioning."
+    },
+    {
+      "kind": "official_privacy",
+      "url": "https://docs.orcarouter.ai/operations/data-handling",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Prompt/output content is not persisted; request metadata is retained for 13 months and billing records for seven years."
+    },
+    {
       "kind": "official_terms",
       "url": "https://api.orcarouter.ai/terms.html",
-      "accessed_at": "2026-08-09T00:00:00Z",
+      "accessed_at": "2026-08-24T00:00:00Z",
       "notes": "OrcaRouter's official terms identify CONTINUUM AI PTE. LTD. as a Singapore company operating the service."
     },
     {
-      "kind": "models.dev",
-      "url": "https://models.dev/api.json",
-      "accessed_at": "2026-07-22T11:23:04.646Z",
-      "notes": "Gateway metadata seed; verify provider policy and regional semantics before enabling routing."
+      "kind": "provider_models",
+      "url": "https://api.orcarouter.ai/v1/models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Live model IDs, availability, endpoint types, modalities, limits, and prices."
     }
   ],
   "verification": {
-    "status": "partial",
-    "checked_at": "2026-07-22T11:23:04.646Z",
-    "notes": "Imported from the public models.dev provider registry; not a Phaseo-routable offer."
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Provider identity, API formats, live catalog, pricing metadata, rate-limit scope, and data handling verified against official OrcaRouter sources; routing remains disabled."
   }
 }

@@ -1,0 +1,68 @@
+{
+  "model_id": "kimi/kimi-k2.7-code",
+  "organisation_id": "moonshotai",
+  "name": "MoonshotAI: Kimi K2.7 Code",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Kimi K2.7 Code is Moonshot AI's strongest coding model to date - a coding-focused agentic model built on Kimi K2.6, with a 1T-parameter Mixture-of-Experts architecture (32B active per pass) and a 256K-token context window. It delivers substantial gains on real-world long-horizon coding: stronger end-to-end task completion across complex software-engineering workflows, while cutting thinking-token usage by roughly 30% versus K2.6 for better token efficiency.\n\nThe model is natively multimodal via the MoonViT vision encoder, accepting text, image, and video inputs with text output, and runs with thinking always on for deep agentic reasoning. It is purpose-built for autonomous coding agents and long-horizon software work - large multi-file changes, production-grade engineering tasks, and multi-step tool use - and integrates cleanly with agent harnesses and coding-agent frameworks.",
+  "announced_date": null,
+  "release_date": null,
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": null,
+  "input_types": "text,image,video",
+  "output_types": "text",
+  "api_model_id": "kimi/kimi-k2.7-code",
+  "links": [],
+  "details": [],
+  "benchmarks": [],
+  "family_id": null,
+  "page_notice": null,
+  "model_type": null,
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": 262144,
+    "input": null,
+    "output": 262144
+  },
+  "modalities": {
+    "input": [
+      "text",
+      "image/*",
+      "video/*"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": null,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": true,
+    "tool_call": null,
+    "structured_output": null,
+    "temperature": null,
+    "streaming": null,
+    "web_search": null
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "models",
+      "url": "https://api.orcarouter.ai/v1/models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "OrcaRouter live model catalogue metadata."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Exact model ID, availability, limits, modalities, description, and pricing metadata verified against OrcaRouter's live official catalogue."
+  },
+  "last_updated": "2026-08-24T00:00:00Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

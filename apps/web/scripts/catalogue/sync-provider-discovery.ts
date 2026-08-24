@@ -68,6 +68,7 @@ const PRICING_CAPABILITIES = new Set([
 	"text.embed",
 	"embeddings",
 	"image.generate",
+	"video.generate",
 	"audio.generate",
 	"audio.transcribe",
 	"text.rerank",
@@ -106,6 +107,14 @@ function simpleNonTokenPricing(
 	modelDetails: JsonObject,
 	capabilityId: string,
 ): { meters: Record<string, number>; ruleOptions: Record<string, PricingRuleOptions> } | null {
+	if (providerId === "orcarouter") {
+		const pricing = asRecord(modelDetails.pricing);
+		const requestPrice = Number(pricing?.request);
+		if (Number.isFinite(requestPrice) && requestPrice >= 0) return {
+			meters: { requests: requestPrice },
+			ruleOptions: { requests: { unit: "request", unitSize: 1, note: "OrcaRouter published price per request." } },
+		};
+	}
 	if (providerId !== "vercel") return null;
 	const pricing = asRecord(modelDetails.pricing);
 	if (!pricing) return null;
@@ -420,10 +429,10 @@ async function main(): Promise<void> {
 			const simplePricing = simpleNonTokenPricing(discoveryProviderId, row.model_details, capabilityId);
 			const normalizedHasOutput = normalizedPricing && Object.keys(normalizedPricing.meters).some((meter) =>
 				(capabilityId === "image.generate"
-					? ["output_image", "output_image_tokens", "output_text_tokens"]
+					? ["output_image", "output_image_tokens", "output_text_tokens", "requests"]
 					: capabilityId === "audio.generate"
-						? ["output_audio_tokens", "output_text_tokens", "input_characters", "input_audio_seconds"]
-						: ["output_text_tokens"]).includes(meter));
+						? ["output_audio_tokens", "output_text_tokens", "input_characters", "input_audio_seconds", "requests"]
+						: ["output_text_tokens", "requests"]).includes(meter));
 			if (simplePricing && (!normalizedPricing || !normalizedHasOutput)) {
 				normalizedPricing = { currency: "USD", unit: "per_1m_tokens", meters: simplePricing.meters };
 				ruleOptions = simplePricing.ruleOptions;
@@ -431,10 +440,10 @@ async function main(): Promise<void> {
 			if (!normalizedPricing) continue;
 			if (!PRICING_CAPABILITIES.has(capabilityId)) continue;
 			const outputMeters = capabilityId === "image.generate"
-				? ["output_image", "output_image_tokens", "output_text_tokens"]
+				? ["output_image", "output_image_tokens", "output_text_tokens", "requests"]
 				: capabilityId === "audio.generate"
-					? ["output_audio_tokens", "output_text_tokens", "input_characters", "input_audio_seconds"]
-					: ["output_text_tokens"];
+					? ["output_audio_tokens", "output_text_tokens", "input_characters", "input_audio_seconds", "requests"]
+					: ["output_text_tokens", "requests"];
 			if ((capabilityId === "text.generate" || capabilityId === "image.generate" || capabilityId === "audio.generate")
 				&& !outputMeters.some((meter) => normalizedPricing.meters[meter] !== undefined)) {
 				report.skippedPricing.push(`${discoveryProviderId}:${row.model_id} has input-only pricing on a text generation mapping`);
