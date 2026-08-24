@@ -811,20 +811,20 @@ export function ChatConversation({
 	);
 
 	return (
-		<main className="flex min-h-0 flex-1 flex-col overflow-hidden">
+		<main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
 			<MessageScroller.Provider
 				autoScroll
 				defaultScrollPosition="end"
 				scrollEdgeThreshold={48}
 				scrollMargin={24}
 			>
-				<MessageScroller.Root className="relative flex min-h-0 flex-1 overflow-hidden overscroll-contain">
+				<MessageScroller.Root className="relative flex min-h-0 min-w-0 flex-1 overflow-hidden overscroll-contain">
 					<MessageScroller.Viewport
 						ref={scrollViewportRef}
-						className="h-full w-full overflow-y-auto overscroll-contain"
+						className="h-full min-w-0 w-full overflow-y-auto overscroll-contain"
 					>
 						<MessageScroller.Content
-							className={`mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 py-6 md:px-8 ${useWideComparisonLayout ? "2xl:max-w-[96rem]" : ""} ${hasNoMessages ? "min-h-full" : ""}`}
+							className={`mx-auto flex min-w-0 w-full max-w-5xl flex-col gap-4 px-4 py-6 md:px-8 ${useWideComparisonLayout ? "2xl:max-w-[96rem]" : ""} ${hasNoMessages ? "min-h-full" : ""}`}
 						>
 							<ChatConversationMessages
 								activeThread={activeThread}
