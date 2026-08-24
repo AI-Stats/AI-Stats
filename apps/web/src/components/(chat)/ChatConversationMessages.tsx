@@ -764,7 +764,7 @@ export function ChatConversationMessages({
 										className={cn(
 											isUser
 												? cn(
-												"max-w-full rounded-md px-4 py-3 text-sm leading-relaxed shadow-sm",
+												"min-w-0 max-w-full rounded-md px-4 py-3 text-sm leading-relaxed shadow-sm",
 														inSideBySideGroup
 															? "flex h-full min-h-[180px] w-full flex-col"
 															: "w-fit",
@@ -775,7 +775,7 @@ export function ChatConversationMessages({
 														: "bg-foreground text-background",
 													)
 											: cn(
-												"w-full max-w-[min(100%,46rem)] px-0 py-1 text-sm leading-relaxed text-foreground",
+												"min-w-0 w-full max-w-[min(100%,46rem)] px-0 py-1 text-sm leading-relaxed text-foreground",
 												inSideBySideGroup &&
 															"flex h-full min-h-[180px] flex-col",
 													),
