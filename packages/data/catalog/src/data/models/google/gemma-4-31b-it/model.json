@@ -1,0 +1,74 @@
+{
+  "model_id": "google/gemma-4-31b-it",
+  "organisation_id": "google",
+  "name": "Gemma 4 31B Instruct",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Gemma 4 31B Instruct is available through Phala's confidential GPU TEE inference catalog.",
+  "announced_date": null,
+  "release_date": null,
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": null,
+  "input_types": "text,image,video",
+  "output_types": "text",
+  "api_model_id": "google/gemma-4-31b-it",
+  "links": [
+    {
+      "title": "Phala model page",
+      "kind": "api_reference",
+      "url": "https://phala.com/models/google/gemma-4-31b-it"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "family_id": null,
+  "page_notice": null,
+  "model_type": null,
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": 262144,
+    "input": 262144,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text",
+      "image/*",
+      "video/*"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": null,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": true,
+    "tool_call": true,
+    "structured_output": true,
+    "temperature": null,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": true,
+  "sources": [
+    {
+      "kind": "api_reference",
+      "url": "https://phala.com/models/google/gemma-4-31b-it",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "First-party Phala detail page verifies the canonical route identity, modalities, context, feature support, and availability date."
+    }
+  ],
+  "verification": {
+    "status": "partial",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Provider availability is verified; broader upstream model metadata was not independently re-audited."
+  },
+  "last_updated": "2026-08-24T00:00:00Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}
