@@ -1,0 +1,77 @@
+{
+  "model_id": "moonshotai/kimi-k2.7-code-highspeed",
+  "organisation_id": "moonshotai",
+  "name": "MoonshotAI: Kimi K2.7 Code Highspeed",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Kimi K2.7 Code 高速档, 同模型加速推理。OpenAI 协议直用; Anthropic 协议同 code (bifrost thinking 待修)。",
+  "announced_date": null,
+  "release_date": "2026-06-12T00:00:00",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": null,
+  "input_types": "text",
+  "output_types": "text",
+  "api_model_id": "moonshotai/kimi-k2.7-code-highspeed",
+  "family_id": null,
+  "links": [
+    {
+      "title": "OfoxAI model catalogue",
+      "kind": "documentation",
+      "url": "https://ofox.ai/models/moonshotai"
+    }
+  ],
+  "details": [
+    {
+      "name": "ofox_supported_endpoints",
+      "value": "/v1/chat/completions"
+    }
+  ],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": null,
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": 262144,
+    "input": null,
+    "output": 262144
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": true,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": false,
+    "tool_call": true,
+    "structured_output": true,
+    "temperature": true,
+    "streaming": false,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "api",
+      "url": "https://api.ofox.ai/v1/models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Public live model catalogue, exact model IDs, endpoints, modalities, limits, parameters, lifecycle and pricing."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Exact model identity and availability verified from OfoxAI live catalogue."
+  },
+  "last_updated": "2026-08-24T00:00:00Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}
