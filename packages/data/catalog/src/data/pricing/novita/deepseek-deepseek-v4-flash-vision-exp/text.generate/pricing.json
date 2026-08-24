@@ -38,22 +38,6 @@
       "source": "https://api.novita.ai/openai/v1/models"
     },
     {
-      "meter": "input_image_tokens",
-      "unit": "token",
-      "unit_size": 1000000,
-      "price_per_unit": 0.44,
-      "currency": "USD",
-      "pricing_plan": "standard",
-      "note": "Image inputs use Novita's prompt-token rate.",
-      "match": [],
-      "priority": 100,
-      "effective_from": "2026-08-24T00:00:00Z",
-      "region": null,
-      "cache_duration_seconds": null,
-      "conditions": [],
-      "source": "https://api.novita.ai/openai/v1/models"
-    },
-    {
       "meter": "output_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
