@@ -19,6 +19,11 @@ export async function forEachPage<T>(pageSize: number, fetchPage: (from: number,
 	}
 }
 
+export function destinationIdsForEvent(event: Pick<EventRow, "kind" | "payload">, routedIds: string[]): string[] {
+	const requestedDestination = typeof event.payload?.destination_id === "string" ? event.payload.destination_id : null;
+	return requestedDestination && event.kind === "notification_test" ? [requestedDestination] : routedIds;
+}
+
 export function eventContent(event: EventRow) {
 	const payload = event.payload ?? {};
 	const title = String(payload.title ?? event.subject ?? ({ low_balance: "Low balance alert", auto_top_up_failed: "Auto Top-Up failed", payment_method_expiring: "Payment method expiring soon", model_deprecation: "Model deprecation alert", notification_test: "Phaseo test notification" } as Record<string, string>)[event.kind] ?? "Phaseo notification");
@@ -130,10 +135,15 @@ export async function runNotificationDeliveryJob(limit = 25): Promise<{ queued: 
 		if (eventsResult.error) throw new Error(`notification_events_fetch_failed:${eventsResult.error.message}`);
 		return (eventsResult.data ?? []) as EventRow[];
 	}, async (event) => {
-			let destinationQuery = supabase.from("notification_destinations").select("id").eq("workspace_id", event.workspace_id).eq("status", "active");
-			const requestedDestination = typeof event.payload?.destination_id === "string" ? event.payload.destination_id : null;
-			if (requestedDestination) destinationQuery = destinationQuery.eq("id", requestedDestination);
-			const destinations = await destinationQuery;
+			let routedIds: string[] = [];
+			if (event.kind !== "notification_test") {
+				const routes = await supabase.from("notification_event_destinations").select("destination_id").eq("workspace_id", event.workspace_id).eq("event_kind", event.kind);
+				if (routes.error) throw new Error(`notification_routes_fetch_failed:${routes.error.message}`);
+				routedIds = (routes.data ?? []).map((route) => String(route.destination_id));
+			}
+			const destinationIds = destinationIdsForEvent(event, routedIds);
+			if (!destinationIds.length) return;
+			const destinations = await supabase.from("notification_destinations").select("id").eq("workspace_id", event.workspace_id).eq("status", "active").in("id", destinationIds);
 			if (destinations.error) throw new Error(`notification_destinations_fetch_failed:${destinations.error.message}`);
 			const rows = (destinations.data ?? []).map((destination) => ({ event_id: event.id, destination_id: destination.id, workspace_id: event.workspace_id, status: "pending" }));
 			if (rows.length) {
