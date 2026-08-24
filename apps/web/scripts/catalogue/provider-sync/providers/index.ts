@@ -1,6 +1,7 @@
 import type { ProviderSyncProvider } from "../types";
 import { provider as deepinfra } from "./deepinfra";
 import { provider as fastRouter } from "./fastrouter";
+import { provider as nanoGpt } from "./nano-gpt";
 import { provider as novitaAi } from "./novita-ai";
 import { provider as openRouter } from "./openrouter";
 import { provider as orcaRouter } from "./orcarouter";
@@ -13,6 +14,7 @@ import { provider as zenmux } from "./zenmux";
 export const PROVIDER_SYNC_PROVIDERS: ProviderSyncProvider[] = [
 	deepinfra,
 	fastRouter,
+	nanoGpt,
 	novitaAi,
 	openRouter,
 	orcaRouter,

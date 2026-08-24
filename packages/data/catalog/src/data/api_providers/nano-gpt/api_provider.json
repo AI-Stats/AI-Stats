@@ -4,23 +4,23 @@
   "provider_family_id": null,
   "offer_label": null,
   "offer_scope": "specialized",
-  "description": null,
+  "description": "Multi-provider AI gateway for text, embeddings, images, video, speech, transcription, and music with OpenAI-compatible endpoints.",
   "link": "https://docs.nano-gpt.com",
   "residency_mode": null,
   "default_execution_regions": null,
   "default_data_regions": null,
   "zero_data_retention": null,
   "residency_source_url": null,
-  "prompt_training_policy": null,
-  "prompt_training_notes": null,
-  "prompt_training_source_url": null,
+  "prompt_training_policy": "provider_dependent",
+  "prompt_training_notes": "NanoGPT does not retain prompt or response content for normal inference, but request content is sent to the selected upstream provider and final retention or training behavior depends on that route.",
+  "prompt_training_source_url": "https://nano-gpt.com/privacy",
   "user_identifier_policy": null,
   "user_identifier_notes": null,
-  "privacy_policy_url": null,
+  "privacy_policy_url": "https://nano-gpt.com/privacy",
   "terms_of_service_url": null,
   "regional_pricing_mode": null,
   "regional_pricing_uplift_percent": null,
-  "pricing_source_url": null,
+  "pricing_source_url": "https://nano-gpt.com/pricing",
   "regional_pricing_notes": null,
   "country_code": null,
   "status": "Active",
@@ -34,7 +34,9 @@
   "auth_env": [
     "NANO_GPT_API_KEY"
   ],
-  "api_formats": [],
+  "api_formats": [
+    "openai"
+  ],
   "service_tiers": [],
   "sources": [
     {
@@ -42,11 +44,29 @@
       "url": "https://models.dev/api.json",
       "accessed_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider metadata and model support enrichment; not a Phaseo-routable offer."
+    },
+    {
+      "kind": "provider_docs",
+      "url": "https://docs.nano-gpt.com/introduction",
+      "accessed_at": "2026-08-24T00:00:00.000Z",
+      "notes": "Official endpoint, compatibility, and modality documentation. Global throughput limit is 25 requests per second."
+    },
+    {
+      "kind": "pricing",
+      "url": "https://nano-gpt.com/pricing",
+      "accessed_at": "2026-08-24T00:00:00.000Z",
+      "notes": "Official pricing page and live model feeds; API list pricing has no markup except documented opt-in provider pinning and BYOK fees."
+    },
+    {
+      "kind": "privacy",
+      "url": "https://nano-gpt.com/privacy",
+      "accessed_at": "2026-08-24T00:00:00.000Z",
+      "notes": "Official data handling and upstream-provider privacy disclosure."
     }
   ],
   "verification": {
-    "status": "partial",
-    "checked_at": "2026-07-23T09:08:52.190Z",
-    "notes": "Imported from the public models.dev provider registry."
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00.000Z",
+    "notes": "Verified against NanoGPT's official documentation and public live model feeds; routes remain catalogue-only and non-routable in Phaseo."
   }
 }
