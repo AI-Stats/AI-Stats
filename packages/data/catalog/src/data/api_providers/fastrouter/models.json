@@ -9859,7 +9859,7 @@
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "text.generate",
+        "capability_id": "audio.transcribe",
         "status": "active",
         "params": [
           "file",
@@ -11434,7 +11434,7 @@
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "text.generate",
+        "capability_id": "audio.transcribe",
         "status": "active",
         "params": [
           "input_audio_codec",

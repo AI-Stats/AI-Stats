@@ -58,10 +58,11 @@ for (const file of await walk(path.join(root, "models"), "model.json")) {
 
 function title(value) { return value.split(/[._/-]+/).map((part) => part ? part[0].toUpperCase() + part.slice(1) : part).join(" "); }
 function capability(model) {
+  if (model.id.includes("whisper") || model.id.includes("saaras")) return "audio.transcribe";
   const output = model.architecture?.output_modalities ?? [];
   if (output.includes("video")) return "video.generate";
   if (output.includes("image")) return "image.generate";
-  if (output.includes("audio")) return model.id.includes("whisper") || model.id.includes("saaras") ? "audio.transcribe" : "audio.generate";
+  if (output.includes("audio")) return "audio.generate";
   if (model.id.includes("embedding") || model.id.includes("e5-")) return "text.embed";
   if (model.id.includes("moderation")) return "text.moderate";
   return "text.generate";
