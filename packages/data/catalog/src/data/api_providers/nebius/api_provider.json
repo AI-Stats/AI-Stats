@@ -1,10 +1,10 @@
 {
   "api_provider_id": "nebius",
   "api_provider_name": "Nebius Token Factory",
-  "provider_family_id": null,
-  "offer_label": null,
+  "provider_family_id": "nebius-token-factory",
+  "offer_label": "Nebius AI Studio catalogue",
   "offer_scope": "specialized",
-  "description": null,
+  "description": "Nebius AI Studio's Token Factory serverless model catalogue, exposed through an OpenAI-compatible API. This catalogue-only alias is related to Phaseo's Nebius Token Factory gateway routes but is not independently routable.",
   "link": "https://docs.tokenfactory.nebius.com/",
   "residency_mode": "provider_managed",
   "default_execution_regions": ["EU", "US", "IL"],
@@ -23,7 +23,7 @@
   "terms_of_service_url": "https://docs.tokenfactory.nebius.com/legal/terms-of-service",
   "regional_pricing_mode": null,
   "regional_pricing_uplift_percent": null,
-  "pricing_source_url": null,
+  "pricing_source_url": "https://tokenfactory.nebius.com/api/public/models_info",
   "regional_pricing_notes": null,
   "country_code": "NL",
   "status": "Active",
@@ -37,9 +37,21 @@
   "auth_env": [
     "NEBIUS_API_KEY"
   ],
-  "api_formats": [],
-  "service_tiers": [],
+  "api_formats": ["openai.chat.completions", "openai.responses", "openai.embeddings", "openai.rerank"],
+  "service_tiers": ["standard"],
   "sources": [
+    {
+      "kind": "official_api",
+      "url": "https://tokenfactory.nebius.com/api/public/models_info",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Live public model catalogue; authoritative for active serverless model IDs, modalities, regions, context limits, and per-million-token prices."
+    },
+    {
+      "kind": "official_docs",
+      "url": "https://docs.tokenfactory.nebius.com/api-reference/models/list-models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official model discovery API documentation."
+    },
     {
       "kind": "official_company_page",
       "url": "https://nebius.com/about",
@@ -54,8 +66,8 @@
     }
   ],
   "verification": {
-    "status": "partial",
-    "checked_at": "2026-07-23T09:08:52.190Z",
-    "notes": "Imported from the public models.dev provider registry."
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Provider identity, OpenAI-compatible base URL, live catalogue relationship, pricing feed, and region-dependent serverless availability verified against Nebius primary sources. Individual model records retain their own lifecycle verification."
   }
 }
