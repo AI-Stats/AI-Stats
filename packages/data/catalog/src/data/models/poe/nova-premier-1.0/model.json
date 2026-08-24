@@ -1,0 +1,74 @@
+{
+  "model_id": "poe/nova-premier-1.0",
+  "organisation_id": "poe",
+  "name": "Nova-Premier-1.0",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Note: This model will be retired on September 14, 2026\nThe Amazon Nova Premier 1.0 model is Amazon’s most capable foundation model, able to handle extremely long contexts (≈ 1 million tokens) and multimodal inputs like text, images, and video while excelling at complex, multi‑step tasks across tools and data sources. \nIt supports chain‑of‑thought style reasoning and breaks down problems into intermediate steps before arriving at an answer, improving coherence and accuracy.\n\nOptional parameter:\nEnable thinking about the response before giving a final answer: toggle it `off`, otherwise it is `on` by default.",
+  "announced_date": "2025-09-15T18:08:53",
+  "release_date": "2025-09-15T18:08:53",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text,image,video",
+  "output_types": "text",
+  "api_model_id": "poe/nova-premier-1.0",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Poe bot",
+      "kind": "api_reference",
+      "url": "https://poe.com/nova-premier-1.0"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "Poe bot",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text",
+      "image",
+      "video"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": true,
+    "tool_call": true,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.poe.com/v1/models",
+      "accessed_at": "2026-08-24T03:27:45Z",
+      "notes": "Canonical entity for an exact public Poe bot identifier returned by the models API."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T03:27:45Z",
+    "notes": "Identity and advertised metadata verified against Poe's public models API."
+  },
+  "last_updated": "2026-08-24T03:27:45Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

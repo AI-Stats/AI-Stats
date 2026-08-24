@@ -1,0 +1,72 @@
+{
+  "model_id": "poe/hailuo-02-standard",
+  "organisation_id": "poe",
+  "name": "Hailuo-02-Standard",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "MiniMax Hailuo-02 Video Generation model: Advanced image-to-video generation model with 768p resolution. Send a prompt with an image for image-to-video, and just a prompt for text-to-video generation. \n\nOptional parameters:\nSet Duration. Select from (6 seconds or 10 seconds) to specify video length in seconds. Set to 6 seconds as default",
+  "announced_date": "2025-06-18T17:02:27",
+  "release_date": "2025-06-18T17:02:27",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text",
+  "output_types": "video",
+  "api_model_id": "poe/hailuo-02-standard",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Poe bot",
+      "kind": "api_reference",
+      "url": "https://poe.com/hailuo-02-standard"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "Poe bot",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "video"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": false,
+    "tool_call": false,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.poe.com/v1/models",
+      "accessed_at": "2026-08-24T03:27:45Z",
+      "notes": "Canonical entity for an exact public Poe bot identifier returned by the models API."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T03:27:45Z",
+    "notes": "Identity and advertised metadata verified against Poe's public models API."
+  },
+  "last_updated": "2026-08-24T03:27:45Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}
