@@ -462,7 +462,7 @@ export function ChatConversationMessages({
 		formatProviderIdLabel(metadataProviderId) ?? messageProviderLabel;
 	const messages = activeThread?.messages ?? EMPTY_MESSAGES;
 	const effectiveResponseLayout: ChatResponseLayout =
-		responseLayout === "side-by-side" && selectedModelIds.length < 2
+		responseLayout === "side-by-side" && modelOrderIds.length < 2
 			? "sequential"
 			: responseLayout;
 	useEffect(() => {
