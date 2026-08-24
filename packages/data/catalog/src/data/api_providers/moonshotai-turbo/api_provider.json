@@ -4,7 +4,7 @@
   "offer_scope": "specialized",
   "offer_label": "priority",
   "api_provider_name": "Moonshot AI Turbo",
-  "description": null,
+  "description": "Retired Moonshot AI high-speed offer for the legacy Kimi K2 turbo model slugs. Current high-speed access is exposed by the direct Moonshot AI provider as a priority service tier.",
   "link": "https://platform.moonshot.ai/",
   "residency_mode": "provider_managed",
   "default_execution_regions": null,
@@ -35,12 +35,12 @@
   "sources": [{
     "kind": "api_reference",
     "url": "https://platform.kimi.ai/docs/api/chat",
-    "accessed_at": "2026-08-12T00:00:00Z",
+    "accessed_at": "2026-08-24T00:00:00Z",
     "notes": "The turbo offer uses the same official Moonshot Chat endpoint and authentication contract."
   }],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-23T00:00:00Z",
+    "checked_at": "2026-08-24T00:00:00Z",
     "notes": "The legacy K2 turbo slugs were discontinued on 25 May 2026. Current K2.7 Code HighSpeed access is represented as Moonshot AI's priority service tier instead of this retired provider offer."
   }
 }
