@@ -1,0 +1,68 @@
+{
+  "model_id": "qwen/qwen3.7-flash",
+  "organisation_id": "qwen",
+  "name": "Qwen: Qwen3.7 Flash",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Qwen3.7 Flash is Alibaba's fast, extremely cost-efficient model in the Qwen3.7 family, sitting below Qwen3.7-Plus and Qwen3.7-Max as the high-throughput tier. It is natively multimodal on the input side — accepting text, images, and video with text output — and serves a 1M-token context window with up to 64K output tokens, so long documents, screenshots, and video frames stay in reach even at Flash-tier pricing.\n\nAt roughly $0.03 per million input tokens on the base tier it is one of the cheapest 1M-context multimodal models available, making it a natural fit for classification, extraction, routing, summarization, lightweight agents, and any pipeline run at very high volume. It supports reasoning mode, native tool calling, structured outputs via response_format, and the usual sampling controls (temperature / top_p / seed / logprobs).\n\nNote that pricing is tiered by prompt length: costs step up above 32K and again above 256K input tokens, so batching short requests is materially cheaper than padding long ones. Use Flash as the volume workhorse and escalate to Qwen3.7-Plus or Max when a task genuinely needs more capability.",
+  "announced_date": null,
+  "release_date": null,
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": null,
+  "input_types": "text,image,video",
+  "output_types": "text",
+  "api_model_id": "qwen/qwen3.7-flash",
+  "links": [],
+  "details": [],
+  "benchmarks": [],
+  "family_id": null,
+  "page_notice": null,
+  "model_type": null,
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": 1000000,
+    "input": null,
+    "output": 65536
+  },
+  "modalities": {
+    "input": [
+      "text",
+      "image/*",
+      "video/*"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": null,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": true,
+    "tool_call": null,
+    "structured_output": null,
+    "temperature": null,
+    "streaming": null,
+    "web_search": null
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "models",
+      "url": "https://api.orcarouter.ai/v1/models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "OrcaRouter live model catalogue metadata."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Exact model ID, availability, limits, modalities, description, and pricing metadata verified against OrcaRouter's live official catalogue."
+  },
+  "last_updated": "2026-08-24T00:00:00Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}
