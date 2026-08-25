@@ -1,0 +1,38 @@
+{
+  "model_id": "near-ai/privacy-filter",
+  "organisation_id": "near-ai",
+  "name": "Privacy Filter",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "NEAR AI's TEE-hosted PII and secret token-classification model, used by NEAR AI Cloud to detect sensitive spans for privacy classification and redaction.",
+  "announced_date": null,
+  "release_date": "2026-05-18",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": null,
+  "input_types": "text",
+  "output_types": "text",
+  "api_model_id": "near-ai/privacy-filter",
+  "links": [
+    {
+      "title": "Private inference",
+      "kind": "docs",
+      "url": "https://docs.near.ai/cloud/private-inference/"
+    }
+  ],
+  "details": [
+    {
+      "name": "context_length",
+      "value": 512
+    },
+    {
+      "name": "max_output_tokens",
+      "value": 1024
+    },
+    {
+      "name": "execution",
+      "value": "TEE-hosted in the United States"
+    }
+  ],
+  "benchmarks": []
+}

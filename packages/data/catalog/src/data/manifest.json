@@ -1168,6 +1168,9 @@
       "qwen/qwen3.6-flash"
     ],
     "relace": [
+      "relace/relace-apply-3",
+      "relace/relace-compact",
+      "relace/relace-rank",
       "relace/relace-search"
     ],
     "sourceful": [
@@ -1201,7 +1204,11 @@
       "upstage/solar-pro-2-preview",
       "upstage/solar-pro-3",
       "upstage/solar-mini",
-      "upstage/solar-pro-4"
+      "upstage/solar-pro-4",
+      "upstage/solar-embedding-1-large-passage",
+      "upstage/solar-embedding-1-large-query",
+      "upstage/solar-embedding-2-passage",
+      "upstage/solar-embedding-2-query"
     ],
     "vercel": [
       "vercel/v0-1.0-md",

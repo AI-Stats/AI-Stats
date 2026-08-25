@@ -1,0 +1,67 @@
+{
+  "model_id": "kimi/kimi-k3",
+  "organisation_id": "moonshotai",
+  "name": "MoonshotAI: Kimi K3",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Kimi K3 is Moonshot AI's flagship model and its most capable release to date — a 2.8-trillion-parameter Mixture-of-Experts model built for long-horizon coding and end-to-end knowledge work. It pairs a 1M-token context window with native visual understanding, accepting text and image input with text output, and is designed to stay coherent across very long agentic sessions.\n\nMoonshot positions K3 for programming-agent scenarios such as Codex, Claude Code, Cline, and RooCode, as well as deep reasoning and knowledge work. It exposes a top-level reasoning_effort control and native tool calling, and speaks the OpenAI API format for drop-in integration. Note that K3 does not accept sampling parameters (no temperature / top_p / seed) — reasoning depth is controlled through reasoning_effort instead.",
+  "announced_date": null,
+  "release_date": null,
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": null,
+  "input_types": "text,image",
+  "output_types": "text",
+  "api_model_id": "kimi/kimi-k3",
+  "links": [],
+  "details": [],
+  "benchmarks": [],
+  "family_id": null,
+  "page_notice": null,
+  "model_type": null,
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": 1048576,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text",
+      "image/*"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": null,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": true,
+    "tool_call": null,
+    "structured_output": null,
+    "temperature": null,
+    "streaming": null,
+    "web_search": null
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "models",
+      "url": "https://api.orcarouter.ai/v1/models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "OrcaRouter live model catalogue metadata."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Exact model ID, availability, limits, modalities, description, and pricing metadata verified against OrcaRouter's live official catalogue."
+  },
+  "last_updated": "2026-08-24T00:00:00Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}
