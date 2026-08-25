@@ -1068,8 +1068,16 @@ namespace PhaseoSdk
         public const string VoyageVoyageMultimodal35 = "voyage/voyage-multimodal-3.5";
         /// <summary>Model ID: <c>xiaomi/mimo-v2.5</c>. Model page: https://phaseo.app/models/xiaomi/mimo-v2.5</summary>
         public const string XiaomiMimoV25 = "xiaomi/mimo-v2.5";
+        /// <summary>Model ID: <c>xiaomi/mimo-v2.5-asr</c>. Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-asr</summary>
+        public const string XiaomiMimoV25Asr = "xiaomi/mimo-v2.5-asr";
         /// <summary>Model ID: <c>xiaomi/mimo-v2.5-pro</c>. Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-pro</summary>
         public const string XiaomiMimoV25Pro = "xiaomi/mimo-v2.5-pro";
+        /// <summary>Model ID: <c>xiaomi/mimo-v2.5-pro-ultraspeed</c>. Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-pro-ultraspeed</summary>
+        public const string XiaomiMimoV25ProUltraspeed = "xiaomi/mimo-v2.5-pro-ultraspeed";
+        /// <summary>Model ID: <c>xiaomi/mimo-v2.5-tts-voiceclone:free</c>. Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-tts-voiceclone%3Afree</summary>
+        public const string XiaomiMimoV25TtsVoicecloneFree = "xiaomi/mimo-v2.5-tts-voiceclone:free";
+        /// <summary>Model ID: <c>xiaomi/mimo-v2.5-tts-voicedesign:free</c>. Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-tts-voicedesign%3Afree</summary>
+        public const string XiaomiMimoV25TtsVoicedesignFree = "xiaomi/mimo-v2.5-tts-voicedesign:free";
         /// <summary>Model ID: <c>xiaomi/mimo-v2.5-tts:free</c>. Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-tts%3Afree</summary>
         public const string XiaomiMimoV25TtsFree = "xiaomi/mimo-v2.5-tts:free";
         /// <summary>Model ID: <c>z-ai/autoglm-phone-9b-multilingual</c>. Model page: https://phaseo.app/models/z-ai/autoglm-phone-9b-multilingual</summary>

@@ -1065,8 +1065,16 @@ export const ModelIds = {
   VOYAGE_VOYAGE_MULTIMODAL_3_5: "voyage/voyage-multimodal-3.5",
   /** Model ID: `xiaomi/mimo-v2.5`. Model page: https://phaseo.app/models/xiaomi/mimo-v2.5 */
   XIAOMI_MIMO_V2_5: "xiaomi/mimo-v2.5",
+  /** Model ID: `xiaomi/mimo-v2.5-asr`. Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-asr */
+  XIAOMI_MIMO_V2_5_ASR: "xiaomi/mimo-v2.5-asr",
   /** Model ID: `xiaomi/mimo-v2.5-pro`. Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-pro */
   XIAOMI_MIMO_V2_5_PRO: "xiaomi/mimo-v2.5-pro",
+  /** Model ID: `xiaomi/mimo-v2.5-pro-ultraspeed`. Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-pro-ultraspeed */
+  XIAOMI_MIMO_V2_5_PRO_ULTRASPEED: "xiaomi/mimo-v2.5-pro-ultraspeed",
+  /** Model ID: `xiaomi/mimo-v2.5-tts-voiceclone:free`. Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-tts-voiceclone%3Afree */
+  XIAOMI_MIMO_V2_5_TTS_VOICECLONE_FREE: "xiaomi/mimo-v2.5-tts-voiceclone:free",
+  /** Model ID: `xiaomi/mimo-v2.5-tts-voicedesign:free`. Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-tts-voicedesign%3Afree */
+  XIAOMI_MIMO_V2_5_TTS_VOICEDESIGN_FREE: "xiaomi/mimo-v2.5-tts-voicedesign:free",
   /** Model ID: `xiaomi/mimo-v2.5-tts:free`. Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-tts%3Afree */
   XIAOMI_MIMO_V2_5_TTS_FREE: "xiaomi/mimo-v2.5-tts:free",
   /** Model ID: `z-ai/autoglm-phone-9b-multilingual`. Model page: https://phaseo.app/models/z-ai/autoglm-phone-9b-multilingual */

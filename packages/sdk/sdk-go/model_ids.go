@@ -1600,9 +1600,21 @@ const (
 	// Model ID: xiaomi/mimo-v2.5
 	// Model page: https://phaseo.app/models/xiaomi/mimo-v2.5
 	ModelIDXiaomiMimoV25 gen.ModelId = "xiaomi/mimo-v2.5"
+	// Model ID: xiaomi/mimo-v2.5-asr
+	// Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-asr
+	ModelIDXiaomiMimoV25Asr gen.ModelId = "xiaomi/mimo-v2.5-asr"
 	// Model ID: xiaomi/mimo-v2.5-pro
 	// Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-pro
 	ModelIDXiaomiMimoV25Pro gen.ModelId = "xiaomi/mimo-v2.5-pro"
+	// Model ID: xiaomi/mimo-v2.5-pro-ultraspeed
+	// Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-pro-ultraspeed
+	ModelIDXiaomiMimoV25ProUltraspeed gen.ModelId = "xiaomi/mimo-v2.5-pro-ultraspeed"
+	// Model ID: xiaomi/mimo-v2.5-tts-voiceclone:free
+	// Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-tts-voiceclone%3Afree
+	ModelIDXiaomiMimoV25TtsVoicecloneFree gen.ModelId = "xiaomi/mimo-v2.5-tts-voiceclone:free"
+	// Model ID: xiaomi/mimo-v2.5-tts-voicedesign:free
+	// Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-tts-voicedesign%3Afree
+	ModelIDXiaomiMimoV25TtsVoicedesignFree gen.ModelId = "xiaomi/mimo-v2.5-tts-voicedesign:free"
 	// Model ID: xiaomi/mimo-v2.5-tts:free
 	// Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-tts%3Afree
 	ModelIDXiaomiMimoV25TtsFree gen.ModelId = "xiaomi/mimo-v2.5-tts:free"
@@ -2205,7 +2217,11 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDVoyageVoyageMultimodal3,
 	ModelIDVoyageVoyageMultimodal35,
 	ModelIDXiaomiMimoV25,
+	ModelIDXiaomiMimoV25Asr,
 	ModelIDXiaomiMimoV25Pro,
+	ModelIDXiaomiMimoV25ProUltraspeed,
+	ModelIDXiaomiMimoV25TtsVoicecloneFree,
+	ModelIDXiaomiMimoV25TtsVoicedesignFree,
 	ModelIDXiaomiMimoV25TtsFree,
 	ModelIDZAiAutoglmPhone9bMultilingual,
 	ModelIDZAiGlm432b,
