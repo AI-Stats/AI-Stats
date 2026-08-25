@@ -1,8 +1,8 @@
 {
-  "key": "orcarouter:grok/grok-imagine-image:image.generate",
+  "key": "orcarouter:spacex-ai/grok-imagine-image:image.generate",
   "api_provider_id": "orcarouter",
   "provider_slug": "orcarouter",
-  "api_model_id": "grok/grok-imagine-image",
+  "api_model_id": "spacex-ai/grok-imagine-image",
   "capability_id": "image.generate",
   "rules": [
     {
