@@ -1,12 +1,281 @@
 [
   {
+    "api_model_id": "google/gemma-4-26b",
+    "provider_api_model_id": "evroc:google/Gemma-4-26B",
+    "provider_model_slug": "google/Gemma-4-26B",
+    "internal_model_id": "google/gemma-4-26b-a4b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": [
+          "text",
+          "image"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "eu"
+      ],
+      "data": [
+        "eu"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "official_model_page",
+        "url": "https://evroc.com/ai-services/think-models/",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official shared-model handle, capabilities, and EUR pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against evroc's active shared-model catalogue; Phaseo routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "intfloat/multilingual-e5-large-instruct",
+    "provider_api_model_id": "evroc:intfloat/multilingual-e5-large-instruct",
+    "provider_model_slug": "intfloat/multilingual-e5-large-instruct",
+    "internal_model_id": "intfloat/multilingual-e5-large-instruct",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "embeddings",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.embed",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "embeddings"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "eu"
+      ],
+      "data": [
+        "eu"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "official_model_page",
+        "url": "https://evroc.com/ai-services/think-models/",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official shared-model handle, capabilities, and EUR pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against evroc's active shared-model catalogue; Phaseo routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "kblab/kb-whisper-large",
+    "provider_api_model_id": "evroc:KBLab/kb-whisper-large",
+    "provider_model_slug": "KBLab/kb-whisper-large",
+    "internal_model_id": "kblab/kb-whisper-large",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "audio",
+    "output_modalities": "text",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "audio.transcription",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": [
+          "audio"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "eu"
+      ],
+      "data": [
+        "eu"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "official_model_page",
+        "url": "https://evroc.com/ai-services/think-models/",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official shared-model handle, capabilities, and EUR pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against evroc's active shared-model catalogue; Phaseo routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "mistral-ai/voxtral-small-24b-2507",
+    "provider_api_model_id": "evroc:mistralai/Voxtral-Small-24B-2507",
+    "provider_model_slug": "mistralai/Voxtral-Small-24B-2507",
+    "internal_model_id": "mistral/voxtral-small",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "audio",
+    "output_modalities": "text",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "audio.transcription",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": [
+          "audio"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "eu"
+      ],
+      "data": [
+        "eu"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "official_model_page",
+        "url": "https://evroc.com/ai-services/think-models/",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official shared-model handle, capabilities, and EUR pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against evroc's active shared-model catalogue; Phaseo routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "moonshotai/kimi-k2.6",
-    "provider_api_model_id": "evroc:moonshotai/kimi-k2.6",
-    "provider_model_slug": "moonshotai/kimi-k2.6",
+    "provider_api_model_id": "evroc:moonshotai/Kimi-K2.6",
+    "provider_model_slug": "moonshotai/Kimi-K2.6",
     "internal_model_id": "moonshotai/kimi-k2.6",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text,image,video",
+    "input_modalities": "text,image",
     "output_modalities": "text",
     "context_length": 262144,
     "max_output_tokens": 262144,
@@ -22,8 +291,13 @@
         "structured_output": true,
         "temperature": null,
         "attachment": true,
-        "input_modalities": null,
-        "output_modalities": null,
+        "input_modalities": [
+          "text",
+          "image"
+        ],
+        "output_modalities": [
+          "text"
+        ],
         "modes": []
       }
     ],
@@ -31,30 +305,101 @@
     "routable": false,
     "regions": {
       "execution": [
-        "global"
+        "eu"
       ],
       "data": [
-        "global"
+        "eu"
       ]
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai"
+      ],
       "endpoint": null,
       "deployment": null
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: moonshotai/kimi-k2.6"
+        "kind": "official_model_page",
+        "url": "https://evroc.com/ai-services/think-models/",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official shared-model handle, capabilities, and EUR pricing."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against evroc's active shared-model catalogue; Phaseo routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "meta-llama/llama-3.3-70b-instruct",
+    "provider_api_model_id": "evroc:nvidia/Llama-3.3-70B-Instruct-FP8",
+    "provider_model_slug": "nvidia/Llama-3.3-70B-Instruct-FP8",
+    "internal_model_id": "meta/llama-3.3-70b",
+    "is_active_gateway": false,
+    "quantization_scheme": "fp8",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": false,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "eu"
+      ],
+      "data": [
+        "eu"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "official_model_page",
+        "url": "https://evroc.com/ai-services/think-models/",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official shared-model handle, capabilities, and EUR pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against evroc's active shared-model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
   },
@@ -81,8 +426,12 @@
         "structured_output": null,
         "temperature": null,
         "attachment": false,
-        "input_modalities": null,
-        "output_modalities": null,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
         "modes": []
       }
     ],
@@ -90,30 +439,34 @@
     "routable": false,
     "regions": {
       "execution": [
-        "global"
+        "eu"
       ],
       "data": [
-        "global"
+        "eu"
       ]
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai"
+      ],
       "endpoint": null,
       "deployment": null
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: openai/gpt-oss-120b"
+        "kind": "official_model_page",
+        "url": "https://evroc.com/ai-services/think-models/",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official shared-model handle, capabilities, and EUR pricing."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against evroc's active shared-model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
   },
@@ -132,16 +485,20 @@
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "text.generate",
+        "capability_id": "audio.transcription",
         "status": "active",
         "params": [],
-        "reasoning": false,
-        "tool_call": false,
+        "reasoning": null,
+        "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": false,
-        "input_modalities": null,
-        "output_modalities": null,
+        "attachment": true,
+        "input_modalities": [
+          "audio"
+        ],
+        "output_modalities": [
+          "text"
+        ],
         "modes": []
       }
     ],
@@ -149,30 +506,34 @@
     "routable": false,
     "regions": {
       "execution": [
-        "global"
+        "eu"
       ],
       "data": [
-        "global"
+        "eu"
       ]
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai"
+      ],
       "endpoint": null,
       "deployment": null
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: openai/whisper-large-v3"
+        "kind": "official_model_page",
+        "url": "https://evroc.com/ai-services/think-models/",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official shared-model handle, capabilities, and EUR pricing."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against evroc's active shared-model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
   },
@@ -191,16 +552,20 @@
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "text.generate",
+        "capability_id": "audio.transcription",
         "status": "active",
         "params": [],
-        "reasoning": false,
-        "tool_call": false,
+        "reasoning": null,
+        "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": false,
-        "input_modalities": null,
-        "output_modalities": null,
+        "attachment": true,
+        "input_modalities": [
+          "audio"
+        ],
+        "output_modalities": [
+          "text"
+        ],
         "modes": []
       }
     ],
@@ -208,58 +573,66 @@
     "routable": false,
     "regions": {
       "execution": [
-        "global"
+        "eu"
       ],
       "data": [
-        "global"
+        "eu"
       ]
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai"
+      ],
       "endpoint": null,
       "deployment": null
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: openai/whisper-large-v3-turbo"
+        "kind": "official_model_page",
+        "url": "https://evroc.com/ai-services/think-models/",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official shared-model handle, capabilities, and EUR pricing."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against evroc's active shared-model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
   },
   {
     "api_model_id": "qwen/qwen3-embedding-8b",
-    "provider_api_model_id": "evroc:qwen/qwen3-embedding-8b",
-    "provider_model_slug": "qwen/qwen3-embedding-8b",
+    "provider_api_model_id": "evroc:Qwen/Qwen3-Embedding-8B",
+    "provider_model_slug": "Qwen/Qwen3-Embedding-8B",
     "internal_model_id": "qwen/qwen3-embedding-8b",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
-    "output_modalities": "text",
+    "output_modalities": "embeddings",
     "context_length": 40960,
-    "max_output_tokens": 4096,
+    "max_output_tokens": null,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "text.generate",
+        "capability_id": "text.embed",
         "status": "active",
         "params": [],
-        "reasoning": false,
-        "tool_call": false,
+        "reasoning": null,
+        "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": false,
-        "input_modalities": null,
-        "output_modalities": null,
+        "attachment": null,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "embeddings"
+        ],
         "modes": []
       }
     ],
@@ -267,100 +640,45 @@
     "routable": false,
     "regions": {
       "execution": [
-        "global"
+        "eu"
       ],
       "data": [
-        "global"
+        "eu"
       ]
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai"
+      ],
       "endpoint": null,
       "deployment": null
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: qwen/qwen3-embedding-8b"
+        "kind": "official_model_page",
+        "url": "https://evroc.com/ai-services/think-models/",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official shared-model handle, capabilities, and EUR pricing."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "qwen/qwen3-reranker-4b",
-    "provider_api_model_id": "evroc:qwen/qwen3-reranker-4b",
-    "provider_model_slug": "qwen/qwen3-reranker-4b",
-    "internal_model_id": "qwen/qwen3-reranker-4b",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": "text",
-    "output_modalities": "text",
-    "context_length": 32000,
-    "max_output_tokens": 4096,
-    "effective_from": null,
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": false,
-        "tool_call": false,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": false,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": false,
-    "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [
-      {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: qwen/qwen3-reranker-4b"
-      }
-    ],
-    "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against evroc's active shared-model catalogue; Phaseo routing remains disabled."
     },
     "rate_limits": []
   },
   {
     "api_model_id": "qwen/qwen3-vl-30b-a3b-instruct",
-    "provider_api_model_id": "evroc:qwen/qwen3-vl-30b-a3b-instruct",
-    "provider_model_slug": "qwen/qwen3-vl-30b-a3b-instruct",
+    "provider_api_model_id": "evroc:Qwen/Qwen3-VL-30B-A3B-Instruct",
+    "provider_model_slug": "Qwen/Qwen3-VL-30B-A3B-Instruct",
     "internal_model_id": "qwen/qwen3-vl-30b-a3b-instruct",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text,image,video",
+    "input_modalities": "text,image",
     "output_modalities": "text",
     "context_length": 100000,
     "max_output_tokens": 100000,
@@ -375,9 +693,14 @@
         "tool_call": true,
         "structured_output": null,
         "temperature": null,
-        "attachment": false,
-        "input_modalities": null,
-        "output_modalities": null,
+        "attachment": true,
+        "input_modalities": [
+          "text",
+          "image"
+        ],
+        "output_modalities": [
+          "text"
+        ],
         "modes": []
       }
     ],
@@ -385,15 +708,223 @@
     "routable": false,
     "regions": {
       "execution": [
-        "global"
+        "eu"
       ],
       "data": [
-        "global"
+        "eu"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "official_model_page",
+        "url": "https://evroc.com/ai-services/think-models/",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official shared-model handle, capabilities, and EUR pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against evroc's active shared-model catalogue; Phaseo routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.6-35b-a3b",
+    "provider_api_model_id": "evroc:Qwen/Qwen3.6-35B-A3B",
+    "provider_model_slug": "Qwen/Qwen3.6-35B-A3B",
+    "internal_model_id": "qwen/qwen3.6-35b-a3b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": [
+          "text",
+          "image"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "eu"
+      ],
+      "data": [
+        "eu"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "official_model_page",
+        "url": "https://evroc.com/ai-services/think-models/",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official shared-model handle, capabilities, and EUR pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against evroc's active shared-model catalogue; Phaseo routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "zai-org/glm-5.2",
+    "provider_api_model_id": "evroc:zai-org/GLM-5.2",
+    "provider_model_slug": "zai-org/GLM-5.2",
+    "internal_model_id": "z-ai/glm-5.2",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "eu"
+      ],
+      "data": [
+        "eu"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "official_model_page",
+        "url": "https://evroc.com/ai-services/think-models/",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official shared-model handle, capabilities, and EUR pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against evroc's active shared-model catalogue; Phaseo routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-reranker-4b",
+    "provider_api_model_id": "evroc:qwen/qwen3-reranker-4b",
+    "provider_model_slug": "qwen/qwen3-reranker-4b",
+    "internal_model_id": "qwen/qwen3-reranker-4b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "rerank",
+    "context_length": 32000,
+    "max_output_tokens": 4096,
+    "effective_from": null,
+    "effective_to": "2026-08-24T00:00:00Z",
+    "capabilities": [
+      {
+        "capability_id": "rerank",
+        "status": "retired",
+        "params": [
+          "query",
+          "documents",
+          "top_n"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "rerank"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "inactive",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "eu"
+      ],
+      "data": [
+        "eu"
       ]
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai"
+      ],
       "endpoint": null,
       "deployment": null
     },
@@ -402,13 +933,19 @@
         "kind": "models.dev",
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: qwen/qwen3-vl-30b-a3b-instruct"
+        "notes": "Provider model slug: qwen/qwen3-reranker-4b"
+      },
+      {
+        "kind": "official_model_page",
+        "url": "https://evroc.com/ai-services/think-models/",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "No longer present in evroc's active shared-model catalogue; retained as historical."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "No longer present in evroc's active shared-model catalogue; retained as historical and unroutable."
     },
     "rate_limits": []
   }

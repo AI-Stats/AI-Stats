@@ -1,15 +1,15 @@
 [
   {
-    "api_model_id": "google/gemini-2.5-flash",
-    "provider_api_model_id": "nearai:google/gemini-2.5-flash",
-    "provider_model_slug": "google/gemini-2.5-flash",
-    "internal_model_id": "google/gemini-2.5-flash",
+    "api_model_id": "anthropic/claude-fable-5",
+    "provider_api_model_id": "nearai:anthropic/claude-fable-5",
+    "provider_model_slug": "anthropic/claude-fable-5",
+    "internal_model_id": "anthropic/claude-fable-5",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text,image,audio,video,pdf",
+    "input_modalities": "text,image",
     "output_modalities": "text",
-    "context_length": 1048576,
-    "max_output_tokens": 65536,
+    "context_length": 1000000,
+    "max_output_tokens": 128000,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
@@ -20,7 +20,7 @@
         "reasoning": true,
         "tool_call": true,
         "structured_output": true,
-        "temperature": null,
+        "temperature": false,
         "attachment": true,
         "input_modalities": null,
         "output_modalities": null,
@@ -37,24 +37,786 @@
         "global"
       ]
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "incognito"
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: google/gemini-2.5-flash"
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed by the live official API as anthropic/claude-fable-5; execution is third-party Incognito."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "anthropic/claude-haiku-4.5",
+    "provider_api_model_id": "nearai:anthropic/claude-haiku-4-5",
+    "provider_model_slug": "anthropic/claude-haiku-4-5",
+    "internal_model_id": "anthropic/claude-haiku-4.5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 200000,
+    "max_output_tokens": 64000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "inactive",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "inactive",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "incognito"
+    },
+    "sources": [
+      {
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed but marked not ready by the live official API as anthropic/claude-haiku-4-5; execution is third-party Incognito."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "anthropic/claude-opus-4.6",
+    "provider_api_model_id": "nearai:anthropic/claude-opus-4-6",
+    "provider_model_slug": "anthropic/claude-opus-4-6",
+    "internal_model_id": "anthropic/claude-opus-4.6",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 200000,
+    "max_output_tokens": 32768,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "inactive",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "inactive",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "incognito"
+    },
+    "sources": [
+      {
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed but marked not ready by the live official API as anthropic/claude-opus-4-6; execution is third-party Incognito."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "anthropic/claude-opus-4.7",
+    "provider_api_model_id": "nearai:anthropic/claude-opus-4-7",
+    "provider_model_slug": "anthropic/claude-opus-4-7",
+    "internal_model_id": "anthropic/claude-opus-4.7",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 32768,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "inactive",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "inactive",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "incognito"
+    },
+    "sources": [
+      {
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed but marked not ready by the live official API as anthropic/claude-opus-4-7; execution is third-party Incognito."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "anthropic/claude-opus-4.8",
+    "provider_api_model_id": "nearai:anthropic/claude-opus-4-8",
+    "provider_model_slug": "anthropic/claude-opus-4-8",
+    "internal_model_id": "anthropic/claude-opus-4.8",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": false,
+        "tool_call": false,
+        "structured_output": false,
+        "temperature": false,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "incognito"
+    },
+    "sources": [
+      {
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed by the live official API as anthropic/claude-opus-4-8; execution is third-party Incognito."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "anthropic/claude-opus-5",
+    "provider_api_model_id": "nearai:anthropic/claude-opus-5",
+    "provider_model_slug": "anthropic/claude-opus-5",
+    "internal_model_id": "anthropic/claude-opus-5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 128000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": false,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "incognito"
+    },
+    "sources": [
+      {
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed by the live official API as anthropic/claude-opus-5; execution is third-party Incognito."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "anthropic/claude-sonnet-4.5",
+    "provider_api_model_id": "nearai:anthropic/claude-sonnet-4-5",
+    "provider_model_slug": "anthropic/claude-sonnet-4-5",
+    "internal_model_id": "anthropic/claude-sonnet-4.5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 200000,
+    "max_output_tokens": 16384,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "inactive",
+        "params": [],
+        "reasoning": false,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "inactive",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "incognito"
+    },
+    "sources": [
+      {
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed but marked not ready by the live official API as anthropic/claude-sonnet-4-5; execution is third-party Incognito."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "anthropic/claude-sonnet-4.6",
+    "provider_api_model_id": "nearai:anthropic/claude-sonnet-4-6",
+    "provider_model_slug": "anthropic/claude-sonnet-4-6",
+    "internal_model_id": "anthropic/claude-sonnet-4.6",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 16384,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "inactive",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "inactive",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "incognito"
+    },
+    "sources": [
+      {
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed but marked not ready by the live official API as anthropic/claude-sonnet-4-6; execution is third-party Incognito."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "anthropic/claude-sonnet-5",
+    "provider_api_model_id": "nearai:anthropic/claude-sonnet-5",
+    "provider_model_slug": "anthropic/claude-sonnet-5",
+    "internal_model_id": "anthropic/claude-sonnet-5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 128000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": false,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "incognito"
+    },
+    "sources": [
+      {
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed by the live official API as anthropic/claude-sonnet-5; execution is third-party Incognito."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "black-forest-labs/flux-2-klein-4b",
+    "provider_api_model_id": "nearai:black-forest-labs/FLUX.2-klein-4B",
+    "provider_model_slug": "black-forest-labs/FLUX.2-klein-4B",
+    "internal_model_id": "black-forest-labs/flux-2-klein-4b",
+    "is_active_gateway": false,
+    "quantization_scheme": "bf16",
+    "input_modalities": "text",
+    "output_modalities": "image",
+    "context_length": 128000,
+    "max_output_tokens": 1,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "image.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "US"
+      ],
+      "data": [
+        "US"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.images.generations",
+        "openai.images.edits"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "tee"
+    },
+    "sources": [
+      {
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed by the live official API as black-forest-labs/FLUX.2-klein-4B; execution is NEAR AI TEE-hosted. The model supports image generation and editing routes."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v4-flash",
+    "provider_api_model_id": "nearai:deepseek-ai/DeepSeek-V4-Flash",
+    "provider_model_slug": "deepseek-ai/DeepSeek-V4-Flash",
+    "internal_model_id": "deepseek/deepseek-v4-flash",
+    "is_active_gateway": false,
+    "quantization_scheme": "fp8",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 8192,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "US"
+      ],
+      "data": [
+        "US"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "nearai.privacy.classify",
+        "nearai.privacy.redact"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "tee"
+    },
+    "sources": [
+      {
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed by the live official API as deepseek-ai/DeepSeek-V4-Flash; execution is NEAR AI TEE-hosted."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v3.2",
+    "provider_api_model_id": "nearai:deepseek/deepseek-v3.2",
+    "provider_model_slug": "deepseek/deepseek-v3.2",
+    "internal_model_id": "deepseek/deepseek-v3.2",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 128000,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "inactive",
+        "params": [],
+        "reasoning": false,
+        "tool_call": true,
+        "structured_output": false,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "inactive",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "incognito"
+    },
+    "sources": [
+      {
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed but marked not ready by the live official API as deepseek/deepseek-v3.2; execution is attested third-party TEE."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-2.5-flash",
+    "provider_api_model_id": "nearai:google/gemini-2.5-flash",
+    "provider_model_slug": "google/gemini-2.5-flash",
+    "internal_model_id": "google/gemini-2.5-flash",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 8192,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "inactive",
+        "params": [],
+        "reasoning": false,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "inactive",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "incognito"
+    },
+    "sources": [
+      {
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed but marked not ready by the live official API as google/gemini-2.5-flash; execution is third-party Incognito."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
     },
     "rate_limits": []
   },
@@ -65,28 +827,28 @@
     "internal_model_id": "google/gemini-2.5-flash-lite",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text,image,audio,video,pdf",
+    "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 1048576,
-    "max_output_tokens": 65536,
+    "max_output_tokens": 8192,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
-        "reasoning": true,
+        "reasoning": false,
         "tool_call": true,
         "structured_output": true,
-        "temperature": null,
-        "attachment": true,
+        "temperature": true,
+        "attachment": false,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "inactive",
     "routable": false,
     "regions": {
       "execution": [
@@ -96,24 +858,28 @@
         "global"
       ]
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "incognito"
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: google/gemini-2.5-flash-lite"
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed but marked not ready by the live official API as google/gemini-2.5-flash-lite; execution is third-party Incognito."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
     },
     "rate_limits": []
   },
@@ -124,28 +890,28 @@
     "internal_model_id": "google/gemini-2.5-pro",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text,image,audio,video,pdf",
+    "input_modalities": "text,image",
     "output_modalities": "text",
-    "context_length": 1048576,
-    "max_output_tokens": 65536,
+    "context_length": 1000000,
+    "max_output_tokens": 16384,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": true,
         "tool_call": true,
         "structured_output": true,
-        "temperature": null,
+        "temperature": true,
         "attachment": true,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "inactive",
     "routable": false,
     "regions": {
       "execution": [
@@ -155,24 +921,28 @@
         "global"
       ]
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "incognito"
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: google/gemini-2.5-pro"
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed but marked not ready by the live official API as google/gemini-2.5-pro; execution is third-party Incognito."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
     },
     "rate_limits": []
   },
@@ -183,28 +953,28 @@
     "internal_model_id": "google/gemini-3.1-flash-lite",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text,image,video,audio,pdf",
+    "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 1048576,
-    "max_output_tokens": 65536,
+    "max_output_tokens": 8192,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
-        "reasoning": true,
+        "reasoning": false,
         "tool_call": true,
         "structured_output": true,
-        "temperature": null,
-        "attachment": true,
+        "temperature": true,
+        "attachment": false,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "inactive",
     "routable": false,
     "regions": {
       "execution": [
@@ -214,24 +984,28 @@
         "global"
       ]
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "incognito"
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: google/gemini-3.1-flash-lite"
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed but marked not ready by the live official API as google/gemini-3.1-flash-lite; execution is third-party Incognito."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
     },
     "rate_limits": []
   },
@@ -242,10 +1016,73 @@
     "internal_model_id": "google/gemini-3.5-flash",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text,image,video,audio,pdf",
+    "input_modalities": "text,image",
     "output_modalities": "text",
-    "context_length": 1048576,
-    "max_output_tokens": 65536,
+    "context_length": 1000000,
+    "max_output_tokens": 8192,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "inactive",
+        "params": [],
+        "reasoning": false,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "inactive",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "incognito"
+    },
+    "sources": [
+      {
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed but marked not ready by the live official API as google/gemini-3.5-flash; execution is third-party Incognito."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemma-4-31b",
+    "provider_api_model_id": "nearai:google/gemma-4-31B-it",
+    "provider_model_slug": "google/gemma-4-31B-it",
+    "internal_model_id": "google/gemma-4-31b",
+    "is_active_gateway": false,
+    "quantization_scheme": "bf16",
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": 8192,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
@@ -256,7 +1093,70 @@
         "reasoning": true,
         "tool_call": true,
         "structured_output": true,
-        "temperature": null,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "US"
+      ],
+      "data": [
+        "US"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "tee"
+    },
+    "sources": [
+      {
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed by the live official API as google/gemma-4-31B-it; execution is NEAR AI TEE-hosted."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "moonshotai/kimi-k2.6",
+    "provider_api_model_id": "nearai:moonshotai/kimi-k2.6",
+    "provider_model_slug": "moonshotai/kimi-k2.6",
+    "internal_model_id": "moonshotai/kimi-k2.6",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": 8192,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": false,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
         "attachment": true,
         "input_modalities": null,
         "output_modalities": null,
@@ -273,24 +1173,28 @@
         "global"
       ]
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "incognito"
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: google/gemini-3.5-flash"
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed by the live official API as moonshotai/kimi-k2.6; execution is attested third-party TEE."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
     },
     "rate_limits": []
   },
@@ -301,28 +1205,28 @@
     "internal_model_id": "openai/gpt-4.1",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text,image,pdf",
+    "input_modalities": "text,image",
     "output_modalities": "text",
-    "context_length": 1047576,
-    "max_output_tokens": 32768,
+    "context_length": 1000000,
+    "max_output_tokens": 16384,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": false,
         "tool_call": true,
         "structured_output": true,
-        "temperature": null,
+        "temperature": true,
         "attachment": true,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "inactive",
     "routable": false,
     "regions": {
       "execution": [
@@ -332,24 +1236,28 @@
         "global"
       ]
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "incognito"
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: openai/gpt-4.1"
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed but marked not ready by the live official API as openai/gpt-4.1; execution is third-party Incognito."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
     },
     "rate_limits": []
   },
@@ -360,28 +1268,28 @@
     "internal_model_id": "openai/gpt-4.1-mini",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text,image,pdf",
+    "input_modalities": "text,image",
     "output_modalities": "text",
-    "context_length": 1047576,
-    "max_output_tokens": 32768,
+    "context_length": 1000000,
+    "max_output_tokens": 16384,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": false,
         "tool_call": true,
         "structured_output": true,
-        "temperature": null,
+        "temperature": true,
         "attachment": true,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "inactive",
     "routable": false,
     "regions": {
       "execution": [
@@ -391,24 +1299,28 @@
         "global"
       ]
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "incognito"
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: openai/gpt-4.1-mini"
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed but marked not ready by the live official API as openai/gpt-4.1-mini; execution is third-party Incognito."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
     },
     "rate_limits": []
   },
@@ -421,26 +1333,26 @@
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "text",
-    "context_length": 1047576,
-    "max_output_tokens": 32768,
+    "context_length": 1000000,
+    "max_output_tokens": 16384,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": false,
         "tool_call": true,
         "structured_output": true,
-        "temperature": null,
+        "temperature": true,
         "attachment": true,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "inactive",
     "routable": false,
     "regions": {
       "execution": [
@@ -450,24 +1362,28 @@
         "global"
       ]
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "incognito"
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: openai/gpt-4.1-nano"
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed but marked not ready by the live official API as openai/gpt-4.1-nano; execution is third-party Incognito."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
     },
     "rate_limits": []
   },
@@ -481,25 +1397,25 @@
     "input_modalities": "text,image",
     "output_modalities": "text",
     "context_length": 400000,
-    "max_output_tokens": 128000,
+    "max_output_tokens": 16384,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": true,
         "tool_call": true,
         "structured_output": true,
-        "temperature": null,
+        "temperature": true,
         "attachment": true,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "inactive",
     "routable": false,
     "regions": {
       "execution": [
@@ -509,24 +1425,28 @@
         "global"
       ]
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "incognito"
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: openai/gpt-5"
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed but marked not ready by the live official API as openai/gpt-5; execution is third-party Incognito."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
     },
     "rate_limits": []
   },
@@ -537,28 +1457,28 @@
     "internal_model_id": "openai/gpt-5-mini",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text,image",
+    "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 400000,
-    "max_output_tokens": 128000,
+    "max_output_tokens": 16384,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": true,
         "tool_call": true,
         "structured_output": true,
-        "temperature": null,
-        "attachment": true,
+        "temperature": true,
+        "attachment": false,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "inactive",
     "routable": false,
     "regions": {
       "execution": [
@@ -568,24 +1488,28 @@
         "global"
       ]
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "incognito"
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: openai/gpt-5-mini"
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed but marked not ready by the live official API as openai/gpt-5-mini; execution is third-party Incognito."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
     },
     "rate_limits": []
   },
@@ -596,28 +1520,28 @@
     "internal_model_id": "openai/gpt-5-nano",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text,image",
+    "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 400000,
-    "max_output_tokens": 128000,
+    "max_output_tokens": 16384,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": true,
         "tool_call": true,
         "structured_output": true,
-        "temperature": null,
-        "attachment": true,
+        "temperature": true,
+        "attachment": false,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "inactive",
     "routable": false,
     "regions": {
       "execution": [
@@ -627,24 +1551,28 @@
         "global"
       ]
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "incognito"
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: openai/gpt-5-nano"
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed but marked not ready by the live official API as openai/gpt-5-nano; execution is third-party Incognito."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
     },
     "rate_limits": []
   },
@@ -655,28 +1583,28 @@
     "internal_model_id": "openai/gpt-5.1",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text,image",
+    "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 400000,
-    "max_output_tokens": 128000,
+    "max_output_tokens": 16384,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": true,
         "tool_call": true,
         "structured_output": true,
-        "temperature": null,
-        "attachment": true,
+        "temperature": true,
+        "attachment": false,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "inactive",
     "routable": false,
     "regions": {
       "execution": [
@@ -686,24 +1614,28 @@
         "global"
       ]
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "incognito"
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: openai/gpt-5.1"
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed but marked not ready by the live official API as openai/gpt-5.1; execution is third-party Incognito."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
     },
     "rate_limits": []
   },
@@ -717,25 +1649,25 @@
     "input_modalities": "text,image",
     "output_modalities": "text",
     "context_length": 400000,
-    "max_output_tokens": 128000,
+    "max_output_tokens": 16384,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": true,
         "tool_call": true,
         "structured_output": true,
-        "temperature": null,
+        "temperature": true,
         "attachment": true,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "inactive",
     "routable": false,
     "regions": {
       "execution": [
@@ -745,24 +1677,28 @@
         "global"
       ]
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "incognito"
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: openai/gpt-5.2"
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed but marked not ready by the live official API as openai/gpt-5.2; execution is third-party Incognito."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
     },
     "rate_limits": []
   },
@@ -773,28 +1709,28 @@
     "internal_model_id": "openai/gpt-5.4",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text,image,pdf",
+    "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 1050000,
-    "max_output_tokens": 128000,
+    "max_output_tokens": 16384,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": true,
         "tool_call": true,
         "structured_output": true,
-        "temperature": null,
-        "attachment": true,
+        "temperature": true,
+        "attachment": false,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "inactive",
     "routable": false,
     "regions": {
       "execution": [
@@ -804,24 +1740,28 @@
         "global"
       ]
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "incognito"
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: openai/gpt-5.4"
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed but marked not ready by the live official API as openai/gpt-5.4; execution is third-party Incognito."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
     },
     "rate_limits": []
   },
@@ -832,28 +1772,28 @@
     "internal_model_id": "openai/gpt-5.4-mini",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text,image",
+    "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 400000,
-    "max_output_tokens": 128000,
+    "max_output_tokens": 16384,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": true,
         "tool_call": true,
         "structured_output": true,
-        "temperature": null,
-        "attachment": true,
+        "temperature": true,
+        "attachment": false,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "inactive",
     "routable": false,
     "regions": {
       "execution": [
@@ -863,24 +1803,28 @@
         "global"
       ]
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "incognito"
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: openai/gpt-5.4-mini"
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed but marked not ready by the live official API as openai/gpt-5.4-mini; execution is third-party Incognito."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
     },
     "rate_limits": []
   },
@@ -891,28 +1835,28 @@
     "internal_model_id": "openai/gpt-5.4-nano",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text,image",
+    "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 400000,
-    "max_output_tokens": 128000,
+    "max_output_tokens": 16384,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": true,
         "tool_call": true,
         "structured_output": true,
-        "temperature": null,
-        "attachment": true,
+        "temperature": true,
+        "attachment": false,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "inactive",
     "routable": false,
     "regions": {
       "execution": [
@@ -922,24 +1866,28 @@
         "global"
       ]
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "incognito"
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: openai/gpt-5.4-nano"
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed but marked not ready by the live official API as openai/gpt-5.4-nano; execution is third-party Incognito."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
     },
     "rate_limits": []
   },
@@ -950,7 +1898,70 @@
     "internal_model_id": "openai/gpt-5.5",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text,image,pdf",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1050000,
+    "max_output_tokens": 16384,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "inactive",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "inactive",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "incognito"
+    },
+    "sources": [
+      {
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed but marked not ready by the live official API as openai/gpt-5.5; execution is third-party Incognito."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.6-sol",
+    "provider_api_model_id": "nearai:openai/gpt-5.6-sol",
+    "provider_model_slug": "openai/gpt-5.6-sol",
+    "internal_model_id": "openai/gpt-5.6-sol",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
     "output_modalities": "text",
     "context_length": 1050000,
     "max_output_tokens": 128000,
@@ -964,7 +1975,7 @@
         "reasoning": true,
         "tool_call": true,
         "structured_output": true,
-        "temperature": null,
+        "temperature": true,
         "attachment": true,
         "input_modalities": null,
         "output_modalities": null,
@@ -981,24 +1992,28 @@
         "global"
       ]
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "incognito"
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: openai/gpt-5.5"
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed by the live official API as openai/gpt-5.6-sol; execution is third-party Incognito."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
     },
     "rate_limits": []
   },
@@ -1008,11 +2023,11 @@
     "provider_model_slug": "openai/gpt-oss-120b",
     "internal_model_id": "openai/gpt-oss-120b",
     "is_active_gateway": false,
-    "quantization_scheme": null,
+    "quantization_scheme": "fp4",
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": 131000,
-    "max_output_tokens": 32768,
+    "context_length": 131072,
+    "max_output_tokens": 16384,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
@@ -1023,7 +2038,7 @@
         "reasoning": true,
         "tool_call": true,
         "structured_output": true,
-        "temperature": null,
+        "temperature": true,
         "attachment": false,
         "input_modalities": null,
         "output_modalities": null,
@@ -1034,30 +2049,34 @@
     "routable": false,
     "regions": {
       "execution": [
-        "global"
+        "US"
       ],
       "data": [
-        "global"
+        "US"
       ]
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "tee"
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: openai/gpt-oss-120b"
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed by the live official API as openai/gpt-oss-120b; execution is NEAR AI TEE-hosted."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
     },
     "rate_limits": []
   },
@@ -1068,28 +2087,28 @@
     "internal_model_id": "openai/o3",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text,image,pdf",
+    "input_modalities": "text,image",
     "output_modalities": "text",
     "context_length": 200000,
-    "max_output_tokens": 100000,
+    "max_output_tokens": 32768,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": true,
         "tool_call": true,
         "structured_output": true,
-        "temperature": null,
+        "temperature": false,
         "attachment": true,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "inactive",
     "routable": false,
     "regions": {
       "execution": [
@@ -1099,24 +2118,28 @@
         "global"
       ]
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "incognito"
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: openai/o3"
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed but marked not ready by the live official API as openai/o3; execution is third-party Incognito."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
     },
     "rate_limits": []
   },
@@ -1130,25 +2153,25 @@
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 200000,
-    "max_output_tokens": 100000,
+    "max_output_tokens": 32768,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": true,
         "tool_call": true,
         "structured_output": true,
-        "temperature": null,
+        "temperature": false,
         "attachment": false,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "inactive",
     "routable": false,
     "regions": {
       "execution": [
@@ -1158,24 +2181,28 @@
         "global"
       ]
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "incognito"
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: openai/o3-mini"
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed but marked not ready by the live official API as openai/o3-mini; execution is third-party Incognito."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
     },
     "rate_limits": []
   },
@@ -1189,25 +2216,25 @@
     "input_modalities": "text,image",
     "output_modalities": "text",
     "context_length": 200000,
-    "max_output_tokens": 100000,
+    "max_output_tokens": 32768,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": true,
         "tool_call": true,
         "structured_output": true,
-        "temperature": null,
+        "temperature": false,
         "attachment": true,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "inactive",
     "routable": false,
     "regions": {
       "execution": [
@@ -1217,24 +2244,92 @@
         "global"
       ]
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "incognito"
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: openai/o4-mini"
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed but marked not ready by the live official API as openai/o4-mini; execution is third-party Incognito."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "near-ai/privacy-filter",
+    "provider_api_model_id": "nearai:openai/privacy-filter",
+    "provider_model_slug": "openai/privacy-filter",
+    "internal_model_id": "near-ai/privacy-filter",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 512,
+    "max_output_tokens": 1024,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "classification",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "US"
+      ],
+      "data": [
+        "US"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "nearai.privacy.classify",
+        "nearai.privacy.redact"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "tee"
+    },
+    "sources": [
+      {
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed by the live official API as openai/privacy-filter; execution is NEAR AI TEE-hosted. Classification is served directly; redaction is a Cloud API gateway route."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
     },
     "rate_limits": []
   },
@@ -1248,19 +2343,19 @@
     "input_modalities": "audio",
     "output_modalities": "text",
     "context_length": 448,
-    "max_output_tokens": 448,
+    "max_output_tokens": 1024,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "text.generate",
+        "capability_id": "audio.transcription",
         "status": "active",
         "params": [],
-        "reasoning": false,
-        "tool_call": false,
+        "reasoning": null,
+        "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": false,
+        "attachment": true,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
@@ -1270,30 +2365,34 @@
     "routable": false,
     "regions": {
       "execution": [
-        "global"
+        "US"
       ],
       "data": [
-        "global"
+        "US"
       ]
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
+      "formats": [
+        "openai.audio.transcriptions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "tee"
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: openai/whisper-large-v3"
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed by the live official API as openai/whisper-large-v3; execution is NEAR AI TEE-hosted."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
     },
     "rate_limits": []
   },
@@ -1309,11 +2408,11 @@
     "context_length": 262144,
     "max_output_tokens": 32768,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-08-24T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": false,
         "tool_call": true,
@@ -1325,7 +2424,7 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "inactive",
     "routable": false,
     "regions": {
       "execution": [
@@ -1347,35 +2446,104 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-30b-a3b-instruct-2507"
+      },
+      {
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "No longer returned by the live official model API on 2026-08-24; historical route qwen/qwen3-30b-a3b-instruct-2507 retained."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Historical route retained after live-catalog removal."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-32b",
+    "provider_api_model_id": "nearai:qwen/qwen3-32b",
+    "provider_model_slug": "qwen/qwen3-32b",
+    "internal_model_id": "qwen/qwen3-32b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 128000,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "inactive",
+        "params": [],
+        "reasoning": false,
+        "tool_call": true,
+        "structured_output": false,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "inactive",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.embeddings"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "incognito"
+    },
+    "sources": [
+      {
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed but marked not ready by the live official API as qwen/qwen3-32b; execution is attested third-party TEE."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
     },
     "rate_limits": []
   },
   {
     "api_model_id": "qwen/qwen3-embedding-0.6b",
-    "provider_api_model_id": "nearai:qwen/qwen3-embedding-0.6b",
-    "provider_model_slug": "qwen/qwen3-embedding-0.6b",
+    "provider_api_model_id": "nearai:Qwen/Qwen3-Embedding-0.6B",
+    "provider_model_slug": "Qwen/Qwen3-Embedding-0.6B",
     "internal_model_id": "qwen/qwen3-embedding-0.6b",
     "is_active_gateway": false,
-    "quantization_scheme": null,
+    "quantization_scheme": "bf16",
     "input_modalities": "text",
-    "output_modalities": "text",
-    "context_length": 40960,
+    "output_modalities": "embedding",
+    "context_length": 32768,
     "max_output_tokens": 1024,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "text.generate",
+        "capability_id": "text.embed",
         "status": "active",
         "params": [],
-        "reasoning": false,
-        "tool_call": false,
+        "reasoning": null,
+        "tool_call": null,
         "structured_output": null,
         "temperature": null,
         "attachment": false,
@@ -1388,40 +2556,44 @@
     "routable": false,
     "regions": {
       "execution": [
-        "global"
+        "US"
       ],
       "data": [
-        "global"
+        "US"
       ]
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
+      "formats": [
+        "openai.embeddings"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "tee"
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: qwen/qwen3-embedding-0.6b"
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed by the live official API as Qwen/Qwen3-Embedding-0.6B; execution is NEAR AI TEE-hosted."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
     },
     "rate_limits": []
   },
   {
     "api_model_id": "qwen/qwen3-reranker-0.6b",
-    "provider_api_model_id": "nearai:qwen/qwen3-reranker-0.6b",
-    "provider_model_slug": "qwen/qwen3-reranker-0.6b",
+    "provider_api_model_id": "nearai:Qwen/Qwen3-Reranker-0.6B",
+    "provider_model_slug": "Qwen/Qwen3-Reranker-0.6B",
     "internal_model_id": "qwen/qwen3-reranker-0.6b",
     "is_active_gateway": false,
-    "quantization_scheme": null,
+    "quantization_scheme": "bf16",
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 40960,
@@ -1430,11 +2602,11 @@
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "text.generate",
+        "capability_id": "rerank",
         "status": "active",
         "params": [],
-        "reasoning": false,
-        "tool_call": false,
+        "reasoning": null,
+        "tool_call": null,
         "structured_output": null,
         "temperature": null,
         "attachment": false,
@@ -1447,44 +2619,49 @@
     "routable": false,
     "regions": {
       "execution": [
-        "global"
+        "US"
       ],
       "data": [
-        "global"
+        "US"
       ]
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
+      "formats": [
+        "nearai.rerank",
+        "nearai.score"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "tee"
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: qwen/qwen3-reranker-0.6b"
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed by the live official API as Qwen/Qwen3-Reranker-0.6B; execution is NEAR AI TEE-hosted."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
     },
     "rate_limits": []
   },
   {
     "api_model_id": "qwen/qwen3-vl-30b-a3b-instruct",
-    "provider_api_model_id": "nearai:qwen/qwen3-vl-30b-a3b-instruct",
-    "provider_model_slug": "qwen/qwen3-vl-30b-a3b-instruct",
+    "provider_api_model_id": "nearai:Qwen/Qwen3-VL-30B-A3B-Instruct",
+    "provider_model_slug": "Qwen/Qwen3-VL-30B-A3B-Instruct",
     "internal_model_id": "qwen/qwen3-vl-30b-a3b-instruct",
     "is_active_gateway": false,
-    "quantization_scheme": null,
+    "quantization_scheme": "fp8",
     "input_modalities": "text,image",
     "output_modalities": "text",
-    "context_length": 256000,
-    "max_output_tokens": 32768,
+    "context_length": 16384,
+    "max_output_tokens": 8192,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
@@ -1493,9 +2670,9 @@
         "status": "active",
         "params": [],
         "reasoning": false,
-        "tool_call": true,
+        "tool_call": false,
         "structured_output": true,
-        "temperature": null,
+        "temperature": true,
         "attachment": true,
         "input_modalities": null,
         "output_modalities": null,
@@ -1506,44 +2683,48 @@
     "routable": false,
     "regions": {
       "execution": [
-        "global"
+        "US"
       ],
       "data": [
-        "global"
+        "US"
       ]
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "tee"
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: qwen/qwen3-vl-30b-a3b-instruct"
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed by the live official API as Qwen/Qwen3-VL-30B-A3B-Instruct; execution is NEAR AI TEE-hosted."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
     },
     "rate_limits": []
   },
   {
     "api_model_id": "qwen/qwen3.5-122b-a10b",
-    "provider_api_model_id": "nearai:qwen/qwen3.5-122b-a10b",
-    "provider_model_slug": "qwen/qwen3.5-122b-a10b",
+    "provider_api_model_id": "nearai:Qwen/Qwen3.5-122B-A10B",
+    "provider_model_slug": "Qwen/Qwen3.5-122B-A10B",
     "internal_model_id": "qwen/qwen3.5-122b-a10b",
     "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": "text",
+    "quantization_scheme": "bf16",
+    "input_modalities": "text,image",
     "output_modalities": "text",
-    "context_length": 131072,
-    "max_output_tokens": 32768,
+    "context_length": 262144,
+    "max_output_tokens": 16384,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
@@ -1554,7 +2735,7 @@
         "reasoning": true,
         "tool_call": true,
         "structured_output": true,
-        "temperature": null,
+        "temperature": true,
         "attachment": true,
         "input_modalities": null,
         "output_modalities": null,
@@ -1565,30 +2746,475 @@
     "routable": false,
     "regions": {
       "execution": [
+        "US"
+      ],
+      "data": [
+        "US"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "tee"
+    },
+    "sources": [
+      {
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed by the live official API as Qwen/Qwen3.5-122B-A10B; execution is NEAR AI TEE-hosted."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.5-397b-a17b",
+    "provider_api_model_id": "nearai:qwen/qwen3.5-397b-a17b",
+    "provider_model_slug": "qwen/qwen3.5-397b-a17b",
+    "internal_model_id": "qwen/qwen3.5-397b-a17b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 128000,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "inactive",
+        "params": [],
+        "reasoning": false,
+        "tool_call": true,
+        "structured_output": false,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "inactive",
+    "routable": false,
+    "regions": {
+      "execution": [
         "global"
       ],
       "data": [
         "global"
       ]
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "incognito"
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: qwen/qwen3.5-122b-a10b"
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed but marked not ready by the live official API as qwen/qwen3.5-397b-a17b; execution is attested third-party TEE."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.6-27b",
+    "provider_api_model_id": "nearai:Qwen/Qwen3.6-27B-FP8",
+    "provider_model_slug": "Qwen/Qwen3.6-27B-FP8",
+    "internal_model_id": "qwen/qwen3.6-27b",
+    "is_active_gateway": false,
+    "quantization_scheme": "fp8",
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": 8192,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "US"
+      ],
+      "data": [
+        "US"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "tee"
+    },
+    "sources": [
+      {
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed by the live official API as Qwen/Qwen3.6-27B-FP8; execution is NEAR AI TEE-hosted."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.6-35b-a3b",
+    "provider_api_model_id": "nearai:Qwen/Qwen3.6-35B-A3B-FP8",
+    "provider_model_slug": "Qwen/Qwen3.6-35B-A3B-FP8",
+    "internal_model_id": "qwen/qwen3.6-35b-a3b",
+    "is_active_gateway": false,
+    "quantization_scheme": "fp8",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": 8192,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "US"
+      ],
+      "data": [
+        "US"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "tee"
+    },
+    "sources": [
+      {
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed by the live official API as Qwen/Qwen3.6-35B-A3B-FP8; execution is NEAR AI TEE-hosted."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.7-max",
+    "provider_api_model_id": "nearai:qwen/qwen3.7-max",
+    "provider_model_slug": "qwen/qwen3.7-max",
+    "internal_model_id": "qwen/qwen3.7-max",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 16384,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "inactive",
+        "params": [],
+        "reasoning": false,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "inactive",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "incognito"
+    },
+    "sources": [
+      {
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed but marked not ready by the live official API as qwen/qwen3.7-max; execution is third-party Incognito."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.8-27b",
+    "provider_api_model_id": "nearai:Qwen/Qwen3.8-27B",
+    "provider_model_slug": "Qwen/Qwen3.8-27B",
+    "internal_model_id": "qwen/qwen3.8-27b",
+    "is_active_gateway": false,
+    "quantization_scheme": "fp8",
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": 8192,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "US"
+      ],
+      "data": [
+        "US"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "tee"
+    },
+    "sources": [
+      {
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed by the live official API as Qwen/Qwen3.8-27B; execution is NEAR AI TEE-hosted."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-5.2",
+    "provider_api_model_id": "nearai:z-ai/glm-5.2",
+    "provider_model_slug": "z-ai/glm-5.2",
+    "internal_model_id": "z-ai/glm-5.2",
+    "is_active_gateway": false,
+    "quantization_scheme": "fp8",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 131072,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "US"
+      ],
+      "data": [
+        "US"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "tee"
+    },
+    "sources": [
+      {
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed by the live official API as z-ai/glm-5.2; execution is NEAR AI TEE-hosted."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-5.1",
+    "provider_api_model_id": "nearai:zai-org/GLM-5.1-FP8",
+    "provider_model_slug": "zai-org/GLM-5.1-FP8",
+    "internal_model_id": "z-ai/glm-5.1",
+    "is_active_gateway": false,
+    "quantization_scheme": "fp8",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 202752,
+    "max_output_tokens": 16384,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "US"
+      ],
+      "data": [
+        "US"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://cloud-api.near.ai/v1",
+      "deployment": "tee"
+    },
+    "sources": [
+      {
+        "kind": "model_catalog",
+        "url": "https://cloud-api.near.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Listed by the live official API as zai-org/GLM-5.1-FP8; execution is NEAR AI TEE-hosted."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact identifier, lifecycle flag, modalities, limits, features, execution class, datacenter metadata, and pricing reconciled against the live official model API."
     },
     "rate_limits": []
   }

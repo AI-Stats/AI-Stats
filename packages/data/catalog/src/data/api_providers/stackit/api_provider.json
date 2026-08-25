@@ -4,24 +4,28 @@
   "provider_family_id": null,
   "offer_label": null,
   "offer_scope": "specialized",
-  "description": "STACKIT cloud services are operated by Schwarz Digits Cloud GmbH & Co. KG at Am Campus 1, 74177 Bad Friedrichshall, Germany.",
-  "link": "https://docs.stackit.cloud/products/data-and-ai/ai-model-serving/basics/available-shared-models",
-  "residency_mode": null,
-  "default_execution_regions": null,
-  "default_data_regions": null,
-  "zero_data_retention": null,
-  "residency_source_url": null,
-  "prompt_training_policy": null,
-  "prompt_training_notes": null,
-  "prompt_training_source_url": null,
+  "description": "STACKIT AI Model Serving provides OpenAI-compatible shared chat and embedding models from its Germany South (EU01) cloud region.",
+  "link": "https://docs.stackit.cloud/products/data-and-ai/ai-model-serving/basics/available-shared-models/",
+  "residency_mode": "provider_managed",
+  "default_execution_regions": [
+    "eu"
+  ],
+  "default_data_regions": [
+    "eu"
+  ],
+  "zero_data_retention": "default",
+  "residency_source_url": "https://docs.stackit.cloud/products/data-and-ai/ai-model-serving/basics/available-shared-models/",
+  "prompt_training_policy": "no_train",
+  "prompt_training_notes": "STACKIT states that customer request data is not stored and is not used to train models.",
+  "prompt_training_source_url": "https://docs.stackit.cloud/products/data-and-ai/ai-model-serving/faq/",
   "user_identifier_policy": null,
   "user_identifier_notes": null,
-  "privacy_policy_url": null,
-  "terms_of_service_url": null,
-  "regional_pricing_mode": null,
+  "privacy_policy_url": "https://www.stackit.de/en/data-privacy/",
+  "terms_of_service_url": "https://www.stackit.de/en/general-terms-and-conditions/terms-of-use/",
+  "regional_pricing_mode": "source_region_rates",
   "regional_pricing_uplift_percent": null,
-  "pricing_source_url": null,
-  "regional_pricing_notes": null,
+  "pricing_source_url": "https://www.stackit.de/de/preise/cloud-services/stackit-ai-model-serving/",
+  "regional_pricing_notes": "Official net list prices are denominated in EUR and apply to the Germany South (EU01) service SKUs.",
   "country_code": "DE",
   "status": "Active",
   "colour": null,
@@ -30,13 +34,45 @@
   "routing_enabled": false,
   "sdk_package": "@ai-sdk/openai-compatible",
   "api_base_url": "https://api.openai-compat.model-serving.eu01.onstackit.cloud/v1",
-  "docs_url": "https://docs.stackit.cloud/products/data-and-ai/ai-model-serving/basics/available-shared-models",
+  "docs_url": "https://docs.stackit.cloud/products/data-and-ai/ai-model-serving/basics/available-shared-models/",
   "auth_env": [
     "STACKIT_API_KEY"
   ],
-  "api_formats": [],
-  "service_tiers": [],
+  "api_formats": [
+    "openai-compatible"
+  ],
+  "service_tiers": [
+    "llm-standard",
+    "llm-plus",
+    "llm-premium",
+    "embedding-standard",
+    "embedding-plus"
+  ],
   "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://docs.stackit.cloud/products/data-and-ai/ai-model-serving/basics/available-shared-models/",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official live shared-model catalogue, exact model identifiers, endpoints, modalities, context/output limits, status, and per-model RPM/TPM limits."
+    },
+    {
+      "kind": "provider_pricing",
+      "url": "https://www.stackit.de/de/preise/cloud-services/stackit-ai-model-serving/",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official Germany South (EU01) category pricing in EUR per million input or output tokens."
+    },
+    {
+      "kind": "provider_documentation",
+      "url": "https://docs.stackit.cloud/products/data-and-ai/ai-model-serving/how-tos/rate-limits-on-shared-models-_stackit-ai-model-serving/",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official project-scoped rate-limit semantics and weighted generation-token accounting."
+    },
+    {
+      "kind": "provider_documentation",
+      "url": "https://docs.stackit.cloud/products/data-and-ai/ai-model-serving/faq/",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official FAQ states requests are not stored or used to train models."
+    },
     {
       "kind": "models.dev",
       "url": "https://models.dev/api.json",
@@ -51,8 +87,8 @@
     }
   ],
   "verification": {
-    "status": "partial",
-    "checked_at": "2026-08-09T00:00:00Z",
-    "notes": "Location metadata verified from the current official Terms of Use; other provider policy and catalogue fields were not re-audited. Existing provider verification note: Provider metadata and model support enrichment; not a Phaseo-routable offer."
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Official shared-model catalogue, exact IDs, endpoints, EU01 availability, model limits, regional pricing, and legal links were reconciled end-to-end; Phaseo routing remains disabled."
   }
 }

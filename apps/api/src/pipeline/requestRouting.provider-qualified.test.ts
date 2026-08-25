@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest";
 import {
 	applyProviderQualifiedModelConstraint,
 	canonicalizeProviderQualifiedModelRequest,
+	collectUnsupportedRoutingFields,
 	filterProviderQualifiedModelCandidates,
+	filterQuantizationCandidates,
+	normalizeQuantization,
 	parseProviderQualifiedModel,
 	validateProviderQualifiedModelProvider,
 } from "./requestRouting";
@@ -10,6 +13,7 @@ import {
 function candidate(args: {
 	providerId: string;
 	pricing?: "free" | "paid" | "missing";
+	quantization?: string | null;
 }) {
 	return {
 		providerId: args.providerId,
@@ -17,6 +21,7 @@ function candidate(args: {
 		baseWeight: 1,
 		byokMeta: [],
 		providerModelSlug: "upstream/model",
+		quantizationScheme: args.quantization ?? null,
 		pricingCard:
 			args.pricing === "missing"
 				? null
@@ -43,6 +48,67 @@ function candidate(args: {
 				},
 	} as any;
 }
+
+describe("quantization routing", () => {
+	it("is no longer reported as an unsupported routing claim", () => {
+		expect(collectUnsupportedRoutingFields({
+			provider: { quantizations: ["fp8"] },
+		})).toEqual([]);
+	});
+
+	it("normalizes casing, separators, and unambiguous aliases", () => {
+		expect(normalizeQuantization(" FP-8 ")).toBe("fp8");
+		expect(normalizeQuantization("bfloat_16")).toBe("bf16");
+		expect(normalizeQuantization("INT4")).toBe("int4");
+	});
+
+	it("filters exact provider-model offers and reports dropped metadata", () => {
+		const result = filterQuantizationCandidates([
+			candidate({ providerId: "fast-fp8", quantization: "FP8" }),
+			candidate({ providerId: "quality", quantization: "bf16" }),
+			candidate({ providerId: "unknown" }),
+		], ["float8"]);
+
+		expect(result.ok).toBe(true);
+		if (!result.ok) return;
+		expect(result.providers.map((provider) => provider.providerId)).toEqual(["fast-fp8"]);
+		expect(result.diagnostics).toMatchObject({
+			normalizedRequested: ["fp8"],
+			available: ["bf16", "fp8"],
+			providerCountBefore: 3,
+			providerCountAfter: 1,
+		});
+		expect(result.diagnostics?.droppedProviders).toContainEqual(expect.objectContaining({
+			providerId: "unknown",
+			reason: "quantization_metadata_missing",
+		}));
+	});
+
+	it("fails closed with deterministic diagnostics when no offer matches", () => {
+		const result = filterQuantizationCandidates([
+			candidate({ providerId: "quality", quantization: "BF16" }),
+			candidate({ providerId: "unknown" }),
+		], ["int4"]);
+
+		expect(result).toMatchObject({
+			ok: false,
+			reason: "quantization_not_available",
+			diagnostics: {
+				requested: ["int4"],
+				normalizedRequested: ["int4"],
+				available: ["bf16"],
+				providerCountAfter: 0,
+			},
+		});
+	});
+
+	it("does not treat an empty filter as unrestricted routing", () => {
+		const result = filterQuantizationCandidates([
+			candidate({ providerId: "fp8", quantization: "fp8" }),
+		], []);
+		expect(result.ok).toBe(false);
+	});
+});
 
 describe("provider-qualified model ids", () => {
 	it("parses an exact provider-model pair", () => {

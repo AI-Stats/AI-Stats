@@ -43,6 +43,10 @@
       "value": 397000000000
     },
     {
+      "name": "active_parameter_count",
+      "value": 17000000000
+    },
+    {
       "name": "base_model",
       "value": "Qwen3.5-397B-A17B"
     }
@@ -62,7 +66,7 @@
   "model_type": null,
   "knowledge_cutoff": null,
   "limits": {
-    "context": null,
+    "context": 262144,
     "input": null,
     "output": null
   },
@@ -76,44 +80,44 @@
     ]
   },
   "reasoning": {
-    "supported": null,
+    "supported": true,
     "options": []
   },
   "capabilities": {
-    "attachment": null,
-    "tool_call": null,
+    "attachment": true,
+    "tool_call": true,
     "structured_output": null,
-    "temperature": null,
-    "streaming": null,
-    "web_search": null
+    "temperature": true,
+    "streaming": true,
+    "web_search": false
   },
-  "open_weights": null,
+  "open_weights": true,
   "sources": [
     {
       "kind": "weights",
       "url": "https://huggingface.co/nex-agi/Nex-N2-Pro",
-      "accessed_at": null,
-      "notes": null
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official model card, configuration, Apache-2.0 metadata, multimodal architecture, and deployment instructions."
     },
     {
       "kind": "github",
-      "url": "https://github.com/nex-agi",
-      "accessed_at": null,
-      "notes": null
+      "url": "https://github.com/nex-agi/Nex-N2",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official self-hosting, reasoning-parser, tool-call-parser, and sampling instructions."
     },
     {
       "kind": "website",
       "url": "https://nex-agi.com",
-      "accessed_at": null,
-      "notes": null
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official Nex-N2 launch page."
     }
   ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Identity, lifecycle, Apache-2.0 license, 397B/17B-active architecture, text-and-image input, 262,144-token context, reasoning, function calling, streaming deployment, and open weights verified from first-party sources. No model-level maximum output limit is published."
   },
-  "last_updated": null,
+  "last_updated": "2026-08-24T00:00:00Z",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

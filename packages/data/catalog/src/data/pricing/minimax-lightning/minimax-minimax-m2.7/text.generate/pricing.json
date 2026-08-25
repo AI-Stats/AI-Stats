@@ -74,10 +74,10 @@
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [{ "kind": "pricing", "url": "https://platform.minimax.io/docs/guides/pricing-paygo", "accessed_at": "2026-08-24T00:00:00Z" }],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Verified against MiniMax pay-as-you-go pricing for MiniMax-M2.7-highspeed."
   }
 }

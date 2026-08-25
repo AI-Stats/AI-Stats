@@ -1,0 +1,72 @@
+{
+  "model_id": "poe/qwen-audio-3.0-tts",
+  "organisation_id": "poe",
+  "name": "Qwen-Audio-3.0-TTS",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Qwen Audio 3.0 TTS is Alibaba's speech synthesis model, available here in two tiers with over 1,000 shared voices, 16 languages, and 20 Chinese dialect regions. Direct the delivery in plain English, or drop inline tags straight into your text to change expression mid-sentence.\n\nExpression\n- Instruction sets emotion, tone, character, pace, and style, for example \"Speak quickly in an excited, upbeat tone\"\n- Inline tags change expression mid-sentence: [excited], [whispers], [laughing], [sighing], [gasp]\n\nNotes\n- Languages: Arabic, Chinese, English, French, German, Indonesian, Italian, Japanese, Korean, Malay, Portuguese, Russian, Spanish, Tagalog, Thai, Vietnamese\n\nThis bot supports optional parameters for additional customization.",
+  "announced_date": "2026-07-23T05:16:44",
+  "release_date": "2026-07-23T05:16:44",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text",
+  "output_types": "text",
+  "api_model_id": "poe/qwen-audio-3.0-tts",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Poe bot",
+      "kind": "api_reference",
+      "url": "https://poe.com/qwen-audio-3.0-tts"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "Poe bot",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": false,
+    "tool_call": false,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.poe.com/v1/models",
+      "accessed_at": "2026-08-24T03:27:45Z",
+      "notes": "Canonical entity for an exact public Poe bot identifier returned by the models API."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T03:27:45Z",
+    "notes": "Identity and advertised metadata verified against Poe's public models API."
+  },
+  "last_updated": "2026-08-24T03:27:45Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}
