@@ -160,6 +160,23 @@ function capabilityForDetails(details: JsonObject): string {
 	return "text.generate";
 }
 
+function modalitiesForDetails(details: JsonObject): { input: string | null; output: string | null } {
+	const architecture = asRecord(details.architecture);
+	const capabilities = asRecord(details.capabilities);
+	const explicitInput = [
+		...(Array.isArray(details.input_modalities) ? details.input_modalities : []),
+		...(Array.isArray(architecture?.input_modalities) ? architecture.input_modalities : []),
+	].map(normalized).filter(Boolean);
+	const explicitOutput = [
+		...(Array.isArray(details.output_modalities) ? details.output_modalities : []),
+		...(Array.isArray(architecture?.output_modalities) ? architecture.output_modalities : []),
+	].map(normalized).filter(Boolean);
+	const imageInput = asRecord(capabilities?.image_input)?.supported === true;
+	const input = [...new Set(["text", ...(imageInput ? ["image"] : []), ...explicitInput])];
+	const output = [...new Set(explicitOutput.length > 0 ? explicitOutput : ["text"])];
+	return { input: input.join(",") || null, output: output.join(",") || null };
+}
+
 function positiveInteger(value: unknown): number | null {
 	const parsed = Number(value);
 	return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
@@ -200,6 +217,7 @@ function primaryCapability(model: JsonObject): string {
 
 function newProviderModel(providerId: string, canonicalModelId: string, row: DiscoveryRow): JsonObject {
 	const limits = extractDiscoveryLimits(row.model_details);
+	const modalities = modalitiesForDetails(row.model_details);
 	const capabilityId = capabilityForDetails(row.model_details);
 	const source = sourceForRow(row);
 	return {
@@ -209,8 +227,8 @@ function newProviderModel(providerId: string, canonicalModelId: string, row: Dis
 		internal_model_id: canonicalModelId,
 		is_active_gateway: false,
 		quantization_scheme: null,
-		input_modalities: null,
-		output_modalities: null,
+		input_modalities: modalities.input,
+		output_modalities: modalities.output,
 		context_length: limits.context,
 		max_output_tokens: limits.output,
 		effective_from: null,
@@ -318,7 +336,7 @@ async function fetchDiscoveryRows(): Promise<DiscoveryRow[]> {
 	return output;
 }
 
-async function loadCanonicalModelIndex(): Promise<{ ids: Set<string>; aliases: Map<string, string>; uniqueTails: Map<string, string> }> {
+async function loadCanonicalModelIndex(): Promise<{ ids: Set<string>; aliases: Map<string, string>; uniqueTails: Map<string, string>; uniqueCompactTails: Map<string, string> }> {
 	const ids = new Set<string>();
 	for (const filePath of await filesNamed(path.join(DATA_ROOT, "models"), "model.json")) {
 		const model = await readJson<JsonObject>(filePath);
@@ -336,15 +354,55 @@ async function loadCanonicalModelIndex(): Promise<{ ids: Set<string>; aliases: M
 		if (tail) tails.set(tail, [...(tails.get(tail) ?? []), id]);
 	}
 	const uniqueTails = new Map([...tails].filter(([, values]) => values.length === 1).map(([tail, values]) => [tail, values[0]!]));
-	return { ids, aliases, uniqueTails };
+	const compactTails = new Map<string, string[]>();
+	for (const id of ids) {
+		const tail = id.split("/").slice(1).join("/").replace(/[^a-z0-9]+/g, "");
+		if (tail) compactTails.set(tail, [...(compactTails.get(tail) ?? []), id]);
+	}
+	const uniqueCompactTails = new Map([...compactTails].filter(([, values]) => values.length === 1).map(([tail, values]) => [tail, values[0]!]));
+	return { ids, aliases, uniqueTails, uniqueCompactTails };
 }
 
-function resolveCanonicalModelId(modelId: string, index: Awaited<ReturnType<typeof loadCanonicalModelIndex>>): string | null {
+const PIONEER_CANONICAL_MODELS: Record<string, string> = {
+	"qwen/qwen3-235b-a22b-instruct-2507": "qwen/qwen3-235b-a22b-instruct-2507",
+	"claude-opus-5-fast": "anthropic/claude-opus-5-fast",
+	"devstral-2": "mistral/devstral-2.0",
+	"devstral-small-2": "mistral/devstral-small-2.0",
+	"fastino/fastino-nemotron-3.5-lightning-finance": "fastino/nemotron-3.5-lightning-finance",
+	"fastino/fastino-nemotron-3.5-lightning-healthcare": "fastino/nemotron-3.5-lightning-healthcare",
+	"gemini-3-flash": "google/gemini-3-flash",
+	"gemini-3.1-pro": "google/gemini-3.1-pro",
+	"google/gemma-4-12b-it": "google/gemma-4-12b",
+	"google/gemma-4-31b-it": "google/gemma-4-31b",
+	"magistral-medium": "mistral/magistral-medium-1.2",
+	"meta-llama/llama-3.1-8b-instruct": "meta/llama-3.1-8b",
+	"meta-llama/llama-3.3-70b-instruct": "meta/llama-3.3-70b",
+	"ministral-14b": "mistral/ministral-14b",
+	"mistral-large-3": "mistral/mistral-large-3.0",
+	"mistral-medium": "mistral/mistral-medium-3.0",
+	"mistralai/codestral-22b-v0.1": "mistral/codestral-2024-05-29",
+	"mistralai/ministral-8b-instruct-2410": "mistral/ministral-8b",
+	"mistralai/mistral-nemo-instruct-2407": "mistral/mistral-nemo-2407",
+	"mistralai/mistral-small-4-119b-2603": "mistral/mistral-small-4",
+	"mistralai/pixtral-12b-2409": "mistral/pixtral-12b",
+	"moonshotai/kimi-k3-fast": "moonshotai/kimi-k3-fast",
+	"nvidia/nvidia-nemotron-3-nano-30b-a3b-bf16": "nvidia/nemotron-3-nano-30b-a3b",
+	"nvidia/nvidia-nemotron-3-super-120b-a12b-fp8": "nvidia/nemotron-3-super-120b-a12b",
+	"nvidia/nvidia-nemotron-3-ultra-550b-a55b-bf16": "nvidia/nemotron-3-ultra-550b-a55b",
+	"nvidia/nvidia-nemotron-3.5-lightning-30b-a3b-bf16": "nvidia/nemotron-3.5-lightning",
+	"zai-org/glm-5.2-fast": "z-ai/glm-5.2-fast",
+};
+
+function resolveCanonicalModelId(modelId: string, index: Awaited<ReturnType<typeof loadCanonicalModelIndex>>, providerId?: string): string | null {
 	const id = normalized(modelId).replace(/^models\//, "");
+	if (providerId === "pioneer" && PIONEER_CANONICAL_MODELS[id]) return PIONEER_CANONICAL_MODELS[id];
 	if (index.ids.has(id)) return id;
 	const alias = index.aliases.get(id);
 	if (alias) return alias;
-	return index.uniqueTails.get(id) ?? null;
+	const exactTail = index.uniqueTails.get(id);
+	if (exactTail) return exactTail;
+	const compactTail = id.split("/").at(-1)?.replace(/[^a-z0-9]+/g, "") ?? "";
+	return index.uniqueCompactTails.get(compactTail) ?? null;
 }
 
 async function main(): Promise<void> {
@@ -394,7 +452,7 @@ async function main(): Promise<void> {
 		for (const row of providerRows) {
 			let mapping = models.find((model) => normalized(model.provider_model_slug) === normalized(row.model_id));
 			if (!mapping) {
-				const canonicalModelId = resolveCanonicalModelId(row.model_id, canonical);
+				const canonicalModelId = resolveCanonicalModelId(row.model_id, canonical, discoveryProviderId);
 				if (!canonicalModelId) {
 					report.unmatched.push(`${discoveryProviderId}:${row.model_id}`);
 					continue;
@@ -406,6 +464,7 @@ async function main(): Promise<void> {
 			}
 
 			const limits = extractDiscoveryLimits(row.model_details);
+			const modalities = modalitiesForDetails(row.model_details);
 			const source = sourceForRow(row);
 			if (source && Array.isArray(mapping.sources) && !mapping.sources.some((entry: JsonObject) => entry?.url === source.url)) {
 				mapping.sources.push(source);
@@ -419,6 +478,16 @@ async function main(): Promise<void> {
 			}
 			if (mapping.max_output_tokens == null && limits.output !== null) {
 				mapping.max_output_tokens = limits.output;
+				mappingsChanged = true;
+				report.mappingsUpdated += 1;
+			}
+			if (mapping.input_modalities == null && modalities.input !== null) {
+				mapping.input_modalities = modalities.input;
+				mappingsChanged = true;
+				report.mappingsUpdated += 1;
+			}
+			if (mapping.output_modalities == null && modalities.output !== null) {
+				mapping.output_modalities = modalities.output;
 				mappingsChanged = true;
 				report.mappingsUpdated += 1;
 			}
