@@ -1601,8 +1601,20 @@ final class ModelIds
     /** Model ID: xiaomi/mimo-v2.5. Model page: https://phaseo.app/models/xiaomi/mimo-v2.5 */
     public const XIAOMI_MIMO_V2_5 = 'xiaomi/mimo-v2.5';
 
+    /** Model ID: xiaomi/mimo-v2.5-asr. Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-asr */
+    public const XIAOMI_MIMO_V2_5_ASR = 'xiaomi/mimo-v2.5-asr';
+
     /** Model ID: xiaomi/mimo-v2.5-pro. Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-pro */
     public const XIAOMI_MIMO_V2_5_PRO = 'xiaomi/mimo-v2.5-pro';
+
+    /** Model ID: xiaomi/mimo-v2.5-pro-ultraspeed. Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-pro-ultraspeed */
+    public const XIAOMI_MIMO_V2_5_PRO_ULTRASPEED = 'xiaomi/mimo-v2.5-pro-ultraspeed';
+
+    /** Model ID: xiaomi/mimo-v2.5-tts-voiceclone:free. Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-tts-voiceclone%3Afree */
+    public const XIAOMI_MIMO_V2_5_TTS_VOICECLONE_FREE = 'xiaomi/mimo-v2.5-tts-voiceclone:free';
+
+    /** Model ID: xiaomi/mimo-v2.5-tts-voicedesign:free. Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-tts-voicedesign%3Afree */
+    public const XIAOMI_MIMO_V2_5_TTS_VOICEDESIGN_FREE = 'xiaomi/mimo-v2.5-tts-voicedesign:free';
 
     /** Model ID: xiaomi/mimo-v2.5-tts:free. Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-tts%3Afree */
     public const XIAOMI_MIMO_V2_5_TTS_FREE = 'xiaomi/mimo-v2.5-tts:free';

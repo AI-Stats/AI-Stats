@@ -1599,9 +1599,21 @@ inline constexpr std::string_view VOYAGE_VOYAGE_MULTIMODAL_3_5 = "voyage/voyage-
 // Model ID: xiaomi/mimo-v2.5
 // Model page: https://phaseo.app/models/xiaomi/mimo-v2.5
 inline constexpr std::string_view XIAOMI_MIMO_V2_5 = "xiaomi/mimo-v2.5";
+// Model ID: xiaomi/mimo-v2.5-asr
+// Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-asr
+inline constexpr std::string_view XIAOMI_MIMO_V2_5_ASR = "xiaomi/mimo-v2.5-asr";
 // Model ID: xiaomi/mimo-v2.5-pro
 // Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-pro
 inline constexpr std::string_view XIAOMI_MIMO_V2_5_PRO = "xiaomi/mimo-v2.5-pro";
+// Model ID: xiaomi/mimo-v2.5-pro-ultraspeed
+// Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-pro-ultraspeed
+inline constexpr std::string_view XIAOMI_MIMO_V2_5_PRO_ULTRASPEED = "xiaomi/mimo-v2.5-pro-ultraspeed";
+// Model ID: xiaomi/mimo-v2.5-tts-voiceclone:free
+// Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-tts-voiceclone%3Afree
+inline constexpr std::string_view XIAOMI_MIMO_V2_5_TTS_VOICECLONE_FREE = "xiaomi/mimo-v2.5-tts-voiceclone:free";
+// Model ID: xiaomi/mimo-v2.5-tts-voicedesign:free
+// Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-tts-voicedesign%3Afree
+inline constexpr std::string_view XIAOMI_MIMO_V2_5_TTS_VOICEDESIGN_FREE = "xiaomi/mimo-v2.5-tts-voicedesign:free";
 // Model ID: xiaomi/mimo-v2.5-tts:free
 // Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-tts%3Afree
 inline constexpr std::string_view XIAOMI_MIMO_V2_5_TTS_FREE = "xiaomi/mimo-v2.5-tts:free";
@@ -1671,7 +1683,7 @@ inline constexpr std::string_view ZAI_GLM_5 = "zai/glm-5";
 // Deprecated alias for deepseek/deepseek-v4; use deepseek/deepseek-v4-pro. Remove in the next major SDK release.
 inline constexpr std::string_view DEEPSEEK_DEEPSEEK_V4 = DEEPSEEK_DEEPSEEK_V4_PRO;
 
-inline constexpr std::array<std::string_view, 554> ALL = {
+inline constexpr std::array<std::string_view, 558> ALL = {
 	AI21_JAMBA_1_5_LARGE,
 	AI21_JAMBA_1_5_MINI,
 	AION_LABS_AION_2_0,
@@ -2203,7 +2215,11 @@ inline constexpr std::array<std::string_view, 554> ALL = {
 	VOYAGE_VOYAGE_MULTIMODAL_3,
 	VOYAGE_VOYAGE_MULTIMODAL_3_5,
 	XIAOMI_MIMO_V2_5,
+	XIAOMI_MIMO_V2_5_ASR,
 	XIAOMI_MIMO_V2_5_PRO,
+	XIAOMI_MIMO_V2_5_PRO_ULTRASPEED,
+	XIAOMI_MIMO_V2_5_TTS_VOICECLONE_FREE,
+	XIAOMI_MIMO_V2_5_TTS_VOICEDESIGN_FREE,
 	XIAOMI_MIMO_V2_5_TTS_FREE,
 	Z_AI_AUTOGLM_PHONE_9B_MULTILINGUAL,
 	Z_AI_GLM_4_32B,
