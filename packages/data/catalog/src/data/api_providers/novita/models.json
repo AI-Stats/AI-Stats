@@ -2456,6 +2456,89 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "deepseek/deepseek-v4-flash-vision-exp",
+    "provider_api_model_id": "novita:deepseek/deepseek-v4-flash-vision-exp",
+    "provider_model_slug": "deepseek/deepseek-v4-flash-vision-exp",
+    "internal_model_id": "deepseek/deepseek-v4-flash-vision-exp",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 393216,
+    "effective_from": "2026-08-24T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "top_k",
+          "repetition_penalty",
+          "tools",
+          "tool_choice",
+          "response_format",
+          "logprobs",
+          "top_logprobs",
+          "reasoning_effort"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Live Novita model registry confirms the exact model slug, multimodal input, context and output limits, pricing fields, supported features, and available endpoints."
+      },
+      {
+        "kind": "documentation",
+        "url": "https://novita.ai/docs/api-reference/model-apis-llm-list-models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official documentation for the model registry used to verify provider availability and model metadata."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Confirmed as a distinct live Novita multimodal deployment with the exact provider slug and provider-specific limits."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "google/gemma-3-27b",
     "provider_api_model_id": "novita:google/gemma-3-27b",
     "provider_model_slug": "google/gemma-3-27b-it",

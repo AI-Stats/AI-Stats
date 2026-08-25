@@ -1,0 +1,74 @@
+{
+  "model_id": "poe/seed-2.0-code",
+  "organisation_id": "poe",
+  "name": "Seed-2.0-Code",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Seed 2.0 Code is optimized for enterprise-grade coding scenarios. Building on the strong agentic and VLM capabilities of Seed 2.0, it further strengthens code generation and software engineering performance. It delivers particularly strong front-end results and is also optimized for multilingual coding needs commonly found in enterprise environments, making it well suited for integration with a wide range of AI coding tools.\n\nNotes:\n- Pricing is 2x when input tokens >128k\n- Context Window: 256k\n\nThis bot supports optional parameters for additional customization.",
+  "announced_date": "2026-04-22T03:48:11",
+  "release_date": "2026-04-22T03:48:11",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text,image,video",
+  "output_types": "text",
+  "api_model_id": "poe/seed-2.0-code",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Poe bot",
+      "kind": "api_reference",
+      "url": "https://poe.com/seed-2.0-code"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "Poe bot",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text",
+      "image",
+      "video"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": true,
+    "tool_call": true,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.poe.com/v1/models",
+      "accessed_at": "2026-08-24T03:27:45Z",
+      "notes": "Canonical entity for an exact public Poe bot identifier returned by the models API."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T03:27:45Z",
+    "notes": "Identity and advertised metadata verified against Poe's public models API."
+  },
+  "last_updated": "2026-08-24T03:27:45Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

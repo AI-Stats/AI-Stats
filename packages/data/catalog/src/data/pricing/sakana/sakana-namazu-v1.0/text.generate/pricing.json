@@ -52,6 +52,22 @@
       "cache_duration_seconds": null,
       "conditions": [],
       "source": "https://console.sakana.ai/pricing"
+    },
+    {
+      "meter": "native_web_search_requests",
+      "unit": "request",
+      "unit_size": 1,
+      "price_per_unit": 0.007,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Search queries and page-body fetches each count as one call. Sakana also charges code execution at $0.12 per retained sandbox-session hour; the catalog has no duration-based code-execution meter.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-03T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://console.sakana.ai/pricing"
     }
   ],
   "regions": [],
@@ -61,12 +77,13 @@
   "sources": [
     {
       "url": "https://console.sakana.ai/pricing",
-      "kind": "pricing"
+      "kind": "pricing",
+      "accessed_at": "2026-08-24T00:00:00Z"
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-03T00:00:00Z",
-    "notes": "Official Sakana API pricing for sakana-namazu-v1.0."
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Official Sakana API token and built-in-tool pricing for sakana-namazu-v1.0. Web search is structured per call; code execution is documented in the rule note because no duration-based code-execution meter exists."
   }
 }

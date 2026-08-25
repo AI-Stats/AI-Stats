@@ -4,23 +4,23 @@
   "provider_family_id": null,
   "offer_label": null,
   "offer_scope": "specialized",
-  "description": null,
+  "description": "OpenRouter is a multi-provider AI gateway with model, endpoint, privacy, and routing controls across text and multimodal APIs.",
   "link": "https://openrouter.ai/models",
-  "residency_mode": null,
-  "default_execution_regions": null,
-  "default_data_regions": null,
-  "zero_data_retention": null,
-  "residency_source_url": null,
-  "prompt_training_policy": null,
-  "prompt_training_notes": null,
-  "prompt_training_source_url": null,
+  "residency_mode": "customer_selectable",
+  "default_execution_regions": ["global"],
+  "default_data_regions": ["global"],
+  "zero_data_retention": "optional",
+  "residency_source_url": "https://openrouter.ai/docs/guides/privacy/provider-logging/",
+  "prompt_training_policy": "configurable",
+  "prompt_training_notes": "Upstream training and retention policies vary by endpoint. Requests can deny data collection and require ZDR endpoints; EU in-region routing uses the enterprise eu.openrouter.ai endpoint.",
+  "prompt_training_source_url": "https://openrouter.ai/docs/guides/features/zdr",
   "user_identifier_policy": null,
   "user_identifier_notes": null,
-  "privacy_policy_url": null,
-  "terms_of_service_url": null,
+  "privacy_policy_url": "https://openrouter.ai/privacy",
+  "terms_of_service_url": "https://openrouter.ai/terms",
   "regional_pricing_mode": null,
   "regional_pricing_uplift_percent": null,
-  "pricing_source_url": null,
+  "pricing_source_url": "https://openrouter.ai/api/v1/models",
   "regional_pricing_notes": null,
   "country_code": "US",
   "status": "external",
@@ -30,13 +30,31 @@
   "routing_enabled": false,
   "sdk_package": "@openrouter/ai-sdk-provider",
   "api_base_url": "https://openrouter.ai/api/v1",
-  "docs_url": "https://openrouter.ai/models",
+  "docs_url": "https://openrouter.ai/docs/guides/overview/models",
   "auth_env": [
     "OPENROUTER_API_KEY"
   ],
   "api_formats": [],
   "service_tiers": [],
   "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://openrouter.ai/api/v1/models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official live chat and multimodal catalog, including exact IDs, modalities, limits, supported parameters, lifecycle metadata, and published pricing meters."
+    },
+    {
+      "kind": "provider_models",
+      "url": "https://openrouter.ai/api/v1/videos/models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official live asynchronous video catalog, including resolutions, durations, passthrough parameters, and pricing SKUs."
+    },
+    {
+      "kind": "documentation",
+      "url": "https://openrouter.ai/docs/guides/routing/provider-selection",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official provider-selection, fallback, ZDR, data-collection, price, latency, throughput, and EU-routing controls."
+    },
     {
       "kind": "official_terms",
       "url": "https://openrouter.ai/terms",
@@ -51,8 +69,8 @@
     }
   ],
   "verification": {
-    "status": "partial",
-    "checked_at": "2026-07-22T11:23:04.646Z",
-    "notes": "Imported from the public models.dev provider registry; not a Phaseo-routable offer."
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Catalog and provider policy metadata verified against OpenRouter's official live APIs and documentation; the offer remains non-routable in Phaseo."
   }
 }
