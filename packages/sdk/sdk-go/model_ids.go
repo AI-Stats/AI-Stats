@@ -130,27 +130,45 @@ const (
 	// Model ID: bytedance/seed-1.6
 	// Model page: https://phaseo.app/models/bytedance/seed-1.6
 	ModelIDBytedanceSeed16 gen.ModelId = "bytedance/seed-1.6"
+	// Model ID: bytedance/seed-1.6-2025-10-15
+	// Model page: https://phaseo.app/models/bytedance/seed-1.6-2025-10-15
+	ModelIDBytedanceSeed1620251015 gen.ModelId = "bytedance/seed-1.6-2025-10-15"
 	// Model ID: bytedance/seed-1.6-250915
 	// Model page: https://phaseo.app/models/bytedance/seed-1.6-250915
 	ModelIDBytedanceSeed16250915 gen.ModelId = "bytedance/seed-1.6-250915"
 	// Model ID: bytedance/seed-1.6-flash
 	// Model page: https://phaseo.app/models/bytedance/seed-1.6-flash
 	ModelIDBytedanceSeed16Flash gen.ModelId = "bytedance/seed-1.6-flash"
+	// Model ID: bytedance/seed-1.6-flash-2025-08-28
+	// Model page: https://phaseo.app/models/bytedance/seed-1.6-flash-2025-08-28
+	ModelIDBytedanceSeed16Flash20250828 gen.ModelId = "bytedance/seed-1.6-flash-2025-08-28"
 	// Model ID: bytedance/seed-1.6-flash-250715
 	// Model page: https://phaseo.app/models/bytedance/seed-1.6-flash-250715
 	ModelIDBytedanceSeed16Flash250715 gen.ModelId = "bytedance/seed-1.6-flash-250715"
 	// Model ID: bytedance/seed-1.8
 	// Model page: https://phaseo.app/models/bytedance/seed-1.8
 	ModelIDBytedanceSeed18 gen.ModelId = "bytedance/seed-1.8"
+	// Model ID: bytedance/seed-1.8-2025-12-28
+	// Model page: https://phaseo.app/models/bytedance/seed-1.8-2025-12-28
+	ModelIDBytedanceSeed1820251228 gen.ModelId = "bytedance/seed-1.8-2025-12-28"
+	// Model ID: bytedance/seed-2.0-code-preview-2026-02-15
+	// Model page: https://phaseo.app/models/bytedance/seed-2.0-code-preview-2026-02-15
+	ModelIDBytedanceSeed20CodePreview20260215 gen.ModelId = "bytedance/seed-2.0-code-preview-2026-02-15"
 	// Model ID: bytedance/seed-2.0-lite
 	// Model page: https://phaseo.app/models/bytedance/seed-2.0-lite
 	ModelIDBytedanceSeed20Lite gen.ModelId = "bytedance/seed-2.0-lite"
+	// Model ID: bytedance/seed-2.0-lite-2026-04-28
+	// Model page: https://phaseo.app/models/bytedance/seed-2.0-lite-2026-04-28
+	ModelIDBytedanceSeed20Lite20260428 gen.ModelId = "bytedance/seed-2.0-lite-2026-04-28"
 	// Model ID: bytedance/seed-2.0-lite-260428
 	// Model page: https://phaseo.app/models/bytedance/seed-2.0-lite-260428
 	ModelIDBytedanceSeed20Lite260428 gen.ModelId = "bytedance/seed-2.0-lite-260428"
 	// Model ID: bytedance/seed-2.0-mini
 	// Model page: https://phaseo.app/models/bytedance/seed-2.0-mini
 	ModelIDBytedanceSeed20Mini gen.ModelId = "bytedance/seed-2.0-mini"
+	// Model ID: bytedance/seed-2.0-mini-2026-04-28
+	// Model page: https://phaseo.app/models/bytedance/seed-2.0-mini-2026-04-28
+	ModelIDBytedanceSeed20Mini20260428 gen.ModelId = "bytedance/seed-2.0-mini-2026-04-28"
 	// Model ID: bytedance/seed-2.0-mini-260428
 	// Model page: https://phaseo.app/models/bytedance/seed-2.0-mini-260428
 	ModelIDBytedanceSeed20Mini260428 gen.ModelId = "bytedance/seed-2.0-mini-260428"
@@ -259,9 +277,6 @@ const (
 	// Model ID: deepseek/deepseek-v3.2-exp
 	// Model page: https://phaseo.app/models/deepseek/deepseek-v3.2-exp
 	ModelIDDeepseekDeepseekV32Exp gen.ModelId = "deepseek/deepseek-v3.2-exp"
-	// Model ID: deepseek/deepseek-v3.2-speciale
-	// Model page: https://phaseo.app/models/deepseek/deepseek-v3.2-speciale
-	ModelIDDeepseekDeepseekV32Speciale gen.ModelId = "deepseek/deepseek-v3.2-speciale"
 	// Model ID: deepseek/deepseek-v4-flash
 	// Model page: https://phaseo.app/models/deepseek/deepseek-v4-flash
 	ModelIDDeepseekDeepseekV4Flash gen.ModelId = "deepseek/deepseek-v4-flash"
@@ -457,15 +472,9 @@ const (
 	// Model ID: kwaipilot/kat-coder-air-v2.5
 	// Model page: https://phaseo.app/models/kwaipilot/kat-coder-air-v2.5
 	ModelIDKwaipilotKatCoderAirV25 gen.ModelId = "kwaipilot/kat-coder-air-v2.5"
-	// Model ID: kwaipilot/kat-coder-exp-72b-1010
-	// Model page: https://phaseo.app/models/kwaipilot/kat-coder-exp-72b-1010
-	ModelIDKwaipilotKatCoderExp72b1010 gen.ModelId = "kwaipilot/kat-coder-exp-72b-1010"
 	// Model ID: kwaipilot/kat-coder-pro
 	// Model page: https://phaseo.app/models/kwaipilot/kat-coder-pro
 	ModelIDKwaipilotKatCoderPro gen.ModelId = "kwaipilot/kat-coder-pro"
-	// Model ID: kwaipilot/kat-coder-pro-v1
-	// Model page: https://phaseo.app/models/kwaipilot/kat-coder-pro-v1
-	ModelIDKwaipilotKatCoderProV1 gen.ModelId = "kwaipilot/kat-coder-pro-v1"
 	// Model ID: kwaipilot/kat-coder-pro-v2
 	// Model page: https://phaseo.app/models/kwaipilot/kat-coder-pro-v2
 	ModelIDKwaipilotKatCoderProV2 gen.ModelId = "kwaipilot/kat-coder-pro-v2"
@@ -706,12 +715,6 @@ const (
 	// Model ID: moonshotai/kimi-k2-0905
 	// Model page: https://phaseo.app/models/moonshotai/kimi-k2-0905
 	ModelIDMoonshotaiKimiK20905 gen.ModelId = "moonshotai/kimi-k2-0905"
-	// Model ID: moonshotai/kimi-k2-instruct
-	// Model page: https://phaseo.app/models/moonshotai/kimi-k2-instruct
-	ModelIDMoonshotaiKimiK2Instruct gen.ModelId = "moonshotai/kimi-k2-instruct"
-	// Model ID: moonshotai/kimi-k2-instruct-0905
-	// Model page: https://phaseo.app/models/moonshotai/kimi-k2-instruct-0905
-	ModelIDMoonshotaiKimiK2Instruct0905 gen.ModelId = "moonshotai/kimi-k2-instruct-0905"
 	// Model ID: moonshotai/kimi-k2-thinking
 	// Model page: https://phaseo.app/models/moonshotai/kimi-k2-thinking
 	ModelIDMoonshotaiKimiK2Thinking gen.ModelId = "moonshotai/kimi-k2-thinking"
@@ -1006,6 +1009,9 @@ const (
 	// Model ID: openai/whisper-large-v3-turbo
 	// Model page: https://phaseo.app/models/openai/whisper-large-v3-turbo
 	ModelIDOpenaiWhisperLargeV3Turbo gen.ModelId = "openai/whisper-large-v3-turbo"
+	// Model ID: openbmb/minicpm-v-4.5
+	// Model page: https://phaseo.app/models/openbmb/minicpm-v-4.5
+	ModelIDOpenbmbMinicpmV45 gen.ModelId = "openbmb/minicpm-v-4.5"
 	// Model ID: perplexity/pplx-embed-v1-0.6b
 	// Model page: https://phaseo.app/models/perplexity/pplx-embed-v1-0.6b
 	ModelIDPerplexityPplxEmbedV106b gen.ModelId = "perplexity/pplx-embed-v1-0.6b"
@@ -1174,9 +1180,6 @@ const (
 	// Model ID: qwen/qwen3-8b
 	// Model page: https://phaseo.app/models/qwen/qwen3-8b
 	ModelIDQwenQwen38b gen.ModelId = "qwen/qwen3-8b"
-	// Model ID: qwen/qwen3-coder
-	// Model page: https://phaseo.app/models/qwen/qwen3-coder
-	ModelIDQwenQwen3Coder gen.ModelId = "qwen/qwen3-coder"
 	// Model ID: qwen/qwen3-coder-30b-a3b
 	// Model page: https://phaseo.app/models/qwen/qwen3-coder-30b-a3b
 	ModelIDQwenQwen3Coder30bA3b gen.ModelId = "qwen/qwen3-coder-30b-a3b"
@@ -1243,9 +1246,6 @@ const (
 	// Model ID: qwen/qwen3-reranker
 	// Model page: https://phaseo.app/models/qwen/qwen3-reranker
 	ModelIDQwenQwen3Reranker gen.ModelId = "qwen/qwen3-reranker"
-	// Model ID: qwen/qwen3-reranker-8b
-	// Model page: https://phaseo.app/models/qwen/qwen3-reranker-8b
-	ModelIDQwenQwen3Reranker8b gen.ModelId = "qwen/qwen3-reranker-8b"
 	// Model ID: qwen/qwen3-vl-235b-a22b
 	// Model page: https://phaseo.app/models/qwen/qwen3-vl-235b-a22b
 	ModelIDQwenQwen3Vl235bA22b gen.ModelId = "qwen/qwen3-vl-235b-a22b"
@@ -1459,6 +1459,18 @@ const (
 	// Model ID: thinking-machines/inkling-small
 	// Model page: https://phaseo.app/models/thinking-machines/inkling-small
 	ModelIDThinkingMachinesInklingSmall gen.ModelId = "thinking-machines/inkling-small"
+	// Model ID: upstage/solar-embedding-1-large-passage
+	// Model page: https://phaseo.app/models/upstage/solar-embedding-1-large-passage
+	ModelIDUpstageSolarEmbedding1LargePassage gen.ModelId = "upstage/solar-embedding-1-large-passage"
+	// Model ID: upstage/solar-embedding-1-large-query
+	// Model page: https://phaseo.app/models/upstage/solar-embedding-1-large-query
+	ModelIDUpstageSolarEmbedding1LargeQuery gen.ModelId = "upstage/solar-embedding-1-large-query"
+	// Model ID: upstage/solar-embedding-2-passage
+	// Model page: https://phaseo.app/models/upstage/solar-embedding-2-passage
+	ModelIDUpstageSolarEmbedding2Passage gen.ModelId = "upstage/solar-embedding-2-passage"
+	// Model ID: upstage/solar-embedding-2-query
+	// Model page: https://phaseo.app/models/upstage/solar-embedding-2-query
+	ModelIDUpstageSolarEmbedding2Query gen.ModelId = "upstage/solar-embedding-2-query"
 	// Model ID: upstage/solar-mini
 	// Model page: https://phaseo.app/models/upstage/solar-mini
 	ModelIDUpstageSolarMini gen.ModelId = "upstage/solar-mini"
@@ -1564,9 +1576,6 @@ const (
 	// Model ID: voyage/voyage-multimodal-3.5
 	// Model page: https://phaseo.app/models/voyage/voyage-multimodal-3.5
 	ModelIDVoyageVoyageMultimodal35 gen.ModelId = "voyage/voyage-multimodal-3.5"
-	// Model ID: xiaomi/mimo-v2-flash
-	// Model page: https://phaseo.app/models/xiaomi/mimo-v2-flash
-	ModelIDXiaomiMimoV2Flash gen.ModelId = "xiaomi/mimo-v2-flash"
 	// Model ID: xiaomi/mimo-v2.5
 	// Model page: https://phaseo.app/models/xiaomi/mimo-v2.5
 	ModelIDXiaomiMimoV25 gen.ModelId = "xiaomi/mimo-v2.5"
@@ -1685,13 +1694,19 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDBlackForestLabsFlux1Dev,
 	ModelIDBlackForestLabsFlux1Schnell,
 	ModelIDBytedanceSeed16,
+	ModelIDBytedanceSeed1620251015,
 	ModelIDBytedanceSeed16250915,
 	ModelIDBytedanceSeed16Flash,
+	ModelIDBytedanceSeed16Flash20250828,
 	ModelIDBytedanceSeed16Flash250715,
 	ModelIDBytedanceSeed18,
+	ModelIDBytedanceSeed1820251228,
+	ModelIDBytedanceSeed20CodePreview20260215,
 	ModelIDBytedanceSeed20Lite,
+	ModelIDBytedanceSeed20Lite20260428,
 	ModelIDBytedanceSeed20Lite260428,
 	ModelIDBytedanceSeed20Mini,
+	ModelIDBytedanceSeed20Mini20260428,
 	ModelIDBytedanceSeed20Mini260428,
 	ModelIDBytedanceSeed20Pro,
 	ModelIDBytedanceSeed21Turbo,
@@ -1728,7 +1743,6 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDDeepseekDeepseekV31Terminus,
 	ModelIDDeepseekDeepseekV32,
 	ModelIDDeepseekDeepseekV32Exp,
-	ModelIDDeepseekDeepseekV32Speciale,
 	ModelIDDeepseekDeepseekV4Flash,
 	ModelIDDeepseekDeepseekV4Flash0731,
 	ModelIDDeepseekDeepseekV4FlashVisionExp,
@@ -1794,9 +1808,7 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDInflectionInflection3Productivity,
 	ModelIDJetbrainsMellum212bA25b,
 	ModelIDKwaipilotKatCoderAirV25,
-	ModelIDKwaipilotKatCoderExp72b1010,
 	ModelIDKwaipilotKatCoderPro,
-	ModelIDKwaipilotKatCoderProV1,
 	ModelIDKwaipilotKatCoderProV2,
 	ModelIDKwaipilotKatCoderProV25,
 	ModelIDLiquidAiLfm224bA2b,
@@ -1877,8 +1889,6 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDMistralVoxtralSmall,
 	ModelIDMoonshotaiKimiK2,
 	ModelIDMoonshotaiKimiK20905,
-	ModelIDMoonshotaiKimiK2Instruct,
-	ModelIDMoonshotaiKimiK2Instruct0905,
 	ModelIDMoonshotaiKimiK2Thinking,
 	ModelIDMoonshotaiKimiK25,
 	ModelIDMoonshotaiKimiK26,
@@ -1977,6 +1987,7 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDOpenaiWhisper1,
 	ModelIDOpenaiWhisperLargeV3,
 	ModelIDOpenaiWhisperLargeV3Turbo,
+	ModelIDOpenbmbMinicpmV45,
 	ModelIDPerplexityPplxEmbedV106b,
 	ModelIDPerplexityPplxEmbedV14b,
 	ModelIDPhaseoFree,
@@ -2033,7 +2044,6 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDQwenQwen332b,
 	ModelIDQwenQwen34b,
 	ModelIDQwenQwen38b,
-	ModelIDQwenQwen3Coder,
 	ModelIDQwenQwen3Coder30bA3b,
 	ModelIDQwenQwen3Coder480bA35b,
 	ModelIDQwenQwen3CoderFlash,
@@ -2056,7 +2066,6 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDQwenQwen3Omni30bA3b,
 	ModelIDQwenQwen3Omni30bA3bThinking,
 	ModelIDQwenQwen3Reranker,
-	ModelIDQwenQwen3Reranker8b,
 	ModelIDQwenQwen3Vl235bA22b,
 	ModelIDQwenQwen3Vl235bA22bInstruct,
 	ModelIDQwenQwen3Vl235bA22bThinking,
@@ -2128,6 +2137,10 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDTencentHy3Free,
 	ModelIDThinkingMachinesInkling,
 	ModelIDThinkingMachinesInklingSmall,
+	ModelIDUpstageSolarEmbedding1LargePassage,
+	ModelIDUpstageSolarEmbedding1LargeQuery,
+	ModelIDUpstageSolarEmbedding2Passage,
+	ModelIDUpstageSolarEmbedding2Query,
 	ModelIDUpstageSolarMini,
 	ModelIDUpstageSolarPro2,
 	ModelIDUpstageSolarPro3,
@@ -2163,7 +2176,6 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDVoyageVoyageMultilingual2,
 	ModelIDVoyageVoyageMultimodal3,
 	ModelIDVoyageVoyageMultimodal35,
-	ModelIDXiaomiMimoV2Flash,
 	ModelIDXiaomiMimoV25,
 	ModelIDXiaomiMimoV25Pro,
 	ModelIDXiaomiMimoV25TtsFree,

@@ -1,0 +1,72 @@
+{
+  "model_id": "poe/seedance-2.0-pro-el",
+  "organisation_id": "poe",
+  "name": "Seedance-2.0-Pro-EL",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Seedance 2.0 Pro is a multimodal AI video generation model built for cinematic, high-quality output from text, images, audio, and video inputs, with strong motion stability, native audio-video generation, and consistent character handling. It is best suited for creators who want more control over references, editing, pacing, and polished storytelling across multiple assets in one workflow.\nThis model is served from Malaysia.\n\nNote: 4K videos may fail to render, it's recommended to download them and play them locally.\n\nThis bot supports optional parameters for additional customization.",
+  "announced_date": "2026-04-10T04:10:02",
+  "release_date": "2026-04-10T04:10:02",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text",
+  "output_types": "video",
+  "api_model_id": "poe/seedance-2.0-pro-el",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Poe bot",
+      "kind": "api_reference",
+      "url": "https://poe.com/seedance-2.0-pro-el"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "Poe bot",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "video"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": false,
+    "tool_call": false,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.poe.com/v1/models",
+      "accessed_at": "2026-08-24T03:27:45Z",
+      "notes": "Canonical entity for an exact public Poe bot identifier returned by the models API."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T03:27:45Z",
+    "notes": "Identity and advertised metadata verified against Poe's public models API."
+  },
+  "last_updated": "2026-08-24T03:27:45Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

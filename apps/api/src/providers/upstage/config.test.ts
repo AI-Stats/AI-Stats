@@ -10,4 +10,8 @@ describe("Upstage config", () => {
 		expect(openAICompatUrl("upstage", "/chat/completions")).toBe("https://api.upstage.ai/v1/chat/completions");
 		expect(resolveOpenAICompatRoute("upstage", "solar-pro4")).toBe("chat");
 	});
+
+	it("uses the documented /v1 Embeddings endpoint", () => {
+		expect(openAICompatUrl("upstage", "/embeddings")).toBe("https://api.upstage.ai/v1/embeddings");
+	});
 });

@@ -1,0 +1,77 @@
+{
+  "model_id": "poe/ideogram-v2a",
+  "organisation_id": "poe",
+  "name": "Ideogram-v2a",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Fast, affordable text-to-image model, optimized for graphic design and photography. For faster and more cost-effective generations, use https://poe.com/Ideogram-v2A-Turbo.\nNote: Supported file type: JPEG, WebP and PNG.\n\nOptional parameters:\nAspect to set the aspect ratio. Valid aspect ratios are 10:16, 16:10, 9:16, 16:9, 3:2, 2:3, 4:3, 3:4, & 1:1.\nStyle to specify a style (one of `GENERAL`, `REALISTIC`, `DESIGN`, `3D RENDER` and `ANIME` default: `GENERAL`.)",
+  "announced_date": "2025-02-27T17:48:59",
+  "release_date": "2025-02-27T17:48:59",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text",
+  "output_types": "image",
+  "api_model_id": "poe/ideogram-v2a",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Poe bot",
+      "kind": "api_reference",
+      "url": "https://poe.com/ideogram-v2a"
+    }
+  ],
+  "details": [
+    {
+      "name": "input_context_length",
+      "value": 150
+    }
+  ],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "Poe bot",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": 150,
+    "input": 150,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "image"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": false,
+    "tool_call": false,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.poe.com/v1/models",
+      "accessed_at": "2026-08-24T03:27:45Z",
+      "notes": "Canonical entity for an exact public Poe bot identifier returned by the models API."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T03:27:45Z",
+    "notes": "Identity and advertised metadata verified against Poe's public models API."
+  },
+  "last_updated": "2026-08-24T03:27:45Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

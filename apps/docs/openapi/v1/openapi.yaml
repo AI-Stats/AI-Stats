@@ -10027,6 +10027,10 @@ components:
         - tencent/hy3:free
         - thinking-machines/inkling
         - thinking-machines/inkling-small
+        - upstage/solar-embedding-1-large-passage
+        - upstage/solar-embedding-1-large-query
+        - upstage/solar-embedding-2-passage
+        - upstage/solar-embedding-2-query
         - upstage/solar-mini
         - upstage/solar-pro-2
         - upstage/solar-pro-3
