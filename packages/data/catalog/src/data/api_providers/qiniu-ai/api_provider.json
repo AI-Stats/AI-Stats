@@ -1,14 +1,14 @@
 {
   "api_provider_id": "qiniu-ai",
-  "api_provider_name": "Qiniu AI",
+  "api_provider_name": "Qiniu",
   "provider_family_id": null,
   "offer_label": null,
   "offer_scope": "specialized",
-  "description": "Qiniu AI provides a China-hosted MaaS catalogue through OpenAI- and Anthropic-compatible inference APIs.",
-  "link": "https://www.qiniu.com/ai/models",
-  "residency_mode": "provider_managed",
-  "default_execution_regions": ["CN"],
-  "default_data_regions": ["CN"],
+  "description": null,
+  "link": "https://developer.qiniu.com/aitokenapi",
+  "residency_mode": null,
+  "default_execution_regions": null,
+  "default_data_regions": null,
   "zero_data_retention": null,
   "residency_source_url": null,
   "prompt_training_policy": null,
@@ -18,11 +18,11 @@
   "user_identifier_notes": null,
   "privacy_policy_url": null,
   "terms_of_service_url": null,
-  "regional_pricing_mode": "offer_specific",
+  "regional_pricing_mode": null,
   "regional_pricing_uplift_percent": null,
-  "pricing_source_url": "https://www.qiniu.com/ai/models",
+  "pricing_source_url": null,
   "regional_pricing_notes": null,
-  "country_code": "CN",
+  "country_code": null,
   "status": "Active",
   "colour": null,
   "gateway_kind": "catalogue",
@@ -34,25 +34,25 @@
   "auth_env": [
     "QINIU_API_KEY"
   ],
-  "api_formats": ["openai", "anthropic"],
+  "api_formats": [],
   "service_tiers": [],
   "sources": [
     {
       "kind": "documentation",
       "url": "https://developer.qiniu.com/aitokenapi",
-      "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "Official API documentation confirms the api.qnaigc.com/v1 endpoint, API-key authentication, OpenAI and Anthropic compatibility, and the authenticated /v1/models catalogue."
+      "accessed_at": "2026-08-09T00:00:00Z",
+      "notes": "Qiniu's official AI Token API documentation describes its China developer platform but does not identify a legal entity or headquarters; no provider country is recorded."
     },
     {
-      "kind": "documentation",
-      "url": "https://www.qiniu.com/ai/models",
-      "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "Official live model marketplace supplies exact model IDs, capabilities, modalities, limits, lifecycle dates, rate limits, and structured CNY/USD-equivalent prices."
+      "kind": "models.dev",
+      "url": "https://models.dev/api.json",
+      "accessed_at": "2026-07-23T09:08:52.190Z",
+      "notes": "Provider metadata and model support enrichment; not a Phaseo-routable offer."
     }
   ],
   "verification": {
-    "status": "verified",
-    "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "End-to-end reconciliation against Qiniu's official live marketplace and inference documentation; catalogue-only routing remains intentionally disabled."
+    "status": "partial",
+    "checked_at": "2026-08-09T00:00:00Z",
+    "notes": "Provider country is not assigned because the official documentation does not establish a legal entity or location; other provider metadata and model support remain sourced from models.dev. The provider is not a Phaseo-routable offer."
   }
 }

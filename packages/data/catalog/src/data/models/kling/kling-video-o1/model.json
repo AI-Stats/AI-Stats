@@ -1,25 +1,19 @@
 {
   "model_id": "kling/kling-video-o1",
-  "organisation_id": "kling",
-  "name": "Kling-Video-O1",
+  "organisation_id": "kwaipilot",
+  "name": "kling-video-o1",
   "status": "Available",
   "previous_model_id": null,
-  "description": "可灵O1（可灵视频 O1 模型）是可灵AI推出的全球首个统一多模态视频生成模型。模型通过创新的多模态视觉语言（MVL）架构，实现视频生成、编辑与理解的无缝融合。模型支持多模态输入，如图片、视频和文字，能进行全能创作编辑，解决视频一致性难题，提供多种创意组合。用户可通过简单对话生成精准视频内容，探索无限创作可能。",
+  "description": "Kling O1 — next-gen video generation with text-to-video, image-to-video, subject control and video-reference editing, 5–10s clips, std/pro modes.",
   "announced_date": null,
   "release_date": null,
   "deprecation_date": null,
   "retirement_date": null,
   "license": null,
-  "input_types": "image,text,video",
-  "output_types": "video",
-  "api_model_id": "kling-video-o1",
-  "links": [
-    {
-      "title": "Qiniu model marketplace",
-      "kind": "provider",
-      "url": "https://www.qiniu.com/ai/models"
-    }
-  ],
+  "input_types": null,
+  "output_types": null,
+  "api_model_id": "kling/kling-video-o1",
+  "links": [],
   "details": [],
   "benchmarks": [],
   "family_id": null,
@@ -27,28 +21,22 @@
   "model_type": null,
   "knowledge_cutoff": null,
   "limits": {
-    "context": 9999,
-    "input": 9999,
+    "context": null,
+    "input": null,
     "output": null
   },
   "modalities": {
-    "input": [
-      "image",
-      "text",
-      "video"
-    ],
-    "output": [
-      "video"
-    ]
+    "input": [],
+    "output": []
   },
   "reasoning": {
-    "supported": false,
+    "supported": null,
     "options": []
   },
   "capabilities": {
-    "attachment": true,
-    "tool_call": false,
-    "structured_output": false,
+    "attachment": null,
+    "tool_call": null,
+    "structured_output": null,
     "temperature": null,
     "streaming": null,
     "web_search": null
@@ -56,16 +44,16 @@
   "open_weights": null,
   "sources": [
     {
-      "kind": "documentation",
-      "url": "https://www.qiniu.com/ai/models",
+      "kind": "models",
+      "url": "https://api.orcarouter.ai/v1/models",
       "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "Canonical entity derived from Qiniu's official hosted-model entry kling-video-o1."
+      "notes": "OrcaRouter live model catalogue metadata."
     }
   ],
   "verification": {
     "status": "verified",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Identity, modalities and lifecycle verified from the official Qiniu marketplace."
+    "notes": "Exact model ID, availability, limits, modalities, description, and pricing metadata verified against OrcaRouter's live official catalogue."
   },
   "last_updated": "2026-08-24T00:00:00Z",
   "removal_date": null,
