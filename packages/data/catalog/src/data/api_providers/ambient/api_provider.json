@@ -2,7 +2,7 @@
   "api_provider_id": "ambient",
   "api_provider_name": "Ambient",
   "description": "OpenAI-compatible and Anthropic-compatible verifiable inference API.",
-  "link": "https://docs.ambient.xyz/API-27ee653486a3808f8393faae8960d0aa",
+  "link": "https://api.ambient.xyz/docs",
   "residency_mode": "unknown",
   "default_execution_regions": null,
   "default_data_regions": null,
@@ -20,19 +20,33 @@
   "prompt_training_policy": "unknown",
   "prompt_training_notes": null,
   "prompt_training_source_url": null,
-  "gateway_kind": null,
-  "routable": null,
-  "routing_enabled": null,
+  "pricing_source_url": "https://api.ambient.xyz/v1/models",
+  "gateway_kind": "openai_compatible",
+  "routable": true,
+  "routing_enabled": true,
   "sdk_package": null,
-  "api_base_url": null,
-  "docs_url": "https://docs.ambient.xyz/API-27ee653486a3808f8393faae8960d0aa",
-  "auth_env": null,
-  "api_formats": [],
-  "service_tiers": [],
-  "sources": [],
+  "api_base_url": "https://api.ambient.xyz/v1",
+  "docs_url": "https://api.ambient.xyz/docs",
+  "auth_env": ["AMBIENT_API_KEY"],
+  "api_formats": ["openai.chat.completions", "openai.responses", "anthropic.messages"],
+  "service_tiers": ["standard"],
+  "sources": [
+    {
+      "kind": "api_reference",
+      "url": "https://api.ambient.xyz/openapi.json",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "First-party OpenAPI document for Ambient's public inference API."
+    },
+    {
+      "kind": "model_catalog",
+      "url": "https://api.ambient.xyz/v1/models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Public first-party model endpoint with readiness, modalities, limits, features, quantization and token pricing."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "API surface and provider catalogue verified against Ambient's public OpenAPI document and live models endpoint."
   }
 }

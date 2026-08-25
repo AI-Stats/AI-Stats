@@ -9,7 +9,7 @@
       "meter": "input_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.3,
+      "price_per_unit": 0.6,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
@@ -74,10 +74,10 @@
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [{ "kind": "pricing", "url": "https://platform.minimax.io/docs/guides/pricing-paygo", "accessed_at": "2026-08-24T00:00:00Z" }],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Verified against MiniMax pay-as-you-go pricing for MiniMax-M2.1-highspeed."
   }
 }
