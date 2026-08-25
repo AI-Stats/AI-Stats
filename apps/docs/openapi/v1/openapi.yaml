@@ -9687,7 +9687,6 @@ components:
         - google/veo-3.1-preview
         - ibm/granite-4.1-8b
         - inception/mercury-2
-        - inception/mercury-edit-2
         - inclusionai/ling-2.6-1t
         - inclusionai/ling-2.6-flash
         - inclusionai/ling-3.0-flash
