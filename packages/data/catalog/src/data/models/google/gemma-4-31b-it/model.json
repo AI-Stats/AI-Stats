@@ -1,40 +1,46 @@
 {
   "model_id": "google/gemma-4-31b-it",
   "organisation_id": "google",
-  "name": "Gemma 4 31B Instruct",
+  "name": "Google: Gemma 4 31B",
   "status": "Available",
   "previous_model_id": null,
-  "description": "Gemma 4 31B Instruct is available through Phala's confidential GPU TEE inference catalog.",
+  "description": "Gemma 4 31B Instruct is Google DeepMind's 30.7B dense multimodal model supporting text and image input with text output. Features a 256K token context window, configurable thinking/reasoning mode, native function...",
   "announced_date": null,
-  "release_date": null,
+  "release_date": "2026-04-02",
   "deprecation_date": null,
   "retirement_date": null,
   "license": null,
-  "input_types": "text,image,video",
-  "output_types": "text",
+  "input_types": [
+    "image/*",
+    "text",
+    "video/*"
+  ],
+  "output_types": [
+    "text"
+  ],
   "api_model_id": "google/gemma-4-31b-it",
   "links": [
     {
-      "title": "Phala model page",
-      "kind": "api_reference",
-      "url": "https://phala.com/models/google/gemma-4-31b-it"
+      "platform": "model",
+      "title": "OpenRouter model page",
+      "url": "https://openrouter.ai/google/gemma-4-31b-it"
     }
   ],
   "details": [],
   "benchmarks": [],
   "family_id": null,
   "page_notice": null,
-  "model_type": null,
+  "model_type": "language",
   "knowledge_cutoff": null,
   "limits": {
     "context": 262144,
-    "input": 262144,
-    "output": null
+    "input": null,
+    "output": 262144
   },
   "modalities": {
     "input": [
-      "text",
       "image/*",
+      "text",
       "video/*"
     ],
     "output": [
@@ -42,32 +48,32 @@
     ]
   },
   "reasoning": {
-    "supported": null,
+    "supported": true,
     "options": []
   },
   "capabilities": {
     "attachment": true,
     "tool_call": true,
     "structured_output": true,
-    "temperature": null,
+    "temperature": true,
     "streaming": true,
     "web_search": false
   },
   "open_weights": true,
   "sources": [
     {
-      "kind": "api_reference",
-      "url": "https://phala.com/models/google/gemma-4-31b-it",
+      "kind": "provider_models",
+      "url": "https://openrouter.ai/api/v1/models",
       "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "First-party Phala detail page verifies the canonical route identity, modalities, context, feature support, and availability date."
+      "notes": "Exact live OpenRouter ID: google/gemma-4-31b-it."
     }
   ],
   "verification": {
     "status": "partial",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Provider availability is verified; broader upstream model metadata was not independently re-audited."
+    "notes": "Availability, modalities, limits and parameters verified against OpenRouter's official models API; upstream publisher metadata remains provider-reported."
   },
-  "last_updated": "2026-08-24T00:00:00Z",
+  "last_updated": "2026-08-24",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

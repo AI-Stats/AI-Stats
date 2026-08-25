@@ -1,67 +1,79 @@
 {
   "model_id": "google/gemma-4-26b-a4b-it",
   "organisation_id": "google",
-  "name": "Gemma 4 26B A4B IT",
+  "name": "Google: Gemma 4 26B A4B ",
   "status": "Available",
   "previous_model_id": null,
-  "description": "Gemma 4 26B A4B IT is available through ZenMux's unified model API.",
+  "description": "Gemma 4 26B A4B IT is an instruction-tuned Mixture-of-Experts (MoE) model from Google DeepMind. Despite 25.2B total parameters, only 3.8B activate per token during inference — delivering near-31B quality at...",
   "announced_date": null,
-  "release_date": "2026-04-03T00:00:00",
+  "release_date": "2026-04-03",
   "deprecation_date": null,
   "retirement_date": null,
   "license": null,
-  "input_types": "image,video,text",
-  "output_types": "text",
+  "input_types": [
+    "image/*",
+    "text",
+    "video/*"
+  ],
+  "output_types": [
+    "text"
+  ],
   "api_model_id": "google/gemma-4-26b-a4b-it",
-  "links": [],
+  "links": [
+    {
+      "platform": "model",
+      "title": "OpenRouter model page",
+      "url": "https://openrouter.ai/google/gemma-4-26b-a4b-it"
+    }
+  ],
   "details": [],
   "benchmarks": [],
   "family_id": null,
   "page_notice": null,
-  "model_type": null,
+  "model_type": "language",
   "knowledge_cutoff": null,
   "limits": {
     "context": 262144,
-    "input": 262144,
-    "output": null
+    "input": null,
+    "output": 16384
   },
   "modalities": {
     "input": [
       "image/*",
-      "video/*",
-      "text"
+      "text",
+      "video/*"
     ],
     "output": [
       "text"
     ]
   },
   "reasoning": {
-    "supported": false,
+    "supported": true,
     "options": []
   },
   "capabilities": {
     "attachment": true,
-    "tool_call": null,
-    "structured_output": null,
-    "temperature": null,
-    "streaming": null,
+    "tool_call": true,
+    "structured_output": true,
+    "temperature": true,
+    "streaming": true,
     "web_search": false
   },
-  "open_weights": null,
+  "open_weights": true,
   "sources": [
     {
       "kind": "provider_models",
-      "url": "https://zenmux.ai/api/v1/models",
+      "url": "https://openrouter.ai/api/v1/models",
       "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "Official live ZenMux model, modality, context, capability, publication, and pricing metadata."
+      "notes": "Exact live OpenRouter ID: google/gemma-4-26b-a4b-it."
     }
   ],
   "verification": {
     "status": "partial",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Availability, namespace, modalities, context, and publication date verified against the official ZenMux models API; upstream model metadata was not independently re-audited."
+    "notes": "Availability, modalities, limits and parameters verified against OpenRouter's official models API; upstream publisher metadata remains provider-reported."
   },
-  "last_updated": "2026-08-24T00:00:00Z",
+  "last_updated": "2026-08-24",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

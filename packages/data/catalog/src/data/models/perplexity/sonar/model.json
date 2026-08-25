@@ -1,67 +1,77 @@
 {
   "model_id": "perplexity/sonar",
   "organisation_id": "perplexity",
-  "name": "Sonar",
+  "name": "Perplexity: Sonar",
   "status": "Available",
   "previous_model_id": null,
-  "description": "Sonar is Perplexity's grounded search model, exposed through the multi-provider Agent API as perplexity/sonar.",
+  "description": "Sonar is lightweight, affordable, fast, and simple to use — now featuring citations and the ability to customize sources. It is designed for companies seeking to integrate lightweight question-and-answer features...",
   "announced_date": null,
-  "release_date": null,
+  "release_date": "2025-01-27",
   "deprecation_date": null,
   "retirement_date": null,
-  "license": "Proprietary",
-  "input_types": "text",
-  "output_types": "text",
+  "license": null,
+  "input_types": [
+    "text",
+    "image/*"
+  ],
+  "output_types": [
+    "text"
+  ],
   "api_model_id": "perplexity/sonar",
   "links": [
     {
-      "title": "Agent API models",
-      "kind": "api_reference",
-      "url": "https://docs.perplexity.ai/docs/agent-api/models"
+      "platform": "model",
+      "title": "OpenRouter model page",
+      "url": "https://openrouter.ai/perplexity/sonar"
     }
   ],
   "details": [],
   "benchmarks": [],
   "family_id": null,
   "page_notice": null,
-  "model_type": null,
+  "model_type": "language",
   "knowledge_cutoff": null,
   "limits": {
-    "context": null,
+    "context": 127072,
     "input": null,
     "output": null
   },
   "modalities": {
-    "input": ["text"],
-    "output": ["text"]
+    "input": [
+      "text",
+      "image/*"
+    ],
+    "output": [
+      "text"
+    ]
   },
   "reasoning": {
-    "supported": false,
+    "supported": null,
     "options": []
   },
   "capabilities": {
-    "attachment": false,
-    "tool_call": true,
-    "structured_output": true,
-    "temperature": null,
+    "attachment": true,
+    "tool_call": false,
+    "structured_output": false,
+    "temperature": true,
     "streaming": true,
-    "web_search": true
+    "web_search": false
   },
-  "open_weights": false,
+  "open_weights": null,
   "sources": [
     {
-      "kind": "provider_docs",
-      "url": "https://docs.perplexity.ai/docs/agent-api/models",
+      "kind": "provider_models",
+      "url": "https://openrouter.ai/api/v1/models",
       "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "Official Agent API catalog lists the exact perplexity/sonar identifier and describes it as Perplexity's grounded search model. The separate Sonar API uses different unprefixed route IDs and pricing."
+      "notes": "Exact live OpenRouter ID: perplexity/sonar."
     }
   ],
   "verification": {
-    "status": "verified",
+    "status": "partial",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Availability and Agent API identifier verified; undocumented context and output limits remain null."
+    "notes": "Availability, modalities, limits and parameters verified against OpenRouter's official models API; upstream publisher metadata remains provider-reported."
   },
-  "last_updated": "2026-08-24T00:00:00Z",
+  "last_updated": "2026-08-24",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

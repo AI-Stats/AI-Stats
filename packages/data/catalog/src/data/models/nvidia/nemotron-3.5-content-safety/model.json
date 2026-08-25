@@ -1,65 +1,77 @@
 {
   "model_id": "nvidia/nemotron-3.5-content-safety",
   "organisation_id": "nvidia",
-  "name": "Nemotron 3 5 Content Safety",
+  "name": "NVIDIA: Nemotron 3.5 Content Safety (free)",
   "status": "Available",
   "previous_model_id": null,
-  "description": "Nemotron 3 5 Content Safety is available through NVIDIA's hosted NIM API catalog.",
+  "description": "NVIDIA Nemotron 3.5 Content Safety is a compact 4B-parameter multimodal guardrail model from NVIDIA, fine-tuned from Google Gemma-3-4B. It moderates both inputs to and responses from LLMs and VLMs, accepting...",
   "announced_date": null,
-  "release_date": null,
+  "release_date": "2026-06-04",
   "deprecation_date": null,
   "retirement_date": null,
   "license": null,
-  "input_types": "text",
-  "output_types": "text",
+  "input_types": [
+    "text",
+    "image/*"
+  ],
+  "output_types": [
+    "text"
+  ],
   "api_model_id": "nvidia/nemotron-3.5-content-safety",
-  "family_id": null,
-  "links": [],
+  "links": [
+    {
+      "platform": "model",
+      "title": "OpenRouter model page",
+      "url": "https://openrouter.ai/nvidia/nemotron-3.5-content-safety:free"
+    }
+  ],
   "details": [],
   "benchmarks": [],
+  "family_id": null,
   "page_notice": null,
   "model_type": "language",
   "knowledge_cutoff": null,
   "limits": {
-    "context": null,
+    "context": 128000,
     "input": null,
-    "output": null
+    "output": 8192
   },
   "modalities": {
     "input": [
-      "text"
+      "text",
+      "image/*"
     ],
     "output": [
       "text"
     ]
   },
   "reasoning": {
-    "supported": null,
+    "supported": true,
     "options": []
   },
   "capabilities": {
-    "attachment": false,
-    "tool_call": null,
-    "structured_output": null,
-    "temperature": null,
-    "streaming": null,
+    "attachment": true,
+    "tool_call": false,
+    "structured_output": false,
+    "temperature": true,
+    "streaming": true,
     "web_search": false
   },
-  "open_weights": null,
+  "open_weights": true,
   "sources": [
     {
-      "kind": "api_reference",
-      "url": "https://integrate.api.nvidia.com/v1/models",
+      "kind": "provider_models",
+      "url": "https://openrouter.ai/api/v1/models",
       "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "NVIDIA's live OpenAI-compatible registry lists the exact model ID nvidia/nemotron-3.5-content-safety."
+      "notes": "Exact live OpenRouter ID: nvidia/nemotron-3.5-content-safety:free."
     }
   ],
   "verification": {
     "status": "partial",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Exact hosted availability and API ID verified; unpublished model metadata remains null."
+    "notes": "Availability, modalities, limits and parameters verified against OpenRouter's official models API; upstream publisher metadata remains provider-reported."
   },
-  "last_updated": null,
+  "last_updated": "2026-08-24",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

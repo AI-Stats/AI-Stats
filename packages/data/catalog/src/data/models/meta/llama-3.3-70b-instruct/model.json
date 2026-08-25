@@ -1,29 +1,39 @@
 {
   "model_id": "meta/llama-3.3-70b-instruct",
   "organisation_id": "meta",
-  "name": "Llama 3.3 70B Instruct",
+  "name": "Meta: Llama 3.3 70B Instruct",
   "status": "Available",
   "previous_model_id": null,
-  "description": "Llama 3.3 70B Instruct is available through ZenMux's unified model API.",
+  "description": "The Meta Llama 3.3 multilingual large language model (LLM) is a pretrained and instruction tuned generative model in 70B (text in/text out). The Llama 3.3 instruction tuned text only model...",
   "announced_date": null,
-  "release_date": "2024-12-06T00:00:00",
+  "release_date": "2024-12-06",
   "deprecation_date": null,
   "retirement_date": null,
   "license": null,
-  "input_types": "text",
-  "output_types": "text",
+  "input_types": [
+    "text"
+  ],
+  "output_types": [
+    "text"
+  ],
   "api_model_id": "meta/llama-3.3-70b-instruct",
-  "links": [],
+  "links": [
+    {
+      "platform": "model",
+      "title": "OpenRouter model page",
+      "url": "https://openrouter.ai/meta-llama/llama-3.3-70b-instruct"
+    }
+  ],
   "details": [],
   "benchmarks": [],
   "family_id": null,
   "page_notice": null,
-  "model_type": null,
-  "knowledge_cutoff": null,
+  "model_type": "language",
+  "knowledge_cutoff": "2023-12-31",
   "limits": {
-    "context": 128000,
-    "input": 128000,
-    "output": null
+    "context": 131072,
+    "input": null,
+    "output": 16384
   },
   "modalities": {
     "input": [
@@ -34,32 +44,32 @@
     ]
   },
   "reasoning": {
-    "supported": false,
+    "supported": null,
     "options": []
   },
   "capabilities": {
     "attachment": false,
-    "tool_call": null,
-    "structured_output": null,
-    "temperature": null,
-    "streaming": null,
+    "tool_call": true,
+    "structured_output": true,
+    "temperature": true,
+    "streaming": true,
     "web_search": false
   },
-  "open_weights": null,
+  "open_weights": true,
   "sources": [
     {
       "kind": "provider_models",
-      "url": "https://zenmux.ai/api/v1/models",
+      "url": "https://openrouter.ai/api/v1/models",
       "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "Official live ZenMux model, modality, context, capability, publication, and pricing metadata."
+      "notes": "Exact live OpenRouter ID: meta-llama/llama-3.3-70b-instruct."
     }
   ],
   "verification": {
     "status": "partial",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Availability, namespace, modalities, context, and publication date verified against the official ZenMux models API; upstream model metadata was not independently re-audited."
+    "notes": "Availability, modalities, limits and parameters verified against OpenRouter's official models API; upstream publisher metadata remains provider-reported."
   },
-  "last_updated": "2026-08-24T00:00:00Z",
+  "last_updated": "2026-08-24",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

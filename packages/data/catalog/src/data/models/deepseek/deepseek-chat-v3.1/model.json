@@ -1,29 +1,39 @@
 {
   "model_id": "deepseek/deepseek-chat-v3.1",
   "organisation_id": "deepseek",
-  "name": "DeepSeek V3.1",
+  "name": "DeepSeek: DeepSeek V3.1",
   "status": "Available",
   "previous_model_id": null,
-  "description": "DeepSeek V3.1 is available through ZenMux's unified model API.",
+  "description": "DeepSeek-V3.1 is a large hybrid reasoning model (671B parameters, 37B active) that supports both thinking and non-thinking modes via prompt templates. It extends the DeepSeek-V3 base with a two-phase long-context...",
   "announced_date": null,
-  "release_date": "2025-08-21T00:00:00",
+  "release_date": "2025-08-21",
   "deprecation_date": null,
   "retirement_date": null,
   "license": null,
-  "input_types": "text",
-  "output_types": "text",
+  "input_types": [
+    "text"
+  ],
+  "output_types": [
+    "text"
+  ],
   "api_model_id": "deepseek/deepseek-chat-v3.1",
-  "links": [],
+  "links": [
+    {
+      "platform": "model",
+      "title": "OpenRouter model page",
+      "url": "https://openrouter.ai/deepseek/deepseek-chat-v3.1"
+    }
+  ],
   "details": [],
   "benchmarks": [],
   "family_id": null,
   "page_notice": null,
-  "model_type": null,
-  "knowledge_cutoff": null,
+  "model_type": "language",
+  "knowledge_cutoff": "2025-03-31",
   "limits": {
-    "context": 128000,
-    "input": 128000,
-    "output": null
+    "context": 163840,
+    "input": null,
+    "output": 161000
   },
   "modalities": {
     "input": [
@@ -34,32 +44,32 @@
     ]
   },
   "reasoning": {
-    "supported": false,
+    "supported": true,
     "options": []
   },
   "capabilities": {
     "attachment": false,
-    "tool_call": null,
-    "structured_output": null,
-    "temperature": null,
-    "streaming": null,
+    "tool_call": true,
+    "structured_output": true,
+    "temperature": true,
+    "streaming": true,
     "web_search": false
   },
-  "open_weights": null,
+  "open_weights": true,
   "sources": [
     {
       "kind": "provider_models",
-      "url": "https://zenmux.ai/api/v1/models",
+      "url": "https://openrouter.ai/api/v1/models",
       "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "Official live ZenMux model, modality, context, capability, publication, and pricing metadata."
+      "notes": "Exact live OpenRouter ID: deepseek/deepseek-chat-v3.1."
     }
   ],
   "verification": {
     "status": "partial",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Availability, namespace, modalities, context, and publication date verified against the official ZenMux models API; upstream model metadata was not independently re-audited."
+    "notes": "Availability, modalities, limits and parameters verified against OpenRouter's official models API; upstream publisher metadata remains provider-reported."
   },
-  "last_updated": "2026-08-24T00:00:00Z",
+  "last_updated": "2026-08-24",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

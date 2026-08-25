@@ -4,26 +4,36 @@
   "name": "DeepSeek: DeepSeek V3",
   "status": "Available",
   "previous_model_id": null,
-  "description": "DeepSeek alias for V4 Flash non-thinking mode — 1M context, strong instruction following and coding (legacy alias, slated for deprecation).",
+  "description": "DeepSeek-V3 is the latest model from the DeepSeek team, building upon the instruction following and coding abilities of the previous versions. Pre-trained on nearly 15 trillion tokens, the reported evaluations...",
   "announced_date": null,
-  "release_date": null,
+  "release_date": "2024-12-26",
   "deprecation_date": null,
   "retirement_date": null,
   "license": null,
-  "input_types": "text",
-  "output_types": "text",
+  "input_types": [
+    "text"
+  ],
+  "output_types": [
+    "text"
+  ],
   "api_model_id": "deepseek/deepseek-chat",
-  "links": [],
+  "links": [
+    {
+      "platform": "model",
+      "title": "OpenRouter model page",
+      "url": "https://openrouter.ai/deepseek/deepseek-chat"
+    }
+  ],
   "details": [],
   "benchmarks": [],
   "family_id": null,
   "page_notice": null,
-  "model_type": null,
-  "knowledge_cutoff": null,
+  "model_type": "language",
+  "knowledge_cutoff": "2024-07-31",
   "limits": {
-    "context": 1048576,
+    "context": 163840,
     "input": null,
-    "output": 384000
+    "output": 16000
   },
   "modalities": {
     "input": [
@@ -39,27 +49,27 @@
   },
   "capabilities": {
     "attachment": false,
-    "tool_call": null,
-    "structured_output": null,
-    "temperature": null,
-    "streaming": null,
-    "web_search": null
+    "tool_call": true,
+    "structured_output": true,
+    "temperature": true,
+    "streaming": true,
+    "web_search": false
   },
-  "open_weights": null,
+  "open_weights": true,
   "sources": [
     {
-      "kind": "models",
-      "url": "https://api.orcarouter.ai/v1/models",
+      "kind": "provider_models",
+      "url": "https://openrouter.ai/api/v1/models",
       "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "OrcaRouter live model catalogue metadata."
+      "notes": "Exact live OpenRouter ID: deepseek/deepseek-chat."
     }
   ],
   "verification": {
-    "status": "verified",
+    "status": "partial",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Exact model ID, availability, limits, modalities, description, and pricing metadata verified against OrcaRouter's live official catalogue."
+    "notes": "Availability, modalities, limits and parameters verified against OpenRouter's official models API; upstream publisher metadata remains provider-reported."
   },
-  "last_updated": "2026-08-24T00:00:00Z",
+  "last_updated": "2026-08-24",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

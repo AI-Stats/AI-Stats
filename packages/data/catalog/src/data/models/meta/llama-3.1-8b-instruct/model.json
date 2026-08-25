@@ -1,29 +1,39 @@
 {
   "model_id": "meta/llama-3.1-8b-instruct",
   "organisation_id": "meta",
-  "name": "Llama 3 1 8b Instruct",
+  "name": "Meta: Llama 3.1 8B Instruct",
   "status": "Available",
   "previous_model_id": null,
-  "description": "Llama 3 1 8b Instruct is available through NVIDIA's hosted NIM API catalog.",
+  "description": "Meta's latest class of model (Llama 3.1) launched with a variety of sizes & flavors. This 8B instruct-tuned version is fast and efficient. It has demonstrated strong performance compared to...",
   "announced_date": null,
-  "release_date": null,
+  "release_date": "2024-07-23",
   "deprecation_date": null,
   "retirement_date": null,
   "license": null,
-  "input_types": "text",
-  "output_types": "text",
+  "input_types": [
+    "text"
+  ],
+  "output_types": [
+    "text"
+  ],
   "api_model_id": "meta/llama-3.1-8b-instruct",
-  "family_id": null,
-  "links": [],
+  "links": [
+    {
+      "platform": "model",
+      "title": "OpenRouter model page",
+      "url": "https://openrouter.ai/meta-llama/llama-3.1-8b-instruct"
+    }
+  ],
   "details": [],
   "benchmarks": [],
+  "family_id": null,
   "page_notice": null,
   "model_type": "language",
-  "knowledge_cutoff": null,
+  "knowledge_cutoff": "2023-12-31",
   "limits": {
-    "context": null,
+    "context": 131072,
     "input": null,
-    "output": null
+    "output": 131072
   },
   "modalities": {
     "input": [
@@ -39,27 +49,27 @@
   },
   "capabilities": {
     "attachment": false,
-    "tool_call": null,
-    "structured_output": null,
-    "temperature": null,
-    "streaming": null,
+    "tool_call": true,
+    "structured_output": true,
+    "temperature": true,
+    "streaming": true,
     "web_search": false
   },
-  "open_weights": null,
+  "open_weights": true,
   "sources": [
     {
-      "kind": "api_reference",
-      "url": "https://integrate.api.nvidia.com/v1/models",
+      "kind": "provider_models",
+      "url": "https://openrouter.ai/api/v1/models",
       "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "NVIDIA's live OpenAI-compatible registry lists the exact model ID meta/llama-3.1-8b-instruct."
+      "notes": "Exact live OpenRouter ID: meta-llama/llama-3.1-8b-instruct."
     }
   ],
   "verification": {
     "status": "partial",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Exact hosted availability and API ID verified; unpublished model metadata remains null."
+    "notes": "Availability, modalities, limits and parameters verified against OpenRouter's official models API; upstream publisher metadata remains provider-reported."
   },
-  "last_updated": null,
+  "last_updated": "2026-08-24",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

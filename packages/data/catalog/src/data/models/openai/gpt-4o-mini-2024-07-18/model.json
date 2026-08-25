@@ -6,20 +6,32 @@
   "previous_model_id": null,
   "description": "GPT-4o mini is OpenAI's newest model after [GPT-4 Omni](/models/openai/gpt-4o), supporting both text and image inputs with text outputs. As their most advanced small model, it is many multiples more affordable...",
   "announced_date": null,
-  "release_date": null,
+  "release_date": "2024-07-18",
   "deprecation_date": null,
   "retirement_date": null,
   "license": null,
-  "input_types": "text,image,file",
-  "output_types": "text",
+  "input_types": [
+    "text",
+    "image/*",
+    "file"
+  ],
+  "output_types": [
+    "text"
+  ],
   "api_model_id": "openai/gpt-4o-mini-2024-07-18",
-  "links": [],
+  "links": [
+    {
+      "platform": "model",
+      "title": "OpenRouter model page",
+      "url": "https://openrouter.ai/openai/gpt-4o-mini-2024-07-18"
+    }
+  ],
   "details": [],
   "benchmarks": [],
   "family_id": null,
   "page_notice": null,
-  "model_type": null,
-  "knowledge_cutoff": null,
+  "model_type": "language",
+  "knowledge_cutoff": "2023-10-31",
   "limits": {
     "context": 128000,
     "input": null,
@@ -29,7 +41,7 @@
     "input": [
       "text",
       "image/*",
-      "application/pdf"
+      "file"
     ],
     "output": [
       "text"
@@ -41,27 +53,27 @@
   },
   "capabilities": {
     "attachment": true,
-    "tool_call": null,
-    "structured_output": null,
-    "temperature": null,
-    "streaming": null,
-    "web_search": null
+    "tool_call": true,
+    "structured_output": true,
+    "temperature": true,
+    "streaming": true,
+    "web_search": false
   },
   "open_weights": null,
   "sources": [
     {
-      "kind": "models",
-      "url": "https://api.orcarouter.ai/v1/models",
+      "kind": "provider_models",
+      "url": "https://openrouter.ai/api/v1/models",
       "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "OrcaRouter live model catalogue metadata."
+      "notes": "Exact live OpenRouter ID: openai/gpt-4o-mini-2024-07-18."
     }
   ],
   "verification": {
-    "status": "verified",
+    "status": "partial",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Exact model ID, availability, limits, modalities, description, and pricing metadata verified against OrcaRouter's live official catalogue."
+    "notes": "Availability, modalities, limits and parameters verified against OpenRouter's official models API; upstream publisher metadata remains provider-reported."
   },
-  "last_updated": "2026-08-24T00:00:00Z",
+  "last_updated": "2026-08-24",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

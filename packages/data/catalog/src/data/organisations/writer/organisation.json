@@ -2,20 +2,22 @@
   "organisation_id": "writer",
   "name": "Writer",
   "country_code": null,
-  "description": "Writer publishes models available through NVIDIA's hosted NIM API catalog.",
-  "links": [],
-  "leaders": [],
+  "description": "Writer publishes models available through OpenRouter.",
+  "colour": null,
+  "organisation_links": [],
+  "status": "active",
+  "routable": null,
   "sources": [
     {
-      "kind": "api_reference",
-      "url": "https://integrate.api.nvidia.com/v1/models",
+      "kind": "provider_models",
+      "url": "https://openrouter.ai/api/v1/models",
       "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "NVIDIA's live hosted model registry identifies writer as a model owner."
+      "notes": "Publisher namespace observed in OpenRouter's official model catalog."
     }
   ],
   "verification": {
     "status": "partial",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Organisation presence verified through NVIDIA's live hosted model registry."
+    "notes": "Publisher identity is based on OpenRouter's official namespace."
   }
 }

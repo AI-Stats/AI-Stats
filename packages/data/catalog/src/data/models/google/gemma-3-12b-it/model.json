@@ -1,33 +1,45 @@
 {
   "model_id": "google/gemma-3-12b-it",
   "organisation_id": "google",
-  "name": "Gemma 3 12b It",
+  "name": "Google: Gemma 3 12B",
   "status": "Available",
   "previous_model_id": null,
-  "description": "Gemma 3 12b It is available through NVIDIA's hosted NIM API catalog.",
+  "description": "Gemma 3 introduces multimodality, supporting vision-language input and text outputs. It handles context windows up to 128k tokens, understands over 140 languages, and offers improved math, reasoning, and chat capabilities,...",
   "announced_date": null,
-  "release_date": null,
+  "release_date": "2025-03-13",
   "deprecation_date": null,
   "retirement_date": null,
   "license": null,
-  "input_types": "text",
-  "output_types": "text",
+  "input_types": [
+    "text",
+    "image/*"
+  ],
+  "output_types": [
+    "text"
+  ],
   "api_model_id": "google/gemma-3-12b-it",
-  "family_id": null,
-  "links": [],
+  "links": [
+    {
+      "platform": "model",
+      "title": "OpenRouter model page",
+      "url": "https://openrouter.ai/google/gemma-3-12b-it"
+    }
+  ],
   "details": [],
   "benchmarks": [],
+  "family_id": null,
   "page_notice": null,
   "model_type": "language",
-  "knowledge_cutoff": null,
+  "knowledge_cutoff": "2024-08-31",
   "limits": {
-    "context": null,
+    "context": 131072,
     "input": null,
-    "output": null
+    "output": 16384
   },
   "modalities": {
     "input": [
-      "text"
+      "text",
+      "image/*"
     ],
     "output": [
       "text"
@@ -38,28 +50,28 @@
     "options": []
   },
   "capabilities": {
-    "attachment": false,
-    "tool_call": null,
-    "structured_output": null,
-    "temperature": null,
-    "streaming": null,
+    "attachment": true,
+    "tool_call": true,
+    "structured_output": true,
+    "temperature": true,
+    "streaming": true,
     "web_search": false
   },
-  "open_weights": null,
+  "open_weights": true,
   "sources": [
     {
-      "kind": "api_reference",
-      "url": "https://integrate.api.nvidia.com/v1/models",
+      "kind": "provider_models",
+      "url": "https://openrouter.ai/api/v1/models",
       "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "NVIDIA's live OpenAI-compatible registry lists the exact model ID google/gemma-3-12b-it."
+      "notes": "Exact live OpenRouter ID: google/gemma-3-12b-it."
     }
   ],
   "verification": {
     "status": "partial",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Exact hosted availability and API ID verified; unpublished model metadata remains null."
+    "notes": "Availability, modalities, limits and parameters verified against OpenRouter's official models API; upstream publisher metadata remains provider-reported."
   },
-  "last_updated": null,
+  "last_updated": "2026-08-24",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

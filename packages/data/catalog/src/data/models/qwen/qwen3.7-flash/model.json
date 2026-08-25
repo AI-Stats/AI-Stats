@@ -1,29 +1,41 @@
 {
   "model_id": "qwen/qwen3.7-flash",
   "organisation_id": "qwen",
-  "name": "Qwen3.7-Flash",
+  "name": "Qwen: Qwen3.7 Flash",
   "status": "Available",
   "previous_model_id": null,
-  "description": "Qwen3.7-Flash is available through ZenMux's unified model API.",
+  "description": "Qwen3.7 Flash is a vision-language reasoning model from Alibaba. It is suited for multimodal agents, visual coding, search, and computer interaction, with strengths in object recognition, spatial understanding, and real-world...",
   "announced_date": null,
-  "release_date": "2026-07-28T00:00:00",
+  "release_date": "2026-07-27",
   "deprecation_date": null,
   "retirement_date": null,
   "license": null,
-  "input_types": "text,image,video",
-  "output_types": "text",
+  "input_types": [
+    "text",
+    "image/*",
+    "video/*"
+  ],
+  "output_types": [
+    "text"
+  ],
   "api_model_id": "qwen/qwen3.7-flash",
-  "links": [],
+  "links": [
+    {
+      "platform": "model",
+      "title": "OpenRouter model page",
+      "url": "https://openrouter.ai/qwen/qwen3.7-flash"
+    }
+  ],
   "details": [],
   "benchmarks": [],
   "family_id": null,
   "page_notice": null,
-  "model_type": null,
+  "model_type": "language",
   "knowledge_cutoff": null,
   "limits": {
     "context": 1000000,
-    "input": 1000000,
-    "output": null
+    "input": null,
+    "output": 65536
   },
   "modalities": {
     "input": [
@@ -41,27 +53,27 @@
   },
   "capabilities": {
     "attachment": true,
-    "tool_call": null,
-    "structured_output": null,
-    "temperature": null,
-    "streaming": null,
-    "web_search": true
+    "tool_call": true,
+    "structured_output": false,
+    "temperature": true,
+    "streaming": true,
+    "web_search": false
   },
   "open_weights": null,
   "sources": [
     {
       "kind": "provider_models",
-      "url": "https://zenmux.ai/api/v1/models",
+      "url": "https://openrouter.ai/api/v1/models",
       "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "Official live ZenMux model, modality, context, capability, publication, and pricing metadata."
+      "notes": "Exact live OpenRouter ID: qwen/qwen3.7-flash."
     }
   ],
   "verification": {
     "status": "partial",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Availability, namespace, modalities, context, and publication date verified against the official ZenMux models API; upstream model metadata was not independently re-audited."
+    "notes": "Availability, modalities, limits and parameters verified against OpenRouter's official models API; upstream publisher metadata remains provider-reported."
   },
-  "last_updated": "2026-08-24T00:00:00Z",
+  "last_updated": "2026-08-24",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

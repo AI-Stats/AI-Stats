@@ -1,29 +1,39 @@
 {
   "model_id": "qwen/qwen3-coder-plus",
   "organisation_id": "qwen",
-  "name": "Qwen3-Coder-Plus",
+  "name": "Qwen: Qwen3 Coder Plus",
   "status": "Available",
   "previous_model_id": null,
-  "description": "Qwen3-Coder-Plus is available through ZenMux's unified model API.",
+  "description": "Qwen3 Coder Plus is Alibaba's proprietary version of the Open Source Qwen3 Coder 480B A35B. It is a powerful coding agent model specializing in autonomous programming via tool calling and...",
   "announced_date": null,
-  "release_date": "2025-07-23T00:00:00",
+  "release_date": "2025-09-23",
   "deprecation_date": null,
   "retirement_date": null,
   "license": null,
-  "input_types": "text",
-  "output_types": "text",
+  "input_types": [
+    "text"
+  ],
+  "output_types": [
+    "text"
+  ],
   "api_model_id": "qwen/qwen3-coder-plus",
-  "links": [],
+  "links": [
+    {
+      "platform": "model",
+      "title": "OpenRouter model page",
+      "url": "https://openrouter.ai/qwen/qwen3-coder-plus"
+    }
+  ],
   "details": [],
   "benchmarks": [],
   "family_id": null,
   "page_notice": null,
-  "model_type": null,
-  "knowledge_cutoff": null,
+  "model_type": "language",
+  "knowledge_cutoff": "2025-06-30",
   "limits": {
     "context": 1000000,
-    "input": 1000000,
-    "output": null
+    "input": null,
+    "output": 65536
   },
   "modalities": {
     "input": [
@@ -34,32 +44,32 @@
     ]
   },
   "reasoning": {
-    "supported": false,
+    "supported": true,
     "options": []
   },
   "capabilities": {
     "attachment": false,
-    "tool_call": null,
-    "structured_output": null,
-    "temperature": null,
-    "streaming": null,
+    "tool_call": true,
+    "structured_output": true,
+    "temperature": true,
+    "streaming": true,
     "web_search": false
   },
   "open_weights": null,
   "sources": [
     {
       "kind": "provider_models",
-      "url": "https://zenmux.ai/api/v1/models",
+      "url": "https://openrouter.ai/api/v1/models",
       "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "Official live ZenMux model, modality, context, capability, publication, and pricing metadata."
+      "notes": "Exact live OpenRouter ID: qwen/qwen3-coder-plus."
     }
   ],
   "verification": {
     "status": "partial",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Availability, namespace, modalities, context, and publication date verified against the official ZenMux models API; upstream model metadata was not independently re-audited."
+    "notes": "Availability, modalities, limits and parameters verified against OpenRouter's official models API; upstream publisher metadata remains provider-reported."
   },
-  "last_updated": "2026-08-24T00:00:00Z",
+  "last_updated": "2026-08-24",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null
