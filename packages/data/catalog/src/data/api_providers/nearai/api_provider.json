@@ -4,23 +4,23 @@
   "provider_family_id": null,
   "offer_label": null,
   "offer_scope": "specialized",
-  "description": null,
-  "link": "https://docs.near.ai/",
-  "residency_mode": null,
+  "description": "OpenAI-compatible access to NEAR AI TEE-hosted private inference, attested third-party TEE models, and Incognito partner models.",
+  "link": "https://cloud.near.ai/",
+  "residency_mode": "provider_managed",
   "default_execution_regions": null,
   "default_data_regions": null,
-  "zero_data_retention": null,
-  "residency_source_url": null,
-  "prompt_training_policy": null,
-  "prompt_training_notes": null,
-  "prompt_training_source_url": null,
+  "zero_data_retention": "unknown",
+  "residency_source_url": "https://docs.near.ai/cloud/private-inference/",
+  "prompt_training_policy": "no_training",
+  "prompt_training_notes": "NEAR AI states that TEE-hosted inference is inaccessible to NEAR AI and infrastructure operators. Incognito requests are processed by the named upstream provider under that provider's terms and do not receive NEAR AI's TEE guarantees.",
+  "prompt_training_source_url": "https://docs.near.ai/cloud/models/",
   "user_identifier_policy": null,
   "user_identifier_notes": null,
-  "privacy_policy_url": null,
-  "terms_of_service_url": null,
+  "privacy_policy_url": "https://cloud.near.ai/docs/privacy.pdf",
+  "terms_of_service_url": "https://cloud.near.ai/docs/terms.pdf",
   "regional_pricing_mode": null,
   "regional_pricing_uplift_percent": null,
-  "pricing_source_url": null,
+  "pricing_source_url": "https://cloud-api.near.ai/v1/models",
   "regional_pricing_notes": null,
   "country_code": "US",
   "status": "Active",
@@ -34,9 +34,33 @@
   "auth_env": [
     "NEARAI_API_KEY"
   ],
-  "api_formats": [],
-  "service_tiers": [],
+  "api_formats": [
+    "openai.chat.completions",
+    "openai.responses"
+  ],
+  "service_tiers": [
+    "standard",
+    "enterprise"
+  ],
   "sources": [
+    {
+      "kind": "model_catalog",
+      "url": "https://cloud-api.near.ai/v1/models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Live official catalog with exact identifiers, readiness, modalities, token limits, supported features, execution ownership, datacenters, and per-model pricing."
+    },
+    {
+      "kind": "docs",
+      "url": "https://docs.near.ai/cloud/models/",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Documents the distinction between NEAR AI TEE-hosted models and Incognito third-party models."
+    },
+    {
+      "kind": "docs",
+      "url": "https://docs.near.ai/cloud/private-inference/",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Documents direct TEE endpoints, attestation, privacy boundaries, and supported inference routes."
+    },
     {
       "kind": "official_legal_notice",
       "url": "https://near.ai/acceptable-use-policy",
@@ -51,8 +75,8 @@
     }
   ],
   "verification": {
-    "status": "partial",
-    "checked_at": "2026-07-23T09:08:52.190Z",
-    "notes": "Imported from the public models.dev provider registry."
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Provider metadata, execution classes, privacy boundaries, live catalog, availability, modalities, limits, and prices reconciled against NEAR AI primary sources."
   }
 }
