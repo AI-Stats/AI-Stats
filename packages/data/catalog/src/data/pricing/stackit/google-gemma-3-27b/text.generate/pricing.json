@@ -1,8 +1,8 @@
 {
-  "key": "stackit:openai/gpt-oss-120b:text.generate",
+  "key": "stackit:google/gemma-3-27b:text.generate",
   "api_provider_id": "stackit",
   "provider_slug": "stackit",
-  "api_model_id": "openai/gpt-oss-120b",
+  "api_model_id": "google/gemma-3-27b",
   "capability_id": "text.generate",
   "rules": [
     {

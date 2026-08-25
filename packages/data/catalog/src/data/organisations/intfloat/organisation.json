@@ -2,7 +2,7 @@
   "organisation_id": "intfloat",
   "name": "Intfloat",
   "country_code": null,
-  "description": null,
+  "description": "Intfloat publishes open embedding and language models, including E5 Mistral 7B Instruct.",
   "colour": null,
   "organisation_links": [
     {
@@ -14,15 +14,15 @@
   "routable": null,
   "sources": [
     {
-      "kind": "official_model_page",
-      "url": "https://evroc.com/ai-services/think-models/",
+      "kind": "official_model_card",
+      "url": "https://huggingface.co/intfloat/e5-mistral-7b-instruct",
       "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "Model publisher attribution in evroc's official shared-model catalogue."
+      "notes": "Canonical publisher namespace and model card."
     }
   ],
   "verification": {
-    "status": "verified",
+    "status": "partial",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Publisher attribution verified through evroc's official catalogue."
+    "notes": "Publisher identity verified from the canonical model repository; no separate legal-entity location was asserted."
   }
 }
