@@ -489,7 +489,8 @@
       "ibm/granite-vision-3.2-2b",
       "ibm/granite-vision-3.3-2b",
       "ibm/granite-vision-3.3-2b-embedding",
-      "ibm/granite-4.1-8b"
+      "ibm/granite-4.1-8b",
+      "ibm/granite-4.2-8b"
     ],
     "inception": [
       "inception/mercury-2",
