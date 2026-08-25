@@ -30,12 +30,8 @@
     "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
+      "execution": null,
+      "data": null
     },
     "service_tiers": [],
     "api": {
