@@ -4,7 +4,7 @@
   "provider_family_id": null,
   "offer_label": null,
   "offer_scope": "specialized",
-  "description": null,
+  "description": "Poe exposes hundreds of public first-party and community bots through OpenAI Chat Completions, OpenAI Responses, Anthropic Messages, and its native Python SDK. Calls spend the API-key owner's subscription or add-on points.",
   "link": "https://creator.poe.com/docs/external-applications/openai-compatible-api",
   "residency_mode": null,
   "default_execution_regions": null,
@@ -16,11 +16,11 @@
   "prompt_training_source_url": null,
   "user_identifier_policy": null,
   "user_identifier_notes": null,
-  "privacy_policy_url": null,
+  "privacy_policy_url": "https://poe.com/privacy",
   "terms_of_service_url": null,
   "regional_pricing_mode": null,
   "regional_pricing_uplift_percent": null,
-  "pricing_source_url": null,
+  "pricing_source_url": "https://api.poe.com/v1/models",
   "regional_pricing_notes": null,
   "country_code": "US",
   "status": "Active",
@@ -34,25 +34,36 @@
   "auth_env": [
     "POE_API_KEY"
   ],
-  "api_formats": [],
+  "api_formats": [
+    "openai.chat.completions",
+    "openai.responses",
+    "anthropic_messages",
+    "openai.video"
+  ],
   "service_tiers": [],
   "sources": [
+    {
+      "kind": "provider_docs",
+      "url": "https://creator.poe.com/docs/external-applications/openai-compatible-api",
+      "accessed_at": "2026-08-24T03:27:45Z",
+      "notes": "Official API formats, authentication, availability, media guidance, subscription/add-on requirements and point charging."
+    },
+    {
+      "kind": "provider_models",
+      "url": "https://api.poe.com/v1/models",
+      "accessed_at": "2026-08-24T03:27:45Z",
+      "notes": "Authoritative unauthenticated public bot inventory, exact IDs, modalities, endpoints, features, context limits and USD-equivalent point pricing."
+    },
     {
       "kind": "official_terms",
       "url": "https://poe.com/tos",
       "accessed_at": "2026-08-09T00:00:00Z",
       "notes": "Poe's official terms identify Quora, Inc. as the contracting service operator; the provider is recorded as US."
-    },
-    {
-      "kind": "models.dev",
-      "url": "https://models.dev/api.json",
-      "accessed_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider metadata and model support enrichment; not a Phaseo-routable offer."
     }
   ],
   "verification": {
-    "status": "partial",
-    "checked_at": "2026-08-09T00:00:00Z",
-    "notes": "Location metadata verified from Poe's official terms; other provider metadata and model support remain sourced from models.dev. The provider is not a Phaseo-routable offer."
+    "status": "verified",
+    "checked_at": "2026-08-24T03:27:45Z",
+    "notes": "Official documentation and live public models API verified. Poe does not publish a regional execution/residency commitment or ZDR/training guarantee for this external API; those fields remain unknown. Phaseo routing remains disabled."
   }
 }

@@ -9,13 +9,31 @@
       "meter": "input_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 1.24,
+      "price_per_unit": 1.86,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Mapped from Tinker Prefill pricing for Qwen3.6-27B.",
+      "note": "Tinker sampling rate for Qwen3.6-27B.",
       "match": [],
-      "priority": 100,
-      "effective_from": "2026-06-07T00:00:00Z",
+      "priority": 200,
+      "effective_from": "2026-08-24T00:00:00Z",
+      "effective_to": "2026-09-02T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.372,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Tinker sampling rate for Qwen3.6-27B.",
+      "match": [],
+      "priority": 200,
+      "effective_from": "2026-08-24T00:00:00Z",
+      "effective_to": "2026-09-02T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -25,13 +43,14 @@
       "meter": "output_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 3.73,
+      "price_per_unit": 5.595,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Mapped from Tinker Sample pricing for Qwen3.6-27B.",
+      "note": "Tinker sampling rate for Qwen3.6-27B.",
       "match": [],
-      "priority": 100,
-      "effective_from": "2026-06-07T00:00:00Z",
+      "priority": 200,
+      "effective_from": "2026-08-24T00:00:00Z",
+      "effective_to": "2026-09-02T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -42,10 +61,17 @@
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [
+    {
+      "url": "https://tinker-docs.thinkingmachines.ai/tinker/models/",
+      "kind": "documentation",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official machine-readable Tinker model and serverless pricing feeds."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Prices are USD per million tokens; cached prefill receives the published discount. Training charges are not represented because this capability is inference/sampling."
   }
 }

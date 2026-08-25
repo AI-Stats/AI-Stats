@@ -202,10 +202,10 @@
     "priority",
     "batch"
   ],
-  "sources": [],
+  "sources": [{ "url": "https://platform.claude.com/docs/en/about-claude/pricing", "accessed_at": "2026-08-24T00:00:00Z" }],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Verified against Anthropic's standard model prices and documented 1.1x US-only inference multiplier."
   }
 }
