@@ -155,7 +155,7 @@ const PARAMETER_REFERENCE: Record<string, ParameterReference> = {
 		type: "string",
 		defaultValue: "standard",
 		description:
-			"Chooses a supported request tier such as fast or flex. Fast is accepted as an alias for priority on OpenAI routes.",
+			"Chooses a supported request tier such as priority or flex. Fast is accepted as an OpenAI alias for priority.",
 	},
 	stream: {
 		type: "boolean",
