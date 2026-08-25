@@ -19,6 +19,18 @@ Start with `balanced` unless one production requirement clearly matters more tha
 
 Configure the workspace default in **Dashboard -> Settings -> Routing**. Use presets when one workflow needs a narrower provider or model policy than the workspace default.
 
+### Model routing suffixes
+
+Append a routing suffix when the model ID itself should make the optimization mode authoritative for that request:
+
+| Suffix | Routing mode |
+| --- | --- |
+| `:nitro` | `throughput` |
+| `:cheap` | `price` |
+| `:fast` | `latency` |
+
+For example, `openai/gpt-5-mini:nitro` uses throughput-first routing. A recognized routing suffix takes precedence over request-level `routing.mode` or `provider.sort`, preset and workspace routing modes. Other constraints such as provider allow lists, regional requirements, guardrails, and price ceilings still apply.
+
 ## How routing works at a high level
 
 - You send a request with a model id.

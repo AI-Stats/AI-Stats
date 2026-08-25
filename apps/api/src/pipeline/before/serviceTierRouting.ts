@@ -250,6 +250,10 @@ async function remapToTierSibling(
         apiModelId: siblingApiModelId,
         pricingKey: `${candidate.providerId}:${siblingApiModelId}`,
         providerModelSlug: matchedProviderRow.provider_model_slug ?? candidate.providerModelSlug,
+        quantizationScheme:
+			typeof matchedProviderRow.metadata?.quantization_scheme === "string"
+				? matchedProviderRow.metadata.quantization_scheme
+				: null,
         availabilityPolicy: parseRouteAvailabilityPolicy(matchedProviderRow.metadata?.availability),
         pricingCard: siblingPricingCard,
         capabilityParams:
@@ -343,6 +347,10 @@ async function remapToHiddenTierSibling(
     return {
         ...candidate,
         providerModelSlug: matchedProviderRow.provider_model_slug ?? candidate.providerModelSlug,
+        quantizationScheme:
+			typeof matchedProviderRow.metadata?.quantization_scheme === "string"
+				? matchedProviderRow.metadata.quantization_scheme
+				: null,
         availabilityPolicy: parseRouteAvailabilityPolicy(matchedProviderRow.metadata?.availability),
         capabilityParams:
             siblingCapability?.params && typeof siblingCapability.params === "object"

@@ -1,0 +1,73 @@
+{
+  "model_id": "poe/fugu-ultra-v1.1-el",
+  "organisation_id": "poe",
+  "name": "Fugu-Ultra-v1.1-EL",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Fugu Ultra v1.1 is Sakana AI's multi-agent conductor with a 1M token context window, built for hard reasoning, coding, and research. It accepts text and image input and coordinates expert agents to produce one answer.\n\nNotes:\n- Responses can take from a few seconds to a few minutes to complete.\n- The full answer arrives at once rather than token by token (ie. streaming is not available), because the model finishes its internal work before it replies.\n\nThis bot supports optional parameters for additional customization.",
+  "announced_date": "2026-07-24T06:40:18",
+  "release_date": "2026-07-24T06:40:18",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text,image",
+  "output_types": "text",
+  "api_model_id": "poe/fugu-ultra-v1.1-el",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Poe bot",
+      "kind": "api_reference",
+      "url": "https://poe.com/fugu-ultra-v1.1-el"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "Poe bot",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text",
+      "image"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": true,
+    "tool_call": true,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.poe.com/v1/models",
+      "accessed_at": "2026-08-24T03:27:45Z",
+      "notes": "Canonical entity for an exact public Poe bot identifier returned by the models API."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T03:27:45Z",
+    "notes": "Identity and advertised metadata verified against Poe's public models API."
+  },
+  "last_updated": "2026-08-24T03:27:45Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

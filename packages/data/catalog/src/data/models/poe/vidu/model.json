@@ -1,0 +1,73 @@
+{
+  "model_id": "poe/vidu",
+  "organisation_id": "poe",
+  "name": "Vidu",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "The Vidu Video Generation Bot creates videos using images and text prompts. You can generate videos in four modes: \n(1) Image-to-Video: send 1 image with a prompt, \n(2) Start-to-End Frame: send 2 images with a prompt for transition videos, \n(3) Reference-to-Video: send up to 3 images with the reference image parameter for guidance, and \n(4) Template-to-Video: use `--template` to apply pre-designed templates (1-3 images required, pricing varies by template). \n\nNumber of images required varies by template: `dynasty_dress` and `shop_frame` accept 1-2 images, `wish_sender` requires exactly 3 images, all other templates accept only 1 image.\n\nThe bot supports aspect ratios (16:9, 1:1, 9:16), set movement amplitude, and accepts PNG, JPEG, and WEBP formats. \nTasks are mutually exclusive (e.g., you cannot combine start-to-end frame and reference-to-video).\nDuration is limited to 5 seconds.",
+  "announced_date": "2025-08-27T11:05:11",
+  "release_date": "2025-08-27T11:05:11",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text,image",
+  "output_types": "video",
+  "api_model_id": "poe/vidu",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Poe bot",
+      "kind": "api_reference",
+      "url": "https://poe.com/vidu"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "Poe bot",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text",
+      "image"
+    ],
+    "output": [
+      "video"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": true,
+    "tool_call": false,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.poe.com/v1/models",
+      "accessed_at": "2026-08-24T03:27:45Z",
+      "notes": "Canonical entity for an exact public Poe bot identifier returned by the models API."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T03:27:45Z",
+    "notes": "Identity and advertised metadata verified against Poe's public models API."
+  },
+  "last_updated": "2026-08-24T03:27:45Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

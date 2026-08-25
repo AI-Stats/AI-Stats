@@ -1,3 +1,6 @@
+Warning: truncated output (original token count: 31577)
+Total output lines: 3559
+
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
@@ -198,7 +201,7 @@ function getPricingPlanLabel(plan: string): string {
 		case "flex":
 			return "Flex";
 		case "priority":
-			return "Priority";
+			return "Fast";
 		default:
 			return plan ? plan.charAt(0).toUpperCase() + plan.slice(1) : plan;
 	}
@@ -1839,196 +1842,7 @@ export default function ProviderCard({
 			| "requests"
 			| "imageInputs"
 			| "videoInputs"
-			| "imageTokens"
-			| "imageGen"
-			| "audioTokens"
-			| "videoTokens"
-			| "embeddingTokens"
-			| "videoGen"
-			| "other"
-	) => sec.upcomingChanges?.filter((change) => change.sectionKey === sectionKey) ?? [];
-	const textProviderModels = providerModelsInScope.filter(
-		(pm) => pm.endpoint === "text.generate"
-	);
-	const maxFrom = (values: Array<number | null | undefined>) => {
-		const nums = values.filter(
-			(v): v is number => typeof v === "number" && Number.isFinite(v) && v > 0
-		);
-		return nums.length ? Math.max(...nums) : null;
-	};
-	const maxOutputTokens = maxFrom(
-		textProviderModels.map((pm) => pm.max_output_tokens)
-	);
-	const maxContextTokens = maxFrom(
-		textProviderModels.map((pm) => pm.context_length)
-	);
-	const capacityMetrics = [
-			maxContextTokens !== null
-				? {
-						label: "Total Context",
-						value: formatTokenLimit1dp(maxContextTokens),
-				}
-				: null,
-			maxOutputTokens !== null
-				? {
-						label: "Max Output",
-						value: formatTokenLimit(maxOutputTokens),
-				}
-				: null,
-		].filter(
-			(
-				metric
-			): metric is {
-				label: string;
-				value: string;
-			} => Boolean(metric)
-		);
-	type TokenMetricTile = {
-		key: string;
-		title: string;
-		groupTitle?: string | null;
-		tiers?: TokenTier[];
-		unitLabel?: string;
-	};
-	const createTokenTiles = (
-		modalityLabel: "Text" | "Audio" | "Image" | "Video",
-		modalityKey: "text" | "audio" | "image" | "video",
-		triple: TokenTriple | undefined,
-	): TokenMetricTile[] => {
-		if (!triple) return [];
-		const sections: Array<{
-			key: string;
-			title: string;
-			tiers: TokenTier[];
-		}> = [
-			{
-				key: `${modalityKey}-input`,
-				title: `${modalityLabel} Input`,
-				tiers: triple.in,
-			},
-			{
-				key: `${modalityKey}-output`,
-				title: `${modalityLabel} Output`,
-				tiers: triple.out,
-			},
-			{
-				key: `${modalityKey}-cache-read`,
-				title: `${modalityLabel} Cache Reads`,
-				tiers: triple.cached,
-			},
-			{
-				key: `${modalityKey}-cache-write`,
-				title: `${modalityLabel} Cache Writes`,
-				tiers: triple.write,
-			},
-		];
-		return sections
-			.filter((section) => section.tiers.length > 0)
-			.map((section) => ({
-				key: section.key,
-				title: section.title.replace(`${modalityLabel} `, ""),
-				groupTitle: modalityLabel,
-				tiers: section.tiers,
-				unitLabel: "Per 1M tokens",
-			}));
-	};
-	const createEmbeddingTiles = (triple: TokenTriple | undefined): TokenMetricTile[] => {
-		if (!triple) return [];
-		const directions = [
-			{ key: "input", suffix: " Input", tiers: triple.in },
-			{ key: "output", suffix: " Output", tiers: triple.out },
-			{ key: "cache-read", suffix: " Cache Reads", tiers: triple.cached },
-			{ key: "cache-write", suffix: " Cache Writes", tiers: triple.write },
-		] as const;
-
-		return directions.flatMap((direction) =>
-			direction.tiers.map((tier, index) => {
-				const source = tier.label && tier.label !== "All usage" ? tier.label : "Embedding";
-				return {
-					key: `embeddings-${direction.key}-${source}-${index}`,
-					title: `${source}${direction.suffix}`,
-					groupTitle: "Embeddings",
-					tiers: [{ ...tier, label: "All usage" }],
-					unitLabel: "Per 1M tokens",
-				};
-			}),
-		);
-	};
-	const tokenMetricTiles = [
-		...createTokenTiles("Text", "text", sec.textTokens),
-		...createEmbeddingTiles(sec.embeddingTokens),
-		...createTokenTiles("Audio", "audio", sec.audioTokens),
-		...createTokenTiles("Image", "image", sec.imageTokens),
-		...createTokenTiles("Video", "video", sec.videoTokens),
-	];
-	const allTokenMetricGroups = Array.from(
-		tokenMetricTiles.reduce((groups, tile) => {
-			const label = tile.groupTitle ?? "Tokens";
-			const entries = groups.get(label) ?? [];
-			entries.push(tile);
-			groups.set(label, entries);
-			return groups;
-		}, new Map<string, TokenMetricTile[]>()),
-	).map(([label, tiles]) => ({
-		label,
-		tiles,
-	}));
-	const tokenMetricGroups = allTokenMetricGroups.map(({ label, tiles }) => ({
-		label,
-		tiles: tiles.slice(0, 3),
-		columns: Math.min(3, tiles.length),
-	}));
-	const additionalTokenMetricTiles = allTokenMetricGroups.flatMap(({ label, tiles }) =>
-		tiles.slice(3).map((tile) => ({ ...tile, groupTitle: label })),
-	);
-	const infoScope = providerModelsInScope;
-	const tableInfoScope = tableProviderModelsInScope;
-	const providerModelSlugs = infoScope.map((pm) => pm.provider_model_slug);
-	const providerApiModelIds = infoScope.map((pm) => pm.model_id);
-	const tableProviderModelSlugs = tableInfoScope.map((pm) => pm.provider_model_slug);
-	const tableProviderApiModelIds = tableInfoScope.map((pm) => pm.model_id);
-	const videoAudioRuleHints = planRules.flatMap((rule) => {
-		const meter = String(rule.meter ?? "").toLowerCase();
-		const isVideoMeter =
-			meter.includes("output_video") ||
-			meter.includes("video_output") ||
-			(meter.includes("video") &&
-				(meter.includes("second") || meter.includes("minute") || meter.includes("video")));
-		if (!isVideoMeter) return [];
-		const fromMs = rule.effective_from ? new Date(rule.effective_from).getTime() : null;
-		const toMs = rule.effective_to ? new Date(rule.effective_to).getTime() : null;
-		const nowMs = now.getTime();
-		if (fromMs != null && Number.isFinite(fromMs) && fromMs > nowMs) return [];
-		if (toMs != null && Number.isFinite(toMs) && toMs <= nowMs) return [];
-		const conditions = Array.isArray(rule.match) ? rule.match : [];
-		const audioCondition = conditions.find(
-			(cond: any) =>
-				String(cond?.path ?? "").trim().toLowerCase() === "video_params.audio",
-		);
-		const audioMode = audioCondition
-			? parseRuleAudioMode(audioCondition.value)
-			: null;
-		if (!audioMode) return [];
-		const resolutionCondition = conditions.find((cond: any) =>
-			String(cond?.path ?? "").trim().toLowerCase().includes("resolution"),
-		);
-		const resolutions = resolutionCondition
-			? parseRuleConditionValues(resolutionCondition.value)
-			: ["Any resolution"];
-		const price = Number(rule.price_per_unit ?? Number.NaN);
-		if (!Number.isFinite(price)) return [];
-		return resolutions.map((resolution) => ({
-			resolution,
-			price,
-			audioMode,
-		}));
-	});
-	const hasExplicitVideoAudioRules = planRules.some((rule) => {
-		const meter = String(rule.meter ?? "").toLowerCase();
-		const isVideoMeter =
-			meter.includes("output_video") ||
-			meter.includes("video_output") ||
-			(meter.includes("video") && (meter.includes("second") || meter.includes("minute")));
+			| "imag…1577 tokens truncated…);
 		if (!isVideoMeter) return false;
 		const match = Array.isArray(rule.match) ? rule.match : [];
 		const audioCond = match.find(

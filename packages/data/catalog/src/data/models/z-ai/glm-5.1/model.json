@@ -10,8 +10,8 @@
   "deprecation_date": null,
   "retirement_date": null,
   "license": "MIT",
-  "input_types": null,
-  "output_types": null,
+  "input_types": "text",
+  "output_types": "text",
   "api_model_id": "z-ai/glm-5.1",
   "links": [
     {
@@ -222,8 +222,12 @@
     "output": 131072
   },
   "modalities": {
-    "input": null,
-    "output": null
+    "input": [
+      "text"
+    ],
+    "output": [
+      "text"
+    ]
   },
   "reasoning": {
     "supported": null,

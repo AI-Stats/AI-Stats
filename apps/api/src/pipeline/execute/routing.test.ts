@@ -860,6 +860,32 @@ describe("routeProviders testing mode", () => {
 		expect(cheapResult.diagnostics.routingMode).toBe("price");
 	});
 
+	it.each([
+		[":nitro", "throughput"],
+		[":cheap", "price"],
+		[":fast", "latency"],
+	] as const)(
+		"gives %s precedence over conflicting request and workspace routing modes",
+		async (suffix, expectedMode) => {
+			const result = await routeProviders(
+				[
+					candidate({ providerId: "openai" }),
+					candidate({ providerId: "anthropic" }),
+				],
+				{
+					endpoint: "responses",
+					model: `openai/gpt-4o-mini${suffix}`,
+					workspaceId: "team_123",
+					body: { routing: { mode: "balanced" }, provider: { sort: "price" } },
+					routingMode: "latency",
+					testingMode: false,
+				},
+			);
+
+			expect(result.diagnostics.routingMode).toBe(expectedMode);
+		},
+	);
+
 	it("filters providers by first-class routing max_price ceilings", async () => {
 		const result = await routeProviders(
 			[
@@ -1246,5 +1272,4 @@ describe("routeProviders testing mode", () => {
 		)?.afterCount).toBe(0);
 	});
 });
-
 
