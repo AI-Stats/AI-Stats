@@ -1,24 +1,30 @@
 {
-  "model_id": "stepfun/step-tts-2",
+  "model_id": "stepfun/step-1x-medium",
   "organisation_id": "stepfun",
-  "name": "Step TTS 2",
+  "name": "Step 1X Medium",
   "status": "Available",
   "previous_model_id": null,
-  "description": "Step TTS 2 is StepFun's most capable open-source foundation model.",
+  "description": "Step 1X Medium is a first-party StepFun API model.",
   "announced_date": null,
   "release_date": null,
   "deprecation_date": null,
   "retirement_date": null,
   "license": null,
   "input_types": "text",
-  "output_types": "audio",
-  "api_model_id": "stepfun/step-tts-2",
-  "links": [],
+  "output_types": "image",
+  "api_model_id": "stepfun/step-1x-medium",
+  "links": [
+    {
+      "title": "StepFun API documentation",
+      "kind": "api_reference",
+      "url": "https://platform.stepfun.com/docs/llms.txt"
+    }
+  ],
   "details": [],
   "benchmarks": [],
   "family_id": null,
   "page_notice": null,
-  "model_type": "audio",
+  "model_type": "image",
   "knowledge_cutoff": null,
   "limits": {
     "context": null,
@@ -30,27 +36,34 @@
       "text"
     ],
     "output": [
-      "audio/*"
+      "image/*"
     ]
   },
   "reasoning": {
-    "supported": null,
+    "supported": false,
     "options": []
   },
   "capabilities": {
-    "attachment": null,
-    "tool_call": null,
+    "attachment": false,
+    "tool_call": false,
     "structured_output": null,
     "temperature": null,
-    "streaming": null,
+    "streaming": false,
     "web_search": null
   },
   "open_weights": null,
-  "sources": [],
+  "sources": [
+    {
+      "kind": "api_reference",
+      "url": "https://platform.stepfun.com/docs/llms.txt",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified in the live official API documentation and pricing/model pages."
+    }
+  ],
   "verification": {
     "status": "verified",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Verified against StepFun's live official API documentation and pricing catalog."
+    "notes": "Official first-party API catalog audit."
   },
   "last_updated": "2026-08-24T00:00:00Z",
   "removal_date": null,
