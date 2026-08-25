@@ -1,8 +1,8 @@
 {
-  "key": "phala:deepseek/deepseek-v4-flash:text.generate",
+  "key": "phala:deepseek/deepseek-v4-flash-0731:text.generate",
   "api_provider_id": "phala",
   "provider_slug": "phala",
-  "api_model_id": "deepseek/deepseek-v4-flash",
+  "api_model_id": "deepseek/deepseek-v4-flash-0731",
   "capability_id": "text.generate",
   "rules": [
     {
@@ -15,7 +15,7 @@
       "note": null,
       "match": [],
       "priority": 100,
-      "effective_from": "2026-06-02T00:00:00Z",
+      "effective_from": "2026-08-04T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -31,7 +31,7 @@
       "note": null,
       "match": [],
       "priority": 100,
-      "effective_from": "2026-06-02T00:00:00Z",
+      "effective_from": "2026-08-04T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -45,7 +45,7 @@
   "sources": [
     {
       "kind": "pricing",
-      "url": "https://phala.com/models/deepseek/deepseek-v4-flash",
+      "url": "https://phala.com/models/deepseek/deepseek-v4-flash-0731",
       "accessed_at": "2026-08-24T00:00:00Z",
       "notes": "First-party model page publishes input and output token prices per one million tokens."
     }

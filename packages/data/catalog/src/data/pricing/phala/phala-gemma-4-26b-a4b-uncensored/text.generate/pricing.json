@@ -1,21 +1,21 @@
 {
-  "key": "phala:deepseek/deepseek-v4-flash:text.generate",
+  "key": "phala:phala/gemma-4-26b-a4b-uncensored:text.generate",
   "api_provider_id": "phala",
   "provider_slug": "phala",
-  "api_model_id": "deepseek/deepseek-v4-flash",
+  "api_model_id": "phala/gemma-4-26b-a4b-uncensored",
   "capability_id": "text.generate",
   "rules": [
     {
       "meter": "input_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.2,
+      "price_per_unit": 0.15,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
       "match": [],
       "priority": 100,
-      "effective_from": "2026-06-02T00:00:00Z",
+      "effective_from": "2026-05-23T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -25,13 +25,13 @@
       "meter": "output_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.4,
+      "price_per_unit": 0.7,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
       "match": [],
       "priority": 100,
-      "effective_from": "2026-06-02T00:00:00Z",
+      "effective_from": "2026-05-23T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -45,7 +45,7 @@
   "sources": [
     {
       "kind": "pricing",
-      "url": "https://phala.com/models/deepseek/deepseek-v4-flash",
+      "url": "https://phala.com/models/phala/gemma-4-26b-a4b-uncensored",
       "accessed_at": "2026-08-24T00:00:00Z",
       "notes": "First-party model page publishes input and output token prices per one million tokens."
     }

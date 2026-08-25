@@ -1,23 +1,23 @@
 {
-  "model_id": "google/gemma-4-31b-it",
-  "organisation_id": "google",
-  "name": "Gemma 4 31B Instruct",
+  "model_id": "phala/gemma-4-26b-a4b-uncensored",
+  "organisation_id": "phala",
+  "name": "Gemma-4 26B-A4B Uncensored (Heretic)",
   "status": "Available",
   "previous_model_id": null,
-  "description": "Gemma 4 31B Instruct is available through Phala's confidential GPU TEE inference catalog.",
+  "description": "Gemma-4 26B-A4B Uncensored (Heretic) is available through Phala's confidential GPU TEE inference catalog.",
   "announced_date": null,
   "release_date": null,
   "deprecation_date": null,
   "retirement_date": null,
   "license": null,
-  "input_types": "text,image,video",
+  "input_types": "text,image",
   "output_types": "text",
-  "api_model_id": "google/gemma-4-31b-it",
+  "api_model_id": "phala/gemma-4-26b-a4b-uncensored",
   "links": [
     {
       "title": "Phala model page",
       "kind": "api_reference",
-      "url": "https://phala.com/models/google/gemma-4-31b-it"
+      "url": "https://phala.com/models/phala/gemma-4-26b-a4b-uncensored"
     }
   ],
   "details": [],
@@ -27,15 +27,14 @@
   "model_type": null,
   "knowledge_cutoff": null,
   "limits": {
-    "context": 262144,
-    "input": 262144,
+    "context": 65536,
+    "input": 65536,
     "output": null
   },
   "modalities": {
     "input": [
       "text",
-      "image/*",
-      "video/*"
+      "image/*"
     ],
     "output": [
       "text"
@@ -57,7 +56,7 @@
   "sources": [
     {
       "kind": "api_reference",
-      "url": "https://phala.com/models/google/gemma-4-31b-it",
+      "url": "https://phala.com/models/phala/gemma-4-26b-a4b-uncensored",
       "accessed_at": "2026-08-24T00:00:00Z",
       "notes": "First-party Phala detail page verifies the canonical route identity, modalities, context, feature support, and availability date."
     }
