@@ -101,10 +101,19 @@ export async function executeGmiQueueRequest(
 			"poll",
 		);
 		latestJson = await latestResponse.clone().json().catch(() => ({}));
-		if (!latestResponse.ok) break;
+		if (!latestResponse.ok) {
+			return { requestId, response: latestResponse, json: latestJson };
+		}
 	}
 
 	const finalStatus = queueStatus(latestJson);
+	if (isFailure(finalStatus)) {
+		return {
+			requestId,
+			response: jsonResponse({ error: "gmicloud_request_queue_failed", request_id: requestId }, 502),
+			json: latestJson,
+		};
+	}
 	if (!isSuccess(finalStatus) && !isFailure(finalStatus)) {
 		return {
 			requestId,

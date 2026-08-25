@@ -7,6 +7,8 @@ import type { ProviderExecutor } from "@executors/types";
 import { fetchUpstream } from "@executors/_shared/timing/upstream";
 import { executeGmiQueueRequest, extractMediaBase64, extractMediaUrl, queueKeyMeta } from "../request-queue";
 
+const MAX_INLINE_AUDIO_BYTES = 8 * 1024 * 1024;
+
 function voiceName(voice: IRAudioSpeechRequest["voice"]): string | undefined {
 	if (typeof voice === "string") return voice.trim() || undefined;
 	if (!voice || typeof voice !== "object") return undefined;
@@ -46,7 +48,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	}
 
 	const mediaResponse = audioUrl ? await fetchUpstream(args, audioUrl, undefined, "media") : null;
-	const audioData = mediaResponse?.ok ? await mediaResponse.arrayBuffer() : null;
+	const audioData = mediaResponse?.ok ? await readBoundedAudioBase64(mediaResponse) : null;
 	const response: IRAudioSpeechResponse = {
 		id: args.requestId,
 		nativeId: result.requestId,
@@ -55,7 +57,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 		audio: audioBase64
 			? { data: audioBase64, mimeType: baseMime(format) }
 			: audioData
-				? { data: base64FromArrayBuffer(audioData), mimeType: mediaResponse?.headers.get("content-type") ?? baseMime(format) }
+				? { data: audioData, mimeType: mediaResponse?.headers.get("content-type") ?? baseMime(format) }
 				: { url: audioUrl, mimeType: baseMime(format) },
 		usage: { inputTokens: 0, outputTokens: 0, totalTokens: 0, requests: 1, input_characters: ir.input.length } as any,
 		rawResponse: result.json,
@@ -63,8 +65,28 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	return { kind: "completed", ir: response, bill: { cost_cents: 0, currency: "USD", usage: response.usage as any, upstream_id: result.requestId, finish_reason: null }, upstream: result.response, keySource: keyMeta.source, byokKeyId: keyMeta.byokId, mappedRequest, rawResponse: result.json };
 }
 
-function base64FromArrayBuffer(buffer: ArrayBuffer): string {
-	const bytes = new Uint8Array(buffer);
+async function readBoundedAudioBase64(response: Response): Promise<string | null> {
+	if (!response.body) return null;
+	const reader = response.body.getReader();
+	const chunks: Uint8Array[] = [];
+	let totalBytes = 0;
+	while (true) {
+		const { done, value } = await reader.read();
+		if (done) break;
+		if (!value) continue;
+		totalBytes += value.byteLength;
+		if (totalBytes > MAX_INLINE_AUDIO_BYTES) {
+			await reader.cancel();
+			return null;
+		}
+		chunks.push(value);
+	}
+	const bytes = new Uint8Array(totalBytes);
+	let offset = 0;
+	for (const chunk of chunks) {
+		bytes.set(chunk, offset);
+		offset += chunk.byteLength;
+	}
 	let binary = "";
 	for (let i = 0; i < bytes.length; i += 0x8000) binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
 	return btoa(binary);

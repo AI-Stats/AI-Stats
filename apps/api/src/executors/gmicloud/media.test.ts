@@ -62,4 +62,30 @@ describe("GMICloud native media executors", () => {
 		expect((result.ir as any)?.audio?.data).toBe("AQID");
 		expect((result.ir as any)?.audio?.mimeType).toBe("audio/mpeg");
 	});
+
+	it("returns a non-OK result for terminal queue failures", async () => {
+		let pollCount = 0;
+		const mock = installFetchMock([
+			{ match: (url, init) => url.endsWith("/api/v1/ie/requestqueue/apikey/requests") && init?.method === "POST", response: jsonResponse({ request_id: "failed_req", status: "queued" }) },
+			{ match: (url) => url.endsWith("/failed_req"), response: () => { pollCount += 1; return jsonResponse({ status: "failed", error: "provider rejected request" }); } },
+		]);
+
+		const result = await executeMusic(args({ model: "minimax/music-3.0:free", prompt: "ambient" } as IRMusicGenerateRequest, "music.generate", "minimax-music-3.0"));
+		mock.restore();
+
+		expect(pollCount).toBe(1);
+		expect(result.upstream.status).toBe(502);
+	});
+
+	it("preserves non-OK poll responses", async () => {
+		const mock = installFetchMock([
+			{ match: (url, init) => url.endsWith("/api/v1/ie/requestqueue/apikey/requests") && init?.method === "POST", response: jsonResponse({ request_id: "error_req", status: "queued" }) },
+			{ match: (url) => url.endsWith("/error_req"), response: jsonResponse({ error: "upstream unavailable" }, { status: 503 }) },
+		]);
+
+		const result = await executeMusic(args({ model: "minimax/music-3.0:free", prompt: "ambient" } as IRMusicGenerateRequest, "music.generate", "minimax-music-3.0"));
+		mock.restore();
+
+		expect(result.upstream.status).toBe(503);
+	});
 });
