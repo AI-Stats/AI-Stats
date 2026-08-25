@@ -4,13 +4,13 @@
   "provider_family_id": null,
   "offer_label": null,
   "offer_scope": "specialized",
-  "description": null,
-  "link": "https://docs.evroc.com/products/think/overview.html",
-  "residency_mode": null,
-  "default_execution_regions": null,
-  "default_data_regions": null,
+  "description": "European sovereign AI inference through shared OpenAI-compatible models and dedicated GPU instances.",
+  "link": "https://evroc.com/ai-services/think-models/",
+  "residency_mode": "provider_managed",
+  "default_execution_regions": ["eu"],
+  "default_data_regions": ["eu"],
   "zero_data_retention": null,
-  "residency_source_url": null,
+  "residency_source_url": "https://evroc.com/ai-services/think-models/",
   "prompt_training_policy": null,
   "prompt_training_notes": null,
   "prompt_training_source_url": null,
@@ -18,10 +18,10 @@
   "user_identifier_notes": null,
   "privacy_policy_url": null,
   "terms_of_service_url": null,
-  "regional_pricing_mode": null,
+  "regional_pricing_mode": "same_as_global",
   "regional_pricing_uplift_percent": null,
-  "pricing_source_url": null,
-  "regional_pricing_notes": null,
+  "pricing_source_url": "https://evroc.com/ai-services/think-models/",
+  "regional_pricing_notes": "Published shared-model pricing is in EUR for evroc's Europe-operated service.",
   "country_code": "SE",
   "status": "Active",
   "colour": null,
@@ -34,9 +34,21 @@
   "auth_env": [
     "EVROC_API_KEY"
   ],
-  "api_formats": [],
-  "service_tiers": [],
+  "api_formats": ["openai"],
+  "service_tiers": ["standard"],
   "sources": [
+    {
+      "kind": "official_model_page",
+      "url": "https://evroc.com/ai-services/think-models/",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Active shared models, EUR pricing, and Europe-only operation and data statements."
+    },
+    {
+      "kind": "official_docs",
+      "url": "https://docs.evroc.com/products/think/concepts.html",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Shared Models expose OpenAI-compatible endpoints."
+    },
     {
       "kind": "official_company_page",
       "url": "https://evroc.com/contact/",
@@ -51,8 +63,8 @@
     }
   ],
   "verification": {
-    "status": "partial",
-    "checked_at": "2026-07-23T09:08:52.190Z",
-    "notes": "Imported from the public models.dev provider registry."
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Verified against evroc's official Think catalogue and API documentation; Phaseo routing remains disabled."
   }
 }

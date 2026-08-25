@@ -1383,7 +1383,7 @@ export function ChatHeader({
 	};
 
 	return (
-		<header className="flex items-center justify-between gap-2 border-b border-border px-3 py-3 md:px-5">
+		<header className="flex min-w-0 items-center justify-between gap-2 border-b border-border px-3 py-3 md:px-5">
 			<div className="flex min-w-0 flex-1 items-center gap-1">
 				<Tooltip>
 					<TooltipTrigger asChild>

@@ -1,0 +1,77 @@
+{
+  "model_id": "poe/perplexity-sonar-pro",
+  "organisation_id": "poe",
+  "name": "Perplexity-Sonar-Pro",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Sonar Pro by Perplexity is an advanced AI model that enhances real-time, web-connected search capabilities with double the citations and a larger context window. It's designed for complex queries, providing in-depth, nuanced answers and extended extensibility, making it ideal for enterprises and developers needing robust search solutions. Context Length: 200k (max output token limit of 8k)",
+  "announced_date": "2025-01-25T07:42:39",
+  "release_date": "2025-01-25T07:42:39",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text",
+  "output_types": "text",
+  "api_model_id": "poe/perplexity-sonar-pro",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Poe bot",
+      "kind": "api_reference",
+      "url": "https://poe.com/perplexity-sonar-pro"
+    }
+  ],
+  "details": [
+    {
+      "name": "input_context_length",
+      "value": 200000
+    }
+  ],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "Poe bot",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": 200000,
+    "input": 200000,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": false,
+    "tool_call": false,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.poe.com/v1/models",
+      "accessed_at": "2026-08-24T03:27:45Z",
+      "notes": "Canonical entity for an exact public Poe bot identifier returned by the models API."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T03:27:45Z",
+    "notes": "Identity and advertised metadata verified against Poe's public models API."
+  },
+  "last_updated": "2026-08-24T03:27:45Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}
