@@ -41,6 +41,7 @@ export type OrganisationIdList = (
   | "nous"
   | "nvidia"
   | "openai"
+  | "openbmb"
   | "perplexity"
   | "poe"
   | "poolside"

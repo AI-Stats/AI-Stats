@@ -1,0 +1,82 @@
+{
+  "model_id": "poe/mistral-small-3",
+  "organisation_id": "poe",
+  "name": "Mistral-Small-3",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Mistral Small 3 is a pre-trained and instructed model catered to the ‘80%’ of generative AI tasks--those that require robust language and instruction following performance, with very low latency. Released under an Apache 2.0 license and comparable to Llama-3.3-70B and Qwen2.5-32B-Instruct.",
+  "announced_date": "2025-01-31T21:49:21",
+  "release_date": "2025-01-31T21:49:21",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text,image",
+  "output_types": "text",
+  "api_model_id": "poe/mistral-small-3",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Poe bot",
+      "kind": "api_reference",
+      "url": "https://poe.com/mistral-small-3"
+    }
+  ],
+  "details": [
+    {
+      "name": "input_context_length",
+      "value": 128000
+    },
+    {
+      "name": "output_context_length",
+      "value": 4096
+    }
+  ],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "Poe bot",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": 128000,
+    "input": 128000,
+    "output": 4096
+  },
+  "modalities": {
+    "input": [
+      "text",
+      "image"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": true,
+    "tool_call": false,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.poe.com/v1/models",
+      "accessed_at": "2026-08-24T03:27:45Z",
+      "notes": "Canonical entity for an exact public Poe bot identifier returned by the models API."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T03:27:45Z",
+    "notes": "Identity and advertised metadata verified against Poe's public models API."
+  },
+  "last_updated": "2026-08-24T03:27:45Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

@@ -1,0 +1,72 @@
+{
+  "model_id": "poe/seedance-2.0-mini",
+  "organisation_id": "poe",
+  "name": "Seedance-2.0-Mini",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Seedance 2.0 Mini is the fast, low-cost tier of ByteDance's Seedance 2.0 video model. It generates short cinematic clips with synchronized native audio, camera control, and stable motion from text, images, or video, at 480p and 720p. It is built for drafts, rapid iteration, and high-volume short-form video.\n\nThis bot supports optional parameters for additional customization.",
+  "announced_date": "2026-06-24T18:38:26",
+  "release_date": "2026-06-24T18:38:26",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text",
+  "output_types": "text",
+  "api_model_id": "poe/seedance-2.0-mini",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Poe bot",
+      "kind": "api_reference",
+      "url": "https://poe.com/seedance-2.0-mini"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "Poe bot",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": false,
+    "tool_call": false,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.poe.com/v1/models",
+      "accessed_at": "2026-08-24T03:27:45Z",
+      "notes": "Canonical entity for an exact public Poe bot identifier returned by the models API."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T03:27:45Z",
+    "notes": "Identity and advertised metadata verified against Poe's public models API."
+  },
+  "last_updated": "2026-08-24T03:27:45Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

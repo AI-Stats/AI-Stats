@@ -18,14 +18,18 @@
       "method": "post",
       "path": "/v1/video_generation",
       "operationId": "minimax_video_generate_1",
-      "notes": "Derived from the enabled Phaseo executor URL and provider API reference."
+      "enabled": false,
+      "effectiveTo": "2026-08-24T00:00:00Z",
+      "notes": "Historical inherited MiniMax-direct observation retained for provenance. Disabled at audit cutoff: video generation does not belong to the specialized Lightning offer."
     },
     {
       "capability": "music.generate",
       "method": "post",
       "path": "/v1/music_generation",
       "operationId": "minimax_music_generate_1",
-      "notes": "Derived from the enabled Phaseo executor URL and provider API reference."
+      "enabled": false,
+      "effectiveTo": "2026-08-24T00:00:00Z",
+      "notes": "Historical inherited MiniMax-direct observation retained for provenance. Disabled at audit cutoff: music generation does not belong to the specialized Lightning offer."
     }
   ],
   "overlays": [

@@ -7,6 +7,7 @@ export const NEBIUS_US_CENTRAL_1_BASE_URL_ENVS = ["NEBIUS_US_CENTRAL_1_BASE_URL"
 // Nebius publishes Responses API support per model in its live model catalog.
 // Chat remains the safe fallback for models that do not advertise it.
 const NEBIUS_RESPONSES_MODELS = new Set([
+	"deepseek-ai/deepseek-v4-flash-0731",
 	"deepseek-ai/deepseek-v4-pro",
 	"meta-llama/llama-3.3-70b-instruct",
 	"minimaxai/minimax-m2.5",

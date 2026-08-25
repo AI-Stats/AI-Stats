@@ -43,7 +43,7 @@ const PROVIDER_RESIDENCY_DEFAULTS: Record<string, ProviderResidencyMetadata> = {
 		dataRegions: ["eu"],
 		zeroDataRetention: "optional",
 		residencyNotes:
-			"Modeled EU OpenAI offer. Regional processing requires an EU project and the eu.api.openai.com domain on supported endpoints/models.",
+			"OpenAI EU regional storage and processing require eligibility, an approved retention control, a Modified Retention amendment, and the eu.api.openai.com domain on supported endpoints/models. Requests may use an EU project or an eligible Global project with per-request regional selection.",
 		residencySourceUrl: "https://developers.openai.com/api/docs/guides/your-data",
 	},
 	anthropic: {

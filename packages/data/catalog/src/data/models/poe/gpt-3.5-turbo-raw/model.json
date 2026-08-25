@@ -1,0 +1,82 @@
+{
+  "model_id": "poe/gpt-3.5-turbo-raw",
+  "organisation_id": "poe",
+  "name": "GPT-3.5-Turbo-Raw",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Powered by gpt-3.5-turbo without a system prompt.",
+  "announced_date": "2023-09-27T21:26:18",
+  "release_date": "2023-09-27T21:26:18",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text,image",
+  "output_types": "text",
+  "api_model_id": "poe/gpt-3.5-turbo-raw",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Poe bot",
+      "kind": "api_reference",
+      "url": "https://poe.com/gpt-3.5-turbo-raw"
+    }
+  ],
+  "details": [
+    {
+      "name": "input_context_length",
+      "value": 4524
+    },
+    {
+      "name": "output_context_length",
+      "value": 2048
+    }
+  ],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "Poe bot",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": 4524,
+    "input": 4524,
+    "output": 2048
+  },
+  "modalities": {
+    "input": [
+      "text",
+      "image"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": true,
+    "tool_call": true,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.poe.com/v1/models",
+      "accessed_at": "2026-08-24T03:27:45Z",
+      "notes": "Canonical entity for an exact public Poe bot identifier returned by the models API."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T03:27:45Z",
+    "notes": "Identity and advertised metadata verified against Poe's public models API."
+  },
+  "last_updated": "2026-08-24T03:27:45Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}
