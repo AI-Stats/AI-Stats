@@ -1,7 +1,0 @@
-{
-  "alias_slug": "openai/gpt-chat-latest",
-  "resolved_api_model_id": "openai/chat-latest",
-  "channel": "stable",
-  "is_enabled": true,
-  "notes": null
-}
