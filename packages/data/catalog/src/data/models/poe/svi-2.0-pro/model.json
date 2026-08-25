@@ -1,0 +1,72 @@
+{
+  "model_id": "poe/svi-2.0-pro",
+  "organisation_id": "poe",
+  "name": "SVI-2.0-Pro",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Stable Video Infinity 2.0 Pro, powered by WAN 2.2, generates seamlessly extending, theoretically infinite-length videos from still images while maintaining consistent character IDs. It uses advanced temporal coherence and generative scene expansion to maintain visual consistency, allowing endless, smooth motion and evolving visuals without looping or abrupt transitions.\n\nThis model is hosted by EmpirioLabs.ai and is exclusive to the Poe platform.\n\nLearn more: https://stable-video-infinity.github.io/homepage/\n\nNotes: \n- Generations may take upwards of 45 minutes depending on the selected length.\n- If you are experiencing issues with slow motion, try adjusting the prompt to describe more consecutive motion per segment (ex. A knight stands in the rain, water dripping from his helmet as he clenches his fist, looks up toward the castle gates, takes a steadying breath, then turns and marches forward.).\n- Image-to-Video generations will likely yield superior results.\n- Supported image upload file types: .jpg, .jpeg, .png, .webp, .heic, .heif, .bmp, .tiff, .tif\n\nParameter controls available:\n1. Video Settings\n- Resolution. [832x480, 480x832, 720x1280, 1280x720]: Controls output dimensions (Default: 832x480)\n- Duration [18-121.5]: Estimated video length in seconds (Step 4.5)\n  - For 480p: Max 121.5s\n  - For 720p: Max 40.5s\n\n2. Advanced\n- Cfg [1.0-2.0]: Prompt adherence strength (Default: 1.0)\n- Negative prompt [text]`: Standard negative prompt included by default (e.g. \"vibrant tone, overexposed...\")\n\n3. Text-to-Video Settings\n- t2v quality [fast or quality]: Generation mode for text-to-video (Default: quality)",
+  "announced_date": "2026-01-05T01:50:23",
+  "release_date": "2026-01-05T01:50:23",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text",
+  "output_types": "video",
+  "api_model_id": "poe/svi-2.0-pro",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Poe bot",
+      "kind": "api_reference",
+      "url": "https://poe.com/svi-2.0-pro"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "Poe bot",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "video"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": false,
+    "tool_call": false,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.poe.com/v1/models",
+      "accessed_at": "2026-08-24T03:27:45Z",
+      "notes": "Canonical entity for an exact public Poe bot identifier returned by the models API."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T03:27:45Z",
+    "notes": "Identity and advertised metadata verified against Poe's public models API."
+  },
+  "last_updated": "2026-08-24T03:27:45Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

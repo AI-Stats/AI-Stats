@@ -1,8 +1,8 @@
 {
   "api_provider_id": "streamlake",
   "api_provider_name": "StreamLake",
-  "description": "Endpoint-based OpenAI-compatible model inference API.",
-  "link": "https://www.streamlake.ai/document/DOC/mg6k6nlp8j6qxicx4c9",
+  "description": "OpenAI-compatible pay-as-you-go and subscription inference for StreamLake's hosted model catalog.",
+  "link": "https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv",
   "country_code": "SG",
   "status": "Active",
   "colour": "#2563EB",
@@ -26,14 +26,16 @@
   "docs_url": "https://www.streamlake.ai/document/DOC/mg6k6nlp8j6qxicx4c9",
   "auth_env": "STREAMLAKE_API_KEY",
   "api_formats": ["openai-chat-completions"],
-  "service_tiers": [],
+  "service_tiers": ["standard", "coding-plan"],
   "sources": [
-    {"kind":"documentation","url":"https://www.streamlake.ai/document/DOC/mg6k6nlp8j6qxicx4c9","accessed_at":"2026-08-12T00:00:00Z","notes":"Official OpenAI-compatible pay-as-you-go base URL, model IDs, API-key setup, and separate restricted Coding Plan URL."},
-    {"kind":"documentation","url":"https://www.streamlake.ai/document/DOC/mgrm41pindmnfe5wgmj","accessed_at":"2026-08-12T00:00:00Z","notes":"Official preset/custom inference endpoint lifecycle, endpoint IDs, rate limits, monitoring, and token metrics."}
+    {"kind":"documentation","url":"https://www.streamlake.ai/document/DOC/mh1gbfvrdn6hpbzxixv","accessed_at":"2026-08-24T00:00:00Z","notes":"Official hosted model catalog, modalities, lifecycle, limits, functions, and default throttling."},
+    {"kind":"pricing","url":"https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce","accessed_at":"2026-08-24T00:00:00Z","notes":"Official USD pay-as-you-go pricing and Coding Plan/prepaid lifecycle."},
+    {"kind":"documentation","url":"https://www.streamlake.ai/document/DOC/mg6k6nlp8j6qxicx4c9","accessed_at":"2026-08-24T00:00:00Z","notes":"Official separate OpenAI-compatible pay-as-you-go and Coding Plan base URLs and API-key setup."},
+    {"kind":"documentation","url":"https://www.streamlake.ai/document/DOC/mgrm41pindmnfe5wgmj","accessed_at":"2026-08-24T00:00:00Z","notes":"Official preset/custom endpoint lifecycle and account/project access constraints."}
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-12T00:00:00Z",
-    "notes": "Verified pay-as-you-go OpenAI compatibility, API-key authentication, preset model routing, custom endpoint semantics, models, and pricing."
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Verified all 42 official catalog rows (39 current, 3 retired), pay-as-you-go and Coding Plan endpoints, API-key authentication, endpoint lifecycle, model limits/throttling, and all 37 priced rows. StreamLake does not publish fixed execution/data regions or a retention/training policy on these product references, so those constraints remain explicitly unknown/provider-managed."
   }
 }

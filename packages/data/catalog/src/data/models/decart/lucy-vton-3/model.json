@@ -1,0 +1,84 @@
+{
+  "model_id": "decart/lucy-vton-3",
+  "organisation_id": "decart",
+  "name": "Lucy VTON 3",
+  "status": "Available",
+  "previous_model_id": "decart/lucy-vton-2",
+  "description": "A previous-generation Decart 720p realtime and asynchronous virtual try-on model.",
+  "announced_date": null,
+  "release_date": null,
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text,image,video",
+  "output_types": "video",
+  "api_model_id": "lucy-vton-3",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Decart models",
+      "kind": "provider_models",
+      "url": "https://docs.platform.decart.ai/getting-started/models"
+    },
+    {
+      "title": "Decart pricing",
+      "kind": "pricing",
+      "url": "https://docs.platform.decart.ai/getting-started/pricing"
+    }
+  ],
+  "details": [
+    {
+      "name": "resolution",
+      "value": "720p"
+    }
+  ],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "video",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text",
+      "image/*",
+      "video/*"
+    ],
+    "output": [
+      "video/*"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": true,
+    "tool_call": false,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": false,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://docs.platform.decart.ai/getting-started/models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official catalogue, lifecycle grouping, model ID, modality and resolution."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Verified against Decart's official models, pricing and model-specific API documentation."
+  },
+  "last_updated": "2026-08-24T00:00:00Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}
