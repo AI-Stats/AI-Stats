@@ -67,7 +67,8 @@
     "prism-ml",
     "jetbrains",
     "stealth",
-    "stability-ai"
+    "stability-ai",
+    "openbmb"
   ],
   "models": {
     "ai21": [
@@ -1418,6 +1419,9 @@
     ],
     "stability-ai": [
       "stability-ai/stable-diffusion-xl-base-1.0"
+    ],
+    "openbmb": [
+      "openbmb/minicpm-v-4.5"
     ]
   },
   "benchmarks": [

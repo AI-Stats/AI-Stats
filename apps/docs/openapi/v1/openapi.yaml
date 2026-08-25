@@ -7449,6 +7449,7 @@ components:
         - nous
         - nvidia
         - openai
+        - openbmb
         - perplexity
         - poe
         - poolside
@@ -9880,6 +9881,7 @@ components:
         - openai/whisper-1
         - openai/whisper-large-v3
         - openai/whisper-large-v3-turbo
+        - openbmb/minicpm-v-4.5
         - perplexity/pplx-embed-v1-0.6b
         - perplexity/pplx-embed-v1-4b
         - phaseo/free
@@ -9958,7 +9960,6 @@ components:
         - qwen/qwen3-omni-30b-a3b
         - qwen/qwen3-omni-30b-a3b-thinking
         - qwen/qwen3-reranker
-        - qwen/qwen3-reranker-8b
         - qwen/qwen3-vl-235b-a22b
         - qwen/qwen3-vl-235b-a22b-instruct
         - qwen/qwen3-vl-235b-a22b-thinking

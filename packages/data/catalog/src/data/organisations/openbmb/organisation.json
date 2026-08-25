@@ -1,0 +1,36 @@
+{
+  "organisation_id": "openbmb",
+  "name": "OpenBMB",
+  "country_code": "CN",
+  "description": "OpenBMB develops open-source large language and multimodal models, including the MiniCPM family.",
+  "colour": "#2563EB",
+  "organisation_links": [
+    {
+      "platform": "github",
+      "url": "https://github.com/OpenBMB"
+    },
+    {
+      "platform": "hugging_face",
+      "url": "https://huggingface.co/openbmb"
+    },
+    {
+      "platform": "website",
+      "url": "https://www.openbmb.cn/"
+    }
+  ],
+  "status": "active",
+  "routable": null,
+  "sources": [
+    {
+      "kind": "api",
+      "url": "https://tokenfactory.nebius.com/api/public/models_info",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Nebius Token Factory identifies OpenBMB as the vendor namespace for its live MiniCPM-V-4_5 route and links the official model repository."
+    }
+  ],
+  "verification": {
+    "status": "partial",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Organisation identity and official project links verified; country metadata follows the project's public identity."
+  }
+}

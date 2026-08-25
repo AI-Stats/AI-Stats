@@ -576,15 +576,24 @@ pub mod model_ids {
     /// Model ID: `minimax/minimax-m2.7`.
     /// Model page: https://phaseo.app/models/minimax/minimax-m2.7
     pub const MINIMAX_MINIMAX_M2_7: &str = "minimax/minimax-m2.7";
+    /// Model ID: `minimax/minimax-m2.7:free`.
+    /// Model page: https://phaseo.app/models/minimax/minimax-m2.7%3Afree
+    pub const MINIMAX_MINIMAX_M2_7_FREE: &str = "minimax/minimax-m2.7:free";
     /// Model ID: `minimax/minimax-m3`.
     /// Model page: https://phaseo.app/models/minimax/minimax-m3
     pub const MINIMAX_MINIMAX_M3: &str = "minimax/minimax-m3";
+    /// Model ID: `minimax/minimax-m3:free`.
+    /// Model page: https://phaseo.app/models/minimax/minimax-m3%3Afree
+    pub const MINIMAX_MINIMAX_M3_FREE: &str = "minimax/minimax-m3:free";
     /// Model ID: `minimax/music-2.6`.
     /// Model page: https://phaseo.app/models/minimax/music-2.6
     pub const MINIMAX_MUSIC_2_6: &str = "minimax/music-2.6";
     /// Model ID: `minimax/music-3.0`.
     /// Model page: https://phaseo.app/models/minimax/music-3.0
     pub const MINIMAX_MUSIC_3_0: &str = "minimax/music-3.0";
+    /// Model ID: `minimax/music-3.0:free`.
+    /// Model page: https://phaseo.app/models/minimax/music-3.0%3Afree
+    pub const MINIMAX_MUSIC_3_0_FREE: &str = "minimax/music-3.0:free";
     /// Model ID: `minimax/speech-2.6-hd`.
     /// Model page: https://phaseo.app/models/minimax/speech-2.6-hd
     pub const MINIMAX_SPEECH_2_6_HD: &str = "minimax/speech-2.6-hd";
@@ -597,6 +606,9 @@ pub mod model_ids {
     /// Model ID: `minimax/speech-2.8-turbo`.
     /// Model page: https://phaseo.app/models/minimax/speech-2.8-turbo
     pub const MINIMAX_SPEECH_2_8_TURBO: &str = "minimax/speech-2.8-turbo";
+    /// Model ID: `minimax/speech-2.8:free`.
+    /// Model page: https://phaseo.app/models/minimax/speech-2.8%3Afree
+    pub const MINIMAX_SPEECH_2_8_FREE: &str = "minimax/speech-2.8:free";
     /// Model ID: `mistral/codestral`.
     /// Model page: https://phaseo.app/models/mistral/codestral
     pub const MISTRAL_CODESTRAL: &str = "mistral/codestral";
@@ -1005,6 +1017,9 @@ pub mod model_ids {
     /// Model ID: `openai/whisper-large-v3-turbo`.
     /// Model page: https://phaseo.app/models/openai/whisper-large-v3-turbo
     pub const OPENAI_WHISPER_LARGE_V3_TURBO: &str = "openai/whisper-large-v3-turbo";
+    /// Model ID: `openbmb/minicpm-v-4.5`.
+    /// Model page: https://phaseo.app/models/openbmb/minicpm-v-4.5
+    pub const OPENBMB_MINICPM_V_4_5: &str = "openbmb/minicpm-v-4.5";
     /// Model ID: `perplexity/pplx-embed-v1-0.6b`.
     /// Model page: https://phaseo.app/models/perplexity/pplx-embed-v1-0.6b
     pub const PERPLEXITY_PPLX_EMBED_V1_0_6B: &str = "perplexity/pplx-embed-v1-0.6b";
@@ -1239,9 +1254,6 @@ pub mod model_ids {
     /// Model ID: `qwen/qwen3-reranker`.
     /// Model page: https://phaseo.app/models/qwen/qwen3-reranker
     pub const QWEN_QWEN3_RERANKER: &str = "qwen/qwen3-reranker";
-    /// Model ID: `qwen/qwen3-reranker-8b`.
-    /// Model page: https://phaseo.app/models/qwen/qwen3-reranker-8b
-    pub const QWEN_QWEN3_RERANKER_8B: &str = "qwen/qwen3-reranker-8b";
     /// Model ID: `qwen/qwen3-vl-235b-a22b`.
     /// Model page: https://phaseo.app/models/qwen/qwen3-vl-235b-a22b
     pub const QWEN_QWEN3_VL_235B_A22B: &str = "qwen/qwen3-vl-235b-a22b";
@@ -1849,13 +1861,17 @@ pub mod model_ids {
         MINIMAX_MINIMAX_M2_5,
         MINIMAX_MINIMAX_M2_5_HIGHSPEED,
         MINIMAX_MINIMAX_M2_7,
+        MINIMAX_MINIMAX_M2_7_FREE,
         MINIMAX_MINIMAX_M3,
+        MINIMAX_MINIMAX_M3_FREE,
         MINIMAX_MUSIC_2_6,
         MINIMAX_MUSIC_3_0,
+        MINIMAX_MUSIC_3_0_FREE,
         MINIMAX_SPEECH_2_6_HD,
         MINIMAX_SPEECH_2_6_TURBO,
         MINIMAX_SPEECH_2_8_HD,
         MINIMAX_SPEECH_2_8_TURBO,
+        MINIMAX_SPEECH_2_8_FREE,
         MISTRAL_CODESTRAL,
         MISTRAL_CODESTRAL_EMBED,
         MISTRAL_DEVSTRAL_2,
@@ -1992,6 +2008,7 @@ pub mod model_ids {
         OPENAI_WHISPER_1,
         OPENAI_WHISPER_LARGE_V3,
         OPENAI_WHISPER_LARGE_V3_TURBO,
+        OPENBMB_MINICPM_V_4_5,
         PERPLEXITY_PPLX_EMBED_V1_0_6B,
         PERPLEXITY_PPLX_EMBED_V1_4B,
         PHASEO_FREE,
@@ -2070,7 +2087,6 @@ pub mod model_ids {
         QWEN_QWEN3_OMNI_30B_A3B,
         QWEN_QWEN3_OMNI_30B_A3B_THINKING,
         QWEN_QWEN3_RERANKER,
-        QWEN_QWEN3_RERANKER_8B,
         QWEN_QWEN3_VL_235B_A22B,
         QWEN_QWEN3_VL_235B_A22B_INSTRUCT,
         QWEN_QWEN3_VL_235B_A22B_THINKING,

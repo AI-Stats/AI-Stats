@@ -774,9 +774,17 @@ class ModelIds:
     # Model page: https://phaseo.app/models/minimax/minimax-m2.7
     MINIMAX_MINIMAX_M2_7: Final[str] = "minimax/minimax-m2.7"
 
+    # Model ID: minimax/minimax-m2.7:free
+    # Model page: https://phaseo.app/models/minimax/minimax-m2.7%3Afree
+    MINIMAX_MINIMAX_M2_7_FREE: Final[str] = "minimax/minimax-m2.7:free"
+
     # Model ID: minimax/minimax-m3
     # Model page: https://phaseo.app/models/minimax/minimax-m3
     MINIMAX_MINIMAX_M3: Final[str] = "minimax/minimax-m3"
+
+    # Model ID: minimax/minimax-m3:free
+    # Model page: https://phaseo.app/models/minimax/minimax-m3%3Afree
+    MINIMAX_MINIMAX_M3_FREE: Final[str] = "minimax/minimax-m3:free"
 
     # Model ID: minimax/music-2.6
     # Model page: https://phaseo.app/models/minimax/music-2.6
@@ -785,6 +793,10 @@ class ModelIds:
     # Model ID: minimax/music-3.0
     # Model page: https://phaseo.app/models/minimax/music-3.0
     MINIMAX_MUSIC_3_0: Final[str] = "minimax/music-3.0"
+
+    # Model ID: minimax/music-3.0:free
+    # Model page: https://phaseo.app/models/minimax/music-3.0%3Afree
+    MINIMAX_MUSIC_3_0_FREE: Final[str] = "minimax/music-3.0:free"
 
     # Model ID: minimax/speech-2.6-hd
     # Model page: https://phaseo.app/models/minimax/speech-2.6-hd
@@ -801,6 +813,10 @@ class ModelIds:
     # Model ID: minimax/speech-2.8-turbo
     # Model page: https://phaseo.app/models/minimax/speech-2.8-turbo
     MINIMAX_SPEECH_2_8_TURBO: Final[str] = "minimax/speech-2.8-turbo"
+
+    # Model ID: minimax/speech-2.8:free
+    # Model page: https://phaseo.app/models/minimax/speech-2.8%3Afree
+    MINIMAX_SPEECH_2_8_FREE: Final[str] = "minimax/speech-2.8:free"
 
     # Model ID: mistral/codestral
     # Model page: https://phaseo.app/models/mistral/codestral
@@ -1346,6 +1362,10 @@ class ModelIds:
     # Model page: https://phaseo.app/models/openai/whisper-large-v3-turbo
     OPENAI_WHISPER_LARGE_V3_TURBO: Final[str] = "openai/whisper-large-v3-turbo"
 
+    # Model ID: openbmb/minicpm-v-4.5
+    # Model page: https://phaseo.app/models/openbmb/minicpm-v-4.5
+    OPENBMB_MINICPM_V_4_5: Final[str] = "openbmb/minicpm-v-4.5"
+
     # Model ID: perplexity/pplx-embed-v1-0.6b
     # Model page: https://phaseo.app/models/perplexity/pplx-embed-v1-0.6b
     PERPLEXITY_PPLX_EMBED_V1_0_6B: Final[str] = "perplexity/pplx-embed-v1-0.6b"
@@ -1657,10 +1677,6 @@ class ModelIds:
     # Model ID: qwen/qwen3-reranker
     # Model page: https://phaseo.app/models/qwen/qwen3-reranker
     QWEN_QWEN3_RERANKER: Final[str] = "qwen/qwen3-reranker"
-
-    # Model ID: qwen/qwen3-reranker-8b
-    # Model page: https://phaseo.app/models/qwen/qwen3-reranker-8b
-    QWEN_QWEN3_RERANKER_8B: Final[str] = "qwen/qwen3-reranker-8b"
 
     # Model ID: qwen/qwen3-vl-235b-a22b
     # Model page: https://phaseo.app/models/qwen/qwen3-vl-235b-a22b
@@ -2407,13 +2423,17 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.MINIMAX_MINIMAX_M2_5,
         ModelIds.MINIMAX_MINIMAX_M2_5_HIGHSPEED,
         ModelIds.MINIMAX_MINIMAX_M2_7,
+        ModelIds.MINIMAX_MINIMAX_M2_7_FREE,
         ModelIds.MINIMAX_MINIMAX_M3,
+        ModelIds.MINIMAX_MINIMAX_M3_FREE,
         ModelIds.MINIMAX_MUSIC_2_6,
         ModelIds.MINIMAX_MUSIC_3_0,
+        ModelIds.MINIMAX_MUSIC_3_0_FREE,
         ModelIds.MINIMAX_SPEECH_2_6_HD,
         ModelIds.MINIMAX_SPEECH_2_6_TURBO,
         ModelIds.MINIMAX_SPEECH_2_8_HD,
         ModelIds.MINIMAX_SPEECH_2_8_TURBO,
+        ModelIds.MINIMAX_SPEECH_2_8_FREE,
         ModelIds.MISTRAL_CODESTRAL,
         ModelIds.MISTRAL_CODESTRAL_EMBED,
         ModelIds.MISTRAL_DEVSTRAL_2,
@@ -2550,6 +2570,7 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.OPENAI_WHISPER_1,
         ModelIds.OPENAI_WHISPER_LARGE_V3,
         ModelIds.OPENAI_WHISPER_LARGE_V3_TURBO,
+        ModelIds.OPENBMB_MINICPM_V_4_5,
         ModelIds.PERPLEXITY_PPLX_EMBED_V1_0_6B,
         ModelIds.PERPLEXITY_PPLX_EMBED_V1_4B,
         ModelIds.PHASEO_FREE,
@@ -2628,7 +2649,6 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.QWEN_QWEN3_OMNI_30B_A3B,
         ModelIds.QWEN_QWEN3_OMNI_30B_A3B_THINKING,
         ModelIds.QWEN_QWEN3_RERANKER,
-        ModelIds.QWEN_QWEN3_RERANKER_8B,
         ModelIds.QWEN_QWEN3_VL_235B_A22B,
         ModelIds.QWEN_QWEN3_VL_235B_A22B_INSTRUCT,
         ModelIds.QWEN_QWEN3_VL_235B_A22B_THINKING,
