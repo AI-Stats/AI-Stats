@@ -6,7 +6,6 @@ import { Separator } from "@/components/ui/separator";
 import MainCard from "./MainCard";
 import ComparisonDisplay from "./ComparisonDisplay";
 import { ExtendedModel } from "@/data/types";
-import CompareMiniHeader from "./CompareMiniHeader";
 import ModelCombobox from "./ModelCombobox";
 import type { CompareGatewayUsageByModel } from "./types";
 
@@ -34,15 +33,12 @@ type CompareDashboardProps = {
 };
 
 function CompareFrame({
-	models,
 	children,
 }: {
-	models: ExtendedModel[];
 	children: ReactNode;
 }) {
 	return (
 		<div className="w-full">
-			<CompareMiniHeader models={models} />
 			<div className="mx-auto w-full max-w-6xl px-4 py-6 sm:py-8">
 				{children}
 			</div>
@@ -58,7 +54,7 @@ function EmptyComparisonState({
 	onSelect: (ids: string[]) => void;
 }) {
 	return (
-		<CompareFrame models={models}>
+		<CompareFrame>
 			<div className="max-w-2xl">
 				<h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
 					Compare AI models
@@ -173,7 +169,7 @@ export default function CompareDashboard({
 
 	if (selected.length > 0 && selectedModels.length === 0) {
 		return (
-			<CompareFrame models={models}>
+			<CompareFrame>
 				<div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
 				<div className="max-w-2xl w-full bg-yellow-50 border border-yellow-200 rounded-lg p-6">
 					<h2 className="text-xl font-semibold text-yellow-900 mb-2">
@@ -218,7 +214,7 @@ export default function CompareDashboard({
 			resolvedIds: uniqueResolvedSelectionIds,
 		});
 		return (
-			<CompareFrame models={models}>
+			<CompareFrame>
 				<div className="flex flex-col items-center justify-center min-h-[40vh] text-center text-muted-foreground space-y-2">
 				<p>We couldn&apos;t load the comparison data for this query.</p>
 				<button
@@ -234,10 +230,13 @@ export default function CompareDashboard({
 	}
 
 	return (
-		<CompareFrame models={models}>
+		<CompareFrame>
 			<ComparisonDisplay
 				selectedModels={orderedComparisonData}
 				usageByModel={usageByModel}
+				models={models}
+				selectedIds={uniqueResolvedSelectionIds}
+				onSelectedIdsChange={setSelected}
 			/>
 		</CompareFrame>
 	);
