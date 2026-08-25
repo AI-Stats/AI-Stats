@@ -32,13 +32,13 @@ export async function generateMetadata(props: {
 	// Fallback if the organisation data can't be loaded
 	if (!organisation) {
 		return buildMetadata({
-			title: "AI Models Overview by Organisation",
+			title: "AI Models by Lab",
 			description:
-				"Discover AI models from leading organisations and review gateway availability, pricing coverage, release visibility, and model lifecycle context inside Phaseo.",
+				"Discover AI models from leading labs and review gateway availability, pricing coverage, release visibility, and model lifecycle context inside Phaseo.",
 			path,
 			keywords: [
 				"AI models",
-				"AI organisation",
+				"AI lab",
 				"AI providers",
 				"Phaseo",
 			],

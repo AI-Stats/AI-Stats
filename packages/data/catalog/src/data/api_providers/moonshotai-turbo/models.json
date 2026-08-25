@@ -4,7 +4,7 @@
     "provider_api_model_id": "moonshotai-turbo:moonshotai/kimi-k2-0905",
     "provider_model_slug": "kimi-k2-turbo-preview",
     "internal_model_id": "moonshotai/kimi-k2",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
@@ -27,8 +27,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -52,7 +52,7 @@
     "provider_api_model_id": "moonshotai-turbo:moonshotai/kimi-k2-thinking",
     "provider_model_slug": "kimi-k2-thinking-turbo",
     "internal_model_id": "moonshotai/kimi-k2-thinking",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
@@ -75,8 +75,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null

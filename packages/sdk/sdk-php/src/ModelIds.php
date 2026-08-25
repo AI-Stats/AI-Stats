@@ -131,11 +131,17 @@ final class ModelIds
     /** Model ID: bytedance/seed-1.6. Model page: https://phaseo.app/models/bytedance/seed-1.6 */
     public const BYTEDANCE_SEED_1_6 = 'bytedance/seed-1.6';
 
+    /** Model ID: bytedance/seed-1.6-2025-10-15. Model page: https://phaseo.app/models/bytedance/seed-1.6-2025-10-15 */
+    public const BYTEDANCE_SEED_1_6_2025_10_15 = 'bytedance/seed-1.6-2025-10-15';
+
     /** Model ID: bytedance/seed-1.6-250915. Model page: https://phaseo.app/models/bytedance/seed-1.6-250915 */
     public const BYTEDANCE_SEED_1_6_250915 = 'bytedance/seed-1.6-250915';
 
     /** Model ID: bytedance/seed-1.6-flash. Model page: https://phaseo.app/models/bytedance/seed-1.6-flash */
     public const BYTEDANCE_SEED_1_6_FLASH = 'bytedance/seed-1.6-flash';
+
+    /** Model ID: bytedance/seed-1.6-flash-2025-08-28. Model page: https://phaseo.app/models/bytedance/seed-1.6-flash-2025-08-28 */
+    public const BYTEDANCE_SEED_1_6_FLASH_2025_08_28 = 'bytedance/seed-1.6-flash-2025-08-28';
 
     /** Model ID: bytedance/seed-1.6-flash-250715. Model page: https://phaseo.app/models/bytedance/seed-1.6-flash-250715 */
     public const BYTEDANCE_SEED_1_6_FLASH_250715 = 'bytedance/seed-1.6-flash-250715';
@@ -143,14 +149,26 @@ final class ModelIds
     /** Model ID: bytedance/seed-1.8. Model page: https://phaseo.app/models/bytedance/seed-1.8 */
     public const BYTEDANCE_SEED_1_8 = 'bytedance/seed-1.8';
 
+    /** Model ID: bytedance/seed-1.8-2025-12-28. Model page: https://phaseo.app/models/bytedance/seed-1.8-2025-12-28 */
+    public const BYTEDANCE_SEED_1_8_2025_12_28 = 'bytedance/seed-1.8-2025-12-28';
+
+    /** Model ID: bytedance/seed-2.0-code-preview-2026-02-15. Model page: https://phaseo.app/models/bytedance/seed-2.0-code-preview-2026-02-15 */
+    public const BYTEDANCE_SEED_2_0_CODE_PREVIEW_2026_02_15 = 'bytedance/seed-2.0-code-preview-2026-02-15';
+
     /** Model ID: bytedance/seed-2.0-lite. Model page: https://phaseo.app/models/bytedance/seed-2.0-lite */
     public const BYTEDANCE_SEED_2_0_LITE = 'bytedance/seed-2.0-lite';
+
+    /** Model ID: bytedance/seed-2.0-lite-2026-04-28. Model page: https://phaseo.app/models/bytedance/seed-2.0-lite-2026-04-28 */
+    public const BYTEDANCE_SEED_2_0_LITE_2026_04_28 = 'bytedance/seed-2.0-lite-2026-04-28';
 
     /** Model ID: bytedance/seed-2.0-lite-260428. Model page: https://phaseo.app/models/bytedance/seed-2.0-lite-260428 */
     public const BYTEDANCE_SEED_2_0_LITE_260428 = 'bytedance/seed-2.0-lite-260428';
 
     /** Model ID: bytedance/seed-2.0-mini. Model page: https://phaseo.app/models/bytedance/seed-2.0-mini */
     public const BYTEDANCE_SEED_2_0_MINI = 'bytedance/seed-2.0-mini';
+
+    /** Model ID: bytedance/seed-2.0-mini-2026-04-28. Model page: https://phaseo.app/models/bytedance/seed-2.0-mini-2026-04-28 */
+    public const BYTEDANCE_SEED_2_0_MINI_2026_04_28 = 'bytedance/seed-2.0-mini-2026-04-28';
 
     /** Model ID: bytedance/seed-2.0-mini-260428. Model page: https://phaseo.app/models/bytedance/seed-2.0-mini-260428 */
     public const BYTEDANCE_SEED_2_0_MINI_260428 = 'bytedance/seed-2.0-mini-260428';
@@ -259,9 +277,6 @@ final class ModelIds
 
     /** Model ID: deepseek/deepseek-v3.2-exp. Model page: https://phaseo.app/models/deepseek/deepseek-v3.2-exp */
     public const DEEPSEEK_DEEPSEEK_V3_2_EXP = 'deepseek/deepseek-v3.2-exp';
-
-    /** Model ID: deepseek/deepseek-v3.2-speciale. Model page: https://phaseo.app/models/deepseek/deepseek-v3.2-speciale */
-    public const DEEPSEEK_DEEPSEEK_V3_2_SPECIALE = 'deepseek/deepseek-v3.2-speciale';
 
     /** Model ID: deepseek/deepseek-v4-flash. Model page: https://phaseo.app/models/deepseek/deepseek-v4-flash */
     public const DEEPSEEK_DEEPSEEK_V4_FLASH = 'deepseek/deepseek-v4-flash';
@@ -377,6 +392,9 @@ final class ModelIds
     /** Model ID: google/gemma-3-4b. Model page: https://phaseo.app/models/google/gemma-3-4b */
     public const GOOGLE_GEMMA_3_4B = 'google/gemma-3-4b';
 
+    /** Model ID: google/gemma-4-12b. Model page: https://phaseo.app/models/google/gemma-4-12b */
+    public const GOOGLE_GEMMA_4_12B = 'google/gemma-4-12b';
+
     /** Model ID: google/gemma-4-26b-a4b. Model page: https://phaseo.app/models/google/gemma-4-26b-a4b */
     public const GOOGLE_GEMMA_4_26B_A4B = 'google/gemma-4-26b-a4b';
 
@@ -455,14 +473,8 @@ final class ModelIds
     /** Model ID: kwaipilot/kat-coder-air-v2.5. Model page: https://phaseo.app/models/kwaipilot/kat-coder-air-v2.5 */
     public const KWAIPILOT_KAT_CODER_AIR_V2_5 = 'kwaipilot/kat-coder-air-v2.5';
 
-    /** Model ID: kwaipilot/kat-coder-exp-72b-1010. Model page: https://phaseo.app/models/kwaipilot/kat-coder-exp-72b-1010 */
-    public const KWAIPILOT_KAT_CODER_EXP_72B_1010 = 'kwaipilot/kat-coder-exp-72b-1010';
-
     /** Model ID: kwaipilot/kat-coder-pro. Model page: https://phaseo.app/models/kwaipilot/kat-coder-pro */
     public const KWAIPILOT_KAT_CODER_PRO = 'kwaipilot/kat-coder-pro';
-
-    /** Model ID: kwaipilot/kat-coder-pro-v1. Model page: https://phaseo.app/models/kwaipilot/kat-coder-pro-v1 */
-    public const KWAIPILOT_KAT_CODER_PRO_V1 = 'kwaipilot/kat-coder-pro-v1';
 
     /** Model ID: kwaipilot/kat-coder-pro-v2. Model page: https://phaseo.app/models/kwaipilot/kat-coder-pro-v2 */
     public const KWAIPILOT_KAT_CODER_PRO_V2 = 'kwaipilot/kat-coder-pro-v2';
@@ -569,14 +581,23 @@ final class ModelIds
     /** Model ID: minimax/minimax-m2.7. Model page: https://phaseo.app/models/minimax/minimax-m2.7 */
     public const MINIMAX_MINIMAX_M2_7 = 'minimax/minimax-m2.7';
 
+    /** Model ID: minimax/minimax-m2.7:free. Model page: https://phaseo.app/models/minimax/minimax-m2.7%3Afree */
+    public const MINIMAX_MINIMAX_M2_7_FREE = 'minimax/minimax-m2.7:free';
+
     /** Model ID: minimax/minimax-m3. Model page: https://phaseo.app/models/minimax/minimax-m3 */
     public const MINIMAX_MINIMAX_M3 = 'minimax/minimax-m3';
+
+    /** Model ID: minimax/minimax-m3:free. Model page: https://phaseo.app/models/minimax/minimax-m3%3Afree */
+    public const MINIMAX_MINIMAX_M3_FREE = 'minimax/minimax-m3:free';
 
     /** Model ID: minimax/music-2.6. Model page: https://phaseo.app/models/minimax/music-2.6 */
     public const MINIMAX_MUSIC_2_6 = 'minimax/music-2.6';
 
     /** Model ID: minimax/music-3.0. Model page: https://phaseo.app/models/minimax/music-3.0 */
     public const MINIMAX_MUSIC_3_0 = 'minimax/music-3.0';
+
+    /** Model ID: minimax/music-3.0:free. Model page: https://phaseo.app/models/minimax/music-3.0%3Afree */
+    public const MINIMAX_MUSIC_3_0_FREE = 'minimax/music-3.0:free';
 
     /** Model ID: minimax/speech-2.6-hd. Model page: https://phaseo.app/models/minimax/speech-2.6-hd */
     public const MINIMAX_SPEECH_2_6_HD = 'minimax/speech-2.6-hd';
@@ -589,6 +610,9 @@ final class ModelIds
 
     /** Model ID: minimax/speech-2.8-turbo. Model page: https://phaseo.app/models/minimax/speech-2.8-turbo */
     public const MINIMAX_SPEECH_2_8_TURBO = 'minimax/speech-2.8-turbo';
+
+    /** Model ID: minimax/speech-2.8:free. Model page: https://phaseo.app/models/minimax/speech-2.8%3Afree */
+    public const MINIMAX_SPEECH_2_8_FREE = 'minimax/speech-2.8:free';
 
     /** Model ID: mistral/codestral. Model page: https://phaseo.app/models/mistral/codestral */
     public const MISTRAL_CODESTRAL = 'mistral/codestral';
@@ -704,12 +728,6 @@ final class ModelIds
     /** Model ID: moonshotai/kimi-k2-0905. Model page: https://phaseo.app/models/moonshotai/kimi-k2-0905 */
     public const MOONSHOTAI_KIMI_K2_0905 = 'moonshotai/kimi-k2-0905';
 
-    /** Model ID: moonshotai/kimi-k2-instruct. Model page: https://phaseo.app/models/moonshotai/kimi-k2-instruct */
-    public const MOONSHOTAI_KIMI_K2_INSTRUCT = 'moonshotai/kimi-k2-instruct';
-
-    /** Model ID: moonshotai/kimi-k2-instruct-0905. Model page: https://phaseo.app/models/moonshotai/kimi-k2-instruct-0905 */
-    public const MOONSHOTAI_KIMI_K2_INSTRUCT_0905 = 'moonshotai/kimi-k2-instruct-0905';
-
     /** Model ID: moonshotai/kimi-k2-thinking. Model page: https://phaseo.app/models/moonshotai/kimi-k2-thinking */
     public const MOONSHOTAI_KIMI_K2_THINKING = 'moonshotai/kimi-k2-thinking';
 
@@ -784,9 +802,6 @@ final class ModelIds
 
     /** Model ID: nvidia/nemotron-3-nano-omni. Model page: https://phaseo.app/models/nvidia/nemotron-3-nano-omni */
     public const NVIDIA_NEMOTRON_3_NANO_OMNI = 'nvidia/nemotron-3-nano-omni';
-
-    /** Model ID: nvidia/nemotron-3-nano-omni-30b-a3b-reasoning. Model page: https://phaseo.app/models/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning */
-    public const NVIDIA_NEMOTRON_3_NANO_OMNI_30B_A3B_REASONING = 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning';
 
     /** Model ID: nvidia/nemotron-3-super-120b-a12b. Model page: https://phaseo.app/models/nvidia/nemotron-3-super-120b-a12b */
     public const NVIDIA_NEMOTRON_3_SUPER_120B_A12B = 'nvidia/nemotron-3-super-120b-a12b';
@@ -1007,6 +1022,9 @@ final class ModelIds
     /** Model ID: openai/whisper-large-v3-turbo. Model page: https://phaseo.app/models/openai/whisper-large-v3-turbo */
     public const OPENAI_WHISPER_LARGE_V3_TURBO = 'openai/whisper-large-v3-turbo';
 
+    /** Model ID: openbmb/minicpm-v-4.5. Model page: https://phaseo.app/models/openbmb/minicpm-v-4.5 */
+    public const OPENBMB_MINICPM_V_4_5 = 'openbmb/minicpm-v-4.5';
+
     /** Model ID: perplexity/pplx-embed-v1-0.6b. Model page: https://phaseo.app/models/perplexity/pplx-embed-v1-0.6b */
     public const PERPLEXITY_PPLX_EMBED_V1_0_6B = 'perplexity/pplx-embed-v1-0.6b';
 
@@ -1175,9 +1193,6 @@ final class ModelIds
     /** Model ID: qwen/qwen3-8b. Model page: https://phaseo.app/models/qwen/qwen3-8b */
     public const QWEN_QWEN3_8B = 'qwen/qwen3-8b';
 
-    /** Model ID: qwen/qwen3-coder. Model page: https://phaseo.app/models/qwen/qwen3-coder */
-    public const QWEN_QWEN3_CODER = 'qwen/qwen3-coder';
-
     /** Model ID: qwen/qwen3-coder-30b-a3b. Model page: https://phaseo.app/models/qwen/qwen3-coder-30b-a3b */
     public const QWEN_QWEN3_CODER_30B_A3B = 'qwen/qwen3-coder-30b-a3b';
 
@@ -1243,9 +1258,6 @@ final class ModelIds
 
     /** Model ID: qwen/qwen3-reranker. Model page: https://phaseo.app/models/qwen/qwen3-reranker */
     public const QWEN_QWEN3_RERANKER = 'qwen/qwen3-reranker';
-
-    /** Model ID: qwen/qwen3-reranker-8b. Model page: https://phaseo.app/models/qwen/qwen3-reranker-8b */
-    public const QWEN_QWEN3_RERANKER_8B = 'qwen/qwen3-reranker-8b';
 
     /** Model ID: qwen/qwen3-vl-235b-a22b. Model page: https://phaseo.app/models/qwen/qwen3-vl-235b-a22b */
     public const QWEN_QWEN3_VL_235B_A22B = 'qwen/qwen3-vl-235b-a22b';
@@ -1460,6 +1472,18 @@ final class ModelIds
     /** Model ID: thinking-machines/inkling-small. Model page: https://phaseo.app/models/thinking-machines/inkling-small */
     public const THINKING_MACHINES_INKLING_SMALL = 'thinking-machines/inkling-small';
 
+    /** Model ID: upstage/solar-embedding-1-large-passage. Model page: https://phaseo.app/models/upstage/solar-embedding-1-large-passage */
+    public const UPSTAGE_SOLAR_EMBEDDING_1_LARGE_PASSAGE = 'upstage/solar-embedding-1-large-passage';
+
+    /** Model ID: upstage/solar-embedding-1-large-query. Model page: https://phaseo.app/models/upstage/solar-embedding-1-large-query */
+    public const UPSTAGE_SOLAR_EMBEDDING_1_LARGE_QUERY = 'upstage/solar-embedding-1-large-query';
+
+    /** Model ID: upstage/solar-embedding-2-passage. Model page: https://phaseo.app/models/upstage/solar-embedding-2-passage */
+    public const UPSTAGE_SOLAR_EMBEDDING_2_PASSAGE = 'upstage/solar-embedding-2-passage';
+
+    /** Model ID: upstage/solar-embedding-2-query. Model page: https://phaseo.app/models/upstage/solar-embedding-2-query */
+    public const UPSTAGE_SOLAR_EMBEDDING_2_QUERY = 'upstage/solar-embedding-2-query';
+
     /** Model ID: upstage/solar-mini. Model page: https://phaseo.app/models/upstage/solar-mini */
     public const UPSTAGE_SOLAR_MINI = 'upstage/solar-mini';
 
@@ -1489,6 +1513,12 @@ final class ModelIds
 
     /** Model ID: voyage/rerank-2-lite. Model page: https://phaseo.app/models/voyage/rerank-2-lite */
     public const VOYAGE_RERANK_2_LITE = 'voyage/rerank-2-lite';
+
+    /** Model ID: voyage/rerank-2.5. Model page: https://phaseo.app/models/voyage/rerank-2.5 */
+    public const VOYAGE_RERANK_2_5 = 'voyage/rerank-2.5';
+
+    /** Model ID: voyage/rerank-2.5-lite. Model page: https://phaseo.app/models/voyage/rerank-2.5-lite */
+    public const VOYAGE_RERANK_2_5_LITE = 'voyage/rerank-2.5-lite';
 
     /** Model ID: voyage/rerank-lite-1. Model page: https://phaseo.app/models/voyage/rerank-lite-1 */
     public const VOYAGE_RERANK_LITE_1 = 'voyage/rerank-lite-1';
@@ -1532,6 +1562,9 @@ final class ModelIds
     /** Model ID: voyage/voyage-code-3. Model page: https://phaseo.app/models/voyage/voyage-code-3 */
     public const VOYAGE_VOYAGE_CODE_3 = 'voyage/voyage-code-3';
 
+    /** Model ID: voyage/voyage-code-4. Model page: https://phaseo.app/models/voyage/voyage-code-4 */
+    public const VOYAGE_VOYAGE_CODE_4 = 'voyage/voyage-code-4';
+
     /** Model ID: voyage/voyage-context-3. Model page: https://phaseo.app/models/voyage/voyage-context-3 */
     public const VOYAGE_VOYAGE_CONTEXT_3 = 'voyage/voyage-context-3';
 
@@ -1565,14 +1598,23 @@ final class ModelIds
     /** Model ID: voyage/voyage-multimodal-3.5. Model page: https://phaseo.app/models/voyage/voyage-multimodal-3.5 */
     public const VOYAGE_VOYAGE_MULTIMODAL_3_5 = 'voyage/voyage-multimodal-3.5';
 
-    /** Model ID: xiaomi/mimo-v2-flash. Model page: https://phaseo.app/models/xiaomi/mimo-v2-flash */
-    public const XIAOMI_MIMO_V2_FLASH = 'xiaomi/mimo-v2-flash';
-
     /** Model ID: xiaomi/mimo-v2.5. Model page: https://phaseo.app/models/xiaomi/mimo-v2.5 */
     public const XIAOMI_MIMO_V2_5 = 'xiaomi/mimo-v2.5';
 
+    /** Model ID: xiaomi/mimo-v2.5-asr. Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-asr */
+    public const XIAOMI_MIMO_V2_5_ASR = 'xiaomi/mimo-v2.5-asr';
+
     /** Model ID: xiaomi/mimo-v2.5-pro. Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-pro */
     public const XIAOMI_MIMO_V2_5_PRO = 'xiaomi/mimo-v2.5-pro';
+
+    /** Model ID: xiaomi/mimo-v2.5-pro-ultraspeed. Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-pro-ultraspeed */
+    public const XIAOMI_MIMO_V2_5_PRO_ULTRASPEED = 'xiaomi/mimo-v2.5-pro-ultraspeed';
+
+    /** Model ID: xiaomi/mimo-v2.5-tts-voiceclone:free. Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-tts-voiceclone%3Afree */
+    public const XIAOMI_MIMO_V2_5_TTS_VOICECLONE_FREE = 'xiaomi/mimo-v2.5-tts-voiceclone:free';
+
+    /** Model ID: xiaomi/mimo-v2.5-tts-voicedesign:free. Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-tts-voicedesign%3Afree */
+    public const XIAOMI_MIMO_V2_5_TTS_VOICEDESIGN_FREE = 'xiaomi/mimo-v2.5-tts-voicedesign:free';
 
     /** Model ID: xiaomi/mimo-v2.5-tts:free. Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-tts%3Afree */
     public const XIAOMI_MIMO_V2_5_TTS_FREE = 'xiaomi/mimo-v2.5-tts:free';

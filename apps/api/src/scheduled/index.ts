@@ -15,6 +15,7 @@ import { runAsyncWebhookRetriesJob } from "@/core/async-notifications";
 import { runBatchReconciliationJob } from "@/pipeline/batch-reconciliation";
 import { drainEmailOutbox } from "@/pipeline/notifications/email-outbox";
 import { runPaymentMethodExpiryNotificationJob } from "@/pipeline/notifications/billing-alerts";
+import { enqueueModelDeprecationNotifications, runNotificationDeliveryJob } from "@/pipeline/notifications/notification-delivery";
 import { runVideoReconciliationJob } from "@/pipeline/video-reconciliation";
 import { runGatewayIoRetentionBillingJob } from "@/pipeline/audit/io-retention-billing";
 import { runBatchProviderWebhookReplayJob } from "@/routes/internal/batch-webhooks.helpers";
@@ -299,6 +300,26 @@ async function handlePaymentMethodExpiryScheduledEvent(env: GatewayBindings): Pr
 	}
 }
 
+async function handleNotificationDeliveryScheduledEvent(env: GatewayBindings): Promise<void> {
+	configureRuntime(env);
+	try {
+		const summary = await runNotificationDeliveryJob(toInt(env.EMAIL_OUTBOX_DRAIN_LIMIT, 25));
+		if (summary.queued > 0 || summary.sent > 0 || summary.failed > 0) console.log("notification_delivery_completed", summary);
+	} finally {
+		clearRuntime();
+	}
+}
+
+async function handleModelDeprecationScheduledEvent(event: ScheduledController, env: GatewayBindings): Promise<void> {
+	configureRuntime(env);
+	try {
+		const summary = await enqueueModelDeprecationNotifications(new Date(event.scheduledTime));
+		if (summary.enqueued > 0) console.log("model_deprecation_notifications_enqueued", summary);
+	} finally {
+		clearRuntime();
+	}
+}
+
 async function handleGatewayIoRetentionBillingScheduledEvent(
 	event: ScheduledController,
 	env: GatewayBindings,
@@ -407,6 +428,11 @@ export async function handleScheduledEvent(event: ScheduledController, env: Gate
 		} catch (error) {
 			console.error("payment_method_expiry_notifications_scheduled_failed", serializeError(error));
 		}
+		try {
+			await handleModelDeprecationScheduledEvent(event, env);
+		} catch (error) {
+			console.error("model_deprecation_notifications_scheduled_failed", serializeError(error));
+		}
 	}
 	if (isDailyRetentionBillingTick(event)) {
 		try {
@@ -440,6 +466,11 @@ export async function handleScheduledEvent(event: ScheduledController, env: Gate
 			await handleEmailOutboxScheduledEvent(event, env);
 		} catch (error) {
 			console.error("email_outbox_scheduled_failed", serializeError(error));
+		}
+		try {
+			await handleNotificationDeliveryScheduledEvent(env);
+		} catch (error) {
+			console.error("notification_delivery_scheduled_failed", serializeError(error));
 		}
 		try {
 			await handleAsyncWebhookRetriesScheduledEvent(event, env);

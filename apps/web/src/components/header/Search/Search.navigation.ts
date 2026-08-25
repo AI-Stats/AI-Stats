@@ -8,7 +8,7 @@ export const GLOBAL_NAVIGATION_ITEMS: readonly GlobalNavigationItem[] = [
 	{ id: "nav-model-table", title: "Model Table", subtitle: "View models in a compact table", href: "/models/table", keywords: ["models", "catalogue", "data table"] },
 	{ id: "nav-compare", title: "Compare Models", subtitle: "Compare model capabilities and performance", href: "/compare", keywords: ["comparison", "versus", "vs"] },
 	{ id: "nav-providers", title: "API Providers", subtitle: "Browse gateway and inference providers", href: "/api-providers", keywords: ["providers", "inference", "gateway providers"], shortcut: ["G", "P"] },
-	{ id: "nav-organisations", title: "Organisations", subtitle: "Browse AI labs and organisations", href: "/organisations", keywords: ["companies", "labs", "organizations"] },
+	{ id: "nav-organisations", title: "Labs", subtitle: "Browse AI model creators", href: "/organisations", keywords: ["companies", "labs", "organizations", "organisations"] },
 	{ id: "nav-benchmarks", title: "Benchmarks", subtitle: "Explore model evaluation results", href: "/benchmarks", keywords: ["evals", "scores", "leaderboards"], shortcut: ["G", "B"] },
 	{ id: "nav-families", title: "Model Families", subtitle: "Browse related model families", href: "/families", keywords: ["families", "model series"] },
 	{ id: "nav-countries", title: "Countries", subtitle: "Explore models and labs by country", href: "/countries", keywords: ["regions", "geography"] },

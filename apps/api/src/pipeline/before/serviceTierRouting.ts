@@ -51,6 +51,8 @@ const PRIORITY_SIBLING_API_MODEL_IDS = new Map<string, string>([
 ]);
 
 const PRIORITY_HIDDEN_SAME_MODEL_KEYS = new Set([
+    "crofai:deepseek/deepseek-v4-pro",
+    "crofai:moonshotai/kimi-k2.5",
     "deepinfra:minimax/minimax-m2.7",
 ]);
 
@@ -252,6 +254,10 @@ async function remapToTierSibling(
         apiModelId: siblingApiModelId,
         pricingKey: `${candidate.providerId}:${siblingApiModelId}`,
         providerModelSlug: matchedProviderRow.provider_model_slug ?? candidate.providerModelSlug,
+        quantizationScheme:
+			typeof matchedProviderRow.metadata?.quantization_scheme === "string"
+				? matchedProviderRow.metadata.quantization_scheme
+				: null,
         availabilityPolicy: parseRouteAvailabilityPolicy(matchedProviderRow.metadata?.availability),
         pricingCard: siblingPricingCard,
         capabilityParams:
@@ -345,6 +351,10 @@ async function remapToHiddenTierSibling(
     return {
         ...candidate,
         providerModelSlug: matchedProviderRow.provider_model_slug ?? candidate.providerModelSlug,
+        quantizationScheme:
+			typeof matchedProviderRow.metadata?.quantization_scheme === "string"
+				? matchedProviderRow.metadata.quantization_scheme
+				: null,
         availabilityPolicy: parseRouteAvailabilityPolicy(matchedProviderRow.metadata?.availability),
         capabilityParams:
             siblingCapability?.params && typeof siblingCapability.params === "object"

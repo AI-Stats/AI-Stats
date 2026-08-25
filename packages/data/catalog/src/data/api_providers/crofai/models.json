@@ -29,9 +29,16 @@
     ],
     "routing_status": "active",
     "routable": true,
-    "regions": { "execution": null, "data": null },
+    "regions": {
+      "execution": null,
+      "data": null
+    },
     "service_tiers": [],
-    "api": { "formats": [], "endpoint": null, "deployment": null },
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
     "sources": [],
     "verification": {
       "status": "unverified",
@@ -93,7 +100,7 @@
     "provider_api_model_id": "crofai:deepseek-v4-pro-precision",
     "provider_model_slug": "deepseek-v4-pro-precision",
     "internal_model_id": "deepseek/deepseek-v4-pro",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "Q8_0",
     "input_modalities": "text",
     "output_modalities": "text",
@@ -104,7 +111,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -116,8 +123,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "inactive",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -128,11 +135,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://crof.ai/pricing",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Not present on CrofAI's current public model rate card; historical row retained with routing disabled."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Retired from the active gateway catalogue after reconciliation against CrofAI's current public model rate card."
     },
     "rate_limits": []
   },
@@ -141,18 +155,18 @@
     "provider_api_model_id": "crofai:deepseek-v4-pro-0813",
     "provider_model_slug": "deepseek-v4-pro-0813",
     "internal_model_id": "deepseek/deepseek-v4-pro-0813",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "Q8_0",
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 1000000,
     "max_output_tokens": 131072,
     "effective_from": "2026-08-14T20:02:16",
-    "effective_to": null,
+    "effective_to": "2026-08-23T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": true,
         "tool_call": null,
@@ -164,8 +178,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "inactive",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -188,12 +202,18 @@
         "url": "https://x.com/nahcrof/status/2088355545329643983",
         "accessed_at": "2026-08-14T00:00:00Z",
         "notes": "CrofAI announced deepseek-v4-pro-0813 as live on 14 August 2026."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://crof.ai/pricing",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Not present on CrofAI's current public model rate card; historical row retained with routing disabled."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-14T00:00:00Z",
-      "notes": "Confirmed against CrofAI's live /v1/models response and launch announcement."
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Retired from the active gateway catalogue after reconciliation against CrofAI's current public model rate card."
     },
     "rate_limits": []
   },
@@ -289,7 +309,7 @@
       "endpoint": null,
       "deployment": null
     },
-        "sources": [
+    "sources": [
       {
         "kind": "provider_notice",
         "url": null,
@@ -556,7 +576,7 @@
     "provider_api_model_id": "crofai:mimo-v2.5-pro-precision",
     "provider_model_slug": "mimo-v2.5-pro-precision",
     "internal_model_id": "xiaomi/mimo-v2.5-pro",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "Q8_0",
     "input_modalities": "text",
     "output_modalities": "text",
@@ -567,7 +587,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -579,8 +599,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "inactive",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -591,11 +611,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://crof.ai/pricing",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Not present on CrofAI's current public model rate card; historical row retained with routing disabled."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Retired from the active gateway catalogue after reconciliation against CrofAI's current public model rate card."
     },
     "rate_limits": []
   },
@@ -700,7 +727,7 @@
     "provider_api_model_id": "crofai:glm-5.1-precision",
     "provider_model_slug": "glm-5.1-precision",
     "internal_model_id": "z-ai/glm-5.1",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "Q8_0",
     "input_modalities": "text",
     "output_modalities": "text",
@@ -711,7 +738,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -723,8 +750,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "inactive",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -735,11 +762,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://crof.ai/pricing",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Not present on CrofAI's current public model rate card; historical row retained with routing disabled."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Retired from the active gateway catalogue after reconciliation against CrofAI's current public model rate card."
     },
     "rate_limits": []
   },
@@ -1228,7 +1262,7 @@
     "provider_api_model_id": "crofai:kimi-k2.6-precision",
     "provider_model_slug": "kimi-k2.6-precision",
     "internal_model_id": "moonshotai/kimi-k2.6",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "int4",
     "input_modalities": "text,image",
     "output_modalities": "text",
@@ -1239,7 +1273,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -1251,8 +1285,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "inactive",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -1263,11 +1297,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://crof.ai/pricing",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Not present on CrofAI's current public model rate card; historical row retained with routing disabled."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Retired from the active gateway catalogue after reconciliation against CrofAI's current public model rate card."
     },
     "rate_limits": []
   },
@@ -1359,7 +1400,7 @@
       "endpoint": null,
       "deployment": null
     },
-        "sources": [
+    "sources": [
       {
         "kind": "provider_notice",
         "url": null,
@@ -1416,7 +1457,7 @@
       "endpoint": null,
       "deployment": null
     },
-        "sources": [
+    "sources": [
       {
         "kind": "provider_notice",
         "url": null,
@@ -1471,7 +1512,7 @@
       "endpoint": null,
       "deployment": null
     },
-        "sources": [
+    "sources": [
       {
         "kind": "provider_notice",
         "url": null,
@@ -1526,7 +1567,7 @@
       "endpoint": null,
       "deployment": null
     },
-        "sources": [
+    "sources": [
       {
         "kind": "provider_notice",
         "url": null,
@@ -1581,7 +1622,7 @@
       "endpoint": null,
       "deployment": null
     },
-        "sources": [
+    "sources": [
       {
         "kind": "provider_notice",
         "url": null,
@@ -1684,7 +1725,7 @@
       "endpoint": null,
       "deployment": null
     },
-        "sources": [
+    "sources": [
       {
         "kind": "provider_notice",
         "url": null,
@@ -1848,7 +1889,7 @@
     "provider_api_model_id": "crofai:qwen3.5-9b-chat",
     "provider_model_slug": "qwen3.5-9b-chat",
     "internal_model_id": "qwen/qwen3.5-9b",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "fp8",
     "input_modalities": "text,image",
     "output_modalities": "text",
@@ -1859,7 +1900,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -1871,8 +1912,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "inactive",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -1883,11 +1924,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://crof.ai/pricing",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Not present on CrofAI's current public model rate card; historical row retained with routing disabled."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Retired from the active gateway catalogue after reconciliation against CrofAI's current public model rate card."
     },
     "rate_limits": []
   },
@@ -1925,7 +1973,9 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": ["standard"],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,
@@ -1980,7 +2030,9 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": ["standard"],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,
@@ -1996,8 +2048,397 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-07-30T00:00:00Z",
-      "notes": "Hidden CrofAI sibling selected only when moonshotai/kimi-k3 requests use service_tier=flex. CrofAI lists kimi-k3-eco at Q2_K, 1M context, 131,072 max output, and approximately 47 tokens/s."
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current CrofAI rate card verifies the kimi-k3-eco slug, Q2_K quantization, 1M context, 131,072 maximum output, and token rates. This tier-specific sibling remains hidden from ordinary routing and is selected only by service-tier remapping."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v4-pro",
+    "provider_api_model_id": "crofai:deepseek-v4-pro-lightning",
+    "provider_model_slug": "deepseek-v4-pro-lightning",
+    "internal_model_id": "deepseek/deepseek-v4-pro",
+    "is_active_gateway": false,
+    "quantization_scheme": "Q8_0",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-08-23T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "priority"
+    ],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_pricing",
+        "url": "https://crof.ai/pricing",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Current public CrofAI rate card confirms this route is available again; the earlier retired row remains as history."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Availability, slug, quantization, context, output limit, and token prices verified against CrofAI's current public rate card. This tier-specific sibling remains hidden from ordinary routing and is selected only by service-tier remapping."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "moonshotai/kimi-k2.5",
+    "provider_api_model_id": "crofai:kimi-k2.5",
+    "provider_model_slug": "kimi-k2.5",
+    "internal_model_id": "moonshotai/kimi-k2.5",
+    "is_active_gateway": true,
+    "quantization_scheme": "Q4_K_M",
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": 262144,
+    "effective_from": "2026-08-23T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_pricing",
+        "url": "https://crof.ai/pricing",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Current public CrofAI rate card confirms this route is available again; the earlier retired row remains as history."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Availability, slug, quantization, context, output limit, and token prices verified against CrofAI's current public rate card."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "moonshotai/kimi-k2.5",
+    "provider_api_model_id": "crofai:kimi-k2.5-lightning",
+    "provider_model_slug": "kimi-k2.5-lightning",
+    "internal_model_id": "moonshotai/kimi-k2.5",
+    "is_active_gateway": false,
+    "quantization_scheme": "530b-int4",
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 131072,
+    "max_output_tokens": 32768,
+    "effective_from": "2026-08-23T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "priority"
+    ],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_pricing",
+        "url": "https://crof.ai/pricing",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Current public CrofAI rate card confirms this route is available again; the earlier retired row remains as history."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Availability, slug, quantization, context, output limit, and token prices verified against CrofAI's current public rate card. This tier-specific sibling remains hidden from ordinary routing and is selected only by service-tier remapping."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-5",
+    "provider_api_model_id": "crofai:glm-5",
+    "provider_model_slug": "glm-5",
+    "internal_model_id": "z-ai/glm-5",
+    "is_active_gateway": true,
+    "quantization_scheme": "Q4_0",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 202752,
+    "max_output_tokens": 202752,
+    "effective_from": "2026-08-23T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_pricing",
+        "url": "https://crof.ai/pricing",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Current public CrofAI rate card confirms this route is available again; the earlier retired row remains as history."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Availability, slug, quantization, context, output limit, and token prices verified against CrofAI's current public rate card."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-4.7",
+    "provider_api_model_id": "crofai:glm-4.7",
+    "provider_model_slug": "glm-4.7",
+    "internal_model_id": "z-ai/glm-4.7",
+    "is_active_gateway": true,
+    "quantization_scheme": "Q8_0",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 202752,
+    "max_output_tokens": 202752,
+    "effective_from": "2026-08-23T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_pricing",
+        "url": "https://crof.ai/pricing",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Current public CrofAI rate card confirms this route is available again; the earlier retired row remains as history."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Availability, slug, quantization, context, output limit, and token prices verified against CrofAI's current public rate card."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-4.7-flash",
+    "provider_api_model_id": "crofai:glm-4.7-flash",
+    "provider_model_slug": "glm-4.7-flash",
+    "internal_model_id": "z-ai/glm-4.7-flash",
+    "is_active_gateway": true,
+    "quantization_scheme": "fp8",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 202752,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-08-23T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_pricing",
+        "url": "https://crof.ai/pricing",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Current public CrofAI rate card confirms this route is available again; the earlier retired row remains as history."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Availability, slug, quantization, context, output limit, and token prices verified against CrofAI's current public rate card."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "minimax/minimax-m2.5",
+    "provider_api_model_id": "crofai:minimax-m2.5",
+    "provider_model_slug": "minimax-m2.5",
+    "internal_model_id": "minimax/minimax-m2.5",
+    "is_active_gateway": true,
+    "quantization_scheme": "awq",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 204800,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-08-23T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_pricing",
+        "url": "https://crof.ai/pricing",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Current public CrofAI rate card confirms this route is available again; the earlier retired row remains as history."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Availability, slug, quantization, context, output limit, and token prices verified against CrofAI's current public rate card."
     },
     "rate_limits": []
   }

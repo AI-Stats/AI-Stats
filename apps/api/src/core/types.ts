@@ -44,6 +44,7 @@ export type RequestMeta = {
     appTitle?: string | null;
     appId?: string | null;
     appName?: string | null;
+    appCategories?: string | null;
     requestUserId?: string | null;
     sessionId?: string | null;
     trace?: Record<string, unknown> | null;

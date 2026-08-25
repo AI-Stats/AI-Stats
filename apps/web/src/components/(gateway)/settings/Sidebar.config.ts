@@ -130,11 +130,13 @@ const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
 					"/settings/teams/members",
 					"/settings/teams/access",
 					"/settings/teams/settings",
+					"/settings/notifications",
 				],
 				children: [
 					{ href: "/settings/workspaces/settings", label: "General" },
 					{ href: "/settings/workspaces/members", label: "Members" },
 					{ href: "/settings/workspaces/access", label: "Access" },
+					{ href: "/settings/notifications", label: "Notifications" },
 				],
 			},
 			{

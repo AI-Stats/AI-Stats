@@ -39,6 +39,7 @@ import { executor as googleAiStudioVideo } from "./google/video-generate";
 import { executor as deepinfraText } from "./deepinfra/text-generate";
 import { executor as togetherText } from "./together/text-generate";
 import { executor as crofaiText } from "./crofai/text-generate";
+import { executor as canopyWaveText } from "./canopy-wave/text-generate";
 import { executor as tensorixText } from "./tensorix/text-generate";
 import { executor as basetenText } from "./baseten/text-generate";
 import { executor as baiduText } from "./baidu/text-generate";
@@ -85,6 +86,7 @@ import { executor as phalaText } from "./phala/text-generate";
 import { executor as poolsideText } from "./poolside/text-generate";
 import { executor as relaceText } from "./relace/text-generate";
 import { executor as sambanovaText } from "./sambanova/text-generate";
+import { executor as sailResearchText } from "./sail-research/text-generate";
 import { executor as siliconflowText } from "./siliconflow/text-generate";
 import { executor as stepfunText } from "./stepfun/text-generate";
 import { executor as veniceText } from "./venice/text-generate";
@@ -240,6 +242,7 @@ export const EXECUTORS_BY_PROVIDER: Record<string, ProviderCapabilityMap> = {
 	},
 	upstage: {
 		"text.generate": upstageText,
+		embeddings: openaiEmbeddings,
 	},
 	wafer: {
 		"text.generate": waferText,
@@ -295,6 +298,9 @@ export const EXECUTORS_BY_PROVIDER: Record<string, ProviderCapabilityMap> = {
 	},
 	crofai: {
 		"text.generate": crofaiText,
+	},
+	"canopy-wave": {
+		"text.generate": canopyWaveText,
 	},
 	tensorix: {
 		"text.generate": tensorixText,
@@ -361,10 +367,14 @@ export const EXECUTORS_BY_PROVIDER: Record<string, ProviderCapabilityMap> = {
 	aionlabs: { "text.generate": aionLabsText },
 	"amazon-bedrock": { "text.generate": amazonBedrockText },
 	"google-vertex": { "text.generate": googleVertexText, "video.generate": googleVertexVideo },
-	"google-vertex-eu": { "text.generate": googleVertexText, "video.generate": googleVertexVideo },
+	"google-vertex-eu": { "text.generate": googleVertexText },
 	deepinfra: { "text.generate": deepinfraText },
 	fireworks: { "text.generate": fireworksText, embeddings: openaiEmbeddings, rerank: openaiRerank, "image.generate": nonTextAdapterExecutor },
-	groq: { "text.generate": groqText },
+	groq: {
+		"text.generate": groqText,
+		"audio.transcription": nonTextAdapterExecutor,
+		"audio.translations": nonTextAdapterExecutor,
+	},
 	liquid: { "text.generate": liquidAiText },
 	"liquid-ai": { "text.generate": liquidAiText },
 	novitaai: { "text.generate": novitaaiText, embeddings: openaiEmbeddings, rerank: openaiRerank },
@@ -372,6 +382,7 @@ export const EXECUTORS_BY_PROVIDER: Record<string, ProviderCapabilityMap> = {
 	perplexity: { "text.generate": perplexityText, embeddings: openaiEmbeddings },
 	relace: { "text.generate": relaceText },
 	sambanova: { "text.generate": sambanovaText },
+	"sail-research": { "text.generate": sailResearchText },
 	siliconflow: { "text.generate": siliconflowText },
 	stepfun: { "text.generate": stepfunText },
 	together: {

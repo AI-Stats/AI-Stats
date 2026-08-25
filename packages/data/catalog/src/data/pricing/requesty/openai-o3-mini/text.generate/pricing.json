@@ -6,49 +6,499 @@
   "capability_id": "text.generate",
   "rules": [
     {
-      "meter": "cached_read_text_tokens",
-      "unit": "token",
-      "unit_size": 1000000,
-      "price_per_unit": 0.55,
-      "currency": "USD",
-      "pricing_plan": "standard",
-      "note": null,
-      "match": [],
-      "priority": 100,
-      "region": null,
-      "cache_duration_seconds": null,
-      "conditions": [],
-      "source": null
-    },
-    {
       "meter": "input_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 1.1,
+      "price_per_unit": 0.9900000000000001,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": null,
-      "match": [],
+      "note": "Requesty route openai/o3-mini:high; threshold 0.",
+      "match": [
+        {
+          "field": "provider_model_slug",
+          "operator": "eq",
+          "value": "openai/o3-mini:high"
+        }
+      ],
       "priority": 100,
+      "effective_from": null,
       "region": null,
       "cache_duration_seconds": null,
-      "conditions": [],
-      "source": null
+      "conditions": [
+        {
+          "field": "provider_model_slug",
+          "operator": "eq",
+          "value": "openai/o3-mini:high"
+        }
+      ],
+      "source": {
+        "kind": "provider_models",
+        "url": "https://router.requesty.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Exact live Requesty pricing tier."
+      }
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.49500000000000005,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Requesty route openai/o3-mini:high; threshold 0.",
+      "match": [
+        {
+          "field": "provider_model_slug",
+          "operator": "eq",
+          "value": "openai/o3-mini:high"
+        }
+      ],
+      "priority": 100,
+      "effective_from": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "field": "provider_model_slug",
+          "operator": "eq",
+          "value": "openai/o3-mini:high"
+        }
+      ],
+      "source": {
+        "kind": "provider_models",
+        "url": "https://router.requesty.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Exact live Requesty pricing tier."
+      }
     },
     {
       "meter": "output_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 4.4,
+      "price_per_unit": 3.9600000000000004,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": null,
-      "match": [],
+      "note": "Requesty route openai/o3-mini:high; threshold 0.",
+      "match": [
+        {
+          "field": "provider_model_slug",
+          "operator": "eq",
+          "value": "openai/o3-mini:high"
+        }
+      ],
       "priority": 100,
+      "effective_from": null,
       "region": null,
       "cache_duration_seconds": null,
-      "conditions": [],
-      "source": null
+      "conditions": [
+        {
+          "field": "provider_model_slug",
+          "operator": "eq",
+          "value": "openai/o3-mini:high"
+        }
+      ],
+      "source": {
+        "kind": "provider_models",
+        "url": "https://router.requesty.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Exact live Requesty pricing tier."
+      }
+    },
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.9900000000000001,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Requesty route openai/o3-mini:low; threshold 0.",
+      "match": [
+        {
+          "field": "provider_model_slug",
+          "operator": "eq",
+          "value": "openai/o3-mini:low"
+        }
+      ],
+      "priority": 100,
+      "effective_from": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "field": "provider_model_slug",
+          "operator": "eq",
+          "value": "openai/o3-mini:low"
+        }
+      ],
+      "source": {
+        "kind": "provider_models",
+        "url": "https://router.requesty.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Exact live Requesty pricing tier."
+      }
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.49500000000000005,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Requesty route openai/o3-mini:low; threshold 0.",
+      "match": [
+        {
+          "field": "provider_model_slug",
+          "operator": "eq",
+          "value": "openai/o3-mini:low"
+        }
+      ],
+      "priority": 100,
+      "effective_from": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "field": "provider_model_slug",
+          "operator": "eq",
+          "value": "openai/o3-mini:low"
+        }
+      ],
+      "source": {
+        "kind": "provider_models",
+        "url": "https://router.requesty.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Exact live Requesty pricing tier."
+      }
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 3.9600000000000004,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Requesty route openai/o3-mini:low; threshold 0.",
+      "match": [
+        {
+          "field": "provider_model_slug",
+          "operator": "eq",
+          "value": "openai/o3-mini:low"
+        }
+      ],
+      "priority": 100,
+      "effective_from": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "field": "provider_model_slug",
+          "operator": "eq",
+          "value": "openai/o3-mini:low"
+        }
+      ],
+      "source": {
+        "kind": "provider_models",
+        "url": "https://router.requesty.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Exact live Requesty pricing tier."
+      }
+    },
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.9900000000000001,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Requesty route openai/o3-mini; threshold 0.",
+      "match": [
+        {
+          "field": "provider_model_slug",
+          "operator": "eq",
+          "value": "openai/o3-mini"
+        }
+      ],
+      "priority": 100,
+      "effective_from": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "field": "provider_model_slug",
+          "operator": "eq",
+          "value": "openai/o3-mini"
+        }
+      ],
+      "source": {
+        "kind": "provider_models",
+        "url": "https://router.requesty.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Exact live Requesty pricing tier."
+      }
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.49500000000000005,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Requesty route openai/o3-mini; threshold 0.",
+      "match": [
+        {
+          "field": "provider_model_slug",
+          "operator": "eq",
+          "value": "openai/o3-mini"
+        }
+      ],
+      "priority": 100,
+      "effective_from": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "field": "provider_model_slug",
+          "operator": "eq",
+          "value": "openai/o3-mini"
+        }
+      ],
+      "source": {
+        "kind": "provider_models",
+        "url": "https://router.requesty.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Exact live Requesty pricing tier."
+      }
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 3.9600000000000004,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Requesty route openai/o3-mini; threshold 0.",
+      "match": [
+        {
+          "field": "provider_model_slug",
+          "operator": "eq",
+          "value": "openai/o3-mini"
+        }
+      ],
+      "priority": 100,
+      "effective_from": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "field": "provider_model_slug",
+          "operator": "eq",
+          "value": "openai/o3-mini"
+        }
+      ],
+      "source": {
+        "kind": "provider_models",
+        "url": "https://router.requesty.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Exact live Requesty pricing tier."
+      }
+    },
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.9900000000000001,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Requesty route openai/o3-mini:medium; threshold 0.",
+      "match": [
+        {
+          "field": "provider_model_slug",
+          "operator": "eq",
+          "value": "openai/o3-mini:medium"
+        }
+      ],
+      "priority": 100,
+      "effective_from": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "field": "provider_model_slug",
+          "operator": "eq",
+          "value": "openai/o3-mini:medium"
+        }
+      ],
+      "source": {
+        "kind": "provider_models",
+        "url": "https://router.requesty.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Exact live Requesty pricing tier."
+      }
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.49500000000000005,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Requesty route openai/o3-mini:medium; threshold 0.",
+      "match": [
+        {
+          "field": "provider_model_slug",
+          "operator": "eq",
+          "value": "openai/o3-mini:medium"
+        }
+      ],
+      "priority": 100,
+      "effective_from": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "field": "provider_model_slug",
+          "operator": "eq",
+          "value": "openai/o3-mini:medium"
+        }
+      ],
+      "source": {
+        "kind": "provider_models",
+        "url": "https://router.requesty.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Exact live Requesty pricing tier."
+      }
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 3.9600000000000004,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Requesty route openai/o3-mini:medium; threshold 0.",
+      "match": [
+        {
+          "field": "provider_model_slug",
+          "operator": "eq",
+          "value": "openai/o3-mini:medium"
+        }
+      ],
+      "priority": 100,
+      "effective_from": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "field": "provider_model_slug",
+          "operator": "eq",
+          "value": "openai/o3-mini:medium"
+        }
+      ],
+      "source": {
+        "kind": "provider_models",
+        "url": "https://router.requesty.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Exact live Requesty pricing tier."
+      }
+    },
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.9900000000000001,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Requesty route openai-responses/o3-mini; threshold 0.",
+      "match": [
+        {
+          "field": "provider_model_slug",
+          "operator": "eq",
+          "value": "openai-responses/o3-mini"
+        }
+      ],
+      "priority": 100,
+      "effective_from": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "field": "provider_model_slug",
+          "operator": "eq",
+          "value": "openai-responses/o3-mini"
+        }
+      ],
+      "source": {
+        "kind": "provider_models",
+        "url": "https://router.requesty.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Exact live Requesty pricing tier."
+      }
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.49500000000000005,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Requesty route openai-responses/o3-mini; threshold 0.",
+      "match": [
+        {
+          "field": "provider_model_slug",
+          "operator": "eq",
+          "value": "openai-responses/o3-mini"
+        }
+      ],
+      "priority": 100,
+      "effective_from": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "field": "provider_model_slug",
+          "operator": "eq",
+          "value": "openai-responses/o3-mini"
+        }
+      ],
+      "source": {
+        "kind": "provider_models",
+        "url": "https://router.requesty.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Exact live Requesty pricing tier."
+      }
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 3.9600000000000004,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Requesty route openai-responses/o3-mini; threshold 0.",
+      "match": [
+        {
+          "field": "provider_model_slug",
+          "operator": "eq",
+          "value": "openai-responses/o3-mini"
+        }
+      ],
+      "priority": 100,
+      "effective_from": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "field": "provider_model_slug",
+          "operator": "eq",
+          "value": "openai-responses/o3-mini"
+        }
+      ],
+      "source": {
+        "kind": "provider_models",
+        "url": "https://router.requesty.ai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Exact live Requesty pricing tier."
+      }
     }
   ],
   "regions": [],
@@ -59,13 +509,13 @@
     {
       "kind": "provider_models",
       "url": "https://router.requesty.ai/v1/models",
-      "accessed_at": "2026-08-11T12:20:04.374Z",
-      "notes": "Provider model and pricing metadata."
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Complete live route and threshold pricing."
     }
   ],
   "verification": {
-    "status": "partial",
-    "checked_at": "2026-08-11T12:20:04.374Z",
-    "notes": "Pricing synchronized from the provider models API."
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "5 Requesty route(s), all pricing tiers reconciled."
   }
 }

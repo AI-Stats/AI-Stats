@@ -38,13 +38,25 @@
     {
       "kind": "official_documentation",
       "url": "https://fal.ai/docs/documentation/model-apis/inference/queue",
-      "accessed_at": "2026-08-12T00:00:00Z",
+      "accessed_at": "2026-08-24T00:00:00Z",
       "notes": "Queue submission, polling, result retrieval, cancellation, and webhook lifecycle."
+    },
+    {
+      "kind": "official_documentation",
+      "url": "https://fal.ai/docs/platform-apis/v1/models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Public model discovery API, endpoint lifecycle status, and optional OpenAPI 3.0 schema expansion."
+    },
+    {
+      "kind": "official_documentation",
+      "url": "https://fal.ai/docs/documentation/model-apis/pricing",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Output billing units, authenticated programmatic pricing, and billing behavior."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-12T00:00:00Z",
-    "notes": "fal queue submission, polling, result retrieval, request cancellation, and Seedance 2.0 endpoint IDs verified against official documentation."
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "fal queue lifecycle and all six active Seedance 2.0 standard/fast text, image, and reference endpoint IDs were reverified against the live public model catalog and expanded OpenAPI schemas. fal does not publish a fixed account-wide rate limit; concurrency scales with credit purchases."
   }
 }

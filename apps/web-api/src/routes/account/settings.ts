@@ -73,6 +73,7 @@ const APP_CATEGORIES = new Set([
 const OBSERVABILITY_DESTINATIONS = new Set([
 	"otel_collector", "webhook",
 ]);
+const BYOK_MONTHLY_FREE_REQUESTS = 1_000_000;
 
 function normalizeAppCategories(value: unknown): string | null {
 	if (typeof value !== "string") return null;
@@ -878,7 +879,7 @@ accountSettingsRouter.get("/byok", async (c) => {
 	const nextMonthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
 	const empty = {
 		fallbackEnabled: false,
-		freeRemaining: 100_000,
+		freeRemaining: BYOK_MONTHLY_FREE_REQUESTS,
 		keyEntries: [],
 		legacyHiddenTotal: 0,
 		monthlyRequestCount: 0,
@@ -929,12 +930,12 @@ accountSettingsRouter.get("/byok", async (c) => {
 	const monthlyRequestCount = Number(usageResult.data?.[0]?.request_count ?? 0);
 	return c.json({
 		fallbackEnabled: settingsResult.data?.byok_fallback_enabled === true,
-		freeRemaining: Math.max(0, 100_000 - monthlyRequestCount),
+		freeRemaining: Math.max(0, BYOK_MONTHLY_FREE_REQUESTS - monthlyRequestCount),
 		keyEntries,
 		legacyHiddenTotal: 0,
 		monthlyRequestCount,
 		nextMonthStartIso: nextMonthStart.toISOString(),
-		paidTierRequests: Math.max(0, monthlyRequestCount - 100_000),
+		paidTierRequests: Math.max(0, monthlyRequestCount - BYOK_MONTHLY_FREE_REQUESTS),
 		workspaceId,
 	}, 200, PRIVATE_NO_STORE_HEADERS);
 });
@@ -1167,6 +1168,9 @@ accountSettingsRouter.get("/credits", async (c) => {
 		lowBalanceEmailEnabled: false,
 		lowBalanceEmailThresholdUsd: null,
 		paymentMethodExpiringEmailEnabled: true,
+		modelDeprecationAlertsEnabled: false,
+		notificationDestinations: [],
+		notificationRoutes: {},
 		obfuscateInfo: false,
 		stripeInfo: {
 			customer: { id: null, email: null },
@@ -1178,18 +1182,20 @@ accountSettingsRouter.get("/credits", async (c) => {
 	}, 200, PRIVATE_NO_STORE_HEADERS);
 	const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId });
 	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
-	const [walletResult, initialSettingsResult, latestPaymentResult, userResult] = await Promise.all([
+	const [walletResult, initialSettingsResult, latestPaymentResult, userResult, destinationsResult, routesResult] = await Promise.all([
 		context.client.from("wallets")
 			.select("workspace_id,stripe_customer_id,balance_nanos,reserved_nanos,auto_top_up_enabled,low_balance_threshold,auto_top_up_amount,auto_top_up_account_id")
 			.eq("workspace_id", workspaceId).maybeSingle(),
 		context.client.from("workspace_settings")
-			.select("low_balance_email_enabled,low_balance_email_threshold_nanos,auto_top_up_failure_email_enabled,payment_method_expiring_email_enabled")
+			.select("low_balance_email_enabled,low_balance_email_threshold_nanos,auto_top_up_failure_email_enabled,payment_method_expiring_email_enabled,model_deprecation_alerts_enabled")
 			.eq("workspace_id", workspaceId).maybeSingle(),
 		context.client.from("credit_ledger").select("event_time,status,amount_nanos")
 			.eq("workspace_id", workspaceId).eq("ref_type", "Stripe_Payment_Intent")
 			.or("status.ilike.paid,status.ilike.succeeded").gt("amount_nanos", 0)
 			.order("event_time", { ascending: false }).limit(1).maybeSingle(),
 		context.client.from("users").select("obfuscate_info,declared_country_code").eq("user_id", context.user.id).maybeSingle(),
+		context.client.from("notification_destinations").select("id,name,type,status,target_preview,created_at").eq("workspace_id", workspaceId).eq("is_ephemeral", false).neq("status", "deleted").order("created_at", { ascending: false }),
+		context.client.from("notification_event_destinations").select("event_kind,destination_id").eq("workspace_id", workspaceId),
 	]);
 	let settingsResult = initialSettingsResult;
 	if (settingsResult.error?.code === "42703") {
@@ -1197,7 +1203,7 @@ accountSettingsRouter.get("/credits", async (c) => {
 		// Treat their absence as the default disabled state while the schema rolls out.
 		settingsResult = await context.client.from("workspace_settings").select().eq("workspace_id", workspaceId).maybeSingle();
 	}
-	if (walletResult.error || settingsResult.error || latestPaymentResult.error || userResult.error) {
+	if (walletResult.error || settingsResult.error || latestPaymentResult.error || userResult.error || (destinationsResult.error && destinationsResult.error.code !== "42P01") || (routesResult.error && routesResult.error.code !== "42P01")) {
 		return c.json({ error: "billing_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	}
 	const thresholdNanos = Number(settingsResult.data?.low_balance_email_threshold_nanos ?? 0);
@@ -1210,6 +1216,11 @@ accountSettingsRouter.get("/credits", async (c) => {
 		lowBalanceEmailEnabled: Boolean(settingsResult.data?.low_balance_email_enabled),
 		lowBalanceEmailThresholdUsd: thresholdNanos > 0 ? Number((thresholdNanos / 1_000_000_000).toFixed(2)) : null,
 		paymentMethodExpiringEmailEnabled: settingsResult.data?.payment_method_expiring_email_enabled !== false,
+		modelDeprecationAlertsEnabled: Boolean(settingsResult.data?.model_deprecation_alerts_enabled),
+		notificationDestinations: (destinationsResult.data ?? []).map((row) => ({ id: String(row.id), name: String(row.name), type: String(row.type), status: String(row.status), targetPreview: String(row.target_preview), createdAt: row.created_at ?? null })),
+		notificationRoutes: (routesResult.data ?? []).reduce<Record<string, string[]>>((routes, row) => {
+			const kind = String(row.event_kind); (routes[kind] ??= []).push(String(row.destination_id)); return routes;
+		}, {}),
 		obfuscateInfo: cookieOverride === "1" ? true : cookieOverride === "0" ? false : Boolean(userResult.data?.obfuscate_info),
 		stripeInfo: {
 			customer: { id: null, email: null },

@@ -228,6 +228,7 @@ export type GatewayProviderSnapshot = {
     baseWeight: number;
     byokMeta: ByokKeyMeta[];
     providerModelSlug: string | null;
+    quantizationScheme?: string | null;
     inputModalities?: string[] | null;
     outputModalities?: string[] | null;
     capabilityParams?: Record<string, any>;
@@ -387,6 +388,7 @@ export type ProviderCandidate = {
     byokMeta: ByokKeyMeta[];
     pricingCard: PriceCard | null;
     providerModelSlug: string | null;
+    quantizationScheme?: string | null;
     inputModalities?: string[] | null;
     outputModalities?: string[] | null;
     capabilityParams?: Record<string, any>;

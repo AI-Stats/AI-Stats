@@ -1,0 +1,72 @@
+{
+  "model_id": "poe/deepgram-nova-3",
+  "organisation_id": "poe",
+  "name": "Deepgram-Nova-3",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Transcribe audio files using Speech-to-Text technology with the Deepgram Nova-3 model, featuring multi-language support and advanced customizable settings.\n\n[1] Basic Features: \n- Generate PDF to generate a PDF file of the transcription. This is disabled by default \n- Diarize to identify different speakers in the audio. This will automatically enable utterances. This is disabled by default.\n- Smart format to set automatic format text for improved readability including punctuation and paragraphs. This feature is enabled by default.\n\n[2] Advanced Features:\n-Dictation to convert spoken commands for punctuation into their respective marks (e.g., 'period' becomes '.'). This will automatically enable punctuation. This is disabled by default.\n- Measurements to format spoken measurement units into abbreviations. This is disabled by default\n- Profanity filter to replace profanity with asterisks. This is disabled by default.\n- Redact PCI to redact payment card information. This is disabled by default.\n- Redact PII to redact personally identifiable information. This is disabled by default.\n- Utterances to segment speech into meaningful semantic units. This is disabled by default.\n- Paragraphs. This feature split audio into paragraphs to improve transcript readability. This will automatically enable punctuation. This is enabled by default.\n- Punctuate. This feature add punctuation and capitalization to your transcript. This is enabled by default.\n- Numerals. This feature convert numbers from written format to numerical format. This is enabled by default.\n\n[3] Languages Supported:\nAuto-detect (Default)\nEnglish\nSpanish\nFrench\nGerman\nItalian\nPortuguese\nJapanese\nChinese\nHindi\nRussian\nDutch\n\n[4] Key Terms. Enter important terms to improve recognition accuracy, separated by commas. English only, Limited to 500 tokens total.",
+  "announced_date": "2025-07-30T11:36:30",
+  "release_date": "2025-07-30T11:36:30",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text",
+  "output_types": "text",
+  "api_model_id": "poe/deepgram-nova-3",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Poe bot",
+      "kind": "api_reference",
+      "url": "https://poe.com/deepgram-nova-3"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "Poe bot",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": false,
+    "tool_call": false,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.poe.com/v1/models",
+      "accessed_at": "2026-08-24T03:27:45Z",
+      "notes": "Canonical entity for an exact public Poe bot identifier returned by the models API."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T03:27:45Z",
+    "notes": "Identity and advertised metadata verified against Poe's public models API."
+  },
+  "last_updated": "2026-08-24T03:27:45Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

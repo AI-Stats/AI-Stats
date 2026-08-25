@@ -852,7 +852,7 @@ export async function syncV2Catalogue(): Promise<void> {
             const url = asText(link.url);
             if (!kind || !url) return [];
             return [{
-                model_slug: model.model_id,
+                model_slug: canonicalModelSlug(model.model_id),
                 link_kind: slug(kind),
                 title: asText(link.title) ?? kind.replace(/[_-]+/g, " ").replace(/\b\w/g, character => character.toUpperCase()),
                 url,
@@ -877,7 +877,7 @@ export async function syncV2Catalogue(): Promise<void> {
     const modelDetailRows = uniqueRows([...source.models.values()].flatMap(model =>
         (Array.isArray(model.details) ? model.details : []).flatMap((detail: Record<string, any>, index: number) =>
             detail?.name ? [{
-                model_slug: model.model_id,
+                model_slug: canonicalModelSlug(model.model_id),
                 detail_name: String(detail.name),
                 detail_value: detail.value ?? null,
                 detail_order: index,
@@ -900,7 +900,7 @@ export async function syncV2Catalogue(): Promise<void> {
 
     const modelPageNoticeRows = uniqueRows([...source.models.values()].flatMap(model =>
         model.page_notice?.markdown ? [{
-            model_slug: model.model_id,
+            model_slug: canonicalModelSlug(model.model_id),
             tone: model.page_notice.tone ?? "info",
             markdown: model.page_notice.markdown,
         }] : [],
@@ -945,6 +945,8 @@ export async function syncV2Catalogue(): Promise<void> {
                 ? row.provider_family_id
                 : null,
         name: row.api_provider_name,
+        offer_label: row.offer_label ?? null,
+        offer_scope: row.offer_scope ?? "global",
         status: sourceRoutable === false ? "external" : providerStatus(row.status),
         routing_enabled: routingEnabled,
         routable,

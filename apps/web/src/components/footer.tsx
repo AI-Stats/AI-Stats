@@ -41,6 +41,7 @@ const resourceLinks = [
 
 const companyLinks = [
 	{ href: "/about", label: "About" },
+	{ href: "/trust", label: "Trust Centre" },
 	{ href: "/mission", label: "Mission" },
 	{ href: "/pricing", label: "Pricing" },
 	{ href: "/works-with", label: "Works With" },

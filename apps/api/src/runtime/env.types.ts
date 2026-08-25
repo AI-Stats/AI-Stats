@@ -114,6 +114,8 @@ export type GatewayBindings = {
     COHERE_API_KEY?: string;
     COHERE_BASE_URL?: string;
     CROFAI_API_KEY?: string;
+    CANOPYWAVE_API_KEY?: string;
+    CANOPYWAVE_BASE_URL?: string;
     CROFAI_BASE_URL?: string;
     CROF_AI_API_KEY?: string;
     CROF_AI_BASE_URL?: string;
@@ -248,6 +250,8 @@ export type GatewayBindings = {
     REKA_BASE_URL?: string;
     SAKANA_API_KEY?: string;
     SAKANA_BASE_URL?: string;
+    SAIL_API_KEY?: string;
+    SAIL_BASE_URL?: string;
     SAMBANOVA_API_KEY?: string;
     SAMBANOVA_BASE_URL?: string;
     SCW_SECRET_KEY?: string;

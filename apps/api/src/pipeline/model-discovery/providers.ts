@@ -89,6 +89,7 @@ const PROVIDER_OVERRIDES: Record<string, ProviderOverride> = {
 	},
 	cohere: { providerName: "Cohere" },
 	crofai: { providerName: "CrofAI", authStyle: "none" },
+	"canopy-wave": { providerName: "Canopy Wave", authStyle: "bearer" },
 	deepinfra: { providerName: "DeepInfra", authStyle: "optional_bearer" },
 	deepseek: { providerName: "DeepSeek" },
 	darkbloom: { providerName: "Darkbloom" },
@@ -139,6 +140,7 @@ const PROVIDER_OVERRIDES: Record<string, ProviderOverride> = {
 	poolside: { providerName: "Poolside" },
 	reka: { providerName: "Reka", authStyle: "x_api_key" },
 	sambanova: { providerName: "SambaNova" },
+	"sail-research": { providerName: "Sail Research", authStyle: "bearer" },
 	stepfun: { providerName: "StepFun" },
 	// StreamLake exposes endpoint-bound models and its public list API requires an undocumented Action parameter.
 	streamlake: { providerName: "StreamLake", disabled: true },

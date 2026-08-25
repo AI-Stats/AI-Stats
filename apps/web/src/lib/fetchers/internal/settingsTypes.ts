@@ -296,6 +296,9 @@ export type SettingsCreditsInitialData = {
 	lowBalanceEmailEnabled: boolean;
 	lowBalanceEmailThresholdUsd: number | null;
 	paymentMethodExpiringEmailEnabled: boolean;
+	modelDeprecationAlertsEnabled: boolean;
+	notificationDestinations: NotificationDestination[];
+	notificationRoutes: Partial<Record<NotificationEventKind, string[]>>;
 	obfuscateInfo: boolean;
 	stripeInfo: {
 		customer: { email: string | null; id: string | null };
@@ -315,6 +318,17 @@ export type SettingsCreditsInitialData = {
 		[key: string]: unknown;
 	} | null;
 };
+
+export type NotificationDestination = {
+	id: string;
+	name: string;
+	type: "email" | "discord" | "discord_webhook" | "slack" | "microsoft_teams" | "custom_webhook";
+	targetPreview: string;
+	status: string;
+	createdAt: string | null;
+};
+
+export type NotificationEventKind = "low_balance" | "auto_top_up_failed" | "payment_method_expiring" | "model_deprecation";
 
 export type SettingsPaymentMethodsInitialData = {
 	customerId: string | null;

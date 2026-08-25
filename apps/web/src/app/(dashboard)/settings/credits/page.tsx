@@ -2,7 +2,6 @@ import CurrentCredits from "@/components/(gateway)/credits/CurrentCredits";
 import Banner from "@/components/(gateway)/credits/Banner";
 import BuyCreditsClient from "@/components/(gateway)/credits/CreditPurchases/TopUp/BuyCreditsClient";
 import AutoTopUpClient from "@/components/(gateway)/credits/CreditPurchases/AutoTopUp/AutoTopUpClient";
-import LowBalanceEmailAlertsClient from "@/components/(gateway)/credits/LowBalanceEmailAlertsClient";
 import { Metadata } from "next";
 import { connection } from "next/server";
 import { Suspense } from "react";
@@ -84,14 +83,6 @@ async function CreditsSettingsContent(props: {
 						</div>
 					</CardContent>
 				</Card>
-				<div className="border-t pt-5">
-					<LowBalanceEmailAlertsClient
-						autoTopUpFailureEmailEnabled={initialData.autoTopUpFailureEmailEnabled}
-						enabled={initialData.lowBalanceEmailEnabled}
-						paymentMethodExpiringEmailEnabled={initialData.paymentMethodExpiringEmailEnabled}
-						thresholdUsd={initialData.lowBalanceEmailThresholdUsd}
-					/>
-				</div>
 			</div>
 		</div>
 	);
