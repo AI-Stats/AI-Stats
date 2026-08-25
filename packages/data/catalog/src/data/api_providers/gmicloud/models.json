@@ -5123,7 +5123,7 @@
     "api_model_id": "minimax/music-3.0:free",
     "canonical_model_id": "minimax/music-3.0:free",
     "provider_api_model_id": "gmicloud:minimax/music-3.0:free",
-    "provider_model_slug": "music-3.0",
+    "provider_model_slug": "minimax-music-3.0",
     "internal_model_id": "minimax/music-3.0",
     "is_active_gateway": true,
     "quantization_scheme": null,
@@ -5157,7 +5157,7 @@
     "service_tiers": [],
     "api": {
       "formats": [],
-      "endpoint": "/v1/music_generation",
+      "endpoint": "/api/v1/ie/requestqueue/apikey/requests",
       "deployment": null
     },
     "sources": [
@@ -5213,7 +5213,7 @@
     "service_tiers": [],
     "api": {
       "formats": [],
-      "endpoint": null,
+      "endpoint": "/api/v1/ie/requestqueue/apikey/requests",
       "deployment": null
     },
     "sources": [

@@ -64,7 +64,7 @@ describe("provider capability profiles", () => {
 		expect(supportsAdapterBackedCapability("friendli", "video.generate")).toBe(false);
 	});
 
-	it("does not expose GMI request-queue modalities through OpenAI media routes", () => {
+	it("does not expose GMI request-queue modalities through the generic OpenAI adapter", () => {
 		for (const capability of NON_TEXT_CAPABILITIES) {
 			expect(
 				supportsAdapterBackedCapability("gmicloud", capability),
