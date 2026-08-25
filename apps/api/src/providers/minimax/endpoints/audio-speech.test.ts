@@ -23,6 +23,24 @@ function args(body: Record<string, unknown>) {
 }
 
 describe("MiniMax audio.speech", () => {
+	it("does not allow provider config to override validated request fields", async () => {
+		let requestBody: any;
+		const mock = installFetchMock([{
+			match: (url) => url.endsWith("/v1/t2a_v2"),
+			response: jsonResponse({ data: { audio: "00", status: 2 }, base_resp: { status_code: 0 } }),
+			onRequest: (call) => { requestBody = call.bodyJson; },
+		}]);
+		await exec(args({
+			config: { minimax: { model: "speech-2.8-turbo", text: "unvalidated override", stream: true } },
+		}));
+		mock.restore();
+		expect(requestBody).toMatchObject({
+			model: "speech-2.8-hd",
+			text: "Hello",
+			stream: false,
+		});
+	});
+
 	it("maps the public request to t2a_v2 and decodes hex audio", async () => {
 		let requestBody: any;
 		const mock = installFetchMock([{

@@ -158,9 +158,12 @@ function providerDetails(value: unknown): Row[] {
 function withoutExternalProviders(row: Row): Row {
 	const details = providerDetails(row.gateway_provider_details);
 	if (details.length === 0) return row;
-	const visibleDetails = details.filter((detail) =>
-		String(detail.status ?? "").trim().toLowerCase() !== "external"
-	);
+	const visibleDetails = details.filter((detail) => {
+		const status = String(detail.status ?? "").trim().toLowerCase();
+		const accessScope = String(detail.access_scope ?? "public").trim().toLowerCase();
+		const capabilityStatus = String(detail.capability_status ?? "").trim().toLowerCase();
+		return status !== "external" && accessScope === "public" && capabilityStatus !== "internal_testing";
+	});
 	const providerNames = strings(visibleDetails.map((detail) => detail.name));
 	const activeProviderNames = strings(
 		visibleDetails.filter((detail) => detail.is_active === true).map((detail) => detail.name),
@@ -374,7 +377,9 @@ export async function fetchModelsPageCatalogue(
 	);
 	return {
 		models: attachModelsPageVariants(mergeModelWeeklyMetrics(
-			databaseRows.map(normalizeModelsPagePricing),
+		databaseRows
+			.filter((row) => String(row.access_scope ?? "public").trim().toLowerCase() === "public" && String(row.capability_status ?? "").trim().toLowerCase() !== "internal_testing")
+			.map(normalizeModelsPagePricing),
 			modelWeeklyMetrics,
 		)),
 		pricingComplete: true,

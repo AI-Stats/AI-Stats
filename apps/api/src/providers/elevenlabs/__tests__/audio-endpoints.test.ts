@@ -418,6 +418,34 @@ describe("ElevenLabs audio endpoints", () => {
 		expect(fileName).toBe("sample.wav");
 	});
 
+	it("derives billable audio seconds when ElevenLabs omits usage", async () => {
+		const mock = installFetchMock([{
+			match: (url) => url.includes("/v1/speech-to-text"),
+			response: jsonResponse({ text: "Transcribed" }),
+		}]);
+		const file = new File([new Uint8Array(16000 * 3)], "sample.mp3", { type: "" });
+		const result = await execTranscription({
+			endpoint: "audio.transcription",
+			model: "eleven-labs/scribe-v2",
+			body: { model: "eleven-labs/scribe-v2", file },
+			meta: REQUEST_META,
+			workspaceId: "team_test",
+			providerId: "elevenlabs",
+			byokMeta: [],
+			pricingCard: {
+				...PRICING_CARD,
+				endpoint: "audio.transcription",
+				rules: [{ ...PRICING_CARD.rules[0], meter: "input_audio_seconds", unit: "second", price_per_unit: 0.22, unit_size: 3600 }],
+			},
+			providerModelSlug: null,
+			stream: false,
+		} as any);
+		mock.restore();
+		expect(result.normalized?.usage?.input_audio_seconds).toBe(3);
+		expect(result.bill.usage?.input_audio_seconds).toBe(3);
+		expect(result.bill.cost_cents).toBeGreaterThan(0);
+	});
+
 	it("forwards language_code for ElevenLabs transcriptions", async () => {
 		let languageCode: string | null = null;
 		const mock = installFetchMock([

@@ -623,10 +623,11 @@ function formatProviderCountry(value: string | null | undefined): string {
 
 function formatPromptRetentionValue(
 	days: number | null | undefined,
+	zdr: string | null | undefined,
 ): string {
 	if (typeof days === "number" && Number.isInteger(days) && days >= 0) {
 		return days === 0
-			? "No retention"
+			? zdr === "default" ? "No retention" : "Route-dependent retention"
 			: `Retention for ${days} ${days === 1 ? "day" : "days"}`;
 	}
 	return "Unknown retention";
@@ -2774,7 +2775,7 @@ export default function ProviderCard({
 		},
 		{
 			label: "Prompt retention",
-			value: formatPromptRetentionValue(provider.provider.data_retention_days),
+			value: formatPromptRetentionValue(provider.provider.data_retention_days, provider.provider.zero_data_retention),
 		},
 		{
 			label: "Headquarters",

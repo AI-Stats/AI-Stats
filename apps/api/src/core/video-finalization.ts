@@ -690,6 +690,11 @@ export async function finalizeVideoJob(args: FinalizeVideoJobArgs): Promise<Fina
 	const billableOutputSeconds = seconds == null ? null : seconds * outputCount;
 	const requestOptions = {
 		...normalizedRequestOptions(args.requestOptions),
+		// Preserve the authoritative count saved with the async job. Per-output
+		// price cards must not fall back to one output during completion.
+		sample_count: outputCount,
+		sampleCount: outputCount,
+		outputCount,
 		...buildVideoPricingRequestOptions({
 			size:
 				(args.requestOptions as any)?.size ??
