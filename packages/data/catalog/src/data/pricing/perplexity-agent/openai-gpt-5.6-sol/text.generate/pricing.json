@@ -1,61 +1,10 @@
 {
-  "key": "perplexity-agent:openai/gpt-5.5:text.generate",
+  "key": "perplexity-agent:openai/gpt-5.6-sol:text.generate",
   "api_provider_id": "perplexity-agent",
   "provider_slug": "perplexity-agent",
-  "api_model_id": "openai/gpt-5.5",
+  "api_model_id": "openai/gpt-5.6-sol",
   "capability_id": "text.generate",
   "rules": [
-    {
-      "meter": "input_text_tokens",
-      "unit": "token",
-      "unit_size": 1000000,
-      "price_per_unit": 5,
-      "currency": "USD",
-      "pricing_plan": "standard",
-      "note": "Historical imported rate retained through the 2026-08-24 official audit.",
-      "match": [],
-      "priority": 100,
-      "region": null,
-      "cache_duration_seconds": null,
-      "conditions": [],
-      "source": null,
-      "effective_from": null,
-      "effective_to": "2026-08-24T00:00:00Z"
-    },
-    {
-      "meter": "cached_read_text_tokens",
-      "unit": "token",
-      "unit_size": 1000000,
-      "price_per_unit": 0.5,
-      "currency": "USD",
-      "pricing_plan": "standard",
-      "note": "Historical imported rate retained through the 2026-08-24 official audit.",
-      "match": [],
-      "priority": 100,
-      "region": null,
-      "cache_duration_seconds": null,
-      "conditions": [],
-      "source": null,
-      "effective_from": null,
-      "effective_to": "2026-08-24T00:00:00Z"
-    },
-    {
-      "meter": "output_text_tokens",
-      "unit": "token",
-      "unit_size": 1000000,
-      "price_per_unit": 30,
-      "currency": "USD",
-      "pricing_plan": "standard",
-      "note": "Historical imported rate retained through the 2026-08-24 official audit.",
-      "match": [],
-      "priority": 100,
-      "region": null,
-      "cache_duration_seconds": null,
-      "conditions": [],
-      "source": null,
-      "effective_from": null,
-      "effective_to": "2026-08-24T00:00:00Z"
-    },
     {
       "meter": "input_text_tokens",
       "unit": "token",
@@ -192,7 +141,7 @@
       "meter": "cached_read_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.5,
+      "price_per_unit": 1,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": "Long-context cache-read pricing.",
@@ -287,11 +236,210 @@
       "cache_duration_seconds": null,
       "conditions": [],
       "source": "https://docs.perplexity.ai/docs/getting-started/pricing"
+    },
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 10,
+      "currency": "USD",
+      "pricing_plan": "priority",
+      "note": "Standard context pricing. Priority processing at 2x standard rates.",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "lte",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "priority": 100,
+      "effective_from": "2026-08-24T00:00:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "lte",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "source": "https://docs.perplexity.ai/docs/agent-api/models"
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 1,
+      "currency": "USD",
+      "pricing_plan": "priority",
+      "note": "Standard context cache-read pricing. Priority processing at 2x standard rates.",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "lte",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "priority": 100,
+      "effective_from": "2026-08-24T00:00:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "lte",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "source": "https://docs.perplexity.ai/docs/agent-api/models"
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 60,
+      "currency": "USD",
+      "pricing_plan": "priority",
+      "note": "Standard context pricing. Priority processing at 2x standard rates.",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "lte",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "priority": 100,
+      "effective_from": "2026-08-24T00:00:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "lte",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "source": "https://docs.perplexity.ai/docs/agent-api/models"
+    },
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 20,
+      "currency": "USD",
+      "pricing_plan": "priority",
+      "note": "Long-context pricing. Priority processing at 2x standard rates.",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "gt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "priority": 100,
+      "effective_from": "2026-08-24T00:00:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "gt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "source": "https://docs.perplexity.ai/docs/agent-api/models"
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 2,
+      "currency": "USD",
+      "pricing_plan": "priority",
+      "note": "Long-context cache-read pricing. Priority processing at 2x standard rates.",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "gt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "priority": 100,
+      "effective_from": "2026-08-24T00:00:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "gt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "source": "https://docs.perplexity.ai/docs/agent-api/models"
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 90,
+      "currency": "USD",
+      "pricing_plan": "priority",
+      "note": "Long-context pricing. Priority processing at 2x standard rates.",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "gt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "priority": 100,
+      "effective_from": "2026-08-24T00:00:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "gt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "source": "https://docs.perplexity.ai/docs/agent-api/models"
     }
   ],
   "regions": [],
   "service_tiers": [
-    "standard"
+    "standard",
+    "priority"
   ],
   "sources": [
     {
