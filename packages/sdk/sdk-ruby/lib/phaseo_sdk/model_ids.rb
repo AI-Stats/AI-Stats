@@ -1497,6 +1497,12 @@ module PhaseoSdk
     # Model ID: voyage/rerank-2-lite
     # Model page: https://phaseo.app/models/voyage/rerank-2-lite
     VOYAGE_RERANK_2_LITE = "voyage/rerank-2-lite"
+    # Model ID: voyage/rerank-2.5
+    # Model page: https://phaseo.app/models/voyage/rerank-2.5
+    VOYAGE_RERANK_2_5 = "voyage/rerank-2.5"
+    # Model ID: voyage/rerank-2.5-lite
+    # Model page: https://phaseo.app/models/voyage/rerank-2.5-lite
+    VOYAGE_RERANK_2_5_LITE = "voyage/rerank-2.5-lite"
     # Model ID: voyage/rerank-lite-1
     # Model page: https://phaseo.app/models/voyage/rerank-lite-1
     VOYAGE_RERANK_LITE_1 = "voyage/rerank-lite-1"
@@ -1539,6 +1545,9 @@ module PhaseoSdk
     # Model ID: voyage/voyage-code-3
     # Model page: https://phaseo.app/models/voyage/voyage-code-3
     VOYAGE_VOYAGE_CODE_3 = "voyage/voyage-code-3"
+    # Model ID: voyage/voyage-code-4
+    # Model page: https://phaseo.app/models/voyage/voyage-code-4
+    VOYAGE_VOYAGE_CODE_4 = "voyage/voyage-code-4"
     # Model ID: voyage/voyage-context-3
     # Model page: https://phaseo.app/models/voyage/voyage-context-3
     VOYAGE_VOYAGE_CONTEXT_3 = "voyage/voyage-context-3"
@@ -2147,6 +2156,8 @@ module PhaseoSdk
     ModelIds::VOYAGE_RERANK_1,
     ModelIds::VOYAGE_RERANK_2,
     ModelIds::VOYAGE_RERANK_2_LITE,
+    ModelIds::VOYAGE_RERANK_2_5,
+    ModelIds::VOYAGE_RERANK_2_5_LITE,
     ModelIds::VOYAGE_RERANK_LITE_1,
     ModelIds::VOYAGE_VOYAGE_01,
     ModelIds::VOYAGE_VOYAGE_02,
@@ -2161,6 +2172,7 @@ module PhaseoSdk
     ModelIds::VOYAGE_VOYAGE_4_LITE,
     ModelIds::VOYAGE_VOYAGE_CODE_2,
     ModelIds::VOYAGE_VOYAGE_CODE_3,
+    ModelIds::VOYAGE_VOYAGE_CODE_4,
     ModelIds::VOYAGE_VOYAGE_CONTEXT_3,
     ModelIds::VOYAGE_VOYAGE_FINANCE_2,
     ModelIds::VOYAGE_VOYAGE_LARGE_2,

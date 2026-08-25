@@ -1501,6 +1501,12 @@ const (
 	// Model ID: voyage/rerank-2-lite
 	// Model page: https://phaseo.app/models/voyage/rerank-2-lite
 	ModelIDVoyageRerank2Lite gen.ModelId = "voyage/rerank-2-lite"
+	// Model ID: voyage/rerank-2.5
+	// Model page: https://phaseo.app/models/voyage/rerank-2.5
+	ModelIDVoyageRerank25 gen.ModelId = "voyage/rerank-2.5"
+	// Model ID: voyage/rerank-2.5-lite
+	// Model page: https://phaseo.app/models/voyage/rerank-2.5-lite
+	ModelIDVoyageRerank25Lite gen.ModelId = "voyage/rerank-2.5-lite"
 	// Model ID: voyage/rerank-lite-1
 	// Model page: https://phaseo.app/models/voyage/rerank-lite-1
 	ModelIDVoyageRerankLite1 gen.ModelId = "voyage/rerank-lite-1"
@@ -1543,6 +1549,9 @@ const (
 	// Model ID: voyage/voyage-code-3
 	// Model page: https://phaseo.app/models/voyage/voyage-code-3
 	ModelIDVoyageVoyageCode3 gen.ModelId = "voyage/voyage-code-3"
+	// Model ID: voyage/voyage-code-4
+	// Model page: https://phaseo.app/models/voyage/voyage-code-4
+	ModelIDVoyageVoyageCode4 gen.ModelId = "voyage/voyage-code-4"
 	// Model ID: voyage/voyage-context-3
 	// Model page: https://phaseo.app/models/voyage/voyage-context-3
 	ModelIDVoyageVoyageContext3 gen.ModelId = "voyage/voyage-context-3"
@@ -2151,6 +2160,8 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDVoyageRerank1,
 	ModelIDVoyageRerank2,
 	ModelIDVoyageRerank2Lite,
+	ModelIDVoyageRerank25,
+	ModelIDVoyageRerank25Lite,
 	ModelIDVoyageRerankLite1,
 	ModelIDVoyageVoyage01,
 	ModelIDVoyageVoyage02,
@@ -2165,6 +2176,7 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDVoyageVoyage4Lite,
 	ModelIDVoyageVoyageCode2,
 	ModelIDVoyageVoyageCode3,
+	ModelIDVoyageVoyageCode4,
 	ModelIDVoyageVoyageContext3,
 	ModelIDVoyageVoyageFinance2,
 	ModelIDVoyageVoyageLarge2,

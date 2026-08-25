@@ -1497,6 +1497,12 @@ pub mod model_ids {
     /// Model ID: `voyage/rerank-2-lite`.
     /// Model page: https://phaseo.app/models/voyage/rerank-2-lite
     pub const VOYAGE_RERANK_2_LITE: &str = "voyage/rerank-2-lite";
+    /// Model ID: `voyage/rerank-2.5`.
+    /// Model page: https://phaseo.app/models/voyage/rerank-2.5
+    pub const VOYAGE_RERANK_2_5: &str = "voyage/rerank-2.5";
+    /// Model ID: `voyage/rerank-2.5-lite`.
+    /// Model page: https://phaseo.app/models/voyage/rerank-2.5-lite
+    pub const VOYAGE_RERANK_2_5_LITE: &str = "voyage/rerank-2.5-lite";
     /// Model ID: `voyage/rerank-lite-1`.
     /// Model page: https://phaseo.app/models/voyage/rerank-lite-1
     pub const VOYAGE_RERANK_LITE_1: &str = "voyage/rerank-lite-1";
@@ -1539,6 +1545,9 @@ pub mod model_ids {
     /// Model ID: `voyage/voyage-code-3`.
     /// Model page: https://phaseo.app/models/voyage/voyage-code-3
     pub const VOYAGE_VOYAGE_CODE_3: &str = "voyage/voyage-code-3";
+    /// Model ID: `voyage/voyage-code-4`.
+    /// Model page: https://phaseo.app/models/voyage/voyage-code-4
+    pub const VOYAGE_VOYAGE_CODE_4: &str = "voyage/voyage-code-4";
     /// Model ID: `voyage/voyage-context-3`.
     /// Model page: https://phaseo.app/models/voyage/voyage-context-3
     pub const VOYAGE_VOYAGE_CONTEXT_3: &str = "voyage/voyage-context-3";
@@ -2147,6 +2156,8 @@ pub mod model_ids {
         VOYAGE_RERANK_1,
         VOYAGE_RERANK_2,
         VOYAGE_RERANK_2_LITE,
+        VOYAGE_RERANK_2_5,
+        VOYAGE_RERANK_2_5_LITE,
         VOYAGE_RERANK_LITE_1,
         VOYAGE_VOYAGE_01,
         VOYAGE_VOYAGE_02,
@@ -2161,6 +2172,7 @@ pub mod model_ids {
         VOYAGE_VOYAGE_4_LITE,
         VOYAGE_VOYAGE_CODE_2,
         VOYAGE_VOYAGE_CODE_3,
+        VOYAGE_VOYAGE_CODE_4,
         VOYAGE_VOYAGE_CONTEXT_3,
         VOYAGE_VOYAGE_FINANCE_2,
         VOYAGE_VOYAGE_LARGE_2,

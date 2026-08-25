@@ -1501,6 +1501,12 @@ public final class ModelIds {
     /** Model ID: <code>voyage/rerank-2-lite</code>. Model page: https://phaseo.app/models/voyage/rerank-2-lite */
     public static final String VOYAGE_RERANK_2_LITE = "voyage/rerank-2-lite";
 
+    /** Model ID: <code>voyage/rerank-2.5</code>. Model page: https://phaseo.app/models/voyage/rerank-2.5 */
+    public static final String VOYAGE_RERANK_2_5 = "voyage/rerank-2.5";
+
+    /** Model ID: <code>voyage/rerank-2.5-lite</code>. Model page: https://phaseo.app/models/voyage/rerank-2.5-lite */
+    public static final String VOYAGE_RERANK_2_5_LITE = "voyage/rerank-2.5-lite";
+
     /** Model ID: <code>voyage/rerank-lite-1</code>. Model page: https://phaseo.app/models/voyage/rerank-lite-1 */
     public static final String VOYAGE_RERANK_LITE_1 = "voyage/rerank-lite-1";
 
@@ -1542,6 +1548,9 @@ public final class ModelIds {
 
     /** Model ID: <code>voyage/voyage-code-3</code>. Model page: https://phaseo.app/models/voyage/voyage-code-3 */
     public static final String VOYAGE_VOYAGE_CODE_3 = "voyage/voyage-code-3";
+
+    /** Model ID: <code>voyage/voyage-code-4</code>. Model page: https://phaseo.app/models/voyage/voyage-code-4 */
+    public static final String VOYAGE_VOYAGE_CODE_4 = "voyage/voyage-code-4";
 
     /** Model ID: <code>voyage/voyage-context-3</code>. Model page: https://phaseo.app/models/voyage/voyage-context-3 */
     public static final String VOYAGE_VOYAGE_CONTEXT_3 = "voyage/voyage-context-3";

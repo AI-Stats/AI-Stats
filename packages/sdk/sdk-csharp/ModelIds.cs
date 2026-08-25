@@ -1002,6 +1002,10 @@ namespace PhaseoSdk
         public const string VoyageRerank2 = "voyage/rerank-2";
         /// <summary>Model ID: <c>voyage/rerank-2-lite</c>. Model page: https://phaseo.app/models/voyage/rerank-2-lite</summary>
         public const string VoyageRerank2Lite = "voyage/rerank-2-lite";
+        /// <summary>Model ID: <c>voyage/rerank-2.5</c>. Model page: https://phaseo.app/models/voyage/rerank-2.5</summary>
+        public const string VoyageRerank25 = "voyage/rerank-2.5";
+        /// <summary>Model ID: <c>voyage/rerank-2.5-lite</c>. Model page: https://phaseo.app/models/voyage/rerank-2.5-lite</summary>
+        public const string VoyageRerank25Lite = "voyage/rerank-2.5-lite";
         /// <summary>Model ID: <c>voyage/rerank-lite-1</c>. Model page: https://phaseo.app/models/voyage/rerank-lite-1</summary>
         public const string VoyageRerankLite1 = "voyage/rerank-lite-1";
         /// <summary>Model ID: <c>voyage/voyage-01</c>. Model page: https://phaseo.app/models/voyage/voyage-01</summary>
@@ -1030,6 +1034,8 @@ namespace PhaseoSdk
         public const string VoyageVoyageCode2 = "voyage/voyage-code-2";
         /// <summary>Model ID: <c>voyage/voyage-code-3</c>. Model page: https://phaseo.app/models/voyage/voyage-code-3</summary>
         public const string VoyageVoyageCode3 = "voyage/voyage-code-3";
+        /// <summary>Model ID: <c>voyage/voyage-code-4</c>. Model page: https://phaseo.app/models/voyage/voyage-code-4</summary>
+        public const string VoyageVoyageCode4 = "voyage/voyage-code-4";
         /// <summary>Model ID: <c>voyage/voyage-context-3</c>. Model page: https://phaseo.app/models/voyage/voyage-context-3</summary>
         public const string VoyageVoyageContext3 = "voyage/voyage-context-3";
         /// <summary>Model ID: <c>voyage/voyage-finance-2</c>. Model page: https://phaseo.app/models/voyage/voyage-finance-2</summary>

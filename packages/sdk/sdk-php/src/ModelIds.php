@@ -1502,6 +1502,12 @@ final class ModelIds
     /** Model ID: voyage/rerank-2-lite. Model page: https://phaseo.app/models/voyage/rerank-2-lite */
     public const VOYAGE_RERANK_2_LITE = 'voyage/rerank-2-lite';
 
+    /** Model ID: voyage/rerank-2.5. Model page: https://phaseo.app/models/voyage/rerank-2.5 */
+    public const VOYAGE_RERANK_2_5 = 'voyage/rerank-2.5';
+
+    /** Model ID: voyage/rerank-2.5-lite. Model page: https://phaseo.app/models/voyage/rerank-2.5-lite */
+    public const VOYAGE_RERANK_2_5_LITE = 'voyage/rerank-2.5-lite';
+
     /** Model ID: voyage/rerank-lite-1. Model page: https://phaseo.app/models/voyage/rerank-lite-1 */
     public const VOYAGE_RERANK_LITE_1 = 'voyage/rerank-lite-1';
 
@@ -1543,6 +1549,9 @@ final class ModelIds
 
     /** Model ID: voyage/voyage-code-3. Model page: https://phaseo.app/models/voyage/voyage-code-3 */
     public const VOYAGE_VOYAGE_CODE_3 = 'voyage/voyage-code-3';
+
+    /** Model ID: voyage/voyage-code-4. Model page: https://phaseo.app/models/voyage/voyage-code-4 */
+    public const VOYAGE_VOYAGE_CODE_4 = 'voyage/voyage-code-4';
 
     /** Model ID: voyage/voyage-context-3. Model page: https://phaseo.app/models/voyage/voyage-context-3 */
     public const VOYAGE_VOYAGE_CONTEXT_3 = 'voyage/voyage-context-3';

@@ -1500,6 +1500,12 @@ inline constexpr std::string_view VOYAGE_RERANK_2 = "voyage/rerank-2";
 // Model ID: voyage/rerank-2-lite
 // Model page: https://phaseo.app/models/voyage/rerank-2-lite
 inline constexpr std::string_view VOYAGE_RERANK_2_LITE = "voyage/rerank-2-lite";
+// Model ID: voyage/rerank-2.5
+// Model page: https://phaseo.app/models/voyage/rerank-2.5
+inline constexpr std::string_view VOYAGE_RERANK_2_5 = "voyage/rerank-2.5";
+// Model ID: voyage/rerank-2.5-lite
+// Model page: https://phaseo.app/models/voyage/rerank-2.5-lite
+inline constexpr std::string_view VOYAGE_RERANK_2_5_LITE = "voyage/rerank-2.5-lite";
 // Model ID: voyage/rerank-lite-1
 // Model page: https://phaseo.app/models/voyage/rerank-lite-1
 inline constexpr std::string_view VOYAGE_RERANK_LITE_1 = "voyage/rerank-lite-1";
@@ -1542,6 +1548,9 @@ inline constexpr std::string_view VOYAGE_VOYAGE_CODE_2 = "voyage/voyage-code-2";
 // Model ID: voyage/voyage-code-3
 // Model page: https://phaseo.app/models/voyage/voyage-code-3
 inline constexpr std::string_view VOYAGE_VOYAGE_CODE_3 = "voyage/voyage-code-3";
+// Model ID: voyage/voyage-code-4
+// Model page: https://phaseo.app/models/voyage/voyage-code-4
+inline constexpr std::string_view VOYAGE_VOYAGE_CODE_4 = "voyage/voyage-code-4";
 // Model ID: voyage/voyage-context-3
 // Model page: https://phaseo.app/models/voyage/voyage-context-3
 inline constexpr std::string_view VOYAGE_VOYAGE_CONTEXT_3 = "voyage/voyage-context-3";
@@ -1650,7 +1659,7 @@ inline constexpr std::string_view ZAI_GLM_5 = "zai/glm-5";
 // Deprecated alias for deepseek/deepseek-v4; use deepseek/deepseek-v4-pro. Remove in the next major SDK release.
 inline constexpr std::string_view DEEPSEEK_DEEPSEEK_V4 = DEEPSEEK_DEEPSEEK_V4_PRO;
 
-inline constexpr std::array<std::string_view, 547> ALL = {
+inline constexpr std::array<std::string_view, 550> ALL = {
 	AI21_JAMBA_1_5_LARGE,
 	AI21_JAMBA_1_5_MINI,
 	AION_LABS_AION_2_0,
@@ -2149,6 +2158,8 @@ inline constexpr std::array<std::string_view, 547> ALL = {
 	VOYAGE_RERANK_1,
 	VOYAGE_RERANK_2,
 	VOYAGE_RERANK_2_LITE,
+	VOYAGE_RERANK_2_5,
+	VOYAGE_RERANK_2_5_LITE,
 	VOYAGE_RERANK_LITE_1,
 	VOYAGE_VOYAGE_01,
 	VOYAGE_VOYAGE_02,
@@ -2163,6 +2174,7 @@ inline constexpr std::array<std::string_view, 547> ALL = {
 	VOYAGE_VOYAGE_4_LITE,
 	VOYAGE_VOYAGE_CODE_2,
 	VOYAGE_VOYAGE_CODE_3,
+	VOYAGE_VOYAGE_CODE_4,
 	VOYAGE_VOYAGE_CONTEXT_3,
 	VOYAGE_VOYAGE_FINANCE_2,
 	VOYAGE_VOYAGE_LARGE_2,
