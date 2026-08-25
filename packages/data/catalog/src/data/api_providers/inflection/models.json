@@ -248,7 +248,7 @@
           }
         ],
         "reasoning": null,
-        "tool_call": null,
+        "tool_call": true,
         "structured_output": null,
         "temperature": null,
         "attachment": null,
