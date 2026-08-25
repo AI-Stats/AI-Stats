@@ -1,25 +1,19 @@
 {
   "model_id": "kling/kling-v2-5-turbo",
   "organisation_id": "kling",
-  "name": "Kling-V2-5-Turbo",
+  "name": "kling-v2-5-turbo",
   "status": "Available",
   "previous_model_id": null,
-  "description": "可灵2.5 Turbo是可灵团队推出的AI视频生成模型，在多个方面实现了显著的升级和优化。性能提升是其核心亮点之一。模型能更好地理解复杂的因果关系和时间序列指令，生成的视频动作更加流畅自然，运镜更加稳定。在风格保持上也表现出色，无论是色彩、光影还是笔触质感，能在视频生成过程中保持高度一致性。成本降低也是2.5 Turbo的一大优势，使更多用户能以更低的成本体验到高质量的AI视频生成服务。在与顶级CG作品的对比中，可灵2.5 Turbo在某些场景下已经能达到接近甚至超越CG的水平，尤其是在动态预览方面，为CG制作提供了更高效、更快速的解决方案。",
+  "description": "Kling 2.5 Turbo — fast text-to-video and image-to-video with first-last-frame mode, 5–10s clips, 1080p, 24fps.",
   "announced_date": null,
   "release_date": null,
   "deprecation_date": null,
   "retirement_date": null,
   "license": null,
-  "input_types": "image,text",
-  "output_types": "video",
-  "api_model_id": "kling-v2-5-turbo",
-  "links": [
-    {
-      "title": "Qiniu model marketplace",
-      "kind": "provider",
-      "url": "https://www.qiniu.com/ai/models"
-    }
-  ],
+  "input_types": null,
+  "output_types": null,
+  "api_model_id": "kling/kling-v2-5-turbo",
+  "links": [],
   "details": [],
   "benchmarks": [],
   "family_id": null,
@@ -27,27 +21,22 @@
   "model_type": null,
   "knowledge_cutoff": null,
   "limits": {
-    "context": 9999999,
-    "input": 9999999,
+    "context": null,
+    "input": null,
     "output": null
   },
   "modalities": {
-    "input": [
-      "image",
-      "text"
-    ],
-    "output": [
-      "video"
-    ]
+    "input": [],
+    "output": []
   },
   "reasoning": {
-    "supported": false,
+    "supported": null,
     "options": []
   },
   "capabilities": {
-    "attachment": true,
-    "tool_call": false,
-    "structured_output": false,
+    "attachment": null,
+    "tool_call": null,
+    "structured_output": null,
     "temperature": null,
     "streaming": null,
     "web_search": null
@@ -55,16 +44,16 @@
   "open_weights": null,
   "sources": [
     {
-      "kind": "documentation",
-      "url": "https://www.qiniu.com/ai/models",
+      "kind": "models",
+      "url": "https://api.orcarouter.ai/v1/models",
       "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "Canonical entity derived from Qiniu's official hosted-model entry kling-v2-5-turbo."
+      "notes": "OrcaRouter live model catalogue metadata."
     }
   ],
   "verification": {
     "status": "verified",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Identity, modalities and lifecycle verified from the official Qiniu marketplace."
+    "notes": "Exact model ID, availability, limits, modalities, description, and pricing metadata verified against OrcaRouter's live official catalogue."
   },
   "last_updated": "2026-08-24T00:00:00Z",
   "removal_date": null,

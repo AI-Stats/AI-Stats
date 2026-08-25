@@ -43,11 +43,27 @@
       "currency": "USD",
       "pricing_plan": "standard",
       "note": "1-hour cache write",
-      "match": [],
+      "match": [
+        {
+          "path": "cache_ttl",
+          "op": "eq",
+          "or_group": 1,
+          "and_index": 1,
+          "value": "1h"
+        }
+      ],
       "priority": 100,
       "region": null,
       "cache_duration_seconds": 3600,
-      "conditions": [],
+      "conditions": [
+        {
+          "path": "cache_ttl",
+          "op": "eq",
+          "or_group": 1,
+          "and_index": 1,
+          "value": "1h"
+        }
+      ],
       "source": null
     },
     {
@@ -58,11 +74,27 @@
       "currency": "USD",
       "pricing_plan": "standard",
       "note": "5-minute cache write",
-      "match": [],
+      "match": [
+        {
+          "path": "cache_ttl",
+          "op": "eq",
+          "or_group": 1,
+          "and_index": 1,
+          "value": "5m"
+        }
+      ],
       "priority": 100,
       "region": null,
       "cache_duration_seconds": 300,
-      "conditions": [],
+      "conditions": [
+        {
+          "path": "cache_ttl",
+          "op": "eq",
+          "or_group": 1,
+          "and_index": 1,
+          "value": "5m"
+        }
+      ],
       "source": null
     },
     {

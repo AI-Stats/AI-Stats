@@ -1,12 +1,18 @@
 {
   "organisation_id": "shengshu-ai",
-  "name": "ShengShu AI",
+  "name": "ShengShu Technology",
   "country_code": "CN",
-  "description": "ShengShu AI develops the Vidu family of generative video models.",
-  "colour": null,
-  "organisation_links": [{ "platform": "website", "url": "https://www.vidu.com/" }],
-  "status": "active",
-  "routable": null,
-  "sources": [{ "kind": "documentation", "url": "https://www.qiniu.com/ai/models", "accessed_at": "2026-08-24T00:00:00Z", "notes": "Qiniu's official marketplace identifies the hosted Vidu model family." }],
-  "verification": { "status": "partial", "checked_at": "2026-08-24T00:00:00Z", "notes": "Identity attribution verified for Qiniu catalogue reconciliation." }
+  "description": "ShengShu Technology develops generative media models offered through Tencent Cloud TokenHub.",
+  "links": [
+    {
+      "title": "Website",
+      "kind": "website",
+      "url": "https://www.shengshu-ai.com/"
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Provider identity verified from Tencent Cloud TokenHub's official model list."
+  }
 }

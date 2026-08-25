@@ -1,25 +1,19 @@
 {
   "model_id": "kling/kling-v3-omni",
   "organisation_id": "kling",
-  "name": "Kling-V3-Omni",
+  "name": "kling-v3-omni",
   "status": "Available",
   "previous_model_id": null,
-  "description": "Kling-V3-Omni 是全能多模态版本，将文/图生视频、视频编辑以及基于多参考图的角色和风格一致性控制，完美统一在了单一模型中。",
+  "description": "Kling 3.0 Omni — unified text-to-video and image-to-video API with multi-shot, subject control and video-reference, 3–15s clips, up to native 4K.",
   "announced_date": null,
   "release_date": null,
   "deprecation_date": null,
   "retirement_date": null,
   "license": null,
-  "input_types": "text,image,video",
-  "output_types": "video",
-  "api_model_id": "kling-v3-omni",
-  "links": [
-    {
-      "title": "Qiniu model marketplace",
-      "kind": "provider",
-      "url": "https://www.qiniu.com/ai/models"
-    }
-  ],
+  "input_types": null,
+  "output_types": null,
+  "api_model_id": "kling/kling-v3-omni",
+  "links": [],
   "details": [],
   "benchmarks": [],
   "family_id": null,
@@ -32,23 +26,17 @@
     "output": null
   },
   "modalities": {
-    "input": [
-      "text",
-      "image",
-      "video"
-    ],
-    "output": [
-      "video"
-    ]
+    "input": [],
+    "output": []
   },
   "reasoning": {
-    "supported": false,
+    "supported": null,
     "options": []
   },
   "capabilities": {
-    "attachment": true,
-    "tool_call": false,
-    "structured_output": false,
+    "attachment": null,
+    "tool_call": null,
+    "structured_output": null,
     "temperature": null,
     "streaming": null,
     "web_search": null
@@ -56,16 +44,16 @@
   "open_weights": null,
   "sources": [
     {
-      "kind": "documentation",
-      "url": "https://www.qiniu.com/ai/models",
+      "kind": "models",
+      "url": "https://api.orcarouter.ai/v1/models",
       "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "Canonical entity derived from Qiniu's official hosted-model entry kling-v3-omni."
+      "notes": "OrcaRouter live model catalogue metadata."
     }
   ],
   "verification": {
     "status": "verified",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Identity, modalities and lifecycle verified from the official Qiniu marketplace."
+    "notes": "Exact model ID, availability, limits, modalities, description, and pricing metadata verified against OrcaRouter's live official catalogue."
   },
   "last_updated": "2026-08-24T00:00:00Z",
   "removal_date": null,
