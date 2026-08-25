@@ -13,6 +13,10 @@ declare
   candidate record;
   previous record;
 begin
+  perform pg_catalog.pg_advisory_xact_lock(
+    pg_catalog.hashtext(p_workspace_id::text)::bigint
+  );
+
   for candidate in
     select wm.workspace_id,wm.user_id,
       case when w.owner_user_id=wm.user_id then 'owner'
@@ -77,6 +81,7 @@ begin
   update public.workspace_member_entitlement_history h set effective_to=now()
   where h.workspace_id=p_workspace_id and h.effective_to is null
     and not exists(select 1 from public.workspace_members wm where wm.workspace_id=h.workspace_id and wm.user_id=h.user_id);
+  -- phaseo:allow-destructive-migration reason: Remove derived entitlement rows for members that no longer exist in the authoritative workspace membership set.
   delete from public.workspace_member_effective_entitlements e
   where e.workspace_id=p_workspace_id
     and not exists(select 1 from public.workspace_members wm where wm.workspace_id=e.workspace_id and wm.user_id=e.user_id);
