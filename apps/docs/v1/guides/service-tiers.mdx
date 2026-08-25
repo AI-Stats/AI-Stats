@@ -1,6 +1,6 @@
 ---
 title: "Service Tiers"
-description: "How Standard, Priority, Flex, and Batch pricing modes work in Phaseo Gateway."
+description: "How Standard, Fast, Flex, and Batch pricing modes work in Phaseo Gateway."
 icon: "gauge"
 ---
 
@@ -23,7 +23,7 @@ Service tiers are currently available only for supported text models on supporte
 | Tier | How to request it | Typical use |
 | --- | --- | --- |
 | `Standard` | Default behavior. No extra field required. | General production traffic. |
-| `Priority` | Set `service_tier: "priority"` on the request. | Faster or premium routing where supported. OpenAI also accepts `fast`. |
+| `Fast` | Set `service_tier: "fast"` on the request. | Faster or premium routing where supported. OpenAI also accepts `priority`. |
 | `Flex` | Set `service_tier: "flex"` on the request. | Lower-cost routing where supported. |
 | `Batch` | Use the Batch API rather than `service_tier`. | Large deferred workloads where latency is less important. |
 
@@ -36,7 +36,7 @@ Use the same `service_tier` field when you call any supported synchronous text A
 - [Responses API reference](../api-reference/endpoint/responses.mdx)
 - [Shared parameter reference](../api-reference/parameters.mdx)
 
-The accepted `service_tier` values are `standard`, `fast`, `priority`, `flex`, and `batch`. `Standard` is the default behavior when `service_tier` is omitted. Phaseo uses `Priority` as the canonical premium tier name. For OpenAI routes, `fast` is accepted as a provider-compatible alias and uses the same routing and pricing. `Batch` is handled by the Batch API rather than synchronous text requests.
+The accepted `service_tier` values are `standard`, `fast`, `priority`, `flex`, and `batch`. `Standard` is the default behavior when `service_tier` is omitted. Phaseo uses `Fast` as the canonical premium tier name. For OpenAI routes, `priority` is accepted as a provider-compatible alias and uses the same routing and pricing. `Batch` is handled by the Batch API rather than synchronous text requests.
 
 <Note>
 Phaseo maps the normalized gateway values to provider-native controls internally. For example, an Anthropic route may receive Anthropic-native tier fields upstream, but the client-facing request still uses the gateway values listed here.
@@ -53,15 +53,15 @@ Phaseo maps the normalized gateway values to provider-native controls internally
 }
 ```
 
-## Priority
+## Fast
 
-Use `Priority` when you want the provider's premium or higher-priority offer. Phaseo keeps `priority` as its provider-neutral name. OpenAI calls this Fast mode and accepts both `priority` and `fast` on supported models.
+Use `Fast` when you want the provider's premium or higher-priority offer. Phaseo uses `fast` as its provider-neutral name. OpenAI calls this Fast mode and accepts both `fast` and `priority` on supported models.
 
 ```json
 {
   "model": "openai/gpt-5.5",
   "input": "Summarise this incident report.",
-  "service_tier": "priority"
+  "service_tier": "fast"
 }
 ```
 
@@ -74,7 +74,7 @@ Use `Priority` when you want the provider's premium or higher-priority offer. Ph
   "messages": [
     { "role": "user", "content": "Summarise this incident report." }
   ],
-  "service_tier": "priority"
+  "service_tier": "fast"
 }
 ```
 
@@ -95,7 +95,7 @@ provider offer:
   "messages": [
     { "role": "user", "content": "Summarise this incident report." }
   ],
-  "service_tier": "priority",
+  "service_tier": "fast",
   "provider": {
     "only": ["mistral-eu"],
     "required_execution_region": "eu"
