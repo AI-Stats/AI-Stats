@@ -1,0 +1,73 @@
+{
+  "model_id": "poe/stable-audio-2.5",
+  "organisation_id": "poe",
+  "name": "Stable-Audio-2.5",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Stable Audio 2.5 generates high-quality audio up to 3 minutes long from text prompts, supporting text-to-audio, audio-to-audio transformations, and inpainting with customizable settings like duration, steps, CFG scale, and more. It is Ideal for music production, cinematic sound design, and remixing. \n\nNote: Audio-to-audio and inpaint modes require a prompt alongside an uploaded audio file for generation.\n\nParameter controls available:\n1. Basic\n   - Generation Mode: Text to Audio, Audio to Audio (Transform), Audio Inpaint (Edit Segment)\n   - Output format: WAV (high quality), MP3 (Compressed)\n\n2. Timing and Randomness \n   - Duration [1-190 seconds] controls how long generated audio is\n   - Seed [0-4294967294]' disables random seed generation. Use random seed must be toggled off to set.\n\n3. Advanced\n   - Cfg scale [1-25]: Higher = closer to prompt (recommended 7-15)\n   - Steps [4-8]`: Higher = better quality (recommended 6-8)\n\n4. Transformation control (only for audio-to-audio)\n   - Strength [0-1]`: How much to change/transform (0.3-0.7 typical)\n\n5. Inpainting control (only for audio-inpaint)\n   - Mask start time [seconds] start time of the uploaded audio to modify\n   - Mask end time [seconds] end time of the uploaded audio to modify",
+  "announced_date": "2025-09-03T03:14:35",
+  "release_date": "2025-09-03T03:14:35",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text,audio",
+  "output_types": "audio",
+  "api_model_id": "poe/stable-audio-2.5",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Poe bot",
+      "kind": "api_reference",
+      "url": "https://poe.com/stable-audio-2.5"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "Poe bot",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text",
+      "audio"
+    ],
+    "output": [
+      "audio"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": true,
+    "tool_call": false,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.poe.com/v1/models",
+      "accessed_at": "2026-08-24T03:27:45Z",
+      "notes": "Canonical entity for an exact public Poe bot identifier returned by the models API."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T03:27:45Z",
+    "notes": "Identity and advertised metadata verified against Poe's public models API."
+  },
+  "last_updated": "2026-08-24T03:27:45Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

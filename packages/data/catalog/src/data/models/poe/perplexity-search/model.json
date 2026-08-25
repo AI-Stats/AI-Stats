@@ -1,0 +1,72 @@
+{
+  "model_id": "poe/perplexity-search",
+  "organisation_id": "poe",
+  "name": "Perplexity-Search",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Utilize Perplexity's technology for real-time web search with filtering by domain, language, date and more.\nNote: This endpoint does not return an LLM-style response. File upload is not supported.\n\nParameter Controls Available:\n1. General\n   - `query` (required): Your search query as a single string\n   - `multi_query`: Up to 5 queries separated by newlines for batch searching\n   - `max_results` [1-20]: Number of search results to return (default 5)\n   - `max_tokens` [5000-100000]: Total content token budget across all results\n   - `max_tokens_per_page` [256-8192]: Maximum tokens extracted per individual page\n\n2. Filters\n   - `search_domain_filter`: Allow or deny specific domains (prefix with `-` to deny, max 20, no mixing allow/deny)\n   - `search_language_filter`: Restrict results by language using ISO 639-1 codes (e.g. `en`, `fr`), comma-separated, max 10\n   - `country`: Restrict results by country using ISO 3166-1 alpha-2 code (e.g. `US`, `GB`)\n\n3. Date & Recency\n   - `search_recency_filter`: Limit results to `hour`, `day`, `week`, `month`, or `year`\n   - `search_after_date_filter` (MM/DD/YYYY): Only return results published after this date (overrides recency)\n   - `search_before_date_filter` (MM/DD/YYYY): Only return results published before this date (overrides recency)\n   - `last_updated_after_filter` (MM/DD/YYYY): Only return results last updated after this date\n   - `last_updated_before_filter` (MM/DD/YYYY): Only return results last updated before this date\n   - `display_server_time`: Toggle to include the server timestamp in the response",
+  "announced_date": "2026-02-22T01:33:06",
+  "release_date": "2026-02-22T01:33:06",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text",
+  "output_types": "text",
+  "api_model_id": "poe/perplexity-search",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Poe bot",
+      "kind": "api_reference",
+      "url": "https://poe.com/perplexity-search"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "Poe bot",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": false,
+    "tool_call": false,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.poe.com/v1/models",
+      "accessed_at": "2026-08-24T03:27:45Z",
+      "notes": "Canonical entity for an exact public Poe bot identifier returned by the models API."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T03:27:45Z",
+    "notes": "Identity and advertised metadata verified against Poe's public models API."
+  },
+  "last_updated": "2026-08-24T03:27:45Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

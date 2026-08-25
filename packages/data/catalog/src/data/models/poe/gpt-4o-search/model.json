@@ -1,0 +1,81 @@
+{
+  "model_id": "poe/gpt-4o-search",
+  "organisation_id": "poe",
+  "name": "GPT-4o-Search",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "OpenAI's fine-tuned model for searching the web for real-time information. For less expensive messages, consider https://poe.com/GPT-4o-mini-Search. Uses medium search context size, currently in preview, supports 128k tokens of context. Does not support image search.",
+  "announced_date": "2025-03-11T19:17:02",
+  "release_date": "2025-03-11T19:17:02",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text",
+  "output_types": "text",
+  "api_model_id": "poe/gpt-4o-search",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Poe bot",
+      "kind": "api_reference",
+      "url": "https://poe.com/gpt-4o-search"
+    }
+  ],
+  "details": [
+    {
+      "name": "input_context_length",
+      "value": 128000
+    },
+    {
+      "name": "output_context_length",
+      "value": 8192
+    }
+  ],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "Poe bot",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": 128000,
+    "input": 128000,
+    "output": 8192
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": false,
+    "tool_call": true,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.poe.com/v1/models",
+      "accessed_at": "2026-08-24T03:27:45Z",
+      "notes": "Canonical entity for an exact public Poe bot identifier returned by the models API."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T03:27:45Z",
+    "notes": "Identity and advertised metadata verified against Poe's public models API."
+  },
+  "last_updated": "2026-08-24T03:27:45Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

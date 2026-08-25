@@ -1,0 +1,72 @@
+{
+  "model_id": "poe/mimo-v2.5-el",
+  "organisation_id": "poe",
+  "name": "MiMo-V2.5-EL",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "MiMo-V2.5 is a multimodal model with native visual and audio understanding, built to reason and act across modalities while supporting a large context window. It is positioned as a major step forward in agentic capability and multimodal understanding, with strong performance in visual reasoning, chart analysis, and real-world multimodal tasks.\n\nNotes: \n- Modalities: Text, Image, Video, Audio\n- Context window: 1M\n\nThis bot supports optional parameters for additional customization.",
+  "announced_date": "2026-04-24T03:46:30",
+  "release_date": "2026-04-24T03:46:30",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text",
+  "output_types": "text",
+  "api_model_id": "poe/mimo-v2.5-el",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Poe bot",
+      "kind": "api_reference",
+      "url": "https://poe.com/mimo-v2.5-el"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "Poe bot",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": false,
+    "tool_call": false,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.poe.com/v1/models",
+      "accessed_at": "2026-08-24T03:27:45Z",
+      "notes": "Canonical entity for an exact public Poe bot identifier returned by the models API."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T03:27:45Z",
+    "notes": "Identity and advertised metadata verified against Poe's public models API."
+  },
+  "last_updated": "2026-08-24T03:27:45Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}
