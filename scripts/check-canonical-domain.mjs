@@ -14,6 +14,7 @@ const forbiddenDomains = [
 
 const trackedFiles = execFileSync("git", ["ls-files", "-z"], {
 	encoding: "utf8",
+	maxBuffer: 64 * 1024 * 1024,
 })
 	.split("\0")
 	.filter(Boolean);

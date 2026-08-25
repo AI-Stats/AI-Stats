@@ -1,0 +1,77 @@
+{
+  "model_id": "poe/elevenlabs-music",
+  "organisation_id": "poe",
+  "name": "ElevenLabs-Music",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "The ElevenLabs music model is a generative AI system designed to compose original music from text prompts. It allows creators to specify genres, moods, instruments, and structure, producing royalty-free tracks tailored to their needs. The model emphasizes speed, creative flexibility, and high-quality audio output, making it suitable for use in videos, podcasts, games, and other multimedia projects. This bot can produce songs with suggested lyrics based on general descriptions, exact lyrics if specified as such, or instrumental ones, all via prompting.\n\nOptional parameters:\nMusic length to set the length of the song in milliseconds (10,000 to 300,000 ms).\n\nNote: Prompt input cannot exceed 2,000 characters.",
+  "announced_date": "2025-08-29T20:34:15",
+  "release_date": "2025-08-29T20:34:15",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text",
+  "output_types": "text",
+  "api_model_id": "poe/elevenlabs-music",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Poe bot",
+      "kind": "api_reference",
+      "url": "https://poe.com/elevenlabs-music"
+    }
+  ],
+  "details": [
+    {
+      "name": "input_context_length",
+      "value": 2000
+    }
+  ],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "Poe bot",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": 2000,
+    "input": 2000,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": false,
+    "tool_call": false,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.poe.com/v1/models",
+      "accessed_at": "2026-08-24T03:27:45Z",
+      "notes": "Canonical entity for an exact public Poe bot identifier returned by the models API."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T03:27:45Z",
+    "notes": "Identity and advertised metadata verified against Poe's public models API."
+  },
+  "last_updated": "2026-08-24T03:27:45Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

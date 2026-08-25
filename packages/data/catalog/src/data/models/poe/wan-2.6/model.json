@@ -1,0 +1,72 @@
+{
+  "model_id": "poe/wan-2.6",
+  "organisation_id": "poe",
+  "name": "Wan-2.6",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Wan 2.6 is Alibaba’s multimodal video generation model built for cinematic, multi-shot storytelling—creating high-fidelity videos from text and/or images while keeping characters and style consistent across scenes. It also supports native audio-visual sync (including lip-sync) and can generate or align dialogue/music/SFX with the visuals, enabling “prompt-to-video” results that feel production-ready without heavy post work.\n\nNotes:\n- This model is served from the Singapore area. \n- Upload an image to enable image-to-video generations or video(s) for reference-to-video generations. The mode is auto-detected from your attachments, or you can choose manually to override.\n- Responses may take upwards of 10 minutes to finish generating. \n\nAttachments\n   - For i2v: Attach an image as the first frame\n   - For r2v: Attach up to 5 images + 1-3 reference videos (1-30 seconds each, 100MB max, MP4/MOV) (Use `character1`, `character2`, `character3` in prompt to reference subjects, ex. character1 references the subject in the first uploaded video) (combined max 5). Uploaded audio files are silently ignored in R2V. Instead, audio is extracted from reference videos.\n   - For t2v/i2v: Optionally attach an audio file (3-30 seconds, max 15mb, .mp3/.wav) for custom audio\n   - Images are automatically resized to fit limits (I2V: 240–8,000px, R2V: 240–8,000px). HEIC/HEIF images are auto-converted. Videos for R2V are validated (MP4/MOV, 1–30s, ≤100 MB) and auto-trimmed if longer than 30 seconds. For R2V, if output duration is set above 10 seconds, it will be automatically capped to 10 seconds.\n\nMulti-Shot Prompting\n   - For multi-shot mode, use timeline syntax: `[Shot #] [Timestamp] [Action]`. Example: `[Shot 1] [0-5s] Wide shot of city skyline. [Shot 2] [5-10s] Close-up of character walking.` \n   - Ensure timestamps match your selected duration and use transition keywords like \"Hard cut\" or \"Fade in\" between shots.\n\nThis bot supports optional parameters for additional customization.",
+  "announced_date": "2025-12-16T17:48:08",
+  "release_date": "2025-12-16T17:48:08",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text",
+  "output_types": "video",
+  "api_model_id": "poe/wan-2.6",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Poe bot",
+      "kind": "api_reference",
+      "url": "https://poe.com/wan-2.6"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "Poe bot",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "video"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": false,
+    "tool_call": false,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.poe.com/v1/models",
+      "accessed_at": "2026-08-24T03:27:45Z",
+      "notes": "Canonical entity for an exact public Poe bot identifier returned by the models API."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T03:27:45Z",
+    "notes": "Identity and advertised metadata verified against Poe's public models API."
+  },
+  "last_updated": "2026-08-24T03:27:45Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}
