@@ -4,24 +4,24 @@
   "provider_family_id": null,
   "offer_label": null,
   "offer_scope": "specialized",
-  "description": "Perplexity Agent is a Perplexity AI service; Perplexity AI, Inc. has its corporate address in San Francisco, California.",
+  "description": "Perplexity Agent is a multi-provider Responses-compatible API with model fallback, structured outputs, and Perplexity-hosted web, URL, people, finance, and sandbox tools.",
   "link": "https://docs.perplexity.ai/docs/agent-api/models",
-  "residency_mode": null,
+  "residency_mode": "unknown",
   "default_execution_regions": null,
   "default_data_regions": null,
-  "zero_data_retention": null,
-  "residency_source_url": null,
-  "prompt_training_policy": null,
-  "prompt_training_notes": null,
-  "prompt_training_source_url": null,
+  "zero_data_retention": "default",
+  "residency_source_url": "https://docs.perplexity.ai/docs/resources/privacy-security",
+  "prompt_training_policy": "no_train",
+  "prompt_training_notes": "Perplexity states that API query content is not retained or used for training; only billing metadata is collected.",
+  "prompt_training_source_url": "https://docs.perplexity.ai/docs/resources/faq",
   "user_identifier_policy": null,
   "user_identifier_notes": null,
-  "privacy_policy_url": null,
-  "terms_of_service_url": null,
-  "regional_pricing_mode": null,
+  "privacy_policy_url": "https://www.perplexity.ai/hub/legal/privacy-policy",
+  "terms_of_service_url": "https://www.perplexity.ai/hub/legal/terms-of-service",
+  "regional_pricing_mode": "unknown",
   "regional_pricing_uplift_percent": null,
-  "pricing_source_url": null,
-  "regional_pricing_notes": null,
+  "pricing_source_url": "https://docs.perplexity.ai/docs/getting-started/pricing",
+  "regional_pricing_notes": "Official pricing is published in USD without documented region-specific Agent API rates.",
   "country_code": "US",
   "status": "Active",
   "colour": null,
@@ -34,8 +34,8 @@
   "auth_env": [
     "PERPLEXITY_API_KEY"
   ],
-  "api_formats": [],
-  "service_tiers": [],
+  "api_formats": ["openai.responses"],
+  "service_tiers": ["standard", "priority"],
   "sources": [
     {
       "kind": "models.dev",
@@ -48,11 +48,29 @@
       "url": "https://www.perplexity.ai/es/hub/legal/terms-of-service",
       "accessed_at": "2026-08-09T00:00:00Z",
       "notes": "Perplexity AI, Inc.'s official terms list 115 Sansome St., Suite 900, San Francisco, CA 94104."
+    },
+    {
+      "kind": "provider_docs",
+      "url": "https://docs.perplexity.ai/docs/agent-api/quickstart",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Agent API is a distinct multi-provider surface at POST /v1/agent, with /v1/responses retained as an OpenAI-compatible alias."
+    },
+    {
+      "kind": "pricing",
+      "url": "https://docs.perplexity.ai/docs/getting-started/pricing",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "First-party Agent model and tool pricing."
+    },
+    {
+      "kind": "privacy",
+      "url": "https://docs.perplexity.ai/docs/resources/faq",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "API query content is not retained or used for training."
     }
   ],
   "verification": {
-    "status": "partial",
-    "checked_at": "2026-08-09T00:00:00Z",
-    "notes": "Location metadata verified; other provider policy and catalogue fields were not re-audited. Existing provider verification note: Provider metadata and model support enrichment; not a Phaseo-routable offer."
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Agent endpoint, Responses compatibility, live model catalog, pricing, tools, tier limits, and API data-use policy verified from first-party documentation. Routing remains intentionally disabled."
   }
 }

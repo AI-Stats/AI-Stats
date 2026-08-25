@@ -1,0 +1,77 @@
+{
+  "model_id": "poe/veo-3.1",
+  "organisation_id": "poe",
+  "name": "Veo-3.1",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Google’s Veo 3.1 is an updated version of the Veo family of models that features richer native audio, from natural conversations to synchronized sound effects, and offers greater narrative control with an improved understanding of cinematic styles. Enhanced image-to-video capabilities ensure better prompt adherence while delivering superior audio and visual quality and maintaining character consistency across multiple scenes.\n\nOptional parameters:\n- Set the aspect ratio (either `16:9` or `9:16`), which defaults to `16:9`\n- Negative prompt can be set on elements to avoid\n- Set the duration (one of `4s`, `6s`, or `8s`), which defaults to `8s`\n- Seed to set the seed (set number value)\n- Resolution (set from 720p or 1080p)\n- Reference mode. Toggle to use input images (3 max) as reference for video generation\n\nFor first & last frame video generation and references support, please use www.poe.com/Veo-v3.1",
+  "announced_date": "2025-10-15T14:16:06",
+  "release_date": "2025-10-15T14:16:06",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text",
+  "output_types": "video",
+  "api_model_id": "poe/veo-3.1",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Poe bot",
+      "kind": "api_reference",
+      "url": "https://poe.com/veo-3.1"
+    }
+  ],
+  "details": [
+    {
+      "name": "input_context_length",
+      "value": 480
+    }
+  ],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "Poe bot",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": 480,
+    "input": 480,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "video"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": false,
+    "tool_call": false,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.poe.com/v1/models",
+      "accessed_at": "2026-08-24T03:27:45Z",
+      "notes": "Canonical entity for an exact public Poe bot identifier returned by the models API."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T03:27:45Z",
+    "notes": "Identity and advertised metadata verified against Poe's public models API."
+  },
+  "last_updated": "2026-08-24T03:27:45Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}
