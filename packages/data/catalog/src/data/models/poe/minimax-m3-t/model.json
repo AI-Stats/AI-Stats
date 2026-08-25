@@ -1,0 +1,72 @@
+{
+  "model_id": "poe/minimax-m3-t",
+  "organisation_id": "poe",
+  "name": "MiniMax-M3-T",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "MiniMax M3 is MiniMax's frontier open-weight model combining coding and agentic capability, 1M token context, and native multimodality in a single checkpoint — the first open-weight model to bring all three together. It introduces MSA (MiniMax Sparse Attention), a new sparse attention architecture that reduces per-token compute to 1/20 of the previous generation at 1M context, delivering 9x prefilling and 15x decoding speedups. The model is natively multimodal from training step 0, supporting image and video input and computer use, with a toggleable thinking mode. It scores 59.0% on SWE-Bench Pro and 66.0% on Terminal-Bench 2.1, and is available on Together AI with a 1M token context window.",
+  "announced_date": "2026-06-13T05:15:30",
+  "release_date": "2026-06-13T05:15:30",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text",
+  "output_types": "text",
+  "api_model_id": "poe/minimax-m3-t",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Poe bot",
+      "kind": "api_reference",
+      "url": "https://poe.com/minimax-m3-t"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "Poe bot",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": false,
+    "tool_call": false,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.poe.com/v1/models",
+      "accessed_at": "2026-08-24T03:27:45Z",
+      "notes": "Canonical entity for an exact public Poe bot identifier returned by the models API."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T03:27:45Z",
+    "notes": "Identity and advertised metadata verified against Poe's public models API."
+  },
+  "last_updated": "2026-08-24T03:27:45Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

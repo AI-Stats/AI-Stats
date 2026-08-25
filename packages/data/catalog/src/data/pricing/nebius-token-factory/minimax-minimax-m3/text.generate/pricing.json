@@ -12,11 +12,10 @@
       "price_per_unit": 0.3,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Nebius Token Factory's public MiniMax M3 endpoint card reports $0.30 per 1M input tokens.",
+      "note": null,
       "match": [],
       "priority": 100,
-      "effective_from": "2026-06-01T00:00:00Z",
-      "region": "us-central1",
+      "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
       "source": null
@@ -28,11 +27,10 @@
       "price_per_unit": 1.2,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Nebius Token Factory's public MiniMax M3 endpoint card reports $1.20 per 1M output tokens.",
+      "note": null,
       "match": [],
       "priority": 100,
-      "effective_from": "2026-06-01T00:00:00Z",
-      "region": "us-central1",
+      "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
       "source": null
@@ -44,10 +42,17 @@
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "api",
+      "url": "https://tokenfactory.nebius.com/api/public/models_info",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Live cheap flavor price for MiniMaxAI/MiniMax-M3."
+    }
+  ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-07-31T00:00:00Z",
-    "notes": "Pricing and region were transcribed from Nebius Token Factory's public MiniMax M3 endpoint card captured on 2026-07-31."
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Current token pricing verified against Nebius Token Factory's live public catalog."
   }
 }

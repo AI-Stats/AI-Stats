@@ -12,10 +12,11 @@
       "price_per_unit": 0.14,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": null,
+      "note": "Historical price through the 2026-08-24 catalogue audit.",
       "match": [],
       "priority": 100,
       "effective_from": "2026-08-03T00:00:00Z",
+      "effective_to": "2026-08-24T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -28,10 +29,11 @@
       "price_per_unit": 0.028,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": null,
+      "note": "Historical price through the 2026-08-24 catalogue audit.",
       "match": [],
       "priority": 100,
       "effective_from": "2026-08-03T00:00:00Z",
+      "effective_to": "2026-08-24T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -44,10 +46,11 @@
       "price_per_unit": 0.28,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": null,
+      "note": "Historical price through the 2026-08-24 catalogue audit.",
       "match": [],
       "priority": 100,
       "effective_from": "2026-08-03T00:00:00Z",
+      "effective_to": "2026-08-24T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -67,8 +70,8 @@
     }
   ],
   "verification": {
-    "status": "partial",
-    "checked_at": "2026-08-03T00:00:00Z",
-    "notes": "Pricing recorded while direct provider verification remains partial."
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Historical pricing retained; the route is absent from OpenInference's current live inventory."
   }
 }

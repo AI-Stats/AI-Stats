@@ -1,0 +1,72 @@
+{
+  "model_id": "poe/hailuo-music-v1.5",
+  "organisation_id": "poe",
+  "name": "Hailuo-Music-v1.5",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Generate music from text prompts using the MiniMax model, which leverages advanced AI techniques to create high-quality, diverse musical compositions. \n\nNotes: \nSend the lyrics of the music over as your prompt. \nBoth prompt/lyrics and style must be sent over for best quality.\nThe prompt supports [intro][verse][chorus][bridge][outro] sections.\n\nOptional parameters:\nSet music style to set the style of the generated music - for example, rock and roll, hip-hop, etc.  ",
+  "announced_date": "2025-09-16T10:23:11",
+  "release_date": "2025-09-16T10:23:11",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text",
+  "output_types": "audio",
+  "api_model_id": "poe/hailuo-music-v1.5",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Poe bot",
+      "kind": "api_reference",
+      "url": "https://poe.com/hailuo-music-v1.5"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "Poe bot",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "audio"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": false,
+    "tool_call": false,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.poe.com/v1/models",
+      "accessed_at": "2026-08-24T03:27:45Z",
+      "notes": "Canonical entity for an exact public Poe bot identifier returned by the models API."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T03:27:45Z",
+    "notes": "Identity and advertised metadata verified against Poe's public models API."
+  },
+  "last_updated": "2026-08-24T03:27:45Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}
