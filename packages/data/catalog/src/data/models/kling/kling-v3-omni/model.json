@@ -1,0 +1,74 @@
+{
+  "model_id": "kling/kling-v3-omni",
+  "organisation_id": "kling",
+  "name": "Kling-V3-Omni",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Kling-V3-Omni 是全能多模态版本，将文/图生视频、视频编辑以及基于多参考图的角色和风格一致性控制，完美统一在了单一模型中。",
+  "announced_date": null,
+  "release_date": null,
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": null,
+  "input_types": "text,image,video",
+  "output_types": "video",
+  "api_model_id": "kling-v3-omni",
+  "links": [
+    {
+      "title": "Qiniu model marketplace",
+      "kind": "provider",
+      "url": "https://www.qiniu.com/ai/models"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "family_id": null,
+  "page_notice": null,
+  "model_type": null,
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text",
+      "image",
+      "video"
+    ],
+    "output": [
+      "video"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": true,
+    "tool_call": false,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": null,
+    "web_search": null
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "documentation",
+      "url": "https://www.qiniu.com/ai/models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Canonical entity derived from Qiniu's official hosted-model entry kling-v3-omni."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Identity, modalities and lifecycle verified from the official Qiniu marketplace."
+  },
+  "last_updated": "2026-08-24T00:00:00Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

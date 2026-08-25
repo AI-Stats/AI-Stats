@@ -1,0 +1,73 @@
+{
+  "model_id": "kling/kling-3.0-turbo",
+  "organisation_id": "kling",
+  "name": "Kling-3.0-Turbo",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Kling VIDEO 3.0 Turbo是Kling 3.0家族中一个速度优化的多模态视频生成模型。它专为需要更快周转时间但又不牺牲稳定运动、快速响应、多镜头一致性和视听同步的高产量生产工作流程而构建。它支持文本到视频和图像到视频的生成，特别强调改进的唇同步质量和更高效的大规模内容创作。",
+  "announced_date": null,
+  "release_date": "2026-06-18T00:00:00",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": null,
+  "input_types": "text,image",
+  "output_types": "video",
+  "api_model_id": "kling-video/kling-3.0-turbo",
+  "links": [
+    {
+      "title": "Qiniu model marketplace",
+      "kind": "provider",
+      "url": "https://www.qiniu.com/ai/models"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "family_id": null,
+  "page_notice": null,
+  "model_type": null,
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text",
+      "image"
+    ],
+    "output": [
+      "video"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": true,
+    "tool_call": false,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": null,
+    "web_search": null
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "documentation",
+      "url": "https://www.qiniu.com/ai/models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Canonical entity derived from Qiniu's official hosted-model entry kling-video/kling-3.0-turbo."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Identity, modalities and lifecycle verified from the official Qiniu marketplace."
+  },
+  "last_updated": "2026-08-24T00:00:00Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

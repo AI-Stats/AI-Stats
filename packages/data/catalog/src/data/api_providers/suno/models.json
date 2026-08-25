@@ -11,11 +11,11 @@
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-08-24T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "music.generate",
-        "status": "coming_soon",
+        "status": "disabled",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -39,11 +39,11 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [{ "kind": "third_party", "url": "https://docs.sunoapi.org/suno-api/generate-music", "accessed_at": "2026-08-24T00:00:00Z", "notes": "Historical unofficial third-party surface; not Suno's current official API contract." }],
     "verification": {
       "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Closed historical observation from unofficial sunoapi.org; identifier is not verified against Suno's authenticated official API."
     },
     "rate_limits": []
   },
@@ -59,11 +59,11 @@
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-08-24T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "music.generate",
-        "status": "coming_soon",
+        "status": "disabled",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -87,11 +87,11 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [{ "kind": "third_party", "url": "https://docs.sunoapi.org/suno-api/generate-music", "accessed_at": "2026-08-24T00:00:00Z", "notes": "Historical unofficial third-party surface; not Suno's current official API contract." }],
     "verification": {
       "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Closed historical observation from unofficial sunoapi.org; identifier is not verified against Suno's authenticated official API."
     },
     "rate_limits": []
   },
@@ -107,11 +107,11 @@
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-08-24T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "music.generate",
-        "status": "coming_soon",
+        "status": "disabled",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -135,11 +135,11 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [{ "kind": "third_party", "url": "https://docs.sunoapi.org/suno-api/generate-music", "accessed_at": "2026-08-24T00:00:00Z", "notes": "Historical unofficial third-party surface; not Suno's current official API contract." }],
     "verification": {
       "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Closed historical observation from unofficial sunoapi.org; identifier is not verified against Suno's authenticated official API."
     },
     "rate_limits": []
   },
@@ -155,11 +155,11 @@
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-08-24T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "music.generate",
-        "status": "coming_soon",
+        "status": "disabled",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -183,11 +183,11 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [{ "kind": "third_party", "url": "https://docs.sunoapi.org/suno-api/generate-music", "accessed_at": "2026-08-24T00:00:00Z", "notes": "Historical unofficial third-party surface; not Suno's current official API contract." }],
     "verification": {
       "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Closed historical observation from unofficial sunoapi.org; identifier is not verified against Suno's authenticated official API."
     },
     "rate_limits": []
   },
@@ -203,11 +203,11 @@
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-08-24T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "music.generate",
-        "status": "coming_soon",
+        "status": "disabled",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -231,11 +231,11 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [{ "kind": "third_party", "url": "https://docs.sunoapi.org/suno-api/generate-music", "accessed_at": "2026-08-24T00:00:00Z", "notes": "Historical unofficial third-party surface; not Suno's current official API contract." }],
     "verification": {
       "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Closed historical observation from unofficial sunoapi.org; identifier is not verified against Suno's authenticated official API."
     },
     "rate_limits": []
   },

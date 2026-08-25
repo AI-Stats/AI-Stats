@@ -1,0 +1,72 @@
+{
+  "model_id": "bytedance/doubao-1.5-pro-32k",
+  "organisation_id": "bytedance",
+  "name": "Doubao-1.5-Pro-32k",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "全新升级的多模态大模型，视觉理解、分类、信息抽取等能力显著提升，并重点增强了解题、视频理解等场景的任务效果。支持 128k 上下文窗口，输出长度支持最大 16K。",
+  "announced_date": null,
+  "release_date": null,
+  "deprecation_date": null,
+  "retirement_date": "2026-09-21T00:00:00",
+  "license": null,
+  "input_types": "text",
+  "output_types": "text",
+  "api_model_id": "doubao-1.5-pro-32k",
+  "links": [
+    {
+      "title": "Qiniu model marketplace",
+      "kind": "provider",
+      "url": "https://www.qiniu.com/ai/models"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "family_id": null,
+  "page_notice": null,
+  "model_type": null,
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": 128000,
+    "input": 128000,
+    "output": 12000
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": false,
+    "tool_call": true,
+    "structured_output": true,
+    "temperature": null,
+    "streaming": null,
+    "web_search": null
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "documentation",
+      "url": "https://www.qiniu.com/ai/models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Canonical entity derived from Qiniu's official hosted-model entry doubao-1.5-pro-32k."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Identity, modalities and lifecycle verified from the official Qiniu marketplace."
+  },
+  "last_updated": "2026-08-24T00:00:00Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

@@ -1,0 +1,78 @@
+{
+  "model_id": "poe/nano-banana",
+  "organisation_id": "poe",
+  "name": "Nano-Banana",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Google DeepMind's Nano Banana (i.e. Gemini 2.5 Flash Image model) offers image generation and editing capabilities, state-of-the-art performance in photo-realistic multi-turn edits at exceptional speeds. Supports a maximum input context of 32k tokens.\n\nOptional parameters:\nSet aspect ratio. Select from (1:1, 2:3, 3:2, 3:4, 4:3, 4:5, 5:4, 9:16, 16:9, 21:9). It is set to 16:9 aspect ratio as default.\nImage only to only generate image output. It is `off` by default\n\nNote: Simply enabling image only will not result in an image unless the prompt is phrased specifically for image generation, but it does guarantee that only a single image (or none) will be produced.",
+  "announced_date": "2025-08-21T23:03:40",
+  "release_date": "2025-08-21T23:03:40",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text,image",
+  "output_types": "image",
+  "api_model_id": "poe/nano-banana",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Poe bot",
+      "kind": "api_reference",
+      "url": "https://poe.com/nano-banana"
+    }
+  ],
+  "details": [
+    {
+      "name": "input_context_length",
+      "value": 65536
+    }
+  ],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "Poe bot",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": 65536,
+    "input": 65536,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text",
+      "image"
+    ],
+    "output": [
+      "image"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": true,
+    "tool_call": false,
+    "structured_output": true,
+    "temperature": null,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.poe.com/v1/models",
+      "accessed_at": "2026-08-24T03:27:45Z",
+      "notes": "Canonical entity for an exact public Poe bot identifier returned by the models API."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T03:27:45Z",
+    "notes": "Identity and advertised metadata verified against Poe's public models API."
+  },
+  "last_updated": "2026-08-24T03:27:45Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

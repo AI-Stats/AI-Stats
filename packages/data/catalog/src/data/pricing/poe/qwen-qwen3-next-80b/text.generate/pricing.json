@@ -18,13 +18,13 @@
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": "https://api.poe.com/v1/models"
     },
     {
       "meter": "output_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 1.5152,
+      "price_per_unit": 1.5151999999999999,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
@@ -33,7 +33,7 @@
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": "https://api.poe.com/v1/models"
     }
   ],
   "regions": [],
@@ -44,13 +44,13 @@
     {
       "kind": "provider_models",
       "url": "https://api.poe.com/v1/models",
-      "accessed_at": "2026-08-11T12:20:02.700Z",
-      "notes": "Provider model and pricing metadata."
+      "accessed_at": "2026-08-24T03:27:45Z",
+      "notes": "Exact per-token and/or per-request USD-equivalent point cost advertised by Poe."
     }
   ],
   "verification": {
-    "status": "partial",
-    "checked_at": "2026-08-11T12:20:02.700Z",
-    "notes": "Pricing synchronized from the provider models API."
+    "status": "verified",
+    "checked_at": "2026-08-24T03:27:45Z",
+    "notes": "All non-null Poe pricing fields are represented; USD rates consume the API key owner's Poe points."
   }
 }

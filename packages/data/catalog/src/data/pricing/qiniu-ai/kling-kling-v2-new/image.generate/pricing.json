@@ -1,0 +1,58 @@
+{
+  "key": "qiniu-ai:kling/kling-v2-new:image.generate",
+  "api_provider_id": "qiniu-ai",
+  "provider_slug": "qiniu-ai",
+  "api_model_id": "kling/kling-v2-new",
+  "capability_id": "image.generate",
+  "rules": [
+    {
+      "meter": "input_image",
+      "unit": "pic",
+      "unit_size": 1,
+      "price_per_unit": 0.01449275,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "文生图",
+      "match": [],
+      "priority": 100,
+      "region": "CN",
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    },
+    {
+      "meter": "input_image",
+      "unit": "pic",
+      "unit_size": 1,
+      "price_per_unit": 0.01449275,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "图生图",
+      "match": [],
+      "priority": 100,
+      "region": "CN",
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    }
+  ],
+  "regions": [
+    "CN"
+  ],
+  "service_tiers": [
+    "standard"
+  ],
+  "sources": [
+    {
+      "kind": "documentation",
+      "url": "https://www.qiniu.com/ai/models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official Qiniu marketplace prices for kling-v2-new; USD equivalents supplied by Qiniu."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Transcribed from the official live marketplace structured payload."
+  }
+}
