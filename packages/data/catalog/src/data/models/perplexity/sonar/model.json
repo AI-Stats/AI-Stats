@@ -1,0 +1,68 @@
+{
+  "model_id": "perplexity/sonar",
+  "organisation_id": "perplexity",
+  "name": "Sonar",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Sonar is Perplexity's grounded search model, exposed through the multi-provider Agent API as perplexity/sonar.",
+  "announced_date": null,
+  "release_date": null,
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text",
+  "output_types": "text",
+  "api_model_id": "perplexity/sonar",
+  "links": [
+    {
+      "title": "Agent API models",
+      "kind": "api_reference",
+      "url": "https://docs.perplexity.ai/docs/agent-api/models"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "family_id": null,
+  "page_notice": null,
+  "model_type": null,
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": ["text"],
+    "output": ["text"]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": false,
+    "tool_call": true,
+    "structured_output": true,
+    "temperature": null,
+    "streaming": true,
+    "web_search": true
+  },
+  "open_weights": false,
+  "sources": [
+    {
+      "kind": "provider_docs",
+      "url": "https://docs.perplexity.ai/docs/agent-api/models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official Agent API catalog lists the exact perplexity/sonar identifier and describes it as Perplexity's grounded search model. The separate Sonar API uses different unprefixed route IDs and pricing."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Availability and Agent API identifier verified; undocumented context and output limits remain null."
+  },
+  "last_updated": "2026-08-24T00:00:00Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

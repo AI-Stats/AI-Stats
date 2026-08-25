@@ -24,7 +24,7 @@ export function ChatVirtualMessageList({
 }) {
 	return (
 		<div
-			className="relative w-full"
+			className="relative min-w-0 w-full"
 			style={{
 				height: `${Math.max(totalSize, estimatedMessageHeight)}px`,
 			}}
@@ -38,7 +38,7 @@ export function ChatVirtualMessageList({
 						key={virtualItem.key}
 						ref={measureVirtualMessage}
 						data-index={virtualItem.index}
-						className="absolute left-0 top-0 w-full pb-4"
+						className="absolute left-0 top-0 min-w-0 w-full pb-4"
 						style={{
 							transform: `translateY(${virtualItem.start}px)`,
 						}}

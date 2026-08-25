@@ -1,0 +1,72 @@
+{
+  "model_id": "poe/veo-3-vfast",
+  "organisation_id": "poe",
+  "name": "Veo-3-vFast",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Veo-3 Fast is a faster and more cost effective version of Google's Veo 3. \n\nOptional parameters:\nSet the aspect ratio of the generated image (one of `16:9`, `1:1`, `9:16`). \nToggle `on` the generate audio with your video at a higher cost. \nNegative prompt on what to exclude e.g. `blur`, `low resolution`, `poor quality`. \nDuration is limited to 7 seconds. This is a text to video generation model only.",
+  "announced_date": "2025-07-10T09:35:09",
+  "release_date": "2025-07-10T09:35:09",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text",
+  "output_types": "video",
+  "api_model_id": "poe/veo-3-vfast",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Poe bot",
+      "kind": "api_reference",
+      "url": "https://poe.com/veo-3-vfast"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "Poe bot",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "video"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": false,
+    "tool_call": false,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.poe.com/v1/models",
+      "accessed_at": "2026-08-24T03:27:45Z",
+      "notes": "Canonical entity for an exact public Poe bot identifier returned by the models API."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T03:27:45Z",
+    "notes": "Identity and advertised metadata verified against Poe's public models API."
+  },
+  "last_updated": "2026-08-24T03:27:45Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}
