@@ -1164,6 +1164,9 @@
       "qwen/qwen3.6-flash"
     ],
     "relace": [
+      "relace/relace-apply-3",
+      "relace/relace-compact",
+      "relace/relace-rank",
       "relace/relace-search"
     ],
     "sourceful": [
