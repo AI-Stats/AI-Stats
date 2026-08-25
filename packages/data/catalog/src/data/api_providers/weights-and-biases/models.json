@@ -420,6 +420,66 @@
                         ]
     },
     {
+        "api_model_id":  "ibm/granite-4.2-8b",
+        "provider_api_model_id":  "weights-and-biases:ibm/granite-4.2-8b",
+        "provider_model_slug":  "ibm-granite/granite-4.2-8b",
+        "internal_model_id":  "ibm/granite-4.2-8b",
+        "is_active_gateway":  false,
+        "quantization_scheme":  null,
+        "input_modalities":  "text",
+        "output_modalities":  "text",
+        "context_length":  131072,
+        "max_output_tokens":  null,
+        "effective_from":  null,
+        "effective_to":  null,
+        "capabilities":  [
+                             {
+                                 "capability_id":  "text.generate",
+                                 "status":  "coming_soon",
+                                 "params":  [
+
+                                            ],
+                                 "reasoning":  null,
+                                 "tool_call":  null,
+                                 "structured_output":  null,
+                                 "temperature":  null,
+                                 "attachment":  false,
+                                 "input_modalities":  null,
+                                 "output_modalities":  null,
+                                 "modes":  [
+
+                                           ]
+                             }
+                         ],
+        "routing_status":  null,
+        "routable":  false,
+        "regions":  {
+                        "execution":  null,
+                        "data":  null
+                    },
+        "service_tiers":  [
+
+                          ],
+        "api":  {
+                    "formats":  [
+
+                                ],
+                    "endpoint":  null,
+                    "deployment":  null
+                },
+        "sources":  [
+
+                    ],
+        "verification":  {
+                             "status":  "partial",
+                             "checked_at":  "2026-08-25T00:00:00Z",
+                             "notes":  "Pre-release Weights & Biases availability reported on 2026-08-24; routing remains disabled pending launch."
+                         },
+        "rate_limits":  [
+
+                        ]
+    },
+    {
         "api_model_id":  "meta/llama-3.1-70b",
         "provider_api_model_id":  "weights-and-biases:meta/llama-3.1-70b",
         "provider_model_slug":  "meta-llama/Llama-3.1-70B-Instruct",
