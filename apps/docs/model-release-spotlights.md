@@ -71,7 +71,8 @@ Fable 5 note: Claude Fable 5 remains the 09 June 2026 launch spotlight and has a
 | 03 March 2026 | [OpenAI: GPT 5.3 Chat](https://phaseo.app/models/openai/gpt-5.3-chat) | 2 | Google: Gemini 3.1 Flash Lite Preview |
 | 02 March 2026 | [Qwen: Qwen 3.5 0.8B](https://phaseo.app/models/qwen/qwen3.5-0.8b) | 4 | Qwen: Qwen 3.5 2B; Qwen: Qwen 3.5 4B; Qwen: Qwen 3.5 9B |
 | 26 February 2026 | [Google: Gemini 3.1 Flash Image Preview (Nano Banana 2)](https://phaseo.app/models/google/gemini-3.1-flash-image-preview) | 1 | - |
-| 24 February 2026 | [Qwen: Qwen 3.5 122B A10B](https://phaseo.app/models/qwen/qwen3.5-122b-a10b) | 6 | Qwen: Qwen 3.5 27B; Qwen: Qwen 3.5 35B A3B; Liquid AI: LFM 2 24B A2B; Inception: Mercury 2; Inception: Mercury Edit 2 |
+| 30 March 2026 | [Inception: Mercury Edit 2](https://phaseo.app/models/inception/mercury-edit-2) | 1 | - |
+| 24 February 2026 | [Qwen: Qwen 3.5 122B A10B](https://phaseo.app/models/qwen/qwen3.5-122b-a10b) | 5 | Qwen: Qwen 3.5 27B; Qwen: Qwen 3.5 35B A3B; Liquid AI: LFM 2 24B A2B; Inception: Mercury 2 |
 | 23 February 2026 | [OpenAI: GPT Audio 1.5](https://phaseo.app/models/openai/gpt-audio-1.5) | 3 | OpenAI: GPT Realtime 1.5; Qwen: Qwen 3.5 Flash |
 | 19 February 2026 | [Google: Gemini 3.1 Pro Preview](https://phaseo.app/models/google/gemini-3.1-pro-preview) | 2 | Google: Gemini 3.1 Pro Preview Customtools |
 | 18 February 2026 | [Google: Lyria 3](https://phaseo.app/models/google/lyria-3) | 2 | Prime Intellect: Intellect 3.1 |

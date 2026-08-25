@@ -26,7 +26,7 @@
   "sdk_package": "inceptionai",
   "api_base_url": "https://api.inceptionlabs.ai/v1",
   "docs_url": "https://docs.inceptionlabs.ai/",
-  "auth_env": "INCEPTION_API_KEY",
+  "auth_env": ["INCEPTION_API_KEY"],
   "api_formats": ["openai.chat.completions", "inception.fim.completions", "inception.edit.completions"],
   "service_tiers": ["free", "pay_as_you_go", "enterprise"],
   "sources": [
