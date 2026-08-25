@@ -4,23 +4,23 @@
   "provider_family_id": null,
   "offer_label": null,
   "offer_scope": "specialized",
-  "description": null,
+  "description": "Lilac provides pay-per-token inference for open-weight models on idle enterprise GPU capacity through an OpenAI-compatible API.",
   "link": "https://docs.getlilac.com/inference/models",
-  "residency_mode": null,
+  "residency_mode": "provider_managed",
   "default_execution_regions": null,
   "default_data_regions": null,
-  "zero_data_retention": null,
-  "residency_source_url": null,
-  "prompt_training_policy": null,
-  "prompt_training_notes": null,
-  "prompt_training_source_url": null,
+  "zero_data_retention": "default",
+  "residency_source_url": "https://getlilac.com/terms",
+  "prompt_training_policy": "no_train",
+  "prompt_training_notes": "Real-time inference prompts and completions are processed transiently, are not stored at rest after the response, and are not used for model training. Operational metadata is retained.",
+  "prompt_training_source_url": "https://getlilac.com/privacy",
   "user_identifier_policy": null,
   "user_identifier_notes": null,
-  "privacy_policy_url": null,
-  "terms_of_service_url": null,
+  "privacy_policy_url": "https://getlilac.com/privacy",
+  "terms_of_service_url": "https://getlilac.com/terms",
   "regional_pricing_mode": null,
   "regional_pricing_uplift_percent": null,
-  "pricing_source_url": null,
+  "pricing_source_url": "https://docs.getlilac.com/inference/pricing",
   "regional_pricing_notes": null,
   "country_code": "US",
   "status": "Active",
@@ -34,25 +34,37 @@
   "auth_env": [
     "LILAC_API_KEY"
   ],
-  "api_formats": [],
-  "service_tiers": [],
+  "api_formats": ["openai.chat.completions", "openai.responses"],
+  "service_tiers": ["standard"],
   "sources": [
+    {
+      "kind": "docs",
+      "url": "https://docs.getlilac.com/inference/models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official live model catalogue, IDs, modalities, limits, capabilities, and prices."
+    },
+    {
+      "kind": "pricing",
+      "url": "https://docs.getlilac.com/inference/pricing",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official current per-token and cache-read prices."
+    },
+    {
+      "kind": "privacy_policy",
+      "url": "https://getlilac.com/privacy",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official inference retention and training policy."
+    },
     {
       "kind": "official_terms",
       "url": "https://getlilac.com/terms",
-      "accessed_at": "2026-08-09T00:00:00Z",
-      "notes": "Lilac's official terms identify Lilac Research Inc. as a Delaware corporation with a California mailing address."
-    },
-    {
-      "kind": "models.dev",
-      "url": "https://models.dev/api.json",
-      "accessed_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider metadata and model support enrichment; not a Phaseo-routable offer."
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official terms identify Lilac Research Inc., describe provider-managed capacity, and state that no particular region is guaranteed."
     }
   ],
   "verification": {
-    "status": "partial",
-    "checked_at": "2026-07-23T09:08:52.190Z",
-    "notes": "Imported from the public models.dev provider registry."
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Verified end-to-end against Lilac's official models, pricing, API, privacy, and terms pages; Phaseo routing remains disabled."
   }
 }
