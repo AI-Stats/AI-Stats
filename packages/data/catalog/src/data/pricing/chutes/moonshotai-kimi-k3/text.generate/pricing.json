@@ -12,7 +12,7 @@
       "price_per_unit": 3,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Official public-inference rate for moonshotai/Kimi-K3-TEE.",
+      "note": "Live Chutes shared-gateway input-token rate.",
       "match": [],
       "priority": 100,
       "effective_from": "2026-08-12T00:00:00Z",
@@ -21,8 +21,8 @@
       "conditions": [],
       "source": {
         "kind": "pricing",
-        "url": "https://chutes.ai/pricing",
-        "accessed_at": "2026-08-12T00:00:00Z"
+        "url": "https://llm.chutes.ai/v1/models",
+        "accessed_at": "2026-08-23T00:00:00Z"
       }
     },
     {
@@ -32,7 +32,7 @@
       "price_per_unit": 15,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Official public-inference rate for moonshotai/Kimi-K3-TEE.",
+      "note": "Live Chutes shared-gateway output-token rate.",
       "match": [],
       "priority": 100,
       "effective_from": "2026-08-12T00:00:00Z",
@@ -41,23 +41,50 @@
       "conditions": [],
       "source": {
         "kind": "pricing",
-        "url": "https://chutes.ai/pricing",
-        "accessed_at": "2026-08-12T00:00:00Z"
+        "url": "https://llm.chutes.ai/v1/models",
+        "accessed_at": "2026-08-23T00:00:00Z"
+      }
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.3,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Live Chutes shared-gateway cached-input-token rate.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-23T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": {
+        "kind": "pricing",
+        "url": "https://llm.chutes.ai/v1/models",
+        "accessed_at": "2026-08-23T00:00:00Z"
       }
     }
   ],
   "regions": [],
-  "service_tiers": ["standard"],
+  "service_tiers": [
+    "standard"
+  ],
   "sources": [
     {
       "kind": "pricing",
       "url": "https://chutes.ai/pricing",
-      "accessed_at": "2026-08-12T00:00:00Z"
+      "accessed_at": "2026-08-23T00:00:00Z"
+    },
+    {
+      "kind": "api",
+      "url": "https://llm.chutes.ai/v1/models",
+      "accessed_at": "2026-08-23T00:00:00Z"
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-12T00:00:00Z",
-    "notes": "Verified from Chutes' official pricing page."
+    "checked_at": "2026-08-23T00:00:00Z",
+    "notes": "USD input, output, and cached-input prices verified against the live public model catalog and pricing page."
   }
 }

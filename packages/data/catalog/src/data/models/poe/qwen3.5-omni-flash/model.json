@@ -1,0 +1,74 @@
+{
+  "model_id": "poe/qwen3.5-omni-flash",
+  "organisation_id": "poe",
+  "name": "Qwen3.5-Omni-Flash",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Qwen3.5-Omni Flash is the cost-efficient variant of Qwen's latest omni-modal model, supporting text, image, audio, and video understanding and interaction. It handles up to 3 hours of audio and 1 hour of video input, with audio input in 90+ languages and speech output in 30+ languages across 55 voice timbres.\n\nNotes:\n- Context Window: 256K\n- Recommended: instruct the model to avoid markdown formatting in Text + Audio mode\n\nInput limits:\n- Images: up to 2,048 files, ≤20 MB each, min 10×10 px, aspect ratio ≤200:1\n- Audio: up to 2,048 files, ≤2 GB each, up to 3 hrs\n- Video: up to 512 files, ≤2 GB each, up to 1 hr\n- Formats — Image: JPG, JPEG, JPE, PNG, WebP, BMP, TIF, TIFF, HEIC, GIF | Audio: AMR, WAV, 3GP, 3GPP, AAC, MP3 | Video: MP4, AVI, MKV, MOV, FLV, WMV\n- Audio Input: 92 languages, 21 dialects\n\nOutput:\n- Modalities: text only, or text + audio (audio-only not available)\n- 55 voice timbres (default: Tina)\n- Audio output: 29 languages, 7 dialects\n\nThis bot supports optional parameters for additional customization.",
+  "announced_date": "2026-03-30T22:14:56",
+  "release_date": "2026-03-30T22:14:56",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text,video,audio",
+  "output_types": "text",
+  "api_model_id": "poe/qwen3.5-omni-flash",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Poe bot",
+      "kind": "api_reference",
+      "url": "https://poe.com/qwen3.5-omni-flash"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "Poe bot",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text",
+      "video",
+      "audio"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": true,
+    "tool_call": false,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.poe.com/v1/models",
+      "accessed_at": "2026-08-24T03:27:45Z",
+      "notes": "Canonical entity for an exact public Poe bot identifier returned by the models API."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T03:27:45Z",
+    "notes": "Identity and advertised metadata verified against Poe's public models API."
+  },
+  "last_updated": "2026-08-24T03:27:45Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

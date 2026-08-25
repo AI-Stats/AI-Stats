@@ -4,23 +4,23 @@
   "provider_family_id": null,
   "offer_label": null,
   "offer_scope": "specialized",
-  "description": null,
+  "description": "OpenAI-compatible inference for curated open-source generation and embedding models.",
   "link": "https://docs.mixlayer.com",
-  "residency_mode": null,
+  "residency_mode": "provider_managed",
   "default_execution_regions": null,
   "default_data_regions": null,
-  "zero_data_retention": null,
-  "residency_source_url": null,
-  "prompt_training_policy": null,
-  "prompt_training_notes": null,
-  "prompt_training_source_url": null,
+  "zero_data_retention": "default",
+  "residency_source_url": "https://www.mixlayer.com/",
+  "prompt_training_policy": "no_training",
+  "prompt_training_notes": "Mixlayer states that prompts and outputs are processed in memory, discarded after inference, and not used to train models by default. Optional persistent Responses features can retain data under organization controls.",
+  "prompt_training_source_url": "https://docs.mixlayer.com/zero-data-retention",
   "user_identifier_policy": null,
   "user_identifier_notes": null,
-  "privacy_policy_url": null,
-  "terms_of_service_url": null,
+  "privacy_policy_url": "https://www.mixlayer.com/privacy-policy",
+  "terms_of_service_url": "https://www.mixlayer.com/terms-of-service",
   "regional_pricing_mode": null,
   "regional_pricing_uplift_percent": null,
-  "pricing_source_url": null,
+  "pricing_source_url": "https://www.mixlayer.com/",
   "regional_pricing_notes": null,
   "country_code": "US",
   "status": "Active",
@@ -34,7 +34,11 @@
   "auth_env": [
     "MIXLAYER_API_KEY"
   ],
-  "api_formats": [],
+  "api_formats": [
+    "openai-chat-completions",
+    "openai-responses",
+    "openai-embeddings"
+  ],
   "service_tiers": [],
   "sources": [
     {
@@ -44,6 +48,24 @@
       "notes": "Mixlayer's official terms identify Mixlayer Labs Inc. and list an address in San Francisco, California."
     },
     {
+      "kind": "official_docs",
+      "url": "https://docs.mixlayer.com/models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official model families, capabilities, and discovery guidance."
+    },
+    {
+      "kind": "official_docs",
+      "url": "https://docs.mixlayer.com/credits-and-limits",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Limits vary by organization and model; RPM and TPM limits are exposed through response headers."
+    },
+    {
+      "kind": "official_docs",
+      "url": "https://docs.mixlayer.com/zero-data-retention",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Default in-memory processing, no training use, and optional organization retention controls."
+    },
+    {
       "kind": "models.dev",
       "url": "https://models.dev/api.json",
       "accessed_at": "2026-07-23T09:08:52.190Z",
@@ -51,8 +73,8 @@
     }
   ],
   "verification": {
-    "status": "partial",
-    "checked_at": "2026-07-23T09:08:52.190Z",
-    "notes": "Imported from the public models.dev provider registry."
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Provider contract, catalog, limits, API formats, and data handling verified from official Mixlayer documentation and website. Routing remains intentionally disabled."
   }
 }
