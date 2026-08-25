@@ -1,25 +1,19 @@
 {
   "model_id": "bytedance/doubao-seed-2.0-pro",
   "organisation_id": "bytedance",
-  "name": "Doubao-Seed-2.0-Pro",
+  "name": "Doubao-Seed-2.0-pro",
   "status": "Available",
   "previous_model_id": null,
-  "description": "Doubao Seed 2.0 Pro 旗舰级全能通用模型，面向 Agent 时代的复杂推理与长链路任务执行场景。强调多模态理解、长上下文推理、结构化生成与工具增强执行。复杂指令与多约束执行能力突出，可稳定应对多步复杂规划、复杂图文推理、视频内容理解与高难度分析等场景。\n",
+  "description": "Doubao-Seed-2.0-pro is available through ZenMux's unified model API.",
   "announced_date": null,
-  "release_date": null,
+  "release_date": "2026-02-14T00:00:00",
   "deprecation_date": null,
   "retirement_date": null,
   "license": null,
   "input_types": "text,image,video",
   "output_types": "text",
-  "api_model_id": "doubao-seed-2.0-pro",
-  "links": [
-    {
-      "title": "Qiniu model marketplace",
-      "kind": "provider",
-      "url": "https://www.qiniu.com/ai/models"
-    }
-  ],
+  "api_model_id": "bytedance/doubao-seed-2.0-pro",
+  "links": [],
   "details": [],
   "benchmarks": [],
   "family_id": null,
@@ -34,8 +28,8 @@
   "modalities": {
     "input": [
       "text",
-      "image",
-      "video"
+      "image/*",
+      "video/*"
     ],
     "output": [
       "text"
@@ -47,25 +41,25 @@
   },
   "capabilities": {
     "attachment": true,
-    "tool_call": true,
-    "structured_output": true,
+    "tool_call": null,
+    "structured_output": null,
     "temperature": null,
     "streaming": null,
-    "web_search": null
+    "web_search": false
   },
   "open_weights": null,
   "sources": [
     {
-      "kind": "documentation",
-      "url": "https://www.qiniu.com/ai/models",
+      "kind": "provider_models",
+      "url": "https://zenmux.ai/api/v1/models",
       "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "Canonical entity derived from Qiniu's official hosted-model entry doubao-seed-2.0-pro."
+      "notes": "Official live ZenMux model, modality, context, capability, publication, and pricing metadata."
     }
   ],
   "verification": {
-    "status": "verified",
+    "status": "partial",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Identity, modalities and lifecycle verified from the official Qiniu marketplace."
+    "notes": "Availability, namespace, modalities, context, and publication date verified against the official ZenMux models API; upstream model metadata was not independently re-audited."
   },
   "last_updated": "2026-08-24T00:00:00Z",
   "removal_date": null,

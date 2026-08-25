@@ -1,17 +1,17 @@
 {
   "model_id": "google/gemma-4-31b-it",
   "organisation_id": "google",
-  "name": "Google: Gemma 4 31B",
+  "name": "Gemma 4 31B IT",
   "status": "Available",
   "previous_model_id": null,
-  "description": "Gemma 4 31B Instruct is Google DeepMind's 30.7B dense multimodal model supporting text and image input with text output. Features a 256K token context window, configurable thinking/reasoning mode, native function...",
+  "description": "Gemma 4 31B IT is available through ZenMux's unified model API.",
   "announced_date": null,
-  "release_date": null,
+  "release_date": "2026-04-02T00:00:00",
   "deprecation_date": null,
   "retirement_date": null,
   "license": null,
-  "input_types": null,
-  "output_types": null,
+  "input_types": "image,text",
+  "output_types": "text",
   "api_model_id": "google/gemma-4-31b-it",
   "links": [],
   "details": [],
@@ -21,39 +21,44 @@
   "model_type": null,
   "knowledge_cutoff": null,
   "limits": {
-    "context": null,
-    "input": null,
+    "context": 262144,
+    "input": 262144,
     "output": null
   },
   "modalities": {
-    "input": [],
-    "output": []
+    "input": [
+      "image/*",
+      "text"
+    ],
+    "output": [
+      "text"
+    ]
   },
   "reasoning": {
     "supported": null,
     "options": []
   },
   "capabilities": {
-    "attachment": null,
+    "attachment": true,
     "tool_call": null,
     "structured_output": null,
     "temperature": null,
     "streaming": null,
-    "web_search": null
+    "web_search": false
   },
   "open_weights": null,
   "sources": [
     {
-      "kind": "models",
-      "url": "https://api.orcarouter.ai/v1/models",
+      "kind": "provider_models",
+      "url": "https://zenmux.ai/api/v1/models",
       "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "OrcaRouter live model catalogue metadata."
+      "notes": "Official live ZenMux model, modality, context, capability, publication, and pricing metadata."
     }
   ],
   "verification": {
-    "status": "verified",
+    "status": "partial",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Exact model ID, availability, limits, modalities, description, and pricing metadata verified against OrcaRouter's live official catalogue."
+    "notes": "Availability, namespace, modalities, context, and publication date verified against the official ZenMux models API; upstream model metadata was not independently re-audited."
   },
   "last_updated": "2026-08-24T00:00:00Z",
   "removal_date": null,
