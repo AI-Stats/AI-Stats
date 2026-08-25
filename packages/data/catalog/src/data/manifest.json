@@ -1244,7 +1244,11 @@
       "voyage/voyage-lite-02-instruct",
       "voyage/voyage-multilingual-2",
       "voyage/voyage-multimodal-3",
-      "voyage/voyage-multimodal-3.5"
+      "voyage/voyage-multimodal-3.5",
+      "voyage/rerank-2.5",
+      "voyage/rerank-2.5-lite",
+      "voyage/voyage-code-4",
+      "voyage/voyage-context-4"
     ],
     "windsurf": [
       "windsurf/swe-1",
