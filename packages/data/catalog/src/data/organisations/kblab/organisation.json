@@ -1,13 +1,13 @@
 {
-  "organisation_id": "intfloat",
-  "name": "Intfloat",
-  "country_code": null,
+  "organisation_id": "kblab",
+  "name": "KBLab",
+  "country_code": "SE",
   "description": null,
   "colour": null,
   "organisation_links": [
     {
       "platform": "hugging_face",
-      "url": "https://huggingface.co/intfloat"
+      "url": "https://huggingface.co/KBLab"
     }
   ],
   "status": "active",
