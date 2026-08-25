@@ -1,0 +1,77 @@
+{
+  "model_id": "poe/deepseek-v3-di",
+  "organisation_id": "poe",
+  "name": "DeepSeek-V3-DI",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Deepseek-v3 – the new top open-source LLM. Achieves state-of-the-art performance in tasks such as coding, mathematics, and reasoning. All data you submit to this bot is governed by the Poe privacy policy and is only sent to DeepInfra, a US-based company.\n\nSupports 64k tokens of input context and 8k tokens of output context. Quantization: FP8 (official).",
+  "announced_date": "2025-02-17T13:04:18",
+  "release_date": "2025-02-17T13:04:18",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text",
+  "output_types": "text",
+  "api_model_id": "poe/deepseek-v3-di",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Poe bot",
+      "kind": "api_reference",
+      "url": "https://poe.com/deepseek-v3-di"
+    }
+  ],
+  "details": [
+    {
+      "name": "input_context_length",
+      "value": 64000
+    }
+  ],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "Poe bot",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": 64000,
+    "input": 64000,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": false,
+    "tool_call": false,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.poe.com/v1/models",
+      "accessed_at": "2026-08-24T03:27:45Z",
+      "notes": "Canonical entity for an exact public Poe bot identifier returned by the models API."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T03:27:45Z",
+    "notes": "Identity and advertised metadata verified against Poe's public models API."
+  },
+  "last_updated": "2026-08-24T03:27:45Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

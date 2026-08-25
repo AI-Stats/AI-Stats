@@ -24,9 +24,11 @@
   "routable": true,
   "routing_enabled": true,
   "sdk_package": "@azure/openai",
-  "api_base_url": "https://{resource-name}.openai.azure.com/openai/v1/",
+  "api_base_url": null,
   "docs_url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
-  "auth_env": "AZURE_OPENAI_API_KEY",
+  "auth_env": [
+    "AZURE_OPENAI_API_KEY"
+  ],
   "api_formats": [
     "openai"
   ],
