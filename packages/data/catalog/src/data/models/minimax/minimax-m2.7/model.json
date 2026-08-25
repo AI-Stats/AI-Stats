@@ -13,6 +13,13 @@
   "input_types": "text",
   "output_types": "text",
   "api_model_id": "minimax/minimax-m2.7",
+  "variants": [
+    {
+      "model_id": "minimax/minimax-m2.7:free",
+      "name": "MiniMax M2.7 (Free)",
+      "variant_kind": "free"
+    }
+  ],
   "links": [
     {
       "title": "Announcement",
