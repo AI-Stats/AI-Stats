@@ -11,7 +11,7 @@
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": "2024-11-04T00:00:00",
-    "effective_to": "2026-06-15T00:00:00",
+    "effective_to": "2026-02-19T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -95,8 +95,7 @@
     "routable": false,
     "regions": {
       "execution": [
-        "global",
-        "us"
+        "global"
       ],
       "data": null
     },
@@ -126,7 +125,7 @@
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": "2025-02-24T00:00:00",
-    "effective_to": "2026-06-15T00:00:00",
+    "effective_to": "2026-02-19T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -217,8 +216,7 @@
     "routable": false,
     "regions": {
       "execution": [
-        "global",
-        "us"
+        "global"
       ],
       "data": null
     },
@@ -332,8 +330,7 @@
     "routable": false,
     "regions": {
       "execution": [
-        "global",
-        "us"
+        "global"
       ],
       "data": null
     },
@@ -383,8 +380,7 @@
     "routable": false,
     "regions": {
       "execution": [
-        "global",
-        "us"
+        "global"
       ],
       "data": null
     },
@@ -512,8 +508,7 @@
     "routable": false,
     "regions": {
       "execution": [
-        "global",
-        "us"
+        "global"
       ],
       "data": null
     },
@@ -543,7 +538,7 @@
     "context_length": 200000,
     "max_output_tokens": 32000,
     "effective_from": "2025-05-21T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-06-15T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -634,8 +629,7 @@
     "routable": false,
     "regions": {
       "execution": [
-        "global",
-        "us"
+        "global"
       ],
       "data": null
     },
@@ -665,7 +659,7 @@
     "context_length": 200000,
     "max_output_tokens": 32000,
     "effective_from": "2025-08-05T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-05T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -749,8 +743,7 @@
     "routable": false,
     "regions": {
       "execution": [
-        "global",
-        "us"
+        "global"
       ],
       "data": null
     },
@@ -871,8 +864,7 @@
     "routable": false,
     "regions": {
       "execution": [
-        "global",
-        "us"
+        "global"
       ],
       "data": null
     },
@@ -1031,7 +1023,7 @@
     "context_length": 200000,
     "max_output_tokens": 64000,
     "effective_from": "2025-05-21T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-06-15T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -1122,8 +1114,7 @@
     "routable": false,
     "regions": {
       "execution": [
-        "global",
-        "us"
+        "global"
       ],
       "data": null
     },
@@ -1251,8 +1242,7 @@
     "routable": false,
     "regions": {
       "execution": [
-        "global",
-        "us"
+        "global"
       ],
       "data": null
     },
@@ -1625,7 +1615,7 @@
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": "2026-04-07T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-06-30T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -1838,6 +1828,64 @@
       "status": "unverified",
       "checked_at": null,
       "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "anthropic/claude-mythos-5",
+    "provider_api_model_id": "anthropic-aws:anthropic/claude-mythos-5",
+    "provider_model_slug": "claude-mythos-5",
+    "internal_model_id": "anthropic/claude-mythos-5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 128000,
+    "effective_from": "2026-06-09T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "inactive",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global",
+        "us"
+      ],
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "official_docs",
+        "url": "https://platform.claude.com/docs/en/about-claude/models/overview",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Limited-availability Project Glasswing model available to approved Claude Platform on AWS customers."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Model ID, limited availability, launch date, modalities, context, and output limit verified against official Anthropic model documentation."
     },
     "rate_limits": []
   }

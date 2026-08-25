@@ -1,0 +1,75 @@
+{
+  "key": "decart:lucy-image-2:image.generate",
+  "api_provider_id": "decart",
+  "provider_slug": "decart",
+  "api_model_id": "lucy-image-2",
+  "capability_id": "image.generate",
+  "rules": [
+    {
+      "meter": "output_image",
+      "unit": "image",
+      "unit_size": 1,
+      "price_per_unit": 0.01,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Per image edit at 480p.",
+      "match": [
+        {
+          "path": "image_params.resolution",
+          "op": "eq",
+          "value": "480p"
+        }
+      ],
+      "priority": 100,
+      "effective_from": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "path": "image_params.resolution",
+          "op": "eq",
+          "value": "480p"
+        }
+      ],
+      "source": {
+        "kind": "pricing",
+        "url": "https://docs.platform.decart.ai/getting-started/pricing",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official USD per-generation resolution pricing."
+      }
+    },
+    {
+      "meter": "output_image",
+      "unit": "image",
+      "unit_size": 1,
+      "price_per_unit": 0.02,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Per image edit at 720p.",
+      "match": [
+        {
+          "path": "image_params.resolution",
+          "op": "eq",
+          "value": "720p"
+        }
+      ],
+      "priority": 101,
+      "effective_from": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "path": "image_params.resolution",
+          "op": "eq",
+          "value": "720p"
+        }
+      ],
+      "source": {
+        "kind": "pricing",
+        "url": "https://docs.platform.decart.ai/getting-started/pricing",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official USD per-generation resolution pricing."
+      }
+    }
+  ]
+}

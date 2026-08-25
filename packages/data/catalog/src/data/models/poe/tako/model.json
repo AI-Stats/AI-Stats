@@ -1,0 +1,77 @@
+{
+  "model_id": "poe/tako",
+  "organisation_id": "poe",
+  "name": "Tako",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Tako is a bot that transforms your questions about stocks, sports, economics or politics into interactive, shareable knowledge cards from trusted sources. Tako's knowledge graph is built exclusively from authoritative, real-time data providers, and is embeddable in your apps, research and storytelling. You can adjust the specificity threshold by typing `--specificity 30` (or a value between 0 - 100) at the end of your query/question; the default is 60.",
+  "announced_date": "2024-08-15T21:08:57",
+  "release_date": "2024-08-15T21:08:57",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text",
+  "output_types": "text",
+  "api_model_id": "poe/tako",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Poe bot",
+      "kind": "api_reference",
+      "url": "https://poe.com/tako"
+    }
+  ],
+  "details": [
+    {
+      "name": "input_context_length",
+      "value": 2048
+    }
+  ],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "Poe bot",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": 2048,
+    "input": 2048,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": false,
+    "tool_call": false,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.poe.com/v1/models",
+      "accessed_at": "2026-08-24T03:27:45Z",
+      "notes": "Canonical entity for an exact public Poe bot identifier returned by the models API."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T03:27:45Z",
+    "notes": "Identity and advertised metadata verified against Poe's public models API."
+  },
+  "last_updated": "2026-08-24T03:27:45Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

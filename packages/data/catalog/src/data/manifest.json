@@ -67,7 +67,8 @@
     "prism-ml",
     "jetbrains",
     "stealth",
-    "stability-ai"
+    "stability-ai",
+    "openbmb"
   ],
   "models": {
     "ai21": [
@@ -632,7 +633,11 @@
       "minimax/speech-2.6-hd",
       "minimax/speech-2.6-turbo",
       "minimax/speech-2.8-hd",
-      "minimax/speech-2.8-turbo"
+      "minimax/speech-2.8-turbo",
+      "minimax/minimax-m2.7:free",
+      "minimax/minimax-m3:free",
+      "minimax/music-3.0:free",
+      "minimax/speech-2.8:free"
     ],
     "mistral": [
       "mistral/codestral",
@@ -1164,6 +1169,9 @@
       "qwen/qwen3.6-flash"
     ],
     "relace": [
+      "relace/relace-apply-3",
+      "relace/relace-compact",
+      "relace/relace-rank",
       "relace/relace-search"
     ],
     "sourceful": [
@@ -1197,7 +1205,11 @@
       "upstage/solar-pro-2-preview",
       "upstage/solar-pro-3",
       "upstage/solar-mini",
-      "upstage/solar-pro-4"
+      "upstage/solar-pro-4",
+      "upstage/solar-embedding-1-large-passage",
+      "upstage/solar-embedding-1-large-query",
+      "upstage/solar-embedding-2-passage",
+      "upstage/solar-embedding-2-query"
     ],
     "vercel": [
       "vercel/v0-1.0-md",
@@ -1233,7 +1245,11 @@
       "voyage/voyage-lite-02-instruct",
       "voyage/voyage-multilingual-2",
       "voyage/voyage-multimodal-3",
-      "voyage/voyage-multimodal-3.5"
+      "voyage/voyage-multimodal-3.5",
+      "voyage/rerank-2.5",
+      "voyage/rerank-2.5-lite",
+      "voyage/voyage-code-4",
+      "voyage/voyage-context-4"
     ],
     "windsurf": [
       "windsurf/swe-1",
@@ -1287,7 +1303,11 @@
       "xiaomi/mimo-v2.5",
       "xiaomi/mimo-v2.5-pro",
       "xiaomi/mimo-v2.5-tts",
-      "xiaomi/mimo-v2.5-tts:free"
+      "xiaomi/mimo-v2.5-tts:free",
+      "xiaomi/mimo-v2.5-asr",
+      "xiaomi/mimo-v2.5-pro-ultraspeed",
+      "xiaomi/mimo-v2.5-tts-voiceclone:free",
+      "xiaomi/mimo-v2.5-tts-voicedesign:free"
     ],
     "z-ai": [
       "z-ai/glm-4-32b",
@@ -1403,6 +1423,9 @@
     ],
     "stability-ai": [
       "stability-ai/stable-diffusion-xl-base-1.0"
+    ],
+    "openbmb": [
+      "openbmb/minicpm-v-4.5"
     ]
   },
   "benchmarks": [

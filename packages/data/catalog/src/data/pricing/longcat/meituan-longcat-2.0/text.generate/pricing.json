@@ -52,16 +52,71 @@
       "cache_duration_seconds": null,
       "conditions": [],
       "source": null
+    },
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.75,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Published undiscounted LongCat 2.0 uncached-input list price; the limited-time promotional rule has higher priority.",
+      "match": [],
+      "priority": 90,
+      "effective_from": "2026-06-30T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.015,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Published undiscounted LongCat 2.0 cached-input list price; the limited-time promotional rule has higher priority.",
+      "match": [],
+      "priority": 90,
+      "effective_from": "2026-06-30T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 2.95,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Published undiscounted LongCat 2.0 output list price; the limited-time promotional rule has higher priority.",
+      "match": [],
+      "priority": 90,
+      "effective_from": "2026-06-30T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
     }
   ],
   "regions": [],
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "pricing",
+      "url": "https://longcat.chat/platform/docs/Pricing/LongCat-2.0.html",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official USD pay-as-you-go list and limited-time discounted rates for uncached input, cached input, and output."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Promotional rates remain the active priority-100 rules; all published USD list rates are retained as priority-90 fallback rules."
   }
 }

@@ -1,0 +1,77 @@
+{
+  "model_id": "sference/thinkingcap-qwen3.6-27b",
+  "organisation_id": "sference",
+  "name": "Thinkingcap Qwen3 6 27b",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "ThinkingCap-Qwen3.6-27B is a reasoning tuned model from BottlecapAI built on Qwen3.6 27B. It supports extended thinking with tool calling and a 256K context window. Served via Sference.",
+  "announced_date": "2026-07-13T17:59:21.000Z",
+  "release_date": "2026-07-13T17:59:21.000Z",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Open weights",
+  "input_types": "text",
+  "output_types": "text",
+  "api_model_id": "sference/thinkingcap-qwen3.6-27b",
+  "links": [
+    {
+      "title": "Requesty model catalogue",
+      "kind": "api_reference",
+      "url": "https://router.requesty.ai/v1/models"
+    }
+  ],
+  "details": [
+    {
+      "name": "requesty_availability",
+      "value": "Available through Requesty as sference/thinkingcap-qwen3.6-27b."
+    }
+  ],
+  "benchmarks": [],
+  "family_id": null,
+  "page_notice": null,
+  "model_type": null,
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": 262144,
+    "input": 262144,
+    "output": 32768
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": true,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": false,
+    "tool_call": true,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": true,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://router.requesty.ai/v1/models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Canonical name, developer, lifecycle timestamp, limits, modalities, and capabilities from Requesty's live catalogue."
+    }
+  ],
+  "verification": {
+    "status": "partial",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Available in Requesty's official live catalogue; third-party developer metadata may require further enrichment."
+  },
+  "last_updated": "2026-08-20T18:19:35.000Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}
