@@ -22,7 +22,7 @@
   "privacy_policy_url": null,
   "terms_of_service_url": null,
   "regional_pricing_mode": "unknown",
-  "pricing_source_url": "https://cloud.sambanova.ai/plans",
+  "pricing_source_url": "https://cloud.sambanova.ai/plans/pricing",
   "regional_pricing_notes": null,
   "country_code": "US",
   "status": "Active",
@@ -39,12 +39,14 @@
   "sources": [
     { "kind": "provider_docs", "url": "https://docs.sambanova.ai/docs/en/get-started/api-keys-urls", "accessed_at": "2026-08-12T00:00:00Z", "notes": "Official SambaCloud base URL and Chat endpoint." },
     { "kind": "provider_docs", "url": "https://docs.sambanova.ai/docs/en/features/openai-compatibility", "accessed_at": "2026-08-12T00:00:00Z", "notes": "Official Chat and Responses compatibility, feature differences and unsupported fields." },
-    { "kind": "provider_models", "url": "https://docs.sambanova.ai/docs/en/models/sambacloud-models", "accessed_at": "2026-08-12T00:00:00Z", "notes": "Current production and preview SambaCloud inventory." },
-    { "kind": "pricing", "url": "https://cloud.sambanova.ai/plans/pricing", "accessed_at": "2026-08-12T00:00:00Z", "notes": "Current on-demand input and output token prices." }
+    { "kind": "provider_models", "url": "https://api.sambanova.ai/v1/models", "accessed_at": "2026-08-24T00:00:00Z", "notes": "Live public route used as the availability, exact-ID, context, completion-limit, and pricing authority." },
+    { "kind": "provider_models", "url": "https://docs.sambanova.ai/docs/en/models/sambacloud-models", "accessed_at": "2026-08-24T00:00:00Z", "notes": "Current production/preview classifications and supported modalities." },
+    { "kind": "provider_docs", "url": "https://docs.sambanova.ai/docs/en/models/rate-limits", "accessed_at": "2026-08-24T00:00:00Z", "notes": "Free and Developer request/token limits and model availability." },
+    { "kind": "pricing", "url": "https://cloud.sambanova.ai/plans/pricing", "accessed_at": "2026-08-24T00:00:00Z", "notes": "Current on-demand cached-input, input, and output token prices." }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-12T00:00:00Z",
-    "notes": "Cloud host, Bearer authentication, Chat and Responses support, parameters, models, errors and pricing verified from first-party references."
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Cloud host, Bearer authentication, Chat and Responses support, live model route, modalities, lifecycle, limits and pricing verified from first-party references. Geography, residency, retention, training and regional-pricing commitments remain undocumented and are intentionally unknown."
   }
 }

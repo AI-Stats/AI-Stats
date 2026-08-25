@@ -1,0 +1,111 @@
+{
+  "key": "decart:lucy-vton-3.5:video.generate",
+  "api_provider_id": "decart",
+  "provider_slug": "decart",
+  "api_model_id": "lucy-vton-3.5",
+  "capability_id": "video.generate",
+  "rules": [
+    {
+      "meter": "output_video_seconds",
+      "unit": "second",
+      "unit_size": 1,
+      "price_per_unit": 0.02,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Realtime active-generation price at 720p.",
+      "match": [
+        {
+          "path": "video_params.mode",
+          "op": "eq",
+          "value": "realtime"
+        },
+        {
+          "path": "video_params.resolution",
+          "op": "in",
+          "value": [
+            "720p",
+            "1280x720",
+            "720x1280"
+          ]
+        }
+      ],
+      "priority": 100,
+      "effective_from": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "path": "video_params.mode",
+          "op": "eq",
+          "value": "realtime"
+        },
+        {
+          "path": "video_params.resolution",
+          "op": "in",
+          "value": [
+            "720p",
+            "1280x720",
+            "720x1280"
+          ]
+        }
+      ],
+      "source": {
+        "kind": "pricing",
+        "url": "https://docs.platform.decart.ai/getting-started/pricing",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official USD price per active/generated second."
+      }
+    },
+    {
+      "meter": "output_video_seconds",
+      "unit": "second",
+      "unit_size": 1,
+      "price_per_unit": 0.04,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Asynchronous generated-video price at 720p.",
+      "match": [
+        {
+          "path": "video_params.mode",
+          "op": "eq",
+          "value": "batch"
+        },
+        {
+          "path": "video_params.resolution",
+          "op": "in",
+          "value": [
+            "720p",
+            "1280x720",
+            "720x1280"
+          ]
+        }
+      ],
+      "priority": 101,
+      "effective_from": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "path": "video_params.mode",
+          "op": "eq",
+          "value": "batch"
+        },
+        {
+          "path": "video_params.resolution",
+          "op": "in",
+          "value": [
+            "720p",
+            "1280x720",
+            "720x1280"
+          ]
+        }
+      ],
+      "source": {
+        "kind": "pricing",
+        "url": "https://docs.platform.decart.ai/getting-started/pricing",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official USD price per active/generated second."
+      }
+    }
+  ]
+}

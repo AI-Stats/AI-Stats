@@ -1,0 +1,72 @@
+{
+  "model_id": "poe/moss-video-and-audio",
+  "organisation_id": "poe",
+  "name": "MOSS-Video-and-Audio",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "MOSS Video and Audio (MOVA) is an open-source foundation model developed by OpenMOSS that generates synchronized, high-fidelity video and audio in a single end-to-end inference step. Built on a 32-billion parameter Mixture-of-Experts (MoE) architecture, it employs an asymmetric dual-tower design to achieve precise lip-synchronization and eliminate the error accumulation found in traditional cascaded systems. \n\nThis model is hosted by EmpirioLabs.ai and is exclusive to the Poe platform.\n\nLearn more: https://mosi.cn/models/mova\n\nNotes:\n- Generations may take upwards of 20 minutes to complete.\n- Image-to-Video generations will likely yield superior results.\n- Supported image upload file types: .jpg, .jpeg, .png, .webp, .heic, .heif, .bmp, .tiff, .tif, .gif\n- Only 1 image attachment is supported (first frame), and video attachments are not supported.\n\nParameter controls available:\n1. Generation\n- Resolution `360p` or q720p` (default: 360p)\n- Aspect ratio `landscape` or `portrait` or `square` (default: landscape; auto-detected for uploaded images)\n- Duration [2-8] video length in seconds (default: 4)\n- t2v quality 1fast` or `quality` (default: quality; only for text-to-video)\n\n2. Advanced\n- Inference steps [10-50] more steps = higher quality but slower (default: 25, step: 5)\n- CFG scale [1.0-10.0] prompt adherence strength, higher = more literal (default: 5.0, step: 0.5)\n- Sigma_shift [1.0-10.0] noise schedule shift, 360p only (default: 5.0, step: 0.5)\n- Seed [number] for reproducibility, omit for random\n- Negative prompt \"your negative prompt\" leave blank for optimized default",
+  "announced_date": "2026-02-18T02:33:42",
+  "release_date": "2026-02-18T02:33:42",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text",
+  "output_types": "video",
+  "api_model_id": "poe/moss-video-and-audio",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Poe bot",
+      "kind": "api_reference",
+      "url": "https://poe.com/moss-video-and-audio"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "Poe bot",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "video"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": false,
+    "tool_call": false,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.poe.com/v1/models",
+      "accessed_at": "2026-08-24T03:27:45Z",
+      "notes": "Canonical entity for an exact public Poe bot identifier returned by the models API."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T03:27:45Z",
+    "notes": "Identity and advertised metadata verified against Poe's public models API."
+  },
+  "last_updated": "2026-08-24T03:27:45Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

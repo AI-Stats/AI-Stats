@@ -1,0 +1,72 @@
+{
+  "model_id": "poe/qwen3-coder-next-n",
+  "organisation_id": "poe",
+  "name": "Qwen3-Coder-Next-N",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Qwen3-Coder-Next is an open-weight language model specifically engineered for coding agents and local development environments. This highly efficient model delivers exceptional performance with only 3B activated parameters out of 80B total parameters, achieving results comparable to models with 10-20x more active parameters while maintaining remarkable cost-effectiveness for agent deployment. Through its sophisticated training methodology, Qwen3-Coder-Next excels in advanced agentic capabilities including long-horizon reasoning, complex tool usage, and robust recovery from execution failures, ensuring reliable performance across dynamic coding tasks. The model's versatility is further enhanced by its 256k context length and adaptability to various scaffold templates, enabling seamless integration with diverse CLI/IDE platforms such as Claude Code, Qwen Code, Qoder, Kilo, Trae, and Cline, making it an ideal solution for comprehensive development environments.\n\nOptional parameters:\nSet temperature to control randomness in the response: Set number from 1 to 2.  This is set to 0.7 by default. Lower values make the output more focused and deterministic.\nSet max output tokens: Set number from 1 to 65536. This is set to 65536 by default.",
+  "announced_date": "2026-02-03T22:17:59",
+  "release_date": "2026-02-03T22:17:59",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text",
+  "output_types": "text",
+  "api_model_id": "poe/qwen3-coder-next-n",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Poe bot",
+      "kind": "api_reference",
+      "url": "https://poe.com/qwen3-coder-next-n"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "Poe bot",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": false,
+    "tool_call": true,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.poe.com/v1/models",
+      "accessed_at": "2026-08-24T03:27:45Z",
+      "notes": "Canonical entity for an exact public Poe bot identifier returned by the models API."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T03:27:45Z",
+    "notes": "Identity and advertised metadata verified against Poe's public models API."
+  },
+  "last_updated": "2026-08-24T03:27:45Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

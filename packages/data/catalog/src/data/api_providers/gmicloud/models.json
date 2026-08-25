@@ -5006,5 +5006,229 @@
       "notes": "Verified against the authenticated GMI Cloud serverless catalog."
     },
     "rate_limits": []
+  },
+  {
+    "api_model_id": "minimax/minimax-m3:free",
+    "canonical_model_id": "minimax/minimax-m3:free",
+    "provider_api_model_id": "gmicloud:minimax/minimax-m3:free",
+    "provider_model_slug": "MiniMaxAI/MiniMax-M3",
+    "internal_model_id": "minimax/minimax-m3",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-24T00:00:00Z",
+    "effective_to": "2026-09-07T00:00:00Z",
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "promotion",
+        "url": "https://www.gmicloud.ai/minimax-week",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "MiniMax Week x GMI Cloud: MiniMax M3 free from 2026.08.24 to 2026.09.06 via GMI API key or OpenRouter."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Promotional free route for MiniMax Week x GMI Cloud (2026-08-24 to 2026-09-06)."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "minimax/minimax-m2.7:free",
+    "canonical_model_id": "minimax/minimax-m2.7:free",
+    "provider_api_model_id": "gmicloud:minimax/minimax-m2.7:free",
+    "provider_model_slug": "MiniMaxAI/MiniMax-M2.7",
+    "internal_model_id": "minimax/minimax-m2.7",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 196608,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-24T00:00:00Z",
+    "effective_to": "2026-09-07T00:00:00Z",
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "promotion",
+        "url": "https://www.gmicloud.ai/minimax-week",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "MiniMax Week x GMI Cloud: MiniMax M2.7 free from 2026.08.24 to 2026.09.06 via GMI API key or OpenRouter."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Promotional free route for MiniMax Week x GMI Cloud (2026-08-24 to 2026-09-06)."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "minimax/music-3.0:free",
+    "canonical_model_id": "minimax/music-3.0:free",
+    "provider_api_model_id": "gmicloud:minimax/music-3.0:free",
+    "provider_model_slug": "music-3.0",
+    "internal_model_id": "minimax/music-3.0",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "music",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-24T00:00:00Z",
+    "effective_to": "2026-09-07T00:00:00Z",
+    "capabilities": [
+      {
+        "capability_id": "music.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": "/v1/music_generation",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "promotion",
+        "url": "https://www.gmicloud.ai/minimax-week",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "MiniMax Week x GMI Cloud: MiniMax Music 3.0 free from 2026.08.24 to 2026.09.06."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Promotional free route for MiniMax Week x GMI Cloud (2026-08-24 to 2026-09-06)."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "minimax/speech-2.8:free",
+    "canonical_model_id": "minimax/speech-2.8:free",
+    "provider_api_model_id": "gmicloud:minimax/speech-2.8:free",
+    "provider_model_slug": "minimax-tts-speech-2.8-hd",
+    "internal_model_id": "minimax/speech-2.8",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "audio_tts",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-24T00:00:00Z",
+    "effective_to": "2026-09-07T00:00:00Z",
+    "capabilities": [
+      {
+        "capability_id": "audio.speech",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "promotion",
+        "url": "https://www.gmicloud.ai/minimax-week",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "MiniMax Week x GMI Cloud: MiniMax Speech 2.8 free from 2026.08.24 to 2026.09.06; GMI model hub route minimax-tts-speech-2.8-hd."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Promotional free route for MiniMax Week x GMI Cloud (2026-08-24 to 2026-09-06)."
+    },
+    "rate_limits": []
   }
 ]

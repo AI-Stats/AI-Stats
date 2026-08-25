@@ -1,0 +1,72 @@
+{
+  "model_id": "poe/linkup-deep-search",
+  "organisation_id": "poe",
+  "name": "Linkup-Deep-Search",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Linkup Deep Search is an AI-powered search bot that continues to search iteratively if it hasn't found sufficient information on the first attempt. Results are slower compared to its Standard search counterpart, but often yield to more comprehensive results.\nLinkup's technology ranks #1 globally for factual accuracy, achieving state-of-the-art scores on OpenAI’s SimpleQA benchmark. \n\nNotes:\nContext Window: 100k\nAudio/video files are not supported at this time. \n\nParameter controls available: \n1. Domain control. To search only within specific domains select `Include only these domains`, To exclude domains from the search result select `Exclude these domains`. \n2. Prioritize Domains. To give higher priority on search\n3. Date Range: Set `from date` and `to date` to select date range search. Use YYYY-MM-DD date format\n4. Content Option: Toggle `include image` to include relevant images on search and set `image count` (up to 45) to display specific number of images to display.\n5. Citation options: Toggle enable inline citation to include inline citations in the response text (Default: `on`). Toggle include sources list to include a list of sources in the response (Default: `on`)\n\nLearn more: https://www.linkup.so/",
+  "announced_date": "2025-08-17T00:22:39",
+  "release_date": "2025-08-17T00:22:39",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text",
+  "output_types": "text",
+  "api_model_id": "poe/linkup-deep-search",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Poe bot",
+      "kind": "api_reference",
+      "url": "https://poe.com/linkup-deep-search"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "Poe bot",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": false,
+    "tool_call": false,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.poe.com/v1/models",
+      "accessed_at": "2026-08-24T03:27:45Z",
+      "notes": "Canonical entity for an exact public Poe bot identifier returned by the models API."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T03:27:45Z",
+    "notes": "Identity and advertised metadata verified against Poe's public models API."
+  },
+  "last_updated": "2026-08-24T03:27:45Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}
