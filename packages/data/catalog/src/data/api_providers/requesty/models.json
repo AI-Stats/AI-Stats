@@ -17570,10 +17570,11 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "moonshotai/kimi k2.5",
+    "api_model_id": "deepinfra/Kimi K2.5",
+    "canonical_model_id": "moonshotai/kimi-k2.5",
     "provider_api_model_id": "requesty:deepinfra/Kimi K2.5",
     "provider_model_slug": "deepinfra/Kimi K2.5",
-    "internal_model_id": "moonshotai/kimi k2.5",
+    "internal_model_id": "moonshotai/kimi-k2.5",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image",
