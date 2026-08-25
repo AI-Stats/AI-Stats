@@ -1,16 +1,16 @@
 {
   "model_id": "google/gemma-4-26b-a4b-it",
   "organisation_id": "google",
-  "name": "Google: Gemma 4 26B A4B ",
+  "name": "Gemma 4 26B A4B IT",
   "status": "Available",
   "previous_model_id": null,
-  "description": "Gemma 4 26B A4B IT is an instruction-tuned Mixture-of-Experts (MoE) model from Google DeepMind. Despite 25.2B total parameters, only 3.8B activate per token during inference — delivering near-31B quality at...",
+  "description": "Gemma 4 26B A4B IT is available through ZenMux's unified model API.",
   "announced_date": null,
-  "release_date": null,
+  "release_date": "2026-04-03T00:00:00",
   "deprecation_date": null,
   "retirement_date": null,
   "license": null,
-  "input_types": "text,image,video",
+  "input_types": "image,video,text",
   "output_types": "text",
   "api_model_id": "google/gemma-4-26b-a4b-it",
   "links": [],
@@ -22,21 +22,21 @@
   "knowledge_cutoff": null,
   "limits": {
     "context": 262144,
-    "input": null,
+    "input": 262144,
     "output": null
   },
   "modalities": {
     "input": [
-      "text",
       "image/*",
-      "video/*"
+      "video/*",
+      "text"
     ],
     "output": [
       "text"
     ]
   },
   "reasoning": {
-    "supported": null,
+    "supported": false,
     "options": []
   },
   "capabilities": {
@@ -45,21 +45,21 @@
     "structured_output": null,
     "temperature": null,
     "streaming": null,
-    "web_search": null
+    "web_search": false
   },
   "open_weights": null,
   "sources": [
     {
-      "kind": "models",
-      "url": "https://api.orcarouter.ai/v1/models",
+      "kind": "provider_models",
+      "url": "https://zenmux.ai/api/v1/models",
       "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "OrcaRouter live model catalogue metadata."
+      "notes": "Official live ZenMux model, modality, context, capability, publication, and pricing metadata."
     }
   ],
   "verification": {
-    "status": "verified",
+    "status": "partial",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Exact model ID, availability, limits, modalities, description, and pricing metadata verified against OrcaRouter's live official catalogue."
+    "notes": "Availability, namespace, modalities, context, and publication date verified against the official ZenMux models API; upstream model metadata was not independently re-audited."
   },
   "last_updated": "2026-08-24T00:00:00Z",
   "removal_date": null,

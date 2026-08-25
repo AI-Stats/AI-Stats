@@ -44,6 +44,7 @@ export type OrganisationId =
   | "nous"
   | "nvidia"
   | "openai"
+  | "openbmb"
   | "perplexity"
   | "poe"
   | "poolside"

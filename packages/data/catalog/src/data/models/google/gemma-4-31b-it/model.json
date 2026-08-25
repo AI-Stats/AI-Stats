@@ -1,19 +1,25 @@
 {
   "model_id": "google/gemma-4-31b-it",
   "organisation_id": "google",
-  "name": "Google: Gemma 4 31B",
+  "name": "Gemma 4 31B Instruct",
   "status": "Available",
   "previous_model_id": null,
-  "description": "Gemma 4 31B Instruct is Google DeepMind's 30.7B dense multimodal model supporting text and image input with text output. Features a 256K token context window, configurable thinking/reasoning mode, native function...",
+  "description": "Gemma 4 31B Instruct is available through Phala's confidential GPU TEE inference catalog.",
   "announced_date": null,
   "release_date": null,
   "deprecation_date": null,
   "retirement_date": null,
   "license": null,
-  "input_types": null,
-  "output_types": null,
+  "input_types": "text,image,video",
+  "output_types": "text",
   "api_model_id": "google/gemma-4-31b-it",
-  "links": [],
+  "links": [
+    {
+      "title": "Phala model page",
+      "kind": "api_reference",
+      "url": "https://phala.com/models/google/gemma-4-31b-it"
+    }
+  ],
   "details": [],
   "benchmarks": [],
   "family_id": null,
@@ -21,39 +27,45 @@
   "model_type": null,
   "knowledge_cutoff": null,
   "limits": {
-    "context": null,
-    "input": null,
+    "context": 262144,
+    "input": 262144,
     "output": null
   },
   "modalities": {
-    "input": [],
-    "output": []
+    "input": [
+      "text",
+      "image/*",
+      "video/*"
+    ],
+    "output": [
+      "text"
+    ]
   },
   "reasoning": {
     "supported": null,
     "options": []
   },
   "capabilities": {
-    "attachment": null,
-    "tool_call": null,
-    "structured_output": null,
+    "attachment": true,
+    "tool_call": true,
+    "structured_output": true,
     "temperature": null,
-    "streaming": null,
-    "web_search": null
+    "streaming": true,
+    "web_search": false
   },
-  "open_weights": null,
+  "open_weights": true,
   "sources": [
     {
-      "kind": "models",
-      "url": "https://api.orcarouter.ai/v1/models",
+      "kind": "api_reference",
+      "url": "https://phala.com/models/google/gemma-4-31b-it",
       "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "OrcaRouter live model catalogue metadata."
+      "notes": "First-party Phala detail page verifies the canonical route identity, modalities, context, feature support, and availability date."
     }
   ],
   "verification": {
-    "status": "verified",
+    "status": "partial",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Exact model ID, availability, limits, modalities, description, and pricing metadata verified against OrcaRouter's live official catalogue."
+    "notes": "Provider availability is verified; broader upstream model metadata was not independently re-audited."
   },
   "last_updated": "2026-08-24T00:00:00Z",
   "removal_date": null,

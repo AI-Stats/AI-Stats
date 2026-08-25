@@ -388,12 +388,18 @@ namespace PhaseoSdk
         public const string MinimaxMinimaxM25Highspeed = "minimax/minimax-m2.5-highspeed";
         /// <summary>Model ID: <c>minimax/minimax-m2.7</c>. Model page: https://phaseo.app/models/minimax/minimax-m2.7</summary>
         public const string MinimaxMinimaxM27 = "minimax/minimax-m2.7";
+        /// <summary>Model ID: <c>minimax/minimax-m2.7:free</c>. Model page: https://phaseo.app/models/minimax/minimax-m2.7%3Afree</summary>
+        public const string MinimaxMinimaxM27Free = "minimax/minimax-m2.7:free";
         /// <summary>Model ID: <c>minimax/minimax-m3</c>. Model page: https://phaseo.app/models/minimax/minimax-m3</summary>
         public const string MinimaxMinimaxM3 = "minimax/minimax-m3";
+        /// <summary>Model ID: <c>minimax/minimax-m3:free</c>. Model page: https://phaseo.app/models/minimax/minimax-m3%3Afree</summary>
+        public const string MinimaxMinimaxM3Free = "minimax/minimax-m3:free";
         /// <summary>Model ID: <c>minimax/music-2.6</c>. Model page: https://phaseo.app/models/minimax/music-2.6</summary>
         public const string MinimaxMusic26 = "minimax/music-2.6";
         /// <summary>Model ID: <c>minimax/music-3.0</c>. Model page: https://phaseo.app/models/minimax/music-3.0</summary>
         public const string MinimaxMusic30 = "minimax/music-3.0";
+        /// <summary>Model ID: <c>minimax/music-3.0:free</c>. Model page: https://phaseo.app/models/minimax/music-3.0%3Afree</summary>
+        public const string MinimaxMusic30Free = "minimax/music-3.0:free";
         /// <summary>Model ID: <c>minimax/speech-2.6-hd</c>. Model page: https://phaseo.app/models/minimax/speech-2.6-hd</summary>
         public const string MinimaxSpeech26Hd = "minimax/speech-2.6-hd";
         /// <summary>Model ID: <c>minimax/speech-2.6-turbo</c>. Model page: https://phaseo.app/models/minimax/speech-2.6-turbo</summary>
@@ -402,6 +408,8 @@ namespace PhaseoSdk
         public const string MinimaxSpeech28Hd = "minimax/speech-2.8-hd";
         /// <summary>Model ID: <c>minimax/speech-2.8-turbo</c>. Model page: https://phaseo.app/models/minimax/speech-2.8-turbo</summary>
         public const string MinimaxSpeech28Turbo = "minimax/speech-2.8-turbo";
+        /// <summary>Model ID: <c>minimax/speech-2.8:free</c>. Model page: https://phaseo.app/models/minimax/speech-2.8%3Afree</summary>
+        public const string MinimaxSpeech28Free = "minimax/speech-2.8:free";
         /// <summary>Model ID: <c>mistral/codestral</c>. Model page: https://phaseo.app/models/mistral/codestral</summary>
         public const string MistralCodestral = "mistral/codestral";
         /// <summary>Model ID: <c>mistral/codestral-embed</c>. Model page: https://phaseo.app/models/mistral/codestral-embed</summary>
@@ -674,6 +682,8 @@ namespace PhaseoSdk
         public const string OpenaiWhisperLargeV3 = "openai/whisper-large-v3";
         /// <summary>Model ID: <c>openai/whisper-large-v3-turbo</c>. Model page: https://phaseo.app/models/openai/whisper-large-v3-turbo</summary>
         public const string OpenaiWhisperLargeV3Turbo = "openai/whisper-large-v3-turbo";
+        /// <summary>Model ID: <c>openbmb/minicpm-v-4.5</c>. Model page: https://phaseo.app/models/openbmb/minicpm-v-4.5</summary>
+        public const string OpenbmbMinicpmV45 = "openbmb/minicpm-v-4.5";
         /// <summary>Model ID: <c>perplexity/pplx-embed-v1-0.6b</c>. Model page: https://phaseo.app/models/perplexity/pplx-embed-v1-0.6b</summary>
         public const string PerplexityPplxEmbedV106b = "perplexity/pplx-embed-v1-0.6b";
         /// <summary>Model ID: <c>perplexity/pplx-embed-v1-4b</c>. Model page: https://phaseo.app/models/perplexity/pplx-embed-v1-4b</summary>
@@ -830,8 +840,6 @@ namespace PhaseoSdk
         public const string QwenQwen3Omni30bA3bThinking = "qwen/qwen3-omni-30b-a3b-thinking";
         /// <summary>Model ID: <c>qwen/qwen3-reranker</c>. Model page: https://phaseo.app/models/qwen/qwen3-reranker</summary>
         public const string QwenQwen3Reranker = "qwen/qwen3-reranker";
-        /// <summary>Model ID: <c>qwen/qwen3-reranker-8b</c>. Model page: https://phaseo.app/models/qwen/qwen3-reranker-8b</summary>
-        public const string QwenQwen3Reranker8b = "qwen/qwen3-reranker-8b";
         /// <summary>Model ID: <c>qwen/qwen3-vl-235b-a22b</c>. Model page: https://phaseo.app/models/qwen/qwen3-vl-235b-a22b</summary>
         public const string QwenQwen3Vl235bA22b = "qwen/qwen3-vl-235b-a22b";
         /// <summary>Model ID: <c>qwen/qwen3-vl-235b-a22b-instruct</c>. Model page: https://phaseo.app/models/qwen/qwen3-vl-235b-a22b-instruct</summary>
@@ -1002,6 +1010,10 @@ namespace PhaseoSdk
         public const string VoyageRerank2 = "voyage/rerank-2";
         /// <summary>Model ID: <c>voyage/rerank-2-lite</c>. Model page: https://phaseo.app/models/voyage/rerank-2-lite</summary>
         public const string VoyageRerank2Lite = "voyage/rerank-2-lite";
+        /// <summary>Model ID: <c>voyage/rerank-2.5</c>. Model page: https://phaseo.app/models/voyage/rerank-2.5</summary>
+        public const string VoyageRerank25 = "voyage/rerank-2.5";
+        /// <summary>Model ID: <c>voyage/rerank-2.5-lite</c>. Model page: https://phaseo.app/models/voyage/rerank-2.5-lite</summary>
+        public const string VoyageRerank25Lite = "voyage/rerank-2.5-lite";
         /// <summary>Model ID: <c>voyage/rerank-lite-1</c>. Model page: https://phaseo.app/models/voyage/rerank-lite-1</summary>
         public const string VoyageRerankLite1 = "voyage/rerank-lite-1";
         /// <summary>Model ID: <c>voyage/voyage-01</c>. Model page: https://phaseo.app/models/voyage/voyage-01</summary>
@@ -1030,6 +1042,8 @@ namespace PhaseoSdk
         public const string VoyageVoyageCode2 = "voyage/voyage-code-2";
         /// <summary>Model ID: <c>voyage/voyage-code-3</c>. Model page: https://phaseo.app/models/voyage/voyage-code-3</summary>
         public const string VoyageVoyageCode3 = "voyage/voyage-code-3";
+        /// <summary>Model ID: <c>voyage/voyage-code-4</c>. Model page: https://phaseo.app/models/voyage/voyage-code-4</summary>
+        public const string VoyageVoyageCode4 = "voyage/voyage-code-4";
         /// <summary>Model ID: <c>voyage/voyage-context-3</c>. Model page: https://phaseo.app/models/voyage/voyage-context-3</summary>
         public const string VoyageVoyageContext3 = "voyage/voyage-context-3";
         /// <summary>Model ID: <c>voyage/voyage-finance-2</c>. Model page: https://phaseo.app/models/voyage/voyage-finance-2</summary>

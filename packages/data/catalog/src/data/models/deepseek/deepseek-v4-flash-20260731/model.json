@@ -1,0 +1,72 @@
+{
+  "model_id": "deepseek/deepseek-v4-flash-20260731",
+  "organisation_id": "deepseek",
+  "name": "DeepSeek-V4-Flash-20260731",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "大幅提升了其 Agent 功能，基准测试得分已远超 V4-Pro-Preview。性能飞跃！原生支持 Responses API 格式，并已完全适配 Codex！",
+  "announced_date": null,
+  "release_date": null,
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": null,
+  "input_types": "text",
+  "output_types": "text",
+  "api_model_id": "deepseek/deepseek-v4-flash-20260731",
+  "links": [
+    {
+      "title": "Qiniu model marketplace",
+      "kind": "provider",
+      "url": "https://www.qiniu.com/ai/models"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "family_id": null,
+  "page_notice": null,
+  "model_type": null,
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": true,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": false,
+    "tool_call": true,
+    "structured_output": true,
+    "temperature": null,
+    "streaming": null,
+    "web_search": null
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "documentation",
+      "url": "https://www.qiniu.com/ai/models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Canonical entity derived from Qiniu's official hosted-model entry deepseek/deepseek-v4-flash-20260731."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Identity, modalities and lifecycle verified from the official Qiniu marketplace."
+  },
+  "last_updated": "2026-08-24T00:00:00Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

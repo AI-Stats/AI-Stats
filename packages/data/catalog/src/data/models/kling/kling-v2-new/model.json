@@ -1,0 +1,72 @@
+{
+  "model_id": "kling/kling-v2-new",
+  "organisation_id": "kling",
+  "name": "Kling-V2-New",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "由快手大模型团队自研打造的图生图风格转绘大模型，生成图片分辨率与入参图相同，不支持单独设置分辨率。",
+  "announced_date": null,
+  "release_date": null,
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": null,
+  "input_types": "image",
+  "output_types": "image",
+  "api_model_id": "kling-v2-new",
+  "links": [
+    {
+      "title": "Qiniu model marketplace",
+      "kind": "provider",
+      "url": "https://www.qiniu.com/ai/models"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "family_id": null,
+  "page_notice": null,
+  "model_type": null,
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": 99999,
+    "input": 99999,
+    "output": 1000
+  },
+  "modalities": {
+    "input": [
+      "image"
+    ],
+    "output": [
+      "image"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": true,
+    "tool_call": false,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": null,
+    "web_search": null
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "documentation",
+      "url": "https://www.qiniu.com/ai/models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Canonical entity derived from Qiniu's official hosted-model entry kling-v2-new."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Identity, modalities and lifecycle verified from the official Qiniu marketplace."
+  },
+  "last_updated": "2026-08-24T00:00:00Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}
