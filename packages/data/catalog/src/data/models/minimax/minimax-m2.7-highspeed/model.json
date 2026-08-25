@@ -1,20 +1,31 @@
 {
   "model_id": "minimax/minimax-m2.7-highspeed",
   "organisation_id": "minimax",
-  "name": "MiniMax M2.7 highspeed",
+  "name": "Minimax M2 7 Highspeed",
   "status": "Available",
   "previous_model_id": null,
-  "description": "MiniMax M2.7 highspeed is available through ZenMux's unified model API.",
-  "announced_date": null,
-  "release_date": "2026-03-18T00:00:00",
+  "description": "MiniMax M2.7-highspeed is an accelerated SOTA model engineered for scenarios demanding extreme efficiency. It perfectly inherits the core intelligence and robust digital workspace capabilities of the standard M2.7. In real-world software engineering, M2.7 excels by independently driving end-to-end project delivery while efficiently handling advanced tasks such as log analysis, bug troubleshooting, code security, and machine learning. In the professional workspace, it boasts the highest open-sour",
+  "announced_date": "2026-03-18T12:24:57.000Z",
+  "release_date": "2026-03-18T12:24:57.000Z",
   "deprecation_date": null,
   "retirement_date": null,
-  "license": null,
+  "license": "Open weights",
   "input_types": "text",
   "output_types": "text",
   "api_model_id": "minimax/minimax-m2.7-highspeed",
-  "links": [],
-  "details": [],
+  "links": [
+    {
+      "title": "Requesty model catalogue",
+      "kind": "api_reference",
+      "url": "https://router.requesty.ai/v1/models"
+    }
+  ],
+  "details": [
+    {
+      "name": "requesty_availability",
+      "value": "Available through Requesty as novita/minimax/minimax-m2.7-highspeed."
+    }
+  ],
   "benchmarks": [],
   "family_id": null,
   "page_notice": null,
@@ -23,7 +34,7 @@
   "limits": {
     "context": 204800,
     "input": 204800,
-    "output": null
+    "output": 0
   },
   "modalities": {
     "input": [
@@ -39,27 +50,27 @@
   },
   "capabilities": {
     "attachment": false,
-    "tool_call": null,
-    "structured_output": null,
+    "tool_call": true,
+    "structured_output": false,
     "temperature": null,
-    "streaming": null,
+    "streaming": true,
     "web_search": false
   },
-  "open_weights": null,
+  "open_weights": true,
   "sources": [
     {
       "kind": "provider_models",
-      "url": "https://zenmux.ai/api/v1/models",
+      "url": "https://router.requesty.ai/v1/models",
       "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "Official live ZenMux model, modality, context, capability, publication, and pricing metadata."
+      "notes": "Canonical name, developer, lifecycle timestamp, limits, modalities, and capabilities from Requesty's live catalogue."
     }
   ],
   "verification": {
     "status": "partial",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Availability, namespace, modalities, context, and publication date verified against the official ZenMux models API; upstream model metadata was not independently re-audited."
+    "notes": "Available in Requesty's official live catalogue; third-party developer metadata may require further enrichment."
   },
-  "last_updated": "2026-08-24T00:00:00Z",
+  "last_updated": "2026-08-20T18:19:35.000Z",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

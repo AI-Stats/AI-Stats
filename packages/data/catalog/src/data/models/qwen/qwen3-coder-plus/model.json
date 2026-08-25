@@ -1,75 +1,77 @@
 {
   "model_id": "qwen/qwen3-coder-plus",
   "organisation_id": "qwen",
-  "name": "Qwen: Qwen3 Coder Plus",
+  "name": "Qwen3 Coder Plus",
   "status": "Available",
   "previous_model_id": null,
-  "description": "Qwen3 Coder Plus is Alibaba's proprietary version of the Open Source Qwen3 Coder 480B A35B. It is a powerful coding agent model specializing in autonomous programming via tool calling and...",
-  "announced_date": null,
-  "release_date": "2025-09-23",
+  "description": "Qwen3 Coder Plus",
+  "announced_date": "2025-09-23T21:25:07.000Z",
+  "release_date": "2025-09-23T21:25:07.000Z",
   "deprecation_date": null,
   "retirement_date": null,
-  "license": null,
-  "input_types": [
-    "text"
-  ],
-  "output_types": [
-    "text"
-  ],
+  "license": "Proprietary",
+  "input_types": "text,image",
+  "output_types": "text",
   "api_model_id": "qwen/qwen3-coder-plus",
   "links": [
     {
-      "platform": "model",
-      "title": "OpenRouter model page",
-      "url": "https://openrouter.ai/qwen/qwen3-coder-plus"
+      "title": "Requesty model catalogue",
+      "kind": "api_reference",
+      "url": "https://router.requesty.ai/v1/models"
     }
   ],
-  "details": [],
+  "details": [
+    {
+      "name": "requesty_availability",
+      "value": "Available through Requesty as alibaba/qwen3-coder-plus."
+    }
+  ],
   "benchmarks": [],
   "family_id": null,
   "page_notice": null,
-  "model_type": "language",
-  "knowledge_cutoff": "2025-06-30",
+  "model_type": null,
+  "knowledge_cutoff": null,
   "limits": {
-    "context": 1000000,
-    "input": null,
+    "context": 1048576,
+    "input": 1048576,
     "output": 65536
   },
   "modalities": {
     "input": [
-      "text"
+      "text",
+      "image"
     ],
     "output": [
       "text"
     ]
   },
   "reasoning": {
-    "supported": true,
+    "supported": false,
     "options": []
   },
   "capabilities": {
-    "attachment": false,
+    "attachment": true,
     "tool_call": true,
     "structured_output": true,
-    "temperature": true,
+    "temperature": null,
     "streaming": true,
     "web_search": false
   },
-  "open_weights": null,
+  "open_weights": false,
   "sources": [
     {
       "kind": "provider_models",
-      "url": "https://openrouter.ai/api/v1/models",
+      "url": "https://router.requesty.ai/v1/models",
       "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "Exact live OpenRouter ID: qwen/qwen3-coder-plus."
+      "notes": "Canonical name, developer, lifecycle timestamp, limits, modalities, and capabilities from Requesty's live catalogue."
     }
   ],
   "verification": {
     "status": "partial",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Availability, modalities, limits and parameters verified against OpenRouter's official models API; upstream publisher metadata remains provider-reported."
+    "notes": "Available in Requesty's official live catalogue; third-party developer metadata may require further enrichment."
   },
-  "last_updated": "2026-08-24",
+  "last_updated": "2026-08-20T18:19:35.000Z",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

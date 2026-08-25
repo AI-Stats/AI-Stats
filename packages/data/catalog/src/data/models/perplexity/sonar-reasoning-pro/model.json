@@ -1,77 +1,76 @@
 {
   "model_id": "perplexity/sonar-reasoning-pro",
   "organisation_id": "perplexity",
-  "name": "Perplexity: Sonar Reasoning Pro",
+  "name": "Sonar Reasoning Pro",
   "status": "Available",
   "previous_model_id": null,
-  "description": "Note: Sonar Pro pricing includes Perplexity search pricing. See [details here](https://docs.perplexity.ai/guides/pricing#detailed-pricing-breakdown-for-sonar-reasoning-pro-and-sonar-pro) Sonar Reasoning Pro is a premier reasoning model powered by DeepSeek R1 with Chain of Thought (CoT). Designed for...",
-  "announced_date": null,
-  "release_date": "2025-03-07",
+  "description": "Premier reasoning offering powered by DeepSeek R1 with Chain of Thought (CoT).",
+  "announced_date": "2025-03-07T02:08:28.000Z",
+  "release_date": "2025-03-07T02:08:28.000Z",
   "deprecation_date": null,
   "retirement_date": null,
-  "license": null,
-  "input_types": [
-    "text",
-    "image/*"
-  ],
-  "output_types": [
-    "text"
-  ],
+  "license": "Proprietary",
+  "input_types": "text",
+  "output_types": "text",
   "api_model_id": "perplexity/sonar-reasoning-pro",
   "links": [
     {
-      "platform": "model",
-      "title": "OpenRouter model page",
-      "url": "https://openrouter.ai/perplexity/sonar-reasoning-pro"
+      "title": "Requesty model catalogue",
+      "kind": "api_reference",
+      "url": "https://router.requesty.ai/v1/models"
     }
   ],
-  "details": [],
+  "details": [
+    {
+      "name": "requesty_availability",
+      "value": "Available through Requesty as perplexity/sonar-reasoning-pro."
+    }
+  ],
   "benchmarks": [],
   "family_id": null,
   "page_notice": null,
-  "model_type": "language",
+  "model_type": null,
   "knowledge_cutoff": null,
   "limits": {
-    "context": 128000,
-    "input": null,
-    "output": null
+    "context": 131072,
+    "input": 131072,
+    "output": 8192
   },
   "modalities": {
     "input": [
-      "text",
-      "image/*"
+      "text"
     ],
     "output": [
       "text"
     ]
   },
   "reasoning": {
-    "supported": true,
+    "supported": false,
     "options": []
   },
   "capabilities": {
-    "attachment": true,
+    "attachment": false,
     "tool_call": false,
-    "structured_output": false,
-    "temperature": true,
+    "structured_output": true,
+    "temperature": null,
     "streaming": true,
-    "web_search": false
+    "web_search": true
   },
-  "open_weights": null,
+  "open_weights": false,
   "sources": [
     {
       "kind": "provider_models",
-      "url": "https://openrouter.ai/api/v1/models",
+      "url": "https://router.requesty.ai/v1/models",
       "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "Exact live OpenRouter ID: perplexity/sonar-reasoning-pro."
+      "notes": "Canonical name, developer, lifecycle timestamp, limits, modalities, and capabilities from Requesty's live catalogue."
     }
   ],
   "verification": {
     "status": "partial",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Availability, modalities, limits and parameters verified against OpenRouter's official models API; upstream publisher metadata remains provider-reported."
+    "notes": "Available in Requesty's official live catalogue; third-party developer metadata may require further enrichment."
   },
-  "last_updated": "2026-08-24",
+  "last_updated": "2026-08-20T18:19:35.000Z",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

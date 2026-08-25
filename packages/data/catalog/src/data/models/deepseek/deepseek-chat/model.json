@@ -1,39 +1,40 @@
 {
   "model_id": "deepseek/deepseek-chat",
   "organisation_id": "deepseek",
-  "name": "DeepSeek: DeepSeek V3",
+  "name": "Deepseek Chat",
   "status": "Available",
   "previous_model_id": null,
-  "description": "DeepSeek-V3 is the latest model from the DeepSeek team, building upon the instruction following and coding abilities of the previous versions. Pre-trained on nearly 15 trillion tokens, the reported evaluations...",
-  "announced_date": null,
-  "release_date": "2024-12-26",
+  "description": "An alias for DeepSeek v4 Flash in non-thinking mode.",
+  "announced_date": "2024-12-26T19:28:40.000Z",
+  "release_date": "2024-12-26T19:28:40.000Z",
   "deprecation_date": null,
   "retirement_date": null,
-  "license": null,
-  "input_types": [
-    "text"
-  ],
-  "output_types": [
-    "text"
-  ],
+  "license": "Open weights",
+  "input_types": "text",
+  "output_types": "text",
   "api_model_id": "deepseek/deepseek-chat",
   "links": [
     {
-      "platform": "model",
-      "title": "OpenRouter model page",
-      "url": "https://openrouter.ai/deepseek/deepseek-chat"
+      "title": "Requesty model catalogue",
+      "kind": "api_reference",
+      "url": "https://router.requesty.ai/v1/models"
     }
   ],
-  "details": [],
+  "details": [
+    {
+      "name": "requesty_availability",
+      "value": "Available through Requesty as deepseek/deepseek-chat."
+    }
+  ],
   "benchmarks": [],
   "family_id": null,
   "page_notice": null,
-  "model_type": "language",
-  "knowledge_cutoff": "2024-07-31",
+  "model_type": null,
+  "knowledge_cutoff": null,
   "limits": {
-    "context": 163840,
-    "input": null,
-    "output": 16000
+    "context": 1000000,
+    "input": 1000000,
+    "output": 384000
   },
   "modalities": {
     "input": [
@@ -44,14 +45,14 @@
     ]
   },
   "reasoning": {
-    "supported": null,
+    "supported": false,
     "options": []
   },
   "capabilities": {
     "attachment": false,
     "tool_call": true,
     "structured_output": true,
-    "temperature": true,
+    "temperature": null,
     "streaming": true,
     "web_search": false
   },
@@ -59,17 +60,17 @@
   "sources": [
     {
       "kind": "provider_models",
-      "url": "https://openrouter.ai/api/v1/models",
+      "url": "https://router.requesty.ai/v1/models",
       "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "Exact live OpenRouter ID: deepseek/deepseek-chat."
+      "notes": "Canonical name, developer, lifecycle timestamp, limits, modalities, and capabilities from Requesty's live catalogue."
     }
   ],
   "verification": {
     "status": "partial",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Availability, modalities, limits and parameters verified against OpenRouter's official models API; upstream publisher metadata remains provider-reported."
+    "notes": "Available in Requesty's official live catalogue; third-party developer metadata may require further enrichment."
   },
-  "last_updated": "2026-08-24",
+  "last_updated": "2026-08-20T18:19:35.000Z",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null
