@@ -91,6 +91,12 @@ function envValue(name: string): string | null {
     return trimmed || null;
 }
 
+export function isModelUpdatesNotificationsDisabled(): boolean {
+    const raw = envValue("MODEL_UPDATES_NOTIFICATIONS_DISABLED");
+    const normalized = raw?.toLowerCase();
+    return normalized === "true" || normalized === "1";
+}
+
 function normalizeRepoRelativePath(filePath: string): string {
     return filePath.replace(/\\/g, "/");
 }
@@ -966,15 +972,23 @@ export async function runInternalModelDiscovery(argv: string[], hooks: InternalM
             `[internal-model-check] ${internalNotificationCount} internal model notification(s) detected, but DISCORD_WEBHOOK_NEW_MODELS_PUBLIC is missing.`
         );
     }
+    const notificationsDisabled = isModelUpdatesNotificationsDisabled();
+    if (internalNotificationCount > 0 && notificationsDisabled) {
+        console.log(
+            `[internal-model-check] Model update notifications are disabled via MODEL_UPDATES_NOTIFICATIONS_DISABLED; suppressing ${internalNotificationCount} notification(s) and advancing the baseline.`
+        );
+    }
     if (hfAdditionsTotal > 0 && !hfWebhookUrl) {
         console.log(
             `[internal-model-check] ${hfAdditionsTotal} HF model addition(s) detected, but DISCORD_WEBHOOK_URL is missing.`
         );
     }
 
-    const shouldSendInternal = shouldCheckInternal && internalNotificationCount > 0 && Boolean(internalWebhookUrl);
+    const shouldSendInternal =
+        shouldCheckInternal && internalNotificationCount > 0 && Boolean(internalWebhookUrl) && !notificationsDisabled;
     const shouldSendHf = shouldCheckHf && hfAdditionsTotal > 0 && Boolean(hfWebhookUrl);
-    const holdInternalBaseline = shouldCheckInternal && internalNotificationCount > 0 && !shouldSendInternal;
+    const holdInternalBaseline =
+        shouldCheckInternal && internalNotificationCount > 0 && !shouldSendInternal && !notificationsDisabled;
     const holdHfBaseline = shouldCheckHf && hfAdditionsTotal > 0 && !shouldSendHf;
 
     if (!shouldSendInternal && !shouldSendHf) {
@@ -1084,4 +1098,5 @@ if (isMainModule()) {
 
 export const testingExports = {
     parseNextLink,
+    isModelUpdatesNotificationsDisabled,
 };
