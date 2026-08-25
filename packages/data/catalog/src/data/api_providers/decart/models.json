@@ -11,30 +11,12 @@
     "context_length": 262144,
     "max_output_tokens": 262144,
     "effective_from": "2026-08-12T00:00:00Z",
-    "effective_to": null,
+    "effective_to": "2026-08-24T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
         "status": "disabled",
-        "params": [
-          "reasoning",
-          "include_reasoning",
-          "temperature",
-          "top_p",
-          "top_k",
-          "min_p",
-          "frequency_penalty",
-          "presence_penalty",
-          "repetition_penalty",
-          "stop",
-          "seed",
-          "max_tokens",
-          "response_format",
-          "structured_outputs",
-          "tools",
-          "tool_choice",
-          "reasoning_effort"
-        ],
+        "params": [],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -60,15 +42,15 @@
     "sources": [
       {
         "kind": "provider_models",
-        "url": null,
-        "accessed_at": "2026-08-12T00:00:00Z",
-        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+        "url": "https://docs.platform.decart.ai/getting-started/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Not present in Decart's official catalogue; historical unverified observation closed."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-12T00:00:00Z",
-      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "No official Decart API evidence supports this route; preserved as disabled history and closed."
     },
     "rate_limits": []
   },
@@ -84,30 +66,12 @@
     "context_length": 1048576,
     "max_output_tokens": 1048576,
     "effective_from": "2026-08-12T00:00:00Z",
-    "effective_to": null,
+    "effective_to": "2026-08-24T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
         "status": "disabled",
-        "params": [
-          "reasoning",
-          "include_reasoning",
-          "temperature",
-          "top_p",
-          "top_k",
-          "min_p",
-          "frequency_penalty",
-          "presence_penalty",
-          "repetition_penalty",
-          "stop",
-          "seed",
-          "max_tokens",
-          "response_format",
-          "structured_outputs",
-          "tools",
-          "tool_choice",
-          "reasoning_effort"
-        ],
+        "params": [],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -133,15 +97,15 @@
     "sources": [
       {
         "kind": "provider_models",
-        "url": null,
-        "accessed_at": "2026-08-12T00:00:00Z",
-        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+        "url": "https://docs.platform.decart.ai/getting-started/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Not present in Decart's official catalogue; historical unverified observation closed."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-12T00:00:00Z",
-      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "No official Decart API evidence supports this route; preserved as disabled history and closed."
     },
     "rate_limits": []
   },
@@ -157,29 +121,12 @@
     "context_length": 262144,
     "max_output_tokens": 262144,
     "effective_from": "2026-08-12T00:00:00Z",
-    "effective_to": null,
+    "effective_to": "2026-08-24T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
         "status": "disabled",
-        "params": [
-          "reasoning",
-          "include_reasoning",
-          "temperature",
-          "top_p",
-          "top_k",
-          "min_p",
-          "frequency_penalty",
-          "presence_penalty",
-          "repetition_penalty",
-          "stop",
-          "seed",
-          "max_tokens",
-          "response_format",
-          "structured_outputs",
-          "tools",
-          "tool_choice"
-        ],
+        "params": [],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -205,15 +152,834 @@
     "sources": [
       {
         "kind": "provider_models",
-        "url": null,
-        "accessed_at": "2026-08-12T00:00:00Z",
-        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+        "url": "https://docs.platform.decart.ai/getting-started/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Not present in Decart's official catalogue; historical unverified observation closed."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-12T00:00:00Z",
-      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "No official Decart API evidence supports this route; preserved as disabled history and closed."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "lucy-2.5",
+    "provider_api_model_id": "decart:lucy-2.5",
+    "provider_model_slug": "lucy-2.5",
+    "internal_model_id": "decart/lucy-2.5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "video",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-24T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "video.generate",
+        "status": "disabled",
+        "params": {
+          "prompt": {
+            "type": "string"
+          },
+          "input_video": {
+            "type": "string"
+          },
+          "reference_image": {
+            "type": "string"
+          },
+          "resolution": {
+            "type": "string",
+            "enum": [
+              "720p"
+            ]
+          },
+          "seed": {
+            "type": "integer",
+            "min": 0,
+            "max": 4294967295
+          },
+          "self_anchor": {
+            "type": "boolean"
+          }
+        },
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": [
+          "text",
+          "image",
+          "video"
+        ],
+        "output_modalities": [
+          "video"
+        ],
+        "modes": [
+          "video-to-video",
+          "realtime-video"
+        ]
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "decart-queue",
+        "decart-realtime"
+      ],
+      "endpoint": "https://api.decart.ai/v1/jobs/lucy-2.5",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://docs.platform.decart.ai/api-reference/lucy-25",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.platform.decart.ai/getting-started/models",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Current 720p realtime and queue editing model; reference images and self-anchoring supported. Phaseo route remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "lucy-vton-3.5",
+    "provider_api_model_id": "decart:lucy-vton-3.5",
+    "provider_model_slug": "lucy-vton-3.5",
+    "internal_model_id": "decart/lucy-vton-3.5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "video",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-24T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "video.generate",
+        "status": "disabled",
+        "params": {
+          "prompt": {
+            "type": "string"
+          },
+          "input_video": {
+            "type": "string"
+          },
+          "reference_image": {
+            "type": "string"
+          },
+          "resolution": {
+            "type": "string",
+            "enum": [
+              "720p"
+            ]
+          },
+          "seed": {
+            "type": "integer",
+            "min": 0,
+            "max": 4294967295
+          }
+        },
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": [
+          "text",
+          "image",
+          "video"
+        ],
+        "output_modalities": [
+          "video"
+        ],
+        "modes": [
+          "video-to-video",
+          "realtime-video",
+          "virtual-try-on"
+        ]
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "decart-queue",
+        "decart-realtime"
+      ],
+      "endpoint": "https://api.decart.ai/v1/jobs/lucy-vton-3.5",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://docs.platform.decart.ai/api-reference/lucy-vton-35",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.platform.decart.ai/getting-started/models",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Current 720p virtual try-on model on realtime and queue APIs. Phaseo route remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "lucy-restyle-2",
+    "provider_api_model_id": "decart:lucy-restyle-2",
+    "provider_model_slug": "lucy-restyle-2",
+    "internal_model_id": "decart/lucy-restyle-2",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,video",
+    "output_modalities": "video",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-24T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "video.generate",
+        "status": "disabled",
+        "params": {
+          "prompt": {
+            "type": "string"
+          },
+          "input_video": {
+            "type": "string"
+          },
+          "resolution": {
+            "type": "string",
+            "enum": [
+              "720p"
+            ]
+          },
+          "seed": {
+            "type": "integer",
+            "min": 0,
+            "max": 4294967295
+          }
+        },
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": [
+          "text",
+          "video"
+        ],
+        "output_modalities": [
+          "video"
+        ],
+        "modes": [
+          "video-to-video",
+          "realtime-video",
+          "restyle"
+        ]
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "decart-queue",
+        "decart-realtime"
+      ],
+      "endpoint": "https://api.decart.ai/v1/jobs/lucy-restyle-2",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://docs.platform.decart.ai/api-reference/lucy-restyle-2",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.platform.decart.ai/getting-started/models",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Current 720p restyling model on realtime and queue APIs. Phaseo route remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "oasis-3-preview",
+    "provider_api_model_id": "decart:oasis-3-preview",
+    "provider_model_slug": "oasis-3-preview",
+    "internal_model_id": "decart/oasis-3-preview",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,data",
+    "output_modalities": "image",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-24T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "video.generate",
+        "status": "disabled",
+        "params": {
+          "prompt": {
+            "type": "string"
+          },
+          "actions": {
+            "type": "array"
+          }
+        },
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": [
+          "text",
+          "data"
+        ],
+        "output_modalities": [
+          "image"
+        ],
+        "modes": [
+          "realtime-world-model"
+        ]
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "decart-oasis-grpc"
+      ],
+      "endpoint": "https://oasis-grpc.decart.ai",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://docs.platform.decart.ai/models/realtime/oasis-3",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.platform.decart.ai/getting-started/models",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Preview world model uses a dedicated Python gRPC SDK, 768x512 three-camera frames, and four-action chunks. Phaseo route remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "lucy-2.1",
+    "provider_api_model_id": "decart:lucy-2.1",
+    "provider_model_slug": "lucy-2.1",
+    "internal_model_id": "decart/lucy-2.1",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "video",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-24T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "video.generate",
+        "status": "disabled",
+        "params": {
+          "prompt": {
+            "type": "string"
+          },
+          "input_video": {
+            "type": "string"
+          },
+          "reference_image": {
+            "type": "string"
+          },
+          "resolution": {
+            "type": "string",
+            "enum": [
+              "720p"
+            ]
+          },
+          "seed": {
+            "type": "integer",
+            "min": 0,
+            "max": 4294967295
+          }
+        },
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": [
+          "text",
+          "image",
+          "video"
+        ],
+        "output_modalities": [
+          "video"
+        ],
+        "modes": [
+          "video-to-video",
+          "realtime-video"
+        ]
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "decart-queue",
+        "decart-realtime"
+      ],
+      "endpoint": "https://api.decart.ai/v1/jobs/lucy-2.1",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://docs.platform.decart.ai/api-reference/lucy-21",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.platform.decart.ai/getting-started/models",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Previous-generation model remains available on realtime and queue APIs. Phaseo route remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "lucy-clip",
+    "provider_api_model_id": "decart:lucy-clip",
+    "provider_model_slug": "lucy-clip",
+    "internal_model_id": "decart/lucy-clip",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "video",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-24T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "video.generate",
+        "status": "disabled",
+        "params": {
+          "prompt": {
+            "type": "string"
+          },
+          "input_video": {
+            "type": "string"
+          },
+          "reference_image": {
+            "type": "string"
+          },
+          "duration": {
+            "type": "number",
+            "max": 5
+          },
+          "resolution": {
+            "type": "string",
+            "enum": [
+              "720p"
+            ]
+          },
+          "seed": {
+            "type": "integer",
+            "min": 0,
+            "max": 4294967295
+          }
+        },
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": [
+          "text",
+          "image",
+          "video"
+        ],
+        "output_modalities": [
+          "video"
+        ],
+        "modes": [
+          "video-to-video"
+        ]
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "decart-queue"
+      ],
+      "endpoint": "https://api.decart.ai/v1/jobs/lucy-clip",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://docs.platform.decart.ai/api-reference/lucy-clip",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.platform.decart.ai/getting-started/models",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Legacy 720p queue model remains available with a five-second maximum. Phaseo route remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "lucy-vton-3",
+    "provider_api_model_id": "decart:lucy-vton-3",
+    "provider_model_slug": "lucy-vton-3",
+    "internal_model_id": "decart/lucy-vton-3",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "video",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-24T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "video.generate",
+        "status": "disabled",
+        "params": {
+          "prompt": {
+            "type": "string"
+          },
+          "input_video": {
+            "type": "string"
+          },
+          "reference_image": {
+            "type": "string"
+          },
+          "resolution": {
+            "type": "string",
+            "enum": [
+              "720p"
+            ]
+          }
+        },
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": [
+          "text",
+          "image",
+          "video"
+        ],
+        "output_modalities": [
+          "video"
+        ],
+        "modes": [
+          "video-to-video",
+          "realtime-video",
+          "virtual-try-on"
+        ]
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "decart-queue",
+        "decart-realtime"
+      ],
+      "endpoint": "https://api.decart.ai/v1/jobs/lucy-vton-3",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://docs.platform.decart.ai/api-reference/lucy-vton-3",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.platform.decart.ai/getting-started/models",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Previous-generation virtual try-on model remains available. Phaseo route remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "lucy-vton-2",
+    "provider_api_model_id": "decart:lucy-vton-2",
+    "provider_model_slug": "lucy-vton-2",
+    "internal_model_id": "decart/lucy-vton-2",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "video",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-24T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "video.generate",
+        "status": "disabled",
+        "params": {
+          "prompt": {
+            "type": "string"
+          },
+          "input_video": {
+            "type": "string"
+          },
+          "reference_image": {
+            "type": "string"
+          },
+          "resolution": {
+            "type": "string",
+            "enum": [
+              "720p"
+            ]
+          }
+        },
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": [
+          "text",
+          "image",
+          "video"
+        ],
+        "output_modalities": [
+          "video"
+        ],
+        "modes": [
+          "video-to-video",
+          "realtime-video",
+          "virtual-try-on"
+        ]
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "decart-queue",
+        "decart-realtime"
+      ],
+      "endpoint": "https://api.decart.ai/v1/jobs/lucy-vton-2",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://docs.platform.decart.ai/api-reference/lucy-vton-2",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.platform.decart.ai/getting-started/models",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Previous-generation virtual try-on model remains available. Phaseo route remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "lucy-image-2",
+    "provider_api_model_id": "decart:lucy-image-2",
+    "provider_model_slug": "lucy-image-2",
+    "internal_model_id": "decart/lucy-image-2",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "image",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-24T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "image.generate",
+        "status": "disabled",
+        "params": {
+          "prompt": {
+            "type": "string"
+          },
+          "input_image": {
+            "type": "string"
+          },
+          "resolution": {
+            "type": "string",
+            "enum": [
+              "480p",
+              "720p"
+            ]
+          },
+          "seed": {
+            "type": "integer",
+            "min": 0,
+            "max": 4294967295
+          }
+        },
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": [
+          "text",
+          "image"
+        ],
+        "output_modalities": [
+          "image"
+        ],
+        "modes": [
+          "image-to-image"
+        ]
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "decart-process"
+      ],
+      "endpoint": "https://api.decart.ai/v1/generate/lucy-image-2",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://docs.platform.decart.ai/api-reference/lucy-image-2",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.platform.decart.ai/getting-started/models",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Synchronous 480p and 720p image editing contract verified. Phaseo route remains disabled."
     },
     "rate_limits": []
   }
