@@ -34,6 +34,7 @@ const CORE_PRICING_METER_VALUES = [
   "cached_write_text_tokens_5m",
   "cached_write_text_tokens_1h",
   "output_video_seconds",
+  "output_video_frames",
   "bfl_credits",
   "total_tokens",
   "requests",

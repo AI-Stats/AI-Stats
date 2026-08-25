@@ -579,15 +579,24 @@ inline constexpr std::string_view MINIMAX_MINIMAX_M2_5_HIGHSPEED = "minimax/mini
 // Model ID: minimax/minimax-m2.7
 // Model page: https://phaseo.app/models/minimax/minimax-m2.7
 inline constexpr std::string_view MINIMAX_MINIMAX_M2_7 = "minimax/minimax-m2.7";
+// Model ID: minimax/minimax-m2.7:free
+// Model page: https://phaseo.app/models/minimax/minimax-m2.7%3Afree
+inline constexpr std::string_view MINIMAX_MINIMAX_M2_7_FREE = "minimax/minimax-m2.7:free";
 // Model ID: minimax/minimax-m3
 // Model page: https://phaseo.app/models/minimax/minimax-m3
 inline constexpr std::string_view MINIMAX_MINIMAX_M3 = "minimax/minimax-m3";
+// Model ID: minimax/minimax-m3:free
+// Model page: https://phaseo.app/models/minimax/minimax-m3%3Afree
+inline constexpr std::string_view MINIMAX_MINIMAX_M3_FREE = "minimax/minimax-m3:free";
 // Model ID: minimax/music-2.6
 // Model page: https://phaseo.app/models/minimax/music-2.6
 inline constexpr std::string_view MINIMAX_MUSIC_2_6 = "minimax/music-2.6";
 // Model ID: minimax/music-3.0
 // Model page: https://phaseo.app/models/minimax/music-3.0
 inline constexpr std::string_view MINIMAX_MUSIC_3_0 = "minimax/music-3.0";
+// Model ID: minimax/music-3.0:free
+// Model page: https://phaseo.app/models/minimax/music-3.0%3Afree
+inline constexpr std::string_view MINIMAX_MUSIC_3_0_FREE = "minimax/music-3.0:free";
 // Model ID: minimax/speech-2.6-hd
 // Model page: https://phaseo.app/models/minimax/speech-2.6-hd
 inline constexpr std::string_view MINIMAX_SPEECH_2_6_HD = "minimax/speech-2.6-hd";
@@ -600,6 +609,9 @@ inline constexpr std::string_view MINIMAX_SPEECH_2_8_HD = "minimax/speech-2.8-hd
 // Model ID: minimax/speech-2.8-turbo
 // Model page: https://phaseo.app/models/minimax/speech-2.8-turbo
 inline constexpr std::string_view MINIMAX_SPEECH_2_8_TURBO = "minimax/speech-2.8-turbo";
+// Model ID: minimax/speech-2.8:free
+// Model page: https://phaseo.app/models/minimax/speech-2.8%3Afree
+inline constexpr std::string_view MINIMAX_SPEECH_2_8_FREE = "minimax/speech-2.8:free";
 // Model ID: mistral/codestral
 // Model page: https://phaseo.app/models/mistral/codestral
 inline constexpr std::string_view MISTRAL_CODESTRAL = "mistral/codestral";
@@ -1008,6 +1020,9 @@ inline constexpr std::string_view OPENAI_WHISPER_LARGE_V3 = "openai/whisper-larg
 // Model ID: openai/whisper-large-v3-turbo
 // Model page: https://phaseo.app/models/openai/whisper-large-v3-turbo
 inline constexpr std::string_view OPENAI_WHISPER_LARGE_V3_TURBO = "openai/whisper-large-v3-turbo";
+// Model ID: openbmb/minicpm-v-4.5
+// Model page: https://phaseo.app/models/openbmb/minicpm-v-4.5
+inline constexpr std::string_view OPENBMB_MINICPM_V_4_5 = "openbmb/minicpm-v-4.5";
 // Model ID: perplexity/pplx-embed-v1-0.6b
 // Model page: https://phaseo.app/models/perplexity/pplx-embed-v1-0.6b
 inline constexpr std::string_view PERPLEXITY_PPLX_EMBED_V1_0_6B = "perplexity/pplx-embed-v1-0.6b";
@@ -1242,9 +1257,6 @@ inline constexpr std::string_view QWEN_QWEN3_OMNI_30B_A3B_THINKING = "qwen/qwen3
 // Model ID: qwen/qwen3-reranker
 // Model page: https://phaseo.app/models/qwen/qwen3-reranker
 inline constexpr std::string_view QWEN_QWEN3_RERANKER = "qwen/qwen3-reranker";
-// Model ID: qwen/qwen3-reranker-8b
-// Model page: https://phaseo.app/models/qwen/qwen3-reranker-8b
-inline constexpr std::string_view QWEN_QWEN3_RERANKER_8B = "qwen/qwen3-reranker-8b";
 // Model ID: qwen/qwen3-vl-235b-a22b
 // Model page: https://phaseo.app/models/qwen/qwen3-vl-235b-a22b
 inline constexpr std::string_view QWEN_QWEN3_VL_235B_A22B = "qwen/qwen3-vl-235b-a22b";
@@ -1458,6 +1470,18 @@ inline constexpr std::string_view THINKING_MACHINES_INKLING = "thinking-machines
 // Model ID: thinking-machines/inkling-small
 // Model page: https://phaseo.app/models/thinking-machines/inkling-small
 inline constexpr std::string_view THINKING_MACHINES_INKLING_SMALL = "thinking-machines/inkling-small";
+// Model ID: upstage/solar-embedding-1-large-passage
+// Model page: https://phaseo.app/models/upstage/solar-embedding-1-large-passage
+inline constexpr std::string_view UPSTAGE_SOLAR_EMBEDDING_1_LARGE_PASSAGE = "upstage/solar-embedding-1-large-passage";
+// Model ID: upstage/solar-embedding-1-large-query
+// Model page: https://phaseo.app/models/upstage/solar-embedding-1-large-query
+inline constexpr std::string_view UPSTAGE_SOLAR_EMBEDDING_1_LARGE_QUERY = "upstage/solar-embedding-1-large-query";
+// Model ID: upstage/solar-embedding-2-passage
+// Model page: https://phaseo.app/models/upstage/solar-embedding-2-passage
+inline constexpr std::string_view UPSTAGE_SOLAR_EMBEDDING_2_PASSAGE = "upstage/solar-embedding-2-passage";
+// Model ID: upstage/solar-embedding-2-query
+// Model page: https://phaseo.app/models/upstage/solar-embedding-2-query
+inline constexpr std::string_view UPSTAGE_SOLAR_EMBEDDING_2_QUERY = "upstage/solar-embedding-2-query";
 // Model ID: upstage/solar-mini
 // Model page: https://phaseo.app/models/upstage/solar-mini
 inline constexpr std::string_view UPSTAGE_SOLAR_MINI = "upstage/solar-mini";
@@ -1488,6 +1512,12 @@ inline constexpr std::string_view VOYAGE_RERANK_2 = "voyage/rerank-2";
 // Model ID: voyage/rerank-2-lite
 // Model page: https://phaseo.app/models/voyage/rerank-2-lite
 inline constexpr std::string_view VOYAGE_RERANK_2_LITE = "voyage/rerank-2-lite";
+// Model ID: voyage/rerank-2.5
+// Model page: https://phaseo.app/models/voyage/rerank-2.5
+inline constexpr std::string_view VOYAGE_RERANK_2_5 = "voyage/rerank-2.5";
+// Model ID: voyage/rerank-2.5-lite
+// Model page: https://phaseo.app/models/voyage/rerank-2.5-lite
+inline constexpr std::string_view VOYAGE_RERANK_2_5_LITE = "voyage/rerank-2.5-lite";
 // Model ID: voyage/rerank-lite-1
 // Model page: https://phaseo.app/models/voyage/rerank-lite-1
 inline constexpr std::string_view VOYAGE_RERANK_LITE_1 = "voyage/rerank-lite-1";
@@ -1530,6 +1560,9 @@ inline constexpr std::string_view VOYAGE_VOYAGE_CODE_2 = "voyage/voyage-code-2";
 // Model ID: voyage/voyage-code-3
 // Model page: https://phaseo.app/models/voyage/voyage-code-3
 inline constexpr std::string_view VOYAGE_VOYAGE_CODE_3 = "voyage/voyage-code-3";
+// Model ID: voyage/voyage-code-4
+// Model page: https://phaseo.app/models/voyage/voyage-code-4
+inline constexpr std::string_view VOYAGE_VOYAGE_CODE_4 = "voyage/voyage-code-4";
 // Model ID: voyage/voyage-context-3
 // Model page: https://phaseo.app/models/voyage/voyage-context-3
 inline constexpr std::string_view VOYAGE_VOYAGE_CONTEXT_3 = "voyage/voyage-context-3";
@@ -1650,7 +1683,7 @@ inline constexpr std::string_view ZAI_GLM_5 = "zai/glm-5";
 // Deprecated alias for deepseek/deepseek-v4; use deepseek/deepseek-v4-pro. Remove in the next major SDK release.
 inline constexpr std::string_view DEEPSEEK_DEEPSEEK_V4 = DEEPSEEK_DEEPSEEK_V4_PRO;
 
-inline constexpr std::array<std::string_view, 547> ALL = {
+inline constexpr std::array<std::string_view, 558> ALL = {
 	AI21_JAMBA_1_5_LARGE,
 	AI21_JAMBA_1_5_MINI,
 	AION_LABS_AION_2_0,
@@ -1842,13 +1875,17 @@ inline constexpr std::array<std::string_view, 547> ALL = {
 	MINIMAX_MINIMAX_M2_5,
 	MINIMAX_MINIMAX_M2_5_HIGHSPEED,
 	MINIMAX_MINIMAX_M2_7,
+	MINIMAX_MINIMAX_M2_7_FREE,
 	MINIMAX_MINIMAX_M3,
+	MINIMAX_MINIMAX_M3_FREE,
 	MINIMAX_MUSIC_2_6,
 	MINIMAX_MUSIC_3_0,
+	MINIMAX_MUSIC_3_0_FREE,
 	MINIMAX_SPEECH_2_6_HD,
 	MINIMAX_SPEECH_2_6_TURBO,
 	MINIMAX_SPEECH_2_8_HD,
 	MINIMAX_SPEECH_2_8_TURBO,
+	MINIMAX_SPEECH_2_8_FREE,
 	MISTRAL_CODESTRAL,
 	MISTRAL_CODESTRAL_EMBED,
 	MISTRAL_DEVSTRAL_2,
@@ -1985,6 +2022,7 @@ inline constexpr std::array<std::string_view, 547> ALL = {
 	OPENAI_WHISPER_1,
 	OPENAI_WHISPER_LARGE_V3,
 	OPENAI_WHISPER_LARGE_V3_TURBO,
+	OPENBMB_MINICPM_V_4_5,
 	PERPLEXITY_PPLX_EMBED_V1_0_6B,
 	PERPLEXITY_PPLX_EMBED_V1_4B,
 	PHASEO_FREE,
@@ -2063,7 +2101,6 @@ inline constexpr std::array<std::string_view, 547> ALL = {
 	QWEN_QWEN3_OMNI_30B_A3B,
 	QWEN_QWEN3_OMNI_30B_A3B_THINKING,
 	QWEN_QWEN3_RERANKER,
-	QWEN_QWEN3_RERANKER_8B,
 	QWEN_QWEN3_VL_235B_A22B,
 	QWEN_QWEN3_VL_235B_A22B_INSTRUCT,
 	QWEN_QWEN3_VL_235B_A22B_THINKING,
@@ -2135,6 +2172,10 @@ inline constexpr std::array<std::string_view, 547> ALL = {
 	TENCENT_HY3_FREE,
 	THINKING_MACHINES_INKLING,
 	THINKING_MACHINES_INKLING_SMALL,
+	UPSTAGE_SOLAR_EMBEDDING_1_LARGE_PASSAGE,
+	UPSTAGE_SOLAR_EMBEDDING_1_LARGE_QUERY,
+	UPSTAGE_SOLAR_EMBEDDING_2_PASSAGE,
+	UPSTAGE_SOLAR_EMBEDDING_2_QUERY,
 	UPSTAGE_SOLAR_MINI,
 	UPSTAGE_SOLAR_PRO_2,
 	UPSTAGE_SOLAR_PRO_3,
@@ -2145,6 +2186,8 @@ inline constexpr std::array<std::string_view, 547> ALL = {
 	VOYAGE_RERANK_1,
 	VOYAGE_RERANK_2,
 	VOYAGE_RERANK_2_LITE,
+	VOYAGE_RERANK_2_5,
+	VOYAGE_RERANK_2_5_LITE,
 	VOYAGE_RERANK_LITE_1,
 	VOYAGE_VOYAGE_01,
 	VOYAGE_VOYAGE_02,
@@ -2159,6 +2202,7 @@ inline constexpr std::array<std::string_view, 547> ALL = {
 	VOYAGE_VOYAGE_4_LITE,
 	VOYAGE_VOYAGE_CODE_2,
 	VOYAGE_VOYAGE_CODE_3,
+	VOYAGE_VOYAGE_CODE_4,
 	VOYAGE_VOYAGE_CONTEXT_3,
 	VOYAGE_VOYAGE_FINANCE_2,
 	VOYAGE_VOYAGE_LARGE_2,

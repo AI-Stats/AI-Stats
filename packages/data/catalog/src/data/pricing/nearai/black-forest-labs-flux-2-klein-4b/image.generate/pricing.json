@@ -1,0 +1,41 @@
+{
+  "key": "nearai:black-forest-labs/FLUX.2-klein-4B:image.generate",
+  "api_provider_id": "nearai",
+  "provider_slug": "nearai",
+  "api_model_id": "black-forest-labs/flux-2-klein-4b",
+  "capability_id": "image.generate",
+  "rules": [
+    {
+      "meter": "output_image",
+      "unit": "image",
+      "unit_size": 1,
+      "price_per_unit": 0.012,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": null,
+      "match": [],
+      "priority": 100,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    }
+  ],
+  "regions": [],
+  "service_tiers": [
+    "standard"
+  ],
+  "sources": [
+    {
+      "kind": "model_catalog",
+      "url": "https://cloud-api.near.ai/v1/models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Live official per-model pricing metadata; token rates normalized to USD per 1M tokens."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Pricing reconciled directly against the public NEAR AI Cloud model API."
+  }
+}

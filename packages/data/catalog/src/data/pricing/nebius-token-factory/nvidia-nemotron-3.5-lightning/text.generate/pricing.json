@@ -12,14 +12,13 @@
       "price_per_unit": 0.06,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Nebius Token Factory standard pricing for the Nemotron 3.5 Lightning BF16 flavor.",
+      "note": null,
       "match": [],
       "priority": 100,
-      "effective_from": "2026-08-11T13:22:31Z",
-      "region": "us-central1",
+      "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": "https://tokenfactory.nebius.com/api/public/models_info"
+      "source": null
     },
     {
       "meter": "output_text_tokens",
@@ -28,14 +27,13 @@
       "price_per_unit": 0.24,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Nebius Token Factory standard pricing for the Nemotron 3.5 Lightning BF16 flavor.",
+      "note": null,
       "match": [],
       "priority": 100,
-      "effective_from": "2026-08-11T13:22:31Z",
-      "region": "us-central1",
+      "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": "https://tokenfactory.nebius.com/api/public/models_info"
+      "source": null
     }
   ],
   "regions": [
@@ -46,15 +44,15 @@
   ],
   "sources": [
     {
+      "kind": "api",
       "url": "https://tokenfactory.nebius.com/api/public/models_info",
-      "kind": "pricing",
-      "accessed_at": "2026-08-11T13:22:31Z",
-      "notes": "Nebius public model catalog reports $0.06 per 1M input tokens and $0.24 per 1M output tokens."
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Live cheap flavor price for nvidia/Nemotron-3_5-Lightning."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-11T13:22:31Z",
-    "notes": "Verified against Nebius Token Factory's live public model catalog."
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Current token pricing verified against Nebius Token Factory's live public catalog."
   }
 }
