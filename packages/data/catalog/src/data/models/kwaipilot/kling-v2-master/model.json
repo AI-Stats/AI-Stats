@@ -1,18 +1,18 @@
 {
-  "model_id": "kimi/kimi-k2.5",
-  "organisation_id": "moonshotai",
-  "name": "kimi-k2.5",
+  "model_id": "kwaipilot/kling-v2-master",
+  "organisation_id": "kwaipilot",
+  "name": "kling-v2-master",
   "status": "Available",
   "previous_model_id": null,
-  "description": "Moonshot Kimi K2 (0905 baseline) — 1T-param MoE chat model with 32B active per pass, 256k context, balanced performance.",
+  "description": "Kling 2.0 Master — early flagship text-to-video and image-to-video, 5–10s clips, 720p, 24fps.",
   "announced_date": null,
   "release_date": null,
   "deprecation_date": null,
   "retirement_date": null,
   "license": null,
-  "input_types": "text,image",
-  "output_types": "text",
-  "api_model_id": "kimi/kimi-k2.5",
+  "input_types": null,
+  "output_types": null,
+  "api_model_id": "kling/kling-v2-master",
   "links": [],
   "details": [],
   "benchmarks": [],
@@ -21,25 +21,20 @@
   "model_type": null,
   "knowledge_cutoff": null,
   "limits": {
-    "context": 262144,
+    "context": null,
     "input": null,
-    "output": 32768
+    "output": null
   },
   "modalities": {
-    "input": [
-      "text",
-      "image/*"
-    ],
-    "output": [
-      "text"
-    ]
+    "input": [],
+    "output": []
   },
   "reasoning": {
     "supported": null,
     "options": []
   },
   "capabilities": {
-    "attachment": true,
+    "attachment": null,
     "tool_call": null,
     "structured_output": null,
     "temperature": null,

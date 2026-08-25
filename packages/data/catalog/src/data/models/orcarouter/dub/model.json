@@ -1,18 +1,18 @@
 {
-  "model_id": "kling/kling-v2-1-master",
-  "organisation_id": "kwaipilot",
-  "name": "kling-v2-1-master",
+  "model_id": "orcarouter/dub",
+  "organisation_id": "orcarouter",
+  "name": "OrcaDub: OrcaDub 1.0",
   "status": "Available",
   "previous_model_id": null,
-  "description": "Kling 2.1 Master — premium text-to-video and image-to-video, 5–10s clips, 1080p, 24fps.",
+  "description": "OrcaDub 1.0 is an end-to-end, prosody-aware dubbing and video-translation model. Given a source video, it produces a dubbed video in a target language in the original speakers' cloned voices, preserving delivery — emphasis, pauses, intonation — and word-level timing. It covers 28 languages in any direction, clones a separate voice per speaker in multi-speaker footage, preserves background music and ambience, and aligns the dub to the source at word level. It is reachable from the free web Studio and from an OpenAI-compatible API.",
   "announced_date": null,
   "release_date": null,
   "deprecation_date": null,
   "retirement_date": null,
   "license": null,
-  "input_types": null,
-  "output_types": null,
-  "api_model_id": "kling/kling-v2-1-master",
+  "input_types": "video",
+  "output_types": "video",
+  "api_model_id": "orca/dub",
   "links": [],
   "details": [],
   "benchmarks": [],
@@ -26,15 +26,19 @@
     "output": null
   },
   "modalities": {
-    "input": [],
-    "output": []
+    "input": [
+      "video/*"
+    ],
+    "output": [
+      "video/*"
+    ]
   },
   "reasoning": {
     "supported": null,
     "options": []
   },
   "capabilities": {
-    "attachment": null,
+    "attachment": true,
     "tool_call": null,
     "structured_output": null,
     "temperature": null,

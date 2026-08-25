@@ -1,10 +1,10 @@
 {
-  "model_id": "obsidian/qwen3.8-27b",
-  "organisation_id": "orcarouter",
-  "name": "Qwen3.8 27B",
+  "model_id": "kwaipilot/kling-v2-5-turbo",
+  "organisation_id": "kwaipilot",
+  "name": "kling-v2-5-turbo",
   "status": "Available",
   "previous_model_id": null,
-  "description": "Qwen3.8 27B served in block-FP8 for higher throughput and lower memory footprint, with the vision tower kept at full precision. Preserves the original model's reasoning, coding, multilingual performance, and tool use.\n\nDesigned to provide direct, complete responses across a wide range of prompts. The model may occasionally append brief informational disclaimers inherited from the base model's training.\n\nIdeal for AI research, security testing, red teaming, agent development, coding assistants, and other advanced AI applications that benefit from maximum output flexibility.",
+  "description": "Kling 2.5 Turbo — fast text-to-video and image-to-video with first-last-frame mode, 5–10s clips, 1080p, 24fps.",
   "announced_date": null,
   "release_date": null,
   "deprecation_date": null,
@@ -12,7 +12,7 @@
   "license": null,
   "input_types": null,
   "output_types": null,
-  "api_model_id": "obsidian/qwen3.8-27b",
+  "api_model_id": "kling/kling-v2-5-turbo",
   "links": [],
   "details": [],
   "benchmarks": [],
@@ -21,7 +21,7 @@
   "model_type": null,
   "knowledge_cutoff": null,
   "limits": {
-    "context": 262144,
+    "context": null,
     "input": null,
     "output": null
   },
@@ -53,7 +53,7 @@
   "verification": {
     "status": "verified",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Verified against the live official OrcaRouter catalogue."
+    "notes": "Exact model ID, availability, limits, modalities, description, and pricing metadata verified against OrcaRouter's live official catalogue."
   },
   "last_updated": "2026-08-24T00:00:00Z",
   "removal_date": null,
