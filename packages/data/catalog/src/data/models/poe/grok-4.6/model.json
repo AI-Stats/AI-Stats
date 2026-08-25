@@ -1,0 +1,78 @@
+{
+  "model_id": "poe/grok-4.6",
+  "organisation_id": "poe",
+  "name": "Grok-4.6",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "xAI’s frontier model for long-running agents, interactive and visual work, coding, and knowledge work.",
+  "announced_date": "2026-08-11T22:13:32",
+  "release_date": "2026-08-11T22:13:32",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text,image",
+  "output_types": "text",
+  "api_model_id": "poe/grok-4.6",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Poe bot",
+      "kind": "api_reference",
+      "url": "https://poe.com/grok-4.6"
+    }
+  ],
+  "details": [
+    {
+      "name": "input_context_length",
+      "value": 500000
+    }
+  ],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "Poe bot",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": 500000,
+    "input": 500000,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text",
+      "image"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": true,
+    "tool_call": true,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": true,
+    "web_search": true
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.poe.com/v1/models",
+      "accessed_at": "2026-08-24T03:27:45Z",
+      "notes": "Canonical entity for an exact public Poe bot identifier returned by the models API."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T03:27:45Z",
+    "notes": "Identity and advertised metadata verified against Poe's public models API."
+  },
+  "last_updated": "2026-08-24T03:27:45Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

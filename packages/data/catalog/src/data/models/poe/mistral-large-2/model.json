@@ -1,0 +1,82 @@
+{
+  "model_id": "poe/mistral-large-2",
+  "organisation_id": "poe",
+  "name": "Mistral-Large-2",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Mistral's latest text generation model (Mistral-Large-2407) with top-tier reasoning capabilities. It can be used for complex multilingual reasoning tasks, including text understanding, transformation, and code generation. This bot has the full 128k context window supported by the model.",
+  "announced_date": "2024-02-26T18:18:24",
+  "release_date": "2024-02-26T18:18:24",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text,image",
+  "output_types": "text",
+  "api_model_id": "poe/mistral-large-2",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Poe bot",
+      "kind": "api_reference",
+      "url": "https://poe.com/mistral-large-2"
+    }
+  ],
+  "details": [
+    {
+      "name": "input_context_length",
+      "value": 128000
+    },
+    {
+      "name": "output_context_length",
+      "value": 4096
+    }
+  ],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "Poe bot",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": 128000,
+    "input": 128000,
+    "output": 4096
+  },
+  "modalities": {
+    "input": [
+      "text",
+      "image"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": true,
+    "tool_call": false,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.poe.com/v1/models",
+      "accessed_at": "2026-08-24T03:27:45Z",
+      "notes": "Canonical entity for an exact public Poe bot identifier returned by the models API."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T03:27:45Z",
+    "notes": "Identity and advertised metadata verified against Poe's public models API."
+  },
+  "last_updated": "2026-08-24T03:27:45Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

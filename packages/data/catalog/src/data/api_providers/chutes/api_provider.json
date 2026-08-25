@@ -37,19 +37,19 @@
     {
       "kind": "documentation",
       "url": "https://chutes.ai/docs/models/vonkaiser-nemotron-3-nano-omni-30b-tee",
-      "accessed_at": "2026-08-12T00:00:00Z",
+      "accessed_at": "2026-08-23T00:00:00Z",
       "notes": "Official shared-gateway multimodal Chat Completions contract."
     },
     {
       "kind": "api",
       "url": "https://llm.chutes.ai/v1/models",
-      "accessed_at": "2026-08-12T00:00:00Z",
-      "notes": "Official live public model and capability metadata."
+      "accessed_at": "2026-08-23T00:00:00Z",
+      "notes": "Official live public catalog for exact model slugs, availability, limits, modalities, features, sampling parameters, confidential-compute status, and token prices."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-12T00:00:00Z",
-    "notes": "Endpoint, authentication, models, sampling, reasoning, multimodal content, streaming, tools, structured outputs, usage, and errors checked against official Chutes sources."
+    "checked_at": "2026-08-23T00:00:00Z",
+    "notes": "Endpoint, authentication, all 14 live shared-gateway models, exact slugs, pricing, limits, sampling, reasoning, multimodal content, streaming, tools, structured outputs, usage, and errors checked against official Chutes sources."
   }
 }
