@@ -52,16 +52,16 @@
     {
       "kind": "documentation",
       "url": "https://docs.relace.ai/docs/fast-agentic-search/agent",
-      "accessed_at": "2026-08-12T00:00:00Z",
+      "accessed_at": "2026-08-24T00:00:00Z",
       "notes": "Official endpoint, model identifier, prompt, tool schemas, and sampling example."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-12T00:00:00Z",
+    "checked_at": "2026-08-24T00:00:00Z",
     "notes": "The model is text-only and is trained around the documented five-tool code-search harness."
   },
-  "last_updated": "2026-08-12T00:00:00Z",
+  "last_updated": "2026-08-24T00:00:00Z",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

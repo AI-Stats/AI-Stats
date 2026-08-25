@@ -4,23 +4,23 @@
   "provider_family_id": null,
   "offer_label": null,
   "offer_scope": "specialized",
-  "description": null,
+  "description": "ZenMux is a Singapore-operated multi-model API gateway exposing text, vision, audio, embedding, image-generation, transcription, and web-search-capable models through OpenAI-compatible APIs.",
   "link": "https://docs.zenmux.ai",
-  "residency_mode": null,
+  "residency_mode": "provider_managed",
   "default_execution_regions": null,
-  "default_data_regions": null,
-  "zero_data_retention": null,
-  "residency_source_url": null,
-  "prompt_training_policy": null,
-  "prompt_training_notes": null,
-  "prompt_training_source_url": null,
+  "default_data_regions": ["SG"],
+  "zero_data_retention": "optional",
+  "residency_source_url": "https://zenmux.ai/docs/privacy.html",
+  "prompt_training_policy": "opt_out_available",
+  "prompt_training_notes": "ZenMux states that anonymized User Content may be stored, transferred, or used for model improvement. Disabling Data Services enables ZenMux ZDR for request content and conversation history; upstream provider policies may still apply.",
+  "prompt_training_source_url": "https://zenmux.ai/docs/privacy.html",
   "user_identifier_policy": null,
   "user_identifier_notes": null,
-  "privacy_policy_url": null,
-  "terms_of_service_url": null,
+  "privacy_policy_url": "https://zenmux.ai/docs/privacy.html",
+  "terms_of_service_url": "https://zenmux.ai/docs/terms-of-service.html",
   "regional_pricing_mode": null,
   "regional_pricing_uplift_percent": null,
-  "pricing_source_url": null,
+  "pricing_source_url": "https://zenmux.ai/api/v1/models",
   "regional_pricing_notes": null,
   "country_code": "SG",
   "status": "Active",
@@ -34,9 +34,27 @@
   "auth_env": [
     "ZENMUX_API_KEY"
   ],
-  "api_formats": [],
+  "api_formats": ["openai.chat.completions"],
   "service_tiers": [],
   "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://zenmux.ai/api/v1/models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official live catalogue, modalities, context limits, capabilities, publication dates, and structured prices."
+    },
+    {
+      "kind": "privacy_policy",
+      "url": "https://zenmux.ai/docs/privacy.html",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Singapore storage, cross-border transfer, retention, sharing, and anonymized User Content training terms."
+    },
+    {
+      "kind": "documentation",
+      "url": "https://zenmux.ai/docs/guide/advanced/data-services.html",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official Data Services and optional zero-data-retention behavior."
+    },
     {
       "kind": "official_terms",
       "url": "https://zenmux.ai/docs/terms-of-service",
@@ -51,8 +69,8 @@
     }
   ],
   "verification": {
-    "status": "partial",
-    "checked_at": "2026-07-23T09:08:52.190Z",
-    "notes": "Imported from the public models.dev provider registry."
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Provider identity, live catalogue, pricing, Singapore storage, optional ZDR, and User Content terms verified against official ZenMux sources; routing remains intentionally disabled."
   }
 }

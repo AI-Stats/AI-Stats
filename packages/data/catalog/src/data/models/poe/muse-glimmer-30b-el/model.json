@@ -1,0 +1,73 @@
+{
+  "model_id": "poe/muse-glimmer-30b-el",
+  "organisation_id": "poe",
+  "name": "Muse-Glimmer-30B-EL",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Muse Glimmer 30B is Meta's open agentic model, built for tool use, coding, and multi-step reasoning. It accepts text and image input with a 128K token context, and supports function calling, structured JSON output, and controllable reasoning strength.\n\nWeight Precision: NVFP4\n\nThis bot supports optional parameters for additional customization.",
+  "announced_date": "2026-08-10T15:14:12",
+  "release_date": "2026-08-10T15:14:12",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text,image",
+  "output_types": "text",
+  "api_model_id": "poe/muse-glimmer-30b-el",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Poe bot",
+      "kind": "api_reference",
+      "url": "https://poe.com/muse-glimmer-30b-el"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "Poe bot",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text",
+      "image"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": true,
+    "tool_call": true,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.poe.com/v1/models",
+      "accessed_at": "2026-08-24T03:27:45Z",
+      "notes": "Canonical entity for an exact public Poe bot identifier returned by the models API."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T03:27:45Z",
+    "notes": "Identity and advertised metadata verified against Poe's public models API."
+  },
+  "last_updated": "2026-08-24T03:27:45Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}
