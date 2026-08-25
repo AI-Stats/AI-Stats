@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const guardAuthMock = vi.fn();
 const fetchCatalogueMock = vi.fn();
 const fetchGatewayContextMock = vi.fn();
+const anonymousModelsRateLimitMock = vi.fn();
 
 vi.mock("@pipeline/before/guards", () => ({
     guardAuth: (...args: any[]) => guardAuthMock(...args),
@@ -15,6 +16,10 @@ vi.mock("./models.catalogue", () => ({
 
 vi.mock("@pipeline/before/context", () => ({
     fetchGatewayContext: (...args: any[]) => fetchGatewayContextMock(...args),
+}));
+
+vi.mock("@/lib/models/rateLimit", () => ({
+    checkAnonymousModelsRateLimit: (...args: any[]) => anonymousModelsRateLimitMock(...args),
 }));
 
 import { handleModelEndpoints, handleModels, handleMyModels } from "./models";
@@ -108,6 +113,8 @@ describe("handleModels", () => {
         guardAuthMock.mockReset();
         fetchCatalogueMock.mockReset();
         fetchGatewayContextMock.mockReset();
+        anonymousModelsRateLimitMock.mockReset();
+        anonymousModelsRateLimitMock.mockResolvedValue(true);
         guardAuthMock.mockResolvedValue({
             ok: true,
             value: {
@@ -179,6 +186,16 @@ describe("handleModels", () => {
             total: 1,
             models: [{ id: "openai/gpt-4o-mini", availability: { status: "active" } }],
         });
+    });
+
+    it("rate limits anonymous discovery before loading the catalogue", async () => {
+        anonymousModelsRateLimitMock.mockResolvedValue(false);
+
+        const response = await handleModels(new Request("https://api.example.com/v1/models"));
+
+        expect(response.status).toBe(429);
+        expect(response.headers.get("retry-after")).toBe("60");
+        expect(fetchCatalogueMock).not.toHaveBeenCalled();
     });
 
     it("validates supplied credentials instead of downgrading to anonymous access", async () => {

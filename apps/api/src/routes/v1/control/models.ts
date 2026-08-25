@@ -20,6 +20,7 @@ import {
 } from "./models.catalogue";
 import { buildFeedResponse, parseFeedFormat, type FeedItem } from "./models.feeds";
 import { getEndpointMetadata } from "./endpoint-metadata";
+import { checkAnonymousModelsRateLimit } from "@/lib/models/rateLimit";
 
 type LifecycleStatus = "active" | "deprecated" | "retired" | null;
 type AvailabilityMode = "active" | "all";
@@ -573,6 +574,17 @@ export async function handleModels(req: Request) {
     if (auth?.ok) {
         const scopeError = requireCapability(auth.value, CAPABILITIES.MODELS_READ);
         if (scopeError) return scopeError;
+    }
+    if (!auth && !(await checkAnonymousModelsRateLimit(req))) {
+        return json(
+            {
+                ok: false,
+                error: "rate_limited",
+                message: "Too many anonymous model discovery requests. Try again shortly.",
+            },
+            429,
+            { "Cache-Control": "no-store", "Retry-After": "60" },
+        );
     }
 
     const requestedFormat = parseFeedFormat(url);
