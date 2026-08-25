@@ -198,7 +198,7 @@ function getPricingPlanLabel(plan: string): string {
 		case "flex":
 			return "Flex";
 		case "priority":
-			return "Priority";
+			return "Fast";
 		default:
 			return plan ? plan.charAt(0).toUpperCase() + plan.slice(1) : plan;
 	}

@@ -295,7 +295,7 @@ describe("groupProviders", () => {
 			"minimax-lightning",
 		]);
 		expect(Array.from(provider.offerLabels).sort()).toEqual([
-			"Priority",
+			"Fast",
 			"Standard",
 		]);
 	});

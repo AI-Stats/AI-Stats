@@ -170,6 +170,11 @@ function slug(value: unknown, fallback = "standard"): string {
     return normalized || fallback;
 }
 
+export function canonicalServiceTierSlug(value: unknown): string {
+    const normalized = slug(value);
+    return normalized === "fast" ? "priority" : normalized;
+}
+
 function stableUuid(value: string): string {
     const hash = createHash("sha256").update(value).digest("hex").slice(0, 32).split("");
     hash[12] = "4";
@@ -199,7 +204,7 @@ export function validateJsonPricingRules(rules: Record<string, any>[]): void {
         const identity = stableJson({
             model_key: rule.model_key,
             operation: rule.capability_id ?? "inference",
-            service_tier: slug(rule.pricing_plan),
+            service_tier: canonicalServiceTierSlug(rule.pricing_plan),
             region: rule.region ?? null,
             currency: rule.currency ?? "USD",
             effective_from: rule.effective_from ?? "1970-01-01T00:00:00Z",
@@ -1238,7 +1243,7 @@ export async function syncV2Catalogue(): Promise<void> {
         const offerIdentity = stableJson({
             provider_model_id: providerModelId,
             operation: rule.capability_id ?? "inference",
-            service_tier: slug(rule.pricing_plan),
+            service_tier: canonicalServiceTierSlug(rule.pricing_plan),
             region: rule.region ?? null,
             currency: rule.currency ?? "USD",
             effective_from: rule.effective_from ?? "1970-01-01T00:00:00Z",
@@ -1255,7 +1260,7 @@ export async function syncV2Catalogue(): Promise<void> {
             provider_model_id: providerModelId,
             sku_code: skuCode,
             version: 1,
-            service_tier_slug: slug(rule.pricing_plan),
+            service_tier_slug: canonicalServiceTierSlug(rule.pricing_plan),
             operation: rule.capability_id ?? "inference",
             status: rule.effective_to && new Date(rule.effective_to) <= new Date() ? "deprecated" : "active",
             display_name: rule.tier_label || `${slug(rule.pricing_plan)} ${rule.capability_id ?? "inference"}`,
@@ -1276,8 +1281,15 @@ export async function syncV2Catalogue(): Promise<void> {
     }
     const pricingRows = [...pricingRowsByKey.values()];
     const canonicalServiceTiers = new Set(["standard", "priority", "batch", "flex"]);
+    const serviceTierDisplayNames: Record<string, string> = {
+        standard: "Standard",
+        fast: "Fast",
+        priority: "Fast",
+        batch: "Batch",
+        flex: "Flex",
+    };
     const routeServiceTiers = [...source.providerModels.values()].flatMap((providerModel) => {
-        const tiers = asTextArray(providerModel.service_tiers).map((tier) => slug(tier));
+        const tiers = asTextArray(providerModel.service_tiers).map((tier) => canonicalServiceTierSlug(tier));
         return tiers.length ? tiers : ["standard"];
     });
     const tierSlugs = [...new Set([
@@ -1287,7 +1299,7 @@ export async function syncV2Catalogue(): Promise<void> {
     ])];
     await upsertChunks(supa, "v2_service_tiers", tierSlugs.map(service_tier_slug => ({
         service_tier_slug,
-        display_name: service_tier_slug.split(/[-_.:]+/g).filter(Boolean).map(part => part[0]?.toUpperCase() + part.slice(1)).join(" "),
+        display_name: serviceTierDisplayNames[service_tier_slug] ?? service_tier_slug.split(/[-_.:]+/g).filter(Boolean).map(part => part[0]?.toUpperCase() + part.slice(1)).join(" "),
         status: canonicalServiceTiers.has(service_tier_slug) ? "active" : "disabled",
         metadata: { source: "json", legacy_pricing_plan: service_tier_slug },
     })), "service_tier_slug");
@@ -1328,7 +1340,7 @@ export async function syncV2Catalogue(): Promise<void> {
             .filter(region => region !== "global");
         const sourceTiers = source.providerModels.get(String(route.provider_model_id))?.service_tiers;
         const routeTiers = Array.isArray(sourceTiers) && sourceTiers.length
-            ? sourceTiers.map((tier: unknown) => slug(tier))
+            ? sourceTiers.map((tier: unknown) => canonicalServiceTierSlug(tier))
             : ["standard"];
         return routeTiers.flatMap(tier => {
             const global = [{
