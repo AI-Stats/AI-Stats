@@ -1,0 +1,23 @@
+{
+  "organisation_id": "shanghai-ai-laboratory",
+  "name": "Shanghai AI Laboratory",
+  "country_code": "CN",
+  "description": null,
+  "colour": null,
+  "organisation_links": [],
+  "status": "active",
+  "routable": null,
+  "sources": [
+    {
+      "kind": "documentation",
+      "url": "https://modelscope.cn/shanghai-ai-laboratory",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Organisation namespace observed in the official ModelScope catalogue."
+    }
+  ],
+  "verification": {
+    "status": "partial",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Authorship namespace verified from ModelScope; corporate metadata was not independently expanded in this provider audit."
+  }
+}
