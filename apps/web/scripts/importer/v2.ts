@@ -1276,6 +1276,13 @@ export async function syncV2Catalogue(): Promise<void> {
     }
     const pricingRows = [...pricingRowsByKey.values()];
     const canonicalServiceTiers = new Set(["standard", "priority", "batch", "flex"]);
+    const serviceTierDisplayNames: Record<string, string> = {
+        standard: "Standard",
+        fast: "Fast",
+        priority: "Fast",
+        batch: "Batch",
+        flex: "Flex",
+    };
     const routeServiceTiers = [...source.providerModels.values()].flatMap((providerModel) => {
         const tiers = asTextArray(providerModel.service_tiers).map((tier) => slug(tier));
         return tiers.length ? tiers : ["standard"];
@@ -1287,7 +1294,7 @@ export async function syncV2Catalogue(): Promise<void> {
     ])];
     await upsertChunks(supa, "v2_service_tiers", tierSlugs.map(service_tier_slug => ({
         service_tier_slug,
-        display_name: service_tier_slug.split(/[-_.:]+/g).filter(Boolean).map(part => part[0]?.toUpperCase() + part.slice(1)).join(" "),
+        display_name: serviceTierDisplayNames[service_tier_slug] ?? service_tier_slug.split(/[-_.:]+/g).filter(Boolean).map(part => part[0]?.toUpperCase() + part.slice(1)).join(" "),
         status: canonicalServiceTiers.has(service_tier_slug) ? "active" : "disabled",
         metadata: { source: "json", legacy_pricing_plan: service_tier_slug },
     })), "service_tier_slug");
