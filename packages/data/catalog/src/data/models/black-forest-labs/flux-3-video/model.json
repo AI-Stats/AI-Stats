@@ -4,13 +4,13 @@
   "name": "FLUX 3 Video",
   "status": "Available",
   "previous_model_id": null,
-  "description": "FLUX 3 Video is Black Forest Labs' early-access audiovisual generation model. It supports text-to-video, image-to-video, video-to-video, video continuation, keyframe-controlled generation, multilingual dialogue, and native audio in clips up to 20 seconds.",
+  "description": "FLUX 3 Video is Black Forest Labs' generally available audiovisual generation model. It supports text-to-video, image-to-video with up to ten keyframes, video continuation, multilingual dialogue, synchronized audio, draft previews, and clips up to 20 seconds.",
   "announced_date": "2026-07-23T00:00:00",
-  "release_date": "2026-07-23T00:00:00",
+  "release_date": "2026-08-04T00:00:00",
   "deprecation_date": null,
   "retirement_date": null,
   "license": "Proprietary",
-  "input_types": "text,image,video,audio",
+  "input_types": "text,image,video",
   "output_types": "video,audio",
   "api_model_id": "black-forest-labs/flux-3-video",
   "family_id": "black-forest-labs/flux-3",
@@ -21,14 +21,14 @@
       "url": "https://bfl.ai/blog/flux-3"
     },
     {
-      "title": "FLUX 3 models",
+      "title": "FLUX 3 Video documentation",
       "kind": "documentation",
-      "url": "https://bfl.ai/models"
+      "url": "https://docs.bfl.ai/flux_3/flux3_overview"
     },
     {
-      "title": "Vercel AI Gateway model listing",
-      "kind": "provider",
-      "url": "https://ai-gateway.vercel.sh/v1/models"
+      "title": "FLUX 3 Video API reference",
+      "kind": "documentation",
+      "url": "https://docs.bfl.ai/api-reference/utility/generate-a-video-with-flux-3"
     }
   ],
   "details": [
@@ -39,15 +39,16 @@
       "source_link": "https://bfl.ai/blog/flux-3"
     },
     {
-      "name": "early_access",
-      "value": true,
-      "source_link": "https://bfl.ai/blog/flux-3"
+      "name": "frame_rate",
+      "value": 24,
+      "unit": "fps",
+      "source_link": "https://docs.bfl.ai/flux_3/flux3_overview"
     }
   ],
   "benchmarks": [],
   "page_notice": {
     "tone": "info",
-    "markdown": "FLUX 3 Video is in **early access**. Public API and private-weight availability may be limited while Black Forest Labs completes its rollout."
+    "markdown": "The FLUX 3 Video API is generally available, while Black Forest Labs still labels the underlying model as a **preview**. Video editing and Omni Reference are not yet available."
   },
   "model_type": null,
   "knowledge_cutoff": null,
@@ -60,8 +61,7 @@
     "input": [
       "text",
       "image/*",
-      "video/*",
-      "audio/*"
+      "video/*"
     ],
     "output": [
       "video/*",
@@ -84,23 +84,23 @@
   "sources": [
     {
       "kind": "announcement",
-      "url": "https://bfl.ai/blog/flux-3",
-      "accessed_at": "2026-08-10",
-      "notes": "Official family announcement, early-access status, modalities, supported generation workflows, native audio, maximum duration, and rollout plan."
+      "url": "https://bfl.ai/blog/flux-3-video",
+      "accessed_at": "2026-08-24",
+      "notes": "Official general-availability announcement, release date, modalities, native audio, maximum duration, and supported generation workflows."
     },
     {
-      "kind": "provider_api",
-      "url": "https://ai-gateway.vercel.sh/v1/models",
-      "accessed_at": "2026-08-10",
-      "notes": "Vercel lists bfl/flux-3-video as a video model released on 2026-08-04; route is recorded as catalogue-only."
+      "kind": "official_documentation",
+      "url": "https://docs.bfl.ai/flux_3/flux3_overview",
+      "accessed_at": "2026-08-24",
+      "notes": "Official API availability, modes, duration, resolutions, frame rate, audio, pricing, draft behavior, and async delivery constraints."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-10T00:00:00Z",
-    "notes": "Verified against Black Forest Labs' announcement and Vercel's live model registry."
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Verified against Black Forest Labs' GA announcement, current product documentation, and API reference."
   },
-  "last_updated": "2026-08-10T00:00:00Z",
+  "last_updated": "2026-08-24T00:00:00Z",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

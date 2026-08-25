@@ -17,12 +17,13 @@
       "status": "coming_soon",
       "params": {
         "prompt": { "type": "string" },
-        "duration": { "type": "number", "min": 4, "max": 15 },
-        "resolution": { "type": "string", "enum": ["720p", "1080p"] },
-        "aspect_ratio": { "type": "string" },
+        "duration": { "type": "string", "enum": ["auto", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15"] },
+        "resolution": { "type": "string", "enum": ["480p", "720p", "1080p", "4k"] },
+        "aspect_ratio": { "type": "string", "enum": ["auto", "21:9", "16:9", "4:3", "1:1", "3:4", "9:16"] },
         "input_references": { "type": "array" },
         "generate_audio": { "type": "boolean" },
-        "seed": { "type": "integer" }
+        "bitrate_mode": { "type": "string", "enum": ["standard", "high"] },
+        "end_user_id": { "type": "string" }
       },
       "reasoning": null, "tool_call": null, "structured_output": null, "temperature": null,
       "attachment": true, "input_modalities": ["text", "image", "video", "audio"],
@@ -34,7 +35,7 @@
     "service_tiers": ["standard"],
     "api": { "formats": ["fal-queue"], "endpoint": "video.generate", "deployment": null },
     "sources": [{ "url": "https://fal.ai/models/bytedance/seedance-2.0/text-to-video", "kind": "documentation" }],
-    "verification": { "status": "verified", "checked_at": "2026-08-10T00:00:00Z", "notes": "Fal queue endpoints verified for text, image, video, and audio reference conditioning through reference-to-video." },
+    "verification": { "status": "verified", "checked_at": "2026-08-24T00:00:00Z", "notes": "Live fal catalog and OpenAPI expansions verified active text-to-video, image-to-video, and reference-to-video endpoints. Standard supports 480p, 720p, 1080p, and 4k; duration is auto or 4-15 seconds; reference mode accepts up to 9 images, 3 videos, and 3 audio files." },
     "rate_limits": []
   },
   {
@@ -52,12 +53,13 @@
       "capability_id": "video.generate", "status": "coming_soon",
       "params": {
         "prompt": { "type": "string" },
-        "duration": { "type": "number", "min": 4, "max": 15 },
-        "resolution": { "type": "string", "enum": ["720p"] },
-        "aspect_ratio": { "type": "string" },
+        "duration": { "type": "string", "enum": ["auto", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15"] },
+        "resolution": { "type": "string", "enum": ["480p", "720p"] },
+        "aspect_ratio": { "type": "string", "enum": ["auto", "21:9", "16:9", "4:3", "1:1", "3:4", "9:16"] },
         "input_references": { "type": "array" },
         "generate_audio": { "type": "boolean" },
-        "seed": { "type": "integer" }
+        "bitrate_mode": { "type": "string", "enum": ["standard", "high"] },
+        "end_user_id": { "type": "string" }
       },
       "reasoning": null, "tool_call": null, "structured_output": null, "temperature": null,
       "attachment": true, "input_modalities": ["text", "image", "video", "audio"],
@@ -69,7 +71,7 @@
     "service_tiers": ["standard"],
     "api": { "formats": ["fal-queue"], "endpoint": "video.generate", "deployment": null },
     "sources": [{ "url": "https://fal.ai/models/bytedance/seedance-2.0/fast/text-to-video", "kind": "documentation" }],
-    "verification": { "status": "verified", "checked_at": "2026-08-10T00:00:00Z", "notes": "Fal fast queue endpoints verified for text, image, video, and audio reference conditioning through reference-to-video." },
+    "verification": { "status": "verified", "checked_at": "2026-08-24T00:00:00Z", "notes": "Live fal catalog and OpenAPI expansions verified active fast text-to-video, image-to-video, and reference-to-video endpoints. Fast supports 480p and 720p; duration is auto or 4-15 seconds; reference mode accepts up to 9 images, 3 videos, and 3 audio files." },
     "rate_limits": []
   }
 ]

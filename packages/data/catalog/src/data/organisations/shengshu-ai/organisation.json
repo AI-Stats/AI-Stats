@@ -1,0 +1,18 @@
+{
+  "organisation_id": "shengshu-ai",
+  "name": "ShengShu Technology",
+  "country_code": "CN",
+  "description": "ShengShu Technology develops generative media models offered through Tencent Cloud TokenHub.",
+  "links": [
+    {
+      "title": "Website",
+      "kind": "website",
+      "url": "https://www.shengshu-ai.com/"
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Provider identity verified from Tencent Cloud TokenHub's official model list."
+  }
+}

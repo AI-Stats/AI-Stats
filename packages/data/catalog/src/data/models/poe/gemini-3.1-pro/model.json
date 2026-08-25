@@ -1,0 +1,88 @@
+{
+  "model_id": "poe/gemini-3.1-pro",
+  "organisation_id": "poe",
+  "name": "Gemini-3.1-Pro",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Gemini 3.1 Pro is a state-of-the-art model for complex problem-solving, advanced reasoning, creative coding, and ambitious agentic workflows, delivering top benchmark results including a verified score of 77.1% on the ARC-AGI-2 benchmark (more than double the reasoning performance of Gemini 3 Pro).\n\nThis bot supports optional parameters for additional customization.",
+  "announced_date": "2026-02-19T00:28:04",
+  "release_date": "2026-02-19T00:28:04",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text,image,video,audio",
+  "output_types": "text",
+  "api_model_id": "poe/gemini-3.1-pro",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Poe bot",
+      "kind": "api_reference",
+      "url": "https://poe.com/gemini-3.1-pro"
+    }
+  ],
+  "details": [
+    {
+      "name": "input_context_length",
+      "value": 1048576
+    },
+    {
+      "name": "output_context_length",
+      "value": 65536
+    }
+  ],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "Poe bot",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": 1048576,
+    "input": 1048576,
+    "output": 65536
+  },
+  "modalities": {
+    "input": [
+      "text",
+      "image",
+      "video",
+      "audio"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": true,
+    "options": [
+      "low",
+      "medium",
+      "high"
+    ]
+  },
+  "capabilities": {
+    "attachment": true,
+    "tool_call": true,
+    "structured_output": true,
+    "temperature": null,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.poe.com/v1/models",
+      "accessed_at": "2026-08-24T03:27:45Z",
+      "notes": "Canonical entity for an exact public Poe bot identifier returned by the models API."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T03:27:45Z",
+    "notes": "Identity and advertised metadata verified against Poe's public models API."
+  },
+  "last_updated": "2026-08-24T03:27:45Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

@@ -25,10 +25,13 @@ async function NotificationsContent() {
 				enabled={data.lowBalanceEmailEnabled}
 				paymentMethodExpiringEmailEnabled={data.paymentMethodExpiringEmailEnabled}
 				thresholdUsd={data.lowBalanceEmailThresholdUsd}
+				destinations={data.notificationDestinations}
+				notificationRoutes={data.notificationRoutes}
 			/>
 			<NotificationDestinationsClient
 				initialDestinations={data.notificationDestinations}
 				initialModelDeprecationEnabled={data.modelDeprecationAlertsEnabled}
+				initialNotificationRoutes={data.notificationRoutes}
 			/>
 		</div>
 	);

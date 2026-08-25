@@ -1,0 +1,72 @@
+{
+  "model_id": "poe/cartesia-ink-whisper",
+  "organisation_id": "poe",
+  "name": "Cartesia-Ink-Whisper",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Transcribe audio files using Speech-to-Text with the Cartesia Ink Whisper model.\n\nSelect the Language of your audio file. Default is English (en).\n\nSupported Languages:\nEnglish (en)\nChinese (zh)\nGerman (de)\nSpanish (es)\nRussian (ru)\nKorean (ko)\nFrench (fr)\nJapanese (ja)\nPortuguese (pt)\nTurkish (tr)\nPolish (pl)\nCatalan (ca)\nDutch (nl)\nArabic (ar)\nSwedish (sv)\nItalian (it)\nIndonesian (id)\nHindi (hi)\nFinnish (fi)\nVietnamese (vi)\nHebrew (he)\nUkrainian (uk)\nGreek (el)\nMalay (ms)\nCzech (cs)\nRomanian (ro)\nDanish (da)\nHungarian (hu)\nTamil (ta)\nNorwegian (no)\nThai (th)\nUrdu (ur)\nCroatian (hr)\nBulgarian (bg)\nLithuanian (lt)\nLatin (la)\nMaori (mi)\nMalayalam (ml)\nWelsh (cy)\nSlovak (sk)\nTelugu (te)\nPersian (fa)\nLatvian (lv)\nBengali (bn)\nSerbian (sr)\nAzerbaijani (az)\nSlovenian (sl)\nKannada (kn)\nEstonian (et)\nMacedonian (mk)\nBreton (br)\nBasque (eu)\nIcelandic (is)\nArmenian (hy)\nNepali (ne)\nMongolian (mn)\nBosnian (bs)\nKazakh (kk)\nAlbanian (sq)\nSwahili (sw)\nGalician (gl)\nMarathi (mr)\nPunjabi (pa)\nSinhala (si)\nKhmer (km)\nShona (sn)\nYoruba (yo)\nSomali (so)\nAfrikaans (af)\nOccitan (oc)\nGeorgian (ka)\nBelarusian (be)\nTajik (tg)\nSindhi (sd)\nGujarati (gu)\nAmharic (am)\nYiddish (yi)\nLao (lo)\nUzbek (uz)\nFaroese (fo)\nHaitian Creole (ht)\nPashto (ps)\nTurkmen (tk)\nNynorsk (nn)\nMaltese (mt)\nSanskrit (sa)\nLuxembourgish (lb)\nMyanmar (my)\nTibetan (bo)\nTagalog (tl)\nMalagasy (mg)\nAssamese (as)\nTatar (tt)\nHawaiian (haw)\nLingala (ln)\nHausa (ha)\nBashkir (ba)\nJavanese (jw)\nSundanese (su)\nCantonese (yue)\n",
+  "announced_date": "2025-09-11T22:12:08",
+  "release_date": "2025-09-11T22:12:08",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text",
+  "output_types": "text",
+  "api_model_id": "poe/cartesia-ink-whisper",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Poe bot",
+      "kind": "api_reference",
+      "url": "https://poe.com/cartesia-ink-whisper"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "Poe bot",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": false,
+    "tool_call": false,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.poe.com/v1/models",
+      "accessed_at": "2026-08-24T03:27:45Z",
+      "notes": "Canonical entity for an exact public Poe bot identifier returned by the models API."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T03:27:45Z",
+    "notes": "Identity and advertised metadata verified against Poe's public models API."
+  },
+  "last_updated": "2026-08-24T03:27:45Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

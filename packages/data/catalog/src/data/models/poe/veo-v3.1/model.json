@@ -1,0 +1,72 @@
+{
+  "model_id": "poe/veo-v3.1",
+  "organisation_id": "poe",
+  "name": "Veo-v3.1",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "Google's Veo-3.1 is an improved version of Veo 3.\n\nOptional parameters:\nSet the aspect ratio of the generated image (one of `16:9`, `9:16`).\nSet silent to generate a silent video at a lower cost.\nSet negative prompt option `blur`, `low resolution`, `poor quality`. (only for T2V).\nSet the duration `4s`, `6s`, `8s`, default `8s`. `4s` and `6s` are only supported for text-to-video generation.\n\nNotes:\nPass a single image for image to video tasks. \nPass two images for a first-frame-to-last-frame video generation task. \nPass up to 3 images with reference for a reference-to-video task. Reference images will be directly used in the video generation.",
+  "announced_date": "2025-10-15T22:40:57",
+  "release_date": "2025-10-15T22:40:57",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text",
+  "output_types": "video",
+  "api_model_id": "poe/veo-v3.1",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Poe bot",
+      "kind": "api_reference",
+      "url": "https://poe.com/veo-v3.1"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "Poe bot",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "video"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": false,
+    "tool_call": false,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.poe.com/v1/models",
+      "accessed_at": "2026-08-24T03:27:45Z",
+      "notes": "Canonical entity for an exact public Poe bot identifier returned by the models API."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T03:27:45Z",
+    "notes": "Identity and advertised metadata verified against Poe's public models API."
+  },
+  "last_updated": "2026-08-24T03:27:45Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}
