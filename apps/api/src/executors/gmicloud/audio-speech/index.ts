@@ -5,7 +5,7 @@ import type { IRAudioSpeechRequest, IRAudioSpeechResponse } from "@core/ir";
 import type { ExecutorExecuteArgs, ExecutorResult } from "@executors/types";
 import type { ProviderExecutor } from "@executors/types";
 import { fetchUpstream } from "@executors/_shared/timing/upstream";
-import { executeGmiQueueRequest, extractMediaUrl, queueKeyMeta } from "../request-queue";
+import { executeGmiQueueRequest, extractMediaBase64, extractMediaUrl, queueKeyMeta } from "../request-queue";
 
 function voiceName(voice: IRAudioSpeechRequest["voice"]): string | undefined {
 	if (typeof voice === "string") return voice.trim() || undefined;
@@ -40,18 +40,23 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	}
 
 	const audioUrl = extractMediaUrl(result.json);
-	if (!audioUrl) {
+	const audioBase64 = extractMediaBase64(result.json);
+	if (!audioUrl && !audioBase64) {
 		return { kind: "completed", ir: undefined, bill: { cost_cents: 0, currency: "USD", usage: undefined, finish_reason: null }, upstream: new Response(JSON.stringify({ error: "gmicloud_speech_output_missing", request_id: result.requestId }), { status: 502, headers: { "Content-Type": "application/json" } }), keySource: keyMeta.source, byokKeyId: keyMeta.byokId, mappedRequest, rawResponse: result.json };
 	}
 
-	const mediaResponse = await fetchUpstream(args, audioUrl, undefined, "media");
-	const audioData = mediaResponse.ok ? await mediaResponse.arrayBuffer() : null;
+	const mediaResponse = audioUrl ? await fetchUpstream(args, audioUrl, undefined, "media") : null;
+	const audioData = mediaResponse?.ok ? await mediaResponse.arrayBuffer() : null;
 	const response: IRAudioSpeechResponse = {
 		id: args.requestId,
 		nativeId: result.requestId,
 		model: ir.model,
 		provider: args.providerId,
-		audio: audioData ? { data: base64FromArrayBuffer(audioData), mimeType: mediaResponse.headers.get("content-type") ?? baseMime(format) } : { url: audioUrl, mimeType: baseMime(format) },
+		audio: audioBase64
+			? { data: audioBase64, mimeType: baseMime(format) }
+			: audioData
+				? { data: base64FromArrayBuffer(audioData), mimeType: mediaResponse?.headers.get("content-type") ?? baseMime(format) }
+				: { url: audioUrl, mimeType: baseMime(format) },
 		usage: { inputTokens: 0, outputTokens: 0, totalTokens: 0, requests: 1, input_characters: ir.input.length } as any,
 		rawResponse: result.json,
 	};

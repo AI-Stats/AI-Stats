@@ -68,6 +68,7 @@ export async function executeGmiQueueRequest(
 	const headers = {
 		Authorization: `Bearer ${keyInfo.key}`,
 		"Content-Type": "application/json",
+		...(args.meta.testId ? { "x-test-id": args.meta.testId } : {}),
 	};
 	const body = JSON.stringify({ model, payload });
 	const submitResponse = await fetchUpstream(args, `${queueBaseUrl()}${QUEUE_PATH}`, {
@@ -118,6 +119,15 @@ export function extractMediaUrl(json: any): string | undefined {
 	const media = json?.outcome?.media_urls ?? json?.result?.media_urls ?? json?.data?.media_urls;
 	const first = Array.isArray(media) ? media[0] : undefined;
 	const candidate = first?.url ?? first ?? json?.outcome?.audio_url ?? json?.outcome?.audioUrl ?? json?.audio_url ?? json?.audioUrl;
+	return typeof candidate === "string" && candidate.trim() ? candidate.trim() : undefined;
+}
+
+export function extractMediaBase64(json: any): string | undefined {
+	const candidate =
+		json?.outcome?.audio_base64 ??
+		json?.outcome?.audioBase64 ??
+		json?.result?.audio_base64 ??
+		json?.data?.audio_base64;
 	return typeof candidate === "string" && candidate.trim() ? candidate.trim() : undefined;
 }
 
