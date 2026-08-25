@@ -579,15 +579,24 @@ inline constexpr std::string_view MINIMAX_MINIMAX_M2_5_HIGHSPEED = "minimax/mini
 // Model ID: minimax/minimax-m2.7
 // Model page: https://phaseo.app/models/minimax/minimax-m2.7
 inline constexpr std::string_view MINIMAX_MINIMAX_M2_7 = "minimax/minimax-m2.7";
+// Model ID: minimax/minimax-m2.7:free
+// Model page: https://phaseo.app/models/minimax/minimax-m2.7%3Afree
+inline constexpr std::string_view MINIMAX_MINIMAX_M2_7_FREE = "minimax/minimax-m2.7:free";
 // Model ID: minimax/minimax-m3
 // Model page: https://phaseo.app/models/minimax/minimax-m3
 inline constexpr std::string_view MINIMAX_MINIMAX_M3 = "minimax/minimax-m3";
+// Model ID: minimax/minimax-m3:free
+// Model page: https://phaseo.app/models/minimax/minimax-m3%3Afree
+inline constexpr std::string_view MINIMAX_MINIMAX_M3_FREE = "minimax/minimax-m3:free";
 // Model ID: minimax/music-2.6
 // Model page: https://phaseo.app/models/minimax/music-2.6
 inline constexpr std::string_view MINIMAX_MUSIC_2_6 = "minimax/music-2.6";
 // Model ID: minimax/music-3.0
 // Model page: https://phaseo.app/models/minimax/music-3.0
 inline constexpr std::string_view MINIMAX_MUSIC_3_0 = "minimax/music-3.0";
+// Model ID: minimax/music-3.0:free
+// Model page: https://phaseo.app/models/minimax/music-3.0%3Afree
+inline constexpr std::string_view MINIMAX_MUSIC_3_0_FREE = "minimax/music-3.0:free";
 // Model ID: minimax/speech-2.6-hd
 // Model page: https://phaseo.app/models/minimax/speech-2.6-hd
 inline constexpr std::string_view MINIMAX_SPEECH_2_6_HD = "minimax/speech-2.6-hd";
@@ -600,6 +609,9 @@ inline constexpr std::string_view MINIMAX_SPEECH_2_8_HD = "minimax/speech-2.8-hd
 // Model ID: minimax/speech-2.8-turbo
 // Model page: https://phaseo.app/models/minimax/speech-2.8-turbo
 inline constexpr std::string_view MINIMAX_SPEECH_2_8_TURBO = "minimax/speech-2.8-turbo";
+// Model ID: minimax/speech-2.8:free
+// Model page: https://phaseo.app/models/minimax/speech-2.8%3Afree
+inline constexpr std::string_view MINIMAX_SPEECH_2_8_FREE = "minimax/speech-2.8:free";
 // Model ID: mistral/codestral
 // Model page: https://phaseo.app/models/mistral/codestral
 inline constexpr std::string_view MISTRAL_CODESTRAL = "mistral/codestral";
@@ -1659,7 +1671,7 @@ inline constexpr std::string_view ZAI_GLM_5 = "zai/glm-5";
 // Deprecated alias for deepseek/deepseek-v4; use deepseek/deepseek-v4-pro. Remove in the next major SDK release.
 inline constexpr std::string_view DEEPSEEK_DEEPSEEK_V4 = DEEPSEEK_DEEPSEEK_V4_PRO;
 
-inline constexpr std::array<std::string_view, 550> ALL = {
+inline constexpr std::array<std::string_view, 554> ALL = {
 	AI21_JAMBA_1_5_LARGE,
 	AI21_JAMBA_1_5_MINI,
 	AION_LABS_AION_2_0,
@@ -1851,13 +1863,17 @@ inline constexpr std::array<std::string_view, 550> ALL = {
 	MINIMAX_MINIMAX_M2_5,
 	MINIMAX_MINIMAX_M2_5_HIGHSPEED,
 	MINIMAX_MINIMAX_M2_7,
+	MINIMAX_MINIMAX_M2_7_FREE,
 	MINIMAX_MINIMAX_M3,
+	MINIMAX_MINIMAX_M3_FREE,
 	MINIMAX_MUSIC_2_6,
 	MINIMAX_MUSIC_3_0,
+	MINIMAX_MUSIC_3_0_FREE,
 	MINIMAX_SPEECH_2_6_HD,
 	MINIMAX_SPEECH_2_6_TURBO,
 	MINIMAX_SPEECH_2_8_HD,
 	MINIMAX_SPEECH_2_8_TURBO,
+	MINIMAX_SPEECH_2_8_FREE,
 	MISTRAL_CODESTRAL,
 	MISTRAL_CODESTRAL_EMBED,
 	MISTRAL_DEVSTRAL_2,

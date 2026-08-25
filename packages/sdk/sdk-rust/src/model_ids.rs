@@ -576,15 +576,24 @@ pub mod model_ids {
     /// Model ID: `minimax/minimax-m2.7`.
     /// Model page: https://phaseo.app/models/minimax/minimax-m2.7
     pub const MINIMAX_MINIMAX_M2_7: &str = "minimax/minimax-m2.7";
+    /// Model ID: `minimax/minimax-m2.7:free`.
+    /// Model page: https://phaseo.app/models/minimax/minimax-m2.7%3Afree
+    pub const MINIMAX_MINIMAX_M2_7_FREE: &str = "minimax/minimax-m2.7:free";
     /// Model ID: `minimax/minimax-m3`.
     /// Model page: https://phaseo.app/models/minimax/minimax-m3
     pub const MINIMAX_MINIMAX_M3: &str = "minimax/minimax-m3";
+    /// Model ID: `minimax/minimax-m3:free`.
+    /// Model page: https://phaseo.app/models/minimax/minimax-m3%3Afree
+    pub const MINIMAX_MINIMAX_M3_FREE: &str = "minimax/minimax-m3:free";
     /// Model ID: `minimax/music-2.6`.
     /// Model page: https://phaseo.app/models/minimax/music-2.6
     pub const MINIMAX_MUSIC_2_6: &str = "minimax/music-2.6";
     /// Model ID: `minimax/music-3.0`.
     /// Model page: https://phaseo.app/models/minimax/music-3.0
     pub const MINIMAX_MUSIC_3_0: &str = "minimax/music-3.0";
+    /// Model ID: `minimax/music-3.0:free`.
+    /// Model page: https://phaseo.app/models/minimax/music-3.0%3Afree
+    pub const MINIMAX_MUSIC_3_0_FREE: &str = "minimax/music-3.0:free";
     /// Model ID: `minimax/speech-2.6-hd`.
     /// Model page: https://phaseo.app/models/minimax/speech-2.6-hd
     pub const MINIMAX_SPEECH_2_6_HD: &str = "minimax/speech-2.6-hd";
@@ -597,6 +606,9 @@ pub mod model_ids {
     /// Model ID: `minimax/speech-2.8-turbo`.
     /// Model page: https://phaseo.app/models/minimax/speech-2.8-turbo
     pub const MINIMAX_SPEECH_2_8_TURBO: &str = "minimax/speech-2.8-turbo";
+    /// Model ID: `minimax/speech-2.8:free`.
+    /// Model page: https://phaseo.app/models/minimax/speech-2.8%3Afree
+    pub const MINIMAX_SPEECH_2_8_FREE: &str = "minimax/speech-2.8:free";
     /// Model ID: `mistral/codestral`.
     /// Model page: https://phaseo.app/models/mistral/codestral
     pub const MISTRAL_CODESTRAL: &str = "mistral/codestral";
@@ -1849,13 +1861,17 @@ pub mod model_ids {
         MINIMAX_MINIMAX_M2_5,
         MINIMAX_MINIMAX_M2_5_HIGHSPEED,
         MINIMAX_MINIMAX_M2_7,
+        MINIMAX_MINIMAX_M2_7_FREE,
         MINIMAX_MINIMAX_M3,
+        MINIMAX_MINIMAX_M3_FREE,
         MINIMAX_MUSIC_2_6,
         MINIMAX_MUSIC_3_0,
+        MINIMAX_MUSIC_3_0_FREE,
         MINIMAX_SPEECH_2_6_HD,
         MINIMAX_SPEECH_2_6_TURBO,
         MINIMAX_SPEECH_2_8_HD,
         MINIMAX_SPEECH_2_8_TURBO,
+        MINIMAX_SPEECH_2_8_FREE,
         MISTRAL_CODESTRAL,
         MISTRAL_CODESTRAL_EMBED,
         MISTRAL_DEVSTRAL_2,

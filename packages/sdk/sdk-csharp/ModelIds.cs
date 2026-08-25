@@ -388,12 +388,18 @@ namespace PhaseoSdk
         public const string MinimaxMinimaxM25Highspeed = "minimax/minimax-m2.5-highspeed";
         /// <summary>Model ID: <c>minimax/minimax-m2.7</c>. Model page: https://phaseo.app/models/minimax/minimax-m2.7</summary>
         public const string MinimaxMinimaxM27 = "minimax/minimax-m2.7";
+        /// <summary>Model ID: <c>minimax/minimax-m2.7:free</c>. Model page: https://phaseo.app/models/minimax/minimax-m2.7%3Afree</summary>
+        public const string MinimaxMinimaxM27Free = "minimax/minimax-m2.7:free";
         /// <summary>Model ID: <c>minimax/minimax-m3</c>. Model page: https://phaseo.app/models/minimax/minimax-m3</summary>
         public const string MinimaxMinimaxM3 = "minimax/minimax-m3";
+        /// <summary>Model ID: <c>minimax/minimax-m3:free</c>. Model page: https://phaseo.app/models/minimax/minimax-m3%3Afree</summary>
+        public const string MinimaxMinimaxM3Free = "minimax/minimax-m3:free";
         /// <summary>Model ID: <c>minimax/music-2.6</c>. Model page: https://phaseo.app/models/minimax/music-2.6</summary>
         public const string MinimaxMusic26 = "minimax/music-2.6";
         /// <summary>Model ID: <c>minimax/music-3.0</c>. Model page: https://phaseo.app/models/minimax/music-3.0</summary>
         public const string MinimaxMusic30 = "minimax/music-3.0";
+        /// <summary>Model ID: <c>minimax/music-3.0:free</c>. Model page: https://phaseo.app/models/minimax/music-3.0%3Afree</summary>
+        public const string MinimaxMusic30Free = "minimax/music-3.0:free";
         /// <summary>Model ID: <c>minimax/speech-2.6-hd</c>. Model page: https://phaseo.app/models/minimax/speech-2.6-hd</summary>
         public const string MinimaxSpeech26Hd = "minimax/speech-2.6-hd";
         /// <summary>Model ID: <c>minimax/speech-2.6-turbo</c>. Model page: https://phaseo.app/models/minimax/speech-2.6-turbo</summary>
@@ -402,6 +408,8 @@ namespace PhaseoSdk
         public const string MinimaxSpeech28Hd = "minimax/speech-2.8-hd";
         /// <summary>Model ID: <c>minimax/speech-2.8-turbo</c>. Model page: https://phaseo.app/models/minimax/speech-2.8-turbo</summary>
         public const string MinimaxSpeech28Turbo = "minimax/speech-2.8-turbo";
+        /// <summary>Model ID: <c>minimax/speech-2.8:free</c>. Model page: https://phaseo.app/models/minimax/speech-2.8%3Afree</summary>
+        public const string MinimaxSpeech28Free = "minimax/speech-2.8:free";
         /// <summary>Model ID: <c>mistral/codestral</c>. Model page: https://phaseo.app/models/mistral/codestral</summary>
         public const string MistralCodestral = "mistral/codestral";
         /// <summary>Model ID: <c>mistral/codestral-embed</c>. Model page: https://phaseo.app/models/mistral/codestral-embed</summary>

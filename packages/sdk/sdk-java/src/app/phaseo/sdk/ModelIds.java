@@ -580,14 +580,23 @@ public final class ModelIds {
     /** Model ID: <code>minimax/minimax-m2.7</code>. Model page: https://phaseo.app/models/minimax/minimax-m2.7 */
     public static final String MINIMAX_MINIMAX_M2_7 = "minimax/minimax-m2.7";
 
+    /** Model ID: <code>minimax/minimax-m2.7:free</code>. Model page: https://phaseo.app/models/minimax/minimax-m2.7%3Afree */
+    public static final String MINIMAX_MINIMAX_M2_7_FREE = "minimax/minimax-m2.7:free";
+
     /** Model ID: <code>minimax/minimax-m3</code>. Model page: https://phaseo.app/models/minimax/minimax-m3 */
     public static final String MINIMAX_MINIMAX_M3 = "minimax/minimax-m3";
+
+    /** Model ID: <code>minimax/minimax-m3:free</code>. Model page: https://phaseo.app/models/minimax/minimax-m3%3Afree */
+    public static final String MINIMAX_MINIMAX_M3_FREE = "minimax/minimax-m3:free";
 
     /** Model ID: <code>minimax/music-2.6</code>. Model page: https://phaseo.app/models/minimax/music-2.6 */
     public static final String MINIMAX_MUSIC_2_6 = "minimax/music-2.6";
 
     /** Model ID: <code>minimax/music-3.0</code>. Model page: https://phaseo.app/models/minimax/music-3.0 */
     public static final String MINIMAX_MUSIC_3_0 = "minimax/music-3.0";
+
+    /** Model ID: <code>minimax/music-3.0:free</code>. Model page: https://phaseo.app/models/minimax/music-3.0%3Afree */
+    public static final String MINIMAX_MUSIC_3_0_FREE = "minimax/music-3.0:free";
 
     /** Model ID: <code>minimax/speech-2.6-hd</code>. Model page: https://phaseo.app/models/minimax/speech-2.6-hd */
     public static final String MINIMAX_SPEECH_2_6_HD = "minimax/speech-2.6-hd";
@@ -600,6 +609,9 @@ public final class ModelIds {
 
     /** Model ID: <code>minimax/speech-2.8-turbo</code>. Model page: https://phaseo.app/models/minimax/speech-2.8-turbo */
     public static final String MINIMAX_SPEECH_2_8_TURBO = "minimax/speech-2.8-turbo";
+
+    /** Model ID: <code>minimax/speech-2.8:free</code>. Model page: https://phaseo.app/models/minimax/speech-2.8%3Afree */
+    public static final String MINIMAX_SPEECH_2_8_FREE = "minimax/speech-2.8:free";
 
     /** Model ID: <code>mistral/codestral</code>. Model page: https://phaseo.app/models/mistral/codestral */
     public static final String MISTRAL_CODESTRAL = "mistral/codestral";

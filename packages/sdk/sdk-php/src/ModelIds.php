@@ -581,14 +581,23 @@ final class ModelIds
     /** Model ID: minimax/minimax-m2.7. Model page: https://phaseo.app/models/minimax/minimax-m2.7 */
     public const MINIMAX_MINIMAX_M2_7 = 'minimax/minimax-m2.7';
 
+    /** Model ID: minimax/minimax-m2.7:free. Model page: https://phaseo.app/models/minimax/minimax-m2.7%3Afree */
+    public const MINIMAX_MINIMAX_M2_7_FREE = 'minimax/minimax-m2.7:free';
+
     /** Model ID: minimax/minimax-m3. Model page: https://phaseo.app/models/minimax/minimax-m3 */
     public const MINIMAX_MINIMAX_M3 = 'minimax/minimax-m3';
+
+    /** Model ID: minimax/minimax-m3:free. Model page: https://phaseo.app/models/minimax/minimax-m3%3Afree */
+    public const MINIMAX_MINIMAX_M3_FREE = 'minimax/minimax-m3:free';
 
     /** Model ID: minimax/music-2.6. Model page: https://phaseo.app/models/minimax/music-2.6 */
     public const MINIMAX_MUSIC_2_6 = 'minimax/music-2.6';
 
     /** Model ID: minimax/music-3.0. Model page: https://phaseo.app/models/minimax/music-3.0 */
     public const MINIMAX_MUSIC_3_0 = 'minimax/music-3.0';
+
+    /** Model ID: minimax/music-3.0:free. Model page: https://phaseo.app/models/minimax/music-3.0%3Afree */
+    public const MINIMAX_MUSIC_3_0_FREE = 'minimax/music-3.0:free';
 
     /** Model ID: minimax/speech-2.6-hd. Model page: https://phaseo.app/models/minimax/speech-2.6-hd */
     public const MINIMAX_SPEECH_2_6_HD = 'minimax/speech-2.6-hd';
@@ -601,6 +610,9 @@ final class ModelIds
 
     /** Model ID: minimax/speech-2.8-turbo. Model page: https://phaseo.app/models/minimax/speech-2.8-turbo */
     public const MINIMAX_SPEECH_2_8_TURBO = 'minimax/speech-2.8-turbo';
+
+    /** Model ID: minimax/speech-2.8:free. Model page: https://phaseo.app/models/minimax/speech-2.8%3Afree */
+    public const MINIMAX_SPEECH_2_8_FREE = 'minimax/speech-2.8:free';
 
     /** Model ID: mistral/codestral. Model page: https://phaseo.app/models/mistral/codestral */
     public const MISTRAL_CODESTRAL = 'mistral/codestral';

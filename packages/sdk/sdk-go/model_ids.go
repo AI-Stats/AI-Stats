@@ -580,15 +580,24 @@ const (
 	// Model ID: minimax/minimax-m2.7
 	// Model page: https://phaseo.app/models/minimax/minimax-m2.7
 	ModelIDMinimaxMinimaxM27 gen.ModelId = "minimax/minimax-m2.7"
+	// Model ID: minimax/minimax-m2.7:free
+	// Model page: https://phaseo.app/models/minimax/minimax-m2.7%3Afree
+	ModelIDMinimaxMinimaxM27Free gen.ModelId = "minimax/minimax-m2.7:free"
 	// Model ID: minimax/minimax-m3
 	// Model page: https://phaseo.app/models/minimax/minimax-m3
 	ModelIDMinimaxMinimaxM3 gen.ModelId = "minimax/minimax-m3"
+	// Model ID: minimax/minimax-m3:free
+	// Model page: https://phaseo.app/models/minimax/minimax-m3%3Afree
+	ModelIDMinimaxMinimaxM3Free gen.ModelId = "minimax/minimax-m3:free"
 	// Model ID: minimax/music-2.6
 	// Model page: https://phaseo.app/models/minimax/music-2.6
 	ModelIDMinimaxMusic26 gen.ModelId = "minimax/music-2.6"
 	// Model ID: minimax/music-3.0
 	// Model page: https://phaseo.app/models/minimax/music-3.0
 	ModelIDMinimaxMusic30 gen.ModelId = "minimax/music-3.0"
+	// Model ID: minimax/music-3.0:free
+	// Model page: https://phaseo.app/models/minimax/music-3.0%3Afree
+	ModelIDMinimaxMusic30Free gen.ModelId = "minimax/music-3.0:free"
 	// Model ID: minimax/speech-2.6-hd
 	// Model page: https://phaseo.app/models/minimax/speech-2.6-hd
 	ModelIDMinimaxSpeech26Hd gen.ModelId = "minimax/speech-2.6-hd"
@@ -601,6 +610,9 @@ const (
 	// Model ID: minimax/speech-2.8-turbo
 	// Model page: https://phaseo.app/models/minimax/speech-2.8-turbo
 	ModelIDMinimaxSpeech28Turbo gen.ModelId = "minimax/speech-2.8-turbo"
+	// Model ID: minimax/speech-2.8:free
+	// Model page: https://phaseo.app/models/minimax/speech-2.8%3Afree
+	ModelIDMinimaxSpeech28Free gen.ModelId = "minimax/speech-2.8:free"
 	// Model ID: mistral/codestral
 	// Model page: https://phaseo.app/models/mistral/codestral
 	ModelIDMistralCodestral gen.ModelId = "mistral/codestral"
@@ -1853,13 +1865,17 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDMinimaxMinimaxM25,
 	ModelIDMinimaxMinimaxM25Highspeed,
 	ModelIDMinimaxMinimaxM27,
+	ModelIDMinimaxMinimaxM27Free,
 	ModelIDMinimaxMinimaxM3,
+	ModelIDMinimaxMinimaxM3Free,
 	ModelIDMinimaxMusic26,
 	ModelIDMinimaxMusic30,
+	ModelIDMinimaxMusic30Free,
 	ModelIDMinimaxSpeech26Hd,
 	ModelIDMinimaxSpeech26Turbo,
 	ModelIDMinimaxSpeech28Hd,
 	ModelIDMinimaxSpeech28Turbo,
+	ModelIDMinimaxSpeech28Free,
 	ModelIDMistralCodestral,
 	ModelIDMistralCodestralEmbed,
 	ModelIDMistralDevstral2,
