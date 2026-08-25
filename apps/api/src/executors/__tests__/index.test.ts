@@ -118,6 +118,7 @@ describe("resolveProviderExecutor", () => {
 		}
 		expect(resolveProviderExecutor("mistral", "embeddings")).toBeTruthy();
 		expect(resolveProviderExecutor("mistral-eu", "embeddings")).toBeTruthy();
+		expect(resolveProviderExecutor("upstage", "embeddings")).toBeTruthy();
 		expect(resolveProviderExecutor("nebius-token-factory", "embeddings")).toBeTruthy();
 		expect(resolveProviderExecutor("nebius-token-factory-eu-north-1", "embeddings")).toBeTruthy();
 		expect(resolveProviderExecutor("nebius-token-factory-fast", "embeddings")).toBeNull();

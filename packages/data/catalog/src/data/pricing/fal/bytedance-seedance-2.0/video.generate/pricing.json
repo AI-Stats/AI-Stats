@@ -12,7 +12,7 @@
       "price_per_unit": 0.3034,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "720p video with audio",
+      "note": "720p video; audio generation is included at the same price",
 	  "match": [{ "path": "video_params.resolution", "op": "in", "or_group": 1, "and_index": 1, "value": ["720p", "1280x720", "720x1280"] }],
       "priority": 100,
       "effective_from": "2026-04-01T00:00:00Z",
@@ -28,7 +28,7 @@
 	  "price_per_unit": 0.682,
 	  "currency": "USD",
 	  "pricing_plan": "standard",
-	  "note": "1080p video with audio",
+      "note": "1080p video; audio generation is included at the same price",
 	  "match": [{ "path": "video_params.resolution", "op": "in", "or_group": 1, "and_index": 1, "value": ["1080p", "1920x1080", "1080x1920"] }],
 	  "priority": 110,
 	  "effective_from": "2026-04-01T00:00:00Z",
@@ -50,7 +50,7 @@
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-10T00:00:00Z",
-    "notes": "Fal published per-second 720p and 1080p prices with audio."
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Live official model page reverified $0.3034 per 720p output second and $0.682 per 1080p output second. Audio is included at no extra cost. The page also publishes token-derived rates for 480p/720p/1080p and 4k; those are not represented because Phaseo's current video reservation meter cannot derive fal's pixel-duration token formula."
   }
 }

@@ -63,9 +63,9 @@ export {
 const CONTEXT_CACHE_PREFIX = "gateway:context";
 
 // Multi-tier caching constants (respecting Cloudflare KV 60s minimum)
-const STATIC_CACHE_PREFIX = "gateway:static:v2";
+const STATIC_CACHE_PREFIX = "gateway:static:v3";
 const DYNAMIC_CACHE_PREFIX = "gateway:dynamic";
-const PRESET_CACHE_PREFIX = "gateway:preset:v2";
+const PRESET_CACHE_PREFIX = "gateway:preset:v3";
 
 const PRESET_TTL = 120;      // 2 minutes
 const CONTEXT_INFLIGHT_MAX_ENTRIES = 512;
@@ -743,6 +743,10 @@ async function fetchTestingProviderSnapshots(args: {
             baseWeight: 1,
             byokMeta: byokByProvider.get(providerId) ?? [],
             providerModelSlug,
+            quantizationScheme:
+				typeof row?.metadata?.quantization_scheme === "string"
+					? row.metadata.quantization_scheme
+					: null,
             capabilityParams: cap?.params ?? {},
             maxInputTokens:
                 cap?.maxInputTokens !== null && Number.isFinite(cap?.maxInputTokens)
@@ -886,6 +890,10 @@ async function fetchFreeRouterProviderPool(args: {
             baseWeight: 1,
             byokMeta: [],
             providerModelSlug,
+            quantizationScheme:
+				typeof row.metadata?.quantization_scheme === "string"
+					? row.metadata.quantization_scheme
+					: null,
             apiModelId,
             pricingKey,
             capabilityParams: (capability.params && typeof capability.params === "object" ? capability.params : {}) as Record<string, any>,
@@ -1752,8 +1760,6 @@ export async function fetchGatewayContext(args: {
         }
     }
 }
-
-
 
 
 

@@ -90,6 +90,7 @@ export function buildProviderCandidatesWithDiagnostics(
             byokMeta: provider.byokMeta,
             pricingCard: ctx.pricing[provider.pricingKey ?? provider.providerId] ?? null,
             providerModelSlug: provider.providerModelSlug,
+            quantizationScheme: provider.quantizationScheme ?? null,
             inputModalities: provider.inputModalities ?? null,
             outputModalities: provider.outputModalities ?? null,
             capabilityParams: provider.capabilityParams ?? {},
