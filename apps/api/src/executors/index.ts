@@ -242,6 +242,7 @@ export const EXECUTORS_BY_PROVIDER: Record<string, ProviderCapabilityMap> = {
 	},
 	upstage: {
 		"text.generate": upstageText,
+		embeddings: openaiEmbeddings,
 	},
 	wafer: {
 		"text.generate": waferText,
