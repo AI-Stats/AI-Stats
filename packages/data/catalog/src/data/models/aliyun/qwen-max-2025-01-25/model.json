@@ -1,0 +1,72 @@
+{
+  "model_id": "aliyun/qwen-max-2025-01-25",
+  "organisation_id": "aliyun",
+  "name": "Qwen2.5-Max-2025-01-25",
+  "status": "Deprecated",
+  "previous_model_id": null,
+  "description": "一个大规模 MoE 模型，已在超过 20 万亿个 token 上进行了预训练，并使用精选的监督微调 (SFT) 和从人类反馈中强化学习 (RLHF) 方法进行了进一步的后训练。",
+  "announced_date": null,
+  "release_date": null,
+  "deprecation_date": null,
+  "retirement_date": "2026-05-30T00:00:00",
+  "license": null,
+  "input_types": "text",
+  "output_types": "text",
+  "api_model_id": "qwen-max-2025-01-25",
+  "links": [
+    {
+      "title": "Qiniu model marketplace",
+      "kind": "provider",
+      "url": "https://www.qiniu.com/ai/models"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "family_id": null,
+  "page_notice": null,
+  "model_type": null,
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": 128000,
+    "input": 128000,
+    "output": 4096
+  },
+  "modalities": {
+    "input": [
+      "text"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": true,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": false,
+    "tool_call": true,
+    "structured_output": true,
+    "temperature": null,
+    "streaming": null,
+    "web_search": null
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "documentation",
+      "url": "https://www.qiniu.com/ai/models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Canonical entity derived from Qiniu's official hosted-model entry qwen-max-2025-01-25."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Identity, modalities and lifecycle verified from the official Qiniu marketplace."
+  },
+  "last_updated": "2026-08-24T00:00:00Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}
