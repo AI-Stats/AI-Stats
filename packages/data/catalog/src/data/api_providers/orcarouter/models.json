@@ -3251,10 +3251,10 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "grok/grok-4.3",
-    "provider_api_model_id": "orcarouter:grok/grok-4.3",
+    "api_model_id": "spacex-ai/grok-4.3",
+    "provider_api_model_id": "orcarouter:spacex-ai/grok-4.3",
     "provider_model_slug": "grok/grok-4.3",
-    "internal_model_id": "grok/grok-4.3",
+    "internal_model_id": "spacex-ai/grok-4.3",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image",
@@ -3313,10 +3313,10 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "grok/grok-4.5",
-    "provider_api_model_id": "orcarouter:grok/grok-4.5",
+    "api_model_id": "spacex-ai/grok-4.5",
+    "provider_api_model_id": "orcarouter:spacex-ai/grok-4.5",
     "provider_model_slug": "grok/grok-4.5",
-    "internal_model_id": "grok/grok-4.5",
+    "internal_model_id": "spacex-ai/grok-4.5",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image,pdf",
@@ -3375,10 +3375,10 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "grok/grok-4.6",
-    "provider_api_model_id": "orcarouter:grok/grok-4.6",
+    "api_model_id": "spacex-ai/grok-4.6",
+    "provider_api_model_id": "orcarouter:spacex-ai/grok-4.6",
     "provider_model_slug": "grok/grok-4.6",
-    "internal_model_id": "grok/grok-4.6",
+    "internal_model_id": "spacex-ai/grok-4.6",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image,pdf",
@@ -3437,10 +3437,10 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "grok/grok-imagine-image",
-    "provider_api_model_id": "orcarouter:grok/grok-imagine-image",
+    "api_model_id": "spacex-ai/grok-imagine-image",
+    "provider_api_model_id": "orcarouter:spacex-ai/grok-imagine-image",
     "provider_model_slug": "grok/grok-imagine-image",
-    "internal_model_id": "grok/grok-imagine-image",
+    "internal_model_id": "spacex-ai/grok-imagine-image",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image",

@@ -576,15 +576,24 @@ module PhaseoSdk
     # Model ID: minimax/minimax-m2.7
     # Model page: https://phaseo.app/models/minimax/minimax-m2.7
     MINIMAX_MINIMAX_M2_7 = "minimax/minimax-m2.7"
+    # Model ID: minimax/minimax-m2.7:free
+    # Model page: https://phaseo.app/models/minimax/minimax-m2.7%3Afree
+    MINIMAX_MINIMAX_M2_7_FREE = "minimax/minimax-m2.7:free"
     # Model ID: minimax/minimax-m3
     # Model page: https://phaseo.app/models/minimax/minimax-m3
     MINIMAX_MINIMAX_M3 = "minimax/minimax-m3"
+    # Model ID: minimax/minimax-m3:free
+    # Model page: https://phaseo.app/models/minimax/minimax-m3%3Afree
+    MINIMAX_MINIMAX_M3_FREE = "minimax/minimax-m3:free"
     # Model ID: minimax/music-2.6
     # Model page: https://phaseo.app/models/minimax/music-2.6
     MINIMAX_MUSIC_2_6 = "minimax/music-2.6"
     # Model ID: minimax/music-3.0
     # Model page: https://phaseo.app/models/minimax/music-3.0
     MINIMAX_MUSIC_3_0 = "minimax/music-3.0"
+    # Model ID: minimax/music-3.0:free
+    # Model page: https://phaseo.app/models/minimax/music-3.0%3Afree
+    MINIMAX_MUSIC_3_0_FREE = "minimax/music-3.0:free"
     # Model ID: minimax/speech-2.6-hd
     # Model page: https://phaseo.app/models/minimax/speech-2.6-hd
     MINIMAX_SPEECH_2_6_HD = "minimax/speech-2.6-hd"
@@ -597,6 +606,9 @@ module PhaseoSdk
     # Model ID: minimax/speech-2.8-turbo
     # Model page: https://phaseo.app/models/minimax/speech-2.8-turbo
     MINIMAX_SPEECH_2_8_TURBO = "minimax/speech-2.8-turbo"
+    # Model ID: minimax/speech-2.8:free
+    # Model page: https://phaseo.app/models/minimax/speech-2.8%3Afree
+    MINIMAX_SPEECH_2_8_FREE = "minimax/speech-2.8:free"
     # Model ID: mistral/codestral
     # Model page: https://phaseo.app/models/mistral/codestral
     MISTRAL_CODESTRAL = "mistral/codestral"
@@ -1005,6 +1017,9 @@ module PhaseoSdk
     # Model ID: openai/whisper-large-v3-turbo
     # Model page: https://phaseo.app/models/openai/whisper-large-v3-turbo
     OPENAI_WHISPER_LARGE_V3_TURBO = "openai/whisper-large-v3-turbo"
+    # Model ID: openbmb/minicpm-v-4.5
+    # Model page: https://phaseo.app/models/openbmb/minicpm-v-4.5
+    OPENBMB_MINICPM_V_4_5 = "openbmb/minicpm-v-4.5"
     # Model ID: perplexity/pplx-embed-v1-0.6b
     # Model page: https://phaseo.app/models/perplexity/pplx-embed-v1-0.6b
     PERPLEXITY_PPLX_EMBED_V1_0_6B = "perplexity/pplx-embed-v1-0.6b"
@@ -1239,9 +1254,6 @@ module PhaseoSdk
     # Model ID: qwen/qwen3-reranker
     # Model page: https://phaseo.app/models/qwen/qwen3-reranker
     QWEN_QWEN3_RERANKER = "qwen/qwen3-reranker"
-    # Model ID: qwen/qwen3-reranker-8b
-    # Model page: https://phaseo.app/models/qwen/qwen3-reranker-8b
-    QWEN_QWEN3_RERANKER_8B = "qwen/qwen3-reranker-8b"
     # Model ID: qwen/qwen3-vl-235b-a22b
     # Model page: https://phaseo.app/models/qwen/qwen3-vl-235b-a22b
     QWEN_QWEN3_VL_235B_A22B = "qwen/qwen3-vl-235b-a22b"
@@ -1497,6 +1509,12 @@ module PhaseoSdk
     # Model ID: voyage/rerank-2-lite
     # Model page: https://phaseo.app/models/voyage/rerank-2-lite
     VOYAGE_RERANK_2_LITE = "voyage/rerank-2-lite"
+    # Model ID: voyage/rerank-2.5
+    # Model page: https://phaseo.app/models/voyage/rerank-2.5
+    VOYAGE_RERANK_2_5 = "voyage/rerank-2.5"
+    # Model ID: voyage/rerank-2.5-lite
+    # Model page: https://phaseo.app/models/voyage/rerank-2.5-lite
+    VOYAGE_RERANK_2_5_LITE = "voyage/rerank-2.5-lite"
     # Model ID: voyage/rerank-lite-1
     # Model page: https://phaseo.app/models/voyage/rerank-lite-1
     VOYAGE_RERANK_LITE_1 = "voyage/rerank-lite-1"
@@ -1539,6 +1557,9 @@ module PhaseoSdk
     # Model ID: voyage/voyage-code-3
     # Model page: https://phaseo.app/models/voyage/voyage-code-3
     VOYAGE_VOYAGE_CODE_3 = "voyage/voyage-code-3"
+    # Model ID: voyage/voyage-code-4
+    # Model page: https://phaseo.app/models/voyage/voyage-code-4
+    VOYAGE_VOYAGE_CODE_4 = "voyage/voyage-code-4"
     # Model ID: voyage/voyage-context-3
     # Model page: https://phaseo.app/models/voyage/voyage-context-3
     VOYAGE_VOYAGE_CONTEXT_3 = "voyage/voyage-context-3"
@@ -1840,13 +1861,17 @@ module PhaseoSdk
     ModelIds::MINIMAX_MINIMAX_M2_5,
     ModelIds::MINIMAX_MINIMAX_M2_5_HIGHSPEED,
     ModelIds::MINIMAX_MINIMAX_M2_7,
+    ModelIds::MINIMAX_MINIMAX_M2_7_FREE,
     ModelIds::MINIMAX_MINIMAX_M3,
+    ModelIds::MINIMAX_MINIMAX_M3_FREE,
     ModelIds::MINIMAX_MUSIC_2_6,
     ModelIds::MINIMAX_MUSIC_3_0,
+    ModelIds::MINIMAX_MUSIC_3_0_FREE,
     ModelIds::MINIMAX_SPEECH_2_6_HD,
     ModelIds::MINIMAX_SPEECH_2_6_TURBO,
     ModelIds::MINIMAX_SPEECH_2_8_HD,
     ModelIds::MINIMAX_SPEECH_2_8_TURBO,
+    ModelIds::MINIMAX_SPEECH_2_8_FREE,
     ModelIds::MISTRAL_CODESTRAL,
     ModelIds::MISTRAL_CODESTRAL_EMBED,
     ModelIds::MISTRAL_DEVSTRAL_2,
@@ -1983,6 +2008,7 @@ module PhaseoSdk
     ModelIds::OPENAI_WHISPER_1,
     ModelIds::OPENAI_WHISPER_LARGE_V3,
     ModelIds::OPENAI_WHISPER_LARGE_V3_TURBO,
+    ModelIds::OPENBMB_MINICPM_V_4_5,
     ModelIds::PERPLEXITY_PPLX_EMBED_V1_0_6B,
     ModelIds::PERPLEXITY_PPLX_EMBED_V1_4B,
     ModelIds::PHASEO_FREE,
@@ -2061,7 +2087,6 @@ module PhaseoSdk
     ModelIds::QWEN_QWEN3_OMNI_30B_A3B,
     ModelIds::QWEN_QWEN3_OMNI_30B_A3B_THINKING,
     ModelIds::QWEN_QWEN3_RERANKER,
-    ModelIds::QWEN_QWEN3_RERANKER_8B,
     ModelIds::QWEN_QWEN3_VL_235B_A22B,
     ModelIds::QWEN_QWEN3_VL_235B_A22B_INSTRUCT,
     ModelIds::QWEN_QWEN3_VL_235B_A22B_THINKING,
@@ -2147,6 +2172,8 @@ module PhaseoSdk
     ModelIds::VOYAGE_RERANK_1,
     ModelIds::VOYAGE_RERANK_2,
     ModelIds::VOYAGE_RERANK_2_LITE,
+    ModelIds::VOYAGE_RERANK_2_5,
+    ModelIds::VOYAGE_RERANK_2_5_LITE,
     ModelIds::VOYAGE_RERANK_LITE_1,
     ModelIds::VOYAGE_VOYAGE_01,
     ModelIds::VOYAGE_VOYAGE_02,
@@ -2161,6 +2188,7 @@ module PhaseoSdk
     ModelIds::VOYAGE_VOYAGE_4_LITE,
     ModelIds::VOYAGE_VOYAGE_CODE_2,
     ModelIds::VOYAGE_VOYAGE_CODE_3,
+    ModelIds::VOYAGE_VOYAGE_CODE_4,
     ModelIds::VOYAGE_VOYAGE_CONTEXT_3,
     ModelIds::VOYAGE_VOYAGE_FINANCE_2,
     ModelIds::VOYAGE_VOYAGE_LARGE_2,

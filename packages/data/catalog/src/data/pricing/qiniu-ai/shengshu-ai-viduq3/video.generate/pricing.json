@@ -1,0 +1,73 @@
+{
+  "key": "qiniu-ai:shengshu-ai/viduq3:video.generate",
+  "api_provider_id": "qiniu-ai",
+  "provider_slug": "qiniu-ai",
+  "api_model_id": "shengshu-ai/viduq3",
+  "capability_id": "video.generate",
+  "rules": [
+    {
+      "meter": "output_video_seconds",
+      "unit": "second",
+      "unit_size": 1,
+      "price_per_unit": 0.0317029,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "参考主体生视频（540p）",
+      "match": [],
+      "priority": 100,
+      "region": "CN",
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    },
+    {
+      "meter": "output_video_seconds",
+      "unit": "second",
+      "unit_size": 1,
+      "price_per_unit": 0.05434783,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "参考主体生视频（720p）",
+      "match": [],
+      "priority": 100,
+      "region": "CN",
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    },
+    {
+      "meter": "output_video_seconds",
+      "unit": "second",
+      "unit_size": 1,
+      "price_per_unit": 0.06793478,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "参考主体生视频（1080p）",
+      "match": [],
+      "priority": 100,
+      "region": "CN",
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    }
+  ],
+  "regions": [
+    "CN"
+  ],
+  "service_tiers": [
+    "standard"
+  ],
+  "sources": [
+    {
+      "kind": "documentation",
+      "url": "https://www.qiniu.com/ai/models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official Qiniu marketplace prices for vidu/viduq3; USD equivalents supplied by Qiniu."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Transcribed from the official live marketplace structured payload."
+  }
+}

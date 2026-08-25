@@ -1,0 +1,58 @@
+{
+  "key": "qiniu-ai:qwen/qwen3-next-80b-a3b-instruct:text.generate",
+  "api_provider_id": "qiniu-ai",
+  "provider_slug": "qiniu-ai",
+  "api_model_id": "qwen/qwen3-next-80b-a3b-instruct",
+  "capability_id": "text.generate",
+  "rules": [
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000,
+      "price_per_unit": 0.00014493,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "输入",
+      "match": [],
+      "priority": 100,
+      "region": "CN",
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000,
+      "price_per_unit": 0.00057971,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "输出",
+      "match": [],
+      "priority": 100,
+      "region": "CN",
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    }
+  ],
+  "regions": [
+    "CN"
+  ],
+  "service_tiers": [
+    "standard"
+  ],
+  "sources": [
+    {
+      "kind": "documentation",
+      "url": "https://www.qiniu.com/ai/models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official Qiniu marketplace prices for qwen3-next-80b-a3b-instruct; USD equivalents supplied by Qiniu."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Transcribed from the official live marketplace structured payload."
+  }
+}
