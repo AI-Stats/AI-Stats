@@ -6,27 +6,12 @@
   "capability_id": "text.generate",
   "rules": [
     {
-      "meter": "cached_read_text_tokens",
+      "meter": "output_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.0028,
+      "price_per_unit": 0.66,
       "currency": "USD",
-      "pricing_plan": "standard",
-      "note": null,
-      "match": [],
-      "priority": 100,
-      "region": null,
-      "cache_duration_seconds": null,
-      "conditions": [],
-      "source": null
-    },
-    {
-      "meter": "input_text_tokens",
-      "unit": "token",
-      "unit_size": 1000000,
-      "price_per_unit": 0.14,
-      "currency": "USD",
-      "pricing_plan": "standard",
+      "pricing_plan": "upstream-1",
       "note": null,
       "match": [],
       "priority": 100,
@@ -39,12 +24,72 @@
       "meter": "output_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.28,
+      "price_per_unit": 1.32,
       "currency": "USD",
-      "pricing_plan": "standard",
+      "pricing_plan": "upstream-2",
+      "note": null,
+      "match": [],
+      "priority": 99,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.007,
+      "currency": "USD",
+      "pricing_plan": "upstream-1",
       "note": null,
       "match": [],
       "priority": 100,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.014,
+      "currency": "USD",
+      "pricing_plan": "upstream-2",
+      "note": null,
+      "match": [],
+      "priority": 99,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    },
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.22,
+      "currency": "USD",
+      "pricing_plan": "upstream-1",
+      "note": null,
+      "match": [],
+      "priority": 100,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    },
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.44,
+      "currency": "USD",
+      "pricing_plan": "upstream-2",
+      "note": null,
+      "match": [],
+      "priority": 99,
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -53,19 +98,20 @@
   ],
   "regions": [],
   "service_tiers": [
-    "standard"
+    "upstream-1",
+    "upstream-2"
   ],
   "sources": [
     {
       "kind": "provider_models",
       "url": "https://zenmux.ai/api/v1/models",
-      "accessed_at": "2026-08-11T12:09:22.010Z",
-      "notes": "Provider model and pricing metadata."
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official live ZenMux model, modality, context, capability, publication, and pricing metadata."
     }
   ],
   "verification": {
-    "status": "partial",
-    "checked_at": "2026-08-11T12:09:22.010Z",
-    "notes": "Pricing synchronized from the provider models API."
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Every distinct public price point from the official ZenMux models API is represented; upstream-specific labels are not exposed by that endpoint."
   }
 }

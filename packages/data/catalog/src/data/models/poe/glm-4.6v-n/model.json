@@ -1,0 +1,73 @@
+{
+  "model_id": "poe/glm-4.6v-n",
+  "organisation_id": "poe",
+  "name": "GLM-4.6V-N",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "GLM-4.6V represents a significant multimodal advancement in the GLM series, achieving state-of-the-art visual understanding accuracy for models of its parameter scale. Notably, it's the first visual model to natively integrate Function Call capabilities directly into its architecture, creating a seamless pathway from visual perception to executable actions. This breakthrough establishes a unified technical foundation for deploying multimodal agents in real-world business applications.\n\nFile Support: Text, Markdown, Image and PDF files\nContext window: 131k tokens\n\nOptional parameters:\nEnable Thinking - Toggle this on for the model to think before providing a response. This is disabled by default\nTemperature - Controls randomness in the response. Lower values make the output more focused and deterministic. Select from 0 to 2 range. This is set to 0.7 by default.\nMax Output Tokens: Maximum number of tokens to generate in the response. This can be set from 1 to 32768. Set to Max token at 32768 by default.",
+  "announced_date": "2025-12-09T11:04:20",
+  "release_date": "2025-12-09T11:04:20",
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text,image",
+  "output_types": "text",
+  "api_model_id": "poe/glm-4.6v-n",
+  "family_id": null,
+  "links": [
+    {
+      "title": "Poe bot",
+      "kind": "api_reference",
+      "url": "https://poe.com/glm-4.6v-n"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "page_notice": null,
+  "model_type": "Poe bot",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text",
+      "image"
+    ],
+    "output": [
+      "text"
+    ]
+  },
+  "reasoning": {
+    "supported": false,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": true,
+    "tool_call": true,
+    "structured_output": false,
+    "temperature": null,
+    "streaming": true,
+    "web_search": false
+  },
+  "open_weights": null,
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.poe.com/v1/models",
+      "accessed_at": "2026-08-24T03:27:45Z",
+      "notes": "Canonical entity for an exact public Poe bot identifier returned by the models API."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T03:27:45Z",
+    "notes": "Identity and advertised metadata verified against Poe's public models API."
+  },
+  "last_updated": "2026-08-24T03:27:45Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}

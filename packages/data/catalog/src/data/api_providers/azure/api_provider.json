@@ -1,7 +1,7 @@
 {
   "api_provider_id": "azure",
   "api_provider_name": "Azure",
-  "description": null,
+  "description": "Microsoft Foundry provides Azure-hosted OpenAI models plus selected first- and third-party models sold directly by Azure and partner models offered through Azure Marketplace.",
   "link": "https://learn.microsoft.com/en-us/azure/ai-services/openai/",
   "residency_mode": "customer_selectable",
   "default_execution_regions": null,
@@ -20,19 +20,42 @@
   "prompt_training_policy": "no_train",
   "prompt_training_notes": "Microsoft says Azure OpenAI prompts, completions, embeddings, and training data are not used to improve OpenAI models, Azure OpenAI models, or third-party models.",
   "prompt_training_source_url": "https://learn.microsoft.com/en-us/legal/cognitive-services/openai/data-privacy",
-  "gateway_kind": null,
-  "routable": null,
-  "routing_enabled": null,
-  "sdk_package": null,
+  "gateway_kind": "native",
+  "routable": true,
+  "routing_enabled": true,
+  "sdk_package": "@azure/openai",
   "api_base_url": null,
-  "docs_url": "https://learn.microsoft.com/en-us/azure/ai-services/openai/",
-  "auth_env": null,
-  "api_formats": [],
+  "docs_url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
+  "auth_env": [
+    "AZURE_OPENAI_API_KEY"
+  ],
+  "api_formats": [
+    "openai"
+  ],
   "service_tiers": [],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure",
+      "accessed_at": "2026-08-23T23:20:00Z",
+      "notes": "Authoritative model catalog, deployment-type, capability, and regional-availability reference for models sold directly by Azure."
+    },
+    {
+      "kind": "model_retirement",
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
+      "accessed_at": "2026-08-23T23:20:00Z",
+      "notes": "Authoritative lifecycle and retirement schedule for Azure-hosted and Marketplace partner models."
+    },
+    {
+      "kind": "api_reference",
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/api-version-lifecycle",
+      "accessed_at": "2026-08-23T23:20:00Z",
+      "notes": "The GA v1 API uses the /openai/v1 base path; callers pass their deployment name in the model field."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-23T23:20:00Z",
+    "notes": "Verified against Microsoft Learn. Model availability and price depend on deployment type, Azure geography, subscription eligibility, quota, and for Marketplace offers the partner terms."
   }
 }
