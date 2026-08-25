@@ -213,7 +213,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/InvalidRequestResponse'
         '401':
-          description: Invalid credentials, insufficient scope, or anonymous use of availability=all
+          description: >-
+            Invalid credentials, insufficient scope, or anonymous use of
+            availability=all
           content:
             application/json:
               schema:
