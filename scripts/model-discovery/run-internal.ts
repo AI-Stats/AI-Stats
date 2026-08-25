@@ -1003,6 +1003,16 @@ export async function runInternalModelDiscovery(argv: string[], hooks: InternalM
         return;
     }
 
+    if (notificationsDisabled && !shouldSendInternal) {
+        // Internal notifications are suppressed: persist the advanced internal baseline up front so a
+        // later HF-channel failure cannot abort the run before the baseline advances and cause a replay.
+        writeDiscoveryState(
+            statePath,
+            currentFiles,
+            holdHfBaseline ? previousState.hfOrgs : currentHf.snapshots
+        );
+    }
+
     console.log(
         `[internal-model-check] Changes detected (${internalAdditionsCount} internal added, ${internalUpdatesCount} internal updated, ${diff.removed.length} internal removed, ${hfAdditionsTotal} HF new). Sending Discord notification${shouldSendInternal && shouldSendHf ? "s" : ""}.`
     );
