@@ -468,7 +468,12 @@
                     "deployment":  null
                 },
         "sources":  [
-
+                         {
+                             "kind":  "documentation",
+                             "url":  "https://docs.wandb.ai/inference/models",
+                             "accessed_at":  "2026-08-25T00:00:00Z",
+                             "notes":  "Official W&B Inference model catalog; Granite 4.2 remains pre-release."
+                         }
                     ],
         "verification":  {
                              "status":  "partial",
