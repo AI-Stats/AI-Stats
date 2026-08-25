@@ -1,0 +1,44 @@
+{
+  "model_id": "openbmb/minicpm-v-4.5",
+  "organisation_id": "openbmb",
+  "name": "MiniCPM-V 4.5",
+  "status": "Available",
+  "previous_model_id": null,
+  "description": "MiniCPM-V 4.5 is an OpenBMB vision-language model exposed by Nebius Token Factory for text-and-image understanding.",
+  "announced_date": null,
+  "release_date": null,
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Apache 2.0",
+  "input_types": "text,image",
+  "output_types": "text",
+  "api_model_id": "openbmb/minicpm-v-4.5",
+  "links": [
+    {
+      "title": "Weights",
+      "kind": "weights",
+      "url": "https://huggingface.co/openbmb/MiniCPM-V-4_5"
+    }
+  ],
+  "details": [
+    {
+      "name": "input_context_length",
+      "value": 32000
+    }
+  ],
+  "benchmarks": [],
+  "model_releases": [],
+  "sources": [
+    {
+      "kind": "api",
+      "url": "https://tokenfactory.nebius.com/api/public/models_info",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Live catalog identifies the route as an OpenBMB image-to-text model and links its official weights."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Identity, modality, context, and official weights link verified against Nebius Token Factory's live catalog."
+  }
+}

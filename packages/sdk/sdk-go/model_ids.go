@@ -580,15 +580,24 @@ const (
 	// Model ID: minimax/minimax-m2.7
 	// Model page: https://phaseo.app/models/minimax/minimax-m2.7
 	ModelIDMinimaxMinimaxM27 gen.ModelId = "minimax/minimax-m2.7"
+	// Model ID: minimax/minimax-m2.7:free
+	// Model page: https://phaseo.app/models/minimax/minimax-m2.7%3Afree
+	ModelIDMinimaxMinimaxM27Free gen.ModelId = "minimax/minimax-m2.7:free"
 	// Model ID: minimax/minimax-m3
 	// Model page: https://phaseo.app/models/minimax/minimax-m3
 	ModelIDMinimaxMinimaxM3 gen.ModelId = "minimax/minimax-m3"
+	// Model ID: minimax/minimax-m3:free
+	// Model page: https://phaseo.app/models/minimax/minimax-m3%3Afree
+	ModelIDMinimaxMinimaxM3Free gen.ModelId = "minimax/minimax-m3:free"
 	// Model ID: minimax/music-2.6
 	// Model page: https://phaseo.app/models/minimax/music-2.6
 	ModelIDMinimaxMusic26 gen.ModelId = "minimax/music-2.6"
 	// Model ID: minimax/music-3.0
 	// Model page: https://phaseo.app/models/minimax/music-3.0
 	ModelIDMinimaxMusic30 gen.ModelId = "minimax/music-3.0"
+	// Model ID: minimax/music-3.0:free
+	// Model page: https://phaseo.app/models/minimax/music-3.0%3Afree
+	ModelIDMinimaxMusic30Free gen.ModelId = "minimax/music-3.0:free"
 	// Model ID: minimax/speech-2.6-hd
 	// Model page: https://phaseo.app/models/minimax/speech-2.6-hd
 	ModelIDMinimaxSpeech26Hd gen.ModelId = "minimax/speech-2.6-hd"
@@ -601,6 +610,9 @@ const (
 	// Model ID: minimax/speech-2.8-turbo
 	// Model page: https://phaseo.app/models/minimax/speech-2.8-turbo
 	ModelIDMinimaxSpeech28Turbo gen.ModelId = "minimax/speech-2.8-turbo"
+	// Model ID: minimax/speech-2.8:free
+	// Model page: https://phaseo.app/models/minimax/speech-2.8%3Afree
+	ModelIDMinimaxSpeech28Free gen.ModelId = "minimax/speech-2.8:free"
 	// Model ID: mistral/codestral
 	// Model page: https://phaseo.app/models/mistral/codestral
 	ModelIDMistralCodestral gen.ModelId = "mistral/codestral"
@@ -1009,6 +1021,9 @@ const (
 	// Model ID: openai/whisper-large-v3-turbo
 	// Model page: https://phaseo.app/models/openai/whisper-large-v3-turbo
 	ModelIDOpenaiWhisperLargeV3Turbo gen.ModelId = "openai/whisper-large-v3-turbo"
+	// Model ID: openbmb/minicpm-v-4.5
+	// Model page: https://phaseo.app/models/openbmb/minicpm-v-4.5
+	ModelIDOpenbmbMinicpmV45 gen.ModelId = "openbmb/minicpm-v-4.5"
 	// Model ID: perplexity/pplx-embed-v1-0.6b
 	// Model page: https://phaseo.app/models/perplexity/pplx-embed-v1-0.6b
 	ModelIDPerplexityPplxEmbedV106b gen.ModelId = "perplexity/pplx-embed-v1-0.6b"
@@ -1243,9 +1258,6 @@ const (
 	// Model ID: qwen/qwen3-reranker
 	// Model page: https://phaseo.app/models/qwen/qwen3-reranker
 	ModelIDQwenQwen3Reranker gen.ModelId = "qwen/qwen3-reranker"
-	// Model ID: qwen/qwen3-reranker-8b
-	// Model page: https://phaseo.app/models/qwen/qwen3-reranker-8b
-	ModelIDQwenQwen3Reranker8b gen.ModelId = "qwen/qwen3-reranker-8b"
 	// Model ID: qwen/qwen3-vl-235b-a22b
 	// Model page: https://phaseo.app/models/qwen/qwen3-vl-235b-a22b
 	ModelIDQwenQwen3Vl235bA22b gen.ModelId = "qwen/qwen3-vl-235b-a22b"
@@ -1501,6 +1513,12 @@ const (
 	// Model ID: voyage/rerank-2-lite
 	// Model page: https://phaseo.app/models/voyage/rerank-2-lite
 	ModelIDVoyageRerank2Lite gen.ModelId = "voyage/rerank-2-lite"
+	// Model ID: voyage/rerank-2.5
+	// Model page: https://phaseo.app/models/voyage/rerank-2.5
+	ModelIDVoyageRerank25 gen.ModelId = "voyage/rerank-2.5"
+	// Model ID: voyage/rerank-2.5-lite
+	// Model page: https://phaseo.app/models/voyage/rerank-2.5-lite
+	ModelIDVoyageRerank25Lite gen.ModelId = "voyage/rerank-2.5-lite"
 	// Model ID: voyage/rerank-lite-1
 	// Model page: https://phaseo.app/models/voyage/rerank-lite-1
 	ModelIDVoyageRerankLite1 gen.ModelId = "voyage/rerank-lite-1"
@@ -1543,6 +1561,9 @@ const (
 	// Model ID: voyage/voyage-code-3
 	// Model page: https://phaseo.app/models/voyage/voyage-code-3
 	ModelIDVoyageVoyageCode3 gen.ModelId = "voyage/voyage-code-3"
+	// Model ID: voyage/voyage-code-4
+	// Model page: https://phaseo.app/models/voyage/voyage-code-4
+	ModelIDVoyageVoyageCode4 gen.ModelId = "voyage/voyage-code-4"
 	// Model ID: voyage/voyage-context-3
 	// Model page: https://phaseo.app/models/voyage/voyage-context-3
 	ModelIDVoyageVoyageContext3 gen.ModelId = "voyage/voyage-context-3"
@@ -1844,13 +1865,17 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDMinimaxMinimaxM25,
 	ModelIDMinimaxMinimaxM25Highspeed,
 	ModelIDMinimaxMinimaxM27,
+	ModelIDMinimaxMinimaxM27Free,
 	ModelIDMinimaxMinimaxM3,
+	ModelIDMinimaxMinimaxM3Free,
 	ModelIDMinimaxMusic26,
 	ModelIDMinimaxMusic30,
+	ModelIDMinimaxMusic30Free,
 	ModelIDMinimaxSpeech26Hd,
 	ModelIDMinimaxSpeech26Turbo,
 	ModelIDMinimaxSpeech28Hd,
 	ModelIDMinimaxSpeech28Turbo,
+	ModelIDMinimaxSpeech28Free,
 	ModelIDMistralCodestral,
 	ModelIDMistralCodestralEmbed,
 	ModelIDMistralDevstral2,
@@ -1987,6 +2012,7 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDOpenaiWhisper1,
 	ModelIDOpenaiWhisperLargeV3,
 	ModelIDOpenaiWhisperLargeV3Turbo,
+	ModelIDOpenbmbMinicpmV45,
 	ModelIDPerplexityPplxEmbedV106b,
 	ModelIDPerplexityPplxEmbedV14b,
 	ModelIDPhaseoFree,
@@ -2065,7 +2091,6 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDQwenQwen3Omni30bA3b,
 	ModelIDQwenQwen3Omni30bA3bThinking,
 	ModelIDQwenQwen3Reranker,
-	ModelIDQwenQwen3Reranker8b,
 	ModelIDQwenQwen3Vl235bA22b,
 	ModelIDQwenQwen3Vl235bA22bInstruct,
 	ModelIDQwenQwen3Vl235bA22bThinking,
@@ -2151,6 +2176,8 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDVoyageRerank1,
 	ModelIDVoyageRerank2,
 	ModelIDVoyageRerank2Lite,
+	ModelIDVoyageRerank25,
+	ModelIDVoyageRerank25Lite,
 	ModelIDVoyageRerankLite1,
 	ModelIDVoyageVoyage01,
 	ModelIDVoyageVoyage02,
@@ -2165,6 +2192,7 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDVoyageVoyage4Lite,
 	ModelIDVoyageVoyageCode2,
 	ModelIDVoyageVoyageCode3,
+	ModelIDVoyageVoyageCode4,
 	ModelIDVoyageVoyageContext3,
 	ModelIDVoyageVoyageFinance2,
 	ModelIDVoyageVoyageLarge2,

@@ -581,14 +581,23 @@ final class ModelIds
     /** Model ID: minimax/minimax-m2.7. Model page: https://phaseo.app/models/minimax/minimax-m2.7 */
     public const MINIMAX_MINIMAX_M2_7 = 'minimax/minimax-m2.7';
 
+    /** Model ID: minimax/minimax-m2.7:free. Model page: https://phaseo.app/models/minimax/minimax-m2.7%3Afree */
+    public const MINIMAX_MINIMAX_M2_7_FREE = 'minimax/minimax-m2.7:free';
+
     /** Model ID: minimax/minimax-m3. Model page: https://phaseo.app/models/minimax/minimax-m3 */
     public const MINIMAX_MINIMAX_M3 = 'minimax/minimax-m3';
+
+    /** Model ID: minimax/minimax-m3:free. Model page: https://phaseo.app/models/minimax/minimax-m3%3Afree */
+    public const MINIMAX_MINIMAX_M3_FREE = 'minimax/minimax-m3:free';
 
     /** Model ID: minimax/music-2.6. Model page: https://phaseo.app/models/minimax/music-2.6 */
     public const MINIMAX_MUSIC_2_6 = 'minimax/music-2.6';
 
     /** Model ID: minimax/music-3.0. Model page: https://phaseo.app/models/minimax/music-3.0 */
     public const MINIMAX_MUSIC_3_0 = 'minimax/music-3.0';
+
+    /** Model ID: minimax/music-3.0:free. Model page: https://phaseo.app/models/minimax/music-3.0%3Afree */
+    public const MINIMAX_MUSIC_3_0_FREE = 'minimax/music-3.0:free';
 
     /** Model ID: minimax/speech-2.6-hd. Model page: https://phaseo.app/models/minimax/speech-2.6-hd */
     public const MINIMAX_SPEECH_2_6_HD = 'minimax/speech-2.6-hd';
@@ -601,6 +610,9 @@ final class ModelIds
 
     /** Model ID: minimax/speech-2.8-turbo. Model page: https://phaseo.app/models/minimax/speech-2.8-turbo */
     public const MINIMAX_SPEECH_2_8_TURBO = 'minimax/speech-2.8-turbo';
+
+    /** Model ID: minimax/speech-2.8:free. Model page: https://phaseo.app/models/minimax/speech-2.8%3Afree */
+    public const MINIMAX_SPEECH_2_8_FREE = 'minimax/speech-2.8:free';
 
     /** Model ID: mistral/codestral. Model page: https://phaseo.app/models/mistral/codestral */
     public const MISTRAL_CODESTRAL = 'mistral/codestral';
@@ -1010,6 +1022,9 @@ final class ModelIds
     /** Model ID: openai/whisper-large-v3-turbo. Model page: https://phaseo.app/models/openai/whisper-large-v3-turbo */
     public const OPENAI_WHISPER_LARGE_V3_TURBO = 'openai/whisper-large-v3-turbo';
 
+    /** Model ID: openbmb/minicpm-v-4.5. Model page: https://phaseo.app/models/openbmb/minicpm-v-4.5 */
+    public const OPENBMB_MINICPM_V_4_5 = 'openbmb/minicpm-v-4.5';
+
     /** Model ID: perplexity/pplx-embed-v1-0.6b. Model page: https://phaseo.app/models/perplexity/pplx-embed-v1-0.6b */
     public const PERPLEXITY_PPLX_EMBED_V1_0_6B = 'perplexity/pplx-embed-v1-0.6b';
 
@@ -1243,9 +1258,6 @@ final class ModelIds
 
     /** Model ID: qwen/qwen3-reranker. Model page: https://phaseo.app/models/qwen/qwen3-reranker */
     public const QWEN_QWEN3_RERANKER = 'qwen/qwen3-reranker';
-
-    /** Model ID: qwen/qwen3-reranker-8b. Model page: https://phaseo.app/models/qwen/qwen3-reranker-8b */
-    public const QWEN_QWEN3_RERANKER_8B = 'qwen/qwen3-reranker-8b';
 
     /** Model ID: qwen/qwen3-vl-235b-a22b. Model page: https://phaseo.app/models/qwen/qwen3-vl-235b-a22b */
     public const QWEN_QWEN3_VL_235B_A22B = 'qwen/qwen3-vl-235b-a22b';
@@ -1502,6 +1514,12 @@ final class ModelIds
     /** Model ID: voyage/rerank-2-lite. Model page: https://phaseo.app/models/voyage/rerank-2-lite */
     public const VOYAGE_RERANK_2_LITE = 'voyage/rerank-2-lite';
 
+    /** Model ID: voyage/rerank-2.5. Model page: https://phaseo.app/models/voyage/rerank-2.5 */
+    public const VOYAGE_RERANK_2_5 = 'voyage/rerank-2.5';
+
+    /** Model ID: voyage/rerank-2.5-lite. Model page: https://phaseo.app/models/voyage/rerank-2.5-lite */
+    public const VOYAGE_RERANK_2_5_LITE = 'voyage/rerank-2.5-lite';
+
     /** Model ID: voyage/rerank-lite-1. Model page: https://phaseo.app/models/voyage/rerank-lite-1 */
     public const VOYAGE_RERANK_LITE_1 = 'voyage/rerank-lite-1';
 
@@ -1543,6 +1561,9 @@ final class ModelIds
 
     /** Model ID: voyage/voyage-code-3. Model page: https://phaseo.app/models/voyage/voyage-code-3 */
     public const VOYAGE_VOYAGE_CODE_3 = 'voyage/voyage-code-3';
+
+    /** Model ID: voyage/voyage-code-4. Model page: https://phaseo.app/models/voyage/voyage-code-4 */
+    public const VOYAGE_VOYAGE_CODE_4 = 'voyage/voyage-code-4';
 
     /** Model ID: voyage/voyage-context-3. Model page: https://phaseo.app/models/voyage/voyage-context-3 */
     public const VOYAGE_VOYAGE_CONTEXT_3 = 'voyage/voyage-context-3';
