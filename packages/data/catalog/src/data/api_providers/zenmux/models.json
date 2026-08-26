@@ -2134,69 +2134,6 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "deepseek/deepseek-v4-flash-vision-exp-free",
-    "provider_api_model_id": "zenmux:deepseek/deepseek-v4-flash-vision-exp-free",
-    "provider_model_slug": "deepseek/deepseek-v4-flash-vision-exp-free",
-    "internal_model_id": "deepseek/deepseek-v4-flash-vision-exp-free",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": "image,text",
-    "output_modalities": "text",
-    "context_length": 1000000,
-    "max_output_tokens": null,
-    "effective_from": "2026-08-21T00:00:00Z",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": true,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": true,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "disabled",
-    "routable": false,
-    "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "SG"
-      ]
-    },
-    "service_tiers": [
-      "standard"
-    ],
-    "api": {
-      "formats": [
-        "openai.chat.completions"
-      ],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [
-      {
-        "kind": "provider_models",
-        "url": "https://zenmux.ai/api/v1/models",
-        "accessed_at": "2026-08-24T00:00:00Z",
-        "notes": "Official live ZenMux model, modality, context, capability, publication, and pricing metadata."
-      }
-    ],
-    "verification": {
-      "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
-      "notes": "Confirmed present in the unauthenticated official ZenMux models API; Phaseo gateway routing remains disabled."
-    },
-    "rate_limits": []
-  },
-  {
     "api_model_id": "deepseek/deepseek-v4-pro",
     "provider_api_model_id": "zenmux:deepseek/deepseek-v4-pro",
     "provider_model_slug": "deepseek/deepseek-v4-pro",
