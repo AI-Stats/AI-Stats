@@ -24,6 +24,15 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	const model = args.providerModelSlug || "minimax-music-3.0";
 	const raw = ir.rawRequest && typeof ir.rawRequest === "object" ? ir.rawRequest as Record<string, any> : {};
 	const extensions = (ir.vendor?.gmicloud ?? raw.gmicloud ?? ir.vendor?.minimax ?? raw.minimax ?? {}) as Record<string, any>;
+	const keyMeta = queueKeyMeta(args);
+	const hasLyrics = typeof raw.lyrics === "string" && raw.lyrics.trim().length > 0;
+	if (raw.is_instrumental === false && !hasLyrics) {
+		return errorResult(
+			args,
+			new Response(JSON.stringify({ error: "validation_error", reason: "lyrics_required_for_non_instrumental_gmicloud_music" }), { status: 400, headers: { "Content-Type": "application/json" } }),
+			keyMeta,
+		);
+	}
 	const rawAudioSetting = raw.audio_setting && typeof raw.audio_setting === "object" && !Array.isArray(raw.audio_setting)
 		? raw.audio_setting
 		: {};
@@ -41,7 +50,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 			...(ir.format ? { format: ir.format } : {}),
 		}
 		: {};
-	const lyrics = typeof raw.lyrics === "string" && raw.lyrics.trim().length > 0
+	const lyrics = hasLyrics
 		? raw.lyrics
 		: "[Instrumental]";
 	const payload: Record<string, unknown> = {
@@ -54,7 +63,6 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	};
 	const requestBody = JSON.stringify({ model, payload });
 	const mappedRequest = args.meta.echoUpstreamRequest || args.meta.returnUpstreamRequest ? requestBody : undefined;
-	const keyMeta = queueKeyMeta(args);
 	const result = await executeGmiQueueRequest(args, model, payload);
 	if (!result.response.ok) return errorResult(args, result.response, keyMeta, mappedRequest);
 
