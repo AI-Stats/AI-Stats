@@ -315,6 +315,8 @@ describe("resolveProviderExecutor", () => {
 	it("resolves adapter-backed non-text executors only for supported providers", () => {
 		expect(resolveProviderExecutor("openai", "images.generations")).toBeTruthy();
 		expect(resolveProviderExecutor("openai", "images.edits")).toBeTruthy();
+		expect(resolveProviderExecutor("meta", "images.generations")).toBeTruthy();
+		expect(resolveProviderExecutor("meta", "images.edits")).toBeTruthy();
 		expect(resolveProviderExecutor("byteplus", "images.generations")).toBeTruthy();
 		expect(resolveProviderExecutor("byteplus", "images.edits")).toBeTruthy();
 		expect(resolveProviderExecutor("bytedance-seed", "images.generations")).toBeTruthy();
