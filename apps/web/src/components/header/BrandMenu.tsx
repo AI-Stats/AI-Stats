@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Check, Copy, Download } from "lucide-react";
+import { Check, Copy, Download, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import {
 	cloneElement,
@@ -35,7 +35,7 @@ export function BrandMenu({
 	const { resolvedTheme } = useTheme();
 	const [open, setOpen] = useState(false);
 	const [copiedAsset, setCopiedAsset] = useState<string | null>(null);
-	const assetTheme = resolvedTheme === "dark" ? "dark" : "light";
+	const [assetTheme, setAssetTheme] = useState<"light" | "dark">("light");
 	const trigger = cloneElement(children, {
 		onContextMenu: (event: MouseEvent) => {
 			event.preventDefault();
@@ -69,7 +69,10 @@ export function BrandMenu({
 		<DropdownMenu
 			open={open}
 			onOpenChange={(nextOpen) => {
-				if (!nextOpen) setOpen(false);
+				if (nextOpen) {
+					setAssetTheme(resolvedTheme === "dark" ? "dark" : "light");
+				}
+				setOpen(nextOpen);
 			}}
 		>
 			<DropdownMenuTrigger asChild nativeButton={false}>
@@ -79,17 +82,48 @@ export function BrandMenu({
 				align="start"
 				className="w-[min(22rem,calc(100vw-1rem))] rounded-xl p-2"
 			>
+				<div className="mb-1">
+					<div
+						className="inline-flex w-full items-center justify-center gap-1 rounded-md bg-zinc-100 p-0.5 dark:bg-zinc-900"
+						role="group"
+						aria-label="Logo preview mode"
+					>
+						<button
+							type="button"
+							aria-label="Use light logo"
+							aria-pressed={assetTheme === "light"}
+							onClick={() => setAssetTheme("light")}
+							title="Light logo"
+							className={`relative flex h-8 flex-1 items-center justify-center gap-1.5 rounded-md px-2 text-xs text-zinc-500 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-300 dark:text-zinc-400 dark:focus-visible:ring-zinc-700 ${assetTheme === "light" ? "bg-white text-zinc-950 shadow-xs dark:bg-zinc-800 dark:text-zinc-50" : "hover:bg-white hover:text-zinc-950 dark:hover:bg-zinc-800 dark:hover:text-zinc-50"}`}
+						>
+							<Sun className="h-4 w-4" aria-hidden="true" />
+							Light
+						</button>
+						<button
+							type="button"
+							aria-label="Use dark logo"
+							aria-pressed={assetTheme === "dark"}
+							onClick={() => setAssetTheme("dark")}
+							title="Dark logo"
+							className={`relative flex h-8 flex-1 items-center justify-center gap-1.5 rounded-md px-2 text-xs text-zinc-500 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-300 dark:text-zinc-400 dark:focus-visible:ring-zinc-700 ${assetTheme === "dark" ? "bg-white text-zinc-950 shadow-xs dark:bg-zinc-800 dark:text-zinc-50" : "hover:bg-white hover:text-zinc-950 dark:hover:bg-zinc-800 dark:hover:text-zinc-50"}`}
+						>
+							<Moon className="h-4 w-4" aria-hidden="true" />
+							Dark
+						</button>
+					</div>
+				</div>
 				<div className="grid grid-cols-1 gap-2 min-[22rem]:grid-cols-2">
 					{brandAssets.map(({ name, file, width, height }) => {
 						const copied = copiedAsset === name;
 						const assetPath = `/${file}_${assetTheme}.svg`;
+						const previewBackgroundClass = assetTheme === "dark" ? "bg-black" : "bg-white";
 
 						return (
 							<div
 								key={name}
 								className="overflow-hidden rounded-lg border bg-muted/30"
 							>
-								<div className="flex h-14 items-center justify-center bg-white px-4 dark:bg-black">
+								<div className={`flex h-14 items-center justify-center px-4 ${previewBackgroundClass}`}>
 									<Image
 										src={assetPath}
 										alt={`Phaseo ${name.toLowerCase()}`}
