@@ -1164,7 +1164,8 @@
       "qwen/qwen3.8-2.4t-a95b",
       "qwen/qwen3-omni-30b-a3b",
       "qwen/qwen3.8-27b",
-      "qwen/qwen3.6-flash"
+      "qwen/qwen3.6-flash",
+      "qwen/qwen3.8-flash"
     ],
     "relace": [
       "relace/relace-apply-3",
@@ -2316,6 +2317,7 @@
     "alibaba-cloud:text.generate:qwen-qwen3.7-max-2026-05-17",
     "alibaba-cloud:text.generate:qwen-qwen3.7-plus",
     "alibaba-cloud:text.generate:qwen-qwen3.7-plus-2026-05-26",
+    "alibaba-cloud:text.generate:qwen-qwen3.8-flash",
     "amazon-bedrock:text.generate:ai21-jamba-1.5-large",
     "amazon-bedrock:text.generate:ai21-jamba-1.5-mini",
     "amazon-bedrock:text.generate:amazon-nova-2-lite",

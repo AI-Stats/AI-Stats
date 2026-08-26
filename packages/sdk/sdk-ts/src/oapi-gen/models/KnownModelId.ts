@@ -454,6 +454,7 @@ export type KnownModelId =
   | "qwen/qwen3.7-plus-2026-05-26"
   | "qwen/qwen3.8-2.4t-a95b"
   | "qwen/qwen3.8-27b"
+  | "qwen/qwen3.8-flash"
   | "qwen/qwen3.8-max"
   | "qwen/qwq-32b"
   | "qwen/qwq-plus"
