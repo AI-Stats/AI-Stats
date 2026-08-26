@@ -19,6 +19,7 @@ import type {
 } from "@core/ir";
 import type { Endpoint } from "@core/types";
 import { handleError } from "@core/error-handler";
+import { saveMusicJobMeta } from "@core/music-jobs";
 import { doRequestWithIR } from "../execute";
 import { finalizeRequest } from "../after";
 import { auditFailure } from "../audit";
@@ -388,7 +389,7 @@ export function encodeNonTextResponse(
 		case "music.generate": {
 			const music = ir as IRMusicGenerateResponse;
 			return {
-				id: music.nativeId ?? music.id ?? requestId,
+				id: music.id ?? requestId,
 				object: "music",
 				status: music.status ?? "completed",
 				model: music.model,
@@ -402,6 +403,43 @@ export function encodeNonTextResponse(
 		}
 	}
 }
+
+async function persistMusicResponse(
+	workspaceId: string,
+	requestId: string,
+	request: IRMusicGenerateRequest,
+	response: IRMusicGenerateResponse,
+): Promise<void> {
+	const usage = response.usage as (IRUsage & Record<string, unknown>) | undefined;
+	const duration = typeof usage?.output_audio_seconds === "number"
+		? usage.output_audio_seconds
+		: null;
+	const hasInlineAudio = typeof response.audioBase64 === "string" && response.audioBase64.length > 0;
+	await saveMusicJobMeta(workspaceId, requestId, {
+		provider: response.provider,
+		model: response.model,
+		duration,
+		format: request.format ?? null,
+		status: response.status ?? "completed",
+		nativeResponseId: response.nativeId ?? null,
+		audioBase64: response.audioBase64 ?? null,
+		output: response.audioUrl
+			? [{
+				index: 0,
+				id: response.nativeId ?? requestId,
+				audio_url: response.audioUrl,
+				duration,
+			}]
+			: null,
+		result: hasInlineAudio ? null : response.result ?? null,
+		rawResponse: hasInlineAudio ? null : response.rawResponse ?? null,
+		createdAt: Date.now(),
+	});
+}
+
+export const __nonTextTestUtils = {
+	persistMusicResponse,
+};
 
 export async function runNonTextPipeline(args: PipelineRunnerArgs): Promise<Response> {
 	const { pre, req, endpoint, timing } = args;
@@ -440,6 +478,23 @@ export async function runNonTextPipeline(args: PipelineRunnerArgs): Promise<Resp
 				exec.result.ir as NonTextIRResponse,
 				pre.ctx.requestId,
 			);
+			if (endpoint === "music.generate") {
+				try {
+					await persistMusicResponse(
+						pre.ctx.workspaceId,
+						pre.ctx.requestId,
+						ir as IRMusicGenerateRequest,
+						exec.result.ir as IRMusicGenerateResponse,
+					);
+				} catch (error) {
+					console.error("music_job_meta_store_failed", {
+						error,
+						workspaceId: pre.ctx.workspaceId,
+						musicId: pre.ctx.requestId,
+						provider: exec.result.provider,
+					});
+				}
+			}
 		}
 		timing.timer.end("ir_encode");
 

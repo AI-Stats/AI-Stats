@@ -261,6 +261,8 @@ export const __musicGenerateTestUtils = {
 	parseMiniMaxOutput,
 	normalizeMusicStatus,
 	isGoogleMusicProvider,
+	buildStoredMusicBody,
+	shouldServeStoredMusicSnapshot,
 };
 
 function normalizeMusicStatus(value: unknown): "queued" | "in_progress" | "completed" | "failed" {
@@ -274,6 +276,60 @@ function normalizeMusicStatus(value: unknown): "queued" | "in_progress" | "compl
 function isGoogleMusicProvider(provider: string | null | undefined): boolean {
 	const normalized = String(provider ?? "").trim().toLowerCase();
 	return normalized === GOOGLE_AI_STUDIO_PROVIDER_ID;
+}
+
+function buildStoredMusicBody(id: string, meta: MusicJobMeta) {
+	const parsed = parseMetaOutput(meta);
+	const hasAudioBase64 = typeof meta.audioBase64 === "string" && meta.audioBase64.length > 0;
+	const output = parsed.output.length > 0
+		? parsed.output
+		: hasAudioBase64
+			? [{
+				index: 0,
+				id: meta.nativeResponseId ?? id,
+				audio_url: null,
+				audio_base64: meta.audioBase64 ?? null,
+				stream_audio_url: null,
+				image_url: null,
+				title: null,
+				tags: null,
+				duration: typeof meta.duration === "number" ? meta.duration : null,
+			}]
+			: [];
+	const totalDurationSeconds = parsed.totalDurationSeconds > 0
+		? parsed.totalDurationSeconds
+		: typeof meta.duration === "number" && meta.duration > 0
+			? meta.duration
+			: 0;
+	const status = normalizeMusicStatus(meta.status);
+	const usage = status === "completed"
+		? {
+			output_audio_count: output.filter((item) => item.audio_url || item.audio_base64).length,
+			...(totalDurationSeconds > 0 ? { output_audio_seconds: totalDurationSeconds } : {}),
+		}
+		: undefined;
+
+	return {
+		id,
+		object: "music",
+		status,
+		provider: meta.provider,
+		model: meta.model ?? null,
+		nativeResponseId: meta.nativeResponseId ?? null,
+		...(output[0]?.audio_url ? { audio_url: output[0].audio_url } : {}),
+		...(meta.audioBase64 ? { audio_base64: meta.audioBase64 } : {}),
+		result: meta.result ?? meta.rawResponse ?? null,
+		output,
+		...(usage ? { usage } : {}),
+	};
+}
+
+function shouldServeStoredMusicSnapshot(meta: MusicJobMeta): boolean {
+	const status = normalizeMusicStatus(meta.status);
+	if (status === "completed" || status === "failed") return true;
+	return meta.provider === GMI_CLOUD_PROVIDER_ID ||
+		meta.provider === ELEVENLABS_PROVIDER_ID ||
+		isGoogleMusicProvider(meta.provider);
 }
 
 async function requireOwnedMusicJob(
@@ -323,132 +379,15 @@ musicGenerateRoutes.get("/:musicId", withRuntime(async (req) => {
 		});
 	}
 
-	if (provider === GMI_CLOUD_PROVIDER_ID) {
-		const parsed = parseMetaOutput(meta);
-		const hasAudioBase64 = typeof meta?.audioBase64 === "string" && meta.audioBase64.length > 0;
-		const output = parsed.output.length > 0
-			? parsed.output
-			: hasAudioBase64
-				? [{
-					index: 0,
-					id: meta?.nativeResponseId ?? id,
-					audio_url: null,
-					audio_base64: meta?.audioBase64 ?? null,
-					stream_audio_url: null,
-					image_url: null,
-					title: null,
-					tags: null,
-					duration: typeof meta?.duration === "number" ? meta.duration : null,
-				}]
-				: [];
-		const totalDurationSeconds = parsed.totalDurationSeconds > 0
-			? parsed.totalDurationSeconds
-			: typeof meta?.duration === "number" && meta.duration > 0
-				? meta.duration
-				: 0;
-		const status = normalizeMusicStatus(meta?.status);
-		const usage = status === "completed"
-			? {
-				output_audio_count: output.filter((item) => item.audio_url || item.audio_base64).length,
-				...(totalDurationSeconds > 0 ? { output_audio_seconds: totalDurationSeconds } : {}),
-			}
-			: undefined;
-
-		return new Response(JSON.stringify({
-			id,
-			object: "music",
-			status,
-			provider: GMI_CLOUD_PROVIDER_ID,
-			model: meta?.model ?? null,
-			nativeResponseId: meta?.nativeResponseId ?? id,
-			...(output[0]?.audio_url ? { audio_url: output[0].audio_url } : {}),
-			...(meta?.audioBase64 ? { audio_base64: meta.audioBase64 } : {}),
-			result: meta?.result ?? meta?.rawResponse ?? null,
-			output,
-			...(usage ? { usage } : {}),
-		}), {
-			status: 200,
-			headers: { "Content-Type": "application/json" },
-		});
-	}
-
-	if (isGoogleMusicProvider(provider)) {
-		const parsed = parseMetaOutput(meta);
-		const hasAudioBase64 = typeof meta?.audioBase64 === "string" && meta.audioBase64.length > 0;
-		const output = parsed.output.length > 0
-			? parsed.output
-			: hasAudioBase64
-				? [{
-					index: 0,
-					id: meta?.nativeResponseId ?? id,
-					audio_url: null,
-					audio_base64: meta?.audioBase64 ?? null,
-					stream_audio_url: null,
-					image_url: null,
-					title: null,
-					tags: null,
-					duration: typeof meta?.duration === "number" ? meta.duration : null,
-				}]
-				: [];
-		const totalDurationSeconds = parsed.totalDurationSeconds > 0
-			? parsed.totalDurationSeconds
-			: typeof meta?.duration === "number" && meta.duration > 0
-				? meta.duration
-				: 0;
-		const status = normalizeMusicStatus(meta?.status);
-		const usage =
-			status === "completed"
-				? {
-					output_audio_count: output.filter((item) => item.audio_url || item.audio_base64).length,
-					...(totalDurationSeconds > 0 ? { output_audio_seconds: totalDurationSeconds } : {}),
-				}
-				: undefined;
-
-		return new Response(JSON.stringify({
-			id,
-			object: "music",
-			status,
-			provider: GOOGLE_AI_STUDIO_PROVIDER_ID,
-			model: meta?.model ?? null,
-			nativeResponseId: meta?.nativeResponseId ?? id,
-			audio_base64: meta?.audioBase64 ?? null,
-			result: meta?.result ?? meta?.rawResponse ?? null,
-			output,
-			...(usage ? { usage } : {}),
-		}), {
-			status: 200,
-			headers: { "Content-Type": "application/json" },
-		});
-	}
-
-	if (provider === ELEVENLABS_PROVIDER_ID) {
-		const { output, totalDurationSeconds } = parseMetaOutput(meta);
-		const status = normalizeMusicStatus(meta?.status);
-		const usage =
-			status === "completed"
-				? {
-					output_audio_count: output.filter((item) => item.audio_url).length,
-					...(totalDurationSeconds > 0 ? { output_audio_seconds: totalDurationSeconds } : {}),
-				}
-				: undefined;
-
-		return new Response(JSON.stringify({
-			id,
-			object: "music",
-			status,
-			provider: ELEVENLABS_PROVIDER_ID,
-			model: meta?.model ?? null,
-			nativeResponseId: meta?.nativeResponseId ?? id,
-			output,
-			...(usage ? { usage } : {}),
-		}), {
+	if (shouldServeStoredMusicSnapshot(meta)) {
+		return new Response(JSON.stringify(buildStoredMusicBody(id, meta)), {
 			status: 200,
 			headers: { "Content-Type": "application/json" },
 		});
 	}
 
 	if (provider === MINIMAX_PROVIDER_ID || minimaxTaskId) {
-		const taskId = minimaxTaskId ?? id;
+		const taskId = minimaxTaskId ?? meta.nativeResponseId ?? id;
 		const res = await fetchMiniMaxTask(taskId);
 		if (!(res instanceof Response)) return res;
 		const json = await res.clone().json().catch(() => null);
@@ -489,7 +428,8 @@ musicGenerateRoutes.get("/:musicId", withRuntime(async (req) => {
 		});
 	}
 
-	const res = await fetchSunoTask(id);
+	const taskId = meta.nativeResponseId ?? id;
+	const res = await fetchSunoTask(taskId);
 	if (!(res instanceof Response)) return res;
 	const json = await res.clone().json().catch(() => null);
 	if (!res.ok) {
@@ -519,7 +459,7 @@ musicGenerateRoutes.get("/:musicId", withRuntime(async (req) => {
 		status,
 		provider: SUNO_PROVIDER_ID,
 		model: meta?.model ?? null,
-		nativeResponseId: id,
+		nativeResponseId: taskId,
 		result: json,
 		output,
 		...(usage ? { usage } : {}),

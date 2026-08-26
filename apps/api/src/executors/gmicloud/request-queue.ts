@@ -1,5 +1,5 @@
 // Purpose: Shared GMI Cloud request-queue transport for native media executors.
-// Why: GMI Cloud's MiniMax media APIs are asynchronous and do not use the LLM base URL.
+// Why: GMI Cloud media uses a queue transport even when a model is documented as synchronous.
 
 import type { ExecutorExecuteArgs } from "@executors/types";
 import { fetchUpstream } from "@executors/_shared/timing/upstream";

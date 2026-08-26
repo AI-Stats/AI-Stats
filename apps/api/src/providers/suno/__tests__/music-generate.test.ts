@@ -1,13 +1,7 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { setupTestRuntime, teardownTestRuntime } from "../../../../tests/helpers/runtime";
 import { installFetchMock, jsonResponse } from "../../../../tests/helpers/mock-fetch";
 import { exec } from "../endpoints/music-generate";
-
-const saveMusicJobMetaMock = vi.fn();
-
-vi.mock("@core/music-jobs", () => ({
-	saveMusicJobMeta: (...args: unknown[]) => saveMusicJobMetaMock(...args),
-}));
 
 const REQUEST_META = {
 	requestId: "req_test_123",
@@ -50,10 +44,6 @@ afterAll(() => {
 });
 
 describe("Suno music.generate endpoint", () => {
-	beforeEach(() => {
-		saveMusicJobMetaMock.mockReset();
-	});
-
 	it("maps Suno request fields including personaModel", async () => {
 		let capturedBody: any = null;
 		const mock = installFetchMock([
@@ -109,14 +99,6 @@ describe("Suno music.generate endpoint", () => {
 		expect(result.normalized?.status).toBe("in_progress");
 		expect(result.bill.usage?.requests).toBe(1);
 		expect(result.bill.usage?.pricing?.total_cents).toBeDefined();
-		expect(saveMusicJobMetaMock).toHaveBeenCalledWith(
-			"team_test",
-			"task_123",
-			expect.objectContaining({
-				provider: "suno",
-				model: "V4_5PLUS",
-			}),
-		);
 	});
 
 	it("normalizes task_id and failed statuses from Suno response", async () => {
@@ -295,4 +277,3 @@ describe("Suno music.generate endpoint", () => {
 		expect(result.normalized?.usage?.output_audio_seconds).toBe(4);
 	});
 });
-
