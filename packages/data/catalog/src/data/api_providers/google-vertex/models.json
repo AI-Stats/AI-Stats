@@ -4355,7 +4355,7 @@
     "provider_api_model_id": "google-vertex:google/gemini-3.5-transcribe",
     "provider_model_slug": "gemini-3.5-transcribe-preview",
     "internal_model_id": "google/gemini-3.5-transcribe",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "audio",
     "output_modalities": "text",
@@ -4376,8 +4376,8 @@
       "output_modalities": ["text"],
       "modes": []
     }],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": null,
+    "routable": false,
     "regions": { "execution": ["global"], "data": ["global"] },
     "service_tiers": ["standard"],
     "api": { "formats": ["google.generateContent"], "endpoint": ":generateContent", "deployment": "global" },
@@ -4390,7 +4390,7 @@
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-26T00:00:00Z",
-      "notes": "Canonical capability, limits, and Vertex/Agent Platform pricing are verified from Google's current documentation. The Vertex preview provider slug was supplied by the requester and is not separately published in the public model index."
+      "notes": "Canonical capability, limits, and Vertex/Agent Platform pricing are verified from Google's current documentation. The Vertex preview provider slug was supplied by the requester and is not separately published in the public model index; gateway routing remains disabled until a Vertex transcription executor is registered."
     },
     "rate_limits": []
   },
@@ -4399,7 +4399,7 @@
     "provider_api_model_id": "google-vertex:google/gemini-3.5-transcribe-live",
     "provider_model_slug": "gemini-3.5-transcribe-live-preview",
     "internal_model_id": "google/gemini-3.5-transcribe-live",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "audio",
     "output_modalities": "text",
@@ -4420,8 +4420,8 @@
       "output_modalities": ["text"],
       "modes": ["realtime"]
     }],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": null,
+    "routable": false,
     "regions": { "execution": ["global"], "data": ["global"] },
     "service_tiers": ["standard"],
     "api": { "formats": ["google.live"], "endpoint": null, "deployment": "global" },
@@ -4434,7 +4434,7 @@
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-26T00:00:00Z",
-      "notes": "The Vertex preview provider slug was supplied by the requester and is not separately published in the public model index; the canonical live capability, limits, and Vertex/Agent Platform pricing are documented by Google."
+      "notes": "The Vertex preview provider slug was supplied by the requester and is not separately published in the public model index; the canonical live capability, limits, and Vertex/Agent Platform pricing are documented by Google, while gateway routing remains disabled until a Vertex Live transcription executor is registered."
     },
     "rate_limits": []
   }
