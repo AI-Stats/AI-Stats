@@ -603,7 +603,9 @@ function formatTokenLimit1dp(value: number | null | undefined): string {
 	return `${value.toFixed(1)}`;
 }
 
-function formatPolicyValue(value: string | null | undefined): string {
+
+function formatPolicyValue(value: string | boolean | null | undefined): string {
+	if (typeof value === "boolean") return value ? "True" : "False";
 	const normalized = String(value ?? "").trim();
 	if (!normalized) return "Unknown";
 	return normalized

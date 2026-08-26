@@ -12,11 +12,11 @@
   "residency_mode": null,
   "default_execution_regions": null,
   "default_data_regions": null,
-  "zero_data_retention": "unknown",
+  "zero_data_retention": false,
   "residency_source_url": null,
-  "prompt_training_policy": null,
-  "prompt_training_notes": null,
-  "prompt_training_source_url": null,
+  "prompt_training_policy": "no_train",
+  "prompt_training_notes": "GitHub's historical GitHub Models announcement said prompts and outputs were not shared with model providers or used to train or improve models. GitHub Models was fully retired on July 30, 2026, so this is historical policy evidence rather than a current routable offer guarantee.",
+  "prompt_training_source_url": "https://github.blog/news-insights/product-news/introducing-github-models/",
   "user_identifier_policy": null,
   "user_identifier_notes": null,
   "privacy_policy_url": null,
@@ -26,7 +26,7 @@
   "pricing_source_url": null,
   "regional_pricing_notes": null,
   "country_code": "US",
-  "status": "Active",
+  "status": "Retired",
   "colour": null,
   "gateway_kind": "gateway",
   "routable": false,
@@ -47,6 +47,18 @@
       "notes": "Gateway metadata seed; verify provider policy and regional semantics before enabling routing."
     },
     {
+      "kind": "official_docs",
+      "url": "https://docs.github.com/en/github-models",
+      "accessed_at": "2026-08-26T00:00:00Z",
+      "notes": "Official documentation says GitHub Models was fully retired on July 30, 2026; the playground, catalogue, inference API, and BYOK are no longer available."
+    },
+    {
+      "kind": "official_company_page",
+      "url": "https://github.blog/news-insights/product-news/introducing-github-models/",
+      "accessed_at": "2026-08-26T00:00:00Z",
+      "notes": "Historical GitHub Models announcement states that prompts and outputs were not shared with model providers or used to train or improve models."
+    },
+    {
       "kind": "official_company_page",
       "url": "https://github.com/about/press",
       "accessed_at": "2026-08-09T00:00:00Z",
@@ -54,8 +66,8 @@
     }
   ],
   "verification": {
-    "status": "partial",
-    "checked_at": "2026-08-09T00:00:00Z",
-    "notes": "Location metadata verified; other provider policy and catalogue fields were not re-audited. Existing provider verification note: Gateway metadata seed; verify provider policy and regional semantics before enabling routing."
+    "status": "verified",
+    "checked_at": "2026-08-26T00:00:00Z",
+    "notes": "Official documentation confirms that GitHub Models was retired on July 30, 2026. Historical official product material documents no prompt/output sharing with model providers and no training use; no current retention or ZDR guarantee is asserted."
   }
 }

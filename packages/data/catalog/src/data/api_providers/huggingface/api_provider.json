@@ -1,7 +1,7 @@
 {
   "api_provider_id": "huggingface",
-  "data_policy_tier": "unknown",
-  "data_policy_confidence": "unknown",
+  "data_policy_tier": "private",
+  "data_policy_confidence": "confirmed",
   "data_policy_contract_mode": "none",
   "api_provider_name": "Hugging Face",
   "provider_family_id": null,
@@ -12,15 +12,16 @@
   "residency_mode": null,
   "default_execution_regions": null,
   "default_data_regions": null,
-  "zero_data_retention": "unknown",
+  "zero_data_retention": true,
+  "data_retention_days": 0,
   "residency_source_url": null,
-  "prompt_training_policy": null,
-  "prompt_training_notes": null,
-  "prompt_training_source_url": null,
+  "prompt_training_policy": "no_train",
+  "prompt_training_notes": "Hugging Face says Inference Providers do not store request bodies or responses, and do not store user data or tokens for training. Operational debugging logs may remain for up to 30 days but contain no user data or tokens.",
+  "prompt_training_source_url": "https://huggingface.co/docs/inference-providers/en/security",
   "user_identifier_policy": null,
   "user_identifier_notes": null,
-  "privacy_policy_url": null,
-  "terms_of_service_url": null,
+  "privacy_policy_url": "https://huggingface.co/privacy",
+  "terms_of_service_url": "https://huggingface.co/terms-of-service",
   "regional_pricing_mode": null,
   "regional_pricing_uplift_percent": null,
   "pricing_source_url": null,
@@ -41,6 +42,12 @@
   "service_tiers": [],
   "sources": [
     {
+      "kind": "provider_docs",
+      "url": "https://huggingface.co/docs/inference-providers/en/security",
+      "accessed_at": "2026-08-26T00:00:00Z",
+      "notes": "Official Inference Providers security policy says request bodies and responses are not stored, operational logs do not contain user data or tokens, and user data is not stored for training. This classification applies to the Hugging Face gateway boundary; upstream provider policies may differ when traffic leaves that boundary."
+    },
+    {
       "kind": "official_terms",
       "url": "https://huggingface.co/terms-of-service",
       "accessed_at": "2026-08-09T00:00:00Z",
@@ -54,8 +61,8 @@
     }
   ],
   "verification": {
-    "status": "partial",
-    "checked_at": "2026-07-23T09:08:52.190Z",
-    "notes": "Imported from the public models.dev provider registry."
+    "status": "verified",
+    "checked_at": "2026-08-26T00:00:00Z",
+    "notes": "The exact Hugging Face Inference Providers gateway security policy was checked. It documents no request-body/response storage and no user-data or token storage for training; upstream provider policies are outside this gateway-level classification."
   }
 }

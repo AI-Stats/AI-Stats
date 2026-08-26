@@ -121,7 +121,7 @@ const videoProvidersWithExecutorMetadata = new Set([
   'spacex-ai',
 ]);
 const providerPolicyFields = {
-  zero_data_retention: ['unknown', 'unsupported', 'optional', 'default'],
+  zero_data_retention: [true, false],
   data_policy_tier: ['unknown', 'private', 'logs', 'trains'],
   data_policy_confidence: ['unknown', 'confirmed', 'maybe'],
   data_policy_contract_mode: ['none', 'customer_agreement', 'enterprise_agreement'],
@@ -282,7 +282,7 @@ describe('API Providers', () => {
   test('rejects unsourced private policy claims', () => {
     expect(hasProviderPolicySource({
       data_policy_tier: 'private',
-      zero_data_retention: 'default',
+      zero_data_retention: true,
       data_policy_confidence: 'confirmed',
       verification: { status: 'verified' },
     })).toBe(false);
@@ -312,16 +312,13 @@ describe('API Providers', () => {
       }
       if (j.data_policy_tier === 'private') {
         expect(j.prompt_training_policy).toBe('no_train');
-        expect(j.zero_data_retention).toBe('default');
+        expect(j.zero_data_retention).toBe(true);
         expect(j.data_policy_confidence).toBe('confirmed');
       }
-      if (j.zero_data_retention === 'default') {
+      if (j.zero_data_retention === true) {
         expect(j.data_retention_days).toBe(0);
       }
-      if (j.data_retention_days === 0) {
-        expect(j.zero_data_retention).toBe('default');
-      }
-      if (j.data_policy_tier === 'private' || (j.zero_data_retention === 'default' && j.data_policy_confidence === 'confirmed')) {
+      if (j.data_policy_tier === 'private' || (j.zero_data_retention === true && j.data_policy_confidence === 'confirmed')) {
         expect(hasProviderPolicySource(j)).toBe(true);
         expect(j.verification?.status).toBe('verified');
       }

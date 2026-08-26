@@ -1,6 +1,6 @@
 {
   "api_provider_id": "suno",
-  "zero_data_retention": "unknown",
+  "zero_data_retention": false,
   "data_policy_tier": "unknown",
   "data_policy_confidence": "unknown",
   "data_policy_contract_mode": "none",

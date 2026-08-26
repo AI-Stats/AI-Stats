@@ -12,7 +12,7 @@
   "residency_mode": "customer_selectable",
   "default_execution_regions": ["global"],
   "default_data_regions": ["eu"],
-  "zero_data_retention": "optional",
+  "zero_data_retention": false,
   "residency_source_url": "https://www.requesty.ai/privacy",
   "prompt_training_policy": "no_train",
   "prompt_training_notes": "Requesty does not train on paid-plan customer data. Third-party provider practices remain model-specific; free Training Permitted Models are explicitly labelled in the live catalogue.",

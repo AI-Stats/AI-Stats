@@ -9,7 +9,7 @@
   "residency_mode": "provider_managed",
   "default_execution_regions": null,
   "default_data_regions": ["cn"],
-  "zero_data_retention": "unknown",
+  "zero_data_retention": false,
   "residency_source_url": "https://docs.siliconflow.cn/cn/legals/privacy-policy",
   "residency_notes": "SiliconFlow states that user information collected while operating the China platform is stored within mainland China. It separately states that interaction data is processed only on customer instructions and is not stored.",
   "data_policy_tier": "logs",

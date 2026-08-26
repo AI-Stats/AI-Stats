@@ -16,7 +16,7 @@
   "default_data_regions": [
     "eu"
   ],
-  "zero_data_retention": "default",
+  "zero_data_retention": true,
   "data_retention_days": 0,
   "residency_source_url": "https://docs.stackit.cloud/products/data-and-ai/ai-model-serving/basics/available-shared-models/",
   "prompt_training_policy": "no_train",

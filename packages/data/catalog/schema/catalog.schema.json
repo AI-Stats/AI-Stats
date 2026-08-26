@@ -205,7 +205,7 @@
         "link": { "type": ["string", "null"], "format": "uri" },
         "default_execution_regions": { "type": ["array", "null"], "items": { "type": "string" } },
         "default_data_regions": { "type": ["array", "null"], "items": { "type": "string" } },
-        "zero_data_retention": { "type": "string", "enum": ["unknown", "unsupported", "optional", "default"] },
+        "zero_data_retention": { "type": "boolean", "description": "Whether the exact provider offer is documented to enforce zero data retention by default. false means ZDR is not guaranteed for the offer; it does not claim that the provider can never offer ZDR on another route." },
         "data_policy_tier": { "type": "string", "enum": ["unknown", "private", "logs", "trains"] },
         "data_policy_confidence": { "type": "string", "enum": ["unknown", "confirmed", "maybe"] },
         "data_policy_contract_mode": { "type": "string", "enum": ["none", "customer_agreement", "enterprise_agreement"] },

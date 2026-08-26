@@ -1094,9 +1094,9 @@ function checkApiProviders(state: ValidationState): string[] {
         if (
             data.zero_data_retention !== undefined &&
             data.zero_data_retention !== null &&
-            !['unknown', 'unsupported', 'optional', 'default'].includes(String(data.zero_data_retention))
+            typeof data.zero_data_retention !== 'boolean'
         ) {
-            errors.push(`API provider ${providerId} has invalid zero_data_retention '${String(data.zero_data_retention)}'`);
+            errors.push(`API provider ${providerId} has invalid zero_data_retention '${String(data.zero_data_retention)}'; expected boolean`);
         }
         if (
             data.data_retention_days !== undefined &&
@@ -1150,8 +1150,8 @@ function checkApiProviders(state: ValidationState): string[] {
             if (data.offer_scope !== 'specialized') {
                 errors.push(`ZDR provider ${providerId} must use offer_scope 'specialized'`);
             }
-            if (data.zero_data_retention !== 'default') {
-                errors.push(`ZDR provider ${providerId} must set zero_data_retention to 'default'`);
+            if (data.zero_data_retention !== true) {
+                errors.push(`ZDR provider ${providerId} must set zero_data_retention to true`);
             }
             if (data.data_policy_tier !== 'private' || data.data_policy_confidence !== 'confirmed') {
                 errors.push(`ZDR provider ${providerId} must have a confirmed private data policy`);
@@ -1181,13 +1181,13 @@ function checkApiProviders(state: ValidationState): string[] {
             if (data.prompt_training_policy !== 'no_train') {
                 errors.push(`Private API provider ${providerId} must have prompt_training_policy 'no_train'`);
             }
-            if (data.zero_data_retention !== 'default' || data.data_policy_confidence !== 'confirmed') {
+            if (data.zero_data_retention !== true || data.data_policy_confidence !== 'confirmed') {
                 errors.push(`Private API provider ${providerId} must have confirmed default zero data retention`);
             }
         }
         if (
             data.data_policy_tier === 'private' ||
-            (data.zero_data_retention === 'default' && data.data_policy_confidence === 'confirmed')
+            (data.zero_data_retention === true && data.data_policy_confidence === 'confirmed')
         ) {
             if (!hasProviderPolicySource(data)) {
                 errors.push(`Private or confirmed default-ZDR provider ${providerId} must cite a policy source`);
@@ -1196,11 +1196,8 @@ function checkApiProviders(state: ValidationState): string[] {
                 errors.push(`Private or confirmed default-ZDR provider ${providerId} must have verified provenance`);
             }
         }
-        if (data.zero_data_retention === 'default' && data.data_retention_days !== 0) {
-            errors.push(`API provider ${providerId} with default zero data retention must set data_retention_days to 0`);
-        }
-        if (data.data_retention_days === 0 && data.zero_data_retention !== 'default') {
-            errors.push(`API provider ${providerId} cannot set data_retention_days to 0 without default zero data retention`);
+        if (data.zero_data_retention === true && data.data_retention_days !== 0) {
+            errors.push(`API provider ${providerId} with zero data retention must set data_retention_days to 0`);
         }
 		const providerModelsPath = path.join(providersDir, provider, 'models.json');
 		const providerModels = fs.existsSync(providerModelsPath)
@@ -1216,7 +1213,7 @@ function checkApiProviders(state: ValidationState): string[] {
 					errors.push(`Active API provider ${providerId} is missing ${key}`);
 				}
 			}
-			if (data.zero_data_retention === 'default' && data.data_retention_days !== 0) {
+            if (data.zero_data_retention === true && data.data_retention_days !== 0) {
 				errors.push(`Active ZDR provider ${providerId} must set data_retention_days to 0`);
 			}
 		}
@@ -1224,8 +1221,8 @@ function checkApiProviders(state: ValidationState): string[] {
 			if (data.offer_scope !== 'specialized') {
 				errors.push(`ZDR provider ${providerId} must use offer_scope 'specialized'`);
 			}
-			if (data.zero_data_retention !== 'default') {
-				errors.push(`ZDR provider ${providerId} must set zero_data_retention to 'default'`);
+            if (data.zero_data_retention !== true) {
+                errors.push(`ZDR provider ${providerId} must set zero_data_retention to true`);
 			}
 			if (data.data_policy_tier !== 'private' || data.data_policy_confidence !== 'confirmed') {
 				errors.push(`ZDR provider ${providerId} must have a confirmed private data policy`);

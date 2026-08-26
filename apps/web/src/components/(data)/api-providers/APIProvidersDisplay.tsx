@@ -114,12 +114,7 @@ const DATA_POLICY_LABELS: Record<string, string> = {
 	unknown: "Unknown",
 };
 
-const ZDR_LABELS: Record<string, string> = {
-	default: "Default",
-	optional: "Optional",
-	unsupported: "Unavailable",
-	unknown: "Unknown",
-};
+const ZDR_LABELS: Record<string, string> = { true: "True", false: "False" };
 
 function policyLabel(value: string | null, labels: Record<string, string>): string {
 	return value ? labels[value] ?? value.split("_").map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(" ") : "Unknown";
@@ -317,10 +312,8 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 	].filter((option) => option.count > 0), [providers]);
 
 	const zdrOptions = useMemo<FilterOption[]>(() => [
-		{ value: "zdr:default", label: "Default", count: providers.filter((provider) => matchesProviderPolicy(provider, "zdr:default")).length },
-		{ value: "zdr:optional", label: "Optional", count: providers.filter((provider) => matchesProviderPolicy(provider, "zdr:optional")).length },
-		{ value: "zdr:unsupported", label: "Unavailable", count: providers.filter((provider) => matchesProviderPolicy(provider, "zdr:unsupported")).length },
-		{ value: "zdr:unknown", label: "Unknown", count: providers.filter((provider) => matchesProviderPolicy(provider, "zdr:unknown")).length },
+		{ value: "zdr:true", label: "True", count: providers.filter((provider) => matchesProviderPolicy(provider, "zdr:true")).length },
+		{ value: "zdr:false", label: "False", count: providers.filter((provider) => matchesProviderPolicy(provider, "zdr:false")).length },
 	].filter((option) => option.count > 0), [providers]);
 
 	const filteredProviders = useMemo(() => {
@@ -363,7 +356,7 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 							delta = policyLabel(a.data_policy_tier, DATA_POLICY_LABELS).localeCompare(policyLabel(b.data_policy_tier, DATA_POLICY_LABELS));
 							break;
 						case "zdr":
-							delta = policyLabel(a.zero_data_retention, ZDR_LABELS).localeCompare(policyLabel(b.zero_data_retention, ZDR_LABELS));
+							delta = policyLabel(String(a.zero_data_retention), ZDR_LABELS).localeCompare(policyLabel(String(b.zero_data_retention), ZDR_LABELS));
 							break;
 					}
 					if (delta) return normalizedTableSortDirection === "asc" ? delta : -delta;
@@ -611,7 +604,7 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 											<TableCell className="text-center font-medium tabular-nums">{formatTokens(Number(provider.total_daily_tokens))}</TableCell>
 											<TableCell className="text-center font-medium tabular-nums">{formatTokens(Number(provider.total_monthly_tokens))}</TableCell>
 											<TableCell className={cn("whitespace-nowrap", !provider.data_policy_tier && "text-muted-foreground")}>{policyLabel(provider.data_policy_tier, DATA_POLICY_LABELS)}</TableCell>
-											<TableCell className={cn("whitespace-nowrap", !provider.zero_data_retention && "text-muted-foreground")}>{policyLabel(provider.zero_data_retention, ZDR_LABELS)}</TableCell>
+			<TableCell className="whitespace-nowrap">{policyLabel(String(provider.zero_data_retention), ZDR_LABELS)}</TableCell>
 											<TableCell>{provider.privacy_policy_url ? <a href={provider.privacy_policy_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-medium hover:underline hover:underline-offset-4">Privacy <ExternalLink className="size-3 text-muted-foreground" /></a> : <span className="text-muted-foreground">—</span>}</TableCell>
 											<TableCell>{provider.terms_of_service_url ? <a href={provider.terms_of_service_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-medium hover:underline hover:underline-offset-4">Terms <ExternalLink className="size-3 text-muted-foreground" /></a> : <span className="text-muted-foreground">—</span>}</TableCell>
 										</TableRow>;

@@ -6,7 +6,7 @@
   "residency_mode": "provider_managed",
   "default_execution_regions": null,
   "default_data_regions": ["US"],
-  "zero_data_retention": "optional",
+  "zero_data_retention": false,
   "data_retention_days": 30,
   "residency_source_url": "https://console.groq.com/docs/your-data",
   "residency_notes": "Groq says retained customer data is held in Google Cloud Platform buckets in the United States. Usage metadata is always retained but does not contain customer inputs or outputs. Inference requests are not retained by default, and all customers can enable Zero Data Retention in Data Controls; the documentation does not specify a model execution location.",

@@ -19,7 +19,7 @@ function makeProvider(
 			residency_mode: "unknown",
 			default_execution_regions: null,
 			default_data_regions: null,
-			zero_data_retention: "optional",
+			zero_data_retention: false,
 			residency_source_url: "https://code.claude.com/docs/en/data-usage",
 			residency_notes: null,
 		},
@@ -221,7 +221,7 @@ describe("groupProviders", () => {
 						residency_mode: "customer_selectable",
 						default_execution_regions: ["us", "eu"],
 						default_data_regions: ["us", "eu"],
-						zero_data_retention: "optional",
+						zero_data_retention: false,
 						residency_source_url:
 							"https://developers.openai.com/api/docs/guides/your-data",
 						residency_notes: null,
@@ -232,10 +232,10 @@ describe("groupProviders", () => {
 
 		expect(Array.from(provider.executionRegions)).toEqual(["us", "eu"]);
 		expect(Array.from(provider.dataRegions)).toEqual(["us", "eu"]);
-		expect(provider.zeroDataRetention).toBe("optional");
+		expect(provider.zeroDataRetention).toBe(false);
 		expect(provider.residency[0]).toMatchObject({
 			residencyMode: "customer_selectable",
-			zeroDataRetention: "optional",
+			zeroDataRetention: false,
 		});
 	});
 
@@ -258,7 +258,7 @@ describe("groupProviders", () => {
 						residency_mode: "unknown",
 						default_execution_regions: null,
 						default_data_regions: null,
-						zero_data_retention: "optional",
+						zero_data_retention: false,
 						residency_source_url: null,
 						residency_notes: null,
 					},
@@ -280,7 +280,7 @@ describe("groupProviders", () => {
 						residency_mode: "unknown",
 						default_execution_regions: null,
 						default_data_regions: null,
-						zero_data_retention: "optional",
+						zero_data_retention: false,
 						residency_source_url: null,
 						residency_notes: null,
 					},

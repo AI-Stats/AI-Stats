@@ -12,7 +12,7 @@
   "residency_mode": "provider_managed",
   "default_execution_regions": null,
   "default_data_regions": ["SG"],
-  "zero_data_retention": "optional",
+  "zero_data_retention": false,
   "residency_source_url": "https://zenmux.ai/docs/privacy.html",
   "prompt_training_policy": "opt_out_available",
   "prompt_training_notes": "ZenMux states that anonymized User Content may be stored, transferred, or used for model improvement. Disabling Data Services enables ZenMux ZDR for request content and conversation history; upstream provider policies may still apply.",

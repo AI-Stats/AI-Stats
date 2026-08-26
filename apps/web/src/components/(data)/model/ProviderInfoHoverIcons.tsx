@@ -238,7 +238,7 @@ function normalizeResidencyEntries(values: ResidencyEntryInput[]): ResidencyEntr
 		residencyMode: value.residencyMode ?? "unknown",
 		executionRegions: uniqueDefined(value.executionRegions ?? []),
 		dataRegions: uniqueDefined(value.dataRegions ?? []),
-		zeroDataRetention: value.zeroDataRetention ?? "unknown",
+		zeroDataRetention: value.zeroDataRetention ?? false,
 		notes:
 			typeof value.notes === "string" && value.notes.trim()
 				? value.notes.trim()
@@ -259,7 +259,7 @@ function getResidencyModeState(entries: ResidencyEntry[]): ResidencyMode | "mixe
 function getZeroDataRetentionState(
 	entries: ResidencyEntry[],
 ): ZeroDataRetentionMode | "mixed" {
-	if (!entries.length) return "unknown";
+	if (!entries.length) return false;
 	const unique = Array.from(new Set(entries.map((entry) => entry.zeroDataRetention)));
 	return unique.length === 1 ? unique[0] : "mixed";
 }
@@ -268,12 +268,10 @@ function getZeroDataRetentionDetail(
 	state: ZeroDataRetentionMode | "mixed",
 ): string | null {
 	switch (state) {
-		case "default":
-			return "Documented as the default handling for this provider mapping.";
-		case "optional":
-			return "Documented as available, but it can depend on provider-side configuration, account setup, or a specific endpoint.";
-		case "unsupported":
-			return "No zero-data-retention option is documented for this provider mapping.";
+		case true:
+			return "Documented as true for this provider mapping.";
+		case false:
+			return "ZDR is not guaranteed for this provider mapping.";
 		case "mixed":
 			return "Zero-data-retention handling varies across provider/model mappings.";
 		default:
@@ -471,7 +469,7 @@ export default function ProviderInfoHoverIcons({
 	const hasDataPolicy =
 		dataPolicyEntries.length > 0 ||
 		promptTrainingEntries.length > 0 ||
-		residencyEntries.some((entry) => entry.zeroDataRetention !== "unknown");
+		residencyEntries.length > 0;
 	const hasResidency = residencyEntries.some(
 		(entry) =>
 			entry.executionRegions.length > 0 ||
@@ -499,9 +497,7 @@ export default function ProviderInfoHoverIcons({
 							<InfoBlock
 								title="Zero data retention"
 								value={
-									zeroDataRetentionState !== "unknown"
-										? formatZeroDataRetention(zeroDataRetentionState)
-										: "Unknown"
+									formatZeroDataRetention(zeroDataRetentionState)
 								}
 								meta={zeroDataRetentionDetail}
 							/>

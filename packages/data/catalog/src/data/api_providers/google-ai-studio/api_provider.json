@@ -14,7 +14,7 @@
   "residency_mode": "provider_managed",
   "default_execution_regions": null,
   "default_data_regions": null,
-  "zero_data_retention": "optional",
+  "zero_data_retention": false,
   "residency_source_url": "https://ai.google.dev/gemini-api/docs/zdr?hl=en",
   "residency_notes": "Google's Gemini API terms do not provide a customer-selected inference region. Paid services can achieve a zero-data footprint only by following the documented controls and avoiding retention features; prompts and responses may otherwise be stored transiently or cached in any country where Google or its agents maintain facilities.",
   "pricing_source_url": "https://ai.google.dev/gemini-api/docs/pricing",

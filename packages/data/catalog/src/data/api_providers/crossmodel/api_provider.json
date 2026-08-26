@@ -12,7 +12,7 @@
   "residency_mode": null,
   "default_execution_regions": null,
   "default_data_regions": null,
-  "zero_data_retention": "unknown",
+  "zero_data_retention": false,
   "residency_source_url": null,
   "prompt_training_policy": "unknown",
   "prompt_training_notes": "CrossModel forwards requests to third-party model providers, whose retention, training, logging, review, and regional-transfer practices vary. CrossModel does not publish a provider-wide no-training guarantee.",

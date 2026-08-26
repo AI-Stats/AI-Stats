@@ -1552,11 +1552,7 @@ export async function fetchGatewayContext(args: {
 					);
 					zeroDataRetentionByProvider.set(
 						providerId,
-						row.zero_data_retention === "unsupported" ||
-						row.zero_data_retention === "optional" ||
-						row.zero_data_retention === "default"
-							? row.zero_data_retention
-							: "unknown",
+						row.zero_data_retention === true,
 					);
                     promptTrainingPolicyByProvider.set(
                         providerId,
@@ -1784,7 +1780,6 @@ export async function fetchGatewayContext(args: {
         }
     }
 }
-
 
 
 

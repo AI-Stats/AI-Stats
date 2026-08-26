@@ -12,7 +12,7 @@
   "residency_mode": "provider_managed",
   "default_execution_regions": ["eu"],
   "default_data_regions": ["eu"],
-  "zero_data_retention": "unknown",
+  "zero_data_retention": false,
   "residency_source_url": "https://evroc.com/ai-services/think-models/",
   "prompt_training_policy": null,
   "prompt_training_notes": null,

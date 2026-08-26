@@ -7,11 +7,12 @@ function makeProvider(overrides: Partial<APIProviderCard> = {}): APIProviderCard
 		api_provider_name: "Test Provider",
 		country_code: "US",
 		default_execution_regions: [],
+		default_data_regions: [],
 		is_gateway_provider: false,
 		byok_available: false,
 		prompt_training_policy: null,
 		data_policy_tier: null,
-		zero_data_retention: null,
+		zero_data_retention: false,
 		data_retention_days: null,
 		privacy_policy_url: null,
 		terms_of_service_url: null,
@@ -77,7 +78,7 @@ describe("matchesProviderPolicy", () => {
 		expect(matchesProviderPolicy(provider, "training:may_train")).toBe(true);
 		expect(matchesProviderPolicy(provider, "retention:published")).toBe(true);
 		expect(matchesProviderPolicy(makeProvider({ data_retention_days: 0 }), "retention:none")).toBe(true);
-		expect(matchesProviderPolicy(makeProvider({ zero_data_retention: "optional" }), "retention:zdr")).toBe(true);
+		expect(matchesProviderPolicy(makeProvider({ zero_data_retention: true }), "retention:zdr")).toBe(true);
 		expect(matchesProviderPolicy(makeProvider(), "training:unknown")).toBe(true);
 		expect(matchesProviderPolicy(makeProvider(), "retention:unknown")).toBe(true);
 	});
@@ -85,15 +86,14 @@ describe("matchesProviderPolicy", () => {
 	it("matches the public data policy and ZDR categories", () => {
 		const provider = makeProvider({
 			data_policy_tier: "logs",
-			zero_data_retention: "optional",
+			zero_data_retention: false,
 		});
 
 		expect(matchesProviderPolicy(provider, "data_policy:logs")).toBe(true);
 		expect(matchesProviderPolicy(provider, "data_policy:private")).toBe(false);
-		expect(matchesProviderPolicy(provider, "zdr:optional")).toBe(true);
-		expect(matchesProviderPolicy(provider, "zdr:default")).toBe(false);
+		expect(matchesProviderPolicy(provider, "zdr:false")).toBe(true);
+		expect(matchesProviderPolicy(provider, "zdr:true")).toBe(false);
 		expect(matchesProviderPolicy(makeProvider(), "data_policy:unknown")).toBe(true);
-		expect(matchesProviderPolicy(makeProvider(), "zdr:unknown")).toBe(true);
 	});
 
 	it("treats the legacy opt_out training value as opt-out available", () => {

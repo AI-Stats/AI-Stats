@@ -11,16 +11,16 @@
   "colour": "#4F46E5",
   "privacy_policy_url": "https://docs.tokenfactory.nebius.com/legal/privacy-policy",
   "terms_of_service_url": "https://docs.tokenfactory.nebius.com/legal/terms-of-service",
-  "zero_data_retention": "default",
-  "data_retention_days": 0,
-  "data_policy_tier": "private",
+  "zero_data_retention": false,
+  "data_retention_days": null,
+  "data_policy_tier": "trains",
   "data_policy_confidence": "confirmed",
-  "data_policy_contract_mode": "customer_agreement",
-  "data_policy_contract_notes": "Zero Data Retention is enabled for the configured Phaseo route; Nebius's standard public route may retain or use data by default.",
+  "data_policy_contract_mode": "none",
+  "data_policy_contract_notes": "The public Token Factory terms apply to the standard Fast API route. Customers can opt out of storage and speculative-decoding processing, but the catalogue does not model customer-specific opt-out state.",
   "residency_source_url": "https://docs.tokenfactory.nebius.com/legal/legal-quick-guide",
   "residency_notes": "For public model endpoints, processing location depends on the selected model and is shown in the interface; Nebius documents hosting in the EU (including Finland and France), Israel, and the United States. Dedicated endpoint regions are selected during endpoint configuration. Fine-tuning processing locations are fixed and resulting data is stored in the EU.",
-  "prompt_training_policy": "no_train",
-  "prompt_training_notes": "Zero Data Retention is enabled for the configured Phaseo route, so prompts and outputs are not stored after processing or used for model training. Nebius's standard public route may retain or use data by default.",
+  "prompt_training_policy": "opt_out_available",
+  "prompt_training_notes": "Nebius Token Factory's public Terms of Service say it collects and processes Inputs and Outputs for training smaller speculative-decoding models, while allowing customers to opt out of storage and that processing.",
   "prompt_training_source_url": "https://docs.tokenfactory.nebius.com/legal/terms-of-service",
   "gateway_kind": null,
   "routable": null,
@@ -43,11 +43,17 @@
       "url": "https://docs.tokenfactory.nebius.com/api-reference/inference/create-a-response",
       "accessed_at": "2026-08-12T00:00:00Z",
       "notes": "Documents native Responses API support."
+    },
+    {
+      "kind": "official_terms",
+      "url": "https://docs.tokenfactory.nebius.com/legal/terms-of-service",
+      "accessed_at": "2026-08-26T00:00:00Z",
+      "notes": "Section 7 says Nebius may host, cache, store, and modify Inputs and Outputs and collects/processes them to train smaller speculative-decoding models; customers may opt out. This governs the standard Fast API route."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-12T00:00:00Z",
-    "notes": "Verified shared API host, Fast suffix semantics, and Chat/Responses transport."
+    "checked_at": "2026-08-26T00:00:00Z",
+    "notes": "Verified shared API host, Fast suffix semantics, and Chat/Responses transport. Policy classification follows the standard public Token Factory terms; no Phaseo-specific ZDR opt-out state is assumed."
   }
 }
