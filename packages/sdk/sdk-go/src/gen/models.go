@@ -1707,6 +1707,8 @@ const (
 	KnownModelIdGoogleGemini31ProPreviewCustomtools KnownModelId = "google/gemini-3.1-pro-preview-customtools"
 	KnownModelIdGoogleGemini35Flash KnownModelId = "google/gemini-3.5-flash"
 	KnownModelIdGoogleGemini35FlashLite KnownModelId = "google/gemini-3.5-flash-lite"
+	KnownModelIdGoogleGemini35Transcribe KnownModelId = "google/gemini-3.5-transcribe"
+	KnownModelIdGoogleGemini35TranscribeLive KnownModelId = "google/gemini-3.5-transcribe-live"
 	KnownModelIdGoogleGemini36Flash KnownModelId = "google/gemini-3.6-flash"
 	KnownModelIdGoogleGemini37Flash KnownModelId = "google/gemini-3.7-flash"
 	KnownModelIdGoogleGeminiEmbedding001 KnownModelId = "google/gemini-embedding-001"

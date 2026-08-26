@@ -121,6 +121,8 @@ export type KnownModelId =
   | "google/gemini-3.1-pro-preview-customtools"
   | "google/gemini-3.5-flash"
   | "google/gemini-3.5-flash-lite"
+  | "google/gemini-3.5-transcribe"
+  | "google/gemini-3.5-transcribe-live"
   | "google/gemini-3.6-flash"
   | "google/gemini-3.7-flash"
   | "google/gemini-embedding-001"
