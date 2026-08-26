@@ -183,7 +183,7 @@ function normalizeModalityOrderKey(value: string): string {
 	if (normalized.includes("image")) return "image";
 	if (normalized.includes("music")) return "audio_music";
 	if (
-		normalized.includes("transcrib") ||
+		normalized.includes("transcri") ||
 		normalized.includes("speech to text") ||
 		normalized.includes("stt")
 	) {
@@ -427,7 +427,7 @@ function getModalityIcon(value: string): LucideIcon {
 	if (normalized.includes("image")) return ImageIcon;
 	if (normalized.includes("music")) return Music4;
 	if (
-		normalized.includes("transcrib") ||
+		normalized.includes("transcri") ||
 		normalized.includes("speech to text") ||
 		normalized.includes("stt")
 	) {

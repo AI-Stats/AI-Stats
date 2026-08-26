@@ -7677,7 +7677,7 @@
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "audio",
-    "output_modalities": "transcription",
+    "output_modalities": "audio_stt",
     "context_length": 1000000,
     "max_output_tokens": null,
     "effective_from": "2025-09-08T00:00:00Z",

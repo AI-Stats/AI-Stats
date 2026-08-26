@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { normalizeCatalogModality } from './normalize-catalog-modality.mjs';
 
 const root = process.cwd();
 const accessedAt = '2026-08-24T00:00:00Z';
@@ -23,11 +24,15 @@ const canonicalId = (id) => {
   const [org, ...rest] = id.split('/');
   return `${aliasOrg[org] ?? org}/${rest.join('/')}`;
 };
-const capabilityFor = (m) => m.output_modalities.includes('embeddings') ? 'text.embed'
-  : m.output_modalities.includes('image') ? 'image.generate'
-  : m.output_modalities.includes('transcription') ? 'audio.transcription'
-  : 'text.generate';
 const modality = (x) => x === 'image' ? 'image/*' : x === 'audio' ? 'audio/*' : x === 'video' ? 'video/*' : x === 'file' ? 'application/*' : x;
+const canonicalModalities = (values) => values.map(normalizeCatalogModality);
+const capabilityFor = (m) => {
+  const outputModalities = canonicalModalities(m.output_modalities);
+  return outputModalities.includes('embeddings') ? 'text.embed'
+    : outputModalities.includes('image') ? 'image.generate'
+    : outputModalities.includes('audio_stt') ? 'audio.transcription'
+    : 'text.generate';
+};
 const source = { kind: 'provider_models', url: sourceUrl, accessed_at: accessedAt, notes: 'Official live ZenMux model, modality, context, capability, publication, and pricing metadata.' };
 
 const entries = live.map((m) => {
@@ -41,8 +46,8 @@ const entries = live.map((m) => {
     internal_model_id: internal,
     is_active_gateway: false,
     quantization_scheme: previous?.quantization_scheme ?? null,
-    input_modalities: m.input_modalities.join(','),
-    output_modalities: m.output_modalities.join(','),
+    input_modalities: canonicalModalities(m.input_modalities).join(','),
+    output_modalities: canonicalModalities(m.output_modalities).join(','),
     context_length: m.context_length ?? null,
     max_output_tokens: previous?.max_output_tokens ?? null,
     effective_from: m.publish_time ? `${m.publish_time}T00:00:00Z` : null,
@@ -87,10 +92,10 @@ for (const m of live) {
   if (!fs.existsSync(modelFile)) write(modelFile, {
     model_id: internal, organisation_id: org, name: m.display_name.replace(/^[^:]+:\s*/, ''), status: 'Available', previous_model_id: null,
     description: `${m.display_name.replace(/^[^:]+:\s*/, '')} is available through ZenMux's unified model API.`, announced_date: null, release_date: m.publish_time ? `${m.publish_time}T00:00:00` : null, deprecation_date: null, retirement_date: null,
-    license: null, input_types: m.input_modalities.join(','), output_types: m.output_modalities.join(','), api_model_id: internal,
+    license: null, input_types: canonicalModalities(m.input_modalities).join(','), output_types: canonicalModalities(m.output_modalities).join(','), api_model_id: internal,
     links: [], details: [], benchmarks: [], family_id: null, page_notice: null, model_type: null, knowledge_cutoff: null,
     limits: { context: m.context_length ?? null, input: m.context_length ?? null, output: null },
-    modalities: { input: m.input_modalities.map(modality), output: m.output_modalities.map(modality) },
+    modalities: { input: canonicalModalities(m.input_modalities).map(modality), output: canonicalModalities(m.output_modalities).map(modality) },
     reasoning: { supported: m.capabilities?.reasoning ?? null, options: [] },
     capabilities: { attachment: m.input_modalities.some((x) => x !== 'text'), tool_call: null, structured_output: null, temperature: null, streaming: null, web_search: Boolean(m.pricings?.web_search) },
     open_weights: null, sources: [source], verification: { status: 'partial', checked_at: accessedAt, notes: 'Availability, namespace, modalities, context, and publication date verified against the official ZenMux models API; upstream model metadata was not independently re-audited.' },

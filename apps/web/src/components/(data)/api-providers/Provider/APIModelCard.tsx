@@ -88,7 +88,7 @@ function normalizeModality(value: string): string {
 	if (normalized.includes("video")) return "video";
 	if (normalized.includes("music")) return "audio_music";
 	if (
-		normalized.includes("transcrib") ||
+		normalized.includes("transcri") ||
 		normalized.includes("speech to text") ||
 		normalized.includes("stt")
 	) {
