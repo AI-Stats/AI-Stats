@@ -16,10 +16,8 @@ import {
 	Binary,
 	CircleDollarSign,
 	CircleOff,
-	Clock3,
 	ChevronsUpDown,
 	ExternalLink,
-	GraduationCap,
 	Globe2,
 	ImageIcon,
 	KeyRound,
@@ -88,8 +86,8 @@ type ProviderTableSortField =
 	| "modalities"
 	| "daily_tokens"
 	| "monthly_tokens"
-	| "training"
-	| "retention";
+	| "data_policy"
+	| "zdr";
 
 type FilterOption = { value: string; label: string; count: number; icon?: LucideIcon };
 
@@ -109,21 +107,19 @@ const MODALITIES: Array<{ value: ProviderModalityKey; label: string; icon: Lucid
 	{ value: "moderation", label: "Moderation", icon: BadgeAlert },
 ];
 
-const TRAINING_LABELS: Record<string, string> = {
-	no_train: "No training",
-	may_train: "May train",
-	opt_out_available: "Opt-out available",
-	opt_out: "Opt-out available",
-	enterprise_no_train: "Enterprise no-train",
+const DATA_POLICY_LABELS: Record<string, string> = {
+	private: "Private",
+	logs: "Logs",
+	trains: "Trains",
+	unknown: "Unknown",
 };
 
-function retentionLabel(days: number | null | undefined, zdr: string | null | undefined): string {
-	if (days === 0) return zdr === "default" ? "No retention" : "Route-dependent retention";
-	if (typeof days === "number" && Number.isInteger(days) && days > 0) {
-		return `Retention for ${days} ${days === 1 ? "day" : "days"}`;
-	}
-	return "Unknown retention";
-}
+const ZDR_LABELS: Record<string, string> = {
+	default: "Default",
+	optional: "Optional",
+	unsupported: "Unavailable",
+	unknown: "Unknown",
+};
 
 function policyLabel(value: string | null, labels: Record<string, string>): string {
 	return value ? labels[value] ?? value.split("_").map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(" ") : "Unknown";
@@ -151,7 +147,7 @@ function normalizeSortOption(value: string | null | undefined): ProviderSortOpti
 }
 
 function normalizeTableSortField(value: string | null | undefined): ProviderTableSortField | null {
-	return ["provider", "headquarters", "models", "free_models", "modalities", "daily_tokens", "monthly_tokens", "training", "retention"].includes(value ?? "")
+	return ["provider", "headquarters", "models", "free_models", "modalities", "daily_tokens", "monthly_tokens", "data_policy", "zdr"].includes(value ?? "")
 		? value as ProviderTableSortField
 		: null;
 }
@@ -258,8 +254,8 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 	const [countries, setCountries] = useQueryState("countries", arrayParser);
 	const [datacenters, setDatacenters] = useQueryState("datacenters", arrayParser);
 	const [policies, setPolicies] = useQueryState("policies", arrayParser);
-	const [training, setTraining] = useQueryState("training", arrayParser);
-	const [retention, setRetention] = useQueryState("retention", arrayParser);
+	const [dataPolicy, setDataPolicy] = useQueryState("dataPolicy", arrayParser);
+	const [zdr, setZdr] = useQueryState("zdr", arrayParser);
 	const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 	const [openSections, setOpenSections] = useState(["coverage", "modalities"]);
 	const sortOption = normalizeSortOption(sort);
@@ -313,19 +309,18 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 		{ value: "terms", label: "Terms of Service", count: providers.filter((provider) => matchesProviderPolicy(provider, "terms")).length, icon: ScrollText },
 	].filter((option) => option.count > 0), [providers]);
 
-	const trainingOptions = useMemo<FilterOption[]>(() => [
-		{ value: "training:no_train", label: "No training", count: providers.filter((provider) => matchesProviderPolicy(provider, "training:no_train")).length },
-		{ value: "training:may_train", label: "May train", count: providers.filter((provider) => matchesProviderPolicy(provider, "training:may_train")).length },
-		{ value: "training:opt_out_available", label: "Opt-out available", count: providers.filter((provider) => matchesProviderPolicy(provider, "training:opt_out_available")).length },
-		{ value: "training:enterprise_no_train", label: "Enterprise no-train", count: providers.filter((provider) => matchesProviderPolicy(provider, "training:enterprise_no_train")).length },
-		{ value: "training:unknown", label: "Unknown", count: providers.filter((provider) => matchesProviderPolicy(provider, "training:unknown")).length },
+	const dataPolicyOptions = useMemo<FilterOption[]>(() => [
+		{ value: "data_policy:private", label: "Private", count: providers.filter((provider) => matchesProviderPolicy(provider, "data_policy:private")).length },
+		{ value: "data_policy:logs", label: "Logs", count: providers.filter((provider) => matchesProviderPolicy(provider, "data_policy:logs")).length },
+		{ value: "data_policy:trains", label: "Trains", count: providers.filter((provider) => matchesProviderPolicy(provider, "data_policy:trains")).length },
+		{ value: "data_policy:unknown", label: "Unknown", count: providers.filter((provider) => matchesProviderPolicy(provider, "data_policy:unknown")).length },
 	].filter((option) => option.count > 0), [providers]);
 
-	const retentionOptions = useMemo<FilterOption[]>(() => [
-		{ value: "retention:none", label: "No retention", count: providers.filter((provider) => matchesProviderPolicy(provider, "retention:none")).length },
-		{ value: "retention:published", label: "Published retention", count: providers.filter((provider) => matchesProviderPolicy(provider, "retention:published")).length },
-		{ value: "retention:zdr", label: "Zero-retention option", count: providers.filter((provider) => matchesProviderPolicy(provider, "retention:zdr")).length },
-		{ value: "retention:unknown", label: "Unknown", count: providers.filter((provider) => matchesProviderPolicy(provider, "retention:unknown")).length },
+	const zdrOptions = useMemo<FilterOption[]>(() => [
+		{ value: "zdr:default", label: "Default", count: providers.filter((provider) => matchesProviderPolicy(provider, "zdr:default")).length },
+		{ value: "zdr:optional", label: "Optional", count: providers.filter((provider) => matchesProviderPolicy(provider, "zdr:optional")).length },
+		{ value: "zdr:unsupported", label: "Unavailable", count: providers.filter((provider) => matchesProviderPolicy(provider, "zdr:unsupported")).length },
+		{ value: "zdr:unknown", label: "Unknown", count: providers.filter((provider) => matchesProviderPolicy(provider, "zdr:unknown")).length },
 	].filter((option) => option.count > 0), [providers]);
 
 	const filteredProviders = useMemo(() => {
@@ -337,8 +332,8 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 			.filter((provider) => coverage.length === 0 || coverage.every((value) => matchesProviderCoverage(provider, value)))
 			.filter((provider) => datacenters.length === 0 || datacenters.every((value) => matchesProviderDatacenter(provider, value)))
 			.filter((provider) => policies.length === 0 || policies.every((value) => matchesProviderPolicy(provider, value)))
-			.filter((provider) => training.length === 0 || training.some((value) => matchesProviderPolicy(provider, value)))
-			.filter((provider) => retention.length === 0 || retention.some((value) => matchesProviderPolicy(provider, value)))
+			.filter((provider) => dataPolicy.length === 0 || dataPolicy.some((value) => matchesProviderPolicy(provider, value)))
+			.filter((provider) => zdr.length === 0 || zdr.some((value) => matchesProviderPolicy(provider, value)))
 			.sort((a, b) => {
 				if (tableSortField) {
 					let delta = 0;
@@ -364,11 +359,11 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 						case "monthly_tokens":
 							delta = Number(a.total_monthly_tokens ?? 0) - Number(b.total_monthly_tokens ?? 0);
 							break;
-						case "training":
-							delta = policyLabel(a.prompt_training_policy, TRAINING_LABELS).localeCompare(policyLabel(b.prompt_training_policy, TRAINING_LABELS));
+						case "data_policy":
+							delta = policyLabel(a.data_policy_tier, DATA_POLICY_LABELS).localeCompare(policyLabel(b.data_policy_tier, DATA_POLICY_LABELS));
 							break;
-						case "retention":
-							delta = Number(a.data_retention_days ?? -1) - Number(b.data_retention_days ?? -1);
+						case "zdr":
+							delta = policyLabel(a.zero_data_retention, ZDR_LABELS).localeCompare(policyLabel(b.zero_data_retention, ZDR_LABELS));
 							break;
 					}
 					if (delta) return normalizedTableSortDirection === "asc" ? delta : -delta;
@@ -389,11 +384,11 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 				}
 				return a.api_provider_name.localeCompare(b.api_provider_name);
 			});
-	}, [countries, coverage, datacenters, deferredSearch, modalities, normalizedTableSortDirection, policies, providers, retention, sortOption, tableSortField, training]);
+	}, [countries, coverage, datacenters, dataPolicy, deferredSearch, modalities, normalizedTableSortDirection, policies, providers, sortOption, tableSortField, zdr]);
 
 	const customCoverageCount = coverage.length === 1 && coverage[0] === "active" ? 0 : coverage.length;
-	const activeFilterCount = modalities.length + customCoverageCount + countries.length + datacenters.length + policies.length + training.length + retention.length;
-	const resetFilters = () => { void setModalities([]); void setCoverage(["active"]); void setCountries([]); void setDatacenters([]); void setPolicies([]); void setTraining([]); void setRetention([]); };
+	const activeFilterCount = modalities.length + customCoverageCount + countries.length + datacenters.length + policies.length + dataPolicy.length + zdr.length;
+	const resetFilters = () => { void setModalities([]); void setCoverage(["active"]); void setCountries([]); void setDatacenters([]); void setPolicies([]); void setDataPolicy([]); void setZdr([]); };
 	const filtersContent = (
 		<Accordion type="multiple" value={openSections} onValueChange={setOpenSections}>
 			<AccordionItem value="coverage" className="border-border/70">
@@ -408,13 +403,13 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 				<AccordionTrigger className="px-2 py-3 text-sm no-underline hover:no-underline"><span className="flex items-center gap-2"><ShieldCheck className="size-4 text-muted-foreground" />Policies</span></AccordionTrigger>
 				<AccordionContent className="pt-1" disableAnimation><ProviderFilterList options={policyOptions} selected={policies} onToggle={(value) => void setPolicies(toggleValue(policies, value))} /></AccordionContent>
 			</AccordionItem>
-			<AccordionItem value="training" className="border-border/70">
-				<AccordionTrigger className="px-2 py-3 text-sm no-underline hover:no-underline"><span className="flex items-center gap-2"><GraduationCap className="size-4 text-muted-foreground" />Training on Data</span></AccordionTrigger>
-				<AccordionContent className="pt-1" disableAnimation><ProviderFilterList options={trainingOptions} selected={training} onToggle={(value) => void setTraining(toggleValue(training, value))} /></AccordionContent>
+			<AccordionItem value="dataPolicy" className="border-border/70">
+				<AccordionTrigger className="px-2 py-3 text-sm no-underline hover:no-underline"><span className="flex items-center gap-2"><ShieldCheck className="size-4 text-muted-foreground" />Data Policy</span></AccordionTrigger>
+				<AccordionContent className="pt-1" disableAnimation><ProviderFilterList options={dataPolicyOptions} selected={dataPolicy} onToggle={(value) => void setDataPolicy(toggleValue(dataPolicy, value))} /></AccordionContent>
 			</AccordionItem>
-			<AccordionItem value="retention" className="border-border/70">
-				<AccordionTrigger className="px-2 py-3 text-sm no-underline hover:no-underline"><span className="flex items-center gap-2"><Clock3 className="size-4 text-muted-foreground" />Data Retention</span></AccordionTrigger>
-				<AccordionContent className="pt-1" disableAnimation><ProviderFilterList options={retentionOptions} selected={retention} onToggle={(value) => void setRetention(toggleValue(retention, value))} /></AccordionContent>
+			<AccordionItem value="zdr" className="border-border/70">
+				<AccordionTrigger className="px-2 py-3 text-sm no-underline hover:no-underline"><span className="flex items-center gap-2"><ShieldCheck className="size-4 text-muted-foreground" />ZDR</span></AccordionTrigger>
+				<AccordionContent className="pt-1" disableAnimation><ProviderFilterList options={zdrOptions} selected={zdr} onToggle={(value) => void setZdr(toggleValue(zdr, value))} /></AccordionContent>
 			</AccordionItem>
 			<AccordionItem value="headquarters" className="border-border/70">
 				<AccordionTrigger className="px-2 py-3 text-sm no-underline hover:no-underline"><span className="flex items-center gap-2"><Globe2 className="size-4 text-muted-foreground" />Headquarters</span></AccordionTrigger>
@@ -527,8 +522,8 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 				<TableHead className="bg-background">{renderTableSortHead("Modalities", "modalities")}</TableHead>
 				<TableHead className="bg-background text-center">{renderTableSortHead("Daily Tokens", "daily_tokens", "center")}</TableHead>
 				<TableHead className="bg-background text-center">{renderTableSortHead("Monthly Tokens", "monthly_tokens", "center")}</TableHead>
-				<TableHead className="bg-background">{renderTableSortHead("Training", "training")}</TableHead>
-				<TableHead className="bg-background">{renderTableSortHead("Retention", "retention")}</TableHead>
+				<TableHead className="bg-background">{renderTableSortHead("Data policy", "data_policy")}</TableHead>
+				<TableHead className="bg-background">{renderTableSortHead("ZDR", "zdr")}</TableHead>
 				<TableHead className="bg-background">Privacy</TableHead>
 				<TableHead className="bg-background">Terms</TableHead>
 			</TableRow>
@@ -615,8 +610,8 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 											<TableCell><div className="flex items-center gap-1.5">{supported.map(({ value, icon: Icon, label }) => <ProviderModalityBadge key={value} label={label} modality={value} icon={Icon} inputCount={provider.modality_support[value]?.input ?? 0} outputCount={provider.modality_support[value]?.output ?? 0} />)}</div></TableCell>
 											<TableCell className="text-center font-medium tabular-nums">{formatTokens(Number(provider.total_daily_tokens))}</TableCell>
 											<TableCell className="text-center font-medium tabular-nums">{formatTokens(Number(provider.total_monthly_tokens))}</TableCell>
-											<TableCell className={cn("whitespace-nowrap", !provider.prompt_training_policy && "text-muted-foreground")}>{policyLabel(provider.prompt_training_policy, TRAINING_LABELS)}</TableCell>
-											<TableCell className={cn("whitespace-nowrap", provider.data_retention_days == null && "text-muted-foreground")}>{retentionLabel(provider.data_retention_days, provider.zero_data_retention)}</TableCell>
+											<TableCell className={cn("whitespace-nowrap", !provider.data_policy_tier && "text-muted-foreground")}>{policyLabel(provider.data_policy_tier, DATA_POLICY_LABELS)}</TableCell>
+											<TableCell className={cn("whitespace-nowrap", !provider.zero_data_retention && "text-muted-foreground")}>{policyLabel(provider.zero_data_retention, ZDR_LABELS)}</TableCell>
 											<TableCell>{provider.privacy_policy_url ? <a href={provider.privacy_policy_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-medium hover:underline hover:underline-offset-4">Privacy <ExternalLink className="size-3 text-muted-foreground" /></a> : <span className="text-muted-foreground">—</span>}</TableCell>
 											<TableCell>{provider.terms_of_service_url ? <a href={provider.terms_of_service_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-medium hover:underline hover:underline-offset-4">Terms <ExternalLink className="size-3 text-muted-foreground" /></a> : <span className="text-muted-foreground">—</span>}</TableCell>
 										</TableRow>;

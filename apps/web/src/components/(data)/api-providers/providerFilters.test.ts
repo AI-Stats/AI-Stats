@@ -82,6 +82,20 @@ describe("matchesProviderPolicy", () => {
 		expect(matchesProviderPolicy(makeProvider(), "retention:unknown")).toBe(true);
 	});
 
+	it("matches the public data policy and ZDR categories", () => {
+		const provider = makeProvider({
+			data_policy_tier: "logs",
+			zero_data_retention: "optional",
+		});
+
+		expect(matchesProviderPolicy(provider, "data_policy:logs")).toBe(true);
+		expect(matchesProviderPolicy(provider, "data_policy:private")).toBe(false);
+		expect(matchesProviderPolicy(provider, "zdr:optional")).toBe(true);
+		expect(matchesProviderPolicy(provider, "zdr:default")).toBe(false);
+		expect(matchesProviderPolicy(makeProvider(), "data_policy:unknown")).toBe(true);
+		expect(matchesProviderPolicy(makeProvider(), "zdr:unknown")).toBe(true);
+	});
+
 	it("treats the legacy opt_out training value as opt-out available", () => {
 		const provider = makeProvider({ prompt_training_policy: "opt_out" });
 

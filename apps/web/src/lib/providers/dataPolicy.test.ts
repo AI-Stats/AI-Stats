@@ -29,6 +29,19 @@ describe("resolveProviderDataPolicy", () => {
 		});
 	});
 
+	it("abstracts enterprise-only no-train into the logs tier", () => {
+		expect(
+			resolveProviderDataPolicy({
+				promptTrainingPolicy: "enterprise_no_train",
+				zeroDataRetention: "unknown",
+			}),
+		).toEqual({
+			tier: "logs",
+			confidence: "maybe",
+			contractMode: "none",
+		});
+	});
+
 	it("derives trains when legacy policy may train or opt-out", () => {
 		expect(
 			resolveProviderDataPolicy({
