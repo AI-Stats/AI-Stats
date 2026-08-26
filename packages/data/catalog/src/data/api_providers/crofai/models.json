@@ -416,14 +416,14 @@
       {
         "kind": "pricing",
         "url": "https://crof.ai/pricing",
-        "accessed_at": "2026-08-01T00:00:00Z",
-        "notes": "Official live CrofAI pricing payload lists the explicit 0731 slug, Q4_0 quantisation, limits, speed and token rates."
+        "accessed_at": "2026-08-26T00:00:00Z",
+        "notes": "Official live CrofAI model payload lists the explicit 0731 slug, Q8_0 quantisation, limits, reasoning capability and token rates."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-01T00:00:00Z",
-      "notes": "Confirmed as a distinct live CrofAI route rather than an upgrade of the preview slug."
+      "checked_at": "2026-08-26T00:00:00Z",
+      "notes": "Confirmed against CrofAI's live model payload as a distinct active route with Q8_0 quantisation."
     },
     "rate_limits": []
   },
