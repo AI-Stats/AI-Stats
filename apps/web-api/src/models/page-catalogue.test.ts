@@ -1,10 +1,43 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
 	attachModelsPageVariants,
+	fetchModelsPageCatalogue,
 	buildModelsPageFacets,
 	mergeModelWeeklyMetrics,
 	normalizeModelsPagePricing,
 } from "@/models/page-catalogue";
+
+const env = {
+	ENV: "development" as const,
+	SUPABASE_URL: "https://example.supabase.co",
+	SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
+};
+
+afterEach(() => vi.unstubAllGlobals());
+
+describe("fetchModelsPageCatalogue", () => {
+	it("filters organisation rows after the JSON catalogue RPC returns", async () => {
+		const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+			const url = String(input);
+			if (url.includes("get_public_models_page_rows")) {
+				return new Response(JSON.stringify([
+					{ model_id: "adept/fuyu-8b", organisation_id: "adept", name: "Fuyu 8b" },
+					{ model_id: "openai/gpt-test", organisation_id: "openai", name: "GPT Test" },
+				]), { status: 200 });
+			}
+			if (url.includes("get_v2_public_model_weekly_metrics")) {
+				return new Response(JSON.stringify([]), { status: 200 });
+			}
+			return new Response(JSON.stringify([]), { status: 200 });
+	});
+		vi.stubGlobal("fetch", fetchMock);
+
+		const result = await fetchModelsPageCatalogue(env, { organisationId: "adept" }, "v2");
+
+		expect(result.models.map((model) => model.model_id)).toEqual(["adept/fuyu-8b"]);
+		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("organisation_id=eq"))).toBe(false);
+	});
+});
 
 describe("buildModelsPageFacets", () => {
 	it("groups transcription aliases under the canonical audio_stt modality", () => {

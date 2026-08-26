@@ -312,12 +312,14 @@ async function databasePageRows(env: Env, query: ModelsPageQuery = {}): Promise<
 				)
 				: client.rpc("get_public_models_page_rows")
 		);
-		if (query.organisationId) {
-			request = request.eq("organisation_id", query.organisationId);
-		}
 		const result = await request.range(offset, offset + 999);
 		if (result.error) throw result.error;
-		rows.push(...((result.data ?? []) as Row[]));
+		const pageRows = (result.data ?? []) as Row[];
+		rows.push(...(
+			query.organisationId
+				? pageRows.filter((row) => String(row.organisation_id ?? "") === query.organisationId)
+				: pageRows
+		));
 		if ((result.data?.length ?? 0) < 1_000) break;
 	}
 	return rows;
