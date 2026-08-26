@@ -37,6 +37,7 @@ import { executor as googleVertexText } from "./google-vertex/text-generate";
 import { executor as googleVertexVideo } from "./google-vertex/video-generate";
 import { executor as googleAiStudioVideo } from "./google/video-generate";
 import { executor as deepinfraText } from "./deepinfra/text-generate";
+import { executor as ioNetText } from "./io-net/text-generate";
 import { executor as togetherText } from "./together/text-generate";
 import { executor as crofaiText } from "./crofai/text-generate";
 import { executor as canopyWaveText } from "./canopy-wave/text-generate";
@@ -375,6 +376,7 @@ export const EXECUTORS_BY_PROVIDER: Record<string, ProviderCapabilityMap> = {
 	"google-vertex": { "text.generate": googleVertexText, "video.generate": googleVertexVideo },
 	"google-vertex-eu": { "text.generate": googleVertexText },
 	deepinfra: { "text.generate": deepinfraText },
+	"io-net": { "text.generate": ioNetText },
 	fireworks: { "text.generate": fireworksText, embeddings: openaiEmbeddings, rerank: openaiRerank, "image.generate": nonTextAdapterExecutor },
 	groq: {
 		"text.generate": groqText,

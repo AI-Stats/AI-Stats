@@ -8139,7 +8139,7 @@
     "provider_api_model_id": "deepinfra:zai-org/GLM-5.3-Flash",
     "provider_model_slug": "zai-org/GLM-5.3-Flash",
     "internal_model_id": "z-ai/glm-5.3-flash",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": "FP8",
     "input_modalities": "text,image,video",
     "output_modalities": "text",
@@ -8188,7 +8188,7 @@
       }
     ],
     "routing_status": "active",
-    "routable": false,
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null

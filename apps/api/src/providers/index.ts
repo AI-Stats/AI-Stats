@@ -69,6 +69,7 @@ const ADAPTERS: Record<string, ProviderAdapter> = {
     voyageai: createOpenAICompatibleAdapter("voyageai"),
     crusoe: createOpenAICompatibleAdapter("crusoe"),
     deepinfra: createOpenAICompatibleAdapter("deepinfra"),
+    "io-net": createOpenAICompatibleAdapter("io-net"),
     darkbloom: createOpenAICompatibleAdapter("darkbloom"),
     deepseek: createOpenAICompatibleAdapter("deepseek"),
     featherless: createOpenAICompatibleAdapter("featherless"),

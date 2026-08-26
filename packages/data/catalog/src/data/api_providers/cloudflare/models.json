@@ -3001,7 +3001,7 @@
     "provider_api_model_id": "cloudflare:@cf/zai-org/glm-5.3-flash",
     "provider_model_slug": "@cf/zai-org/glm-5.3-flash",
     "internal_model_id": "z-ai/glm-5.3-flash",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": "unknown",
     "input_modalities": "text,image,video",
     "output_modalities": "text",
@@ -3050,7 +3050,7 @@
       }
     ],
     "routing_status": "active",
-    "routable": false,
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
