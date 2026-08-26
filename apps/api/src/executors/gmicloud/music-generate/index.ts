@@ -30,11 +30,17 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	const extensionAudioSetting = extensions.audio_setting && typeof extensions.audio_setting === "object" && !Array.isArray(extensions.audio_setting)
 		? extensions.audio_setting
 		: {};
-	const audioSetting = {
-		...extensionAudioSetting,
-		...rawAudioSetting,
-		...(ir.format ? { format: ir.format } : {}),
-	};
+	const hasAudioSetting = ir.format || Object.keys(extensionAudioSetting).length > 0 || Object.keys(rawAudioSetting).length > 0;
+	const audioSetting = hasAudioSetting
+		? {
+			sample_rate: 44100,
+			bitrate: 256000,
+			format: "mp3",
+			...extensionAudioSetting,
+			...rawAudioSetting,
+			...(ir.format ? { format: ir.format } : {}),
+		}
+		: {};
 	const payload: Record<string, unknown> = {
 		prompt: ir.prompt ?? raw.prompt ?? "",
 		...(ir.duration != null ? { duration: ir.duration } : {}),
