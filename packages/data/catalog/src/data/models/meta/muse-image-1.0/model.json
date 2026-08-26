@@ -2,7 +2,7 @@
   "model_id": "meta/muse-image-1.0",
   "organisation_id": "meta",
   "name": "Muse Image 1.0",
-  "status": "ComingSoon",
+  "status": "Available",
   "previous_model_id": null,
   "description": "Muse Image is Meta's agentic image generation and editing model for precise edits, multi-reference composition, and complex visual prompts.",
   "announced_date": "2026-07-07T00:00:00Z",

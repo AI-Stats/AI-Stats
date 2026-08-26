@@ -13,7 +13,7 @@
   "residency_source_url": "https://llama.developer.meta.com/legal/terms-of-service",
   "residency_notes": "Meta's public hosted-model terms do not specify an API execution/storage region or a Zero Data Retention control. The model license and each hosted provider's policy should be evaluated separately.",
   "country_code": "US",
-  "status": "NotReady",
+  "status": "Active",
   "colour": "#1980E1",
   "privacy_policy_url": "https://www.facebook.com/privacy/policy/",
   "terms_of_service_url": "https://llama.developer.meta.com/legal/terms-of-service",
