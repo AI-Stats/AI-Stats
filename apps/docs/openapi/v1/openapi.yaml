@@ -1246,7 +1246,9 @@ paths:
         - Gateway
       operationId: generateMusic
       summary: Generate music
-      description: Generates music using the requested model and provider settings.
+      description: >-
+        Generates music through one provider-independent endpoint. Phaseo waits
+        for synchronous providers and handles provider queue polling internally.
       requestBody:
         required: true
         content:
@@ -1267,12 +1269,15 @@ paths:
         - Gateway
       operationId: getMusicGeneration
       summary: Get music generation status
-      description: Retrieves the status for a music generation request.
+      description: >-
+        Retrieves a normalized music result using the Phaseo request ID returned
+        by POST /music/generate. Provider-specific status APIs are handled
+        internally.
       parameters:
         - name: music_id
           in: path
           required: true
-          description: The ID of the music generation request.
+          description: The stable Phaseo request ID returned by POST /music/generate.
           schema:
             type: string
       responses:
@@ -6898,6 +6903,50 @@ components:
           $ref: '#/components/schemas/DebugOptions'
     MusicGenerateResponse:
       type: object
+      required:
+        - id
+        - object
+        - status
+        - model
+        - provider
+      properties:
+        id:
+          type: string
+          description: Stable Phaseo request ID used with GET /music/generate/{music_id}.
+        object:
+          type: string
+          enum:
+            - music
+        status:
+          type: string
+          enum:
+            - queued
+            - in_progress
+            - completed
+            - failed
+        model:
+          type: string
+        provider:
+          type: string
+        nativeResponseId:
+          type: string
+          nullable: true
+          description: Upstream provider identifier for correlation and support.
+        audio_url:
+          type: string
+          format: uri
+        audio_base64:
+          type: string
+        result:
+          description: Provider result metadata normalized by Phaseo.
+        output:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        usage:
+          type: object
+          additionalProperties: true
       additionalProperties: true
     BatchRequest:
       type: object

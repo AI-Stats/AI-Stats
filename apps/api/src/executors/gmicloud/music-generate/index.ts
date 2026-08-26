@@ -1,10 +1,9 @@
 // Purpose: Executor for gmicloud / music-generate.
-// Why: MiniMax Music 3.0 on GMI Cloud uses the native asynchronous request queue.
+// Why: MiniMax Music 3.0 uses GMI Cloud's request queue, which may complete inline or require polling.
 
 import type { IRMusicGenerateRequest, IRMusicGenerateResponse } from "@core/ir";
 import type { ExecutorExecuteArgs, ExecutorResult } from "@executors/types";
 import type { ProviderExecutor } from "@executors/types";
-import { saveMusicJobMeta } from "@core/music-jobs";
 import { executeGmiQueueRequest, extractMediaBase64, extractMediaUrl, extractQueueOutcome, queueKeyMeta } from "../request-queue";
 
 function errorResult(args: ExecutorExecuteArgs, upstream: Response, keyMeta: ReturnType<typeof queueKeyMeta>, mappedRequest?: string): ExecutorResult {
@@ -77,7 +76,11 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 		);
 	}
 	const outcome = extractQueueOutcome(result.json);
-	const duration = typeof outcome?.duration === "number" ? outcome.duration : null;
+	const duration = typeof outcome?.duration === "number"
+		? outcome.duration
+		: typeof outcome?.duration_ms === "number"
+			? outcome.duration_ms / 1000
+			: null;
 	const response: IRMusicGenerateResponse = {
 		id: args.requestId,
 		nativeId: result.requestId,
@@ -87,36 +90,9 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 		audioUrl,
 		audioBase64,
 		result: result.json,
-		usage: { inputTokens: 0, outputTokens: 0, totalTokens: 0, requests: 1, ...(typeof outcome?.duration === "number" ? { output_audio_seconds: outcome.duration } : {}) } as any,
+		usage: { inputTokens: 0, outputTokens: 0, totalTokens: 0, requests: 1, ...(duration != null ? { output_audio_seconds: duration } : {}) } as any,
 		rawResponse: result.json,
 	};
-	try {
-		await saveMusicJobMeta(args.workspaceId, result.requestId, {
-			provider: args.providerId,
-			model: ir.model,
-			duration,
-			format: ir.format ?? null,
-			status: response.status,
-			nativeResponseId: result.requestId,
-			audioBase64: audioBase64 ?? null,
-			output: [{
-				index: 0,
-				id: result.requestId,
-				audio_url: audioUrl ?? null,
-				audio_base64: audioBase64 ?? null,
-				duration,
-			}],
-			result: result.json,
-			rawResponse: result.json,
-			createdAt: Date.now(),
-		});
-	} catch (error) {
-		console.error("gmicloud_music_job_meta_store_failed", {
-			error,
-			workspaceId: args.workspaceId,
-			musicId: args.requestId,
-		});
-	}
 	return {
 		kind: "completed",
 		ir: response,

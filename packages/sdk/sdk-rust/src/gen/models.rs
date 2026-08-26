@@ -1072,6 +1072,17 @@ pub struct MusicGenerateRequest {
 }
 
 pub struct MusicGenerateResponse {
+	pub audio_base64: Option<String>,
+	pub audio_url: Option<String>,
+	pub id: String,
+	pub model: String,
+	pub nativeResponseId: Option<Option<String>>,
+	pub object: String,
+	pub output: Option<Vec<HashMap<String, String>>>,
+	pub provider: String,
+	pub result: Option<String>,
+	pub status: String,
+	pub usage: Option<HashMap<String, String>>,
 }
 
 pub struct NotImplementedResponse {

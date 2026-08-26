@@ -4484,17 +4484,47 @@ export type GenerateMusicParams = {
 };
 
 /**
- * Generates music using the requested model and provider settings.
+ * Generates music through one provider-independent endpoint. Phaseo waits for synchronous providers and handles provider queue polling internally.
  */
 export async function generateMusic(
   client: Client,
   args: GenerateMusicParams = {},
 ): Promise<{
+  audio_base64?: string;
+  audio_url?: string;
+  id: string;
+  model: string;
+  nativeResponseId?: string | null;
+  object: "music";
+  output?: {
+    [key: string]: unknown;
+  }[];
+  provider: string;
+  result?: unknown;
+  status: "queued" | "in_progress" | "completed" | "failed";
+  usage?: {
+    [key: string]: unknown;
+  };
   [key: string]: unknown;
 }> {
   const { path, query, headers, body } = args;
   const resolvedPath = "/music/generate";
   return client.request<{
+    audio_base64?: string;
+    audio_url?: string;
+    id: string;
+    model: string;
+    nativeResponseId?: string | null;
+    object: "music";
+    output?: {
+      [key: string]: unknown;
+    }[];
+    provider: string;
+    result?: unknown;
+    status: "queued" | "in_progress" | "completed" | "failed";
+    usage?: {
+      [key: string]: unknown;
+    };
     [key: string]: unknown;
   }>({
     method: "POST",
@@ -4595,11 +4625,41 @@ export async function generateMusicAlias(
   client: Client,
   args: GenerateMusicAliasParams = {},
 ): Promise<{
+  audio_base64?: string;
+  audio_url?: string;
+  id: string;
+  model: string;
+  nativeResponseId?: string | null;
+  object: "music";
+  output?: {
+    [key: string]: unknown;
+  }[];
+  provider: string;
+  result?: unknown;
+  status: "queued" | "in_progress" | "completed" | "failed";
+  usage?: {
+    [key: string]: unknown;
+  };
   [key: string]: unknown;
 }> {
   const { path, query, headers, body } = args;
   const resolvedPath = "/music/generations";
   return client.request<{
+    audio_base64?: string;
+    audio_url?: string;
+    id: string;
+    model: string;
+    nativeResponseId?: string | null;
+    object: "music";
+    output?: {
+      [key: string]: unknown;
+    }[];
+    provider: string;
+    result?: unknown;
+    status: "queued" | "in_progress" | "completed" | "failed";
+    usage?: {
+      [key: string]: unknown;
+    };
     [key: string]: unknown;
   }>({
     method: "POST",
@@ -5032,17 +5092,47 @@ export type GetMusicGenerationParams = {
 };
 
 /**
- * Retrieves the status for a music generation request.
+ * Retrieves a normalized music result using the Phaseo request ID returned by POST /music/generate. Provider-specific status APIs are handled internally.
  */
 export async function getMusicGeneration(
   client: Client,
   args: GetMusicGenerationParams = {},
 ): Promise<{
+  audio_base64?: string;
+  audio_url?: string;
+  id: string;
+  model: string;
+  nativeResponseId?: string | null;
+  object: "music";
+  output?: {
+    [key: string]: unknown;
+  }[];
+  provider: string;
+  result?: unknown;
+  status: "queued" | "in_progress" | "completed" | "failed";
+  usage?: {
+    [key: string]: unknown;
+  };
   [key: string]: unknown;
 }> {
   const { path, query, headers, body } = args;
   const resolvedPath = `/music/generate/${encodeURIComponent(String(path?.["music_id"]))}`;
   return client.request<{
+    audio_base64?: string;
+    audio_url?: string;
+    id: string;
+    model: string;
+    nativeResponseId?: string | null;
+    object: "music";
+    output?: {
+      [key: string]: unknown;
+    }[];
+    provider: string;
+    result?: unknown;
+    status: "queued" | "in_progress" | "completed" | "failed";
+    usage?: {
+      [key: string]: unknown;
+    };
     [key: string]: unknown;
   }>({
     method: "GET",
@@ -5069,11 +5159,41 @@ export async function getMusicGenerationAlias(
   client: Client,
   args: GetMusicGenerationAliasParams = {},
 ): Promise<{
+  audio_base64?: string;
+  audio_url?: string;
+  id: string;
+  model: string;
+  nativeResponseId?: string | null;
+  object: "music";
+  output?: {
+    [key: string]: unknown;
+  }[];
+  provider: string;
+  result?: unknown;
+  status: "queued" | "in_progress" | "completed" | "failed";
+  usage?: {
+    [key: string]: unknown;
+  };
   [key: string]: unknown;
 }> {
   const { path, query, headers, body } = args;
   const resolvedPath = `/music/generations/${encodeURIComponent(String(path?.["music_id"]))}`;
   return client.request<{
+    audio_base64?: string;
+    audio_url?: string;
+    id: string;
+    model: string;
+    nativeResponseId?: string | null;
+    object: "music";
+    output?: {
+      [key: string]: unknown;
+    }[];
+    provider: string;
+    result?: unknown;
+    status: "queued" | "in_progress" | "completed" | "failed";
+    usage?: {
+      [key: string]: unknown;
+    };
     [key: string]: unknown;
   }>({
     method: "GET",

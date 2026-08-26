@@ -1,16 +1,10 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { IRAudioSpeechRequest, IRMusicGenerateRequest } from "@core/ir";
 import type { ExecutorExecuteArgs } from "@executors/types";
 import { setupTestRuntime, teardownTestRuntime } from "../../../tests/helpers/runtime";
 import { installFetchMock, jsonResponse } from "../../../tests/helpers/mock-fetch";
 import { execute as executeMusic } from "./music-generate";
 import { execute as executeSpeech } from "./audio-speech";
-
-const saveMusicJobMetaMock = vi.fn(async () => undefined);
-
-vi.mock("@core/music-jobs", () => ({
-	saveMusicJobMeta: (...args: unknown[]) => saveMusicJobMetaMock(...args),
-}));
 
 function args(ir: any, endpoint: "audio.speech" | "music.generate", slug: string): ExecutorExecuteArgs {
 	return {
@@ -33,8 +27,6 @@ beforeAll(() => setupTestRuntime());
 afterAll(() => teardownTestRuntime());
 
 describe("GMICloud native media executors", () => {
-	beforeEach(() => saveMusicJobMetaMock.mockClear());
-
 	it("submits Music 3.0 through the request queue and returns music IR", async () => {
 		let body: any;
 		const mock = installFetchMock([{
@@ -49,12 +41,18 @@ describe("GMICloud native media executors", () => {
 		expect(body).toEqual({ model: "minimax-music-3.0", payload: { prompt: "cinematic ambient", lyrics: "[Instrumental]" } });
 		expect((result.ir as any)?.nativeId).toBe("music_req_1");
 		expect((result.ir as any)?.audioUrl).toBe("https://gmi.example/music.mp3");
-		expect(saveMusicJobMetaMock).toHaveBeenCalledWith("team_test", "music_req_1", expect.objectContaining({
-		provider: "gmicloud",
-		status: "completed",
-		nativeResponseId: "music_req_1",
-		output: [expect.objectContaining({ audio_url: "https://gmi.example/music.mp3" })],
-	}));
+	});
+
+	it("normalizes documented millisecond duration into seconds", async () => {
+		const mock = installFetchMock([{
+			match: (url, init) => url.endsWith("/api/v1/ie/requestqueue/apikey/requests") && init?.method === "POST",
+			response: jsonResponse({ request_id: "music_req_duration", status: "success", outcome: { audio_url: "https://gmi.example/music.mp3", duration_ms: 25364 } }),
+		}]);
+
+		const result = await executeMusic(args({ model: "minimax/music-3.0:free", prompt: "cinematic ambient" } as IRMusicGenerateRequest, "music.generate", "minimax-music-3.0"));
+		mock.restore();
+
+		expect((result.ir as any)?.usage?.output_audio_seconds).toBe(25.364);
 	});
 
 	it("maps the public music format into MiniMax audio_setting", async () => {
