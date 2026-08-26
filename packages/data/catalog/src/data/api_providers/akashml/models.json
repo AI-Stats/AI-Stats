@@ -4,18 +4,18 @@
     "provider_api_model_id": "akashml:deepseek/deepseek-v4-flash",
     "provider_model_slug": "deepseek-ai/DeepSeek-V4-Flash",
     "internal_model_id": "deepseek/deepseek-v4-flash",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 262144,
     "max_output_tokens": null,
     "effective_from": "2026-04-28T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-21T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -27,8 +27,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "disabled",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -52,18 +52,18 @@
     "provider_api_model_id": "akashml:google/gemma-4-31b",
     "provider_model_slug": "google/gemma-4-31B-it",
     "internal_model_id": "google/gemma-4-31b",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "text",
     "context_length": 256000,
     "max_output_tokens": null,
     "effective_from": "2026-04-28T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-21T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -75,8 +75,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "disabled",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -104,7 +104,7 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": 128000,
+    "context_length": 131072,
     "max_output_tokens": null,
     "effective_from": "2026-04-28T00:00:00",
     "effective_to": null,
@@ -112,7 +112,7 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": ["temperature", "max_tokens", "top_p", "frequency_penalty", "presence_penalty"],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -244,10 +244,10 @@
     "provider_api_model_id": "akashml:openai/gpt-oss-120b",
     "provider_model_slug": "openai/gpt-oss-120b",
     "internal_model_id": "openai/gpt-oss-120b",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
     "context_length": 131072,
     "max_output_tokens": null,
     "effective_from": null,
@@ -256,7 +256,7 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": ["temperature", "max_tokens", "top_p", "frequency_penalty", "presence_penalty"],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -268,7 +268,7 @@
       }
     ],
     "routing_status": "active",
-    "routable": false,
+    "routable": true,
     "regions": {
       "execution": [
         "global"
@@ -283,12 +283,49 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [{ "kind": "documentation", "url": "https://akashml.com/docs/platform/models", "accessed_at": "2026-08-21T00:00:00Z" }],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-11T04:15:54.294+00:00",
-      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+      "status": "verified",
+      "checked_at": "2026-08-21",
+      "notes": "Availability, limits, and pricing verified against the official AkashML model catalogue."
     },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-oss-20b",
+    "provider_api_model_id": "akashml:openai/gpt-oss-20b",
+    "provider_model_slug": "openai/gpt-oss-20b",
+    "internal_model_id": "openai/gpt-oss-20b",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 131072,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": ["temperature", "max_tokens", "top_p", "frequency_penalty", "presence_penalty"],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": { "execution": ["global"], "data": ["global"] },
+    "service_tiers": [],
+    "api": { "formats": [], "endpoint": null, "deployment": null },
+    "sources": [{ "kind": "documentation", "url": "https://akashml.com/docs/platform/models", "accessed_at": "2026-08-21T00:00:00Z" }],
+    "verification": { "status": "verified", "checked_at": "2026-08-21", "notes": "Availability, limits, and pricing verified against the official AkashML model catalogue." },
     "rate_limits": []
   },
   {
@@ -308,7 +345,25 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "temperature",
+          "top_p",
+          "top_k",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "repetition_penalty",
+          "seed",
+          "max_tokens",
+          "structured_outputs",
+          "tools",
+          "response_format",
+          "tool_choice",
+          "logprobs",
+          "top_logprobs"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -356,7 +411,25 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "temperature",
+          "top_p",
+          "top_k",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "repetition_penalty",
+          "seed",
+          "max_tokens",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "logprobs",
+          "top_logprobs"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -388,11 +461,66 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "qwen/qwen3.8-27b",
+    "provider_api_model_id": "akashml:qwen/qwen3.8-27b",
+    "provider_model_slug": "Qwen/Qwen3.8-27B",
+    "internal_model_id": "qwen/qwen3.8-27b",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-15T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": ["temperature", "max_tokens", "top_p", "frequency_penalty", "presence_penalty"],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.akashml.com/v1/models",
+        "accessed_at": "2026-08-15T00:00:00Z",
+        "notes": "Provider-model availability observation; public pricing was subsequently published and verified."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-21",
+      "notes": "Availability, limits, and pricing verified against the official AkashML model catalogue."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "z-ai/glm-5.2",
     "provider_api_model_id": "akashml:z-ai/glm-5.2",
     "provider_model_slug": "zai-org/GLM-5.2",
     "internal_model_id": "z-ai/glm-5.2",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": "FP8",
     "input_modalities": "text",
     "output_modalities": "text",
@@ -404,7 +532,7 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": ["temperature", "max_tokens", "top_p", "frequency_penalty", "presence_penalty"],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -415,8 +543,8 @@
         "modes": []
       }
     ],
-    "routing_status": null,
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
@@ -427,20 +555,20 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [{ "kind": "documentation", "url": "https://akashml.com/docs/platform/models", "accessed_at": "2026-08-21T00:00:00Z" }],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-21",
+      "notes": "Availability, limits, and current promotional pricing verified against the official AkashML model catalogue."
     },
     "rate_limits": []
   },
   {
     "api_model_id": "deepseek/deepseek-v4-flash-0731",
     "provider_api_model_id": "akashml:deepseek/deepseek-v4-flash-0731",
-    "provider_model_slug": "deepseek/deepseek-v4-flash-0731",
+    "provider_model_slug": "deepseek-ai/DeepSeek-V4-Flash-0731",
     "internal_model_id": "deepseek/deepseek-v4-flash-0731",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": "fp8",
     "input_modalities": "text",
     "output_modalities": "text",
@@ -451,7 +579,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "disabled",
+        "status": "active",
         "params": [
           "reasoning",
           "include_reasoning",
@@ -482,8 +610,8 @@
         "modes": []
       }
     ],
-    "routing_status": "disabled",
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
@@ -497,15 +625,15 @@
     "sources": [
       {
         "kind": "provider_models",
-        "url": null,
-        "accessed_at": "2026-08-12T00:00:00Z",
-        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+        "url": "https://akashml.com/docs/platform/models",
+        "accessed_at": "2026-08-21T00:00:00Z",
+        "notes": "Initial availability observation; direct provider documentation, slug, and pricing were subsequently verified."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-12T00:00:00Z",
-      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+      "status": "verified",
+      "checked_at": "2026-08-21",
+      "notes": "Availability, provider slug, limits, and pricing verified against the official AkashML model catalogue."
     },
     "rate_limits": []
   }

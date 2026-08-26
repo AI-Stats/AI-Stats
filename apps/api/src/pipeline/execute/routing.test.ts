@@ -76,7 +76,7 @@ function candidate(args: {
 	residencyMode?: "unknown" | "provider_managed" | "customer_selectable" | "account_selected" | null;
 	executionRegions?: string[] | null;
 	dataRegions?: string[] | null;
-	zeroDataRetention?: "unknown" | "unsupported" | "optional" | "default" | null;
+	zeroDataRetention?: boolean | null;
 	availabilityPolicy?: any;
 	pricingCard?: any;
 }) {
@@ -93,7 +93,7 @@ function candidate(args: {
 		residencyMode: args.residencyMode ?? "unknown",
 		executionRegions: args.executionRegions ?? null,
 		dataRegions: args.dataRegions ?? null,
-		zeroDataRetention: args.zeroDataRetention ?? "unknown",
+		zeroDataRetention: args.zeroDataRetention ?? false,
 		availabilityPolicy: args.availabilityPolicy ?? null,
 		apiModelId: args.apiModelId ?? null,
 		adapter: { name: args.providerId } as any,
@@ -272,13 +272,13 @@ describe("routeProviders testing mode", () => {
 					providerId: "openai",
 					executionRegions: ["us", "eu"],
 					dataRegions: ["us", "eu"],
-					zeroDataRetention: "default",
+					zeroDataRetention: true,
 				}),
 				candidate({
 					providerId: "anthropic",
 					executionRegions: null,
 					dataRegions: null,
-					zeroDataRetention: "default",
+					zeroDataRetention: true,
 				}),
 			],
 			{
@@ -312,7 +312,7 @@ describe("routeProviders testing mode", () => {
 				providerFamilyId: "example",
 				offerScope: "global",
 				dataPolicyVariant: "standard",
-				zeroDataRetention: "optional",
+				zeroDataRetention: false,
 			}),
 			candidate({
 				providerId: "example-zdr",
@@ -320,7 +320,7 @@ describe("routeProviders testing mode", () => {
 				offerScope: "specialized",
 				offerLabel: "ZDR",
 				dataPolicyVariant: "zdr",
-				zeroDataRetention: "default",
+				zeroDataRetention: true,
 			}),
 		];
 
@@ -860,6 +860,32 @@ describe("routeProviders testing mode", () => {
 		expect(cheapResult.diagnostics.routingMode).toBe("price");
 	});
 
+	it.each([
+		[":nitro", "throughput"],
+		[":cheap", "price"],
+		[":fast", "latency"],
+	] as const)(
+		"gives %s precedence over conflicting request and workspace routing modes",
+		async (suffix, expectedMode) => {
+			const result = await routeProviders(
+				[
+					candidate({ providerId: "openai" }),
+					candidate({ providerId: "anthropic" }),
+				],
+				{
+					endpoint: "responses",
+					model: `openai/gpt-4o-mini${suffix}`,
+					workspaceId: "team_123",
+					body: { routing: { mode: "balanced" }, provider: { sort: "price" } },
+					routingMode: "latency",
+					testingMode: false,
+				},
+			);
+
+			expect(result.diagnostics.routingMode).toBe(expectedMode);
+		},
+	);
+
 	it("filters providers by first-class routing max_price ceilings", async () => {
 		const result = await routeProviders(
 			[
@@ -898,15 +924,15 @@ describe("routeProviders testing mode", () => {
 			[
 				candidate({
 					providerId: "openai",
-					zeroDataRetention: "default",
+					zeroDataRetention: true,
 				}),
 				candidate({
 					providerId: "anthropic",
-					zeroDataRetention: "unsupported",
+					zeroDataRetention: false,
 				}),
 				candidate({
 					providerId: "mistral",
-					zeroDataRetention: "optional",
+					zeroDataRetention: false,
 				}),
 			],
 			{
@@ -1246,5 +1272,3 @@ describe("routeProviders testing mode", () => {
 		)?.afterCount).toBe(0);
 	});
 });
-
-

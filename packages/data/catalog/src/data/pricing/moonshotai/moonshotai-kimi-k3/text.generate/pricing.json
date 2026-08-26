@@ -52,16 +52,32 @@
       "cache_duration_seconds": null,
       "conditions": [],
       "source": null
+    },
+    {
+      "meter": "native_web_search_requests",
+      "unit": "request",
+      "unit_size": 1,
+      "price_per_unit": 0.005,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Charged only when the $web_search built-in tool returns a successful tool call.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-23T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://platform.kimi.ai/docs/pricing/tools"
     }
   ],
   "regions": [],
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": ["https://platform.kimi.ai/docs/pricing/chat-k3", "https://platform.kimi.ai/docs/pricing/tools"],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-23T00:00:00Z",
+    "notes": "Verified K3 token and successful native web-search call pricing against current Kimi documentation."
   }
 }

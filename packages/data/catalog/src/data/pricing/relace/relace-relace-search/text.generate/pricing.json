@@ -22,7 +22,7 @@
       "source": {
         "kind": "pricing",
         "url": "https://relace.ai/pricing",
-        "accessed_at": "2026-08-12T00:00:00Z"
+        "accessed_at": "2026-08-24T00:00:00Z"
       }
     },
     {
@@ -42,7 +42,7 @@
       "source": {
         "kind": "pricing",
         "url": "https://relace.ai/pricing",
-        "accessed_at": "2026-08-12T00:00:00Z"
+        "accessed_at": "2026-08-24T00:00:00Z"
       }
     }
   ],
@@ -52,12 +52,12 @@
     {
       "kind": "pricing",
       "url": "https://relace.ai/pricing",
-      "accessed_at": "2026-08-12T00:00:00Z"
+      "accessed_at": "2026-08-24T00:00:00Z"
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-12T00:00:00Z",
+    "checked_at": "2026-08-24T00:00:00Z",
     "notes": "Verified from Relace's official pricing page."
   }
 }

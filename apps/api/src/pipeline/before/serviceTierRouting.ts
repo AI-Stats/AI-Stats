@@ -51,6 +51,8 @@ const PRIORITY_SIBLING_API_MODEL_IDS = new Map<string, string>([
 ]);
 
 const PRIORITY_HIDDEN_SAME_MODEL_KEYS = new Set([
+    "crofai:deepseek/deepseek-v4-pro",
+    "crofai:moonshotai/kimi-k2.5",
     "deepinfra:minimax/minimax-m2.7",
 ]);
 
@@ -94,15 +96,11 @@ function isTierDedicatedOffer(candidate: ProviderCandidate, requestedPlan: Servi
 
 function isTierSiblingModel(candidate: ProviderCandidate, requestedPlan: ServiceTierPlan): boolean {
     const apiModelId = String(candidate.apiModelId ?? "").trim().toLowerCase();
-    const providerModelSlug = String(candidate.providerModelSlug ?? "").trim().toLowerCase();
     if (requestedPlan === "priority") {
-        return (
-            apiModelId.endsWith("-fast") ||
-            providerModelSlug.endsWith("-fast") ||
-            PRIORITY_SIBLING_VALUE_IDS.has(apiModelId)
-        );
+        return PRIORITY_SIBLING_VALUE_IDS.has(apiModelId);
     }
     if (requestedPlan === "flex") {
+        const providerModelSlug = String(candidate.providerModelSlug ?? "").trim().toLowerCase();
         return apiModelId.endsWith("-flex") || providerModelSlug.endsWith("-flex");
     }
     return false;
@@ -252,6 +250,10 @@ async function remapToTierSibling(
         apiModelId: siblingApiModelId,
         pricingKey: `${candidate.providerId}:${siblingApiModelId}`,
         providerModelSlug: matchedProviderRow.provider_model_slug ?? candidate.providerModelSlug,
+        quantizationScheme:
+			typeof matchedProviderRow.metadata?.quantization_scheme === "string"
+				? matchedProviderRow.metadata.quantization_scheme
+				: null,
         availabilityPolicy: parseRouteAvailabilityPolicy(matchedProviderRow.metadata?.availability),
         pricingCard: siblingPricingCard,
         capabilityParams:
@@ -345,6 +347,10 @@ async function remapToHiddenTierSibling(
     return {
         ...candidate,
         providerModelSlug: matchedProviderRow.provider_model_slug ?? candidate.providerModelSlug,
+        quantizationScheme:
+			typeof matchedProviderRow.metadata?.quantization_scheme === "string"
+				? matchedProviderRow.metadata.quantization_scheme
+				: null,
         availabilityPolicy: parseRouteAvailabilityPolicy(matchedProviderRow.metadata?.availability),
         capabilityParams:
             siblingCapability?.params && typeof siblingCapability.params === "object"
@@ -372,14 +378,22 @@ export async function applyServiceTierRouting(args: {
     const requestedTier = normalizeRequestedServiceTier(args.body);
     const requestedPlan = normalizeRequestedPlan(requestedTier);
     if (!requestedPlan) {
+		const candidates = args.candidates.filter((candidate) =>
+			!isTierDedicatedOffer(candidate, "priority") && !isTierSiblingModel(candidate, "priority")
+		);
         return {
-            candidates: args.candidates,
+            candidates,
             diagnostics: {
                 requestedTier,
                 requestedPlan,
                 beforeCount: args.candidates.length,
-                afterCount: args.candidates.length,
-                droppedProviders: [],
+                afterCount: candidates.length,
+                droppedProviders: args.candidates.filter((candidate) => !candidates.includes(candidate)).map((candidate) => ({
+					providerId: candidate.providerId,
+					apiModelId: candidate.apiModelId ?? null,
+					providerModelSlug: candidate.providerModelSlug ?? null,
+					reason: "service_tier_priority_required",
+				})),
                 remappedProviders: [],
             },
         };
@@ -390,6 +404,15 @@ export async function applyServiceTierRouting(args: {
     const remappedProviders: ServiceTierRoutingDiagnostics["remappedProviders"] = [];
 
     for (const candidate of args.candidates) {
+		if (requestedPlan !== "priority" && (isTierDedicatedOffer(candidate, "priority") || isTierSiblingModel(candidate, "priority"))) {
+			droppedProviders.push({
+				providerId: candidate.providerId,
+				apiModelId: candidate.apiModelId ?? null,
+				providerModelSlug: candidate.providerModelSlug ?? null,
+				reason: "service_tier_priority_required",
+			});
+			continue;
+		}
         if (!hasConfiguredPricing(candidate)) {
             nextCandidates.push(candidate);
             continue;

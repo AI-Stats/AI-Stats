@@ -2,14 +2,14 @@
   "api_provider_id": "xiaomi",
   "api_provider_name": "Xiaomi",
   "description": null,
-  "link": "https://platform.xiaomimimo.com/#/docs/welcome",
+  "link": "https://mimo.mi.com/docs/welcome",
   "residency_mode": "customer_selectable",
   "default_execution_regions": null,
   "default_data_regions": null,
-  "zero_data_retention": "unknown",
+  "zero_data_retention": false,
   "residency_source_url": "https://mimo.mi.com/docs/quick-start/terms/user-agreement",
   "residency_notes": "Xiaomi MiMo says customers can request selectable data-storage regions, subject to legal and commercial requirements, and that regional accounts use different base URLs and keys. The public terms do not specify the available regions, a fixed execution location, or a named ZDR control.",
-  "data_policy_tier": "private",
+  "data_policy_tier": "logs",
   "data_policy_confidence": "maybe",
   "data_policy_contract_mode": "none",
   "country_code": "CN",
@@ -24,15 +24,42 @@
   "routable": null,
   "routing_enabled": null,
   "sdk_package": null,
-  "api_base_url": null,
-  "docs_url": "https://platform.xiaomimimo.com/#/docs/welcome",
-  "auth_env": null,
-  "api_formats": [],
-  "service_tiers": [],
-  "sources": [],
+  "api_base_url": "https://api.xiaomimimo.com/v1",
+  "docs_url": "https://mimo.mi.com/docs/welcome",
+  "auth_env": "MIMO_API_KEY",
+  "api_formats": [
+    "openai_chat",
+    "openai_responses",
+    "anthropic_messages"
+  ],
+  "service_tiers": [
+    "standard",
+    "free",
+    "early_access"
+  ],
+  "sources": [
+    {
+      "kind": "documentation",
+      "url": "https://mimo.mi.com/docs/en-US/quick-start/model",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official model catalogue, modalities, context windows, and API model IDs."
+    },
+    {
+      "kind": "documentation",
+      "url": "https://mimo.mi.com/docs/en-US/updates/feature",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official API format and Token Plan model availability history."
+    },
+    {
+      "kind": "pricing",
+      "url": "https://mimo.mi.com/docs/price/pay-as-you-go",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official live pay-as-you-go prices."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Verified against Xiaomi MiMo's official model catalogue, usage guides, pricing pages, changelog, and authenticated live model endpoint behavior (401 without a key)."
   }
 }

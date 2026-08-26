@@ -42,7 +42,7 @@ export const PLATFORM_DISCOVERY_RULES: PlatformDiscoveryRule[] = [
     {
         platformId: "alibaba-cloud",
         platformName: "Alibaba Cloud",
-        providerIds: ["alibaba"],
+          providerIds: ["alibaba-cloud"],
         modelsEndpoint: "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/models",
         active: true,
     },

@@ -4,9 +4,9 @@
   "name": "Veo 3.1 Lite Preview",
   "status": "Available",
   "previous_model_id": null,
-  "description": "Google's most cost-effective video generation model, designed for high-volume applications and rapid iteration. This entry tracks a preview release and capabilities may change before general availability.",
-  "announced_date": "2026-03-31T00:00:00",
-  "release_date": "2026-03-31T00:00:00",
+  "description": "Veo 3.1 Lite Preview is Google's fastest and most cost-efficient Veo model for high-volume text-to-video and image-to-video workflows.",
+  "announced_date": "2026-04-02T00:00:00",
+  "release_date": "2026-04-02T00:00:00",
   "deprecation_date": null,
   "retirement_date": null,
   "license": "Proprietary",
@@ -14,120 +14,20 @@
   "output_types": "video,audio",
   "api_model_id": "google/veo-3.1-lite-preview",
   "family_id": "google/veo-3.1",
-  "links": [],
+  "links": [{ "kind": "documentation", "title": "Veo 3.1 Lite documentation", "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/veo/3-1-generate" }],
   "details": [],
-  "benchmarks": [
-    {
-      "benchmark_id": "charxiv-r",
-      "score": 73.2,
-      "is_self_reported": true,
-      "other_info": "manual fallback alias from gemini-3.1-flash-lite-preview",
-      "source_link": "https://deepmind.google/models/model-cards/gemini-3-1-flash-lite/",
-      "rank": 15
-    },
-    {
-      "benchmark_id": "facts-grounding",
-      "score": 40.6,
-      "is_self_reported": true,
-      "other_info": "manual fallback alias from gemini-3.1-flash-lite-preview",
-      "source_link": "https://deepmind.google/models/model-cards/gemini-3-1-flash-lite/",
-      "rank": 24
-    },
-    {
-      "benchmark_id": "gpqa",
-      "score": 86.9,
-      "is_self_reported": true,
-      "other_info": "manual fallback alias from gemini-3.1-flash-lite-preview",
-      "source_link": "https://deepmind.google/models/model-cards/gemini-3-1-flash-lite/",
-      "rank": 23
-    },
-    {
-      "benchmark_id": "humanitys-last-exam",
-      "score": 16,
-      "is_self_reported": true,
-      "other_info": "manual fallback alias from gemini-3.1-flash-lite-preview",
-      "source_link": "https://deepmind.google/models/model-cards/gemini-3-1-flash-lite/",
-      "rank": 105
-    },
-    {
-      "benchmark_id": "mmmlu",
-      "score": 88.9,
-      "is_self_reported": true,
-      "other_info": "manual fallback alias from gemini-3.1-flash-lite-preview",
-      "source_link": "https://deepmind.google/models/model-cards/gemini-3-1-flash-lite/",
-      "rank": 16
-    },
-    {
-      "benchmark_id": "mmmu-pro",
-      "score": 76.8,
-      "is_self_reported": true,
-      "other_info": "manual fallback alias from gemini-3.1-flash-lite-preview",
-      "source_link": "https://deepmind.google/models/model-cards/gemini-3-1-flash-lite/",
-      "rank": 27
-    },
-    {
-      "benchmark_id": "mrcr-v2-(8-needle)",
-      "score": 60.1,
-      "is_self_reported": true,
-      "other_info": "manual fallback alias from gemini-3.1-flash-lite-preview",
-      "source_link": "https://deepmind.google/models/model-cards/gemini-3-1-flash-lite/",
-      "rank": 5
-    },
-    {
-      "benchmark_id": "simpleqa",
-      "score": 43.3,
-      "is_self_reported": true,
-      "other_info": "manual fallback alias from gemini-3.1-flash-lite-preview",
-      "source_link": "https://deepmind.google/models/model-cards/gemini-3-1-flash-lite/",
-      "rank": 37
-    },
-    {
-      "benchmark_id": "video-mmmu",
-      "score": 84.8,
-      "is_self_reported": true,
-      "other_info": "manual fallback alias from gemini-3.1-flash-lite-preview",
-      "source_link": "https://deepmind.google/models/model-cards/gemini-3-1-flash-lite/",
-      "rank": 10
-    }
-  ],
+  "benchmarks": [],
   "page_notice": null,
   "model_type": "video",
   "knowledge_cutoff": null,
-  "limits": {
-    "context": null,
-    "input": null,
-    "output": null
-  },
-  "modalities": {
-    "input": [
-      "text",
-      "image/*"
-    ],
-    "output": [
-      "video/*",
-      "audio/*"
-    ]
-  },
-  "reasoning": {
-    "supported": null,
-    "options": []
-  },
-  "capabilities": {
-    "attachment": null,
-    "tool_call": null,
-    "structured_output": null,
-    "temperature": null,
-    "streaming": null,
-    "web_search": null
-  },
-  "open_weights": null,
-  "sources": [],
-  "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
-  },
-  "last_updated": null,
+  "limits": { "context": null, "input": null, "output": null },
+  "modalities": { "input": ["text", "image/*"], "output": ["video/*", "audio/*"] },
+  "reasoning": { "supported": null, "options": [] },
+  "capabilities": { "attachment": null, "tool_call": null, "structured_output": null, "temperature": null, "streaming": null, "web_search": null },
+  "open_weights": false,
+  "sources": [{ "kind": "documentation", "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/veo/3-1-generate", "accessed_at": "2026-08-21T00:00:00Z" }],
+  "verification": { "status": "verified", "checked_at": "2026-08-21T00:00:00Z", "notes": "Removed unrelated Gemini benchmark data and verified the model as a Veo video-generation preview." },
+  "last_updated": "2026-08-21T00:00:00Z",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

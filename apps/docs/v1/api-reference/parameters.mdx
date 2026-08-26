@@ -501,7 +501,9 @@ Common fields include:
 | `required_data_region` | `string` | Restrict data handling to a required region. |
 | `require_zero_data_retention` | `boolean` | Require providers that meet zero-data-retention constraints. |
 | `max_price` | `object` | Set ceilings for prompt, completion, image, audio, or request costs. |
-| `quantizations` | `string[]` | Narrow routing to specific quantization variants when supported. |
+| `quantizations` | `string[]` | Require an eligible offer whose catalogue quantization matches one of these values. |
+
+`quantizations` follows the OpenRouter-compatible provider-routing vocabulary and is accepted under either `provider` or `routing`. Matching is case-insensitive and ignores spaces, hyphens, and underscores; unambiguous names such as `float8`/`FP8` and `bfloat16`/`BF16` are aliases. Offers without quantization metadata are excluded whenever this filter is present. If no eligible offer matches, the Gateway returns an error with the requested and currently available quantizations instead of silently routing to a different variant.
 
 <span id="provider_options"></span>
 <h3 id="parameter-provider_options"><code>provider_options</code></h3>

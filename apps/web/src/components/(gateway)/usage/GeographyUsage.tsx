@@ -1,3 +1,16 @@
+import Image from "next/image";
+import Link from "next/link";
+import { Globe2 } from "lucide-react";
+
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from "@/components/ui/table";
+
 type GeographyRow = {
 	countryCode: string;
 	requests: number;
@@ -21,6 +34,42 @@ function compact(value: number) {
 	return new Intl.NumberFormat("en-GB", { notation: "compact", maximumFractionDigits: 1 }).format(value);
 }
 
+function successRate(row: GeographyRow) {
+	if (row.requests <= 0 || row.successes == null) return null;
+	return (row.successes / row.requests) * 100;
+}
+
+function requestShare(row: GeographyRow, totalRequests: number) {
+	if (row.sharePercent != null) return row.sharePercent;
+	if (totalRequests <= 0) return 0;
+	return (row.requests / totalRequests) * 100;
+}
+
+function formatSpend(value: number | undefined) {
+	return ((value ?? 0) / 1e9).toLocaleString("en-US", {
+		style: "currency",
+		currency: "USD",
+		maximumFractionDigits: 4,
+	});
+}
+
+function formatLatency(value: number | null | undefined) {
+	return value == null ? "—" : `${Math.round(value)} ms`;
+}
+
+function CountryMark({ code }: { code: string }) {
+	const isCountry = /^[A-Z]{2}$/.test(code);
+	return (
+		<span className="relative flex h-6 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md border bg-background">
+			{isCountry ? (
+				<Image src={`/flags/${code.toLowerCase()}.svg`} alt="" fill className="object-cover" />
+			) : (
+				<Globe2 className="size-4 text-muted-foreground" />
+			)}
+		</span>
+	);
+}
+
 export function GeographyUsage({
 	rows,
 	publicView = false,
@@ -28,7 +77,7 @@ export function GeographyUsage({
 	rows: GeographyRow[];
 	publicView?: boolean;
 }) {
-	const maxRequests = Math.max(1, ...rows.map((row) => row.requests));
+	const totalRequests = rows.reduce((sum, row) => sum + row.requests, 0);
 	if (publicView) {
 		if (rows.length === 0) {
 			return (
@@ -49,7 +98,7 @@ export function GeographyUsage({
 							const isCountry = /^[A-Z]{2}$/.test(row.countryCode);
 							const content = (
 								<>
-									<span className="relative flex size-7 items-center justify-center overflow-hidden rounded-md border bg-background">
+									<span className="relative flex h-6 w-8 items-center justify-center overflow-hidden rounded-md border bg-background">
 										{isCountry ? (
 											<Image src={`/flags/${row.countryCode.toLowerCase()}.svg`} alt="" fill className="object-cover" />
 										) : (
@@ -86,54 +135,106 @@ export function GeographyUsage({
 	}
 
 	return (
-		<div className="overflow-hidden rounded-xl border bg-card">
-			{rows.length === 0 ? (
-				<p className="p-6 text-sm text-muted-foreground">
-					Country usage will appear after gateway requests include geographic metadata.
+		rows.length === 0 ? (
+			<div className="rounded-lg border border-dashed px-4 py-8">
+				<p className="text-sm font-medium">No geographic usage yet</p>
+				<p className="mt-1 text-sm text-muted-foreground">
+					Countries will appear after requests in the selected period include geographic metadata.
 				</p>
-			) : (
-				<div className="divide-y">
+			</div>
+		) : (
+			<>
+				<div className="space-y-3 md:hidden">
 					{rows.map((row) => {
-						const successRate = row.requests > 0 && row.successes != null
-							? (row.successes / row.requests) * 100
-							: null;
+						const rate = successRate(row);
+						const share = requestShare(row, totalRequests);
 						return (
-							<div key={row.countryCode} className="relative grid gap-3 px-4 py-4 sm:grid-cols-[minmax(10rem,1fr)_repeat(3,minmax(5rem,auto))] sm:items-center sm:px-5">
-								<div className="absolute inset-y-0 left-0 bg-primary/5" style={{ width: `${(row.requests / maxRequests) * 100}%` }} aria-hidden="true" />
-								<div className="relative min-w-0">
-									<p className="truncate font-medium">{countryName(row.countryCode)}</p>
-									<p className="text-xs uppercase tracking-wide text-muted-foreground">{row.countryCode}</p>
-								</div>
-								<div className="relative">
-									<p className="text-xs text-muted-foreground">Requests</p>
-									<p className="font-medium tabular-nums">{compact(row.requests)}</p>
-								</div>
-								<div className="relative">
-									<p className="text-xs text-muted-foreground">Tokens</p>
-									<p className="font-medium tabular-nums">{compact(row.tokens)}</p>
-								</div>
-								<div className="relative">
-									<p className="text-xs text-muted-foreground">{publicView ? "Share" : "Success"}</p>
-									<p className="font-medium tabular-nums">
-										{publicView
-											? `${(row.sharePercent ?? 0).toFixed(1)}%`
-											: successRate == null ? "—" : `${successRate.toFixed(1)}%`}
-									</p>
-								</div>
-								{!publicView ? (
-									<div className="relative sm:col-start-2 sm:col-span-3 flex flex-wrap gap-x-5 gap-y-1 text-xs text-muted-foreground">
-										<span>Spend: {((row.spendNanos ?? 0) / 1e9).toLocaleString("en-GB", { style: "currency", currency: "USD", maximumFractionDigits: 4 })}</span>
-										<span>Average latency: {row.averageLatencyMs == null ? "—" : `${Math.round(row.averageLatencyMs)} ms`}</span>
+							<div key={row.countryCode} className="rounded-lg border bg-card px-4 py-3">
+								<div className="flex items-center gap-3">
+									<CountryMark code={row.countryCode} />
+									<div className="min-w-0">
+										<p className="truncate font-medium">{countryName(row.countryCode)}</p>
+										<p className="text-xs text-muted-foreground">{row.countryCode}</p>
 									</div>
-								) : null}
+								</div>
+								<dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-3 border-t pt-3 text-sm">
+									<div>
+										<dt className="text-muted-foreground">Requests</dt>
+										<dd className="font-medium tabular-nums">{compact(row.requests)}</dd>
+									</div>
+									<div>
+										<dt className="text-muted-foreground">Share</dt>
+										<dd className="font-medium tabular-nums">{share.toFixed(1)}%</dd>
+									</div>
+									<div>
+										<dt className="text-muted-foreground">Tokens</dt>
+										<dd className="font-medium tabular-nums">{compact(row.tokens)}</dd>
+									</div>
+									<div>
+										<dt className="text-muted-foreground">Success</dt>
+										<dd className="font-medium tabular-nums">{rate == null ? "—" : `${rate.toFixed(1)}%`}</dd>
+									</div>
+									<div>
+										<dt className="text-muted-foreground">Spend</dt>
+										<dd className="font-medium tabular-nums">{formatSpend(row.spendNanos)}</dd>
+									</div>
+									<div>
+										<dt className="text-muted-foreground">Average latency</dt>
+										<dd className="font-medium tabular-nums">{formatLatency(row.averageLatencyMs)}</dd>
+									</div>
+								</dl>
 							</div>
 						);
 					})}
 				</div>
-			)}
-		</div>
+
+				<div className="hidden overflow-hidden rounded-lg border md:block">
+					<Table>
+						<TableHeader>
+							<TableRow className="hover:bg-transparent">
+								<TableHead className="px-4">Country</TableHead>
+								<TableHead className="text-right">Requests</TableHead>
+								<TableHead className="text-right">Share</TableHead>
+								<TableHead className="text-right">Tokens</TableHead>
+								<TableHead className="text-right">Success</TableHead>
+								<TableHead className="text-right">Spend</TableHead>
+								<TableHead className="px-4 text-right">Average latency</TableHead>
+							</TableRow>
+						</TableHeader>
+						<TableBody>
+							{rows.map((row) => {
+								const rate = successRate(row);
+								const share = requestShare(row, totalRequests);
+								return (
+									<TableRow key={row.countryCode}>
+										<TableCell className="px-4 py-3">
+											<div className="flex items-center gap-3">
+												<CountryMark code={row.countryCode} />
+												<div className="min-w-0">
+													<p className="truncate font-medium">{countryName(row.countryCode)}</p>
+													<p className="text-xs text-muted-foreground">{row.countryCode}</p>
+												</div>
+											</div>
+										</TableCell>
+										<TableCell className="text-right font-medium tabular-nums">
+											{compact(row.requests)}
+										</TableCell>
+										<TableCell className="text-right tabular-nums">{share.toFixed(1)}%</TableCell>
+										<TableCell className="text-right tabular-nums">{compact(row.tokens)}</TableCell>
+										<TableCell className="text-right tabular-nums">
+											{rate == null ? "—" : `${rate.toFixed(1)}%`}
+										</TableCell>
+										<TableCell className="text-right tabular-nums">{formatSpend(row.spendNanos)}</TableCell>
+										<TableCell className="px-4 text-right tabular-nums">
+											{formatLatency(row.averageLatencyMs)}
+										</TableCell>
+									</TableRow>
+								);
+							})}
+						</TableBody>
+					</Table>
+				</div>
+			</>
+		)
 	);
 }
-import Image from "next/image";
-import Link from "next/link";
-import { Globe2 } from "lucide-react";

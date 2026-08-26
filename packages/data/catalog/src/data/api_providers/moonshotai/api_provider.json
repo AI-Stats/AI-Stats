@@ -8,7 +8,7 @@
   "residency_mode": "provider_managed",
   "default_execution_regions": null,
   "default_data_regions": ["SG"],
-  "zero_data_retention": "unknown",
+  "zero_data_retention": false,
   "residency_source_url": "https://platform.kimi.ai/docs/agreement/userprivacy",
   "residency_notes": "Moonshot's Kimi OpenPlatform policy says it is controlled from Singapore, stores information on secure Singapore servers, and may transfer data cross-border. Account, input, and payment information are retained while the account is active, and user content may be used to optimize or improve the service; no Zero Data Retention control is documented.",
   "data_policy_tier": "trains",
@@ -22,19 +22,24 @@
   "prompt_training_policy": "may_train",
   "prompt_training_notes": "Moonshot says user content helps optimize its models and that content may be used to provide, maintain, develop, and improve the services.",
   "prompt_training_source_url": "https://platform.kimi.ai/docs/agreement/userprivacy",
-  "gateway_kind": null,
-  "routable": null,
-  "routing_enabled": null,
+  "gateway_kind": "openai_compatible",
+  "routable": true,
+  "routing_enabled": true,
   "sdk_package": null,
-  "api_base_url": null,
-  "docs_url": "https://platform.moonshot.ai/",
-  "auth_env": null,
-  "api_formats": [],
-  "service_tiers": [],
-  "sources": [],
+  "api_base_url": "https://api.moonshot.ai",
+  "docs_url": "https://platform.kimi.ai/docs/api/chat",
+  "auth_env": "MOONSHOT_API_KEY",
+  "api_formats": ["openai.chat.completions"],
+  "service_tiers": ["standard", "priority"],
+  "sources": [{
+    "kind": "api_reference",
+    "url": "https://platform.kimi.ai/docs/api/chat",
+    "accessed_at": "2026-08-12T00:00:00Z",
+    "notes": "Official Chat reference confirms the OpenAI-compatible endpoint, Bearer authentication, request parameters, multimodal content, streaming, reasoning, tools, and usage."
+  }],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-23T00:00:00Z",
+    "notes": "Verified current K3, K2.7 Code, K2.6 and grandfathered K2.5/Moonshot V1 routes, K2-series retirement, K2.7 Code HighSpeed priority routing, and the announced 31 August 2026 platform sunset."
   }
 }

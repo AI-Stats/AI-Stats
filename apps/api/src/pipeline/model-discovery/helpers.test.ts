@@ -79,6 +79,26 @@ describe("resolveProviderModelsEndpoint", () => {
 });
 
 describe("fetchProviderModels", () => {
+	it("uses Reka's X-Api-Key header for model discovery", async () => {
+		const fetchMock = installFetchMock([{
+			match: (url) => url === "https://api.reka.ai/v1/models",
+			response: jsonResponse([{ id: "reka-flash" }, { id: "reka-edge-2603" }]),
+		}]);
+		try {
+			const models = await fetchProviderModels({
+				providerId: "reka",
+				providerName: "Reka",
+				modelsEndpoint: "https://api.reka.ai/v1/models",
+				authStyle: "x_api_key",
+			}, "test-reka-key");
+			expect(models.map((model) => model.id)).toEqual(["reka-edge-2603", "reka-flash"]);
+			expect(fetchMock.calls[0]?.headers["X-Api-Key"]).toBe("test-reka-key");
+			expect(fetchMock.calls[0]?.headers.Authorization).toBeUndefined();
+		} finally {
+			fetchMock.restore();
+		}
+	});
+
 	it("uses DigitalOcean model_id instead of the internal catalog UUID", async () => {
 		const fetchMock = installFetchMock([{
 			match: (url) => url.includes("/v2/gen-ai/models/catalog"),
@@ -390,6 +410,37 @@ describe("buildDiscordMessage", () => {
 			},
 			configuredModelCoverage: { updatesDetected: 0, providerChanges: [] },
 		} as any)).toBe("");
+	});
+
+	it("reports pricing page changes with added and removed price lines", () => {
+		setupRuntimeFromEnv({} as any);
+		const message = buildDiscordMessage({
+			modelChanges: [],
+			pricing: { updatesDetected: 0, providerChanges: [] },
+			providerApiPricing: { updatesDetected: 0, providerChanges: [] },
+			pricingTable: {
+				updatesDetected: 1,
+				providerChanges: [{
+					providerId: "cohere",
+					providerName: "Cohere",
+					sourceUrl: "https://cohere.com/pricing",
+					fingerprint: "next",
+					tableCount: 3,
+					pricingSamples: [],
+					contentLines: ["Command A input $2.00 / 1M tokens"],
+					addedSamples: ["Command A input $2.00 / 1M tokens"],
+					removedSamples: ["Command A input $2.50 / 1M tokens"],
+				}],
+				errors: [],
+			},
+			configuredModelCoverage: { updatesDetected: 0, providerChanges: [] },
+		} as any);
+
+		expect(message).toContain("Pricing page monitor detected 1 changed provider source.");
+		expect(message).toContain("Cohere (https://cohere.com/pricing) — 1 added, 1 removed:");
+		expect(message).toContain("+ Command A input $2.00 / 1M tokens");
+		expect(message).toContain("- Command A input $2.50 / 1M tokens");
+		expect(message).not.toContain("price-bearing section");
 	});
 
 	it("prefers an explicit catalog endpoint over the gateway base URL", () => {

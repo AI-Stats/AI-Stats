@@ -22,6 +22,7 @@ export interface PricingRule {
     time_windows?: Array<{
         label: string;
         timezone: "UTC";
+        days_of_week?: Array<"mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun">;
         start_time: string;
         end_time: string;
         price_per_unit?: number | string | null;
@@ -137,12 +138,7 @@ export interface ProviderInfo {
         | null;
     default_execution_regions?: string[] | null;
     default_data_regions?: string[] | null;
-    zero_data_retention?:
-        | "unknown"
-        | "unsupported"
-        | "optional"
-        | "default"
-        | null;
+    zero_data_retention?: boolean | null;
     data_retention_days?: number | null;
     residency_source_url?: string | null;
     residency_notes?: string | null;

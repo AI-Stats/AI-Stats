@@ -28,8 +28,8 @@ export { parseW3cTraceContext } from "@observability/trace-context";
 
 const MIN_CREDIT_AMOUNT = 1.0;
 const TRUTHY_VALUES = new Set(["1", "true", "yes"]);
-const FORM_JSON_FIELDS = new Set(["provider", "debug", "include", "timestamp_granularities", "chunking_strategy"]);
-const FORM_FORCE_ARRAY_FIELDS = new Set(["include", "timestamp_granularities"]);
+const FORM_JSON_FIELDS = new Set(["provider", "debug", "include", "timestamp_granularities", "chunking_strategy", "languages", "keywords", "context_bias", "input_reference"]);
+const FORM_FORCE_ARRAY_FIELDS = new Set(["include", "timestamp_granularities", "languages", "keywords", "context_bias", "known_speaker_names", "known_speaker_references"]);
 const DEFAULT_REQUEST_BODY_LIMIT_BYTES = 16 * 1024 * 1024;
 const MULTIPART_REQUEST_BODY_LIMIT_BYTES = 32 * 1024 * 1024;
 
@@ -576,7 +576,7 @@ export function makeMeta(input: {
     beforeContextFallbackRemap?: boolean | null;
     startedAtMs?: number;
 }): RequestMeta {
-    const { referer, appTitle, appId, appName, sessionId: sessionIdHeader, userId: userIdHeader } = readAttributionHeaders(input.req);
+    const { referer, appTitle, appId, appName, appCategories, sessionId: sessionIdHeader, userId: userIdHeader } = readAttributionHeaders(input.req);
     const rawBody = (input.rawBody && typeof input.rawBody === "object")
         ? input.rawBody
         : {};
@@ -659,6 +659,7 @@ export function makeMeta(input: {
         appTitle,
         appId,
         appName,
+        appCategories,
         requestUserId,
         sessionId,
         trace,

@@ -40,6 +40,51 @@ function toNonEmptyString(value: unknown): string | undefined {
 	return trimmed.length > 0 ? trimmed : undefined;
 }
 
+function extractImageReference(value: unknown): string | Blob | undefined {
+	if (value instanceof Blob) return value;
+	if (typeof value === "string") return toNonEmptyString(value);
+	if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+	const source = value as Record<string, unknown>;
+	if (typeof source.image_url === "string") return toNonEmptyString(source.image_url);
+	if (source.image_url && typeof source.image_url === "object") {
+		return toNonEmptyString((source.image_url as Record<string, unknown>).url);
+	}
+	return toNonEmptyString(source.url);
+}
+
+async function imageReferenceToString(value: unknown): Promise<string | undefined> {
+	const extracted = extractImageReference(value);
+	if (!(extracted instanceof Blob)) {
+		if (typeof extracted === "string") {
+			const dataUrl = extracted.match(/^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/i);
+			if (extracted.startsWith("data:") && !dataUrl) throw new Error("minimax_image_reference_format_unsupported");
+			if (dataUrl) {
+				const padding = dataUrl[2].endsWith("==") ? 2 : dataUrl[2].endsWith("=") ? 1 : 0;
+				const byteLength = Math.floor(dataUrl[2].length * 3 / 4) - padding;
+				if (byteLength > 20 * 1024 * 1024) throw new Error("minimax_image_reference_too_large");
+			}
+		}
+		return extracted;
+	}
+	if (extracted.size > 20 * 1024 * 1024) throw new Error("minimax_image_reference_too_large");
+	const mimeType = extracted.type || "image/jpeg";
+	if (!/^image\/(?:jpeg|png|webp)$/i.test(mimeType)) throw new Error("minimax_image_reference_format_unsupported");
+	const bytes = new Uint8Array(await extracted.arrayBuffer());
+	let binary = "";
+	for (let offset = 0; offset < bytes.length; offset += 0x8000) {
+		binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x8000));
+	}
+	return `data:${mimeType};base64,${btoa(binary)}`;
+}
+
+function miniMaxApplicationErrorStatus(code: number): number {
+	if (code === 1004 || code === 2049) return 401;
+	if (code === 1008) return 402;
+	if (code === 1002 || code === 2056) return 429;
+	if (code === 2013 || code === 1026 || code === 1027) return 400;
+	return 502;
+}
+
 function normalizeMiniMaxResolutionForPricing(value: unknown): string | undefined {
 	const raw = toNonEmptyString(value);
 	if (!raw) return undefined;
@@ -93,11 +138,27 @@ function isMiniMaxImageToVideoOnlyModel(model: string): boolean {
 	return normalized === "minimax-hailuo-2.3-fast" || normalized.endsWith("/hailuo-2.3-fast");
 }
 
+function isMiniMaxHailuo02(model: string): boolean {
+	const normalized = model.trim().toLowerCase();
+	return normalized === "minimax-hailuo-02" || normalized.endsWith("/hailuo-02");
+}
+
+function isMiniMaxSubjectReferenceModel(model: string): boolean {
+	const normalized = model.trim().toLowerCase();
+	return normalized === "s2v-01" || normalized.endsWith("/s2v-01");
+}
+
+function isMiniMaxHailuoV1(model: string): boolean {
+	const normalized = model.trim().toLowerCase();
+	return normalized.includes("hailuo-2.3") || normalized.includes("hailuo-02");
+}
+
 export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult> {
 	const ir = args.ir as IRVideoGenerationRequest;
 	const model = args.providerModelSlug || ir.model || "video-01";
-	const seconds = parseDurationSeconds(ir);
-	const size = resolveVideoSize({ size: ir.size, resolution: ir.resolution });
+	const seconds = parseDurationSeconds(ir) ?? 6;
+	const size = resolveVideoSize({ size: ir.size, resolution: ir.resolution }) ??
+		(isMiniMaxHailuoV1(model) ? "768P" : "720P");
 	const quality = ir.quality ?? null;
 	const keyInfo = resolveProviderKey(
 		{ providerId: args.providerId, byokMeta: args.byokMeta, forceGatewayKey: args.meta.forceGatewayKey },
@@ -113,6 +174,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 			? (rawRequest.config as Record<string, any>)
 			: {};
 	const minimaxExtensions = (
+		ir.providerParams ??
 		rawRequest.minimax ??
 		rawConfig.minimax ??
 		rawRequest.provider_params ??
@@ -131,11 +193,41 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 		if (resolution) passthroughRequest.resolution = resolution;
 	}
 	if ("size" in passthroughRequest) delete passthroughRequest.size;
-	if (passthroughRequest.quality == null && quality) passthroughRequest.quality = quality;
-	if (passthroughRequest.first_frame_image == null && ir.inputReference) {
-		passthroughRequest.first_frame_image = ir.inputReference;
+	if (typeof ir.enhancePrompt === "boolean") passthroughRequest.prompt_optimizer = ir.enhancePrompt;
+	if (typeof minimaxExtensions.fast_pretreatment === "boolean") {
+		passthroughRequest.fast_pretreatment = minimaxExtensions.fast_pretreatment;
 	}
-	if (passthroughRequest.seed == null && typeof ir.seed === "number") passthroughRequest.seed = ir.seed;
+	try {
+		const firstFrame = await imageReferenceToString(
+			ir.inputReference ?? ir.inputImage ?? ir.input?.image ??
+			ir.inputReferences?.find((entry) => entry.type === "image" && entry.role === "first_frame"),
+		);
+		if (firstFrame) passthroughRequest.first_frame_image = firstFrame;
+		const lastFrame = await imageReferenceToString(
+			ir.lastFrame ?? ir.input?.lastFrame ??
+			ir.inputReferences?.find((entry) => entry.type === "image" && entry.role === "last_frame"),
+		);
+		if (lastFrame) passthroughRequest.last_frame_image = lastFrame;
+	} catch (error) {
+		const type = error instanceof Error ? error.message : "minimax_image_reference_invalid";
+		return {
+			kind: "completed",
+			ir: undefined,
+			bill: { cost_cents: 0, currency: "USD", usage: undefined as any, upstream_id: undefined, finish_reason: null },
+			upstream: new Response(JSON.stringify({ error: { type, message: "MiniMax image references must be JPG, PNG, or WebP and smaller than 20 MB." } }), {
+				status: 400,
+				headers: { "Content-Type": "application/json" },
+			}),
+			keySource: keyInfo.source,
+			byokKeyId: keyInfo.byokId,
+		};
+	}
+	const subjectImages = (ir.inputReferences ?? [])
+		.filter((entry) => entry.type === "image" && entry.role === "reference" && typeof entry.url === "string")
+		.map((entry) => entry.url as string);
+	if (subjectImages.length > 0) {
+		passthroughRequest.subject_reference = [{ type: "character", image: subjectImages }];
+	}
 	const requestBody = JSON.stringify(passthroughRequest);
 	const mappedRequest = (args.meta.echoUpstreamRequest || args.meta.returnUpstreamRequest)
 		? requestBody
@@ -164,6 +256,92 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 			keySource: keyInfo.source,
 			byokKeyId: keyInfo.byokId,
 			mappedRequest,
+		};
+	}
+	if (ir.prompt.length > 2000) {
+		const upstream = new Response(JSON.stringify({
+			error: { type: "prompt_too_long", message: "MiniMax video prompts must not exceed 2000 characters." },
+		}), { status: 400, headers: { "Content-Type": "application/json" } });
+		return {
+			kind: "completed",
+			ir: undefined,
+			bill: { cost_cents: 0, currency: "USD", usage: undefined as any, upstream_id: undefined, finish_reason: null },
+			upstream,
+			keySource: keyInfo.source,
+			byokKeyId: keyInfo.byokId,
+			mappedRequest,
+		};
+	}
+	const normalizedModel = model.trim().toLowerCase();
+	if (normalizedModel === "minimax-h3" || normalizedModel.endsWith("/h3")) {
+		const upstream = new Response(JSON.stringify({
+			error: { type: "minimax_v2_video_not_enabled", message: "MiniMax-H3 requires the V2 multimodal video lifecycle, which is not enabled for routing." },
+		}), { status: 400, headers: { "Content-Type": "application/json" } });
+		return {
+			kind: "completed", ir: undefined,
+			bill: { cost_cents: 0, currency: "USD", usage: undefined as any, upstream_id: undefined, finish_reason: null },
+			upstream, keySource: keyInfo.source, byokKeyId: keyInfo.byokId, mappedRequest,
+		};
+	}
+	const normalizedResolution = String(passthroughRequest.resolution ?? "").toUpperCase();
+	if (isMiniMaxHailuoV1(model) && ![6, 10].includes(seconds)) {
+		const upstream = new Response(JSON.stringify({
+			error: { type: "duration_unsupported", message: "MiniMax Hailuo V1 video duration must be 6 or 10 seconds." },
+		}), { status: 400, headers: { "Content-Type": "application/json" } });
+		return {
+			kind: "completed", ir: undefined,
+			bill: { cost_cents: 0, currency: "USD", usage: undefined as any, upstream_id: undefined, finish_reason: null },
+			upstream, keySource: keyInfo.source, byokKeyId: keyInfo.byokId, mappedRequest,
+		};
+	}
+	if (isMiniMaxHailuoV1(model) && seconds === 10 && normalizedResolution === "1080P") {
+		const upstream = new Response(JSON.stringify({
+			error: { type: "resolution_duration_unsupported", message: "MiniMax Hailuo V1 supports 1080P only for 6-second videos." },
+		}), { status: 400, headers: { "Content-Type": "application/json" } });
+		return {
+			kind: "completed", ir: undefined,
+			bill: { cost_cents: 0, currency: "USD", usage: undefined as any, upstream_id: undefined, finish_reason: null },
+			upstream, keySource: keyInfo.source, byokKeyId: keyInfo.byokId, mappedRequest,
+		};
+	}
+	if (passthroughRequest.last_frame_image && normalizedResolution === "512P") {
+		const upstream = new Response(JSON.stringify({
+			error: { type: "last_frame_resolution_unsupported", message: "MiniMax first/last-frame generation does not support 512P." },
+		}), { status: 400, headers: { "Content-Type": "application/json" } });
+		return {
+			kind: "completed", ir: undefined,
+			bill: { cost_cents: 0, currency: "USD", usage: undefined as any, upstream_id: undefined, finish_reason: null },
+			upstream, keySource: keyInfo.source, byokKeyId: keyInfo.byokId, mappedRequest,
+		};
+	}
+	if (passthroughRequest.last_frame_image && !isMiniMaxHailuo02(model)) {
+		const upstream = new Response(JSON.stringify({
+			error: { type: "last_frame_model_unsupported", message: "MiniMax last-frame video generation requires MiniMax-Hailuo-02." },
+		}), { status: 400, headers: { "Content-Type": "application/json" } });
+		return {
+			kind: "completed", ir: undefined,
+			bill: { cost_cents: 0, currency: "USD", usage: undefined as any, upstream_id: undefined, finish_reason: null },
+			upstream, keySource: keyInfo.source, byokKeyId: keyInfo.byokId, mappedRequest,
+		};
+	}
+	if (passthroughRequest.last_frame_image && !passthroughRequest.first_frame_image) {
+		const upstream = new Response(JSON.stringify({
+			error: { type: "first_frame_required", message: "MiniMax last-frame generation also requires a first frame." },
+		}), { status: 400, headers: { "Content-Type": "application/json" } });
+		return {
+			kind: "completed", ir: undefined,
+			bill: { cost_cents: 0, currency: "USD", usage: undefined as any, upstream_id: undefined, finish_reason: null },
+			upstream, keySource: keyInfo.source, byokKeyId: keyInfo.byokId, mappedRequest,
+		};
+	}
+	if (subjectImages.length > 0 && !isMiniMaxSubjectReferenceModel(model)) {
+		const upstream = new Response(JSON.stringify({
+			error: { type: "subject_reference_model_unsupported", message: "MiniMax subject-reference generation requires S2V-01." },
+		}), { status: 400, headers: { "Content-Type": "application/json" } });
+		return {
+			kind: "completed", ir: undefined,
+			bill: { cost_cents: 0, currency: "USD", usage: undefined as any, upstream_id: undefined, finish_reason: null },
+			upstream, keySource: keyInfo.source, byokKeyId: keyInfo.byokId, mappedRequest,
 		};
 	}
 	const passthroughSeconds = toPositiveNumber(
@@ -346,6 +524,30 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	}
 
 	const json = await res.json().catch(() => ({}));
+	const applicationCode = Number(json?.base_resp?.status_code ?? 0);
+	if (Number.isFinite(applicationCode) && applicationCode !== 0) {
+		await releaseReservationOnFailure();
+		const upstream = new Response(JSON.stringify({
+			error: {
+				type: "minimax_api_error",
+				code: applicationCode,
+				message: String(json?.base_resp?.status_msg ?? "MiniMax video generation failed."),
+			},
+		}), {
+			status: miniMaxApplicationErrorStatus(applicationCode),
+			headers: { "Content-Type": "application/json" },
+		});
+		return {
+			kind: "completed",
+			ir: undefined,
+			bill,
+			upstream,
+			keySource: keyInfo.source,
+			byokKeyId: keyInfo.byokId,
+			mappedRequest,
+			rawResponse: json,
+		};
+	}
 	const taskId = extractTaskId(json);
 	const encodedId = taskId ? encodeMiniMaxVideoId(taskId) : undefined;
 	if (!encodedId) {

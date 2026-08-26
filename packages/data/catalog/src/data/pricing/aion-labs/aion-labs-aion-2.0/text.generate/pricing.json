@@ -45,28 +45,12 @@
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
-      "match": [
-        {
-          "path": "image_params.resolution",
-          "op": "eq",
-          "or_group": 1,
-          "and_index": 1,
-          "value": "4K"
-        }
-      ],
+      "match": [],
       "priority": 100,
       "effective_from": "2025-12-21T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
-      "conditions": [
-        {
-          "path": "image_params.resolution",
-          "op": "eq",
-          "or_group": 1,
-          "and_index": 1,
-          "value": "4K"
-        }
-      ],
+      "conditions": [],
       "source": null
     }
   ],
@@ -74,10 +58,10 @@
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [{ "kind": "pricing", "url": "https://www.aionlabs.ai/docs/models/", "accessed_at": "2026-08-21T00:00:00Z" }],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-21T00:00:00Z",
+    "notes": "Verified against Aion Labs' current per-token pricing."
   }
 }

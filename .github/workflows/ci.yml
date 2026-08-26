@@ -28,7 +28,6 @@ on:
                     - dry-run
                     - run
                 default: skip
-
 permissions:
     contents: read
 
@@ -483,10 +482,14 @@ jobs:
             - check-paths
             - migrate-production
         if: >-
-            always() && needs.data.result == 'success' &&
-            (needs.migrate-production.result == 'success' || needs.migrate-production.result == 'skipped') &&
-            github.ref == 'refs/heads/main' &&
-            ((github.event_name == 'push' && needs.check-paths.outputs.data-changed == 'true') ||
+            always() && needs.data.result == 'success' && github.ref == 'refs/heads/main' &&
+            ((github.event_name == 'push' &&
+            needs.check-paths.outputs.migrations-changed == 'true' &&
+            needs.migrate-production.result == 'success') ||
+            (github.event_name == 'push' &&
+            needs.check-paths.outputs.data-changed == 'true' &&
+            needs.check-paths.outputs.migrations-changed != 'true' &&
+            (needs.migrate-production.result == 'success' || needs.migrate-production.result == 'skipped')) ||
             (github.event_name == 'workflow_dispatch' && inputs.importer_mode != 'skip'))
         env:
             SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
@@ -990,11 +993,9 @@ jobs:
             github.ref == 'refs/heads/main' &&
             needs.apps.result == 'success' &&
             needs.check-paths.result == 'success' &&
-            ((github.event_name == 'push' &&
+            github.event_name == 'push' &&
             (needs.check-paths.outputs.migrations-changed != 'true' ||
-            needs.migrate-production.result == 'success')) ||
-            (github.event_name == 'workflow_dispatch' &&
-            inputs.deploy_production == true))
+            needs.migrate-production.result == 'success')
         permissions:
             contents: read
         strategy:

@@ -81,6 +81,7 @@ import {
 } from "@/lib/chat/roomModelSettings";
 import { AudioModelSettingsDialog } from "@/components/(chat)/rooms/settings/AudioModelSettingsDialog";
 import { RoomErrorNotice } from "@/components/(chat)/rooms/RoomErrorNotice";
+import { RoomResponseTimestamp } from "@/components/(chat)/RoomResponseTimestamp";
 import {
 	RoomComposerFooter,
 	RoomComposerSurface,
@@ -100,7 +101,6 @@ import {
 	Info,
 	FileText,
 	Link2,
-	Loader2,
 	MessageCircleDashed,
 	MoreHorizontal,
 	Paperclip,
@@ -959,6 +959,7 @@ function safeParsePinned(value: string | null): Record<string, boolean> {
 
 type AudioRoomProps = {
 	models: GatewaySupportedModel[];
+	modelsLoadFailed?: boolean;
 	roomId?: AudioRoomId;
 	initialMode?: AudioMode;
 	allowedModes?: AudioMode[];
@@ -976,6 +977,7 @@ function modeSupportFromModes(modes: AudioMode[]): AudioModeSupport {
 
 export function AudioRoom({
 	models,
+	modelsLoadFailed = false,
 	roomId = "speech",
 	initialMode = "speech",
 	allowedModes = ["speech"],
@@ -1609,29 +1611,29 @@ export function AudioRoom({
 
 		setError(null);
 		setIsLoading(true);
+		const musicLyrics =
+			targetMode === "music"
+				? (overrides?.forcedLyrics ?? musicLyricsInput).trim() || undefined
+				: undefined;
+		pendingEntryId = crypto.randomUUID();
+		await addEntry({
+			id: pendingEntryId,
+			createdAt: nowIso(),
+			conversationId,
+			conversationTitle,
+			modelId: targetModelId,
+			providerId:
+				selectedProviderId && selectedProviderId !== "auto"
+					? selectedProviderId
+					: undefined,
+			mode: targetMode,
+			conversationMode: lockedConversationMode ?? targetMode,
+			inputText: promptText || undefined,
+			musicLyrics,
+			isTemporary: true,
+			isPending: true,
+		});
 		if (targetMode === "speech" || targetMode === "music") {
-			const musicLyrics =
-				targetMode === "music"
-					? (overrides?.forcedLyrics ?? musicLyricsInput).trim() || undefined
-					: undefined;
-			pendingEntryId = crypto.randomUUID();
-			await addEntry({
-				id: pendingEntryId,
-				createdAt: nowIso(),
-				conversationId,
-				conversationTitle,
-				modelId: targetModelId,
-				providerId:
-					selectedProviderId && selectedProviderId !== "auto"
-						? selectedProviderId
-						: undefined,
-				mode: targetMode,
-				conversationMode: lockedConversationMode ?? targetMode,
-				inputText: promptText,
-				musicLyrics,
-				isTemporary: true,
-				isPending: true,
-			});
 			setTextInput("");
 			if (targetMode === "music") {
 				setMusicLyricsInput("");
@@ -2065,6 +2067,17 @@ export function AudioRoom({
 			(isAudioSourceMode &&
 				(showAudioUrlInput || audioUrlInput.trim() || audioFile)),
 	);
+	const hasEligibleModels = filteredModels.length > 0;
+	const emptyStateTitle: string | undefined = modelsLoadFailed
+		? "Music models couldn't load"
+		: mode === "music" && !hasEligibleModels
+			? "No music models available"
+			: undefined;
+	const emptyStateDescription = modelsLoadFailed
+		? "Refresh the page to try loading the model catalogue again."
+		: mode === "music" && !hasEligibleModels
+			? "No routable music providers are available right now."
+			: modeEmptyDescription(mode);
 
 	return (
 		<div className="flex min-h-0 flex-1 flex-col overflow-hidden">
@@ -2136,9 +2149,12 @@ export function AudioRoom({
 				<div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-5">
 					{activeEntries.length === 0 ? (
 						<RoomEmptyState
-							description={modeEmptyDescription(mode)}
+							title={emptyStateTitle}
+							description={emptyStateDescription}
 							suggestions={
-								mode === "speech"
+								modelsLoadFailed || !hasEligibleModels
+									? []
+									: mode === "speech"
 									? [
 											{ label: "Narrate an introduction", prompt: "Welcome. Today, we're exploring an idea that could change how we work." },
 											{ label: "Read a calm reflection", prompt: "Take a slow breath, settle into the moment, and let the day unfold." },
@@ -2198,7 +2214,7 @@ export function AudioRoom({
 							const promptCopied = copiedPromptEntryId === entry.id;
 							const pendingEntry = entry.isPending === true;
 							return (
-								<div key={entry.id} className="space-y-3">
+								<div key={entry.id} className="group/response space-y-3">
 									{entry.inputText ? (
 										<div className="ml-auto w-full max-w-[85%]">
 											{isEditing ? (
@@ -2329,26 +2345,20 @@ export function AudioRoom({
 													</MediaPlayerControls>
 												</MediaPlayer>
 											) : pendingEntry ? (
-												<div className="flex items-center gap-2 rounded-lg border border-border bg-muted px-3 py-2 text-xs text-muted-foreground">
-											<RoomWorkingIndicator
-												label={modeBusyLabel(entry.mode)}
-												size={16}
-												showLabel={false}
-											/>
-													<span>{modeBusyLabel(entry.mode)}</span>
-												</div>
+												<RoomWorkingIndicator label={modeBusyLabel(entry.mode)} />
 											) : entry.text ? null : (
 												<p className="text-xs text-muted-foreground">
 													No playable audio returned by this response.
 												</p>
 											)}
 											{entry.text ? (
-												<pre className="overflow-auto rounded-lg border border-border bg-background px-3 py-2 text-xs whitespace-pre-wrap">
+												<pre className="overflow-auto px-0 py-1 text-xs whitespace-pre-wrap">
 													{entry.text}
 												</pre>
 											) : null}
 											{pendingEntry ? null : (
-											<div className="flex items-center gap-1 text-xs text-muted-foreground">
+												<div className="flex items-center gap-1 text-xs text-muted-foreground">
+													<RoomResponseTimestamp createdAt={entry.createdAt} className="order-last" />
 												<Tooltip>
 													<TooltipTrigger asChild>
 														<Button

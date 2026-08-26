@@ -1,5 +1,77 @@
 [
   {
+    "api_model_id": "meta/muse-image-1.0",
+    "canonical_model_id": "meta/muse-image-1.0",
+    "provider_api_model_id": "meta:meta/muse-image-1.0",
+    "provider_model_slug": "muse-image-1.0",
+    "internal_model_id": "meta/muse-image-1.0",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "image",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-07-07T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "image.generate",
+        "status": "active",
+        "params": {
+          "size": {
+            "type": "enum",
+            "values": ["auto", "1024x1024", "1024x1536", "1536x1024"],
+            "aliases": ["resolution"]
+          }
+        },
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      },
+      {
+        "capability_id": "image.edit",
+        "status": "active",
+        "params": {
+          "size": {
+            "type": "enum",
+            "values": ["auto", "1024x1024", "1024x1536", "1536x1024"],
+            "aliases": ["resolution"]
+          }
+        },
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {"execution": null, "data": null},
+    "service_tiers": ["standard"],
+    "api": {"formats": ["openai-images"], "endpoint": "/v1/images/generations", "deployment": null},
+    "sources": [
+      {"url": "https://dev.meta.ai/docs/image-generation/", "kind": "documentation"},
+      {"url": "https://dev.meta.ai/docs/api-reference/", "kind": "documentation"},
+      {"url": "https://ai.meta.com/blog/introducing-muse-image-muse-video-msl/", "kind": "official"},
+      {"url": "https://about.fb.com/news/2026/07/introducing-muse-image-meta-ai/", "kind": "official"}
+    ],
+    "verification": {
+      "status": "unverified",
+      "checked_at": "2026-08-26T00:00:00Z",
+      "notes": "Meta documents Muse Image generation and editing through the Responses API and OpenAI-compatible images endpoints."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "meta/muse-spark",
     "provider_api_model_id": "meta:meta/muse-spark",
     "provider_model_slug": "muse-spark",
@@ -254,7 +326,12 @@
             "provider_max": null,
             "provider_default": null,
             "notes": "Meta Model API offers built-in web search grounding."
-          }
+          },
+          "reasoning",
+          "include_reasoning",
+          "repetition_penalty",
+          "top_k",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,

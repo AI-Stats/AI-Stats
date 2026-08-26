@@ -501,6 +501,13 @@
             "notes": null
           },
           {
+            "param_id": "reasoning_effort",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": "high",
+            "notes": "Native values are low, high, and max. High is the default; for compatibility, medium and xhigh map to high."
+          },
+          {
             "param_id": "response_format",
             "provider_min": null,
             "provider_max": null,
@@ -588,6 +595,18 @@
         "url": "https://api-docs.deepseek.com/quick_start/pricing/",
         "accessed_at": "2026-07-31T00:00:00Z",
         "notes": "Official model version, limits and API format availability."
+      },
+      {
+        "kind": "api_reference",
+        "url": "https://api-docs.deepseek.com/guides/thinking_mode/",
+        "accessed_at": "2026-08-13T00:00:00Z",
+        "notes": "Thinking-mode request format and effort control."
+      },
+      {
+        "kind": "changelog",
+        "url": "https://api-docs.deepseek.com/updates/#date-2026-08-13",
+        "accessed_at": "2026-08-13T00:00:00Z",
+        "notes": "The V4 update confirms low, high, and max thinking effort levels for V4 Flash and V4 Pro."
       }
     ],
     "verification": {
@@ -598,22 +617,198 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "deepseek/deepseek-v4-pro",
-    "provider_api_model_id": "deepseek:deepseek/deepseek-v4-pro",
+    "api_model_id": "deepseek/deepseek-v4-pro-0813",
+    "provider_api_model_id": "deepseek:deepseek/deepseek-v4-pro-0813",
     "provider_model_slug": "deepseek-v4-pro",
-    "internal_model_id": "deepseek/deepseek-v4-pro",
+    "internal_model_id": "deepseek/deepseek-v4-pro-0813",
     "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 1000000,
     "max_output_tokens": 384000,
-    "effective_from": "2026-04-24T00:00:00",
+    "effective_from": "2026-08-13T00:00:00",
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
         "status": "active",
+        "params": [
+          {
+            "param_id": "frequency_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "include_reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "logprobs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "max_tokens",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "presence_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "reasoning_effort",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": "high",
+            "notes": "Native values are low, high, and max. High is the default; for compatibility, medium and xhigh map to high."
+          },
+          {
+            "param_id": "response_format",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "stop",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "temperature",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tool_choice",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_logprobs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          }
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "pricing",
+        "url": "https://api-docs.deepseek.com/quick_start/pricing/",
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Official model version, stable API slug, context and output limits, features, pricing, and API format availability."
+      },
+      {
+        "kind": "api_reference",
+        "url": "https://api-docs.deepseek.com/guides/responses_api/",
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Responses API is now supported for deepseek-v4-pro."
+      },
+      {
+        "kind": "api_reference",
+        "url": "https://api-docs.deepseek.com/guides/thinking_mode/",
+        "accessed_at": "2026-08-13T00:00:00Z",
+        "notes": "Thinking-mode request format and effort control."
+      },
+      {
+        "kind": "changelog",
+        "url": "https://api-docs.deepseek.com/updates/#date-2026-08-13",
+        "accessed_at": "2026-08-13T00:00:00Z",
+        "notes": "The V4 Pro GA update adds three native thinking effort levels: low, high, and max."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Verified against official DeepSeek API documentation; direct provider routing moved from the earlier V4 Pro record to V4 Pro 0813."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v4-pro",
+    "provider_api_model_id": "deepseek:deepseek/deepseek-v4-pro",
+    "provider_model_slug": "deepseek-v4-pro",
+    "internal_model_id": "deepseek/deepseek-v4-pro",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 384000,
+    "effective_from": "2026-04-24T00:00:00",
+    "effective_to": "2026-08-13T00:00:00",
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "inactive",
         "params": [
           {
             "param_id": "frequency_penalty",
@@ -717,34 +912,193 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "inactive",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
     },
     "service_tiers": [],
     "api": {
-      "formats": [
-        "openai.chat.completions",
-        "anthropic.messages"
-      ],
+      "formats": [],
       "endpoint": null,
       "deployment": null
     },
     "sources": [
       {
-        "kind": "pricing",
+        "kind": "deprecation",
         "url": "https://api-docs.deepseek.com/quick_start/pricing/",
-        "accessed_at": "2026-07-31T00:00:00Z",
-        "notes": "Responses API is not yet supported for V4 Pro."
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "The stable deepseek-v4-pro slug moves to DeepSeek V4 Pro 0813 on 13 August 2026; third-party deployments of the earlier model are unaffected."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-07-31T00:00:00Z",
-      "notes": "Kept on Chat Completions because DeepSeek schedules Responses API support for early August 2026."
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Historical direct deployment retained for the pre-0813 model."
     },
     "rate_limits": []
-  }
+  },
+  {
+  "api_model_id": "deepseek/deepseek-v4-flash-vision-exp",
+  "provider_api_model_id": "deepseek:deepseek/deepseek-v4-flash-vision-exp",
+  "provider_model_slug": "deepseek-v4-flash-vision-exp",
+  "internal_model_id": "deepseek/deepseek-v4-flash-vision-exp",
+  "is_active_gateway": true,
+  "quantization_scheme": null,
+  "input_modalities": "text,image",
+  "output_modalities": "text",
+  "context_length": 1000000,
+  "max_output_tokens": 384000,
+  "effective_from": "2026-08-21T00:00:00",
+  "effective_to": null,
+  "capabilities": [
+    {
+      "capability_id": "text.generate",
+      "status": "active",
+      "params": [
+        {
+          "param_id": "frequency_penalty",
+          "provider_min": null,
+          "provider_max": null,
+          "provider_default": null,
+          "notes": null
+        },
+        {
+          "param_id": "include_reasoning",
+          "provider_min": null,
+          "provider_max": null,
+          "provider_default": null,
+          "notes": null
+        },
+        {
+          "param_id": "logprobs",
+          "provider_min": null,
+          "provider_max": null,
+          "provider_default": null,
+          "notes": null
+        },
+        {
+          "param_id": "max_tokens",
+          "provider_min": null,
+          "provider_max": null,
+          "provider_default": null,
+          "notes": null
+        },
+        {
+          "param_id": "presence_penalty",
+          "provider_min": null,
+          "provider_max": null,
+          "provider_default": null,
+          "notes": null
+        },
+        {
+          "param_id": "reasoning",
+          "provider_min": null,
+          "provider_max": null,
+          "provider_default": null,
+          "notes": null
+        },
+        {
+          "param_id": "response_format",
+          "provider_min": null,
+          "provider_max": null,
+          "provider_default": null,
+          "notes": null
+        },
+        {
+          "param_id": "stop",
+          "provider_min": null,
+          "provider_max": null,
+          "provider_default": null,
+          "notes": null
+        },
+        {
+          "param_id": "temperature",
+          "provider_min": null,
+          "provider_max": null,
+          "provider_default": null,
+          "notes": null
+        },
+        {
+          "param_id": "tool_choice",
+          "provider_min": null,
+          "provider_max": null,
+          "provider_default": null,
+          "notes": null
+        },
+        {
+          "param_id": "tools",
+          "provider_min": null,
+          "provider_max": null,
+          "provider_default": null,
+          "notes": null
+        },
+        {
+          "param_id": "top_logprobs",
+          "provider_min": null,
+          "provider_max": null,
+          "provider_default": null,
+          "notes": null
+        },
+        {
+          "param_id": "top_p",
+          "provider_min": null,
+          "provider_max": null,
+          "provider_default": null,
+          "notes": null
+        }
+      ],
+      "reasoning": true,
+      "tool_call": true,
+      "structured_output": true,
+      "temperature": true,
+      "attachment": true,
+      "input_modalities": [
+        "text",
+        "image"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "modes": []
+    }
+  ],
+  "routing_status": "active",
+  "routable": true,
+  "regions": {
+    "execution": null,
+    "data": null
+  },
+  "service_tiers": [],
+  "api": {
+    "formats": [
+      "openai.chat.completions",
+      "openai.responses",
+      "anthropic.messages"
+    ],
+    "endpoint": null,
+    "deployment": null
+  },
+  "sources": [
+    {
+      "kind": "announcement",
+      "url": "https://api-docs.deepseek.com/updates/",
+      "accessed_at": "2026-08-21T00:00:00Z",
+      "notes": "Official release announcement and API model identifier."
+    },
+    {
+      "kind": "pricing",
+      "url": "https://api-docs.deepseek.com/quick_start/pricing/",
+      "accessed_at": "2026-08-21T00:00:00Z",
+      "notes": "Official model version, limits, features, pricing, and API formats."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-21T00:00:00Z",
+    "notes": "Verified against official DeepSeek documentation."
+  },
+  "rate_limits": []
+}
 ]

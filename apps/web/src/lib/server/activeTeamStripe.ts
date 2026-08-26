@@ -3,7 +3,6 @@ import { createAdminClient } from "@/utils/supabase/admin";
 import { getWorkspaceIdFromCookie } from "@/utils/workspaceCookie";
 import { requireWorkspaceMembership } from "@/utils/serverActionAuth";
 import { getStripe } from "@/lib/stripe";
-import type Stripe from "stripe";
 
 type ActiveTeamStripeCustomer = {
     workspaceId: string;
@@ -17,6 +16,14 @@ type RequireActiveTeamStripeCustomerOptions = {
     createIfMissing?: boolean;
     repairInvalidCustomer?: boolean;
     roles?: Array<"owner" | "admin" | "member">;
+    workspaceId?: string;
+};
+
+export type ActiveWorkspaceBillingAdmin = {
+    workspaceId: string;
+    userId: string;
+    userEmail: string | null;
+    userDisplayName: string | null;
 };
 
 export type ActiveTeamStripeSummary = {
@@ -191,9 +198,10 @@ async function resolveWorkspaceStripeCustomer(args: {
     return customerId;
 }
 
-export async function requireActiveTeamStripeCustomer(
-    options: RequireActiveTeamStripeCustomerOptions = {}
-): Promise<ActiveTeamStripeCustomer> {
+export async function requireActiveWorkspaceBillingAdmin(
+    roles: Array<"owner" | "admin" | "member"> = ["owner", "admin"],
+    requestedWorkspaceId?: string,
+): Promise<ActiveWorkspaceBillingAdmin> {
     const supabase = await createClient();
     const {
         data: { user },
@@ -204,7 +212,7 @@ export async function requireActiveTeamStripeCustomer(
         throw new Error("unauthorized");
     }
 
-    const workspaceId = await getWorkspaceIdFromCookie();
+    const workspaceId = requestedWorkspaceId?.trim() || await getWorkspaceIdFromCookie();
     if (!workspaceId) {
         throw new Error("missing_team");
     }
@@ -214,7 +222,7 @@ export async function requireActiveTeamStripeCustomer(
             supabase,
             user.id,
             workspaceId,
-            options.roles ?? ["owner", "admin"],
+            roles,
         );
     } catch (error) {
         if (
@@ -226,6 +234,24 @@ export async function requireActiveTeamStripeCustomer(
         throw error;
     }
 
+    return {
+        workspaceId,
+        userId: user.id,
+        userEmail: user.email ?? null,
+        userDisplayName: deriveCustomerName(user) ?? null,
+    };
+}
+
+export async function requireActiveTeamStripeCustomer(
+    options: RequireActiveTeamStripeCustomerOptions = {}
+): Promise<ActiveTeamStripeCustomer> {
+    const admin = await requireActiveWorkspaceBillingAdmin(
+        options.roles ?? ["owner", "admin"],
+        options.workspaceId,
+    );
+    const supabase = await createClient();
+    const { workspaceId, userId, userEmail, userDisplayName } = admin;
+
     const { data: wallet, error: walletErr } = await supabase
         .from("wallets")
         .select("workspace_id, stripe_customer_id")
@@ -235,24 +261,24 @@ export async function requireActiveTeamStripeCustomer(
     if (walletErr) throw walletErr;
     const customerId = await resolveWorkspaceStripeCustomer({
         workspaceId,
-        userId: user.id,
-        email: user.email ?? undefined,
-        name: deriveCustomerName(user),
+        userId,
+        email: userEmail ?? undefined,
+        name: userDisplayName ?? undefined,
         storedCustomerId: wallet?.stripe_customer_id ?? null,
         createIfMissing: options.createIfMissing ?? false,
         repairInvalidCustomer: options.repairInvalidCustomer ?? true,
     });
 
-    if (!wallet?.workspace_id || !customerId) {
+    if (!customerId) {
         throw new Error("missing_stripe_customer");
     }
 
     return {
-        workspaceId: String(wallet.workspace_id),
+        workspaceId,
         customerId,
-        userId: user.id,
-        userEmail: user.email ?? null,
-        userDisplayName: deriveCustomerName(user) ?? null,
+        userId,
+        userEmail,
+        userDisplayName,
     };
 }
 

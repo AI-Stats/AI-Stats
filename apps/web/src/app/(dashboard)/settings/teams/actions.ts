@@ -9,9 +9,16 @@ import {
 } from "@/lib/auth/teamSsoSettings";
 import { fetchAccountWebApi } from "@/lib/web-api/client";
 import { getServerAccountContext } from "@/lib/fetchers/internal/serverAccountContext";
-import { samlSsoFlag } from "@/lib/flags";
 
 export type { TeamSsoMode, TeamSsoSettingsInput, TeamSsoSettingsRow };
+
+export type WorkspaceScimSettings = {
+	endpoint: { id: string; enabled: boolean; created_at: string; updated_at: string } | null;
+	tokens: Array<{ id: string; token_prefix: string; label: string; created_at: string; expires_at: string | null; last_used_at: string | null; revoked_at: string | null }>;
+	userCount: number;
+	groupCount: number;
+	lastEvent: { action: string; outcome: string; http_status: number; created_at: string } | null;
+};
 
 function toTeamSsoSettingsResponse(
 	row: TeamSsoSettingsRow | null | undefined,
@@ -33,7 +40,6 @@ function revalidateWorkspacePaths() {
 }
 
 export async function getTeamSsoSettingsAction(workspaceId: string) {
-	if (!(await samlSsoFlag())) throw new Error("SAML SSO is not enabled yet.");
 	if (!workspaceId || typeof workspaceId !== "string") {
 		throw new Error("Missing workspaceId");
 	}
@@ -47,7 +53,6 @@ export async function updateTeamSsoSettingsAction(
 	workspaceId: string,
 	input: TeamSsoSettingsInput,
 ) {
-	if (!(await samlSsoFlag())) throw new Error("SAML SSO is not enabled yet.");
 	if (!workspaceId || typeof workspaceId !== "string") {
 		throw new Error("Missing workspaceId");
 	}
@@ -59,6 +64,34 @@ export async function updateTeamSsoSettingsAction(
 
 	revalidateWorkspacePaths();
 	return { ...response, settings: toTeamSsoSettingsResponse(response.settings) };
+}
+
+export async function getWorkspaceScimSettingsAction(workspaceId: string) {
+	if (!workspaceId) throw new Error("Missing workspaceId");
+	const { accessToken } = await getServerAccountContext();
+	if (!accessToken) throw new Error("Unauthorized");
+	return fetchAccountWebApi<WorkspaceScimSettings>(`/api/account/settings/teams/${encodeURIComponent(workspaceId)}/scim`, accessToken);
+}
+
+export async function updateWorkspaceScimSettingsAction(workspaceId: string, enabled: boolean) {
+	if (!workspaceId) throw new Error("Missing workspaceId");
+	const { accessToken } = await getServerAccountContext();
+	if (!accessToken) throw new Error("Unauthorized");
+	return fetchAccountWebApi<{ endpoint: WorkspaceScimSettings["endpoint"] }>(`/api/account/settings/teams/${encodeURIComponent(workspaceId)}/scim`, accessToken, { method: "PUT", body: JSON.stringify({ enabled }) });
+}
+
+export async function createWorkspaceScimTokenAction(workspaceId: string, label = "Provisioning token") {
+	if (!workspaceId) throw new Error("Missing workspaceId");
+	const { accessToken } = await getServerAccountContext();
+	if (!accessToken) throw new Error("Unauthorized");
+	return fetchAccountWebApi<{ id: string; token_prefix: string; label: string; created_at: string; expires_at: string | null; token: string }>(`/api/account/settings/teams/${encodeURIComponent(workspaceId)}/scim/tokens`, accessToken, { method: "POST", body: JSON.stringify({ label }) });
+}
+
+export async function revokeWorkspaceScimTokenAction(workspaceId: string, tokenId: string) {
+	if (!workspaceId || !tokenId) throw new Error("Missing SCIM token");
+	const { accessToken } = await getServerAccountContext();
+	if (!accessToken) throw new Error("Unauthorized");
+	return fetchAccountWebApi<{ success: true }>(`/api/account/settings/teams/${encodeURIComponent(workspaceId)}/scim/tokens/${encodeURIComponent(tokenId)}`, accessToken, { method: "DELETE" });
 }
 
 export async function createTeamAction(name: string, userId: string) {

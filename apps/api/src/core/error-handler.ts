@@ -705,6 +705,7 @@ export async function handleError({
         : {
             referer: null,
             appTitle: null,
+            appCategories: null,
             appId: null,
             appName: null,
             sessionId: null,
@@ -1011,6 +1012,7 @@ export async function handleError({
         model: modelForObservability,
         requestedModel,
         appTitle: ctx?.meta?.appTitle ?? body?.meta?.appTitle ?? attributionHeaders.appTitle ?? null,
+        appCategories: ctx?.meta?.appCategories ?? body?.meta?.appCategories ?? attributionHeaders.appCategories ?? null,
         referer: ctx?.meta?.referer ?? body?.meta?.referer ?? attributionHeaders.referer ?? null,
         appId: ctx?.meta?.appId ?? body?.meta?.appId ?? attributionHeaders.appId ?? null,
         appName: ctx?.meta?.appName ?? body?.meta?.appName ?? attributionHeaders.appName ?? null,
@@ -1161,9 +1163,6 @@ export async function handleError({
     });
     return new Response(JSON.stringify(errorPayload), { status: statusCode, headers });
 }
-
-
-
 
 
 

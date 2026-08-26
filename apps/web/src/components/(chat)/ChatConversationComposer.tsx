@@ -870,6 +870,7 @@ function ComposerTimezoneSelectField({
 interface ChatConversationComposerProps {
 	sendGateType: SendGateType;
 	isSending: boolean;
+	authReturnUrl: string;
 	composer: string;
 	promptHistory?: string[];
 	attachments: File[];
@@ -928,6 +929,7 @@ export function ChatConversationComposer(props: ChatConversationComposerProps) {
 	const {
 		sendGateType,
 		isSending,
+		authReturnUrl,
 		composer,
 		promptHistory = [],
 		attachments,
@@ -2942,9 +2944,9 @@ export function ChatConversationComposer(props: ChatConversationComposerProps) {
 	return (
 		<div
 			data-chat-composer-footer="true"
-			className="border-t border-border bg-background px-4 py-[17px] md:px-8"
+			className="min-w-0 border-t border-border bg-background px-4 py-[17px] md:px-8"
 		>
-			<div className="mx-auto flex w-full max-w-3xl flex-col gap-3">
+			<div className="mx-auto flex min-w-0 w-full max-w-3xl flex-col gap-3">
 				{queuedPrompts.length > 0 ? (
 					<div className="rounded-md border border-border bg-card/95 p-1.5">
 						<div className="grid gap-0.5">
@@ -3029,10 +3031,10 @@ export function ChatConversationComposer(props: ChatConversationComposerProps) {
 						</div>
 						<div className="flex items-center gap-2">
 							<Button asChild size="sm">
-								<Link href="/sign-up">Create account</Link>
+								<Link href={`/sign-up?returnUrl=${encodeURIComponent(authReturnUrl)}`}>Create account</Link>
 							</Button>
 							<Button asChild variant="outline" size="sm">
-								<Link href="/sign-in">Sign in</Link>
+								<Link href={`/sign-in?returnUrl=${encodeURIComponent(authReturnUrl)}`}>Sign in</Link>
 							</Button>
 						</div>
 					</div>

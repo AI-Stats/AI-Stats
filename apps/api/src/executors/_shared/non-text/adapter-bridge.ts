@@ -39,14 +39,18 @@ import * as openaiAudioTranscription from "@providers/openai/endpoints/audio-tra
 import * as openaiAudioTranslation from "@providers/openai/endpoints/audio-translation";
 import * as openaiVideo from "@providers/openai/endpoints/video";
 import * as mistralOcr from "@providers/mistral/endpoints/ocr";
+import * as mistralAudioTranscription from "@providers/mistral/endpoints/audio-transcription";
 import * as elevenLabsAudioSpeech from "@providers/elevenlabs/endpoints/audio-speech";
 import * as elevenLabsAudioTranscription from "@providers/elevenlabs/endpoints/audio-transcription";
 import * as elevenLabsMusic from "@providers/elevenlabs/endpoints/music-generate";
 import * as googleAiStudioImages from "@providers/google-ai-studio/endpoints/images";
 import * as byteplusImages from "@providers/byteplus/endpoints/images";
+import * as minimaxImages from "@providers/minimax/endpoints/images";
+import * as minimaxAudioSpeech from "@providers/minimax/endpoints/audio-speech";
 import * as xiaomiAudioSpeech from "@providers/xiaomi/endpoints/audio-speech";
 import * as xAiAudioSpeech from "@providers/x-ai/endpoints/audio-speech";
-import * as sunoMusic from "@providers/suno/endpoints/music-generate";
+import * as xAiAudioTranscription from "@providers/x-ai/endpoints/audio-transcription";
+import * as xAiImagesEdit from "@providers/x-ai/endpoints/images-edit";
 
 type NonTextEndpoint =
 	| "images.generations"
@@ -164,7 +168,8 @@ function irToAdapterBody(endpoint: NonTextEndpoint, ir: ExecutorExecuteArgs["ir"
 	switch (endpoint) {
 		case "images.generations": {
 			const request = ir as IRImageGenerationRequest;
-			return {
+			const raw = (request.rawRequest ?? {}) as Record<string, any>;
+			return withDefinedValues({
 				model: providerModel,
 				prompt: request.prompt,
 				size: request.size,
@@ -179,7 +184,19 @@ function irToAdapterBody(endpoint: NonTextEndpoint, ir: ExecutorExecuteArgs["ir"
 				moderation: request.moderation,
 				style: request.style,
 				user: request.userId,
-			};
+				aspect_ratio: raw.aspect_ratio,
+				width: raw.width,
+				height: raw.height,
+				seed: raw.seed,
+				prompt_optimizer: raw.prompt_optimizer,
+				steps: raw.steps,
+				negative_prompt: raw.negative_prompt,
+				guidance_scale: raw.guidance_scale,
+				image_url: raw.image_url,
+				reference_images: raw.reference_images,
+				disable_safety_checker: raw.disable_safety_checker,
+				provider_params: raw.provider_params ?? raw.providerParams,
+			});
 		}
 
 		case "images.edits": {
@@ -193,6 +210,8 @@ function irToAdapterBody(endpoint: NonTextEndpoint, ir: ExecutorExecuteArgs["ir"
 				size: request.size,
 				n: request.n,
 				quality: request.quality ?? raw.quality,
+				stream: request.stream ?? raw.stream,
+				partial_images: request.partialImages ?? raw.partial_images,
 				response_format: request.responseFormat ?? raw.response_format,
 				output_format: request.outputFormat ?? raw.output_format,
 				output_compression: request.outputCompression ?? raw.output_compression,
@@ -200,11 +219,18 @@ function irToAdapterBody(endpoint: NonTextEndpoint, ir: ExecutorExecuteArgs["ir"
 				moderation: request.moderation ?? raw.moderation,
 				input_fidelity: request.inputFidelity ?? raw.input_fidelity,
 				user: request.userId ?? raw.user,
+				aspect_ratio: raw.aspect_ratio,
+				width: raw.width,
+				height: raw.height,
+				seed: raw.seed,
+				prompt_optimizer: raw.prompt_optimizer,
+				subject_reference: raw.subject_reference,
 			};
 		}
 
 		case "audio.speech": {
 			const request = ir as IRAudioSpeechRequest;
+			const raw = (request.rawRequest ?? {}) as Record<string, any>;
 			return {
 				model: providerModel,
 				input: request.input,
@@ -214,8 +240,10 @@ function irToAdapterBody(endpoint: NonTextEndpoint, ir: ExecutorExecuteArgs["ir"
 				stream_format: request.streamFormat,
 				speed: request.speed,
 				instructions: request.instructions,
+				session_id: request.sessionId,
 				config: {
 					elevenlabs: (request.vendor as any)?.elevenlabs,
+					minimax: (request.vendor as any)?.minimax ?? raw.config?.minimax,
 				},
 				user: request.userId,
 			};
@@ -223,18 +251,31 @@ function irToAdapterBody(endpoint: NonTextEndpoint, ir: ExecutorExecuteArgs["ir"
 
 		case "audio.transcription": {
 			const request = ir as IRAudioTranscriptionRequest;
+			const raw = (request.rawRequest ?? {}) as Record<string, any>;
 			return {
 				model: providerModel,
 				file: request.file,
+				file_url: request.fileUrl,
+				s3_presigned_url: request.s3PresignedUrl,
+				file_id: request.fileId,
 				language: request.language,
+				languages: request.languages,
+				keywords: request.keywords,
 				prompt: request.prompt,
 				temperature: request.temperature,
 				response_format: request.responseFormat,
+				stream: request.stream,
 				timestamp_granularities: request.timestampGranularities,
+				diarize: request.diarize,
+				enable_diarization: request.enableDiarization ?? request.diarize,
+				output_content: request.outputContent,
+				session_id: request.sessionId,
+				context_bias: request.contextBias,
 				include: request.include,
 				chunking_strategy: request.chunkingStrategy,
 				known_speaker_names: request.knownSpeakerNames,
 				known_speaker_references: request.knownSpeakerReferences,
+				config: { elevenlabs: raw.config?.elevenlabs },
 			};
 		}
 
@@ -292,7 +333,19 @@ function irToAdapterBody(endpoint: NonTextEndpoint, ir: ExecutorExecuteArgs["ir"
 			return {
 				model: providerModel,
 				image: request.image,
-				language: request.language,
+				document: request.document,
+				pages: request.pages,
+				include_image_base64: request.includeImageBase64,
+				image_limit: request.imageLimit,
+				image_min_size: request.imageMinSize,
+				bbox_annotation_format: request.bboxAnnotationFormat,
+				document_annotation_format: request.documentAnnotationFormat,
+				document_annotation_prompt: request.documentAnnotationPrompt,
+				table_format: request.tableFormat,
+				extract_header: request.extractHeader,
+				extract_footer: request.extractFooter,
+				include_blocks: request.includeBlocks,
+				confidence_scores_granularity: request.confidenceScoresGranularity,
 			};
 		}
 
@@ -333,6 +386,10 @@ async function adapterResultToIR(
 				created: Number.isFinite(created) ? created : Math.floor(Date.now() / 1000),
 				model,
 				provider,
+				background: payload?.background ?? undefined,
+				outputFormat: payload?.output_format ?? payload?.outputFormat ?? undefined,
+				size: payload?.size ?? undefined,
+				quality: payload?.quality ?? undefined,
 				data: Array.isArray(payload?.data)
 					? payload.data.map((item: any) => ({
 						url: item?.url ?? null,
@@ -388,7 +445,14 @@ async function adapterResultToIR(
 				model,
 				provider,
 				text: String(payload?.text ?? ""),
+				task: typeof payload?.task === "string" ? payload.task : undefined,
+				language: typeof payload?.language === "string" ? payload.language : undefined,
+				languages: Array.isArray(payload?.languages) ? payload.languages : undefined,
+				duration: typeof payload?.duration === "number" ? payload.duration : undefined,
+				words: Array.isArray(payload?.words) ? payload.words : undefined,
 				segments: Array.isArray(payload?.segments) ? payload.segments : undefined,
+				diarization: Array.isArray(payload?.diarization) ? payload.diarization : undefined,
+				logprobs: Array.isArray(payload?.logprobs) ? payload.logprobs : undefined,
 				usage,
 				rawResponse: payload,
 			};
@@ -402,6 +466,8 @@ async function adapterResultToIR(
 				model,
 				provider,
 				text: String(payload?.text ?? ""),
+				duration: typeof payload?.duration === "number" ? payload.duration : undefined,
+				language: typeof payload?.language === "string" ? payload.language : undefined,
 				segments: Array.isArray(payload?.segments) ? payload.segments : undefined,
 				usage,
 				rawResponse: payload,
@@ -447,6 +513,8 @@ async function adapterResultToIR(
 				model: payload?.model ?? model,
 				provider,
 				text: String(payload?.text ?? ""),
+				pages: Array.isArray(payload?.pages) ? payload.pages : undefined,
+				documentAnnotation: payload?.document_annotation ?? payload?.documentAnnotation,
 				usage,
 				rawResponse: payload,
 			};
@@ -455,6 +523,19 @@ async function adapterResultToIR(
 		case "music.generate": {
 			const payload = normalized ?? {};
 			const outputItem = Array.isArray(payload?.output) ? payload.output[0] : undefined;
+			const output = Array.isArray(payload?.output)
+				? payload.output.map((item: any, index: number) => ({
+					index: typeof item?.index === "number" ? item.index : index,
+					id: item?.id != null ? String(item.id) : null,
+					audioUrl: typeof item?.audio_url === "string" ? item.audio_url : null,
+					audioBase64: typeof item?.audio_base64 === "string" ? item.audio_base64 : null,
+					streamAudioUrl: typeof item?.stream_audio_url === "string" ? item.stream_audio_url : null,
+					imageUrl: typeof item?.image_url === "string" ? item.image_url : null,
+					title: typeof item?.title === "string" ? item.title : null,
+					tags: typeof item?.tags === "string" ? item.tags : null,
+					duration: typeof item?.duration === "number" ? item.duration : null,
+				}))
+				: undefined;
 			return {
 				id: requestId,
 				nativeId: payload?.id ?? payload?.nativeResponseId ?? undefined,
@@ -462,7 +543,8 @@ async function adapterResultToIR(
 				provider,
 				status: payload?.status ?? "completed",
 				audioUrl: payload?.audio_url ?? outputItem?.audio_url ?? undefined,
-				audioBase64: payload?.audio_base64 ?? undefined,
+				audioBase64: payload?.audio_base64 ?? outputItem?.audio_base64 ?? undefined,
+				output,
 				result: payload?.result ?? payload,
 				usage,
 				rawResponse: payload,
@@ -484,6 +566,9 @@ async function executeProviderEndpoint(
 ) {
 	switch (endpoint) {
 		case "images.generations":
+			if (providerId === "minimax" || providerId === "minimax-lightning") {
+				return minimaxImages.exec(providerArgs);
+			}
 			if (providerId === "byteplus" || providerId === "bytedance-seed") {
 				return byteplusImages.exec(providerArgs);
 			}
@@ -495,6 +580,12 @@ async function executeProviderEndpoint(
 			}
 			return openaiImages.exec(providerArgs);
 		case "images.edits":
+			if (isXAiProvider(providerId)) {
+				return xAiImagesEdit.exec(providerArgs);
+			}
+			if (providerId === "minimax" || providerId === "minimax-lightning") {
+				return minimaxImages.exec(providerArgs);
+			}
 			if (providerId === "byteplus" || providerId === "bytedance-seed") {
 				return byteplusImages.exec(providerArgs);
 			}
@@ -503,6 +594,9 @@ async function executeProviderEndpoint(
 			}
 			return openaiImagesEdits.exec(providerArgs);
 		case "audio.speech":
+			if (providerId === "minimax") {
+				return minimaxAudioSpeech.exec(providerArgs);
+			}
 			if (providerId === "elevenlabs") {
 				return elevenLabsAudioSpeech.exec(providerArgs);
 			}
@@ -517,6 +611,12 @@ async function executeProviderEndpoint(
 			}
 			return openaiAudioSpeech.exec(providerArgs);
 		case "audio.transcription":
+			if (isXAiProvider(providerId)) {
+				return xAiAudioTranscription.exec(providerArgs);
+			}
+			if (providerId === "mistral") {
+				return mistralAudioTranscription.exec(providerArgs);
+			}
 			if (providerId === "elevenlabs") {
 				return elevenLabsAudioTranscription.exec(providerArgs);
 			}
@@ -540,7 +640,6 @@ async function executeProviderEndpoint(
 			}
 			return mistralOcr.exec(providerArgs);
 		case "music.generate":
-			if (providerId === "suno") return sunoMusic.exec(providerArgs);
 			if (providerId === "elevenlabs") return elevenLabsMusic.exec(providerArgs);
 			throw new Error(`non_text_provider_not_supported_${providerId}_${endpoint}`);
 		default:

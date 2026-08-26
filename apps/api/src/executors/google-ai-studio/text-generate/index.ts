@@ -18,7 +18,7 @@ import { normalizeTextUsageForPricing } from "@executors/_shared/usage/text";
 import { bufferStreamToIR, resolveStreamForProtocol } from "@executors/_shared/text-generate/openai-compat";
 import { withNormalizedReasoning } from "./normalize-reasoning";
 import { irPartsToGeminiParts } from "../../google/shared/media";
-import { resolveGoogleModelCandidates } from "../../google/shared/model";
+import { normalizeGoogleModelSlug, resolveGoogleModelCandidates } from "../../google/shared/model";
 import { applyGoogleOutputTokenFallback, applyOpenAIUsageFallback } from "../../google/shared/usage-fallback";
 import {
 	getDefaultGoogleThinkingLevel,
@@ -30,6 +30,7 @@ import { encodeOpenAIChatResponse } from "@protocols/openai-chat/encode";
 import { createSyntheticResponsesStreamFromIR } from "@executors/_shared/text-generate/synthetic-responses-stream";
 import { buildSyntheticServerToolStream } from "@pipeline/surfaces/server-tools.stream";
 import { sanitizeGeminiSchema } from "@executors/google/shared/schema";
+import { supportsTextProviderInteractionsModel } from "@providers/textProfiles";
 
 const DEFAULT_LYRIA_RETRY_ATTEMPTS = 3;
 const DEFAULT_LYRIA_RETRY_DELAY_MS = 300;
@@ -55,9 +56,16 @@ function isGeminiImageModelName(value: string): boolean {
 	);
 }
 
-function isGeminiInteractionsModelName(value: string): boolean {
+function supportsInteractionsThinkingLevels(value: string): boolean {
 	const normalized = String(value ?? "").toLowerCase();
-	return normalized.includes("gemini-3.6-flash") || normalized.includes("gemini-3.5-flash");
+	return modelSupportsGoogleThinkingLevels(value) || normalized.includes("gemini-2.5");
+}
+
+export function supportsGoogleInteractions(value: string): boolean {
+	return supportsTextProviderInteractionsModel(
+		"google-ai-studio",
+		normalizeGoogleModelSlug(value).toLowerCase(),
+	);
 }
 
 function hasUsableIRResponse(response: IRChatResponse | undefined): boolean {
@@ -309,14 +317,8 @@ export async function irToGemini(
 	const request: any = {
 		model: modelOverride ?? ir.model,
 		input,
-		store: ir.store === false
-			? false
-			: Boolean(ir.store || previousInteractionId || ir.background || (ir.tools?.length ?? 0) > 0),
+		store: Boolean(ir.store === true || previousInteractionId || ir.background),
 	};
-
-	if (ir.googleCachedContent !== undefined) {
-		request.cached_content = ir.googleCachedContent;
-	}
 
 	if (previousInteractionId) {
 		request.previous_interaction_id = previousInteractionId;
@@ -330,34 +332,40 @@ export async function irToGemini(
 
 	const generationConfig: any = {};
 
-	const isCurrentGeminiModel = isGeminiInteractionsModelName(modelOverride ?? ir.model);
-	if (!isCurrentGeminiModel && ir.temperature !== undefined) generationConfig.temperature = ir.temperature;
 	if (ir.maxTokens !== undefined) generationConfig.max_output_tokens = ir.maxTokens;
-	if (!isCurrentGeminiModel && ir.topP !== undefined) generationConfig.top_p = ir.topP;
 	if (ir.seed !== undefined) generationConfig.seed = ir.seed;
-	if (ir.frequencyPenalty !== undefined) generationConfig.frequency_penalty = ir.frequencyPenalty;
-	if (ir.presencePenalty !== undefined) generationConfig.presence_penalty = ir.presencePenalty;
 	if (ir.stop) {
 		generationConfig.stop_sequences = Array.isArray(ir.stop) ? ir.stop : [ir.stop];
 	}
 
-	if (
+	const hasRequestedThinkingConfig = Boolean(
 		ir.reasoning?.enabled ||
 		ir.reasoning?.effort ||
 		(ir.reasoning?.maxTokens !== undefined) ||
-		(ir.reasoning?.includeThoughts !== undefined)
-	) {
+		(ir.reasoning?.includeThoughts !== undefined),
+	);
+	const defaultThinkingLevel = getDefaultGoogleThinkingLevel(modelOverride ?? ir.model);
+	if (hasRequestedThinkingConfig || defaultThinkingLevel) {
 		const modelName = modelOverride ?? ir.model;
-		const supportsThinkingLevel = modelSupportsGoogleThinkingLevels(modelName ?? "");
-		if (ir.reasoning?.effort && supportsThinkingLevel) {
-			const level = resolveGoogleThinkingLevelForEffort(modelName ?? "", ir.reasoning.effort);
+		const supportsThinkingLevel = supportsInteractionsThinkingLevels(modelName ?? "");
+		const explicitlyDisabled = ir.reasoning?.enabled === false || ir.reasoning?.effort === "none";
+		if (supportsThinkingLevel) {
+			const level = explicitlyDisabled
+				? "MINIMAL"
+				: resolveGoogleThinkingLevelForEffort(modelName ?? "", ir.reasoning?.effort)
+					?? (String(modelName ?? "").toLowerCase().includes("gemini-2.5")
+						? ({ minimal: "MINIMAL", low: "LOW", medium: "MEDIUM", high: "HIGH", xhigh: "HIGH", max: "HIGH" } as const)[ir.reasoning?.effort as "minimal" | "low" | "medium" | "high" | "xhigh" | "max"]
+						: undefined)
+					?? (ir.reasoning?.enabled ? "HIGH" : undefined)
+					?? getDefaultGoogleThinkingLevel(modelName ?? "");
 			if (level) generationConfig.thinking_level = level.toLowerCase();
 		}
-		else if (ir.reasoning?.enabled && supportsThinkingLevel) {
-			generationConfig.thinking_level = "high";
-		}
 
-		generationConfig.thinking_summaries = ir.reasoning?.includeThoughts === false ? "none" : "auto";
+		generationConfig.thinking_summaries = explicitlyDisabled ||
+			ir.reasoning?.includeThoughts === false ||
+			(!hasRequestedThinkingConfig && defaultThinkingLevel)
+			? "none"
+			: "auto";
 	}
 
 	const responseFormatEntries: any[] = [];
@@ -398,7 +406,6 @@ export async function irToGemini(
 			.filter((mode) => mode === "text" || mode === "image" || mode === "audio");
 		if (mapped.length > 0) {
 			mappedResponseModalities = mapped;
-			request.response_modalities = mapped;
 		}
 	}
 
@@ -467,8 +474,10 @@ export async function irToGemini(
 				generationConfig.tool_choice = "any";
 			} else if (typeof ir.toolChoice === "object" && "name" in ir.toolChoice) {
 				generationConfig.tool_choice = {
-					type: "function",
-					name: ir.toolChoice.name,
+					allowed_tools: {
+						mode: "any",
+						tools: [ir.toolChoice.name],
+					},
 				};
 			}
 			request.generation_config = generationConfig;
@@ -1036,18 +1045,30 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	const keyInfo = resolveProviderKey(args, () => {
 		return bindings.GOOGLE_AI_STUDIO_API_KEY;
 	});
+	if (ir.googleCachedContent !== undefined && keyInfo.source !== "byok") {
+		return {
+			kind: "completed",
+			ir: undefined,
+			upstream: new Response(JSON.stringify({ error: "cachedContent requires a customer-managed Google API key" }), {
+				status: 400,
+				headers: { "Content-Type": "application/json" },
+			}),
+			bill: { cost_cents: 0, currency: "USD" },
+			keySource: keyInfo.source,
+			byokKeyId: keyInfo.byokId,
+		};
+	}
 
 	// Determine model candidates (must be in URL, not body)
 	const requestedModel = providerModelSlug || ir.model || "gemini-2.0-flash-exp";
-	const isInteractionsRequest =
-		(args.protocol as string) === "google.interactions" ||
-		isGeminiInteractionsModelName(requestedModel);
-	const forceSyntheticStream = Boolean(ir.stream) && (
-		isGeminiImageModelName(requestedModel) ||
-		isInteractionsRequest
-	);
+	// Interactions is preferred where Google documents model support. Keep the
+	// fully supported generateContent path for other active models and explicit caches.
 	const modelCandidates = resolveGoogleModelCandidates(requestedModel);
 	let model = modelCandidates[0] || "gemini-2.0-flash-exp";
+	let forceSyntheticStream = Boolean(ir.stream) && (
+		isGeminiImageModelName(model) ||
+		(ir.googleCachedContent === undefined && supportsGoogleInteractions(model))
+	);
 
 	// Google AI Studio base URL (allow env override for proxy/self-host routing)
 	const baseRoot = String(
@@ -1057,9 +1078,13 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	).replace(/\/+$/, "");
 	const baseUrl = /\/v1(beta)?$/i.test(baseRoot) ? baseRoot : `${baseRoot}/v1beta`;
 
-	const makeEndpoint = (candidateModel: string) => {
+	const makeEndpoint = (
+		candidateModel: string,
+		isInteractionsRequest: boolean,
+		candidateForceSyntheticStream: boolean,
+	) => {
 		if (isInteractionsRequest) return `${baseUrl}/interactions`;
-		return Boolean(ir.stream) && !forceSyntheticStream
+		return Boolean(ir.stream) && !candidateForceSyntheticStream
 			? `${baseUrl}/models/${encodeURIComponent(candidateModel)}:streamGenerateContent?alt=sse`
 			: `${baseUrl}/models/${encodeURIComponent(candidateModel)}:generateContent`;
 	};
@@ -1076,13 +1101,19 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 
 	try {
 		const doRequest = async (candidateModel: string) => {
+			const isInteractionsRequest =
+				ir.googleCachedContent === undefined && supportsGoogleInteractions(candidateModel);
+			const candidateForceSyntheticStream = Boolean(ir.stream) && (
+				isGeminiImageModelName(candidateModel) ||
+				isInteractionsRequest
+			);
 			const requestBody = isInteractionsRequest
 				? await irToGemini(ir, candidateModel, args.upstreamTiming)
 				: await irToLegacyGemini(ir, candidateModel, args.upstreamTiming);
-			if (isInteractionsRequest && Boolean(ir.stream) && !forceSyntheticStream) {
+			if (isInteractionsRequest && Boolean(ir.stream) && !candidateForceSyntheticStream) {
 				requestBody.stream = true;
 			}
-			const endpoint = makeEndpoint(candidateModel);
+			const endpoint = makeEndpoint(candidateModel, isInteractionsRequest, candidateForceSyntheticStream);
 			const response = await fetchUpstream(args, endpoint, {
 				method: "POST",
 				headers: {
@@ -1092,7 +1123,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 				},
 				body: JSON.stringify(requestBody),
 			});
-			return { candidateModel, requestBody, response };
+			return { candidateModel, requestBody, response, candidateForceSyntheticStream };
 		};
 
 		let attempted: Awaited<ReturnType<typeof doRequest>> | null = null;
@@ -1121,6 +1152,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 		}
 
 		model = attempted.candidateModel;
+		forceSyntheticStream = attempted.candidateForceSyntheticStream;
 		const googleInteractionRequest = attempted.requestBody;
 		const response = attempted.response;
 		const selectedDispatchAtMs =

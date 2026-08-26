@@ -7,6 +7,22 @@ from gen import models
 from gen import operations as ops
 
 
+def test_app_attribution_headers_are_opt_in():
+    plain = Phaseo(api_key="sk_test_123", base_url="https://example.test")
+    assert "X-App-Id" not in plain._headers
+    assert "X-App-Name" not in plain._headers
+    assert "HTTP-Referer" not in plain._headers
+
+    attributed = Phaseo(
+        api_key="sk_test_123",
+        base_url="https://example.test",
+        app={"id": "support-console", "name": "Support Console", "url": "https://support.example.com"},
+    )
+    assert attributed._headers["X-App-Id"] == "support-console"
+    assert attributed._headers["X-App-Name"] == "Support Console"
+    assert attributed._headers["HTTP-Referer"] == "https://support.example.com"
+
+
 def test_chat_completions_returns_payload(monkeypatch):
     payload = {
         "id": "req_py_chat_1",

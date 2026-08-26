@@ -9,6 +9,35 @@ import { openAICompatHeaders, openAICompatUrl, resolveOpenAICompatKey } from "..
 import { computeBill } from "@pipeline/pricing/engine";
 import { resolveUploadableFromString } from "./uploadable";
 import { buildImagePricingRequestOptions, normalizeOpenAIImageTokenUsage } from "@core/image-request-options";
+import { collectStreamUsage, usesGptImageTokenPricing } from "./images";
+
+async function resolveImageUpload(
+    source: string | Blob,
+    options: Parameters<typeof resolveUploadableFromString>[1],
+) {
+    if (typeof source === "string") {
+        return resolveUploadableFromString(source, options);
+    }
+    if (typeof Blob !== "undefined" && source instanceof Blob && source.size > 0) {
+        const filename = typeof File !== "undefined" && source instanceof File && source.name
+            ? source.name
+            : `${options.fallbackFilename}.png`;
+        return { blob: source, filename };
+    }
+    throw new Error("uploadable_source_invalid");
+}
+
+function invalidUploadResponse(message: string, param: "image" | "mask", index?: number): Response {
+    return new Response(JSON.stringify({
+        error: {
+            message,
+            type: "invalid_request_error",
+            param,
+            code: "invalid_image",
+            ...(typeof index === "number" ? { index } : {}),
+        },
+    }), { status: 400, headers: { "Content-Type": "application/json" } });
+}
 
 function resolveOutputImageCount(body: ImagesEditRequest, normalized: any): number {
     const fromPayload = Array.isArray(normalized?.data) ? normalized.data.length : 0;
@@ -21,12 +50,6 @@ function resolveOutputImageCount(body: ImagesEditRequest, normalized: any): numb
 
     return 1;
 }
-
-function usesGptImageTokenPricing(...modelIds: Array<string | null | undefined>): boolean {
-	return modelIds.some((modelId) => /(?:gpt-image-|chatgpt-image-latest)/i.test(modelId?.trim() ?? ""));
-}
-
-
 
 export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
     const keyInfo = await resolveOpenAICompatKey(args);
@@ -41,22 +64,20 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
     for (let i = 0; i < imageInputs.length; i++) {
         const input = imageInputs[i];
         try {
-            const upload = await resolveUploadableFromString(input, {
+            const upload = await resolveImageUpload(input, {
                 defaultMimeType: "image/png",
                 fallbackFilename: `image-${i + 1}`,
-				maxBytes: 25 * 1024 * 1024,
+				maxBytes: 50 * 1024 * 1024,
 				upstreamTiming: args.upstreamTiming,
             });
             imageUploads.push(upload);
         } catch {
             return {
                 kind: "completed",
-                upstream: new Response(
-                    JSON.stringify({
-                        error: "Invalid image input. Provide reachable image URLs or valid base64 payloads.",
-                        index: i,
-                    }),
-                    { status: 400, headers: { "Content-Type": "application/json" } },
+                upstream: invalidUploadResponse(
+                    "Invalid image input. Provide an image upload, reachable URL, or valid base64 payload.",
+                    "image",
+                    i,
                 ),
                 bill: {
                     cost_cents: 0,
@@ -72,22 +93,20 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
     }
 
     let maskUpload: Awaited<ReturnType<typeof resolveUploadableFromString>> | null = null;
-    if (typeof body.mask === "string" && body.mask.trim().length > 0) {
+    if (body.mask != null) {
         try {
-            maskUpload = await resolveUploadableFromString(body.mask, {
+            maskUpload = await resolveImageUpload(body.mask, {
                 defaultMimeType: "image/png",
                 fallbackFilename: "mask",
-				maxBytes: 4 * 1024 * 1024,
+				maxBytes: 50 * 1024 * 1024,
 				upstreamTiming: args.upstreamTiming,
             });
         } catch {
             return {
                 kind: "completed",
-                upstream: new Response(
-                    JSON.stringify({
-                        error: "Invalid mask input. Provide a reachable image URL or valid base64 payload.",
-                    }),
-                    { status: 400, headers: { "Content-Type": "application/json" } },
+                upstream: invalidUploadResponse(
+                    "Invalid mask input. Provide an image upload, reachable URL, or valid base64 payload.",
+                    "mask",
                 ),
                 bill: {
                     cost_cents: 0,
@@ -106,12 +125,14 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
     form.append("model", body.model);
     form.append("prompt", body.prompt);
     for (const imageUpload of imageUploads) {
-        form.append("image", imageUpload.blob, imageUpload.filename);
+        form.append("image[]", imageUpload.blob, imageUpload.filename);
     }
     if (maskUpload) form.append("mask", maskUpload.blob, maskUpload.filename);
     if (body.size) form.append("size", body.size);
     if (typeof body.n === "number") form.append("n", String(body.n));
     if (body.quality) form.append("quality", body.quality);
+    if (typeof body.stream === "boolean") form.append("stream", String(body.stream));
+    if (typeof body.partial_images === "number") form.append("partial_images", String(body.partial_images));
     if (body.response_format) form.append("response_format", body.response_format);
     if (body.output_format) form.append("output_format", body.output_format);
     if (typeof body.output_compression === "number") form.append("output_compression", String(body.output_compression));
@@ -136,6 +157,37 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
         upstream_id: res.headers.get("x-request-id"),
         finish_reason: null,
     };
+
+    if (res.ok && body.stream === true && res.body) {
+        const [clientStream, accountingStream] = res.body.tee();
+        const usageFinalizer = async () => {
+            const completedUsage = await collectStreamUsage(accountingStream);
+            const usageMeters = usesGptImageTokenPricing(args.model, body.model)
+                ? normalizeOpenAIImageTokenUsage(completedUsage)
+                : completedUsage;
+            usageMeters.requests = 1;
+            const pricedUsage = computeBill(
+                usageMeters as Record<string, any>,
+                args.pricingCard,
+                buildImagePricingRequestOptions(body, usageMeters),
+            );
+            return {
+                ...bill,
+                cost_cents: pricedUsage.pricing.total_cents,
+                currency: pricedUsage.pricing.currency,
+                usage: pricedUsage,
+            };
+        };
+        return {
+            kind: "stream",
+            upstream: res,
+            stream: clientStream,
+            usageFinalizer,
+            bill,
+            keySource: keyInfo.source,
+            byokKeyId: keyInfo.byokId,
+        };
+    }
 
     const normalized = await res.clone().json().catch(() => undefined);
 
@@ -170,4 +222,3 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
         byokKeyId: keyInfo.byokId,
     };
 }
-

@@ -1,4 +1,22 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+
+vi.mock("@/models/page-catalogue", async (importOriginal) => ({
+	...await importOriginal<typeof import("@/models/page-catalogue")>(),
+	fetchModelsPageCatalogue: vi.fn(async () => ({
+		pricingComplete: true,
+		models: [{
+		model_id: "openai/gpt-test",
+		name: "GPT Test",
+		organisation_id: "openai",
+		organisation_name: "OpenAI",
+		status: "active",
+		primary_date: "2026-07-01",
+		primary_timestamp: Date.parse("2026-07-01"),
+		primary_group_key: "2026-07",
+		}],
+	})),
+}));
+
 import app from "@/index";
 
 const env = {
@@ -61,6 +79,7 @@ describe("public organisation routes", () => {
 					organisation_name: "OpenAI",
 					primary_group_key: "2026-07",
 				}],
+				performance_models: [{ model_id: "openai/gpt-test" }],
 				models: { active: [{ model_id: "openai/gpt-test" }] },
 			},
 		});

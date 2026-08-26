@@ -42,10 +42,17 @@
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.cerebras.ai/public/v1/models/gemma-4-31b",
+      "accessed_at": "2026-08-21T00:00:00Z",
+      "notes": "The live Cerebras model record lists $0.99 per million prompt tokens and $1.49 per million completion tokens."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-21T00:00:00Z",
+    "notes": "Token prices and units verified against the authoritative public model endpoint."
   }
 }

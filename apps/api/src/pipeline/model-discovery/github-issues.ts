@@ -346,24 +346,43 @@ export function buildCatalogPricingIssueEntries(args: {
 }
 
 export function buildPricingTableIssueEntries(args: {
-	changes: Array<{ providerId: string; providerName: string; sourceUrl: string; tableCount: number; pricingSamples: string[] }>;
+	changes: Array<{
+		providerId: string;
+		providerName: string;
+		sourceUrl: string;
+		tableCount: number;
+		pricingSamples: string[];
+		addedSamples?: string[];
+		removedSamples?: string[];
+	}>;
 	detectedAt: string;
 	detectionSource: string;
 }): UpstreamDiscoveryIssueEntry[] {
-	return args.changes.map((change) => ({
-		source: "provider-pricing-table",
-		providerId: change.providerId,
-		providerName: change.providerName,
-		action: "change",
-		modelId: "Pricing table",
-		modelUrl: change.sourceUrl,
-		detectedAt: args.detectedAt,
-		detectionSource: args.detectionSource,
-		reason: [
-			`${change.tableCount} price-bearing table${change.tableCount === 1 ? "" : "s"} changed`,
-			change.pricingSamples.length > 0 ? `Current source samples: ${change.pricingSamples.slice(0, 4).join(" | ")}` : null,
-		].filter(Boolean).join(". "),
-	}));
+	return args.changes.map((change) => {
+		const added = change.addedSamples ?? [];
+		const removed = change.removedSamples ?? [];
+		const hasDiffLines = added.length > 0 || removed.length > 0;
+		return {
+			source: "provider-pricing-table",
+			providerId: change.providerId,
+			providerName: change.providerName,
+			action: "change",
+			modelId: "Pricing table",
+			modelUrl: change.sourceUrl,
+			detectedAt: args.detectedAt,
+			detectionSource: args.detectionSource,
+			reason: [
+				hasDiffLines
+					? `${added.length} price line${added.length === 1 ? "" : "s"} added, ${removed.length} removed`
+					: `${change.tableCount} price-bearing table${change.tableCount === 1 ? "" : "s"} changed`,
+				added.length > 0 ? `Added: ${added.slice(0, 4).join(" | ")}` : null,
+				removed.length > 0 ? `Removed: ${removed.slice(0, 4).join(" | ")}` : null,
+				!hasDiffLines && change.pricingSamples.length > 0
+					? `Current source samples: ${change.pricingSamples.slice(0, 4).join(" | ")}`
+					: null,
+			].filter(Boolean).join(". "),
+		};
+	});
 }
 
 export async function syncUpstreamDiscoveryIssues(entries: UpstreamDiscoveryIssueEntry[]): Promise<GitHubIssueSyncSummary> {

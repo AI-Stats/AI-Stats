@@ -21,7 +21,8 @@
   "details": [
     {"name":"official_api_model_id","value":"fugu-cyber-v1.0"},
     {"name":"input_context_length","value":1000000},
-    {"name":"pricing","value":"$6 input, $0.60 cached input, and $36 output per 1M tokens through the Token Plan; above 272K context: $12 / $1.20 / $54."}
+    {"name":"availability","value":"Pay-as-you-go only and access-gated; Sakana requires an approved access request."},
+    {"name":"pricing","value":"Current public pricing directs customers to contact Sakana sales."}
   ],
   "benchmarks": [],
   "page_notice": null,
@@ -36,8 +37,8 @@
     {"kind":"announcement","url":"https://sakana.ai/fugu-cyber-release/","accessed_at":"2026-07-24T00:00:00Z","notes":"Official Sakana AI release announcement."},
     {"kind":"documentation","url":"https://sakana.ai/fugu/","accessed_at":"2026-07-24T00:00:00Z","notes":"Official API model list and Fugu Cyber pricing."}
   ],
-  "verification": {"status":"verified","checked_at":"2026-07-24T00:00:00Z","notes":"Verified against Sakana AI's official release, API model list, and pricing page."},
-  "last_updated":"2026-07-24T00:00:00Z",
+  "verification": {"status":"verified","checked_at":"2026-08-12T00:00:00Z","notes":"Verified against Sakana AI's current model reference and pricing page; access is gated and public fixed token pricing is no longer published."},
+  "last_updated":"2026-08-12T00:00:00Z",
   "removal_date":null,
   "replacement_model_id":null,
   "license_url":null

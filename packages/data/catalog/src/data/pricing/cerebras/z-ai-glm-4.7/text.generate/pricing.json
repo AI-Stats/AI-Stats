@@ -15,6 +15,7 @@
       "note": null,
       "match": [],
       "priority": 100,
+      "effective_to": "2026-08-17T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -30,6 +31,7 @@
       "note": null,
       "match": [],
       "priority": 100,
+      "effective_to": "2026-08-17T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -45,6 +47,7 @@
       "note": null,
       "match": [],
       "priority": 100,
+      "effective_to": "2026-08-17T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -55,10 +58,29 @@
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "documentation",
+      "url": "https://inference-docs.cerebras.ai/models/zai-glm-47",
+      "accessed_at": "2026-08-21T00:00:00Z",
+      "notes": "The official model page documented $2.25 per million input tokens and $2.75 per million output tokens before retirement."
+    },
+    {
+      "kind": "documentation",
+      "url": "https://inference-docs.cerebras.ai/capabilities/prompt-caching",
+      "accessed_at": "2026-08-21T00:00:00Z",
+      "notes": "Cerebras states cached prompt tokens are billed at the standard input-token rate."
+    },
+    {
+      "kind": "deprecation",
+      "url": "https://inference-docs.cerebras.ai/support/deprecation",
+      "accessed_at": "2026-08-21T00:00:00Z",
+      "notes": "Cerebras deprecated zai-glm-4.7 on August 17, 2026."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-21T00:00:00Z",
+    "notes": "Historical pricing availability now closes at the documented route retirement boundary."
   }
 }

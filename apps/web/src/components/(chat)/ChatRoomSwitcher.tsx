@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import type { ComponentType } from "react";
 import {
 	AudioLines,
+	ArrowUpDown,
 	BadgeCheck,
 	ChevronsUpDown,
 	GitMerge,
@@ -13,6 +14,7 @@ import {
 	MessageSquareText,
 	Music2,
 	Radio,
+	ScanText,
 	Sparkles,
 	Subtitles,
 	Video,
@@ -47,9 +49,11 @@ const ICONS: Record<ChatRoomId, ComponentType<{ className?: string }>> = {
 	realtime: Radio,
 	moderation: BadgeCheck,
 	embeddings: Sparkles,
+	ocr: ScanText,
+	rerank: ArrowUpDown,
 };
 
-const DISABLED_ROOMS = new Set<ChatRoomId>();
+const DISABLED_ROOMS = new Set<ChatRoomId>(["ocr", "rerank"]);
 
 function isRoomActive(pathname: string, route: string): boolean {
 	if (route === "/chat") {

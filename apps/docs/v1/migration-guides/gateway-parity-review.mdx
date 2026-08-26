@@ -1,147 +1,72 @@
 ---
-title: "Gateway Parity Review"
-description: "Understand how ready Phaseo is for migrations from OpenRouter, Vercel AI Gateway, and LLMGateway."
+title: "Migration Readiness Review"
+description: "Decide whether an existing gateway workload is ready to move to Phaseo."
 ---
 
-Use this page to understand how ready Phaseo is for migrations from OpenRouter, Vercel AI Gateway, and LLMGateway.
+Use this review before planning a gateway cutover. It focuses on the behaviors that can change even when both platforms accept OpenAI-compatible requests.
 
-This review is based on the current codebase, tests, SDKs, and docs in this repo.
+## 1. Inventory the integration boundary
 
-## Scope reviewed
+Record every place the current gateway appears:
 
-- Public migration guides
-- OpenAI-compatible request and response compatibility
-- Batch, file, webhook, and async-job support
-- SDK and local devtools parity
-- Vercel AI SDK compatibility coverage
-- Benchmarking and migration validation tooling
+- base URLs and API key environment variables
+- SDK initialization and custom headers
+- model IDs and fallback models
+- provider ordering, allowlists, and privacy requirements
+- streaming, tool-calling, and structured-output code
+- batch jobs, files, webhooks, and async status polling
+- request attribution and user or session metadata
 
-## Current parity status
+Keep this inventory beside the rollout plan so reviewers can verify that the migration does not leave a second, hidden configuration path behind.
 
-| Capability | OpenRouter | Vercel AI Gateway | LLMGateway | Current Phaseo status |
-| --- | --- | --- | --- | --- |
-| Public migration guide | Yes | Yes | Yes | Public docs now include all three guides |
-| OpenAI-compatible base URL + key swap | Yes | Yes | Yes | Covered in migration docs and SDK examples |
-| Model-ID verification guidance | Yes | Yes | Yes | Covered in migration docs via `/v1/models` checks |
-| Batch + file migration readiness | Partial | Partial | Partial | Gateway/API/SDK/docs now support batch create/retrieve/cancel, owned files, and result download |
-| Routing and observability metadata | Strong | Medium | Medium | Usage UI, devtools, and batch responses expose `request_id`, `provider`, `pricing_lines`, and related metadata |
-| Public benchmark tooling | Strong | Medium | Medium | Internal benchmark tooling now compares Phaseo vs OpenRouter, LLMGateway, and Vercel AI Gateway, with aggregate and live compare support when benchmark keys are configured |
-| Vercel AI SDK compatibility proof | N/A | Strong across shipped modalities | N/A | Local compatibility tests now exist for language, streaming, embeddings, image, speech, and transcription flows |
+## 2. Classify each capability
 
-## What the repo now clearly covers
+For each production behavior, assign one status:
 
-### 1) Migration docs are now in good shape
+| Status | Meaning |
+| --- | --- |
+| Unchanged | The same request field and response behavior have been verified. |
+| Mapped | Phaseo supports the result through a different field or configuration. |
+| Adapted | A compatibility layer translates the request or response. |
+| Not supported | The workload must remove the dependency or remain on its current path. |
+| Not verified | Support may exist, but production-like evidence is still missing. |
 
-The public docs now contain platform migration guides for:
+Use the [Migration Feature Checklist](./feature-parity-matrix) to cover core requests, routing, attribution, async work, and operations.
 
-- [Migration from OpenRouter](./from-openrouter)
-- [Migrating from Vercel AI Gateway](./from-vercel)
-- [Migrating from LLM Gateway](./from-llmgateway)
+## 3. Validate representative traffic
 
-These guides now follow the same basic structure:
+Build a small test set from real workload patterns without copying sensitive production data.
 
-- inventory the current gateway boundary
-- swap endpoint and credentials
-- validate model IDs and request behavior
-- use a rollout checklist instead of a one-shot cutover
+Test:
 
-### 2) OpenRouter parity is strongest today
+1. One normal request for every endpoint in use.
+2. Streaming through the same client path used in production.
+3. Tool calls and structured outputs with realistic schemas.
+4. Every provider or privacy constraint.
+5. Invalid keys, invalid models, rate limits, and unavailable-provider failures.
+6. Batch or async jobs through terminal success, failure, and cancellation states.
 
-OpenRouter currently has the deepest repo support among the reviewed competitors:
+Compare output quality, latency, token usage, selected provider, and final cost. Record the request ID for each result so it can be inspected in Gateway usage.
 
-- a dedicated migration guide
-- an internal side-by-side benchmark path in `apps/web/src/lib/internal/gatewayCompare.ts`
-- OpenRouter-specific compatibility headers in the benchmark flow
-- existing product copy and internal compare UI built around the OpenRouter comparison path
+## 4. Preserve attribution and observability
 
-This does not mean every OpenRouter feature is matched. It means Phaseo currently gives you the clearest migration and validation path for that competitor.
+Keep app attribution headers when they describe the calling application. Phaseo supports stable app IDs, names, URLs, and categories; removing them during migration makes cost and usage comparisons harder.
 
-### 3) Batch and async support is much stronger now
+See [App Attribution](../guides/app-attribution) for the supported headers and category values.
 
-Recent gateway work now gives the migration story much stronger async coverage than before:
+## 5. Roll out with a reversible switch
 
-- batch create, retrieve, and cancel across API, docs, and SDKs
-- owned file retrieval and content download
-- webhook-aware async job visibility in usage UI
-- batch billing and terminal observability metadata
-- local gateway smoke coverage for successful and failed batch flows
+Start with development and internal traffic. Move a small production percentage only after the test set passes, and keep rollback limited to endpoint and credential configuration until results are stable.
 
-That matters because async and batch flows are often where simple "OpenAI-compatible" claims stop being enough.
+Do not combine the initial cutover with unrelated prompt, model, or routing optimization. Make those changes after the gateway boundary is verified.
 
-### 4) SDK and local tooling are stronger than the docs used to suggest
+## Platform-specific guides
 
-The maintained SDKs now have:
-
-- batch helper coverage beyond cancellation
-- file-content helper coverage
-- batch-aware devtools metadata across the maintained language SDKs
-- richer routing and pricing metadata in local recorder output
-
-This means the migration story is no longer only "change the base URL." The local debugging and observability experience now matters too.
-
-## What still needs work
-
-### 1) Competitor comparison tooling is now mostly aligned
-
-The internal benchmark and compare tooling now supports:
-
-- Phaseo
-- OpenRouter
-- LLMGateway
-- Vercel AI Gateway
-
-That closes the earlier benchmarking gap for Vercel AI Gateway and makes the internal comparison flow more consistent across all three reviewed gateways.
-
-### 2) The parity matrix exists, but not every related capability has a dedicated doc page yet
-
-The migration guides now have a dedicated [Feature Parity Matrix](./feature-parity-matrix), but the wider docs still do not give every capability the same level of visibility. The matrix currently tracks:
-
-- routing transparency
-- fallback controls
-- pricing transparency
-- request transforms and defaults
-- provider/model filtering depth
-
-The matrix closes the original documentation gap, but the wider docs still need more direct capability pages in a few places.
-
-### 3) Some gaps are still proof gaps, not confirmed product gaps
-
-For several backlog items, the current weakness is not necessarily "feature absent," but "not strongly documented or validated yet":
-
-- broader competitor-specific benchmark validation outside the internal benchmark tool
-
-Treat those as follow-up validation work rather than assumed product failures.
-
-## What still matters most
-
-Phaseo already has strong evidence for:
-
-- provider routing transparency
-- richer generation metadata
-- generation replay payload recovery through `GET /v1/generations`
-- more complete model/provider filters
-- better webhook and async-job ergonomics
-- more complete pricing and usage transparency
-- Vercel AI SDK compatibility across the shipped text, embedding, image, and audio surfaces
-
-The highest-value next work is:
-
-1. Keep the parity matrix current as routing, pricing, async jobs, and replay/retry support evolve.
-2. Keep the competitor comparison flow current as request contracts change.
-
-## Recommended next steps
-
-If you want to keep improving migration parity before moving fully into video review, the highest-value next step is:
-
-1. Keep the migration and benchmarking docs aligned as the comparison tooling evolves.
-
-If you want to follow the broader backlog order after this review, the next major area is:
-
-1. Review and harden the video pipeline end to end, especially status transitions, billing state, retries, webhook behavior, and provider-access errors.
-
-## Related guides
-
-- [Migration Guides Index](./index)
-- [Migration from OpenRouter](./from-openrouter)
-- [Migrating from Vercel AI Gateway](./from-vercel)
-- [Migrating from LLM Gateway](./from-llmgateway)
+- [OpenAI SDK](./from-openai)
+- [Anthropic SDK](./from-anthropic)
+- [OpenRouter](./from-openrouter)
+- [Vercel AI Gateway](./from-vercel)
+- [LLMGateway](./from-llmgateway)
+- [LiteLLM](./from-litellm)
+- [Cloudflare AI Gateway](./from-cloudflare)
+- [Helicone AI Gateway](./from-helicone)

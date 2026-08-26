@@ -87,7 +87,21 @@ function logRawImageResponse(
 
 
 
-function mapGatewayToOpenAIImages(body: ImagesGenerationRequest) {
+function mapGatewayToOpenAIImages(body: ImagesGenerationRequest, rawBody: Record<string, unknown>, providerId: string) {
+    const providerParams = rawBody.provider_params && typeof rawBody.provider_params === "object"
+        ? rawBody.provider_params as Record<string, unknown>
+        : {};
+    const togetherParams = providerId === "together" ? {
+        width: rawBody.width ?? providerParams.width,
+        height: rawBody.height ?? providerParams.height,
+        steps: rawBody.steps ?? providerParams.steps,
+        seed: rawBody.seed ?? providerParams.seed,
+        negative_prompt: rawBody.negative_prompt ?? providerParams.negative_prompt,
+        guidance_scale: rawBody.guidance_scale ?? providerParams.guidance_scale,
+        image_url: rawBody.image_url ?? providerParams.image_url,
+        reference_images: rawBody.reference_images ?? providerParams.reference_images,
+        disable_safety_checker: rawBody.disable_safety_checker ?? providerParams.disable_safety_checker,
+    } : {};
     return {
         prompt: body.prompt,
         model: body.model,
@@ -103,13 +117,28 @@ function mapGatewayToOpenAIImages(body: ImagesGenerationRequest) {
         size: body.size,
         style: body.style,
         user: body.user,
+        ...Object.fromEntries(Object.entries(togetherParams).filter(([, value]) => value !== undefined)),
     };
+}
+
+function resolveOutputImagePixels(request: Record<string, any>, count: number, providerId: string): number | undefined {
+    const width = Number(request.width);
+    const height = Number(request.height);
+    if (Number.isFinite(width) && width > 0 && Number.isFinite(height) && height > 0) {
+        return width * height * count;
+    }
+    const size = typeof request.size === "string" ? request.size.match(/^(\d+)x(\d+)$/i) : null;
+    if (!size) return providerId === "together" ? 1024 * 1024 * count : undefined;
+    const parsedWidth = Number(size[1]);
+    const parsedHeight = Number(size[2]);
+    return parsedWidth > 0 && parsedHeight > 0 ? parsedWidth * parsedHeight * count : undefined;
 }
 
 function mapOpenAIToGatewayImages(json: any): any {
     return {
         created: json.created,
         data: json.data,
+        background: json.background,
         output_format: json.output_format,
         quality: json.quality,
         size: json.size,
@@ -129,7 +158,7 @@ function resolveOutputImageCount(body: ImagesGenerationRequest, normalized: any)
     return 1;
 }
 
-async function collectStreamUsage(stream: ReadableStream<Uint8Array>): Promise<Record<string, unknown>> {
+export async function collectStreamUsage(stream: ReadableStream<Uint8Array>): Promise<Record<string, unknown>> {
 	const reader = stream.getReader();
 	const decoder = new TextDecoder();
 	let buffer = "";
@@ -160,7 +189,7 @@ async function collectStreamUsage(stream: ReadableStream<Uint8Array>): Promise<R
 	return usage;
 }
 
-function usesGptImageTokenPricing(...modelIds: Array<string | null | undefined>): boolean {
+export function usesGptImageTokenPricing(...modelIds: Array<string | null | undefined>): boolean {
 	return modelIds.some((modelId) => /(?:gpt-image-|chatgpt-image-latest)/i.test(modelId?.trim() ?? ""));
 }
 
@@ -172,7 +201,7 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
         ...sanitizedBody,
         model: args.providerModelSlug || args.model,
     };
-    const req = mapGatewayToOpenAIImages(modifiedBody);
+    const req = mapGatewayToOpenAIImages(modifiedBody, args.body as Record<string, unknown>, args.providerId);
     const res = await (args.upstreamTiming?.fetch ?? fetch)(openAICompatUrl(args.providerId, "/images/generations"), {
         method: "POST",
         headers: openAICompatHeaders(args.providerId, key, upstreamTestHeaders(args.meta)),
@@ -193,6 +222,8 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
                 ? normalizeOpenAIImageTokenUsage(completedUsage)
                 : completedUsage;
             usageMeters.requests = 1;
+            const imagePixels = resolveOutputImagePixels(req, modifiedBody.n ?? 1, args.providerId);
+            if (imagePixels !== undefined) usageMeters.image_pixels = imagePixels;
             const pricedUsage = computeBill(usageMeters as Record<string, any>, args.pricingCard, buildImagePricingRequestOptions(modifiedBody, usageMeters));
             return {
                 ...bill,
@@ -237,6 +268,8 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
         if (!usesGptImageTokenPricing(args.model, modifiedBody.model) && typeof usageMeters.output_image !== "number") {
             usageMeters.output_image = outputImageCount;
         }
+        const imagePixels = resolveOutputImagePixels({ ...req, size: normalized?.size ?? req.size }, outputImageCount, args.providerId);
+        if (imagePixels !== undefined) usageMeters.image_pixels = imagePixels;
         if (typeof normalized?.size === "string") usageMeters.size = normalized.size;
         if (typeof normalized?.quality === "string") usageMeters.quality = normalized.quality;
         if (typeof normalized?.output_format === "string") usageMeters.output_format = normalized.output_format;
@@ -253,11 +286,6 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
     
     return { kind: "completed", upstream: res, bill, normalized, keySource: keyInfo.source, byokKeyId: keyInfo.byokId };
 }
-
-
-
-
-
 
 
 

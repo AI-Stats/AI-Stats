@@ -27,7 +27,8 @@
 		"prepublishOnly": "pnpm run build"
 	},
 	"dependencies": {
-		"jsonc-parser": "^3.3.1"
+		"jsonc-parser": "^3.3.1",
+		"yaml": "^2.9.0"
 	},
 	"devDependencies": {
 		"@types/node": "^26.1.2",

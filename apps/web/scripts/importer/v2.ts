@@ -1,5 +1,6 @@
 import { assertOk, client, isDryRun, logWrite } from "./supa";
 import { chunk } from "./util";
+import { deleteStaleModels } from "./stale-models";
 import { DATA_ROOT, DIR_ALIASES } from "./paths";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -169,6 +170,11 @@ function slug(value: unknown, fallback = "standard"): string {
     return normalized || fallback;
 }
 
+export function canonicalServiceTierSlug(value: unknown): string {
+    const normalized = slug(value);
+    return normalized === "fast" ? "priority" : normalized;
+}
+
 function stableUuid(value: string): string {
     const hash = createHash("sha256").update(value).digest("hex").slice(0, 32).split("");
     hash[12] = "4";
@@ -198,7 +204,7 @@ export function validateJsonPricingRules(rules: Record<string, any>[]): void {
         const identity = stableJson({
             model_key: rule.model_key,
             operation: rule.capability_id ?? "inference",
-            service_tier: slug(rule.pricing_plan),
+            service_tier: canonicalServiceTierSlug(rule.pricing_plan),
             region: rule.region ?? null,
             currency: rule.currency ?? "USD",
             effective_from: rule.effective_from ?? "1970-01-01T00:00:00Z",
@@ -851,7 +857,7 @@ export async function syncV2Catalogue(): Promise<void> {
             const url = asText(link.url);
             if (!kind || !url) return [];
             return [{
-                model_slug: model.model_id,
+                model_slug: canonicalModelSlug(model.model_id),
                 link_kind: slug(kind),
                 title: asText(link.title) ?? kind.replace(/[_-]+/g, " ").replace(/\b\w/g, character => character.toUpperCase()),
                 url,
@@ -876,7 +882,7 @@ export async function syncV2Catalogue(): Promise<void> {
     const modelDetailRows = uniqueRows([...source.models.values()].flatMap(model =>
         (Array.isArray(model.details) ? model.details : []).flatMap((detail: Record<string, any>, index: number) =>
             detail?.name ? [{
-                model_slug: model.model_id,
+                model_slug: canonicalModelSlug(model.model_id),
                 detail_name: String(detail.name),
                 detail_value: detail.value ?? null,
                 detail_order: index,
@@ -899,7 +905,7 @@ export async function syncV2Catalogue(): Promise<void> {
 
     const modelPageNoticeRows = uniqueRows([...source.models.values()].flatMap(model =>
         model.page_notice?.markdown ? [{
-            model_slug: model.model_id,
+            model_slug: canonicalModelSlug(model.model_id),
             tone: model.page_notice.tone ?? "info",
             markdown: model.page_notice.markdown,
         }] : [],
@@ -944,6 +950,8 @@ export async function syncV2Catalogue(): Promise<void> {
                 ? row.provider_family_id
                 : null,
         name: row.api_provider_name,
+        offer_label: row.offer_label ?? null,
+        offer_scope: row.offer_scope ?? "global",
         status: sourceRoutable === false ? "external" : providerStatus(row.status),
         routing_enabled: routingEnabled,
         routable,
@@ -951,7 +959,7 @@ export async function syncV2Catalogue(): Promise<void> {
         residency_mode: row.residency_mode ?? "unknown",
         default_execution_regions: row.default_execution_regions ?? null,
         default_data_regions: row.default_data_regions ?? null,
-        zero_data_retention: row.zero_data_retention ?? "unknown",
+        zero_data_retention: row.zero_data_retention === true,
         data_retention_days: row.data_retention_days ?? null,
         prompt_training_policy: row.prompt_training_policy ?? "unknown",
         data_policy_tier: row.data_policy_tier ?? "unknown",
@@ -985,7 +993,7 @@ export async function syncV2Catalogue(): Promise<void> {
             data_policy_confidence: row.data_policy_confidence ?? null,
             data_policy_contract_mode: row.data_policy_contract_mode ?? null,
             data_policy_contract_notes: row.data_policy_contract_notes ?? null,
-            zero_data_retention: row.zero_data_retention ?? null,
+            zero_data_retention: row.zero_data_retention ?? false,
             data_retention_days: row.data_retention_days ?? null,
             privacy_policy_url: row.privacy_policy_url ?? null,
             terms_of_service_url: row.terms_of_service_url ?? null,
@@ -1235,7 +1243,7 @@ export async function syncV2Catalogue(): Promise<void> {
         const offerIdentity = stableJson({
             provider_model_id: providerModelId,
             operation: rule.capability_id ?? "inference",
-            service_tier: slug(rule.pricing_plan),
+            service_tier: canonicalServiceTierSlug(rule.pricing_plan),
             region: rule.region ?? null,
             currency: rule.currency ?? "USD",
             effective_from: rule.effective_from ?? "1970-01-01T00:00:00Z",
@@ -1252,7 +1260,7 @@ export async function syncV2Catalogue(): Promise<void> {
             provider_model_id: providerModelId,
             sku_code: skuCode,
             version: 1,
-            service_tier_slug: slug(rule.pricing_plan),
+            service_tier_slug: canonicalServiceTierSlug(rule.pricing_plan),
             operation: rule.capability_id ?? "inference",
             status: rule.effective_to && new Date(rule.effective_to) <= new Date() ? "deprecated" : "active",
             display_name: rule.tier_label || `${slug(rule.pricing_plan)} ${rule.capability_id ?? "inference"}`,
@@ -1273,10 +1281,25 @@ export async function syncV2Catalogue(): Promise<void> {
     }
     const pricingRows = [...pricingRowsByKey.values()];
     const canonicalServiceTiers = new Set(["standard", "priority", "batch", "flex"]);
-    const tierSlugs = [...new Set([...pricingRules.map(rule => slug(rule.pricing_plan)), ...canonicalServiceTiers])];
+    const serviceTierDisplayNames: Record<string, string> = {
+        standard: "Standard",
+        fast: "Fast",
+        priority: "Fast",
+        batch: "Batch",
+        flex: "Flex",
+    };
+    const routeServiceTiers = [...source.providerModels.values()].flatMap((providerModel) => {
+        const tiers = asTextArray(providerModel.service_tiers).map((tier) => canonicalServiceTierSlug(tier));
+        return tiers.length ? tiers : ["standard"];
+    });
+    const tierSlugs = [...new Set([
+        ...pricingRules.map(rule => slug(rule.pricing_plan)),
+        ...routeServiceTiers,
+        ...canonicalServiceTiers,
+    ])];
     await upsertChunks(supa, "v2_service_tiers", tierSlugs.map(service_tier_slug => ({
         service_tier_slug,
-        display_name: service_tier_slug.split(/[-_.:]+/g).filter(Boolean).map(part => part[0]?.toUpperCase() + part.slice(1)).join(" "),
+        display_name: serviceTierDisplayNames[service_tier_slug] ?? service_tier_slug.split(/[-_.:]+/g).filter(Boolean).map(part => part[0]?.toUpperCase() + part.slice(1)).join(" "),
         status: canonicalServiceTiers.has(service_tier_slug) ? "active" : "disabled",
         metadata: { source: "json", legacy_pricing_plan: service_tier_slug },
     })), "service_tier_slug");
@@ -1317,7 +1340,7 @@ export async function syncV2Catalogue(): Promise<void> {
             .filter(region => region !== "global");
         const sourceTiers = source.providerModels.get(String(route.provider_model_id))?.service_tiers;
         const routeTiers = Array.isArray(sourceTiers) && sourceTiers.length
-            ? sourceTiers.map((tier: unknown) => slug(tier))
+            ? sourceTiers.map((tier: unknown) => canonicalServiceTierSlug(tier))
             : ["standard"];
         return routeTiers.flatMap(tier => {
             const global = [{
@@ -1509,10 +1532,8 @@ export async function syncV2Catalogue(): Promise<void> {
 
     const desiredModelSlugs = new Set([...baseModelRows, ...variantModelRows].map(row => String(row.model_slug)));
     const existingModels = await fetchAll(supa, "v2_models", "model_slug,metadata");
-    await deleteByIds(
+    await deleteStaleModels(
         supa,
-        "v2_models",
-        "model_slug",
         existingModels
             .filter(row => ["json", "models.dev"].includes(String(row.metadata?.source ?? "")))
             .filter(row => !desiredModelSlugs.has(String(row.model_slug)))

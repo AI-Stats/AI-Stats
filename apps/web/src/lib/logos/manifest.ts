@@ -137,6 +137,9 @@ export const logoManifest = {
 	deepseek: {
 		color: "/logos/deepseek.svg",
 	},
+	"dots-studio": {
+		color: "/logos/dots-studio.svg",
+	},
 	databricks: {
 		color: "/logos/databricks.svg",
 	},
@@ -149,6 +152,10 @@ export const logoManifest = {
 	},
 	essentialai: {
 		color: "/logos/essential-ai.svg",
+	},
+	stealth: {
+		light: "/logos/stealth_light.svg",
+		dark: "/logos/stealth_dark.svg",
 	},
 	featherless: {
 		color: "/logos/featherless.svg",

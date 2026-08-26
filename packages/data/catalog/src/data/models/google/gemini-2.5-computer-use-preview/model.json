@@ -4,18 +4,29 @@
   "name": "Gemini 2.5 Computer Use Preview",
   "status": "Available",
   "previous_model_id": null,
-  "description": "Gemini 2.5 Computer Use Preview is a text-to-speech model from Google, and a substantial generational step up from Gemini 2.5 Flash TTS. This entry tracks a preview release and capabilities may change before general availability.",
+  "description": "Gemini 2.5 Computer Use Preview is Google's specialized browser-control model for agents that can inspect screens and perform UI actions such as clicking, typing, and navigating.",
   "announced_date": "2025-10-07T00:00:00",
   "release_date": "2025-10-07T00:00:00",
   "deprecation_date": null,
   "retirement_date": null,
   "license": "Proprietary",
-  "input_types": null,
-  "output_types": null,
+  "input_types": "text,image",
+  "output_types": "text",
   "api_model_id": "google/gemini-2.5-computer-use-preview",
   "family_id": "google/gemini-2.5",
-  "links": [],
-  "details": [],
+  "links": [
+    {
+      "title": "Computer Use documentation",
+      "kind": "api_reference",
+      "url": "https://ai.google.dev/gemini-api/docs/computer-use"
+    }
+  ],
+  "details": [
+    {
+      "name": "provider_model_slug",
+      "value": "gemini-2.5-computer-use-preview-10-2025"
+    }
+  ],
   "benchmarks": [
     {
       "benchmark_id": "aider-polyglot",
@@ -155,27 +166,39 @@
     "output": null
   },
   "modalities": {
-    "input": null,
-    "output": null
+    "input": [
+      "text",
+      "image/*"
+    ],
+    "output": [
+      "text"
+    ]
   },
   "reasoning": {
     "supported": null,
     "options": []
   },
   "capabilities": {
-    "attachment": null,
-    "tool_call": null,
+    "attachment": true,
+    "tool_call": true,
     "structured_output": null,
     "temperature": null,
-    "streaming": null,
-    "web_search": null
+    "streaming": true,
+    "web_search": false
   },
   "open_weights": null,
-  "sources": [],
+  "sources": [
+    {
+      "kind": "api_reference",
+      "url": "https://ai.google.dev/gemini-api/docs/computer-use",
+      "accessed_at": "2026-08-20T00:00:00Z",
+      "notes": "Official model purpose and provider endpoint."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-20T00:00:00Z",
+    "notes": "Verified against the Gemini API model catalogue and Computer Use documentation."
   },
   "last_updated": null,
   "removal_date": null,

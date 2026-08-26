@@ -7,6 +7,7 @@ export const CLARIFAI_OPENAI_COMPAT_CONFIGS = {
 		pathPrefix: "/v2/ext/openai/v1",
 		apiKeyEnv: "CLARIFAI_PAT",
 		baseUrlEnv: "CLARIFAI_BASE_URL",
+		apiKeyPrefix: "Key ",
 		supportsResponses: true,
 	},
 } satisfies Record<string, OpenAICompatConfig>;

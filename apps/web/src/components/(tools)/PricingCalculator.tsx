@@ -10,6 +10,7 @@ import {
 } from "nuqs";
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle2 } from "lucide-react";
+import { ToolPageHeader } from "@/components/(tools)/ToolPageHeader";
 import {
 	ModelSelector,
 	UsageInputs,
@@ -416,18 +417,9 @@ export default function PricingCalculator({
 	};
 
 	return (
-		<div className="mx-auto w-full max-w-[1440px] px-4 py-8">
-			<header className="mb-6 rounded-xl border bg-muted/20 p-4 md:p-6">
-				<div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
-					<div className="space-y-2 max-w-4xl">
-						<h1 className="text-2xl md:text-3xl font-semibold tracking-tight">
-							AI Pricing Calculator
-						</h1>
-						<p className="text-sm md:text-base text-muted-foreground">
-							Select one or more models, configure their provider pricing, then compare every priced meter in a tabular view.
-						</p>
-					</div>
-					<div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+		<div className="mx-auto w-full max-w-[1440px] px-4 py-8 sm:py-12">
+			<ToolPageHeader title="AI Pricing Calculator" description="Select one or more models, configure their provider pricing, then compare every priced meter in a tabular view.">
+					<div className="flex flex-wrap justify-center gap-2 text-xs text-muted-foreground">
 						<span className="inline-flex items-center gap-1 rounded-full border bg-background/70 px-2.5 py-1">
 							<CheckCircle2 className="h-3.5 w-3.5 text-green-600" />
 							{totalModelsCount.toLocaleString()} models
@@ -441,8 +433,7 @@ export default function PricingCalculator({
 							Time-window aware
 						</span>
 					</div>
-				</div>
-			</header>
+			</ToolPageHeader>
 
 			<div className="space-y-5">
 				<ModelSelector

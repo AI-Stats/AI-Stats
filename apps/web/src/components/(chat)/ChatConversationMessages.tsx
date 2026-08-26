@@ -84,6 +84,7 @@ import type {
 } from "@/components/(chat)/chatPayload";
 import { ChatMessagesEmptyState } from "@/components/(chat)/ChatMessagesEmptyState";
 import { ChatVirtualMessageList } from "@/components/(chat)/ChatVirtualMessageList";
+import { ChatSelectionToolbar } from "@/components/(chat)/ChatSelectionToolbar";
 import { markChatUserMessageRendered } from "@/components/(chat)/playground/chat-performance";
 import {
 	chatMarkdownPlugins,
@@ -313,6 +314,7 @@ type ChatConversationMessagesProps = {
 	modelOrderIds?: string[];
 	onSelectPrompt: (prompt: string) => void;
 	temporaryMode?: boolean;
+	onSelectionAction: (prompt: string) => void;
 };
 
 export function ChatConversationMessages({
@@ -341,6 +343,7 @@ export function ChatConversationMessages({
 	modelOrderIds = [],
 	onSelectPrompt,
 	temporaryMode = false,
+	onSelectionAction,
 }: ChatConversationMessagesProps) {
 	const [copiedMessageKey, setCopiedMessageKey] = useState<string | null>(null);
 	const copiedResetTimeoutRef = useRef<number | null>(null);
@@ -458,6 +461,10 @@ export function ChatConversationMessages({
 	const metadataProviderLabel =
 		formatProviderIdLabel(metadataProviderId) ?? messageProviderLabel;
 	const messages = activeThread?.messages ?? EMPTY_MESSAGES;
+	const effectiveResponseLayout: ChatResponseLayout =
+		responseLayout === "side-by-side" && modelOrderIds.length < 2
+			? "sequential"
+			: responseLayout;
 	useEffect(() => {
 		const latestUserMessage = messages
 			.slice()
@@ -469,7 +476,7 @@ export function ChatConversationMessages({
 	}, [messages]);
 
 	const shouldVirtualizeMessages =
-		responseLayout === "sequential" &&
+		effectiveResponseLayout === "sequential" &&
 		messages.length > VIRTUALIZE_AFTER_MESSAGES;
 	// TanStack Virtual exposes imperative measurement APIs; keep them local to this list.
 	// eslint-disable-next-line react-hooks/incompatible-library
@@ -757,10 +764,11 @@ export function ChatConversationMessages({
 								) : (
 									<div
 										data-slot="message-panel"
+										data-chat-assistant-content={isUser ? undefined : "true"}
 										className={cn(
 											isUser
 												? cn(
-												"max-w-full rounded-md px-4 py-3 text-sm leading-relaxed shadow-sm",
+												"min-w-0 max-w-full rounded-md px-4 py-3 text-sm leading-relaxed shadow-sm",
 														inSideBySideGroup
 															? "flex h-full min-h-[180px] w-full flex-col"
 															: "w-fit",
@@ -771,7 +779,7 @@ export function ChatConversationMessages({
 														: "bg-foreground text-background",
 													)
 											: cn(
-												"w-full max-w-[min(100%,46rem)] px-0 py-1 text-sm leading-relaxed text-foreground",
+												"min-w-0 w-full max-w-[min(100%,46rem)] px-0 py-1 text-sm leading-relaxed text-foreground",
 												inSideBySideGroup &&
 															"flex h-full min-h-[180px] flex-col",
 													),
@@ -1232,7 +1240,7 @@ export function ChatConversationMessages({
 			);
 		}
 
-		if (responseLayout === "side-by-side") {
+		if (effectiveResponseLayout === "side-by-side") {
 			type SideBySideItem = {
 				message: ChatThread["messages"][number];
 				messageIndex: number;
@@ -1348,6 +1356,8 @@ export function ChatConversationMessages({
 					renderMessage(message, messageIndex),
 				);
 			}
+			const hasMultipleComparisonModels =
+				modelOrderIds.length > 1 || modelKeys.length > 1;
 
 			return (
 				<MessageScroller.Item
@@ -1366,9 +1376,14 @@ export function ChatConversationMessages({
 						viewportClassName="overscroll-x-contain"
 					>
 						<div
-							className="grid w-full min-w-max items-stretch gap-x-4 gap-y-5 pr-4"
+							className={cn(
+								"grid w-full items-stretch gap-x-4 gap-y-5 pr-4",
+								hasMultipleComparisonModels
+									? "min-w-max 2xl:min-w-0"
+									: "min-w-0",
+							)}
 							style={{
-								gridTemplateColumns: `repeat(${modelKeys.length}, minmax(min(88vw, 32rem), 1fr))`,
+								gridTemplateColumns: `repeat(${modelKeys.length}, minmax(${hasMultipleComparisonModels ? "min(88vw, 32rem)" : "0px"}, 1fr))`,
 							}}
 						>
 							{turns.flatMap((turn) =>
@@ -1539,5 +1554,10 @@ export function ChatConversationMessages({
 		temporaryMode,
 	]);
 
-	return <>{messagesContent}</>;
+	return (
+		<>
+			{messagesContent}
+			<ChatSelectionToolbar onAction={onSelectionAction} />
+		</>
+	);
 }

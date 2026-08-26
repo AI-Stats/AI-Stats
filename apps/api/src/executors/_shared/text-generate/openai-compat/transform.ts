@@ -50,7 +50,7 @@ function readResponseToolCallId(item: any): string | null {
 	return null;
 }
 
-function readExecutableResponseToolCall(item: any): { id: string | null; name: string; arguments: string } | null {
+function readExecutableResponseToolCall(item: any): { id: string | null; name: string; arguments: string; type: "function" } | null {
 	const itemType = String(item?.type ?? "").toLowerCase();
 	if (itemType !== "function_call" && itemType !== "tool_call") return null;
 	const name = readResponseToolCallName(item);
@@ -59,6 +59,19 @@ function readExecutableResponseToolCall(item: any): { id: string | null; name: s
 		id: readResponseToolCallId(item),
 		name,
 		arguments: readResponseToolCallArguments(item),
+		type: "function",
+	};
+}
+
+function readCustomResponseToolCall(item: any): { id: string | null; name: string; arguments: string; type: "custom" } | null {
+	if (String(item?.type ?? "").toLowerCase() !== "custom_tool_call") return null;
+	const name = readResponseToolCallName(item);
+	if (!name) return null;
+	return {
+		id: readResponseToolCallId(item),
+		name,
+		arguments: typeof item?.input === "string" ? item.input : readResponseToolCallArguments(item),
+		type: "custom",
 	};
 }
 
@@ -66,9 +79,21 @@ function usesOpenAIResponsesShape(providerId?: string): boolean {
 	return (
 		providerId === "openai" ||
 		providerId === "openai-eu" ||
+		providerId === "deepseek" ||
 		providerId === "meta" ||
 		providerId === "meta-contributor" ||
-		providerId === "amazon-bedrock"
+		providerId === "amazon-bedrock" ||
+		providerId === "byteplus" ||
+		providerId === "clarifai" ||
+		providerId === "darkbloom" ||
+		providerId === "stepfun" ||
+		providerId === "sakana" ||
+		providerId === "sail-research" ||
+		providerId === "ovhcloud" ||
+		providerId === "nebius-token-factory" ||
+		providerId === "nebius-token-factory-fast" ||
+		providerId === "nebius-token-factory-eu-north-1" ||
+		providerId === "nebius-token-factory-us-central-1"
 	);
 }
 
@@ -168,7 +193,7 @@ export function irToOpenAIResponses(
 		}
 
 		// Apply reasoning params - Xiaomi not configured, so this won't add anything
-		applyReasoningParams({ ir, request, providerId });
+		applyReasoningParams({ ir, request, providerId, providerModelSlug });
 
 		// Xiaomi-specific format: chat_template_kwargs.enable_thinking
 		// Xiaomi uses a nested parameter instead of the standard reasoning field
@@ -222,19 +247,26 @@ export function irToOpenAIResponses(
 			// Add tool calls as function_call items
 			if (msg.toolCalls) {
 				for (const tc of msg.toolCalls) {
-					inputItems.push({
-						type: "function_call",
-						call_id: tc.id,
-						name: tc.name,
-						arguments: tc.arguments,
-					});
+					inputItems.push(tc.type === "custom"
+						? {
+							type: "custom_tool_call",
+							call_id: tc.id,
+							name: tc.name,
+							input: tc.arguments,
+						}
+						: {
+							type: "function_call",
+							call_id: tc.id,
+							name: tc.name,
+							arguments: tc.arguments,
+						});
 				}
 			}
 		} else if (msg.role === "tool") {
 			// Tool results as function_call_output items
 			for (const result of msg.toolResults) {
 				inputItems.push({
-					type: "function_call_output",
+					type: result.type === "custom" ? "custom_tool_call_output" : "function_call_output",
 					call_id: result.toolCallId,
 					output: result.content,
 				});
@@ -265,7 +297,10 @@ export function irToOpenAIResponses(
 	}
 
 	if (ir.toolChoice) {
-		if (typeof ir.toolChoice === "string") {
+		const rawOpenAIToolChoice = (ir.vendor as any)?.openai?.tool_choice;
+		if (useOpenAIShape && rawOpenAIToolChoice && typeof rawOpenAIToolChoice === "object") {
+			request.tool_choice = rawOpenAIToolChoice;
+		} else if (typeof ir.toolChoice === "string") {
 			request.tool_choice = ir.toolChoice;
 		} else {
 			const selectedToolName = ir.toolChoice.name;
@@ -291,7 +326,7 @@ export function irToOpenAIResponses(
 	}
 
 	// Add reasoning configuration
-	applyReasoningParams({ ir, request, providerId });
+	applyReasoningParams({ ir, request, providerId, providerModelSlug });
 
 	// Add response format
 	// For Responses API: use text.format instead of response_format
@@ -301,9 +336,10 @@ export function irToOpenAIResponses(
 			if (ir.responseFormat.type === "json_object") {
 				request.text = { format: { type: "json_object" } };
 			} else if (ir.responseFormat.type === "json_schema") {
-				// Ensure schema has additionalProperties: false for OpenAI strict mode
+				// Ensure schema has additionalProperties: false for OpenAI strict mode.
+				// StepFun defaults strict to false and does not document this OpenAI-only constraint.
 				const schema = ir.responseFormat.schema;
-				if (schema && typeof schema === "object" && !("additionalProperties" in schema)) {
+				if (providerId !== "stepfun" && schema && typeof schema === "object" && !("additionalProperties" in schema)) {
 					schema.additionalProperties = false;
 				}
 
@@ -312,7 +348,9 @@ export function irToOpenAIResponses(
 						type: "json_schema",
 						name: ir.responseFormat.name || "response",
 						schema: schema,
-						strict: ir.responseFormat.strict !== false, // Default to true
+						strict: providerId === "stepfun"
+							? ir.responseFormat.strict ?? false
+							: ir.responseFormat.strict !== false,
 					},
 				};
 			}
@@ -358,16 +396,30 @@ export function irToOpenAIResponses(
 	if (ir.prompt !== undefined) request.prompt = ir.prompt;
 	if (ir.promptCacheKey !== undefined) request.prompt_cache_key = ir.promptCacheKey;
 	if (ir.promptCacheRetention !== undefined) request.prompt_cache_retention = ir.promptCacheRetention;
+	if (ir.promptCacheOptions !== undefined) request.prompt_cache_options = ir.promptCacheOptions;
 	if (ir.safetyIdentifier !== undefined) request.safety_identifier = ir.safetyIdentifier;
 	if (ir.webSearchOptions !== undefined) request.web_search_options = ir.webSearchOptions;
 	if (providerId === "meta" || providerId === "meta-contributor") addMetaWebSearchTool(request, ir);
-	const openAIContextManagement = (ir.vendor as any)?.openai?.context_management;
-	if (providerId === "openai" && openAIContextManagement && typeof openAIContextManagement === "object") {
-		request.context_management = {
-			type: openAIContextManagement.type,
-			...(typeof openAIContextManagement.compact_threshold === "number"
-				? { compact_threshold: openAIContextManagement.compact_threshold }
+	const openAIContextManagement = ir.contextManagement
+		?? (ir.vendor as any)?.openai?.context_management;
+	if (
+		(providerId === "openai" || providerId === "openai-eu")
+		&& openAIContextManagement
+	) {
+		const entries = Array.isArray(openAIContextManagement)
+			? openAIContextManagement
+			: [openAIContextManagement];
+		request.context_management = entries.map((entry: any) => ({
+			type: entry.type,
+			...(typeof entry.compact_threshold === "number"
+				? { compact_threshold: entry.compact_threshold }
 				: {}),
+		}));
+	}
+	if (ir.textVerbosity !== undefined) {
+		request.text = {
+			...(request.text ?? {}),
+			verbosity: ir.textVerbosity,
 		};
 	}
 	if (ir.modalities !== undefined) request.modalities = ir.modalities;
@@ -444,10 +496,15 @@ function toOpenAIResponsesTool(tool: IRTool, useOpenAIShape: boolean): any {
  */
 function mapContentPart(part: IRContentPart): any {
 	if (part.type === "text") {
+		const promptCacheBreakpoint = part.cacheControl?.type === "prompt_cache_breakpoint"
+			? { mode: part.cacheControl.mode }
+			: undefined;
 		return {
 			type: "input_text",
 			text: part.text,
-			...(part.cacheControl ? { cache_control: part.cacheControl } : {}),
+			...(promptCacheBreakpoint
+				? { prompt_cache_breakpoint: promptCacheBreakpoint }
+				: part.cacheControl ? { cache_control: part.cacheControl } : {}),
 		};
 	}
 
@@ -456,11 +513,15 @@ function mapContentPart(part: IRContentPart): any {
 	}
 
         if (part.type === "image") {
+			const promptCacheBreakpoint = part.cacheControl?.type === "prompt_cache_breakpoint"
+				? { mode: part.cacheControl.mode }
+				: undefined;
                 if (part.source === "url") {
                         return {
                                 type: "input_image",
                                 image_url: part.data,
                                 detail: part.detail,
+								...(promptCacheBreakpoint ? { prompt_cache_breakpoint: promptCacheBreakpoint } : {}),
                         };
                 } else {
                         const dataUrl = part.data.startsWith("data:")
@@ -470,6 +531,7 @@ function mapContentPart(part: IRContentPart): any {
                                 type: "input_image",
                                 image_url: dataUrl,
                                 detail: part.detail,
+								...(promptCacheBreakpoint ? { prompt_cache_breakpoint: promptCacheBreakpoint } : {}),
                         };
                 }
         }
@@ -481,8 +543,13 @@ function mapContentPart(part: IRContentPart): any {
 		return {
 			type: "input_audio",
 			input_audio: inputAudio,
+			...(part.cacheControl?.type === "prompt_cache_breakpoint"
+				? { prompt_cache_breakpoint: { mode: part.cacheControl.mode } }
+				: {}),
 		};
 	}
+
+	if (part.type === "provider_block") return { ...part.block };
 
 	if (part.type === "video") {
 		return {
@@ -719,7 +786,13 @@ export function openAIResponsesToIR(
 				choice.message.content.push(...item._contentParts);
 			} else {
 				// Regular assistant message
-				const content = extractTextFromContent(item.content || []);
+				const contentItems = Array.isArray(item.content) ? item.content : [];
+				const content = extractTextFromContent(contentItems);
+				const annotations = contentItems.flatMap((part: any) =>
+					Array.isArray(part?.annotations) ? part.annotations : []);
+				const refusal = contentItems.find((part: any) =>
+					part?.type === "refusal" && typeof part?.refusal === "string")?.refusal;
+				if (typeof refusal === "string") choice.message.refusal = refusal;
 
 				// Apply provider-specific reasoning extraction
 				const { main, reasoning } = applyResponsesResponseQuirks({
@@ -743,6 +816,7 @@ export function openAIResponsesToIR(
 					choice.message.content.push({
 						type: "text",
 						text: main,
+						...(annotations.length > 0 ? { annotations } : {}),
 					});
 				}
 
@@ -776,7 +850,7 @@ export function openAIResponsesToIR(
 				choice.message.content.push(audioPart);
 			}
 		} else {
-			const toolCall = readExecutableResponseToolCall(item);
+			const toolCall = readCustomResponseToolCall(item) ?? readExecutableResponseToolCall(item);
 			if (!toolCall) continue;
 			// Tool call from assistant
 			choice.message.toolCalls = choice.message.toolCalls || [];
@@ -784,6 +858,7 @@ export function openAIResponsesToIR(
 				id: toolCall.id || `call_${requestId}_${index}_${choice.message.toolCalls.length}`,
 				name: toolCall.name,
 				arguments: toolCall.arguments,
+				...(toolCall.type === "custom" ? { type: "custom" as const } : {}),
 			});
 		}
 	}
@@ -793,7 +868,12 @@ export function openAIResponsesToIR(
 
 	for (const choice of choicesList) {
 		// Determine finish reason
-		if (choice.message.toolCalls && choice.message.toolCalls.length > 0) {
+		if (json.status === "failed" || json.error) {
+			choice.finishReason = "error";
+		} else if (json.status === "incomplete") {
+			const reason = json.incomplete_details?.reason;
+			choice.finishReason = reason === "content_filter" ? "content_filter" : "length";
+		} else if (choice.message.toolCalls && choice.message.toolCalls.length > 0) {
 			choice.finishReason = "tool_calls";
 		} else if (json.finish_reason === "length" || json.finish_reason === "max_tokens") {
 			choice.finishReason = "length";
@@ -875,6 +955,7 @@ function normalizeUsage(usage: any): IRUsage | undefined {
 	const outputDetails = usage.output_tokens_details ?? usage.completion_tokens_details;
 	const cachedInputTokens = inputDetails?.cached_tokens;
 	const cachedWriteTokens =
+		inputDetails?.cache_write_tokens ??
 		inputDetails?.cache_creation_input_tokens ??
 		inputDetails?.cache_creation_tokens ??
 		outputDetails?.cached_tokens;
@@ -948,15 +1029,13 @@ function normalizeUsage(usage: any): IRUsage | undefined {
 		reasoningTokens,
 		_ext: {
 			inputImageTokens: inputDetails?.input_images,
-			inputAudioTokens: inputDetails?.input_audio,
+			inputAudioTokens: inputDetails?.audio_tokens ?? inputDetails?.input_audio,
 			inputVideoTokens: inputDetails?.input_videos,
 			outputImageTokens: outputDetails?.output_images,
-			outputAudioTokens: outputDetails?.output_audio,
+			outputAudioTokens: outputDetails?.audio_tokens ?? outputDetails?.output_audio,
 			outputVideoTokens: outputDetails?.output_videos,
 			cachedWriteTokens,
 			...(serverToolUse ? { serverToolUse } : {}),
 		},
 	};
 }
-
-

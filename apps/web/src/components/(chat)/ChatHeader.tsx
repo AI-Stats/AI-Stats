@@ -86,6 +86,7 @@ import type {
 } from "@/components/(chat)/playground/chat-playground-core";
 import {
 	LOCAL_CHAT_API_BASE_URL,
+	STAGING_CHAT_API_BASE_URL,
 } from "@/components/(chat)/playground/chat-playground-core";
 import { BASE_URL } from "@/components/(data)/model/quickstart/config";
 import type {
@@ -440,11 +441,13 @@ export function ChatHeader({
 	const effectiveBaseUrl =
 		apiTarget === "default"
 			? "Server default"
-			: apiTarget === "local"
-			? LOCAL_CHAT_API_BASE_URL
-			: apiTarget === "custom" && customBaseUrl
-				? customBaseUrl
-				: BASE_URL;
+			: apiTarget === "staging"
+				? STAGING_CHAT_API_BASE_URL || "Staging API unavailable"
+				: apiTarget === "local"
+					? LOCAL_CHAT_API_BASE_URL
+					: apiTarget === "custom" && customBaseUrl
+						? customBaseUrl
+						: BASE_URL;
 	const apiTargetValue = apiTargetValueOverride ?? apiTarget;
 	useEffect(() => {
 		const isPresetAccentColor = ACCENT_COLORS.some(
@@ -1380,7 +1383,7 @@ export function ChatHeader({
 	};
 
 	return (
-		<header className="flex items-center justify-between gap-2 border-b border-border px-3 py-3 md:px-5">
+		<header className="flex min-w-0 items-center justify-between gap-2 border-b border-border px-3 py-3 md:px-5">
 			<div className="flex min-w-0 flex-1 items-center gap-1">
 				<Tooltip>
 					<TooltipTrigger asChild>
@@ -2280,9 +2283,14 @@ export function ChatHeader({
 															<SelectItem value="default">
 																App default
 															</SelectItem>
-															<SelectItem value="public">
-																Public API
-															</SelectItem>
+													<SelectItem value="public">
+														Public API
+													</SelectItem>
+													{STAGING_CHAT_API_BASE_URL && (
+														<SelectItem value="staging">
+															Staging API
+														</SelectItem>
+													)}
 															<SelectItem
 																value="local"
 															>

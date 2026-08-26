@@ -1,26 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Globe } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ExternalLink, Globe } from "lucide-react";
 import type { OrganisationOverview as OrganisationOverviewType } from "@/lib/fetchers/organisations/types";
-import { cn } from "@/lib/utils";
 import { normalizeHttpUrl } from "@/lib/utils/urlSafety";
-
-// Map platform names to Tailwind hover classes
-const PLATFORM_HOVER_CLASSES: Record<string, string> = {
-	github: "hover:bg-neutral-100 dark:hover:bg-neutral-800",
-	twitter: "hover:bg-blue-100 dark:hover:bg-blue-900/40",
-	instagram: "hover:bg-pink-100 dark:hover:bg-pink-900/40",
-	youtube: "hover:bg-red-100 dark:hover:bg-red-900/40",
-	tiktok: "hover:bg-gradient-to-r hover:from-blue-100 hover:to-pink-100 dark:hover:from-blue-900/40 dark:hover:to-pink-900/40",
-	hugging_face: "hover:bg-yellow-100 dark:hover:bg-yellow-900/40",
-	website: "hover:bg-neutral-100 dark:hover:bg-neutral-800",
-	discord: "hover:bg-indigo-100 dark:hover:bg-indigo-900/40",
-	reddit: "hover:bg-orange-100 dark:hover:bg-orange-900/40",
-	threads: "hover:bg-purple-100 dark:hover:bg-purple-900/40",
-	x: "hover:bg-neutral-100 dark:hover:bg-neutral-800",
-	linkedin: "hover:bg-blue-100 dark:hover:bg-blue-900/40",
-};
 
 const PLATFORM_RENDER_ORDER = [
 	"website",
@@ -46,6 +28,21 @@ const PLATFORM_ALIASES: Record<string, string> = {
 function normalizePlatform(rawPlatform: string) {
 	const base = rawPlatform.toLowerCase();
 	return PLATFORM_ALIASES[base] ?? base;
+}
+
+function displayPlatform(platform: string) {
+	if (platform === "hugging_face") return "Hugging Face";
+	return platform
+		.replace(/[_-]+/g, " ")
+		.replace(/\b\w/g, (character) => character.toUpperCase());
+}
+
+function displayUrl(url: string) {
+	try {
+		return new URL(url).hostname.replace(/^www\./, "");
+	} catch {
+		return url;
+	}
 }
 
 export interface OrganisationLinksProps {
@@ -104,8 +101,7 @@ export default function OrganisationLinks({
 		return null;
 
 	return (
-		<div>
-			<div className="grid grid-cols-4 gap-2 md:flex md:flex-row md:flex-wrap md:gap-2">
+		<div className="overflow-hidden rounded-lg border border-border/70 bg-card sm:grid sm:grid-cols-2 sm:gap-2 sm:overflow-visible sm:border-0 sm:bg-transparent xl:grid-cols-3">
 				{organisation.organisation_links
 					.slice()
 					.sort((a, b) => {
@@ -120,43 +116,26 @@ export default function OrganisationLinks({
 						const normalizedPlatform = normalizePlatform(link.platform);
 						const safeUrl = normalizeHttpUrl(link.url);
 						if (!safeUrl) return null;
-						const hoverClass =
-							PLATFORM_HOVER_CLASSES[
-								normalizedPlatform
-							] ||
-							"hover:bg-neutral-100 dark:hover:bg-neutral-800";
 						return (
-							<Button
-								asChild
-								variant="outline"
-								size="sm"
+							<Link
 								key={link.platform + idx}
+								href={safeUrl}
+								target="_blank"
+								rel="noopener noreferrer"
 								aria-label={`Visit ${organisation.name} ${link.platform} page`}
-								className={cn(
-									"group flex items-center gap-1 rounded-full transition-colors",
-									hoverClass
-								)}
+								className="group grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 border-b border-border/70 px-3 py-3 transition-colors last:border-b-0 hover:bg-muted/35 sm:rounded-lg sm:border sm:bg-card sm:last:border-b sm:hover:bg-muted/30"
 							>
-								<Link
-									href={safeUrl}
-									target="_blank"
-									rel="noopener noreferrer"
-								>
+								<div className="flex size-8 items-center justify-center rounded-md border border-border/70 bg-muted/20 text-muted-foreground">
 									{getSocialIcon(normalizedPlatform)}
-									<span className="text-sm hidden sm:inline">
-										{normalizedPlatform ===
-										"hugging_face"
-											? "Hugging Face"
-											: normalizedPlatform
-													.charAt(0)
-													.toUpperCase() +
-											  normalizedPlatform.slice(1)}
-									</span>
-								</Link>
-							</Button>
+								</div>
+								<div className="min-w-0">
+									<div className="truncate text-sm font-medium">{displayPlatform(normalizedPlatform)}</div>
+									<div className="mt-0.5 truncate font-mono text-xs text-muted-foreground">{displayUrl(safeUrl)}</div>
+								</div>
+								<ExternalLink className="size-3.5 text-muted-foreground transition-colors group-hover:text-foreground" />
+							</Link>
 						);
 					})}
-			</div>
 		</div>
 	);
 }

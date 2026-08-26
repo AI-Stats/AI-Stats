@@ -12,10 +12,9 @@
       "price_per_unit": 0.1,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Nebius Token Factory endpoint information card showed this pricing on 2026-06-01.",
+      "note": null,
       "match": [],
       "priority": 100,
-      "effective_from": "2026-06-01T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -28,24 +27,32 @@
       "price_per_unit": 0.3,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Nebius Token Factory endpoint information card showed this pricing on 2026-06-01.",
+      "note": null,
       "match": [],
       "priority": 100,
-      "effective_from": "2026-06-01T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
       "source": null
     }
   ],
-  "regions": [],
+  "regions": [
+    "eu-north1"
+  ],
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "api",
+      "url": "https://tokenfactory.nebius.com/api/public/models_info",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Live cheap flavor price for nvidia/Cosmos3-Super-Reasoner."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Current token pricing verified against Nebius Token Factory's live public catalog."
   }
 }

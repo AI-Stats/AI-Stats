@@ -579,8 +579,10 @@ export function VideoGenSection({
 				basePrice: null,
 				discountEndsAt: null,
 			};
-			const hasDiscountWindow = row.basePrice != null && Boolean(row.discountEndsAt);
-			if (hasDiscountWindow || row.comparisonKind === "vs-standard") {
+			const hasDiscount = row.basePrice != null && (
+				row.comparisonKind === "discount" || Boolean(row.discountEndsAt)
+			);
+			if (hasDiscount || row.comparisonKind === "vs-standard") {
 				const candidateBase = row.basePrice ?? null;
 				const currentBase = existing.basePrice ?? null;
 				if (candidateBase != null && (currentBase == null || candidateBase > currentBase)) {
