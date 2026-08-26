@@ -1,5 +1,6 @@
 ---
 "@phaseo/data-catalog": patch
+"@phaseo/py-sdk": patch
 "@phaseo/sdk": patch
 ---
 
