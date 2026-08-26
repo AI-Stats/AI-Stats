@@ -17,6 +17,7 @@ const musicGenerateHandler = makeEndpointHandler({ endpoint: "music.generate", s
 const SUNO_PROVIDER_ID = "suno";
 const ELEVENLABS_PROVIDER_ID = "elevenlabs";
 const MINIMAX_PROVIDER_ID = "minimax";
+const GMI_CLOUD_PROVIDER_ID = "gmicloud";
 const GOOGLE_AI_STUDIO_PROVIDER_ID = "google-ai-studio";
 const MINIMAX_MUSIC_PREFIX = "mmxmus_";
 
@@ -311,6 +312,7 @@ musicGenerateRoutes.get("/:musicId", withRuntime(async (req) => {
 		provider !== SUNO_PROVIDER_ID &&
 		provider !== ELEVENLABS_PROVIDER_ID &&
 		provider !== MINIMAX_PROVIDER_ID &&
+		provider !== GMI_CLOUD_PROVIDER_ID &&
 		!isGoogleMusicProvider(provider) &&
 		!minimaxTaskId
 	) {
@@ -318,6 +320,55 @@ musicGenerateRoutes.get("/:musicId", withRuntime(async (req) => {
 			reason: "music_status_not_supported_for_provider",
 			request_id: auth.value.requestId,
 			workspace_id: auth.value.workspaceId,
+		});
+	}
+
+	if (provider === GMI_CLOUD_PROVIDER_ID) {
+		const parsed = parseMetaOutput(meta);
+		const hasAudioBase64 = typeof meta?.audioBase64 === "string" && meta.audioBase64.length > 0;
+		const output = parsed.output.length > 0
+			? parsed.output
+			: hasAudioBase64
+				? [{
+					index: 0,
+					id: meta?.nativeResponseId ?? id,
+					audio_url: null,
+					audio_base64: meta?.audioBase64 ?? null,
+					stream_audio_url: null,
+					image_url: null,
+					title: null,
+					tags: null,
+					duration: typeof meta?.duration === "number" ? meta.duration : null,
+				}]
+				: [];
+		const totalDurationSeconds = parsed.totalDurationSeconds > 0
+			? parsed.totalDurationSeconds
+			: typeof meta?.duration === "number" && meta.duration > 0
+				? meta.duration
+				: 0;
+		const status = normalizeMusicStatus(meta?.status);
+		const usage = status === "completed"
+			? {
+				output_audio_count: output.filter((item) => item.audio_url || item.audio_base64).length,
+				...(totalDurationSeconds > 0 ? { output_audio_seconds: totalDurationSeconds } : {}),
+			}
+			: undefined;
+
+		return new Response(JSON.stringify({
+			id,
+			object: "music",
+			status,
+			provider: GMI_CLOUD_PROVIDER_ID,
+			model: meta?.model ?? null,
+			nativeResponseId: meta?.nativeResponseId ?? id,
+			...(output[0]?.audio_url ? { audio_url: output[0].audio_url } : {}),
+			...(meta?.audioBase64 ? { audio_base64: meta.audioBase64 } : {}),
+			result: meta?.result ?? meta?.rawResponse ?? null,
+			output,
+			...(usage ? { usage } : {}),
+		}), {
+			status: 200,
+			headers: { "Content-Type": "application/json" },
 		});
 	}
 

@@ -4,7 +4,8 @@
 import type { IRMusicGenerateRequest, IRMusicGenerateResponse } from "@core/ir";
 import type { ExecutorExecuteArgs, ExecutorResult } from "@executors/types";
 import type { ProviderExecutor } from "@executors/types";
-import { executeGmiQueueRequest, extractMediaUrl, extractQueueOutcome, queueKeyMeta } from "../request-queue";
+import { saveMusicJobMeta } from "@core/music-jobs";
+import { executeGmiQueueRequest, extractMediaBase64, extractMediaUrl, extractQueueOutcome, queueKeyMeta } from "../request-queue";
 
 function errorResult(args: ExecutorExecuteArgs, upstream: Response, keyMeta: ReturnType<typeof queueKeyMeta>, mappedRequest?: string): ExecutorResult {
 	return {
@@ -38,7 +39,8 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	if (!result.response.ok) return errorResult(args, result.response, keyMeta, mappedRequest);
 
 	const audioUrl = extractMediaUrl(result.json);
-	if (!audioUrl) {
+	const audioBase64 = extractMediaBase64(result.json);
+	if (!audioUrl && !audioBase64) {
 		return errorResult(
 			args,
 			new Response(JSON.stringify({ error: "gmicloud_music_output_missing", request_id: result.requestId, result: result.json }), { status: 502, headers: { "Content-Type": "application/json" } }),
@@ -47,6 +49,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 		);
 	}
 	const outcome = extractQueueOutcome(result.json);
+	const duration = typeof outcome?.duration === "number" ? outcome.duration : null;
 	const response: IRMusicGenerateResponse = {
 		id: args.requestId,
 		nativeId: result.requestId,
@@ -54,10 +57,38 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 		provider: args.providerId,
 		status: "completed",
 		audioUrl,
+		audioBase64,
 		result: result.json,
 		usage: { inputTokens: 0, outputTokens: 0, totalTokens: 0, requests: 1, ...(typeof outcome?.duration === "number" ? { output_audio_seconds: outcome.duration } : {}) } as any,
 		rawResponse: result.json,
 	};
+	try {
+		await saveMusicJobMeta(args.workspaceId, args.requestId, {
+			provider: args.providerId,
+			model: ir.model,
+			duration,
+			format: ir.format ?? null,
+			status: response.status,
+			nativeResponseId: result.requestId,
+			audioBase64: audioBase64 ?? null,
+			output: [{
+				index: 0,
+				id: result.requestId,
+				audio_url: audioUrl ?? null,
+				audio_base64: audioBase64 ?? null,
+				duration,
+			}],
+			result: result.json,
+			rawResponse: result.json,
+			createdAt: Date.now(),
+		});
+	} catch (error) {
+		console.error("gmicloud_music_job_meta_store_failed", {
+			error,
+			workspaceId: args.workspaceId,
+			musicId: args.requestId,
+		});
+	}
 	return {
 		kind: "completed",
 		ir: response,
