@@ -125,6 +125,8 @@ export type GatewayBindings = {
     CRUSOE_BASE_URL?: string;
     DEEPINFRA_API_KEY?: string;
     DEEPINFRA_BASE_URL?: string;
+    IOINTELLIGENCE_API_KEY?: string;
+    IOINTELLIGENCE_BASE_URL?: string;
     DEEPSEEK_API_KEY?: string;
     DEEPSEEK_BASE_URL?: string;
     DARKBLOOM_API_KEY?: string;

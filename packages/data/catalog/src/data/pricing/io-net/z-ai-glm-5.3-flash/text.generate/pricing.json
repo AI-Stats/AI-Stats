@@ -55,24 +55,20 @@
     }
   ],
   "regions": [],
-  "service_tiers": ["standard"],
+  "service_tiers": [
+    "standard"
+  ],
   "sources": [
     {
       "kind": "provider_model",
       "url": "https://api.intelligence.io.solutions/api/v1/models",
       "accessed_at": "2026-08-26T00:00:00Z",
-      "notes": "IO.NET's live model catalog reports $0.15 input, $0.03 cached input, and $0.50 output per million tokens for zai-org/GLM-5.3-Flash."
-    },
-    {
-      "kind": "provider_model",
-      "url": "https://openrouter.ai/api/v1/models/z-ai/glm-5.3-flash/endpoints",
-      "accessed_at": "2026-08-26T00:00:00Z",
-      "notes": "OpenRouter's live endpoint catalog lists Io Net as serving z-ai/glm-5.3-flash."
+      "notes": "Official IO.NET model catalog reports $0.15 input, $0.03 cached input, and $0.5 output per million tokens for zai-org/GLM-5.3-Flash."
     }
   ],
   "verification": {
     "status": "verified",
     "checked_at": "2026-08-26T00:00:00Z",
-    "notes": "Pricing verified from IO.NET's live model catalog; OpenRouter confirms the route is live."
+    "notes": "Input, cached-input, and output token prices verified from IO.NET's official live model endpoint; prompt caching is supported for this model."
   }
 }
