@@ -2317,6 +2317,7 @@
     "alibaba-cloud:text.generate:qwen-qwen3.7-max-2026-05-17",
     "alibaba-cloud:text.generate:qwen-qwen3.7-plus",
     "alibaba-cloud:text.generate:qwen-qwen3.7-plus-2026-05-26",
+    "alibaba-cloud:text.generate:qwen-qwen3.8-flash",
     "amazon-bedrock:text.generate:ai21-jamba-1.5-large",
     "amazon-bedrock:text.generate:ai21-jamba-1.5-mini",
     "amazon-bedrock:text.generate:amazon-nova-2-lite",
