@@ -1336,7 +1336,8 @@
       "z-ai/glm-4.7-flash:free",
       "z-ai/glm-5.3",
       "z-ai/autoglm-phone-9b-multilingual",
-      "z-ai/glm-4.7-flash-heretic"
+      "z-ai/glm-4.7-flash-heretic",
+      "z-ai/glm-5.3-flash"
     ],
     "crofai": [
       "crofai/greg-1-mini",

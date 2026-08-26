@@ -29,7 +29,10 @@
   "details": [],
   "benchmarks": [],
   "family_id": null,
-  "page_notice": null,
+  "page_notice": {
+    "tone": "info",
+    "markdown": "Ox Alpha is a multimodal reasoning model from Z.AI for coding, sustained agentic work, and complex problem solving. It accepts text, image, and video inputs and supports tool calling, structured outputs, and a 1M-token context window. Ox Alpha is GLM 5.3 Flash. [View the GLM 5.3 Flash model page](/models/z-ai/glm-5.3-flash)."
+  },
   "model_type": "language",
   "knowledge_cutoff": null,
   "limits": {
