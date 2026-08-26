@@ -41,10 +41,13 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 			...(ir.format ? { format: ir.format } : {}),
 		}
 		: {};
+	const lyrics = typeof raw.lyrics === "string" && raw.lyrics.trim().length > 0
+		? raw.lyrics
+		: "[Instrumental]";
 	const payload: Record<string, unknown> = {
 		prompt: ir.prompt ?? raw.prompt ?? "",
 		...(ir.duration != null ? { duration: ir.duration } : {}),
-		...(typeof raw.lyrics === "string" ? { lyrics: raw.lyrics } : {}),
+		lyrics,
 		...(typeof raw.is_instrumental === "boolean" ? { is_instrumental: raw.is_instrumental } : {}),
 		...extensions,
 		...(Object.keys(audioSetting).length > 0 ? { audio_setting: audioSetting } : {}),
