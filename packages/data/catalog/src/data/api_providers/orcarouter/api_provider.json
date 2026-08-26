@@ -1,5 +1,8 @@
 {
   "api_provider_id": "orcarouter",
+  "data_policy_tier": "logs",
+  "data_policy_confidence": "maybe",
+  "data_policy_contract_mode": "none",
   "api_provider_name": "OrcaRouter",
   "provider_family_id": null,
   "offer_label": null,

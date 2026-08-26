@@ -1156,6 +1156,12 @@ function checkApiProviders(state: ValidationState): string[] {
         ) {
             errors.push(`API provider ${providerId} has invalid data_policy_contract_mode '${String(data.data_policy_contract_mode)}'`);
         }
+        for (const key of ['zero_data_retention', 'data_policy_tier', 'data_policy_confidence', 'data_policy_contract_mode']) {
+            const value = (data as Record<string, unknown>)[key];
+            if (value === undefined || value === null || (typeof value === 'string' && !value.trim())) {
+                errors.push(`API provider ${providerId} is missing ${key}`);
+            }
+        }
 		const providerModelsPath = path.join(providersDir, provider, 'models.json');
 		const providerModels = fs.existsSync(providerModelsPath)
 			? safeReadJson(providerModelsPath, errors, 'API provider models')

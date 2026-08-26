@@ -1,5 +1,8 @@
 {
   "api_provider_id": "tencent-cloud",
+  "data_policy_tier": "unknown",
+  "data_policy_confidence": "unknown",
+  "data_policy_contract_mode": "none",
   "api_provider_name": "Tencent Cloud TokenHub",
   "provider_family_id": "tencent-cloud",
   "offer_scope": "regional",

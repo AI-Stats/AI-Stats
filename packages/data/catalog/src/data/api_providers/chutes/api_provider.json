@@ -1,5 +1,8 @@
 {
   "api_provider_id": "chutes",
+  "data_policy_tier": "unknown",
+  "data_policy_confidence": "unknown",
+  "data_policy_contract_mode": "none",
   "api_provider_name": "Chutes",
   "provider_family_id": "chutes",
   "offer_scope": "global",

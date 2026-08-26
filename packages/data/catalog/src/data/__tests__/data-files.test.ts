@@ -120,6 +120,12 @@ const videoProvidersWithExecutorMetadata = new Set([
   'runway',
   'spacex-ai',
 ]);
+const providerPolicyFields = {
+  zero_data_retention: ['unknown', 'unsupported', 'optional', 'default'],
+  data_policy_tier: ['unknown', 'private', 'logs', 'trains'],
+  data_policy_confidence: ['unknown', 'confirmed', 'maybe'],
+  data_policy_contract_mode: ['none', 'customer_agreement', 'enterprise_agreement'],
+} as const;
 
 // Pretty print helpers for CLI-like output ------------------------------
 const ok = (msg: string) => `✅ ${msg}`;
@@ -276,6 +282,12 @@ describe('API Providers', () => {
         if (Array.isArray(endpoints)) {
           for (const e of endpoints) expect(typeof e).toBe('string');
         }
+      }
+    });
+    test(`${ap} policy metadata is normalized`, () => {
+      const j = readJson(p);
+      for (const [field, allowed] of Object.entries(providerPolicyFields)) {
+        expect(allowed).toContain(j[field]);
       }
     });
 

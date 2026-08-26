@@ -1,5 +1,8 @@
 {
   "api_provider_id": "berget",
+  "data_policy_tier": "private",
+  "data_policy_confidence": "confirmed",
+  "data_policy_contract_mode": "none",
   "api_provider_name": "Berget.AI",
   "provider_family_id": null,
   "offer_label": null,
@@ -10,6 +13,7 @@
   "default_execution_regions": ["SE"],
   "default_data_regions": ["SE"],
   "zero_data_retention": "default",
+  "data_retention_days": 0,
   "residency_source_url": "https://docs.berget.ai/quickstart",
   "prompt_training_policy": "no_train",
   "prompt_training_notes": "Berget states that prompts and responses are never stored or used for training.",

@@ -1,5 +1,8 @@
 {
   "api_provider_id": "lilac",
+  "data_policy_tier": "private",
+  "data_policy_confidence": "confirmed",
+  "data_policy_contract_mode": "none",
   "api_provider_name": "Lilac",
   "provider_family_id": null,
   "offer_label": null,
@@ -10,6 +13,7 @@
   "default_execution_regions": null,
   "default_data_regions": null,
   "zero_data_retention": "default",
+  "data_retention_days": 0,
   "residency_source_url": "https://getlilac.com/terms",
   "prompt_training_policy": "no_train",
   "prompt_training_notes": "Real-time inference prompts and completions are processed transiently, are not stored at rest after the response, and are not used for model training. Operational metadata is retained.",

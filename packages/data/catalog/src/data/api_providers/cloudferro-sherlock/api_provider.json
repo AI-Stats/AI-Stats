@@ -1,5 +1,8 @@
 {
   "api_provider_id": "cloudferro-sherlock",
+  "data_policy_tier": "private",
+  "data_policy_confidence": "confirmed",
+  "data_policy_contract_mode": "none",
   "api_provider_name": "CloudFerro Sherlock",
   "provider_family_id": null,
   "offer_label": null,
