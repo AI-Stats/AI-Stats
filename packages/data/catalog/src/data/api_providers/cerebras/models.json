@@ -613,7 +613,7 @@
   {
     "api_model_id": "qwen/qwen3.8-27b",
     "provider_api_model_id": "cerebras:qwen/qwen3.8-27b",
-    "provider_model_slug": "qwen-3.8-27b",
+    "provider_model_slug": null,
     "internal_model_id": "qwen/qwen3.8-27b",
     "is_active_gateway": false,
     "quantization_scheme": null,
