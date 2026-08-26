@@ -33,7 +33,7 @@ export async function generateMetadata(props: {
 		return buildMetadata({
 			title: "AI Lab Overview",
 			description:
-				"Discover AI organisations, their latest models, and gateway availability with profile-level insights, release timelines, and ecosystem context across the Phaseo directory.",
+				"Discover AI labs, their latest models, and gateway availability with profile-level insights, release timelines, and ecosystem context across the Phaseo directory.",
 			path,
 			keywords: [
 				"AI lab",

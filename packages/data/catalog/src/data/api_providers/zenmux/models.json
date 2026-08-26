@@ -10682,69 +10682,6 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "z-ai/glm-5.3-free",
-    "provider_api_model_id": "zenmux:z-ai/glm-5.3-free",
-    "provider_model_slug": "z-ai/glm-5.3-free",
-    "internal_model_id": "z-ai/glm-5.3-free",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": "text",
-    "output_modalities": "text",
-    "context_length": 1000000,
-    "max_output_tokens": null,
-    "effective_from": "2026-08-13T00:00:00Z",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": true,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": false,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "disabled",
-    "routable": false,
-    "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "SG"
-      ]
-    },
-    "service_tiers": [
-      "standard"
-    ],
-    "api": {
-      "formats": [
-        "openai.chat.completions"
-      ],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [
-      {
-        "kind": "provider_models",
-        "url": "https://zenmux.ai/api/v1/models",
-        "accessed_at": "2026-08-24T00:00:00Z",
-        "notes": "Official live ZenMux model, modality, context, capability, publication, and pricing metadata."
-      }
-    ],
-    "verification": {
-      "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
-      "notes": "Confirmed present in the unauthenticated official ZenMux models API; Phaseo gateway routing remains disabled."
-    },
-    "rate_limits": []
-  },
-  {
     "api_model_id": "z-ai/glm-5v-turbo",
     "provider_api_model_id": "zenmux:z-ai/glm-5v-turbo",
     "provider_model_slug": "z-ai/glm-5v-turbo",
