@@ -14,7 +14,7 @@
   "default_data_regions": [
     "us"
   ],
-  "zero_data_retention": "optional",
+  "zero_data_retention": false,
   "data_retention_days": 30,
   "data_policy_tier": "logs",
   "data_policy_confidence": "confirmed",

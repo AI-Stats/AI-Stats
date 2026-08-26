@@ -1,16 +1,28 @@
 {
   "organisation_id": "stealth",
   "name": "Stealth",
-  "country_code": null,
-  "description": "Stealth is a placeholder organisation for models whose developer has not been publicly disclosed while they are being tested or released in stealth.",
-  "colour": null,
-  "organisation_links": [],
+  "country_code": "XX",
+  "description": "Anonymous model namespace used for the Ox Alpha stealth preview. OpenRouter later attributed Ox Alpha to Z.AI GLM-5.3-Flash, but the historical stealth identity is retained separately.",
+  "colour": "#6b7280",
+  "organisation_links": [
+    {
+      "platform": "website",
+      "url": "https://openrouter.ai/stealth/ox-alpha"
+    }
+  ],
   "status": "active",
-  "routable": null,
-  "sources": [],
+  "routable": false,
+  "sources": [
+    {
+      "kind": "provider_catalogue",
+      "url": "https://openrouter.ai/stealth/ox-alpha",
+      "accessed_at": "2026-08-26T00:00:00Z",
+      "notes": "OpenRouter identifies the historical namespace as stealth and reports that Ox Alpha was revealed as Z.AI GLM-5.3-Flash."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": "Stealth is a generic catalogue placeholder and does not represent a verified legal entity or specific model developer."
+    "status": "verified",
+    "checked_at": "2026-08-26T00:00:00Z",
+    "notes": "This is a historical anonymous namespace, not a provider organisation and not a routing target."
   }
 }

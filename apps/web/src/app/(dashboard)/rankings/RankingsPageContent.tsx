@@ -15,6 +15,7 @@ import { ToolCallsSection } from "@/components/(rankings)/ToolCallsSection";
 import { BenchmarkRankingsSectionServer } from "@/components/(rankings)/BenchmarkRankingsSectionServer";
 import { ContextLengthSection } from "@/components/(rankings)/ContextLengthSection";
 import { ImageInputsSection } from "@/components/(rankings)/ImageInputsSection";
+import { ModelRetentionSection } from "@/components/(rankings)/ModelRetentionSection";
 import { TopAppsSection } from "@/components/(rankings)/TopAppsSection";
 import {
 	ModalityLeaderboards,
@@ -78,6 +79,7 @@ const textRankingTocItems: ModelPageTocItem[] = [
 	{ id: "benchmarks", label: "Intelligence Index" },
 	{ id: "context-length", label: "Context Length" },
 	{ id: "unique-users", label: "Unique Users" },
+	{ id: "retention", label: "Return Rate" },
 	{ id: "market-share", label: "Market Share" },
 	{ id: "tool-calls", label: "Tool Calls" },
 	{ id: "image-inputs", label: "Image Inputs" },
@@ -157,6 +159,10 @@ export default async function RankingsPageContent({
                     <Suspense fallback={<ChartSkeleton />}>
                         <UniqueUsersSectionServer />
                     </Suspense>
+
+					<Suspense fallback={<ListSkeleton />}>
+						<ModelRetentionSection />
+					</Suspense>
 
                     <section id="market-share" className="scroll-mt-32 space-y-12 border-t border-border pt-12">
 						<div className="space-y-0.5">

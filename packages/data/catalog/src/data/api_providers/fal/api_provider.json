@@ -1,5 +1,8 @@
 {
   "api_provider_id": "fal",
+  "data_policy_tier": "logs",
+  "data_policy_confidence": "confirmed",
+  "data_policy_contract_mode": "none",
   "api_provider_name": "fal",
   "provider_family_id": null,
   "offer_label": null,
@@ -9,11 +12,11 @@
   "residency_mode": null,
   "default_execution_regions": null,
   "default_data_regions": null,
-  "zero_data_retention": null,
+  "zero_data_retention": false,
   "residency_source_url": null,
-  "prompt_training_policy": null,
-  "prompt_training_notes": null,
-  "prompt_training_source_url": null,
+  "prompt_training_policy": "unknown",
+  "prompt_training_notes": "fal's public retention documentation establishes default request input/output storage and an opt-out request header, but the reviewed source does not establish a platform-wide prompt-training position.",
+  "prompt_training_source_url": "https://fal.ai/docs/documentation/model-apis/inference/payloads",
   "user_identifier_policy": null,
   "user_identifier_notes": null,
   "privacy_policy_url": "https://fal.ai/privacy",
@@ -35,6 +38,12 @@
   "api_formats": ["fal-queue"],
   "service_tiers": ["standard"],
   "sources": [
+    {
+      "kind": "provider_docs",
+      "url": "https://fal.ai/docs/documentation/model-apis/inference/payloads",
+      "accessed_at": "2026-08-26T00:00:00Z",
+      "notes": "fal documents that inputs and outputs are stored by default, with per-request X-Fal-Store-IO: 0 to prevent storage; CDN retention of input files can still apply."
+    },
     {
       "kind": "official_documentation",
       "url": "https://fal.ai/docs/documentation/model-apis/inference/queue",

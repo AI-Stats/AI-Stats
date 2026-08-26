@@ -9,103 +9,33 @@
       "meter": "input_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.03,
-      "currency": "USD",
-      "pricing_plan": "standard",
-      "note": "Superseded by IO.NET's live published pricing on 2026-08-24.",
-      "match": [],
-      "priority": 100,
-      "region": null,
-      "cache_duration_seconds": null,
-      "conditions": [],
-      "source": null,
-      "effective_from": null,
-      "effective_to": "2026-08-24T00:00:00Z"
-    },
-    {
-      "meter": "cached_read_text_tokens",
-      "unit": "token",
-      "unit_size": 1000000,
-      "price_per_unit": 0.015,
-      "currency": "USD",
-      "pricing_plan": "standard",
-      "note": "Superseded by IO.NET's live published pricing on 2026-08-24.",
-      "match": [],
-      "priority": 100,
-      "region": null,
-      "cache_duration_seconds": null,
-      "conditions": [],
-      "source": null,
-      "effective_from": null,
-      "effective_to": "2026-08-24T00:00:00Z"
-    },
-    {
-      "meter": "cached_write_text_tokens",
-      "unit": "token",
-      "unit_size": 1000000,
-      "price_per_unit": 0.06,
-      "currency": "USD",
-      "pricing_plan": "standard",
-      "note": "Superseded by IO.NET's live published pricing on 2026-08-24.",
-      "match": [],
-      "priority": 100,
-      "region": null,
-      "cache_duration_seconds": null,
-      "conditions": [],
-      "source": null,
-      "effective_from": null,
-      "effective_to": "2026-08-24T00:00:00Z"
-    },
-    {
-      "meter": "output_text_tokens",
-      "unit": "token",
-      "unit_size": 1000000,
-      "price_per_unit": 0.14,
-      "currency": "USD",
-      "pricing_plan": "standard",
-      "note": "Superseded by IO.NET's live published pricing on 2026-08-24.",
-      "match": [],
-      "priority": 100,
-      "region": null,
-      "cache_duration_seconds": null,
-      "conditions": [],
-      "source": null,
-      "effective_from": null,
-      "effective_to": "2026-08-24T00:00:00Z"
-    },
-    {
-      "meter": "input_text_tokens",
-      "unit": "token",
-      "unit_size": 1000000,
       "price_per_unit": 0.057,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
       "match": [],
       "priority": 100,
-      "effective_from": "2026-08-24T00:00:00Z",
+      "effective_from": "2026-08-26T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null,
-      "effective_to": null
+      "source": null
     },
     {
       "meter": "output_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.20800000000000002,
+      "price_per_unit": 0.21,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
       "match": [],
       "priority": 100,
-      "effective_from": "2026-08-24T00:00:00Z",
+      "effective_from": "2026-08-26T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null,
-      "effective_to": null
+      "source": null
     }
   ],
   "regions": [],
@@ -114,21 +44,15 @@
   ],
   "sources": [
     {
-      "kind": "models.dev",
-      "url": "https://models.dev/api.json",
-      "accessed_at": "2026-08-11T12:13:09.964Z",
-      "notes": "Provider pricing catalogue fallback; direct provider feeds take precedence."
-    },
-    {
-      "kind": "pricing",
+      "kind": "provider_model",
       "url": "https://api.intelligence.io.solutions/api/v1/models",
-      "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "Live token prices published by IO.NET for provider model openai/gpt-oss-20b."
+      "accessed_at": "2026-08-26T00:00:00Z",
+      "notes": "Official IO.NET model catalog reports $0.057 input, and $0.21 output per million tokens for openai/gpt-oss-20b."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Input, cached-input (where supported), and output token prices verified from IO.NET's official live model endpoint. Superseded local pricing rules are retained with an effective end timestamp."
+    "checked_at": "2026-08-26T00:00:00Z",
+    "notes": "Input and output token prices verified from IO.NET's official live model endpoint; prompt caching is not supported for this model."
   }
 }

@@ -71,6 +71,36 @@ describe("guardAllFailed", () => {
 		expect(String(payload.description)).toContain("failure_sample");
 	});
 
+	it("uses retry metadata from the final attempted provider without exposing it in the body", async () => {
+		const ctx: any = {
+			model: "minimax/minimax-m2.7:free",
+			endpoint: "chat.completions",
+			requestId: "req_rate_limited",
+			attemptErrors: [
+				{
+					provider: "first",
+					type: "upstream_non_2xx",
+					status: 429,
+					upstream_rate_limit_headers: { "Retry-After": "5" },
+				},
+				{
+					provider: "gmicloud",
+					type: "upstream_non_2xx",
+					status: 429,
+					upstream_rate_limit_headers: { "Retry-After": "20" },
+				},
+			],
+		};
+
+		const result = await guardAllFailed(ctx, makeTiming());
+		expect(result.ok).toBe(false);
+		if (result.ok) return;
+
+		expect(result.response.headers.get("Retry-After")).toBe("20");
+		const payload = await result.response.json();
+		expect(JSON.stringify(payload)).not.toContain("upstream_rate_limit_headers");
+	});
+
 	it("summarizes multi-provider failures in the description", async () => {
 		const ctx: any = {
 			model: "xiaomi/mimo-v2-tts:free",

@@ -1731,6 +1731,8 @@ const (
 	KnownModelIdGoogleVeo31LitePreview KnownModelId = "google/veo-3.1-lite-preview"
 	KnownModelIdGoogleVeo31Preview KnownModelId = "google/veo-3.1-preview"
 	KnownModelIdIbmGranite418b KnownModelId = "ibm/granite-4.1-8b"
+	KnownModelIdIbmGranite4230b KnownModelId = "ibm/granite-4.2-30b"
+	KnownModelIdIbmGranite423b KnownModelId = "ibm/granite-4.2-3b"
 	KnownModelIdIbmGranite428b KnownModelId = "ibm/granite-4.2-8b"
 	KnownModelIdInceptionMercury2 KnownModelId = "inception/mercury-2"
 	KnownModelIdInceptionMercuryEdit2 KnownModelId = "inception/mercury-edit-2"
@@ -1764,6 +1766,7 @@ const (
 	KnownModelIdMetaLlamaPromptGuard222m KnownModelId = "meta/llama-prompt-guard-2-22m"
 	KnownModelIdMetaLlamaPromptGuard286m KnownModelId = "meta/llama-prompt-guard-2-86m"
 	KnownModelIdMetaMuseGlimmer30b KnownModelId = "meta/muse-glimmer-30b"
+	KnownModelIdMetaMuseImage10 KnownModelId = "meta/muse-image-1.0"
 	KnownModelIdMetaMuseSpark12 KnownModelId = "meta/muse-spark-1.2"
 	KnownModelIdMicrosoftPhi4 KnownModelId = "microsoft/phi-4"
 	KnownModelIdMicrosoftWizardlm28x22b KnownModelId = "microsoft/wizardlm-2-8x22b"
@@ -1927,14 +1930,12 @@ const (
 	KnownModelIdOpenaiWhisper1 KnownModelId = "openai/whisper-1"
 	KnownModelIdOpenaiWhisperLargeV3 KnownModelId = "openai/whisper-large-v3"
 	KnownModelIdOpenaiWhisperLargeV3Turbo KnownModelId = "openai/whisper-large-v3-turbo"
-	KnownModelIdOpenbmbMinicpmV45 KnownModelId = "openbmb/minicpm-v-4.5"
 	KnownModelIdPerplexityPplxEmbedV106b KnownModelId = "perplexity/pplx-embed-v1-0.6b"
 	KnownModelIdPerplexityPplxEmbedV14b KnownModelId = "perplexity/pplx-embed-v1-4b"
 	KnownModelIdPhaseoFree KnownModelId = "phaseo/free"
 	KnownModelIdPoolsideLagunaM1Free KnownModelId = "poolside/laguna-m.1:free"
 	KnownModelIdPoolsideLagunaS21Free KnownModelId = "poolside/laguna-s-2.1:free"
 	KnownModelIdPoolsideLagunaXs21Free KnownModelId = "poolside/laguna-xs-2.1:free"
-	KnownModelIdPrismMlTernaryBonsai27b KnownModelId = "prism-ml/ternary-bonsai-27b"
 	KnownModelIdQwenQvqMax KnownModelId = "qwen/qvq-max"
 	KnownModelIdQwenQwenFlash KnownModelId = "qwen/qwen-flash"
 	KnownModelIdQwenQwenFlashCharacter KnownModelId = "qwen/qwen-flash-character"
@@ -2040,6 +2041,7 @@ const (
 	KnownModelIdQwenQwen37Plus20260526 KnownModelId = "qwen/qwen3.7-plus-2026-05-26"
 	KnownModelIdQwenQwen3824tA95b KnownModelId = "qwen/qwen3.8-2.4t-a95b"
 	KnownModelIdQwenQwen3827b KnownModelId = "qwen/qwen3.8-27b"
+	KnownModelIdQwenQwen38Flash KnownModelId = "qwen/qwen3.8-flash"
 	KnownModelIdQwenQwen38Max KnownModelId = "qwen/qwen3.8-max"
 	KnownModelIdQwenQwq32b KnownModelId = "qwen/qwq-32b"
 	KnownModelIdQwenQwqPlus KnownModelId = "qwen/qwq-plus"
@@ -2053,9 +2055,6 @@ const (
 	KnownModelIdRelaceRelaceSearch KnownModelId = "relace/relace-search"
 	KnownModelIdSakanaFuguUltra KnownModelId = "sakana/fugu-ultra"
 	KnownModelIdSakanaNamazu KnownModelId = "sakana/namazu"
-	KnownModelIdSao10kL38bLunaris KnownModelId = "sao10k/l3-8b-lunaris"
-	KnownModelIdSao10kL38bSthenoV32 KnownModelId = "sao10k/l3-8b-stheno-v3.2"
-	KnownModelIdSao10kL3170bEuryaleV22 KnownModelId = "sao10k/l31-70b-euryale-v2.2"
 	KnownModelIdSpacexAiGrok420 KnownModelId = "spacex-ai/grok-4.20"
 	KnownModelIdSpacexAiGrok420MultiAgentBeta KnownModelId = "spacex-ai/grok-4.20-multi-agent-beta"
 	KnownModelIdSpacexAiGrok420MultiAgentBeta0309 KnownModelId = "spacex-ai/grok-4.20-multi-agent-beta-0309"
@@ -2068,7 +2067,6 @@ const (
 	KnownModelIdSpacexAiGrokImagineImageQuality KnownModelId = "spacex-ai/grok-imagine-image-quality"
 	KnownModelIdSpacexAiGrokTranscribe KnownModelId = "spacex-ai/grok-transcribe"
 	KnownModelIdSpacexAiGrokTts KnownModelId = "spacex-ai/grok-tts"
-	KnownModelIdStealthOxAlpha KnownModelId = "stealth/ox-alpha"
 	KnownModelIdStepfunStep35Flash KnownModelId = "stepfun/step-3.5-flash"
 	KnownModelIdStepfunStep37Flash KnownModelId = "stepfun/step-3.7-flash"
 	KnownModelIdTencentHunyuanA13bInstruct KnownModelId = "tencent/hunyuan-a13b-instruct"
@@ -2144,6 +2142,7 @@ const (
 	KnownModelIdZAiGlm51 KnownModelId = "z-ai/glm-5.1"
 	KnownModelIdZAiGlm52 KnownModelId = "z-ai/glm-5.2"
 	KnownModelIdZAiGlm53 KnownModelId = "z-ai/glm-5.3"
+	KnownModelIdZAiGlm53Flash KnownModelId = "z-ai/glm-5.3-flash"
 	KnownModelIdZAiGlm5vTurbo KnownModelId = "z-ai/glm-5v-turbo"
 	KnownModelIdZaiOrgGlm45Air KnownModelId = "zai-org/glm-4.5-air"
 	KnownModelIdZaiGlm5 KnownModelId = "zai/glm-5"
@@ -2349,6 +2348,17 @@ type MusicGenerateRequest struct {
 }
 
 type MusicGenerateResponse struct {
+	AudioBase64 *string `json:"audio_base64,omitempty"`
+	AudioUrl *string `json:"audio_url,omitempty"`
+	Id string `json:"id"`
+	Model string `json:"model"`
+	NativeResponseId *string `json:"nativeResponseId,omitempty"`
+	Object string `json:"object"`
+	Output *[]map[string]interface{} `json:"output,omitempty"`
+	Provider string `json:"provider"`
+	Result interface{} `json:"result,omitempty"`
+	Status string `json:"status"`
+	Usage *map[string]interface{} `json:"usage,omitempty"`
 }
 
 type NotImplementedResponse struct {
@@ -2414,18 +2424,15 @@ const (
 	OrganisationIdNous OrganisationId = "nous"
 	OrganisationIdNvidia OrganisationId = "nvidia"
 	OrganisationIdOpenai OrganisationId = "openai"
-	OrganisationIdOpenbmb OrganisationId = "openbmb"
 	OrganisationIdPerplexity OrganisationId = "perplexity"
 	OrganisationIdPoe OrganisationId = "poe"
 	OrganisationIdPoolside OrganisationId = "poolside"
 	OrganisationIdPrimeIntellect OrganisationId = "prime-intellect"
-	OrganisationIdPrismMl OrganisationId = "prism-ml"
 	OrganisationIdQwen OrganisationId = "qwen"
 	OrganisationIdReka OrganisationId = "reka"
 	OrganisationIdRelace OrganisationId = "relace"
 	OrganisationIdRunway OrganisationId = "runway"
 	OrganisationIdSakana OrganisationId = "sakana"
-	OrganisationIdSao10k OrganisationId = "sao10k"
 	OrganisationIdSourceful OrganisationId = "sourceful"
 	OrganisationIdSpacexAi OrganisationId = "spacex-ai"
 	OrganisationIdStabilityAi OrganisationId = "stability-ai"

@@ -125,6 +125,8 @@ export type GatewayBindings = {
     CRUSOE_BASE_URL?: string;
     DEEPINFRA_API_KEY?: string;
     DEEPINFRA_BASE_URL?: string;
+    IOINTELLIGENCE_API_KEY?: string;
+    IOINTELLIGENCE_BASE_URL?: string;
     DEEPSEEK_API_KEY?: string;
     DEEPSEEK_BASE_URL?: string;
     DARKBLOOM_API_KEY?: string;
@@ -143,6 +145,7 @@ export type GatewayBindings = {
     GMI_API_KEY?: string;
     GMI_CLOUD_API_KEY?: string;
     GMI_BASE_URL?: string;
+    GMI_QUEUE_BASE_URL?: string;
     GROQ_API_KEY?: string;
     GROQ_BASE_URL?: string;
     GOOGLE_VERTEX_API_KEY?: string;

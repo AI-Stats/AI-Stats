@@ -993,11 +993,9 @@ jobs:
             github.ref == 'refs/heads/main' &&
             needs.apps.result == 'success' &&
             needs.check-paths.result == 'success' &&
-            ((github.event_name == 'push' &&
+            github.event_name == 'push' &&
             (needs.check-paths.outputs.migrations-changed != 'true' ||
-            needs.migrate-production.result == 'success')) ||
-            (github.event_name == 'workflow_dispatch' &&
-            inputs.deploy_production == true))
+            needs.migrate-production.result == 'success')
         permissions:
             contents: read
         strategy:

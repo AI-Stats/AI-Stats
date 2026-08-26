@@ -17,5 +17,21 @@ export type DailyAppRollup = { day_bucket: string; app_id: string; requests: num
 export type RankingsIndexabilitySnapshot = { hasLeaderboardData: boolean; hasPerformanceData: boolean; hasUsageData: boolean; hasAppsData: boolean; shouldIndex: boolean };
 export type AppsIndexabilitySnapshot = { hasLeaderboardData: boolean; hasTrendingData: boolean; shouldIndex: boolean };
 export type TopModelWithMetadata = { model_id: string; model_name: string; organisation_id: string | null; organisation_name: string | null; total_tokens: number };
+export type ModelRetentionRanking = {
+	model_id: string;
+	model_name: string;
+	organisation_id: string | null;
+	organisation_name: string | null;
+	retention_rate: number;
+	returning_workspace_weeks: number;
+	workspace_weeks: number;
+	unique_workspaces: number;
+	weeks_observed: number;
+	confidence_low: number;
+	confidence_high: number;
+	first_cohort_week: string;
+	last_cohort_week: string;
+	rank: number;
+};
 export type ProviderMeta = { name: string; colour: string | null };
 export type ModelLeaderboardMeta = { model_id: string; name: string | null; organisation_id: string | null; organisation_name: string | null; organisation_colour: string | null; license: string | null };

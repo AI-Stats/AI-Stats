@@ -42,7 +42,7 @@ describe("OAuth client ID metadata documents", () => {
 			registration_source: "cimd",
 		});
 		expect(fetchMock).toHaveBeenCalledWith(
-			new URL(clientId),
+			clientId,
 			expect.objectContaining({ redirect: "error" }),
 		);
 	});

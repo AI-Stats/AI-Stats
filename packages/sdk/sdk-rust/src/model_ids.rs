@@ -432,6 +432,15 @@ pub mod model_ids {
     /// Model ID: `ibm/granite-4.1-8b`.
     /// Model page: https://phaseo.app/models/ibm/granite-4.1-8b
     pub const IBM_GRANITE_4_1_8B: &str = "ibm/granite-4.1-8b";
+    /// Model ID: `ibm/granite-4.2-30b`.
+    /// Model page: https://phaseo.app/models/ibm/granite-4.2-30b
+    pub const IBM_GRANITE_4_2_30B: &str = "ibm/granite-4.2-30b";
+    /// Model ID: `ibm/granite-4.2-3b`.
+    /// Model page: https://phaseo.app/models/ibm/granite-4.2-3b
+    pub const IBM_GRANITE_4_2_3B: &str = "ibm/granite-4.2-3b";
+    /// Model ID: `ibm/granite-4.2-8b`.
+    /// Model page: https://phaseo.app/models/ibm/granite-4.2-8b
+    pub const IBM_GRANITE_4_2_8B: &str = "ibm/granite-4.2-8b";
     /// Model ID: `inception/mercury-2`.
     /// Model page: https://phaseo.app/models/inception/mercury-2
     pub const INCEPTION_MERCURY_2: &str = "inception/mercury-2";
@@ -1017,9 +1026,6 @@ pub mod model_ids {
     /// Model ID: `openai/whisper-large-v3-turbo`.
     /// Model page: https://phaseo.app/models/openai/whisper-large-v3-turbo
     pub const OPENAI_WHISPER_LARGE_V3_TURBO: &str = "openai/whisper-large-v3-turbo";
-    /// Model ID: `openbmb/minicpm-v-4.5`.
-    /// Model page: https://phaseo.app/models/openbmb/minicpm-v-4.5
-    pub const OPENBMB_MINICPM_V_4_5: &str = "openbmb/minicpm-v-4.5";
     /// Model ID: `perplexity/pplx-embed-v1-0.6b`.
     /// Model page: https://phaseo.app/models/perplexity/pplx-embed-v1-0.6b
     pub const PERPLEXITY_PPLX_EMBED_V1_0_6B: &str = "perplexity/pplx-embed-v1-0.6b";
@@ -1038,9 +1044,6 @@ pub mod model_ids {
     /// Model ID: `poolside/laguna-xs-2.1:free`.
     /// Model page: https://phaseo.app/models/poolside/laguna-xs-2.1%3Afree
     pub const POOLSIDE_LAGUNA_XS_2_1_FREE: &str = "poolside/laguna-xs-2.1:free";
-    /// Model ID: `prism-ml/ternary-bonsai-27b`.
-    /// Model page: https://phaseo.app/models/prism-ml/ternary-bonsai-27b
-    pub const PRISM_ML_TERNARY_BONSAI_27B: &str = "prism-ml/ternary-bonsai-27b";
     /// Model ID: `qwen/qvq-max`.
     /// Model page: https://phaseo.app/models/qwen/qvq-max
     pub const QWEN_QVQ_MAX: &str = "qwen/qvq-max";
@@ -1395,15 +1398,6 @@ pub mod model_ids {
     /// Model ID: `sakana/namazu`.
     /// Model page: https://phaseo.app/models/sakana/namazu
     pub const SAKANA_NAMAZU: &str = "sakana/namazu";
-    /// Model ID: `sao10k/l3-8b-lunaris`.
-    /// Model page: https://phaseo.app/models/sao10k/l3-8b-lunaris
-    pub const SAO10K_L3_8B_LUNARIS: &str = "sao10k/l3-8b-lunaris";
-    /// Model ID: `sao10k/l3-8b-stheno-v3.2`.
-    /// Model page: https://phaseo.app/models/sao10k/l3-8b-stheno-v3.2
-    pub const SAO10K_L3_8B_STHENO_V3_2: &str = "sao10k/l3-8b-stheno-v3.2";
-    /// Model ID: `sao10k/l31-70b-euryale-v2.2`.
-    /// Model page: https://phaseo.app/models/sao10k/l31-70b-euryale-v2.2
-    pub const SAO10K_L31_70B_EURYALE_V2_2: &str = "sao10k/l31-70b-euryale-v2.2";
     /// Model ID: `spacex-ai/grok-4.20`.
     /// Model page: https://phaseo.app/models/spacex-ai/grok-4.20
     pub const SPACEX_AI_GROK_4_20: &str = "spacex-ai/grok-4.20";
@@ -1825,6 +1819,9 @@ pub mod model_ids {
         GOOGLE_VEO_3_1_LITE_PREVIEW,
         GOOGLE_VEO_3_1_PREVIEW,
         IBM_GRANITE_4_1_8B,
+        IBM_GRANITE_4_2_30B,
+        IBM_GRANITE_4_2_3B,
+        IBM_GRANITE_4_2_8B,
         INCEPTION_MERCURY_2,
         INCEPTION_MERCURY_EDIT_2,
         INCLUSIONAI_LING_2_6_1T,
@@ -2020,14 +2017,12 @@ pub mod model_ids {
         OPENAI_WHISPER_1,
         OPENAI_WHISPER_LARGE_V3,
         OPENAI_WHISPER_LARGE_V3_TURBO,
-        OPENBMB_MINICPM_V_4_5,
         PERPLEXITY_PPLX_EMBED_V1_0_6B,
         PERPLEXITY_PPLX_EMBED_V1_4B,
         PHASEO_FREE,
         POOLSIDE_LAGUNA_M_1_FREE,
         POOLSIDE_LAGUNA_S_2_1_FREE,
         POOLSIDE_LAGUNA_XS_2_1_FREE,
-        PRISM_ML_TERNARY_BONSAI_27B,
         QWEN_QVQ_MAX,
         QWEN_QWEN_FLASH,
         QWEN_QWEN_FLASH_CHARACTER,
@@ -2146,9 +2141,6 @@ pub mod model_ids {
         RELACE_RELACE_SEARCH,
         SAKANA_FUGU_ULTRA,
         SAKANA_NAMAZU,
-        SAO10K_L3_8B_LUNARIS,
-        SAO10K_L3_8B_STHENO_V3_2,
-        SAO10K_L31_70B_EURYALE_V2_2,
         SPACEX_AI_GROK_4_20,
         SPACEX_AI_GROK_4_20_MULTI_AGENT_BETA,
         SPACEX_AI_GROK_4_20_MULTI_AGENT_BETA_0309,
