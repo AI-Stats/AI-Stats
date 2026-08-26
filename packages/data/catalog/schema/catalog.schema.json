@@ -162,7 +162,14 @@
     },
     "apiProvider": {
       "type": "object",
-      "required": ["api_provider_id", "api_provider_name"],
+      "required": [
+        "api_provider_id",
+        "api_provider_name",
+        "zero_data_retention",
+        "data_policy_tier",
+        "data_policy_confidence",
+        "data_policy_contract_mode"
+      ],
       "properties": {
         "api_provider_id": { "$ref": "#/$defs/slug" },
         "api_provider_name": { "type": "string", "minLength": 1 },
@@ -198,6 +205,10 @@
         "link": { "type": ["string", "null"], "format": "uri" },
         "default_execution_regions": { "type": ["array", "null"], "items": { "type": "string" } },
         "default_data_regions": { "type": ["array", "null"], "items": { "type": "string" } },
+        "zero_data_retention": { "type": "string", "enum": ["unknown", "unsupported", "optional", "default"] },
+        "data_policy_tier": { "type": "string", "enum": ["unknown", "private", "logs", "trains"] },
+        "data_policy_confidence": { "type": "string", "enum": ["unknown", "confirmed", "maybe"] },
+        "data_policy_contract_mode": { "type": "string", "enum": ["none", "customer_agreement", "enterprise_agreement"] },
         "regional_pricing_mode": { "type": ["string", "null"] },
         "pricing_source_url": { "type": ["string", "null"], "format": "uri" },
         "gateway_kind": { "type": ["string", "null"] },
