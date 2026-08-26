@@ -1,7 +1,15 @@
 "use client";
 
 import Image from "next/image";
-import { Check, Copy, Download, Moon, Sun } from "lucide-react";
+import {
+	Check,
+	Copy,
+	Download,
+	FileCode2,
+	FileImage,
+	Moon,
+	Sun,
+} from "lucide-react";
 import { useTheme } from "next-themes";
 import {
 	cloneElement,
@@ -14,6 +22,10 @@ import { toast } from "sonner";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuSub,
+	DropdownMenuSubContent,
+	DropdownMenuSubTrigger,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
@@ -22,10 +34,116 @@ const brandAssets = [
 	{ name: "Logo", file: "logo", width: 64, height: 64 },
 ] as const;
 
+type BrandAsset = (typeof brandAssets)[number];
+type AssetFormat = "svg" | "png";
+type AssetAction = "copy" | "download";
+
 type BrandMenuTriggerProps = {
 	onContextMenu?: (event: MouseEvent) => void;
 	onKeyDown?: (event: KeyboardEvent) => void;
 };
+
+function assetActionKey(name: string, format: AssetFormat) {
+	return `${name}-${format}`;
+}
+
+async function fetchAssetSvg(file: string, assetTheme: "light" | "dark") {
+	const response = await fetch(`/${file}_${assetTheme}.svg`);
+	if (!response.ok) throw new Error("Could not load brand asset");
+
+	return response.text();
+}
+
+function svgToPng(svgText: string, width: number, height: number) {
+	const svgBlob = new Blob([svgText], { type: "image/svg+xml;charset=utf-8" });
+	const imageUrl = URL.createObjectURL(svgBlob);
+
+	return new Promise<Blob>((resolve, reject) => {
+		const image = new window.Image();
+		image.onload = () => {
+			const canvas = document.createElement("canvas");
+			canvas.width = width;
+			canvas.height = height;
+			const context = canvas.getContext("2d");
+
+			if (!context) {
+				URL.revokeObjectURL(imageUrl);
+				reject(new Error("Could not create PNG canvas"));
+				return;
+			}
+
+			context.drawImage(image, 0, 0, width, height);
+			canvas.toBlob((blob) => {
+				URL.revokeObjectURL(imageUrl);
+				if (!blob) {
+					reject(new Error("Could not create PNG image"));
+					return;
+				}
+
+				resolve(blob);
+			}, "image/png");
+		};
+		image.onerror = () => {
+			URL.revokeObjectURL(imageUrl);
+			reject(new Error("Could not render brand asset"));
+		};
+		image.src = imageUrl;
+	});
+}
+
+function AssetFormatMenu({
+	action,
+	asset,
+	copiedAsset,
+	onCopy,
+	onDownload,
+}: {
+	action: AssetAction;
+	asset: BrandAsset;
+	copiedAsset: string | null;
+	onCopy: (asset: BrandAsset, format: AssetFormat) => void;
+	onDownload: (asset: BrandAsset, format: AssetFormat) => void;
+}) {
+	const isCopy = action === "copy";
+	const ActionIcon = isCopy ? Copy : Download;
+	const actionLabel = isCopy ? "Copy" : "Download";
+
+	return (
+		<DropdownMenuSub>
+			<DropdownMenuSubTrigger
+				aria-label={`${actionLabel} ${asset.name.toLowerCase()} as SVG or PNG`}
+				title={`${actionLabel} ${asset.name.toLowerCase()} as SVG or PNG`}
+				className="flex size-7 min-h-7 justify-center p-0 [&>svg:last-child]:hidden"
+			>
+				<ActionIcon className="size-4" aria-hidden="true" />
+			</DropdownMenuSubTrigger>
+			<DropdownMenuSubContent className="min-w-36">
+				<DropdownMenuItem
+					onClick={() =>
+						isCopy ? onCopy(asset, "svg") : onDownload(asset, "svg")
+					}
+				>
+					<FileCode2 className="size-4" aria-hidden="true" />
+					{actionLabel} SVG
+					{isCopy && copiedAsset === assetActionKey(asset.name, "svg") ? (
+						<Check className="ml-auto size-4 text-emerald-500" aria-hidden="true" />
+					) : null}
+				</DropdownMenuItem>
+				<DropdownMenuItem
+					onClick={() =>
+						isCopy ? onCopy(asset, "png") : onDownload(asset, "png")
+					}
+				>
+					<FileImage className="size-4" aria-hidden="true" />
+					{actionLabel} PNG
+					{isCopy && copiedAsset === assetActionKey(asset.name, "png") ? (
+						<Check className="ml-auto size-4 text-emerald-500" aria-hidden="true" />
+					) : null}
+				</DropdownMenuItem>
+			</DropdownMenuSubContent>
+		</DropdownMenuSub>
+	);
+}
 
 export function BrandMenu({
 	children,
@@ -55,17 +173,51 @@ export function BrandMenu({
 		},
 	});
 
-	async function copyAsset(name: string, file: string) {
+	async function copyAsset(asset: BrandAsset, format: AssetFormat) {
 		try {
-			const response = await fetch(`/${file}_${assetTheme}.svg`);
-			if (!response.ok) throw new Error("Could not load brand asset");
+			const svgText = await fetchAssetSvg(asset.file, assetTheme);
 
-			await navigator.clipboard.writeText(await response.text());
-			setCopiedAsset(name);
-			toast.success(`${name} copied to clipboard`);
+			if (format === "svg") {
+				if (!navigator.clipboard?.writeText) {
+					throw new Error("Clipboard access is unavailable");
+				}
+				await navigator.clipboard.writeText(svgText);
+			} else {
+				if (!navigator.clipboard?.write || typeof ClipboardItem === "undefined") {
+					throw new Error("PNG clipboard access is unavailable");
+				}
+				const pngBlob = await svgToPng(svgText, asset.width, asset.height);
+				await navigator.clipboard.write([
+					new ClipboardItem({ "image/png": pngBlob }),
+				]);
+			}
+
+			setCopiedAsset(assetActionKey(asset.name, format));
+			toast.success(`${asset.name} ${format.toUpperCase()} copied to clipboard`);
 			window.setTimeout(() => setCopiedAsset(null), 2000);
 		} catch {
-			toast.error(`Could not copy ${name.toLowerCase()}`);
+			toast.error(`Could not copy ${asset.name.toLowerCase()} as ${format.toUpperCase()}`);
+		}
+	}
+
+	async function downloadAsset(asset: BrandAsset, format: AssetFormat) {
+		try {
+			const svgText = await fetchAssetSvg(asset.file, assetTheme);
+			const blob =
+				format === "svg"
+					? new Blob([svgText], { type: "image/svg+xml;charset=utf-8" })
+					: await svgToPng(svgText, asset.width, asset.height);
+			const downloadUrl = URL.createObjectURL(blob);
+			const link = document.createElement("a");
+			link.href = downloadUrl;
+			link.download = `phaseo-${asset.file}-${assetTheme}.${format}`;
+			document.body.appendChild(link);
+			link.click();
+			link.remove();
+			window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 0);
+			toast.success(`${asset.name} ${format.toUpperCase()} downloaded`);
+		} catch {
+			toast.error(`Could not download ${asset.name.toLowerCase()} as ${format.toUpperCase()}`);
 		}
 	}
 
@@ -114,8 +266,8 @@ export function BrandMenu({
 					</div>
 				</div>
 				<div className="grid grid-cols-1 gap-2 min-[22rem]:grid-cols-2">
-					{brandAssets.map(({ name, file, width, height }) => {
-						const copied = copiedAsset === name;
+					{brandAssets.map((asset) => {
+						const { name, file, width, height } = asset;
 						const assetPath = `/${file}_${assetTheme}.svg`;
 						const previewBackgroundClass = assetTheme === "dark" ? "bg-black" : "bg-white";
 
@@ -137,28 +289,20 @@ export function BrandMenu({
 									<span className="min-w-0 flex-1 truncate text-xs font-medium">
 										{name}
 									</span>
-									<button
-										type="button"
-										onClick={() => void copyAsset(name, file)}
-										className="flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-										aria-label={`Copy ${name.toLowerCase()} SVG code`}
-										title="Copy SVG code"
-									>
-										{copied ? (
-											<Check className="size-4 text-emerald-500" aria-hidden="true" />
-										) : (
-											<Copy className="size-4" aria-hidden="true" />
-										)}
-									</button>
-									<a
-										href={assetPath}
-										download={`phaseo-${file}-${assetTheme}.svg`}
-										className="flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-										aria-label={`Download ${name.toLowerCase()} SVG`}
-										title="Download SVG"
-									>
-										<Download className="size-4" aria-hidden="true" />
-									</a>
+									<AssetFormatMenu
+										action="copy"
+										asset={asset}
+										copiedAsset={copiedAsset}
+										onCopy={(selectedAsset, format) => void copyAsset(selectedAsset, format)}
+										onDownload={(selectedAsset, format) => void downloadAsset(selectedAsset, format)}
+									/>
+									<AssetFormatMenu
+										action="download"
+										asset={asset}
+										copiedAsset={copiedAsset}
+										onCopy={(selectedAsset, format) => void copyAsset(selectedAsset, format)}
+										onDownload={(selectedAsset, format) => void downloadAsset(selectedAsset, format)}
+									/>
 								</div>
 							</div>
 						);
