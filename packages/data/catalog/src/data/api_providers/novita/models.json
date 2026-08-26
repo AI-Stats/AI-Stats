@@ -223,14 +223,14 @@
     "provider_api_model_id": "novita:baidu/ernie-4.5-21b-a3b",
     "provider_model_slug": "baidu/ernie-4.5-21B-a3b",
     "internal_model_id": "baidu/ernie-4.5-21b-a3b",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "BF16",
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 120000,
     "max_output_tokens": 8000,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-05-22T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -309,7 +309,7 @@
     "context_length": 131072,
     "max_output_tokens": 65536,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": "2026-08-20T00:00:00Z",
+    "effective_to": "2026-05-22T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -364,7 +364,7 @@
     "context_length": 123000,
     "max_output_tokens": 12000,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": "2026-08-20T00:00:00Z",
+    "effective_to": "2026-05-22T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -518,7 +518,7 @@
     "context_length": 30000,
     "max_output_tokens": 8000,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": "2026-08-20T00:00:00Z",
+    "effective_to": "2026-05-22T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -927,7 +927,7 @@
     "context_length": null,
     "max_output_tokens": 8192,
     "effective_from": null,
-    "effective_to": "2026-08-20T00:00:00Z",
+    "effective_to": "2026-06-05T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -1432,7 +1432,7 @@
     "context_length": null,
     "max_output_tokens": 32000,
     "effective_from": null,
-    "effective_to": "2026-08-20T00:00:00Z",
+    "effective_to": "2026-01-08T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -6072,7 +6072,7 @@
     "context_length": 32000,
     "max_output_tokens": 32000,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": "2026-08-20T00:00:00Z",
+    "effective_to": "2026-05-22T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -6233,7 +6233,7 @@
     "context_length": 32768,
     "max_output_tokens": 32768,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": "2026-08-20T00:00:00Z",
+    "effective_to": "2026-05-22T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -6623,7 +6623,7 @@
     "context_length": 40960,
     "max_output_tokens": 20000,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": "2026-08-20T00:00:00Z",
+    "effective_to": "2026-06-05T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -6784,7 +6784,7 @@
     "context_length": 40960,
     "max_output_tokens": 20000,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": "2026-08-20T00:00:00Z",
+    "effective_to": "2026-06-05T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -6938,7 +6938,7 @@
     "context_length": 128000,
     "max_output_tokens": 20000,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": "2026-08-20T00:00:00Z",
+    "effective_to": "2026-05-22T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
