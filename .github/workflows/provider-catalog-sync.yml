@@ -150,7 +150,7 @@ jobs:
                   commit-message: "chore(data): sync provider catalog"
                   title: "chore(data): sync provider catalog"
                   body-path: apps/web/.sync/provider-catalog-sync.md
-                  labels: ${{ steps.app-token-with-labels.outcome == 'success' && format('automation\nmodel-sync\nprovider:batch') || '' }}
+                  labels: ${{ steps.app-token-with-labels.outcome == 'success' && 'automation,model-sync,provider:batch' || '' }}
 
             - name: Notify Discord
               if: steps.pull-request.outputs.pull-request-operation != ''
