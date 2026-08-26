@@ -46,7 +46,7 @@ describe("GMICloud native media executors", () => {
 		const result = await executeMusic(args({ model: "minimax/music-3.0:free", prompt: "cinematic ambient" } as IRMusicGenerateRequest, "music.generate", "minimax-music-3.0"));
 		mock.restore();
 
-		expect(body).toEqual({ model: "minimax-music-3.0", payload: { prompt: "cinematic ambient" } });
+		expect(body).toEqual({ model: "minimax-music-3.0", payload: { prompt: "cinematic ambient", lyrics: "[Instrumental]" } });
 		expect((result.ir as any)?.nativeId).toBe("music_req_1");
 		expect((result.ir as any)?.audioUrl).toBe("https://gmi.example/music.mp3");
 		expect(saveMusicJobMetaMock).toHaveBeenCalledWith("team_test", "music_req_1", expect.objectContaining({
@@ -68,7 +68,13 @@ describe("GMICloud native media executors", () => {
 		await executeMusic(args({ model: "minimax/music-3.0:free", prompt: "ambient", format: "mp3", vendor: { minimax: { audio_setting: { bitrate: 256000 } } } } as IRMusicGenerateRequest, "music.generate", "minimax-music-3.0"));
 		mock.restore();
 
-		expect(body).toEqual({ model: "minimax-music-3.0", payload: { prompt: "ambient", audio_setting: { sample_rate: 44100, bitrate: 256000, format: "mp3" } } });
+		expect(body).toEqual({ model: "minimax-music-3.0", payload: { prompt: "ambient", lyrics: "[Instrumental]", audio_setting: { sample_rate: 44100, bitrate: 256000, format: "mp3" } } });
+	});
+
+	it("rejects explicit non-instrumental music without lyrics", async () => {
+		const result = await executeMusic(args({ model: "minimax/music-3.0:free", prompt: "vocals", rawRequest: { is_instrumental: false } } as IRMusicGenerateRequest, "music.generate", "minimax-music-3.0"));
+
+		expect(result.upstream.status).toBe(400);
 	});
 
 	it("polls Speech 2.8 and inlines the returned audio into speech IR", async () => {
