@@ -2863,5 +2863,93 @@
       "notes": "Not returned by IO.NET's public live model catalog on 2026-08-24; retained as disabled availability history."
     },
     "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-5.3-flash",
+    "provider_api_model_id": "io-net:zai-org/GLM-5.3-Flash",
+    "provider_model_slug": "zai-org/GLM-5.3-Flash",
+    "internal_model_id": "z-ai/glm-5.3-flash",
+    "is_active_gateway": false,
+    "quantization_scheme": "fp8",
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-08-26T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "stream",
+          "seed",
+          "frequency_penalty",
+          "presence_penalty",
+          "logprobs",
+          "top_logprobs",
+          "response_format",
+          "tools",
+          "tool_choice",
+          "reasoning",
+          "include_reasoning",
+          "reasoning_effort"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": [
+          "text",
+          "image",
+          "video"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "tier-2"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "/chat/completions",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.intelligence.io.solutions/api/v1/models",
+        "accessed_at": "2026-08-26T00:00:00Z",
+        "notes": "IO.NET's live model catalog reports zai-org/GLM-5.3-Flash with FP8 precision, multimodal input, 262,144-token context, 131,072-token output, reasoning, tools, prompt caching, and tier-2 access."
+      },
+      {
+        "kind": "provider_model",
+        "url": "https://openrouter.ai/api/v1/models/z-ai/glm-5.3-flash/endpoints",
+        "accessed_at": "2026-08-26T00:00:00Z",
+        "notes": "OpenRouter's live endpoint catalog lists Io Net as serving z-ai/glm-5.3-flash."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-26T00:00:00Z",
+      "notes": "Availability, exact provider slug, limits, modalities, capabilities, precision, access tier, and pricing verified from IO.NET's live model endpoint; OpenRouter confirms the route is live."
+    },
+    "rate_limits": []
   }
 ]

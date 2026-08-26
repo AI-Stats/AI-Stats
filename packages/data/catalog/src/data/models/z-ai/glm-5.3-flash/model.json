@@ -4,7 +4,7 @@
   "name": "GLM 5.3 Flash",
   "status": "Available",
   "previous_model_id": null,
-  "description": "GLM 5.3 Flash is Z.AI's 320B-parameter multimodal model for coding, sustained agentic work, and complex reasoning, with 18B active parameters and a 1M-token context window.",
+  "description": "GLM 5.3 Flash is Z.AI's 320B-parameter multimodal coding and agentic model for software engineering, sustained agent workflows, and complex reasoning, with 18B active parameters and a 1M-token context window. It accepts text, image, and video inputs, supports tool calling and structured outputs, and uses mandatory reasoning with low, high, and max effort levels.",
   "announced_date": "2026-08-26T00:00:00Z",
   "release_date": "2026-08-26T00:00:00Z",
   "deprecation_date": null,
@@ -69,10 +69,6 @@
   ],
   "benchmarks": [],
   "family_id": null,
-  "page_notice": {
-    "tone": "info",
-    "markdown": "GLM 5.3 Flash is Z.AI's multimodal coding and agentic model for software engineering, sustained agent workflows, and complex reasoning. It accepts text, image, and video inputs, supports tool calling and structured outputs, and provides a 1M-token context window with mandatory low, high, and max reasoning effort levels."
-  },
   "model_type": "language",
   "knowledge_cutoff": null,
   "limits": {

@@ -5236,19 +5236,30 @@
     "provider_model_slug": "zai-org/GLM-5.3-Flash",
     "internal_model_id": "z-ai/glm-5.3-flash",
     "is_active_gateway": false,
-    "quantization_scheme": null,
+    "quantization_scheme": "FP8",
     "input_modalities": "text,image,video",
     "output_modalities": "text",
     "context_length": 1048576,
     "max_output_tokens": 131072,
-    "effective_from": null,
+    "effective_from": "2026-08-26T00:00:00Z",
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "coming_soon",
-        "params": [],
-        "reasoning": null,
+        "status": "active",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "response_format",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
+        "reasoning": true,
         "tool_call": true,
         "structured_output": true,
         "temperature": null,
@@ -5258,7 +5269,7 @@
         "modes": []
       }
     ],
-    "routing_status": null,
+    "routing_status": "active",
     "routable": false,
     "regions": {
       "execution": null,
@@ -5266,15 +5277,30 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
-      "endpoint": null,
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "/chat/completions",
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_model",
+        "url": "https://openrouter.ai/api/v1/models/z-ai/glm-5.3-flash/endpoints",
+        "accessed_at": "2026-08-26T00:00:00Z",
+        "notes": "OpenRouter's live endpoint catalog lists GMICloud as serving z-ai/glm-5.3-flash with FP8 quantization and OpenAI-compatible chat support."
+      },
+      {
+        "kind": "documentation",
+        "url": "https://docs.gmicloud.ai/",
+        "accessed_at": "2026-08-26T00:00:00Z",
+        "notes": "GMI Cloud OpenAI-compatible inference documentation."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": "Coming-soon provider route; official GMI Cloud availability and pricing are not yet verified."
+      "status": "partial",
+      "checked_at": "2026-08-26T00:00:00Z",
+      "notes": "Live availability and provider slug verified in OpenRouter's endpoint catalog; direct GMI Cloud pricing and model-page verification remain incomplete."
     },
     "rate_limits": []
   }
