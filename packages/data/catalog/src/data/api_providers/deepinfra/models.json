@@ -8133,5 +8133,97 @@
       "notes": "Availability, model type, context limit, pricing, and service tiers reconciled against the live DeepInfra current-model and model-detail endpoints."
     },
     "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-5.3-flash",
+    "provider_api_model_id": "deepinfra:zai-org/GLM-5.3-Flash",
+    "provider_model_slug": "zai-org/GLM-5.3-Flash",
+    "internal_model_id": "z-ai/glm-5.3-flash",
+    "is_active_gateway": false,
+    "quantization_scheme": "FP8",
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-08-26T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "repetition_penalty",
+          "top_k",
+          "seed",
+          "min_p",
+          "response_format",
+          "logit_bias",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": [
+          "text",
+          "image",
+          "video"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard",
+      "priority",
+      "flex"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": null,
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "provider_model",
+        "url": "https://openrouter.ai/api/v1/models/z-ai/glm-5.3-flash/endpoints",
+        "accessed_at": "2026-08-26T00:00:00Z",
+        "notes": "OpenRouter's live endpoint catalog lists DeepInfra as serving z-ai/glm-5.3-flash with FP8 quantization and multimodal input."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.deepinfra.com/models/list",
+        "accessed_at": "2026-08-26T00:00:00Z",
+        "notes": "DeepInfra provider model catalog."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-26T00:00:00Z",
+      "notes": "Live availability and provider limits verified in OpenRouter's endpoint catalog; direct DeepInfra model-page and pricing verification remains incomplete."
+    },
+    "rate_limits": []
   }
 ]
