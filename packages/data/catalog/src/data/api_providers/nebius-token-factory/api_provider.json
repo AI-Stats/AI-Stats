@@ -15,7 +15,7 @@
   "data_retention_days": null,
   "data_policy_tier": "trains",
   "data_policy_confidence": "confirmed",
-  "data_policy_contract_mode": "none",
+  "data_policy_contract_mode": "customer_agreement",
   "data_policy_contract_notes": "The public Token Factory terms apply to the standard API route. Customers can opt out of storage and speculative-decoding processing, but the catalogue does not model customer-specific opt-out state.",
   "residency_source_url": "https://docs.tokenfactory.nebius.com/legal/legal-quick-guide",
   "residency_notes": "The live public catalog assigns each current Base route to eu-north1 (Finland), eu-west2 (France), uk-south1 (United Kingdom), or us-central1 (United States). These are execution placements reported for the public endpoints, not user-selectable residency guarantees.",

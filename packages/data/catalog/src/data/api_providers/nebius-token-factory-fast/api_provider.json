@@ -15,7 +15,7 @@
   "data_retention_days": null,
   "data_policy_tier": "trains",
   "data_policy_confidence": "confirmed",
-  "data_policy_contract_mode": "none",
+  "data_policy_contract_mode": "customer_agreement",
   "data_policy_contract_notes": "The public Token Factory terms apply to the standard Fast API route. Customers can opt out of storage and speculative-decoding processing, but the catalogue does not model customer-specific opt-out state.",
   "residency_source_url": "https://docs.tokenfactory.nebius.com/legal/legal-quick-guide",
   "residency_notes": "For public model endpoints, processing location depends on the selected model and is shown in the interface; Nebius documents hosting in the EU (including Finland and France), Israel, and the United States. Dedicated endpoint regions are selected during endpoint configuration. Fine-tuning processing locations are fixed and resulting data is stored in the EU.",
