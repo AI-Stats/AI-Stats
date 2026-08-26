@@ -9,7 +9,7 @@
       "meter": "input_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.15,
+      "price_per_unit": 0.075,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
@@ -25,7 +25,7 @@
       "meter": "cached_read_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.03,
+      "price_per_unit": 0.015,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
@@ -41,7 +41,7 @@
       "meter": "output_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.5,
+      "price_per_unit": 0.25,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
@@ -61,12 +61,12 @@
       "kind": "provider_model",
       "url": "https://openrouter.ai/api/v1/models/z-ai/glm-5.3-flash/endpoints",
       "accessed_at": "2026-08-26T00:00:00Z",
-      "notes": "OpenRouter lists GMICloud's GLM 5.3 Flash route at $0.075 input, $0.015 cached input, and $0.25 output per million tokens after a 50% discount; base provider pricing is recorded here."
+      "notes": "OpenRouter lists GMICloud's live GLM 5.3 Flash route at $0.075 input, $0.015 cached input, and $0.25 output per million tokens after its current 50% discount."
     }
   ],
   "verification": {
     "status": "partial",
     "checked_at": "2026-08-26T00:00:00Z",
-    "notes": "OpenRouter's live provider endpoint and discount metadata were verified; direct GMI Cloud pricing verification remains incomplete."
+    "notes": "OpenRouter's live provider endpoint and currently observed promotional pricing were verified; the promotion end date and direct GMI Cloud pricing remain incomplete."
   }
 }
