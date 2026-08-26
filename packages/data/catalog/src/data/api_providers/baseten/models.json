@@ -1452,7 +1452,7 @@
   {
     "api_model_id": "deepseek/deepseek-v4-flash-0731",
     "provider_api_model_id": "baseten:deepseek/deepseek-v4-flash-0731",
-    "provider_model_slug": "deepseek/deepseek-v4-flash-0731",
+    "provider_model_slug": "deepseek-ai/DeepSeek-V4-Flash-0731",
     "internal_model_id": "deepseek/deepseek-v4-flash-0731",
     "is_active_gateway": true,
     "quantization_scheme": "fp8",
@@ -1505,16 +1505,16 @@
     },
     "sources": [
       {
-        "kind": "models",
-        "url": "https://www.baseten.co/products/model-apis/",
-        "accessed_at": "2026-08-23T00:00:00Z",
-        "notes": "Current Baseten shared Model API catalogue."
+        "kind": "documentation",
+        "url": "https://www.baseten.co/library/deepseek-v4-flash-0731/",
+        "accessed_at": "2026-08-26T00:00:00Z",
+        "notes": "Baseten's official Model API page documents the upstream slug deepseek-ai/DeepSeek-V4-Flash-0731."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified in Baseten's current shared Model API catalogue."
+      "checked_at": "2026-08-26T00:00:00Z",
+      "notes": "Verified against Baseten's official DeepSeek V4 Flash 0731 Model API documentation and pricing."
     },
     "rate_limits": []
   }
