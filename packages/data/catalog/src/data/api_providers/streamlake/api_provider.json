@@ -15,7 +15,7 @@
   "prompt_training_source_url": "https://www.streamlake.ai/document/DOC/mgkci47q13qr66h9i54",
   "residency_mode": "provider_managed",
   "default_execution_regions": null,
-  "default_data_regions": ["SG"],
+  "default_data_regions": null,
   "zero_data_retention": false,
   "data_policy_tier": "logs",
   "data_policy_confidence": "confirmed",
