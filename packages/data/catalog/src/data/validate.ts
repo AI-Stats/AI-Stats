@@ -317,7 +317,11 @@ export function checkApiProviderModelEntrySafety(
     const apiModelId = normalizeReference(row?.api_model_id);
     const rowLabel = `${providerId}${providerApiModelId ? ` (${providerApiModelId})` : apiModelId ? ` (${apiModelId})` : ''}`;
 
-    if (!normalizeReference(row?.provider_model_slug)) {
+    const canOmitProviderModelSlug =
+        row?.is_active_gateway === false &&
+        row?.routable === false &&
+        row?.routing_status === 'disabled';
+    if (!normalizeReference(row?.provider_model_slug) && !canOmitProviderModelSlug) {
         errors.push(`API provider model ${rowLabel} missing provider_model_slug`);
     }
 

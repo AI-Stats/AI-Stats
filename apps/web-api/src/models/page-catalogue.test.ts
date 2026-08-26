@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
 	attachModelsPageVariants,
 	fetchModelsPageCatalogue,
+	buildModelsPageFacets,
 	mergeModelWeeklyMetrics,
 	normalizeModelsPagePricing,
 } from "@/models/page-catalogue";
@@ -28,13 +29,29 @@ describe("fetchModelsPageCatalogue", () => {
 				return new Response(JSON.stringify([]), { status: 200 });
 			}
 			return new Response(JSON.stringify([]), { status: 200 });
-		});
+	});
 		vi.stubGlobal("fetch", fetchMock);
 
 		const result = await fetchModelsPageCatalogue(env, { organisationId: "adept" }, "v2");
 
 		expect(result.models.map((model) => model.model_id)).toEqual(["adept/fuyu-8b"]);
 		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("organisation_id=eq"))).toBe(false);
+	});
+});
+
+describe("buildModelsPageFacets", () => {
+	it("groups transcription aliases under the canonical audio_stt modality", () => {
+		const facets = buildModelsPageFacets([
+			{
+				gateway_status: "active",
+				gateway_input_modalities: ["audio"],
+				gateway_output_modalities: ["transcription"],
+			},
+		]);
+
+		expect(facets.outputModalityOptions).toEqual([
+			{ value: "audio_stt", count: 1 },
+		]);
 	});
 });
 

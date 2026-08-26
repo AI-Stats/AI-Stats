@@ -228,7 +228,7 @@ function modality(value: string): string {
 	if (normalized.includes("image")) return "image";
 	if (normalized.includes("video")) return "video";
 	if (normalized.includes("music")) return "audio_music";
-	if (normalized.includes("transcrib") || normalized.includes("speech to text") || normalized.includes("stt")) return "audio_stt";
+	if (normalized.includes("transcri") || normalized.includes("speech to text") || normalized.includes("stt")) return "audio_stt";
 	if (normalized.includes("text to speech") || normalized.includes("audio speech") || normalized.includes("speech synth") || normalized.includes("tts")) return "audio_tts";
 	if (normalized.includes("audio")) return "audio";
 	if (normalized.includes("file")) return "file";
