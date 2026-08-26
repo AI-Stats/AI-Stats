@@ -558,6 +558,24 @@ function ModelCardImpl({
 				: `${organisationLabel}: ${model.name}`
 			: model.name;
 	const safeModelDisplayName = String(modelDisplayName ?? "").trim() || displayModelId;
+	const lifecycleStatus = String(model.status ?? "")
+		.trim()
+		.toLowerCase();
+	const hasPassedLifecycleDate = (value: string | null | undefined) => {
+		const timestamp = Date.parse(String(value ?? ""));
+		return Number.isFinite(timestamp) && timestamp <= Date.now();
+	};
+	const isRetired =
+		lifecycleStatus === "retired" ||
+		lifecycleStatus === "removed" ||
+		hasPassedLifecycleDate(model.retirement_date) ||
+		hasPassedLifecycleDate(model.removal_date);
+	const isDeprecated =
+		!isRetired &&
+		(lifecycleStatus === "deprecated" ||
+			hasPassedLifecycleDate(model.deprecation_date));
+	const LifecycleIcon = isRetired || isDeprecated ? BadgeAlert : null;
+	const lifecycleLabel = isRetired ? "End of life" : isDeprecated ? "Deprecated" : null;
 	const [copied, setCopied] = useState(false);
 	const routerRequests30d =
 		Number.isFinite(Number(model.router_requests_30d)) &&
@@ -1235,7 +1253,20 @@ function ModelCardImpl({
 								</div>
 							)
 						) : null}
-						{providerStatusItems.length > 0 ? (
+						{LifecycleIcon && lifecycleLabel ? (
+							<span
+								className={cn(
+									"inline-flex items-center gap-1 rounded-md border px-2 py-1",
+									isRetired
+										? "border-red-500/30 bg-red-500/10 text-red-700 dark:text-red-300"
+										: "border-orange-500/30 bg-orange-500/10 text-orange-700 dark:text-orange-300",
+								)}
+								aria-label={lifecycleLabel}
+							>
+								<LifecycleIcon className="h-3.5 w-3.5" aria-hidden="true" />
+								<span>{lifecycleLabel}</span>
+							</span>
+						) : providerStatusItems.length > 0 ? (
 							<HoverCard openDelay={120} closeDelay={100}>
 								<HoverCardTrigger asChild>
 									<button
