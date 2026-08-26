@@ -145,6 +145,8 @@ export type KnownModelId =
   | "google/veo-3.1-lite-preview"
   | "google/veo-3.1-preview"
   | "ibm/granite-4.1-8b"
+  | "ibm/granite-4.2-30b"
+  | "ibm/granite-4.2-3b"
   | "ibm/granite-4.2-8b"
   | "inception/mercury-2"
   | "inception/mercury-edit-2"

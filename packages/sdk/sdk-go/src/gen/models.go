@@ -1731,6 +1731,8 @@ const (
 	KnownModelIdGoogleVeo31LitePreview KnownModelId = "google/veo-3.1-lite-preview"
 	KnownModelIdGoogleVeo31Preview KnownModelId = "google/veo-3.1-preview"
 	KnownModelIdIbmGranite418b KnownModelId = "ibm/granite-4.1-8b"
+	KnownModelIdIbmGranite4230b KnownModelId = "ibm/granite-4.2-30b"
+	KnownModelIdIbmGranite423b KnownModelId = "ibm/granite-4.2-3b"
 	KnownModelIdIbmGranite428b KnownModelId = "ibm/granite-4.2-8b"
 	KnownModelIdInceptionMercury2 KnownModelId = "inception/mercury-2"
 	KnownModelIdInceptionMercuryEdit2 KnownModelId = "inception/mercury-edit-2"
