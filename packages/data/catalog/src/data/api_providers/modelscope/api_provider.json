@@ -1,5 +1,8 @@
 {
   "api_provider_id": "modelscope",
+  "data_policy_tier": "unknown",
+  "data_policy_confidence": "unknown",
+  "data_policy_contract_mode": "none",
   "api_provider_name": "ModelScope",
   "provider_family_id": null,
   "offer_label": "API-Inference",

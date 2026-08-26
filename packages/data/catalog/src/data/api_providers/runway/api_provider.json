@@ -1,5 +1,8 @@
 {
   "api_provider_id": "runway",
+  "data_policy_tier": "unknown",
+  "data_policy_confidence": "unknown",
+  "data_policy_contract_mode": "none",
   "api_provider_name": "Runway",
   "provider_family_id": null,
   "offer_label": null,
@@ -11,7 +14,7 @@
   "default_data_regions": null,
   "zero_data_retention": "unsupported",
   "residency_source_url": null,
-  "prompt_training_policy": "contractual",
+  "prompt_training_policy": "unknown",
   "prompt_training_notes": "Runway's API terms and privacy policy govern submitted data; the public API documentation does not advertise a zero-data-retention mode or selectable processing region.",
   "prompt_training_source_url": "https://runwayml.com/terms-of-use",
   "user_identifier_policy": null,

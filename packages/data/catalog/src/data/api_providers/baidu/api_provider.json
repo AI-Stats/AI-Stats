@@ -1,5 +1,9 @@
 {
   "api_provider_id": "baidu",
+  "zero_data_retention": "unknown",
+  "data_policy_tier": "unknown",
+  "data_policy_confidence": "unknown",
+  "data_policy_contract_mode": "none",
   "api_provider_name": "Baidu Qianfan",
   "description": "Baidu AI Cloud Qianfan model inference API.",
   "link": "https://cloud.baidu.com/product-s/qianfan_home",

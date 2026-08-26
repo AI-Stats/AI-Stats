@@ -1,5 +1,9 @@
 {
   "api_provider_id": "fish-audio",
+  "zero_data_retention": "unknown",
+  "data_policy_tier": "trains",
+  "data_policy_confidence": "confirmed",
+  "data_policy_contract_mode": "none",
   "provider_family_id": "fish-audio",
   "offer_scope": "global",
   "api_provider_name": "Fish Audio",

@@ -218,11 +218,15 @@ function getModelPrices(model: ExtendedModel): Price[] {
 				api_provider_id: group.provider.api_provider_id,
 				api_provider: {
 					api_provider_id: group.provider.api_provider_id,
-					api_provider_name:
-						group.provider.api_provider_name ?? group.provider.api_provider_id,
-					description: null,
-					link: group.provider.link ?? null,
-				},
+						api_provider_name:
+							group.provider.api_provider_name ?? group.provider.api_provider_id,
+						description: null,
+						link: group.provider.link ?? null,
+						zero_data_retention: "unknown",
+						data_policy_tier: "unknown",
+						data_policy_confidence: "unknown",
+						data_policy_contract_mode: "none",
+					},
 				input_token_price: !isCached && !isOutput ? pricePerUnit : null,
 				cached_input_token_price: isCached ? pricePerUnit : null,
 				output_token_price: isOutput ? pricePerUnit : null,

@@ -9,7 +9,7 @@
   "zero_data_retention": "unknown",
   "residency_source_url": "https://mimo.mi.com/docs/quick-start/terms/user-agreement",
   "residency_notes": "Xiaomi MiMo says customers can request selectable data-storage regions, subject to legal and commercial requirements, and that regional accounts use different base URLs and keys. The public terms do not specify the available regions, a fixed execution location, or a named ZDR control.",
-  "data_policy_tier": "private",
+  "data_policy_tier": "logs",
   "data_policy_confidence": "maybe",
   "data_policy_contract_mode": "none",
   "country_code": "CN",

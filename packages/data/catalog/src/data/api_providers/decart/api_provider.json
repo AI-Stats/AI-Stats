@@ -1,5 +1,8 @@
 {
   "api_provider_id": "decart",
+  "data_policy_tier": "trains",
+  "data_policy_confidence": "confirmed",
+  "data_policy_contract_mode": "none",
   "api_provider_name": "Decart",
   "provider_family_id": "decart",
   "offer_scope": "global",

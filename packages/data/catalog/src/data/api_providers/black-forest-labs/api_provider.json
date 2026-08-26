@@ -1,5 +1,9 @@
 {
   "api_provider_id": "black-forest-labs",
+  "zero_data_retention": "unknown",
+  "data_policy_tier": "trains",
+  "data_policy_confidence": "confirmed",
+  "data_policy_contract_mode": "none",
   "api_provider_name": "Black Forest Labs",
   "description": null,
   "link": "https://docs.bfl.ai/",

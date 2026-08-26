@@ -7,6 +7,7 @@
   "default_execution_regions": null,
   "default_data_regions": null,
   "zero_data_retention": "default",
+  "data_retention_days": 0,
   "residency_source_url": "https://infermatic.ai/privacy-policy/",
   "residency_notes": "Infermatic publicly states that it does not log prompts or results, so inference content is treated as zero-retention by default. No API execution or storage region is published in the reviewed materials.",
   "data_policy_tier": "private",

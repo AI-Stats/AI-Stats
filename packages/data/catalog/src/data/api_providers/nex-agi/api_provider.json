@@ -1,5 +1,8 @@
 {
   "api_provider_id": "nex-agi",
+  "data_policy_tier": "unknown",
+  "data_policy_confidence": "unknown",
+  "data_policy_contract_mode": "none",
   "api_provider_name": "Nex AGI",
   "provider_family_id": "nex-agi",
   "offer_scope": "global",

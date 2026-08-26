@@ -1011,6 +1011,21 @@ function checkBenchmarks(state: ValidationState): string[] {
     return errors;
 }
 
+function hasProviderPolicySource(data: Record<string, any>): boolean {
+    const directSourceFields = [
+        'prompt_training_source_url',
+        'residency_source_url',
+        'privacy_policy_url',
+        'terms_of_service_url',
+    ];
+    if (directSourceFields.some((field) => typeof data[field] === 'string' && data[field].trim())) {
+        return true;
+    }
+    return Array.isArray(data.sources) && data.sources.some((source: any) =>
+        source && typeof source.url === 'string' && source.url.trim(),
+    );
+}
+
 function checkApiProviders(state: ValidationState): string[] {
     const errors: string[] = [];
     const providersDir = path.join(DATA_ROOT, 'api_providers');
@@ -1155,6 +1170,37 @@ function checkApiProviders(state: ValidationState): string[] {
             !['none', 'customer_agreement', 'enterprise_agreement'].includes(String(data.data_policy_contract_mode))
         ) {
             errors.push(`API provider ${providerId} has invalid data_policy_contract_mode '${String(data.data_policy_contract_mode)}'`);
+        }
+        for (const key of ['zero_data_retention', 'data_policy_tier', 'data_policy_confidence', 'data_policy_contract_mode']) {
+            const value = (data as Record<string, unknown>)[key];
+            if (value === undefined || value === null || (typeof value === 'string' && !value.trim())) {
+                errors.push(`API provider ${providerId} is missing ${key}`);
+            }
+        }
+        if (data.data_policy_tier === 'private') {
+            if (data.prompt_training_policy !== 'no_train') {
+                errors.push(`Private API provider ${providerId} must have prompt_training_policy 'no_train'`);
+            }
+            if (data.zero_data_retention !== 'default' || data.data_policy_confidence !== 'confirmed') {
+                errors.push(`Private API provider ${providerId} must have confirmed default zero data retention`);
+            }
+        }
+        if (
+            data.data_policy_tier === 'private' ||
+            (data.zero_data_retention === 'default' && data.data_policy_confidence === 'confirmed')
+        ) {
+            if (!hasProviderPolicySource(data)) {
+                errors.push(`Private or confirmed default-ZDR provider ${providerId} must cite a policy source`);
+            }
+            if (data.verification?.status !== 'verified') {
+                errors.push(`Private or confirmed default-ZDR provider ${providerId} must have verified provenance`);
+            }
+        }
+        if (data.zero_data_retention === 'default' && data.data_retention_days !== 0) {
+            errors.push(`API provider ${providerId} with default zero data retention must set data_retention_days to 0`);
+        }
+        if (data.data_retention_days === 0 && data.zero_data_retention !== 'default') {
+            errors.push(`API provider ${providerId} cannot set data_retention_days to 0 without default zero data retention`);
         }
 		const providerModelsPath = path.join(providersDir, provider, 'models.json');
 		const providerModels = fs.existsSync(providerModelsPath)

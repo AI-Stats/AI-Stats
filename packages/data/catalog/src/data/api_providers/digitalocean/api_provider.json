@@ -1,5 +1,9 @@
 {
   "api_provider_id": "digitalocean",
+  "zero_data_retention": "unknown",
+  "data_policy_tier": "logs",
+  "data_policy_confidence": "maybe",
+  "data_policy_contract_mode": "none",
   "api_provider_name": "DigitalOcean",
   "description": "DigitalOcean Inference provides serverless and dedicated access to DigitalOcean-hosted and commercial foundation models.",
   "link": "https://docs.digitalocean.com/products/inference/",

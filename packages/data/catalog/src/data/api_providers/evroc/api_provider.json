@@ -1,5 +1,8 @@
 {
   "api_provider_id": "evroc",
+  "data_policy_tier": "unknown",
+  "data_policy_confidence": "unknown",
+  "data_policy_contract_mode": "none",
   "api_provider_name": "evroc",
   "provider_family_id": null,
   "offer_label": null,
@@ -9,7 +12,7 @@
   "residency_mode": "provider_managed",
   "default_execution_regions": ["eu"],
   "default_data_regions": ["eu"],
-  "zero_data_retention": null,
+  "zero_data_retention": "unknown",
   "residency_source_url": "https://evroc.com/ai-services/think-models/",
   "prompt_training_policy": null,
   "prompt_training_notes": null,

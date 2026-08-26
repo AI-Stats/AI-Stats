@@ -84,12 +84,7 @@ export interface APIProvider {
         | null;
     default_execution_regions?: string[] | null;
     default_data_regions?: string[] | null;
-    zero_data_retention?:
-        | "unknown"
-        | "unsupported"
-        | "optional"
-        | "default"
-        | null;
+    zero_data_retention: "unknown" | "unsupported" | "optional" | "default";
     data_retention_days?: number | null;
     residency_source_url?: string | null;
     regional_pricing_mode?:
@@ -111,22 +106,9 @@ export interface APIProvider {
         | null;
     prompt_training_notes?: string | null;
     prompt_training_source_url?: string | null;
-    data_policy_tier?:
-        | "unknown"
-        | "private"
-        | "logs"
-        | "trains"
-        | null;
-    data_policy_confidence?:
-        | "unknown"
-        | "confirmed"
-        | "maybe"
-        | null;
-    data_policy_contract_mode?:
-        | "none"
-        | "customer_agreement"
-        | "enterprise_agreement"
-        | null;
+    data_policy_tier: "unknown" | "private" | "logs" | "trains";
+    data_policy_confidence: "unknown" | "confirmed" | "maybe";
+    data_policy_contract_mode: "none" | "customer_agreement" | "enterprise_agreement";
     data_policy_contract_notes?: string | null;
     user_identifier_policy?:
         | "unknown"

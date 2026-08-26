@@ -1,5 +1,8 @@
 {
   "api_provider_id": "pioneer",
+  "data_policy_tier": "trains",
+  "data_policy_confidence": "confirmed",
+  "data_policy_contract_mode": "none",
   "api_provider_name": "Pioneer",
   "provider_family_id": null,
   "offer_label": null,
