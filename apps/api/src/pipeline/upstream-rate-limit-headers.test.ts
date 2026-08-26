@@ -33,13 +33,13 @@ describe("upstream rate-limit response headers", () => {
 		});
 	});
 
-	it("rejects malformed values and can synthesize bounded retry guidance", () => {
+	it("rejects malformed values without inventing retry guidance", () => {
 		const result = extractDownstreamRateLimitHeaders(new Headers({
 			"retry-after": "not-a-delay",
 			"x-ratelimit-limit": "private account unlimited",
-		}), { includeQuotaDetails: true, fallbackRetryAfterMs: 10_001 });
+		}), { includeQuotaDetails: true });
 
-		expect(result).toEqual({ "Retry-After": "11" });
+		expect(result).toEqual({});
 	});
 
 	it("applies only known downstream names", () => {

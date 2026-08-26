@@ -960,10 +960,6 @@ async function attemptProviderWithIR(
 				executorResult.upstream.headers,
 				{
 					includeQuotaDetails: effectiveKeySource === "byok",
-					fallbackRetryAfterMs:
-						executorResult.upstream.status === 429
-							? executorResult.timing?.transientRetryDelayMs
-							: null,
 				},
 			);
 			const durationMs = Math.round(performance.now() - attemptStartedAt);
@@ -1169,4 +1165,3 @@ async function attemptProviderWithIR(
 		return { ok: false };
 	}
 }
-

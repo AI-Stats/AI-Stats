@@ -53,20 +53,12 @@ function normalizeQuotaValue(value: string | null): string | null {
 
 export function extractDownstreamRateLimitHeaders(
 	upstreamHeaders: Headers,
-	options: { includeQuotaDetails: boolean; fallbackRetryAfterMs?: number | null },
+	options: { includeQuotaDetails: boolean },
 ): Record<string, string> {
 	const downstream: Record<string, string> = {};
 	const retryAfter = normalizeRetryAfter(upstreamHeaders.get("retry-after"));
 	if (retryAfter != null) {
 		downstream["Retry-After"] = retryAfter;
-	} else if (
-		typeof options.fallbackRetryAfterMs === "number" &&
-		Number.isFinite(options.fallbackRetryAfterMs) &&
-		options.fallbackRetryAfterMs >= 0
-	) {
-		downstream["Retry-After"] = String(
-			Math.min(MAX_RETRY_AFTER_SECONDS, Math.ceil(options.fallbackRetryAfterMs / 1000)),
-		);
 	}
 
 	if (!options.includeQuotaDetails) return downstream;
