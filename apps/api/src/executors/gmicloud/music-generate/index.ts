@@ -63,7 +63,7 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 		rawResponse: result.json,
 	};
 	try {
-		await saveMusicJobMeta(args.workspaceId, args.requestId, {
+		await saveMusicJobMeta(args.workspaceId, result.requestId, {
 			provider: args.providerId,
 			model: ir.model,
 			duration,

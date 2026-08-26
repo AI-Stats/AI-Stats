@@ -49,7 +49,7 @@ describe("GMICloud native media executors", () => {
 		expect(body).toEqual({ model: "minimax-music-3.0", payload: { prompt: "cinematic ambient" } });
 		expect((result.ir as any)?.nativeId).toBe("music_req_1");
 		expect((result.ir as any)?.audioUrl).toBe("https://gmi.example/music.mp3");
-		expect(saveMusicJobMetaMock).toHaveBeenCalledWith("team_test", "req_gmicloud_media_test", expect.objectContaining({
+		expect(saveMusicJobMetaMock).toHaveBeenCalledWith("team_test", "music_req_1", expect.objectContaining({
 		provider: "gmicloud",
 		status: "completed",
 		nativeResponseId: "music_req_1",
