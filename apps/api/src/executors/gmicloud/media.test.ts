@@ -65,10 +65,10 @@ describe("GMICloud native media executors", () => {
 			onRequest: (call) => { body = call.bodyJson; },
 		}]);
 
-		await executeMusic(args({ model: "minimax/music-3.0:free", prompt: "ambient", format: "mp3" } as IRMusicGenerateRequest, "music.generate", "minimax-music-3.0"));
+		await executeMusic(args({ model: "minimax/music-3.0:free", prompt: "ambient", format: "mp3", vendor: { minimax: { audio_setting: { bitrate: 256000 } } } } as IRMusicGenerateRequest, "music.generate", "minimax-music-3.0"));
 		mock.restore();
 
-		expect(body).toEqual({ model: "minimax-music-3.0", payload: { prompt: "ambient", audio_setting: { format: "mp3" } } });
+		expect(body).toEqual({ model: "minimax-music-3.0", payload: { prompt: "ambient", audio_setting: { bitrate: 256000, format: "mp3" } } });
 	});
 
 	it("polls Speech 2.8 and inlines the returned audio into speech IR", async () => {

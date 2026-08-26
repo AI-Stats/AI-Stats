@@ -27,13 +27,21 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	const rawAudioSetting = raw.audio_setting && typeof raw.audio_setting === "object" && !Array.isArray(raw.audio_setting)
 		? raw.audio_setting
 		: {};
+	const extensionAudioSetting = extensions.audio_setting && typeof extensions.audio_setting === "object" && !Array.isArray(extensions.audio_setting)
+		? extensions.audio_setting
+		: {};
+	const audioSetting = {
+		...extensionAudioSetting,
+		...rawAudioSetting,
+		...(ir.format ? { format: ir.format } : {}),
+	};
 	const payload: Record<string, unknown> = {
 		prompt: ir.prompt ?? raw.prompt ?? "",
 		...(ir.duration != null ? { duration: ir.duration } : {}),
 		...(typeof raw.lyrics === "string" ? { lyrics: raw.lyrics } : {}),
 		...(typeof raw.is_instrumental === "boolean" ? { is_instrumental: raw.is_instrumental } : {}),
-		...(ir.format ? { audio_setting: { ...rawAudioSetting, format: ir.format } } : Object.keys(rawAudioSetting).length > 0 ? { audio_setting: rawAudioSetting } : {}),
 		...extensions,
+		...(Object.keys(audioSetting).length > 0 ? { audio_setting: audioSetting } : {}),
 	};
 	const requestBody = JSON.stringify({ model, payload });
 	const mappedRequest = args.meta.echoUpstreamRequest || args.meta.returnUpstreamRequest ? requestBody : undefined;
