@@ -4651,8 +4651,7 @@
       "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
     },
     "rate_limits": []
-  }
-,
+  },
   {
     "api_model_id": "qwen/qwen3.8-27b",
     "provider_api_model_id": "gmicloud:qwen/qwen3.8-27b",
