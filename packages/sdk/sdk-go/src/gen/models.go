@@ -2040,6 +2040,7 @@ const (
 	KnownModelIdQwenQwen37Plus20260526 KnownModelId = "qwen/qwen3.7-plus-2026-05-26"
 	KnownModelIdQwenQwen3824tA95b KnownModelId = "qwen/qwen3.8-2.4t-a95b"
 	KnownModelIdQwenQwen3827b KnownModelId = "qwen/qwen3.8-27b"
+	KnownModelIdQwenQwen38Flash KnownModelId = "qwen/qwen3.8-flash"
 	KnownModelIdQwenQwen38Max KnownModelId = "qwen/qwen3.8-max"
 	KnownModelIdQwenQwq32b KnownModelId = "qwen/qwq-32b"
 	KnownModelIdQwenQwqPlus KnownModelId = "qwen/qwq-plus"
