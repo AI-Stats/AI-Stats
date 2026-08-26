@@ -3035,7 +3035,7 @@
     "api_model_id": "kuaishou/kling-video-v3",
     "provider_api_model_id": "tencent-cloud:kling-video-v3",
     "provider_model_slug": "kling-video-v3",
-    "internal_model_id": "kuaishou/kling-video-v3",
+    "internal_model_id": "kling/kling-v3",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image,video",
@@ -3107,7 +3107,7 @@
     "api_model_id": "kuaishou/kling-video-v3-omni",
     "provider_api_model_id": "tencent-cloud:kling-video-v3-omni",
     "provider_model_slug": "kling-video-v3-omni",
-    "internal_model_id": "kuaishou/kling-video-v3-omni",
+    "internal_model_id": "kling/kling-v3-omni",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image,video",
@@ -3179,7 +3179,7 @@
     "api_model_id": "kuaishou/kling-video-v3-turbo",
     "provider_api_model_id": "tencent-cloud:kling-video-v3-turbo",
     "provider_model_slug": "kling-video-v3-turbo",
-    "internal_model_id": "kuaishou/kling-video-v3-turbo",
+    "internal_model_id": "kling/kling-3-turbo",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image,video",
@@ -3251,7 +3251,7 @@
     "api_model_id": "kuaishou/kling-video-v2.6",
     "provider_api_model_id": "tencent-cloud:kling-video-v2.6",
     "provider_model_slug": "kling-video-v2.6",
-    "internal_model_id": "kuaishou/kling-video-v2.6",
+    "internal_model_id": "kling/kling-v2-6",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image,video",
@@ -3323,7 +3323,7 @@
     "api_model_id": "kuaishou/kling-video-v2.5-turbo",
     "provider_api_model_id": "tencent-cloud:kling-video-v2.5-turbo",
     "provider_model_slug": "kling-video-v2.5-turbo",
-    "internal_model_id": "kuaishou/kling-video-v2.5-turbo",
+    "internal_model_id": "kling/kling-v2-5-turbo",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image,video",
@@ -3395,7 +3395,7 @@
     "api_model_id": "kuaishou/kling-video-o1",
     "provider_api_model_id": "tencent-cloud:kling-video-o1",
     "provider_model_slug": "kling-video-o1",
-    "internal_model_id": "kuaishou/kling-video-o1",
+    "internal_model_id": "kling/kling-video-o1",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image,video",
@@ -3447,222 +3447,6 @@
         "url": "https://cloud.tencent.cn/document/product/1823/130051",
         "accessed_at": "2026-08-24T00:00:00Z",
         "notes": "Official TokenHub model ID kling-video-o1; default concurrency 5."
-      }
-    ],
-    "verification": {
-      "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
-      "notes": "Verified; disabled because Phaseo has no Tencent TokenHub executor."
-    },
-    "rate_limits": [
-      {
-        "unit": "concurrent_requests",
-        "limit": 5,
-        "scope": "model",
-        "notes": "Official default concurrency."
-      }
-    ]
-  },
-  {
-    "api_model_id": "pixverse/pixverse-video-v6.0",
-    "provider_api_model_id": "tencent-cloud:pixverse-video-v6.0",
-    "provider_model_slug": "pixverse-video-v6.0",
-    "internal_model_id": "pixverse/pixverse-video-v6.0",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": "text,image,video",
-    "output_modalities": "video",
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": null,
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "video.generate",
-        "status": "disabled",
-        "params": [],
-        "reasoning": false,
-        "tool_call": false,
-        "structured_output": false,
-        "temperature": null,
-        "attachment": true,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "disabled",
-    "routable": false,
-    "regions": {
-      "execution": [
-        "cn-guangzhou",
-        "ap-singapore"
-      ],
-      "data": [
-        "cn-guangzhou",
-        "ap-singapore"
-      ]
-    },
-    "service_tiers": [
-      "on-demand"
-    ],
-    "api": {
-      "formats": [
-        "openai"
-      ],
-      "endpoint": "/v1",
-      "deployment": "serverless"
-    },
-    "sources": [
-      {
-        "kind": "provider_models",
-        "url": "https://cloud.tencent.cn/document/product/1823/130051",
-        "accessed_at": "2026-08-24T00:00:00Z",
-        "notes": "Official TokenHub model ID pixverse-video-v6.0; default concurrency 5."
-      }
-    ],
-    "verification": {
-      "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
-      "notes": "Verified; disabled because Phaseo has no Tencent TokenHub executor."
-    },
-    "rate_limits": [
-      {
-        "unit": "concurrent_requests",
-        "limit": 5,
-        "scope": "model",
-        "notes": "Official default concurrency."
-      }
-    ]
-  },
-  {
-    "api_model_id": "pixverse/pixverse-video-v5.6",
-    "provider_api_model_id": "tencent-cloud:pixverse-video-v5.6",
-    "provider_model_slug": "pixverse-video-v5.6",
-    "internal_model_id": "pixverse/pixverse-video-v5.6",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": "text,image,video",
-    "output_modalities": "video",
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": null,
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "video.generate",
-        "status": "disabled",
-        "params": [],
-        "reasoning": false,
-        "tool_call": false,
-        "structured_output": false,
-        "temperature": null,
-        "attachment": true,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "disabled",
-    "routable": false,
-    "regions": {
-      "execution": [
-        "cn-guangzhou",
-        "ap-singapore"
-      ],
-      "data": [
-        "cn-guangzhou",
-        "ap-singapore"
-      ]
-    },
-    "service_tiers": [
-      "on-demand"
-    ],
-    "api": {
-      "formats": [
-        "openai"
-      ],
-      "endpoint": "/v1",
-      "deployment": "serverless"
-    },
-    "sources": [
-      {
-        "kind": "provider_models",
-        "url": "https://cloud.tencent.cn/document/product/1823/130051",
-        "accessed_at": "2026-08-24T00:00:00Z",
-        "notes": "Official TokenHub model ID pixverse-video-v5.6; default concurrency 5."
-      }
-    ],
-    "verification": {
-      "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
-      "notes": "Verified; disabled because Phaseo has no Tencent TokenHub executor."
-    },
-    "rate_limits": [
-      {
-        "unit": "concurrent_requests",
-        "limit": 5,
-        "scope": "model",
-        "notes": "Official default concurrency."
-      }
-    ]
-  },
-  {
-    "api_model_id": "pixverse/pixverse-video-c1",
-    "provider_api_model_id": "tencent-cloud:pixverse-video-c1",
-    "provider_model_slug": "pixverse-video-c1",
-    "internal_model_id": "pixverse/pixverse-video-c1",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": "text,image,video",
-    "output_modalities": "video",
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": null,
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "video.generate",
-        "status": "disabled",
-        "params": [],
-        "reasoning": false,
-        "tool_call": false,
-        "structured_output": false,
-        "temperature": null,
-        "attachment": true,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "disabled",
-    "routable": false,
-    "regions": {
-      "execution": [
-        "cn-guangzhou",
-        "ap-singapore"
-      ],
-      "data": [
-        "cn-guangzhou",
-        "ap-singapore"
-      ]
-    },
-    "service_tiers": [
-      "on-demand"
-    ],
-    "api": {
-      "formats": [
-        "openai"
-      ],
-      "endpoint": "/v1",
-      "deployment": "serverless"
-    },
-    "sources": [
-      {
-        "kind": "provider_models",
-        "url": "https://cloud.tencent.cn/document/product/1823/130051",
-        "accessed_at": "2026-08-24T00:00:00Z",
-        "notes": "Official TokenHub model ID pixverse-video-c1; default concurrency 5."
       }
     ],
     "verification": {
@@ -3827,7 +3611,7 @@
     "api_model_id": "kuaishou/kl-video-v3",
     "provider_api_model_id": "tencent-cloud:kl-video-v3",
     "provider_model_slug": "kl-video-v3",
-    "internal_model_id": "kuaishou/kl-video-v3",
+    "internal_model_id": "kling/kling-v3",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image",
@@ -3899,7 +3683,7 @@
     "api_model_id": "kuaishou/kl-video-v2-6",
     "provider_api_model_id": "tencent-cloud:kl-video-v2-6",
     "provider_model_slug": "kl-video-v2-6",
-    "internal_model_id": "kuaishou/kl-video-v2-6",
+    "internal_model_id": "kling/kling-v2-6",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image",
@@ -3971,7 +3755,7 @@
     "api_model_id": "kuaishou/kl-video-v2-5-turbo",
     "provider_api_model_id": "tencent-cloud:kl-video-v2-5-turbo",
     "provider_model_slug": "kl-video-v2-5-turbo",
-    "internal_model_id": "kuaishou/kl-video-v2-5-turbo",
+    "internal_model_id": "kling/kling-v2-5-turbo",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image",
@@ -4043,7 +3827,7 @@
     "api_model_id": "kuaishou/kl-video-v2-1-master",
     "provider_api_model_id": "tencent-cloud:kl-video-v2-1-master",
     "provider_model_slug": "kl-video-v2-1-master",
-    "internal_model_id": "kuaishou/kl-video-v2-1-master",
+    "internal_model_id": "kling/kling-v2-1-master",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image",
@@ -4115,7 +3899,7 @@
     "api_model_id": "kuaishou/kl-video-v2-1",
     "provider_api_model_id": "tencent-cloud:kl-video-v2-1",
     "provider_model_slug": "kl-video-v2-1",
-    "internal_model_id": "kuaishou/kl-video-v2-1",
+    "internal_model_id": "kling/kling-v2-1",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image",
@@ -4187,7 +3971,7 @@
     "api_model_id": "kuaishou/kl-video-v2-master",
     "provider_api_model_id": "tencent-cloud:kl-video-v2-master",
     "provider_model_slug": "kl-video-v2-master",
-    "internal_model_id": "kuaishou/kl-video-v2-master",
+    "internal_model_id": "kling/kling-v2-master",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image",
@@ -4259,7 +4043,7 @@
     "api_model_id": "kuaishou/kl-video-v1-6",
     "provider_api_model_id": "tencent-cloud:kl-video-v1-6",
     "provider_model_slug": "kl-video-v1-6",
-    "internal_model_id": "kuaishou/kl-video-v1-6",
+    "internal_model_id": "kling/kling-v1-6",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image",
@@ -4331,7 +4115,7 @@
     "api_model_id": "kuaishou/kl-video-v1-5",
     "provider_api_model_id": "tencent-cloud:kl-video-v1-5",
     "provider_model_slug": "kl-video-v1-5",
-    "internal_model_id": "kuaishou/kl-video-v1-5",
+    "internal_model_id": "kling/kling-v1-5",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image",
@@ -4403,7 +4187,7 @@
     "api_model_id": "kuaishou/kl-video-v1",
     "provider_api_model_id": "tencent-cloud:kl-video-v1",
     "provider_model_slug": "kl-video-v1",
-    "internal_model_id": "kuaishou/kl-video-v1",
+    "internal_model_id": "kling/kling-v1",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image",
@@ -4547,7 +4331,7 @@
     "api_model_id": "minimax/minimax-speech-2.8-hd",
     "provider_api_model_id": "tencent-cloud:minimax-speech-2.8-hd",
     "provider_model_slug": "minimax-speech-2.8-hd",
-    "internal_model_id": "minimax/minimax-speech-2.8-hd",
+    "internal_model_id": "minimax/speech-2.8",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
@@ -4619,7 +4403,7 @@
     "api_model_id": "minimax/minimax-speech-2.8-turbo",
     "provider_api_model_id": "tencent-cloud:minimax-speech-2.8-turbo",
     "provider_model_slug": "minimax-speech-2.8-turbo",
-    "internal_model_id": "minimax/minimax-speech-2.8-turbo",
+    "internal_model_id": "minimax/speech-2.8",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",

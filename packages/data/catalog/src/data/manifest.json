@@ -62,13 +62,10 @@
     "baai",
     "reka",
     "sakana",
-    "sao10k",
     "hexgrad",
-    "prism-ml",
     "jetbrains",
     "stealth",
-    "stability-ai",
-    "openbmb"
+    "stability-ai"
   ],
   "models": {
     "ai21": [
@@ -630,17 +627,15 @@
       "minimax/speech-2.5-turbo-preview",
       "minimax/speech-2.6",
       "minimax/t2v-01-director",
-      "minimax/minimax-m2.5-highspeed",
       "minimax/minimax-m3",
       "minimax/music-3.0",
       "minimax/speech-2.6-hd",
       "minimax/speech-2.6-turbo",
-      "minimax/speech-2.8-hd",
-      "minimax/speech-2.8-turbo",
       "minimax/minimax-m2.7:free",
       "minimax/minimax-m3:free",
       "minimax/music-3.0:free",
-      "minimax/speech-2.8:free"
+      "minimax/speech-2.8:free",
+      "minimax/speech-2.8"
     ],
     "mistral": [
       "mistral/codestral",
@@ -1407,16 +1402,8 @@
       "sakana/fugu-ultra",
       "sakana/namazu"
     ],
-    "sao10k": [
-      "sao10k/l3-8b-lunaris",
-      "sao10k/l3-8b-stheno-v3.2",
-      "sao10k/l31-70b-euryale-v2.2"
-    ],
     "hexgrad": [
       "hexgrad/kokoro-82m"
-    ],
-    "prism-ml": [
-      "prism-ml/ternary-bonsai-27b"
     ],
     "jetbrains": [
       "jetbrains/mellum2-12b-a2.5b"
@@ -1426,9 +1413,6 @@
     ],
     "stability-ai": [
       "stability-ai/stable-diffusion-xl-base-1.0"
-    ],
-    "openbmb": [
-      "openbmb/minicpm-v-4.5"
     ]
   },
   "benchmarks": [
