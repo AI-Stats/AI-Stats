@@ -7,6 +7,7 @@ import {
     checkPricingEntrySafety,
     checkSubscriptionPlanModels,
     isMajorError,
+    normalizedModelIdentity,
 } from '@/data/validate';
 
 const DATA_ROOT = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
@@ -59,6 +60,19 @@ describe('subscription plan model checks', () => {
         )).toEqual([
             'Subscription plan example-plan contains duplicate model example/model',
         ]);
+    });
+});
+
+describe('model identity normalization', () => {
+    test('collapses a redundant organisation prefix without changing distinct models', () => {
+        expect(normalizedModelIdentity(
+            'nvidia/nvidia-nemotron-nano-9b-v2',
+            'nvidia',
+        )).toBe(normalizedModelIdentity('nvidia/nemotron-nano-9b-v2', 'nvidia'));
+        expect(normalizedModelIdentity(
+            'nvidia/nemotron-nano-9b-v2',
+            'nvidia',
+        )).not.toBe(normalizedModelIdentity('nvidia/nemotron-nano-12b-v2', 'nvidia'));
     });
 });
 

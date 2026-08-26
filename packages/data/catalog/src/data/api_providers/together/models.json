@@ -1489,7 +1489,7 @@
     "api_model_id": "nvidia/nvidia-nemotron-nano-9b-v2",
     "provider_api_model_id": "together:nvidia/nvidia-nemotron-nano-9b-v2",
     "provider_model_slug": "nvidia/NVIDIA-Nemotron-Nano-9B-v2",
-    "internal_model_id": "nvidia/nvidia-nemotron-nano-9b-v2",
+    "internal_model_id": "nvidia/nemotron-nano-9b-v2",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": null,
