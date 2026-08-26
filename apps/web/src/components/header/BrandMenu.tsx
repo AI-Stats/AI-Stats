@@ -36,10 +36,14 @@ export function BrandMenu({
 	const [open, setOpen] = useState(false);
 	const [copiedAsset, setCopiedAsset] = useState<string | null>(null);
 	const [assetTheme, setAssetTheme] = useState<"light" | "dark">("light");
+	const openBrandMenu = () => {
+		setAssetTheme(resolvedTheme === "dark" ? "dark" : "light");
+		setOpen(true);
+	};
 	const trigger = cloneElement(children, {
 		onContextMenu: (event: MouseEvent) => {
 			event.preventDefault();
-			setOpen(true);
+			openBrandMenu();
 		},
 		onKeyDown: (event: KeyboardEvent) => {
 			if (event.key !== "ContextMenu" && !(event.shiftKey && event.key === "F10")) {
@@ -47,7 +51,7 @@ export function BrandMenu({
 			}
 
 			event.preventDefault();
-			setOpen(true);
+			openBrandMenu();
 		},
 	});
 
@@ -69,10 +73,7 @@ export function BrandMenu({
 		<DropdownMenu
 			open={open}
 			onOpenChange={(nextOpen) => {
-				if (nextOpen) {
-					setAssetTheme(resolvedTheme === "dark" ? "dark" : "light");
-				}
-				setOpen(nextOpen);
+				if (!nextOpen) setOpen(false);
 			}}
 		>
 			<DropdownMenuTrigger asChild nativeButton={false}>
