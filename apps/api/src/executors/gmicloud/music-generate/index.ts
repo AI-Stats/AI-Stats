@@ -24,12 +24,15 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	const model = args.providerModelSlug || "minimax-music-3.0";
 	const raw = ir.rawRequest && typeof ir.rawRequest === "object" ? ir.rawRequest as Record<string, any> : {};
 	const extensions = (ir.vendor?.gmicloud ?? raw.gmicloud ?? ir.vendor?.minimax ?? raw.minimax ?? {}) as Record<string, any>;
+	const rawAudioSetting = raw.audio_setting && typeof raw.audio_setting === "object" && !Array.isArray(raw.audio_setting)
+		? raw.audio_setting
+		: {};
 	const payload: Record<string, unknown> = {
 		prompt: ir.prompt ?? raw.prompt ?? "",
 		...(ir.duration != null ? { duration: ir.duration } : {}),
-		...(ir.format ? { format: ir.format } : {}),
 		...(typeof raw.lyrics === "string" ? { lyrics: raw.lyrics } : {}),
 		...(typeof raw.is_instrumental === "boolean" ? { is_instrumental: raw.is_instrumental } : {}),
+		...(ir.format ? { audio_setting: { ...rawAudioSetting, format: ir.format } } : Object.keys(rawAudioSetting).length > 0 ? { audio_setting: rawAudioSetting } : {}),
 		...extensions,
 	};
 	const requestBody = JSON.stringify({ model, payload });
