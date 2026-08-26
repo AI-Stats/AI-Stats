@@ -35,6 +35,7 @@ import { resolveWeeklyUsageDisplay } from "./weeklyUsage";
 import type { ModelCard as ModelCardType } from "@/lib/fetchers/models/getAllModels";
 import { getModelDetailsHref } from "@/lib/models/modelHref";
 import { normalizeOrganisationDisplayName } from "@/lib/models/organisationDisplay";
+import { hasPassedLifecycleDate } from "@/lib/models/modelLifecycle";
 
 type ModelCardLike = Omit<ModelCardType, "gateway_status"> & {
 	gateway_status?: ModelCardType["gateway_status"] | "coming_soon" | null;
@@ -561,10 +562,6 @@ function ModelCardImpl({
 	const lifecycleStatus = String(model.status ?? "")
 		.trim()
 		.toLowerCase();
-	const hasPassedLifecycleDate = (value: string | null | undefined) => {
-		const timestamp = Date.parse(String(value ?? ""));
-		return Number.isFinite(timestamp) && timestamp <= Date.now();
-	};
 	const isRetired =
 		lifecycleStatus === "retired" ||
 		lifecycleStatus === "removed" ||

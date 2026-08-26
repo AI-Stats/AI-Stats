@@ -28588,11 +28588,11 @@
     "context_length": 1048576,
     "max_output_tokens": 131072,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-08-26T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -28604,7 +28604,9 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "provider_status": "removed",
+    "phaseo_status": "disabled",
+    "routing_status": "retired",
     "routable": false,
     "regions": {
       "execution": [
