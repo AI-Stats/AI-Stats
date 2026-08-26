@@ -1,8 +1,8 @@
 {
   "api_provider_id": "suno",
   "zero_data_retention": "unknown",
-  "data_policy_tier": "trains",
-  "data_policy_confidence": "confirmed",
+  "data_policy_tier": "unknown",
+  "data_policy_confidence": "unknown",
   "data_policy_contract_mode": "none",
   "api_provider_name": "Suno",
   "description": "Suno's music-generation platform. Suno operates an official authenticated API account portal, but its signed-out surface does not publish a verifiable REST contract or API price schedule.",

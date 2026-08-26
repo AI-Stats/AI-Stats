@@ -146,6 +146,19 @@ function stringArray(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : [];
 }
 
+function hasProviderPolicySource(provider: any): boolean {
+  const directSourceFields = [
+    'prompt_training_source_url',
+    'residency_source_url',
+    'privacy_policy_url',
+    'terms_of_service_url',
+  ];
+  if (directSourceFields.some((field) => typeof provider[field] === 'string' && provider[field].trim())) return true;
+  return Array.isArray(provider.sources) && provider.sources.some((source: any) =>
+    source && typeof source.url === 'string' && source.url.trim(),
+  );
+}
+
 // Organisations ----------------------------------------------------------
 describe('Organisations', () => {
   const dirs = listDirs(organisationsDir);
@@ -266,6 +279,14 @@ describe('Aliases', () => {
 // API Providers ----------------------------------------------------------
 describe('API Providers', () => {
   const dirs = listDirs(apiProvidersDir);
+  test('rejects unsourced private policy claims', () => {
+    expect(hasProviderPolicySource({
+      data_policy_tier: 'private',
+      zero_data_retention: 'default',
+      data_policy_confidence: 'confirmed',
+      verification: { status: 'verified' },
+    })).toBe(false);
+  });
   for (const ap of dirs) {
     const p = path.join(apiProvidersDir, ap, 'api_provider.json');
     if (!exists(p)) continue;
@@ -299,6 +320,10 @@ describe('API Providers', () => {
       }
       if (j.data_retention_days === 0) {
         expect(j.zero_data_retention).toBe('default');
+      }
+      if (j.data_policy_tier === 'private' || (j.zero_data_retention === 'default' && j.data_policy_confidence === 'confirmed')) {
+        expect(hasProviderPolicySource(j)).toBe(true);
+        expect(j.verification?.status).toBe('verified');
       }
     });
 

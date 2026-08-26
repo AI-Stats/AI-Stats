@@ -1011,6 +1011,21 @@ function checkBenchmarks(state: ValidationState): string[] {
     return errors;
 }
 
+function hasProviderPolicySource(data: Record<string, any>): boolean {
+    const directSourceFields = [
+        'prompt_training_source_url',
+        'residency_source_url',
+        'privacy_policy_url',
+        'terms_of_service_url',
+    ];
+    if (directSourceFields.some((field) => typeof data[field] === 'string' && data[field].trim())) {
+        return true;
+    }
+    return Array.isArray(data.sources) && data.sources.some((source: any) =>
+        source && typeof source.url === 'string' && source.url.trim(),
+    );
+}
+
 function checkApiProviders(state: ValidationState): string[] {
     const errors: string[] = [];
     const providersDir = path.join(DATA_ROOT, 'api_providers');
@@ -1168,6 +1183,17 @@ function checkApiProviders(state: ValidationState): string[] {
             }
             if (data.zero_data_retention !== 'default' || data.data_policy_confidence !== 'confirmed') {
                 errors.push(`Private API provider ${providerId} must have confirmed default zero data retention`);
+            }
+        }
+        if (
+            data.data_policy_tier === 'private' ||
+            (data.zero_data_retention === 'default' && data.data_policy_confidence === 'confirmed')
+        ) {
+            if (!hasProviderPolicySource(data)) {
+                errors.push(`Private or confirmed default-ZDR provider ${providerId} must cite a policy source`);
+            }
+            if (data.verification?.status !== 'verified') {
+                errors.push(`Private or confirmed default-ZDR provider ${providerId} must have verified provenance`);
             }
         }
         if (data.zero_data_retention === 'default' && data.data_retention_days !== 0) {
