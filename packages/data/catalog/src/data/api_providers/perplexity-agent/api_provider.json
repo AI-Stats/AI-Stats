@@ -1,6 +1,6 @@
 {
   "api_provider_id": "perplexity-agent",
-  "data_policy_tier": "private",
+  "data_policy_tier": "logs",
   "data_policy_confidence": "confirmed",
   "data_policy_contract_mode": "none",
   "api_provider_name": "Perplexity Agent",
@@ -12,8 +12,7 @@
   "residency_mode": "unknown",
   "default_execution_regions": null,
   "default_data_regions": null,
-  "zero_data_retention": "default",
-  "data_retention_days": 0,
+  "zero_data_retention": "unknown",
   "residency_source_url": "https://docs.perplexity.ai/docs/resources/privacy-security",
   "prompt_training_policy": "no_train",
   "prompt_training_notes": "Perplexity states that API query content is not retained or used for training; only billing metadata is collected.",

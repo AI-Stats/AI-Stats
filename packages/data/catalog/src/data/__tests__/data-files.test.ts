@@ -289,6 +289,17 @@ describe('API Providers', () => {
       for (const [field, allowed] of Object.entries(providerPolicyFields)) {
         expect(allowed).toContain(j[field]);
       }
+      if (j.data_policy_tier === 'private') {
+        expect(j.prompt_training_policy).toBe('no_train');
+        expect(j.zero_data_retention).toBe('default');
+        expect(j.data_policy_confidence).toBe('confirmed');
+      }
+      if (j.zero_data_retention === 'default') {
+        expect(j.data_retention_days).toBe(0);
+      }
+      if (j.data_retention_days === 0) {
+        expect(j.zero_data_retention).toBe('default');
+      }
     });
 
     if (videoProvidersWithExecutorMetadata.has(ap)) {

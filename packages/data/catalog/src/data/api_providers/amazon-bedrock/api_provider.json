@@ -21,8 +21,8 @@
     "au"
   ],
   "zero_data_retention": "unknown",
-  "data_policy_tier": "private",
-  "data_policy_confidence": "confirmed",
+  "data_policy_tier": "unknown",
+  "data_policy_confidence": "unknown",
   "data_policy_contract_mode": "none",
   "residency_source_url": "https://docs.aws.amazon.com/bedrock/latest/userguide/models-region-compatibility.html",
   "regional_pricing_mode": "source_region_rates",

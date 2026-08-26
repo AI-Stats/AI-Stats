@@ -1,6 +1,6 @@
 {
   "api_provider_id": "mixlayer",
-  "data_policy_tier": "private",
+  "data_policy_tier": "logs",
   "data_policy_confidence": "confirmed",
   "data_policy_contract_mode": "none",
   "api_provider_name": "Mixlayer",
@@ -12,8 +12,7 @@
   "residency_mode": "provider_managed",
   "default_execution_regions": null,
   "default_data_regions": null,
-  "zero_data_retention": "default",
-  "data_retention_days": 0,
+  "zero_data_retention": "unknown",
   "residency_source_url": "https://www.mixlayer.com/",
   "prompt_training_policy": "no_train",
   "prompt_training_notes": "Mixlayer states that prompts and outputs are processed in memory, discarded after inference, and not used to train models by default. Optional persistent Responses features can retain data under organization controls.",

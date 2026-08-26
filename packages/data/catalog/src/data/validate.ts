@@ -1162,6 +1162,20 @@ function checkApiProviders(state: ValidationState): string[] {
                 errors.push(`API provider ${providerId} is missing ${key}`);
             }
         }
+        if (data.data_policy_tier === 'private') {
+            if (data.prompt_training_policy !== 'no_train') {
+                errors.push(`Private API provider ${providerId} must have prompt_training_policy 'no_train'`);
+            }
+            if (data.zero_data_retention !== 'default' || data.data_policy_confidence !== 'confirmed') {
+                errors.push(`Private API provider ${providerId} must have confirmed default zero data retention`);
+            }
+        }
+        if (data.zero_data_retention === 'default' && data.data_retention_days !== 0) {
+            errors.push(`API provider ${providerId} with default zero data retention must set data_retention_days to 0`);
+        }
+        if (data.data_retention_days === 0 && data.zero_data_retention !== 'default') {
+            errors.push(`API provider ${providerId} cannot set data_retention_days to 0 without default zero data retention`);
+        }
 		const providerModelsPath = path.join(providersDir, provider, 'models.json');
 		const providerModels = fs.existsSync(providerModelsPath)
 			? safeReadJson(providerModelsPath, errors, 'API provider models')
