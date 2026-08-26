@@ -440,7 +440,9 @@
       "google/gemini-robotics-er-2-preview",
       "google/veo-3.1",
       "google/veo-3.1-fast",
-      "google/gemma-4-12b"
+      "google/gemma-4-12b",
+      "google/gemini-3.5-transcribe",
+      "google/gemini-3.5-transcribe-live"
     ],
     "ibm": [
       "ibm/granite-20b-code-instruct-8k",
