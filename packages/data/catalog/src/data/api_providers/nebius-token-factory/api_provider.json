@@ -11,16 +11,16 @@
   "colour": "#6366F1",
   "privacy_policy_url": "https://docs.tokenfactory.nebius.com/legal/privacy-policy",
   "terms_of_service_url": "https://docs.tokenfactory.nebius.com/legal/terms-of-service",
-  "zero_data_retention": false,
-  "data_retention_days": null,
-  "data_policy_tier": "trains",
+  "zero_data_retention": true,
+  "data_retention_days": 0,
+  "data_policy_tier": "private",
   "data_policy_confidence": "confirmed",
   "data_policy_contract_mode": "customer_agreement",
-  "data_policy_contract_notes": "The public Token Factory terms apply to the standard API route. Customers can opt out of storage and speculative-decoding processing, but the catalogue does not model customer-specific opt-out state.",
+  "data_policy_contract_notes": "The Phaseo standard Token Factory route is configured with Nebius Zero Data Retention. Under the public terms, ZDR disables post-processing storage and speculative-decoding use for request content; the generic public route otherwise permits that processing.",
   "residency_source_url": "https://docs.tokenfactory.nebius.com/legal/legal-quick-guide",
   "residency_notes": "The live public catalog assigns each current Base route to eu-north1 (Finland), eu-west2 (France), uk-south1 (United Kingdom), or us-central1 (United States). These are execution placements reported for the public endpoints, not user-selectable residency guarantees.",
-  "prompt_training_policy": "opt_out_available",
-  "prompt_training_notes": "Nebius Token Factory's public Terms of Service say it collects and processes Inputs and Outputs for training smaller speculative-decoding models, while allowing customers to opt out of storage and that processing.",
+  "prompt_training_policy": "no_train",
+  "prompt_training_notes": "The Phaseo standard Token Factory route has ZDR enabled, so request inputs and outputs are not stored after processing or used for speculative-decoding training. Nebius's public terms describe that processing for routes without ZDR.",
   "prompt_training_source_url": "https://docs.tokenfactory.nebius.com/legal/terms-of-service",
   "gateway_kind": null,
   "routable": null,
@@ -54,12 +54,12 @@
       "kind": "official_terms",
       "url": "https://docs.tokenfactory.nebius.com/legal/terms-of-service",
       "accessed_at": "2026-08-26T00:00:00Z",
-      "notes": "Section 7 says Nebius may host, cache, store, and modify Inputs and Outputs and collects/processes them to train smaller speculative-decoding models; customers may opt out. This governs the standard public Token Factory API route."
+      "notes": "Section 7 says Nebius may host, cache, store, and modify Inputs and Outputs and collects/processes them to train smaller speculative-decoding models; ZDR is the account control that disables that processing for the configured route."
     }
   ],
   "verification": {
     "status": "verified",
     "checked_at": "2026-08-26T00:00:00Z",
-    "notes": "Verified OpenAI Chat, Responses, and Embeddings transports plus all 30 current Base-flavor routes in the live public catalog. Policy classification is for the standard public Token Factory API route; no Phaseo-specific ZDR opt-out state is assumed."
+    "notes": "Verified OpenAI Chat, Responses, and Embeddings transports plus all 30 current Base-flavor routes in the live public catalog. The standard Phaseo Token Factory route is configured with ZDR enabled, based on the account configuration."
   }
 }
