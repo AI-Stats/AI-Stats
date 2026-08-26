@@ -2416,6 +2416,171 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "ibm/granite-4.2-3b",
+    "provider_api_model_id": "deepinfra:ibm-granite/granite-4.2-3b",
+    "provider_model_slug": "ibm-granite/granite-4.2-3b",
+    "internal_model_id": "ibm/granite-4.2-3b",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 131072,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-08-26T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": ["global"],
+      "data": ["global"]
+    },
+    "service_tiers": ["standard"],
+    "api": {
+      "formats": ["openai.chat.completions"],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.deepinfra.com/models/ibm-granite/granite-4.2-3b",
+        "accessed_at": "2026-08-26T00:00:00Z",
+        "notes": "Live DeepInfra model detail: OpenAI-compatible text generation with tools, JSON, and reasoning support."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-26T00:00:00Z",
+      "notes": "Availability, model slug, context limit, max output, capabilities, and token pricing reconciled against DeepInfra's live model catalogue."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "ibm/granite-4.2-8b",
+    "provider_api_model_id": "deepinfra:ibm-granite/granite-4.2-8b",
+    "provider_model_slug": "ibm-granite/granite-4.2-8b",
+    "internal_model_id": "ibm/granite-4.2-8b",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 131072,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-08-26T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": ["global"],
+      "data": ["global"]
+    },
+    "service_tiers": ["standard"],
+    "api": {
+      "formats": ["openai.chat.completions"],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.deepinfra.com/models/ibm-granite/granite-4.2-8b",
+        "accessed_at": "2026-08-26T00:00:00Z",
+        "notes": "Live DeepInfra model detail: OpenAI-compatible text generation with tools, JSON, and reasoning support."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-26T00:00:00Z",
+      "notes": "Availability, model slug, context limit, max output, capabilities, and token pricing reconciled against DeepInfra's live model catalogue."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "ibm/granite-4.2-30b",
+    "provider_api_model_id": "deepinfra:ibm-granite/granite-4.2-30b",
+    "provider_model_slug": "ibm-granite/granite-4.2-30b",
+    "internal_model_id": "ibm/granite-4.2-30b",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 131072,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-08-26T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": ["global"],
+      "data": ["global"]
+    },
+    "service_tiers": ["standard"],
+    "api": {
+      "formats": ["openai.chat.completions"],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.deepinfra.com/models/ibm-granite/granite-4.2-30b",
+        "accessed_at": "2026-08-26T00:00:00Z",
+        "notes": "Live DeepInfra model detail: OpenAI-compatible text generation with tools, JSON, and reasoning support."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-26T00:00:00Z",
+      "notes": "Availability, model slug, context limit, max output, capabilities, and token pricing reconciled against DeepInfra's live model catalogue."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "inclusionai/ling-3.0-flash",
     "provider_api_model_id": "deepinfra:inclusionai/ling-3.0-flash",
     "provider_model_slug": "inclusionAI/Ling-3.0-flash",
