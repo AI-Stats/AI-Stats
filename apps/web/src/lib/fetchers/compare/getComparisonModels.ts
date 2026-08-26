@@ -195,7 +195,7 @@ function summariseProviderPricing(groups: ProviderPricing[]): Price[] {
 						group.provider.api_provider_id,
 					link: group.provider.link ?? null,
 					description: null,
-					zero_data_retention: "unknown",
+					zero_data_retention: false,
 					data_policy_tier: "unknown",
 					data_policy_confidence: "unknown",
 					data_policy_contract_mode: "none",

@@ -16,7 +16,7 @@
   "residency_mode": "provider_managed",
   "default_execution_regions": ["SG"],
   "default_data_regions": ["SG"],
-  "zero_data_retention": "unknown",
+  "zero_data_retention": false,
   "residency_source_url": "https://docs.z.ai/legal-agreement/privacy-policy",
   "residency_notes": "Z.AI's API Data Processing Addendum says API content is processed in real time and is not saved on its servers; non-content customer data may be temporarily stored for service delivery or legal compliance. Z.AI generally provides the service from Singapore and permits lawful international transfers.",
   "data_policy_tier": "logs",

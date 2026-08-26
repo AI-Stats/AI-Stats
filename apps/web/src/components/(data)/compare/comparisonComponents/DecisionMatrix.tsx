@@ -222,7 +222,7 @@ function getModelPrices(model: ExtendedModel): Price[] {
 							group.provider.api_provider_name ?? group.provider.api_provider_id,
 						description: null,
 						link: group.provider.link ?? null,
-						zero_data_retention: "unknown",
+						zero_data_retention: false,
 						data_policy_tier: "unknown",
 						data_policy_confidence: "unknown",
 						data_policy_contract_mode: "none",

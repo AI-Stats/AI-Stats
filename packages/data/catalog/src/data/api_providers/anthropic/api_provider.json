@@ -23,7 +23,7 @@
   "default_data_regions": [
     "us"
   ],
-  "zero_data_retention": "optional",
+  "zero_data_retention": false,
   "data_retention_days": 30,
   "residency_source_url": "https://platform.claude.com/docs/en/manage-claude/data-residency",
   "residency_notes": "Anthropic supports global or US-only inference via inference_geo on supported 4.6+ models. Workspace geo is currently US-only.",

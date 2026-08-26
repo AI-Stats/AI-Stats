@@ -84,7 +84,7 @@ export interface APIProvider {
         | null;
     default_execution_regions?: string[] | null;
     default_data_regions?: string[] | null;
-    zero_data_retention: "unknown" | "unsupported" | "optional" | "default";
+    zero_data_retention: boolean;
     data_retention_days?: number | null;
     residency_source_url?: string | null;
     regional_pricing_mode?:

@@ -241,7 +241,10 @@ const providerSchema = z
         execution_regions: z.array(z.string()).nullable().optional(),
         data_regions: z.array(z.string()).nullable().optional(),
         zero_data_retention: z
-            .enum(["unknown", "unsupported", "optional", "default"])
+            .union([
+                z.boolean(),
+                z.enum(["unknown", "unsupported", "optional", "default"]),
+            ])
             .nullable()
             .optional(),
         prompt_training_policy: z
@@ -304,7 +307,9 @@ const providerSchema = z
         executionRegions: provider.execution_regions ?? null,
         dataRegions: provider.data_regions ?? null,
         zeroDataRetention:
-            (provider.zero_data_retention ?? null) as GatewayProviderSnapshot["zeroDataRetention"],
+            provider.zero_data_retention == null
+                ? null
+                : provider.zero_data_retention === true || provider.zero_data_retention === "default",
         promptTrainingPolicy:
             (provider.prompt_training_policy ?? null) as GatewayProviderSnapshot["promptTrainingPolicy"],
         dataPolicyTier:

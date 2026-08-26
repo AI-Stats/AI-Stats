@@ -10,7 +10,8 @@
   "default_data_regions": [
     "eu"
   ],
-  "zero_data_retention": "unknown",
+  "zero_data_retention": true,
+  "data_retention_days": 0,
   "residency_source_url": "https://www.scaleway.com/en/generative-apis/",
   "regional_pricing_mode": "offer_specific",
   "pricing_source_url": "https://www.scaleway.com/en/generative-apis/",
@@ -20,9 +21,11 @@
   "colour": "#4F46E5",
   "privacy_policy_url": "https://www.scaleway.com/en/privacy-policy/",
   "terms_of_service_url": "https://www.scaleway.com/en/terms-of-service/",
-  "prompt_training_policy": "unknown",
-  "data_policy_tier": "unknown",
-  "data_policy_confidence": "unknown",
+  "prompt_training_policy": "no_train",
+  "prompt_training_notes": "Scaleway says Generative APIs apply Zero Data Retention by default, do not collect or reuse input/output content, and do not use it for model training; anonymized usage data may still be collected.",
+  "prompt_training_source_url": "https://www.scaleway.com/en/docs/generative-apis/reference-content/data-privacy/",
+  "data_policy_tier": "private",
+  "data_policy_confidence": "confirmed",
   "data_policy_contract_mode": "none",
   "gateway_kind": "openai_compatible",
   "routable": true,
@@ -34,6 +37,7 @@
   "api_formats": ["openai.chat.completions", "openai.responses", "openai.embeddings", "openai.rerank", "openai.audio.transcription", "openai.batch"],
   "service_tiers": [],
   "sources": [
+    { "kind": "provider_docs", "url": "https://www.scaleway.com/en/docs/generative-apis/reference-content/data-privacy/", "accessed_at": "2026-08-26T00:00:00Z", "notes": "Scaleway Generative APIs documentation states default zero data retention and no collection, reuse, or training on request content; anonymized usage data may still be collected." },
     { "kind": "provider_docs", "url": "https://www.scaleway.com/en/developers/api/generative-apis", "accessed_at": "2026-08-12T00:00:00Z", "notes": "Official serverless host, region, endpoints and compatibility limitations." },
     { "kind": "provider_models", "url": "https://www.scaleway.com/en/docs/generative-apis/reference-content/supported-models/", "accessed_at": "2026-08-12T00:00:00Z", "notes": "Current serverless models, modalities, context, output and lifecycle." },
     { "kind": "pricing", "url": "https://www.scaleway.com/en/pricing/model-as-a-service/", "accessed_at": "2026-08-12T00:00:00Z", "notes": "Current serverless token/audio pricing and 50% Batch discount." }

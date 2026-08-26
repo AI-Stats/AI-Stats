@@ -12,7 +12,7 @@
   "residency_mode": "unknown",
   "default_execution_regions": null,
   "default_data_regions": null,
-  "zero_data_retention": "unknown",
+  "zero_data_retention": false,
   "residency_source_url": null,
   "prompt_training_policy": "unknown",
   "prompt_training_notes": "No first-party public source located that states whether API prompts or outputs are used for model training.",

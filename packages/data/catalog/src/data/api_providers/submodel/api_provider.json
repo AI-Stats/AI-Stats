@@ -2,7 +2,7 @@
   "api_provider_id": "submodel", "api_provider_name": "SubModel InstaGen", "provider_family_id": null, "offer_label": "InstaGen", "offer_scope": "specialized",
   "description": "SubModel's deploy-free, OpenAI-compatible hosted inference service for open-weight language models.", "link": "https://submodel.ai",
   "data_policy_tier": "unknown", "data_policy_confidence": "unknown", "data_policy_contract_mode": "none",
-  "residency_mode": "provider_managed", "default_execution_regions": null, "default_data_regions": null, "zero_data_retention": "default", "data_retention_days": 0, "residency_source_url": "https://submodel.gitbook.io/docs/instagen/privacy",
+  "residency_mode": "provider_managed", "default_execution_regions": null, "default_data_regions": null, "zero_data_retention": true, "data_retention_days": 0, "residency_source_url": "https://submodel.gitbook.io/docs/instagen/privacy",
   "prompt_training_policy": null, "prompt_training_notes": "InstaGen states that prompts, outputs, and conversation history are not retained, but does not publish a separate model-training policy.", "prompt_training_source_url": "https://submodel.gitbook.io/docs/instagen/privacy",
   "user_identifier_policy": null, "user_identifier_notes": null, "privacy_policy_url": "https://submodel.gitbook.io/docs/instagen/privacy", "terms_of_service_url": "https://submodel.ai/#/about/terms",
   "regional_pricing_mode": "same_as_global", "regional_pricing_uplift_percent": null, "pricing_source_url": "https://submodel.gitbook.io/docs/instagen/overview-1/available-models", "regional_pricing_notes": "InstaGen publishes one USD-denominated token price list and does not advertise regional price variants.",

@@ -12,7 +12,7 @@
   "default_data_regions": [
     "global"
   ],
-  "zero_data_retention": "unknown",
+  "zero_data_retention": false,
   "residency_source_url": "https://docs.cloud.google.com/vertex-ai/generative-ai/docs/learn/data-residency",
   "residency_notes": "Global Vertex endpoint. Google notes that the global endpoint does not provide regional ML-processing control.",
   "regional_pricing_mode": "same_as_global",

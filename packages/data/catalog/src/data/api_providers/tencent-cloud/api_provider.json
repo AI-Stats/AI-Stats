@@ -11,7 +11,7 @@
   "residency_mode": "customer_selectable",
   "default_execution_regions": ["cn-guangzhou", "ap-singapore"],
   "default_data_regions": ["cn-guangzhou", "ap-singapore"],
-  "zero_data_retention": "unknown",
+  "zero_data_retention": false,
   "residency_source_url": "https://cloud.tencent.cn/document/product/1823/130078",
   "residency_notes": "Guangzhou dispatches within mainland China; Singapore dispatches globally. Services cannot be called across regions or sites.",
   "prompt_training_policy": "unknown",

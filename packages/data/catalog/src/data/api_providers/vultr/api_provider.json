@@ -12,7 +12,7 @@
   "residency_mode": "provider_managed",
   "default_execution_regions": null,
   "default_data_regions": null,
-  "zero_data_retention": "default",
+  "zero_data_retention": true,
   "data_retention_days": 0,
   "residency_source_url": "https://docs.vultr.com/products/compute/serverless-inference/provisioning",
   "residency_notes": "Vultr describes service delivery across six continents but does not document customer-selectable execution or data-residency regions for the serverless inference API.",

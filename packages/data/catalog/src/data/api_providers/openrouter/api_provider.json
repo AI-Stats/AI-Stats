@@ -12,7 +12,7 @@
   "residency_mode": "customer_selectable",
   "default_execution_regions": ["global"],
   "default_data_regions": ["global"],
-  "zero_data_retention": "optional",
+  "zero_data_retention": false,
   "residency_source_url": "https://openrouter.ai/docs/guides/privacy/provider-logging/",
   "prompt_training_policy": "opt_out_available",
   "prompt_training_notes": "Upstream training and retention policies vary by endpoint. Requests can deny data collection and require ZDR endpoints; EU in-region routing uses the enterprise eu.openrouter.ai endpoint.",

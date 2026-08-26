@@ -12,7 +12,7 @@
   "residency_mode": "provider_managed",
   "default_execution_regions": ["CN"],
   "default_data_regions": ["CN"],
-  "zero_data_retention": "unknown",
+  "zero_data_retention": false,
   "residency_source_url": "https://modelscope.cn/docs/model-service/API-Inference/limits",
   "residency_notes": "The service is hosted at the modelscope.cn China endpoint and is powered by Alibaba Cloud compute. ModelScope does not publish a contractual data-residency or retention commitment for API-Inference.",
   "prompt_training_policy": "unknown",

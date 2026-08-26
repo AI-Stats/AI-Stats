@@ -15,7 +15,7 @@
   "default_data_regions": [
     "US"
   ],
-  "zero_data_retention": "default",
+  "zero_data_retention": true,
   "data_retention_days": 0,
   "residency_source_url": "https://openrouter.ai/api/v1/providers",
   "residency_notes": "OpenRouter's live provider registry lists Ionstream headquarters and datacenters in the United States and classifies its endpoints as zero-data-retention. No customer-selectable region is published.",

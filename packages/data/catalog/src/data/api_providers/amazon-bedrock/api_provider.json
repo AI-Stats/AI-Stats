@@ -20,9 +20,9 @@
     "jp",
     "au"
   ],
-  "zero_data_retention": "unknown",
-  "data_policy_tier": "unknown",
-  "data_policy_confidence": "unknown",
+  "zero_data_retention": false,
+  "data_policy_tier": "logs",
+  "data_policy_confidence": "confirmed",
   "data_policy_contract_mode": "none",
   "residency_source_url": "https://docs.aws.amazon.com/bedrock/latest/userguide/models-region-compatibility.html",
   "regional_pricing_mode": "source_region_rates",
@@ -34,8 +34,8 @@
   "privacy_policy_url": "https://aws.amazon.com/privacy/",
   "terms_of_service_url": "https://aws.amazon.com/service-terms/",
   "prompt_training_policy": "no_train",
-  "prompt_training_notes": "AWS says Amazon Bedrock inputs and outputs are never shared with model providers and are not used to train base models.",
-  "prompt_training_source_url": "https://aws.amazon.com/bedrock/security-privacy-responsible-ai/",
+  "prompt_training_notes": "AWS says Amazon Bedrock does not use customer inputs and outputs to train AWS models. Bedrock may retain data by default for abuse detection, so this is not a default-ZDR offer.",
+  "prompt_training_source_url": "https://repost.aws/knowledge-center/amazon-bedrock-model-data-use",
   "gateway_kind": "gateway",
   "routable": true,
   "routing_enabled": true,
@@ -60,6 +60,12 @@
     "flex"
   ],
   "sources": [
+    {
+      "kind": "provider_docs",
+      "url": "https://repost.aws/knowledge-center/amazon-bedrock-model-data-use",
+      "accessed_at": "2026-08-26T00:00:00Z",
+      "notes": "AWS documents that Bedrock does not use customer inputs and outputs to train AWS models; the separate Bedrock data-retention documentation describes default retention for abuse detection, so the standard route is not classified as ZDR."
+    },
     {
       "kind": "api_reference",
       "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/apis.html",

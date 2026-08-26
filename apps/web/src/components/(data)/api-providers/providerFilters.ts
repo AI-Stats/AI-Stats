@@ -15,10 +15,8 @@ export type ProviderPolicyFilter =
 	| "data_policy:logs"
 	| "data_policy:trains"
 	| "data_policy:unknown"
-	| "zdr:default"
-	| "zdr:optional"
-	| "zdr:unsupported"
-	| "zdr:unknown"
+	| "zdr:true"
+	| "zdr:false"
 	| "retention:none"
 	| "retention:published"
 	| "retention:zdr"
@@ -86,20 +84,16 @@ export function matchesProviderPolicy(
 			return provider.data_policy_tier === "trains";
 		case "data_policy:unknown":
 			return !provider.data_policy_tier || provider.data_policy_tier === "unknown";
-		case "zdr:default":
-			return provider.zero_data_retention === "default";
-		case "zdr:optional":
-			return provider.zero_data_retention === "optional";
-		case "zdr:unsupported":
-			return provider.zero_data_retention === "unsupported";
-		case "zdr:unknown":
-			return !provider.zero_data_retention || provider.zero_data_retention === "unknown";
+		case "zdr:true":
+			return provider.zero_data_retention === true;
+		case "zdr:false":
+			return provider.zero_data_retention === false;
 		case "retention:none":
-			return provider.data_retention_days === 0 && provider.zero_data_retention === "default";
+			return provider.data_retention_days === 0 && provider.zero_data_retention === true;
 		case "retention:published":
 			return typeof provider.data_retention_days === "number" && provider.data_retention_days > 0;
 		case "retention:zdr":
-			return provider.zero_data_retention === "default" || provider.zero_data_retention === "optional";
+			return provider.zero_data_retention === true;
 		case "retention:unknown":
 			return provider.data_retention_days == null;
 		default:
