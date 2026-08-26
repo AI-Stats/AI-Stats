@@ -11097,12 +11097,18 @@
         "url": "https://novita.ai/models/model-detail/zai-org-glm-5.3-flash",
         "accessed_at": "2026-08-26T00:00:00Z",
         "notes": "Novita announced zai-org/glm-5.3-flash as live."
+      },
+      {
+        "kind": "provider_pricing",
+        "url": "https://api.novita.ai/openai/v1/models",
+        "accessed_at": "2026-08-26T00:00:00Z",
+        "notes": "Novita's live model catalog reports the Flash input, cached-input, and output prices."
       }
     ],
     "verification": {
-      "status": "partial",
+      "status": "verified",
       "checked_at": "2026-08-26T00:00:00Z",
-      "notes": "Live model availability supplied directly by Novita; pricing remains unverified."
+      "notes": "Verified from Novita's live OpenAI-compatible model catalog and model listing."
     },
     "rate_limits": []
   }
