@@ -42,8 +42,9 @@ jobs:
                   fi
                   echo "providers=$providers" >> "$GITHUB_OUTPUT"
 
-            - name: Create GitHub App token
-              id: app-token
+            - name: Create GitHub App token with label access
+              id: app-token-with-labels
+              continue-on-error: true
               uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1
               with:
                   client-id: ${{ secrets.PHASEO_APP_CLIENT_ID }}
@@ -52,11 +53,21 @@ jobs:
                   permission-issues: write
                   permission-pull-requests: write
 
+            - name: Create GitHub App token without label access
+              id: app-token
+              if: steps.app-token-with-labels.outcome == 'failure'
+              uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1
+              with:
+                  client-id: ${{ secrets.PHASEO_APP_CLIENT_ID }}
+                  private-key: ${{ secrets.PHASEO_APP_PRIVATE_KEY }}
+                  permission-contents: write
+                  permission-pull-requests: write
+
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
               with:
                   ref: main
                   fetch-depth: 0
-                  token: ${{ steps.app-token.outputs.token }}
+                  token: ${{ steps.app-token-with-labels.outputs.token || steps.app-token.outputs.token }}
                   persist-credentials: false
 
             - name: Setup pnpm
@@ -101,8 +112,9 @@ jobs:
                   pnpm validate:gateway
 
             - name: Ensure automation labels
+              if: steps.app-token-with-labels.outcome == 'success'
               env:
-                  GH_TOKEN: ${{ steps.app-token.outputs.token }}
+                  GH_TOKEN: ${{ steps.app-token-with-labels.outputs.token }}
               shell: bash
               run: |
                   gh label create automation --color 0E8A16 --description "Automated repository change" --force
@@ -112,7 +124,7 @@ jobs:
             - name: Resolve batch branch
               id: sync-branch
               env:
-                  GH_TOKEN: ${{ steps.app-token.outputs.token }}
+                  GH_TOKEN: ${{ steps.app-token-with-labels.outputs.token || steps.app-token.outputs.token }}
               shell: bash
               run: |
                   prefix="automation/provider-catalog-batch"
@@ -126,7 +138,7 @@ jobs:
               id: pull-request
               uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1
               with:
-                  token: ${{ steps.app-token.outputs.token }}
+                  token: ${{ steps.app-token-with-labels.outputs.token || steps.app-token.outputs.token }}
                   branch: ${{ steps.sync-branch.outputs.branch }}
                   base: main
                   delete-branch: false
@@ -138,10 +150,7 @@ jobs:
                   commit-message: "chore(data): sync provider catalog"
                   title: "chore(data): sync provider catalog"
                   body-path: apps/web/.sync/provider-catalog-sync.md
-                  labels: |
-                      automation
-                      model-sync
-                      provider:batch
+                  labels: ${{ steps.app-token-with-labels.outcome == 'success' && format('automation\nmodel-sync\nprovider:batch') || '' }}
 
             - name: Notify Discord
               if: steps.pull-request.outputs.pull-request-operation != ''
