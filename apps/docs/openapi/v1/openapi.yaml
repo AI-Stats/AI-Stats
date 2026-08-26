@@ -672,6 +672,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ChatCompletionsResponse'
+        '429':
+          $ref: '#/components/responses/UpstreamRateLimited'
   /responses:
     post:
       tags:
@@ -706,6 +708,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ResponsesResponse'
+        '429':
+          $ref: '#/components/responses/UpstreamRateLimited'
   /async/{kind}/{id}/ws:
     get:
       x-beta: true
@@ -3580,6 +3584,45 @@ components:
       type: http
       scheme: bearer
       description: Bearer token authentication
+  responses:
+    UpstreamRateLimited:
+      description: The selected upstream provider rate-limited the request.
+      headers:
+        Retry-After:
+          description: Validated provider guidance in seconds before retrying.
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 86400
+        X-Phaseo-Upstream-RateLimit-Limit:
+          $ref: '#/components/headers/UpstreamRateLimitValue'
+        X-Phaseo-Upstream-RateLimit-Remaining:
+          $ref: '#/components/headers/UpstreamRateLimitValue'
+        X-Phaseo-Upstream-RateLimit-Reset:
+          $ref: '#/components/headers/UpstreamRateLimitValue'
+        X-Phaseo-Upstream-RateLimit-Limit-Requests:
+          $ref: '#/components/headers/UpstreamRateLimitValue'
+        X-Phaseo-Upstream-RateLimit-Remaining-Requests:
+          $ref: '#/components/headers/UpstreamRateLimitValue'
+        X-Phaseo-Upstream-RateLimit-Reset-Requests:
+          $ref: '#/components/headers/UpstreamRateLimitValue'
+        X-Phaseo-Upstream-RateLimit-Limit-Tokens:
+          $ref: '#/components/headers/UpstreamRateLimitValue'
+        X-Phaseo-Upstream-RateLimit-Remaining-Tokens:
+          $ref: '#/components/headers/UpstreamRateLimitValue'
+        X-Phaseo-Upstream-RateLimit-Reset-Tokens:
+          $ref: '#/components/headers/UpstreamRateLimitValue'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  headers:
+    UpstreamRateLimitValue:
+      description: >-
+        BYOK-only provider quota metadata. Omitted for managed-provider
+        requests.
+      schema:
+        type: string
   schemas:
     ProviderRoutingOptions:
       type: object

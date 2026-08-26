@@ -12,6 +12,10 @@ import {
 	extractRequestedParams,
 	getUnsupportedParamsForProvider,
 } from "../before/paramCapabilities";
+import {
+	applyDownstreamRateLimitHeaders,
+	extractDownstreamRateLimitHeaders,
+} from "../upstream-rate-limit-headers";
 
 export type AfterGuardOk<T> = { ok: true; value: T };
 export type AfterGuardErr = { ok: false; response: Response };
@@ -114,6 +118,12 @@ export async function guardUpstreamStatus(
         const headers = makeHeaders(timingHeader);
         headers.set("X-Gateway-Error-Attribution", attribution);
         headers.set("X-Gateway-Error-Origin", errorOrigin);
+		applyDownstreamRateLimitHeaders(
+			headers,
+			extractDownstreamRateLimitHeaders(result.upstream.headers, {
+				includeQuotaDetails: result.keySource === "byok",
+			}),
+		);
 
         const generationId = ctx.requestId ?? body?.generation_id ?? body?.request_id ?? body?.requestId ?? "unknown";
         const responseBody: Record<string, unknown> = {
@@ -165,7 +175,6 @@ export async function guardUpstreamStatus(
 
     return { ok: true, value: undefined };
 }
-
 
 
 
