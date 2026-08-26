@@ -479,7 +479,6 @@ export type KnownModelId =
   | "spacex-ai/grok-imagine-image-quality"
   | "spacex-ai/grok-transcribe"
   | "spacex-ai/grok-tts"
-  | "stealth/ox-alpha"
   | "stepfun/step-3.5-flash"
   | "stepfun/step-3.7-flash"
   | "tencent/hunyuan-a13b-instruct"
@@ -555,6 +554,7 @@ export type KnownModelId =
   | "z-ai/glm-5.1"
   | "z-ai/glm-5.2"
   | "z-ai/glm-5.3"
+  | "z-ai/glm-5.3-flash"
   | "z-ai/glm-5v-turbo"
   | "zai-org/glm-4.5-air"
   | "zai/glm-5";
