@@ -49,7 +49,7 @@ class AnthropicMessagesRequest(TypedDict):
 	max_tokens: int
 	messages: List[AnthropicMessage]
 	meta: NotRequired[bool]
-	metadata: NotRequired[Dict[str, Any]]
+	metadata: NotRequired[OcrResponse]
 	model: str
 	provider: NotRequired[ProviderRoutingOptions]
 	provider_options: NotRequired[ProviderOptions]
@@ -245,7 +245,7 @@ class BatchBillingSummary(TypedDict):
 	estimation_total_rows: NotRequired[Optional[int]]
 	estimation_truncated: NotRequired[Optional[bool]]
 	finalized_at: NotRequired[Optional[str]]
-	pricing_breakdown: NotRequired[Dict[str, Any]]
+	pricing_breakdown: NotRequired[OcrResponse]
 	reason: NotRequired[str]
 	reservation_id: NotRequired[Optional[str]]
 	reservation_status: NotRequired[Optional[str]]
@@ -267,7 +267,7 @@ class BatchModelCapability(TypedDict):
 	model: NotRequired[str]
 	name: NotRequired[str]
 	output_types: NotRequired[List[str]]
-	pricing: NotRequired[Dict[str, Any]]
+	pricing: NotRequired[OcrResponse]
 	providers: NotRequired[List[BatchModelProviderCapability]]
 	status: NotRequired[str]
 	supported_parameters: NotRequired[List[str]]
@@ -301,9 +301,9 @@ class BatchRequest(TypedDict):
 	debug: NotRequired[DebugOptions]
 	endpoint: NotRequired[Literal["/v1/chat/completions", "/v1/responses", "/v1/messages", "/v1/embeddings", "/v1/generateContent"]]
 	input_file_id: NotRequired[str]
-	items: NotRequired[List[Dict[str, Any]]]
+	items: NotRequired[List[OcrResponse]]
 	max_tokens: NotRequired[int]
-	metadata: NotRequired[Dict[str, Any]]
+	metadata: NotRequired[OcrResponse]
 	model: NotRequired[str]
 	prompts: NotRequired[List[str]]
 	provider: NotRequired[ProviderRoutingOptions]
@@ -320,7 +320,7 @@ class BatchRequestCounts(TypedDict):
 	total: NotRequired[int]
 
 class BatchRequestItem(TypedDict):
-	body: Dict[str, Any]
+	body: OcrResponse
 	custom_id: NotRequired[str]
 	method: NotRequired[Literal["POST"]]
 	url: NotRequired[str]
@@ -332,20 +332,20 @@ class BatchRequestRow(TypedDict):
 	created_at: NotRequired[Optional[str]]
 	custom_id: NotRequired[str]
 	endpoint: NotRequired[Optional[str]]
-	error_body: NotRequired[Optional[Dict[str, Any]]]
+	error_body: NotRequired[Optional[OcrResponse]]
 	id: NotRequired[str]
-	meta: NotRequired[Dict[str, Any]]
+	meta: NotRequired[OcrResponse]
 	method: NotRequired[Optional[str]]
 	model: NotRequired[Optional[str]]
 	native_batch_id: NotRequired[Optional[str]]
 	provider: NotRequired[str]
 	request_body_hash: NotRequired[Optional[str]]
 	request_index: NotRequired[int]
-	response_body: NotRequired[Optional[Dict[str, Any]]]
+	response_body: NotRequired[Optional[OcrResponse]]
 	response_status: NotRequired[Optional[int]]
 	status: NotRequired[str]
 	updated_at: NotRequired[Optional[str]]
-	usage: NotRequired[Optional[Dict[str, Any]]]
+	usage: NotRequired[Optional[OcrResponse]]
 
 class BatchResponse(TypedDict):
 	billing: NotRequired[BatchBillingSummary]
@@ -376,7 +376,7 @@ class BatchResponse(TypedDict):
 	object: NotRequired[str]
 	output_file_id: NotRequired[str]
 	polling_url: NotRequired[str]
-	pricing_lines: NotRequired[List[Dict[str, Any]]]
+	pricing_lines: NotRequired[List[OcrResponse]]
 	progress: NotRequired[int]
 	provider: NotRequired[str]
 	request_counts: NotRequired[BatchRequestCounts]
@@ -568,8 +568,8 @@ class ErrorProviderFailureDiagnostics(TypedDict):
 class ErrorResponse(TypedDict):
 	attempt_count: NotRequired[int]
 	description: NotRequired[str]
-	details: NotRequired[List[Dict[str, Any]]]
-	error: Union[str, Dict[str, Any]]
+	details: NotRequired[List[OcrResponse]]
+	error: Union[str, OcrResponse]
 	error_origin: NotRequired[Literal["user", "gateway", "upstream"]]
 	error_type: NotRequired[Literal["user", "system"]]
 	failed_providers: NotRequired[List[str]]
@@ -709,7 +709,7 @@ class GenerationResponse(TypedDict):
 	native_response_id: NotRequired[Optional[str]]
 	pricing_lines: NotRequired[List[Dict[str, Any]]]
 	provider: NotRequired[str]
-	replay_request: NotRequired[Optional[Dict[str, Any]]]
+	replay_request: NotRequired[Optional[OcrResponse]]
 	replay_supported: NotRequired[bool]
 	request_id: NotRequired[str]
 	status_code: NotRequired[float]
@@ -729,7 +729,7 @@ class ImageConfig(TypedDict):
 	font_inputs: NotRequired[List[Dict[str, Any]]]
 	image_size: NotRequired[Literal["0.5K", "1K", "2K", "4K"]]
 	include_rai_reason: NotRequired[bool]
-	reference_images: NotRequired[List[Dict[str, Any]]]
+	reference_images: NotRequired[List[OcrResponse]]
 	super_resolution_references: NotRequired[List[str]]
 
 class ImageContentPart(TypedDict):
@@ -970,11 +970,11 @@ class MusicGenerateResponse(TypedDict):
 	model: str
 	nativeResponseId: NotRequired[Optional[str]]
 	object: Literal["music"]
-	output: NotRequired[List[Dict[str, Any]]]
+	output: NotRequired[List[OcrResponse]]
 	provider: str
 	result: NotRequired[Any]
 	status: Literal["queued", "in_progress", "completed", "failed"]
-	usage: NotRequired[Dict[str, Any]]
+	usage: NotRequired[OcrResponse]
 
 class NotImplementedResponse(TypedDict):
 	description: str
@@ -1024,7 +1024,7 @@ class ProviderRoutingOptions(TypedDict):
 	require_zero_data_retention: NotRequired[Optional[bool]]
 	required_data_region: NotRequired[Optional[str]]
 	required_execution_region: NotRequired[Optional[str]]
-	sort: NotRequired[Union[str, Dict[str, Any]]]
+	sort: NotRequired[Union[str, OcrResponse]]
 	zdr: NotRequired[Optional[bool]]
 
 class ProvisioningKey(TypedDict):
@@ -1064,16 +1064,16 @@ class ReasoningConfig(TypedDict):
 	mode: NotRequired[Literal["standard", "pro"]]
 	summary: NotRequired[Literal["auto", "concise", "detailed"]]
 
-RerankDocument = Union[str, Dict[str, Any]]
+RerankDocument = Union[str, "OcrResponse"]
 
 class RerankRequest(TypedDict):
 	debug: NotRequired[DebugOptions]
-	documents: Union[List[str], List[Dict[str, Any]]]
+	documents: Union[List[str], List[OcrResponse]]
 	max_chunks_per_doc: NotRequired[int]
 	metadata: NotRequired[Dict[str, Any]]
 	model: str
 	provider: NotRequired[ProviderRoutingOptions]
-	provider_options: NotRequired[Dict[str, Any]]
+	provider_options: NotRequired[OcrResponse]
 	query: str
 	rank_fields: NotRequired[List[str]]
 	return_documents: NotRequired[bool]
@@ -1090,7 +1090,7 @@ class RerankResponse(TypedDict):
 	usage: NotRequired[Usage]
 
 class RerankResult(TypedDict):
-	document: NotRequired[Union[str, Dict[str, Any]]]
+	document: NotRequired[Union[str, OcrResponse]]
 	index: NotRequired[int]
 	relevance_score: NotRequired[float]
 
@@ -1168,13 +1168,13 @@ class ResponsesResponse(TypedDict):
 	currency: NotRequired[str]
 	finish_reason: NotRequired[Optional[str]]
 	id: NotRequired[str]
-	meta: NotRequired[Dict[str, Any]]
+	meta: NotRequired[OcrResponse]
 	model: NotRequired[str]
 	nativeResponseId: NotRequired[Optional[str]]
 	object: NotRequired[str]
 	output: NotRequired[List[ResponsesOutputItem]]
 	output_items: NotRequired[List[ResponsesOutputItem]]
-	pricing_lines: NotRequired[List[Dict[str, Any]]]
+	pricing_lines: NotRequired[List[OcrResponse]]
 	provider: NotRequired[str]
 	provider_id: NotRequired[str]
 	role: NotRequired[str]
@@ -1199,7 +1199,7 @@ class ServerToolUsage(TypedDict):
 	web_search_requests: NotRequired[int]
 
 class SubagentToolDefinition(TypedDict):
-	parameters: NotRequired[Dict[str, Any]]
+	parameters: NotRequired[OcrResponse]
 	type: Literal["phaseo:subagent"]
 
 class SupportedParameterDetails(TypedDict):
@@ -1274,7 +1274,7 @@ class VideoGenerationRequest(TypedDict):
 	person_generation: NotRequired[str]
 	prompt: str
 	provider: NotRequired[ProviderRoutingOptions]
-	provider_params: NotRequired[Dict[str, Any]]
+	provider_params: NotRequired[OcrResponse]
 	resize_mode: NotRequired[str]
 	resolution: NotRequired[str]
 	sample_count: NotRequired[int]
@@ -1334,7 +1334,7 @@ class VideoModelCapability(TypedDict):
 	model: NotRequired[str]
 	name: NotRequired[str]
 	output_types: NotRequired[List[str]]
-	pricing: NotRequired[Dict[str, Any]]
+	pricing: NotRequired[OcrResponse]
 	providers: NotRequired[List[VideoModelProviderCapability]]
 	status: NotRequired[str]
 	supported_parameters: NotRequired[List[str]]
@@ -1380,7 +1380,7 @@ class WorkspaceActivityEntry(TypedDict):
 	provider: Optional[str]
 	request_id: Optional[str]
 	timestamp: Optional[str]
-	usage: Optional[Dict[str, Any]]
+	usage: Optional[OcrResponse]
 
 class WorkspaceActivityResponse(TypedDict):
 	activity: List[WorkspaceActivityEntry]
