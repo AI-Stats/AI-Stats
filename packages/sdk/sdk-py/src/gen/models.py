@@ -964,7 +964,17 @@ class MusicGenerateRequest(TypedDict):
 	suno: NotRequired[Dict[str, Any]]
 
 class MusicGenerateResponse(TypedDict):
-	pass
+	audio_base64: NotRequired[str]
+	audio_url: NotRequired[str]
+	id: str
+	model: str
+	nativeResponseId: NotRequired[Optional[str]]
+	object: Literal["music"]
+	output: NotRequired[List[Dict[str, Any]]]
+	provider: str
+	result: NotRequired[Any]
+	status: Literal["queued", "in_progress", "completed", "failed"]
+	usage: NotRequired[Dict[str, Any]]
 
 class NotImplementedResponse(TypedDict):
 	description: str

@@ -414,7 +414,27 @@ async function persistMusicResponse(
 	const duration = typeof usage?.output_audio_seconds === "number"
 		? usage.output_audio_seconds
 		: null;
-	const hasInlineAudio = typeof response.audioBase64 === "string" && response.audioBase64.length > 0;
+	const output = Array.isArray(response.output) && response.output.length > 0
+		? response.output.map((item, index) => ({
+			index: typeof item.index === "number" ? item.index : index,
+			id: item.id ?? null,
+			audio_url: item.audioUrl ?? null,
+			stream_audio_url: item.streamAudioUrl ?? null,
+			image_url: item.imageUrl ?? null,
+			title: item.title ?? null,
+			tags: item.tags ?? null,
+			duration: item.duration ?? duration,
+		}))
+		: response.audioUrl
+			? [{
+				index: 0,
+				id: response.nativeId ?? requestId,
+				audio_url: response.audioUrl,
+				duration,
+			}]
+			: null;
+	const result = stripInlineMusicAudio(response.result, response.audioBase64);
+	const rawResponse = stripInlineMusicAudio(response.rawResponse, response.audioBase64);
 	await saveMusicJobMeta(workspaceId, requestId, {
 		provider: response.provider,
 		model: response.model,
@@ -423,22 +443,35 @@ async function persistMusicResponse(
 		status: response.status ?? "completed",
 		nativeResponseId: response.nativeId ?? null,
 		audioBase64: response.audioBase64 ?? null,
-		output: response.audioUrl
-			? [{
-				index: 0,
-				id: response.nativeId ?? requestId,
-				audio_url: response.audioUrl,
-				duration,
-			}]
-			: null,
-		result: hasInlineAudio ? null : response.result ?? null,
-		rawResponse: hasInlineAudio ? null : response.rawResponse ?? null,
+		output,
+		result: result ?? null,
+		rawResponse: rawResponse ?? null,
 		createdAt: Date.now(),
 	});
 }
 
+function stripInlineMusicAudio(value: unknown, audioBase64: string | undefined): unknown {
+	if (!audioBase64 || value == null || typeof value !== "object") return value;
+	if (Array.isArray(value)) {
+		return value.map((item) => stripInlineMusicAudio(item, audioBase64));
+	}
+	const output: Record<string, unknown> = {};
+	for (const [key, item] of Object.entries(value as Record<string, unknown>)) {
+		if (
+			typeof item === "string" &&
+			item === audioBase64 &&
+			["audio", "audio_base64", "audioBase64", "data"].includes(key)
+		) {
+			continue;
+		}
+		output[key] = stripInlineMusicAudio(item, audioBase64);
+	}
+	return output;
+}
+
 export const __nonTextTestUtils = {
 	persistMusicResponse,
+	stripInlineMusicAudio,
 };
 
 export async function runNonTextPipeline(args: PipelineRunnerArgs): Promise<Response> {

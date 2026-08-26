@@ -93,4 +93,15 @@ describe("music-generate route helpers", () => {
 			status: "completed",
 		})).toBe(true);
 	});
+
+	it("continues polling legacy MiniMax and Suno records without an explicit status", () => {
+		expect(__musicGenerateTestUtils.shouldServeStoredMusicSnapshot({
+			provider: "minimax",
+			nativeResponseId: "minimax_task_1",
+		})).toBe(false);
+		expect(__musicGenerateTestUtils.shouldServeStoredMusicSnapshot({
+			provider: "suno",
+			nativeResponseId: "suno_task_1",
+		})).toBe(false);
+	});
 });

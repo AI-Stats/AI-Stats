@@ -2351,6 +2351,17 @@ type MusicGenerateRequest struct {
 }
 
 type MusicGenerateResponse struct {
+	AudioBase64 *string `json:"audio_base64,omitempty"`
+	AudioUrl *string `json:"audio_url,omitempty"`
+	Id string `json:"id"`
+	Model string `json:"model"`
+	NativeResponseId *string `json:"nativeResponseId,omitempty"`
+	Object string `json:"object"`
+	Output *[]map[string]interface{} `json:"output,omitempty"`
+	Provider string `json:"provider"`
+	Result interface{} `json:"result,omitempty"`
+	Status string `json:"status"`
+	Usage *map[string]interface{} `json:"usage,omitempty"`
 }
 
 type NotImplementedResponse struct {

@@ -42,6 +42,15 @@ describe("unified music response lifecycle", () => {
 			provider: "gmicloud",
 			status: "completed",
 			audioUrl: "https://media.example/music-2.mp3",
+			output: [{
+				index: 0,
+				id: "gmi_music_2",
+				audioUrl: "https://media.example/music-2.mp3",
+				streamAudioUrl: "https://media.example/music-2-stream.mp3",
+				title: "Ambient instrumental",
+				tags: "ambient",
+				duration: 25.364,
+			}],
 			usage: {
 				inputTokens: 0,
 				outputTokens: 0,
@@ -67,12 +76,16 @@ describe("unified music response lifecycle", () => {
 				format: "mp3",
 				output: [expect.objectContaining({
 					audio_url: "https://media.example/music-2.mp3",
+					stream_audio_url: "https://media.example/music-2-stream.mp3",
+					title: "Ambient instrumental",
+					tags: "ambient",
+					duration: 25.364,
 				})],
 			}),
 		);
 	});
 
-	it("stores inline audio once instead of duplicating it in snapshots", async () => {
+	it("deduplicates inline audio while retaining provider metadata", async () => {
 		await __nonTextTestUtils.persistMusicResponse(
 			"workspace_1",
 			"req_phaseo_music_3",
@@ -84,8 +97,8 @@ describe("unified music response lifecycle", () => {
 				provider: "elevenlabs",
 				status: "completed",
 				audioBase64: "AQIDBA==",
-				result: { audio_base64: "AQIDBA==" },
-				rawResponse: { audio_base64: "AQIDBA==" },
+				result: { audio_base64: "AQIDBA==", metadata: { seed: 7 } },
+				rawResponse: { data: { audio: "AQIDBA==", status: 2 }, trace_id: "trace_3" },
 			},
 		);
 
@@ -95,8 +108,8 @@ describe("unified music response lifecycle", () => {
 			expect.objectContaining({
 				audioBase64: "AQIDBA==",
 				output: null,
-				result: null,
-				rawResponse: null,
+				result: { metadata: { seed: 7 } },
+				rawResponse: { data: { status: 2 }, trace_id: "trace_3" },
 			}),
 		);
 	});

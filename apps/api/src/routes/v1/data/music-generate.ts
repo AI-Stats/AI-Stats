@@ -282,7 +282,9 @@ function buildStoredMusicBody(id: string, meta: MusicJobMeta) {
 	const parsed = parseMetaOutput(meta);
 	const hasAudioBase64 = typeof meta.audioBase64 === "string" && meta.audioBase64.length > 0;
 	const output = parsed.output.length > 0
-		? parsed.output
+		? parsed.output.map((item, index) => index === 0 && hasAudioBase64 && !item.audio_base64
+			? { ...item, audio_base64: meta.audioBase64 ?? null }
+			: item)
 		: hasAudioBase64
 			? [{
 				index: 0,
@@ -325,8 +327,11 @@ function buildStoredMusicBody(id: string, meta: MusicJobMeta) {
 }
 
 function shouldServeStoredMusicSnapshot(meta: MusicJobMeta): boolean {
-	const status = normalizeMusicStatus(meta.status);
-	if (status === "completed" || status === "failed") return true;
+	const rawStatus = typeof meta.status === "string" ? meta.status.trim() : "";
+	if (rawStatus) {
+		const status = normalizeMusicStatus(rawStatus);
+		if (status === "completed" || status === "failed") return true;
+	}
 	return meta.provider === GMI_CLOUD_PROVIDER_ID ||
 		meta.provider === ELEVENLABS_PROVIDER_ID ||
 		isGoogleMusicProvider(meta.provider);

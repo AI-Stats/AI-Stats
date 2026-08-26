@@ -5,26 +5,17 @@ badge: "Beta"
 openapi: "POST /music/generate"
 ---
 
-Creates an asynchronous music generation job.
+Generates music through one provider-independent API. Phaseo handles synchronous responses and provider queue polling behind the scenes.
 
-<Warning>
-The public music routes are currently mounted but temporarily disabled, so requests currently return `501 not_implemented`.
-</Warning>
-
-Poll completion with `GET /music/generate/{music_id}`.
+For completed generations, the response includes `audio_url` or `audio_base64`. If a provider returns a non-terminal job, use the same response `id` with `GET /music/generate/{music_id}`.
 
 ## Request Shape
 
 ```json
 {
-  "model": "suno/v4.5plus",
+  "model": "minimax/music-3.0:free",
   "prompt": "Warm jazz trio with brushed drums",
-  "duration": 8,
-  "provider": { "only": ["suno"] },
-  "suno": {
-    "customMode": false,
-    "instrumental": false
-  }
+  "format": "mp3"
 }
 ```
 
@@ -57,16 +48,21 @@ Validation errors return `400` with:
 
 ```json
 {
-  "id": "task_123",
+  "id": "req_01JY6MUSIC123",
   "object": "music",
-  "status": "in_progress",
-  "provider": "suno",
-  "model": "V4_5PLUS",
-  "nativeResponseId": "task_123",
+  "status": "completed",
+  "provider": "gmicloud",
+  "model": "minimax/music-3.0:free",
+  "nativeResponseId": "5c30b275-d669-4a25-8151-de6d60214853",
+  "audio_url": "https://.../generated-music.mp3",
   "usage": {
-    "requests": 1
+    "requests": 1,
+    "output_audio_seconds": 25.364
   }
 }
 ```
 
-`usage` can include `output_audio_seconds` when `duration` is provided and pricing is computed against seconds.
+- `id` is the stable Phaseo request ID. Use it for retrieval through `GET /music/generate/{music_id}`.
+- `nativeResponseId` is the upstream provider's identifier and is intended for provider correlation and support.
+- `status` can be `queued`, `in_progress`, `completed`, or `failed`.
+- `usage` can include `output_audio_seconds` when the provider reports generated duration.
