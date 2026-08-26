@@ -21,7 +21,7 @@ type ProviderIndexRpcRow = {
 	provider_slug: string; provider_name: string; colour: string | null; country_code: string | null;
 	default_execution_regions: string[] | null; default_data_regions: string[] | null;
 	provider_family_id: string | null; offer_label: string | null; offer_scope: string | null; is_gateway_provider: boolean; provider_status: string | null; byok_available: boolean | null;
-	prompt_training_policy: string | null; data_policy_tier: string | null; zero_data_retention: boolean; data_retention_days: number | null;
+	prompt_training_policy: string | null; data_policy_tier: string | null; zero_data_retention: boolean | string | null; data_retention_days: number | null;
 	privacy_policy_url: string | null; terms_of_service_url: string | null;
 	total_model_ids: string[] | null; active_model_ids: string[] | null; free_model_ids: string[] | null;
 	requests_24h: number | string | null; tokens_24h: number | string | null; tokens_30d: number | string | null;
@@ -49,6 +49,7 @@ function missingRelation(error: unknown): boolean {
 }
 
 type PricingRule = { model_key: string; pricing_plan: string | null; meter: string | null; unit: string | null; unit_size: number | null; price_per_unit: number | null; effective_from: string | null; effective_to: string | null; priority: number | null };
+function normalizeZeroDataRetention(value: boolean | string | null | undefined): boolean { return value === true || (typeof value === "string" && value.trim().toLowerCase() === "default"); }
 function stringList(value: unknown): string[] { return Array.isArray(value) ? value.map(String).map((item) => item.trim()).filter(Boolean) : typeof value === "string" ? value.split(",").map((item) => item.trim()).filter(Boolean) : []; }
 function unique(left: string[], right: string[]): string[] { return Array.from(new Set([...left, ...right])); }
 function currentRule(rule: PricingRule, now = Date.now()): boolean { return (!rule.effective_from || timeValue(rule.effective_from) <= now) && (!rule.effective_to || timeValue(rule.effective_to) > now); }
@@ -113,7 +114,7 @@ async function providerIndex(env: Env) {
 		byokAvailable: row.byok_available === true,
 		promptTrainingPolicy: row.prompt_training_policy,
 		dataPolicyTier: row.data_policy_tier,
-		zeroDataRetention: row.zero_data_retention,
+		zeroDataRetention: normalizeZeroDataRetention(row.zero_data_retention),
 		dataRetentionDays: row.data_retention_days,
 		privacyPolicyUrl: row.privacy_policy_url,
 		termsOfServiceUrl: row.terms_of_service_url,

@@ -18,7 +18,10 @@ returns table (
   byok_available boolean,
   prompt_training_policy text,
   data_policy_tier text,
-  zero_data_retention boolean,
+  -- Keep the SQL function's wire type compatible with the currently deployed
+  -- Web API/client during the migration-before-deploy window. The Web API
+  -- normalizes these legacy labels back to a boolean for its public payload.
+  zero_data_retention text,
   data_retention_days integer,
   privacy_policy_url text,
   terms_of_service_url text,
@@ -144,7 +147,7 @@ as $$
     provider.byok_available,
     provider.prompt_training_policy,
     provider.data_policy_tier,
-    provider.zero_data_retention,
+    case when provider.zero_data_retention then 'default' else 'unsupported' end,
     provider.data_retention_days,
     nullif(provider.metadata->>'privacy_policy_url', ''),
     nullif(provider.metadata->>'terms_of_service_url', ''),
