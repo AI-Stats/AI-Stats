@@ -83,6 +83,7 @@ export type KnownModelId =
   | "deepseek/deepseek-ocr-2"
   | "deepseek/deepseek-r1"
   | "deepseek/deepseek-r1-0528"
+  | "deepseek/deepseek-r1-2025-05-28"
   | "deepseek/deepseek-r1-distill-llama-70b"
   | "deepseek/deepseek-r1-turbo"
   | "deepseek/deepseek-v3"
