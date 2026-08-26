@@ -23,7 +23,7 @@ import {
 	deleteTeamAction,
 	updateWorkspacePublisherHandleAction,
 } from "@/app/(dashboard)/settings/teams/actions";
-import WorkspaceSamlSettingsCard from "./WorkspaceSamlSettingsCard";
+import WorkspaceIdentitySettings from "./WorkspaceIdentitySettings";
 import type { TeamSsoSettingsRow } from "@/lib/auth/teamSsoSettings";
 
 type Team = { id: string; name: string; publisherHandle?: string | null };
@@ -40,7 +40,7 @@ type Props = {
 	personalTeamId?: string | null;
 	walletBalances?: Record<string, number>;
 	teamSsoSettingsByTeam?: Record<string, TeamSsoSettingsRow>;
-	samlSsoEnabled?: boolean;
+	canConfigureEnterprise?: boolean;
 };
 
 type Settings = {
@@ -66,7 +66,7 @@ export default function TeamSettingsPanel({
 	personalTeamId,
 	walletBalances,
 	teamSsoSettingsByTeam,
-	samlSsoEnabled = false,
+	canConfigureEnterprise = false,
 }: Props) {
 	const fallbackTeamId =
 		(workspaceId && teams.some((t) => t.id === workspaceId)
@@ -256,12 +256,14 @@ export default function TeamSettingsPanel({
 				</div>
 			</form>
 
-			{samlSsoEnabled && !isPersonalTeam ? (
-				<WorkspaceSamlSettingsCard
+			{!isPersonalTeam ? (
+				<WorkspaceIdentitySettings
 					key={fallbackTeamId}
 					workspaceId={fallbackTeamId}
 					initialSettings={teamSsoSettingsByTeam?.[fallbackTeamId]}
 					canEdit={canEdit}
+					canConfigureEnterprise={canConfigureEnterprise}
+					mode="banner"
 				/>
 			) : null}
 

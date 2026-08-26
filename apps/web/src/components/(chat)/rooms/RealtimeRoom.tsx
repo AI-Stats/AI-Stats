@@ -53,6 +53,7 @@ import {
 } from "@/components/(chat)/RoomComposer";
 import { cn } from "@/lib/utils";
 import { fetchChatWebApi } from "@/lib/web-api/client";
+import { RoomResponseTimestamp } from "@/components/(chat)/RoomResponseTimestamp";
 
 const RealtimePersona = dynamic(
 	() => import("@/components/ai-elements/persona").then((mod) => mod.Persona),
@@ -211,6 +212,7 @@ type TranscriptLine = {
 	id: string;
 	role: "user" | "assistant" | "system";
 	text: string;
+	createdAt: string;
 	final?: boolean;
 };
 
@@ -849,7 +851,7 @@ function summarizeGoogleLiveEvent(event: Record<string, unknown>) {
 
 function appendTextLine(
 	lines: TranscriptLine[],
-	next: Omit<TranscriptLine, "id"> & { id?: string },
+	next: Omit<TranscriptLine, "id" | "createdAt"> & { id?: string },
 ): TranscriptLine[] {
 	const id = next.id ?? `${next.role}-${crypto.randomUUID()}`;
 	const existingIndex = lines.findIndex((line) => line.id === id);
@@ -865,12 +867,12 @@ function appendTextLine(
 		);
 	}
 	const { id: _ignoredId, ...line } = next;
-	return [...lines, { id, ...line }];
+	return [...lines, { id, createdAt: new Date().toISOString(), ...line }];
 }
 
 function replaceTextLine(
 	lines: TranscriptLine[],
-	next: Omit<TranscriptLine, "id"> & { id: string },
+	next: Omit<TranscriptLine, "id" | "createdAt"> & { id: string },
 ): TranscriptLine[] {
 	const existingIndex = lines.findIndex((line) => line.id === next.id);
 	if (existingIndex >= 0) {
@@ -878,7 +880,7 @@ function replaceTextLine(
 			index === existingIndex ? { ...line, ...next } : line,
 		);
 	}
-	return [...lines, next];
+	return [...lines, { ...next, createdAt: new Date().toISOString() }];
 }
 
 function floatTo16BitPcmBase64(input: Float32Array): string {
@@ -936,7 +938,7 @@ function StatCard({
 	children: ReactNode;
 }) {
 	return (
-		<div className="min-w-0 rounded-lg border border-border bg-muted/20 px-3 py-3">
+		<div className="min-w-0 rounded-md border border-border bg-muted/20 px-3 py-3">
 			<div className="flex items-center gap-2 text-xs text-muted-foreground">
 				{icon}
 				<span>{label}</span>
@@ -1172,7 +1174,7 @@ function RealtimeVoiceSelector({
 			<PopoverContent
 				align="start"
 				sideOffset={8}
-				className="w-64 gap-0 rounded-2xl p-1"
+				className="w-64 gap-0 rounded-md p-1"
 			>
 				{voices.length > 8 ? (
 					<ScrollArea className="h-80" type="hover">
@@ -3000,7 +3002,7 @@ export function RealtimeRoom({ models = [] }: RealtimeRoomProps) {
 											)}
 										</div>
 									) : (
-										<div className="flex min-h-24 w-full max-w-sm items-center justify-center rounded-2xl border border-border bg-muted/20 px-6 py-5">
+									<div className="flex min-h-24 w-full max-w-sm items-center justify-center rounded-md border border-border bg-muted/20 px-6 py-5">
 											<div className="flex items-center gap-3">
 												<div className="flex h-9 w-9 items-center justify-center rounded-full bg-background ring-1 ring-border">
 													<Volume2 className="h-4 w-4 text-muted-foreground" />
@@ -3111,7 +3113,7 @@ export function RealtimeRoom({ models = [] }: RealtimeRoomProps) {
 											key={model.id}
 											type="button"
 											onClick={() => setSelectedModelId(model.id)}
-											className="group min-h-32 rounded-2xl border border-border bg-background px-4 py-3 text-left transition hover:border-foreground/30 hover:bg-muted/30"
+										className="group min-h-32 rounded-md border border-border bg-background px-4 py-3 text-left transition hover:border-foreground/30 hover:bg-muted/30"
 										>
 											<div className="flex items-center gap-2">
 												<Logo
@@ -3186,18 +3188,19 @@ export function RealtimeRoom({ models = [] }: RealtimeRoomProps) {
 								<div
 									key={line.id}
 									className={cn(
-										"rounded-2xl border px-3 py-2 text-sm",
+										"group/response rounded-md px-3 py-2 text-sm",
 										line.role === "assistant"
-											? "border-primary/20 bg-primary/5"
+											? "bg-transparent"
 											: line.role === "user"
-												? "border-border bg-background"
-												: "border-border bg-muted/30 text-muted-foreground",
+												? "border border-border bg-background"
+												: "border border-border bg-muted/30 text-muted-foreground",
 									)}
 								>
 									<p className="mb-1 text-[11px] font-medium uppercase tracking-normal text-muted-foreground">
 										{line.role}
 									</p>
 									<p className="whitespace-pre-wrap leading-6">{line.text}</p>
+									<RoomResponseTimestamp createdAt={line.createdAt} className="mt-1 block" />
 								</div>
 							))
 						)}

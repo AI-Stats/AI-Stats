@@ -107,7 +107,7 @@ type ActiveProviderModel = {
 	organisationId?: string | null;
 	organisationName?: string | null;
 	providerPolicy?: {
-		zeroDataRetention: string;
+		zeroDataRetention: boolean;
 		dataPolicyTier: string;
 		dataPolicyConfidence: string;
 	};
@@ -774,11 +774,13 @@ function capabilityPrivacyDecision(args: {
 	const stateful = ["batch", "files.upload", "files.list", "files.retrieve"].includes(args.capability.id);
 	const tier = String(policy?.tier ?? (stateful ? "logs" : args.row.providerPolicy?.dataPolicyTier ?? "unknown"));
 	const confidence = String(policy?.confidence ?? (stateful ? "confirmed" : args.row.providerPolicy?.dataPolicyConfidence ?? "unknown"));
-	const zdrEligibility = String(policy?.zdrEligibility ?? (stateful
-		? "ineligible"
-		: args.row.providerPolicy?.zeroDataRetention === "default" ? "eligible"
-			: args.row.providerPolicy?.zeroDataRetention === "optional" ? "conditional"
-				: args.row.providerPolicy?.zeroDataRetention === "unsupported" ? "ineligible" : "unknown"));
+	const zdrEligibility = String(policy?.zdrEligibility ?? (
+		stateful
+			? "ineligible"
+			: args.row.providerPolicy?.zeroDataRetention === true
+				? "eligible"
+				: "ineligible"
+	));
 
 	if (args.privacyZdrOnly && zdrEligibility !== "eligible") {
 		return {
@@ -1881,7 +1883,7 @@ export default function GuardrailEditorPageClient(props: {
 											Account Privacy applies first; blocked routes remain unavailable here.
 										</span>
 										<Button asChild type="button" variant="ghost" size="sm" className="h-7 justify-start px-2 sm:justify-center">
-											<Link href="/settings/account/privacy">Review account policy</Link>
+											<Link href="/settings/privacy">Review workspace privacy</Link>
 										</Button>
 									</div>
 								) : null}
@@ -2593,4 +2595,3 @@ export default function GuardrailEditorPageClient(props: {
 		</div>
 	);
 }
-

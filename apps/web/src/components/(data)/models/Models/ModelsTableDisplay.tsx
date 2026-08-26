@@ -76,6 +76,7 @@ import { featureLabels } from "@/lib/config/featureLabels";
 import type { MonitorModelTableRow } from "@/lib/fetchers/models/table-view/types";
 import { MonitorTableClient } from "@/components/monitor/MonitorTableClient";
 import { Logo } from "@/components/Logo";
+import { ActiveModelFilters, type ActiveModelFilter } from "./ActiveModelFilters";
 import { Slider } from "@/components/ui/slider";
 
 type OptionCount = {
@@ -240,12 +241,11 @@ function normalizeModalityFilterValue(value: string): string {
 	if (normalized.includes("realtime") || normalized.includes("real time")) {
 		return "realtime";
 	}
-	if (normalized.includes("text")) return "text";
 	if (normalized.includes("image")) return "image";
 	if (normalized.includes("video")) return "video";
 	if (normalized.includes("music")) return "audio_music";
 	if (
-		normalized.includes("transcrib") ||
+		normalized.includes("transcri") ||
 		normalized.includes("speech to text") ||
 		normalized.includes("stt")
 	) {
@@ -259,6 +259,7 @@ function normalizeModalityFilterValue(value: string): string {
 	) {
 		return "audio_tts";
 	}
+	if (normalized.includes("text")) return "text";
 	if (normalized.includes("audio")) return "audio";
 	if (normalized.includes("file")) return "file";
 	if (normalized.includes("moderat")) return "moderations";
@@ -371,7 +372,7 @@ function getModalityIcon(modality: string): LucideIcon {
 	if (normalized.includes("video")) return Video;
 	if (normalized.includes("music")) return Music4;
 	if (
-		normalized.includes("transcrib") ||
+		normalized.includes("transcri") ||
 		normalized.includes("speech to text") ||
 		normalized.includes("stt")
 	) {
@@ -942,11 +943,18 @@ export default function ModelsTableDisplay({
 	}, [initialModelData]);
 
 	const inputModalityOptions = useMemo(
-		() => getModalityOptions(counts.inputMap, allModalities),
+		() =>
+			getModalityOptions(counts.inputMap, allModalities).filter((option) => {
+				const modality = normalizeModalityFilterValue(option.value);
+				return modality !== "file" && modality !== "document";
+			}),
 		[allModalities, counts.inputMap],
 	);
 	const outputModalityOptions = useMemo(
-		() => getModalityOptions(counts.outputMap, allModalities),
+		() =>
+			getModalityOptions(counts.outputMap, allModalities).filter(
+				(option) => normalizeModalityFilterValue(option.value) !== "action",
+			),
 		[allModalities, counts.outputMap],
 	);
 	const featureOptions = useMemo(
@@ -1061,6 +1069,32 @@ export default function ModelsTableDisplay({
 		setSelectedContextMin(0);
 		setYearSelected(0);
 	};
+	const without = (values: string[], value: string) =>
+		values.filter((candidate) => candidate !== value);
+	const activeFilters: ActiveModelFilter[] = [
+		...(hasInteractedWithStatuses
+			? selectedStatuses.map((value) => ({
+					key: `status-${value}`,
+					label: `Status: ${formatStatusLabel(value)}`,
+					onRemove: () => {
+						const next = without(selectedStatuses, value);
+						setSelectedStatuses(next);
+						if (next.length === 0) setHasInteractedWithStatuses(false);
+					},
+				}))
+			: []),
+		...selectedInputModalities.map((value) => ({ key: `input-${value}`, label: `Input: ${toTitleCase(value)}`, onRemove: () => setSelectedInputModalities(without(selectedInputModalities, value)) })),
+		...selectedOutputModalities.map((value) => ({ key: `output-${value}`, label: `Output: ${toTitleCase(value)}`, onRemove: () => setSelectedOutputModalities(without(selectedOutputModalities, value)) })),
+		...selectedTiers.map((value) => ({ key: `tier-${value}`, label: `Tier: ${toTitleCase(value)}`, onRemove: () => setSelectedTiers(without(selectedTiers, value)) })),
+		...(selectedContextMin > 0 ? [{ key: "context", label: `Context: ${formatContextStop(selectedContextMin)}+`, onRemove: () => setSelectedContextMin(0) }] : []),
+		...selectedSupportedParameters.map((value) => ({ key: `parameter-${value}`, label: `Parameter: ${toTitleCase(value)}`, onRemove: () => setSelectedSupportedParameters(without(selectedSupportedParameters, value)) })),
+		...selectedProviders.map((value) => ({ key: `provider-${value}`, label: `Provider: ${providerLabels.get(value) ?? value}`, onRemove: () => setSelectedProviders(without(selectedProviders, value)) })),
+		...selectedRegions.map((value) => ({ key: `region-${value}`, label: `Region: ${formatRegionLabel(value)}`, onRemove: () => setSelectedRegions(without(selectedRegions, value)) })),
+		...selectedCreators.map((value) => ({ key: `creator-${value}`, label: `Creator: ${creatorLabels.get(value) ?? value}`, onRemove: () => setSelectedCreators(without(selectedCreators, value)) })),
+		...selectedFeatures.map((value) => ({ key: `feature-${value}`, label: featureLabels[value] ?? toTitleCase(value), onRemove: () => setSelectedFeatures(without(selectedFeatures, value)) })),
+		...selectedEndpoints.map((value) => ({ key: `endpoint-${value}`, label: `Endpoint: ${toTitleCase(value)}`, onRemove: () => setSelectedEndpoints(without(selectedEndpoints, value)) })),
+		...(yearSelected > 0 ? [{ key: "year", label: `Year: ${yearSelected}`, onRemove: () => setYearSelected(0) }] : []),
+	];
 
 	const buildHref = (path: string) => {
 		const params = new URLSearchParams(searchParams?.toString() ?? "");
@@ -1089,11 +1123,11 @@ export default function ModelsTableDisplay({
 				}
 			}
 
-			const year = parseYearParam(params.get("year"));
-			if (year > 0) {
-				params.set("years", String(year));
-			} else {
-				params.delete("years");
+			if (!params.get("years")) {
+				const year = parseYearParam(params.get("year"));
+				if (year > 0) {
+					params.set("years", String(year));
+				}
 			}
 			params.delete("year");
 
@@ -1562,7 +1596,7 @@ export default function ModelsTableDisplay({
 
 						<div className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-2">
 							{sortSelect("h-8 min-w-0 rounded-md bg-background text-sm")}
-							{filterButton(true)}
+							{filterButton()}
 							{viewSwitcher}
 						</div>
 
@@ -1651,6 +1685,7 @@ export default function ModelsTableDisplay({
 							}
 						/>
 					</div>
+					<ActiveModelFilters filters={activeFilters} onClear={resetFilters} />
 				</div>
 
 				<div className="w-full px-4 pb-5 pt-1 lg:px-8 lg:pb-6 lg:pt-1">

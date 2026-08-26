@@ -30,6 +30,7 @@ import {
 	applyProviderQualifiedModelConstraint,
 	canonicalizeProviderQualifiedModelRequest,
 	filterProviderQualifiedModelCandidates,
+	filterQuantizationCandidates,
 	collectUnsupportedRoutingFields,
 	getEffectiveRoutingHints,
 	normalizeRequestRoutingBody,
@@ -416,6 +417,19 @@ export async function beforeRequest(
     );
     if (!c.ok) return c as { ok: false; response: Response };
     let { context, providers, resolvedModel, candidateDiagnostics } = c.value;
+    const contextTelemetry = context.contextTelemetry ?? null;
+    const contextTimingSpans = {
+        context_total: contextTelemetry?.totalMs,
+        context_key_version: contextTelemetry?.keyVersionMs,
+        context_cache_read: contextTelemetry?.cacheReadMs,
+        context_credit_refresh: contextTelemetry?.creditRefreshMs,
+        context_rpc: contextTelemetry?.rpcMs,
+        context_enrich: contextTelemetry?.enrichMs,
+        context_cache_write: contextTelemetry?.cacheWriteMs,
+    };
+    for (const [name, durationMs] of Object.entries(contextTimingSpans)) {
+        if (typeof durationMs === "number") timer.record(name, durationMs);
+    }
 
     const workspacePolicyLoad = await workspacePolicyPromise;
     if ("error" in workspacePolicyLoad) {
@@ -909,6 +923,43 @@ export async function beforeRequest(
             )
         );
     }
+	const quantizationCandidates = filterQuantizationCandidates(
+		enabledProviders,
+		getEffectiveRoutingHints(mergedBody).quantizations,
+	);
+	if (quantizationCandidates.ok === false) {
+		const requested = quantizationCandidates.requested.join(", ");
+		const available = quantizationCandidates.diagnostics.available;
+		const description = available.length > 0
+			? `No eligible provider-model offer matches the requested quantization(s): ${requested}. Available quantizations: ${available.join(", ")}`
+			: `No eligible provider-model offer matches the requested quantization(s): ${requested}. The eligible offers have no usable quantization metadata.`;
+		return {
+			ok: false,
+			response: err("unsupported_model_or_endpoint", {
+				model: resolvedModel || model,
+				reason: quantizationCandidates.reason,
+				description,
+				error_type: "user",
+				error_origin: "user",
+				error_operational_kind: quantizationCandidates.reason,
+				details: [{
+					message: description,
+					path: ["provider", "quantizations"],
+					keyword: quantizationCandidates.reason,
+					params: {
+						requested: quantizationCandidates.requested,
+						available,
+					},
+				}],
+				routing_diagnostics: {
+					quantization: quantizationCandidates.diagnostics,
+				},
+				request_id: requestId,
+				workspace_id: workspaceId,
+			}),
+		};
+	}
+	enabledProviders = quantizationCandidates.providers;
     const providerEnablementDiagnostics: ProviderEnablementDiagnostics = {
         capability: normalizedCapability,
         providersBefore: filteredProviders.map((provider) => provider.providerId),
@@ -988,7 +1039,6 @@ export async function beforeRequest(
             trace_level: traceLevel ?? (debugTrace ? "full" : undefined),
         }
         : undefined;
-    const contextTelemetry = context.contextTelemetry ?? null;
     const meta: RequestMeta = makeMeta({
         endpoint,
         apiKeyId,

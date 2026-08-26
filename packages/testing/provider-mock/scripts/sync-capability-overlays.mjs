@@ -5,7 +5,6 @@ import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const specs = [
-  { id: "openai", capability: "rerank", method: "post", path: "/rerank" },
   { id: "alibaba-cloud", capability: "video.generate", method: "post", path: "/api/v1/services/aigc/video-generation/video-synthesis" },
   { id: "atlascloud", capability: "video.generate", method: "post", path: "/api/v1/model/generateVideo" },
   { id: "byteplus", capability: "video.generate", method: "post", path: "/api/v3/contents/generations/tasks" },
@@ -16,7 +15,6 @@ const specs = [
   { id: "x-ai", capability: "video.generate", method: "post", path: "/v1/videos/generations" },
   { id: "minimax", capability: "video.generate", method: "post", path: "/v1/video_generation" },
   { id: "minimax", capability: "music.generate", method: "post", path: "/v1/music_generation" },
-  { id: "google-vertex-eu", capability: "video.generate", method: "post", path: "/v1/projects/{project}/locations/{location}/publishers/google/models/{model}:predictLongRunning" },
   { id: "voyage", capability: "text.generate", method: "post", path: "/v1/chat/completions" },
 ];
 

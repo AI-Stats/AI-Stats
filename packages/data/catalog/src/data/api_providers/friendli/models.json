@@ -11,11 +11,11 @@
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": "2025-12-01T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-05-22T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -152,10 +152,10 @@
     "internal_model_id": "google/gemma-4-31b",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text,image,video",
+    "input_modalities": "text,image",
     "output_modalities": "text",
-    "context_length": 256000,
-    "max_output_tokens": null,
+    "context_length": 262144,
+    "max_output_tokens": 8192,
     "effective_from": "2026-05-07T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -205,11 +205,11 @@
     "context_length": 262144,
     "max_output_tokens": 262144,
     "effective_from": "2026-04-28T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-24T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [
           {
             "param_id": "max_tokens",
@@ -303,11 +303,11 @@
     "context_length": 131072,
     "max_output_tokens": 8000,
     "effective_from": "2026-04-28T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-24T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [
           {
             "param_id": "max_tokens",
@@ -401,11 +401,11 @@
     "context_length": 131072,
     "max_output_tokens": 131072,
     "effective_from": "2026-04-28T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-24T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [
           {
             "param_id": "max_tokens",
@@ -597,11 +597,11 @@
     "context_length": 262144,
     "max_output_tokens": 262144,
     "effective_from": "2026-04-28T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-24T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [
           {
             "param_id": "max_tokens",
@@ -695,11 +695,11 @@
     "context_length": 202752,
     "max_output_tokens": 202752,
     "effective_from": "2026-04-28T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-24T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [
           {
             "param_id": "max_tokens",
@@ -881,7 +881,7 @@
   },
   {
     "api_model_id": "z-ai/glm-5.2",
-    "provider_api_model_id": "friendli:z-ai/glm-5.2",
+    "provider_api_model_id": "friendli:zai-org/GLM-5.2",
     "provider_model_slug": "zai-org/GLM-5.2",
     "internal_model_id": "z-ai/glm-5.2",
     "is_active_gateway": false,
@@ -925,6 +925,52 @@
       "checked_at": null,
       "notes": null
     },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "lg/k-exaone-2.0",
+    "provider_api_model_id": "friendli:LGAI-EXAONE/K-EXAONE-2.0-750B-A37B",
+    "provider_model_slug": "LGAI-EXAONE/K-EXAONE-2.0-750B-A37B",
+    "internal_model_id": "lg/k-exaone-2.0",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-24T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [{"capability_id":"text.generate","status":"active","params":[{"param_id":"max_tokens","provider_min":1,"provider_max":null,"provider_default":null,"notes":null},{"param_id":"temperature","provider_min":null,"provider_max":2,"provider_default":null,"notes":null},{"param_id":"top_p","provider_min":null,"provider_max":null,"provider_default":null,"notes":null},{"param_id":"stop","provider_min":null,"provider_max":null,"provider_default":null,"notes":null},{"param_id":"response_format","provider_min":null,"provider_max":null,"provider_default":null,"notes":null},{"param_id":"tools","provider_min":null,"provider_max":null,"provider_default":null,"notes":null},{"param_id":"tool_choice","provider_min":null,"provider_max":null,"provider_default":null,"notes":null}],"reasoning":null,"tool_call":true,"structured_output":true,"temperature":true,"attachment":null,"input_modalities":null,"output_modalities":null,"modes":[]}],
+    "routing_status": null,
+    "routable": false,
+    "regions": {"execution":null,"data":null},
+    "service_tiers": ["standard"],
+    "api": {"formats":["openai_chat_completions"],"endpoint":"https://api.friendli.ai/serverless/v1/chat/completions","deployment":"serverless"},
+    "sources": [{"kind":"provider_models","url":"https://friendli.ai/models?products=SERVERLESS","accessed_at":"2026-08-24T00:00:00Z","notes":"Live Model APIs catalog, exact ID and text modality."},{"kind":"pricing","url":"https://friendli.ai/pricing#model-apis-pricing","accessed_at":"2026-08-24T00:00:00Z","notes":"Live token prices and 262,144-token context length."}],
+    "verification": {"status":"verified","checked_at":"2026-08-24T00:00:00Z","notes":"Exact serverless model ID, availability, modality, context length and pricing verified against FriendliAI's live catalog."},
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/whisper-large-v3",
+    "provider_api_model_id": "friendli:openai/whisper-large-v3",
+    "provider_model_slug": "openai/whisper-large-v3",
+    "internal_model_id": "openai/whisper-large-v3",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "audio",
+    "output_modalities": "text",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-04-01T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [{"capability_id":"audio.transcription","status":"active","params":[],"reasoning":null,"tool_call":null,"structured_output":null,"temperature":null,"attachment":true,"input_modalities":null,"output_modalities":null,"modes":[]}],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {"execution":null,"data":null},
+    "service_tiers": ["standard"],
+    "api": {"formats":["openai_audio_transcriptions"],"endpoint":"https://api.friendli.ai/serverless/v1/audio/transcriptions","deployment":"serverless"},
+    "sources": [{"kind":"provider_models","url":"https://friendli.ai/models?products=SERVERLESS","accessed_at":"2026-08-24T00:00:00Z","notes":"Live Model APIs catalog, exact ID and audio-to-text modality."},{"kind":"documentation","url":"https://friendli.ai/docs/openapi/model-apis/audio-transcriptions","accessed_at":"2026-08-24T00:00:00Z","notes":"Official multipart transcription endpoint and streaming/non-streaming behavior."},{"kind":"pricing","url":"https://friendli.ai/pricing#model-apis-pricing","accessed_at":"2026-08-24T00:00:00Z","notes":"Live per-audio-minute price."}],
+    "verification": {"status":"verified","checked_at":"2026-08-24T00:00:00Z","notes":"Exact serverless ID, modality, endpoint, release date and published pricing verified against FriendliAI primary sources."},
     "rate_limits": []
   }
 ]

@@ -3,6 +3,15 @@
   "api_provider_name": "AionLabs",
   "description": null,
   "link": "https://www.aionlabs.ai/",
+  "residency_mode": "provider_managed",
+  "default_execution_regions": null,
+  "default_data_regions": null,
+  "zero_data_retention": false,
+  "residency_source_url": "https://www.aionlabs.ai/privacy/",
+  "residency_notes": "Aion Labs says it routes API requests to upstream model providers and uses third-party hosting infrastructure. Its public policy does not identify a fixed execution or data-residency region or a named ZDR control; it retains personal data only as long as needed for stated purposes.",
+  "data_policy_tier": "logs",
+  "data_policy_confidence": "maybe",
+  "data_policy_contract_mode": "none",
   "country_code": "PL",
   "status": "Active",
   "colour": "#0F172A",
@@ -15,15 +24,21 @@
   "routable": null,
   "routing_enabled": null,
   "sdk_package": null,
-  "api_base_url": null,
-  "docs_url": "https://www.aionlabs.ai/",
-  "auth_env": null,
-  "api_formats": [],
+  "api_base_url": "https://api.aionlabs.ai/v1",
+  "docs_url": "https://api.aionlabs.ai/docs/api-reference/",
+  "auth_env": "AION_LABS_API_KEY",
+  "api_formats": [
+    "openai_chat",
+    "openai_responses"
+  ],
   "service_tiers": [],
-  "sources": [],
+  "sources": [
+    { "kind": "api_reference", "url": "https://api.aionlabs.ai/v1/models", "accessed_at": "2026-08-21T00:00:00Z" },
+    { "kind": "documentation", "url": "https://api.aionlabs.ai/docs/api-reference/", "accessed_at": "2026-08-21T00:00:00Z" }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-21",
+    "notes": "Verified against the official API reference and live unauthenticated model endpoint."
   }
 }

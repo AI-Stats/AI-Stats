@@ -9,7 +9,7 @@
       "meter": "input_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.12,
+      "price_per_unit": 0.12000000000000001,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
@@ -24,9 +24,69 @@
       "meter": "output_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.24,
+      "price_per_unit": 0.24000000000000002,
       "currency": "USD",
       "pricing_plan": "standard",
+      "note": null,
+      "match": [],
+      "priority": 100,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    },
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.18000000000000002,
+      "currency": "USD",
+      "pricing_plan": "priority",
+      "note": null,
+      "match": [],
+      "priority": 100,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.36000000000000004,
+      "currency": "USD",
+      "pricing_plan": "priority",
+      "note": null,
+      "match": [],
+      "priority": 100,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    },
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.09600000000000002,
+      "currency": "USD",
+      "pricing_plan": "flex",
+      "note": null,
+      "match": [],
+      "priority": 100,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.19200000000000003,
+      "currency": "USD",
+      "pricing_plan": "flex",
       "note": null,
       "match": [],
       "priority": 100,
@@ -38,12 +98,21 @@
   ],
   "regions": [],
   "service_tiers": [
-    "standard"
+    "standard",
+    "priority",
+    "flex"
   ],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.deepinfra.com/models/list",
+      "accessed_at": "2026-08-21T00:00:00Z",
+      "notes": "Authoritative DeepInfra token pricing, cache multiplier, and per-model priority/flex multipliers."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-21T00:00:00Z",
+    "notes": "Current standard, cached-input, priority, and flex pricing reconciled against DeepInfra's live /models/list detail feed."
   }
 }

@@ -74,13 +74,9 @@ function toAtlasStatus(value: unknown): IRVideoGenerationResponse["status"] {
 	if (status === "completed" || status === "success" || status === "succeeded" || status === "done") {
 		return "completed";
 	}
-	if (
-		status === "failed" ||
-		status === "error" ||
-		status === "cancelled" ||
-		status === "canceled" ||
-		status === "expired"
-	) {
+	if (status === "cancelled" || status === "canceled") return "cancelled";
+	if (status === "expired") return "expired";
+	if (status === "failed" || status === "error") {
 		return "failed";
 	}
 	if (status === "processing" || status === "running" || status === "in_progress" || status === "pending") {

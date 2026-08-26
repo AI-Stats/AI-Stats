@@ -1,7 +1,7 @@
 {
   "model_id": "aion-labs/aion-rp-llama-3.1-8b",
   "organisation_id": "aion-labs",
-  "name": "Aion RP Llama 3.1 8B",
+  "name": "Aion-RP 1.0 (8B)",
   "status": "Available",
   "previous_model_id": null,
   "description": "Aion-RP-Llama-3.1-8B ranks the highest in the character evaluation portion of the RPBench-Auto benchmark, a roleplaying-specific variant of Arena-Hard-Auto, where LLMs evaluate each other's responses.",
@@ -13,17 +13,20 @@
   "input_types": "text",
   "output_types": "text",
   "api_model_id": "aion-labs/aion-rp-llama-3.1-8b",
-  "links": [],
-  "details": [],
+  "links": [{ "title": "Aion Labs models", "kind": "api_reference", "url": "https://www.aionlabs.ai/docs/models/" }],
+  "details": [
+    { "name": "input_context_length", "value": 32768 },
+    { "name": "output_context_length", "value": 32768 }
+  ],
   "benchmarks": [],
   "family_id": null,
   "page_notice": null,
   "model_type": null,
   "knowledge_cutoff": null,
   "limits": {
-    "context": null,
-    "input": null,
-    "output": null
+    "context": 32768,
+    "input": 32768,
+    "output": 32768
   },
   "modalities": {
     "input": [
@@ -34,25 +37,25 @@
     ]
   },
   "reasoning": {
-    "supported": null,
+    "supported": false,
     "options": []
   },
   "capabilities": {
     "attachment": null,
-    "tool_call": null,
+    "tool_call": true,
     "structured_output": null,
-    "temperature": null,
-    "streaming": null,
+    "temperature": true,
+    "streaming": true,
     "web_search": null
   },
-  "open_weights": null,
-  "sources": [],
+  "open_weights": true,
+  "sources": [{ "kind": "api_reference", "url": "https://www.aionlabs.ai/docs/models/", "accessed_at": "2026-08-21T00:00:00Z" }],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-21T00:00:00Z",
+    "notes": "Verified against Aion Labs' live model catalog."
   },
-  "last_updated": null,
+  "last_updated": "2026-08-21T00:00:00Z",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

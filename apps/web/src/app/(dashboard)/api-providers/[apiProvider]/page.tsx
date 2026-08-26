@@ -163,8 +163,11 @@ export default async function Page({
 			)}
 			<APIProviderDetailShell apiProviderId={apiProvider} tocItems={[{ id: "performance", label: "Performance" }, { id: "token-usage", label: "Token Usage" }, { id: "top-models", label: "Top Models" }, { id: "top-apps", label: "Top Apps" }, { id: "models", label: "Models" }]}>
 				<div className="flex flex-col gap-10 w-full">
-					<section id="performance" className="scroll-mt-36 space-y-3">
-						<h2 className="text-xl font-semibold">Performance</h2>
+					<section id="performance" className="scroll-mt-36 space-y-4">
+						<div className="space-y-1">
+							<h2 className="text-xl font-semibold tracking-tight">Performance</h2>
+							<p className="text-sm text-muted-foreground">Latency and throughput from recent gateway traffic, with leading models for each signal.</p>
+						</div>
 						<PerformanceCards params={params} />
 					</section>
 

@@ -9,11 +9,15 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, "../../../../..");
 const deepSeekV4ProPricingPath = path.join(
     repoRoot,
-    "packages/data/catalog/src/data/pricing/deepseek/deepseek-deepseek-v4-pro/text.generate/pricing.json",
+    "packages/data/catalog/src/data/pricing/deepseek/deepseek-deepseek-v4-pro-0813/text.generate/pricing.json",
 );
 const deepSeekV4FlashPricingPath = path.join(
     repoRoot,
-    "packages/data/catalog/src/data/pricing/deepseek/deepseek-deepseek-v4-flash/text.generate/pricing.json",
+    "packages/data/catalog/src/data/pricing/deepseek/deepseek-deepseek-v4-flash-0731/text.generate/pricing.json",
+);
+const deepSeekV4FlashVisionPricingPath = path.join(
+    repoRoot,
+    "packages/data/catalog/src/data/pricing/deepseek/deepseek-deepseek-v4-flash-vision-exp/text.generate/pricing.json",
 );
 
 const makeDeepSeekCard = (): PriceCard => ({
@@ -79,11 +83,13 @@ const makeDeepSeekCard = (): PriceCard => ({
 
 function loadActiveCatalogPriceCard(pricingPath: string, nowIso = "2026-07-01T00:00:00.000Z"): PriceCard {
     const raw = JSON.parse(fs.readFileSync(pricingPath, "utf8"));
+    const nowMs = Date.parse(nowIso);
     const rules = raw.rules
         .filter((rule: Record<string, unknown>) => {
             const effectiveFrom = typeof rule.effective_from === "string" ? rule.effective_from : null;
             const effectiveTo = typeof rule.effective_to === "string" ? rule.effective_to : null;
-            return (!effectiveFrom || effectiveFrom <= nowIso) && (!effectiveTo || effectiveTo > nowIso);
+            return (!effectiveFrom || Date.parse(effectiveFrom) <= nowMs)
+                && (!effectiveTo || Date.parse(effectiveTo) > nowMs);
         })
         .map((rule: Record<string, unknown>): PriceRule => ({
             id: `${String(raw.api_provider_id)}:${String(raw.api_model_id)}:${String(rule.pricing_plan)}:${String(rule.meter)}`,
@@ -113,57 +119,45 @@ function loadActiveCatalogPriceCard(pricingPath: string, nowIso = "2026-07-01T00
     };
 }
 
-function activateDeepSeekPeakWindows(
-    card: PriceCard,
-    peakPricesByMeter: Record<string, string>,
-): PriceCard {
-    return {
-        ...card,
-        rules: card.rules.map((rule) => ({
-            ...rule,
-            billing_timestamp_basis: "provider_accept",
-            time_windows: [
-                {
-                    label: "peak",
-                    timezone: "UTC",
-                    start_time: "01:00",
-                    end_time: "04:00",
-                    price_per_unit: peakPricesByMeter[rule.meter],
-                },
-                {
-                    label: "peak",
-                    timezone: "UTC",
-                    start_time: "06:00",
-                    end_time: "10:00",
-                    price_per_unit: peakPricesByMeter[rule.meter],
-                },
-            ],
-        })),
-    };
-}
-
 const deepSeekV4CatalogCases = [
     {
         label: "DeepSeek V4 Pro",
         pricingPath: deepSeekV4ProPricingPath,
         baseTotal: "1.308625000",
-        peakTotal: "2.617250000",
+        offPeakTotal: "2.662000000",
+        peakTotal: "5.324000000",
         peakPricesByMeter: {
-            input_text_tokens: "0.87",
-            cached_read_text_tokens: "0.00725",
-            output_text_tokens: "1.74",
+            input_text_tokens: "1.32",
+            cached_read_text_tokens: "0.044",
+            output_text_tokens: "3.96",
         },
     },
     {
         label: "DeepSeek V4 Flash",
         pricingPath: deepSeekV4FlashPricingPath,
         baseTotal: "0.422800000",
-        peakTotal: "0.845600000",
+        offPeakTotal: "0.887000000",
+        peakTotal: "1.774000000",
         peakPricesByMeter: {
-            input_text_tokens: "0.28",
-            cached_read_text_tokens: "0.0056",
-            output_text_tokens: "0.56",
+            input_text_tokens: "0.44",
+            cached_read_text_tokens: "0.014",
+            output_text_tokens: "1.32",
         },
+    },
+];
+
+const deepSeekWeekendCatalogCases = [
+    ...deepSeekV4CatalogCases.map(({ label, pricingPath, offPeakTotal, peakTotal }) => ({
+        label,
+        pricingPath,
+        offPeakTotal,
+        peakTotal,
+    })),
+    {
+        label: "DeepSeek V4 Flash Vision Exp",
+        pricingPath: deepSeekV4FlashVisionPricingPath,
+        offPeakTotal: "0.887000000",
+        peakTotal: "1.774000000",
     },
 ];
 
@@ -224,6 +218,41 @@ describe("pricing engine time-windowed rules", () => {
                 },
             }),
         ]);
+    });
+
+    it("applies weekday-constrained windows only on matching UTC weekdays", () => {
+        const card = makeDeepSeekCard();
+        card.rules = card.rules.map((rule) => ({
+            ...rule,
+            time_windows: rule.time_windows?.map((window) => ({
+                ...window,
+                days_of_week: ["mon", "tue", "wed", "thu", "fri"],
+            })),
+        }));
+
+        const sunday = computeBillSummary(
+            { input_text_tokens: 1_000_000 },
+            card,
+            { request_started_at: "2026-08-23T06:30:00Z" },
+            "standard",
+        );
+        const monday = computeBillSummary(
+            { input_text_tokens: 1_000_000 },
+            card,
+            { request_started_at: "2026-08-24T06:30:00Z" },
+            "standard",
+        );
+
+        expect(sunday.lines[0]).toMatchObject({
+            unit_price_usd: "0.435000000",
+            pricing_time_window: null,
+        });
+        expect(monday.lines[0]).toMatchObject({
+            unit_price_usd: "0.870000000",
+            pricing_time_window: expect.objectContaining({
+                days_of_week: ["mon", "tue", "wed", "thu", "fri"],
+            }),
+        });
     });
 
     it("uses the upstream send time for provider-accept pricing windows", () => {
@@ -404,10 +433,27 @@ describe("pricing engine time-windowed rules", () => {
 });
 
 describe("DeepSeek V4 catalog time-period pricing", () => {
+	it("bills DeepSeek Vision image tokens once through aggregate input usage", () => {
+		const card = loadActiveCatalogPriceCard(deepSeekV4FlashVisionPricingPath, "2026-08-21T00:00:00.000Z");
+
+		const result = computeBillSummary(
+			// DeepSeek reports image-derived tokens within the aggregate input total.
+			{ input_text_tokens: 512, input_image_tokens: 384 },
+			card,
+			{ request_started_at: "2026-08-21T05:00:00Z", upstreamStartMs: Date.parse("2026-08-21T05:00:00Z") },
+			"standard",
+		);
+
+		expect(result.lines).toEqual([
+			expect.objectContaining({ dimension: "input_text_tokens", quantity: 512 }),
+		]);
+		expect(result.cost_usd_str).toBe("0.000112640");
+	});
+
     it.each(deepSeekV4CatalogCases)(
-        "keeps pending peak periods inactive for $label in the current catalog",
+        "keeps current prices active for $label before the scheduled cutover",
         ({ pricingPath, baseTotal }) => {
-            const card = loadActiveCatalogPriceCard(pricingPath);
+            const card = loadActiveCatalogPriceCard(pricingPath, "2026-08-16T15:59:59.999Z");
 
             expect(card.rules).toHaveLength(3);
             expect(card.rules.every((rule) => !rule.time_windows?.length)).toBe(true);
@@ -421,9 +467,9 @@ describe("DeepSeek V4 catalog time-period pricing", () => {
                 },
                 card,
                 {
-                    request_started_at: "2026-07-20T05:30:00Z",
-                    upstreamStartMs: Date.parse("2026-07-20T06:30:00Z"),
-                    completed_at: "2026-07-20T11:30:00Z",
+                    request_started_at: "2026-08-16T15:59:00Z",
+                    upstreamStartMs: Date.parse("2026-08-16T15:59:59.999Z"),
+                    completed_at: "2026-08-16T16:01:00Z",
                 },
                 "standard",
             );
@@ -434,10 +480,13 @@ describe("DeepSeek V4 catalog time-period pricing", () => {
     );
 
     it.each(deepSeekV4CatalogCases)(
-        "bills $label announced peak prices from upstream send time once windows are active",
-        ({ pricingPath, peakPricesByMeter, baseTotal, peakTotal }) => {
-            const catalogCard = loadActiveCatalogPriceCard(pricingPath);
-            const card = activateDeepSeekPeakWindows(catalogCard, peakPricesByMeter);
+        "bills $label scheduled off-peak and peak prices after the cutover",
+        ({ pricingPath, peakPricesByMeter, offPeakTotal, peakTotal }) => {
+            const card = loadActiveCatalogPriceCard(pricingPath, "2026-08-16T16:00:00.000Z");
+
+            expect(card.rules).toHaveLength(3);
+            expect(card.rules.every((rule) => rule.time_windows?.length === 2)).toBe(true);
+            expect(card.rules.every((rule) => rule.billing_timestamp_basis === "provider_accept")).toBe(true);
 
             const offPeak = computeBillSummary(
                 {
@@ -447,9 +496,9 @@ describe("DeepSeek V4 catalog time-period pricing", () => {
                 },
                 card,
                 {
-                    request_started_at: "2026-07-20T05:00:00Z",
-                    upstreamStartMs: Date.parse("2026-07-20T05:30:00Z"),
-                    completed_at: "2026-07-20T06:30:00Z",
+                    request_started_at: "2026-08-17T05:00:00Z",
+                    upstreamStartMs: Date.parse("2026-08-17T05:30:00Z"),
+                    completed_at: "2026-08-17T06:30:00Z",
                 },
                 "standard",
             );
@@ -461,14 +510,14 @@ describe("DeepSeek V4 catalog time-period pricing", () => {
                 },
                 card,
                 {
-                    request_started_at: "2026-07-20T05:30:00Z",
-                    upstreamStartMs: Date.parse("2026-07-20T06:30:00Z"),
-                    completed_at: "2026-07-20T11:30:00Z",
+                    request_started_at: "2026-08-17T05:30:00Z",
+                    upstreamStartMs: Date.parse("2026-08-17T06:30:00Z"),
+                    completed_at: "2026-08-17T11:30:00Z",
                 },
                 "standard",
             );
 
-            expect(offPeak.cost_usd_str).toBe(baseTotal);
+            expect(offPeak.cost_usd_str).toBe(offPeakTotal);
             expect(offPeak.lines.every((line) => line.pricing_time_window === null)).toBe(true);
             expect(peak.cost_usd_str).toBe(peakTotal);
             expect(peak.lines).toEqual([
@@ -509,6 +558,47 @@ describe("DeepSeek V4 catalog time-period pricing", () => {
                     },
                 }),
             ]);
+        },
+    );
+
+    it.each(deepSeekWeekendCatalogCases)(
+        "keeps $label off-peak all weekend after the weekend-pricing cutover",
+        ({ pricingPath, offPeakTotal, peakTotal }) => {
+            const card = loadActiveCatalogPriceCard(pricingPath, "2026-08-22T16:00:00.000Z");
+            const usage = {
+                input_text_tokens: 1_000_000,
+                cached_read_text_tokens: 1_000_000,
+                output_text_tokens: 1_000_000,
+            };
+            const sunday = computeBillSummary(
+                usage,
+                card,
+                { upstreamStartMs: Date.parse("2026-08-23T06:30:00Z") },
+                "standard",
+            );
+            const saturday = computeBillSummary(
+                usage,
+                card,
+                { upstreamStartMs: Date.parse("2026-08-29T06:30:00Z") },
+                "standard",
+            );
+            const monday = computeBillSummary(
+                usage,
+                card,
+                { upstreamStartMs: Date.parse("2026-08-24T06:30:00Z") },
+                "standard",
+            );
+
+            expect(card.rules).toHaveLength(3);
+            expect(card.rules.every((rule) => rule.time_windows?.every((window) =>
+                window.days_of_week?.join(",") === "mon,tue,wed,thu,fri"
+            ))).toBe(true);
+            expect(sunday.cost_usd_str).toBe(offPeakTotal);
+            expect(sunday.lines.every((line) => line.pricing_time_window === null)).toBe(true);
+            expect(saturday.cost_usd_str).toBe(offPeakTotal);
+            expect(saturday.lines.every((line) => line.pricing_time_window === null)).toBe(true);
+            expect(monday.cost_usd_str).toBe(peakTotal);
+            expect(monday.lines.every((line) => line.pricing_time_window !== null)).toBe(true);
         },
     );
 });

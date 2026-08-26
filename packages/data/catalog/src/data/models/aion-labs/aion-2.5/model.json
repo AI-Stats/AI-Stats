@@ -2,13 +2,13 @@
   "model_id": "aion-labs/aion-2.5",
   "organisation_id": "aion-labs",
   "name": "Aion 2.5",
-  "status": "Available",
+  "status": "Retired",
   "previous_model_id": "aion-labs/aion-2-0-2025-12-21",
   "description": "Aion 2.5 is a variant of DeepSeek V3.2 optimized for immersive roleplaying and storytelling. It accepts text inputs and produces text outputs.",
   "announced_date": "2026-03-10T00:00:00",
   "release_date": "2026-03-10T00:00:00",
-  "deprecation_date": null,
-  "retirement_date": null,
+  "deprecation_date": "2026-08-14T00:00:00",
+  "retirement_date": "2026-08-14T00:00:00",
   "license": "Proprietary",
   "input_types": "text",
   "output_types": "text",
@@ -43,26 +43,26 @@
     ]
   },
   "reasoning": {
-    "supported": null,
+    "supported": true,
     "options": []
   },
   "capabilities": {
     "attachment": null,
-    "tool_call": null,
+    "tool_call": true,
     "structured_output": null,
-    "temperature": null,
-    "streaming": null,
+    "temperature": true,
+    "streaming": true,
     "web_search": null
   },
   "open_weights": null,
-  "sources": [],
+  "sources": [{ "kind": "api_reference", "url": "https://www.aionlabs.ai/docs/models/", "accessed_at": "2026-08-21T00:00:00Z" }],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-21T00:00:00Z",
+    "notes": "Verified as expired against Aion Labs' current model catalog."
   },
-  "last_updated": null,
+  "last_updated": "2026-08-21T00:00:00Z",
   "removal_date": null,
-  "replacement_model_id": null,
+  "replacement_model_id": "aion-labs/aion-3.0",
   "license_url": null
 }

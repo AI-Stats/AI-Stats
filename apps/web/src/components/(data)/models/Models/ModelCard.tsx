@@ -1,7 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { memo, useState, type CSSProperties, type MouseEvent } from "react";
+import {
+	memo,
+	useEffect,
+	useRef,
+	useState,
+	type CSSProperties,
+	type MouseEvent,
+	type ReactNode,
+} from "react";
 import {
 	ArrowUpRight,
 	ArrowUpDown,
@@ -27,6 +35,7 @@ import { resolveWeeklyUsageDisplay } from "./weeklyUsage";
 import type { ModelCard as ModelCardType } from "@/lib/fetchers/models/getAllModels";
 import { getModelDetailsHref } from "@/lib/models/modelHref";
 import { normalizeOrganisationDisplayName } from "@/lib/models/organisationDisplay";
+import { hasPassedLifecycleDate } from "@/lib/models/modelLifecycle";
 
 type ModelCardLike = Omit<ModelCardType, "gateway_status"> & {
 	gateway_status?: ModelCardType["gateway_status"] | "coming_soon" | null;
@@ -175,7 +184,7 @@ function normalizeModalityOrderKey(value: string): string {
 	if (normalized.includes("image")) return "image";
 	if (normalized.includes("music")) return "audio_music";
 	if (
-		normalized.includes("transcrib") ||
+		normalized.includes("transcri") ||
 		normalized.includes("speech to text") ||
 		normalized.includes("stt")
 	) {
@@ -419,7 +428,7 @@ function getModalityIcon(value: string): LucideIcon {
 	if (normalized.includes("image")) return ImageIcon;
 	if (normalized.includes("music")) return Music4;
 	if (
-		normalized.includes("transcrib") ||
+		normalized.includes("transcri") ||
 		normalized.includes("speech to text") ||
 		normalized.includes("stt")
 	) {
@@ -444,6 +453,69 @@ function formatPrimaryDate(model: ModelCardLike): string {
 	const parsed = new Date(model.primary_date);
 	if (Number.isNaN(parsed.getTime())) return model.primary_date;
 	return PRIMARY_DATE_FORMATTER.format(parsed);
+}
+
+function ModelCardScrollRail({
+	ariaLabel,
+	children,
+	className,
+}: {
+	ariaLabel: string;
+	children: ReactNode;
+	className?: string;
+}) {
+	const viewportRef = useRef<HTMLDivElement>(null);
+	const [canScrollRight, setCanScrollRight] = useState(false);
+
+	useEffect(() => {
+		const viewport = viewportRef.current;
+		if (!viewport) return;
+
+		const updateScrollAffordance = () => {
+			setCanScrollRight(
+				viewport.scrollLeft + viewport.clientWidth < viewport.scrollWidth - 1,
+			);
+		};
+
+		updateScrollAffordance();
+		viewport.addEventListener("scroll", updateScrollAffordance, { passive: true });
+		const resizeObserver = new ResizeObserver(updateScrollAffordance);
+		resizeObserver.observe(viewport);
+		if (viewport.firstElementChild) {
+			resizeObserver.observe(viewport.firstElementChild);
+		}
+
+		return () => {
+			viewport.removeEventListener("scroll", updateScrollAffordance);
+			resizeObserver.disconnect();
+		};
+	}, []);
+
+	return (
+		<ScrollArea
+			className={cn(
+				"min-w-0 max-w-full transition-[mask-image] duration-200",
+				className,
+			)}
+			scrollBarClassName="hidden"
+			scrollBarOrientation="horizontal"
+			style={
+				canScrollRight
+					? {
+							WebkitMaskImage:
+								"linear-gradient(to right, black calc(100% - 2rem), transparent)",
+							maskImage:
+								"linear-gradient(to right, black calc(100% - 2rem), transparent)",
+						}
+					: undefined
+			}
+			viewportRef={viewportRef}
+			viewportProps={{ "aria-label": ariaLabel, role: "region" }}
+			viewportClassName="[scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+		>
+			{children}
+		</ScrollArea>
+	);
 }
 
 function ModelCardImpl({
@@ -487,6 +559,20 @@ function ModelCardImpl({
 				: `${organisationLabel}: ${model.name}`
 			: model.name;
 	const safeModelDisplayName = String(modelDisplayName ?? "").trim() || displayModelId;
+	const lifecycleStatus = String(model.status ?? "")
+		.trim()
+		.toLowerCase();
+	const isRetired =
+		lifecycleStatus === "retired" ||
+		lifecycleStatus === "removed" ||
+		hasPassedLifecycleDate(model.retirement_date) ||
+		hasPassedLifecycleDate(model.removal_date);
+	const isDeprecated =
+		!isRetired &&
+		(lifecycleStatus === "deprecated" ||
+			hasPassedLifecycleDate(model.deprecation_date));
+	const LifecycleIcon = isRetired || isDeprecated ? BadgeAlert : null;
+	const lifecycleLabel = isRetired ? "End of life" : isDeprecated ? "Deprecated" : null;
 	const [copied, setCopied] = useState(false);
 	const routerRequests30d =
 		Number.isFinite(Number(model.router_requests_30d)) &&
@@ -855,11 +941,9 @@ function ModelCardImpl({
 		const unique = sortModalitiesForDisplay(Array.from(
 			new Set(values.map((value) => String(value ?? "").trim()).filter(Boolean)),
 		));
-		const visible = unique.slice(0, 4);
-		const hiddenCount = unique.length - visible.length;
 		return {
-			visible,
-			hiddenCount,
+			visible: unique,
+			hiddenCount: 0,
 		};
 	};
 	const inputModalityDisplay = formatModalities(inputModalities);
@@ -996,89 +1080,8 @@ function ModelCardImpl({
 				</div>
 
 				<div className="grid gap-2 text-xs md:grid-cols-3">
-					<div className="flex flex-wrap items-center gap-1.5 text-[11px] md:col-span-3">
-						{providerStatusItems.length > 0 ? (
-							<HoverCard openDelay={120} closeDelay={100}>
-								<HoverCardTrigger asChild>
-									<button
-										type="button"
-										data-no-row-nav="true"
-										className="inline-flex items-center gap-1 rounded-md border border-border/60 bg-muted/30 px-2 py-1 text-left transition-colors hover:bg-muted/45"
-									>
-										<span className="text-muted-foreground">Providers</span>
-										<span className="font-medium text-foreground tabular-nums">
-											{activeProviders.toLocaleString()}/{providerCount.toLocaleString()}
-										</span>
-									</button>
-								</HoverCardTrigger>
-								<HoverCardContent align="start" className="w-72 p-3">
-									<div className="space-y-2">
-										<div className="text-xs font-medium text-foreground">
-											Provider Support
-										</div>
-										<ScrollArea className="pr-1" style={{ height: providerListHeight }}>
-											<div className="space-y-1 pr-2">
-												{providerStatusItems.map((provider) => (
-													<div
-														key={`${provider.id || "provider"}-${provider.name}`}
-														className="flex items-center justify-between gap-3 rounded-sm px-1 py-1 text-xs"
-													>
-														{provider.id ? (
-															<Link
-																href={`/api-providers/${provider.id}`}
-																prefetch={false}
-																className="flex min-w-0 items-center gap-2 text-foreground hover:underline underline-offset-2"
-															>
-																<span className="relative h-4 w-4 shrink-0 rounded-[4px] border bg-background">
-																	<Logo
-																		id={provider.id}
-																		alt={provider.name}
-																		className="object-contain p-[1px]"
-																		fill
-																	/>
-																</span>
-																<span className="truncate">
-																	{provider.name}
-																</span>
-															</Link>
-														) : (
-															<span className="flex min-w-0 items-center gap-2">
-																<span className="truncate text-foreground">
-																	{provider.name}
-																</span>
-															</span>
-														)}
-														<span
-															className={cn("inline-flex items-center gap-1 rounded-sm px-1.5 py-0.5 text-[11px]", PROVIDER_STATUS_META[provider.status]?.badgeClassName ?? "bg-muted text-muted-foreground")}
-														>
-															<span
-																className={cn("h-1.5 w-1.5 rounded-full", PROVIDER_STATUS_META[provider.status]?.dotClassName ?? "bg-muted-foreground/60")}
-															/>
-															{formatProviderStatusLabel(provider.status)}
-														</span>
-													</div>
-												))}
-											</div>
-										</ScrollArea>
-									</div>
-								</HoverCardContent>
-							</HoverCard>
-						) : (
-							<div className="inline-flex items-center gap-1 rounded-md border border-border/60 bg-muted/30 px-2 py-1">
-								<span className="text-muted-foreground">Providers</span>
-								<span className="font-medium text-foreground tabular-nums">
-									{activeProviders.toLocaleString()}/{providerCount.toLocaleString()}
-								</span>
-							</div>
-						)}
-						{maxContextLength ? (
-							<div className="inline-flex items-center gap-1 rounded-md border border-border/60 bg-muted/30 px-2 py-1">
-								<span className="text-muted-foreground">Context</span>
-								<span className="font-medium text-foreground tabular-nums">
-									{`${formatTokenCount(maxContextLength)} tokens`}
-								</span>
-							</div>
-						) : null}
+					<ModelCardScrollRail ariaLabel="Model summary" className="md:col-span-3">
+						<div className="flex w-max min-w-full items-center gap-1.5 pb-px text-[11px] [&>*]:shrink-0">
 						{priceSummary ? (
 							pricingDetailRows.length > 0 ? (
 								<HoverCard openDelay={120} closeDelay={100}>
@@ -1247,6 +1250,101 @@ function ModelCardImpl({
 								</div>
 							)
 						) : null}
+						{LifecycleIcon && lifecycleLabel ? (
+							<span
+								className={cn(
+									"inline-flex items-center gap-1 rounded-md border px-2 py-1",
+									isRetired
+										? "border-red-500/30 bg-red-500/10 text-red-700 dark:text-red-300"
+										: "border-orange-500/30 bg-orange-500/10 text-orange-700 dark:text-orange-300",
+								)}
+								aria-label={lifecycleLabel}
+							>
+								<LifecycleIcon className="h-3.5 w-3.5" aria-hidden="true" />
+								<span>{lifecycleLabel}</span>
+							</span>
+						) : providerStatusItems.length > 0 ? (
+							<HoverCard openDelay={120} closeDelay={100}>
+								<HoverCardTrigger asChild>
+									<button
+										type="button"
+										data-no-row-nav="true"
+										className="inline-flex items-center gap-1 rounded-md border border-border/60 bg-muted/30 px-2 py-1 text-left transition-colors hover:bg-muted/45"
+									>
+										<span className="text-muted-foreground">Providers</span>
+										<span className="font-medium text-foreground tabular-nums">
+											{activeProviders.toLocaleString()}/{providerCount.toLocaleString()}
+										</span>
+									</button>
+								</HoverCardTrigger>
+								<HoverCardContent align="start" className="w-72 p-3">
+									<div className="space-y-2">
+										<div className="text-xs font-medium text-foreground">
+											Provider Support
+										</div>
+										<ScrollArea className="pr-1" style={{ height: providerListHeight }}>
+											<div className="space-y-1 pr-2">
+												{providerStatusItems.map((provider) => (
+													<div
+														key={`${provider.id || "provider"}-${provider.name}`}
+														className="flex items-center justify-between gap-3 rounded-sm px-1 py-1 text-xs"
+													>
+														{provider.id ? (
+															<Link
+																href={`/api-providers/${provider.id}`}
+																prefetch={false}
+																className="flex min-w-0 items-center gap-2 text-foreground hover:underline underline-offset-2"
+															>
+																<span className="relative h-4 w-4 shrink-0 rounded-[4px] border bg-background">
+																	<Logo
+																		id={provider.id}
+																		alt={provider.name}
+																		className="object-contain p-[1px]"
+																		fill
+																	/>
+																</span>
+																<span className="truncate">
+																	{provider.name}
+																</span>
+															</Link>
+														) : (
+															<span className="flex min-w-0 items-center gap-2">
+																<span className="truncate text-foreground">
+																	{provider.name}
+																</span>
+															</span>
+														)}
+														<span
+															className={cn("inline-flex items-center gap-1 rounded-sm px-1.5 py-0.5 text-[11px]", PROVIDER_STATUS_META[provider.status]?.badgeClassName ?? "bg-muted text-muted-foreground")}
+														>
+															<span
+																className={cn("h-1.5 w-1.5 rounded-full", PROVIDER_STATUS_META[provider.status]?.dotClassName ?? "bg-muted-foreground/60")}
+															/>
+															{formatProviderStatusLabel(provider.status)}
+														</span>
+													</div>
+												))}
+											</div>
+										</ScrollArea>
+									</div>
+								</HoverCardContent>
+							</HoverCard>
+						) : (
+							<div className="inline-flex items-center gap-1 rounded-md border border-border/60 bg-muted/30 px-2 py-1">
+								<span className="text-muted-foreground">Providers</span>
+								<span className="font-medium text-foreground tabular-nums">
+									{activeProviders.toLocaleString()}/{providerCount.toLocaleString()}
+								</span>
+							</div>
+						)}
+						{maxContextLength ? (
+							<div className="inline-flex items-center gap-1 rounded-md border border-border/60 bg-muted/30 px-2 py-1">
+								<span className="text-muted-foreground">Context</span>
+								<span className="font-medium text-foreground tabular-nums">
+									{`${formatTokenCount(maxContextLength)} tokens`}
+								</span>
+							</div>
+						) : null}
 						{routerRequests30d !== null ? (
 							<div className="inline-flex items-center gap-1 rounded-md border border-border/60 bg-muted/30 px-2 py-1">
 								<span className="text-muted-foreground">Requests (30d)</span>
@@ -1263,14 +1361,16 @@ function ModelCardImpl({
 								</span>
 							</div>
 						) : null}
-					</div>
+						</div>
+					</ModelCardScrollRail>
 
-					<div className="space-y-1 md:col-span-3">
+					<div className="min-w-0 space-y-1 md:col-span-3">
 						<div className="flex items-center gap-2 min-w-0">
 							<span className="w-11 shrink-0 text-[11px] text-muted-foreground">
 								Input
 							</span>
-							<div className="min-w-0 flex flex-wrap gap-1">
+							<ModelCardScrollRail ariaLabel="Input modalities" className="flex-1">
+								<div className="flex w-max min-w-full items-center gap-1 pb-px [&>*]:shrink-0">
 								{inputModalityDisplay.visible.length > 0 ? (
 									<>
 										{inputModalityDisplay.visible.map((modality) => {
@@ -1298,13 +1398,15 @@ function ModelCardImpl({
 								) : (
 									<span className="text-[11px] text-muted-foreground">-</span>
 								)}
-							</div>
+								</div>
+							</ModelCardScrollRail>
 						</div>
 						<div className="flex items-center gap-2 min-w-0">
 							<span className="w-11 shrink-0 text-[11px] text-muted-foreground">
 								Output
 							</span>
-							<div className="min-w-0 flex flex-wrap gap-1">
+							<ModelCardScrollRail ariaLabel="Output modalities" className="flex-1">
+								<div className="flex w-max min-w-full items-center gap-1 pb-px [&>*]:shrink-0">
 								{outputModalityDisplay.visible.length > 0 ? (
 									<>
 										{outputModalityDisplay.visible.map((modality) => {
@@ -1332,7 +1434,8 @@ function ModelCardImpl({
 								) : (
 									<span className="text-[11px] text-muted-foreground">-</span>
 								)}
-							</div>
+								</div>
+							</ModelCardScrollRail>
 						</div>
 					</div>
 				</div>

@@ -48,6 +48,45 @@ afterAll(() => {
 });
 
 describe("google-ai-studio execute usage fallback", () => {
+	it("uses generateContent for explicit cached content", async () => {
+		const mock = installFetchMock([{
+			match: (url) => url.endsWith("/v1beta/models/gemini-2.5-flash:generateContent"),
+			response: new Response(JSON.stringify({
+				candidates: [{ content: { role: "model", parts: [{ text: "Cached response" }] }, finishReason: "STOP" }],
+				usageMetadata: { promptTokenCount: 8, candidatesTokenCount: 2, totalTokenCount: 10 },
+			}), { status: 200, headers: { "Content-Type": "application/json" } }),
+		}]);
+
+		const result = await executor(buildArgs({
+			model: "google/gemini-2.5-flash",
+			googleCachedContent: "cachedContents/example",
+		}, { providerModelSlug: "gemini-2.5-flash" }));
+		mock.restore();
+
+		expect(result.kind).toBe("completed");
+		expect(mock.calls).toHaveLength(1);
+		expect(mock.calls[0]?.bodyJson?.cachedContent).toBe("cachedContents/example");
+		expect(mock.calls[0]?.bodyJson).not.toHaveProperty("model");
+	});
+
+	it("uses generateContent for active models not supported by Interactions", async () => {
+		const mock = installFetchMock([{
+			match: (url) => url.endsWith("/v1beta/models/gemma-3-27b-it:generateContent"),
+			response: new Response(JSON.stringify({
+				candidates: [{ content: { role: "model", parts: [{ text: "Gemma response" }] }, finishReason: "STOP" }],
+				usageMetadata: { promptTokenCount: 6, candidatesTokenCount: 2, totalTokenCount: 8 },
+			}), { status: 200, headers: { "Content-Type": "application/json" } }),
+		}]);
+
+		const result = await executor(buildArgs());
+		mock.restore();
+
+		expect(result.kind).toBe("completed");
+		expect(mock.calls).toHaveLength(1);
+		expect(mock.calls[0]?.bodyJson?.contents).toHaveLength(1);
+		expect(mock.calls[0]?.bodyJson).not.toHaveProperty("model");
+	});
+
 	it("preserves billable usage when current Gemini Flash models return empty output", async () => {
 		const mock = installFetchMock([{
 			match: (url) => url.endsWith("/v1beta/interactions"),
@@ -131,9 +170,9 @@ describe("google-ai-studio execute usage fallback", () => {
 		}
 	});
 
-	it("keeps legacy GenerateContent routing for older AI Studio models", async () => {
+	it("routes Gemini 2.5 through Interactions", async () => {
 		const mock = installFetchMock([{
-			match: (url) => url.endsWith("/v1beta/models/gemini-2.5-flash:generateContent"),
+			match: (url) => url.endsWith("/v1beta/interactions"),
 			response: new Response(JSON.stringify({
 				candidates: [{
 					content: { parts: [{ text: "legacy response" }] },
@@ -157,12 +196,12 @@ describe("google-ai-studio execute usage fallback", () => {
 			type: "text",
 			text: "legacy response",
 		});
-		expect(mock.calls[0]?.bodyJson?.contents?.[0]?.role).toBe("user");
+		expect(mock.calls[0]?.bodyJson?.input?.[0]?.type).toBe("user_input");
 	});
 
 	it("defaults Gemma 4 to minimal thinking so short output budgets retain a final answer", async () => {
 		const mock = installFetchMock([{
-			match: (url) => url.endsWith("/v1beta/models/gemma-4-26b-a4b-it:generateContent"),
+			match: (url) => url.endsWith("/v1beta/interactions"),
 			response: new Response(JSON.stringify({
 				candidates: [{
 					content: { parts: [{ text: "OK" }] },
@@ -181,16 +220,16 @@ describe("google-ai-studio execute usage fallback", () => {
 		mock.restore();
 
 		expect(result.kind).toBe("completed");
-		expect(mock.calls[0]?.bodyJson?.generationConfig?.thinkingConfig).toEqual({
-			includeThoughts: false,
-			thinkingLevel: "MINIMAL",
+		expect(mock.calls[0]?.bodyJson?.generation_config).toMatchObject({
+			thinking_summaries: "none",
+			thinking_level: "minimal",
 		});
-		expect(mock.calls[0]?.bodyJson?.generationConfig?.thinkingConfig).not.toHaveProperty("thinkingBudget");
+		expect(mock.calls[0]?.bodyJson?.generation_config).not.toHaveProperty("thinking_budget");
 	});
 
 	it("maps explicit Gemma 4 reasoning effort to thinkingLevel instead of thinkingBudget", async () => {
 		const mock = installFetchMock([{
-			match: (url) => url.endsWith("/v1beta/models/gemma-4-31b-it:generateContent"),
+			match: (url) => url.endsWith("/v1beta/interactions"),
 			response: new Response(JSON.stringify({
 				candidates: [{
 					content: { parts: [{ text: "OK" }] },
@@ -212,16 +251,16 @@ describe("google-ai-studio execute usage fallback", () => {
 		mock.restore();
 
 		expect(result.kind).toBe("completed");
-		expect(mock.calls[0]?.bodyJson?.generationConfig?.thinkingConfig).toEqual({
-			includeThoughts: false,
-			thinkingLevel: "MINIMAL",
+		expect(mock.calls[0]?.bodyJson?.generation_config).toMatchObject({
+			thinking_summaries: "none",
+			thinking_level: "minimal",
 		});
-		expect(mock.calls[0]?.bodyJson?.generationConfig?.thinkingConfig).not.toHaveProperty("thinkingBudget");
+		expect(mock.calls[0]?.bodyJson?.generation_config).not.toHaveProperty("thinking_budget");
 	});
 
 	it("does not request thoughts when Gemma 4 reasoning is disabled", async () => {
 		const mock = installFetchMock([{
-			match: (url) => url.endsWith("/v1beta/models/gemma-4-26b-a4b-it:generateContent"),
+			match: (url) => url.endsWith("/v1beta/interactions"),
 			response: new Response(JSON.stringify({
 				candidates: [{
 					content: { parts: [{ text: "OK" }] },
@@ -243,9 +282,9 @@ describe("google-ai-studio execute usage fallback", () => {
 		mock.restore();
 
 		expect(result.kind).toBe("completed");
-		expect(mock.calls[0]?.bodyJson?.generationConfig?.thinkingConfig).toEqual({
-			includeThoughts: false,
-			thinkingLevel: "MINIMAL",
+		expect(mock.calls[0]?.bodyJson?.generation_config).toMatchObject({
+			thinking_summaries: "none",
+			thinking_level: "minimal",
 		});
 	});
 
@@ -272,7 +311,8 @@ describe("google-ai-studio execute usage fallback", () => {
 			}),
 		}]);
 
-		const result = await executor(buildArgs(undefined, {
+		const result = await executor(buildArgs({ model: "google/gemini-3.6-flash" }, {
+			providerModelSlug: "gemini-3.6-flash",
 			endpoint: "interactions",
 			protocol: "google.interactions",
 		}));
@@ -358,24 +398,20 @@ describe("google-ai-studio execute usage fallback", () => {
 				total_tokens: 27,
 			},
 		};
-		let attempts = 0;
-
 		const mock = installFetchMock([
 			{
+				match: (url) => url.endsWith("/v1beta/models/lyria-3-pro:generateContent"),
+				response: new Response(JSON.stringify({ error: { message: "Model not found." } }), {
+					status: 404,
+					headers: { "Content-Type": "application/json" },
+				}),
+			},
+			{
 				match: (url) => url.endsWith("/v1beta/interactions"),
-				response: () => {
-					attempts += 1;
-					if (attempts === 1) {
-						return new Response(JSON.stringify({ error: { message: "Model not found." } }), {
-							status: 404,
-							headers: { "Content-Type": "application/json" },
-						});
-					}
-					return new Response(JSON.stringify(payload), {
+				response: new Response(JSON.stringify(payload), {
 						status: 200,
 						headers: { "Content-Type": "application/json" },
-					});
-				},
+					}),
 			},
 		]);
 

@@ -11,7 +11,7 @@
     "context_length": 200000,
     "max_output_tokens": 4096,
     "effective_from": "2024-03-13T00:00:00",
-    "effective_to": "2026-04-20T00:00:00",
+    "effective_to": "2026-08-23T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -120,18 +120,18 @@
     "provider_api_model_id": "google-vertex:anthropic/claude-3.5-haiku",
     "provider_model_slug": "claude-3-5-haiku@20241022",
     "internal_model_id": "anthropic/claude-3.5-haiku",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 200000,
+    "max_output_tokens": 8192,
     "effective_from": "2024-11-04T00:00:00",
-    "effective_to": "2026-06-15T00:00:00",
+    "effective_to": "2026-07-05T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [
           {
             "param_id": "max_tokens",
@@ -207,8 +207,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": [
         "global"
@@ -236,18 +236,18 @@
     "provider_api_model_id": "google-vertex:anthropic/claude-3.7-sonnet",
     "provider_model_slug": "claude-3-7-sonnet@20250219",
     "internal_model_id": "anthropic/claude-3.7-sonnet",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 200000,
+    "max_output_tokens": 128000,
     "effective_from": "2025-03-20T00:00:00",
-    "effective_to": "2026-06-15T00:00:00",
+    "effective_to": "2026-05-11T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [
           {
             "param_id": "include_reasoning",
@@ -330,8 +330,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": [
         "global"
@@ -371,7 +371,7 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": ["include_reasoning", "max_tokens", "reasoning", "response_format", "stop", "structured_outputs", "tool_choice", "tools", "verbosity"],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -1145,11 +1145,127 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "anthropic/claude-opus-4.8",
+    "provider_api_model_id": "google-vertex:anthropic/claude-opus-4.8",
+    "provider_model_slug": "claude-opus-4-8",
+    "internal_model_id": "anthropic/claude-opus-4.8",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,pdf",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 128000,
+    "effective_from": "2026-05-28T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "include_reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "max_tokens",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "response_format",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "stop",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "structured_outputs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tool_choice",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "verbosity",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          }
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": null
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "anthropic/claude-opus-5",
     "provider_api_model_id": "google-vertex:anthropic/claude-opus-5",
     "provider_model_slug": "claude-opus-5",
     "internal_model_id": "anthropic/claude-opus-5",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "text",
@@ -1236,8 +1352,8 @@
         "modes": []
       }
     ],
-    "routing_status": null,
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": [
         "global"
@@ -1648,7 +1764,7 @@
     "provider_api_model_id": "google-vertex:anthropic/claude-sonnet-5",
     "provider_model_slug": "claude-sonnet-5",
     "internal_model_id": "anthropic/claude-sonnet-5",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "text",
@@ -1660,7 +1776,7 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": ["include_reasoning", "max_tokens", "reasoning", "response_format", "stop", "structured_outputs", "tool_choice", "tools", "verbosity"],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -1671,8 +1787,8 @@
         "modes": []
       }
     ],
-    "routing_status": null,
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": [
         "global"
@@ -1696,22 +1812,386 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "google/gemini-1.5-pro-002",
+    "provider_api_model_id": "google-vertex:google/gemini-1.5-pro-002",
+    "provider_model_slug": "gemini-1.5-pro-002",
+    "internal_model_id": "google/gemini-1.5-pro-002",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:15:57.239+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-2.5-flash",
+    "provider_api_model_id": "google-vertex:google/gemini-2.5-flash",
+    "provider_model_slug": "gemini-2.5-flash",
+    "internal_model_id": "google/gemini-2.5-flash",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video,audio",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": "2026-10-16T00:00:00",
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:15:57.239+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-2.5-flash-lite",
+    "provider_api_model_id": "google-vertex:google/gemini-2.5-flash-lite",
+    "provider_model_slug": "gemini-2.5-flash-lite",
+    "internal_model_id": "google/gemini-2.5-flash-lite",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video,audio",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": "2026-10-16T00:00:00",
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": ["include_reasoning", "max_tokens", "reasoning", "response_format", "seed", "stop", "structured_outputs", "temperature", "tool_choice", "tools", "top_p"],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:15:57.239+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-2.5-pro",
+    "provider_api_model_id": "google-vertex:google/gemini-2.5-pro",
+    "provider_model_slug": "gemini-2.5-pro",
+    "internal_model_id": "google/gemini-2.5-pro",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video,audio",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": "2026-10-16T00:00:00",
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": ["include_reasoning", "max_tokens", "reasoning", "response_format", "seed", "stop", "structured_outputs", "temperature", "tool_choice", "tools", "top_p"],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:15:57.239+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-3-flash-preview",
+    "provider_api_model_id": "google-vertex:google/gemini-3-flash-preview",
+    "provider_model_slug": "gemini-3-flash-preview",
+    "internal_model_id": "google/gemini-3-flash-preview",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1048576,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": ["include_reasoning", "max_tokens", "reasoning", "response_format", "seed", "stop", "structured_outputs", "temperature", "tool_choice", "tools", "top_p"],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:15:57.239+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-3-pro-image",
+    "provider_api_model_id": "google-vertex:google/gemini-3-pro-image",
+    "provider_model_slug": "gemini-3-pro-image",
+    "internal_model_id": "google/gemini-3-pro-image",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": ["include_reasoning", "max_tokens", "reasoning", "response_format", "seed", "stop", "structured_outputs", "temperature", "tool_choice", "tools", "top_p"],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:15:57.239+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-3.1-flash-image",
+    "provider_api_model_id": "google-vertex:google/gemini-3.1-flash-image",
+    "provider_model_slug": "gemini-3.1-flash-image",
+    "internal_model_id": "google/gemini-3.1-flash-image",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 131072,
+    "max_output_tokens": 32768,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": ["include_reasoning", "max_tokens", "reasoning", "response_format", "seed", "stop", "structured_outputs", "temperature", "tool_choice", "tools", "top_p"],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:15:57.239+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "google/gemini-3.1-flash-image-preview",
     "provider_api_model_id": "google-vertex:google/gemini-3.1-flash-image-preview",
     "provider_model_slug": "gemini-3.1-flash-image-preview",
     "internal_model_id": "google/gemini-3.1-flash-image-preview",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "text,image",
     "context_length": 65536,
     "max_output_tokens": 32768,
     "effective_from": "2026-02-26T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-06-25T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [
           {
             "param_id": "include_reasoning",
@@ -1787,8 +2267,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": [
         "global"
@@ -2047,18 +2527,18 @@
     "provider_api_model_id": "google-vertex:google/gemini-3.1-flash-lite-preview",
     "provider_model_slug": "gemini-3.1-flash-lite-preview",
     "internal_model_id": "google/gemini-3.1-flash-lite-preview",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image,audio,video",
     "output_modalities": "text",
     "context_length": 1048576,
     "max_output_tokens": 65536,
     "effective_from": "2026-03-03T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-05-25T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [
           {
             "param_id": "structured_outputs",
@@ -2134,8 +2614,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": [
         "global"
@@ -2409,7 +2889,7 @@
     "provider_api_model_id": "google-vertex:google/gemini-3.5-flash-lite",
     "provider_model_slug": "gemini-3.5-flash-lite",
     "internal_model_id": "google/gemini-3.5-flash-lite",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text,image,video,audio",
     "output_modalities": "text",
@@ -2420,8 +2900,8 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "coming_soon",
-        "params": [],
+        "status": "active",
+        "params": ["include_reasoning", "max_tokens", "reasoning", "response_format", "seed", "stop", "structured_outputs", "temperature", "tool_choice", "tools", "top_p"],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -2432,8 +2912,8 @@
         "modes": []
       }
     ],
-    "routing_status": null,
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": [
         "global"
@@ -2513,7 +2993,7 @@
     "provider_api_model_id": "google-vertex:google/gemini-3.6-flash",
     "provider_model_slug": "gemini-3.6-flash",
     "internal_model_id": "google/gemini-3.6-flash",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text,image,video,audio",
     "output_modalities": "text",
@@ -2524,8 +3004,8 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "coming_soon",
-        "params": [],
+        "status": "active",
+        "params": ["include_reasoning", "max_tokens", "reasoning", "response_format", "seed", "stop", "structured_outputs", "temperature", "tool_choice", "tools", "top_p"],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -2536,8 +3016,8 @@
         "modes": []
       }
     ],
-    "routing_status": null,
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": [
         "global"
@@ -2561,6 +3041,29 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "google/gemini-3.7-flash",
+    "provider_api_model_id": "google-vertex:google/gemini-3.7-flash",
+    "provider_model_slug": "gemini-3.7-flash",
+    "internal_model_id": "google/gemini-3.7-flash",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video,audio",
+    "output_modalities": "text",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-13T00:00:00",
+    "effective_to": null,
+    "capabilities": [{ "capability_id": "text.generate", "status": "active", "params": [], "reasoning": null, "tool_call": null, "structured_output": null, "temperature": null, "attachment": null, "input_modalities": null, "output_modalities": null, "modes": [] }],
+    "routing_status": "active",
+    "routable": true,
+    "regions": { "execution": ["global"], "data": ["global"] },
+    "service_tiers": [],
+    "api": { "formats": [], "endpoint": null, "deployment": null },
+    "sources": [],
+    "verification": { "status": "unverified", "checked_at": null, "notes": "Provisionally enabled pending Google upstream availability." },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "google/gemini-embedding-2",
     "provider_api_model_id": "google-vertex:google/gemini-embedding-2",
     "provider_model_slug": "gemini-embedding-2",
@@ -2577,7 +3080,7 @@
       {
         "capability_id": "text.embed",
         "status": "active",
-        "params": [],
+        "params": ["include_reasoning", "max_tokens", "reasoning", "response_format", "seed", "stop", "structured_outputs", "temperature", "tool_choice", "tools", "top_p"],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -2617,18 +3120,18 @@
     "provider_api_model_id": "google-vertex:google/gemini-embedding-2-preview",
     "provider_model_slug": "gemini-embedding-2-preview",
     "internal_model_id": "google/gemini-embedding-2-preview",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image,audio,video",
     "output_modalities": "embeddings",
     "context_length": 8192,
     "max_output_tokens": null,
     "effective_from": "2026-03-10T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-10T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.embed",
-        "status": "active",
+        "status": "disabled",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -2640,8 +3143,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": [
         "global"
@@ -2669,18 +3172,18 @@
     "provider_api_model_id": "google-vertex:google/veo-2",
     "provider_model_slug": "veo-2.0-generate-001",
     "internal_model_id": "google/veo-2",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "video",
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": "2025-04-09T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-06-30T00:00:00",
     "capabilities": [
       {
         "capability_id": "video.generate",
-        "status": "coming_soon",
+        "status": "disabled",
         "params": {
           "prompt": {
             "type": "string"
@@ -2719,8 +3222,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": [
         "global"
@@ -2748,18 +3251,18 @@
     "provider_api_model_id": "google-vertex:google/veo-3.1-fast-preview",
     "provider_model_slug": "veo-3.1-fast-generate-preview",
     "internal_model_id": "google/veo-3.1-fast-preview",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text",
-    "output_modalities": "video",
+    "input_modalities": "text,image,video",
+    "output_modalities": "video,audio",
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": "2026-03-24T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-04-02T00:00:00",
     "capabilities": [
       {
         "capability_id": "video.generate",
-        "status": "coming_soon",
+        "status": "disabled",
         "params": {
           "prompt": {
             "type": "string"
@@ -2789,6 +3292,9 @@
           "input_image": {
             "type": "string"
           },
+          "input_references": {
+            "type": "array"
+          },
           "generate_audio": {
             "type": "boolean"
           }
@@ -2797,14 +3303,14 @@
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
+        "attachment": true,
+        "input_modalities": ["text", "image", "video"],
+        "output_modalities": ["video", "audio"],
+        "modes": ["text-to-video", "image-to-video", "reference-to-video", "video-extension"]
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": [
         "global"
@@ -2828,14 +3334,14 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "google/veo-3.1-lite-generate-preview",
-    "provider_api_model_id": "google-vertex:google/veo-3.1-lite-generate-preview",
+    "api_model_id": "google/veo-3.1-lite-preview",
+    "provider_api_model_id": "google-vertex:google/veo-3.1-lite-preview",
     "provider_model_slug": "veo-3.1-lite-generate-001",
     "internal_model_id": "google/veo-3.1-lite-preview",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text",
-    "output_modalities": "video",
+    "input_modalities": "text,image",
+    "output_modalities": "video,audio",
     "context_length": 1024,
     "max_output_tokens": null,
     "effective_from": "2026-03-31T00:00:00",
@@ -2880,14 +3386,14 @@
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
+        "attachment": true,
+        "input_modalities": ["text", "image"],
+        "output_modalities": ["video", "audio"],
+        "modes": ["text-to-video", "image-to-video"]
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "disabled",
+    "routable": false,
     "regions": {
       "execution": [
         "global"
@@ -2915,18 +3421,18 @@
     "provider_api_model_id": "google-vertex:google/veo-3.1-preview",
     "provider_model_slug": "veo-3.1-generate-preview",
     "internal_model_id": "google/veo-3.1-preview",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text",
-    "output_modalities": "video",
+    "input_modalities": "text,image,video",
+    "output_modalities": "video,audio",
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": "2026-03-24T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-04-02T00:00:00",
     "capabilities": [
       {
         "capability_id": "video.generate",
-        "status": "coming_soon",
+        "status": "disabled",
         "params": {
           "prompt": {
             "type": "string"
@@ -2956,6 +3462,9 @@
           "input_image": {
             "type": "string"
           },
+          "input_references": {
+            "type": "array"
+          },
           "generate_audio": {
             "type": "boolean"
           }
@@ -2964,181 +3473,13 @@
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
+        "attachment": true,
+        "input_modalities": ["text", "image", "video"],
+        "output_modalities": ["video", "audio"],
+        "modes": ["text-to-video", "image-to-video", "reference-to-video", "video-extension"]
       }
     ],
-    "routing_status": "active",
-    "routable": true,
-    "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "anthropic/claude-opus-5",
-    "provider_api_model_id": "google-vertex:anthropic/claude-opus-5",
-    "provider_model_slug": "claude-opus-5",
-    "internal_model_id": "anthropic/claude-opus-5",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": "text,image",
-    "output_modalities": "text",
-    "context_length": 1000000,
-    "max_output_tokens": 128000,
-    "effective_from": null,
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": true,
-    "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "anthropic/claude-opus-4.8",
-    "provider_api_model_id": "google-vertex:anthropic/claude-opus-4.8",
-    "provider_model_slug": "claude-opus-4-8",
-    "internal_model_id": "anthropic/claude-opus-4.8",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": "text,image,pdf",
-    "output_modalities": "text",
-    "context_length": 1000000,
-    "max_output_tokens": 128000,
-    "effective_from": "2026-05-28T00:00:00",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [
-          {
-            "param_id": "include_reasoning",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "max_tokens",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "reasoning",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "response_format",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "stop",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "structured_outputs",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "tool_choice",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "tools",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "verbosity",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          }
-        ],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": null,
+    "routing_status": "retired",
     "routable": false,
     "regions": {
       "execution": [
@@ -3159,6 +3500,941 @@
       "status": "unverified",
       "checked_at": null,
       "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-4.7",
+    "provider_api_model_id": "google-vertex:z-ai/glm-4.7",
+    "provider_model_slug": "z-ai/glm-4.7",
+    "internal_model_id": "z-ai/glm-4.7",
+    "is_active_gateway": false,
+    "quantization_scheme": "unknown",
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 200000,
+    "max_output_tokens": 128000,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "disabled",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "response_format",
+          "top_k",
+          "repetition_penalty",
+          "frequency_penalty",
+          "presence_penalty",
+          "stop",
+          "structured_outputs",
+          "tools",
+          "tool_choice"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": null,
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v3.2",
+    "provider_api_model_id": "google-vertex:deepseek/deepseek-v3.2",
+    "provider_model_slug": "deepseek/deepseek-v3.2",
+    "internal_model_id": "deepseek/deepseek-v3.2",
+    "is_active_gateway": false,
+    "quantization_scheme": "unknown",
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 163840,
+    "max_output_tokens": 65536,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "disabled",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "response_format",
+          "top_k",
+          "repetition_penalty",
+          "frequency_penalty",
+          "presence_penalty",
+          "stop",
+          "tools",
+          "tool_choice",
+          "structured_outputs",
+          "logprobs",
+          "top_logprobs"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": null,
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "moonshotai/kimi-k2-thinking",
+    "provider_api_model_id": "google-vertex:moonshotai/kimi-k2-thinking",
+    "provider_model_slug": "moonshotai/kimi-k2-thinking",
+    "internal_model_id": "moonshotai/kimi-k2-thinking",
+    "is_active_gateway": false,
+    "quantization_scheme": "unknown",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": 262144,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "disabled",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "response_format",
+          "top_k",
+          "repetition_penalty",
+          "frequency_penalty",
+          "presence_penalty",
+          "stop",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "logprobs",
+          "top_logprobs"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": null,
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "minimax/minimax-m2",
+    "provider_api_model_id": "google-vertex:minimax/minimax-m2",
+    "provider_model_slug": "minimax/minimax-m2",
+    "internal_model_id": "minimax/minimax-m2",
+    "is_active_gateway": false,
+    "quantization_scheme": "unknown",
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 196608,
+    "max_output_tokens": 196608,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "disabled",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "response_format",
+          "top_k",
+          "repetition_penalty",
+          "frequency_penalty",
+          "presence_penalty",
+          "stop",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "logprobs",
+          "top_logprobs"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": null,
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-2.5-flash-image",
+    "provider_api_model_id": "google-vertex:google/gemini-2.5-flash-image",
+    "provider_model_slug": "google/gemini-2.5-flash-image",
+    "internal_model_id": "google/gemini-2.5-flash-image",
+    "is_active_gateway": false,
+    "quantization_scheme": "unknown",
+    "input_modalities": "text,image",
+    "output_modalities": "text,image",
+    "context_length": 32768,
+    "max_output_tokens": 8192,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "disabled",
+        "params": [
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "response_format",
+          "stop",
+          "structured_outputs"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": null,
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-next-80b-a3b-thinking",
+    "provider_api_model_id": "google-vertex:qwen/qwen3-next-80b-a3b-thinking",
+    "provider_model_slug": "qwen/qwen3-next-80b-a3b-thinking",
+    "internal_model_id": "qwen/qwen3-next-80b-a3b-thinking",
+    "is_active_gateway": false,
+    "quantization_scheme": "unknown",
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 262144,
+    "max_output_tokens": 262144,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "disabled",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "structured_outputs",
+          "response_format",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "top_k",
+          "repetition_penalty",
+          "frequency_penalty",
+          "presence_penalty",
+          "stop",
+          "tools",
+          "tool_choice",
+          "logprobs",
+          "top_logprobs"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": null,
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-next-80b-a3b-instruct",
+    "provider_api_model_id": "google-vertex:qwen/qwen3-next-80b-a3b-instruct",
+    "provider_model_slug": "qwen/qwen3-next-80b-a3b-instruct",
+    "internal_model_id": "qwen/qwen3-next-80b-a3b-instruct",
+    "is_active_gateway": false,
+    "quantization_scheme": "unknown",
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 262144,
+    "max_output_tokens": 262144,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "disabled",
+        "params": [
+          "structured_outputs",
+          "response_format",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "top_k",
+          "repetition_penalty",
+          "frequency_penalty",
+          "presence_penalty",
+          "stop",
+          "tools",
+          "tool_choice",
+          "logprobs",
+          "top_logprobs"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": null,
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-oss-120b",
+    "provider_api_model_id": "google-vertex:openai/gpt-oss-120b",
+    "provider_model_slug": "openai/gpt-oss-120b",
+    "internal_model_id": "openai/gpt-oss-120b",
+    "is_active_gateway": false,
+    "quantization_scheme": "unknown",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 131072,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "disabled",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "structured_outputs",
+          "response_format",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "repetition_penalty",
+          "top_k",
+          "reasoning_effort"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": null,
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-oss-20b",
+    "provider_api_model_id": "google-vertex:openai/gpt-oss-20b",
+    "provider_model_slug": "openai/gpt-oss-20b",
+    "internal_model_id": "openai/gpt-oss-20b",
+    "is_active_gateway": false,
+    "quantization_scheme": "unknown",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 131072,
+    "max_output_tokens": 32768,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "disabled",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "structured_outputs",
+          "response_format",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "repetition_penalty",
+          "top_k",
+          "reasoning_effort"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": null,
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-coder",
+    "provider_api_model_id": "google-vertex:qwen/qwen3-coder",
+    "provider_model_slug": "qwen/qwen3-coder",
+    "internal_model_id": "qwen/qwen3-coder",
+    "is_active_gateway": false,
+    "quantization_scheme": "unknown",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": 65536,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "disabled",
+        "params": [
+          "structured_outputs",
+          "response_format",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "top_k",
+          "repetition_penalty",
+          "frequency_penalty",
+          "presence_penalty",
+          "stop",
+          "tools",
+          "tool_choice",
+          "logprobs",
+          "top_logprobs"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": null,
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-235b-a22b-2507",
+    "provider_api_model_id": "google-vertex:qwen/qwen3-235b-a22b-2507",
+    "provider_model_slug": "qwen/qwen3-235b-a22b-2507",
+    "internal_model_id": "qwen/qwen3-235b-a22b-2507",
+    "is_active_gateway": false,
+    "quantization_scheme": "unknown",
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 262144,
+    "max_output_tokens": 16384,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "disabled",
+        "params": [
+          "structured_outputs",
+          "response_format",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "top_k",
+          "repetition_penalty",
+          "frequency_penalty",
+          "presence_penalty",
+          "stop",
+          "tools",
+          "tool_choice",
+          "logprobs",
+          "top_logprobs"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": null,
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/veo-3.1",
+    "provider_api_model_id": "google-vertex:google/veo-3.1",
+    "provider_model_slug": "veo-3.1-generate-001",
+    "internal_model_id": "google/veo-3.1",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "video,audio",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2025-11-17T00:00:00",
+    "effective_to": null,
+    "capabilities": [{
+      "capability_id": "video.generate",
+      "status": "active",
+      "params": {
+        "prompt": { "type": "string" },
+        "duration": { "type": "number", "min": 4, "max": 8, "aliases": ["seconds", "duration_seconds"] },
+        "size": { "type": "enum", "values": ["720p", "1080p", "4k"], "aliases": ["resolution"] },
+        "aspect_ratio": { "type": "string" },
+        "input_image": { "type": "string" },
+        "last_frame": { "type": "string" },
+        "generate_audio": { "type": "boolean" }
+      },
+      "reasoning": null, "tool_call": null, "structured_output": null, "temperature": null,
+      "attachment": null, "input_modalities": null, "output_modalities": null, "modes": []
+    }],
+    "routing_status": "active",
+    "routable": true,
+    "regions": { "execution": ["global"], "data": ["global"] },
+    "service_tiers": [],
+    "api": { "formats": ["google.predictLongRunning"], "endpoint": ":predictLongRunning", "deployment": null },
+    "sources": [{ "kind": "documentation", "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/veo/3-1-generate", "accessed_at": "2026-08-21T00:00:00Z" }],
+    "verification": { "status": "verified", "checked_at": "2026-08-21T00:00:00Z", "notes": "Verified as the current GA Veo 3.1 endpoint." },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/veo-3.1-fast",
+    "provider_api_model_id": "google-vertex:google/veo-3.1-fast",
+    "provider_model_slug": "veo-3.1-fast-generate-001",
+    "internal_model_id": "google/veo-3.1-fast",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "video,audio",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2025-11-17T00:00:00",
+    "effective_to": null,
+    "capabilities": [{
+      "capability_id": "video.generate",
+      "status": "active",
+      "params": {
+        "prompt": { "type": "string" },
+        "duration": { "type": "number", "min": 4, "max": 8, "aliases": ["seconds", "duration_seconds"] },
+        "size": { "type": "enum", "values": ["720p", "1080p", "4k"], "aliases": ["resolution"] },
+        "aspect_ratio": { "type": "string" },
+        "input_image": { "type": "string" },
+        "last_frame": { "type": "string" },
+        "generate_audio": { "type": "boolean" }
+      },
+      "reasoning": null, "tool_call": null, "structured_output": null, "temperature": null,
+      "attachment": null, "input_modalities": null, "output_modalities": null, "modes": []
+    }],
+    "routing_status": "active",
+    "routable": true,
+    "regions": { "execution": ["global"], "data": ["global"] },
+    "service_tiers": [],
+    "api": { "formats": ["google.predictLongRunning"], "endpoint": ":predictLongRunning", "deployment": null },
+    "sources": [{ "kind": "documentation", "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/veo/3-1-generate", "accessed_at": "2026-08-21T00:00:00Z" }],
+    "verification": { "status": "verified", "checked_at": "2026-08-21T00:00:00Z", "notes": "Verified as the current GA Veo 3.1 Fast endpoint." },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-3.5-transcribe",
+    "provider_api_model_id": "google-vertex:google/gemini-3.5-transcribe",
+    "provider_model_slug": "gemini-3.5-transcribe-preview",
+    "internal_model_id": "google/gemini-3.5-transcribe",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "audio",
+    "output_modalities": "text",
+    "context_length": 96000,
+    "max_output_tokens": 32000,
+    "effective_from": "2026-08-26T00:00:00",
+    "effective_to": null,
+    "capabilities": [{
+      "capability_id": "audio.transcription",
+      "status": "active",
+      "params": [],
+      "reasoning": false,
+      "tool_call": false,
+      "structured_output": false,
+      "temperature": null,
+      "attachment": true,
+      "input_modalities": ["audio"],
+      "output_modalities": ["text"],
+      "modes": []
+    }],
+    "routing_status": null,
+    "routable": false,
+    "regions": { "execution": ["global"], "data": ["global"] },
+    "service_tiers": ["standard"],
+    "api": { "formats": ["google.generateContent"], "endpoint": ":generateContent", "deployment": "global" },
+    "sources": [{
+      "kind": "api_reference",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.5-transcribe",
+      "accessed_at": "2026-08-26T00:00:00Z",
+      "notes": "Google's model documentation defines the canonical transcription capability; Vertex provider slug: gemini-3.5-transcribe-preview."
+    }],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-26T00:00:00Z",
+      "notes": "Canonical capability, limits, and Vertex/Agent Platform pricing are verified from Google's current documentation. The Vertex preview provider slug was supplied by the requester and is not separately published in the public model index; gateway routing remains disabled until a Vertex transcription executor is registered."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-3.5-transcribe-live",
+    "provider_api_model_id": "google-vertex:google/gemini-3.5-transcribe-live",
+    "provider_model_slug": "gemini-3.5-transcribe-live-preview",
+    "internal_model_id": "google/gemini-3.5-transcribe-live",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "audio",
+    "output_modalities": "text",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-26T00:00:00",
+    "effective_to": null,
+    "capabilities": [{
+      "capability_id": "audio.realtime",
+      "status": "active",
+      "params": [],
+      "reasoning": false,
+      "tool_call": false,
+      "structured_output": false,
+      "temperature": null,
+      "attachment": true,
+      "input_modalities": ["audio"],
+      "output_modalities": ["text"],
+      "modes": ["realtime"]
+    }],
+    "routing_status": null,
+    "routable": false,
+    "regions": { "execution": ["global"], "data": ["global"] },
+    "service_tiers": ["standard"],
+    "api": { "formats": ["google.live"], "endpoint": null, "deployment": "global" },
+    "sources": [{
+      "kind": "api_reference",
+      "url": "https://deepmind.google/models/gemini-audio/ai-transcription/",
+      "accessed_at": "2026-08-26T00:00:00Z",
+      "notes": "Google DeepMind lists Google Enterprise Agent Platform distribution; Vertex provider slug: gemini-3.5-transcribe-live-preview."
+    }],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-26T00:00:00Z",
+      "notes": "The Vertex preview provider slug was supplied by the requester and is not separately published in the public model index; the canonical live capability, limits, and Vertex/Agent Platform pricing are documented by Google, while gateway routing remains disabled until a Vertex Live transcription executor is registered."
     },
     "rate_limits": []
   }

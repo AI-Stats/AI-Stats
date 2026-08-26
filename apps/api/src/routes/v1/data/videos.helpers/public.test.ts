@@ -194,7 +194,7 @@ describe("public video response helper", () => {
 			requestUrl: "https://api.phaseo.app/v1/videos/G-hold",
 			id: "G-hold",
 			payload: {
-				status: "processing",
+		status: "in_progress",
 				model: "sora-2",
 				progress: 35,
 				output: [],
@@ -219,7 +219,7 @@ describe("public video response helper", () => {
 
 		expect(response).toMatchObject({
 			id: "G-hold",
-			status: "processing",
+		status: "in_progress",
 			lifecycle_status: "running",
 			progress: 35,
 			cancel_url: null,
@@ -266,7 +266,7 @@ describe("public video response helper", () => {
 
 		expect(response).toMatchObject({
 			id: "G-progress",
-			status: "processing",
+			status: "in_progress",
 			lifecycle_status: "running",
 			progress: 42,
 			progress_source: "provider",
@@ -370,7 +370,7 @@ describe("public video response helper", () => {
 		expect(response.cancel_url).toBeNull();
 		expect(response.content_url).toBe("https://api.phaseo.app/v1/videos/G-456/content");
 		expect(response).not.toHaveProperty("download_url");
-		expect(response).not.toHaveProperty("expires_at");
+		expect(response.expires_at).toBeNull();
 		expect(response.outputs).toEqual([
 			expect.objectContaining({
 				index: 0,

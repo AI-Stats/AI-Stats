@@ -9,6 +9,7 @@ import AsyncJobsPanel from "@/components/(gateway)/usage/AsyncJobsPanel";
 import SessionsPanel from "@/components/(gateway)/usage/SessionsPanel";
 import UsageLogsToolbar from "@/components/(gateway)/usage/UsageLogsToolbar";
 import UsageViewFilters from "@/components/(gateway)/usage/UsageViewFilters";
+import InvestigateGeneration from "@/components/(gateway)/usage/UsageHeader/InvestigateGeneration";
 import UpstreamRequestsTable from "@/components/(gateway)/usage/UpstreamRequestsTable";
 import {
 	getUsageRangeParamKeys,
@@ -19,7 +20,9 @@ import {
 } from "@/lib/gateway/usage/timeRange";
 
 import RequestsSection from "@/components/(gateway)/usage/RequestsSection";
-import RouteRequestDetailDialog from "@/components/(gateway)/usage/RouteRequestDetailDialog";
+import RouteRequestDetailDialog, {
+	RouteRequestDetailErrorDialog,
+} from "@/components/(gateway)/usage/RouteRequestDetailDialog";
 import { investigateGeneration, type RequestRow } from "@/app/(dashboard)/gateway/usage/server-actions";
 import { fetchSettingsUsageLogsInitialData } from "@/lib/fetchers/internal/fetchSettingsUsageLogsInitialData";
 
@@ -89,7 +92,7 @@ const SAMPLE_CLIENT_SOURCES = [
 	{ id: "phaseo-typescript", name: "Phaseo TypeScript SDK", kind: "sdk", version: "2.2.0", detection: "declared" },
 	{ id: "openai-python", name: "OpenAI Python SDK", kind: "sdk", version: "1.99.1", detection: "user_agent" },
 	{ id: "curl", name: "cURL", kind: "http_client", version: "8.12.1", detection: "user_agent" },
-	{ id: "api", name: "Direct API", kind: "api", version: null, detection: "unknown" },
+	{ id: "api", name: "Direct HTTP", kind: "api", version: null, detection: "unknown" },
 ] as const;
 
 function buildSampleSourceRows(rows: RequestRow[]): RequestRow[] {
@@ -142,17 +145,35 @@ export async function UsageLogsContent({
 	const sp = selectedView ? { ...rawSearchParams, view: selectedView } : rawSearchParams;
 	const initialData = await fetchSettingsUsageLogsInitialData(sp);
 
-	if (!initialData.signedIn) redirect("/sign-in");
+	if (!initialData.signedIn || initialData.loadState === "unauthorized") redirect("/sign-in");
+
+	if (initialData.loadState === "failed") {
+		return (
+			<Card>
+				<CardHeader><CardTitle>Logs unavailable</CardTitle></CardHeader>
+				<CardContent><p className="text-sm text-muted-foreground">We couldn&apos;t load request logs. Try again in a moment.</p></CardContent>
+			</Card>
+		);
+	}
+
+	if (initialData.loadState === "forbidden") {
+		return (
+			<Card>
+				<CardHeader><CardTitle>Workspace access changed</CardTitle></CardHeader>
+				<CardContent><p className="text-sm text-muted-foreground">You no longer have access to this workspace. Select another workspace to view its logs.</p></CardContent>
+			</Card>
+		);
+	}
 
 	if (!initialData.workspaceId) {
 		return (
 			<Card>
 				<CardHeader>
-					<CardTitle>Usage Logs</CardTitle>
+					<CardTitle>No workspace available</CardTitle>
 				</CardHeader>
 				<CardContent>
 					<p className="text-sm text-muted-foreground">
-						You need to be signed in and have a team selected to view logs.
+						Join or create a workspace to view request logs.
 					</p>
 				</CardContent>
 			</Card>
@@ -377,6 +398,14 @@ export async function UsageLogsContent({
 								? buildLogsRequestHref(sp, rows[currentIndex + 1].request_id)
 								: null
 						}
+						position={currentIndex >= 0 ? currentIndex + 1 : null}
+						total={rows.length}
+					/>
+				);
+			} else {
+				detailDialog = (
+					<RouteRequestDetailErrorDialog
+						closeHref={buildLogsRequestHref(sp)}
 					/>
 				);
 			}
@@ -394,6 +423,7 @@ export async function UsageLogsContent({
 				</div>
 				<div className="flex min-w-0 flex-wrap items-center gap-2 lg:justify-end">
 					{filters}
+					{view === "logs" ? <InvestigateGeneration /> : null}
 					<UsageLogsToolbar
 						view={view}
 						preset={preset}

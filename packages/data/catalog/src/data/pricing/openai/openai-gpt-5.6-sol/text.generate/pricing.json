@@ -9,6 +9,142 @@
       "meter": "input_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
+      "price_per_unit": 4,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Promotional price available at least through November 21, 2026. Short context pricing for requests at or below 272K input tokens.",
+      "match": [{ "path": "input_tokens", "op": "lte", "or_group": 1, "and_index": 1, "value": 272000 }],
+      "priority": 200,
+      "effective_from": "2026-08-21T19:34:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [{ "path": "input_tokens", "op": "lte", "or_group": 1, "and_index": 1, "value": 272000 }],
+      "source": "https://platform.openai.com/pricing"
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.4,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Promotional price available at least through November 21, 2026. Short context pricing for requests at or below 272K input tokens.",
+      "match": [{ "path": "input_tokens", "op": "lte", "or_group": 1, "and_index": 1, "value": 272000 }],
+      "priority": 200,
+      "effective_from": "2026-08-21T19:34:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [{ "path": "input_tokens", "op": "lte", "or_group": 1, "and_index": 1, "value": 272000 }],
+      "source": "https://platform.openai.com/pricing"
+    },
+    {
+      "meter": "cached_write_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 5,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Promotional price available at least through November 21, 2026. Short context pricing for requests at or below 272K input tokens.",
+      "match": [{ "path": "input_tokens", "op": "lte", "or_group": 1, "and_index": 1, "value": 272000 }],
+      "priority": 200,
+      "effective_from": "2026-08-21T19:34:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [{ "path": "input_tokens", "op": "lte", "or_group": 1, "and_index": 1, "value": 272000 }],
+      "source": "https://platform.openai.com/pricing"
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 20,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Promotional price available at least through November 21, 2026. Short context pricing for requests at or below 272K input tokens.",
+      "match": [{ "path": "input_tokens", "op": "lte", "or_group": 1, "and_index": 1, "value": 272000 }],
+      "priority": 200,
+      "effective_from": "2026-08-21T19:34:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [{ "path": "input_tokens", "op": "lte", "or_group": 1, "and_index": 1, "value": 272000 }],
+      "source": "https://platform.openai.com/pricing"
+    },
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 8,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Promotional price available at least through November 21, 2026. Long context pricing for requests above 272K input tokens.",
+      "match": [{ "path": "input_tokens", "op": "gt", "or_group": 1, "and_index": 1, "value": 272000 }],
+      "priority": 200,
+      "effective_from": "2026-08-21T19:34:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [{ "path": "input_tokens", "op": "gt", "or_group": 1, "and_index": 1, "value": 272000 }],
+      "source": "https://platform.openai.com/pricing"
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.8,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Promotional price available at least through November 21, 2026. Long context pricing for requests above 272K input tokens.",
+      "match": [{ "path": "input_tokens", "op": "gt", "or_group": 1, "and_index": 1, "value": 272000 }],
+      "priority": 200,
+      "effective_from": "2026-08-21T19:34:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [{ "path": "input_tokens", "op": "gt", "or_group": 1, "and_index": 1, "value": 272000 }],
+      "source": "https://platform.openai.com/pricing"
+    },
+    {
+      "meter": "cached_write_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 10,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Promotional price available at least through November 21, 2026. Long context pricing for requests above 272K input tokens.",
+      "match": [{ "path": "input_tokens", "op": "gt", "or_group": 1, "and_index": 1, "value": 272000 }],
+      "priority": 200,
+      "effective_from": "2026-08-21T19:34:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [{ "path": "input_tokens", "op": "gt", "or_group": 1, "and_index": 1, "value": 272000 }],
+      "source": "https://platform.openai.com/pricing"
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 30,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Promotional price available at least through November 21, 2026. Long context pricing for requests above 272K input tokens.",
+      "match": [{ "path": "input_tokens", "op": "gt", "or_group": 1, "and_index": 1, "value": 272000 }],
+      "priority": 200,
+      "effective_from": "2026-08-21T19:34:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [{ "path": "input_tokens", "op": "gt", "or_group": 1, "and_index": 1, "value": 272000 }],
+      "source": "https://platform.openai.com/pricing"
+    },
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
       "price_per_unit": 5,
       "currency": "USD",
       "pricing_plan": "standard",
@@ -564,11 +700,11 @@
       "price_per_unit": 5,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Short context pricing for requests below 272K input tokens.",
+      "note": "Short context pricing for requests at or below 272K input tokens.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "lt",
+          "op": "lte",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -582,7 +718,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "lt",
+          "op": "lte",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -597,11 +733,11 @@
       "price_per_unit": 0.5,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Short context pricing for requests below 272K input tokens.",
+      "note": "Short context pricing for requests at or below 272K input tokens.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "lt",
+          "op": "lte",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -615,7 +751,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "lt",
+          "op": "lte",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -630,11 +766,11 @@
       "price_per_unit": 6.25,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Short context pricing for requests below 272K input tokens.",
+      "note": "Short context pricing for requests at or below 272K input tokens.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "lt",
+          "op": "lte",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -648,7 +784,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "lt",
+          "op": "lte",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -663,11 +799,11 @@
       "price_per_unit": 30,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Short context pricing for requests below 272K input tokens.",
+      "note": "Short context pricing for requests at or below 272K input tokens.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "lt",
+          "op": "lte",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -681,7 +817,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "lt",
+          "op": "lte",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -696,11 +832,11 @@
       "price_per_unit": 10,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Long context pricing for requests with at least 272K input tokens.",
+      "note": "Long context pricing for requests above 272K input tokens.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "gte",
+          "op": "gt",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -714,7 +850,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "gte",
+          "op": "gt",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -729,11 +865,11 @@
       "price_per_unit": 1,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Long context pricing for requests with at least 272K input tokens.",
+      "note": "Long context pricing for requests above 272K input tokens.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "gte",
+          "op": "gt",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -747,7 +883,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "gte",
+          "op": "gt",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -762,11 +898,11 @@
       "price_per_unit": 12.5,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Long context pricing for requests with at least 272K input tokens.",
+      "note": "Long context pricing for requests above 272K input tokens.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "gte",
+          "op": "gt",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -780,7 +916,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "gte",
+          "op": "gt",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -795,11 +931,11 @@
       "price_per_unit": 45,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Long context pricing for requests with at least 272K input tokens.",
+      "note": "Long context pricing for requests above 272K input tokens.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "gte",
+          "op": "gt",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -813,7 +949,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "gte",
+          "op": "gt",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -828,11 +964,11 @@
       "price_per_unit": 2.5,
       "currency": "USD",
       "pricing_plan": "flex",
-      "note": "Short context pricing for requests below 272K input tokens.",
+      "note": "Short context pricing for requests at or below 272K input tokens.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "lt",
+          "op": "lte",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -846,7 +982,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "lt",
+          "op": "lte",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -861,11 +997,11 @@
       "price_per_unit": 0.25,
       "currency": "USD",
       "pricing_plan": "flex",
-      "note": "Short context pricing for requests below 272K input tokens.",
+      "note": "Short context pricing for requests at or below 272K input tokens.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "lt",
+          "op": "lte",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -879,7 +1015,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "lt",
+          "op": "lte",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -894,11 +1030,11 @@
       "price_per_unit": 3.125,
       "currency": "USD",
       "pricing_plan": "flex",
-      "note": "Short context pricing for requests below 272K input tokens.",
+      "note": "Short context pricing for requests at or below 272K input tokens.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "lt",
+          "op": "lte",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -912,7 +1048,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "lt",
+          "op": "lte",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -927,11 +1063,11 @@
       "price_per_unit": 15,
       "currency": "USD",
       "pricing_plan": "flex",
-      "note": "Short context pricing for requests below 272K input tokens.",
+      "note": "Short context pricing for requests at or below 272K input tokens.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "lt",
+          "op": "lte",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -945,7 +1081,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "lt",
+          "op": "lte",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -960,11 +1096,11 @@
       "price_per_unit": 5,
       "currency": "USD",
       "pricing_plan": "flex",
-      "note": "Long context pricing for requests with at least 272K input tokens.",
+      "note": "Long context pricing for requests above 272K input tokens.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "gte",
+          "op": "gt",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -978,7 +1114,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "gte",
+          "op": "gt",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -993,11 +1129,11 @@
       "price_per_unit": 0.5,
       "currency": "USD",
       "pricing_plan": "flex",
-      "note": "Long context pricing for requests with at least 272K input tokens.",
+      "note": "Long context pricing for requests above 272K input tokens.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "gte",
+          "op": "gt",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -1011,7 +1147,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "gte",
+          "op": "gt",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -1026,11 +1162,11 @@
       "price_per_unit": 6.25,
       "currency": "USD",
       "pricing_plan": "flex",
-      "note": "Long context pricing for requests with at least 272K input tokens.",
+      "note": "Long context pricing for requests above 272K input tokens.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "gte",
+          "op": "gt",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -1044,7 +1180,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "gte",
+          "op": "gt",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -1059,11 +1195,11 @@
       "price_per_unit": 22.5,
       "currency": "USD",
       "pricing_plan": "flex",
-      "note": "Long context pricing for requests with at least 272K input tokens.",
+      "note": "Long context pricing for requests above 272K input tokens.",
       "match": [
         {
           "path": "input_tokens",
-          "op": "gte",
+          "op": "gt",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -1077,7 +1213,7 @@
       "conditions": [
         {
           "path": "input_tokens",
-          "op": "gte",
+          "op": "gt",
           "or_group": 1,
           "and_index": 1,
           "value": 272000
@@ -1092,14 +1228,30 @@
       "price_per_unit": 10,
       "currency": "USD",
       "pricing_plan": "priority",
-      "note": "OpenAI Fast mode pricing, exposed as Phaseo Priority. Requests may use service_tier \"priority\" or \"fast\".",
-      "match": [],
+      "note": "Short context Fast mode pricing for requests at or below 272K input tokens. Phaseo exposes Fast mode as Priority and accepts either service tier name.",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "lte",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
       "priority": 100,
       "effective_from": "2026-07-30T00:00:00Z",
       "effective_to": null,
       "region": null,
       "cache_duration_seconds": null,
-      "conditions": [],
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "lte",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
       "source": "https://developers.openai.com/api/docs/pricing"
     },
     {
@@ -1109,14 +1261,30 @@
       "price_per_unit": 1,
       "currency": "USD",
       "pricing_plan": "priority",
-      "note": "OpenAI Fast mode pricing, exposed as Phaseo Priority. Requests may use service_tier \"priority\" or \"fast\".",
-      "match": [],
+      "note": "Short context Fast mode pricing for requests at or below 272K input tokens. Phaseo exposes Fast mode as Priority and accepts either service tier name.",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "lte",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
       "priority": 100,
       "effective_from": "2026-07-30T00:00:00Z",
       "effective_to": null,
       "region": null,
       "cache_duration_seconds": null,
-      "conditions": [],
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "lte",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
       "source": "https://developers.openai.com/api/docs/pricing"
     },
     {
@@ -1126,14 +1294,30 @@
       "price_per_unit": 12.5,
       "currency": "USD",
       "pricing_plan": "priority",
-      "note": "OpenAI Fast mode pricing, exposed as Phaseo Priority. Requests may use service_tier \"priority\" or \"fast\".",
-      "match": [],
+      "note": "Short context Fast mode pricing for requests at or below 272K input tokens. Phaseo exposes Fast mode as Priority and accepts either service tier name.",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "lte",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
       "priority": 100,
       "effective_from": "2026-07-30T00:00:00Z",
       "effective_to": null,
       "region": null,
       "cache_duration_seconds": null,
-      "conditions": [],
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "lte",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
       "source": "https://developers.openai.com/api/docs/pricing"
     },
     {
@@ -1143,15 +1327,708 @@
       "price_per_unit": 60,
       "currency": "USD",
       "pricing_plan": "priority",
-      "note": "OpenAI Fast mode pricing, exposed as Phaseo Priority. Requests may use service_tier \"priority\" or \"fast\".",
-      "match": [],
+      "note": "Short context Fast mode pricing for requests at or below 272K input tokens. Phaseo exposes Fast mode as Priority and accepts either service tier name.",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "lte",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
       "priority": 100,
       "effective_from": "2026-07-30T00:00:00Z",
       "effective_to": null,
       "region": null,
       "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "lte",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "source": "https://developers.openai.com/api/docs/pricing"
+    },
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 20,
+      "currency": "USD",
+      "pricing_plan": "priority",
+      "note": "Long context Fast mode pricing for requests above 272K input tokens. Phaseo exposes Fast mode as Priority and accepts either service tier name.",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "gt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "priority": 100,
+      "effective_from": "2026-07-30T00:00:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "gt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "source": "https://developers.openai.com/api/docs/pricing"
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 2,
+      "currency": "USD",
+      "pricing_plan": "priority",
+      "note": "Long context Fast mode pricing for requests above 272K input tokens. Phaseo exposes Fast mode as Priority and accepts either service tier name.",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "gt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "priority": 100,
+      "effective_from": "2026-07-30T00:00:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "gt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "source": "https://developers.openai.com/api/docs/pricing"
+    },
+    {
+      "meter": "cached_write_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 25,
+      "currency": "USD",
+      "pricing_plan": "priority",
+      "note": "Long context Fast mode pricing for requests above 272K input tokens. Phaseo exposes Fast mode as Priority and accepts either service tier name.",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "gt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "priority": 100,
+      "effective_from": "2026-07-30T00:00:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "gt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "source": "https://developers.openai.com/api/docs/pricing"
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 90,
+      "currency": "USD",
+      "pricing_plan": "priority",
+      "note": "Long context Fast mode pricing for requests above 272K input tokens. Phaseo exposes Fast mode as Priority and accepts either service tier name.",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "gt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "priority": 100,
+      "effective_from": "2026-07-30T00:00:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "gt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "source": "https://developers.openai.com/api/docs/pricing"
+    },
+    {
+      "meter": "native_web_search_requests",
+      "unit": "request",
+      "unit_size": 1,
+      "price_per_unit": 0.01,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Web search content tokens are billed at the model's input-token rate.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-20T00:00:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
       "conditions": [],
       "source": "https://developers.openai.com/api/docs/pricing"
+    },
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 2,
+      "currency": "USD",
+      "pricing_plan": "flex",
+      "note": "Promotional price available at least through November 21, 2026. Short context pricing for requests at or below 272K input tokens.",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "lte",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "priority": 200,
+      "effective_from": "2026-08-21T19:34:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "lte",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "source": "https://platform.openai.com/pricing"
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.2,
+      "currency": "USD",
+      "pricing_plan": "flex",
+      "note": "Promotional price available at least through November 21, 2026. Short context pricing for requests at or below 272K input tokens.",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "lte",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "priority": 200,
+      "effective_from": "2026-08-21T19:34:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "lte",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "source": "https://platform.openai.com/pricing"
+    },
+    {
+      "meter": "cached_write_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 2.5,
+      "currency": "USD",
+      "pricing_plan": "flex",
+      "note": "Promotional price available at least through November 21, 2026. Short context pricing for requests at or below 272K input tokens.",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "lte",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "priority": 200,
+      "effective_from": "2026-08-21T19:34:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "lte",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "source": "https://platform.openai.com/pricing"
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 10,
+      "currency": "USD",
+      "pricing_plan": "flex",
+      "note": "Promotional price available at least through November 21, 2026. Short context pricing for requests at or below 272K input tokens.",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "lte",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "priority": 200,
+      "effective_from": "2026-08-21T19:34:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "lte",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "source": "https://platform.openai.com/pricing"
+    },
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 4,
+      "currency": "USD",
+      "pricing_plan": "flex",
+      "note": "Promotional price available at least through November 21, 2026. Long context pricing for requests above 272K input tokens.",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "gt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "priority": 200,
+      "effective_from": "2026-08-21T19:34:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "gt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "source": "https://platform.openai.com/pricing"
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.4,
+      "currency": "USD",
+      "pricing_plan": "flex",
+      "note": "Promotional price available at least through November 21, 2026. Long context pricing for requests above 272K input tokens.",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "gt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "priority": 200,
+      "effective_from": "2026-08-21T19:34:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "gt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "source": "https://platform.openai.com/pricing"
+    },
+    {
+      "meter": "cached_write_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 5,
+      "currency": "USD",
+      "pricing_plan": "flex",
+      "note": "Promotional price available at least through November 21, 2026. Long context pricing for requests above 272K input tokens.",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "gt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "priority": 200,
+      "effective_from": "2026-08-21T19:34:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "gt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "source": "https://platform.openai.com/pricing"
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 15,
+      "currency": "USD",
+      "pricing_plan": "flex",
+      "note": "Promotional price available at least through November 21, 2026. Long context pricing for requests above 272K input tokens.",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "gt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "priority": 200,
+      "effective_from": "2026-08-21T19:34:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "gt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "source": "https://platform.openai.com/pricing"
+    },
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 8,
+      "currency": "USD",
+      "pricing_plan": "priority",
+      "note": "Promotional price available at least through November 21, 2026. Short context Fast mode pricing for requests at or below 272K input tokens. Phaseo exposes Fast mode as Priority and accepts either service tier name.",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "lte",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "priority": 200,
+      "effective_from": "2026-08-21T19:34:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "lte",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "source": "https://platform.openai.com/pricing"
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.8,
+      "currency": "USD",
+      "pricing_plan": "priority",
+      "note": "Promotional price available at least through November 21, 2026. Short context Fast mode pricing for requests at or below 272K input tokens. Phaseo exposes Fast mode as Priority and accepts either service tier name.",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "lte",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "priority": 200,
+      "effective_from": "2026-08-21T19:34:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "lte",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "source": "https://platform.openai.com/pricing"
+    },
+    {
+      "meter": "cached_write_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 10,
+      "currency": "USD",
+      "pricing_plan": "priority",
+      "note": "Promotional price available at least through November 21, 2026. Short context Fast mode pricing for requests at or below 272K input tokens. Phaseo exposes Fast mode as Priority and accepts either service tier name.",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "lte",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "priority": 200,
+      "effective_from": "2026-08-21T19:34:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "lte",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "source": "https://platform.openai.com/pricing"
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 40,
+      "currency": "USD",
+      "pricing_plan": "priority",
+      "note": "Promotional price available at least through November 21, 2026. Short context Fast mode pricing for requests at or below 272K input tokens. Phaseo exposes Fast mode as Priority and accepts either service tier name.",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "lte",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "priority": 200,
+      "effective_from": "2026-08-21T19:34:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "lte",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "source": "https://platform.openai.com/pricing"
+    },
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 16,
+      "currency": "USD",
+      "pricing_plan": "priority",
+      "note": "Promotional price available at least through November 21, 2026. Long context Fast mode pricing for requests above 272K input tokens. Phaseo exposes Fast mode as Priority and accepts either service tier name.",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "gt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "priority": 200,
+      "effective_from": "2026-08-21T19:34:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "gt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "source": "https://platform.openai.com/pricing"
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 1.6,
+      "currency": "USD",
+      "pricing_plan": "priority",
+      "note": "Promotional price available at least through November 21, 2026. Long context Fast mode pricing for requests above 272K input tokens. Phaseo exposes Fast mode as Priority and accepts either service tier name.",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "gt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "priority": 200,
+      "effective_from": "2026-08-21T19:34:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "gt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "source": "https://platform.openai.com/pricing"
+    },
+    {
+      "meter": "cached_write_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 20,
+      "currency": "USD",
+      "pricing_plan": "priority",
+      "note": "Promotional price available at least through November 21, 2026. Long context Fast mode pricing for requests above 272K input tokens. Phaseo exposes Fast mode as Priority and accepts either service tier name.",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "gt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "priority": 200,
+      "effective_from": "2026-08-21T19:34:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "gt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "source": "https://platform.openai.com/pricing"
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 60,
+      "currency": "USD",
+      "pricing_plan": "priority",
+      "note": "Promotional price available at least through November 21, 2026. Long context Fast mode pricing for requests above 272K input tokens. Phaseo exposes Fast mode as Priority and accepts either service tier name.",
+      "match": [
+        {
+          "path": "input_tokens",
+          "op": "gt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "priority": 200,
+      "effective_from": "2026-08-21T19:34:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [
+        {
+          "path": "input_tokens",
+          "op": "gt",
+          "or_group": 1,
+          "and_index": 1,
+          "value": 272000
+        }
+      ],
+      "source": "https://platform.openai.com/pricing"
     }
   ],
   "regions": [],
@@ -1161,11 +2038,13 @@
     "priority"
   ],
   "sources": [
+    "https://x.com/OpenAI/status/2090885187634905500",
+    "https://platform.openai.com/pricing",
     "https://developers.openai.com/api/docs/pricing"
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-07-30T00:00:00Z",
-    "notes": "Verified against OpenAI's July 30, 2026 pricing. Phaseo keeps Priority as the canonical tier name and accepts fast as an OpenAI-compatible alias."
+    "checked_at": "2026-08-21T00:00:00Z",
+    "notes": "Verified against OpenAI's pricing page and August 21 announcement. Priority-200 promotional rules are available at least through November 21, 2026; Phaseo keeps Priority as the canonical tier name and accepts fast as an OpenAI-compatible alias."
   }
 }

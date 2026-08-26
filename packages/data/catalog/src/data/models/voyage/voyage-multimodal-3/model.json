@@ -10,7 +10,7 @@
   "deprecation_date": null,
   "retirement_date": null,
   "license": null,
-  "input_types": "text,image,video",
+  "input_types": "text,image",
   "output_types": "embeddings",
   "api_model_id": "voyage/voyage-multimodal-3",
   "links": [],
@@ -28,8 +28,7 @@
   "modalities": {
     "input": [
       "text",
-      "image/*",
-      "video/*"
+      "image/*"
     ],
     "output": [
       "embeddings"

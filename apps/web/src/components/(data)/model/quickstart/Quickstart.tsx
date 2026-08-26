@@ -1,9 +1,17 @@
 // src/components/gateway/Quickstart.tsx
 "use client";
 import Link from "next/link";
-import { KeyRound, Settings2, Shield, TerminalSquare } from "lucide-react";
+import {
+	Check,
+	Copy,
+	KeyRound,
+	Settings2,
+	Shield,
+	TerminalSquare,
+} from "lucide-react";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { BASE_URL } from "./config";
 import { safeDecodeURIComponent } from "@/lib/utils/safe-decode";
 import { capabilityToEndpoints } from "@/lib/config/capabilityToEndpoints";
@@ -27,6 +35,7 @@ import {
 } from "./quickstartPayloads";
 import { useEffect, useMemo, useState } from "react";
 import type { QuickstartRequestContext } from "./requestContext";
+import { captureProductEvent } from "@/lib/productAnalytics";
 
 interface QuickstartProps {
 	mode?: "generation" | "model-metadata";
@@ -163,7 +172,7 @@ const LANGUAGE_VARIANT_LABELS: Partial<Record<string, string>> = {
 
 const SERVICE_TIER_LABELS: Record<ServiceTier, string> = {
 	standard: "Standard",
-	priority: "Priority",
+	priority: "Fast",
 	flex: "Flex",
 };
 const STREAMING_SNIPPET_LANGUAGES = new Set([
@@ -365,6 +374,13 @@ export default function Quickstart({
 	const batchEnabled = false;
 	const [streamingEnabled, setStreamingEnabled] = useState(false);
 	const [showAllEndpointRoutes, setShowAllEndpointRoutes] = useState(false);
+	const [apiKeyCommandCopied, setApiKeyCommandCopied] = useState(false);
+
+	useEffect(() => {
+		if (!apiKeyCommandCopied) return;
+		const timer = window.setTimeout(() => setApiKeyCommandCopied(false), 1800);
+		return () => window.clearTimeout(timer);
+	}, [apiKeyCommandCopied]);
 
 	useEffect(() => {
 		if (!availableEndpoints.some((e) => e.value === selectedEndpoint)) {
@@ -623,6 +639,7 @@ export default function Quickstart({
 	)
 		? selectedModelIdentifier
 		: model;
+	const analyticsModelId = modelId ?? modelIdentifierInCode;
 	const endpointPath = isModelMetadataQuickstart
 		? "/models"
 		: resolveGatewayPath(selectedEndpoint);
@@ -1779,19 +1796,26 @@ console.log(response);`
 				</header>
 			) : null}
 			<div className="space-y-4">
-				<div className="grid gap-3 md:grid-cols-[auto_minmax(0,1fr)]">
-					<Badge
-						variant="outline"
-						className="flex h-7 w-7 items-center justify-center rounded-full p-0 text-xs"
-					>
-						1
-					</Badge>
-					<div className="space-y-2">
+				<div className="space-y-3">
+					<div className="flex items-center gap-3">
+						<Badge
+							variant="outline"
+							className="flex h-7 w-7 items-center justify-center rounded-full p-0 text-xs"
+						>
+							1
+						</Badge>
 						<h3 className="text-base font-semibold">Get an API key</h3>
+					</div>
+					<div className="space-y-2">
 						<div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
 							<span>Create an API key in</span>
 							<Link
 								href="/settings/keys"
+								onClick={() =>
+									captureProductEvent("quickstart_api_key_clicked", {
+										model_id: analyticsModelId,
+									})
+								}
 								className="inline-flex items-center overflow-hidden rounded-md border border-border/80 bg-background text-foreground shadow-xs transition-colors hover:bg-muted/40"
 							>
 								<span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs">
@@ -1809,6 +1833,39 @@ console.log(response);`
 								PHASEO_API_KEY
 							</code>
 						</div>
+						<div className="flex min-w-0 items-center justify-between gap-3 rounded-xl border bg-zinc-950 px-3 py-2 shadow-inner dark:bg-black/40">
+							<code className="min-w-0 overflow-x-auto whitespace-nowrap font-mono text-xs">
+								<span className="text-pink-400">export</span>{" "}
+								<span className="text-sky-300">PHASEO_API_KEY</span>
+								<span className="text-zinc-500">=</span>
+								<span className="text-emerald-300">your_key_here</span>
+							</code>
+							<Button
+								type="button"
+								variant="outline"
+								size="sm"
+								className="h-8 shrink-0 gap-1.5 rounded-md border-white/15 bg-white/5 px-3 text-xs text-zinc-200 hover:bg-white/10 hover:text-white"
+								onClick={async () => {
+									await navigator.clipboard.writeText(
+										"export PHASEO_API_KEY=your_key_here",
+									);
+									setApiKeyCommandCopied(true);
+									captureProductEvent("quickstart_code_copied", {
+										code_kind: "api_key_environment",
+										endpoint: selectedEndpoint,
+										language: "bash",
+										model_id: analyticsModelId,
+									});
+								}}
+							>
+								{apiKeyCommandCopied ? (
+									<Check className="h-3.5 w-3.5" />
+								) : (
+									<Copy className="h-3.5 w-3.5" />
+								)}
+								{apiKeyCommandCopied ? "Copied" : "Copy"}
+							</Button>
+						</div>
 						<Alert className="rounded-lg border-amber-200 bg-amber-50 py-2 text-amber-950 dark:border-amber-900/60 dark:bg-amber-900/20 dark:text-amber-50">
 							<Shield className="h-4 w-4 text-amber-700 dark:text-amber-300" />
 							<AlertTitle className="sr-only">Keep your API key secret</AlertTitle>
@@ -1820,20 +1877,22 @@ console.log(response);`
 					</div>
 				</div>
 
-				<div className="grid gap-3 border-t border-border/70 pt-4 md:grid-cols-[auto_minmax(0,1fr)]">
-					<Badge
-						variant="outline"
-						className="flex h-7 w-7 items-center justify-center rounded-full p-0 text-xs"
-					>
-						2
-					</Badge>
+				<div className="space-y-3 border-t border-border/70 pt-4">
+					<div className="flex items-center gap-3">
+						<Badge
+							variant="outline"
+							className="flex h-7 w-7 items-center justify-center rounded-full p-0 text-xs"
+						>
+							2
+						</Badge>
+						<h3 className="text-base font-semibold">
+							{isModelMetadataQuickstart
+								? "Retrieve model metadata"
+								: "Send the request"}
+						</h3>
+					</div>
 					<div className="min-w-0 space-y-3">
 						<div className="space-y-1">
-							<h3 className="text-base font-semibold">
-								{isModelMetadataQuickstart
-									? "Retrieve model metadata"
-									: "Send the request"}
-							</h3>
 							<p className="text-sm text-muted-foreground">
 								{isModelMetadataQuickstart
 									? "Query GET /v1/models by model ID, including records that are not currently routable."
@@ -1841,18 +1900,8 @@ console.log(response);`
 							</p>
 						</div>
 
-						{isModelMetadataQuickstart ? null : (
-							<EndpointRoutesTable
-								endpointRoutes={endpointRoutes}
-								selectedEndpoint={selectedEndpoint}
-								showAllEndpointRoutes={showAllEndpointRoutes}
-								onToggleShowAllEndpointRoutes={() =>
-									setShowAllEndpointRoutes((current) => !current)
-								}
-							/>
-						)}
-
 						<QuickstartUsageSection
+							analyticsModelId={analyticsModelId}
 							modelIdentifierInCode={modelIdentifierInCode}
 							acceptedIdentifiers={acceptedIdentifierList}
 							onSelectModelIdentifier={setSelectedModelIdentifier}
@@ -1878,7 +1927,13 @@ console.log(response);`
 						requestModeLabel={requestModeLabel}
 						serviceTierDocsHref={supportsServiceTier ? SERVICE_TIERS_DOCS_HREF : null}
 						streamingDocsHref={shouldStream ? STREAMING_DOCS_HREF : null}
-						onSelectEndpoint={setSelectedEndpoint}
+						onSelectEndpoint={(value) => {
+							setSelectedEndpoint(value);
+							captureProductEvent("quickstart_endpoint_selected", {
+								endpoint: value,
+								model_id: analyticsModelId,
+							});
+						}}
 						onSelectLanguageFamily={(familyId) => {
 							const family = availableLanguageFamilies.find(
 								(candidate) => candidate.id === familyId,
@@ -1913,6 +1968,16 @@ console.log(response);`
 						anthropicPythonUsage={anthropicPythonUsage}
 						anthropicNodeUsage={anthropicNodeUsage}
 						/>
+						{isModelMetadataQuickstart ? null : (
+							<EndpointRoutesTable
+								endpointRoutes={endpointRoutes}
+								selectedEndpoint={selectedEndpoint}
+								showAllEndpointRoutes={showAllEndpointRoutes}
+								onToggleShowAllEndpointRoutes={() =>
+									setShowAllEndpointRoutes((current) => !current)
+								}
+							/>
+						)}
 					</div>
 				</div>
 			</div>

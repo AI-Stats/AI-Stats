@@ -198,12 +198,7 @@ export type GatewayProviderSnapshot = {
         | null;
     executionRegions?: string[] | null;
     dataRegions?: string[] | null;
-    zeroDataRetention?:
-        | "unknown"
-        | "unsupported"
-        | "optional"
-        | "default"
-        | null;
+    zeroDataRetention?: boolean | null;
     promptTrainingPolicy?:
         | "unknown"
         | "no_train"
@@ -228,6 +223,7 @@ export type GatewayProviderSnapshot = {
     baseWeight: number;
     byokMeta: ByokKeyMeta[];
     providerModelSlug: string | null;
+    quantizationScheme?: string | null;
     inputModalities?: string[] | null;
     outputModalities?: string[] | null;
     capabilityParams?: Record<string, any>;
@@ -356,12 +352,7 @@ export type ProviderCandidate = {
         | null;
     executionRegions?: string[] | null;
     dataRegions?: string[] | null;
-    zeroDataRetention?:
-        | "unknown"
-        | "unsupported"
-        | "optional"
-        | "default"
-        | null;
+    zeroDataRetention?: boolean | null;
     promptTrainingPolicy?:
         | "unknown"
         | "no_train"
@@ -387,6 +378,7 @@ export type ProviderCandidate = {
     byokMeta: ByokKeyMeta[];
     pricingCard: PriceCard | null;
     providerModelSlug: string | null;
+    quantizationScheme?: string | null;
     inputModalities?: string[] | null;
     outputModalities?: string[] | null;
     capabilityParams?: Record<string, any>;
@@ -404,6 +396,7 @@ export type ParamRoutingDiagnostics = {
         param: string;
         supportedProviders: string[];
         unsupportedProviders: string[];
+        unknownProviders: string[];
     }>;
     droppedProviders: Array<{
         providerId: string;

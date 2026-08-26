@@ -38,6 +38,12 @@ function centsPerHundredMillionTokensToPerMillion(value: unknown): number | null
 	return parsed === null ? null : parsed / 10_000;
 }
 
+function novitaPerMillion(value: unknown): number | null {
+	const parsed = asNumber(value);
+	if (parsed === null) return null;
+	return parsed >= 1_000 ? parsed / 10_000 : parsed;
+}
+
 function usd(value: unknown): number | null {
 	const record = asRecord(value);
 	return asNumber(record?.usd ?? value);
@@ -57,13 +63,39 @@ function promptCompletionPricing(pricing: JsonRecord, perToken: boolean): Normal
 	const rate = perToken ? toPerMillion : asNumber;
 	return fromMeters({
 		input_text_tokens: rate(pricing.prompt ?? pricing.input),
+		input_image_tokens: rate(pricing.image ?? pricing.input_image),
+		input_audio_tokens: rate(pricing.audio ?? pricing.input_audio),
 		cached_read_text_tokens: rate(
 			pricing.cache_prompt ?? pricing.input_cache_read ?? pricing.input_cache_reads ?? pricing.cache_input,
 		),
+		cached_read_audio_tokens: rate(pricing.input_audio_cache),
 		cached_write_text_tokens: rate(
 			pricing.input_cache_write ?? pricing.input_cache_writes ?? pricing.cache_creation ?? pricing.cache_write,
 		),
 		output_text_tokens: rate(pricing.completion ?? pricing.output),
+		output_image_tokens: rate(pricing.image_output ?? pricing.output_image),
+		output_audio_tokens: rate(pricing.audio_output ?? pricing.output_audio),
+		output_reasoning_tokens: rate(pricing.internal_reasoning),
+	});
+}
+
+function singleUnconditionalPerMillion(pricings: unknown): number | null {
+	if (!Array.isArray(pricings)) return null;
+	const candidates = pricings.filter((entry) => {
+		const record = asRecord(entry);
+		return record?.unit === "perMTokens"
+			&& (record.currency === undefined || record.currency === "USD")
+			&& asRecord(record.conditions) === null;
+	});
+	if (candidates.length !== 1) return null;
+	return asNumber(asRecord(candidates[0])?.value);
+}
+
+function zenmuxPricing(pricings: JsonRecord): NormalizedProviderPricing | null {
+	return fromMeters({
+		input_text_tokens: singleUnconditionalPerMillion(pricings.prompt),
+		cached_read_text_tokens: singleUnconditionalPerMillion(pricings.input_cache_read),
+		output_text_tokens: singleUnconditionalPerMillion(pricings.completion),
 	});
 }
 
@@ -73,12 +105,49 @@ export function normalizeProviderModelPricing(providerId: string, modelDetails: 
 
 	switch (providerId) {
 		case "ambient":
-		case "kilo":
 		case "llmgateway":
+		case "orcarouter":
 		case "openrouter":
 		case "ovhcloud": {
 			const pricing = asRecord(model.pricing);
 			return pricing ? promptCompletionPricing(pricing, true) : null;
+		}
+		case "vercel": {
+			const pricing = asRecord(model.pricing);
+			return pricing ? promptCompletionPricing(pricing, true) : null;
+		}
+		case "fastrouter":
+		case "poe": {
+			const pricing = asRecord(model.pricing);
+			return pricing ? promptCompletionPricing(pricing, true) : null;
+		}
+		case "novita-ai":
+		case "novita":
+		case "novitaai":
+			return fromMeters({
+				input_text_tokens: novitaPerMillion(model.input_token_price_per_m),
+				cached_read_text_tokens: novitaPerMillion(asRecord(asRecord(model.pricing)?.input_cache_read)?.price_per_m),
+				output_text_tokens: novitaPerMillion(model.output_token_price_per_m),
+			});
+		case "pioneer":
+			return fromMeters({
+				input_text_tokens: asNumber(model.input_price_per_million),
+				cached_read_text_tokens: asNumber(model.cache_read_price_per_million),
+				cached_write_text_tokens: asNumber(model.cache_write_price_per_million),
+				output_text_tokens: asNumber(model.output_price_per_million),
+			});
+		case "requesty": {
+			const tiers = Array.isArray(model.pricing) ? model.pricing : [];
+			if (tiers.length > 1) return null;
+			return fromMeters({
+				input_text_tokens: toPerMillion(model.input_price),
+				cached_read_text_tokens: toPerMillion(model.cached_price),
+				output_text_tokens: toPerMillion(model.output_price),
+			});
+		}
+		case "zenmux": {
+			const pricings = asRecord(model.pricings);
+			return pricings ? zenmuxPricing(pricings) : null;
 		}
 		case "weights-and-biases": {
 			const cost = asRecord(model.cost);
@@ -169,12 +238,6 @@ export function normalizeProviderModelPricing(providerId: string, modelDetails: 
 			const pricing = Array.isArray(model.pricing) ? asRecord(model.pricing[0]) : null;
 			return pricing ? promptCompletionPricing(pricing, true) : null;
 		}
-		case "novita":
-		case "novitaai":
-			return fromMeters({
-				input_text_tokens: asNumber(model.input_token_price_per_m),
-				output_text_tokens: asNumber(model.output_token_price_per_m),
-			});
 		case "spacex-ai":
 			return fromMeters({
 				input_text_tokens: centsPerHundredMillionTokensToPerMillion(model.prompt_text_token_price),

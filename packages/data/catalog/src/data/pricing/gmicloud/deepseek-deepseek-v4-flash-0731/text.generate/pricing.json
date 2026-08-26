@@ -9,7 +9,7 @@
       "meter": "input_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.133,
+      "price_per_unit": 0.0672,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
@@ -25,7 +25,7 @@
       "meter": "cached_read_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.0266,
+      "price_per_unit": 0.01344,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
@@ -41,7 +41,7 @@
       "meter": "output_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.266,
+      "price_per_unit": 0.1344,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
@@ -60,13 +60,13 @@
     {
       "kind": "pricing",
       "url": "https://docs.gmicloud.ai/",
-      "accessed_at": "2026-08-01T00:00:00Z",
-      "notes": "Published GMICloud deployment rates."
+      "accessed_at": "2026-08-23T00:00:00Z",
+      "notes": "Current promotional serverless rates shown in the authenticated GMI Cloud Model Hub; list prices are $0.14 input, $0.028 cache read, and $0.28 output per million tokens."
     }
   ],
   "verification": {
-    "status": "partial",
-    "checked_at": "2026-08-01T00:00:00Z",
-    "notes": "Deployment pricing recorded while direct routing remains disabled."
+    "status": "verified",
+    "checked_at": "2026-08-23T00:00:00Z",
+    "notes": "Current effective serverless prices verified in the authenticated GMI Cloud Model Hub."
   }
 }

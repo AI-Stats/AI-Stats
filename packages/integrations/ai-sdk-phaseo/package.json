@@ -41,7 +41,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@ai-sdk/provider": "^4.0.4",
+    "@ai-sdk/provider": "^4.0.7",
     "@ai-sdk/provider-utils": "^5.0.14"
   },
   "devDependencies": {

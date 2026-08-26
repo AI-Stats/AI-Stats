@@ -20,12 +20,8 @@ export interface GatewayProviderDetails {
 		| null;
 	default_execution_regions?: string[] | null;
 	default_data_regions?: string[] | null;
-	zero_data_retention?:
-		| "unknown"
-		| "unsupported"
-		| "optional"
-		| "default"
-		| null;
+	zero_data_retention?: boolean | null;
+	data_retention_days?: number | null;
 	residency_source_url?: string | null;
 	residency_notes?: string | null;
 	regional_pricing_mode?:
@@ -471,6 +467,7 @@ export default async function getModelGatewayMetadata(
 				? provider.default_data_regions
 				: null,
 			zero_data_retention: provider.zero_data_retention ?? null,
+			data_retention_days: provider.data_retention_days ?? null,
 			residency_source_url: provider.residency_source_url ?? null,
 			residency_notes: provider.residency_notes ?? null,
 			regional_pricing_mode: provider.regional_pricing_mode ?? null,

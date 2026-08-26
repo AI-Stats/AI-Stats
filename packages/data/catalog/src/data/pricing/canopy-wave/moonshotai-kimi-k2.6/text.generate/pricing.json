@@ -18,7 +18,7 @@
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": "https://canopywave.com/pricing"
     },
     {
       "meter": "cached_read_text_tokens",
@@ -33,7 +33,7 @@
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": "https://canopywave.com/pricing"
     },
     {
       "meter": "output_text_tokens",
@@ -48,17 +48,23 @@
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": "https://canopywave.com/pricing"
     }
   ],
   "regions": [],
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [
+    {
+      "url": "https://canopywave.com/pricing",
+      "title": "Canopy Wave pricing",
+      "type": "pricing"
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-23",
+    "notes": "Rates verified against Canopy Wave's current public serverless pricing table."
   }
 }

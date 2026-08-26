@@ -6,6 +6,20 @@ description: "A practical framework for selecting BF16/FP8/INT8/INT4 variants by
 
 Use this workflow to choose quantization variants safely.
 
+To enforce the choice in Phaseo Gateway, send an OpenRouter-compatible routing filter:
+
+```json
+{
+  "model": "meta/llama-3.3-70b-instruct",
+  "messages": [{ "role": "user", "content": "Hello" }],
+  "provider": {
+    "quantizations": ["FP8"]
+  }
+}
+```
+
+The filter applies to provider-model offers, not just provider names. Matching is case-insensitive and supports unambiguous aliases such as `float8` for `FP8` and `bfloat16` for `BF16`. An offer with missing quantization metadata does not qualify. If no eligible offer matches, the request fails with routing diagnostics; Phaseo does not fall back to an unverified quantization. The equivalent `routing.quantizations` shape is also accepted.
+
 ## Step 1: define your success criteria
 
 Before choosing a quant:

@@ -30,14 +30,14 @@ export default function ChatPlaygroundShell() {
                     <div className="flex-1 overflow-y-auto px-4 py-6 md:px-8">
                         <div className="mx-auto flex w-full max-w-5xl flex-col gap-4">
                             <div className="h-6 w-52 rounded bg-muted/40" />
-                            <div className="h-24 w-full rounded-2xl border border-dashed border-border bg-muted/30" />
-                            <div className="h-24 w-full rounded-2xl border border-dashed border-border bg-muted/30" />
+                            <div className="h-24 w-full rounded-md border border-dashed border-border bg-muted/30" />
+                            <div className="h-24 w-full rounded-md border border-dashed border-border bg-muted/30" />
                         </div>
                     </div>
                 </main>
                 <footer className="border-t border-border px-4 py-4 md:px-8">
                     <div className="mx-auto w-full max-w-3xl">
-                        <div className="h-12 w-full rounded-2xl bg-muted/30" />
+                        <div className="h-12 w-full rounded-md bg-muted/30" />
                     </div>
                 </footer>
             </div>

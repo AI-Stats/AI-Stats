@@ -86,6 +86,7 @@ import type {
 } from "@/components/(chat)/playground/chat-playground-core";
 import {
 	LOCAL_CHAT_API_BASE_URL,
+	STAGING_CHAT_API_BASE_URL,
 } from "@/components/(chat)/playground/chat-playground-core";
 import { BASE_URL } from "@/components/(data)/model/quickstart/config";
 import type {
@@ -440,11 +441,13 @@ export function ChatHeader({
 	const effectiveBaseUrl =
 		apiTarget === "default"
 			? "Server default"
-			: apiTarget === "local"
-			? LOCAL_CHAT_API_BASE_URL
-			: apiTarget === "custom" && customBaseUrl
-				? customBaseUrl
-				: BASE_URL;
+			: apiTarget === "staging"
+				? STAGING_CHAT_API_BASE_URL || "Staging API unavailable"
+				: apiTarget === "local"
+					? LOCAL_CHAT_API_BASE_URL
+					: apiTarget === "custom" && customBaseUrl
+						? customBaseUrl
+						: BASE_URL;
 	const apiTargetValue = apiTargetValueOverride ?? apiTarget;
 	useEffect(() => {
 		const isPresetAccentColor = ACCENT_COLORS.some(
@@ -913,7 +916,7 @@ export function ChatHeader({
 			<ContextMenu key={modelId}>
 				<ContextMenuTrigger asChild>
 					<div
-						className="relative shrink-0 rounded-2xl"
+						className="relative shrink-0 rounded-md"
 					>
 						<Button
 							variant="ghost"
@@ -921,7 +924,7 @@ export function ChatHeader({
 							onClick={() => handleOpenModelSettings(modelId)}
 							aria-label={`${label}. Right click for model actions.`}
 							className={cn(
-								"h-7 max-w-[220px] gap-1.5 rounded-2xl pl-2",
+								"h-7 max-w-[220px] gap-1.5 rounded-md pl-2",
 								!modelEnabled && "opacity-55",
 								canRemoveModel ? "pr-7" : "pr-2",
 							)}
@@ -938,7 +941,7 @@ export function ChatHeader({
 						{canRemoveModel ? (
 							<button
 								type="button"
-								className="absolute right-1 top-1/2 inline-flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+								className="absolute right-1 top-1/2 inline-flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
 								onClick={(event) => {
 									event.preventDefault();
 									event.stopPropagation();
@@ -1380,7 +1383,7 @@ export function ChatHeader({
 	};
 
 	return (
-		<header className="flex items-center justify-between gap-2 border-b border-border px-3 py-3 md:px-5">
+		<header className="flex min-w-0 items-center justify-between gap-2 border-b border-border px-3 py-3 md:px-5">
 			<div className="flex min-w-0 flex-1 items-center gap-1">
 				<Tooltip>
 					<TooltipTrigger asChild>
@@ -1428,7 +1431,7 @@ export function ChatHeader({
 							aria-label="Add model"
 							title="Add model (Ctrl/Cmd+Shift+M)"
 							className={cn(
-								"h-8 gap-1.5",
+								"h-8 gap-1.5 rounded-md",
 								selectedModelIds.length === 0 ? "px-2 text-xs" : "w-8 px-0",
 							)}
 						>
@@ -1577,7 +1580,7 @@ export function ChatHeader({
 								</div>
 							</TooltipContent>
 						</Tooltip>
-						<DropdownMenuContent align="end" sideOffset={8} className="w-72 rounded-[8px]! [&_[data-slot=dropdown-menu-item]]:rounded-[8px]!">
+						<DropdownMenuContent align="end" sideOffset={8} className="w-72 rounded-md [&_[data-slot=dropdown-menu-item]]:rounded-md">
 							<DropdownMenuItem
 								onClick={() => onResponseLayoutChange("sequential")}
 								className="items-start gap-2"
@@ -2280,9 +2283,14 @@ export function ChatHeader({
 															<SelectItem value="default">
 																App default
 															</SelectItem>
-															<SelectItem value="public">
-																Public API
-															</SelectItem>
+													<SelectItem value="public">
+														Public API
+													</SelectItem>
+													{STAGING_CHAT_API_BASE_URL && (
+														<SelectItem value="staging">
+															Staging API
+														</SelectItem>
+													)}
 															<SelectItem
 																value="local"
 															>

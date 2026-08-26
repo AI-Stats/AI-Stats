@@ -591,6 +591,7 @@ export type RoutingDiagnostics = {
         requiredExecutionRegion: string | null;
         requiredDataRegion: string | null;
         requireZeroDataRetention: boolean | null;
+        quantizations: string[] | null;
         maxPrice: Record<string, any> | null;
         preferredMinThroughput: number | Record<string, any> | null;
         preferredMaxLatency: number | Record<string, any> | null;
@@ -615,6 +616,7 @@ export type RoutingDiagnostics = {
         providerId: string;
         apiModelId: string | null;
         providerModelSlug: string | null;
+        quantization: string | null;
         providerStatus: ProviderStatus;
         providerRoutingStatus: RoutingStatus;
         modelRoutingStatus: RoutingStatus;
@@ -671,7 +673,7 @@ function isZdrSpecializedOffer(candidate: ProviderCandidate): boolean {
 	return (
 		candidate.dataPolicyVariant === "zdr" &&
 		normalizeOfferScope(candidate.offerScope) === "specialized" &&
-		candidate.zeroDataRetention === "default"
+		candidate.zeroDataRetention === true
 	);
 }
 
@@ -816,7 +818,7 @@ export async function routeProviders(
     const requestedServiceTier = normalizeRequestedServiceTier(ctx.body);
     const suffixRoutingMode = priorityDefaultRoutingMode(priority);
     const mode = normalizeRoutingMode(
-        requestedRoutingMode ?? suffixRoutingMode ?? ctx.routingMode,
+        suffixRoutingMode ?? requestedRoutingMode ?? ctx.routingMode,
     );
     const deterministicRequestSort = Boolean(requestedRoutingMode);
     const preset = applyRoutingMode(PRESETS[priority], mode);
@@ -933,6 +935,7 @@ export async function routeProviders(
             requiredExecutionRegion,
             requiredDataRegion,
             requireZeroDataRetention,
+			quantizations: routingHints.quantizations,
             maxPrice,
             preferredMinThroughput: preferredMinThroughputValue,
             preferredMaxLatency: preferredMaxLatencyValue,
@@ -950,6 +953,7 @@ export async function routeProviders(
             providerId: candidate.providerId,
             apiModelId: candidate.apiModelId ?? null,
             providerModelSlug: candidate.providerModelSlug ?? null,
+            quantization: candidate.quantizationScheme ?? null,
             providerStatus: normalizeProviderStatus(candidate.providerStatus),
             providerRoutingStatus: normalizeRoutingStatus(candidate.providerRoutingStatus),
             modelRoutingStatus: normalizeRoutingStatus(candidate.modelRoutingStatus),

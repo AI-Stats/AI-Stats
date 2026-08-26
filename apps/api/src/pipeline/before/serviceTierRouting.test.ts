@@ -5,7 +5,6 @@ import { applyServiceTierRouting } from "./serviceTierRouting";
 const queryState = vi.hoisted(() => ({
     providerRows: [] as any[],
     capabilityRows: [] as any[],
-    providerFilters: {} as Record<string, unknown>,
 }));
 
 const loadPriceCardMock = vi.hoisted(() => vi.fn());
@@ -13,52 +12,36 @@ const loadPriceCardMock = vi.hoisted(() => vi.fn());
 vi.mock("@/runtime/env", () => ({
     getSupabaseAdmin: () => ({
         from: (table: string) => {
-            if (table === "data_api_provider_models") {
-                return {
-                    select: () => {
-                        const builder: any = {
-                            eq: (_column: string, _value: unknown) => builder,
-                        };
-                        builder.eq = (column: string, value: unknown) => {
-                            queryState.providerFilters[column] = value;
-                            if (column === "is_active_gateway") {
-                                const rows = queryState.providerRows.filter((row) =>
-                                    Object.entries(queryState.providerFilters).every(
-                                        ([filterColumn, filterValue]) =>
-                                            row[filterColumn as keyof typeof row] === filterValue,
-                                    ),
-                                );
-                                return Promise.resolve({
-                                    data: rows,
-                                    error: null,
-                                });
-                            }
-                            return builder;
-                        };
+            if (table === "v2_model_provider_routes" || table === "v2_route_capabilities") {
+                const rows = table === "v2_model_provider_routes"
+                    ? queryState.providerRows.map((row) => ({
+                        ...row,
+                        provider_model_id: row.provider_model_id ?? row.provider_api_model_id,
+                        model_slug: row.model_slug ?? row.api_model_id,
+                        routing_enabled: row.routing_enabled ?? row.is_active_gateway,
+                    }))
+                    : queryState.capabilityRows.map((row) => ({
+                        ...row,
+                        provider_model_id: row.provider_model_id ?? row.provider_api_model_id,
+                    }));
+                let filteredRows = rows;
+                const builder: any = {
+                    select: () => builder,
+                    eq: () => builder,
+                    in: () => builder,
+                    or: (filter: string) => {
+                        const values = filter
+                            .split(",")
+                            .map((clause) => clause.split(".eq.")[1])
+                            .filter(Boolean);
+                        filteredRows = filteredRows.filter((row) =>
+                            values.includes(row.model_slug) || values.includes(row.provider_model_slug),
+                        );
                         return builder;
                     },
+                    then: (resolve: (value: unknown) => unknown) => resolve({ data: filteredRows, error: null }),
                 };
-            }
-
-            if (table === "data_api_provider_model_capabilities") {
-                return {
-                    select: () => {
-                        const builder: any = {
-                            eq: (_column: string, _value: unknown) => builder,
-                            in: (_column: string, _value: unknown) => builder,
-                        };
-                        builder.in = (column: string, _value: unknown) => {
-                            if (column === "provider_api_model_id") {
-                                return Promise.resolve({
-                                    data: queryState.capabilityRows,
-                                    error: null,
-                                });
-                            }
-                            return builder;
-                        };
-                        return builder;
-                    },
-                };
+                return builder;
             }
 
             throw new Error(`Unexpected table: ${table}`);
@@ -104,6 +87,7 @@ function makeCandidate(args: {
     pricingCard: PriceCard | null;
     offerScope?: "global" | "regional" | "specialized" | null;
     offerLabel?: string | null;
+    capabilityParams?: Record<string, any>;
 }): any {
     return {
         providerId: args.providerId,
@@ -113,7 +97,7 @@ function makeCandidate(args: {
         pricingCard: args.pricingCard,
         offerScope: args.offerScope ?? null,
         offerLabel: args.offerLabel ?? null,
-        capabilityParams: {},
+        capabilityParams: args.capabilityParams ?? {},
         maxInputTokens: null,
         maxOutputTokens: null,
     };
@@ -123,7 +107,6 @@ describe("applyServiceTierRouting", () => {
     beforeEach(() => {
         queryState.providerRows = [];
         queryState.capabilityRows = [];
-        queryState.providerFilters = {};
         loadPriceCardMock.mockReset();
     });
 
@@ -163,6 +146,37 @@ describe("applyServiceTierRouting", () => {
             },
         ]);
         expect(loadPriceCardMock).not.toHaveBeenCalled();
+    });
+
+    it("keeps Mistral reference Priority pricing non-routable without an explicit capability", async () => {
+        const pricingCard = makeCard({
+            provider: "mistral",
+            model: "mistral/mistral-large-3",
+            plans: ["standard", "priority"],
+        });
+        const withoutEntitlement = makeCandidate({
+            providerId: "mistral",
+            apiModelId: "mistral/mistral-large-3",
+            pricingCard,
+        });
+        const enabledModel = makeCandidate({
+            providerId: "mistral",
+            apiModelId: "z-ai/glm-5.2",
+            pricingCard,
+            capabilityParams: { service_tier: {} },
+        });
+
+        const result = await applyServiceTierRouting({
+            candidates: [withoutEntitlement, enabledModel],
+            body: { service_tier: "priority" },
+            capability: "text.generate",
+        });
+
+        expect(result.candidates.map((candidate) => candidate.apiModelId)).toEqual(["z-ai/glm-5.2"]);
+        expect(result.diagnostics.droppedProviders).toMatchObject([{
+            apiModelId: "mistral/mistral-large-3",
+            reason: "service_tier_priority_unsupported",
+        }]);
     });
 
     it("does not treat text speed as a service tier alias", async () => {
@@ -222,6 +236,46 @@ describe("applyServiceTierRouting", () => {
         expect(result.candidates[0].providerId).toBe("anthropic-priority");
         expect(result.diagnostics.droppedProviders).toEqual([]);
         expect(loadPriceCardMock).not.toHaveBeenCalled();
+    });
+
+    it("does not expose dedicated priority variants to standard or omitted tier requests", async () => {
+        const dedicated = makeCandidate({
+            providerId: "deepinfra",
+            apiModelId: "openai/gpt-oss-120b",
+            providerModelSlug: "openai/gpt-oss-120b-fast",
+            pricingCard: makeCard({ provider: "deepinfra", model: "openai/gpt-oss-120b", plans: ["standard", "priority"] }),
+            offerScope: "specialized",
+            offerLabel: "priority",
+        });
+        const standard = makeCandidate({
+            providerId: "deepinfra-standard",
+            apiModelId: "openai/gpt-oss-120b",
+            providerModelSlug: "openai/gpt-oss-120b",
+            pricingCard: makeCard({ provider: "deepinfra-standard", model: "openai/gpt-oss-120b", plans: ["standard"] }),
+        });
+
+        for (const body of [{}, { service_tier: "standard" }]) {
+            const result = await applyServiceTierRouting({ candidates: [dedicated, standard], body, capability: "text.generate" });
+            expect(result.candidates.map((candidate) => candidate.providerId)).toEqual(["deepinfra-standard"]);
+            expect(result.diagnostics.droppedProviders).toContainEqual(expect.objectContaining({
+                providerId: "deepinfra",
+                reason: "service_tier_priority_required",
+            }));
+        }
+    });
+
+    it("keeps canonical fast models on standard and omitted tiers", async () => {
+        const canonicalFast = makeCandidate({
+            providerId: "lightricks",
+            apiModelId: "lightricks/ltx-2.5-fast",
+            providerModelSlug: "ltx-2.5-fast",
+            pricingCard: makeCard({ provider: "lightricks", model: "lightricks/ltx-2.5-fast", plans: ["standard"] }),
+        });
+
+        for (const body of [{}, { service_tier: "standard" }]) {
+            const result = await applyServiceTierRouting({ candidates: [canonicalFast], body, capability: "video.generate" });
+            expect(result.candidates).toEqual([canonicalFast]);
+        }
     });
 
     it("remaps Venice priority requests to the hidden fast sibling slug while keeping the public model stable", async () => {
@@ -436,6 +490,106 @@ describe("applyServiceTierRouting", () => {
                 reason: "priority_fast_sibling",
             },
         ]);
+    });
+
+    it("remaps CrofAI priority requests to hidden same-model Lightning slugs", async () => {
+        queryState.providerRows = [
+            {
+                provider_id: "crofai",
+                api_model_id: "deepseek/deepseek-v4-pro",
+                provider_api_model_id: "crofai-v4-pro-lightning-pam",
+                provider_model_slug: "deepseek-v4-pro-lightning",
+                is_active_gateway: false,
+                effective_from: "2026-08-23T00:00:00Z",
+                effective_to: null,
+            },
+            {
+                provider_id: "crofai",
+                api_model_id: "moonshotai/kimi-k2.5",
+                provider_api_model_id: "crofai-kimi-k2.5-lightning-pam",
+                provider_model_slug: "kimi-k2.5-lightning",
+                is_active_gateway: false,
+                effective_from: "2026-08-23T00:00:00Z",
+                effective_to: null,
+            },
+        ];
+        queryState.capabilityRows = [
+            {
+                provider_api_model_id: "crofai-v4-pro-lightning-pam",
+                params: { reasoning: true },
+                max_input_tokens: 1_000_000,
+                max_output_tokens: 131_072,
+                status: "active",
+                updated_at: "2026-08-23T00:00:00Z",
+                created_at: "2026-08-23T00:00:00Z",
+            },
+            {
+                provider_api_model_id: "crofai-kimi-k2.5-lightning-pam",
+                params: { reasoning: true },
+                max_input_tokens: 131_072,
+                max_output_tokens: 32_768,
+                status: "active",
+                updated_at: "2026-08-23T00:00:00Z",
+                created_at: "2026-08-23T00:00:00Z",
+            },
+        ];
+
+        const result = await applyServiceTierRouting({
+            candidates: [
+                makeCandidate({
+                    providerId: "crofai",
+                    apiModelId: "deepseek/deepseek-v4-pro",
+                    providerModelSlug: "deepseek-v4-pro",
+                    pricingCard: makeCard({
+                        provider: "crofai",
+                        model: "deepseek/deepseek-v4-pro",
+                        plans: ["standard", "priority"],
+                    }),
+                }),
+                makeCandidate({
+                    providerId: "crofai",
+                    apiModelId: "moonshotai/kimi-k2.5",
+                    providerModelSlug: "kimi-k2.5",
+                    pricingCard: makeCard({
+                        provider: "crofai",
+                        model: "moonshotai/kimi-k2.5",
+                        plans: ["standard", "priority"],
+                    }),
+                }),
+            ],
+            body: { service_tier: "priority" },
+            capability: "text.generate",
+        });
+
+        expect(loadPriceCardMock).not.toHaveBeenCalled();
+        expect(result.candidates).toHaveLength(2);
+        expect(result.candidates[0]).toMatchObject({
+            providerId: "crofai",
+            apiModelId: "deepseek/deepseek-v4-pro",
+            pricingKey: "crofai:deepseek/deepseek-v4-pro",
+            providerModelSlug: "deepseek-v4-pro-lightning",
+            maxInputTokens: 1_000_000,
+            maxOutputTokens: 131_072,
+            capabilityParams: { reasoning: true },
+        });
+        expect(result.diagnostics.remappedProviders[0]).toMatchObject({
+            providerId: "crofai",
+            toApiModelId: "deepseek/deepseek-v4-pro",
+            reason: "priority_fast_sibling",
+        });
+        expect(result.candidates[1]).toMatchObject({
+            providerId: "crofai",
+            apiModelId: "moonshotai/kimi-k2.5",
+            pricingKey: "crofai:moonshotai/kimi-k2.5",
+            providerModelSlug: "kimi-k2.5-lightning",
+            maxInputTokens: 131_072,
+            maxOutputTokens: 32_768,
+        });
+        expect(result.diagnostics.remappedProviders[1]).toMatchObject({
+            providerId: "crofai",
+            toApiModelId: "moonshotai/kimi-k2.5",
+            reason: "priority_fast_sibling",
+        });
     });
 
     it("remaps flex requests to the flex sibling model when pricing is exposed that way", async () => {

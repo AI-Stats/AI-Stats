@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import type { APIProviderCard } from "@/lib/fetchers/api-providers/providerDataTypes";
 import { fetchFrontendAPIProviders } from "@/lib/fetchers/frontend/fetchPublicCatalog";
 import APIProvidersDisplay from "@/components/(data)/api-providers/APIProvidersDisplay";
-import { Skeleton } from "@/components/ui/skeleton";
+import { APIProvidersPageSkeleton } from "@/components/(data)/api-providers/APIProvidersPageSkeleton";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
@@ -28,16 +28,7 @@ async function APIProvidersSection() {
 }
 
 function APIProvidersFallback() {
-	return (
-		<div className="space-y-4">
-			<Skeleton className="h-11 w-full" />
-			<div className="overflow-hidden rounded-xl border border-border/70">
-				{Array.from({ length: 8 }).map((_, index) => (
-					<Skeleton key={index} className="h-20 w-full rounded-none border-b last:border-b-0" />
-				))}
-			</div>
-		</div>
-	);
+	return <APIProvidersPageSkeleton />;
 }
 
 export default function Page() {

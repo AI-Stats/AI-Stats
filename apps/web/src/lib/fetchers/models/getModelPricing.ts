@@ -22,6 +22,7 @@ export interface PricingRule {
     time_windows?: Array<{
         label: string;
         timezone: "UTC";
+        days_of_week?: Array<"mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun">;
         start_time: string;
         end_time: string;
         price_per_unit?: number | string | null;
@@ -137,12 +138,8 @@ export interface ProviderInfo {
         | null;
     default_execution_regions?: string[] | null;
     default_data_regions?: string[] | null;
-    zero_data_retention?:
-        | "unknown"
-        | "unsupported"
-        | "optional"
-        | "default"
-        | null;
+    zero_data_retention?: boolean | null;
+    data_retention_days?: number | null;
     residency_source_url?: string | null;
     residency_notes?: string | null;
     regional_pricing_mode?:
@@ -219,6 +216,7 @@ function isMissingProviderModelColumnError(error: unknown): boolean {
         text.includes("default_execution_regions") ||
         text.includes("default_data_regions") ||
         text.includes("zero_data_retention") ||
+        text.includes("data_retention_days") ||
         text.includes("residency_source_url") ||
         text.includes("residency_notes") ||
         text.includes("regional_pricing_mode") ||
@@ -299,6 +297,7 @@ export default async function getModelPricing(
             default_execution_regions,
             default_data_regions,
             zero_data_retention,
+            data_retention_days,
             residency_source_url,
             residency_notes,
             regional_pricing_mode,
@@ -457,6 +456,10 @@ export default async function getModelPricing(
                         : null,
                     zero_data_retention:
                         row.data_api_providers?.zero_data_retention ?? null,
+                    data_retention_days:
+                        typeof row.data_api_providers?.data_retention_days === "number"
+                            ? row.data_api_providers.data_retention_days
+                            : null,
                     residency_source_url:
                         row.data_api_providers?.residency_source_url ?? null,
                     residency_notes:

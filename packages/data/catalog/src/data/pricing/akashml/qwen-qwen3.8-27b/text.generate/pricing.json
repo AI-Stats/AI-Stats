@@ -1,0 +1,16 @@
+{
+  "key": "akashml:qwen/qwen3.8-27b:text.generate",
+  "api_provider_id": "akashml",
+  "provider_slug": "akashml",
+  "api_model_id": "qwen/qwen3.8-27b",
+  "capability_id": "text.generate",
+  "rules": [
+    { "meter": "input_text_tokens", "unit": "token", "unit_size": 1000000, "price_per_unit": 0.45, "currency": "USD", "pricing_plan": "standard", "note": null, "match": [], "priority": 100, "region": null, "cache_duration_seconds": null, "conditions": [], "source": "https://akashml.com/docs/platform/models" },
+    { "meter": "implicit_cached_input_text_tokens", "unit": "token", "unit_size": 1000000, "price_per_unit": 0.05, "currency": "USD", "pricing_plan": "standard", "note": null, "match": [], "priority": 100, "region": null, "cache_duration_seconds": null, "conditions": [], "source": "https://akashml.com/docs/platform/models" },
+    { "meter": "output_text_tokens", "unit": "token", "unit_size": 1000000, "price_per_unit": 3.2, "currency": "USD", "pricing_plan": "standard", "note": null, "match": [], "priority": 100, "region": null, "cache_duration_seconds": null, "conditions": [], "source": "https://akashml.com/docs/platform/models" }
+  ],
+  "regions": [],
+  "service_tiers": ["standard"],
+  "sources": [{ "kind": "pricing", "url": "https://akashml.com/docs/platform/models", "accessed_at": "2026-08-21T00:00:00Z" }],
+  "verification": { "status": "verified", "checked_at": "2026-08-21", "notes": "Verified against AkashML's official pricing table." }
+}

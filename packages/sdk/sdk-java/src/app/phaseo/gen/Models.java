@@ -1066,6 +1066,7 @@ public final class Models {
 
 	public static class ModerationsResponse {
 		public String id;
+		public Object meta;
 		public String model;
 		public java.util.List<Object> results;
 	}
@@ -1083,6 +1084,17 @@ public final class Models {
 	}
 
 	public static class MusicGenerateResponse {
+		public String audio_base64;
+		public String audio_url;
+		public String id;
+		public String model;
+		public String nativeResponseId;
+		public Object object;
+		public java.util.List<Object> output;
+		public String provider;
+		public Object result;
+		public Object status;
+		public Object usage;
 	}
 
 	public static class NotImplementedResponse {
@@ -1410,6 +1422,7 @@ public final class Models {
 		public Integer duration;
 		public Boolean enhance_prompt;
 		public Boolean generate_audio;
+		public Double input_audio_duration;
 		public java.util.List<Object> input_references;
 		public Double input_video_duration;
 		public String model;

@@ -307,6 +307,14 @@ function renderEmailForRow(row: OutboxRow): {
 		const rendered = renderBillingAlertEmail(row.payload ?? {}, "payment_method_expiring");
 		return { subject: row.subject ?? rendered.subject, html: rendered.html, text: rendered.text };
 	}
+	if (row.template === "model_deprecation" || row.kind === "model_deprecation") {
+		const payload = row.payload ?? {};
+		const modelName = String(payload.model_name ?? payload.model_id ?? "A model used by your workspace");
+		const retirement = payload.retirement_date ? ` It is scheduled to retire on ${String(payload.retirement_date)}.` : "";
+		const subject = row.subject ?? `${modelName} has been deprecated`;
+		const message = `${modelName} has been deprecated.${retirement}`;
+		return { subject, html: `<div style="font-family:ui-sans-serif,system-ui;line-height:1.5"><h2>${escapeHtml(subject)}</h2><p>${escapeHtml(message)}</p><p><a href="https://phaseo.app/settings/notifications">Manage notifications</a></p></div>`, text: `${subject}\n\n${message}\n\nManage notifications: https://phaseo.app/settings/notifications` };
+	}
 	if (row.template === "io_retention_grace" || row.kind === "io_retention_grace") {
 		const rendered = renderIoRetentionEmail(row.payload ?? {}, "grace");
 		return {
@@ -348,7 +356,7 @@ export async function drainEmailOutbox(limit = 25): Promise<{
 		throw new Error(`email_outbox_fetch_error:${error.message ?? "unknown"}`);
 	}
 
-	const rows = (data ?? []) as unknown as OutboxRow[];
+	const rows = ((data ?? []) as unknown as OutboxRow[]).filter((row) => row.kind !== "notification_test");
 	let sent = 0;
 	let failed = 0;
 
@@ -430,4 +438,3 @@ export async function drainEmailOutbox(limit = 25): Promise<{
 
 	return { processed: rows.length, sent, failed };
 }
-

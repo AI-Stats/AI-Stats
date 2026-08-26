@@ -24,14 +24,17 @@ function invalidVoiceResponse(voice: string, model: string, supported: string[])
     );
 }
 
-function extractVoiceCandidate(voice: AudioSpeechRequest["voice"]): string | undefined {
+function extractVoiceCandidate(voice: AudioSpeechRequest["voice"]): string | { id: string } | undefined {
     if (typeof voice === "string") {
         const trimmed = voice.trim();
         return trimmed.length > 0 ? trimmed : undefined;
     }
     if (voice && typeof voice === "object") {
+        const customVoiceId = (voice as Record<string, any>).id;
+        if (typeof customVoiceId === "string" && customVoiceId.trim().length > 0) {
+            return { id: customVoiceId.trim() };
+        }
         const candidate =
-            (voice as Record<string, any>).id ??
             (voice as Record<string, any>).voice_id ??
             (voice as Record<string, any>).voiceId ??
             (voice as Record<string, any>).name ??
@@ -49,7 +52,17 @@ function supportsSpeechSse(model: string): boolean {
 }
 
 function requiresAuthoritativeSpeechUsage(providerId: string, model: string): boolean {
-    return providerId === "openai" && supportsSpeechSse(model);
+    return (providerId === "openai" || providerId === "openai-eu") && supportsSpeechSse(model);
+}
+
+function invalidSpeechRequest(message: string, param: string): Response {
+    return new Response(JSON.stringify({
+        error: {
+            type: "invalid_request_error",
+            message,
+            param,
+        },
+    }), { status: 400, headers: { "Content-Type": "application/json" } });
 }
 
 function mimeTypeForResponseFormat(format?: string | null): string {
@@ -166,7 +179,8 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
         ...adapterPayload,
         model: args.providerModelSlug || adapterPayload.model,
     };
-    if (body.format !== undefined) {
+    const isMorpheus = args.providerId === "morpheus";
+    if (!isMorpheus && body.format !== undefined) {
         return {
             kind: "completed",
             upstream: new Response(
@@ -190,9 +204,57 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
             byokKeyId: keyInfo.byokId,
         };
     }
-    const voiceCandidate = extractVoiceCandidate(body.voice);
-    let resolvedVoice: string | undefined = voiceCandidate;
-    if (voiceCandidate != null) {
+    const voiceCandidate = body.voice == null && isMorpheus
+		? "af_alloy"
+		: extractVoiceCandidate(body.voice);
+    if (voiceCandidate == null) {
+        return {
+            kind: "completed",
+            upstream: invalidSpeechRequest("OpenAI audio.speech requires a voice.", "voice"),
+            bill: { cost_cents: 0, currency: "USD", usage: undefined as any, upstream_id: null, finish_reason: null },
+            keySource: keyInfo.source,
+            byokKeyId: keyInfo.byokId,
+        };
+    }
+	if (isMorpheus && typeof voiceCandidate !== "string") {
+		return {
+			kind: "completed",
+			upstream: invalidSpeechRequest("Morpheus audio.speech voice must be a string.", "voice"),
+			bill: { cost_cents: 0, currency: "USD", usage: undefined as any, upstream_id: null, finish_reason: null },
+			keySource: keyInfo.source,
+			byokKeyId: keyInfo.byokId,
+		};
+	}
+	if (isMorpheus && body.stream_format === "sse") {
+		return {
+			kind: "completed",
+			upstream: invalidSpeechRequest("Morpheus audio.speech returns binary audio and does not support stream_format=sse.", "stream_format"),
+			bill: { cost_cents: 0, currency: "USD", usage: undefined as any, upstream_id: null, finish_reason: null },
+			keySource: keyInfo.source,
+			byokKeyId: keyInfo.byokId,
+		};
+	}
+	if (isMorpheus && body.instructions != null) {
+		return {
+			kind: "completed",
+			upstream: invalidSpeechRequest("Morpheus audio.speech does not document instructions.", "instructions"),
+			bill: { cost_cents: 0, currency: "USD", usage: undefined as any, upstream_id: null, finish_reason: null },
+			keySource: keyInfo.source,
+			byokKeyId: keyInfo.byokId,
+		};
+	}
+	const requestedMorpheusFormat = body.response_format ?? body.format;
+	if (isMorpheus && requestedMorpheusFormat != null && !["mp3", "opus", "aac", "flac", "wav", "pcm"].includes(requestedMorpheusFormat)) {
+		return {
+			kind: "completed",
+			upstream: invalidSpeechRequest("Morpheus audio.speech supports mp3, opus, aac, flac, wav, or pcm.", body.response_format ? "response_format" : "format"),
+			bill: { cost_cents: 0, currency: "USD", usage: undefined as any, upstream_id: null, finish_reason: null },
+			keySource: keyInfo.source,
+			byokKeyId: keyInfo.byokId,
+		};
+	}
+    let resolvedVoice: string | { id: string } = voiceCandidate;
+    if (typeof voiceCandidate === "string" && !isMorpheus) {
         const validation = validateOpenAIVoiceForModel(body.model, voiceCandidate);
         if (!validation.ok) {
             return {
@@ -212,16 +274,37 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
         resolvedVoice = validation.resolved;
     }
 
+    if (!supportsSpeechSse(body.model) && body.stream_format === "sse") {
+        return {
+            kind: "completed",
+            upstream: invalidSpeechRequest('stream_format "sse" is not supported for tts-1 or tts-1-hd.', "stream_format"),
+            bill: { cost_cents: 0, currency: "USD", usage: undefined as any, upstream_id: null, finish_reason: null },
+            keySource: keyInfo.source,
+            byokKeyId: keyInfo.byokId,
+        };
+    }
+    if (!supportsSpeechSse(body.model) && body.instructions != null) {
+        return {
+            kind: "completed",
+            upstream: invalidSpeechRequest("instructions are not supported for tts-1 or tts-1-hd.", "instructions"),
+            bill: { cost_cents: 0, currency: "USD", usage: undefined as any, upstream_id: null, finish_reason: null },
+            keySource: keyInfo.source,
+            byokKeyId: keyInfo.byokId,
+        };
+    }
+
     const requireAuthoritativeUsage = requiresAuthoritativeSpeechUsage(args.providerId, body.model);
 
+    const responseFormat = body.response_format ?? (isMorpheus ? body.format ?? "mp3" : undefined);
     const requestBody = {
         model: body.model,
         input: body.input,
         voice: resolvedVoice,
-        response_format: body.response_format,
-        ...(requireAuthoritativeUsage ? { stream_format: "sse" as const } : {}),
+        response_format: responseFormat,
+        stream_format: isMorpheus ? undefined : body.stream_format ?? (requireAuthoritativeUsage ? "sse" as const : undefined),
         speed: body.speed,
-        instructions: body.instructions,
+		instructions: isMorpheus ? undefined : body.instructions,
+		session_id: isMorpheus ? body.session_id : undefined,
     };
 
     const res = await (args.upstreamTiming?.fetch ?? fetch)(openAICompatUrl(args.providerId, "/audio/speech"), {
@@ -229,6 +312,30 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
         headers: openAICompatHeaders(args.providerId, keyInfo.key, upstreamTestHeaders(args.meta)),
         body: JSON.stringify(requestBody),
     });
+
+    const baseBill = {
+        cost_cents: 0,
+        currency: "USD" as const,
+        usage: undefined as any,
+        upstream_id: res.headers.get("x-request-id"),
+        finish_reason: null,
+    };
+
+    if (res.ok && body.stream_format === "sse" && res.body) {
+        const [clientStream, accountingStream] = res.body.tee();
+        return {
+            kind: "stream",
+            upstream: res,
+            stream: clientStream,
+            usageFinalizer: async () => {
+                const parsed = await parseSpeechSseResponse(new Response(accountingStream, { headers: res.headers }));
+                return { ...baseBill, usage: parsed.usage };
+            },
+            bill: baseBill,
+            keySource: keyInfo.source,
+            byokKeyId: keyInfo.byokId,
+        };
+    }
 
     let upstream = res;
     let usage: any;
@@ -262,7 +369,7 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
             }
             usage = parsed.usage;
             const headers = new Headers(res.headers);
-            const mimeType = mimeTypeForResponseFormat(body.response_format);
+            const mimeType = mimeTypeForResponseFormat(responseFormat);
             const responseBytes = new Uint8Array(parsed.bytes);
             headers.set("Content-Type", mimeType);
             upstream = new Response(new Blob([responseBytes], { type: mimeType }), {
@@ -297,12 +404,21 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
     }
 
     const bill = {
-        cost_cents: 0,
-        currency: "USD" as const,
-        usage,
-        upstream_id: res.headers.get("x-request-id"),
-        finish_reason: null,
+        ...baseBill,
+        usage: usage ?? (res.ok ? { requests: 1, input_characters: body.input.length } : undefined),
     };
+
+    if (upstream.ok && upstream.body) {
+        return {
+            kind: "stream",
+            upstream,
+            stream: upstream.body,
+            usageFinalizer: async () => bill,
+            bill,
+            keySource: keyInfo.source,
+            byokKeyId: keyInfo.byokId,
+        };
+    }
 
     return {
         kind: "completed",
@@ -312,4 +428,3 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
         byokKeyId: keyInfo.byokId,
     };
 }
-

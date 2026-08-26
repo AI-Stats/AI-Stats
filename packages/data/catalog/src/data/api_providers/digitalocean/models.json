@@ -1,5 +1,654 @@
 [
   {
+    "api_model_id": "anthropic/claude-fable-5",
+    "provider_api_model_id": "digitalocean:anthropic-claude-fable-5",
+    "provider_model_slug": "anthropic-claude-fable-5",
+    "internal_model_id": "anthropic/claude-fable-5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 128000,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "anthropic/claude-haiku-4.5",
+    "provider_api_model_id": "digitalocean:anthropic-claude-haiku-4.5",
+    "provider_model_slug": "anthropic-claude-haiku-4.5",
+    "internal_model_id": "anthropic/claude-haiku-4.5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 200000,
+    "max_output_tokens": 8192,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "anthropic/claude-opus-4.5",
+    "provider_api_model_id": "digitalocean:anthropic-claude-opus-4.5",
+    "provider_model_slug": "anthropic-claude-opus-4.5",
+    "internal_model_id": "anthropic/claude-opus-4.5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 200000,
+    "max_output_tokens": 8192,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "anthropic/claude-opus-4.6",
+    "provider_api_model_id": "digitalocean:anthropic-claude-opus-4.6",
+    "provider_model_slug": "anthropic-claude-opus-4.6",
+    "internal_model_id": "anthropic/claude-opus-4.6",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 200000,
+    "max_output_tokens": 8192,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "anthropic/claude-opus-4.7",
+    "provider_api_model_id": "digitalocean:anthropic-claude-opus-4.7",
+    "provider_model_slug": "anthropic-claude-opus-4.7",
+    "internal_model_id": "anthropic/claude-opus-4.7",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 200000,
+    "max_output_tokens": 8192,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "anthropic/claude-opus-4.8",
+    "provider_api_model_id": "digitalocean:anthropic-claude-opus-4.8",
+    "provider_model_slug": "anthropic-claude-opus-4.8",
+    "internal_model_id": "anthropic/claude-opus-4.8",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 128000,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "anthropic/claude-opus-5",
+    "provider_api_model_id": "digitalocean:anthropic-claude-opus-5",
+    "provider_model_slug": "anthropic-claude-opus-5",
+    "internal_model_id": "anthropic/claude-opus-5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 128000,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "anthropic/claude-sonnet-4.5",
+    "provider_api_model_id": "digitalocean:anthropic-claude-4.5-sonnet",
+    "provider_model_slug": "anthropic-claude-4.5-sonnet",
+    "internal_model_id": "anthropic/claude-sonnet-4.5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "anthropic/claude-sonnet-4.6",
+    "provider_api_model_id": "digitalocean:anthropic-claude-4.6-sonnet",
+    "provider_model_slug": "anthropic-claude-4.6-sonnet",
+    "internal_model_id": "anthropic/claude-sonnet-4.6",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 200000,
+    "max_output_tokens": 8192,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "anthropic/claude-sonnet-5",
+    "provider_api_model_id": "digitalocean:anthropic-claude-5-sonnet",
+    "provider_model_slug": "anthropic-claude-5-sonnet",
+    "internal_model_id": "anthropic/claude-sonnet-5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 128000,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "arcee-ai/trinity-large-thinking",
+    "provider_api_model_id": "digitalocean:arcee-trinity-large-thinking",
+    "provider_model_slug": "arcee-trinity-large-thinking",
+    "internal_model_id": "arcee-ai/trinity-large-thinking",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 128000,
+    "max_output_tokens": 32000,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "deepseek/deepseek-r1-distill-llama-70b",
     "provider_api_model_id": "digitalocean:deepseek-r1-distill-llama-70b",
     "provider_model_slug": "deepseek-r1-distill-llama-70b",
@@ -8,14 +657,14 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 32678,
+    "max_output_tokens": 8192,
     "effective_from": "2026-05-29T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-21T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "coming_soon",
+        "status": "retired",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -27,7 +676,7 @@
         "modes": []
       }
     ],
-    "routing_status": null,
+    "routing_status": "retired",
     "routable": false,
     "regions": {
       "execution": null,
@@ -39,11 +688,77 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official current DigitalOcean Inference model catalog."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Not listed for current DigitalOcean serverless inference; retained as disabled historical support."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v3",
+    "provider_api_model_id": "digitalocean:deepseek/deepseek-v3",
+    "provider_model_slug": "deepseek-v3",
+    "internal_model_id": "deepseek/deepseek-v3",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 163840,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": "2026-08-21T00:00:00Z",
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "retired",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "retired",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official current DigitalOcean Inference model catalog."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Not listed for current DigitalOcean serverless inference; retained as disabled historical support."
     },
     "rate_limits": []
   },
@@ -56,30 +771,34 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 163840,
+    "max_output_tokens": 163840,
     "effective_from": "2026-05-29T00:00:00",
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "coming_soon",
+        "status": "active",
         "params": [],
-        "reasoning": null,
+        "reasoning": true,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
+        "attachment": false,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": null,
+    "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": null,
-      "data": null
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
     },
     "service_tiers": [],
     "api": {
@@ -87,11 +806,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
     },
     "rate_limits": []
   },
@@ -104,30 +830,34 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 1048576,
+    "max_output_tokens": 384000,
     "effective_from": "2026-05-29T00:00:00",
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "coming_soon",
+        "status": "active",
         "params": [],
-        "reasoning": null,
+        "reasoning": true,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
+        "attachment": false,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": null,
+    "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": null,
-      "data": null
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
     },
     "service_tiers": [],
     "api": {
@@ -135,11 +865,77 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v4-flash-0731",
+    "provider_api_model_id": "digitalocean:deepseek-v4-flash-0731",
+    "provider_model_slug": "deepseek-v4-flash-0731",
+    "internal_model_id": "deepseek/deepseek-v4-flash-0731",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 1048576,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
     },
     "rate_limits": []
   },
@@ -152,30 +948,34 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 1048576,
+    "max_output_tokens": 384000,
     "effective_from": "2026-05-29T00:00:00",
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "coming_soon",
+        "status": "active",
         "params": [],
-        "reasoning": null,
+        "reasoning": true,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
+        "attachment": false,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": null,
+    "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": null,
-      "data": null
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
     },
     "service_tiers": [],
     "api": {
@@ -183,11 +983,77 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v4-pro-0813",
+    "provider_api_model_id": "digitalocean:deepseek-v4-pro-0813",
+    "provider_model_slug": "deepseek-v4-pro-0813",
+    "internal_model_id": "deepseek/deepseek-v4-pro-0813",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 1048576,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
     },
     "rate_limits": []
   },
@@ -200,30 +1066,34 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 256000,
+    "max_output_tokens": 8192,
     "effective_from": "2026-05-29T00:00:00",
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "coming_soon",
+        "status": "active",
         "params": [],
-        "reasoning": null,
+        "reasoning": true,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
+        "attachment": false,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": null,
+    "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": null,
-      "data": null
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
     },
     "service_tiers": [],
     "api": {
@@ -231,11 +1101,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
     },
     "rate_limits": []
   },
@@ -248,14 +1125,14 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 128000,
+    "max_output_tokens": 4096,
     "effective_from": "2026-05-29T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-21T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "coming_soon",
+        "status": "retired",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -267,7 +1144,7 @@
         "modes": []
       }
     ],
-    "routing_status": null,
+    "routing_status": "retired",
     "routable": false,
     "regions": {
       "execution": null,
@@ -279,11 +1156,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official current DigitalOcean Inference model catalog."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Not listed for current DigitalOcean serverless inference; retained as disabled historical support."
     },
     "rate_limits": []
   },
@@ -296,30 +1180,34 @@
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 128000,
+    "max_output_tokens": 16384,
     "effective_from": "2026-05-29T00:00:00",
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "coming_soon",
+        "status": "active",
         "params": [],
-        "reasoning": null,
+        "reasoning": true,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
+        "attachment": true,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": null,
+    "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": null,
-      "data": null
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
     },
     "service_tiers": [],
     "api": {
@@ -327,11 +1215,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
     },
     "rate_limits": []
   },
@@ -344,30 +1239,34 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 65536,
+    "max_output_tokens": 65536,
     "effective_from": "2026-05-29T00:00:00",
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "coming_soon",
+        "status": "active",
         "params": [],
-        "reasoning": null,
+        "reasoning": true,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
+        "attachment": false,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": null,
+    "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": null,
-      "data": null
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
     },
     "service_tiers": [],
     "api": {
@@ -375,11 +1274,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
     },
     "rate_limits": []
   },
@@ -392,30 +1298,34 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
+    "context_length": 262144,
     "max_output_tokens": null,
     "effective_from": "2026-05-29T00:00:00",
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "coming_soon",
+        "status": "active",
         "params": [],
-        "reasoning": null,
+        "reasoning": true,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
+        "attachment": false,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": null,
+    "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": null,
-      "data": null
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
     },
     "service_tiers": [],
     "api": {
@@ -423,11 +1333,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
     },
     "rate_limits": []
   },
@@ -438,32 +1355,36 @@
     "internal_model_id": "moonshotai/kimi-k2.5",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text",
+    "input_modalities": "text,image",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 262144,
+    "max_output_tokens": 262144,
     "effective_from": "2026-05-29T00:00:00",
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "coming_soon",
+        "status": "active",
         "params": [],
-        "reasoning": null,
+        "reasoning": true,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
+        "attachment": true,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": null,
+    "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": null,
-      "data": null
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
     },
     "service_tiers": [],
     "api": {
@@ -471,11 +1392,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
     },
     "rate_limits": []
   },
@@ -486,32 +1414,36 @@
     "internal_model_id": "moonshotai/kimi-k2.6",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text",
+    "input_modalities": "text,image",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 262144,
+    "max_output_tokens": 262144,
     "effective_from": "2026-05-29T00:00:00",
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "coming_soon",
+        "status": "active",
         "params": [],
-        "reasoning": null,
+        "reasoning": true,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
+        "attachment": true,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": null,
+    "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": null,
-      "data": null
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
     },
     "service_tiers": [],
     "api": {
@@ -519,11 +1451,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
     },
     "rate_limits": []
   },
@@ -558,12 +1497,14 @@
     "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": null,
-      "data": null
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
     },
-    "service_tiers": [
-      "standard"
-    ],
+    "service_tiers": [],
     "api": {
       "formats": [],
       "endpoint": null,
@@ -572,21 +1513,15 @@
     "sources": [
       {
         "url": "https://docs.digitalocean.com/products/inference/details/models/",
-        "kind": "documentation",
-        "accessed_at": "2026-07-28T00:00:00Z",
-        "notes": "DigitalOcean lists kimi-k3 for serverless inference with native vision and prompt caching."
-      },
-      {
-        "url": "https://docs.digitalocean.com/products/inference/details/pricing/",
-        "kind": "pricing",
-        "accessed_at": "2026-07-28T00:00:00Z",
-        "notes": "DigitalOcean publishes Kimi K3 token pricing for input, cached input, and output."
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-07-28T00:00:00Z",
-      "notes": "DigitalOcean's official model catalogue confirms the kimi-k3 serverless route with vision, streaming, tool calling, structured output, and prompt caching. Phaseo routing remains disabled until the DigitalOcean gateway integration is implemented and authenticated."
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
     },
     "rate_limits": []
   },
@@ -597,32 +1532,36 @@
     "internal_model_id": "nvidia/nemotron-3-nano-omni",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text",
+    "input_modalities": "text,image,audio,video",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 65536,
+    "max_output_tokens": 65536,
     "effective_from": "2026-05-29T00:00:00",
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "coming_soon",
+        "status": "active",
         "params": [],
-        "reasoning": null,
+        "reasoning": true,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
+        "attachment": true,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": null,
+    "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": null,
-      "data": null
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
     },
     "service_tiers": [],
     "api": {
@@ -630,11 +1569,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
     },
     "rate_limits": []
   },
@@ -647,30 +1593,34 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 1000000,
+    "max_output_tokens": 32768,
     "effective_from": "2026-05-29T00:00:00",
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "coming_soon",
+        "status": "active",
         "params": [],
-        "reasoning": null,
+        "reasoning": true,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
+        "attachment": false,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": null,
+    "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": null,
-      "data": null
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
     },
     "service_tiers": [],
     "api": {
@@ -678,47 +1628,58 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
     },
     "rate_limits": []
   },
   {
     "api_model_id": "nvidia/nemotron-3-ultra-550b-a55b",
-    "provider_api_model_id": "digitalocean:nvidia-nemotron-3-ultra-550b",
+    "provider_api_model_id": "digitalocean:nemotron-3-ultra-550b",
     "provider_model_slug": "nemotron-3-ultra-550b",
     "internal_model_id": "nvidia/nemotron-3-ultra-550b-a55b",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": 1000000,
+    "context_length": 131072,
     "max_output_tokens": 131072,
     "effective_from": "2026-06-04T00:00:00",
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "coming_soon",
+        "status": "active",
         "params": [],
-        "reasoning": null,
+        "reasoning": true,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
+        "attachment": false,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": null,
+    "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": null,
-      "data": null
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
     },
     "service_tiers": [],
     "api": {
@@ -726,11 +1687,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
     },
     "rate_limits": []
   },
@@ -741,32 +1709,36 @@
     "internal_model_id": "nvidia/nemotron-nano-12b-v2-vl",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text,image",
+    "input_modalities": "text,image,video",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 128000,
+    "max_output_tokens": 16384,
     "effective_from": "2026-05-29T00:00:00",
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "coming_soon",
+        "status": "active",
         "params": [],
-        "reasoning": null,
+        "reasoning": true,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
+        "attachment": true,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": null,
+    "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": null,
-      "data": null
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
     },
     "service_tiers": [],
     "api": {
@@ -774,11 +1746,1198 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-4.1",
+    "provider_api_model_id": "digitalocean:openai-gpt-4.1",
+    "provider_model_slug": "openai-gpt-4.1",
+    "internal_model_id": "openai/gpt-4.1",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1047576,
+    "max_output_tokens": 32768,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-4o",
+    "provider_api_model_id": "digitalocean:openai-gpt-4o",
+    "provider_model_slug": "openai-gpt-4o",
+    "internal_model_id": "openai/gpt-4o",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 128000,
+    "max_output_tokens": 16384,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-4o-mini",
+    "provider_api_model_id": "digitalocean:openai-gpt-4o-mini",
+    "provider_model_slug": "openai-gpt-4o-mini",
+    "internal_model_id": "openai/gpt-4o-mini",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 128000,
+    "max_output_tokens": 16384,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5",
+    "provider_api_model_id": "digitalocean:openai-gpt-5",
+    "provider_model_slug": "openai-gpt-5",
+    "internal_model_id": "openai/gpt-5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 400000,
+    "max_output_tokens": 128000,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5-mini",
+    "provider_api_model_id": "digitalocean:openai-gpt-5-mini",
+    "provider_model_slug": "openai-gpt-5-mini",
+    "internal_model_id": "openai/gpt-5-mini",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 400000,
+    "max_output_tokens": 128000,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5-nano",
+    "provider_api_model_id": "digitalocean:openai-gpt-5-nano",
+    "provider_model_slug": "openai-gpt-5-nano",
+    "internal_model_id": "openai/gpt-5-nano",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 400000,
+    "max_output_tokens": 128000,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.2",
+    "provider_api_model_id": "digitalocean:openai-gpt-5.2",
+    "provider_model_slug": "openai-gpt-5.2",
+    "internal_model_id": "openai/gpt-5.2",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 400000,
+    "max_output_tokens": 128000,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.2-pro",
+    "provider_api_model_id": "digitalocean:openai-gpt-5.2-pro",
+    "provider_model_slug": "openai-gpt-5.2-pro",
+    "internal_model_id": "openai/gpt-5.2-pro",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 400000,
+    "max_output_tokens": 128000,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.3-codex",
+    "provider_api_model_id": "digitalocean:openai-gpt-5.3-codex",
+    "provider_model_slug": "openai-gpt-5.3-codex",
+    "internal_model_id": "openai/gpt-5.3-codex",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 400000,
+    "max_output_tokens": 128000,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.4",
+    "provider_api_model_id": "digitalocean:openai-gpt-5.4",
+    "provider_model_slug": "openai-gpt-5.4",
+    "internal_model_id": "openai/gpt-5.4",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 400000,
+    "max_output_tokens": 128000,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.4-mini",
+    "provider_api_model_id": "digitalocean:openai-gpt-5.4-mini",
+    "provider_model_slug": "openai-gpt-5.4-mini",
+    "internal_model_id": "openai/gpt-5.4-mini",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 400000,
+    "max_output_tokens": 128000,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.4-nano",
+    "provider_api_model_id": "digitalocean:openai-gpt-5.4-nano",
+    "provider_model_slug": "openai-gpt-5.4-nano",
+    "internal_model_id": "openai/gpt-5.4-nano",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 400000,
+    "max_output_tokens": 128000,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.4-pro",
+    "provider_api_model_id": "digitalocean:openai-gpt-5.4-pro",
+    "provider_model_slug": "openai-gpt-5.4-pro",
+    "internal_model_id": "openai/gpt-5.4-pro",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1050000,
+    "max_output_tokens": 128000,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.5",
+    "provider_api_model_id": "digitalocean:openai-gpt-5.5",
+    "provider_model_slug": "openai-gpt-5.5",
+    "internal_model_id": "openai/gpt-5.5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 128000,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.6-luna",
+    "provider_api_model_id": "digitalocean:openai-gpt-5.6-luna",
+    "provider_model_slug": "openai-gpt-5.6-luna",
+    "internal_model_id": "openai/gpt-5.6-luna",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1050000,
+    "max_output_tokens": 128000,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.6-sol",
+    "provider_api_model_id": "digitalocean:openai-gpt-5.6-sol",
+    "provider_model_slug": "openai-gpt-5.6-sol",
+    "internal_model_id": "openai/gpt-5.6-sol",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1050000,
+    "max_output_tokens": 128000,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.6-terra",
+    "provider_api_model_id": "digitalocean:openai-gpt-5.6-terra",
+    "provider_model_slug": "openai-gpt-5.6-terra",
+    "internal_model_id": "openai/gpt-5.6-terra",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1050000,
+    "max_output_tokens": 128000,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-image-1",
+    "provider_api_model_id": "digitalocean:openai-gpt-image-1",
+    "provider_model_slug": "openai-gpt-image-1",
+    "internal_model_id": "openai/gpt-image-1",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "image",
+    "context_length": null,
+    "max_output_tokens": 16384,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "image.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-image-1.5",
+    "provider_api_model_id": "digitalocean:openai-gpt-image-1.5",
+    "provider_model_slug": "openai-gpt-image-1.5",
+    "internal_model_id": "openai/gpt-image-1.5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "image",
+    "context_length": null,
+    "max_output_tokens": 16384,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "image.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-image-2",
+    "provider_api_model_id": "digitalocean:openai-gpt-image-2",
+    "provider_model_slug": "openai-gpt-image-2",
+    "internal_model_id": "openai/gpt-image-2",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "image",
+    "context_length": null,
+    "max_output_tokens": 16384,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "image.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
     },
     "rate_limits": []
   },
@@ -791,30 +2950,34 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 128000,
+    "max_output_tokens": 4096,
     "effective_from": "2026-05-29T00:00:00",
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "coming_soon",
+        "status": "active",
         "params": [],
-        "reasoning": null,
+        "reasoning": true,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
+        "attachment": false,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": null,
+    "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": null,
-      "data": null
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
     },
     "service_tiers": [],
     "api": {
@@ -822,11 +2985,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
     },
     "rate_limits": []
   },
@@ -839,30 +3009,34 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 128000,
+    "max_output_tokens": 4096,
     "effective_from": "2026-05-29T00:00:00",
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "coming_soon",
+        "status": "active",
         "params": [],
-        "reasoning": null,
+        "reasoning": true,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
+        "attachment": false,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": null,
+    "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": null,
-      "data": null
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
     },
     "service_tiers": [],
     "api": {
@@ -870,11 +3044,195 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/o1",
+    "provider_api_model_id": "digitalocean:openai-o1",
+    "provider_model_slug": "openai-o1",
+    "internal_model_id": "openai/o1",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 200000,
+    "max_output_tokens": 100000,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/o3",
+    "provider_api_model_id": "digitalocean:openai-o3",
+    "provider_model_slug": "openai-o3",
+    "internal_model_id": "openai/o3",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 200000,
+    "max_output_tokens": 100000,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/o3-mini",
+    "provider_api_model_id": "digitalocean:openai-o3-mini",
+    "provider_model_slug": "openai-o3-mini",
+    "internal_model_id": "openai/o3-mini",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 200000,
+    "max_output_tokens": 100000,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
     },
     "rate_limits": []
   },
@@ -887,14 +3245,14 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 32768,
+    "max_output_tokens": 6554,
     "effective_from": "2026-05-29T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-21T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "coming_soon",
+        "status": "retired",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -906,7 +3264,7 @@
         "modes": []
       }
     ],
-    "routing_status": null,
+    "routing_status": "retired",
     "routable": false,
     "regions": {
       "execution": null,
@@ -918,11 +3276,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official current DigitalOcean Inference model catalog."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Not listed for current DigitalOcean serverless inference; retained as disabled historical support."
     },
     "rate_limits": []
   },
@@ -935,14 +3300,14 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 262144,
+    "max_output_tokens": 52429,
     "effective_from": "2026-05-29T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-21T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "coming_soon",
+        "status": "retired",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -954,7 +3319,7 @@
         "modes": []
       }
     ],
-    "routing_status": null,
+    "routing_status": "retired",
     "routable": false,
     "regions": {
       "execution": null,
@@ -966,11 +3331,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official current DigitalOcean Inference model catalog."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Not listed for current DigitalOcean serverless inference; retained as disabled historical support."
     },
     "rate_limits": []
   },
@@ -986,11 +3358,11 @@
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": "2026-05-29T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-21T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.embed",
-        "status": "coming_soon",
+        "status": "retired",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -1002,7 +3374,7 @@
         "modes": []
       }
     ],
-    "routing_status": null,
+    "routing_status": "retired",
     "routable": false,
     "regions": {
       "execution": null,
@@ -1014,11 +3386,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official current DigitalOcean Inference model catalog."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Not listed for current DigitalOcean serverless inference; retained as disabled historical support."
     },
     "rate_limits": []
   },
@@ -1038,23 +3417,27 @@
     "capabilities": [
       {
         "capability_id": "audio.speech",
-        "status": "coming_soon",
+        "status": "active",
         "params": [],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
+        "attachment": false,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": null,
+    "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": null,
-      "data": null
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
     },
     "service_tiers": [],
     "api": {
@@ -1062,11 +3445,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
     },
     "rate_limits": []
   },
@@ -1079,30 +3469,34 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 131072,
+    "max_output_tokens": 131072,
     "effective_from": "2026-05-29T00:00:00",
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "coming_soon",
+        "status": "active",
         "params": [],
-        "reasoning": null,
+        "reasoning": true,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
+        "attachment": false,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": null,
+    "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": null,
-      "data": null
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
     },
     "service_tiers": [],
     "api": {
@@ -1110,18 +3504,84 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.8-2.4t-a95b",
+    "provider_api_model_id": "digitalocean:qwen3.8-max",
+    "provider_model_slug": "qwen3.8-max",
+    "internal_model_id": "qwen/qwen3.8-2.4t-a95b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 262144,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
     },
     "rate_limits": []
   },
   {
     "api_model_id": "qwen/wan2.2-t2v-a14b",
-    "provider_api_model_id": "digitalocean:wan2.2-t2v-a14b",
-    "provider_model_slug": "wan2.2-t2v-a14b",
+    "provider_api_model_id": "digitalocean:wan2-2-t2v-a14b",
+    "provider_model_slug": "wan2-2-t2v-a14b",
     "internal_model_id": "qwen/wan2.2-t2v-a14b",
     "is_active_gateway": false,
     "quantization_scheme": null,
@@ -1134,23 +3594,27 @@
     "capabilities": [
       {
         "capability_id": "video.generate",
-        "status": "coming_soon",
+        "status": "active",
         "params": [],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
+        "attachment": false,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": null,
+    "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": null,
-      "data": null
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
     },
     "service_tiers": [],
     "api": {
@@ -1158,11 +3622,77 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "xiaomi/mimo-v2.5-pro",
+    "provider_api_model_id": "digitalocean:mimo-v2.5-pro",
+    "provider_model_slug": "mimo-v2.5-pro",
+    "internal_model_id": "xiaomi/mimo-v2.5-pro",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": 262144,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
     },
     "rate_limits": []
   },
@@ -1175,30 +3705,34 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 64000,
+    "max_output_tokens": 64000,
     "effective_from": "2026-05-29T00:00:00",
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "coming_soon",
+        "status": "active",
         "params": [],
-        "reasoning": null,
+        "reasoning": true,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
+        "attachment": false,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": null,
+    "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": null,
-      "data": null
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
     },
     "service_tiers": [],
     "api": {
@@ -1206,11 +3740,77 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-5.1",
+    "provider_api_model_id": "digitalocean:glm-5.1",
+    "provider_model_slug": "glm-5.1",
+    "internal_model_id": "z-ai/glm-5.1",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 163840,
+    "max_output_tokens": 163840,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
     },
     "rate_limits": []
   },
@@ -1224,29 +3824,33 @@
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 262144,
-    "max_output_tokens": null,
+    "max_output_tokens": 262144,
     "effective_from": "2026-06-16T00:00:00",
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "coming_soon",
+        "status": "active",
         "params": [],
-        "reasoning": null,
+        "reasoning": true,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": null,
+        "attachment": false,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": null,
+    "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": null,
-      "data": null
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
     },
     "service_tiers": [],
     "api": {
@@ -1254,12 +3858,65 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "url": "https://docs.digitalocean.com/products/inference/details/models/",
+        "kind": "api_reference",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official DigitalOcean serverless inference model catalog."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless model verified against DigitalOcean documentation; gateway routing remains disabled pending integration."
     },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "black-forest-labs/flux-1-schnell",
+    "provider_api_model_id": "digitalocean:fal-ai/flux/schnell",
+    "provider_model_slug": "fal-ai/flux/schnell",
+    "internal_model_id": "black-forest-labs/flux-1-schnell",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "image",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [{"capability_id":"image.generate","status":"active","params":[],"reasoning":null,"tool_call":null,"structured_output":null,"temperature":null,"attachment":true,"input_modalities":null,"output_modalities":null,"modes":[]}],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {"execution":["global"],"data":["global"]},
+    "service_tiers": [],
+    "api": {"formats":[],"endpoint":null,"deployment":null},
+    "sources": [{"url":"https://docs.digitalocean.com/products/inference/details/models/","kind":"api_reference","accessed_at":"2026-08-23T00:00:00Z","notes":"Official model catalogue."}],
+    "verification": {"status":"verified","checked_at":"2026-08-23T00:00:00Z","notes":"Current serverless model; gateway routing disabled pending integration."},
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "eleven-labs/eleven-multilingual-v2",
+    "provider_api_model_id": "digitalocean:fal-ai/elevenlabs/tts/multilingual-v2",
+    "provider_model_slug": "fal-ai/elevenlabs/tts/multilingual-v2",
+    "internal_model_id": "eleven-labs/eleven-multilingual-v2",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "audio",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-21T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [{"capability_id":"audio.speech","status":"active","params":[],"reasoning":null,"tool_call":null,"structured_output":null,"temperature":null,"attachment":false,"input_modalities":null,"output_modalities":null,"modes":[]}],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {"execution":["global"],"data":["global"]},
+    "service_tiers": [],
+    "api": {"formats":[],"endpoint":null,"deployment":null},
+    "sources": [{"url":"https://docs.digitalocean.com/products/inference/details/models/","kind":"api_reference","accessed_at":"2026-08-23T00:00:00Z","notes":"Official model catalogue."}],
+    "verification": {"status":"verified","checked_at":"2026-08-23T00:00:00Z","notes":"Current serverless model; gateway routing disabled pending integration."},
     "rate_limits": []
   }
 ]

@@ -1,11 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { ProviderPricing } from "@/lib/fetchers/models/getModelPricing";
 import type { ModelPricingHistoryRule } from "@/lib/fetchers/models/getModelPricingHistoryRules";
 import type { ModelUsageDailyBreakdownRow } from "@/lib/fetchers/models/getModelUsageDailyBreakdown";
+import type { ModelEffectivePricingDailyRow } from "@/lib/fetchers/models/getModelEffectivePricingDaily";
 import PricingPlanSelect from "@/components/(data)/model/pricing/PricingPlanSelect";
 import PricingInsights from "@/components/(data)/model/pricing/PricingInsights";
+import { subscribeProviderView } from "@/components/(data)/model/pricing/providerViewSync";
+import { normalizeGatewayStatusValue } from "@/components/(data)/model/pricing/providerGatewayStatus";
 
 const PLAN_ORDER = ["free", "standard", "priority", "flex", "batch"];
 
@@ -16,25 +19,45 @@ function getPreferredPlan(plans: string[]): string {
 }
 
 export default function ModelPricingInsightsClient({
+	modelId,
 	providers,
 	historyRules,
 	usageRows,
+	effectivePricingRows,
 	showPageHeader = false,
 }: {
+	modelId: string;
 	providers: ProviderPricing[];
 	historyRules: ModelPricingHistoryRule[];
 	usageRows: ModelUsageDailyBreakdownRow[];
+	effectivePricingRows: ModelEffectivePricingDailyRow[];
 	showPageHeader?: boolean;
 }) {
+	const [providerView, setProviderView] = useState<string | null>(null);
+	useEffect(() => subscribeProviderView(modelId, setProviderView), [modelId]);
+	const visibleProviders = useMemo(() => {
+		if (providerView === null) {
+			return providers.filter((provider) =>
+				normalizeGatewayStatusValue(provider.provider.status) !== "external",
+			);
+		}
+		if (providerView === "none") return [];
+		const visibleProviderIds = new Set(
+			providerView.split(",").map((value) => value.trim()).filter(Boolean),
+		);
+		return providers.filter((provider) =>
+			visibleProviderIds.has(provider.provider.api_provider_id),
+		);
+	}, [providerView, providers]);
 	const availablePlans = useMemo(() => {
 		const plans = new Set<string>();
-		for (const provider of providers) {
+		for (const provider of visibleProviders) {
 			for (const rule of provider.pricing_rules) {
 				plans.add(rule.pricing_plan || "standard");
 			}
 		}
 		return PLAN_ORDER.filter((plan) => plans.has(plan));
-	}, [providers]);
+	}, [visibleProviders]);
 
 	const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
 	const plan =
@@ -63,13 +86,14 @@ export default function ModelPricingInsightsClient({
 				</div>
 			) : null}
 			<PricingInsights
-				providers={providers}
+				providers={visibleProviders}
 				plan={plan}
 				availablePlans={availablePlans}
 				onPlanChange={setSelectedPlan}
 				showPlanInEffectiveHeader={false}
 				historyRules={historyRules}
 				usageRows={usageRows}
+				effectivePricingRows={effectivePricingRows}
 			/>
 		</div>
 	);

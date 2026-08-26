@@ -1,5 +1,51 @@
 [
   {
+    "api_model_id": "openai/gpt-4-0125-preview",
+    "provider_api_model_id": "openai:openai/gpt-4-0125-preview",
+    "provider_model_slug": "gpt-4-0125-preview",
+    "internal_model_id": "openai/gpt-4-0125-preview",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 128000,
+    "max_output_tokens": 4096,
+    "effective_from": "2024-01-25T00:00:00Z",
+    "effective_to": "2026-03-26T00:00:00Z",
+    "capabilities": [{ "capability_id": "text.generate", "status": "active", "params": [], "reasoning": false, "tool_call": false, "structured_output": false, "temperature": true, "attachment": false, "input_modalities": ["text"], "output_modalities": ["text"], "modes": [] }],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": { "execution": ["global"], "data": ["global"] },
+    "service_tiers": ["standard"],
+    "api": { "formats": ["chat_completions"], "endpoint": "/v1/chat/completions", "deployment": null },
+    "sources": ["https://developers.openai.com/api/docs/models/gpt-4-turbo-preview"],
+    "verification": { "status": "verified", "checked_at": "2026-08-20T00:00:00Z", "notes": "Retired OpenAI snapshot; retained for historical coverage." },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-4-1106-vision-preview",
+    "provider_api_model_id": "openai:openai/gpt-4-1106-vision-preview",
+    "provider_model_slug": "gpt-4-1106-vision-preview",
+    "internal_model_id": "openai/gpt-4-1106-vision-preview",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 128000,
+    "max_output_tokens": 4096,
+    "effective_from": "2023-11-06T00:00:00Z",
+    "effective_to": "2024-12-06T00:00:00Z",
+    "capabilities": [{ "capability_id": "text.generate", "status": "active", "params": [], "reasoning": false, "tool_call": false, "structured_output": false, "temperature": true, "attachment": true, "input_modalities": ["text", "image"], "output_modalities": ["text"], "modes": [] }],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": { "execution": ["global"], "data": ["global"] },
+    "service_tiers": ["standard"],
+    "api": { "formats": ["chat_completions"], "endpoint": "/v1/chat/completions", "deployment": null },
+    "sources": ["https://developers.openai.com/api/docs/deprecations"],
+    "verification": { "status": "verified", "checked_at": "2026-08-20T00:00:00Z", "notes": "Retired OpenAI snapshot; retained for historical coverage." },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "openai/ada",
     "provider_api_model_id": "openai:openai/ada",
     "provider_model_slug": "ada",
@@ -1311,6 +1357,110 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "openai/gpt-3.5-turbo-instruct",
+    "provider_api_model_id": "openai:openai/gpt-3.5-turbo-instruct",
+    "provider_model_slug": "gpt-3.5-turbo-instruct",
+    "internal_model_id": "openai/gpt-3.5-turbo-instruct",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-4",
+    "provider_api_model_id": "openai:openai/gpt-4",
+    "provider_model_slug": "gpt-4",
+    "internal_model_id": "openai/gpt-4",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "openai/gpt-4-2023-03-14",
     "provider_api_model_id": "openai:openai/gpt-4-2023-03-14",
     "provider_model_slug": "gpt-4-0314",
@@ -1613,11 +1763,63 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "openai/gpt-4-turbo",
+    "provider_api_model_id": "openai:openai/gpt-4-turbo",
+    "provider_model_slug": "gpt-4-turbo",
+    "internal_model_id": "openai/gpt-4-turbo",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "openai/gpt-4-turbo-2023-03-14",
     "provider_api_model_id": "openai:openai/gpt-4-turbo-2023-03-14",
     "provider_model_slug": "gpt-4-turbo-2023-03-14",
-    "internal_model_id": "openai/gpt-4-turbo-2023-03-14",
-    "is_active_gateway": true,
+    "internal_model_id": "openai/gpt-4-2023-03-14",
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
@@ -1640,8 +1842,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "disabled",
+    "routable": false,
     "regions": {
       "execution": [
         "global"
@@ -1667,9 +1869,9 @@
   {
     "api_model_id": "openai/gpt-4-turbo-2023-11-06",
     "provider_api_model_id": "openai:openai/gpt-4-turbo-2023-11-06",
-    "provider_model_slug": "gpt-4-turbo-2023-11-06",
+    "provider_model_slug": "gpt-4-1106-preview",
     "internal_model_id": "openai/gpt-4-turbo-2023-11-06",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
@@ -1692,8 +1894,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "disabled",
+    "routable": false,
     "regions": {
       "execution": [
         "global"
@@ -1721,7 +1923,7 @@
     "provider_api_model_id": "openai:openai/gpt-4-turbo-2024-01-25",
     "provider_model_slug": "gpt-4-turbo-2024-01-25",
     "internal_model_id": "openai/gpt-4-turbo",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
@@ -1744,8 +1946,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "disabled",
+    "routable": false,
     "regions": {
       "execution": [
         "global"
@@ -1765,6 +1967,58 @@
       "status": "unverified",
       "checked_at": null,
       "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-4.1",
+    "provider_api_model_id": "openai:openai/gpt-4.1:alias:gpt-4.1",
+    "provider_model_slug": "gpt-4.1",
+    "internal_model_id": "openai/gpt-4.1",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -1908,6 +2162,58 @@
   },
   {
     "api_model_id": "openai/gpt-4.1-mini",
+    "provider_api_model_id": "openai:openai/gpt-4.1-mini:alias:gpt-4.1-mini",
+    "provider_model_slug": "gpt-4.1-mini",
+    "internal_model_id": "openai/gpt-4.1-mini",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-4.1-mini",
     "provider_api_model_id": "openai:openai/gpt-4.1-mini",
     "provider_model_slug": "gpt-4.1-mini-2025-04-14",
     "internal_model_id": "openai/gpt-4.1-mini",
@@ -2046,6 +2352,58 @@
   },
   {
     "api_model_id": "openai/gpt-4.1-nano",
+    "provider_api_model_id": "openai:openai/gpt-4.1-nano:alias:gpt-4.1-nano",
+    "provider_model_slug": "gpt-4.1-nano",
+    "internal_model_id": "openai/gpt-4.1-nano",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-4.1-nano",
     "provider_api_model_id": "openai:openai/gpt-4.1-nano",
     "provider_model_slug": "gpt-4.1-nano-2025-04-14",
     "internal_model_id": "openai/gpt-4.1-nano",
@@ -2179,6 +2537,58 @@
       "status": "unverified",
       "checked_at": null,
       "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-4o",
+    "provider_api_model_id": "openai:openai/gpt-4o",
+    "provider_model_slug": "gpt-4o",
+    "internal_model_id": "openai/gpt-4o",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -2366,6 +2776,58 @@
       "status": "unverified",
       "checked_at": null,
       "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-4o-2024-08-06",
+    "provider_api_model_id": "openai:openai/gpt-4o-2024-08-06:alias:gpt-4o-2024-08-06",
+    "provider_model_slug": "gpt-4o-2024-08-06",
+    "internal_model_id": "openai/gpt-4o-2024-08-06",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -2901,6 +3363,58 @@
   },
   {
     "api_model_id": "openai/gpt-4o-mini",
+    "provider_api_model_id": "openai:openai/gpt-4o-mini:alias:gpt-4o-mini",
+    "provider_model_slug": "gpt-4o-mini",
+    "internal_model_id": "openai/gpt-4o-mini",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-4o-mini",
     "provider_api_model_id": "openai:openai/gpt-4o-mini",
     "provider_model_slug": "gpt-4o-mini-2024-07-18",
     "internal_model_id": "openai/gpt-4o-mini",
@@ -3164,6 +3678,58 @@
   },
   {
     "api_model_id": "openai/gpt-4o-mini-search-preview",
+    "provider_api_model_id": "openai:openai/gpt-4o-mini-search-preview:alias:gpt-4o-mini-search-preview",
+    "provider_model_slug": "gpt-4o-mini-search-preview",
+    "internal_model_id": "openai/gpt-4o-mini-search-preview",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-4o-mini-search-preview",
     "provider_api_model_id": "openai:openai/gpt-4o-mini-search-preview",
     "provider_model_slug": "gpt-4o-search-preview-2025-03-11",
     "internal_model_id": "openai/gpt-4o-mini-search-preview",
@@ -3296,6 +3862,58 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "openai/gpt-4o-mini-transcribe-2025-03-20",
+    "provider_api_model_id": "openai:openai/gpt-4o-mini-transcribe-2025-03-20",
+    "provider_model_slug": "gpt-4o-mini-transcribe-2025-03-20",
+    "internal_model_id": "openai/gpt-4o-mini-transcribe-2025-03-20",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "openai/gpt-4o-mini-tts",
     "provider_api_model_id": "openai:openai/gpt-4o-mini-tts",
     "provider_model_slug": "gpt-4o-mini-tts",
@@ -3344,6 +3962,110 @@
       "status": "unverified",
       "checked_at": null,
       "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-4o-mini-tts-2025-03-20",
+    "provider_api_model_id": "openai:openai/gpt-4o-mini-tts-2025-03-20",
+    "provider_model_slug": "gpt-4o-mini-tts-2025-03-20",
+    "internal_model_id": "openai/gpt-4o-mini-tts-2025-03-20",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-4o-search-preview",
+    "provider_api_model_id": "openai:openai/gpt-4o-search-preview:alias:gpt-4o-search-preview",
+    "provider_model_slug": "gpt-4o-search-preview",
+    "internal_model_id": "openai/gpt-4o-search-preview",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -3481,65 +4203,35 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "openai/gpt-transcribe",
-    "provider_api_model_id": "openai:openai/gpt-transcribe",
-    "provider_model_slug": "gpt-transcribe",
-    "internal_model_id": "openai/gpt-transcribe",
-    "is_active_gateway": true,
+    "api_model_id": "openai/gpt-4o-transcribe-diarize",
+    "provider_api_model_id": "openai:openai/gpt-4o-transcribe-diarize",
+    "provider_model_slug": "gpt-4o-transcribe-diarize",
+    "internal_model_id": "openai/gpt-4o-transcribe-diarize",
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,audio",
     "output_modalities": "text,audio_stt",
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": "2026-07-28T00:00:00",
+    "context_length": 16000,
+    "max_output_tokens": 2000,
+    "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "audio.transcription",
         "status": "active",
-        "params": [
-          {
-            "param_id": "language",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": "Supports multiple language hints."
-          },
-          {
-            "param_id": "prompt",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": "Supports free-form context and keyword hints."
-          },
-          {
-            "param_id": "response_format",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": "json",
-            "notes": null
-          }
-        ],
-        "reasoning": false,
-        "tool_call": false,
-        "structured_output": false,
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
         "temperature": null,
-        "attachment": true,
-        "input_modalities": [
-          "text",
-          "audio"
-        ],
-        "output_modalities": [
-          "text",
-          "audio_stt"
-        ],
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
         "modes": []
       }
     ],
-    "provider_status": "available",
-    "phaseo_status": "supported",
     "routing_status": "active",
-    "routable": true,
+    "routable": false,
     "regions": {
       "execution": [
         "global"
@@ -3548,27 +4240,69 @@
         "global"
       ]
     },
-    "service_tiers": [
-      "standard"
-    ],
+    "service_tiers": [],
     "api": {
-      "formats": [
-        "multipart/form-data"
-      ],
-      "endpoint": "/v1/audio/transcriptions",
+      "formats": [],
+      "endpoint": null,
       "deployment": null
     },
-    "sources": [
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5",
+    "provider_api_model_id": "openai:openai/gpt-5:alias:gpt-5",
+    "provider_model_slug": "gpt-5",
+    "internal_model_id": "openai/gpt-5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
       {
-        "kind": "api_reference",
-        "url": "https://developers.openai.com/api/docs/models/gpt-transcribe",
-        "accessed_at": "2026-07-31T00:00:00Z"
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
       }
     ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
     "verification": {
-      "status": "verified",
-      "checked_at": "2026-07-31T00:00:00Z",
-      "notes": "OpenAI documents GPT Transcribe on v1/audio/transcriptions at $0.0045 per audio minute; Phaseo's existing OpenAI transcription executor supports this route."
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -3645,7 +4379,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -3902,6 +4637,58 @@
   },
   {
     "api_model_id": "openai/gpt-5-mini",
+    "provider_api_model_id": "openai:openai/gpt-5-mini:alias:gpt-5-mini",
+    "provider_model_slug": "gpt-5-mini",
+    "internal_model_id": "openai/gpt-5-mini",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5-mini",
     "provider_api_model_id": "openai:openai/gpt-5-mini",
     "provider_model_slug": "gpt-5-mini-2025-08-07",
     "internal_model_id": "openai/gpt-5-mini",
@@ -3973,7 +4760,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -4035,6 +4823,58 @@
       "status": "unverified",
       "checked_at": null,
       "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5-nano",
+    "provider_api_model_id": "openai:openai/gpt-5-nano:alias:gpt-5-nano",
+    "provider_model_slug": "gpt-5-nano",
+    "internal_model_id": "openai/gpt-5-nano",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -4111,7 +4951,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -4173,6 +5014,58 @@
       "status": "unverified",
       "checked_at": null,
       "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5-pro",
+    "provider_api_model_id": "openai:openai/gpt-5-pro:alias:gpt-5-pro",
+    "provider_model_slug": "gpt-5-pro",
+    "internal_model_id": "openai/gpt-5-pro",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -4249,7 +5142,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -4311,6 +5205,110 @@
       "status": "unverified",
       "checked_at": null,
       "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5-search-api",
+    "provider_api_model_id": "openai:openai/gpt-5-search-api",
+    "provider_model_slug": "gpt-5-search-api",
+    "internal_model_id": "openai/gpt-5-search-api",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.1",
+    "provider_api_model_id": "openai:openai/gpt-5.1:alias:gpt-5.1",
+    "provider_model_slug": "gpt-5.1",
+    "internal_model_id": "openai/gpt-5.1",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -4387,7 +5385,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -4847,6 +5846,58 @@
   },
   {
     "api_model_id": "openai/gpt-5.2",
+    "provider_api_model_id": "openai:openai/gpt-5.2:alias:gpt-5.2",
+    "provider_model_slug": "gpt-5.2",
+    "internal_model_id": "openai/gpt-5.2",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.2",
     "provider_api_model_id": "openai:openai/gpt-5.2",
     "provider_model_slug": "gpt-5.2-2025-12-11",
     "internal_model_id": "openai/gpt-5.2",
@@ -4918,7 +5969,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -5231,6 +6283,58 @@
   },
   {
     "api_model_id": "openai/gpt-5.2-pro",
+    "provider_api_model_id": "openai:openai/gpt-5.2-pro:alias:gpt-5.2-pro",
+    "provider_model_slug": "gpt-5.2-pro",
+    "internal_model_id": "openai/gpt-5.2-pro",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.2-pro",
     "provider_api_model_id": "openai:openai/gpt-5.2-pro",
     "provider_model_slug": "gpt-5.2-pro-2025-12-11",
     "internal_model_id": "openai/gpt-5.2-pro",
@@ -5302,7 +6406,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -5521,7 +6626,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "include_reasoning",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -5554,6 +6662,58 @@
       "status": "unverified",
       "checked_at": null,
       "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.4",
+    "provider_api_model_id": "openai:openai/gpt-5.4:alias:gpt-5.4",
+    "provider_model_slug": "gpt-5.4",
+    "internal_model_id": "openai/gpt-5.4",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -5672,7 +6832,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "include_reasoning",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -5739,6 +6902,58 @@
   },
   {
     "api_model_id": "openai/gpt-5.4-mini",
+    "provider_api_model_id": "openai:openai/gpt-5.4-mini:alias:gpt-5.4-mini",
+    "provider_model_slug": "gpt-5.4-mini",
+    "internal_model_id": "openai/gpt-5.4-mini",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.4-mini",
     "provider_api_model_id": "openai:openai/gpt-5.4-mini",
     "provider_model_slug": "gpt-5.4-mini-2026-03-17",
     "internal_model_id": "openai/gpt-5.4-mini",
@@ -5796,7 +7011,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "include_reasoning",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -5829,6 +7047,58 @@
       "status": "unverified",
       "checked_at": null,
       "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.4-nano",
+    "provider_api_model_id": "openai:openai/gpt-5.4-nano:alias:gpt-5.4-nano",
+    "provider_model_slug": "gpt-5.4-nano",
+    "internal_model_id": "openai/gpt-5.4-nano",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -5924,6 +7194,58 @@
       "status": "unverified",
       "checked_at": null,
       "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.4-pro",
+    "provider_api_model_id": "openai:openai/gpt-5.4-pro:alias:gpt-5.4-pro",
+    "provider_model_slug": "gpt-5.4-pro",
+    "internal_model_id": "openai/gpt-5.4-pro",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -6042,7 +7364,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "include_reasoning",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -6222,7 +7547,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "include_reasoning",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -6402,7 +7730,10 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "include_reasoning",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -6573,7 +7904,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "include_reasoning",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -6744,7 +8077,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "include_reasoning",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -6915,7 +8250,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "include_reasoning",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -7086,7 +8423,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "include_reasoning",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -7257,7 +8596,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "include_reasoning",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -7428,7 +8769,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "include_reasoning",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -7490,6 +8833,58 @@
       "status": "unverified",
       "checked_at": null,
       "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-audio",
+    "provider_api_model_id": "openai:openai/gpt-audio:alias:gpt-audio",
+    "provider_model_slug": "gpt-audio",
+    "internal_model_id": "openai/gpt-audio",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -7580,6 +8975,58 @@
       "status": "unverified",
       "checked_at": null,
       "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-audio-mini",
+    "provider_api_model_id": "openai:openai/gpt-audio-mini",
+    "provider_model_slug": "gpt-audio-mini",
+    "internal_model_id": "openai/gpt-audio-mini",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -7810,13 +9257,65 @@
   },
   {
     "api_model_id": "openai/gpt-image-1.5",
+    "provider_api_model_id": "openai:openai/gpt-image-1.5:alias:gpt-image-1.5",
+    "provider_model_slug": "gpt-image-1.5",
+    "internal_model_id": "openai/gpt-image-1.5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-image-1.5",
     "provider_api_model_id": "openai:openai/gpt-image-1.5",
     "provider_model_slug": "gpt-image-1.5-2025-12-16",
     "internal_model_id": "openai/gpt-image-1.5",
     "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text,image",
-    "output_modalities": "text,image",
+    "output_modalities": "image",
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": "2025-12-16T00:00:00",
@@ -7910,7 +9409,7 @@
     "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text,image",
-    "output_modalities": "text,image",
+    "output_modalities": "image",
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": "2026-04-21T00:00:00",
@@ -8101,9 +9600,113 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "openai/gpt-live-transcribe",
+    "provider_api_model_id": "openai:openai/gpt-live-transcribe",
+    "provider_model_slug": "gpt-live-transcribe",
+    "internal_model_id": "openai/gpt-live-transcribe",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,audio",
+    "output_modalities": "text",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "audio.realtime",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-realtime",
+    "provider_api_model_id": "openai:openai/gpt-realtime:alias:gpt-realtime",
+    "provider_model_slug": "gpt-realtime",
+    "internal_model_id": "openai/gpt-realtime",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,audio",
+    "output_modalities": "text,audio",
+    "context_length": 32000,
+    "max_output_tokens": 4096,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "audio.realtime",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "openai/gpt-realtime",
     "provider_api_model_id": "openai:openai/gpt-realtime",
-    "provider_model_slug": "gpt-realtime-2025-08-28",
+    "provider_model_slug": "gpt-realtime",
     "internal_model_id": "openai/gpt-realtime",
     "is_active_gateway": true,
     "quantization_scheme": null,
@@ -8113,7 +9716,21 @@
     "max_output_tokens": 4096,
     "effective_from": "2026-03-25T00:00:00",
     "effective_to": null,
-    "capabilities": [],
+    "capabilities": [
+      {
+        "capability_id": "audio.realtime",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
     "routing_status": null,
     "routable": false,
     "regions": {
@@ -8243,6 +9860,162 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "openai/gpt-realtime-2.1",
+    "provider_api_model_id": "openai:openai/gpt-realtime-2.1",
+    "provider_model_slug": "gpt-realtime-2.1",
+    "internal_model_id": "openai/gpt-realtime-2.1",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,audio",
+    "output_modalities": "text,audio",
+    "context_length": 128000,
+    "max_output_tokens": 32000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "audio.realtime",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-realtime-2.1-mini",
+    "provider_api_model_id": "openai:openai/gpt-realtime-2.1-mini",
+    "provider_model_slug": "gpt-realtime-2.1-mini",
+    "internal_model_id": "openai/gpt-realtime-2.1-mini",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,audio",
+    "output_modalities": "text,audio",
+    "context_length": 128000,
+    "max_output_tokens": 32000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "audio.realtime",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-realtime-mini",
+    "provider_api_model_id": "openai:openai/gpt-realtime-mini",
+    "provider_model_slug": "gpt-realtime-mini",
+    "internal_model_id": "openai/gpt-realtime-mini",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,audio",
+    "output_modalities": "text,audio",
+    "context_length": 32000,
+    "max_output_tokens": 4096,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "audio.realtime",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "openai/gpt-realtime-mini-2025-10-06",
     "provider_api_model_id": "openai:openai/gpt-realtime-mini-2025-10-06",
     "provider_model_slug": "gpt-realtime-mini-2025-10-06",
@@ -8255,7 +10028,21 @@
     "max_output_tokens": 4096,
     "effective_from": "2025-10-06T00:00:00",
     "effective_to": "2026-07-23T00:00:00",
-    "capabilities": [],
+    "capabilities": [
+      {
+        "capability_id": "audio.realtime",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
     "routing_status": null,
     "routable": false,
     "regions": {
@@ -8295,7 +10082,7 @@
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "audio.translations",
+        "capability_id": "audio.realtime",
         "status": "active",
         "params": [],
         "reasoning": null,
@@ -8347,7 +10134,7 @@
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "audio.transcription",
+        "capability_id": "audio.realtime",
         "status": "active",
         "params": [],
         "reasoning": null,
@@ -8437,6 +10224,150 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "openai/gpt-transcribe",
+    "provider_api_model_id": "openai:openai/gpt-transcribe",
+    "provider_model_slug": "gpt-transcribe",
+    "internal_model_id": "openai/gpt-transcribe",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,audio",
+    "output_modalities": "text,audio_stt",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-07-28T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "audio.transcription",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "language",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": "Supports multiple language hints."
+          },
+          {
+            "param_id": "prompt",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": "Supports free-form context and keyword hints."
+          },
+          {
+            "param_id": "response_format",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": "json",
+            "notes": null
+          }
+        ],
+        "reasoning": false,
+        "tool_call": false,
+        "structured_output": false,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": [
+          "text",
+          "audio"
+        ],
+        "output_modalities": [
+          "text",
+          "audio_stt"
+        ],
+        "modes": []
+      }
+    ],
+    "provider_status": "available",
+    "phaseo_status": "supported",
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "multipart/form-data"
+      ],
+      "endpoint": "/v1/audio/transcriptions",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://developers.openai.com/api/docs/models/gpt-transcribe",
+        "accessed_at": "2026-07-31T00:00:00Z"
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-07-31T00:00:00Z",
+      "notes": "OpenAI documents GPT Transcribe on v1/audio/transcriptions at $0.0045 per audio minute; Phaseo's existing OpenAI transcription executor supports this route."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/o1",
+    "provider_api_model_id": "openai:openai/o1:alias:o1",
+    "provider_model_slug": "o1",
+    "internal_model_id": "openai/o1",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "openai/o1",
     "provider_api_model_id": "openai:openai/o1",
     "provider_model_slug": "o1-2024-12-17",
@@ -8495,7 +10426,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "include_reasoning"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -8672,6 +10605,58 @@
   },
   {
     "api_model_id": "openai/o1-pro",
+    "provider_api_model_id": "openai:openai/o1-pro:alias:o1-pro",
+    "provider_model_slug": "o1-pro",
+    "internal_model_id": "openai/o1-pro",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/o1-pro",
     "provider_api_model_id": "openai:openai/o1-pro",
     "provider_model_slug": "o1-pro-2025-03-19",
     "internal_model_id": "openai/o1-pro",
@@ -8791,6 +10776,58 @@
       "status": "unverified",
       "checked_at": null,
       "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/o3",
+    "provider_api_model_id": "openai:openai/o3:alias:o3",
+    "provider_model_slug": "o3",
+    "internal_model_id": "openai/o3",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -8929,6 +10966,58 @@
       "status": "unverified",
       "checked_at": null,
       "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/o3-deep-research",
+    "provider_api_model_id": "openai:openai/o3-deep-research:alias:o3-deep-research",
+    "provider_model_slug": "o3-deep-research",
+    "internal_model_id": "openai/o3-deep-research",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -9128,6 +11217,58 @@
   },
   {
     "api_model_id": "openai/o3-mini",
+    "provider_api_model_id": "openai:openai/o3-mini:alias:o3-mini",
+    "provider_model_slug": "o3-mini",
+    "internal_model_id": "openai/o3-mini",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/o3-mini",
     "provider_api_model_id": "openai:openai/o3-mini",
     "provider_model_slug": "o3-mini-2025-01-31",
     "internal_model_id": "openai/o3-mini",
@@ -9185,7 +11326,9 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "include_reasoning"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -9247,6 +11390,58 @@
       "status": "unverified",
       "checked_at": null,
       "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/o3-pro",
+    "provider_api_model_id": "openai:openai/o3-pro:alias:o3-pro",
+    "provider_model_slug": "o3-pro",
+    "internal_model_id": "openai/o3-pro",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -9390,6 +11585,58 @@
   },
   {
     "api_model_id": "openai/o4-mini",
+    "provider_api_model_id": "openai:openai/o4-mini:alias:o4-mini",
+    "provider_model_slug": "o4-mini",
+    "internal_model_id": "openai/o4-mini",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/o4-mini",
     "provider_api_model_id": "openai:openai/o4-mini",
     "provider_model_slug": "o4-mini-2025-04-16",
     "internal_model_id": "openai/o4-mini",
@@ -9523,6 +11770,58 @@
       "status": "unverified",
       "checked_at": null,
       "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/o4-mini-deep-research",
+    "provider_api_model_id": "openai:openai/o4-mini-deep-research:alias:o4-mini-deep-research",
+    "provider_model_slug": "o4-mini-deep-research",
+    "internal_model_id": "openai/o4-mini-deep-research",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -9805,6 +12104,58 @@
       "status": "unverified",
       "checked_at": null,
       "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/sora-2",
+    "provider_api_model_id": "openai:openai/sora-2:alias:sora-2",
+    "provider_model_slug": "sora-2",
+    "internal_model_id": "openai/sora-2",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:31:15.029+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -10590,6 +12941,117 @@
       "checked_at": null,
       "notes": null
     },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/daybreak-blue-latest",
+    "provider_api_model_id": "openai:openai/daybreak-blue-latest",
+    "provider_model_slug": "daybreak-blue-latest",
+    "internal_model_id": "openai/daybreak-blue-latest",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1050000,
+    "max_output_tokens": 128000,
+    "effective_from": "2026-08-10T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": ["max_tokens", "reasoning", "response_format", "structured_outputs", "tools", "tool_choice", "include_reasoning", "reasoning_effort"],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": ["text", "image"],
+        "output_modalities": ["text"],
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": { "execution": ["global"], "data": ["global"] },
+    "service_tiers": ["standard"],
+    "api": { "formats": ["responses"], "endpoint": "/v1/responses", "deployment": null },
+    "sources": ["https://developers.openai.com/api/docs/models/daybreak-blue-latest"],
+    "verification": { "status": "verified", "checked_at": "2026-08-20T00:00:00Z", "notes": "Requires separate OpenAI Daybreak approval and provisioning." },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/daybreak-red-latest",
+    "provider_api_model_id": "openai:openai/daybreak-red-latest",
+    "provider_model_slug": "daybreak-red-latest",
+    "internal_model_id": "openai/daybreak-red-latest",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 400000,
+    "max_output_tokens": 128000,
+    "effective_from": "2026-08-10T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": ["max_tokens", "reasoning", "response_format", "structured_outputs", "tools", "tool_choice", "include_reasoning", "reasoning_effort"],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": ["text", "image"],
+        "output_modalities": ["text"],
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": { "execution": ["global"], "data": ["global"] },
+    "service_tiers": ["standard"],
+    "api": { "formats": ["responses"], "endpoint": "/v1/responses", "deployment": null },
+    "sources": ["https://developers.openai.com/api/docs/models/daybreak-red-latest"],
+    "verification": { "status": "verified", "checked_at": "2026-08-20T00:00:00Z", "notes": "Requires separate OpenAI Daybreak approval and provisioning." },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.6-cyber",
+    "provider_api_model_id": "openai:openai/gpt-5.6-cyber",
+    "provider_model_slug": "gpt-5.6-cyber",
+    "internal_model_id": "openai/gpt-5.6-cyber",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 400000,
+    "max_output_tokens": 128000,
+    "effective_from": "2026-08-10T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": ["max_tokens", "reasoning", "response_format", "structured_outputs", "tools", "tool_choice", "include_reasoning", "reasoning_effort"],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": ["text", "image"],
+        "output_modalities": ["text"],
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": { "execution": ["global"], "data": ["global"] },
+    "service_tiers": ["standard"],
+    "api": { "formats": ["responses"], "endpoint": "/v1/responses", "deployment": null },
+    "sources": ["https://developers.openai.com/api/docs/models/gpt-5.6-cyber"],
+    "verification": { "status": "verified", "checked_at": "2026-08-20T00:00:00Z", "notes": "Requires separate OpenAI Daybreak approval and provisioning." },
     "rate_limits": []
   }
 ]

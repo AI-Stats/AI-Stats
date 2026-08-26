@@ -1,8 +1,26 @@
 import { getBindings, getSupabaseAdmin } from "@/runtime/env";
 import { resolveVertexAccessToken } from "@providers/google-vertex/auth";
 import { sendDiscordTextMessage } from "./discord";
-import { normalizeProviderModelPricing } from "./pricing-normalizers";
+import {
+	extractProviderApiModelSnapshot,
+	hasProviderApiSnapshotValue,
+	normalizeJson,
+	supplementalProviderPricing,
+	toNullableInteger,
+	toPricingFingerprint,
+	type ProviderApiModelSnapshot,
+} from "./watch-snapshot";
 import type { ProviderConfig } from "./providers";
+
+export {
+	extractProviderApiModelSnapshot,
+	hasProviderApiSnapshotValue,
+	normalizeJson,
+	toNullableInteger,
+	toProviderApiPricingFingerprint,
+	toPricingFingerprint,
+	type ProviderApiModelSnapshot,
+} from "./watch-snapshot";
 
 type DiscoveryTrigger = "scheduled" | "manual";
 
@@ -31,13 +49,6 @@ type DiscoveredModel = {
 	pricingDetails: unknown | null;
 };
 
-type ProviderApiModelSnapshot = {
-	contextLength: number | null;
-	maxCompletionTokens: number | null;
-	pricingDetails: unknown | null;
-	pricingFingerprint: string | null;
-};
-
 type PricingRuleRow = {
 	rule_id: string | null;
 	provider_id: string | null;
@@ -51,6 +62,62 @@ type PricingRuleRow = {
 	effective_to: string | null;
 	updated_at: string | null;
 };
+
+async function loadV2PricingRows(): Promise<PricingRuleRow[]> {
+	const supabase = getSupabaseAdmin();
+	const routes: Array<{ provider_model_id: string; provider_slug: string; model_slug: string }> = [];
+	for (let offset = 0; ; offset += 1000) {
+		const { data, error } = await supabase
+			.from("v2_model_provider_routes")
+			.select("provider_model_id,provider_slug,model_slug")
+			.range(offset, offset + 999);
+		if (error) throw new Error(error.message || "Failed to load V2 pricing routes");
+		routes.push(...((data ?? []) as typeof routes));
+		if (!data || data.length < 1000) break;
+	}
+	const routeById = new Map(routes.map((route) => [route.provider_model_id, route]));
+	const skus: Array<Record<string, any>> = [];
+	for (let offset = 0; ; offset += 1000) {
+		const { data, error } = await supabase
+			.from("v2_pricing_skus")
+			.select("sku_id,provider_model_id,operation,service_tier_slug,currency,effective_from,effective_to,updated_at")
+			.range(offset, offset + 999);
+		if (error) throw new Error(error.message || "Failed to load V2 pricing SKUs");
+		skus.push(...(data ?? []));
+		if (!data || data.length < 1000) break;
+	}
+	const meters: Array<Record<string, any>> = [];
+	for (let offset = 0; ; offset += 1000) {
+		const { data, error } = await supabase
+			.from("v2_pricing_sku_meters")
+			.select("sku_meter_id,sku_id,meter_key,unit,unit_quantity,price_nanos,meter_order,updated_at,created_at,billable")
+			.eq("billable", true)
+			.range(offset, offset + 999);
+		if (error) throw new Error(error.message || "Failed to load V2 pricing meters");
+		meters.push(...(data ?? []));
+		if (!data || data.length < 1000) break;
+	}
+	const skuById = new Map(skus.map((sku) => [sku.sku_id, sku]));
+	return meters.flatMap((meter) => {
+		const sku = skuById.get(meter.sku_id);
+		const route = sku ? routeById.get(sku.provider_model_id) : null;
+		if (!sku || !route) return [];
+		const updatedAt = Math.max(Date.parse(String(sku.updated_at ?? 0)), Date.parse(String(meter.updated_at ?? meter.created_at ?? 0)));
+		return [{
+			rule_id: String(meter.sku_meter_id),
+			provider_id: route.provider_slug,
+			api_model_id: route.model_slug,
+			capability_id: sku.operation,
+			pricing_plan: sku.service_tier_slug ?? "standard",
+			meter: meter.meter_key,
+			price_per_unit: Number(meter.price_nanos) / 1_000_000_000,
+			currency: sku.currency,
+			effective_from: sku.effective_from ?? null,
+			effective_to: sku.effective_to ?? null,
+			updated_at: Number.isFinite(updatedAt) ? new Date(updatedAt).toISOString() : null,
+		} satisfies PricingRuleRow];
+	});
+}
 
 type PricingProviderChange = {
 	providerId: string;
@@ -97,6 +164,8 @@ type PricingTableMonitorSummary = {
 		sourceUrl: string;
 		tableCount: number;
 		pricingSamples: string[];
+		addedSamples?: string[];
+		removedSamples?: string[];
 	}>;
 	errors: string[];
 	error?: string | null;
@@ -289,27 +358,6 @@ export function resolveProviderModelsEndpoint(provider: ProviderConfig): string 
 	return parsed.toString();
 }
 
-export function normalizeJson(value: unknown): unknown {
-	if (Array.isArray(value)) {
-		return value.map((item) => normalizeJson(item));
-	}
-	if (value && typeof value === "object") {
-		const entries = Object.entries(value as Record<string, unknown>)
-			.sort(([a], [b]) => a.localeCompare(b))
-			.map(([key, nested]) => [key, normalizeJson(nested)] as const);
-		return Object.fromEntries(entries);
-	}
-	return value;
-}
-
-export function toPricingFingerprint(value: unknown): string | null {
-	if (value === null || value === undefined) return null;
-	if (typeof value === "object" && !Array.isArray(value)) {
-		if (Object.keys(value as Record<string, unknown>).length === 0) return null;
-	}
-	return JSON.stringify(normalizeJson(value));
-}
-
 export function extractPricingDetailsFromValue(value: unknown, depth = 0, parentKey = ""): unknown | null {
 	if (depth > PRICING_EXTRACTION_MAX_DEPTH) return null;
 	const parentMatches = parentKey ? PRICING_KEY_PATTERN.test(parentKey) : false;
@@ -364,149 +412,6 @@ export function samplePricingDetailsText(value: unknown): string {
 	const text = JSON.stringify(normalizeJson(value));
 	if (!text) return "no pricing details";
 	return text.length <= MAX_SAMPLE_TEXT_LENGTH ? text : `${text.slice(0, MAX_SAMPLE_TEXT_LENGTH - 3)}...`;
-}
-
-function normalizeProviderApiPricingDetails(
-	providerId: string,
-	modelDetails: Record<string, unknown> | null,
-	pricingDetails: unknown,
-): unknown | null {
-	if (providerId === "huggingface") {
-		const offers = new Map<string, Record<string, unknown>>();
-		for (const value of asArray(modelDetails?.providers)) {
-			const provider = asRecord(value);
-			const offerProviderId = typeof provider?.provider === "string" ? provider.provider.trim() : "";
-			if (!offerProviderId) continue;
-			const pricing = asRecord(provider?.pricing);
-			const input = typeof pricing?.input === "number" && Number.isFinite(pricing.input) ? pricing.input : null;
-			const output = typeof pricing?.output === "number" && Number.isFinite(pricing.output) ? pricing.output : null;
-			offers.set(offerProviderId, {
-				provider: offerProviderId,
-				...(input === null ? {} : { input }),
-				...(output === null ? {} : { output }),
-				...(provider?.is_free === true ? { free: true } : {}),
-			});
-		}
-		const normalizedOffers = [...offers.values()].sort((left, right) => (
-			String(left.provider).localeCompare(String(right.provider))
-		));
-		return normalizedOffers.length > 0 ? { offers: normalizedOffers } : null;
-	}
-	const normalized = normalizeProviderModelPricing(providerId, modelDetails);
-	if (normalized) {
-		return {
-			normalized,
-			sourcePricing: normalizeJson(pricingDetails),
-		};
-	}
-
-	if (providerId !== "crofai") return pricingDetails ?? null;
-	const record = asRecord(pricingDetails);
-	return record?.pricing ? normalizeJson(record.pricing) : pricingDetails ?? null;
-}
-
-const CANONICAL_PROVIDER_PRICE_KEYS = new Set([
-	"prompt", "input", "completion", "output", "cache_prompt", "input_cache_read",
-	"input_cache_reads", "cache_input", "cached_input", "input_cache_write",
-	"input_cache_writes", "cache_creation", "cache_write", "input_tokens",
-	"cache_read_tokens", "output_tokens", "input_price_per_million",
-	"cache_read_input_price_per_million", "output_price_per_million",
-	"prompt_text_token_price", "cached_prompt_text_token_price",
-	"completion_text_token_price", "input_token_price_per_m", "output_token_price_per_m",
-	"input_price", "cache_price", "output_price", "cache_read",
-]);
-const VOLATILE_PROVIDER_PRICE_KEYS = new Set([
-	"created", "created_at", "createdat", "updated", "updated_at", "updatedat",
-	"last_updated", "lastupdated", "refreshed_at", "refreshedat", "timestamp",
-	"request_id", "requestid", "generated_at", "generatedat", "fetched_at", "fetchedat",
-]);
-
-function supplementalProviderPricing(value: unknown, key = "", pricingContext = false): unknown | null {
-	const normalizedKey = key.trim().toLowerCase();
-	if (CANONICAL_PROVIDER_PRICE_KEYS.has(normalizedKey) || VOLATILE_PROVIDER_PRICE_KEYS.has(normalizedKey)) {
-		return null;
-	}
-	const nestedPricingContext = pricingContext
-		|| /^(?:price|prices|pricing|cost|costs)$/.test(normalizedKey)
-		|| /(?:price|cost|usd|hourly|finetune|per_.*_unit|_unit)$/.test(normalizedKey);
-	if (Array.isArray(value)) {
-		const entries = value
-			.map((entry) => supplementalProviderPricing(entry, "", nestedPricingContext))
-			.filter((entry): entry is unknown => entry !== null)
-			.sort((left, right) => JSON.stringify(left).localeCompare(JSON.stringify(right)));
-		return entries.length > 0 ? entries : null;
-	}
-	if (value && typeof value === "object") {
-		const entries = Object.entries(value as Record<string, unknown>)
-			.map(([nestedKey, nestedValue]) => [
-				nestedKey,
-				supplementalProviderPricing(nestedValue, nestedKey, nestedPricingContext),
-			] as const)
-			.filter((entry): entry is readonly [string, unknown] => entry[1] !== null)
-			.sort(([left], [right]) => left.localeCompare(right));
-		return entries.length > 0 ? Object.fromEntries(entries) : null;
-	}
-	return nestedPricingContext ? value ?? null : null;
-}
-
-export function toProviderApiPricingFingerprint(pricingDetails: unknown): string | null {
-	const record = asRecord(pricingDetails);
-	if (!record?.normalized) return toPricingFingerprint(pricingDetails);
-	const supplemental = supplementalProviderPricing(record.sourcePricing);
-	return toPricingFingerprint({
-		normalized: record.normalized,
-		...(supplemental === null ? {} : { supplemental }),
-	});
-}
-
-export function toNullableInteger(value: unknown): number | null {
-	if (typeof value === "number") {
-		if (!Number.isFinite(value)) return null;
-		return Math.trunc(value);
-	}
-	if (typeof value === "string" && value.trim().length > 0) {
-		const parsed = Number(value.trim());
-		if (!Number.isFinite(parsed)) return null;
-		return Math.trunc(parsed);
-	}
-	return null;
-}
-
-export function extractProviderApiModelSnapshot(
-	providerId: string,
-	modelDetails: Record<string, unknown> | null,
-	pricingDetails: unknown | null
-): ProviderApiModelSnapshot {
-	const normalizedPricingDetails = normalizeProviderApiPricingDetails(providerId, modelDetails, pricingDetails);
-	if (providerId === "crofai") {
-		return {
-			contextLength: null,
-			maxCompletionTokens: null,
-			pricingDetails: normalizedPricingDetails,
-			pricingFingerprint: toProviderApiPricingFingerprint(normalizedPricingDetails),
-		};
-	}
-
-	const contextLength = modelDetails
-		? toNullableInteger(modelDetails.contextLength ?? modelDetails.context_length)
-		: null;
-	const maxCompletionTokens = modelDetails
-		? toNullableInteger(modelDetails.maxCompletionTokens ?? modelDetails.max_completion_tokens)
-		: null;
-	return {
-		contextLength,
-		maxCompletionTokens,
-		pricingDetails: normalizedPricingDetails,
-		pricingFingerprint: toProviderApiPricingFingerprint(normalizedPricingDetails),
-	};
-}
-
-export function hasProviderApiSnapshotValue(snapshot: ProviderApiModelSnapshot): boolean {
-	return (
-		snapshot.contextLength !== null ||
-		snapshot.maxCompletionTokens !== null ||
-		snapshot.pricingFingerprint !== null
-	);
 }
 
 export function formatSnapshotValue(value: number | null): string {
@@ -1111,6 +1016,10 @@ export async function fetchProviderModels(provider: ProviderConfig, apiKey?: str
 				if (!apiKey) throw new Error(`${provider.providerId} api key missing`);
 				headers["Authorization"] = `Api-Key ${apiKey}`;
 				break;
+			case "x_api_key":
+				if (!apiKey) throw new Error(`${provider.providerId} api key missing`);
+				headers["X-Api-Key"] = apiKey;
+				break;
 			case "optional_bearer":
 				if (apiKey) headers.Authorization = `Bearer ${apiKey}`;
 				break;
@@ -1344,66 +1253,78 @@ export async function loadLatestPricingTableState(source?: string): Promise<Pric
 	return [...latestByProvider.values()];
 }
 
-export async function fetchLatestPricingUpdatedAt(): Promise<string | null> {
+export type PricingPageStateRow = {
+	provider_id: string;
+	source_url: string;
+	fingerprint: string;
+	content_lines: string[];
+};
+
+export function parsePricingPageStateRows(rows: unknown[]): Map<string, PricingPageStateRow> {
+	const byProvider = new Map<string, PricingPageStateRow>();
+	for (const value of rows) {
+		const record = asRecord(value);
+		const providerId = canonicalProviderId(typeof record?.provider_id === "string" ? record.provider_id : "");
+		const fingerprint = typeof record?.fingerprint === "string" ? record.fingerprint.trim() : "";
+		if (!providerId || !fingerprint) continue;
+		byProvider.set(providerId, {
+			provider_id: providerId,
+			source_url: typeof record?.source_url === "string" ? record.source_url : "",
+			fingerprint,
+			content_lines: asArray(record?.content_lines).filter(
+				(line): line is string => typeof line === "string" && line.trim().length > 0
+			),
+		});
+	}
+	return byProvider;
+}
+
+export async function loadPricingPageStates(): Promise<Map<string, PricingPageStateRow>> {
 	const supabase = getSupabaseAdmin();
 	const { data, error } = await supabase
-		.from("v2_rpc_pricing_legacy_shape")
-		.select("updated_at")
-		.not("updated_at", "is", null)
-		.order("updated_at", { ascending: false })
-		.limit(1);
+		.from("model_discovery_pricing_pages")
+		.select("provider_id,source_url,fingerprint,content_lines");
+	if (error) throw new Error(error.message || "Failed to load pricing page state");
+	return parsePricingPageStateRows((data ?? []) as unknown[]);
+}
 
-	if (error) throw new Error(error.message || "Failed to load latest pricing updated_at");
-	const row = (data ?? [])[0] as { updated_at?: string | null } | undefined;
-	if (!row || typeof row.updated_at !== "string" || !row.updated_at.trim()) return null;
-	return row.updated_at;
+export async function savePricingPageStates(
+	snapshots: Array<{ providerId: string; sourceUrl: string; fingerprint: string; contentLines: string[] }>
+): Promise<void> {
+	if (snapshots.length === 0) return;
+	const supabase = getSupabaseAdmin();
+	const rows = snapshots.map((snapshot) => ({
+		provider_id: snapshot.providerId,
+		source_url: snapshot.sourceUrl,
+		fingerprint: snapshot.fingerprint,
+		content_lines: snapshot.contentLines,
+		updated_at: new Date().toISOString(),
+	}));
+	const { error } = await supabase
+		.from("model_discovery_pricing_pages")
+		.upsert(rows, { onConflict: "provider_id" });
+	if (error) throw new Error(error.message || "Failed to persist pricing page state");
+}
+
+export async function fetchLatestPricingUpdatedAt(): Promise<string | null> {
+	const rows = await loadV2PricingRows();
+	return rows.reduce<string | null>((latest, row) => {
+		if (!row.updated_at) return latest;
+		return !latest || row.updated_at > latest ? row.updated_at : latest;
+	}, null);
 }
 
 export async function fetchPricingRuleIdsAtTimestamp(updatedAt: string): Promise<string[]> {
-	const supabase = getSupabaseAdmin();
-	const rows: PricingRuleRow[] = [];
-	let from = 0;
-	while (rows.length < MAX_PRICING_ROWS) {
-		const to = from + PRICING_PAGE_SIZE - 1;
-		const { data, error } = await supabase
-			.from("v2_rpc_pricing_legacy_shape")
-			.select("rule_id,provider_id,api_model_id,capability_id,pricing_plan,meter,price_per_unit,currency,effective_from,effective_to,updated_at")
-			.eq("updated_at", updatedAt)
-			.order("rule_id", { ascending: true })
-			.range(from, to);
-		if (error) throw new Error(error.message || "Failed to load pricing ids at checkpoint timestamp");
-		const chunk = (data ?? []) as PricingRuleRow[];
-		if (chunk.length === 0) break;
-		rows.push(...chunk);
-		if (chunk.length < PRICING_PAGE_SIZE) break;
-		from += PRICING_PAGE_SIZE;
-	}
+	const rows = (await loadV2PricingRows()).filter((row) => row.updated_at === updatedAt).slice(0, MAX_PRICING_ROWS);
 	return rows.map((row) => pricingRuleIdentity(row)).sort((a, b) => a.localeCompare(b));
 }
 
 export async function fetchPricingRowsSince(sinceInclusive: string): Promise<PricingRuleRow[]> {
-	const supabase = getSupabaseAdmin();
-	const rows: PricingRuleRow[] = [];
-	let from = 0;
-
-	while (rows.length < MAX_PRICING_ROWS) {
-		const to = from + PRICING_PAGE_SIZE - 1;
-		const { data, error } = await supabase
-			.from("v2_rpc_pricing_legacy_shape")
-			.select("rule_id,provider_id,api_model_id,capability_id,pricing_plan,meter,price_per_unit,currency,effective_from,effective_to,updated_at")
-			.gte("updated_at", sinceInclusive)
-			.order("updated_at", { ascending: true })
-			.range(from, to);
-
-		if (error) throw new Error(error.message || "Failed to fetch pricing changes");
-		const chunk = (data ?? []) as PricingRuleRow[];
-		if (chunk.length === 0) break;
-		rows.push(...chunk);
-		if (chunk.length < PRICING_PAGE_SIZE) break;
-		from += PRICING_PAGE_SIZE;
-	}
-
-	return rows.length > MAX_PRICING_ROWS ? rows.slice(0, MAX_PRICING_ROWS) : rows;
+	const since = Date.parse(sinceInclusive);
+	if (!Number.isFinite(since)) return [];
+	return (await loadV2PricingRows())
+		.filter((row) => row.updated_at && Date.parse(row.updated_at) >= since)
+		.slice(0, MAX_PRICING_ROWS);
 }
 
 export async function loadConfiguredProviderModelIds(providerIds: string[]): Promise<Map<string, Set<string>>> {
@@ -1421,15 +1342,19 @@ export async function loadConfiguredProviderModelIds(providerIds: string[]): Pro
 	while (true) {
 		const to = from + PRICING_PAGE_SIZE - 1;
 		const { data, error } = await supabase
-			.from("v2_rpc_routes_legacy_shape")
-			.select("provider_id,provider_model_slug,api_model_id")
-			.in("provider_id", lookupProviderIds)
+			.from("v2_model_provider_routes")
+			.select("provider_slug,provider_model_slug,model_slug")
+			.in("provider_slug", lookupProviderIds)
 			.range(from, to);
 		if (error) {
 			throw new Error(error.message || "Failed to load configured provider models");
 		}
 
-		const rows = (data ?? []) as ConfiguredProviderModelRow[];
+		const rows = (data ?? []).map((row) => ({
+			provider_id: row.provider_slug,
+			provider_model_slug: row.provider_model_slug,
+			api_model_id: row.model_slug,
+		})) as ConfiguredProviderModelRow[];
 		if (rows.length === 0) break;
 
 		for (const row of rows) {
@@ -1688,7 +1613,15 @@ export function buildPricingTableDiscordSection(pricing: PricingTableMonitorSumm
 	if (pricing.updatesDetected > 0) {
 		lines.push(`Pricing page monitor detected ${pricing.updatesDetected} changed provider source${pricing.updatesDetected === 1 ? "" : "s"}.`);
 		for (const change of pricing.providerChanges.slice(0, MAX_PRICING_PROVIDER_LINES)) {
-			lines.push(`- ${change.providerName}: ${change.tableCount} price-bearing section${change.tableCount === 1 ? "" : "s"} (${change.sourceUrl})`);
+			const added = change.addedSamples ?? [];
+			const removed = change.removedSamples ?? [];
+			if (added.length === 0 && removed.length === 0) {
+				lines.push(`- ${change.providerName}: pricing content changed (${change.sourceUrl})`);
+				continue;
+			}
+			lines.push(`${change.providerName} (${change.sourceUrl}) — ${added.length} added, ${removed.length} removed:`);
+			for (const sample of added) lines.push(`+ ${sample}`);
+			for (const sample of removed) lines.push(`- ${sample}`);
 		}
 	}
 	return lines.join("\n").trim();

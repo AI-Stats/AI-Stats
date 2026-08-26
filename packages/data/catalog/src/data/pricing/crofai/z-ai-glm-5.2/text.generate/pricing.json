@@ -64,6 +64,7 @@
       "match": [],
       "priority": 110,
       "effective_from": "2026-08-09T00:00:00Z",
+      "effective_to": "2026-08-12T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -84,6 +85,7 @@
       "match": [],
       "priority": 110,
       "effective_from": "2026-08-09T00:00:00Z",
+      "effective_to": "2026-08-12T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -104,6 +106,7 @@
       "match": [],
       "priority": 110,
       "effective_from": "2026-08-09T00:00:00Z",
+      "effective_to": "2026-08-12T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -111,6 +114,69 @@
         "kind": "api",
         "url": "https://crof.ai/v1/models",
         "accessed_at": "2026-08-09T00:00:00Z"
+      }
+    },
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.15,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "CrofAI live pricing page effective price with a 50% discount; no expiry published.",
+      "match": [],
+      "priority": 120,
+      "effective_from": "2026-08-12T00:00:00Z",
+      "effective_to": "2026-08-26T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": {
+        "kind": "pricing",
+        "url": "https://ai.nahcrof.com/pricing",
+        "accessed_at": "2026-08-12T00:00:00Z"
+      }
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.02,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "CrofAI live pricing page effective cache price with a 50% discount; no expiry published.",
+      "match": [],
+      "priority": 120,
+      "effective_from": "2026-08-12T00:00:00Z",
+      "effective_to": "2026-08-26T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": {
+        "kind": "pricing",
+        "url": "https://ai.nahcrof.com/pricing",
+        "accessed_at": "2026-08-12T00:00:00Z"
+      }
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.52,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "CrofAI live pricing page effective price with a 50% discount; no expiry published.",
+      "match": [],
+      "priority": 120,
+      "effective_from": "2026-08-12T00:00:00Z",
+      "effective_to": "2026-08-26T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": {
+        "kind": "pricing",
+        "url": "https://ai.nahcrof.com/pricing",
+        "accessed_at": "2026-08-12T00:00:00Z"
       }
     }
   ],
@@ -128,11 +194,16 @@
       "kind": "pricing",
       "url": "https://crof.ai/pricing",
       "accessed_at": "2026-08-09T00:00:00Z"
+    },
+    {
+      "kind": "pricing",
+      "url": "https://ai.nahcrof.com/pricing",
+      "accessed_at": "2026-08-12T00:00:00Z"
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-09T00:00:00Z",
-    "notes": "CrofAI's live models API reports $0.06/$0.010/$0.21 per 1M tokens with an 80% discount; the public pricing table lists $0.30/$0.05/$1.05. The discounted rules are open-ended until CrofAI publishes an expiry."
+    "checked_at": "2026-08-26T00:00:00Z",
+    "notes": "The 50% promotional rules ended by 2026-08-26; current CrofAI payload is back to the $0.30/$0.05/$1.05 list rates per 1M input/cache/output tokens."
   }
 }

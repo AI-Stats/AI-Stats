@@ -12,8 +12,9 @@ import {
 	FolderKey,
 	KeyRound,
 	RadioTower,
-	ShieldCheck,
 	Shield,
+	ShieldCheck,
+	Settings as SettingsIcon,
 	User,
 	UserCog,
 	UserKey,
@@ -83,12 +84,6 @@ const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
 				],
 			},
 			{
-				href: "/settings/account/privacy",
-				label: "Privacy",
-				icon: Shield,
-				match: ["/settings/account/privacy"],
-			},
-			{
 				href: "/settings/account/workspaces",
 				label: "Workspaces",
 				icon: Building2,
@@ -126,7 +121,7 @@ const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
 			{
 				href: "/settings/workspaces/settings",
 				label: "Settings",
-				icon: Building2,
+				icon: SettingsIcon,
 				match: [
 					"/settings/workspaces",
 					"/settings/teams",
@@ -135,12 +130,41 @@ const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
 					"/settings/teams/members",
 					"/settings/teams/access",
 					"/settings/teams/settings",
+					"/settings/notifications",
 				],
 				children: [
 					{ href: "/settings/workspaces/settings", label: "General" },
 					{ href: "/settings/workspaces/members", label: "Members" },
 					{ href: "/settings/workspaces/access", label: "Access" },
+					{ href: "/settings/notifications", label: "Notifications" },
 				],
+			},
+			{
+				href: "/settings/guardrails",
+				label: "Guardrails",
+				icon: ShieldCheck,
+				badge: "Beta",
+				match: ["/settings/guardrails"],
+			},
+			{
+				href: "/settings/workspaces/enterprise",
+				label: "Enterprise",
+				icon: Building2,
+				badge: "Preview",
+				match: ["/settings/workspaces/enterprise"],
+				children: [
+					{ href: "/settings/workspaces/enterprise", label: "Overview", exactOnly: true },
+					{ href: "/settings/workspaces/enterprise/directory", label: "Directory" },
+					{ href: "/settings/workspaces/enterprise/departments", label: "Departments" },
+					{ href: "/settings/workspaces/enterprise/sso", label: "Single Sign-On" },
+					{ href: "/settings/workspaces/enterprise/scim", label: "SCIM" },
+				],
+			},
+			{
+				href: "/settings/privacy",
+				label: "Privacy",
+				icon: Shield,
+				match: ["/settings/privacy"],
 			},
 		],
 	},
@@ -239,16 +263,6 @@ const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
 					{ href: "/settings/presets/experiments", label: "Feedback", badge: "Alpha" },
 				],
 			},
-			{
-				href: "/settings/guardrails",
-				label: "Safety & privacy",
-				icon: ShieldCheck,
-				match: ["/settings/guardrails", "/settings/privacy"],
-				children: [
-					{ href: "/settings/guardrails", label: "Guardrails", badge: "Beta" },
-					{ href: "/settings/privacy", label: "Data Controls" },
-				],
-			},
 		],
 	},
 	{
@@ -277,15 +291,35 @@ const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
     // },
 ];
 
-export function getSettingsSidebar(options?: { showBroadcast?: boolean; showWebhooks?: boolean }): NavGroup[] {
+const WORKSPACE_NAV_ORDER = [
+"/settings/workspaces/settings",
+	"/settings/workspaces/enterprise",
+	"/settings/keys",
+	"/settings/usage",
+	"/settings/usage/logs",
+	"/settings/routing",
+	"/settings/guardrails",
+	"/settings/privacy",
+	"/settings/byok",
+	"/settings/presets",
+	"/settings/apps",
+	"/settings/management-api-keys",
+	"/settings/broadcast",
+	"/settings/oauth-apps",
+	"/settings/webhooks",
+] as const;
+
+export function getSettingsSidebar(options?: { showBroadcast?: boolean; showWebhooks?: boolean; showEnterprise?: boolean }): NavGroup[] {
 	const showBroadcast = options?.showBroadcast ?? true;
 	const showWebhooks = options?.showWebhooks ?? true;
-	return BASE_SETTINGS_SIDEBAR.map((group) => ({
+	const showEnterprise = options?.showEnterprise ?? true;
+	const groups = BASE_SETTINGS_SIDEBAR.map((group) => ({
 		...group,
 		items: group.items
 			.filter((item) =>
 				(showBroadcast ? true : item.href !== "/settings/broadcast") &&
-				(showWebhooks ? true : item.href !== "/settings/webhooks"),
+				(showWebhooks ? true : item.href !== "/settings/webhooks") &&
+				(showEnterprise ? true : item.href !== "/settings/workspaces/enterprise"),
 			)
 			.map((item) => ({
 				...item,
@@ -295,6 +329,20 @@ export function getSettingsSidebar(options?: { showBroadcast?: boolean; showWebh
 				),
 			})),
 	})).filter((group) => group.items.length > 0);
+	const personalGroups = groups.filter((group) => group.scope === "personal");
+	const workspaceItems = groups
+		.filter((group) => group.scope === "workspace")
+		.flatMap((group) => group.items)
+		.sort((a, b) => {
+			const aIndex = WORKSPACE_NAV_ORDER.indexOf(a.href as typeof WORKSPACE_NAV_ORDER[number]);
+			const bIndex = WORKSPACE_NAV_ORDER.indexOf(b.href as typeof WORKSPACE_NAV_ORDER[number]);
+			return (aIndex < 0 ? Number.MAX_SAFE_INTEGER : aIndex) - (bIndex < 0 ? Number.MAX_SAFE_INTEGER : bIndex);
+		});
+
+	return [
+		...personalGroups,
+		...(workspaceItems.length ? [{ scope: "workspace" as const, items: workspaceItems }] : []),
+	];
 }
 
 export function isSettingsNavChildActive(

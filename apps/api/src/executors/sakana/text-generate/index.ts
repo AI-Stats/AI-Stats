@@ -13,7 +13,9 @@ export function preprocess(ir: IRChatRequest, args: ExecutorExecuteArgs): IRChat
 }
 
 export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult> {
-	return executeOpenAIWire(args, { forceChat: true });
+	// Sakana recommends Responses for generation and explicitly supports it for
+	// multimodal input, built-in tools, reasoning, and structured output.
+	return executeOpenAIWire(args);
 }
 
 export function postprocess(ir: IRChatRequest): IRChatRequest {

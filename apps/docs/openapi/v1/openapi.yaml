@@ -672,6 +672,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ChatCompletionsResponse'
+        '429':
+          $ref: '#/components/responses/UpstreamRateLimited'
   /responses:
     post:
       tags:
@@ -706,6 +708,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ResponsesResponse'
+        '429':
+          $ref: '#/components/responses/UpstreamRateLimited'
   /async/{kind}/{id}/ws:
     get:
       x-beta: true
@@ -1246,7 +1250,9 @@ paths:
         - Gateway
       operationId: generateMusic
       summary: Generate music
-      description: Generates music using the requested model and provider settings.
+      description: >-
+        Generates music through one provider-independent endpoint. Phaseo waits
+        for synchronous providers and handles provider queue polling internally.
       requestBody:
         required: true
         content:
@@ -1267,12 +1273,15 @@ paths:
         - Gateway
       operationId: getMusicGeneration
       summary: Get music generation status
-      description: Retrieves the status for a music generation request.
+      description: >-
+        Retrieves a normalized music result using the Phaseo request ID returned
+        by POST /music/generate. Provider-specific status APIs are handled
+        internally.
       parameters:
         - name: music_id
           in: path
           required: true
-          description: The ID of the music generation request.
+          description: The stable Phaseo request ID returned by POST /music/generate.
           schema:
             type: string
       responses:
@@ -3575,6 +3584,45 @@ components:
       type: http
       scheme: bearer
       description: Bearer token authentication
+  responses:
+    UpstreamRateLimited:
+      description: The selected upstream provider rate-limited the request.
+      headers:
+        Retry-After:
+          description: Validated provider guidance in seconds before retrying.
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 86400
+        X-Phaseo-Upstream-RateLimit-Limit:
+          $ref: '#/components/headers/UpstreamRateLimitValue'
+        X-Phaseo-Upstream-RateLimit-Remaining:
+          $ref: '#/components/headers/UpstreamRateLimitValue'
+        X-Phaseo-Upstream-RateLimit-Reset:
+          $ref: '#/components/headers/UpstreamRateLimitValue'
+        X-Phaseo-Upstream-RateLimit-Limit-Requests:
+          $ref: '#/components/headers/UpstreamRateLimitValue'
+        X-Phaseo-Upstream-RateLimit-Remaining-Requests:
+          $ref: '#/components/headers/UpstreamRateLimitValue'
+        X-Phaseo-Upstream-RateLimit-Reset-Requests:
+          $ref: '#/components/headers/UpstreamRateLimitValue'
+        X-Phaseo-Upstream-RateLimit-Limit-Tokens:
+          $ref: '#/components/headers/UpstreamRateLimitValue'
+        X-Phaseo-Upstream-RateLimit-Remaining-Tokens:
+          $ref: '#/components/headers/UpstreamRateLimitValue'
+        X-Phaseo-Upstream-RateLimit-Reset-Tokens:
+          $ref: '#/components/headers/UpstreamRateLimitValue'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  headers:
+    UpstreamRateLimitValue:
+      description: >-
+        BYOK-only provider quota metadata. Omitted for managed-provider
+        requests.
+      schema:
+        type: string
   schemas:
     ProviderRoutingOptions:
       type: object
@@ -4195,7 +4243,7 @@ components:
             type: string
         supported_parameters:
           type: array
-          description: OpenRouter-compatible alias for params.
+          description: Compatibility alias for params.
           items:
             type: string
         params_detail:
@@ -5751,6 +5799,21 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ModerationResult'
+        meta:
+          type: object
+          description: Included when the request sets meta to true.
+          properties:
+            latency_ms:
+              type: number
+              description: >-
+                Milliseconds from upstream dispatch until the first response
+                byte.
+            generation_ms:
+              type: number
+              description: >-
+                Provider processing milliseconds when reported; otherwise the
+                observed upstream latency.
+          additionalProperties: true
     RerankRequest:
       type: object
       required:
@@ -6099,6 +6162,15 @@ components:
           description: >-
             Duration of the source video in seconds. Required when a provider
             bills source-video duration independently from generated output.
+        input_audio_duration:
+          type: number
+          format: double
+          minimum: 2
+          maximum: 20
+          description: >-
+            Declared source-audio duration in seconds, used for provider range
+            validation. Providers that do not report authoritative usage may
+            bill at their supported input-duration ceiling.
         size:
           type: string
           description: >-
@@ -6134,6 +6206,10 @@ components:
           type: string
         input_references:
           type: array
+          description: >-
+            HTTPS image, audio, or video inputs used to condition generation.
+            Supported types, roles, counts, and combinations depend on the
+            selected model. Check GET /videos/models before submitting a job.
           items:
             $ref: '#/components/schemas/VideoInputReference'
         provider_params:
@@ -6461,6 +6537,10 @@ components:
         error:
           nullable: true
     VideoInputReference:
+      description: >-
+        A typed HTTPS media input. Use image_url for images and media_url for
+        audio or video. Roles describe how the model should use the input;
+        provider and model support varies.
       oneOf:
         - type: object
           required:
@@ -6473,6 +6553,7 @@ components:
                 - image_url
             role:
               type: string
+              description: Intended use of this image by the selected model.
               enum:
                 - first_frame
                 - last_frame
@@ -6489,6 +6570,7 @@ components:
                 url:
                   type: string
                   format: uri
+                  description: Publicly reachable HTTPS image URL.
         - type: object
           required:
             - type
@@ -6501,6 +6583,7 @@ components:
                 - audio_url
             role:
               type: string
+              description: Intended use of this audio or video by the selected model.
               enum:
                 - first_frame
                 - last_frame
@@ -6517,6 +6600,7 @@ components:
                 url:
                   type: string
                   format: uri
+                  description: Publicly reachable HTTPS audio or video URL.
     VideoOutputConfig:
       type: object
       properties:
@@ -6609,7 +6693,7 @@ components:
             type: string
         supported_parameters:
           type: array
-          description: OpenRouter-compatible alias for supported_params.
+          description: Compatibility alias for supported_params.
           items:
             type: string
         supported_params_detail:
@@ -6639,7 +6723,7 @@ components:
             type: string
         supported_parameters:
           type: array
-          description: OpenRouter-compatible alias for supported_params.
+          description: Compatibility alias for supported_params.
           items:
             type: string
         supported_params_detail:
@@ -6674,7 +6758,7 @@ components:
             type: string
         supported_parameters:
           type: array
-          description: OpenRouter-compatible alias for supported_params.
+          description: Compatibility alias for supported_params.
           items:
             type: string
         supported_params_detail:
@@ -6704,7 +6788,7 @@ components:
             type: string
         supported_parameters:
           type: array
-          description: OpenRouter-compatible alias for supported_params.
+          description: Compatibility alias for supported_params.
           items:
             type: string
         supported_params_detail:
@@ -6862,6 +6946,50 @@ components:
           $ref: '#/components/schemas/DebugOptions'
     MusicGenerateResponse:
       type: object
+      required:
+        - id
+        - object
+        - status
+        - model
+        - provider
+      properties:
+        id:
+          type: string
+          description: Stable Phaseo request ID used with GET /music/generate/{music_id}.
+        object:
+          type: string
+          enum:
+            - music
+        status:
+          type: string
+          enum:
+            - queued
+            - in_progress
+            - completed
+            - failed
+        model:
+          type: string
+        provider:
+          type: string
+        nativeResponseId:
+          type: string
+          nullable: true
+          description: Upstream provider identifier for correlation and support.
+        audio_url:
+          type: string
+          format: uri
+        audio_base64:
+          type: string
+        result:
+          description: Provider result metadata normalized by Phaseo.
+        output:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        usage:
+          type: object
+          additionalProperties: true
       additionalProperties: true
     BatchRequest:
       type: object
@@ -7366,7 +7494,7 @@ components:
       description: >-
         Model identifier. This is a runtime string so newly released models can
         be used without waiting for an SDK update.
-      example: ai21/jamba-large-1.7
+      example: ai21/jamba-1.5-large
     OrganisationId:
       type: string
       description: Organisation identifier.
@@ -7378,6 +7506,7 @@ components:
         - amazon
         - anthropic
         - arcee-ai
+        - baai
         - baidu
         - black-forest-labs
         - bytedance
@@ -7389,12 +7518,15 @@ components:
         - essential-ai
         - github
         - google
+        - hexgrad
         - ibm
         - inception
         - inclusionai
         - inflection
+        - jetbrains
         - kwaipilot
         - lg
+        - lightricks
         - liquid-ai
         - meituan
         - meta
@@ -7414,10 +7546,14 @@ components:
         - poolside
         - prime-intellect
         - qwen
+        - reka
         - relace
         - runway
+        - sakana
         - sourceful
         - spacex-ai
+        - stability-ai
+        - stealth
         - stepfun
         - suno
         - tencent
@@ -9496,46 +9632,60 @@ components:
         Known callable model identifier snapshot used for SDK helper constants
         and autocomplete.
       enum:
-        - ai21/jamba-large-1.7
-        - ai21/jamba-mini-2
+        - ai21/jamba-1.5-large
+        - ai21/jamba-1.5-mini
         - aion-labs/aion-2.0
-        - aion-labs/aion-2.5
         - aion-labs/aion-3.0
         - aion-labs/aion-3.0-mini
         - aion-labs/aion-rp-llama-3.1-8b
         - allenai/molmo-2-8b
-        - allenai/olmo-3.1-32b
+        - amazon/nova-2-lite
+        - amazon/nova-lite-1.0
+        - amazon/nova-micro-1.0
+        - amazon/nova-premier
+        - amazon/nova-pro-1.0
+        - anthropic/claude-3-haiku
+        - anthropic/claude-3.5-haiku
+        - anthropic/claude-3.7-sonnet
         - anthropic/claude-fable-5
         - anthropic/claude-haiku-4.5
+        - anthropic/claude-opus-4
         - anthropic/claude-opus-4.1
         - anthropic/claude-opus-4.5
         - anthropic/claude-opus-4.6
         - anthropic/claude-opus-4.7
-        - anthropic/claude-opus-4.7-fast
         - anthropic/claude-opus-4.8
         - anthropic/claude-opus-5
+        - anthropic/claude-sonnet-4
         - anthropic/claude-sonnet-4.5
         - anthropic/claude-sonnet-4.6
         - anthropic/claude-sonnet-5
         - arcee-ai/trinity-large
         - arcee-ai/trinity-large-thinking
         - arcee-ai/trinity-mini
+        - baai/bge-m3
+        - baai/bge-multilingual-gemma2
+        - baai/bge-reranker-v2-m3
+        - baidu/cobuddy
         - baidu/ernie-4.5-21b-a3b
-        - baidu/ernie-4.5-21b-a3b-thinking
         - baidu/ernie-4.5-300b-a47b
-        - baidu/ernie-4.5-vl-28b-a3b
-        - baidu/ernie-4.5-vl-28b-a3b-thinking
         - baidu/ernie-4.5-vl-424b-a47b
         - black-forest-labs/flux-1-dev
         - black-forest-labs/flux-1-schnell
         - bytedance/seed-1.6
+        - bytedance/seed-1.6-2025-10-15
         - bytedance/seed-1.6-250915
         - bytedance/seed-1.6-flash
+        - bytedance/seed-1.6-flash-2025-08-28
         - bytedance/seed-1.6-flash-250715
         - bytedance/seed-1.8
+        - bytedance/seed-1.8-2025-12-28
+        - bytedance/seed-2.0-code-preview-2026-02-15
         - bytedance/seed-2.0-lite
+        - bytedance/seed-2.0-lite-2026-04-28
         - bytedance/seed-2.0-lite-260428
         - bytedance/seed-2.0-mini
+        - bytedance/seed-2.0-mini-2026-04-28
         - bytedance/seed-2.0-mini-260428
         - bytedance/seed-2.0-pro
         - bytedance/seed-2.1-turbo
@@ -9545,16 +9695,25 @@ components:
         - bytedance/seedance-2.0-fast
         - bytedance/seedance-2.0-mini-260615
         - bytedance/seedream-5.0-pro
+        - cohere/command-a
+        - cohere/command-r
+        - cohere/command-r-plus
+        - cohere/command-r7b
+        - cohere/embed-english-v3
+        - cohere/embed-multilingual-v3
+        - cohere/embed-v4
+        - cohere/rerank-v3.5
+        - cohere/rerank-v4.0-fast
+        - cohere/rerank-v4.0-pro
         - crofai/greg-1-mini
         - crofai/greg-2-super
         - crofai/greg-2-ultra
         - crofai/greg-rp
         - deepseek/deepseek-ocr
         - deepseek/deepseek-ocr-2
-        - deepseek/deepseek-prover-v2-671b
         - deepseek/deepseek-r1
         - deepseek/deepseek-r1-0528
-        - deepseek/deepseek-r1-2025-05-28
+        - deepseek/deepseek-r1-distill-llama-70b
         - deepseek/deepseek-r1-turbo
         - deepseek/deepseek-v3
         - deepseek/deepseek-v3-0324
@@ -9563,79 +9722,86 @@ components:
         - deepseek/deepseek-v3.1-terminus
         - deepseek/deepseek-v3.2
         - deepseek/deepseek-v3.2-exp
-        - deepseek/deepseek-v3.2-speciale
         - deepseek/deepseek-v4-flash
         - deepseek/deepseek-v4-flash-0731
+        - deepseek/deepseek-v4-flash-vision-exp
         - deepseek/deepseek-v4-pro
-        - deepseek/deepseek-v4-pro-lightning
+        - deepseek/deepseek-v4-pro-0813
         - eleven-labs/eleven-flash-v2
         - eleven-labs/eleven-flash-v2.5
         - eleven-labs/eleven-multilingual-v2
         - eleven-labs/eleven-turbo-v2
         - eleven-labs/eleven-turbo-v2.5
         - eleven-labs/eleven-v3
+        - eleven-labs/music
+        - eleven-labs/scribe-v2
         - essential-ai/rnj-1
         - google/gemini-2.5-flash
+        - google/gemini-2.5-flash-image
         - google/gemini-2.5-flash-lite
-        - google/gemini-2.5-flash-lite-preview-2025-06-17
-        - google/gemini-2.5-flash-lite-preview-2025-09-25
         - google/gemini-2.5-pro
         - google/gemini-3-flash-preview
         - google/gemini-3-pro-image
         - google/gemini-3.1-flash-image
-        - google/gemini-3.1-flash-image-preview
         - google/gemini-3.1-flash-lite
         - google/gemini-3.1-flash-lite-image
-        - google/gemini-3.1-flash-lite-preview
         - google/gemini-3.1-flash-live-preview
         - google/gemini-3.1-flash-tts-preview
         - google/gemini-3.1-pro-preview
         - google/gemini-3.1-pro-preview-customtools
         - google/gemini-3.5-flash
         - google/gemini-3.5-flash-lite
-        - google/gemini-3.5-pro
         - google/gemini-3.6-flash
+        - google/gemini-3.7-flash
         - google/gemini-embedding-001
         - google/gemini-embedding-2
-        - google/gemini-embedding-2-preview
         - google/gemini-robotics-er-1.6-preview
+        - google/gemini-robotics-er-2-preview
+        - google/gemma-3-12b
         - google/gemma-3-27b
-        - google/gemma-3n-e4b
+        - google/gemma-3-4b
+        - google/gemma-4-12b
         - google/gemma-4-26b-a4b
         - google/gemma-4-26b-a4b:free
         - google/gemma-4-31b
         - google/gemma-4-31b-it
         - google/gemma-4-31b:free
+        - google/imagen-4.0-preview
         - google/lyria-3-clip-preview
         - google/lyria-3-pro-preview
-        - google/veo-2
+        - google/veo-3.1
+        - google/veo-3.1-fast
         - google/veo-3.1-fast-preview
-        - google/veo-3.1-lite-generate-preview
+        - google/veo-3.1-lite-preview
         - google/veo-3.1-preview
         - ibm/granite-4.1-8b
+        - ibm/granite-4.2-30b
+        - ibm/granite-4.2-3b
+        - ibm/granite-4.2-8b
         - inception/mercury-2
         - inception/mercury-edit-2
         - inclusionai/ling-2.6-1t
+        - inclusionai/ling-2.6-flash
         - inclusionai/ling-3.0-flash
-        - inclusionai/ling-3.0-tiny
         - inclusionai/ling-flash-2.0
+        - inclusionai/ring-2.6-1t
         - inclusionai/ring-flash-2.0
         - inflection/inflection-3-pi
         - inflection/inflection-3-productivity
+        - jetbrains/mellum2-12b-a2.5b
         - kwaipilot/kat-coder-air-v2.5
-        - kwaipilot/kat-coder-exp-72b-1010
         - kwaipilot/kat-coder-pro
-        - kwaipilot/kat-coder-pro-v1
         - kwaipilot/kat-coder-pro-v2
         - kwaipilot/kat-coder-pro-v2.5
         - liquid-ai/lfm-2-24b-a2b
+        - liquid-ai/lfm-2.5-8b-a1b
+        - ltx-2-3-fast
+        - ltx-2-3-pro
+        - ltx-2-5-fast
+        - ltx-2-5-pro
         - meituan/longcat-2.0
-        - meta/llama-3-70b
-        - meta/llama-3-8b
-        - meta/llama-3-8b-lite
         - meta/llama-3.1-70b
         - meta/llama-3.1-8b
-        - meta/llama-3.2-11b-vision
         - meta/llama-3.2-3b
         - meta/llama-3.3-70b
         - meta/llama-4-maverick
@@ -9644,14 +9810,16 @@ components:
         - meta/llama-prompt-guard-2-22m
         - meta/llama-prompt-guard-2-86m
         - meta/muse-glimmer-30b
+        - meta/muse-image-1.0
         - meta/muse-spark-1.2
         - microsoft/phi-4
-        - microsoft/phi-4-mini
+        - microsoft/wizardlm-2-8x22b
         - mindai/macaron-v1-tall
-        - mindai/macaron-v1-venti:free
+        - mindai/macaron-v1-venti
         - minimax/hailuo-02
         - minimax/hailuo-2.3
         - minimax/hailuo-2.3-fast
+        - minimax/image-01
         - minimax/m2-her
         - minimax/minimax-m1-80k
         - minimax/minimax-m2
@@ -9659,25 +9827,39 @@ components:
         - minimax/minimax-m2.5
         - minimax/minimax-m2.5-highspeed
         - minimax/minimax-m2.7
+        - minimax/minimax-m2.7:free
         - minimax/minimax-m3
+        - minimax/minimax-m3:free
         - minimax/music-2.6
-        - minimax/music-2.6-free
+        - minimax/music-3.0
+        - minimax/music-3.0:free
+        - minimax/speech-2.6-hd
+        - minimax/speech-2.6-turbo
+        - minimax/speech-2.8-hd
+        - minimax/speech-2.8-turbo
+        - minimax/speech-2.8:free
+        - mistral/codestral
         - mistral/codestral-embed
         - mistral/devstral-2
+        - mistral/devstral-2.0
         - mistral/devstral-medium-1.0
         - mistral/devstral-small-1.1
         - mistral/leanstral-1.5:free
         - mistral/magistral-medium-1.2
+        - mistral/magistral-small-1.2
         - mistral/ministral-3-14b
         - mistral/ministral-3-3b
         - mistral/ministral-3-8b
+        - mistral/ministral-3.0-14b
+        - mistral/ministral-3.0-3b
+        - mistral/ministral-3.0-8b
         - mistral/mistral-embed
         - mistral/mistral-large-2.1
         - mistral/mistral-large-3
+        - mistral/mistral-large-3.0
         - mistral/mistral-medium-3.0
         - mistral/mistral-medium-3.1
         - mistral/mistral-medium-3.5
-        - mistral/mistral-moderation
         - mistral/mistral-moderation-2
         - mistral/mistral-nemo
         - mistral/mistral-nemo-12b
@@ -9685,40 +9867,44 @@ components:
         - mistral/mistral-small-24b-2501
         - mistral/mistral-small-3.2
         - mistral/mistral-small-4
-        - mistral/mixtral-8x7b
+        - mistral/ocr-3
+        - mistral/ocr-4
+        - mistral/ocr-4.1
         - mistral/pixtral-large
+        - mistral/voxtral-mini
+        - mistral/voxtral-mini-transcribe-2
+        - mistral/voxtral-small
         - moonshotai/kimi-k2
         - moonshotai/kimi-k2-0905
-        - moonshotai/kimi-k2-instruct
-        - moonshotai/kimi-k2-instruct-0905
         - moonshotai/kimi-k2-thinking
         - moonshotai/kimi-k2.5
-        - moonshotai/kimi-k2.5-lightning
         - moonshotai/kimi-k2.6
         - moonshotai/kimi-k2.7-code
         - moonshotai/kimi-k3
+        - moonshotai/kimi-k3-fast
         - moonshotai/moonshot-v1-128k
         - moonshotai/moonshot-v1-128k-vision-preview
         - moonshotai/moonshot-v1-32k
         - moonshotai/moonshot-v1-32k-vision-preview
         - moonshotai/moonshot-v1-8k
         - moonshotai/moonshot-v1-8k-vision-preview
+        - morph/morph-compactor
         - morph/morph-v3-fast
         - morph/morph-v3-large
+        - morph/morph-warp-grep-v2.1
         - nex-agi/deepseek-v3.1-nex-n1
-        - nex-agi/nex-n2-pro
         - nous/hermes-3-llama-3.1-405b
         - nousresearch/hermes-3-llama-3.1-70b
         - nousresearch/hermes-4-405b
         - nousresearch/hermes-4-70b
         - nvidia/cosmos3-super-reasoner
-        - nvidia/llama-3.1-nemotron-70b-instruct
         - nvidia/llama-3.1-nemotron-ultra-253b
-        - nvidia/llama-3.3-nemotron-super-49b-v1.5
         - nvidia/nemotron-3-nano-30b-a3b
-        - nvidia/nemotron-3-nano-omni-30b-a3b-reasoning
+        - nvidia/nemotron-3-nano-omni
         - nvidia/nemotron-3-super-120b-a12b
         - nvidia/nemotron-3-ultra-550b-a55b
+        - nvidia/nemotron-3.5-lightning
+        - nvidia/nemotron-nano-9b-v2
         - nvidia/nvidia-nemotron-3-nano-30b-a3b
         - nvidia/nvidia-nemotron-nano-12b-v2-vl
         - openai/babbage-002
@@ -9728,12 +9914,10 @@ components:
         - openai/gpt-3.5-turbo-16k
         - openai/gpt-3.5-turbo-2023-03-21
         - openai/gpt-4-2023-06-13
-        - openai/gpt-4-turbo-2023-03-14
-        - openai/gpt-4-turbo-2023-11-06
-        - openai/gpt-4-turbo-2024-01-25
         - openai/gpt-4.1
         - openai/gpt-4.1-mini
         - openai/gpt-4.1-nano
+        - openai/gpt-4o
         - openai/gpt-4o-2024-05-13
         - openai/gpt-4o-2024-08-06
         - openai/gpt-4o-2024-11-20
@@ -9768,6 +9952,7 @@ components:
         - openai/gpt-image-2
         - openai/gpt-oss-120b
         - openai/gpt-oss-20b
+        - openai/gpt-oss-safeguard-120b
         - openai/gpt-oss-safeguard-20b
         - openai/gpt-realtime
         - openai/gpt-realtime-1.5
@@ -9787,14 +9972,18 @@ components:
         - openai/text-embedding-3-small
         - openai/text-embedding-ada-002
         - openai/whisper-1
+        - openai/whisper-large-v3
+        - openai/whisper-large-v3-turbo
+        - perplexity/pplx-embed-v1-0.6b
+        - perplexity/pplx-embed-v1-4b
         - phaseo/free
         - poolside/laguna-m.1:free
         - poolside/laguna-s-2.1:free
         - poolside/laguna-xs-2.1:free
         - qwen/qvq-max
-        - qwen/qwen-3.6-plus
         - qwen/qwen-flash
         - qwen/qwen-flash-character
+        - qwen/qwen-image
         - qwen/qwen-max
         - qwen/qwen-mt-flash
         - qwen/qwen-mt-lite
@@ -9829,6 +10018,7 @@ components:
         - qwen/qwen3-0.6b
         - qwen/qwen3-1.7b
         - qwen/qwen3-14b
+        - qwen/qwen3-235b-a22b
         - qwen/qwen3-235b-a22b-2507
         - qwen/qwen3-235b-a22b-instruct-2507
         - qwen/qwen3-235b-a22b-thinking-2507
@@ -9839,14 +10029,16 @@ components:
         - qwen/qwen3-32b
         - qwen/qwen3-4b
         - qwen/qwen3-8b
-        - qwen/qwen3-coder
         - qwen/qwen3-coder-30b-a3b
         - qwen/qwen3-coder-480b-a35b
         - qwen/qwen3-coder-flash
         - qwen/qwen3-coder-next
         - qwen/qwen3-coder-plus-2025-07-22
         - qwen/qwen3-coder-plus-2025-09-23
+        - qwen/qwen3-embedding-0.6b
         - qwen/qwen3-embedding-8b
+        - qwen/qwen3-guard-gen-0.6b
+        - qwen/qwen3-guard-gen-8b
         - qwen/qwen3-max
         - qwen/qwen3-max-2025-09-23
         - qwen/qwen3-max-2026-01-23
@@ -9856,6 +10048,7 @@ components:
         - qwen/qwen3-next-80b-a3b
         - qwen/qwen3-next-80b-a3b-instruct
         - qwen/qwen3-next-80b-a3b-thinking
+        - qwen/qwen3-omni-30b-a3b
         - qwen/qwen3-omni-30b-a3b-thinking
         - qwen/qwen3-reranker
         - qwen/qwen3-vl-235b-a22b
@@ -9876,7 +10069,6 @@ components:
         - qwen/qwen3.5-27b
         - qwen/qwen3.5-35b-a3b
         - qwen/qwen3.5-397b-a17b
-        - qwen/qwen3.5-4b
         - qwen/qwen3.5-9b
         - qwen/qwen3.5-flash
         - qwen/qwen3.5-livetranslate-flash-realtime-2026-05-19
@@ -9884,26 +10076,40 @@ components:
         - qwen/qwen3.5-plus-2026-04-20
         - qwen/qwen3.6-27b
         - qwen/qwen3.6-35b-a3b
+        - qwen/qwen3.6-flash
         - qwen/qwen3.6-max-preview
         - qwen/qwen3.6-plus
         - qwen/qwen3.7-max
         - qwen/qwen3.7-max-2026-05-17
         - qwen/qwen3.7-plus
         - qwen/qwen3.7-plus-2026-05-26
+        - qwen/qwen3.8-2.4t-a95b
+        - qwen/qwen3.8-27b
+        - qwen/qwen3.8-flash
         - qwen/qwen3.8-max
         - qwen/qwq-32b
         - qwen/qwq-plus
         - qwen/text-embedding-v3
         - qwen/text-embedding-v4
         - qwen/wan2.7-t2v
-        - spacex-ai/grok-4.20-beta-0309
+        - reka-edge
+        - reka-edge-2603
+        - reka-flash
+        - reka-flash-research
+        - relace/relace-search
+        - sakana/fugu-ultra
+        - sakana/namazu
+        - spacex-ai/grok-4.20
+        - spacex-ai/grok-4.20-multi-agent-beta
         - spacex-ai/grok-4.20-multi-agent-beta-0309
         - spacex-ai/grok-4.3
         - spacex-ai/grok-4.5
+        - spacex-ai/grok-4.6
         - spacex-ai/grok-build-0.1
-        - spacex-ai/grok-code-fast-1
         - spacex-ai/grok-imagine-image
+        - spacex-ai/grok-imagine-image-2.0
         - spacex-ai/grok-imagine-image-quality
+        - spacex-ai/grok-transcribe
         - spacex-ai/grok-tts
         - stepfun/step-3.5-flash
         - stepfun/step-3.7-flash
@@ -9912,17 +10118,23 @@ components:
         - tencent/hy3-preview
         - tencent/hy3:free
         - thinking-machines/inkling
-        - thinking-machines/inkling-64k
         - thinking-machines/inkling-small
+        - upstage/solar-embedding-1-large-passage
+        - upstage/solar-embedding-1-large-query
+        - upstage/solar-embedding-2-passage
+        - upstage/solar-embedding-2-query
         - upstage/solar-mini
         - upstage/solar-pro-2
         - upstage/solar-pro-3
         - upstage/solar-pro-4
-        - venice/venice-uncensored
-        - venice/venice-uncensored-1.1
+        - venice/gemma-4-uncensored
+        - venice/venice-role-play-uncensored
+        - venice/venice-uncensored-1.2
         - voyage/rerank-1
         - voyage/rerank-2
         - voyage/rerank-2-lite
+        - voyage/rerank-2.5
+        - voyage/rerank-2.5-lite
         - voyage/rerank-lite-1
         - voyage/voyage-01
         - voyage/voyage-02
@@ -9937,6 +10149,7 @@ components:
         - voyage/voyage-4-lite
         - voyage/voyage-code-2
         - voyage/voyage-code-3
+        - voyage/voyage-code-4
         - voyage/voyage-context-3
         - voyage/voyage-finance-2
         - voyage/voyage-large-2
@@ -9948,12 +10161,15 @@ components:
         - voyage/voyage-multilingual-2
         - voyage/voyage-multimodal-3
         - voyage/voyage-multimodal-3.5
-        - xiaomi/mimo-v2-flash
         - xiaomi/mimo-v2.5
+        - xiaomi/mimo-v2.5-asr
         - xiaomi/mimo-v2.5-pro
+        - xiaomi/mimo-v2.5-pro-ultraspeed
+        - xiaomi/mimo-v2.5-tts-voiceclone:free
+        - xiaomi/mimo-v2.5-tts-voicedesign:free
         - xiaomi/mimo-v2.5-tts:free
+        - z-ai/autoglm-phone-9b-multilingual
         - z-ai/glm-4-32b
-        - z-ai/glm-4-7-flash:free
         - z-ai/glm-4.5
         - z-ai/glm-4.5-air
         - z-ai/glm-4.5-air-x
@@ -9964,11 +10180,13 @@ components:
         - z-ai/glm-4.6v-flash
         - z-ai/glm-4.7
         - z-ai/glm-4.7-flash
+        - z-ai/glm-4.7-flash-heretic
         - z-ai/glm-5
-        - z-ai/glm-5-code
         - z-ai/glm-5-turbo
         - z-ai/glm-5.1
         - z-ai/glm-5.2
+        - z-ai/glm-5.3
+        - z-ai/glm-5.3-flash
         - z-ai/glm-5v-turbo
         - zai-org/glm-4.5-air
         - zai/glm-5

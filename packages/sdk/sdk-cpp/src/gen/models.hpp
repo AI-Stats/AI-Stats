@@ -1058,6 +1058,7 @@ struct ModerationsRequest {
 
 struct ModerationsResponse {
 	std::string id;
+	std::map<std::string, std::any> meta;
 	std::string model;
 	std::vector<std::map<std::string, std::any>> results;
 };
@@ -1075,6 +1076,17 @@ struct MusicGenerateRequest {
 };
 
 struct MusicGenerateResponse {
+	std::string audio_base64;
+	std::string audio_url;
+	std::string id;
+	std::string model;
+	std::optional<std::string> nativeResponseId;
+	std::any object;
+	std::vector<std::map<std::string, std::any>> output;
+	std::string provider;
+	std::any result;
+	std::any status;
+	std::map<std::string, std::any> usage;
 };
 
 struct NotImplementedResponse {
@@ -1396,6 +1408,7 @@ struct VideoGenerationRequest {
 	std::optional<int> duration;
 	std::optional<bool> enhance_prompt;
 	std::optional<bool> generate_audio;
+	std::optional<double> input_audio_duration;
 	std::vector<std::any> input_references;
 	std::optional<double> input_video_duration;
 	std::string model;

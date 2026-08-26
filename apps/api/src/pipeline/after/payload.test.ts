@@ -406,6 +406,33 @@ describe("enrichSuccessPayload model selection", () => {
 		expect(body.usage?.pricing_breakdown?.total_nanos).toBe(123_000);
 	});
 
+	it("serializes timing metadata on moderation responses when requested", () => {
+		const body = formatClientPayload({
+			ctx: {
+				endpoint: "moderations",
+				protocol: "openai.moderations",
+				requestId: "req_moderation_timing",
+			} as any,
+			result: { provider: "openai" } as any,
+			payload: {
+				id: "req_moderation_timing",
+				model: "omni-moderation-latest",
+				results: [],
+				meta: {
+					latency_ms: 41,
+					generation_ms: 17,
+				},
+			},
+			includeMeta: true,
+		});
+
+		expect(body).toMatchObject({
+			object: "moderation",
+			id: "req_moderation_timing",
+			meta: { latency_ms: 41, generation_ms: 17 },
+		});
+	});
+
 	it("includes the selected provider on chat completions payloads", () => {
 		const body = formatClientPayload({
 			ctx: {
@@ -453,6 +480,32 @@ describe("enrichSuccessPayload model selection", () => {
 
 		expect(body.provider).toBe("minimax");
 		expect(body.provider_id).toBe("minimax");
+	});
+
+	it("returns the observed Standard tier after a Priority fallback", () => {
+		const body = formatClientPayload({
+			ctx: {
+				endpoint: "chat.completions",
+				protocol: "openai.chat.completions",
+				requestId: "req_mistral_fallback",
+				model: "z-ai/glm-5.2",
+				body: { service_tier: "priority" },
+				meta: {},
+			} as any,
+			result: {
+				provider: "mistral",
+				ir: {
+					serviceTier: "standard",
+					choices: [],
+					usage: { inputTokens: 1, outputTokens: 1, totalTokens: 2, serviceTier: "standard" },
+				},
+			} as any,
+			payload: { service_tier: "priority", choices: [] },
+			includeMeta: false,
+		});
+
+		expect(body.service_tier).toBe("standard");
+		expect(body.usage?.service_tier).toBe("standard");
 	});
 
 	it("removes generic raw Responses tool_call items from client payloads", async () => {

@@ -19,7 +19,7 @@
       "cache_duration_seconds": null,
       "conditions": [],
       "source": "https://www.morphllm.com/pricing",
-      "price_per_unit": 0.29
+      "price_per_unit": 0.289
     },
     {
       "meter": "output_text_tokens",

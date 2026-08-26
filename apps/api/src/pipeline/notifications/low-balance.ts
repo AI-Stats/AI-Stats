@@ -163,7 +163,31 @@ export async function enqueueLowBalanceEmail(args: {
 	const roundedBalanceUsd = Number(balanceUsd.toFixed(2));
 	const roundedThresholdUsd = Number(thresholdUsd.toFixed(2));
 
-	if (isResendOnboardingAutomationsEnabled()) {
+	const useAutomation = isResendOnboardingAutomationsEnabled();
+	const outboxPayload = {
+		kind: "low_balance",
+		template: "low_balance",
+		to_email: ownerEmail,
+		subject: "Low balance alert",
+		workspace_id: workspaceId,
+		user_id: ownerUserId,
+		payload: {
+			user_first_name: ownerFirstName,
+			workspace_id: workspaceId,
+			team_name: teamName,
+			balance_nanos: balanceNanos,
+			balance_usd: roundedBalanceUsd,
+			threshold_nanos: settings.thresholdNanos,
+			threshold_usd: roundedThresholdUsd,
+		},
+		// The row remains the canonical workspace-notification event, while the
+		// owner email is handled by Resend Automations instead of the outbox drain.
+		...(useAutomation ? { sent_at: new Date().toISOString() } : {}),
+	};
+	const { error: outboxError } = await supabase.from("email_outbox").insert(outboxPayload as any);
+	if (outboxError) throw new Error(`low_balance_event_insert_failed:${outboxError.message ?? "unknown"}`);
+
+	if (useAutomation) {
 		await sendLowBalanceAutomationEvent({
 			email: ownerEmail,
 			firstName: ownerFirstName,
@@ -174,24 +198,6 @@ export async function enqueueLowBalanceEmail(args: {
 			thresholdNanos: settings.thresholdNanos,
 			thresholdUsd: roundedThresholdUsd,
 		});
-	} else {
-		await supabase.from("email_outbox").insert({
-			kind: "low_balance",
-			template: "low_balance",
-			to_email: ownerEmail,
-			subject: "Low balance alert",
-			workspace_id: workspaceId,
-			user_id: ownerUserId,
-			payload: {
-				user_first_name: ownerFirstName,
-				workspace_id: workspaceId,
-				team_name: teamName,
-				balance_nanos: balanceNanos,
-				balance_usd: roundedBalanceUsd,
-				threshold_nanos: settings.thresholdNanos,
-				threshold_usd: roundedThresholdUsd,
-			},
-		} as any);
 	}
 
 	await supabase

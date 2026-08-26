@@ -30,8 +30,20 @@ function authenticatedFetch(input: RequestInfo | URL): Response {
 	if (url.includes("workspace_members") && url.includes("select=workspace_id")) {
 		return new Response(JSON.stringify([{ workspace_id: "workspace-1" }]), { status: 200 });
 	}
+	if (url.includes("workspaces") && url.includes("id%2Cname") && url.includes("owner_user_id=eq.user-1")) {
+		return new Response(JSON.stringify([{
+			id: "workspace-2",
+			name: "Owned Workspace",
+		}]), { status: 200 });
+	}
 	if (url.includes("workspace_members")) {
 		return new Response(JSON.stringify([{ role: "admin" }]), { status: 200 });
+	}
+	if (url.includes("notification_event_destinations")) {
+		return new Response(JSON.stringify([{ event_kind: "low_balance", destination_id: "destination-1" }]), { status: 200 });
+	}
+	if (url.includes("notification_destinations")) {
+		return new Response(JSON.stringify([{ id: "destination-1", name: "Operations", type: "slack", status: "active", target_preview: "hooks.slack.com/•••", created_at: "2026-08-24T00:00:00Z" }]), { status: 200 });
 	}
 	if (url.includes("select=owner_user_id")) {
 		return new Response(JSON.stringify([{ owner_user_id: "user-1" }]), { status: 200 });
@@ -122,7 +134,7 @@ function authenticatedFetch(input: RequestInfo | URL): Response {
 				is_active: true, last_seen: "2026-07-14T00:00:00Z",
 				created_at: "2026-01-01T00:00:00Z",
 			},
-			{ id: "internal", title: "Phaseo Chat", app_key: "phaseo-chat", is_active: true },
+			{ id: "internal", title: "Phaseo Chat", app_key: "phaseo-chat", is_active: true, is_public: true },
 		]), { status: 200 });
 	}
 	if (url.includes("oauth_authorizations")) {
@@ -190,7 +202,7 @@ function authenticatedFetch(input: RequestInfo | URL): Response {
 		]), { status: 200 });
 	}
 	if (url.includes("workspace_byok_monthly_usage")) {
-		return new Response(JSON.stringify([{ request_count: 100_250 }]), { status: 200 });
+		return new Response(JSON.stringify([{ request_count: 1_000_250 }]), { status: 200 });
 	}
 	if (url.includes("workspace_invoice_profiles")) {
 		return new Response(JSON.stringify([{
@@ -213,6 +225,128 @@ function authenticatedFetch(input: RequestInfo | URL): Response {
 }
 
 describe("account settings routes", () => {
+	it.each(["phaseo_cli", "aistats_cli"])("identifies the first-party CLI client %s without metadata", async (clientId) => {
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+			const url = input instanceof Request ? input.url : String(input);
+			if (url.includes("oauth_authorizations")) {
+				return new Response(JSON.stringify([{
+					id: "authorization-cli", client_id: clientId, workspace_id: "workspace-1",
+					scopes: ["models:read"], created_at: "2026-01-01T00:00:00Z", last_used_at: null,
+				}]), { status: 200 });
+			}
+			if (url.includes("oauth_app_metadata")) return new Response(JSON.stringify([]), { status: 200 });
+			return authenticatedFetch(input);
+		}));
+
+		const response = await app.request("https://phaseo.app/api/account/settings/authorized-apps", {
+			headers: { authorization: "Bearer session-token" },
+		}, env);
+
+		expect(response.status).toBe(200);
+		const payload = await response.json() as { authorizedApps: Array<Record<string, unknown>> };
+		expect(payload.authorizedApps[0]).toMatchObject({
+			app_client_id: clientId,
+			app_name: "Phaseo CLI",
+			app_description: "The official Phaseo command-line interface.",
+			app_homepage_url: "https://phaseo.app/docs/v1/developers/cli-and-mcp",
+			app_is_identified: true,
+		});
+	});
+
+	it("lets an authorization owner reduce granted scopes", async () => {
+		let updatedScopes: unknown = null;
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+			const request = input instanceof Request ? input : new Request(String(input), init);
+			if (request.url.includes("oauth_authorizations")) {
+				if (request.method === "PATCH") {
+					updatedScopes = (await request.clone().json() as { scopes?: unknown }).scopes;
+					return new Response(JSON.stringify([]), { status: 200 });
+				}
+				return new Response(JSON.stringify([{
+					id: "authorization-1", scopes: ["models:read", "usage:read"],
+				}]), { status: 200 });
+			}
+			return authenticatedFetch(input);
+		}));
+
+		const response = await app.request(
+			"https://phaseo.app/api/account/settings/authorized-apps/authorization-1/scopes",
+			{
+				method: "PATCH",
+				headers: { authorization: "Bearer session-token", "content-type": "application/json" },
+				body: JSON.stringify({ scopes: ["models:read"] }),
+			},
+			env,
+		);
+
+		expect(response.status).toBe(200);
+		await expect(response.json()).resolves.toEqual({ success: true, scopes: ["models:read"] });
+		expect(updatedScopes).toEqual(["models:read"]);
+	});
+
+	it("rejects attempts to add scopes through authorization settings", async () => {
+		let updateRequested = false;
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+			const request = input instanceof Request ? input : new Request(String(input), init);
+			if (request.url.includes("oauth_authorizations")) {
+				if (request.method === "PATCH") updateRequested = true;
+				return new Response(JSON.stringify([{
+					id: "authorization-1", scopes: ["models:read"],
+				}]), { status: 200 });
+			}
+			return authenticatedFetch(input);
+		}));
+
+		const response = await app.request(
+			"https://phaseo.app/api/account/settings/authorized-apps/authorization-1/scopes",
+			{
+				method: "PATCH",
+				headers: { authorization: "Bearer session-token", "content-type": "application/json" },
+				body: JSON.stringify({ scopes: ["models:read", "usage:read"] }),
+			},
+			env,
+		);
+
+		expect(response.status).toBe(400);
+		await expect(response.json()).resolves.toEqual({ error: "scopes_can_only_be_reduced" });
+		expect(updateRequested).toBe(false);
+	});
+
+	it("reauthorizes first-party CLI scopes on the web", async () => {
+		let updatedScopes: unknown = null;
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+			const request = input instanceof Request ? input : new Request(String(input), init);
+			if (request.url.includes("oauth_authorizations")) {
+				if (request.method === "PATCH") {
+					updatedScopes = (await request.clone().json() as { scopes?: unknown }).scopes;
+					return new Response(JSON.stringify([]), { status: 200 });
+				}
+				return new Response(JSON.stringify([{
+					id: "authorization-cli", client_id: "phaseo_cli", scopes: ["openid", "models:read"],
+				}]), { status: 200 });
+			}
+			return authenticatedFetch(input);
+		}));
+
+		const response = await app.request(
+			"https://phaseo.app/api/account/settings/authorized-apps/authorization-cli/reauthorize",
+			{
+				method: "POST",
+				headers: { authorization: "Bearer session-token", "content-type": "application/json" },
+				body: JSON.stringify({ scopes: ["openid", "models:read", "pricing:read"] }),
+			},
+			env,
+		);
+
+		expect(response.status).toBe(200);
+		await expect(response.json()).resolves.toEqual({
+			success: true,
+			scopes: ["openid", "models:read", "pricing:read"],
+			applies_on_next_refresh: true,
+		});
+		expect(updatedScopes).toEqual(["openid", "models:read", "pricing:read"]);
+	});
+
 	it("returns private layout, beta, and privacy bootstrap data", async () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => authenticatedFetch(input)));
 		const init = {
@@ -280,7 +414,10 @@ describe("account settings routes", () => {
 		await expect(danger.json()).resolves.toEqual({ signedIn: true });
 		await expect(details.json()).resolves.toEqual({
 			hasPassword: true,
-			teams: [{ id: "workspace-1", name: "Team One" }],
+			teams: [
+				{ id: "workspace-2", name: "Owned Workspace" },
+				{ id: "workspace-1", name: "Team One" },
+			],
 			user: {
 				id: "user-1",
 				displayName: "Test User",
@@ -303,6 +440,12 @@ describe("account settings routes", () => {
 				id: "app-1",
 				category: "chat,research",
 				title: "Customer App",
+			}, {
+				id: "internal",
+				category: "chat,productivity",
+				is_managed: true,
+				title: "Phaseo Chat",
+				url: "https://phaseo.app/chat",
 			}],
 		});
 		await expect(authorizedApps.json()).resolves.toMatchObject({
@@ -333,7 +476,7 @@ describe("account settings routes", () => {
 				{ id: "byok-old", providerId: "openai", suffix: "0000", lastUsedAt: null, verificationStatus: null, errorMessage: null },
 			],
 			legacyHiddenTotal: 0,
-			monthlyRequestCount: 100250,
+			monthlyRequestCount: 1_000_250,
 			paidTierRequests: 250,
 			workspaceId: "workspace-1",
 		});
@@ -374,6 +517,8 @@ describe("account settings routes", () => {
 			latestPaymentSuccessAt: "2026-07-13T00:00:00Z",
 			lowBalanceEmailEnabled: true,
 			lowBalanceEmailThresholdUsd: 5,
+			notificationRoutes: { low_balance: ["destination-1"] },
+			notificationDestinations: [{ id: "destination-1", name: "Operations" }],
 			obfuscateInfo: true,
 			stripeInfo: {
 				customer: { id: null, email: null },

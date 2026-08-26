@@ -2541,6 +2541,11 @@ export async function createModeration(
   args: CreateModerationParams = {},
 ): Promise<{
   id?: string;
+  meta?: {
+    generation_ms?: number;
+    latency_ms?: number;
+    [key: string]: unknown;
+  };
   model?: string;
   results?: {
     categories?: {
@@ -2576,6 +2581,11 @@ export async function createModeration(
   const resolvedPath = "/moderations";
   return client.request<{
     id?: string;
+    meta?: {
+      generation_ms?: number;
+      latency_ms?: number;
+      [key: string]: unknown;
+    };
     model?: string;
     results?: {
       categories?: {
@@ -3496,6 +3506,7 @@ export type CreateVideoParams = {
     duration?: number;
     enhance_prompt?: boolean;
     generate_audio?: boolean;
+    input_audio_duration?: number;
     input_references?: (
       | {
           image_url: {
@@ -3821,6 +3832,7 @@ export type CreateVideoAliasParams = {
     duration?: number;
     enhance_prompt?: boolean;
     generate_audio?: boolean;
+    input_audio_duration?: number;
     input_references?: (
       | {
           image_url: {
@@ -4472,17 +4484,47 @@ export type GenerateMusicParams = {
 };
 
 /**
- * Generates music using the requested model and provider settings.
+ * Generates music through one provider-independent endpoint. Phaseo waits for synchronous providers and handles provider queue polling internally.
  */
 export async function generateMusic(
   client: Client,
   args: GenerateMusicParams = {},
 ): Promise<{
+  audio_base64?: string;
+  audio_url?: string;
+  id: string;
+  model: string;
+  nativeResponseId?: string | null;
+  object: "music";
+  output?: {
+    [key: string]: unknown;
+  }[];
+  provider: string;
+  result?: unknown;
+  status: "queued" | "in_progress" | "completed" | "failed";
+  usage?: {
+    [key: string]: unknown;
+  };
   [key: string]: unknown;
 }> {
   const { path, query, headers, body } = args;
   const resolvedPath = "/music/generate";
   return client.request<{
+    audio_base64?: string;
+    audio_url?: string;
+    id: string;
+    model: string;
+    nativeResponseId?: string | null;
+    object: "music";
+    output?: {
+      [key: string]: unknown;
+    }[];
+    provider: string;
+    result?: unknown;
+    status: "queued" | "in_progress" | "completed" | "failed";
+    usage?: {
+      [key: string]: unknown;
+    };
     [key: string]: unknown;
   }>({
     method: "POST",
@@ -4583,11 +4625,41 @@ export async function generateMusicAlias(
   client: Client,
   args: GenerateMusicAliasParams = {},
 ): Promise<{
+  audio_base64?: string;
+  audio_url?: string;
+  id: string;
+  model: string;
+  nativeResponseId?: string | null;
+  object: "music";
+  output?: {
+    [key: string]: unknown;
+  }[];
+  provider: string;
+  result?: unknown;
+  status: "queued" | "in_progress" | "completed" | "failed";
+  usage?: {
+    [key: string]: unknown;
+  };
   [key: string]: unknown;
 }> {
   const { path, query, headers, body } = args;
   const resolvedPath = "/music/generations";
   return client.request<{
+    audio_base64?: string;
+    audio_url?: string;
+    id: string;
+    model: string;
+    nativeResponseId?: string | null;
+    object: "music";
+    output?: {
+      [key: string]: unknown;
+    }[];
+    provider: string;
+    result?: unknown;
+    status: "queued" | "in_progress" | "completed" | "failed";
+    usage?: {
+      [key: string]: unknown;
+    };
     [key: string]: unknown;
   }>({
     method: "POST",
@@ -5020,17 +5092,47 @@ export type GetMusicGenerationParams = {
 };
 
 /**
- * Retrieves the status for a music generation request.
+ * Retrieves a normalized music result using the Phaseo request ID returned by POST /music/generate. Provider-specific status APIs are handled internally.
  */
 export async function getMusicGeneration(
   client: Client,
   args: GetMusicGenerationParams = {},
 ): Promise<{
+  audio_base64?: string;
+  audio_url?: string;
+  id: string;
+  model: string;
+  nativeResponseId?: string | null;
+  object: "music";
+  output?: {
+    [key: string]: unknown;
+  }[];
+  provider: string;
+  result?: unknown;
+  status: "queued" | "in_progress" | "completed" | "failed";
+  usage?: {
+    [key: string]: unknown;
+  };
   [key: string]: unknown;
 }> {
   const { path, query, headers, body } = args;
   const resolvedPath = `/music/generate/${encodeURIComponent(String(path?.["music_id"]))}`;
   return client.request<{
+    audio_base64?: string;
+    audio_url?: string;
+    id: string;
+    model: string;
+    nativeResponseId?: string | null;
+    object: "music";
+    output?: {
+      [key: string]: unknown;
+    }[];
+    provider: string;
+    result?: unknown;
+    status: "queued" | "in_progress" | "completed" | "failed";
+    usage?: {
+      [key: string]: unknown;
+    };
     [key: string]: unknown;
   }>({
     method: "GET",
@@ -5057,11 +5159,41 @@ export async function getMusicGenerationAlias(
   client: Client,
   args: GetMusicGenerationAliasParams = {},
 ): Promise<{
+  audio_base64?: string;
+  audio_url?: string;
+  id: string;
+  model: string;
+  nativeResponseId?: string | null;
+  object: "music";
+  output?: {
+    [key: string]: unknown;
+  }[];
+  provider: string;
+  result?: unknown;
+  status: "queued" | "in_progress" | "completed" | "failed";
+  usage?: {
+    [key: string]: unknown;
+  };
   [key: string]: unknown;
 }> {
   const { path, query, headers, body } = args;
   const resolvedPath = `/music/generations/${encodeURIComponent(String(path?.["music_id"]))}`;
   return client.request<{
+    audio_base64?: string;
+    audio_url?: string;
+    id: string;
+    model: string;
+    nativeResponseId?: string | null;
+    object: "music";
+    output?: {
+      [key: string]: unknown;
+    }[];
+    provider: string;
+    result?: unknown;
+    status: "queued" | "in_progress" | "completed" | "failed";
+    usage?: {
+      [key: string]: unknown;
+    };
     [key: string]: unknown;
   }>({
     method: "GET",
@@ -6878,6 +7010,7 @@ export type ListDataModelsParams = {
       | "amazon"
       | "anthropic"
       | "arcee-ai"
+      | "baai"
       | "baidu"
       | "black-forest-labs"
       | "bytedance"
@@ -6889,12 +7022,15 @@ export type ListDataModelsParams = {
       | "essential-ai"
       | "github"
       | "google"
+      | "hexgrad"
       | "ibm"
       | "inception"
       | "inclusionai"
       | "inflection"
+      | "jetbrains"
       | "kwaipilot"
       | "lg"
+      | "lightricks"
       | "liquid-ai"
       | "meituan"
       | "meta"
@@ -6914,10 +7050,14 @@ export type ListDataModelsParams = {
       | "poolside"
       | "prime-intellect"
       | "qwen"
+      | "reka"
       | "relace"
       | "runway"
+      | "sakana"
       | "sourceful"
       | "spacex-ai"
+      | "stability-ai"
+      | "stealth"
       | "stepfun"
       | "suno"
       | "tencent"
@@ -6937,6 +7077,7 @@ export type ListDataModelsParams = {
           | "amazon"
           | "anthropic"
           | "arcee-ai"
+          | "baai"
           | "baidu"
           | "black-forest-labs"
           | "bytedance"
@@ -6948,12 +7089,15 @@ export type ListDataModelsParams = {
           | "essential-ai"
           | "github"
           | "google"
+          | "hexgrad"
           | "ibm"
           | "inception"
           | "inclusionai"
           | "inflection"
+          | "jetbrains"
           | "kwaipilot"
           | "lg"
+          | "lightricks"
           | "liquid-ai"
           | "meituan"
           | "meta"
@@ -6973,10 +7117,14 @@ export type ListDataModelsParams = {
           | "poolside"
           | "prime-intellect"
           | "qwen"
+          | "reka"
           | "relace"
           | "runway"
+          | "sakana"
           | "sourceful"
           | "spacex-ai"
+          | "stability-ai"
+          | "stealth"
           | "stepfun"
           | "suno"
           | "tencent"
@@ -7433,6 +7581,7 @@ export type ListModelsParams = {
       | "amazon"
       | "anthropic"
       | "arcee-ai"
+      | "baai"
       | "baidu"
       | "black-forest-labs"
       | "bytedance"
@@ -7444,12 +7593,15 @@ export type ListModelsParams = {
       | "essential-ai"
       | "github"
       | "google"
+      | "hexgrad"
       | "ibm"
       | "inception"
       | "inclusionai"
       | "inflection"
+      | "jetbrains"
       | "kwaipilot"
       | "lg"
+      | "lightricks"
       | "liquid-ai"
       | "meituan"
       | "meta"
@@ -7469,10 +7621,14 @@ export type ListModelsParams = {
       | "poolside"
       | "prime-intellect"
       | "qwen"
+      | "reka"
       | "relace"
       | "runway"
+      | "sakana"
       | "sourceful"
       | "spacex-ai"
+      | "stability-ai"
+      | "stealth"
       | "stepfun"
       | "suno"
       | "tencent"
@@ -7492,6 +7648,7 @@ export type ListModelsParams = {
           | "amazon"
           | "anthropic"
           | "arcee-ai"
+          | "baai"
           | "baidu"
           | "black-forest-labs"
           | "bytedance"
@@ -7503,12 +7660,15 @@ export type ListModelsParams = {
           | "essential-ai"
           | "github"
           | "google"
+          | "hexgrad"
           | "ibm"
           | "inception"
           | "inclusionai"
           | "inflection"
+          | "jetbrains"
           | "kwaipilot"
           | "lg"
+          | "lightricks"
           | "liquid-ai"
           | "meituan"
           | "meta"
@@ -7528,10 +7688,14 @@ export type ListModelsParams = {
           | "poolside"
           | "prime-intellect"
           | "qwen"
+          | "reka"
           | "relace"
           | "runway"
+          | "sakana"
           | "sourceful"
           | "spacex-ai"
+          | "stability-ai"
+          | "stealth"
           | "stepfun"
           | "suno"
           | "tencent"
@@ -8040,6 +8204,7 @@ export type ListTeamModelsParams = {
       | "amazon"
       | "anthropic"
       | "arcee-ai"
+      | "baai"
       | "baidu"
       | "black-forest-labs"
       | "bytedance"
@@ -8051,12 +8216,15 @@ export type ListTeamModelsParams = {
       | "essential-ai"
       | "github"
       | "google"
+      | "hexgrad"
       | "ibm"
       | "inception"
       | "inclusionai"
       | "inflection"
+      | "jetbrains"
       | "kwaipilot"
       | "lg"
+      | "lightricks"
       | "liquid-ai"
       | "meituan"
       | "meta"
@@ -8076,10 +8244,14 @@ export type ListTeamModelsParams = {
       | "poolside"
       | "prime-intellect"
       | "qwen"
+      | "reka"
       | "relace"
       | "runway"
+      | "sakana"
       | "sourceful"
       | "spacex-ai"
+      | "stability-ai"
+      | "stealth"
       | "stepfun"
       | "suno"
       | "tencent"
@@ -8099,6 +8271,7 @@ export type ListTeamModelsParams = {
           | "amazon"
           | "anthropic"
           | "arcee-ai"
+          | "baai"
           | "baidu"
           | "black-forest-labs"
           | "bytedance"
@@ -8110,12 +8283,15 @@ export type ListTeamModelsParams = {
           | "essential-ai"
           | "github"
           | "google"
+          | "hexgrad"
           | "ibm"
           | "inception"
           | "inclusionai"
           | "inflection"
+          | "jetbrains"
           | "kwaipilot"
           | "lg"
+          | "lightricks"
           | "liquid-ai"
           | "meituan"
           | "meta"
@@ -8135,10 +8311,14 @@ export type ListTeamModelsParams = {
           | "poolside"
           | "prime-intellect"
           | "qwen"
+          | "reka"
           | "relace"
           | "runway"
+          | "sakana"
           | "sourceful"
           | "spacex-ai"
+          | "stability-ai"
+          | "stealth"
           | "stepfun"
           | "suno"
           | "tencent"

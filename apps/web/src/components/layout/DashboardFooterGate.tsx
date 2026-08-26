@@ -7,7 +7,7 @@ import {
 	subscribeFooterVisibility,
 } from "@/components/layout/footerVisibility";
 
-const FOOTERLESS_ROUTE_PREFIXES = ["/chat"] as const;
+const FOOTERLESS_ROUTE_PREFIXES = ["/chat", "/settings"] as const;
 
 export function shouldShowDashboardFooter(pathname: string): boolean {
 	return !FOOTERLESS_ROUTE_PREFIXES.some(

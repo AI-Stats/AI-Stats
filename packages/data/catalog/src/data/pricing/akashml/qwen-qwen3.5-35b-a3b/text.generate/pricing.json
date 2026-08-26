@@ -9,7 +9,7 @@
       "meter": "input_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.23,
+      "price_per_unit": 0.14,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
@@ -21,10 +21,25 @@
       "source": null
     },
     {
+      "meter": "implicit_cached_input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.05,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "AkashML cached-input price, checked 2026-08-21.",
+      "match": [],
+      "priority": 100,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://akashml.com/docs/platform/models"
+    },
+    {
       "meter": "output_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 1.8,
+      "price_per_unit": 1,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
@@ -42,8 +57,8 @@
   ],
   "sources": [],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "partial",
+    "checked_at": "2026-08-11T04:15:54.294+00:00",
+    "notes": "Pricing synchronized from the provider models API."
   }
 }

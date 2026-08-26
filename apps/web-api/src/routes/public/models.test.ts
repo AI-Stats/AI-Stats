@@ -12,6 +12,43 @@ afterEach(() => {
 });
 
 describe("public model routes", () => {
+	it("keeps expired rules and time windows in pricing history", async () => {
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+			const url = String(input);
+			if (url.includes("v2_model_provider_routes")) return new Response(JSON.stringify([{
+				provider_model_id: "pm-1", provider_slug: "deepseek", model_slug: "deepseek/deepseek-v4-flash-0731",
+				provider_model_slug: "deepseek-v4-flash", status: "active", routing_enabled: true,
+			}]), { status: 200 });
+			if (url.includes("v2_route_capabilities")) return new Response("[]", { status: 200 });
+			if (url.includes("v2_providers")) return new Response(JSON.stringify([{
+				provider_slug: "deepseek", name: "DeepSeek", status: "active", routing_enabled: true, metadata: {},
+			}]), { status: 200 });
+			if (url.includes("v2_pricing_skus")) return new Response(JSON.stringify([
+				{ sku_id: "old", provider_model_id: "pm-1", service_tier_slug: "standard", operation: "text.generate", status: "active", currency: "USD", effective_from: "2026-07-01T00:00:00Z", effective_to: "2026-08-01T00:00:00Z", metadata: {} },
+				{ sku_id: "new", provider_model_id: "pm-1", service_tier_slug: "standard", operation: "text.generate", status: "active", currency: "USD", effective_from: "2026-08-01T00:00:00Z", effective_to: null, metadata: { time_windows: [{ label: "peak", timezone: "UTC", start_time: "01:00", end_time: "04:00", price_per_unit: 0.44 }] } },
+			]), { status: 200 });
+			if (url.includes("v2_pricing_sku_meters")) return new Response(JSON.stringify([
+				{ sku_meter_id: "old-input", sku_id: "old", meter_key: "input_text_tokens", unit: "token", unit_quantity: 1_000_000, price_nanos: 140_000_000, meter_order: 100, metadata: {} },
+				{ sku_meter_id: "new-input", sku_id: "new", meter_key: "input_text_tokens", unit: "token", unit_quantity: 1_000_000, price_nanos: 220_000_000, meter_order: 100, metadata: {} },
+			]), { status: 200 });
+			return new Response("[]", { status: 200 });
+		}));
+
+		const response = await app.request(
+			"https://phaseo.app/api/_web/models/deepseek%2Fdeepseek-v4-flash-0731/pricing-history?days=30",
+			{},
+			env,
+		);
+
+		expect(response.status).toBe(200);
+		await expect(response.json()).resolves.toMatchObject({
+			rules: [
+				expect.objectContaining({ ruleId: "new-input", timeWindows: [expect.objectContaining({ label: "peak" })] }),
+				expect.objectContaining({ ruleId: "old-input", effectiveTo: "2026-08-01T00:00:00Z", timeWindows: [] }),
+			],
+		});
+	});
+
 	it("includes the database-composed free router in page projection 5", async () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
@@ -573,10 +610,10 @@ describe("public model routes", () => {
 				expect.objectContaining({
 					provider: "poolside",
 					providerColor: "#12AB78",
-				cachedInputPct: 62.5,
-				cachedInputTokens: 625,
-				effectiveInputTokens: 1000,
-				cacheTelemetryRequests: 11,
+				cachedInputPct: null,
+				cachedInputTokens: null,
+				effectiveInputTokens: null,
+				cacheTelemetryRequests: 0,
 			}),
 		]);
 		expect(payload.metrics.providerPercentileDaily7d).toHaveLength(5);
@@ -588,7 +625,7 @@ describe("public model routes", () => {
 				avgLatencyMs: 900,
 				avgGenerationMs: 1200,
 				avgThroughput: 13.4,
-				cachedInputPct: 88.5,
+				cachedInputPct: null,
 			}),
 		);
 		expect(JSON.stringify(payload)).not.toContain('"unknown"');

@@ -1,5 +1,207 @@
 [
   {
+    "api_model_id": "anthropic/claude-fable-5",
+    "provider_api_model_id": "google-vertex-eu:anthropic/claude-fable-5",
+    "provider_model_slug": "claude-fable-5",
+    "internal_model_id": "anthropic/claude-fable-5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "eu"
+      ],
+      "data": [
+        "eu"
+      ]
+    },
+    "service_tiers": [
+      "standard",
+      "batch"
+    ],
+    "api": {
+      "formats": [
+        "anthropic.messages"
+      ],
+      "endpoint": "/v1/projects/{project}/locations/eu/publishers/anthropic/models/{model}:rawPredict",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/partner-models/use-partner-models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Google documents Claude versions 4.7 and later on the EU multi-region endpoint; this model uses the Anthropic rawPredict route."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Google documents Claude versions 4.7 and later on the EU multi-region endpoint; this model uses the Anthropic rawPredict route."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "anthropic/claude-opus-5",
+    "provider_api_model_id": "google-vertex-eu:anthropic/claude-opus-5",
+    "provider_model_slug": "claude-opus-5",
+    "internal_model_id": "anthropic/claude-opus-5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "eu"
+      ],
+      "data": [
+        "eu"
+      ]
+    },
+    "service_tiers": [
+      "standard",
+      "batch"
+    ],
+    "api": {
+      "formats": [
+        "anthropic.messages"
+      ],
+      "endpoint": "/v1/projects/{project}/locations/eu/publishers/anthropic/models/{model}:rawPredict",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/partner-models/use-partner-models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Google documents Claude versions 4.7 and later on the EU multi-region endpoint; this model uses the Anthropic rawPredict route."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Google documents Claude versions 4.7 and later on the EU multi-region endpoint; this model uses the Anthropic rawPredict route."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "anthropic/claude-sonnet-5",
+    "provider_api_model_id": "google-vertex-eu:anthropic/claude-sonnet-5",
+    "provider_model_slug": "claude-sonnet-5",
+    "internal_model_id": "anthropic/claude-sonnet-5",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 128000,
+    "effective_from": "2026-06-30T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "include_reasoning",
+          "max_tokens",
+          "reasoning",
+          "response_format",
+          "stop",
+          "structured_outputs",
+          "tool_choice",
+          "tools",
+          "verbosity"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": [
+        "eu"
+      ],
+      "data": [
+        "eu"
+      ]
+    },
+    "service_tiers": [
+      "standard",
+      "batch"
+    ],
+    "api": {
+      "formats": [
+        "anthropic.messages"
+      ],
+      "endpoint": "/v1/projects/{project}/locations/eu/publishers/anthropic/models/{model}:rawPredict",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/partner-models/use-partner-models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Google documents Claude versions 4.7 and later on the EU multi-region endpoint; this model uses the Anthropic rawPredict route."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Google documents Claude versions 4.7 and later on the EU multi-region endpoint; this model uses the Anthropic rawPredict route."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "google/gemini-3.1-flash-lite",
     "provider_api_model_id": "google-vertex-eu:google/gemini-3.1-flash-lite",
     "provider_model_slug": "gemini-3.1-flash-lite",
@@ -100,69 +302,30 @@
         "eu"
       ]
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard",
+      "batch",
+      "flex"
+    ],
     "api": {
-      "formats": [],
-      "endpoint": null,
+      "formats": [
+        "google.generateContent"
+      ],
+      "endpoint": "/v1/projects/{project}/locations/eu/publishers/google/models/{model}:streamGenerateContent",
       "deployment": null
     },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "anthropic/claude-sonnet-5",
-    "provider_api_model_id": "google-vertex-eu:anthropic/claude-sonnet-5",
-    "provider_model_slug": "claude-sonnet-5",
-    "internal_model_id": "anthropic/claude-sonnet-5",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": "text,image",
-    "output_modalities": "text",
-    "context_length": 1000000,
-    "max_output_tokens": 128000,
-    "effective_from": "2026-06-30T00:00:00",
-    "effective_to": null,
-    "capabilities": [
+    "sources": [
       {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
+        "kind": "documentation",
+        "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/3-1-flash-lite",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Google documents Gemini 3.1 Flash-Lite as GA in the EU multi-region with data-residency controls for online and batch inference."
       }
     ],
-    "routing_status": null,
-    "routable": false,
-    "regions": {
-      "execution": [
-        "eu"
-      ],
-      "data": [
-        "eu"
-      ]
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Google documents Gemini 3.1 Flash-Lite as GA in the EU multi-region with data-residency controls for online and batch inference."
     },
     "rate_limits": []
   }

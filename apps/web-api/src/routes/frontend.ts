@@ -3,6 +3,7 @@ import { getDataClient } from "@/data/supabase";
 import type { Env } from "@/env";
 import { withPublicCache } from "@/http/cache";
 import { getCacheGeneration } from "@/cache/generations";
+import { formatProviderOfferDisplayName, type ProviderOfferScope } from "@/lib/provider-display-name";
 
 export const frontendRouter = new Hono<{ Bindings: Env }>();
 
@@ -54,7 +55,7 @@ async function v2SearchIndex(c: Context<{ Bindings: Env }>): Promise<CompactSear
 			.range(from, to)),
 		db.from("v2_labs").select("lab_slug,name").order("name", { ascending: true }),
 		db.from("v2_benchmarks").select("benchmark_id,name,total_models").order("name", { ascending: true }),
-		db.from("v2_providers").select("provider_slug,name").order("name", { ascending: true }),
+		db.from("v2_providers").select("provider_slug,name,offer_label,offer_scope").order("name", { ascending: true }),
 		getCacheGeneration(db, "search"),
 	]);
 	for (const result of [organisationsResult, benchmarksResult, providersResult]) {
@@ -71,7 +72,18 @@ async function v2SearchIndex(c: Context<{ Bindings: Env }>): Promise<CompactSear
 		m: orderedModels.map((model) => [model.model_slug, model.name, (Array.isArray(model.lab) ? model.lab[0] : model.lab)?.name ?? null, `/models/${model.model_slug}`, model.lab_slug, releaseGroupLabel(model.released_at ?? model.announced_at)]),
 		o: (organisationsResult.data ?? []).map((organisation) => [organisation.lab_slug, organisation.name || organisation.lab_slug, null, `/organisations/${organisation.lab_slug}`, organisation.lab_slug]),
 		b: (benchmarksResult.data ?? []).map((benchmark) => [benchmark.benchmark_id, benchmark.name, `${benchmark.total_models ?? 0} models`, `/benchmarks/${benchmark.benchmark_id}`]),
-		p: (providersResult.data ?? []).map((provider) => [provider.provider_slug, provider.name, null, `/api-providers/${provider.provider_slug}`, provider.provider_slug]),
+		p: (providersResult.data ?? []).map((provider) => [
+			provider.provider_slug,
+			formatProviderOfferDisplayName({
+				providerId: provider.provider_slug,
+				providerName: provider.name,
+				offerLabel: provider.offer_label,
+				offerScope: provider.offer_scope as ProviderOfferScope | null,
+			}),
+			null,
+			`/api-providers/${provider.provider_slug}`,
+			provider.provider_slug,
+		]),
 		s: [],
 		c: [],
 		v: generation.generation,

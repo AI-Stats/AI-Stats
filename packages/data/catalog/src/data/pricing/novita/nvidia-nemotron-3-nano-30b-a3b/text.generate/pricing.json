@@ -15,11 +15,15 @@
       "note": null,
       "match": [],
       "priority": 100,
-      "effective_from": "2026-06-10T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": "https://novita.ai/models/model-detail/nvidia-nemotron-3-nano-30b-a3b"
+      "source": {
+        "kind": "provider_model",
+        "url": "https://novita.ai/models/model-detail/nvidia-nemotron-3-nano-30b-a3b",
+        "accessed_at": "2026-08-20T00:00:00Z",
+        "notes": "First-party model pricing."
+      }
     },
     {
       "meter": "output_text_tokens",
@@ -31,11 +35,15 @@
       "note": null,
       "match": [],
       "priority": 100,
-      "effective_from": "2026-06-10T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": "https://novita.ai/models/model-detail/nvidia-nemotron-3-nano-30b-a3b"
+      "source": {
+        "kind": "provider_model",
+        "url": "https://novita.ai/models/model-detail/nvidia-nemotron-3-nano-30b-a3b",
+        "accessed_at": "2026-08-20T00:00:00Z",
+        "notes": "First-party model pricing."
+      }
     }
   ],
   "regions": [],
@@ -44,13 +52,15 @@
   ],
   "sources": [
     {
-      "url": "https://novita.ai/models/model-detail/nvidia-nemotron-3-nano-30b-a3b",
-      "kind": "documentation"
+      "kind": "provider_pricing",
+      "url": "https://novita.ai/pricing?de=1",
+      "accessed_at": "2026-08-20T00:00:00Z",
+      "notes": "Current Novita pricing for nvidia/nemotron-3-nano-30b-a3b."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-06T00:00:00Z",
-    "notes": "Input and output rates verified from Novita."
+    "checked_at": "2026-08-20T00:00:00Z",
+    "notes": "Verified from Novita's first-party pricing catalog and model page."
   }
 }

@@ -12,30 +12,13 @@
       "price_per_unit": 0.5,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Venice published pricing for Qwen 3.7 Plus beta.",
-      "match": [
-        {
-          "path": "input_tokens",
-          "op": "lte",
-          "or_group": 1,
-          "and_index": 1,
-          "value": 256000
-        }
-      ],
+      "note": "Venice models API metadata as of 2026-08-21.",
+      "match": [],
       "priority": 100,
-      "effective_from": "2026-06-08T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
-      "conditions": [
-        {
-          "path": "input_tokens",
-          "op": "lte",
-          "or_group": 1,
-          "and_index": 1,
-          "value": 256000
-        }
-      ],
-      "source": null
+      "conditions": [],
+      "source": "https://api.venice.ai/api/v1/models"
     },
     {
       "meter": "cached_read_text_tokens",
@@ -44,62 +27,13 @@
       "price_per_unit": 0.05,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Venice published pricing for Qwen 3.7 Plus beta.",
-      "match": [
-        {
-          "path": "input_tokens",
-          "op": "lte",
-          "or_group": 1,
-          "and_index": 1,
-          "value": 256000
-        }
-      ],
+      "note": "Venice models API metadata as of 2026-08-21.",
+      "match": [],
       "priority": 100,
-      "effective_from": "2026-06-08T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
-      "conditions": [
-        {
-          "path": "input_tokens",
-          "op": "lte",
-          "or_group": 1,
-          "and_index": 1,
-          "value": 256000
-        }
-      ],
-      "source": null
-    },
-    {
-      "meter": "cached_write_text_tokens",
-      "unit": "token",
-      "unit_size": 1000000,
-      "price_per_unit": 0.63,
-      "currency": "USD",
-      "pricing_plan": "standard",
-      "note": "Venice published pricing for Qwen 3.7 Plus beta.",
-      "match": [
-        {
-          "path": "input_tokens",
-          "op": "lte",
-          "or_group": 1,
-          "and_index": 1,
-          "value": 256000
-        }
-      ],
-      "priority": 100,
-      "effective_from": "2026-06-08T00:00:00Z",
-      "region": null,
-      "cache_duration_seconds": null,
-      "conditions": [
-        {
-          "path": "input_tokens",
-          "op": "lte",
-          "or_group": 1,
-          "and_index": 1,
-          "value": 256000
-        }
-      ],
-      "source": null
+      "conditions": [],
+      "source": "https://api.venice.ai/api/v1/models"
     },
     {
       "meter": "output_text_tokens",
@@ -108,168 +42,45 @@
       "price_per_unit": 2,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Venice published pricing for Qwen 3.7 Plus beta.",
-      "match": [
-        {
-          "path": "input_tokens",
-          "op": "lte",
-          "or_group": 1,
-          "and_index": 1,
-          "value": 256000
-        }
-      ],
+      "note": "Venice models API metadata as of 2026-08-21.",
+      "match": [],
       "priority": 100,
-      "effective_from": "2026-06-08T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
-      "conditions": [
-        {
-          "path": "input_tokens",
-          "op": "lte",
-          "or_group": 1,
-          "and_index": 1,
-          "value": 256000
-        }
-      ],
-      "source": null
+      "conditions": [],
+      "source": "https://api.venice.ai/api/v1/models"
     },
     {
-      "meter": "input_text_tokens",
-      "unit": "token",
-      "unit_size": 1000000,
-      "price_per_unit": 1.5,
+      "meter": "native_web_search_requests",
+      "unit": "request",
+      "unit_size": 1,
+      "price_per_unit": 0.01,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Venice published pricing for Qwen 3.7 Plus beta.",
-      "match": [
-        {
-          "path": "input_tokens",
-          "op": "gt",
-          "or_group": 1,
-          "and_index": 1,
-          "value": 256000
-        }
-      ],
+      "note": "Venice Web Search: $10 per 1,000 requests.",
+      "match": [],
       "priority": 100,
-      "effective_from": "2026-06-08T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
-      "conditions": [
-        {
-          "path": "input_tokens",
-          "op": "gt",
-          "or_group": 1,
-          "and_index": 1,
-          "value": 256000
-        }
-      ],
-      "source": null
-    },
-    {
-      "meter": "cached_read_text_tokens",
-      "unit": "token",
-      "unit_size": 1000000,
-      "price_per_unit": 0.15,
-      "currency": "USD",
-      "pricing_plan": "standard",
-      "note": "Venice published pricing for Qwen 3.7 Plus beta.",
-      "match": [
-        {
-          "path": "input_tokens",
-          "op": "gt",
-          "or_group": 1,
-          "and_index": 1,
-          "value": 256000
-        }
-      ],
-      "priority": 100,
-      "effective_from": "2026-06-08T00:00:00Z",
-      "region": null,
-      "cache_duration_seconds": null,
-      "conditions": [
-        {
-          "path": "input_tokens",
-          "op": "gt",
-          "or_group": 1,
-          "and_index": 1,
-          "value": 256000
-        }
-      ],
-      "source": null
-    },
-    {
-      "meter": "cached_write_text_tokens",
-      "unit": "token",
-      "unit_size": 1000000,
-      "price_per_unit": 1.88,
-      "currency": "USD",
-      "pricing_plan": "standard",
-      "note": "Venice published pricing for Qwen 3.7 Plus beta.",
-      "match": [
-        {
-          "path": "input_tokens",
-          "op": "gt",
-          "or_group": 1,
-          "and_index": 1,
-          "value": 256000
-        }
-      ],
-      "priority": 100,
-      "effective_from": "2026-06-08T00:00:00Z",
-      "region": null,
-      "cache_duration_seconds": null,
-      "conditions": [
-        {
-          "path": "input_tokens",
-          "op": "gt",
-          "or_group": 1,
-          "and_index": 1,
-          "value": 256000
-        }
-      ],
-      "source": null
-    },
-    {
-      "meter": "output_text_tokens",
-      "unit": "token",
-      "unit_size": 1000000,
-      "price_per_unit": 6,
-      "currency": "USD",
-      "pricing_plan": "standard",
-      "note": "Venice published pricing for Qwen 3.7 Plus beta.",
-      "match": [
-        {
-          "path": "input_tokens",
-          "op": "gt",
-          "or_group": 1,
-          "and_index": 1,
-          "value": 256000
-        }
-      ],
-      "priority": 100,
-      "effective_from": "2026-06-08T00:00:00Z",
-      "region": null,
-      "cache_duration_seconds": null,
-      "conditions": [
-        {
-          "path": "input_tokens",
-          "op": "gt",
-          "or_group": 1,
-          "and_index": 1,
-          "value": 256000
-        }
-      ],
-      "source": null
+      "conditions": [],
+      "source": "https://docs.venice.ai/overview/pricing"
     }
   ],
   "regions": [],
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "provider_pricing",
+      "url": "https://api.venice.ai/api/v1/models",
+      "accessed_at": "2026-08-21T00:00:00Z",
+      "notes": "Per-million-token USD pricing returned by Venice."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-21",
+    "notes": "Verified against the live Venice models API."
   }
 }

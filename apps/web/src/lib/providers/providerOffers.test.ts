@@ -1,5 +1,6 @@
 import {
     formatProviderOfferDisplayName,
+    formatProviderOfferVariantLabel,
     resolveProviderDisplayName,
     resolveProviderLogoId,
 } from "@/lib/providers/providerOffers";
@@ -18,6 +19,21 @@ describe("providerOffers", () => {
                 providerFamilyId: "anthropic",
             }),
         ).toBe("aws");
+    });
+
+    test("resolves regional and specialized provider logos through their catalog IDs", () => {
+        expect(
+            resolveProviderLogoId({
+                providerId: "nebius-token-factory-fast",
+                providerFamilyId: "nebius-token-factory",
+            }),
+        ).toBe("nebius-token-factory");
+        expect(
+            resolveProviderLogoId({
+                providerId: "openai-eu",
+                providerFamilyId: "openai",
+            }),
+        ).toBe("openai");
     });
 
     test("uses the Claude Platform for AWS product name", () => {
@@ -54,5 +70,35 @@ describe("providerOffers", () => {
                 offerScope: "regional",
             }),
         ).toBe("OpenAI (EU)");
+    });
+
+    test("keeps regional offers distinct when an older pricing projection omits offer metadata", () => {
+        expect(
+            formatProviderOfferDisplayName({
+                providerId: "anthropic-us",
+                providerName: "Anthropic",
+            }),
+        ).toBe("Anthropic (US)");
+        expect(
+            formatProviderOfferDisplayName({
+                providerId: "anthropic-aws-us",
+                providerName: "Anthropic",
+            }),
+		).toBe("Claude Platform for AWS (US)");
+        expect(
+            formatProviderOfferDisplayName({
+                providerId: "google-vertex-eu",
+                providerName: "Google Vertex",
+            }),
+        ).toBe("Google Vertex (EU)");
+    });
+
+    test("labels fast provider variants as Fast", () => {
+        expect(
+            formatProviderOfferVariantLabel({ providerId: "minimax-lightning" }),
+        ).toBe("Fast");
+        expect(
+            formatProviderOfferVariantLabel({ offerLabel: "priority" }),
+        ).toBe("Fast");
     });
 });

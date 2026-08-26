@@ -47,6 +47,7 @@ const ADAPTERS: Record<string, ProviderAdapter> = {
     "bytedance-seed": createOpenAICompatibleAdapter("bytedance-seed"),
     byteplus: createOpenAICompatibleAdapter("byteplus"),
     mistral: createOpenAICompatibleAdapter("mistral"),
+    "mistral-eu": createOpenAICompatibleAdapter("mistral-eu"),
     sakana: createOpenAICompatibleAdapter("sakana"),
     elevenlabs: ElevenLabsAdapter,
     suno: SunoAdapter,
@@ -61,11 +62,14 @@ const ADAPTERS: Record<string, ProviderAdapter> = {
     chutes: createOpenAICompatibleAdapter("chutes"),
     cohere: createOpenAICompatibleAdapter("cohere"),
     crofai: CrofAIAdapter,
+    "canopy-wave": createOpenAICompatibleAdapter("canopy-wave"),
     tensorix: TensorixAdapter,
+	tensorx: createOpenAICompatibleAdapter("tensorx"),
     voyage: createOpenAICompatibleAdapter("voyage"),
     voyageai: createOpenAICompatibleAdapter("voyageai"),
     crusoe: createOpenAICompatibleAdapter("crusoe"),
     deepinfra: createOpenAICompatibleAdapter("deepinfra"),
+    "io-net": createOpenAICompatibleAdapter("io-net"),
     darkbloom: createOpenAICompatibleAdapter("darkbloom"),
     deepseek: createOpenAICompatibleAdapter("deepseek"),
     featherless: createOpenAICompatibleAdapter("featherless"),
@@ -103,6 +107,7 @@ const ADAPTERS: Record<string, ProviderAdapter> = {
     qwen: createOpenAICompatibleAdapter("qwen"),
     ovhcloud: createOpenAICompatibleAdapter("ovhcloud"),
     sambanova: createOpenAICompatibleAdapter("sambanova"),
+    "sail-research": createOpenAICompatibleAdapter("sail-research"),
     scaleway: createOpenAICompatibleAdapter("scaleway"),
     siliconflow: createOpenAICompatibleAdapter("siliconflow"),
     together: createOpenAICompatibleAdapter("together"),
@@ -114,7 +119,6 @@ const ADAPTERS: Record<string, ProviderAdapter> = {
     perplexity: createOpenAICompatibleAdapter("perplexity"),
     liquid: createOpenAICompatibleAdapter("liquid"),
     "liquid-ai": createOpenAICompatibleAdapter("liquid-ai"),
-    sourceful: createOpenAICompatibleAdapter("sourceful"),
     streamlake: createOpenAICompatibleAdapter("streamlake"),
     switchpoint: createOpenAICompatibleAdapter("switchpoint"),
     relace: createOpenAICompatibleAdapter("relace"),
@@ -221,4 +225,3 @@ export function adapterFor(providerId: string, endpoint: Endpoint): ProviderAdap
 export function adapterById(providerId: string): ProviderAdapter | null {
     return ADAPTERS[providerId] ?? null;
 }
-

@@ -64,6 +64,7 @@
       "match": [],
       "priority": 100,
       "effective_from": "2026-07-30T00:00:00Z",
+      "effective_to": "2026-08-21T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -80,6 +81,7 @@
       "match": [],
       "priority": 100,
       "effective_from": "2026-07-30T00:00:00Z",
+      "effective_to": "2026-08-21T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -96,6 +98,7 @@
       "match": [],
       "priority": 100,
       "effective_from": "2026-07-30T00:00:00Z",
+      "effective_to": "2026-08-21T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -115,7 +118,7 @@
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-07-30T00:00:00Z",
-    "notes": "Official Wafer model cards list Kimi-K3 at $3/$0.30/$15 and Kimi-K3-Fast at $4.50/$0.45/$22.50 per 1M input/cache/output tokens."
+    "checked_at": "2026-08-21T00:00:00Z",
+    "notes": "Live Wafer model card confirms Kimi-K3 at $3/$0.30/$15. Historical priority-tier rules retain the removed Kimi-K3-Fast prices through 2026-08-21."
   }
 }

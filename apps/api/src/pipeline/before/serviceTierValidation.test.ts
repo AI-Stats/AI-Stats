@@ -28,8 +28,8 @@ describe("validateSynchronousTextServiceTierRequest", () => {
 		});
 	});
 
-	it("allows standard, priority, and flex on synchronous text endpoints", () => {
-		for (const serviceTier of ["standard", "priority", "flex"]) {
+	it("allows standard, fast, priority, and flex on synchronous text endpoints", () => {
+		for (const serviceTier of ["standard", "fast", "priority", "flex"]) {
 			expect(
 				validateSynchronousTextServiceTierRequest({
 					endpoint: "responses",

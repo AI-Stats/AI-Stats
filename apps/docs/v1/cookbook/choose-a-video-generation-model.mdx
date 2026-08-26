@@ -40,6 +40,9 @@ Examples:
 
 - text-to-video only
 - image-to-video or first-frame input
+- reference images for style, character, or scene guidance
+- source video for extension or editing
+- source audio for audio-driven video
 - audio generation required
 - duration and aspect-ratio controls
 - one specific provider or region
@@ -57,8 +60,14 @@ Common examples:
 - `resolution`
 - `seed`
 - `generate_audio`
+- `input_audio_duration`
 - `input_references`
 - provider-specific settings through `provider_params`
+
+For media inputs, inspect `input_types`, `supported_params`, and the model's
+capability modes together. An `image` input does not necessarily mean that a
+model accepts multiple reference images, and generated audio is different from
+accepting source audio.
 
 ## 4. Check provider and pricing coverage
 

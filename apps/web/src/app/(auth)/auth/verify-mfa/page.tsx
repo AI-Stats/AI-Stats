@@ -46,16 +46,15 @@ function VerifyMFAContent() {
         setLoading(true)
 
         try {
-            await verifyMFALoginAction(finalCode)
-            toast.success('Verification successful!')
-
             const requestedReturnUrl = searchParams.get('returnUrl')
             const returnUrl = requestedReturnUrl?.startsWith('/') && !requestedReturnUrl.startsWith('//')
                 ? requestedReturnUrl
                 : '/'
+            const result = await verifyMFALoginAction(finalCode, returnUrl)
+            toast.success('Verification successful!')
 
             setTimeout(() => {
-                router.replace(returnUrl)
+                router.replace(result.redirectPath)
             }, 500)
         } catch (error: any) {
             toast.error(error.message || 'Invalid code. Please try again.')

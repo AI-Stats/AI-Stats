@@ -21,10 +21,10 @@
       "source": null
     },
     {
-      "meter": "cached_read_text_tokens",
+      "meter": "output_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.02,
+      "price_per_unit": 0.4,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
@@ -36,10 +36,10 @@
       "source": null
     },
     {
-      "meter": "output_text_tokens",
+      "meter": "cached_read_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.4,
+      "price_per_unit": 0.020000000000000004,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
@@ -55,10 +55,17 @@
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://api.deepinfra.com/models/list",
+      "accessed_at": "2026-08-21T00:00:00Z",
+      "notes": "Authoritative DeepInfra token pricing, cache multiplier, and per-model priority/flex multipliers."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-21T00:00:00Z",
+    "notes": "Current standard, cached-input, priority, and flex pricing reconciled against the live DeepInfra model-details endpoint."
   }
 }

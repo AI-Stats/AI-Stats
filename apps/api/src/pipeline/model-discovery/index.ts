@@ -7,6 +7,7 @@ import {
 	asRecord,
 	assertSafeDiscoverySnapshot,
 	buildProviderApiModelSnapshotDiff,
+	canonicalProviderId,
 	confirmModelRemovals,
 	computeDiscordNotificationFingerprint,
 	computeConfiguredModelCoverageFingerprint,
@@ -19,15 +20,15 @@ import {
 	loadConfiguredProviderModelIds,
 	loadLatestConfiguredCoverageState,
 	loadLatestDiscordNotificationFingerprint,
-	loadLatestPricingTableState,
+	loadPricingPageStates,
 	readBindingEnv,
 	runPricingMonitorCheck,
 	sendDiscordNotification,
 	shouldRunPricingMonitor,
+	savePricingPageStates,
 	summarizeMissingConfiguredProviderModels,
 	toBool,
 	toInt,
-	toPricingFingerprint,
 } from "./helpers";
 import {
 	buildPricingTableIssueEntries,
@@ -209,8 +210,7 @@ type DiscoveryRunSummary = {
 type SupabaseSeenModelRow = {
 	provider_id: string;
 	model_id: string;
-	model_details?: unknown;
-	pricing_details?: unknown;
+	watch_snapshot?: unknown;
 	removal_pending?: boolean;
 };
 
@@ -261,21 +261,26 @@ const PROVIDER_API_PRICING_WATCH_PROVIDER_IDS = new Set<string>([
 	"empiriolabs",
 	"nebius-token-factory",
 	"elevenlabs",
+	"fastrouter",
 	"gmicloud",
 	"groq",
-	"huggingface",
 	"inception",
-	"kilo",
 	"llmgateway",
 	"nextbit",
 	"novita",
+	"novita-ai",
 	"openrouter",
+	"orcarouter",
 	"ovhcloud",
 	"spacex-ai",
 	"together",
 	"venice",
 	"vercel",
 	"weights-and-biases",
+	"pioneer",
+	"poe",
+	"requesty",
+	"zenmux",
 ]);
 
 const PROVIDERS: ProviderConfig[] = MODEL_DISCOVERY_PROVIDERS;
@@ -344,82 +349,36 @@ async function insertRunStart(runId: string, args: RunArgs, startedAt: string): 
 }
 
 function compactSummary(summary: DiscoveryRunSummary, extra: { notificationError?: string | null; error?: string | null } = {}): Record<string, unknown> {
+	// Persist only state that later runs read back (fingerprints, cursors,
+	// coverage baselines) plus counters for triage. Per-provider result arrays
+	// are intentionally not stored.
 	return {
 		statePersisted: summary.statePersisted,
 		persistenceDeferredReason: summary.persistenceDeferredReason ?? undefined,
 		notificationFingerprint: summary.notificationFingerprint ?? undefined,
-		results: summary.results.map((result) => ({
-			providerId: result.providerId,
-			status: result.status,
-			modelCount: result.status === "success" ? result.modelCount : undefined,
-			durationMs: result.status === "success" || result.status === "error" ? result.durationMs : undefined,
-			reason: result.status !== "success" ? result.reason : undefined,
-		})),
-		changes: summary.changes.map((change) => ({
-			providerId: change.providerId,
-			addedCount: change.added.length,
-			removedCount: change.removed.length,
-			previousCount: change.previousCount,
-			currentCount: change.currentCount,
-			addedSample: change.added.slice(0, MAX_SUMMARY_MODEL_SAMPLES),
-			removedSample: change.removed.slice(0, MAX_SUMMARY_MODEL_SAMPLES),
-		})),
 		pricingMonitor: {
-			enabled: summary.pricingMonitor.enabled,
 			executed: summary.pricingMonitor.executed,
 			baselineInitialized: summary.pricingMonitor.baselineInitialized,
 			cursorUpdatedAt: summary.pricingMonitor.cursorUpdatedAt,
 			ruleIdsAtTimestamp: summary.pricingMonitor.ruleIdsAtTimestamp ?? [],
 			updatesDetected: summary.pricingMonitor.updatesDetected,
 			providersChanged: summary.pricingMonitor.providersChanged,
-			providerChanges: summary.pricingMonitor.providerChanges.map((provider) => ({
-				providerId: provider.providerId,
-				updates: provider.updates,
-				samples: provider.samples.slice(0, MAX_SUMMARY_MODEL_SAMPLES),
-			})),
 			error: summary.pricingMonitor.error ?? undefined,
 		},
 		providerApiPricingMonitor: {
-			enabled: summary.providerApiPricingMonitor.enabled,
-			executed: summary.providerApiPricingMonitor.executed,
 			baselineInitialized: summary.providerApiPricingMonitor.baselineInitialized,
-			modelsWithPricing: summary.providerApiPricingMonitor.modelsWithPricing,
-			providersWithoutPricing: summary.providerApiPricingMonitor.providersWithoutPricing,
 			updatesDetected: summary.providerApiPricingMonitor.updatesDetected,
 			providersChanged: summary.providerApiPricingMonitor.providersChanged,
-			providerChanges: summary.providerApiPricingMonitor.providerChanges.map((provider) => ({
-				providerId: provider.providerId,
-				updates: provider.updates,
-				samples: provider.samples.slice(0, MAX_SUMMARY_MODEL_SAMPLES),
-			})),
 			error: summary.providerApiPricingMonitor.error ?? undefined,
 		},
 		pricingTableMonitor: {
-			enabled: summary.pricingTableMonitor.enabled,
-			executed: summary.pricingTableMonitor.executed,
-			baselineInitialized: summary.pricingTableMonitor.baselineInitialized,
-			sourcesChecked: summary.pricingTableMonitor.sourcesChecked,
 			updatesDetected: summary.pricingTableMonitor.updatesDetected,
-			providerChanges: summary.pricingTableMonitor.providerChanges.map((source) => ({
-				providerId: source.providerId,
-				providerName: source.providerName,
-				sourceUrl: source.sourceUrl,
-				tableCount: source.tableCount,
-				pricingSamples: source.pricingSamples,
-			})),
-			sources: summary.pricingTableMonitor.sources.map((source) => ({
-				providerId: source.providerId,
-				fingerprint: source.fingerprint,
-			})),
-			errors: summary.pricingTableMonitor.errors,
+			errorsCount: summary.pricingTableMonitor.errors.length,
 			error: summary.pricingTableMonitor.error ?? undefined,
 		},
 		configuredModelCoverageMonitor: {
-			enabled: summary.configuredModelCoverageMonitor.enabled,
 			executed: summary.configuredModelCoverageMonitor.executed,
 			providersChecked: summary.configuredModelCoverageMonitor.providersChecked,
-			updatesDetected: summary.configuredModelCoverageMonitor.updatesDetected,
-			providersChanged: summary.configuredModelCoverageMonitor.providersChanged,
 			providerChanges: summary.configuredModelCoverageMonitor.providerChanges.map((provider) => ({
 				providerId: provider.providerId,
 				updates: provider.updates,
@@ -428,8 +387,6 @@ function compactSummary(summary: DiscoveryRunSummary, extra: { notificationError
 			fingerprint: summary.configuredModelCoverageMonitor.fingerprint,
 			error: summary.configuredModelCoverageMonitor.error ?? undefined,
 		},
-		issueSync: summary.issueSync,
-		catalogSyncDispatch: summary.catalogSyncDispatch,
 		notificationError: extra.notificationError ?? undefined,
 		error: extra.error ?? undefined,
 	};
@@ -459,8 +416,9 @@ type SeenModelUpsertRow = {
 	provider_id: string;
 	provider_name: string;
 	model_id: string;
-	model_details: Record<string, unknown>;
-	pricing_details: unknown;
+	watch_snapshot: ProviderApiModelSnapshot;
+	model_details: null;
+	pricing_details: null;
 	last_seen_at: string;
 	last_run_id: string;
 	removal_pending: boolean;
@@ -476,7 +434,6 @@ type SeenModelPendingRemovalRow = SeenModelDeleteRow;
 type PreviousProviderModels = {
 	modelIds: string[];
 	pendingRemovalIds: Set<string>;
-	pricingByModelId: Map<string, string | null>;
 	providerApiSnapshotByModelId: Map<string, ProviderApiModelSnapshot>;
 };
 
@@ -485,13 +442,29 @@ type PreviousModelsState = {
 	providerApiSnapshotReadyByProvider: Set<string>;
 };
 
+function parseWatchSnapshot(value: unknown): ProviderApiModelSnapshot | null {
+	const record = asRecord(value);
+	if (!record) return null;
+	return {
+		contextLength: typeof record.contextLength === "number" && Number.isFinite(record.contextLength)
+			? Math.trunc(record.contextLength)
+			: null,
+		maxCompletionTokens: typeof record.maxCompletionTokens === "number" && Number.isFinite(record.maxCompletionTokens)
+			? Math.trunc(record.maxCompletionTokens)
+			: null,
+		pricingDetails: record.pricingDetails ?? null,
+		pricingFingerprint: typeof record.pricingFingerprint === "string" && record.pricingFingerprint.trim()
+			? record.pricingFingerprint
+			: null,
+	};
+}
+
 export async function fetchPreviousModelsByProviders(providerIds: string[]): Promise<PreviousModelsState> {
 	const map = new Map<string, PreviousProviderModels>();
 	for (const providerId of providerIds) {
 		map.set(providerId, {
 			modelIds: [],
 			pendingRemovalIds: new Set<string>(),
-			pricingByModelId: new Map<string, string | null>(),
 			providerApiSnapshotByModelId: new Map<string, ProviderApiModelSnapshot>(),
 		});
 	}
@@ -504,7 +477,7 @@ export async function fetchPreviousModelsByProviders(providerIds: string[]): Pro
 	for (let offset = 0; ; offset += SEEN_MODELS_PAGE_SIZE) {
 		const { data, error } = await supabase
 			.from("model_discovery_seen_models")
-			.select("provider_id,model_id,model_details,pricing_details,removal_pending")
+			.select("provider_id,model_id,watch_snapshot,removal_pending")
 			.in("provider_id", providerIds)
 			.order("provider_id", { ascending: true })
 			.order("model_id", { ascending: true })
@@ -527,14 +500,13 @@ export async function fetchPreviousModelsByProviders(providerIds: string[]): Pro
 		if (!state) continue;
 		state.modelIds.push(row.model_id);
 		if (row.removal_pending === true) state.pendingRemovalIds.add(row.model_id);
-		const pricingDetails = row.pricing_details ?? null;
-		const fingerprint = toPricingFingerprint(pricingDetails);
-		state.pricingByModelId.set(row.model_id, fingerprint);
 		if (PROVIDER_API_PRICING_WATCH_PROVIDER_IDS.has(row.provider_id)) {
-			const snapshot = extractProviderApiModelSnapshot(row.provider_id, asRecord(row.model_details), pricingDetails);
-			state.providerApiSnapshotByModelId.set(row.model_id, snapshot);
-			if (hasProviderApiSnapshotValue(snapshot)) {
-				providerApiSnapshotReadyByProvider.add(row.provider_id);
+			const snapshot = parseWatchSnapshot(row.watch_snapshot);
+			if (snapshot) {
+				state.providerApiSnapshotByModelId.set(row.model_id, snapshot);
+				if (hasProviderApiSnapshotValue(snapshot)) {
+					providerApiSnapshotReadyByProvider.add(row.provider_id);
+				}
 			}
 		}
 	}
@@ -653,8 +625,10 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 	const shouldPrune = args.prune ?? true;
 	const shouldNotify = args.notify ?? true;
 	const providers = selectProvidersForShard(args);
-	const pricingEnabled = toBool(readBindingEnv(["PRICING_MONITOR_ENABLED"]) ?? "true", true);
+	const pricingEnabled = toBool(readBindingEnv(["PRICING_MONITOR_ENABLED"]) ?? "false", false);
 	const pricingExecuted = pricingEnabled && shouldRunPricingMonitor(args);
+	const pricingPageExecuted = toBool(readBindingEnv(["PRICING_PAGE_MONITOR_ENABLED"]) ?? "true", true)
+		&& shouldRunPricingMonitor(args);
 
 	await insertRunStart(runId, args, startedAt.toISOString());
 
@@ -716,9 +690,16 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 				const added = modelIdDiff.added;
 
 				const nowIso = new Date().toISOString();
+				const watchSnapshotsById = new Map<string, ProviderApiModelSnapshot>();
 				let providerModelsWithPricing = 0;
 				for (const model of discoveredModels) {
-					if (toPricingFingerprint(model.pricingDetails)) {
+					const watchSnapshot = extractProviderApiModelSnapshot(
+						provider.providerId,
+						model.modelDetails,
+						model.pricingDetails
+					);
+					watchSnapshotsById.set(model.id, watchSnapshot);
+					if (watchSnapshot.pricingFingerprint) {
 						providerApiModelsWithPricing += 1;
 						providerModelsWithPricing += 1;
 					}
@@ -726,8 +707,9 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 						provider_id: provider.providerId,
 						provider_name: provider.providerName,
 						model_id: model.id,
-						model_details: model.modelDetails,
-						pricing_details: model.pricingDetails,
+						watch_snapshot: watchSnapshot,
+						model_details: null,
+						pricing_details: null,
 						last_seen_at: nowIso,
 						last_run_id: runId,
 						removal_pending: false,
@@ -763,17 +745,17 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 					const addedModelIds = new Set(added);
 					for (const model of discoveredModels) {
 						if (addedModelIds.has(model.id)) continue;
-						const previousSnapshot = previousProviderState?.providerApiSnapshotByModelId.get(model.id) ?? {
-							contextLength: null,
-							maxCompletionTokens: null,
-							pricingDetails: null,
-							pricingFingerprint: null,
-						};
-						const currentSnapshot = extractProviderApiModelSnapshot(
-							provider.providerId,
-							model.modelDetails,
-							model.pricingDetails
-						);
+					const previousSnapshot = previousProviderState?.providerApiSnapshotByModelId.get(model.id) ?? {
+						contextLength: null,
+						maxCompletionTokens: null,
+						pricingDetails: null,
+						pricingFingerprint: null,
+					};
+					const currentSnapshot = watchSnapshotsById.get(model.id) ?? extractProviderApiModelSnapshot(
+						provider.providerId,
+						model.modelDetails,
+						model.pricingDetails
+					);
 						const snapshotDiff = buildProviderApiModelSnapshotDiff(previousSnapshot, currentSnapshot);
 						if (snapshotDiff.length === 0) continue;
 
@@ -831,7 +813,7 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 			providerChanges: [],
 		};
 		let pricingTableMonitor: PricingTableMonitorSummary = {
-			enabled: pricingEnabled,
+			enabled: pricingPageExecuted,
 			executed: false,
 			baselineInitialized: false,
 			sourcesChecked: 0,
@@ -850,6 +832,7 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 			fingerprint: null,
 		};
 
+		let pricingPageSnapshotsToSave: PricingTableSnapshot[] = [];
 		if (pricingExecuted) {
 			try {
 				pricingMonitor = await runPricingMonitorCheck();
@@ -858,21 +841,29 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 				pricingMonitor.error = reason;
 				console.error("[model-discovery] Pricing monitor failed:", reason);
 			}
+		}
+		if (pricingPageExecuted) {
 			pricingTableMonitor.executed = true;
 			try {
-				const previousByProvider = new Map(
-					(await loadLatestPricingTableState(args.source)).map((source) => [source.providerId, source.fingerprint])
+				const previousPages = await loadPricingPageStates();
+				const previousContentByProvider = new Map(
+					Array.from(previousPages.values(), (row) => [row.provider_id, row.content_lines] as const)
 				);
-				const { snapshots: sources, errors } = await fetchPricingTableSnapshots();
+				const { snapshots: sources, errors } = await fetchPricingTableSnapshots(previousContentByProvider);
 				pricingTableMonitor.sources = sources;
 				pricingTableMonitor.errors = errors;
 				pricingTableMonitor.sourcesChecked = sources.length;
-				pricingTableMonitor.baselineInitialized = sources.some((source) => !previousByProvider.has(source.providerId));
+				pricingTableMonitor.baselineInitialized = sources.some(
+					(source) => !previousPages.has(canonicalProviderId(source.providerId))
+				);
 				pricingTableMonitor.providerChanges = sources.filter((source) => {
-					const previous = previousByProvider.get(source.providerId);
-					return Boolean(previous) && previous !== source.fingerprint;
+					const previous = previousPages.get(canonicalProviderId(source.providerId));
+					return Boolean(previous) && previous.fingerprint !== source.fingerprint;
 				});
 				pricingTableMonitor.updatesDetected = pricingTableMonitor.providerChanges.length;
+				// State is persisted only after notifications succeed so a delivery
+				// failure never silently swallows a pricing-page change.
+				pricingPageSnapshotsToSave = sources;
 			} catch (error) {
 				const reason = error instanceof Error ? error.message : String(error);
 				pricingTableMonitor.error = reason;
@@ -1005,6 +996,9 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 			await upsertCurrentModels(upsertRows);
 			await markPendingModelRemovals(pendingRemovalRows);
 			await deleteRemovedModels(deleteRows);
+			if (pricingPageSnapshotsToSave.length > 0) {
+				await savePricingPageStates(pricingPageSnapshotsToSave);
+			}
 			if (shouldPrune) {
 				staleModelsDeleted = await pruneOldRows(staleCutoff);
 				if (shouldPruneRunsDaily(args, startedAt)) {
@@ -1199,7 +1193,7 @@ export async function runModelDiscoveryJob(args: RunArgs): Promise<DiscoveryRunS
 				providerChanges: [],
 			},
 			pricingTableMonitor: {
-				enabled: pricingEnabled,
+				enabled: pricingPageExecuted,
 				executed: false,
 				baselineInitialized: false,
 				sourcesChecked: 0,

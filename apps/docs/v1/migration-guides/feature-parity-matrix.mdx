@@ -1,55 +1,62 @@
 ---
-title: "Feature Parity Matrix"
-description: "See what you can migrate to Phaseo confidently today, and which areas still need extra care."
+title: "Migration Feature Checklist"
+description: "Check the Phaseo capabilities that commonly affect a gateway migration."
 ---
 
-# Feature Parity Matrix
+# Migration Feature Checklist
 
-Use this page to see what you can migrate to Phaseo confidently today, and which areas still need extra care.
+Use this checklist to identify which parts of an existing gateway integration can move unchanged and which need explicit validation. It was last reviewed on August 23, 2026.
 
-This summary is based on the code, tests, SDKs, and docs currently shipped in this repo.
+## Core request compatibility
 
-## Platform migration matrix
-
-| Capability | OpenRouter | Vercel AI Gateway | LLMGateway | Current Phaseo position |
-| --- | --- | --- | --- | --- |
-| Public migration guide | Yes | Yes | Yes | Public docs cover all three migration paths |
-| Base URL + API key swap | Yes | Yes | Yes | Covered in migration guides and SDK examples |
-| Model-ID validation guidance | Yes | Yes | Yes | Covered via `/v1/models` verification guidance |
-| Batch and file migration path | Partial | Partial | Partial | API, docs, and maintained SDKs cover batch create/retrieve/cancel, owned files, and result download |
-| Async jobs and webhook visibility | Partial | Partial | Partial | Usage UI, websocket docs, and SDK helpers now cover batch/video async status and websocket URLs |
-| Routing and pricing metadata | Strong | Medium | Medium | Usage UI, devtools, async jobs, and request views expose request IDs, provider attempts, and pricing lines |
-| Vercel AI SDK compatibility proof | N/A | Strong | N/A | Local compatibility tests cover language, streaming, embeddings, image, speech, and transcription flows |
-| Side-by-side benchmark tooling | Strong | Medium | Medium | Internal compare tooling now covers Phaseo vs OpenRouter, LLMGateway, and Vercel AI Gateway, with aggregate and live compare support when configured |
-
-## Product capability matrix
-
-| Capability | Current public evidence | Status |
+| Capability | Phaseo support | Migration action |
 | --- | --- | --- |
-| Routing transparency | Usage UI, request views, async job details, devtools, and gateway error docs | Strong |
-| Pricing transparency | Request pricing lines, batch settlement lines, async-job pricing metadata, pricing calculation endpoint, SDK helpers | Strong |
-| Async and batch ergonomics | Batch create/retrieve/cancel, async websocket helpers, webhook-aware usage views, batch/video job docs | Strong |
-| Provider/model filtering depth | `/models` now supports provider, status, rollout, availability, routing, and capability filters | Strong |
-| Fallback controls for migrations | Public docs now point to preset constraints, routing mode, preview-channel toggles, and BYOK fallback controls as the supported migration knobs | Strong |
-| Replay and retry ergonomics | `GET /v1/generations?id=<request_id>` now returns `replay_supported` plus a `replay_request` payload that can be resent to the original endpoint | Strong |
-| Request transforms and defaults | Presets guide now defines the supported public controls for prompt injection, parameter defaults, reasoning defaults, and provider constraints | Strong |
-| Broader competitor benchmarking | Operational compare flow now covers OpenRouter, LLMGateway, and Vercel AI Gateway; the remaining work is keeping that evidence aligned as contracts evolve | Strong |
+| OpenAI-compatible authentication | Supported | Change the base URL and API key, then run one authenticated request. |
+| Chat Completions | Supported | Test normal, streaming, tool-calling, and structured-output requests. |
+| Responses | Supported | Test input formats, streaming events, tools, and response parsing. |
+| Anthropic Messages | Supported | Verify Anthropic-specific headers, system prompts, and streaming events. |
+| Model identifiers | Phaseo catalog IDs | Validate every production ID with `GET /v1/models`; do not assume aliases match. |
+| Embeddings, image, and audio endpoints | Supported by model and provider | Verify the model supports the required operation before cutover. |
 
-## What is already strong
+## Routing and policy controls
 
-- Migration guides now cover OpenRouter, Vercel AI Gateway, and LLMGateway.
-- Maintained SDKs and docs cover batch, file, async-job, and gateway discovery helpers much more evenly than before.
-- The dashboard and request logs now preserve much better routing, provider-attempt, and pricing context.
-- Vercel AI SDK compatibility is now proven across the shipped text, embedding, image, and audio endpoints.
+| Capability | Phaseo support | Migration action |
+| --- | --- | --- |
+| Provider ordering | `provider.order` | Recreate only the ordering rules the workload still needs. |
+| Provider allow and ignore lists | `provider.only` and `provider.ignore` | Validate provider IDs and confirm at least one route remains available. |
+| Price, latency, or throughput sorting | `provider.sort` | Inspect the selected provider in Gateway usage after testing. |
+| Zero data retention | `provider.require_zero_data_retention` | Confirm the model has a matching provider before enforcing the requirement. |
+| Regional execution and data residency | Request fields and workspace privacy defaults | Test both successful routing and the no-matching-provider failure path. |
+| Reusable prompts and defaults | Presets | Move shared configuration into a preset instead of duplicating it across callers. |
 
-## What still needs attention
+## Operations and rollout
 
-1. Keep the migration docs and comparison notes current as the product changes.
+| Capability | Phaseo support | Migration action |
+| --- | --- | --- |
+| Request attribution | App ID, name, URL, and categories | Keep attribution headers during migration and verify app grouping in the dashboard. |
+| Request and provider details | Gateway usage and generation records | Compare provider, latency, token usage, and pricing for representative prompts. |
+| Batch and async jobs | Batch, file, video, webhook, and websocket APIs | Validate status transitions, terminal billing, cancellation, and result retrieval. |
+| Replay support | Generation records expose replay metadata when available | Confirm the original endpoint and payload can be recovered for failed requests. |
+| Gradual rollout | Client or infrastructure traffic splitting | Keep rollback as a base URL and credential change until the cutover is stable. |
+
+## Features that require workload-specific validation
+
+Do not treat API compatibility as proof that these behaviors are identical:
+
+- automatic provider selection and fallback order
+- prompt-cache affinity and cache pricing
+- provider-specific request fields
+- response-only metadata
+- rate limits and retry timing
+- data retention, residency, and training policies
+- exact model availability and price
+
+Run production-like prompts and failure cases before moving meaningful traffic.
 
 ## Related guides
 
-- [Migration Guides Index](./index)
-- [Gateway Parity Review](./gateway-parity-review)
-- [Migration from OpenRouter](./from-openrouter)
-- [Migrating from Vercel AI Gateway](./from-vercel)
-- [Migrating from LLM Gateway](./from-llmgateway)
+- [Migration Guides](./index)
+- [Migration Readiness Review](./gateway-parity-review)
+- [Routing and Fallbacks](../guides/routing-and-fallbacks)
+- [Presets](../guides/presets)
+- [App Attribution](../guides/app-attribution)

@@ -21,6 +21,7 @@ export type PersistArgs = {
 	// app hints
 	appTitle?: string | null;
 	referer?: string | null;
+	appCategories?: string | null;
 
 	// request context
 	stream: boolean;
@@ -92,6 +93,7 @@ export async function persistGenerationToSupabase(args: PersistArgs) {
 			workspaceId: args.workspaceId,
 			appTitle: args.appTitle ?? null,
 			referer: args.referer ?? null,
+			appCategories: args.appCategories ?? null,
 		});
 
 		await upsertGeneration({ ...args, appId });

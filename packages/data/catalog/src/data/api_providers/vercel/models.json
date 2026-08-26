@@ -1,170 +1,5 @@
 [
   {
-    "api_model_id": "black-forest-labs/flux-3-video",
-    "provider_api_model_id": "vercel:bfl/flux-3-video",
-    "provider_model_slug": "bfl/flux-3-video",
-    "internal_model_id": "black-forest-labs/flux-3-video",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": "text",
-    "output_modalities": "video",
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": "2026-08-04T00:00:00",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "video.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": false,
-        "tool_call": false,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": true,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": false,
-    "regions": {
-      "execution": ["global"],
-      "data": ["global"]
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [
-      {
-        "kind": "provider_api",
-        "url": "https://ai-gateway.vercel.sh/v1/models",
-        "accessed_at": "2026-08-10T00:00:00Z",
-        "notes": "Live Vercel AI Gateway entry bfl/flux-3-video; pricing is not published in the registry."
-      }
-    ],
-    "verification": {
-      "status": "verified",
-      "checked_at": "2026-08-10T00:00:00Z",
-      "notes": "Provider identity, release date, and text-to-video modality verified against Vercel's live registry; catalogue-only and not Phaseo-routable."
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "bytedance/seedance-2.5",
-    "provider_api_model_id": "vercel:bytedance/seedance-2.5",
-    "provider_model_slug": "bytedance/seedance-2.5",
-    "internal_model_id": "bytedance/seedance-2.5",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": "text,video",
-    "output_modalities": "video",
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": "2026-08-07T00:00:00",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "video.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": false,
-        "tool_call": false,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": true,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": false,
-    "regions": {
-      "execution": ["global"],
-      "data": ["global"]
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [
-      {
-        "kind": "provider_api",
-        "url": "https://ai-gateway.vercel.sh/v1/models",
-        "accessed_at": "2026-08-10T00:00:00Z",
-        "notes": "Live Vercel AI Gateway entry bytedance/seedance-2.5, including video-token pricing with and without video input."
-      }
-    ],
-    "verification": {
-      "status": "verified",
-      "checked_at": "2026-08-10T00:00:00Z",
-      "notes": "Provider identity, release date, video generation capability, and price schedule verified against Vercel's live registry; catalogue-only and not Phaseo-routable."
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "x-ai/grok-voice-think-fast-2.0",
-    "provider_api_model_id": "vercel:xai/grok-voice-think-fast-2.0",
-    "provider_model_slug": "xai/grok-voice-think-fast-2.0",
-    "internal_model_id": "spacex-ai/grok-voice-think-fast-2.0",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": "text,audio",
-    "output_modalities": "text,audio",
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": "2026-07-29T00:00:00",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "audio.realtime",
-        "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": true,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": false,
-    "regions": {
-      "execution": ["global"],
-      "data": ["global"]
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [
-      {
-        "kind": "provider_api",
-        "url": "https://ai-gateway.vercel.sh/v1/models",
-        "accessed_at": "2026-08-10T00:00:00Z",
-        "notes": "Live Vercel AI Gateway entry xai/grok-voice-think-fast-2.0 with realtime text/audio modalities and session pricing."
-      }
-    ],
-    "verification": {
-      "status": "verified",
-      "checked_at": "2026-08-10T00:00:00Z",
-      "notes": "Vercel provider route verified; canonical model lifecycle was already correct and remains unchanged. Catalogue-only and not Phaseo-routable."
-    },
-    "rate_limits": []
-  },
-  {
     "api_model_id": "amazon/nova-2-lite",
     "provider_api_model_id": "vercel:amazon/nova-2-lite",
     "provider_model_slug": "amazon/nova-2-lite",
@@ -214,6 +49,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: amazon/nova-2-lite"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -273,6 +114,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: anthropic/claude-3-haiku"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -332,6 +179,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: anthropic/claude-fable-5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -391,6 +244,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: anthropic/claude-haiku-4.5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -450,6 +309,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: anthropic/claude-opus-4"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -568,6 +433,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: anthropic/claude-opus-4.5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -627,6 +498,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: anthropic/claude-opus-4.6"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -686,6 +563,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: anthropic/claude-opus-4.7"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -696,10 +579,71 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "anthropic/claude-opus-4.7-fast",
+    "api_model_id": "anthropic/claude-opus-4.7",
     "provider_api_model_id": "vercel:anthropic/claude-opus-4.7-fast",
     "provider_model_slug": "anthropic/claude-opus-4.7-fast",
-    "internal_model_id": "anthropic/claude-opus-4.7-fast",
+    "internal_model_id": "anthropic/claude-opus-4.7",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,pdf",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 128000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [
+      "priority"
+    ],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models.dev",
+        "url": "https://models.dev/api.json",
+        "accessed_at": "2026-07-23T09:08:52.190Z",
+        "notes": "Provider model slug: anthropic/claude-opus-4.7-fast"
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-07-23T09:08:52.190Z",
+      "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "anthropic/claude-opus-4.8",
+    "provider_api_model_id": "vercel:anthropic/claude-opus-4.8",
+    "provider_model_slug": "anthropic/claude-opus-4.8",
+    "internal_model_id": "anthropic/claude-opus-4.8",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image,pdf",
@@ -744,7 +688,13 @@
         "kind": "models.dev",
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: anthropic/claude-opus-4.7-fast"
+        "notes": "Provider model slug: anthropic/claude-opus-4.8"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -804,6 +754,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: anthropic/claude-opus-5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -863,6 +819,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: anthropic/claude-sonnet-4"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -922,6 +884,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: anthropic/claude-sonnet-4.5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -981,6 +949,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: anthropic/claude-sonnet-4.6"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1040,6 +1014,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: anthropic/claude-sonnet-5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1099,6 +1079,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: arcee-ai/trinity-large-thinking"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1158,12 +1144,77 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: arcee-ai/trinity-mini"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "black-forest-labs/flux-3-video",
+    "provider_api_model_id": "vercel:bfl/flux-3-video",
+    "provider_model_slug": "bfl/flux-3-video",
+    "internal_model_id": "black-forest-labs/flux-3-video",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "video",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-04T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "video.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": false,
+        "tool_call": false,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_api",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-10T00:00:00Z",
+        "notes": "Live Vercel AI Gateway entry bfl/flux-3-video; pricing is not published in the registry."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-10T00:00:00Z",
+      "notes": "Provider identity, release date, and text-to-video modality verified against Vercel's live registry; catalogue-only and not Phaseo-routable."
     },
     "rate_limits": []
   },
@@ -1217,6 +1268,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: bytedance/seed-1.8"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1276,6 +1333,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: bytedance/seedance-2.0"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1335,12 +1398,77 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: bytedance/seedance-2.0-fast"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "bytedance/seedance-2.5",
+    "provider_api_model_id": "vercel:bytedance/seedance-2.5",
+    "provider_model_slug": "bytedance/seedance-2.5",
+    "internal_model_id": "bytedance/seedance-2.5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,video",
+    "output_modalities": "video",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-07T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "video.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": false,
+        "tool_call": false,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_api",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-10T00:00:00Z",
+        "notes": "Live Vercel AI Gateway entry bytedance/seedance-2.5, including video-token pricing with and without video input."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-10T00:00:00Z",
+      "notes": "Provider identity, release date, video generation capability, and price schedule verified against Vercel's live registry; catalogue-only and not Phaseo-routable."
     },
     "rate_limits": []
   },
@@ -1394,6 +1522,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: bytedance/seedream-4.0"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1453,12 +1587,77 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: bytedance/seedream-4.5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "bytedance/seedream-5.0-pro",
+    "provider_api_model_id": "vercel:bytedance/seedream-5.0-pro",
+    "provider_model_slug": "bytedance/seedream-5.0-pro",
+    "internal_model_id": "bytedance/seedream-5.0-pro",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:57.738+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -1512,6 +1711,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: cohere/command-a"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1571,6 +1776,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: cohere/rerank-v3.5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1630,6 +1841,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: deepseek/deepseek-r1"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1689,6 +1906,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: deepseek/deepseek-v3"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1748,6 +1971,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: deepseek/deepseek-v3.1"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1807,6 +2036,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: deepseek/deepseek-v3.1-terminus"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1866,6 +2101,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: deepseek/deepseek-v3.2"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1925,6 +2166,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: deepseek/deepseek-v3.2-thinking"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1984,12 +2231,77 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: deepseek/deepseek-v4-flash"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v4-flash-0731",
+    "provider_api_model_id": "vercel:deepseek/deepseek-v4-flash-0731",
+    "provider_model_slug": "deepseek/deepseek-v4-flash-0731",
+    "internal_model_id": "deepseek/deepseek-v4-flash-0731",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1000000,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:57.738+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -2043,12 +2355,254 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: deepseek/deepseek-v4-pro"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "fish-audio/s1",
+    "provider_api_model_id": "vercel:fish-audio/s1",
+    "provider_model_slug": "fish-audio/s1",
+    "internal_model_id": "fish-audio/s1",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:57.738+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "fish-audio/s2-pro",
+    "provider_api_model_id": "vercel:fish-audio/s2-pro",
+    "provider_model_slug": "fish-audio/s2-pro",
+    "internal_model_id": "fish-audio/s2-pro",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:57.738+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "fish-audio/s2.1-pro",
+    "provider_api_model_id": "vercel:fish-audio/s2.1-pro",
+    "provider_model_slug": "fish-audio/s2.1-pro",
+    "internal_model_id": "fish-audio/s2.1-pro",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:57.738+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "fish-audio/transcribe-1",
+    "provider_api_model_id": "vercel:fish-audio/transcribe-1",
+    "provider_model_slug": "fish-audio/transcribe-1",
+    "internal_model_id": "fish-audio/transcribe-1",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:57.738+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -2102,6 +2656,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/gemini-2.5-flash"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2161,6 +2721,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/gemini-2.5-flash-image"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2220,6 +2786,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/gemini-2.5-flash-lite"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2279,6 +2851,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/gemini-2.5-pro"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2338,6 +2916,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/gemini-3-pro-image"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2456,6 +3040,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/gemini-3.1-flash-image"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2515,6 +3105,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/gemini-3.1-flash-image-preview"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2574,6 +3170,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/gemini-3.1-flash-lite"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2633,6 +3235,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/gemini-3.1-flash-lite-image"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2751,6 +3359,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/gemini-3.1-pro-preview"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2810,6 +3424,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/gemini-3.5-flash"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2869,6 +3489,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/gemini-3.5-flash-lite"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2928,6 +3554,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/gemini-3.6-flash"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2987,6 +3619,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/gemini-embedding-001"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3046,6 +3684,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/gemini-embedding-2"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3105,6 +3749,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/gemini-omni-flash-preview"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3164,6 +3814,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/imagen-4.0-fast-generate-001"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3223,6 +3879,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/imagen-4.0-generate-001"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3282,6 +3944,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/imagen-4.0-ultra-generate-001"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3341,6 +4009,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/text-embedding-005"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3400,6 +4074,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/text-multilingual-embedding-002"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3459,12 +4139,77 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: inception/mercury-2"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "inclusionai/ling-3.0-flash",
+    "provider_api_model_id": "vercel:inclusionai/ling-3.0-flash",
+    "provider_model_slug": "inclusionai/ling-3.0-flash",
+    "internal_model_id": "inclusionai/ling-3.0-flash",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 256000,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:57.738+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -3518,6 +4263,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: kwaipilot/kat-coder-air-v2.5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3577,6 +4328,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: kwaipilot/kat-coder-pro-v1"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3636,6 +4393,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: kwaipilot/kat-coder-pro-v2"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3695,6 +4458,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: kwaipilot/kat-coder-pro-v2.5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3754,6 +4523,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: meta/llama-3.1-70b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3813,6 +4588,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: meta/llama-3.1-8b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3872,6 +4653,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: meta/llama-3.3-70b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3931,6 +4718,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: meta/llama-4-maverick"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3990,12 +4783,70 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: meta/llama-4-scout"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "meta/muse-glimmer-30b",
+    "provider_api_model_id": "vercel:meta/muse-glimmer-30b",
+    "provider_model_slug": "meta/muse-glimmer-30b",
+    "internal_model_id": "meta/muse-glimmer-30b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 131072,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:57.738+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -4049,12 +4900,136 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: meta/muse-spark-1.1"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "meta/muse-spark-1.2",
+    "provider_api_model_id": "vercel:meta/muse-spark-1.2",
+    "provider_model_slug": "meta/muse-spark-1.2",
+    "internal_model_id": "meta/muse-spark-1.2",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:57.738+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "meta/muse-spark-1.2-contributor",
+    "provider_api_model_id": "vercel:meta/muse-spark-1.2-contributor",
+    "provider_model_slug": "meta/muse-spark-1.2-contributor",
+    "internal_model_id": "meta/muse-spark-1.2-contributor",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:57.738+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -4108,6 +5083,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: minimax/minimax-m2"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4167,6 +5148,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: minimax/minimax-m2.1"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4226,6 +5213,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: minimax/minimax-m2.5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4239,7 +5232,7 @@
     "api_model_id": "minimax/minimax-m2.5-highspeed",
     "provider_api_model_id": "vercel:minimax/minimax-m2.5-highspeed",
     "provider_model_slug": "minimax/minimax-m2.5-highspeed",
-    "internal_model_id": "minimax/minimax-m2.5-highspeed",
+    "internal_model_id": "minimax/minimax-m2.5",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
@@ -4285,6 +5278,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: minimax/minimax-m2.5-highspeed"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4344,6 +5343,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: minimax/minimax-m2.7"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4403,6 +5408,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: minimax/minimax-m3"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4462,6 +5473,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: mistral/codestral"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4521,6 +5538,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: mistral/codestral-embed"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4580,6 +5603,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: mistral/ministral-3b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4639,6 +5668,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: mistral/ministral-8b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4698,6 +5733,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: mistral/mistral-embed"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4757,12 +5798,77 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: mistral/mistral-medium-3.5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "mistral/mistral-nemo",
+    "provider_api_model_id": "vercel:mistral/mistral-nemo",
+    "provider_model_slug": "mistral/mistral-nemo",
+    "internal_model_id": "mistral/mistral-nemo",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 128000,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:57.738+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -4816,6 +5922,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: mistral/pixtral-12b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4875,6 +5987,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: moonshotai/kimi-k2"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4934,6 +6052,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: moonshotai/kimi-k2-thinking"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4993,6 +6117,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: moonshotai/kimi-k2.5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5052,6 +6182,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: moonshotai/kimi-k2.6"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5111,6 +6247,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: moonshotai/kimi-k2.7-code"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5170,6 +6312,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: moonshotai/kimi-k3"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5229,6 +6377,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: morph/morph-v3-fast"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5288,6 +6442,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: morph/morph-v3-large"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5347,6 +6507,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: nvidia/nemotron-3-nano-30b-a3b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5406,6 +6572,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: nvidia/nemotron-3-super-120b-a12b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5465,6 +6637,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: nvidia/nemotron-3-ultra-550b-a55b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5524,6 +6702,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: nvidia/nemotron-nano-12b-v2-vl"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5583,6 +6767,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: nvidia/nemotron-nano-9b-v2"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5642,6 +6832,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-4-turbo"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5701,6 +6897,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-4.1"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5760,6 +6962,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-4.1-mini"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5819,6 +7027,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-4.1-nano"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5878,6 +7092,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-4o"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5937,6 +7157,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-4o-mini"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5996,6 +7222,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-4o-mini-search-preview"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -6055,6 +7287,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-4o-mini-transcribe"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -6114,6 +7352,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-4o-transcribe"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -6173,6 +7417,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -6291,6 +7541,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5-codex"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -6350,6 +7606,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5-mini"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -6409,6 +7671,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5-nano"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -6468,6 +7736,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5-pro"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -6527,6 +7801,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.1-codex"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -6586,6 +7866,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.1-codex-max"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -6645,6 +7931,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.1-codex-mini"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -6704,6 +7996,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.2"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -6822,6 +8120,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.2-codex"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -6881,6 +8185,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.2-pro"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -6940,6 +8250,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.3-chat"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -6999,6 +8315,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.3-codex"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -7058,6 +8380,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.4"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -7117,6 +8445,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.4-mini"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -7176,6 +8510,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.4-nano"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -7235,6 +8575,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.4-pro"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -7294,6 +8640,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -7353,6 +8705,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.5-pro"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -7412,6 +8770,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.6-luna"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -7471,6 +8835,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.6-sol"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -7530,6 +8900,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.6-terra"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -7589,6 +8965,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-image-1"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -7648,6 +9030,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-image-1-mini"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -7707,6 +9095,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-image-1.5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -7766,6 +9160,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-image-2"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -7825,6 +9225,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-oss-120b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -7884,6 +9290,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-oss-20b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -7943,6 +9355,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-oss-safeguard-20b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -8002,6 +9420,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-realtime-1.5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -8061,6 +9485,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-realtime-2"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -8120,6 +9550,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-realtime-2.1"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -8179,6 +9615,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-realtime-mini"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -8238,6 +9680,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-realtime-whisper"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -8297,6 +9745,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/o1"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -8356,6 +9810,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/o3"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -8415,6 +9875,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/o3-deep-research"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -8474,6 +9940,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/o3-mini"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -8533,6 +10005,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/o3-pro"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -8592,6 +10070,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/o4-mini"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -8651,6 +10135,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/text-embedding-3-large"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -8710,6 +10200,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/text-embedding-3-small"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -8769,6 +10265,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/text-embedding-ada-002"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -8828,6 +10330,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/tts-1"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -8887,6 +10395,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/tts-1-hd"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -8946,6 +10460,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/whisper-1"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -9005,6 +10525,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: poolside/laguna-s-2.1"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -9064,6 +10590,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: sakana/fugu-ultra"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -9123,6 +10655,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: stepfun/step-3.5-flash"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -9182,6 +10720,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: stepfun/step-3.7-flash"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -9241,6 +10785,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: tencent/hy3"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -9300,6 +10850,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: voyage/voyage-3-large"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -9359,6 +10915,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: voyage/voyage-3.5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -9418,6 +10980,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: voyage/voyage-3.5-lite"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -9477,6 +11045,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: voyage/voyage-4"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -9536,6 +11110,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: voyage/voyage-4-large"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -9595,6 +11175,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: voyage/voyage-4-lite"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -9654,6 +11240,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: voyage/voyage-code-2"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -9713,6 +11305,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: voyage/voyage-code-3"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -9772,6 +11370,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: voyage/voyage-finance-2"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -9831,12 +11435,77 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: voyage/voyage-law-2"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "x-ai/grok-voice-think-fast-2.0",
+    "provider_api_model_id": "vercel:xai/grok-voice-think-fast-2.0",
+    "provider_model_slug": "xai/grok-voice-think-fast-2.0",
+    "internal_model_id": "spacex-ai/grok-voice-think-fast-2.0",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,audio",
+    "output_modalities": "text,audio",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-07-29T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "audio.realtime",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_api",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-10T00:00:00Z",
+        "notes": "Live Vercel AI Gateway entry xai/grok-voice-think-fast-2.0 with realtime text/audio modalities and session pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-10T00:00:00Z",
+      "notes": "Vercel provider route verified; canonical model lifecycle was already correct and remains unchanged. Catalogue-only and not Phaseo-routable."
     },
     "rate_limits": []
   },
@@ -9890,6 +11559,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: xiaomi/mimo-v2.5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -9949,65 +11624,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: xiaomi/mimo-v2.5-pro"
-      }
-    ],
-    "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "anthropic/claude-opus-4.8",
-    "provider_api_model_id": "vercel:anthropic/claude-opus-4.8",
-    "provider_model_slug": "anthropic/claude-opus-4.8",
-    "internal_model_id": "anthropic/claude-opus-4.8",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": "text,image,pdf",
-    "output_modalities": "text",
-    "context_length": 1000000,
-    "max_output_tokens": 128000,
-    "effective_from": null,
-    "effective_to": null,
-    "capabilities": [
+      },
       {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": true,
-        "tool_call": true,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": true,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": false,
-    "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [
-      {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: anthropic/claude-opus-4.8"
+        "kind": "provider_models",
+        "url": "https://ai-gateway.vercel.sh/v1/models",
+        "accessed_at": "2026-08-11T12:09:32.551Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {

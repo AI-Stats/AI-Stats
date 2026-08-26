@@ -99,7 +99,7 @@ async function loadGuardrailReference(context: AccountWorkspaceContext) {
 		]);
 	}
 	const providerPolicies = new Map((providersResult.data ?? []).map((provider: any) => [String(provider.api_provider_id), {
-		zeroDataRetention: provider.zero_data_retention ?? "unknown",
+		zeroDataRetention: provider.zero_data_retention === true,
 		dataPolicyTier: provider.data_policy_tier ?? "unknown",
 		dataPolicyConfidence: provider.data_policy_confidence ?? "unknown",
 	}]));
@@ -151,12 +151,11 @@ accountSettingsPolicyRouter.get("/chat/effective-policy", async (c) => {
 	if (!workspaceId) return c.json({ account: null, guardrails: [], workspace: null, workspaceId: null }, 200, PRIVATE_NO_STORE_HEADERS);
 	const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId });
 	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
-	const [workspaceResult, accountResult, assignmentsResult] = await Promise.all([
+	const [workspaceResult, assignmentsResult] = await Promise.all([
 		context.client.from("workspace_settings").select("provider_restriction_mode,provider_restriction_provider_ids,model_restriction_mode,model_restriction_model_ids").eq("workspace_id", workspaceId).maybeSingle(),
-		context.client.from("account_guardrail_settings").select("provider_restriction_mode,provider_restriction_provider_ids,model_restriction_mode,model_restriction_model_ids").eq("user_id", context.user.id).maybeSingle(),
 		context.client.from("workspace_member_guardrails").select("guardrail_id").eq("workspace_id", workspaceId).eq("user_id", context.user.id),
 	]);
-	if (workspaceResult.error || accountResult.error || assignmentsResult.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	if (workspaceResult.error || assignmentsResult.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	const guardrailIds = (assignmentsResult.data ?? []).map((row) => String(row.guardrail_id ?? "")).filter(Boolean);
 	const guardrailsResult = guardrailIds.length
 		? await context.client.from("workspace_guardrails").select("id,name,enabled,provider_restriction_mode,provider_restriction_provider_ids,model_restriction_mode,allowed_api_model_ids").eq("workspace_id", workspaceId).eq("enabled", true).in("id", guardrailIds)
@@ -167,7 +166,7 @@ accountSettingsPolicyRouter.get("/chat/effective-policy", async (c) => {
 		model: restriction(row?.model_restriction_mode, row?.[modelIdsKey]),
 	});
 	return c.json({
-		account: normalize(accountResult.data),
+		account: null,
 		workspace: normalize(workspaceResult.data),
 		guardrails: (guardrailsResult.data ?? []).map((row: any) => ({ id: String(row.id), name: String(row.name ?? "Guardrail"), ...normalize(row, "allowed_api_model_ids") })),
 		workspaceId,
@@ -517,15 +516,15 @@ accountSettingsPolicyRouter.get("/guardrails/editor", async (c) => {
 	const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId });
 	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
 	try {
-		const [reference, guardrailResult, accountPolicyResult] = await Promise.all([
+		const [reference, guardrailResult, workspacePolicyResult] = await Promise.all([
 			loadGuardrailReference(context),
 			mode === "edit" && guardrailId
 				? context.client.from("workspace_guardrails").select(GUARDRAIL_COLUMNS).eq("workspace_id", workspaceId).eq("id", guardrailId).maybeSingle()
 				: Promise.resolve({ data: null, error: null }),
-			context.client.from("account_guardrail_settings").select("privacy_enable_paid_may_train,privacy_enable_free_may_train,privacy_enable_input_output_logging,privacy_zdr_only,provider_restriction_mode,provider_restriction_provider_ids,model_restriction_mode,model_restriction_model_ids").eq("user_id", context.user.id).maybeSingle(),
+			context.client.from("workspace_settings").select("privacy_enable_paid_may_train,privacy_enable_free_may_train,privacy_enable_input_output_logging,privacy_zdr_only,provider_restriction_mode,provider_restriction_provider_ids,model_restriction_mode,model_restriction_model_ids").eq("workspace_id", workspaceId).maybeSingle(),
 		]);
 		if (guardrailResult.error) throw guardrailResult.error;
-		if (accountPolicyResult.error) throw accountPolicyResult.error;
+		if (workspacePolicyResult.error) throw workspacePolicyResult.error;
 		let initialKeyIds: string[] = [];
 		let initialMemberIds: string[] = [];
 		if (mode === "edit" && guardrailResult.data?.id) {
@@ -538,7 +537,7 @@ accountSettingsPolicyRouter.get("/guardrails/editor", async (c) => {
 			initialKeyIds = (keyMappingsResult.data ?? []).map((row) => row.key_id).filter(Boolean);
 			initialMemberIds = (memberMappingsResult.data ?? []).map((row) => row.user_id).filter(Boolean);
 		}
-		return c.json({ ...reference, accountPolicy: accountPolicyFromRow(accountPolicyResult.data), guardrail: guardrailResult.data ?? null, initialKeyIds, initialMemberIds, mode, workspaceId }, 200, PRIVATE_NO_STORE_HEADERS);
+		return c.json({ ...reference, accountPolicy: accountPolicyFromRow(workspacePolicyResult.data), guardrail: guardrailResult.data ?? null, initialKeyIds, initialMemberIds, mode, workspaceId }, 200, PRIVATE_NO_STORE_HEADERS);
 	} catch {
 		return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	}

@@ -18,7 +18,12 @@
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": {
+        "kind": "provider_model",
+        "url": "https://novita.ai/models/model-detail/deepseek-deepseek-v3-turbo",
+        "accessed_at": "2026-08-20T00:00:00Z",
+        "notes": "First-party model pricing."
+      }
     },
     {
       "meter": "output_text_tokens",
@@ -33,17 +38,29 @@
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": {
+        "kind": "provider_model",
+        "url": "https://novita.ai/models/model-detail/deepseek-deepseek-v3-turbo",
+        "accessed_at": "2026-08-20T00:00:00Z",
+        "notes": "First-party model pricing."
+      }
     }
   ],
   "regions": [],
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "provider_pricing",
+      "url": "https://novita.ai/pricing?de=1",
+      "accessed_at": "2026-08-20T00:00:00Z",
+      "notes": "Current Novita pricing for deepseek/deepseek-v3-turbo."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-20T00:00:00Z",
+    "notes": "Verified from Novita's first-party pricing catalog and model page."
   }
 }

@@ -72,9 +72,9 @@ export default function CodeBlock({
 	};
 
 	return (
-		<div className="relative group rounded-xl border bg-primary/5">
-			<div className="flex items-center justify-between px-3 py-2">
-				<span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+		<div className="group relative rounded-xl border border-border/70 bg-background">
+			<div className="flex items-center justify-between bg-muted/30 px-3 py-2">
+				<span className="text-xs font-medium text-foreground">
 					{label ?? lang}
 				</span>
 				<Button
@@ -82,7 +82,7 @@ export default function CodeBlock({
 					onClick={handleCopy}
 					variant="outline"
 					size="sm"
-					className="h-8 gap-1.5 border-zinc-200/80 bg-white px-2.5 text-xs text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
+					className="h-8 gap-1.5 rounded-md border-border bg-background px-2.5 text-xs text-foreground hover:bg-muted"
 				>
 					{copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
 					{copied ? "Copied" : "Copy"}

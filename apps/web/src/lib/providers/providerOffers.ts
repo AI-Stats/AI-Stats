@@ -46,6 +46,14 @@ function normalizeRegionalOfferLabel(
     return remainingWords.join(" ").trim() || offerLabel.trim();
 }
 
+function inferRegionalOfferLabel(providerId?: string | null): string {
+    const normalizedProviderId = String(providerId ?? "").trim().toLowerCase();
+    const suffix = REGIONAL_SUFFIXES.find((candidate) =>
+        normalizedProviderId.endsWith(candidate),
+    );
+    return suffix ? suffix.slice(1).toUpperCase() : "";
+}
+
 export function formatProviderOfferDisplayName(args: {
     providerId?: string | null;
     providerName: string;
@@ -56,13 +64,15 @@ export function formatProviderOfferDisplayName(args: {
         providerId: args.providerId,
         providerName: args.providerName,
     });
-    const offerLabel = String(args.offerLabel ?? "").trim();
+    const explicitOfferLabel = String(args.offerLabel ?? "").trim();
     const offerScope = args.offerScope ?? null;
+    const inferredRegionalLabel = inferRegionalOfferLabel(args.providerId);
+    const offerLabel = explicitOfferLabel || inferredRegionalLabel;
 
     if (!providerName) return "";
     if (!offerLabel) return providerName;
-    if (offerScope === "global") return providerName;
-    if (offerScope === "regional") {
+    if (offerScope === "global" && explicitOfferLabel) return providerName;
+    if (offerScope === "regional" || (!explicitOfferLabel && inferredRegionalLabel)) {
         const regionalLabel = normalizeRegionalOfferLabel(providerName, offerLabel);
         return regionalLabel ? `${providerName} (${regionalLabel})` : providerName;
     }
@@ -111,9 +121,12 @@ export function formatProviderOfferVariantLabel(args: {
     const offerScope = args.offerScope ?? null;
     const providerId = String(args.providerId ?? "").trim().toLowerCase();
 
-    if (offerLabel) return toTitleCase(offerLabel);
+    if (offerLabel) {
+        if (offerLabel.toLowerCase() === "priority") return "Fast";
+        return toTitleCase(offerLabel);
+    }
     if (PRIORITY_SUFFIXES.some((suffix) => providerId.endsWith(suffix))) {
-        return "Priority";
+        return "Fast";
     }
     if (REGIONAL_SUFFIXES.some((suffix) => providerId.endsWith(suffix))) {
         return "Regional";

@@ -12,6 +12,10 @@ function loadCard(relativePath: string): PriceCard {
 
 const canonicalCard = loadCard("pricing/openai/openai-gpt-5.6-sol/text.generate/pricing.json");
 const proAliasCard = loadCard("pricing/openai/openai-gpt-5.6-sol-pro/text.generate/pricing.json");
+const terraCard = loadCard("pricing/openai/openai-gpt-5.6-terra/text.generate/pricing.json");
+const terraProAliasCard = loadCard("pricing/openai/openai-gpt-5.6-terra-pro/text.generate/pricing.json");
+const lunaCard = loadCard("pricing/openai/openai-gpt-5.6-luna/text.generate/pricing.json");
+const lunaProAliasCard = loadCard("pricing/openai/openai-gpt-5.6-luna-pro/text.generate/pricing.json");
 
 describe("GPT-5.6 Sol catalogue billing", () => {
 	it.each([
@@ -37,9 +41,13 @@ describe("GPT-5.6 Sol catalogue billing", () => {
 	});
 
 	it.each([
-		["canonical slug", canonicalCard],
-		["Pro compatibility alias", proAliasCard],
-	])("applies the published high-context Priority rates for the %s", (_label, card) => {
+		["Sol canonical slug", canonicalCard, "10.800000000", "16.000000000", "60.000000000"],
+		["Sol Pro compatibility alias", proAliasCard, "10.800000000", "16.000000000", "60.000000000"],
+		["Terra canonical slug", terraCard, "6.000000000", "8.000000000", "36.000000000"],
+		["Terra Pro compatibility alias", terraProAliasCard, "6.000000000", "8.000000000", "36.000000000"],
+		["Luna canonical slug", lunaCard, "0.600000000", "0.800000000", "3.600000000"],
+		["Luna Pro compatibility alias", lunaProAliasCard, "0.600000000", "0.800000000", "3.600000000"],
+	])("applies the published high-context Priority rates for the %s", (_label, card, total, inputRate, outputRate) => {
 		const result = computeBillSummary(
 			{
 				input_tokens: 300_000,
@@ -53,8 +61,32 @@ describe("GPT-5.6 Sol catalogue billing", () => {
 			"priority",
 		);
 
-		expect(result.cost_usd_str).toBe("15.000000000");
-		expect(result.lines.find((line) => line.dimension === "input_text_tokens")?.unit_price_usd).toBe("20.000000000");
-		expect(result.lines.find((line) => line.dimension === "output_text_tokens")?.unit_price_usd).toBe("90.000000000");
+		expect(result.cost_usd_str).toBe(total);
+		expect(result.lines.find((line) => line.dimension === "input_text_tokens")?.unit_price_usd).toBe(inputRate);
+		expect(result.lines.find((line) => line.dimension === "output_text_tokens")?.unit_price_usd).toBe(outputRate);
 	});
+
+	it.each([
+		[272_000, "6.176000000", "8.000000000", "40.000000000"],
+		[272_001, "10.352016000", "16.000000000", "60.000000000"],
+	])(
+		"switches Priority pricing only above 272K input tokens (%i)",
+		(inputTokens, total, inputRate, outputRate) => {
+			const result = computeBillSummary(
+				{
+					input_tokens: inputTokens,
+					input_text_tokens: inputTokens,
+					output_tokens: 100_000,
+					output_text_tokens: 100_000,
+				},
+				canonicalCard,
+				{},
+				"priority",
+			);
+
+			expect(result.cost_usd_str).toBe(total);
+			expect(result.lines.find((line) => line.dimension === "input_text_tokens")?.unit_price_usd).toBe(inputRate);
+			expect(result.lines.find((line) => line.dimension === "output_text_tokens")?.unit_price_usd).toBe(outputRate);
+		},
+	);
 });

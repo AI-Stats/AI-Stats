@@ -12,8 +12,9 @@ import {
 import { Logo } from "@/components/Logo";
 import { cn } from "@/lib/utils";
 import type { SubscriptionPlan } from "@/lib/fetchers/models/getModelSubscriptionPlans";
+import { getLogoLabel } from "@/lib/logos";
 
-type SubscriptionPrice = {
+export type SubscriptionPrice = {
 	price: number;
 	currency: string;
 	frequency: string;
@@ -135,8 +136,25 @@ function formatPlanPriceDisplay(price: SubscriptionPrice): {
 	};
 }
 
+export function dedupeSubscriptionPlanPrices(
+	prices: SubscriptionPrice[],
+): SubscriptionPrice[] {
+	return Array.from(
+		new Map(
+			prices.map((price) => [
+				[
+					normalizePlanFrequency(price.frequency),
+					String(price.currency || "USD").trim().toUpperCase(),
+					Number(price.price),
+				].join(":"),
+				price,
+			]),
+		).values(),
+	);
+}
+
 function sortSubscriptionPlanPrices(prices: SubscriptionPrice[]): SubscriptionPrice[] {
-	return prices.toSorted((a, b) => {
+	return dedupeSubscriptionPlanPrices(prices).toSorted((a, b) => {
 		const aNonFixed = isNonFixedPlanFrequency(a.frequency);
 		const bNonFixed = isNonFixedPlanFrequency(b.frequency);
 		if (aNonFixed !== bNonFixed) return aNonFixed ? 1 : -1;
@@ -165,10 +183,10 @@ function sortSubscriptionPlanPrices(prices: SubscriptionPrice[]): SubscriptionPr
 	});
 }
 
-function sortSubscriptionPlanPricesForDisplay(
+export function sortSubscriptionPlanPricesForDisplay(
 	prices: SubscriptionPrice[],
 ): SubscriptionPrice[] {
-	return prices.toSorted((a, b) => {
+	return dedupeSubscriptionPlanPrices(prices).toSorted((a, b) => {
 		const aNonFixed = isNonFixedPlanFrequency(a.frequency);
 		const bNonFixed = isNonFixedPlanFrequency(b.frequency);
 		if (aNonFixed !== bNonFixed) return aNonFixed ? 1 : -1;
@@ -285,7 +303,11 @@ export default function ModelSubscriptionsClient({
 }) {
 	const groupedPlans = subscriptionPlans.reduce<SubscriptionPlanGroup[]>((groups, plan) => {
 		const organisationId = plan.organisation?.organisation_id ?? plan.organisation_id;
-		const organisationName = plan.organisation?.name ?? "Unknown provider";
+		const sourceOrganisationName = plan.organisation?.name?.trim();
+		const organisationName = !sourceOrganisationName ||
+			normalizeIdentity(sourceOrganisationName) === normalizeIdentity(organisationId)
+			? getLogoLabel(organisationId)
+			: sourceOrganisationName;
 		const existing = groups.find((group) => group.organisationId === organisationId);
 		if (existing) {
 			existing.plans.push(plan);

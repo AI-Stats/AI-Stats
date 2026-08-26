@@ -233,7 +233,7 @@ begin
   into
     used_day_reqs, used_wk_reqs, used_mo_reqs,
     used_day_cost, used_wk_cost, used_mo_cost
-  from public.v2_rpc_gateway_requests_legacy_shape gr
+  from public.gateway_requests gr
   where gr.key_id  = gateway_fetch_request_context.api_key_id
     and gr.workspace_id = gateway_fetch_request_context.workspace_id
     and gr.success is true;
@@ -370,7 +370,7 @@ begin
     team_spend_30d_nanos,
     team_requests_1h,
     team_requests_24h
-  from public.v2_rpc_gateway_requests_legacy_shape gr
+  from public.gateway_requests gr
   where gr.workspace_id = gateway_fetch_request_context.workspace_id
     and gr.success is true;
 
@@ -417,7 +417,7 @@ begin
   into
     key_total_requests,
     key_total_spend_nanos
-  from public.v2_rpc_gateway_requests_legacy_shape gr
+  from public.gateway_requests gr
   where gr.key_id = gateway_fetch_request_context.api_key_id
     and gr.success is true;
 

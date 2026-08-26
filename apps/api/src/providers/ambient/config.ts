@@ -7,5 +7,6 @@ export const AMBIENT_OPENAI_COMPAT_CONFIGS = {
 		pathPrefix: "/v1",
 		apiKeyEnv: "AMBIENT_API_KEY",
 		baseUrlEnv: "AMBIENT_BASE_URL",
+		supportsResponses: true,
 	},
 } satisfies Record<string, OpenAICompatConfig>;

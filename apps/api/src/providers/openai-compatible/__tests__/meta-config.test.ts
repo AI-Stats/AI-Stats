@@ -62,6 +62,12 @@ describe("Meta OpenAI-compatible config", () => {
 		expect(openAICompatUrl("meta-contributor", "/responses")).toBe(
 			"https://api.meta.ai/v1/responses",
 		);
+		expect(openAICompatUrl("meta", "/images/generations")).toBe(
+			"https://api.meta.ai/v1/images/generations",
+		);
+		expect(openAICompatUrl("meta", "/images/edits")).toBe(
+			"https://api.meta.ai/v1/images/edits",
+		);
 	});
 
 	it("supports the gateway and official Meta Model API key names", () => {
@@ -88,6 +94,17 @@ describe("Meta OpenAI-compatible config", () => {
 		} as any).key).toBe("test-official-meta-key");
 		expect(resolveOpenAICompatKey({
 			providerId: "meta-contributor",
+			byokMeta: [],
+		} as any).key).toBe("test-official-meta-key");
+
+		teardownTestRuntime();
+		setupRuntimeFromEnv({
+			MODEL_API_KEY: "test-official-meta-key",
+			META_MODEL_API_KEY: "test-legacy-meta-key",
+		} as any);
+
+		expect(resolveOpenAICompatKey({
+			providerId: "meta",
 			byokMeta: [],
 		} as any).key).toBe("test-official-meta-key");
 

@@ -9,7 +9,7 @@ export const CROFAI_BASE_URL_ENVS = ["CROFAI_BASE_URL", "CROF_AI_BASE_URL"] as c
 
 export const CROFAI_OPENAI_COMPAT_CONFIG = {
 	providerId: "crofai",
-	baseUrl: "https://crof.ai",
+	baseUrl: "https://ai.nahcrof.com",
 	pathPrefix: "/v1",
 	apiKeyEnv: "CROFAI_API_KEY",
 	baseUrlEnv: "CROFAI_BASE_URL",

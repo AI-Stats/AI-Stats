@@ -11,32 +11,33 @@ const openai = JSON.parse(await readFile(path.join(root, "contracts", "openai", 
 // labelled as official-docs-derived overlays rather than vendor OpenAPI snapshots.
 const providers = [
   { id: "ai21", name: "AI21", prefix: "/studio/v1", docs: "https://docs.ai21.com/reference/chat-completions-api" },
-  { id: "aion-labs", name: "Aion Labs", prefix: "/v1", docs: "https://docs.aionlabs.ai/" },
+  { id: "aion-labs", name: "Aion Labs", prefix: "/v1", docs: "https://api.aionlabs.ai/docs/api-reference/", responses: true },
   { id: "akashml", name: "AkashML", prefix: "/v1", docs: "https://akash.network/docs/api-documentation/" },
   { id: "alibaba-cloud", name: "Alibaba Cloud Model Studio", prefix: "/compatible-mode/v1", docs: "https://www.alibabacloud.com/help/en/model-studio/compatibility-of-openai-with-dashscope" },
   { id: "arcee-ai", name: "Arcee AI", prefix: "/api/v1", docs: "https://docs.arcee.ai/" },
   { id: "atlascloud", name: "Atlas Cloud", prefix: "/v1", docs: "https://docs.atlascloud.ai/" },
   { id: "avian", name: "Avian", prefix: "/v1", docs: "https://docs.avian.io/" },
-  { id: "byteplus", name: "BytePlus ModelArk", prefix: "/api/v3", docs: "https://docs.byteplus.com/en/docs/ModelArk/ChatCompletions" },
+  { id: "byteplus", name: "BytePlus ModelArk", prefix: "/api/v3", docs: "https://docs.byteplus.com/en/docs/ModelArk/ChatCompletions", responses: true },
+  { id: "canopy-wave", name: "Canopy Wave", prefix: "/v1", docs: "https://canopywave.com/docs/get-started/quick-start" },
   { id: "cerebras", name: "Cerebras", prefix: "/v1", docs: "https://inference-docs.cerebras.ai/api-reference/chat-completions" },
   { id: "chutes", name: "Chutes", prefix: "/v1", docs: "https://chutes.ai/docs" },
-  { id: "clarifai", name: "Clarifai", prefix: "/v1", docs: "https://docs.clarifai.com/compute/inference/openai/" },
+  { id: "clarifai", name: "Clarifai", prefix: "/v2/ext/openai/v1", docs: "https://docs.clarifai.com/compute/inference/open-ai/", responses: true },
   { id: "cloudflare", name: "Cloudflare AI Gateway", prefix: "", docs: "https://developers.cloudflare.com/ai-gateway/usage/providers/openai-compatible/" },
   { id: "cohere", name: "Cohere", prefix: "/compatibility/v1", docs: "https://docs.cohere.com/docs/compatibility-api" },
-  { id: "crofai", name: "CrofAI", prefix: "/v1", docs: "https://docs.crof.ai/" },
+  { id: "crofai", name: "CrofAI", prefix: "/v1", docs: "https://crof.ai/home" },
   { id: "crusoe", name: "Crusoe Cloud", prefix: "/v1", docs: "https://docs.crusoecloud.com/ai/" },
   { id: "darkbloom", name: "Darkbloom", prefix: "/v1", docs: "https://docs.darkbloom.dev/" },
   { id: "deepseek", name: "DeepSeek", prefix: "/v1", docs: "https://api-docs.deepseek.com/api/create-chat-completion" },
   { id: "featherless", name: "Featherless AI", prefix: "/v1", docs: "https://featherless.ai/docs" },
   { id: "gmicloud", name: "GMI Cloud", prefix: "/v1", docs: "https://docs.gmicloud.ai/" },
   { id: "groq", name: "Groq", prefix: "/openai/v1", docs: "https://console.groq.com/docs/api-reference" , responses: true },
-  { id: "hyperbolic", name: "Hyperbolic", prefix: "/v1", docs: "https://docs.hyperbolic.xyz/docs/getting-started" },
+  { id: "hyperbolic", name: "Hyperbolic", prefix: "/v1", docs: "https://docs.hyperbolic.xyz/docs/rest-api" },
   { id: "inception", name: "Inception Labs", prefix: "/v1", docs: "https://docs.inceptionlabs.ai/" },
   { id: "inference-net", name: "Inference.net", prefix: "/v1", docs: "https://docs.inference.net/" },
-  { id: "infermatic", name: "Infermatic", prefix: "/v1", docs: "https://infermatic.ai/docs" },
-  { id: "inflection", name: "Inflection AI", prefix: "/v1", docs: "https://developers.inflection.ai/docs" },
+  { id: "infermatic", name: "Infermatic", prefix: "/v1", docs: "https://ui.infermatic.ai/docs" },
+  { id: "inflection", name: "Inflection AI", prefix: "/v1", docs: "https://developers.inflection.ai/api/docs" },
   { id: "ionrouter", name: "IonRouter", prefix: "/v1", docs: "https://docs.ionrouter.io/" },
-  { id: "longcat", name: "LongCat", prefix: "/openai/v1", docs: "https://longcat.chat/platform/docs" },
+  { id: "longcat", name: "LongCat", prefix: "/openai/v1", docs: "https://longcat.chat/platform/docs/APIDocs.html" },
   { id: "liquid-ai", name: "Liquid AI", prefix: "/v1", docs: "https://docs.liquid.ai/api-reference" },
   { id: "mancer", name: "Mancer", prefix: "/oai/v1", docs: "https://mancer.tech/docs" },
   { id: "mara", name: "Mara", prefix: "/v1", docs: "https://docs.mara.com/" },
@@ -55,6 +56,7 @@ const providers = [
   { id: "reka", name: "Reka", prefix: "/v1", docs: "https://docs.reka.ai/api-reference/chat" },
   { id: "relace", name: "Relace", prefix: "/v1", docs: "https://docs.relace.ai/api-reference" },
   { id: "sakana", name: "Sakana AI", prefix: "/v1", docs: "https://docs.sakana.ai/" },
+  { id: "sail-research", name: "Sail Research", prefix: "/v1", docs: "https://docs.sailresearch.com/support", responses: true },
   { id: "sambanova", name: "SambaNova Cloud", prefix: "/v1", docs: "https://docs.sambanova.ai/cloud/docs/api-reference" },
   { id: "scaleway", name: "Scaleway Generative APIs", prefix: "/v1", docs: "https://www.scaleway.com/en/docs/generative-apis/api-cli/openai-compatibility/" },
   { id: "sourceful", name: "Sourceful", prefix: "/v1", docs: "https://docs.sourceful.ai/" },
@@ -75,7 +77,17 @@ function collectRefs(value, refs) {
   }
 }
 
-for (const provider of providers) {
+const requestedProviderIds = new Set(process.argv.slice(2));
+const knownProviderIds = new Set(providers.map((provider) => provider.id));
+const unknownProviderIds = [...requestedProviderIds].filter((id) => !knownProviderIds.has(id));
+if (unknownProviderIds.length > 0) {
+  throw new Error(`Unknown provider IDs: ${unknownProviderIds.join(", ")}`);
+}
+const selectedProviders = requestedProviderIds.size > 0
+  ? providers.filter((provider) => requestedProviderIds.has(provider.id))
+  : providers;
+
+for (const provider of selectedProviders) {
   const operationDefinitions = [
     { capability: "chat", sourcePath: "/chat/completions", path: `${provider.prefix}/chat/completions` },
     ...(provider.responses ? [{ capability: "responses", sourcePath: "/responses", path: `${provider.prefix}/responses` }] : []),
