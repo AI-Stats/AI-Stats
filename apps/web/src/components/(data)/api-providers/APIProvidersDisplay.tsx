@@ -547,10 +547,10 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 
 					<div className="hidden md:block">
 						<div className="hidden lg:block">
-							<div className="flex items-center justify-between gap-4">
-								<div className="flex h-8 min-w-0 shrink-0 items-center">{showPrimaryHeader ? <h1 className="font-bold text-xl leading-8">Providers</h1> : null}</div>
-								<div className="flex min-w-0 flex-1 items-center justify-end gap-3">
-									<div className="relative min-w-[15rem] max-w-[22rem] flex-1 2xl:max-w-[28rem]">
+							<div className="flex flex-wrap items-center justify-between gap-2">
+								<div className="flex h-8 shrink-0 items-center">{showPrimaryHeader ? <h1 className="font-bold text-xl leading-8">Providers</h1> : null}</div>
+								<div className="flex min-w-[min(100%,30rem)] flex-1 items-center justify-end gap-3">
+									<div className="relative min-w-32 max-w-[22rem] flex-1 2xl:max-w-[28rem]">
 										<Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
 										<Input placeholder="Search" value={search} onChange={(event) => void setSearch(event.target.value, { limitUrlUpdates: debounce(250) })} className="h-8 w-full rounded-md border border-border bg-background pl-9 pr-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-primary" style={{ minWidth: 0 }} />
 									</div>
@@ -613,7 +613,7 @@ export default function APIProvidersDisplay({ providers, showPrimaryHeader = tru
 								</div>
 							</div>
 						) : filteredProviders.length ? <div className="grid grid-cols-1 gap-px md:grid-cols-2 2xl:grid-cols-3">
-							{filteredProviders.map((provider, index) => <div key={provider.api_provider_id} className={cn("bg-background", index % 2 === 1 ? "md:pl-3" : "md:pr-3", index % 3 === 1 ? "2xl:px-3" : index % 3 === 2 ? "2xl:pl-3" : "2xl:pr-3")}><APIProviderCard api_provider={provider} /></div>)}
+							{filteredProviders.map((provider) => <APIProviderCard key={provider.api_provider_id} api_provider={provider} />)}
 							{Array.from({ length: mdFillers }).map((_, index) => <div key={`md-filler-${index}`} aria-hidden className="hidden bg-background md:block 2xl:hidden" />)}
 							{Array.from({ length: twoXlFillers }).map((_, index) => <div key={`2xl-filler-${index}`} aria-hidden className="hidden bg-background 2xl:block" />)}
 						</div> : <div className="flex min-h-64 flex-col items-center justify-center gap-2 bg-background px-4 text-center"><Search className="size-5 text-muted-foreground" /><p className="text-sm font-medium">No providers found</p><p className="text-xs text-muted-foreground">Try changing your search or filters.</p>{activeFilterCount ? <Button variant="outline" size="sm" className="mt-2 rounded-md" onClick={resetFilters}>Reset Filters</Button> : null}</div>}
