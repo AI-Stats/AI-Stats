@@ -96,6 +96,7 @@ import { loadPriceCard } from "../pricing";
 import { stripUsagePricing } from "../usage";
 import { getEffectiveRoutingHints } from "../requestRouting";
 import { sanitizeUrlForLogging } from "@/lib/security/sanitizeUrl";
+import { extractDownstreamRateLimitHeaders } from "../upstream-rate-limit-headers";
 
 const ATTEMPT_PREVIEW_LIMIT = 320;
 const MAX_UPSTREAM_ERROR_BODY_BYTES = 32 * 1024;
@@ -954,6 +955,17 @@ async function attemptProviderWithIR(
 				upstreamFailure.payload,
 				executorResult.upstream.headers,
 			);
+			const effectiveKeySource = executorResult.keySource ?? credentialLog.key_source;
+			const upstreamRateLimitHeaders = extractDownstreamRateLimitHeaders(
+				executorResult.upstream.headers,
+				{
+					includeQuotaDetails: effectiveKeySource === "byok",
+					fallbackRetryAfterMs:
+						executorResult.upstream.status === 429
+							? executorResult.timing?.transientRetryDelayMs
+							: null,
+				},
+			);
 			const durationMs = Math.round(performance.now() - attemptStartedAt);
 			attemptErrors.push({
 				...credentialLog,
@@ -966,9 +978,12 @@ async function attemptProviderWithIR(
 				status: executorResult.upstream.status,
 				status_text: executorResult.upstream.statusText || null,
 				upstream_url: sanitizeUrlForLogging(executorResult.upstream.url || null),
-				key_source: executorResult.keySource ?? credentialLog.key_source,
+				key_source: effectiveKeySource,
 				byok_key_id: executorResult.byokKeyId ?? credentialLog.byok_key_id,
 				upstream_payload_preview: upstreamFailure.payload_preview,
+				upstream_rate_limit_headers: Object.keys(upstreamRateLimitHeaders).length
+					? upstreamRateLimitHeaders
+					: null,
 				...upstreamSummary,
 			});
 			recordProviderAttempt(ctx, {
@@ -1154,5 +1169,4 @@ async function attemptProviderWithIR(
 		return { ok: false };
 	}
 }
-
 

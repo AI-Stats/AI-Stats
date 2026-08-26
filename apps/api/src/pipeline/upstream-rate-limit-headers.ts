@@ -1,0 +1,91 @@
+// Purpose: Safely normalize upstream rate-limit metadata for gateway clients.
+// Why: Retry guidance is useful downstream, but provider headers may contain
+// shared-account capacity or unrelated sensitive metadata.
+
+const MAX_RETRY_AFTER_SECONDS = 24 * 60 * 60;
+const MAX_QUOTA_VALUE_LENGTH = 128;
+
+const QUOTA_HEADER_MAP = [
+	["ratelimit-limit", "X-Phaseo-Upstream-RateLimit-Limit"],
+	["ratelimit-remaining", "X-Phaseo-Upstream-RateLimit-Remaining"],
+	["ratelimit-reset", "X-Phaseo-Upstream-RateLimit-Reset"],
+	["x-ratelimit-limit", "X-Phaseo-Upstream-RateLimit-Limit"],
+	["x-ratelimit-remaining", "X-Phaseo-Upstream-RateLimit-Remaining"],
+	["x-ratelimit-reset", "X-Phaseo-Upstream-RateLimit-Reset"],
+	["x-ratelimit-limit-requests", "X-Phaseo-Upstream-RateLimit-Limit-Requests"],
+	["x-ratelimit-remaining-requests", "X-Phaseo-Upstream-RateLimit-Remaining-Requests"],
+	["x-ratelimit-reset-requests", "X-Phaseo-Upstream-RateLimit-Reset-Requests"],
+	["x-ratelimit-limit-tokens", "X-Phaseo-Upstream-RateLimit-Limit-Tokens"],
+	["x-ratelimit-remaining-tokens", "X-Phaseo-Upstream-RateLimit-Remaining-Tokens"],
+	["x-ratelimit-reset-tokens", "X-Phaseo-Upstream-RateLimit-Reset-Tokens"],
+] as const;
+
+export const EXPOSED_UPSTREAM_RATE_LIMIT_HEADERS = [
+	"Retry-After",
+	...Array.from(new Set(QUOTA_HEADER_MAP.map(([, downstream]) => downstream))),
+];
+
+function normalizeRetryAfter(value: string | null, nowMs = Date.now()): string | null {
+	if (!value) return null;
+	const trimmed = value.trim();
+	if (/^\d+$/.test(trimmed)) {
+		const seconds = Number(trimmed);
+		if (!Number.isSafeInteger(seconds) || seconds < 0 || seconds > MAX_RETRY_AFTER_SECONDS) return null;
+		return String(seconds);
+	}
+
+	const retryAtMs = Date.parse(trimmed);
+	if (!Number.isFinite(retryAtMs)) return null;
+	const seconds = Math.ceil((retryAtMs - nowMs) / 1000);
+	if (seconds < 0 || seconds > MAX_RETRY_AFTER_SECONDS) return null;
+	return String(seconds);
+}
+
+function normalizeQuotaValue(value: string | null): string | null {
+	if (!value) return null;
+	const trimmed = value.trim();
+	if (!trimmed || trimmed.length > MAX_QUOTA_VALUE_LENGTH) return null;
+	// Rate-limit values are counts, timestamps, or compact durations. Requiring
+	// a leading digit prevents arbitrary provider text from becoming a header.
+	if (!/^[0-9][0-9A-Za-z.,:+\- ]*$/.test(trimmed)) return null;
+	return trimmed;
+}
+
+export function extractDownstreamRateLimitHeaders(
+	upstreamHeaders: Headers,
+	options: { includeQuotaDetails: boolean; fallbackRetryAfterMs?: number | null },
+): Record<string, string> {
+	const downstream: Record<string, string> = {};
+	const retryAfter = normalizeRetryAfter(upstreamHeaders.get("retry-after"));
+	if (retryAfter != null) {
+		downstream["Retry-After"] = retryAfter;
+	} else if (
+		typeof options.fallbackRetryAfterMs === "number" &&
+		Number.isFinite(options.fallbackRetryAfterMs) &&
+		options.fallbackRetryAfterMs >= 0
+	) {
+		downstream["Retry-After"] = String(
+			Math.min(MAX_RETRY_AFTER_SECONDS, Math.ceil(options.fallbackRetryAfterMs / 1000)),
+		);
+	}
+
+	if (!options.includeQuotaDetails) return downstream;
+
+	for (const [upstreamName, downstreamName] of QUOTA_HEADER_MAP) {
+		if (downstream[downstreamName] != null) continue;
+		const value = normalizeQuotaValue(upstreamHeaders.get(upstreamName));
+		if (value != null) downstream[downstreamName] = value;
+	}
+	return downstream;
+}
+
+export function applyDownstreamRateLimitHeaders(
+	responseHeaders: Headers,
+	headers: Record<string, unknown> | null | undefined,
+): void {
+	if (!headers) return;
+	for (const allowedName of EXPOSED_UPSTREAM_RATE_LIMIT_HEADERS) {
+		const value = headers[allowedName];
+		if (typeof value === "string" && value.length > 0) responseHeaders.set(allowedName, value);
+	}
+}
