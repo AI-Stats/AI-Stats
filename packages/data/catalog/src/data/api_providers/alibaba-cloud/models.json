@@ -4413,57 +4413,62 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "qwen/qwen3.8-flash-next",
-    "provider_api_model_id": "alibaba-cloud:qwen/qwen3.8-flash-next",
-    "provider_model_slug": null,
-    "internal_model_id": "qwen/qwen3.8-flash-next",
-    "is_active_gateway": false,
+    "api_model_id": "qwen/qwen3.8-flash",
+    "provider_api_model_id": "alibaba-cloud:qwen/qwen3.8-flash",
+    "provider_model_slug": "qwen3.8-flash",
+    "internal_model_id": "qwen/qwen3.8-flash",
+    "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": "text,image",
+    "input_modalities": "text,image,video",
     "output_modalities": "text",
-    "context_length": 262144,
+    "context_length": 1000000,
     "max_output_tokens": null,
-    "effective_from": null,
+    "effective_from": "2026-08-26T00:00:00",
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "coming_soon",
+        "status": "active",
         "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
         "attachment": true,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": "disabled",
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai",
+        "anthropic"
+      ],
       "endpoint": null,
       "deployment": null
     },
     "sources": [
       {
-        "kind": "provider_announcement",
-        "url": "https://x.com/Alibaba_Qwen/status/2092591393424515114",
+        "kind": "models",
+        "url": "https://modelstudio.console.alibabacloud.com/ap-southeast-1/?tab=doc#/doc/?type=model&url=2840914_2&modelId=qwen3.8-flash&serviceSite=international",
         "accessed_at": "2026-08-26T00:00:00Z",
-        "notes": "Qwen announced the production QwenCloud API version based on Qwen3.8-Flash-Next and its planned token pricing."
+        "notes": "Model Studio lists the production qwen3.8-flash endpoint, multimodal inputs, million-token context, supported capabilities, and OpenAI/Anthropic-compatible APIs."
       }
     ],
     "verification": {
-      "status": "partial",
+      "status": "verified",
       "checked_at": "2026-08-26T00:00:00Z",
-      "notes": "Production API is announced but not yet available; the exact provider slug and endpoint details remain unverified."
+      "notes": "Verified against the live Alibaba Cloud Model Studio model page."
     },
     "rate_limits": []
   },
