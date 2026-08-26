@@ -156,6 +156,7 @@ export const BINDING_KEYS: Array<keyof GatewayBindings> = [
     "GMI_API_KEY",
     "GMI_CLOUD_API_KEY",
     "GMI_BASE_URL",
+    "GMI_QUEUE_BASE_URL",
     "GROQ_API_KEY",
     "GROQ_BASE_URL",
     "GOOGLE_VERTEX_API_KEY",

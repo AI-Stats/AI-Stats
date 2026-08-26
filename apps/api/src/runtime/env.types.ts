@@ -143,6 +143,7 @@ export type GatewayBindings = {
     GMI_API_KEY?: string;
     GMI_CLOUD_API_KEY?: string;
     GMI_BASE_URL?: string;
+    GMI_QUEUE_BASE_URL?: string;
     GROQ_API_KEY?: string;
     GROQ_BASE_URL?: string;
     GOOGLE_VERTEX_API_KEY?: string;

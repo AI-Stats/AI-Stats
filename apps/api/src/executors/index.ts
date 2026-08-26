@@ -66,6 +66,8 @@ import { executor as crusoeText } from "./crusoe/text-generate";
 import { executor as featherlessText } from "./featherless/text-generate";
 import { executor as friendliText } from "./friendli/text-generate";
 import { executor as gmicloudText } from "./gmicloud/text-generate";
+import { executor as gmicloudMusic } from "./gmicloud/music-generate";
+import { executor as gmicloudAudioSpeech } from "./gmicloud/audio-speech";
 import { executor as hyperbolicText } from "./hyperbolic/text-generate";
 import { executor as inceptionText } from "./inception/text-generate";
 import { executor as infermaticText } from "./infermatic/text-generate";
@@ -324,7 +326,11 @@ export const EXECUTORS_BY_PROVIDER: Record<string, ProviderCapabilityMap> = {
 	featherless: { "text.generate": featherlessText },
 	friendli: { "text.generate": friendliText },
 	deepseek: { "text.generate": deepseekText },
-	gmicloud: { "text.generate": gmicloudText },
+	gmicloud: {
+		"text.generate": gmicloudText,
+		"music.generate": gmicloudMusic,
+		"audio.speech": gmicloudAudioSpeech,
+	},
 	hyperbolic: { "text.generate": hyperbolicText },
 	inception: { "text.generate": inceptionText },
 	infermatic: { "text.generate": infermaticText },

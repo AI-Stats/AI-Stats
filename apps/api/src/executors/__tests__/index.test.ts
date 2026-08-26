@@ -380,6 +380,8 @@ describe("resolveProviderExecutor", () => {
 		expect(resolveProviderExecutor("suno", "music.generate")).toBeNull();
 		expect(resolveProviderExecutor("elevenlabs", "music.generate")).toBeTruthy();
 		expect(resolveProviderExecutor("minimax", "music.generate")).toBeTruthy();
+		expect(resolveProviderExecutor("gmicloud", "audio.speech")).toBeTruthy();
+		expect(resolveProviderExecutor("gmicloud", "music.generate")).toBeTruthy();
 		expect(resolveProviderExecutor("minimax-lightning", "music.generate")).toBeNull();
 
 		expect(resolveProviderExecutor("anthropic", "images.generations")).toBeNull();
