@@ -1,94 +1,77 @@
 {
   "model_id": "stealth/ox-alpha",
   "organisation_id": "stealth",
-  "name": "Stealth Ox Alpha",
-  "status": "Available",
+  "name": "Ox Alpha",
+  "status": "Retired",
   "previous_model_id": null,
-  "description": "Stealth Ox Alpha is a reasoning model available during a stealth release, with its developer currently undisclosed. It is designed for coding, sustained agentic work, complex reasoning and workflows combining text with visual context.",
-  "announced_date": null,
-  "release_date": "2026-08-21",
-  "deprecation_date": null,
-  "retirement_date": null,
-  "license": null,
-  "input_types": [
-    "text",
-    "image",
-    "video"
-  ],
-  "output_types": [
-    "text"
-  ],
+  "description": "Ox Alpha was an anonymous stealth-preview reasoning model for coding, sustained agentic work, and production workloads. OpenRouter reported that the model was revealed as Z.AI GLM-5.3-Flash and is no longer available under the Ox Alpha name.",
+  "announced_date": "2026-08-20T00:00:00",
+  "release_date": "2026-08-20T00:00:00",
+  "deprecation_date": "2026-08-26T00:00:00",
+  "retirement_date": "2026-08-26T00:00:00",
+  "license": "Proprietary",
+  "input_types": "text,image,video",
+  "output_types": "text",
   "api_model_id": "stealth/ox-alpha",
   "links": [
     {
-      "platform": "model",
-      "title": "Model source",
+      "title": "OpenRouter model page",
+      "kind": "catalogue",
       "url": "https://openrouter.ai/stealth/ox-alpha"
     }
   ],
-  "details": [],
+  "details": [
+    {
+      "name": "context_length",
+      "value": "1,048,576 tokens"
+    },
+    {
+      "name": "revealed_identity",
+      "value": "OpenRouter reported that Ox Alpha was revealed as Z.AI GLM-5.3-Flash; this record preserves the retired Ox Alpha identity rather than aliasing it to the replacement."
+    }
+  ],
   "benchmarks": [],
   "family_id": null,
-  "page_notice": {
-    "tone": "info",
-    "markdown": "Ox Alpha is a multimodal reasoning model from Z.AI for coding, sustained agentic work, and complex problem solving. It accepts text, image, and video inputs and supports tool calling, structured outputs, and a 1M-token context window. Ox Alpha is GLM 5.3 Flash. [View the GLM 5.3 Flash model page](/models/z-ai/glm-5.3-flash)."
-  },
-  "model_type": "language",
+  "page_notice": null,
+  "model_type": "chat",
   "knowledge_cutoff": null,
   "limits": {
     "context": 1048576,
     "input": null,
-    "output": 131072
+    "output": null
   },
   "modalities": {
-    "input": [
-      "text",
-      "image",
-      "video"
-    ],
-    "output": [
-      "text"
-    ]
+    "input": ["text", "image/*", "video/*"],
+    "output": ["text"]
   },
   "reasoning": {
     "supported": true,
-    "options": [
-      "none",
-      "low",
-      "medium",
-      "high"
-    ]
+    "options": []
   },
   "capabilities": {
     "attachment": true,
     "tool_call": true,
-    "structured_output": true,
+    "structured_output": null,
     "temperature": null,
     "streaming": true,
-    "web_search": true
+    "web_search": null
   },
   "open_weights": false,
   "sources": [
     {
-      "kind": "provider_models",
-      "url": "https://api.venice.ai/api/v1/models",
-      "accessed_at": "2026-08-21T00:00:00Z",
-      "notes": "Venice live model metadata and public inference availability."
-    },
-    {
-      "kind": "models",
+      "kind": "provider_catalogue",
       "url": "https://openrouter.ai/stealth/ox-alpha",
-      "accessed_at": "2026-08-22T00:00:00Z",
-      "notes": "Public model listing identifies Ox Alpha under the stealth namespace."
+      "accessed_at": "2026-08-26T00:00:00Z",
+      "notes": "OpenRouter lists the model as released on 2026-08-20, records that it was revealed as Z.AI GLM-5.3-Flash, and directs users to that replacement model. The Ox Alpha route is therefore retained as historical catalogue data and explicitly retired today."
     }
   ],
   "verification": {
-    "status": "partial",
-    "checked_at": "2026-08-22",
-    "notes": "Model availability and capabilities are verified against Venice's live models API. The developer is currently undisclosed, so the model is grouped under Phaseo's generic Stealth organisation."
+    "status": "verified",
+    "checked_at": "2026-08-26T00:00:00Z",
+    "notes": "Retirement is based on the current OpenRouter model page stating that Ox Alpha was revealed as Z.AI GLM-5.3-Flash and is no longer the active model identity."
   },
-  "last_updated": "2026-08-22",
-  "removal_date": null,
+  "last_updated": "2026-08-26T00:00:00",
+  "removal_date": "2026-08-26T00:00:00",
   "replacement_model_id": null,
   "license_url": null
 }

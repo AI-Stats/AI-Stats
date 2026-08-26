@@ -7928,7 +7928,7 @@
     "context_length": 1048576,
     "max_output_tokens": 131072,
     "effective_from": "2026-08-21T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-26T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -7952,7 +7952,9 @@
         "modes": []
       }
     ],
-    "routing_status": null,
+    "provider_status": "removed",
+    "phaseo_status": "disabled",
+    "routing_status": "retired",
     "routable": false,
     "regions": {
       "execution": [
