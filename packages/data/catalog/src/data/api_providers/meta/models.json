@@ -1,10 +1,11 @@
 [
   {
     "api_model_id": "meta/muse-image-1.0",
+    "canonical_model_id": "meta/muse-image-1.0",
     "provider_api_model_id": "meta:meta/muse-image-1.0",
     "provider_model_slug": "muse-image-1.0",
     "internal_model_id": "meta/muse-image-1.0",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "image",
@@ -52,19 +53,21 @@
         "modes": []
       }
     ],
-    "routing_status": null,
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {"execution": null, "data": null},
-    "service_tiers": [],
-    "api": {"formats": [], "endpoint": null, "deployment": null},
+    "service_tiers": ["standard"],
+    "api": {"formats": ["openai-images"], "endpoint": "/v1/images/generations", "deployment": null},
     "sources": [
+      {"url": "https://dev.meta.ai/docs/image-generation/", "kind": "documentation"},
+      {"url": "https://dev.meta.ai/docs/api-reference/", "kind": "documentation"},
       {"url": "https://ai.meta.com/blog/introducing-muse-image-muse-video-msl/", "kind": "official"},
       {"url": "https://about.fb.com/news/2026/07/introducing-muse-image-meta-ai/", "kind": "official"}
     ],
     "verification": {
       "status": "unverified",
       "checked_at": "2026-08-26T00:00:00Z",
-      "notes": "Consumer Meta AI image model. Image API access remains Coming Soon pending authoritative developer documentation."
+      "notes": "Meta documents Muse Image generation and editing through the Responses API and OpenAI-compatible images endpoints."
     },
     "rate_limits": []
   },
