@@ -1,8 +1,8 @@
 {
-  "key": "alibaba-cloud:qwen/qwen3.8-flash:text.generate",
+  "key": "alibaba-cloud:qwen/qwen3.8-flash-next:text.generate",
   "api_provider_id": "alibaba-cloud",
   "provider_slug": "alibaba-cloud",
-  "api_model_id": "qwen/qwen3.8-flash",
+  "api_model_id": "qwen/qwen3.8-flash-next",
   "capability_id": "text.generate",
   "rules": [
     {

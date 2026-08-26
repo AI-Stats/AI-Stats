@@ -4413,10 +4413,10 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "qwen/qwen3.8-flash",
-    "provider_api_model_id": "alibaba-cloud:qwen/qwen3.8-flash",
+    "api_model_id": "qwen/qwen3.8-flash-next",
+    "provider_api_model_id": "alibaba-cloud:qwen/qwen3.8-flash-next",
     "provider_model_slug": null,
-    "internal_model_id": "qwen/qwen3.8-flash",
+    "internal_model_id": "qwen/qwen3.8-flash-next",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image",
@@ -4457,13 +4457,13 @@
         "kind": "provider_announcement",
         "url": "https://x.com/Alibaba_Qwen/status/2092591393424515114",
         "accessed_at": "2026-08-26T00:00:00Z",
-        "notes": "Qwen announced the production QwenCloud API version and its planned token pricing."
+        "notes": "Qwen announced the production QwenCloud API version based on Qwen3.8-Flash-Next and its planned token pricing."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-26T00:00:00Z",
-      "notes": "Production API is announced but not yet available; exact provider slug and endpoint details remain unverified."
+      "notes": "Production API is announced but not yet available; the exact provider slug and endpoint details remain unverified."
     },
     "rate_limits": []
   },
