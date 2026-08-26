@@ -16,7 +16,7 @@
       "match": [],
       "priority": 100,
       "effective_from": "2026-08-14T20:02:16Z",
-      "effective_to": null,
+      "effective_to": "2026-08-23T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -33,7 +33,7 @@
       "match": [],
       "priority": 100,
       "effective_from": "2026-08-14T20:02:16Z",
-      "effective_to": null,
+      "effective_to": "2026-08-23T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -50,7 +50,55 @@
       "match": [],
       "priority": 100,
       "effective_from": "2026-08-14T20:02:16Z",
-      "effective_to": null,
+      "effective_to": "2026-08-23T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://crof.ai/v1/models"
+    },
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.35,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Reconfirmed from CrofAI's live /v1/models payload on 2026-08-26.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-26T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://crof.ai/v1/models"
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.01,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Reconfirmed from CrofAI's live /v1/models payload on 2026-08-26.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-26T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://crof.ai/v1/models"
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.8,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Reconfirmed from CrofAI's live /v1/models payload on 2026-08-26.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-26T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -65,19 +113,19 @@
     {
       "kind": "api",
       "url": "https://crof.ai/v1/models",
-      "accessed_at": "2026-08-14T00:00:00Z",
-      "notes": "Official CrofAI live model payload lists the route and current token rates."
+      "accessed_at": "2026-08-26T00:00:00Z",
+      "notes": "Official current CrofAI live model payload."
     },
     {
-      "kind": "announcement",
-      "url": "https://x.com/nahcrof/status/2088355545329643983",
-      "accessed_at": "2026-08-14T00:00:00Z",
-      "notes": "CrofAI announced deepseek-v4-pro-0813 as live at $0.35 input, $0.01 cache, and $0.80 output per 1M tokens."
+      "kind": "pricing",
+      "url": "https://crof.ai/pricing",
+      "accessed_at": "2026-08-26T00:00:00Z",
+      "notes": "Official current CrofAI pricing payload."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-14T00:00:00Z",
-    "notes": "Confirmed against CrofAI's live /v1/models response and launch announcement."
+    "checked_at": "2026-08-26T00:00:00Z",
+    "notes": "Reconfirmed at $0.35/M input, $0.01/M cached input and $0.80/M output."
   }
 }
