@@ -1,0 +1,76 @@
+{
+  "model_id": "meta/muse-image-1.0",
+  "organisation_id": "meta",
+  "name": "Muse Image 1.0",
+  "status": "ComingSoon",
+  "previous_model_id": null,
+  "description": "Muse Image is Meta's agentic image generation and editing model for precise edits, multi-reference composition, and complex visual prompts.",
+  "announced_date": "2026-07-07T00:00:00Z",
+  "release_date": null,
+  "deprecation_date": null,
+  "retirement_date": null,
+  "license": "Proprietary",
+  "input_types": "text,image",
+  "output_types": "image",
+  "api_model_id": "meta/muse-image-1.0",
+  "links": [
+    {
+      "title": "Announcement",
+      "kind": "announcement",
+      "url": "https://ai.meta.com/blog/introducing-muse-image-muse-video-msl/"
+    }
+  ],
+  "details": [],
+  "benchmarks": [],
+  "family_id": null,
+  "page_notice": {
+    "tone": "info",
+    "markdown": "Meta Muse Image API access is coming soon; the public model is currently available through Meta AI product surfaces."
+  },
+  "model_type": "image",
+  "knowledge_cutoff": null,
+  "limits": {
+    "context": null,
+    "input": null,
+    "output": null
+  },
+  "modalities": {
+    "input": [
+      "text",
+      "image/*"
+    ],
+    "output": [
+      "image/*"
+    ]
+  },
+  "reasoning": {
+    "supported": null,
+    "options": []
+  },
+  "capabilities": {
+    "attachment": true,
+    "tool_call": null,
+    "structured_output": null,
+    "temperature": null,
+    "streaming": null,
+    "web_search": null
+  },
+  "open_weights": false,
+  "sources": [
+    {
+      "kind": "announcement",
+      "url": "https://ai.meta.com/blog/introducing-muse-image-muse-video-msl/",
+      "accessed_at": "2026-08-26T00:00:00Z",
+      "notes": "Official Meta announcement."
+    }
+  ],
+  "verification": {
+    "status": "unverified",
+    "checked_at": "2026-08-26T00:00:00Z",
+    "notes": "No public image-generation API documentation found."
+  },
+  "last_updated": "2026-08-26T00:00:00Z",
+  "removal_date": null,
+  "replacement_model_id": null,
+  "license_url": null
+}
