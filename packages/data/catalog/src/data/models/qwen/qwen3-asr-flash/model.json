@@ -11,7 +11,7 @@
   "retirement_date": null,
   "license": null,
   "input_types": "audio",
-  "output_types": "transcription",
+  "output_types": "audio_stt",
   "api_model_id": "qwen/qwen3-asr-flash",
   "links": [],
   "details": [],
@@ -30,7 +30,7 @@
       "audio/*"
     ],
     "output": [
-      "transcription"
+      "audio_stt"
     ]
   },
   "reasoning": {

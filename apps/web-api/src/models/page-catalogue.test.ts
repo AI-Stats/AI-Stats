@@ -1,9 +1,26 @@
 import { describe, expect, it } from "vitest";
 import {
 	attachModelsPageVariants,
+	buildModelsPageFacets,
 	mergeModelWeeklyMetrics,
 	normalizeModelsPagePricing,
 } from "@/models/page-catalogue";
+
+describe("buildModelsPageFacets", () => {
+	it("groups transcription aliases under the canonical audio_stt modality", () => {
+		const facets = buildModelsPageFacets([
+			{
+				gateway_status: "active",
+				gateway_input_modalities: ["audio"],
+				gateway_output_modalities: ["transcription"],
+			},
+		]);
+
+		expect(facets.outputModalityOptions).toEqual([
+			{ value: "audio_stt", count: 1 },
+		]);
+	});
+});
 
 describe("attachModelsPageVariants", () => {
 	it("keeps callable variants separate and links them to one model family", () => {
