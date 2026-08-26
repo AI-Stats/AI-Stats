@@ -435,6 +435,15 @@ inline constexpr std::string_view GOOGLE_VEO_3_1_PREVIEW = "google/veo-3.1-previ
 // Model ID: ibm/granite-4.1-8b
 // Model page: https://phaseo.app/models/ibm/granite-4.1-8b
 inline constexpr std::string_view IBM_GRANITE_4_1_8B = "ibm/granite-4.1-8b";
+// Model ID: ibm/granite-4.2-30b
+// Model page: https://phaseo.app/models/ibm/granite-4.2-30b
+inline constexpr std::string_view IBM_GRANITE_4_2_30B = "ibm/granite-4.2-30b";
+// Model ID: ibm/granite-4.2-3b
+// Model page: https://phaseo.app/models/ibm/granite-4.2-3b
+inline constexpr std::string_view IBM_GRANITE_4_2_3B = "ibm/granite-4.2-3b";
+// Model ID: ibm/granite-4.2-8b
+// Model page: https://phaseo.app/models/ibm/granite-4.2-8b
+inline constexpr std::string_view IBM_GRANITE_4_2_8B = "ibm/granite-4.2-8b";
 // Model ID: inception/mercury-2
 // Model page: https://phaseo.app/models/inception/mercury-2
 inline constexpr std::string_view INCEPTION_MERCURY_2 = "inception/mercury-2";
@@ -1020,9 +1029,6 @@ inline constexpr std::string_view OPENAI_WHISPER_LARGE_V3 = "openai/whisper-larg
 // Model ID: openai/whisper-large-v3-turbo
 // Model page: https://phaseo.app/models/openai/whisper-large-v3-turbo
 inline constexpr std::string_view OPENAI_WHISPER_LARGE_V3_TURBO = "openai/whisper-large-v3-turbo";
-// Model ID: openbmb/minicpm-v-4.5
-// Model page: https://phaseo.app/models/openbmb/minicpm-v-4.5
-inline constexpr std::string_view OPENBMB_MINICPM_V_4_5 = "openbmb/minicpm-v-4.5";
 // Model ID: perplexity/pplx-embed-v1-0.6b
 // Model page: https://phaseo.app/models/perplexity/pplx-embed-v1-0.6b
 inline constexpr std::string_view PERPLEXITY_PPLX_EMBED_V1_0_6B = "perplexity/pplx-embed-v1-0.6b";
@@ -1041,9 +1047,6 @@ inline constexpr std::string_view POOLSIDE_LAGUNA_S_2_1_FREE = "poolside/laguna-
 // Model ID: poolside/laguna-xs-2.1:free
 // Model page: https://phaseo.app/models/poolside/laguna-xs-2.1%3Afree
 inline constexpr std::string_view POOLSIDE_LAGUNA_XS_2_1_FREE = "poolside/laguna-xs-2.1:free";
-// Model ID: prism-ml/ternary-bonsai-27b
-// Model page: https://phaseo.app/models/prism-ml/ternary-bonsai-27b
-inline constexpr std::string_view PRISM_ML_TERNARY_BONSAI_27B = "prism-ml/ternary-bonsai-27b";
 // Model ID: qwen/qvq-max
 // Model page: https://phaseo.app/models/qwen/qvq-max
 inline constexpr std::string_view QWEN_QVQ_MAX = "qwen/qvq-max";
@@ -1398,15 +1401,6 @@ inline constexpr std::string_view SAKANA_FUGU_ULTRA = "sakana/fugu-ultra";
 // Model ID: sakana/namazu
 // Model page: https://phaseo.app/models/sakana/namazu
 inline constexpr std::string_view SAKANA_NAMAZU = "sakana/namazu";
-// Model ID: sao10k/l3-8b-lunaris
-// Model page: https://phaseo.app/models/sao10k/l3-8b-lunaris
-inline constexpr std::string_view SAO10K_L3_8B_LUNARIS = "sao10k/l3-8b-lunaris";
-// Model ID: sao10k/l3-8b-stheno-v3.2
-// Model page: https://phaseo.app/models/sao10k/l3-8b-stheno-v3.2
-inline constexpr std::string_view SAO10K_L3_8B_STHENO_V3_2 = "sao10k/l3-8b-stheno-v3.2";
-// Model ID: sao10k/l31-70b-euryale-v2.2
-// Model page: https://phaseo.app/models/sao10k/l31-70b-euryale-v2.2
-inline constexpr std::string_view SAO10K_L31_70B_EURYALE_V2_2 = "sao10k/l31-70b-euryale-v2.2";
 // Model ID: spacex-ai/grok-4.20
 // Model page: https://phaseo.app/models/spacex-ai/grok-4.20
 inline constexpr std::string_view SPACEX_AI_GROK_4_20 = "spacex-ai/grok-4.20";
@@ -1683,7 +1677,7 @@ inline constexpr std::string_view ZAI_GLM_5 = "zai/glm-5";
 // Deprecated alias for deepseek/deepseek-v4; use deepseek/deepseek-v4-pro. Remove in the next major SDK release.
 inline constexpr std::string_view DEEPSEEK_DEEPSEEK_V4 = DEEPSEEK_DEEPSEEK_V4_PRO;
 
-inline constexpr std::array<std::string_view, 558> ALL = {
+inline constexpr std::array<std::string_view, 556> ALL = {
 	AI21_JAMBA_1_5_LARGE,
 	AI21_JAMBA_1_5_MINI,
 	AION_LABS_AION_2_0,
@@ -1827,6 +1821,9 @@ inline constexpr std::array<std::string_view, 558> ALL = {
 	GOOGLE_VEO_3_1_LITE_PREVIEW,
 	GOOGLE_VEO_3_1_PREVIEW,
 	IBM_GRANITE_4_1_8B,
+	IBM_GRANITE_4_2_30B,
+	IBM_GRANITE_4_2_3B,
+	IBM_GRANITE_4_2_8B,
 	INCEPTION_MERCURY_2,
 	INCEPTION_MERCURY_EDIT_2,
 	INCLUSIONAI_LING_2_6_1T,
@@ -2022,14 +2019,12 @@ inline constexpr std::array<std::string_view, 558> ALL = {
 	OPENAI_WHISPER_1,
 	OPENAI_WHISPER_LARGE_V3,
 	OPENAI_WHISPER_LARGE_V3_TURBO,
-	OPENBMB_MINICPM_V_4_5,
 	PERPLEXITY_PPLX_EMBED_V1_0_6B,
 	PERPLEXITY_PPLX_EMBED_V1_4B,
 	PHASEO_FREE,
 	POOLSIDE_LAGUNA_M_1_FREE,
 	POOLSIDE_LAGUNA_S_2_1_FREE,
 	POOLSIDE_LAGUNA_XS_2_1_FREE,
-	PRISM_ML_TERNARY_BONSAI_27B,
 	QWEN_QVQ_MAX,
 	QWEN_QWEN_FLASH,
 	QWEN_QWEN_FLASH_CHARACTER,
@@ -2148,9 +2143,6 @@ inline constexpr std::array<std::string_view, 558> ALL = {
 	RELACE_RELACE_SEARCH,
 	SAKANA_FUGU_ULTRA,
 	SAKANA_NAMAZU,
-	SAO10K_L3_8B_LUNARIS,
-	SAO10K_L3_8B_STHENO_V3_2,
-	SAO10K_L31_70B_EURYALE_V2_2,
 	SPACEX_AI_GROK_4_20,
 	SPACEX_AI_GROK_4_20_MULTI_AGENT_BETA,
 	SPACEX_AI_GROK_4_20_MULTI_AGENT_BETA_0309,
