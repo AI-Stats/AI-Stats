@@ -18,7 +18,12 @@
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": "https://console.groq.com/docs/model/qwen/qwen3.8-27b"
+      "source": {
+        "kind": "pricing",
+        "url": "https://console.groq.com/docs/model/qwen/qwen3.8-27b",
+        "accessed_at": "2026-08-26T00:00:00Z",
+        "notes": "Official Groq model page lists the image-input token rate."
+      }
     },
     {
       "meter": "input_text_tokens",
@@ -33,7 +38,12 @@
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": "https://console.groq.com/docs/model/qwen/qwen3.8-27b"
+      "source": {
+        "kind": "pricing",
+        "url": "https://console.groq.com/docs/model/qwen/qwen3.8-27b",
+        "accessed_at": "2026-08-26T00:00:00Z",
+        "notes": "Official Groq model page lists the text-input token rate."
+      }
     },
     {
       "meter": "output_text_tokens",
@@ -48,7 +58,12 @@
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": "https://console.groq.com/docs/model/qwen/qwen3.8-27b"
+      "source": {
+        "kind": "pricing",
+        "url": "https://console.groq.com/docs/model/qwen/qwen3.8-27b",
+        "accessed_at": "2026-08-26T00:00:00Z",
+        "notes": "Official Groq model page lists the text-output token rate."
+      }
     }
   ],
   "regions": [],

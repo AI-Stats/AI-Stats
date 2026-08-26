@@ -621,7 +621,7 @@
     "output_modalities": "text",
     "context_length": null,
     "max_output_tokens": null,
-    "effective_from": "2026-09-03T00:00:00Z",
+    "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
@@ -650,18 +650,11 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [
-      {
-        "kind": "provider_announcement",
-        "url": "https://inference-docs.cerebras.ai/",
-        "accessed_at": "2026-08-26T00:00:00Z",
-        "notes": "Cerebras announced that Qwen 3.8 27B will become available on the Shared Tier on 2026-09-03 and replace Gemma 4 31B there."
-      }
-    ],
+    "sources": [],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-26T00:00:00Z",
-      "notes": "Pre-announced by Cerebras; provider slug, endpoint limits, and pricing remain to be verified before activation."
+      "notes": "Public launch schedule, provider slug, endpoint limits, and pricing remain to be verified before activation."
     },
     "rate_limits": []
   }

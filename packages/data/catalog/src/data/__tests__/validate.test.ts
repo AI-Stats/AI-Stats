@@ -416,7 +416,6 @@ describe('api provider model safety checks', () => {
         const row = {
             api_model_id: 'qwen/qwen3.8-27b',
             provider_api_model_id: 'cerebras:qwen/qwen3.8-27b',
-            provider_model_slug: null,
             internal_model_id: 'qwen/qwen3.8-27b',
             is_active_gateway: false,
             routable: false,
