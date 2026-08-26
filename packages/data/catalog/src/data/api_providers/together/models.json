@@ -4065,18 +4065,18 @@
     "provider_api_model_id": "together:meta/llama-guard-4-12b",
     "provider_model_slug": "meta-llama/Llama-Guard-4-12B",
     "internal_model_id": "meta/llama-guard-4-12b",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 1048576,
     "max_output_tokens": null,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-08-26T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [
           "max_tokens",
           "temperature",
@@ -4097,8 +4097,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "disabled",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -4115,14 +4115,14 @@
       {
         "kind": "models",
         "url": "https://docs.together.ai/docs/serverless/models",
-        "accessed_at": "2026-08-20T00:00:00Z",
-        "notes": "Current Together serverless model catalogue."
+        "accessed_at": "2026-08-26T00:00:00Z",
+        "notes": "Together's current serverless model catalogue no longer lists serverless moderation models."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-20T00:00:00Z",
-      "notes": "Verified against the current Together serverless model catalogue."
+      "checked_at": "2026-08-26T00:00:00Z",
+      "notes": "Retired after the current Together serverless model catalogue stopped listing serverless moderation models."
     },
     "rate_limits": []
   },
