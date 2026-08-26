@@ -57,6 +57,20 @@ describe("GMICloud native media executors", () => {
 	}));
 	});
 
+	it("maps the public music format into MiniMax audio_setting", async () => {
+		let body: any;
+		const mock = installFetchMock([{
+			match: (url, init) => url.endsWith("/api/v1/ie/requestqueue/apikey/requests") && init?.method === "POST",
+			response: jsonResponse({ request_id: "music_req_format", status: "success", outcome: { media_urls: [{ url: "https://gmi.example/music.mp3" }] } }),
+			onRequest: (call) => { body = call.bodyJson; },
+		}]);
+
+		await executeMusic(args({ model: "minimax/music-3.0:free", prompt: "ambient", format: "mp3", vendor: { minimax: { audio_setting: { bitrate: 256000 } } } } as IRMusicGenerateRequest, "music.generate", "minimax-music-3.0"));
+		mock.restore();
+
+		expect(body).toEqual({ model: "minimax-music-3.0", payload: { prompt: "ambient", audio_setting: { bitrate: 256000, format: "mp3" } } });
+	});
+
 	it("polls Speech 2.8 and inlines the returned audio into speech IR", async () => {
 		const mock = installFetchMock([
 			{
