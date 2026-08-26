@@ -180,6 +180,7 @@ export type KnownModelId =
   | "meta/llama-prompt-guard-2-22m"
   | "meta/llama-prompt-guard-2-86m"
   | "meta/muse-glimmer-30b"
+  | "meta/muse-image-1.0"
   | "meta/muse-spark-1.2"
   | "microsoft/phi-4"
   | "microsoft/wizardlm-2-8x22b"

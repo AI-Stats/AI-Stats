@@ -404,7 +404,11 @@ export const EXECUTORS_BY_PROVIDER: Record<string, ProviderCapabilityMap> = {
 	voyage: { embeddings: openaiEmbeddings, rerank: openaiRerank },
 	voyageai: { embeddings: openaiEmbeddings, rerank: openaiRerank },
 	"weights-and-biases": { "text.generate": weightsAndBiasesText },
-	meta: { "text.generate": metaText },
+	meta: {
+		"text.generate": metaText,
+		"image.generate": nonTextAdapterExecutor,
+		"image.edit": nonTextAdapterExecutor,
+	},
 	"meta-contributor": { "text.generate": metaText },
 	ovhcloud: {
 		"text.generate": ovhcloudText,

@@ -23,10 +23,7 @@
   "details": [],
   "benchmarks": [],
   "family_id": null,
-  "page_notice": {
-    "tone": "info",
-    "markdown": "Meta Muse Image API access is coming soon; the public model is currently available through Meta AI product surfaces."
-  },
+  "page_notice": null,
   "model_type": "image",
   "knowledge_cutoff": null,
   "limits": {
@@ -58,6 +55,18 @@
   "open_weights": false,
   "sources": [
     {
+      "kind": "documentation",
+      "url": "https://dev.meta.ai/docs/image-generation/",
+      "accessed_at": "2026-08-26T00:00:00Z",
+      "notes": "Official Meta Model API documentation for Muse Image generation and editing."
+    },
+    {
+      "kind": "documentation",
+      "url": "https://dev.meta.ai/docs/api-reference/",
+      "accessed_at": "2026-08-26T00:00:00Z",
+      "notes": "Official API reference; the API is served at https://api.meta.ai/v1."
+    },
+    {
       "kind": "announcement",
       "url": "https://ai.meta.com/blog/introducing-muse-image-muse-video-msl/",
       "accessed_at": "2026-08-26T00:00:00Z",
@@ -67,7 +76,7 @@
   "verification": {
     "status": "unverified",
     "checked_at": "2026-08-26T00:00:00Z",
-    "notes": "No public image-generation API documentation found."
+    "notes": "Verified against Meta's current image-generation documentation and API reference."
   },
   "last_updated": "2026-08-26T00:00:00Z",
   "removal_date": null,
