@@ -60,10 +60,10 @@ export function buildPlaygroundRequest(args: {
 	customParameters: Record<string, unknown>;
 }): Record<string, unknown> {
 	const common: Record<string, unknown> = {
+		...args.customParameters,
 		model: args.model,
 		stream: false,
 		provider: { only: [args.providerId], allow_fallbacks: false },
-		...args.customParameters,
 		...(args.probe ? { [args.probe.key]: args.probe.value } : {}),
 	};
 	if (args.endpoint === "responses") {
@@ -83,6 +83,10 @@ export function buildPlaygroundRequest(args: {
 		delete common.max_output_tokens;
 	}
 	return { ...common, messages: [{ role: "user", content: args.prompt }] };
+}
+
+export function isExpectedParameterRejection(status: number): boolean {
+	return status === 400 || status === 422;
 }
 
 export function summarizeErrorPayload(payload: unknown, fallback: string) {

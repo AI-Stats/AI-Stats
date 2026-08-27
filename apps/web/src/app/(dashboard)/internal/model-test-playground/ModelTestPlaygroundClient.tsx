@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import type { GatewaySupportedModel } from "@/lib/fetchers/gateway/getGatewaySupportedModelIds";
 import { fetchChatWebApi } from "@/lib/web-api/client";
-import { buildPlaygroundRequest, PARAMETER_PROBES, summarizeErrorPayload, type ParameterProbe, type PlaygroundEndpoint, type PlaygroundTransport } from "@/lib/internal/modelTestPlayground";
+import { buildPlaygroundRequest, isExpectedParameterRejection, PARAMETER_PROBES, summarizeErrorPayload, type ParameterProbe, type PlaygroundEndpoint, type PlaygroundTransport } from "@/lib/internal/modelTestPlayground";
 
 type Modality = "text" | "image" | "video" | "speech" | "transcription" | "music" | "embeddings" | "moderation" | "realtime";
 type EndpointId = PlaygroundEndpoint | "images" | "video" | "speech" | "transcription" | "translation" | "music" | "embeddings" | "moderation" | "realtime";
@@ -44,7 +44,7 @@ function failureLayer(status: number, payload: unknown, transport: PlaygroundTra
 function requestFor(args: { modality: Modality; endpoint: EndpointId; modelId: string; providerId: string; prompt: string; audioUrl: string; probe: ParameterProbe | null; custom: Record<string, unknown> }) {
 	const provider = { only: [args.providerId], allow_fallbacks: false };
 	if (args.modality === "text") return buildPlaygroundRequest({ endpoint: args.endpoint as PlaygroundEndpoint, model: args.modelId, prompt: args.prompt, providerId: args.providerId, probe: args.probe, customParameters: args.custom });
-	const common = { model: args.modelId, provider, ...args.custom };
+	const common = { ...args.custom, model: args.modelId, provider, stream: false };
 	if (args.modality === "image" || args.modality === "video") return { ...common, prompt: args.prompt };
 	if (args.modality === "speech") return { ...common, input: args.prompt, voice: "alloy", response_format: "mp3" };
 	if (args.modality === "transcription") return { ...common, audio_url: args.audioUrl };
@@ -80,7 +80,7 @@ export default function ModelTestPlaygroundClient({ models }: { models: GatewayS
 			if (modality === "realtime") { path = "/api/chat/realtime/session"; envelope = { provider: item.providerId, model: item.modelId, voice: "alloy", instructions: prompt, appHeaders: APP_ATTRIBUTION }; }
 			const response = await fetchChatWebApi(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(envelope), signal }); const contentType = response.headers.get("content-type") ?? ""; let payload: unknown;
 			if (contentType.includes("json") || contentType.startsWith("text/")) { const raw = await response.text(); try { payload = raw ? JSON.parse(raw) : null; } catch { payload = raw; } } else { const blob = await response.blob(); payload = { contentType, bytes: blob.size }; }
-			const expect = item.probe?.expect ?? "accept"; const matched = expect === "accept" ? response.ok : response.status >= 400 && response.status < 500; const message = response.ok ? (expect === "reject" ? "Expected rejection, but the request was accepted." : null) : summarizeErrorPayload(payload, `${response.status} ${response.statusText}`);
+			const expect = item.probe?.expect ?? "accept"; const matched = expect === "accept" ? response.ok : isExpectedParameterRejection(response.status); const message = response.ok ? (expect === "reject" ? "Expected rejection, but the request was accepted." : null) : summarizeErrorPayload(payload, `${response.status} ${response.statusText}`);
 			setResults((current) => current.map((result) => result.id === item.id ? { ...result, status: matched ? "passed" : "failed", httpStatus: response.status, durationMs: performance.now() - started, requestId: response.headers.get("x-request-id") ?? response.headers.get("cf-ray"), routedProvider: response.headers.get("x-phaseo-provider") ?? response.headers.get("x-provider"), failureLayer: response.ok ? null : failureLayer(response.status, payload, transport), error: message, body: { payload, headers: Object.fromEntries(response.headers.entries()) } } : result));
 		} catch (caught) { setResults((current) => current.map((result) => result.id === item.id ? { ...result, status: signal.aborted ? "cancelled" : "failed", durationMs: performance.now() - started, failureLayer: signal.aborted ? null : "Browser or proxy", error: signal.aborted ? "Run cancelled" : caught instanceof Error ? caught.message : "Request failed" } : result)); }
 	};

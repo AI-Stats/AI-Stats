@@ -10,6 +10,8 @@ import {
 } from "@/chat/proxy";
 import type { Env } from "@/env";
 import { PRIVATE_NO_STORE_HEADERS } from "@/http/cache";
+import { requireUser } from "@/auth/requireUser";
+import { getDataClient } from "@/data/supabase";
 
 type AudioAction = "speech" | "transcription" | "translation" | "music";
 const AUDIO_PATHS: Record<AudioAction, string> = { speech: "/audio/speech", transcription: "/audio/transcriptions", translation: "/audio/translations", music: "/music/generations" };
@@ -22,6 +24,13 @@ function truthy(value: string | undefined): boolean { return ["1", "true", "yes"
 function videoEnabled(env: Env): boolean { const value = env.VIDEO_CHAT_API_ENABLED ?? env.NEXT_PUBLIC_VIDEO_CHAT_API_ENABLED; return value == null || !["0", "false", "no", "off"].includes(value.trim().toLowerCase()); }
 function unavailable(c: any) { return c.json({ error: "Video generation is coming soon.", code: "not_implemented_yet" }, 501, PRIVATE_NO_STORE_HEADERS); }
 async function envelope(request: Request): Promise<ChatProxyEnvelope & Record<string, any>> { return request.json().catch(() => ({})); }
+
+async function isInternalAdmin(request: Request, env: Env): Promise<boolean> {
+	const user = await requireUser(request, env);
+	if (!user) return false;
+	const role = await getDataClient(env).from("users").select("role").eq("user_id", user.id).maybeSingle();
+	return !role.error && String(role.data?.role ?? "").toLowerCase() === "admin";
+}
 
 function realtimeError(status: number, error: string, message: string): Response {
 	return new Response(JSON.stringify({ error, message }), {
@@ -64,6 +73,8 @@ chatRouter.post("/sdk-test", async (c) => {
 	if (!["responses", "chat_completions", "messages", "images", "video", "speech", "transcription", "translation", "music", "embeddings", "moderation"].includes(endpoint)) {
 		return c.json({ error: "unsupported_sdk_test_endpoint", message: "This SDK test endpoint is not supported." }, 400, PRIVATE_NO_STORE_HEADERS);
 	}
+	if (!await isInternalAdmin(c.req.raw, c.env)) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
+	if (endpoint === "video" && !videoEnabled(c.env)) return unavailable(c);
 	const auth = await resolveGatewayKeys(c.req.raw, c.env, waitUntil(c));
 	if (!("apiKey" in auth)) return realtimeError(auth.status, auth.code, auth.message);
 	const baseUrl = resolveGatewayBaseUrlForEnvironment({ configuredBaseUrl: c.env.AI_STATS_GATEWAY_URL ?? c.env.PHASEO_GATEWAY_URL, stagingBaseUrl: c.env.STAGING_GATEWAY_BASE_URL, requestedBaseUrl: body.baseUrl, environment: c.env.ENV });
