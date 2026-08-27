@@ -1623,7 +1623,6 @@ const (
 	KnownModelIdBaaiBgeMultilingualGemma2 KnownModelId = "baai/bge-multilingual-gemma2"
 	KnownModelIdBaaiBgeRerankerV2M3 KnownModelId = "baai/bge-reranker-v2-m3"
 	KnownModelIdBaiduCobuddy KnownModelId = "baidu/cobuddy"
-	KnownModelIdBaiduErnie4521bA3b KnownModelId = "baidu/ernie-4.5-21b-a3b"
 	KnownModelIdBaiduErnie45300bA47b KnownModelId = "baidu/ernie-4.5-300b-a47b"
 	KnownModelIdBaiduErnie45Vl424bA47b KnownModelId = "baidu/ernie-4.5-vl-424b-a47b"
 	KnownModelIdBlackForestLabsFlux1Dev KnownModelId = "black-forest-labs/flux-1-dev"
