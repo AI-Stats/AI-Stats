@@ -37,7 +37,6 @@ export type KnownModelId =
   | "baai/bge-multilingual-gemma2"
   | "baai/bge-reranker-v2-m3"
   | "baidu/cobuddy"
-  | "baidu/ernie-4.5-21b-a3b"
   | "baidu/ernie-4.5-300b-a47b"
   | "baidu/ernie-4.5-vl-424b-a47b"
   | "black-forest-labs/flux-1-dev"
