@@ -2,11 +2,20 @@
   "organisation_id": "gryphe",
   "name": "Gryphe",
   "country_code": null,
-  "description": "Open model publisher and fine-tuner.",
-  "colour": null,
-  "organisation_links": [{ "platform": "hugging_face", "url": "https://huggingface.co/Gryphe" }],
-  "status": "active",
-  "routable": null,
-  "sources": [{ "kind": "repository", "url": "https://huggingface.co/Gryphe", "accessed_at": "2026-08-24T00:00:00Z", "notes": "Official model publisher profile linked by Nextbit." }],
-  "verification": { "status": "verified", "checked_at": "2026-08-24T00:00:00Z", "notes": "Publisher identity verified from the repository linked by Nextbit's live catalog." }
+  "description": "Model developer identified by Requesty's official model catalogue.",
+  "link": "https://router.requesty.ai/v1/models",
+  "aliases": [],
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://router.requesty.ai/v1/models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Developer attribution from Requesty's live catalogue."
+    }
+  ],
+  "verification": {
+    "status": "partial",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Requesty catalogue attribution; independent developer metadata remains to be enriched."
+  }
 }

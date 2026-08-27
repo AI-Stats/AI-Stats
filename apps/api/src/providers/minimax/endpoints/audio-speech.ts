@@ -151,7 +151,10 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
 		...(resolvedVoice ? { voice_setting: { ...(config.voice_setting ?? {}), voice_id: resolvedVoice, ...(body.speed != null ? { speed: body.speed } : {}) } } : {}),
 		...(Array.isArray(timbreWeights) ? { timbre_weights: timbreWeights } : {}),
 		audio_setting: { ...(config.audio_setting ?? {}), format: nativeFormat },
-		...Object.fromEntries(Object.entries(config).filter(([key]) => !["voice_setting", "audio_setting", "timbre_weights", "output_format"].includes(key))),
+		...Object.fromEntries(Object.entries(config).filter(([key]) => ![
+			"model", "text", "stream", "stream_options",
+			"voice_setting", "audio_setting", "timbre_weights", "output_format",
+		].includes(key))),
 	};
 	const keyInfo = await resolveOpenAICompatKey(args);
 	const response = await (args.upstreamTiming?.fetch ?? fetch)(openAICompatUrl(args.providerId, "/t2a_v2"), {

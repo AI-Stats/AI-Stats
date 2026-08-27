@@ -59,7 +59,7 @@ function candidates(count: number) {
 			residencyMode: "unknown",
 			executionRegions: null,
 			dataRegions: null,
-			zeroDataRetention: "unknown",
+			zeroDataRetention: false,
 			apiModelId: `upstream-model-${index}`,
 			providerModelSlug: null,
 			adapter: { name: providerId },

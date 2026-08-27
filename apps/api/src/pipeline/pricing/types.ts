@@ -58,6 +58,7 @@ export type PricingDimensionKey =
     | "output_image"
     | "output_video"
     | "output_video_seconds"
+    | "output_video_frames"
     | "implicit_cached_input_text_tokens"
     | "cached_write_text_tokens"
     | "cached_write_text_tokens_5m"
@@ -158,7 +159,6 @@ export type PricingResult = {
     currency: "USD";
     lines: PricingBreakdownLine[];
 };
-
 
 
 

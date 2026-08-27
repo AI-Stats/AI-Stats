@@ -6,7 +6,7 @@
   "residency_mode": "provider_managed",
   "default_execution_regions": ["ES"],
   "default_data_regions": ["ES"],
-  "zero_data_retention": "unsupported",
+  "zero_data_retention": false,
   "data_retention_days": 90,
   "data_policy_tier": "logs",
   "data_policy_confidence": "confirmed",

@@ -96,7 +96,7 @@ A ZDR route uses its own provider ID and executor registration, while sharing a
   "offer_scope": "specialized",
   "offer_label": "ZDR",
   "data_policy_variant": "zdr",
-  "zero_data_retention": "default",
+  "zero_data_retention": true,
   "data_policy_tier": "private",
   "data_policy_confidence": "confirmed"
 }
@@ -108,5 +108,7 @@ body parameter. ZDR-required routing automatically replaces the standard
 family route with this specialized route. Ordinary traffic excludes it unless
 the caller explicitly selects the ZDR provider ID.
 
-`zero_data_retention: "optional"` documents provider capability only. It is
-never treated as evidence that ZDR is active for a request.
+`zero_data_retention: true` means this exact offer guarantees zero data
+retention by default. `false` means that guarantee is not established for the
+offer; it does not claim the provider can never offer ZDR through another
+route or account configuration.

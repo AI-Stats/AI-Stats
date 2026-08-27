@@ -39,6 +39,12 @@ function authenticatedFetch(input: RequestInfo | URL): Response {
 	if (url.includes("workspace_members")) {
 		return new Response(JSON.stringify([{ role: "admin" }]), { status: 200 });
 	}
+	if (url.includes("notification_event_destinations")) {
+		return new Response(JSON.stringify([{ event_kind: "low_balance", destination_id: "destination-1" }]), { status: 200 });
+	}
+	if (url.includes("notification_destinations")) {
+		return new Response(JSON.stringify([{ id: "destination-1", name: "Operations", type: "slack", status: "active", target_preview: "hooks.slack.com/•••", created_at: "2026-08-24T00:00:00Z" }]), { status: 200 });
+	}
 	if (url.includes("select=owner_user_id")) {
 		return new Response(JSON.stringify([{ owner_user_id: "user-1" }]), { status: 200 });
 	}
@@ -511,6 +517,8 @@ describe("account settings routes", () => {
 			latestPaymentSuccessAt: "2026-07-13T00:00:00Z",
 			lowBalanceEmailEnabled: true,
 			lowBalanceEmailThresholdUsd: 5,
+			notificationRoutes: { low_balance: ["destination-1"] },
+			notificationDestinations: [{ id: "destination-1", name: "Operations" }],
 			obfuscateInfo: true,
 			stripeInfo: {
 				customer: { id: null, email: null },
