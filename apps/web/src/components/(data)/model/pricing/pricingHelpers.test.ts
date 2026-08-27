@@ -20,7 +20,7 @@ function makeProviderPricing(): ProviderPricing {
 			residency_mode: "unknown",
 			default_execution_regions: null,
 			default_data_regions: null,
-			zero_data_retention: "optional",
+			zero_data_retention: false,
 			residency_source_url: null,
 			residency_notes: null,
 			regional_pricing_mode: "unknown",

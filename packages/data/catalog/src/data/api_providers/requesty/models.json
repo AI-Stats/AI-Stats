@@ -18571,7 +18571,7 @@
     "api_model_id": "nvidia/nvidia-nemotron-3-super-120b-a12b",
     "provider_api_model_id": "requesty:deepinfra/nvidia/NVIDIA-Nemotron-3-Super-120B-A12B",
     "provider_model_slug": "deepinfra/nvidia/NVIDIA-Nemotron-3-Super-120B-A12B",
-    "internal_model_id": "nvidia/nvidia-nemotron-3-super-120b-a12b",
+    "internal_model_id": "nvidia/nemotron-3-super-120b-a12b",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
@@ -18642,7 +18642,7 @@
     "api_model_id": "nvidia/nvidia-nemotron-3-super-120b-a12b",
     "provider_api_model_id": "requesty:deepinfra/nvidia/NVIDIA-Nemotron-3-Super-120B-A12B:flex",
     "provider_model_slug": "deepinfra/nvidia/NVIDIA-Nemotron-3-Super-120B-A12B:flex",
-    "internal_model_id": "nvidia/nvidia-nemotron-3-super-120b-a12b",
+    "internal_model_id": "nvidia/nemotron-3-super-120b-a12b",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
@@ -25266,7 +25266,7 @@
     "api_model_id": "minimax/minimax-m2.5-highspeed",
     "provider_api_model_id": "requesty:minimaxi/minimax-m2.5-highspeed",
     "provider_model_slug": "minimaxi/minimax-m2.5-highspeed",
-    "internal_model_id": "minimax/minimax-m2.5-highspeed",
+    "internal_model_id": "minimax/minimax-m2.5",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
@@ -25408,7 +25408,7 @@
     "api_model_id": "minimax/minimax-m2.7-highspeed",
     "provider_api_model_id": "requesty:minimaxi/minimax-m2.7-highspeed",
     "provider_model_slug": "minimaxi/minimax-m2.7-highspeed",
-    "internal_model_id": "minimax/minimax-m2.7-highspeed",
+    "internal_model_id": "minimax/minimax-m2.7",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
@@ -29679,7 +29679,7 @@
     "api_model_id": "minimax/minimax-m2.7-highspeed",
     "provider_api_model_id": "requesty:novita/minimax/minimax-m2.7-highspeed",
     "provider_model_slug": "novita/minimax/minimax-m2.7-highspeed",
-    "internal_model_id": "minimax/minimax-m2.7-highspeed",
+    "internal_model_id": "minimax/minimax-m2.7",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
@@ -30128,219 +30128,6 @@
         "input_modalities": [
           "text",
           "image"
-        ],
-        "output_modalities": [
-          "text"
-        ],
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": false,
-    "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
-    },
-    "service_tiers": [
-      "standard"
-    ],
-    "api": {
-      "formats": [
-        "openai-chat-completions"
-      ],
-      "endpoint": "/chat/completions",
-      "deployment": null
-    },
-    "data_retention": false,
-    "data_retention_days": 0,
-    "data_used_for_training": false,
-    "privacy_comments": "N/A",
-    "sources": [
-      {
-        "kind": "provider_models",
-        "url": "https://router.requesty.ai/v1/models",
-        "accessed_at": "2026-08-24T00:00:00Z",
-        "notes": "Exact live route, limits, modalities, lifecycle, privacy flags, and availability."
-      }
-    ],
-    "verification": {
-      "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
-      "notes": "Reconciled against Requesty's public live catalogue."
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "sao10k/l3-8b-lunaris",
-    "provider_api_model_id": "requesty:novita/sao10k/l3-8b-lunaris",
-    "provider_model_slug": "novita/sao10k/l3-8b-lunaris",
-    "internal_model_id": "sao10k/l3-8b-lunaris",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": "text",
-    "output_modalities": "text",
-    "context_length": 8192,
-    "max_output_tokens": 0,
-    "effective_from": "2024-08-13T00:00:00.000Z",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": false,
-        "tool_call": false,
-        "structured_output": false,
-        "temperature": null,
-        "attachment": false,
-        "input_modalities": [
-          "text"
-        ],
-        "output_modalities": [
-          "text"
-        ],
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": false,
-    "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
-    },
-    "service_tiers": [
-      "standard"
-    ],
-    "api": {
-      "formats": [
-        "openai-chat-completions"
-      ],
-      "endpoint": "/chat/completions",
-      "deployment": null
-    },
-    "data_retention": false,
-    "data_retention_days": 0,
-    "data_used_for_training": false,
-    "privacy_comments": "N/A",
-    "sources": [
-      {
-        "kind": "provider_models",
-        "url": "https://router.requesty.ai/v1/models",
-        "accessed_at": "2026-08-24T00:00:00Z",
-        "notes": "Exact live route, limits, modalities, lifecycle, privacy flags, and availability."
-      }
-    ],
-    "verification": {
-      "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
-      "notes": "Reconciled against Requesty's public live catalogue."
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "sao10k/l3-8b-stheno-v3.2",
-    "provider_api_model_id": "requesty:novita/sao10k/l3-8b-stheno-v3.2",
-    "provider_model_slug": "novita/sao10k/l3-8b-stheno-v3.2",
-    "internal_model_id": "sao10k/l3-8b-stheno-v3.2",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": "text",
-    "output_modalities": "text",
-    "context_length": 8192,
-    "max_output_tokens": 0,
-    "effective_from": "2024-12-18T15:32:08.000Z",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": false,
-        "tool_call": false,
-        "structured_output": false,
-        "temperature": null,
-        "attachment": false,
-        "input_modalities": [
-          "text"
-        ],
-        "output_modalities": [
-          "text"
-        ],
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": false,
-    "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
-    },
-    "service_tiers": [
-      "standard"
-    ],
-    "api": {
-      "formats": [
-        "openai-chat-completions"
-      ],
-      "endpoint": "/chat/completions",
-      "deployment": null
-    },
-    "data_retention": false,
-    "data_retention_days": 0,
-    "data_used_for_training": false,
-    "privacy_comments": "N/A",
-    "sources": [
-      {
-        "kind": "provider_models",
-        "url": "https://router.requesty.ai/v1/models",
-        "accessed_at": "2026-08-24T00:00:00Z",
-        "notes": "Exact live route, limits, modalities, lifecycle, privacy flags, and availability."
-      }
-    ],
-    "verification": {
-      "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
-      "notes": "Reconciled against Requesty's public live catalogue."
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "sao10k/l31-70b-euryale-v2.2",
-    "provider_api_model_id": "requesty:novita/sao10k/l31-70b-euryale-v2.2",
-    "provider_model_slug": "novita/sao10k/l31-70b-euryale-v2.2",
-    "internal_model_id": "sao10k/l31-70b-euryale-v2.2",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": "text",
-    "output_modalities": "text",
-    "context_length": 16000,
-    "max_output_tokens": 0,
-    "effective_from": "2024-08-28T00:00:00.000Z",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": false,
-        "tool_call": false,
-        "structured_output": false,
-        "temperature": null,
-        "attachment": false,
-        "input_modalities": [
-          "text"
         ],
         "output_modalities": [
           "text"
@@ -31105,7 +30892,7 @@
     "api_model_id": "nvidia/nemotron-3.5-lightning-30b-a3b",
     "provider_api_model_id": "requesty:nvidia/nemotron-3.5-lightning-30b-a3b",
     "provider_model_slug": "nvidia/nemotron-3.5-lightning-30b-a3b",
-    "internal_model_id": "nvidia/nemotron-3.5-lightning-30b-a3b",
+    "internal_model_id": "nvidia/nemotron-3.5-lightning",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
@@ -38869,290 +38656,6 @@
     "data_retention_days": 0,
     "data_used_for_training": false,
     "privacy_comments": "N/A"
-  },
-  {
-    "api_model_id": "deepseek/deepseek-v4-flash-0731",
-    "provider_api_model_id": "requesty:sference/deepseek-v4-flash-0731",
-    "provider_model_slug": "sference/deepseek-v4-flash-0731",
-    "internal_model_id": "deepseek/deepseek-v4-flash-0731",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": "text",
-    "output_modalities": "text",
-    "context_length": 1048576,
-    "max_output_tokens": 131072,
-    "effective_from": "2026-07-31T06:21:48.000Z",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": true,
-        "tool_call": true,
-        "structured_output": true,
-        "temperature": null,
-        "attachment": false,
-        "input_modalities": [
-          "text"
-        ],
-        "output_modalities": [
-          "text"
-        ],
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": false,
-    "regions": {
-      "execution": [
-        "eu"
-      ],
-      "data": [
-        "eu"
-      ]
-    },
-    "service_tiers": [
-      "standard"
-    ],
-    "api": {
-      "formats": [
-        "openai-chat-completions"
-      ],
-      "endpoint": "/chat/completions",
-      "deployment": null
-    },
-    "data_retention": false,
-    "data_retention_days": 0,
-    "data_used_for_training": false,
-    "privacy_comments": "N/A",
-    "sources": [
-      {
-        "kind": "provider_models",
-        "url": "https://router.requesty.ai/v1/models",
-        "accessed_at": "2026-08-24T00:00:00Z",
-        "notes": "Exact live route, limits, modalities, lifecycle, privacy flags, and availability."
-      }
-    ],
-    "verification": {
-      "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
-      "notes": "Reconciled against Requesty's public live catalogue."
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "z-ai/glm-5.2",
-    "provider_api_model_id": "requesty:sference/glm-5.2",
-    "provider_model_slug": "sference/glm-5.2",
-    "internal_model_id": "z-ai/glm-5.2",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": "text",
-    "output_modalities": "text",
-    "context_length": 1048576,
-    "max_output_tokens": 131072,
-    "effective_from": "2026-06-16T17:45:30.000Z",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": true,
-        "tool_call": true,
-        "structured_output": true,
-        "temperature": null,
-        "attachment": false,
-        "input_modalities": [
-          "text"
-        ],
-        "output_modalities": [
-          "text"
-        ],
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": false,
-    "regions": {
-      "execution": [
-        "eu"
-      ],
-      "data": [
-        "eu"
-      ]
-    },
-    "service_tiers": [
-      "standard"
-    ],
-    "api": {
-      "formats": [
-        "openai-chat-completions"
-      ],
-      "endpoint": "/chat/completions",
-      "deployment": null
-    },
-    "data_retention": false,
-    "data_retention_days": 0,
-    "data_used_for_training": false,
-    "privacy_comments": "N/A",
-    "sources": [
-      {
-        "kind": "provider_models",
-        "url": "https://router.requesty.ai/v1/models",
-        "accessed_at": "2026-08-24T00:00:00Z",
-        "notes": "Exact live route, limits, modalities, lifecycle, privacy flags, and availability."
-      }
-    ],
-    "verification": {
-      "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
-      "notes": "Reconciled against Requesty's public live catalogue."
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "moonshotai/kimi-k3",
-    "provider_api_model_id": "requesty:sference/kimi-k3",
-    "provider_model_slug": "sference/kimi-k3",
-    "internal_model_id": "moonshotai/kimi-k3",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": "text",
-    "output_modalities": "text",
-    "context_length": 1048576,
-    "max_output_tokens": 262144,
-    "effective_from": "2026-07-16T15:30:58.000Z",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": true,
-        "tool_call": true,
-        "structured_output": true,
-        "temperature": null,
-        "attachment": false,
-        "input_modalities": [
-          "text"
-        ],
-        "output_modalities": [
-          "text"
-        ],
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": false,
-    "regions": {
-      "execution": [
-        "eu"
-      ],
-      "data": [
-        "eu"
-      ]
-    },
-    "service_tiers": [
-      "standard"
-    ],
-    "api": {
-      "formats": [
-        "openai-chat-completions"
-      ],
-      "endpoint": "/chat/completions",
-      "deployment": null
-    },
-    "data_retention": false,
-    "data_retention_days": 0,
-    "data_used_for_training": false,
-    "privacy_comments": "N/A",
-    "sources": [
-      {
-        "kind": "provider_models",
-        "url": "https://router.requesty.ai/v1/models",
-        "accessed_at": "2026-08-24T00:00:00Z",
-        "notes": "Exact live route, limits, modalities, lifecycle, privacy flags, and availability."
-      }
-    ],
-    "verification": {
-      "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
-      "notes": "Reconciled against Requesty's public live catalogue."
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "sference/thinkingcap-qwen3.6-27b",
-    "provider_api_model_id": "requesty:sference/thinkingcap-qwen3.6-27b",
-    "provider_model_slug": "sference/thinkingcap-qwen3.6-27b",
-    "internal_model_id": "sference/thinkingcap-qwen3.6-27b",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": "text",
-    "output_modalities": "text",
-    "context_length": 262144,
-    "max_output_tokens": 32768,
-    "effective_from": "2026-07-13T17:59:21.000Z",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": true,
-        "tool_call": true,
-        "structured_output": false,
-        "temperature": null,
-        "attachment": false,
-        "input_modalities": [
-          "text"
-        ],
-        "output_modalities": [
-          "text"
-        ],
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": false,
-    "regions": {
-      "execution": [
-        "eu"
-      ],
-      "data": [
-        "eu"
-      ]
-    },
-    "service_tiers": [
-      "standard"
-    ],
-    "api": {
-      "formats": [
-        "openai-chat-completions"
-      ],
-      "endpoint": "/chat/completions",
-      "deployment": null
-    },
-    "data_retention": false,
-    "data_retention_days": 0,
-    "data_used_for_training": false,
-    "privacy_comments": "N/A",
-    "sources": [
-      {
-        "kind": "provider_models",
-        "url": "https://router.requesty.ai/v1/models",
-        "accessed_at": "2026-08-24T00:00:00Z",
-        "notes": "Exact live route, limits, modalities, lifecycle, privacy flags, and availability."
-      }
-    ],
-    "verification": {
-      "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
-      "notes": "Reconciled against Requesty's public live catalogue."
-    },
-    "rate_limits": []
   },
   {
     "api_model_id": "deepseek/deepseek-v4-flash-0731",

@@ -6,7 +6,7 @@
   "residency_mode": "unknown",
   "default_execution_regions": null,
   "default_data_regions": null,
-  "zero_data_retention": "optional",
+  "zero_data_retention": false,
   "residency_source_url": "https://docs.venice.ai/overview/privacy",
   "residency_notes": "Venice does not publish a fixed execution or data-residency location for the API. Its proxy does not store prompt or response content, but the selected model privacy mode controls downstream handling: Private models use contract-enforced zero-retention infrastructure, while Anonymous models may be retained by the upstream provider.",
   "pricing_source_url": "https://docs.venice.ai/overview/pricing",

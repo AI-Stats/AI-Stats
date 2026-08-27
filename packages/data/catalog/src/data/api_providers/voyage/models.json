@@ -137,7 +137,7 @@
     }
   ]
 },
-{
+  {
   "api_model_id": "voyage/rerank-2.5",
   "provider_api_model_id": "voyage:voyage/rerank-2.5",
   "provider_model_slug": "rerank-2.5",
@@ -206,7 +206,7 @@
     }
   ]
 },
-{
+  {
   "api_model_id": "voyage/rerank-2.5-lite",
   "provider_api_model_id": "voyage:voyage/rerank-2.5-lite",
   "provider_model_slug": "rerank-2.5-lite",

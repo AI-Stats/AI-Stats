@@ -6,7 +6,7 @@
   "residency_mode": "customer_selectable",
   "default_execution_regions": null,
   "default_data_regions": null,
-  "zero_data_retention": "optional",
+  "zero_data_retention": false,
   "residency_source_url": "https://learn.microsoft.com/en-us/azure/foundry/responsible-ai/openai/data-privacy",
   "residency_notes": "Azure Direct Models process prompts within the customer-specified geography for regional deployments, while Global and DataZone deployments have broader processing rules. Models are stateless for ordinary inference, but stateful features such as Responses, Threads, files, vector stores, and stored completions persist data in the customer's Azure geography; modified abuse-monitoring controls can disable abuse-prompt storage only with approval.",
   "data_policy_tier": "logs",

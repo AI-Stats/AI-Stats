@@ -1,5 +1,8 @@
 {
   "api_provider_id": "cloudferro-sherlock",
+  "data_policy_tier": "private",
+  "data_policy_confidence": "confirmed",
+  "data_policy_contract_mode": "none",
   "api_provider_name": "CloudFerro Sherlock",
   "provider_family_id": null,
   "offer_label": null,
@@ -9,7 +12,7 @@
   "residency_mode": "provider_managed",
   "default_execution_regions": ["EU"],
   "default_data_regions": ["EU"],
-  "zero_data_retention": "default",
+  "zero_data_retention": true,
   "data_retention_days": 0,
   "residency_source_url": "https://sherlock.cloudferro.com/en",
   "residency_notes": "CloudFerro describes Sherlock as EU-based, guarantees EU data sovereignty, and states that prompts and outputs are not retained. No customer-selectable region is documented.",

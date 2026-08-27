@@ -1,17 +1,20 @@
 {
   "api_provider_id": "io-net",
+  "data_policy_tier": "unknown",
+  "data_policy_confidence": "unknown",
+  "data_policy_contract_mode": "none",
   "api_provider_name": "IO.NET",
   "provider_family_id": null,
   "offer_label": null,
   "offer_scope": "specialized",
   "description": "IO Intelligence provides an OpenAI-compatible API for hosted open-source and third-party AI models.",
   "link": "https://io.net/docs/reference/ai-models/get-started-with-io-intelligence-api",
-  "residency_mode": null,
+  "residency_mode": "unknown",
   "default_execution_regions": null,
   "default_data_regions": null,
-  "zero_data_retention": null,
+  "zero_data_retention": false,
   "residency_source_url": null,
-  "prompt_training_policy": null,
+  "prompt_training_policy": "unknown",
   "prompt_training_notes": null,
   "prompt_training_source_url": null,
   "user_identifier_policy": null,
@@ -22,12 +25,12 @@
   "regional_pricing_uplift_percent": null,
   "pricing_source_url": "https://api.intelligence.io.solutions/api/v1/models",
   "regional_pricing_notes": null,
-  "country_code": null,
+  "country_code": "US",
   "status": "Active",
   "colour": null,
-  "gateway_kind": "catalogue",
-  "routable": false,
-  "routing_enabled": false,
+  "gateway_kind": "openai_compatible",
+  "routable": true,
+  "routing_enabled": true,
   "sdk_package": "@ai-sdk/openai-compatible",
   "api_base_url": "https://api.intelligence.io.solutions/api/v1",
   "docs_url": "https://io.net/docs/reference/ai-models/get-started-with-io-intelligence-api",
@@ -46,19 +49,19 @@
     {
       "kind": "provider_models",
       "url": "https://api.intelligence.io.solutions/api/v1/models",
-      "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "Official public live catalog, model limits, capabilities, access tiers, and token pricing. Provider remains catalogue-only in Phaseo."
+      "accessed_at": "2026-08-26T00:00:00Z",
+      "notes": "Official public live catalog, model limits, capabilities, access tiers, and token pricing."
     },
     {
       "kind": "documentation",
       "url": "https://io.net/docs/reference/ai-models/get-started-with-io-intelligence-api",
-      "accessed_at": "2026-08-24T00:00:00Z",
+      "accessed_at": "2026-08-26T00:00:00Z",
       "notes": "Official OpenAI-compatible API base URL, authentication, model discovery, and usage-limit documentation."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Provider API contract and complete unauthenticated live model catalog verified from primary IO.NET sources; regional execution and data-residency guarantees are not published."
+    "checked_at": "2026-08-26T00:00:00Z",
+    "notes": "Provider API contract and complete live model catalog verified from primary IO.NET sources; regional execution and data-residency guarantees are not published."
   }
 }

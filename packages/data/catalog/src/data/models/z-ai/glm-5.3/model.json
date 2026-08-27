@@ -9,7 +9,7 @@
   "release_date": "2026-08-14",
   "deprecation_date": null,
   "retirement_date": null,
-  "license": null,
+  "license": "MIT",
   "input_types": "text",
   "output_types": "text",
   "api_model_id": "z-ai/glm-5.3",
@@ -28,9 +28,22 @@
       "title": "API reference",
       "kind": "docs",
       "url": "https://docs.z.ai/api-reference/llm/chat-completion"
+    },
+    {
+      "title": "Model weights",
+      "kind": "weights",
+      "url": "https://huggingface.co/zai-org/GLM-5.3"
     }
   ],
   "details": [
+    {
+      "name": "parameter_count",
+      "value": 744000000000
+    },
+    {
+      "name": "active_parameter_count",
+      "value": 40000000000
+    },
     {
       "name": "availability",
       "value": "Available as glm-5.3 through Z.AI's Model API and to GLM Coding Plan users."
@@ -45,7 +58,7 @@
     },
     {
       "name": "weights",
-      "value": "Z.AI announced that open weights are planned after a two-week safety evaluation and hardening period; weights and their final licence were not available at launch."
+      "value": "Public model weights are available as of 2026-08-26."
     }
   ],
   "benchmarks": [],
@@ -82,7 +95,7 @@
     "streaming": true,
     "web_search": null
   },
-  "open_weights": false,
+  "open_weights": true,
   "sources": [
     {
       "kind": "announcement",
@@ -107,15 +120,21 @@
       "url": "https://docs.z.ai/api-reference/llm/chat-completion",
       "accessed_at": "2026-08-18",
       "notes": "Official Chat Completion reference lists glm-5.3 as a supported model and uses it in API examples."
+    },
+    {
+      "kind": "model_card",
+      "url": "https://huggingface.co/zai-org/GLM-5.3",
+      "accessed_at": "2026-08-26T00:00:00Z",
+      "notes": "Public GLM-5.3 model weights, with MIT licensing and 744B total / 40B active parameters."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-18",
-    "notes": "Verified against Z.AI's GLM-5.3 guide, Chat Completion reference, and pricing table."
+    "checked_at": "2026-08-26T00:00:00Z",
+    "notes": "Verified against Z.AI's GLM-5.3 guide, Chat Completion reference, pricing table, and public model weights."
   },
-  "last_updated": "2026-08-18",
+  "last_updated": "2026-08-26T00:00:00Z",
   "removal_date": null,
   "replacement_model_id": null,
-  "license_url": null
+  "license_url": "https://huggingface.co/zai-org/GLM-5.3/blob/main/LICENSE"
 }

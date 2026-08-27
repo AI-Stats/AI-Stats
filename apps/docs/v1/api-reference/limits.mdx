@@ -18,6 +18,8 @@ The Gateway does not currently enforce a separate platform-level request cap. Mo
 - Use exponential backoff with jitter.
 - Set a maximum retry count and fail gracefully.
 
+Phaseo forwards a validated `Retry-After` value when the routed provider supplies one. For BYOK requests, provider quota details may also be returned under `X-Phaseo-Upstream-RateLimit-*` headers. Those quota headers are intentionally omitted for managed-provider requests because they describe shared Phaseo provider capacity, not an individual customer's allowance. Other upstream headers are not forwarded.
+
 ```ts
 async function retryWithBackoff(run: () => Promise<Response>, maxRetries = 4) {
   for (let attempt = 0; attempt <= maxRetries; attempt += 1) {

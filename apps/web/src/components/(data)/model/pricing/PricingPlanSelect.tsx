@@ -37,7 +37,7 @@ export default function PricingPlanSelect({
 			case "flex":
 				return "Flex";
 			case "priority":
-				return "Priority";
+				return "Fast";
 			default:
 				return plan ? plan.charAt(0).toUpperCase() + plan.slice(1) : plan;
 		}
@@ -86,7 +86,7 @@ export default function PricingPlanSelect({
 			case "flex":
 				return "Flexible routing for best-effort capacity.";
 			case "priority":
-				return "Higher-priority routing when available.";
+				return "Fast routing when available.";
 			case "standard":
 			default:
 				return "Default balanced provider routing.";

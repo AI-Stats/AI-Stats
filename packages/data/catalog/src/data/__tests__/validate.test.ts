@@ -7,6 +7,7 @@ import {
     checkPricingEntrySafety,
     checkSubscriptionPlanModels,
     isMajorError,
+    normalizedModelIdentity,
 } from '@/data/validate';
 
 const DATA_ROOT = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
@@ -59,6 +60,25 @@ describe('subscription plan model checks', () => {
         )).toEqual([
             'Subscription plan example-plan contains duplicate model example/model',
         ]);
+    });
+});
+
+describe('model identity normalization', () => {
+    test('collapses a redundant organisation prefix without changing distinct models', () => {
+        expect(normalizedModelIdentity(
+            'nvidia/nvidia-nemotron-nano-9b-v2',
+            'nvidia',
+        )).toBe(normalizedModelIdentity('nvidia/nemotron-nano-9b-v2', 'nvidia'));
+        expect(normalizedModelIdentity(
+            'nvidia/nemotron-nano-9b-v2',
+            'nvidia',
+        )).not.toBe(normalizedModelIdentity('nvidia/nemotron-nano-12b-v2', 'nvidia'));
+    });
+});
+
+describe('validation error severity', () => {
+    test('classifies duplicate model_id errors as major', () => {
+        expect(isMajorError('Duplicate model_id detected: nvidia/example')).toBe(true);
     });
 });
 
@@ -408,6 +428,22 @@ describe('api provider model safety checks', () => {
         };
         const result = checkApiProviderModelEntrySafety(bad, { providerId: 'gmicloud' });
         expect(result.errors).toEqual(
+            expect.arrayContaining([expect.stringContaining('missing provider_model_slug')])
+        );
+    });
+
+    test('disabled unroutable future row may omit unverified provider_model_slug', () => {
+        const row = {
+            api_model_id: 'qwen/qwen3.8-27b',
+            provider_api_model_id: 'cerebras:qwen/qwen3.8-27b',
+            internal_model_id: 'qwen/qwen3.8-27b',
+            is_active_gateway: false,
+            routable: false,
+            routing_status: 'disabled',
+            capabilities: [{ capability_id: 'text.generate', status: 'disabled', params: [] }],
+        };
+        const result = checkApiProviderModelEntrySafety(row, { providerId: 'cerebras' });
+        expect(result.errors).not.toEqual(
             expect.arrayContaining([expect.stringContaining('missing provider_model_slug')])
         );
     });

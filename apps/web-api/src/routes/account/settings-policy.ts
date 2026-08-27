@@ -99,7 +99,7 @@ async function loadGuardrailReference(context: AccountWorkspaceContext) {
 		]);
 	}
 	const providerPolicies = new Map((providersResult.data ?? []).map((provider: any) => [String(provider.api_provider_id), {
-		zeroDataRetention: provider.zero_data_retention ?? "unknown",
+		zeroDataRetention: provider.zero_data_retention === true,
 		dataPolicyTier: provider.data_policy_tier ?? "unknown",
 		dataPolicyConfidence: provider.data_policy_confidence ?? "unknown",
 	}]));

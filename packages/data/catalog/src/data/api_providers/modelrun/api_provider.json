@@ -1,6 +1,9 @@
 {
   "api_provider_id": "modelrun",
   "api_provider_name": "ModelRun [by Modular]",
+  "data_policy_tier": "unknown",
+  "data_policy_confidence": "unknown",
+  "data_policy_contract_mode": "none",
   "provider_family_id": "modelrun",
   "offer_scope": "global",
   "description": "ModelRun is Modular's hosted inference provider for third-party open models, currently available through OpenRouter.",
@@ -8,7 +11,7 @@
   "residency_mode": "unknown",
   "default_execution_regions": null,
   "default_data_regions": null,
-  "zero_data_retention": "unknown",
+  "zero_data_retention": false,
   "residency_source_url": null,
   "residency_notes": "No public ModelRun endpoint-level execution or data residency commitment was found.",
   "prompt_training_policy": "unknown",
