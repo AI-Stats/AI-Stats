@@ -77,6 +77,10 @@ describe("MODEL_DISCOVERY_PROVIDERS", () => {
 			modelsEndpoint: "https://openrouter.ai/api/v1/models",
 			authStyle: "optional_bearer",
 		});
+		expect(providers.get("novita")).toMatchObject({
+			modelsEndpoint: "https://api.novita.ai/openai/v1/models",
+			authStyle: "optional_bearer",
+		});
 		expect(providers.get("ovhcloud")).toMatchObject({
 			modelsEndpoint: "https://catalog.endpoints.ai.ovh.net/rest/v2/openrouter",
 			authStyle: "none",

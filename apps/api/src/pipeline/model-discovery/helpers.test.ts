@@ -489,6 +489,40 @@ describe("extractProviderApiModelSnapshot pricing comparisons", () => {
 		]);
 	});
 
+	it("detects Novita decimal pricing changes from the public models feed", () => {
+		const previous = extractProviderApiModelSnapshot(
+			"novita",
+			{
+				input_token_price_per_m: 1500,
+				output_token_price_per_m: 5000,
+				pricing: {
+					prompt: { price_per_m_decimal: "0.15" },
+					completion: { price_per_m_decimal: "0.5" },
+					input_cache_read: { price_per_m: 300, price_per_m_decimal: "0.03" },
+				},
+			},
+			null,
+		);
+		const current = extractProviderApiModelSnapshot(
+			"novita",
+			{
+				input_token_price_per_m: 2000,
+				output_token_price_per_m: 5000,
+				pricing: {
+					prompt: { price_per_m_decimal: "0.2" },
+					completion: { price_per_m_decimal: "0.5" },
+					input_cache_read: { price_per_m: 400, price_per_m_decimal: "0.04" },
+				},
+			},
+			null,
+		);
+
+		expect(buildProviderApiModelSnapshotDiff(previous, current)).toEqual([
+			"cached input: $0.03 → $0.04 / 1M tokens",
+			"input: $0.15 → $0.2 / 1M tokens",
+		]);
+	});
+
 	it("formats multiple canonical meter changes without raw provider payloads", () => {
 		const previous = extractProviderApiModelSnapshot(
 			"openrouter",

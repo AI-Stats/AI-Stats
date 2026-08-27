@@ -3,14 +3,12 @@ import { asArray, asRecord, defineProvider, fetchJson, normalizeModelEntries } f
 export default defineProvider({
     id: "novitaai",
     name: "NovitaAI",
-    requiredEnv: ["NOVITA_API_KEY"],
     async fetchModels() {
+        const apiKey = process.env.NOVITA_API_KEY?.trim();
         const payload = await fetchJson({
             url: "https://api.novita.ai/openai/v1/models",
             init: {
-                headers: {
-                    Authorization: `Bearer ${process.env.NOVITA_API_KEY}`,
-                },
+                headers: apiKey ? { Authorization: `Bearer ${apiKey}` } : undefined,
             },
         });
         const data = asArray(asRecord(payload)?.data);

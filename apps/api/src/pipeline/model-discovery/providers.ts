@@ -127,7 +127,12 @@ const PROVIDER_OVERRIDES: Record<string, ProviderOverride> = {
 		providerName: "Nebius Token Factory US Central 1",
 		apiKeyEnv: ["NEBIUS_API_KEY", "NEBIUS_TOKEN_FACTORY_API_KEY"],
 	},
-	novita: { providerName: "Novita", apiKeyEnv: ["NOVITA_API_KEY"] },
+	novita: {
+		providerName: "Novita",
+		modelsEndpoint: "https://api.novita.ai/openai/v1/models",
+		apiKeyEnv: ["NOVITA_API_KEY"],
+		authStyle: "optional_bearer",
+	},
 	ovhcloud: {
 		providerName: "OVHcloud AI Endpoints",
 		modelsEndpoint: "https://catalog.endpoints.ai.ovh.net/rest/v2/openrouter",
