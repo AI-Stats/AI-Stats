@@ -16,6 +16,7 @@ type ProviderModelRow = {
     api_model_id: string | null;
     model_id: string | null;
     provider_model_slug?: string | null;
+    is_stealth?: boolean | null;
     is_active_gateway: boolean | null;
     routing_status?: string | null;
     input_modalities?: unknown;
@@ -23,6 +24,18 @@ type ProviderModelRow = {
     effective_from?: string | null;
     effective_to?: string | null;
 };
+
+export const STEALTH_PROVIDER_IDENTITY = "stealth";
+
+export function publicCatalogueProviderRoute(row: ProviderModelRow): ProviderModelRow {
+    if (row.is_stealth !== true) return row;
+    const modelId = row.model_id ?? row.api_model_id;
+    return {
+        ...row,
+        provider_id: STEALTH_PROVIDER_IDENTITY,
+        provider_model_slug: modelId ?? null,
+    };
+}
 
 type CapabilityRow = {
     provider_api_model_id: string | null;
@@ -1156,7 +1169,7 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
         let { data, error: providerError }: { data: any[] | null; error: any } = await supabase
             .from("v2_model_provider_routes")
             .select(
-                "provider_model_id, provider_slug, model_slug, provider_model_slug, routing_enabled, status, input_modalities, output_modalities, effective_from, effective_to"
+                "provider_model_id, provider_slug, model_slug, provider_model_slug, is_stealth, routing_enabled, status, input_modalities, output_modalities, effective_from, effective_to"
             )
             .in("model_slug", modelIdChunk);
 
@@ -1164,12 +1177,13 @@ export async function fetchCatalogue(filter: CatalogueFilters): Promise<Catalogu
             throw new Error(`Failed to load provider models: ${providerError.message || "unknown error"}`);
         }
 
-        const chunkRows = (data ?? []).map((row) => ({
+        const chunkRows = (data ?? []).map((row) => publicCatalogueProviderRoute({
             provider_api_model_id: row.provider_model_id,
             provider_id: row.provider_slug,
             api_model_id: row.model_slug,
             model_id: row.model_slug,
             provider_model_slug: row.provider_model_slug,
+            is_stealth: row.is_stealth,
             is_active_gateway: row.routing_enabled,
             routing_status: row.status,
             input_modalities: row.input_modalities,

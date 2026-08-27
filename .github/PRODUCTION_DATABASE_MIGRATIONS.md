@@ -30,7 +30,7 @@ For a pull request or merge-queue check that changes `supabase/migrations/**`, C
 - requires timestamped lower-snake-case names and prevents new version collisions; and
 - requires an explicit justification comment for destructive SQL.
 
-For a push to `main`, CI repeats validation, waits for approval, links the production project, runs `supabase db push --dry-run`, then applies `supabase db push`. Production credentials exist only in the approval-gated job. If Supabase rejects a migration, CI-managed application deployment remains blocked.
+For a push to `main`, CI repeats validation, waits for approval, links the production project, runs `supabase db push --dry-run`, then applies `supabase db push`. After applying, it runs the rollback-only SQL security checks in `supabase/tests/stealth_catalogue_security_smoke.sql`. These verify the stealth identifier constraint, direct-table RLS boundary, RPC grants, and `SECURITY DEFINER` wrappers against the linked database. Production credentials exist only in the approval-gated job. If either the migration or its security checks fail, CI-managed application deployment remains blocked.
 
 ## Existing history limitation
 
