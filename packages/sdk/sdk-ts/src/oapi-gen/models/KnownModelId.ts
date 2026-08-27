@@ -154,6 +154,7 @@ export type KnownModelId =
   | "inclusionai/ling-2.6-1t"
   | "inclusionai/ling-2.6-flash"
   | "inclusionai/ling-3.0-flash"
+  | "inclusionai/ling-3.0-flash-fin"
   | "inclusionai/ling-flash-2.0"
   | "inclusionai/ring-2.6-1t"
   | "inclusionai/ring-flash-2.0"

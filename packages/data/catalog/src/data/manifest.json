@@ -505,7 +505,8 @@
       "inclusionai/ling-3.0-flash:free",
       "inclusionai/ling-3.0-tiny",
       "inclusionai/ling-2.6-flash",
-      "inclusionai/ring-2.6-1t"
+      "inclusionai/ring-2.6-1t",
+      "inclusionai/ling-3.0-flash-fin"
     ],
     "kwaipilot": [
       "kwaipilot/kat-coder-air-v2.5",

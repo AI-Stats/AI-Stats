@@ -1740,6 +1740,7 @@ const (
 	KnownModelIdInclusionaiLing261t KnownModelId = "inclusionai/ling-2.6-1t"
 	KnownModelIdInclusionaiLing26Flash KnownModelId = "inclusionai/ling-2.6-flash"
 	KnownModelIdInclusionaiLing30Flash KnownModelId = "inclusionai/ling-3.0-flash"
+	KnownModelIdInclusionaiLing30FlashFin KnownModelId = "inclusionai/ling-3.0-flash-fin"
 	KnownModelIdInclusionaiLingFlash20 KnownModelId = "inclusionai/ling-flash-2.0"
 	KnownModelIdInclusionaiRing261t KnownModelId = "inclusionai/ring-2.6-1t"
 	KnownModelIdInclusionaiRingFlash20 KnownModelId = "inclusionai/ring-flash-2.0"
