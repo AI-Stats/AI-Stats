@@ -164,8 +164,8 @@ importers:
         specifier: ^10.0.1
         version: 10.0.1(eslint@10.8.1(jiti@2.7.0))
       '@types/node':
-        specifier: ^25.3.5
-        version: 25.9.5
+        specifier: ^26.1.2
+        version: 26.2.0
       '@types/react':
         specifier: 19.2.17
         version: 19.2.17
@@ -675,8 +675,8 @@ importers:
         specifier: ^30.0.0
         version: 30.0.0
       '@types/node':
-        specifier: ^25
-        version: 25.9.5
+        specifier: ^26
+        version: 26.2.0
       '@types/react':
         specifier: 19.2.17
         version: 19.2.17
@@ -757,8 +757,8 @@ importers:
         specifier: ^4.20260523.1
         version: 4.20260702.1
       '@types/node':
-        specifier: ^25.9.5
-        version: 25.9.5
+        specifier: ^26.1.2
+        version: 26.2.0
       eslint:
         specifier: ^10.8.1
         version: 10.8.1(jiti@2.7.0)
@@ -785,8 +785,8 @@ importers:
         version: 2.9.0
     devDependencies:
       '@types/node':
-        specifier: ^25.6.0
-        version: 25.9.5
+        specifier: ^26.1.2
+        version: 26.2.0
       tsx:
         specifier: ^4.21.0
         version: 4.23.1
@@ -803,8 +803,8 @@ importers:
         version: link:../devtools-core
     devDependencies:
       '@types/node':
-        specifier: ^25.6.0
-        version: 25.9.5
+        specifier: ^26.1.2
+        version: 26.2.0
       rimraf:
         specifier: ^6.0.0
         version: 6.1.3
@@ -822,8 +822,8 @@ importers:
         version: 4.4.3
     devDependencies:
       '@types/node':
-        specifier: ^25.6.0
-        version: 25.9.5
+        specifier: ^26.1.2
+        version: 26.2.0
       rimraf:
         specifier: ^6.0.0
         version: 6.1.3
@@ -871,8 +871,8 @@ importers:
         specifier: ^4.3.3
         version: 4.3.3
       '@types/node':
-        specifier: ^25.6.0
-        version: 25.9.5
+        specifier: ^26.1.2
+        version: 26.2.0
       '@types/react':
         specifier: ^19.2.17
         version: 19.2.17
@@ -951,8 +951,8 @@ importers:
         version: 5.0.15(zod@4.4.3)
     devDependencies:
       '@types/node':
-        specifier: ^25.6.0
-        version: 25.9.5
+        specifier: ^26.1.2
+        version: 26.2.0
       '@vitest/coverage-v8':
         specifier: ^4.1.10
         version: 4.1.10(vitest@4.1.10)
@@ -979,8 +979,8 @@ importers:
         version: link:../../openapi/oapi-core
     devDependencies:
       '@types/node':
-        specifier: ^25.6.0
-        version: 25.9.5
+        specifier: ^26.1.2
+        version: 26.2.0
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -992,8 +992,8 @@ importers:
         version: link:../../openapi/oapi-core
     devDependencies:
       '@types/node':
-        specifier: ^25.6.0
-        version: 25.9.5
+        specifier: ^26.1.2
+        version: 26.2.0
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -1005,8 +1005,8 @@ importers:
         version: link:../../openapi/oapi-core
     devDependencies:
       '@types/node':
-        specifier: ^25.6.0
-        version: 25.9.5
+        specifier: ^26.1.2
+        version: 26.2.0
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -1018,8 +1018,8 @@ importers:
         version: link:../../openapi/oapi-core
     devDependencies:
       '@types/node':
-        specifier: ^25.6.0
-        version: 25.9.5
+        specifier: ^26.1.2
+        version: 26.2.0
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -1031,8 +1031,8 @@ importers:
         version: link:../../openapi/oapi-core
     devDependencies:
       '@types/node':
-        specifier: ^25.6.0
-        version: 25.9.5
+        specifier: ^26.1.2
+        version: 26.2.0
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -1044,8 +1044,8 @@ importers:
         version: link:../../openapi/oapi-core
     devDependencies:
       '@types/node':
-        specifier: ^25.6.0
-        version: 25.9.5
+        specifier: ^26.1.2
+        version: 26.2.0
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -1057,8 +1057,8 @@ importers:
         version: link:../../openapi/oapi-core
     devDependencies:
       '@types/node':
-        specifier: ^25.6.0
-        version: 25.9.5
+        specifier: ^26.1.2
+        version: 26.2.0
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -1070,8 +1070,8 @@ importers:
         version: link:../../openapi/oapi-core
     devDependencies:
       '@types/node':
-        specifier: ^25.6.0
-        version: 25.9.5
+        specifier: ^26.1.2
+        version: 26.2.0
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -1086,8 +1086,8 @@ importers:
         version: 3.9.6
     devDependencies:
       '@types/node':
-        specifier: ^25.6.0
-        version: 25.9.5
+        specifier: ^26.1.2
+        version: 26.2.0
       tsx:
         specifier: ^4.21.0
         version: 4.23.1
@@ -1129,8 +1129,8 @@ importers:
         version: link:../oapi-core
     devDependencies:
       '@types/node':
-        specifier: ^25.6.0
-        version: 25.9.5
+        specifier: ^26.1.2
+        version: 26.2.0
       tsx:
         specifier: ^4.21.0
         version: 4.23.1
@@ -1151,8 +1151,8 @@ importers:
         version: 2.9.0
     devDependencies:
       '@types/node':
-        specifier: ^25.6.0
-        version: 25.9.5
+        specifier: ^26.1.2
+        version: 26.2.0
       tsx:
         specifier: ^4.21.0
         version: 4.23.1
@@ -1169,8 +1169,8 @@ importers:
         version: link:../sdk-ts
     devDependencies:
       '@types/node':
-        specifier: ^25.6.0
-        version: 25.9.5
+        specifier: ^26.1.2
+        version: 26.2.0
       rimraf:
         specifier: ^6.0.0
         version: 6.1.3
@@ -1200,8 +1200,8 @@ importers:
   packages/sdk/sdk-ts:
     devDependencies:
       '@types/node':
-        specifier: ^25.6.0
-        version: 25.9.5
+        specifier: ^26.1.2
+        version: 26.2.0
       rimraf:
         specifier: ^6.0.0
         version: 6.1.3
@@ -1222,8 +1222,8 @@ importers:
         version: 2.9.0
     devDependencies:
       '@types/node':
-        specifier: ^25.6.0
-        version: 25.9.5
+        specifier: ^26.1.2
+        version: 26.2.0
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
