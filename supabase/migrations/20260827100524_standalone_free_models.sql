@@ -332,6 +332,13 @@ set replacement_model_slug = mapping.free_slug, updated_at = now()
 from standalone_free_speech_mapping mapping
 where model.replacement_model_slug = mapping.base_slug;
 
+-- Preserve existing provider route identities so their capabilities, pricing
+-- SKUs, and historical provider_model_id references survive the model move.
+update public.v2_model_provider_routes route
+set model_slug = mapping.free_slug, updated_at = now()
+from standalone_free_speech_mapping mapping
+where route.model_slug = mapping.base_slug;
+
 update public.v2_request_facts fact
 set requested_model_slug = mapping.free_slug
 from standalone_free_speech_mapping mapping
@@ -393,9 +400,31 @@ delete from public.model_release_push_events event
 using standalone_free_speech_mapping mapping
 where event.model_slug = mapping.base_slug;
 
-update public.v2_public_effective_pricing_daily pricing
-set model_slug = mapping.free_slug, updated_at = now()
-from standalone_free_speech_mapping mapping
+insert into public.v2_public_effective_pricing_daily (
+  model_slug, usage_date, provider_id, pricing_plan,
+  input_tokens, output_tokens, cached_read_tokens, cached_write_tokens,
+  input_cost_nanos, output_cost_nanos, total_cost_nanos, updated_at
+)
+select
+  mapping.free_slug, pricing.usage_date, pricing.provider_id, pricing.pricing_plan,
+  pricing.input_tokens, pricing.output_tokens, pricing.cached_read_tokens,
+  pricing.cached_write_tokens, pricing.input_cost_nanos,
+  pricing.output_cost_nanos, pricing.total_cost_nanos, now()
+from public.v2_public_effective_pricing_daily pricing
+join standalone_free_speech_mapping mapping
+  on pricing.model_slug = mapping.base_slug
+on conflict (model_slug, usage_date, provider_id, pricing_plan) do update set
+  input_tokens = public.v2_public_effective_pricing_daily.input_tokens + excluded.input_tokens,
+  output_tokens = public.v2_public_effective_pricing_daily.output_tokens + excluded.output_tokens,
+  cached_read_tokens = public.v2_public_effective_pricing_daily.cached_read_tokens + excluded.cached_read_tokens,
+  cached_write_tokens = public.v2_public_effective_pricing_daily.cached_write_tokens + excluded.cached_write_tokens,
+  input_cost_nanos = public.v2_public_effective_pricing_daily.input_cost_nanos + excluded.input_cost_nanos,
+  output_cost_nanos = public.v2_public_effective_pricing_daily.output_cost_nanos + excluded.output_cost_nanos,
+  total_cost_nanos = public.v2_public_effective_pricing_daily.total_cost_nanos + excluded.total_cost_nanos,
+  updated_at = now();
+
+delete from public.v2_public_effective_pricing_daily pricing
+using standalone_free_speech_mapping mapping
 where pricing.model_slug = mapping.base_slug;
 
 update public.v2_public_provider_health_daily health
@@ -405,17 +434,3 @@ where health.model_slug = mapping.base_slug;
 
 delete from public.v2_models
 where model_slug = 'minimax/speech-2.8';
-
--- Remove two stale Xiaomi identities introduced by provider discovery but no
--- longer present in repository authoring. Delete dependants before bases.
-delete from public.v2_models
-where model_slug in (
-  'xiaomi/mimo-v2.5-tts-voiceclone:free',
-  'xiaomi/mimo-v2.5-tts-voicedesign:free'
-);
-
-delete from public.v2_models
-where model_slug in (
-  'xiaomi/mimo-v2.5-tts-voiceclone',
-  'xiaomi/mimo-v2.5-tts-voicedesign'
-);
