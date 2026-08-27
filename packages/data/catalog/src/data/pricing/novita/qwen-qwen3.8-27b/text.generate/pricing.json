@@ -1,18 +1,18 @@
 {
-  "key": "novita:qwen/qwen3.8-flash:text.generate",
+  "key": "novita:qwen/qwen3.8-27b:text.generate",
   "api_provider_id": "novita",
   "provider_slug": "novita",
-  "api_model_id": "qwen/qwen3.8-flash",
+  "api_model_id": "qwen/qwen3.8-27b",
   "capability_id": "text.generate",
   "rules": [
     {
       "meter": "input_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.15,
+      "price_per_unit": 0.5,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Novita models endpoint pricing checked 2026-08-27: $0.15 per 1M input tokens.",
+      "note": "Novita models endpoint pricing checked 2026-08-27: $0.50 per 1M input tokens.",
       "match": [],
       "priority": 100,
       "region": null,
@@ -24,10 +24,10 @@
       "meter": "cached_read_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.016,
+      "price_per_unit": 0.1,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Novita models endpoint pricing checked 2026-08-27: $0.016 per 1M cache-read tokens.",
+      "note": "Novita models endpoint pricing checked 2026-08-27: $0.10 per 1M cache-read tokens.",
       "match": [],
       "priority": 100,
       "region": null,
@@ -39,10 +39,10 @@
       "meter": "output_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.47,
+      "price_per_unit": 3,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Novita models endpoint pricing checked 2026-08-27: $0.47 per 1M output tokens.",
+      "note": "Novita models endpoint pricing checked 2026-08-27: $3.00 per 1M output tokens.",
       "match": [],
       "priority": 100,
       "region": null,
@@ -60,7 +60,7 @@
       "url": "https://api.novita.ai/openai/v1/models",
       "kind": "pricing",
       "accessed_at": "2026-08-27T00:00:00Z",
-      "notes": "Direct Novita model endpoint reports input, output, and cache-read pricing for qwen/qwen3.8-flash."
+      "notes": "Direct Novita model endpoint reports input, cache-read, and output pricing for qwen/qwen3.8-27b."
     }
   ],
   "verification": {

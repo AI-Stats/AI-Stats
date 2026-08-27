@@ -4085,5 +4085,66 @@
       "notes": null
     },
     "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-5.3-flash",
+    "provider_api_model_id": "siliconflow:z-ai/glm-5.3-flash",
+    "provider_model_slug": "zai-org/GLM-5.3-Flash",
+    "internal_model_id": "z-ai/glm-5.3-flash",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-08-27T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": [
+          "text",
+          "image",
+          "video"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.siliconflow.com/v1/models",
+        "accessed_at": "2026-08-27T00:00:00Z",
+        "notes": "SiliconFlow's live model catalogue reports zai-org/GLM-5.3-Flash availability."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-27T00:00:00Z",
+      "notes": "Availability and provider model slug verified from SiliconFlow's live models endpoint."
+    },
+    "rate_limits": []
   }
 ]
