@@ -2225,5 +2225,57 @@
       "notes": "Verified provider model ID, 196K context, OpenAI-compatible capability, and pricing against Morph's first-party documentation."
     },
     "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-5.3-flash",
+    "provider_api_model_id": "morph:morph-glm53flash",
+    "provider_model_slug": "morph-glm53flash",
+    "internal_model_id": "z-ai/glm-5.3-flash",
+    "is_active_gateway": false,
+    "quantization_scheme": "fp8",
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 1048576,
+    "effective_from": "2026-08-27T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": ["max_tokens", "temperature", "top_p", "top_k", "min_p", "frequency_penalty", "presence_penalty", "repetition_penalty", "stop", "seed", "logit_bias", "tools", "structured_outputs", "include_reasoning"],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": { "execution": ["US"], "data": ["US"] },
+    "service_tiers": ["standard"],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://www.morphllm.com/api/models/json",
+        "kind": "documentation",
+        "accessed_at": "2026-08-27T00:00:00Z",
+        "notes": "Official live Morph model feed."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-27T00:00:00Z",
+      "notes": "Present in Morph's official live model feed; is_ready is false, so gateway routing remains disabled."
+    },
+    "rate_limits": []
   }
 ]
