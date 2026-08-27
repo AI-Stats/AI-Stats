@@ -765,6 +765,17 @@ export type IRMusicGenerateResponse = {
 	status?: string;
 	audioUrl?: string;
 	audioBase64?: string;
+	output?: Array<{
+		index?: number;
+		id?: string | null;
+		audioUrl?: string | null;
+		audioBase64?: string | null;
+		streamAudioUrl?: string | null;
+		imageUrl?: string | null;
+		title?: string | null;
+		tags?: string | null;
+		duration?: number | null;
+	}>;
 	result?: any;
 	usage?: IRUsage;
 	rawResponse?: any;

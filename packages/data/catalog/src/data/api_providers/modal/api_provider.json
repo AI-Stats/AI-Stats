@@ -8,7 +8,7 @@
   "residency_mode": "customer_selectable",
   "default_execution_regions": null,
   "default_data_regions": null,
-  "zero_data_retention": "default",
+  "zero_data_retention": true,
   "data_retention_days": 0,
   "residency_source_url": "https://modal.com/docs/guide/region-selection",
   "residency_notes": "Inference endpoints do not store request or response payloads. Endpoint routing can be selected from us-west, us-east, ca-central, eu-west, or ap-south; compute placement is independently selectable. Modal's broader Function product has different routing and retention behavior and is not represented as a model API route here.",

@@ -424,18 +424,18 @@
         "provider_api_model_id":  "weights-and-biases:ibm/granite-4.2-8b",
         "provider_model_slug":  "ibm-granite/granite-4.2-8b",
         "internal_model_id":  "ibm/granite-4.2-8b",
-        "is_active_gateway":  false,
+        "is_active_gateway":  true,
         "quantization_scheme":  null,
         "input_modalities":  "text",
         "output_modalities":  "text",
         "context_length":  131072,
         "max_output_tokens":  null,
-        "effective_from":  null,
+        "effective_from":  "2026-08-25T00:00:00",
         "effective_to":  null,
         "capabilities":  [
                              {
                                  "capability_id":  "text.generate",
-                                 "status":  "coming_soon",
+                                 "status":  "active",
                                  "params":  [
 
                                             ],
@@ -451,8 +451,8 @@
                                            ]
                              }
                          ],
-        "routing_status":  null,
-        "routable":  false,
+        "routing_status":  "active",
+        "routable":  true,
         "regions":  {
                         "execution":  null,
                         "data":  null
@@ -472,13 +472,13 @@
                              "kind":  "documentation",
                              "url":  "https://docs.wandb.ai/inference/models",
                              "accessed_at":  "2026-08-25T00:00:00Z",
-                             "notes":  "Official W&B Inference model catalog; Granite 4.2 remains pre-release."
+                             "notes":  "Official W&B Inference model catalog; Granite 4.2 is now available."
                          }
                     ],
         "verification":  {
-                             "status":  "partial",
+                             "status":  "verified",
                              "checked_at":  "2026-08-25T00:00:00Z",
-                             "notes":  "Pre-release Weights & Biases availability reported on 2026-08-24; routing remains disabled pending launch."
+                             "notes":  "Verified against the official W&B Inference model catalog after Granite 4.2 availability was announced."
                          },
         "rate_limits":  [
 

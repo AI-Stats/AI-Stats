@@ -367,16 +367,14 @@ test("catalog sync paginates through every compatible model", async () => {
 	}
 });
 
-test("primary harness installers use supported global package commands", () => {
+test("primary harness installers use package commands and reject mutable remote scripts", () => {
 	assert.deepEqual(installInvocationFor("codex", "pnpm"), { command: "pnpm", args: ["add", "-g", "@openai/codex"] });
 	assert.deepEqual(installInvocationFor("claude-code", "npm"), { command: "npm", args: ["install", "-g", "@anthropic-ai/claude-code"] });
 	assert.deepEqual(installInvocationFor("opencode", "bun"), { command: "bun", args: ["install", "-g", "opencode-ai"] });
 	assert.deepEqual(installInvocationFor("deepseek-harness", "yarn"), { command: "yarn", args: ["global", "add", "@deepseek-ai/dsh"] });
 	assert.deepEqual(installInvocationFor("pi", "npm"), { command: "npm", args: ["install", "-g", "--ignore-scripts", "@earendil-works/pi-coding-agent"] });
-	assert.deepEqual(installInvocationFor("prime-agent", "npm"), { command: "sh", args: ["-c", "curl -fsSL https://app.primeintellect.ai/prime-agent/install.sh | sh"] });
-	assert.deepEqual(installInvocationFor("hermes", "npm"), process.platform === "win32"
-		? { command: "powershell.exe", args: ["-NoProfile", "-Command", "& ([scriptblock]::Create((irm https://hermes-agent.nousresearch.com/install.ps1))) -SkipSetup"] }
-		: { command: "sh", args: ["-c", "curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash -s -- --skip-setup"] });
+	assert.throws(() => installInvocationFor("prime-agent", "npm"), /installed manually/);
+	assert.throws(() => installInvocationFor("hermes", "npm"), /installed manually/);
 	assert.deepEqual(installInvocationFor("openclaw", "npm"), { command: "npm", args: ["install", "-g", "openclaw@latest"] });
 });
 

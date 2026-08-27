@@ -2,6 +2,7 @@
 
 import { apiBaseUrl } from "@/lib/oauth/apiBaseUrl";
 import { createClient } from "@/utils/supabase/server";
+import { validateSelectedAuthorizationScopes } from "./scopeSelection";
 
 /**
  * OAuth Consent Server Actions
@@ -116,10 +117,15 @@ export async function approveAuthorizationAction(
 				resolvedClientId = details.client.id;
 			}
 			if (typeof details.scope === "string" && details.scope.trim().length > 0) {
-				scopes = details.scope
+				const requestedScopes = details.scope
 					.split(" ")
 					.map((scope: string) => scope.trim())
 					.filter((scope: string) => scope.length > 0);
+				const selected = validateSelectedAuthorizationScopes(scopes, requestedScopes);
+				if (!selected.ok) return { error: selected.error };
+				// The consent form is authoritative for the granted subset. The
+				// authorization request only defines the maximum scope set.
+				scopes = selected.scopes;
 			}
 		}
 

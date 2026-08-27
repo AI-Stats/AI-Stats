@@ -6,7 +6,7 @@
   "residency_mode": "provider_managed",
   "default_execution_regions": null,
   "default_data_regions": null,
-  "zero_data_retention": "unknown",
+  "zero_data_retention": false,
   "residency_source_url": "https://www.arcee.ai/privacy-policy",
   "residency_notes": "Arcee's privacy policy points to a separate data-retention policy and describes service-provider processing, but the reviewed public materials do not specify an API execution/storage region or a Zero Data Retention control. Paid and unpaid training controls are separate from retention.",
   "data_policy_tier": "trains",

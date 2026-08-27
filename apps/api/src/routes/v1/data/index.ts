@@ -15,15 +15,13 @@ import { rerankRoutes } from "./rerank";
 import { audioSpeechRoutes } from "./audio-speech";
 import { audioTranscriptionRoutes } from "./audio-transcription";
 import { audioTranslationRoutes } from "./audio-translation";
+import { musicGenerateRoutes } from "./music-generate";
 import { realtimeSessionsRoutes } from "./realtime-sessions";
 import { imagesGenerationsRoutes } from "./images-generations";
 import { imagesEditsRoutes } from "./images-edits";
 import { batchRoutes } from "./batches";
 import { videosRoutes } from "./videos";
 import { filesRoutes } from "./files";
-import {
-    disabledMusicRoutes,
-} from "./feature-disabled";
 import { ocrRoutes } from "./ocr";
 import { asyncJobsRoutes } from "./async-jobs";
 
@@ -45,8 +43,8 @@ inferenceRouter.route("/images/edits", imagesEditsRoutes);
 inferenceRouter.route("/videos", videosRoutes);
 inferenceRouter.route("/video/generations", videosRoutes);
 inferenceRouter.route("/ocr", ocrRoutes);
-inferenceRouter.route("/music/generate", disabledMusicRoutes);
-inferenceRouter.route("/music/generations", disabledMusicRoutes);
+inferenceRouter.route("/music/generate", musicGenerateRoutes);
+inferenceRouter.route("/music/generations", musicGenerateRoutes);
 inferenceRouter.route("/batch", batchRoutes);
 inferenceRouter.route("/batches", batchRoutes);
 inferenceRouter.route("/files", filesRoutes);
@@ -54,7 +52,6 @@ inferenceRouter.route("/async", asyncJobsRoutes);
 
 // Backward-compatible alias for existing imports.
 export const dataRouter = inferenceRouter;
-
 
 
 

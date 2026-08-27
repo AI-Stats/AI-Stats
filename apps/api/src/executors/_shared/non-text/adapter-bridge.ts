@@ -523,6 +523,19 @@ async function adapterResultToIR(
 		case "music.generate": {
 			const payload = normalized ?? {};
 			const outputItem = Array.isArray(payload?.output) ? payload.output[0] : undefined;
+			const output = Array.isArray(payload?.output)
+				? payload.output.map((item: any, index: number) => ({
+					index: typeof item?.index === "number" ? item.index : index,
+					id: item?.id != null ? String(item.id) : null,
+					audioUrl: typeof item?.audio_url === "string" ? item.audio_url : null,
+					audioBase64: typeof item?.audio_base64 === "string" ? item.audio_base64 : null,
+					streamAudioUrl: typeof item?.stream_audio_url === "string" ? item.stream_audio_url : null,
+					imageUrl: typeof item?.image_url === "string" ? item.image_url : null,
+					title: typeof item?.title === "string" ? item.title : null,
+					tags: typeof item?.tags === "string" ? item.tags : null,
+					duration: typeof item?.duration === "number" ? item.duration : null,
+				}))
+				: undefined;
 			return {
 				id: requestId,
 				nativeId: payload?.id ?? payload?.nativeResponseId ?? undefined,
@@ -530,7 +543,8 @@ async function adapterResultToIR(
 				provider,
 				status: payload?.status ?? "completed",
 				audioUrl: payload?.audio_url ?? outputItem?.audio_url ?? undefined,
-				audioBase64: payload?.audio_base64 ?? undefined,
+				audioBase64: payload?.audio_base64 ?? outputItem?.audio_base64 ?? undefined,
+				output,
 				result: payload?.result ?? payload,
 				usage,
 				rawResponse: payload,
