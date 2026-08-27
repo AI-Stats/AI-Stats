@@ -6,6 +6,7 @@ declare
   route_policy text;
   models_page_definition text;
   pricing_definition text;
+  overview_definition text;
 begin
   if not exists (
     select 1
@@ -139,6 +140,13 @@ begin
   if position('''execution_region'', null' in lower(pricing_definition)) = 0
     or position('''data_region'', null' in lower(pricing_definition)) = 0 then
     raise exception 'pricing_provider_model_regions_not_redacted';
+  end if;
+
+  select pg_get_functiondef('public.get_v2_model_overview(text,text,text)'::regprocedure)
+    into overview_definition;
+  if position('from jsonb_array_elements(redacted.routes)' in lower(overview_definition)) = 0
+    or position('route_item.item - ''variant_id'' - ''variant_key''' in lower(overview_definition)) = 0 then
+    raise exception 'overview_region_aggregate_not_recomputed_after_redaction';
   end if;
 end
 $$;
