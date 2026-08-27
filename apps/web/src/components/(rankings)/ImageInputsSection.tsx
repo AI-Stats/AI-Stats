@@ -10,7 +10,9 @@ import { formatModelDisplayName } from "@/lib/models/displayName";
 export async function ImageInputsSection() {
 	const result = await fetchFrontendRankingImageInputs("year", 20).catch(() => ({ data: [] }));
 	const modelIds = [...new Set(result.data.map((row) => row.model_id).filter(Boolean))];
-	const metaMap = await fetchFrontendModelLeaderboardMetaByIds(modelIds);
+	const metaMap = await fetchFrontendModelLeaderboardMetaByIds(modelIds).catch(
+		(): Awaited<ReturnType<typeof fetchFrontendModelLeaderboardMetaByIds>> => ({}),
+	);
 	const nameMap = Object.fromEntries(modelIds.map((id) => [id, formatModelDisplayName(metaMap[id]?.name, id)]));
 	const logoIdMap = Object.fromEntries(modelIds.map((id) => [id, metaMap[id]?.organisation_id ?? id]));
 	const organisationNameMap = Object.fromEntries(modelIds.flatMap((id) => {

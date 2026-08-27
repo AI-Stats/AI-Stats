@@ -17,7 +17,15 @@ function percent(value: number | string) {
 }
 
 export async function ModelRetentionSection() {
-	const result = await fetchFrontendModelRetentionRankings(20);
+	const result = await fetchFrontendModelRetentionRankings(20).catch(() => ({
+		data: [],
+		methodology: {
+			cohortWeeks: 10,
+			minimumWorkspaceWeeks: 25,
+			minimumWorkspaces: 5,
+			minimumWeeks: 2,
+		},
+	}));
 	const rows = result.data;
 	if (!rows.length) {
 		return (
