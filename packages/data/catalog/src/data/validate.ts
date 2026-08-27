@@ -58,7 +58,7 @@ function parseNumericValue(value: unknown): number | undefined {
 export function isMajorError(msg: string): boolean {
     const majorPatterns = [
         /model_id.*missing|model.*name.*missing/i,
-        /duplicate model (?:id|identity)/i,
+        /duplicate model[ _](?:id|identity)/i,
         /benchmark.*not found|benchmark.*missing/i,
         /pricing.*active.*no rules/i,
         /pricing.*invalid key/i,

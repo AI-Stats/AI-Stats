@@ -76,6 +76,12 @@ describe('model identity normalization', () => {
     });
 });
 
+describe('validation error severity', () => {
+    test('classifies duplicate model_id errors as major', () => {
+        expect(isMajorError('Duplicate model_id detected: nvidia/example')).toBe(true);
+    });
+});
+
 function readPricingJson(relativePath: string) {
     return JSON.parse(fs.readFileSync(path.join(DATA_ROOT, relativePath), 'utf8'));
 }
