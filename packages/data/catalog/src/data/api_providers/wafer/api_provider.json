@@ -1,7 +1,7 @@
 {
   "api_provider_id": "wafer",
   "api_provider_name": "Wafer",
-  "description": "OpenAI-compatible serverless inference for a curated catalogue of open models.",
+  "description": "OpenAI- and Anthropic-compatible serverless inference for a curated catalogue of open models.",
   "link": "https://app.wafer.ai/models",
   "residency_mode": "provider_managed",
   "default_execution_regions": ["US"],
@@ -26,9 +26,13 @@
   "routing_enabled": true,
   "sdk_package": null,
   "api_base_url": "https://pass.wafer.ai/v1",
-  "docs_url": "https://app.wafer.ai/models",
+  "docs_url": "https://docs.wafer.ai/serverless/api-reference",
   "auth_env": ["WAFER_API_KEY"],
-  "api_formats": ["openai.chat.completions"],
+  "api_formats": [
+    "openai.chat.completions",
+    "openai.responses",
+    "anthropic.messages"
+  ],
   "service_tiers": ["standard"],
   "sources": [
     {
@@ -36,11 +40,17 @@
       "kind": "api_reference",
       "accessed_at": "2026-08-21T00:00:00Z",
       "notes": "Official model cards document the bearer-authenticated /v1/chat/completions endpoint and current serverless model slugs."
+    },
+    {
+      "url": "https://docs.wafer.ai/serverless/api-reference",
+      "kind": "api_reference",
+      "accessed_at": "2026-08-27T00:00:00Z",
+      "notes": "Official Serverless API reference documents OpenAI-compatible Chat Completions and Responses plus the Anthropic-compatible Messages API."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-21T00:00:00Z",
-    "notes": "Verified against Wafer's first-party model quick starts and model catalogue."
+    "checked_at": "2026-08-27T00:00:00Z",
+    "notes": "Verified against Wafer's first-party Serverless API reference, model quick starts, and live model catalogue."
   }
 }
