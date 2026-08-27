@@ -12,6 +12,43 @@ function makeTiming() {
 }
 
 describe("guardAllFailed", () => {
+	it("hides every provider failure detail for stealth models", async () => {
+		const ctx: any = {
+			model: "stealth/test-model-20260827",
+			requestedModel: "stealth/test-model-20260827",
+			endpoint: "responses",
+			requestId: "req_stealth_failed",
+			attemptErrors: [{
+				provider: "openai",
+				status: 402,
+				upstream_error_code: "billing_secret",
+				upstream_error_message: "OpenAI billing failed",
+				upstream_payload_preview: "api.openai.com",
+			}],
+		};
+
+		const result = await guardAllFailed(ctx, makeTiming());
+		expect(result.ok).toBe(false);
+		if (result.ok) return;
+
+		expect(result.response.status).toBe(402);
+		const payload = await result.response.json();
+		expect(payload).toEqual({
+			error: "upstream_billing_required",
+			status_code: 402,
+			error_origin: "upstream",
+			responsibility: "phaseo",
+			retryable: false,
+			description: "The upstream service rejected the request because its billing requirements were not met.",
+			action: "Contact Phaseo support, or verify provider billing if you are using BYOK.",
+			request_id: "req_stealth_failed",
+			model: "stealth/test-model-20260827",
+			endpoint: "responses",
+			failed_statuses: [402],
+		});
+		expect(JSON.stringify(payload)).not.toMatch(/openai|billing_secret|failure_sample|provider_payment/i);
+	});
+
 	it("returns provider_payment_required when any upstream attempt failed with 402", async () => {
 		const ctx: any = {
 			model: "openai/gpt-4.1-mini",
@@ -431,5 +468,42 @@ describe("guardAllFailed", () => {
 			reason: "all_routes_unavailable_in_request_country",
 			request_country: "CN",
 		});
+	});
+
+	it("hides route diagnostics when a stealth model is region unavailable", async () => {
+		const ctx: any = {
+			model: "stealth/test-model-20260827",
+			requestedModel: "stealth/test-model-20260827",
+			endpoint: "responses",
+			requestId: "req_stealth_region",
+			meta: { edgeCountry: "CN" },
+			attemptErrors: [],
+			routingDiagnostics: {
+				filterStages: [{
+					stage: "geographic_availability_gate",
+					beforeCount: 1,
+					afterCount: 0,
+					droppedProviders: [{
+						providerId: "openai",
+						apiModelId: "pam_openai_secret",
+						providerModelSlug: "oai-stealth-test-model-internal",
+					}],
+				}],
+			},
+		};
+
+		const result = await guardAllFailed(ctx, makeTiming());
+		expect(result.ok).toBe(false);
+		if (result.ok) return;
+		expect(result.response.status).toBe(403);
+		const payload = await result.response.json();
+		expect(payload).toMatchObject({
+			error: "model_region_unavailable",
+			status_code: 403,
+			error_origin: "gateway",
+			responsibility: "user",
+			request_country: "CN",
+		});
+		expect(JSON.stringify(payload)).not.toMatch(/openai|pam_openai_secret|oai-stealth|routing_diagnostics/i);
 	});
 });

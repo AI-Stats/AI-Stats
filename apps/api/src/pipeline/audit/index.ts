@@ -14,6 +14,7 @@ import {
 } from "../usage-columns";
 import { persistGatewayIoLog, resolveGatewayIoLoggingPolicy } from "./io-logging";
 import { persistGatewayUpstreamRequests } from "./upstream-requests";
+import { protectStealthAuditArgs } from "./stealth-identity";
 
 function supaAdmin() {
     return getSupabaseAdmin();
@@ -818,7 +819,7 @@ function readToolCallCount(usage: unknown, finishReason?: string | null): number
     return finishReason === "tool_calls" || finishReason === "tool_use" ? 1 : 0;
 }
 
-export async function auditSuccess(args: {
+export async function auditSuccess(input: {
     requestId: string; workspaceId: string;
     provider: string; model: string; requestedModel?: string; endpoint: Endpoint;
     providerApiModelId?: string | null;
@@ -872,6 +873,7 @@ export async function auditSuccess(args: {
     streamProviderBillingOnCancel?: "stops" | "unknown";
     streamDisconnectAction?: "cancel_upstream" | "drain_upstream";
 }) {
+    const args = protectStealthAuditArgs(input);
     const releaseRuntime = ensureRuntimeForBackground();
     try {
         const pricingLines = args.usagePriced?.pricing?.lines ?? [];
@@ -1115,6 +1117,9 @@ type AuditFailureBefore = {
     endpoint: Endpoint;
     model?: string | null;
     requestedModel?: string | null;
+    provider?: string | null;
+    providerApiModelId?: string | null;
+    providerModelSlug?: string | null;
     statusCode: number;
     errorCode: string;
     errorMessage?: string | null;
@@ -1207,7 +1212,8 @@ type AuditFailureExecute = {
     pricingLines?: unknown[] | null;
 };
 
-export async function auditFailure(args: AuditFailureBefore | AuditFailureExecute) {
+export async function auditFailure(input: AuditFailureBefore | AuditFailureExecute) {
+    const args = protectStealthAuditArgs(input);
     const releaseRuntime = ensureRuntimeForBackground();
     try {
         if (args.stage === "before") {
@@ -1227,7 +1233,7 @@ export async function auditFailure(args: AuditFailureBefore | AuditFailureExecut
                 endpoint: args.endpoint,
                 model: args.model ?? args.requestedModel ?? "unknown",
                 canonicalModel: args.requestedModel ?? args.model ?? "unknown",
-                provider: null,
+                provider: args.provider ?? null,
                 stream: false,
                 byok: false,
                 nativeResponseId: null,
@@ -1278,6 +1284,9 @@ export async function auditFailure(args: AuditFailureBefore | AuditFailureExecut
                         keyId: args.keyId ?? null,
                         endpoint: args.endpoint,
                         modelId: args.requestedModel ?? args.model ?? "unknown",
+                        provider: args.provider ?? null,
+                        providerApiModelId: args.providerApiModelId ?? null,
+                        providerModelSlug: args.providerModelSlug ?? null,
                         providerAttempts: args.providerAttempts ?? null,
                         statusCode: args.statusCode,
                         success: false,
@@ -1295,6 +1304,10 @@ export async function auditFailure(args: AuditFailureBefore | AuditFailureExecut
                             keyId: args.keyId ?? null,
                             endpoint: args.endpoint,
                             requestedModel: args.requestedModel ?? args.model ?? "unknown",
+                            routedModel: args.model ?? args.requestedModel ?? null,
+                            provider: args.provider ?? null,
+                            providerApiModelId: args.providerApiModelId ?? null,
+                            providerModelSlug: args.providerModelSlug ?? null,
                             stream: false,
                             byok: false,
                             statusCode: args.statusCode,
@@ -1339,7 +1352,7 @@ export async function auditFailure(args: AuditFailureBefore | AuditFailureExecut
                         keyId: args.keyId ?? null,
                         endpoint: args.endpoint,
                         modelId: args.requestedModel ?? args.model ?? "unknown",
-                        provider: null,
+                        provider: args.provider ?? null,
                         statusCode: args.statusCode,
                         success: false,
                         requestPayload: args.requestPayload,
@@ -1358,7 +1371,7 @@ export async function auditFailure(args: AuditFailureBefore | AuditFailureExecut
                             key_id: args.keyId ?? null,
                             endpoint: args.endpoint,
                             model_id: args.requestedModel ?? args.model ?? "unknown",
-                            provider: null,
+                            provider: args.provider ?? null,
                             status_code: args.statusCode,
                             success: false,
                             request_payload: normalizeJsonValue(args.requestPayload) ?? {},

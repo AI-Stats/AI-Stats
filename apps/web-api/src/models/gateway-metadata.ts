@@ -1,5 +1,6 @@
 import { getDataClient } from "@/data/supabase";
 import type { Env } from "@/env";
+import { publicProviderDisplayName, publicProviderPayload } from "@/models/provider-identity";
 
 type Row = Record<string, unknown>;
 
@@ -159,7 +160,7 @@ export async function fetchGatewayMetadataSource(env: Env, modelId: string): Pro
 		const providers: Row[] = [];
 		for (const payload of v2Pricing.data as Row[]) {
 			const provider = asRow(payload.provider);
-			if (provider) providers.push(provider);
+			if (provider) providers.push(publicProviderPayload(provider));
 			for (const item of rows(payload.provider_models)) {
 				const providerModelId = id(item.id);
 				const endpoint = id(item.endpoint) ?? "unmapped";
@@ -247,7 +248,7 @@ export function composeGatewayMetadata(modelId: string, source: GatewayMetadataS
 			const providerDetails = provider ? {
 				...provider,
 				api_provider_id: providerId,
-				api_provider_name: id(provider.api_provider_name) ?? providerId,
+				api_provider_name: publicProviderDisplayName(providerId, provider.api_provider_name),
 				provider_family_id: id(provider.provider_family_id) ?? providerId,
 				offer_label: provider.offer_label ?? null,
 				offer_scope: provider.offer_scope ?? "global",

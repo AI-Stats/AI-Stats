@@ -1,5 +1,6 @@
 import { getDataClient } from "@/data/supabase";
 import type { Env } from "@/env";
+import { publicProviderDisplayName, STEALTH_PROVIDER_ID } from "@/models/provider-identity";
 
 type Row = Record<string, unknown>;
 
@@ -162,6 +163,12 @@ function withoutExternalProviders(row: Row): Row {
 		const accessScope = String(detail.access_scope ?? "public").trim().toLowerCase();
 		const capabilityStatus = String(detail.capability_status ?? "").trim().toLowerCase();
 		return status !== "external" && accessScope === "public" && capabilityStatus !== "internal_testing";
+	}).map((detail) => {
+		const providerId = String(detail.id ?? detail.provider_slug ?? "").trim();
+		const providerName = publicProviderDisplayName(providerId, detail.name);
+		return providerId.toLowerCase() === STEALTH_PROVIDER_ID || String(detail.name ?? "").trim().toLowerCase() === STEALTH_PROVIDER_ID
+			? { ...detail, id: STEALTH_PROVIDER_ID, name: providerName }
+			: detail;
 	});
 	const providerNames = strings(visibleDetails.map((detail) => detail.name));
 	const activeProviderNames = strings(
