@@ -53,7 +53,8 @@ returns table (
   output_speed_tps numeric,
   phaseo_overhead_ms numeric,
   tpot_ms numeric,
-  itl_ms numeric
+  itl_ms numeric,
+  cached_input_pct numeric
 )
 language sql
 stable
