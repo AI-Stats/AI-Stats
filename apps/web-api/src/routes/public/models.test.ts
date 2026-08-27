@@ -536,6 +536,53 @@ describe("public model routes", () => {
 		expect(performance.headers.get("cloudflare-cdn-cache-control")).toBe("public, max-age=900, stale-while-revalidate=900");
 	});
 
+	it("returns performance and uptime series for a single-request cohort", async () => {
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+			const url = String(input);
+			if (url.includes("/rpc/get_v2_model_performance_metrics")) {
+				return new Response(JSON.stringify({
+					last_24h: {
+						total_requests: 1,
+						successful_requests: 1,
+						uptime_pct: 100,
+						avg_latency_ms: 240,
+						avg_throughput: 18.5,
+					},
+					hourly_24h: [{
+						bucket: "2026-08-27T09:00:00Z",
+						requests: 1,
+						success_pct: 100,
+						avg_latency_ms: 240,
+						avg_throughput: 18.5,
+					}],
+					provider_uptime_24h: [],
+					provider_daily_7d: [],
+				}), { status: 200 });
+			}
+			return new Response(JSON.stringify([]), { status: 200 });
+		}));
+
+		const response = await app.request(
+			"https://phaseo.app/api/_web/models/test%2Flow-volume/performance",
+			{},
+			env,
+		);
+		const payload = await response.json() as any;
+
+		expect(response.status).toBe(200);
+		expect(payload.metrics.summary).toMatchObject({
+			totalRequests: 1,
+			successfulRequests: 1,
+			uptimePct: 100,
+		});
+		expect(payload.metrics.hourly).toEqual([
+			expect.objectContaining({ requests: 1, successPct: 100 }),
+		]);
+		expect(payload.metrics.successSeries).toEqual([
+			expect.objectContaining({ requests: 1, overallSuccessPct: 100 }),
+		]);
+	});
+
 	it("never exposes a synthetic unknown provider in performance data", async () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = String(input);
