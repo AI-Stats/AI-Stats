@@ -4210,7 +4210,6 @@
           "top_k",
           "repetition_penalty",
           "logit_bias",
-          "min_p",
           "response_format",
           "structured_outputs",
           "tools",
