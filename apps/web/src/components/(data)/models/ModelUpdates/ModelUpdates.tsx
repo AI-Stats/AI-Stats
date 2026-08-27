@@ -10,66 +10,6 @@ import type {
 	EventType,
 } from "@/lib/fetchers/updates/types";
 
-function formatDate(dateStr: string | null | undefined) {
-	if (!dateStr) return "-";
-	const date = new Date(dateStr);
-	return date.toLocaleDateString("en-GB", {
-		day: "2-digit",
-		month: "short",
-		year: "numeric",
-	});
-}
-
-function getRelativeTime(dateStr: string | null | undefined) {
-	if (!dateStr) return null;
-	const now = new Date();
-	const date = new Date(dateStr);
-	const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
-	if (diff < 60) return "just now";
-	if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
-	const isToday =
-		now.getFullYear() === date.getFullYear() &&
-		now.getMonth() === date.getMonth() &&
-		now.getDate() === date.getDate();
-	if (isToday) return "Today";
-	const days = Math.floor(diff / 86400);
-	if (days === 1) return "1 day ago";
-	if (days < 30) return `${days} days ago`;
-	const months = Math.floor(diff / 2592000);
-	if (months === 1) return "1 mo ago";
-	if (months < 12) return `${months} mo ago`;
-	const years = Math.floor(diff / 31536000);
-	if (years === 1) return "1 yr ago";
-	return `${years} yr ago`;
-}
-
-function getTimeUntil(dateStr: string | null | undefined) {
-	if (!dateStr) return null;
-	const now = new Date();
-	const date = new Date(dateStr);
-	const diff = Math.floor((date.getTime() - now.getTime()) / 1000);
-
-	if (diff <= 0) return "Today";
-	if (diff < 60) return "In 1 min";
-	if (diff < 3600) {
-		const mins = Math.ceil(diff / 60);
-		return `In ${mins} min`;
-	}
-	if (diff < 86400) {
-		const hours = Math.ceil(diff / 3600);
-		return hours === 1 ? "In 1 hr" : `In ${hours} hr`;
-	}
-	const days = Math.ceil(diff / 86400);
-	if (days === 1) return "Tomorrow";
-	if (days < 30) return `In ${days} days`;
-	const months = Math.ceil(diff / 2592000);
-	if (months === 1) return "In 1 mo";
-	if (months < 12) return `In ${months} mo`;
-	const years = Math.ceil(diff / 31536000);
-	if (years === 1) return "In 1 yr";
-	return `In ${years} yr`;
-}
-
 interface ModelUpdatesPageProps {
 	pastEvents: ModelEvent[];
 	upcomingEvents: ModelEvent[];
@@ -82,14 +22,15 @@ export default function ModelUpdatesPage({
 	// events are passed in; keep stable reference
 	const allEvents = React.useMemo(() => pastEvents, [pastEvents]);
 
-	// Highlight events for today (same day/month, any year)
+	// Highlight releases on this calendar date, across all recorded years.
 	const today = React.useMemo(() => new Date(), []);
 	const todayEvents = React.useMemo(() => {
 		return allEvents.filter((e) => {
 			const d = new Date(e.date);
 			return (
-				d.getDate() === today.getDate() &&
-				d.getMonth() === today.getMonth()
+				e.types.includes("Released") &&
+				d.getUTCDate() === today.getUTCDate() &&
+				d.getUTCMonth() === today.getUTCMonth()
 			);
 		});
 	}, [allEvents, today]);
@@ -158,7 +99,6 @@ export default function ModelUpdatesPage({
 				title="Upcoming Model Updates"
 				events={upcomingList}
 				eventTypeOptions={eventTypeOptions}
-				getRelativeLabel={getTimeUntil}
 				emptyMessage="No upcoming updates scheduled."
 				headerActions={<ModelCalendarRouteSwitch active="models" />}
 			/>
@@ -166,14 +106,11 @@ export default function ModelUpdatesPage({
 				todayEvents={todayEvents}
 				eventTypeOptions={eventTypeOptions}
 				today={today}
-				formatDate={formatDate}
-				getRelativeTime={getRelativeTime}
 			/>
 			<ModelUpdatesRecentReleases
 				title="Recent Model Releases"
 				events={filteredEvents}
 				eventTypeOptions={eventTypeOptions}
-				getRelativeLabel={getRelativeTime}
 				emptyMessage="No recent updates recorded."
 			/>
 		</div>

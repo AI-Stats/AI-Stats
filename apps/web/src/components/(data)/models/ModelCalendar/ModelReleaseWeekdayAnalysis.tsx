@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { Logo } from "@/components/Logo";
@@ -11,9 +11,17 @@ import {
 	ChartTooltipContent,
 } from "@/components/ui/chart";
 import { cn } from "@/lib/utils";
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const WEEKDAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-const DEFAULT_CARD_LIMIT = 5;
+const DEFAULT_CARD_LIMIT = 10;
 const DEFAULT_CHART_ROW_LIMIT = 10;
 const EXPANDED_CARD_LIMIT = 10;
 const EXPANDED_CHART_ROW_LIMIT = 20;
@@ -75,6 +83,7 @@ type AnalysisResult = {
 
 type ModelReleaseWeekdayAnalysisProps = {
 	events: ModelEvent[];
+	compact?: boolean;
 };
 
 function toMondayFirstIndex(jsWeekday: number) {
@@ -107,14 +116,12 @@ function getLocalMonthDayKey(date: Date) {
 
 export default function ModelReleaseWeekdayAnalysis({
 	events,
+	compact = false,
 }: ModelReleaseWeekdayAnalysisProps) {
 	const [hoveredDayKey, setHoveredDayKey] = useState<string | null>(null);
 	const [expandLevel, setExpandLevel] = useState<ExpandLevel>(0);
-	const todayWeekdayIndex = useMemo(
-		() => toMondayFirstIndex(new Date().getUTCDay()),
-		[]
-	);
-
+	const [organisationQuery, setOrganisationQuery] = useState("");
+	const [isPending, startTransition] = useTransition();
 	const analysis = useMemo<AnalysisResult | null>(() => {
 		const nowMs = Date.now();
 		const todayMonthDayKey = getLocalMonthDayKey(new Date());
@@ -252,46 +259,24 @@ export default function ModelReleaseWeekdayAnalysis({
 	if (!analysis) return null;
 
 	const visibleCardLimit =
-		expandLevel === 0
-			? DEFAULT_CARD_LIMIT
-			: expandLevel === 1
-			? EXPANDED_CARD_LIMIT
-			: analysis.organisationStats.length;
+		expandLevel === 0 ? DEFAULT_CARD_LIMIT : EXPANDED_CARD_LIMIT;
 	const visibleChartRowLimit =
 		expandLevel === 0
 			? DEFAULT_CHART_ROW_LIMIT
-			: expandLevel === 1
-			? EXPANDED_CHART_ROW_LIMIT
-			: analysis.organisationChartRows.length;
+			: EXPANDED_CHART_ROW_LIMIT;
 
 	const visibleOrganisationChartRows = analysis.organisationChartRows.slice(
 		0,
 		visibleChartRowLimit
 	);
-	const baseOrganisationCards = analysis.organisationStats.slice(
+	const visibleOrganisationCards = analysis.organisationStats.slice(
 		0,
-		DEFAULT_CARD_LIMIT
-	);
-	const midOrganisationCards = analysis.organisationStats.slice(
-		DEFAULT_CARD_LIMIT,
-		EXPANDED_CARD_LIMIT
-	);
-	const allOrganisationCards = analysis.organisationStats.slice(
-		EXPANDED_CARD_LIMIT,
 		visibleCardLimit
 	);
 	const canExpandToExpanded =
 		analysis.organisationStats.length > DEFAULT_CARD_LIMIT ||
 		analysis.organisationChartRows.length > DEFAULT_CHART_ROW_LIMIT;
-	const canExpandToAll =
-		analysis.organisationStats.length > EXPANDED_CARD_LIMIT ||
-		analysis.organisationChartRows.length > EXPANDED_CHART_ROW_LIMIT;
-	const chartHeightPx =
-		expandLevel === 0
-			? 420
-			: expandLevel === 1
-			? 840
-			: Math.max(1200, Math.min(2000, 120 + visibleOrganisationChartRows.length * 42));
+	const chartHeightPx = expandLevel === 0 ? 420 : 840;
 
 	const daySeriesByLabel = new Map<string, (typeof DAY_SERIES)[number]>(
 		DAY_SERIES.map((day) => [day.label, day])
@@ -321,72 +306,140 @@ export default function ModelReleaseWeekdayAnalysis({
 	} as const;
 
 	const renderOrganisationCard = (org: OrganisationStat) => {
-		const todayCount = org.weekdayCounts[todayWeekdayIndex] ?? 0;
-		const todayShare = org.total === 0 ? 0 : todayCount / org.total;
-
 		return (
-			<div
+			<Link
 				key={org.organisationId}
-				className="border-b border-zinc-200/80 py-2 last:border-b-0 dark:border-zinc-800"
+				href={`/updates/calendar/organisations/${encodeURIComponent(org.organisationId)}?view=all`}
+				className="group flex h-[42px] items-center gap-2 border-b border-zinc-200/80 last:border-b-0 dark:border-zinc-800"
 			>
-				<div className="flex items-center justify-between gap-2">
-					<div className="flex min-w-0 items-center gap-2">
-						<div className="relative h-7 w-7 shrink-0 rounded-lg border border-zinc-200/80 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-							<div className="absolute inset-1.5">
-								<Logo
-									id={org.organisationId}
-									alt={org.organisationName}
-									className="object-contain"
-									fill
-								/>
-							</div>
-						</div>
-						<Link
-							href={`/organisations/${encodeURIComponent(org.organisationId)}`}
-							className="truncate font-semibold text-zinc-800 hover:underline dark:text-zinc-100"
-						>
-							{org.organisationName}
-						</Link>
+				<div className="relative size-7 shrink-0 rounded-md border border-zinc-200/80 bg-white dark:border-zinc-800 dark:bg-zinc-950">
+					<div className="absolute inset-1.5">
+						<Logo
+							id={org.organisationId}
+							alt={org.organisationName}
+							className="object-contain"
+							fill
+						/>
 					</div>
-					<span className="font-mono text-zinc-600 dark:text-zinc-300">
+				</div>
+				<div className="min-w-0 flex-1 leading-tight">
+					<span className="block truncate font-semibold text-zinc-800 group-hover:underline dark:text-zinc-100">
+						{org.organisationName}
+					</span>
+					<p className="truncate text-[10px] text-zinc-500 dark:text-zinc-400">
+						Top {WEEKDAY_LABELS[org.topWeekdayIndex]} · {formatPercent(org.topWeekdayShare)}
+					</p>
+				</div>
+				<div className="flex shrink-0 items-center gap-2 text-[10px] text-zinc-500 dark:text-zinc-400">
+					<span>
+						Today {org.releasedTodayCount}
+					</span>
+					<span className="font-mono font-semibold text-zinc-700 dark:text-zinc-300">
 						{org.total}
 					</span>
 				</div>
-				<div className="mt-1 text-zinc-600 dark:text-zinc-300">
-					Most common:{" "}
-					<span className="font-semibold">
-						{WEEKDAY_LABELS[org.topWeekdayIndex]}
-					</span>{" "}
-					({org.topWeekdayCount}/{org.total}, {formatPercent(org.topWeekdayShare)})
-				</div>
-				<div className="text-zinc-600 dark:text-zinc-300">
-					Release probability today ({WEEKDAY_LABELS[todayWeekdayIndex]}):{" "}
-					<span className="font-semibold">
-						{todayCount}/{org.total}
-					</span>{" "}
-					({formatPercent(todayShare)})
-				</div>
-				<div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px]">
-					<Link
-						href={`/updates/calendar/organisations/${encodeURIComponent(
-							org.organisationId
-						)}?view=today`}
-						className="font-semibold text-zinc-700 hover:underline dark:text-zinc-300"
-					>
-						Released on this day ({org.releasedTodayCount})
-					</Link>
-					<Link
-						href={`/updates/calendar/organisations/${encodeURIComponent(
-							org.organisationId
-						)}?view=all`}
-						className="font-semibold text-zinc-700 hover:underline dark:text-zinc-300"
-					>
-						All releases ({org.total})
-					</Link>
-				</div>
-			</div>
+			</Link>
 		);
 	};
+	const matchingOrganisations = analysis.organisationStats.filter((org) => {
+		const query = organisationQuery.trim().toLocaleLowerCase();
+		return (
+			query.length === 0 ||
+			org.organisationName.toLocaleLowerCase().includes(query) ||
+			org.organisationId.toLocaleLowerCase().includes(query)
+		);
+	});
+
+	if (compact) {
+		const compactOrganisationLimit =
+			expandLevel === 0
+				? DEFAULT_CARD_LIMIT
+				: expandLevel === 1
+					? EXPANDED_CARD_LIMIT
+					: analysis.organisationStats.length;
+		const compactOrganisations = analysis.organisationStats.slice(
+			0,
+			compactOrganisationLimit
+		);
+
+		return (
+			<aside className="rounded-md border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
+				<div className="flex items-start justify-between gap-3">
+					<div>
+						<h2 className="font-semibold text-zinc-900 dark:text-zinc-50">
+							Release day analysis
+						</h2>
+						<p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+							{analysis.totalReleases.toLocaleString()} releases across{" "}
+							{analysis.uniqueReleaseDayCount.toLocaleString()} active days
+						</p>
+					</div>
+					<div className="text-right">
+						<p className="text-xs text-zinc-500 dark:text-zinc-400">Top day</p>
+						<p className="font-semibold">
+							{analysis.topWeekdayLabel} · {formatPercent(analysis.topWeekdayShare)}
+						</p>
+					</div>
+				</div>
+
+				<div className="mt-4 space-y-2">
+					{analysis.weekdayStats.map((entry) => {
+						const colour = daySeriesByLabel.get(entry.label)?.color ?? "#94a3b8";
+						return (
+							<div key={entry.label} className="grid grid-cols-[28px_1fr_38px] items-center gap-2 text-xs">
+								<span className="font-medium">{entry.label}</span>
+								<div className="h-1.5 overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
+									<div
+										className="h-full rounded-full"
+										style={{
+											backgroundColor: colour,
+											width: `${entry.share * 100}%`,
+										}}
+									/>
+								</div>
+								<span className="text-right font-mono text-zinc-500 dark:text-zinc-400">
+									{entry.count}
+								</span>
+							</div>
+						);
+					})}
+				</div>
+
+				<div className="mt-4 border-t border-zinc-200 pt-2 dark:border-zinc-800">
+					<div className="max-h-[420px] overflow-y-auto pr-1 text-xs">
+						{compactOrganisations.map(renderOrganisationCard)}
+					</div>
+					{analysis.organisationStats.length > DEFAULT_CARD_LIMIT ? (
+						<div className="mt-3 flex justify-end gap-2">
+							{expandLevel < 2 && compactOrganisationLimit < analysis.organisationStats.length ? (
+								<button
+									type="button"
+									disabled={isPending}
+									onClick={() =>
+										startTransition(() =>
+											setExpandLevel((level) => (level === 0 ? 1 : 2))
+										)
+									}
+									className="rounded-md border border-zinc-200 px-2.5 py-1 font-medium disabled:opacity-50 dark:border-zinc-700"
+								>
+									{expandLevel === 0 ? "Show more" : "Show all"}
+								</button>
+							) : null}
+							{expandLevel > 0 ? (
+								<button
+									type="button"
+									onClick={() => startTransition(() => setExpandLevel(0))}
+									className="rounded-md border border-zinc-200 px-2.5 py-1 font-medium dark:border-zinc-700"
+								>
+									Collapse
+								</button>
+							) : null}
+						</div>
+					) : null}
+				</div>
+			</aside>
+		);
+	}
 
 	return (
 		<section className="space-y-4 py-6">
@@ -452,8 +505,8 @@ export default function ModelReleaseWeekdayAnalysis({
 					))}
 				</div>
 
-				<div className="mt-5 grid gap-4 xl:grid-cols-[1.4fr_1fr]">
-					<div className="rounded-xl border border-zinc-200/80 p-3 dark:border-zinc-800/90">
+				<div className="mt-5 grid gap-4 lg:grid-cols-[1.4fr_1fr]">
+					<div className="rounded-md border border-zinc-200/80 p-3 dark:border-zinc-800/90">
 						<h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
 							Release weekday mix by organisation (top {visibleOrganisationChartRows.length})
 						</h3>
@@ -562,8 +615,7 @@ export default function ModelReleaseWeekdayAnalysis({
 											fillOpacity={hoveredDayKey ? (active ? 0.95 : 0.35) : 0.9}
 											onMouseOver={() => setHoveredDayKey(series.key)}
 											onMouseOut={() => setHoveredDayKey(null)}
-											isAnimationActive
-											animationDuration={280}
+											isAnimationActive={false}
 										/>
 									);
 								})}
@@ -571,79 +623,70 @@ export default function ModelReleaseWeekdayAnalysis({
 						</ChartContainer>
 					</div>
 
-					<div className="rounded-xl border border-zinc-200/80 p-3 dark:border-zinc-800/90">
+					<div className="rounded-md border border-zinc-200/80 p-3 dark:border-zinc-800/90">
 						<h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
 							Organisation weekday tendencies
 						</h3>
-						<div className="mt-3 space-y-2 text-xs">
-							{baseOrganisationCards.map(renderOrganisationCard)}
-							{midOrganisationCards.length > 0 ? (
-								<div
-									className={cn(
-										"grid overflow-hidden transition-[grid-template-rows,opacity] duration-300 ease-out",
-										expandLevel >= 1
-											? "grid-rows-[1fr] opacity-100"
-											: "grid-rows-[0fr] opacity-0"
-									)}
-								>
-									<div className="overflow-hidden">
-										<div className="space-y-2 pt-2">
-											{midOrganisationCards.map(renderOrganisationCard)}
-										</div>
-									</div>
-								</div>
-							) : null}
-							{allOrganisationCards.length > 0 ? (
-								<div
-									className={cn(
-										"grid overflow-hidden transition-[grid-template-rows,opacity] duration-300 ease-out",
-										expandLevel >= 2
-											? "grid-rows-[1fr] opacity-100"
-											: "grid-rows-[0fr] opacity-0"
-									)}
-								>
-									<div className="overflow-hidden">
-										<div className="space-y-2 pt-2">
-											{allOrganisationCards.map(renderOrganisationCard)}
-										</div>
-									</div>
-								</div>
-							) : null}
+						<div className="mt-3 text-xs">
+							{visibleOrganisationCards.map(renderOrganisationCard)}
 						</div>
 					</div>
 				</div>
 
 				{canExpandToExpanded || expandLevel > 0 ? (
 					<div className="mt-4 flex justify-end gap-2">
+						<Dialog>
+							<DialogTrigger asChild>
+								<button
+									type="button"
+									className="rounded-md border border-zinc-200 bg-white px-3 py-1 text-xs font-medium text-zinc-700 transition hover:border-zinc-300 hover:text-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-300 dark:hover:border-zinc-500 dark:hover:text-zinc-100"
+								>
+									Browse all organisations
+								</button>
+							</DialogTrigger>
+							<DialogContent className="max-w-lg rounded-md">
+								<DialogHeader>
+									<DialogTitle>Browse organisations</DialogTitle>
+								</DialogHeader>
+								<input
+									type="search"
+									value={organisationQuery}
+									onChange={(event) => setOrganisationQuery(event.target.value)}
+									placeholder="Search organisations"
+									className="h-9 w-full rounded-md border border-zinc-200 bg-transparent px-3 text-sm outline-none placeholder:text-zinc-500 focus:border-zinc-400 dark:border-zinc-700 dark:focus:border-zinc-500"
+								/>
+								<p className="text-xs text-zinc-500 dark:text-zinc-400">
+									{matchingOrganisations.length.toLocaleString()} organisation
+									{matchingOrganisations.length === 1 ? "" : "s"}
+								</p>
+								<ScrollArea className="h-[420px] pr-3">
+									{matchingOrganisations.length > 0 ? (
+										matchingOrganisations.map(renderOrganisationCard)
+									) : (
+										<p className="py-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
+											No organisations match that search.
+										</p>
+									)}
+								</ScrollArea>
+							</DialogContent>
+						</Dialog>
 						{expandLevel === 0 && canExpandToExpanded ? (
 							<button
 								type="button"
-								onClick={() => setExpandLevel(1)}
-								className="rounded-full border border-zinc-200 bg-white px-3 py-1 text-xs font-medium text-zinc-700 transition hover:border-zinc-300 hover:text-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-300 dark:hover:border-zinc-500 dark:hover:text-zinc-100"
+								disabled={isPending}
+								onClick={() => startTransition(() => setExpandLevel(1))}
+								className="rounded-md border border-zinc-200 bg-white px-3 py-1 text-xs font-medium text-zinc-700 transition hover:border-zinc-300 hover:text-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-300 dark:hover:border-zinc-500 dark:hover:text-zinc-100"
 							>
 								Show more organisations
-							</button>
-						) : null}
-						{expandLevel === 1 && canExpandToAll ? (
-							<button
-								type="button"
-								onClick={() => setExpandLevel(2)}
-								className="rounded-full border border-zinc-200 bg-white px-3 py-1 text-xs font-medium text-zinc-700 transition hover:border-zinc-300 hover:text-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-300 dark:hover:border-zinc-500 dark:hover:text-zinc-100"
-							>
-								Show all organisations
 							</button>
 						) : null}
 						{expandLevel > 0 ? (
 							<button
 								type="button"
-								onClick={() =>
-									setExpandLevel((prev) => (prev === 2 ? 1 : 0))
-								}
-								className="rounded-full border border-zinc-200 bg-white px-3 py-1 text-xs font-medium text-zinc-700 transition hover:border-zinc-300 hover:text-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-300 dark:hover:border-zinc-500 dark:hover:text-zinc-100"
+								onClick={() => startTransition(() => setExpandLevel(0))}
+								className="rounded-md border border-zinc-200 bg-white px-3 py-1 text-xs font-medium text-zinc-700 transition hover:border-zinc-300 hover:text-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-300 dark:hover:border-zinc-500 dark:hover:text-zinc-100"
 							>
-								{expandLevel === 2
-									? "Collapse to expanded"
-									: "Collapse to default"}
+								Collapse
 							</button>
 						) : null}
 					</div>

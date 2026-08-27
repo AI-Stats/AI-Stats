@@ -7,10 +7,14 @@ import type {
 	ModelEvent,
 } from "@/lib/fetchers/updates/types";
 import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import Link from "next/link";
 
 const STACKED_TYPES: EventType[] = [
 	"Announced",
@@ -35,7 +39,10 @@ type ChartEntry = {
 	label: string;
 	counts: Record<EventType, number>;
 	total: number;
-	modelList: Record<EventType, { names: string[]; total: number }>;
+	modelList: Record<
+		EventType,
+		{ models: Array<{ id: string; name: string }>; total: number }
+	>;
 };
 
 type ModelCalendarChartProps = {
@@ -72,11 +79,11 @@ export default function ModelCalendarChart({
 					Retired: 0,
 				} satisfies Record<EventType, number>,
 				models: {
-					Announced: new Set<string>(),
-					Released: new Set<string>(),
-					Deprecated: new Set<string>(),
-					Retired: new Set<string>(),
-				} satisfies Record<EventType, Set<string>>,
+					Announced: new Map<string, string>(),
+					Released: new Map<string, string>(),
+					Deprecated: new Map<string, string>(),
+					Retired: new Map<string, string>(),
+				} satisfies Record<EventType, Map<string, string>>,
 			};
 		});
 
@@ -96,7 +103,7 @@ export default function ModelCalendarChart({
 				event.model.name?.trim() ||
 				event.model.model_id ||
 				"Unknown model";
-			entry.models[type].add(name);
+			entry.models[type].set(event.model.model_id, name);
 		}
 
 		return months.map((entry) => ({
@@ -107,16 +114,22 @@ export default function ModelCalendarChart({
 			),
 			modelList: Object.fromEntries(
 				STACKED_TYPES.map((type) => {
-					const allModels = Array.from(entry.models[type]);
+					const allModels = Array.from(
+						entry.models[type],
+						([id, name]) => ({ id, name })
+					).sort((a, b) => a.name.localeCompare(b.name));
 					return [
 						type,
 						{
-							names: allModels.slice(0, 6),
+							models: allModels,
 							total: allModels.length,
 						},
 					];
 				})
-			) as Record<EventType, { names: string[]; total: number }>,
+			) as Record<
+				EventType,
+				{ models: Array<{ id: string; name: string }>; total: number }
+			>,
 		}));
 	}, [events, now, monthsWindow]);
 
@@ -168,28 +181,15 @@ export default function ModelCalendarChart({
 												: (count / entry.total) * 100;
 										const modelsInfo =
 											entry.modelList[type];
-										const remaining =
-											modelsInfo.total -
-											modelsInfo.names.length;
-										const tooltipText =
-											modelsInfo.names.length > 0
-												? `${modelsInfo.names.join(
-														", "
-												  )}${
-														remaining > 0
-															? ` +${remaining} more`
-															: ""
-												  }`
-												: "No models recorded yet";
-
 										return (
-											<Tooltip
+											<Dialog
 												key={`${entry.key}-${type}`}
 											>
-												<TooltipTrigger asChild>
-													<span
+												<DialogTrigger asChild>
+													<button
+														type="button"
 														className={cn(
-															"h-full",
+															"h-full cursor-pointer transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white",
 															TYPE_COLORS[type]
 														)}
 														style={{
@@ -197,16 +197,28 @@ export default function ModelCalendarChart({
 														}}
 														aria-label={`${type}: ${count}`}
 													/>
-												</TooltipTrigger>
-												<TooltipContent side="top">
-													<p className="font-semibold">
-														{type} ({count})
-													</p>
-													<p className="text-[11px] text-zinc-300 dark:text-zinc-400">
-														{tooltipText}
-													</p>
-												</TooltipContent>
-											</Tooltip>
+												</DialogTrigger>
+												<DialogContent className="max-w-lg rounded-md">
+													<DialogHeader>
+														<DialogTitle>
+															{type} in {entry.label} ({modelsInfo.total})
+														</DialogTitle>
+													</DialogHeader>
+													<ScrollArea className="max-h-[420px] pr-3">
+														<div className="divide-y divide-zinc-200 dark:divide-zinc-800">
+															{modelsInfo.models.map((model) => (
+																<Link
+																	key={model.id}
+																	href={`/models/${model.id}`}
+																	className="block py-2.5 text-sm font-medium hover:underline"
+																>
+																	{model.name}
+																</Link>
+															))}
+														</div>
+													</ScrollArea>
+												</DialogContent>
+											</Dialog>
 										);
 									})}
 								</div>
