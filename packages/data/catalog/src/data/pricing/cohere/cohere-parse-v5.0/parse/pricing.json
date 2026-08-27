@@ -1,9 +1,9 @@
 {
-  "key": "cohere:cohere/parse-v5.0:ocr",
+  "key": "cohere:cohere/parse-v5.0:parse",
   "api_provider_id": "cohere",
   "provider_slug": "cohere",
   "api_model_id": "cohere/parse-v5.0",
-  "capability_id": "ocr",
+  "capability_id": "parse",
   "rules": [
     {
       "meter": "input_pages",
