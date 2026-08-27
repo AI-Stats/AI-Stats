@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Link from "next/link";
+import { Logo } from "@/components/Logo";
 
 const STACKED_TYPES: EventType[] = [
 	"Announced",
@@ -41,7 +42,15 @@ type ChartEntry = {
 	total: number;
 	modelList: Record<
 		EventType,
-		{ models: Array<{ id: string; name: string }>; total: number }
+		{
+			models: Array<{
+				id: string;
+				name: string;
+				organisationId: string;
+				organisationName: string;
+			}>;
+			total: number;
+		}
 	>;
 };
 
@@ -79,11 +88,14 @@ export default function ModelCalendarChart({
 					Retired: 0,
 				} satisfies Record<EventType, number>,
 				models: {
-					Announced: new Map<string, string>(),
-					Released: new Map<string, string>(),
-					Deprecated: new Map<string, string>(),
-					Retired: new Map<string, string>(),
-				} satisfies Record<EventType, Map<string, string>>,
+					Announced: new Map(),
+					Released: new Map(),
+					Deprecated: new Map(),
+					Retired: new Map(),
+				} satisfies Record<
+					EventType,
+					Map<string, { name: string; organisationId: string; organisationName: string }>
+				>,
 			};
 		});
 
@@ -103,7 +115,14 @@ export default function ModelCalendarChart({
 				event.model.name?.trim() ||
 				event.model.model_id ||
 				"Unknown model";
-			entry.models[type].set(event.model.model_id, name);
+			const organisationId =
+				event.model.organisation.organisation_id || event.model.organisation_id;
+			entry.models[type].set(event.model.model_id, {
+				name,
+				organisationId,
+				organisationName:
+					event.model.organisation.name?.trim() || organisationId,
+			});
 		}
 
 		return months.map((entry) => ({
@@ -114,10 +133,10 @@ export default function ModelCalendarChart({
 			),
 			modelList: Object.fromEntries(
 				STACKED_TYPES.map((type) => {
-					const allModels = Array.from(
-						entry.models[type],
-						([id, name]) => ({ id, name })
-					).sort((a, b) => a.name.localeCompare(b.name));
+					const allModels = Array.from(entry.models[type], ([id, model]) => ({
+						id,
+						...model,
+					})).sort((a, b) => a.name.localeCompare(b.name));
 					return [
 						type,
 						{
@@ -128,7 +147,15 @@ export default function ModelCalendarChart({
 				})
 			) as Record<
 				EventType,
-				{ models: Array<{ id: string; name: string }>; total: number }
+				{
+					models: Array<{
+						id: string;
+						name: string;
+						organisationId: string;
+						organisationName: string;
+					}>;
+					total: number;
+				}
 			>,
 		}));
 	}, [events, now, monthsWindow]);
@@ -210,9 +237,24 @@ export default function ModelCalendarChart({
 																<Link
 																	key={model.id}
 																	href={`/models/${model.id}`}
-																	className="block py-2.5 text-sm font-medium hover:underline"
+																	className="flex items-center gap-3 py-2.5"
 																>
-																	{model.name}
+																	<span className="relative flex size-8 shrink-0 items-center justify-center rounded-md border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+																		<Logo
+																			id={model.organisationId}
+																			alt={model.organisationName}
+																			fill
+																			className="object-contain p-1.5"
+																		/>
+																	</span>
+																	<span className="min-w-0">
+																		<span className="block truncate text-sm font-medium hover:underline">
+																			{model.name}
+																		</span>
+																		<span className="block truncate text-xs text-zinc-500 dark:text-zinc-400">
+																			{model.organisationName}
+																		</span>
+																	</span>
 																</Link>
 															))}
 														</div>
