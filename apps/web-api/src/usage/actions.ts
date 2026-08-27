@@ -216,6 +216,29 @@ export interface RequestRow extends NormalizedRequestUsageColumns {
 		upstream_error_message: string | null;
 		upstream_error_description: string | null;
 	}>;
+	routing_trace?: Record<string, unknown> | null;
+	routing_decisions?: RoutingDecisionRow[];
+}
+
+export interface RoutingDecisionRow {
+	routing_decision_id: number | string;
+	decision_order: number;
+	provider_slug: string;
+	provider_api_model_id: string | null;
+	decision: "ranked" | "excluded";
+	rank: number | null;
+	score: number | string | null;
+	selected: boolean;
+	attempted: boolean;
+	breaker: string | null;
+	provider_status: string | null;
+	provider_routing_status: string | null;
+	model_routing_status: string | null;
+	capability_status: string | null;
+	exclusion_stage: string | null;
+	exclusion_reason: string | null;
+	score_factors: Record<string, unknown>;
+	score_trace: Record<string, unknown>;
 }
 
 export type SerializableModelMetadataEntry = {
@@ -343,6 +366,7 @@ async function fetchGatewayIoLog(
 			`${baseUrl}/internal/io-logs/${encodeURIComponent(requestId)}?workspace_id=${encodeURIComponent(workspaceId)}`,
 			{
 				headers: { "x-phaseo-internal-token": token },
+				signal: AbortSignal.timeout(2_500),
 			},
 		);
 		if (!response.ok) return null;
@@ -471,6 +495,32 @@ function normalizePlainObject(
 	return value && typeof value === "object" && !Array.isArray(value)
 		? (value as Record<string, unknown>)
 		: null;
+}
+
+async function attachRoutingObservability(
+	supabase: Awaited<ReturnType<typeof createClient>>,
+	workspaceId: string,
+	requestId: string,
+	request: RequestRow,
+): Promise<void> {
+	const { data, error } = await supabase.rpc("get_gateway_request_observability", {
+		p_workspace_id: workspaceId,
+		p_request_id: requestId,
+	});
+	if (error) {
+		console.warn("Routing observability unavailable for request detail", {
+			requestId,
+			code: error.code ?? null,
+		});
+		return;
+	}
+	const observability = normalizePlainObject(data);
+	request.routing_trace = normalizePlainObject(observability?.routing_trace);
+	request.routing_decisions = Array.isArray(observability?.routing_decisions)
+		? observability.routing_decisions.filter(
+				(value): value is RoutingDecisionRow => Boolean(value && typeof value === "object"),
+			)
+		: [];
 }
 
 function toRequestRow(row: any): RequestRow {
@@ -681,14 +731,10 @@ export async function fetchPaginatedRequests(
 				generation_ms,
 				latency_ms,
 				finish_reason,
-				pricing_lines,
-				provider_attempts,
                                 success,
                                 status_code,
                                 error_code,
                                 error_message,
-                                error_payload,
-                                detail_metadata,
                                 key_id,
                                 throughput
                         `,
@@ -749,13 +795,10 @@ export async function fetchPaginatedRequests(
 					generation_ms,
 					latency_ms,
 					finish_reason,
-					pricing_lines,
-					provider_attempts,
                                         success,
                                         status_code,
                                         error_code,
                                         error_message,
-                                        error_payload,
                                         key_id,
                                         throughput
                                 `,
@@ -1762,11 +1805,13 @@ export async function investigateGeneration(
 			trimmedRequestId,
 		);
 		if (upstreamRequests.length > 0) request.provider_attempts = upstreamRequests;
+		await attachRoutingObservability(supabase, workspaceId, trimmedRequestId, request);
 		const providerIds = Array.from(
 			new Set(
 				[
 					request.provider,
 					...request.provider_attempts.map((attempt) => attempt.provider),
+					...(request.routing_decisions ?? []).map((decision) => decision.provider_slug),
 				].filter(
 					(value): value is string =>
 					typeof value === "string" && value.trim().length > 0,
@@ -1815,11 +1860,13 @@ export async function investigateGeneration(
 		trimmedRequestId,
 	);
 	if (upstreamRequests.length > 0) request.provider_attempts = upstreamRequests;
+	await attachRoutingObservability(supabase, workspaceId, trimmedRequestId, request);
 	const providerIds = Array.from(
 		new Set(
 			[
 				request.provider,
 				...request.provider_attempts.map((attempt) => attempt.provider),
+				...(request.routing_decisions ?? []).map((decision) => decision.provider_slug),
 			].filter(
 				(value): value is string =>
 				typeof value === "string" && value.trim().length > 0,

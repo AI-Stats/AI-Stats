@@ -935,6 +935,7 @@ async function attemptProviderWithIR(
 			const completedGenerationMs = ctx.meta.generation_ms ?? 0;
 			const healthImpact = classifyProviderHealthImpact({
 				upstreamStatus: executorResult.upstream.status,
+				finishReason: (executorResult.ir as any)?.choices?.[0]?.finishReason ?? executorResult.bill?.finish_reason ?? null,
 			});
 			dispatchProviderHealthBackground(async () => {
 				await onCallEnd(ctx.endpoint, {
@@ -948,7 +949,7 @@ async function attemptProviderWithIR(
 					tokens_out: tokensOut,
 				});
 				if (isProbe && healthImpact !== "neutral") {
-					await reportProbeResult(ctx.endpoint, candidate.providerId, baseModel, executorResult.upstream.ok);
+					await reportProbeResult(ctx.endpoint, candidate.providerId, baseModel, healthImpact === "success");
 				} else if (healthImpact === "failure") {
 					await maybeOpenOnRecentErrors(ctx.endpoint, candidate.providerId, baseModel);
 				}
@@ -1162,7 +1163,7 @@ async function attemptProviderWithIR(
 				generation_ms: ctx.meta.generation_ms ?? Math.round(performance.now() - t0),
 			});
 			if (isProbe && errorHealthImpact !== "neutral") {
-				await reportProbeResult(ctx.endpoint, candidate.providerId, baseModel, false);
+				await reportProbeResult(ctx.endpoint, candidate.providerId, baseModel, errorHealthImpact === "success");
 			} else if (errorHealthImpact === "failure") {
 				await maybeOpenOnRecentErrors(ctx.endpoint, candidate.providerId, baseModel);
 			}

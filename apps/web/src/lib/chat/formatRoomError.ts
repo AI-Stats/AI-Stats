@@ -64,7 +64,6 @@ type RoutingDiagnostics = {
 			throughputScore?: number | null;
 			priceScore?: number | null;
 			tokenAffinity?: number | null;
-			loadPenalty?: number | null;
 			baseWeight?: number | null;
 			rolloutMultiplier?: number | null;
 			routingMultiplier?: number | null;
@@ -226,7 +225,6 @@ export type FormattedRoomError = {
 				throughputScore: number | null;
 				priceScore: number | null;
 				tokenAffinity: number | null;
-				loadPenalty: number | null;
 				baseWeight: number | null;
 				rolloutMultiplier: number | null;
 				routingMultiplier: number | null;
@@ -727,7 +725,6 @@ function normalizeRoutingDiagnostics(
 						tokenAffinity: normalizeCount(
 							entry?.scoreFactors?.tokenAffinity,
 						),
-						loadPenalty: normalizeCount(entry?.scoreFactors?.loadPenalty),
 						baseWeight: normalizeCount(entry?.scoreFactors?.baseWeight),
 						rolloutMultiplier: normalizeCount(
 							entry?.scoreFactors?.rolloutMultiplier,

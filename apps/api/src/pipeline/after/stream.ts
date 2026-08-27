@@ -540,7 +540,28 @@ export async function handleStreamResponse(
 				!sawGeneratedOutput &&
 				getUsageOutputTokens(shapedUsage) === 0 &&
 				Number(cachedOutputToolCallCount ?? 0) === 0;
+			const baseModel = getBaseModel(ctx.model);
+			const healthContext = (result as any).healthContext ?? null;
+			const isProbe = Boolean(healthContext?.isProbe);
 			if (info?.aborted || streamFailed || emptyTextResponse) {
+				const healthImpact = classifyProviderHealthImpact({
+					upstreamStatus: result.upstream.status,
+					aborted: info?.aborted === true,
+					midStreamError: streamFailed || emptyTextResponse,
+				});
+				await onCallEnd(ctx.endpoint, {
+					provider: result.provider,
+					model: baseModel,
+					ok: false,
+					healthImpact,
+					latency_ms: ctx.meta.latency_ms ?? null,
+					generation_ms: ctx.meta.generation_ms ?? null,
+				});
+				if (isProbe && healthImpact !== "neutral") {
+					await reportProbeResult(ctx.endpoint, result.provider, baseModel, healthImpact === "success");
+				} else if (healthImpact === "failure") {
+					await maybeOpenOnRecentErrors(ctx.endpoint, result.provider, baseModel);
+				}
 				const reason = info?.aborted
 					? "incomplete_stream"
 					: streamFailed
@@ -560,16 +581,14 @@ export async function handleStreamResponse(
 				);
 				return;
 			}
-            const baseModel = getBaseModel(ctx.model);
-            const healthContext = (result as any).healthContext ?? null;
-            const isProbe = Boolean(healthContext?.isProbe);
-            const ok =
+			const ok =
                 result.upstream.status >= 200 &&
                 result.upstream.status < 400 &&
                 !info?.aborted;
-            const healthImpact = classifyProviderHealthImpact({
-                upstreamStatus: result.upstream.status,
-                aborted: info?.aborted === true,
+			const healthImpact = classifyProviderHealthImpact({
+				upstreamStatus: result.upstream.status,
+				aborted: info?.aborted === true,
+				finishReason: cachedFinishReason ?? result.bill.finish_reason ?? null,
             });
             await onCallEnd(ctx.endpoint, {
                 provider: result.provider,
@@ -592,7 +611,7 @@ export async function handleStreamResponse(
                 ),
             });
             if (isProbe && healthImpact !== "neutral") {
-                await reportProbeResult(ctx.endpoint, result.provider, baseModel, ok);
+				await reportProbeResult(ctx.endpoint, result.provider, baseModel, healthImpact === "success");
             } else if (healthImpact === "failure") {
                 await maybeOpenOnRecentErrors(ctx.endpoint, result.provider, baseModel);
             }

@@ -61,8 +61,8 @@ import {
 	normalizeProviderPromptTrainingPolicy,
 } from "@/lib/providers/promptTrainingPolicy";
 import { formatRoomError } from "@/lib/chat/formatRoomError";
-import { buildRoutingExplanation } from "@/lib/gateway/usage/routingExplanation";
 import UsageEntityHoverCard from "./UsageEntityHoverCard";
+import { RoutingTracePanel } from "@/components/(gateway)/usage/RoutingTracePanel";
 import {
 	ProviderInspectorSheet,
 	ProviderInspectorSheetContent,
@@ -822,6 +822,40 @@ export default function RequestDetailDialog({
 	const searchParams = useSearchParams();
 
 	if (!request) return null;
+	if (loading) {
+		const loadingContent = (
+			<>
+				<RequestHeader request={request} />
+				<div className="flex min-h-72 flex-col items-center justify-center gap-3 px-6 py-16 text-center">
+					<div className="relative flex size-12 items-center justify-center rounded-2xl border border-sky-500/20 bg-sky-500/5 text-sky-600 dark:text-sky-300">
+						<div className="absolute inset-1 rounded-xl border border-sky-500/10" />
+						<LoaderCircle className="size-5 animate-spin" />
+					</div>
+					<div>
+						<p className="text-sm font-medium text-foreground">Loading request details</p>
+						<p className="mt-1 text-xs text-muted-foreground">Fetching routing, attempts, pricing, and stored payloads.</p>
+					</div>
+				</div>
+			</>
+		);
+		if (presentation === "sheet") {
+			return (
+				<ProviderInspectorSheet open={open} onOpenChange={onOpenChange}>
+					<ProviderInspectorSheetContent className="!w-full max-w-none gap-0 overflow-hidden p-0 sm:max-w-none md:!w-[58vw] lg:!w-[54vw] xl:!w-[50vw] 2xl:!w-[46vw] data-[side=right]:sm:max-w-none">
+						{loadingContent}
+					</ProviderInspectorSheetContent>
+				</ProviderInspectorSheet>
+			);
+		}
+		return (
+			<Dialog open={open} onOpenChange={onOpenChange}>
+				<DialogContent className="max-h-[90vh] max-w-6xl overflow-hidden p-0">
+					<DialogHeader className="sr-only"><DialogTitle>Loading request details</DialogTitle></DialogHeader>
+					{loadingContent}
+				</DialogContent>
+			</Dialog>
+		);
+	}
 
 	const metadata = modelMetadata ?? new Map();
 	const normalizedUsage = buildUsageFromNormalizedRequestFields(request.usage, request);
@@ -1079,9 +1113,7 @@ export default function RequestDetailDialog({
 	const workspacePolicyDiagnostics = routingDiagnostics?.workspacePolicy;
 	const consideredProviders = routingDiagnostics?.consideredProviders ?? [];
 	const rankedProviders = routingDiagnostics?.rankedProviders ?? [];
-	const routingExplanation = buildRoutingExplanation(
-		formattedGatewayError ?? formattedDetailRouting,
-	);
+	const storedRoutingDecisions = request.routing_decisions ?? [];
 	const failedProviders = formattedGatewayError?.failedProviders ?? [];
 	const failedStatuses = formattedGatewayError?.failedStatuses ?? [];
 	const pluginExecutions = extractPluginExecutions(request.detail_metadata ?? null);
@@ -2598,20 +2630,6 @@ export default function RequestDetailDialog({
 							</div>
 						) : null}
 
-						{routingExplanation.length > 0 ? (
-							<div className="rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm text-sky-950">
-								<div className="mb-2 flex items-center gap-2 font-medium">
-									<Info className="h-4 w-4" />
-									Routing explanation
-								</div>
-								<div className="space-y-2">
-									{routingExplanation.map((line, index) => (
-										<div key={`routing-explanation-${index}`}>{line}</div>
-									))}
-								</div>
-							</div>
-						) : null}
-
 						<GenerationSection title="Routing details">
 							<DetailRows items={routingDetailItems} />
 						</GenerationSection>
@@ -2632,6 +2650,11 @@ export default function RequestDetailDialog({
 
 						<GenerationSection title="Provider Responses">
 							<DetailTimingBar items={responseTimelineItems} />
+							<RoutingTracePanel
+								trace={request.routing_trace ?? null}
+								decisions={storedRoutingDecisions}
+								providerNames={providerNames}
+							/>
 						</GenerationSection>
 
 						<GenerationSection title="Usage">

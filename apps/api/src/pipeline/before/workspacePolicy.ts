@@ -128,6 +128,12 @@ export type WorkspacePolicyDiagnostics = {
 		capabilityPolicySource?: "provider" | "capability" | "capability_default";
 		zdrEligibility?: "unknown" | "eligible" | "ineligible" | "conditional";
 	}>;
+	droppedProviders?: Array<{
+		providerId: string;
+		apiModelId: string | null;
+		providerModelSlug: string | null;
+		reason: string;
+	}>;
 	activeGuardrailIds: string[];
 	accountPolicyApplied?: boolean;
 	beforeCount: number;
@@ -762,12 +768,29 @@ export function applyWorkspacePolicy(args: {
 	};
 
 	let filtered = [...args.providers];
+	const filterProviders = (
+		predicate: (provider: ProviderCandidate) => boolean,
+		reason: string,
+	) => {
+		const removed = filtered.filter((provider) => !predicate(provider));
+		if (removed.length > 0) {
+			diagnostics.droppedProviders ??= [];
+			diagnostics.droppedProviders.push(...removed.map((provider) => ({
+				providerId: provider.providerId,
+				apiModelId: provider.apiModelId ?? null,
+				providerModelSlug: provider.providerModelSlug ?? null,
+				reason,
+			})));
+		}
+		filtered = filtered.filter(predicate);
+	};
 
 	if (workspacePolicy?.allowedApiModels) {
 		const allowSet = new Set(workspacePolicy.allowedApiModels);
 		if (!allowSet.has(args.resolvedModel)) {
-			filtered = filtered.filter((provider) =>
-				Boolean(provider.apiModelId && allowSet.has(provider.apiModelId)),
+			filterProviders(
+				(provider) => Boolean(provider.apiModelId && allowSet.has(provider.apiModelId)),
+				"model_not_in_allowlist",
 			);
 			if (!filtered.length) {
 				diagnostics.afterCount = 0;
@@ -790,29 +813,30 @@ export function applyWorkspacePolicy(args: {
 				diagnostics,
 			};
 		}
-		filtered = filtered.filter((provider) =>
-			!(provider.apiModelId && blockSet.has(provider.apiModelId)),
+		filterProviders(
+			(provider) => !(provider.apiModelId && blockSet.has(provider.apiModelId)),
+			"model_in_blocklist",
 		);
 	}
 
 	if (workspacePolicy?.providerAllowlist) {
 		const allowSet = new Set(workspacePolicy.providerAllowlist);
-		filtered = filtered.filter((provider) => allowSet.has(provider.providerId));
+		filterProviders((provider) => allowSet.has(provider.providerId), "provider_not_in_allowlist");
 	}
 
 	if (workspacePolicy?.providerBlocklist?.length) {
 		const blockSet = new Set(workspacePolicy.providerBlocklist);
-		filtered = filtered.filter((provider) => !blockSet.has(provider.providerId));
+		filterProviders((provider) => !blockSet.has(provider.providerId), "provider_in_blocklist");
 	}
 
 	if (hints.only.length) {
 		const allowSet = new Set(hints.only);
-		filtered = filtered.filter((provider) => allowSet.has(provider.providerId));
+		filterProviders((provider) => allowSet.has(provider.providerId), "not_in_provider_only");
 	}
 
 	if (hints.ignore.length) {
 		const blockSet = new Set(hints.ignore);
-		filtered = filtered.filter((provider) => !blockSet.has(provider.providerId));
+		filterProviders((provider) => !blockSet.has(provider.providerId), "listed_in_provider_ignore");
 	}
 
 	filtered = applyProviderDataPolicySettings({
