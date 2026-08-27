@@ -4186,20 +4186,38 @@
     "provider_api_model_id": "together:zai-org/GLM-5.3-Flash",
     "provider_model_slug": "zai-org/GLM-5.3-Flash",
     "internal_model_id": "z-ai/glm-5.3-flash",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": "text,image,video",
+    "input_modalities": "text,image",
     "output_modalities": "text",
     "context_length": 1048576,
     "max_output_tokens": 131072,
-    "effective_from": null,
+    "effective_from": "2026-08-27T00:00:00Z",
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "coming_soon",
-        "params": [],
-        "reasoning": null,
+        "status": "active",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "top_k",
+          "repetition_penalty",
+          "logit_bias",
+          "min_p",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
+        "reasoning": true,
         "tool_call": true,
         "structured_output": true,
         "temperature": null,
@@ -4209,8 +4227,8 @@
         "modes": []
       }
     ],
-    "routing_status": null,
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
@@ -4221,11 +4239,24 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://www.together.ai/models/glm-5-3-flash",
+        "accessed_at": "2026-08-27T06:00:00Z",
+        "notes": "Together's model page publishes GLM-5.3-Flash as a 320B-parameter, 18B-active reasoning and vision model with a 1M-token context window."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://openrouter.ai/api/v1/models/z-ai/glm-5.3-flash-20260826/endpoints",
+        "accessed_at": "2026-08-27T06:00:00Z",
+        "notes": "Current endpoint catalog lists Together's native model ID zai-org/GLM-5.3-Flash and its supported parameters."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": "Coming-soon provider route; official Together availability and pricing are not yet verified."
+      "status": "partial",
+      "checked_at": "2026-08-27T06:00:00Z",
+      "notes": "Together's live catalog notification was received; model metadata is verified from Together's public page and endpoint capabilities are corroborated by the current endpoint catalog."
     },
     "rate_limits": []
   }
