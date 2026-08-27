@@ -511,6 +511,7 @@ export function supportsEndpointViaModalities(args: {
 		case "music.generate":
 			return hasInput("text") && hasOutput("audio");
 		case "ocr":
+		case "parse":
 			return hasInput("image") && hasOutput("text");
 		default:
 			return false;

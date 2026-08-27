@@ -748,6 +748,27 @@ export type IROcrResponse = {
 	rawResponse?: any;
 };
 
+export type IRParseRequest = {
+	model: string;
+	document: {
+		type: "image_url";
+		imageUrl: string;
+	};
+	outputFormat?: "markdown" | "blocks";
+	rawRequest?: any;
+};
+
+export type IRParseResponse = {
+	id?: string;
+	nativeId?: string;
+	model: string;
+	provider: string;
+	pages: any[];
+	meta?: Record<string, any>;
+	usage?: IRUsage;
+	rawResponse?: any;
+};
+
 export type IRMusicGenerateRequest = {
 	model: string;
 	prompt?: string;

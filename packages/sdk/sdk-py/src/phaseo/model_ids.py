@@ -150,10 +150,6 @@ class ModelIds:
     # Model page: https://phaseo.app/models/baidu/cobuddy
     BAIDU_COBUDDY: Final[str] = "baidu/cobuddy"
 
-    # Model ID: baidu/ernie-4.5-21b-a3b
-    # Model page: https://phaseo.app/models/baidu/ernie-4.5-21b-a3b
-    BAIDU_ERNIE_4_5_21B_A3B: Final[str] = "baidu/ernie-4.5-21b-a3b"
-
     # Model ID: baidu/ernie-4.5-300b-a47b
     # Model page: https://phaseo.app/models/baidu/ernie-4.5-300b-a47b
     BAIDU_ERNIE_4_5_300B_A47B: Final[str] = "baidu/ernie-4.5-300b-a47b"
@@ -290,6 +286,10 @@ class ModelIds:
     # Model page: https://phaseo.app/models/cohere/embed-v4
     COHERE_EMBED_V4: Final[str] = "cohere/embed-v4"
 
+    # Model ID: cohere/parse-v5.0
+    # Model page: https://phaseo.app/models/cohere/parse-v5.0
+    COHERE_PARSE_V5_0: Final[str] = "cohere/parse-v5.0"
+
     # Model ID: cohere/rerank-v3.5
     # Model page: https://phaseo.app/models/cohere/rerank-v3.5
     COHERE_RERANK_V3_5: Final[str] = "cohere/rerank-v3.5"
@@ -333,6 +333,10 @@ class ModelIds:
     # Model ID: deepseek/deepseek-r1-0528
     # Model page: https://phaseo.app/models/deepseek/deepseek-r1-0528
     DEEPSEEK_DEEPSEEK_R1_0528: Final[str] = "deepseek/deepseek-r1-0528"
+
+    # Model ID: deepseek/deepseek-r1-2025-05-28
+    # Model page: https://phaseo.app/models/deepseek/deepseek-r1-2025-05-28
+    DEEPSEEK_DEEPSEEK_R1_2025_05_28: Final[str] = "deepseek/deepseek-r1-2025-05-28"
 
     # Model ID: deepseek/deepseek-r1-distill-llama-70b
     # Model page: https://phaseo.app/models/deepseek/deepseek-r1-distill-llama-70b
@@ -721,6 +725,10 @@ class ModelIds:
     # Model ID: meta/muse-glimmer-30b
     # Model page: https://phaseo.app/models/meta/muse-glimmer-30b
     META_MUSE_GLIMMER_30B: Final[str] = "meta/muse-glimmer-30b"
+
+    # Model ID: meta/muse-image-1.0
+    # Model page: https://phaseo.app/models/meta/muse-image-1.0
+    META_MUSE_IMAGE_1_0: Final[str] = "meta/muse-image-1.0"
 
     # Model ID: meta/muse-spark-1.2
     # Model page: https://phaseo.app/models/meta/muse-spark-1.2
@@ -1818,6 +1826,10 @@ class ModelIds:
     # Model page: https://phaseo.app/models/qwen/qwen3.8-27b
     QWEN_QWEN3_8_27B: Final[str] = "qwen/qwen3.8-27b"
 
+    # Model ID: qwen/qwen3.8-flash
+    # Model page: https://phaseo.app/models/qwen/qwen3.8-flash
+    QWEN_QWEN3_8_FLASH: Final[str] = "qwen/qwen3.8-flash"
+
     # Model ID: qwen/qwen3.8-max
     # Model page: https://phaseo.app/models/qwen/qwen3.8-max
     QWEN_QWEN3_8_MAX: Final[str] = "qwen/qwen3.8-max"
@@ -1917,10 +1929,6 @@ class ModelIds:
     # Model ID: spacex-ai/grok-tts
     # Model page: https://phaseo.app/models/spacex-ai/grok-tts
     SPACEX_AI_GROK_TTS: Final[str] = "spacex-ai/grok-tts"
-
-    # Model ID: stealth/ox-alpha
-    # Model page: https://phaseo.app/models/stealth/ox-alpha
-    STEALTH_OX_ALPHA: Final[str] = "stealth/ox-alpha"
 
     # Model ID: stepfun/step-3.5-flash
     # Model page: https://phaseo.app/models/stepfun/step-3.5-flash
@@ -2222,6 +2230,10 @@ class ModelIds:
     # Model page: https://phaseo.app/models/z-ai/glm-5.3
     Z_AI_GLM_5_3: Final[str] = "z-ai/glm-5.3"
 
+    # Model ID: z-ai/glm-5.3-flash
+    # Model page: https://phaseo.app/models/z-ai/glm-5.3-flash
+    Z_AI_GLM_5_3_FLASH: Final[str] = "z-ai/glm-5.3-flash"
+
     # Model ID: z-ai/glm-5v-turbo
     # Model page: https://phaseo.app/models/z-ai/glm-5v-turbo
     Z_AI_GLM_5V_TURBO: Final[str] = "z-ai/glm-5v-turbo"
@@ -2275,7 +2287,6 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.BAAI_BGE_MULTILINGUAL_GEMMA2,
         ModelIds.BAAI_BGE_RERANKER_V2_M3,
         ModelIds.BAIDU_COBUDDY,
-        ModelIds.BAIDU_ERNIE_4_5_21B_A3B,
         ModelIds.BAIDU_ERNIE_4_5_300B_A47B,
         ModelIds.BAIDU_ERNIE_4_5_VL_424B_A47B,
         ModelIds.BLACK_FOREST_LABS_FLUX_1_DEV,
@@ -2310,6 +2321,7 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.COHERE_EMBED_ENGLISH_V3,
         ModelIds.COHERE_EMBED_MULTILINGUAL_V3,
         ModelIds.COHERE_EMBED_V4,
+        ModelIds.COHERE_PARSE_V5_0,
         ModelIds.COHERE_RERANK_V3_5,
         ModelIds.COHERE_RERANK_V4_0_FAST,
         ModelIds.COHERE_RERANK_V4_0_PRO,
@@ -2321,6 +2333,7 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.DEEPSEEK_DEEPSEEK_OCR_2,
         ModelIds.DEEPSEEK_DEEPSEEK_R1,
         ModelIds.DEEPSEEK_DEEPSEEK_R1_0528,
+        ModelIds.DEEPSEEK_DEEPSEEK_R1_2025_05_28,
         ModelIds.DEEPSEEK_DEEPSEEK_R1_DISTILL_LLAMA_70B,
         ModelIds.DEEPSEEK_DEEPSEEK_R1_TURBO,
         ModelIds.DEEPSEEK_DEEPSEEK_V3,
@@ -2418,6 +2431,7 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.META_LLAMA_PROMPT_GUARD_2_22M,
         ModelIds.META_LLAMA_PROMPT_GUARD_2_86M,
         ModelIds.META_MUSE_GLIMMER_30B,
+        ModelIds.META_MUSE_IMAGE_1_0,
         ModelIds.META_MUSE_SPARK_1_2,
         ModelIds.MICROSOFT_PHI_4,
         ModelIds.MICROSOFT_WIZARDLM_2_8X22B,
@@ -2692,6 +2706,7 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.QWEN_QWEN3_7_PLUS_2026_05_26,
         ModelIds.QWEN_QWEN3_8_2_4T_A95B,
         ModelIds.QWEN_QWEN3_8_27B,
+        ModelIds.QWEN_QWEN3_8_FLASH,
         ModelIds.QWEN_QWEN3_8_MAX,
         ModelIds.QWEN_QWQ_32B,
         ModelIds.QWEN_QWQ_PLUS,
@@ -2717,7 +2732,6 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.SPACEX_AI_GROK_IMAGINE_IMAGE_QUALITY,
         ModelIds.SPACEX_AI_GROK_TRANSCRIBE,
         ModelIds.SPACEX_AI_GROK_TTS,
-        ModelIds.STEALTH_OX_ALPHA,
         ModelIds.STEPFUN_STEP_3_5_FLASH,
         ModelIds.STEPFUN_STEP_3_7_FLASH,
         ModelIds.TENCENT_HUNYUAN_A13B_INSTRUCT,
@@ -2793,6 +2807,7 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.Z_AI_GLM_5_1,
         ModelIds.Z_AI_GLM_5_2,
         ModelIds.Z_AI_GLM_5_3,
+        ModelIds.Z_AI_GLM_5_3_FLASH,
         ModelIds.Z_AI_GLM_5V_TURBO,
         ModelIds.ZAI_ORG_GLM_4_5_AIR,
         ModelIds.ZAI_GLM_5,

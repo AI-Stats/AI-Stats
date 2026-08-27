@@ -35,7 +35,7 @@ describe("Phaseo endpoints discovery helper", () => {
     expect(response.sample_models).toEqual(["openai/gpt-5-nano"]);
   });
 
-  test("exposes high-level helpers for generated OCR, rerank, music, data-model, and provider derank operations", async () => {
+  test("exposes high-level helpers for generated OCR, Parse, rerank, music, data-model, and provider derank operations", async () => {
     const seen: Array<{ method: string; url: string; body?: unknown }> = [];
     const fetchImpl: typeof fetch = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
@@ -45,6 +45,9 @@ describe("Phaseo endpoints discovery helper", () => {
 
       if (url === "https://example.test/ocr" && method === "POST") {
         return jsonResponse({ id: "ocr_1", model: body.model, text: "hello" });
+      }
+      if (url === "https://example.test/parse" && method === "POST") {
+        return jsonResponse({ id: "parse_1", model: body.model, pages: [] });
       }
       if (url === "https://example.test/rerank" && method === "POST") {
         return jsonResponse({ id: "rerank_1", model: body.model, results: [] });
@@ -81,6 +84,7 @@ describe("Phaseo endpoints discovery helper", () => {
     });
 
     await client.ocr.create({ model: "deepseek/deepseek-ocr", image: "data:image/png;base64,abc" } as any);
+    await client.parse.create({ model: "cohere/parse-v5.0", image: "data:image/png;base64,abc" });
     await client.rerank.create({
       model: "voyage/rerank-2",
       query: "best",
@@ -94,6 +98,8 @@ describe("Phaseo endpoints discovery helper", () => {
     expect(seen.map((entry) => `${entry.method} ${entry.url}`)).toEqual([
       "GET https://example.test/models?model_id=deepseek%2Fdeepseek-ocr&limit=1",
       "POST https://example.test/ocr",
+      "GET https://example.test/models?model_id=cohere%2Fparse-v5.0&limit=1",
+      "POST https://example.test/parse",
       "GET https://example.test/models?model_id=voyage%2Frerank-2&limit=1",
       "POST https://example.test/rerank",
       "GET https://example.test/models?model_id=minimax%2Fmusic-2.6&limit=1",

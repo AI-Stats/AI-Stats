@@ -23,6 +23,7 @@ import { batchRoutes } from "./batches";
 import { videosRoutes } from "./videos";
 import { filesRoutes } from "./files";
 import { ocrRoutes } from "./ocr";
+import { parseRoutes } from "./parse";
 import { asyncJobsRoutes } from "./async-jobs";
 
 export const inferenceRouter = new Hono<Env>();
@@ -43,6 +44,7 @@ inferenceRouter.route("/images/edits", imagesEditsRoutes);
 inferenceRouter.route("/videos", videosRoutes);
 inferenceRouter.route("/video/generations", videosRoutes);
 inferenceRouter.route("/ocr", ocrRoutes);
+inferenceRouter.route("/parse", parseRoutes);
 inferenceRouter.route("/music/generate", musicGenerateRoutes);
 inferenceRouter.route("/music/generations", musicGenerateRoutes);
 inferenceRouter.route("/batch", batchRoutes);
@@ -52,7 +54,6 @@ inferenceRouter.route("/async", asyncJobsRoutes);
 
 // Backward-compatible alias for existing imports.
 export const dataRouter = inferenceRouter;
-
 
 
 

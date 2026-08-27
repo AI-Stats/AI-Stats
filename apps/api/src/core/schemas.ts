@@ -1855,6 +1855,26 @@ export const OcrSchema = z.object({
 });
 export type OcrRequest = z.infer<typeof OcrSchema>;
 
+const ParseImageUrlSchema = z.string().min(1).refine(
+    (value) => /^https?:\/\//.test(value) || /^data:image\/[a-zA-Z0-9.+-]+;base64,/.test(value),
+    { message: "image_url must be an http(s) URL or a base64 image data URI" },
+);
+
+export const ParseSchema = z.object({
+    model: z.string().min(1),
+    document: z.object({
+        type: z.literal("image_url"),
+        image_url: ParseImageUrlSchema,
+    }).strict(),
+    output_format: z.enum(["markdown", "blocks"]).optional().default("markdown"),
+    echo_upstream_request: z.boolean().optional(),
+    debug: DebugOptionsSchema,
+    beta: BetaOptionsSchema,
+    provider: ProviderRoutingSchema,
+    routing: ProviderRoutingSchema,
+}).strict();
+export type ParseRequest = z.infer<typeof ParseSchema>;
+
 // Music Generate schema
 export const MusicGenerateSchema = z.object({
     model: z.string().min(1),
@@ -1959,6 +1979,7 @@ export function schemaFor(endpoint: Endpoint): z.ZodTypeAny | null {
         case "embeddings": return EmbeddingsSchema;
         case "batch": return BatchSchema;
         case "ocr": return OcrSchema;
+        case "parse": return ParseSchema;
         case "music.generate": return MusicGenerateSchema;
         case "files.upload":
         case "files.list":

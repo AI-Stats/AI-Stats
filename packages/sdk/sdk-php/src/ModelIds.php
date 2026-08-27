@@ -113,9 +113,6 @@ final class ModelIds
     /** Model ID: baidu/cobuddy. Model page: https://phaseo.app/models/baidu/cobuddy */
     public const BAIDU_COBUDDY = 'baidu/cobuddy';
 
-    /** Model ID: baidu/ernie-4.5-21b-a3b. Model page: https://phaseo.app/models/baidu/ernie-4.5-21b-a3b */
-    public const BAIDU_ERNIE_4_5_21B_A3B = 'baidu/ernie-4.5-21b-a3b';
-
     /** Model ID: baidu/ernie-4.5-300b-a47b. Model page: https://phaseo.app/models/baidu/ernie-4.5-300b-a47b */
     public const BAIDU_ERNIE_4_5_300B_A47B = 'baidu/ernie-4.5-300b-a47b';
 
@@ -218,6 +215,9 @@ final class ModelIds
     /** Model ID: cohere/embed-v4. Model page: https://phaseo.app/models/cohere/embed-v4 */
     public const COHERE_EMBED_V4 = 'cohere/embed-v4';
 
+    /** Model ID: cohere/parse-v5.0. Model page: https://phaseo.app/models/cohere/parse-v5.0 */
+    public const COHERE_PARSE_V5_0 = 'cohere/parse-v5.0';
+
     /** Model ID: cohere/rerank-v3.5. Model page: https://phaseo.app/models/cohere/rerank-v3.5 */
     public const COHERE_RERANK_V3_5 = 'cohere/rerank-v3.5';
 
@@ -250,6 +250,9 @@ final class ModelIds
 
     /** Model ID: deepseek/deepseek-r1-0528. Model page: https://phaseo.app/models/deepseek/deepseek-r1-0528 */
     public const DEEPSEEK_DEEPSEEK_R1_0528 = 'deepseek/deepseek-r1-0528';
+
+    /** Model ID: deepseek/deepseek-r1-2025-05-28. Model page: https://phaseo.app/models/deepseek/deepseek-r1-2025-05-28 */
+    public const DEEPSEEK_DEEPSEEK_R1_2025_05_28 = 'deepseek/deepseek-r1-2025-05-28';
 
     /** Model ID: deepseek/deepseek-r1-distill-llama-70b. Model page: https://phaseo.app/models/deepseek/deepseek-r1-distill-llama-70b */
     public const DEEPSEEK_DEEPSEEK_R1_DISTILL_LLAMA_70B = 'deepseek/deepseek-r1-distill-llama-70b';
@@ -541,6 +544,9 @@ final class ModelIds
 
     /** Model ID: meta/muse-glimmer-30b. Model page: https://phaseo.app/models/meta/muse-glimmer-30b */
     public const META_MUSE_GLIMMER_30B = 'meta/muse-glimmer-30b';
+
+    /** Model ID: meta/muse-image-1.0. Model page: https://phaseo.app/models/meta/muse-image-1.0 */
+    public const META_MUSE_IMAGE_1_0 = 'meta/muse-image-1.0';
 
     /** Model ID: meta/muse-spark-1.2. Model page: https://phaseo.app/models/meta/muse-spark-1.2 */
     public const META_MUSE_SPARK_1_2 = 'meta/muse-spark-1.2';
@@ -1364,6 +1370,9 @@ final class ModelIds
     /** Model ID: qwen/qwen3.8-27b. Model page: https://phaseo.app/models/qwen/qwen3.8-27b */
     public const QWEN_QWEN3_8_27B = 'qwen/qwen3.8-27b';
 
+    /** Model ID: qwen/qwen3.8-flash. Model page: https://phaseo.app/models/qwen/qwen3.8-flash */
+    public const QWEN_QWEN3_8_FLASH = 'qwen/qwen3.8-flash';
+
     /** Model ID: qwen/qwen3.8-max. Model page: https://phaseo.app/models/qwen/qwen3.8-max */
     public const QWEN_QWEN3_8_MAX = 'qwen/qwen3.8-max';
 
@@ -1438,9 +1447,6 @@ final class ModelIds
 
     /** Model ID: spacex-ai/grok-tts. Model page: https://phaseo.app/models/spacex-ai/grok-tts */
     public const SPACEX_AI_GROK_TTS = 'spacex-ai/grok-tts';
-
-    /** Model ID: stealth/ox-alpha. Model page: https://phaseo.app/models/stealth/ox-alpha */
-    public const STEALTH_OX_ALPHA = 'stealth/ox-alpha';
 
     /** Model ID: stepfun/step-3.5-flash. Model page: https://phaseo.app/models/stepfun/step-3.5-flash */
     public const STEPFUN_STEP_3_5_FLASH = 'stepfun/step-3.5-flash';
@@ -1666,6 +1672,9 @@ final class ModelIds
 
     /** Model ID: z-ai/glm-5.3. Model page: https://phaseo.app/models/z-ai/glm-5.3 */
     public const Z_AI_GLM_5_3 = 'z-ai/glm-5.3';
+
+    /** Model ID: z-ai/glm-5.3-flash. Model page: https://phaseo.app/models/z-ai/glm-5.3-flash */
+    public const Z_AI_GLM_5_3_FLASH = 'z-ai/glm-5.3-flash';
 
     /** Model ID: z-ai/glm-5v-turbo. Model page: https://phaseo.app/models/z-ai/glm-5v-turbo */
     public const Z_AI_GLM_5V_TURBO = 'z-ai/glm-5v-turbo';

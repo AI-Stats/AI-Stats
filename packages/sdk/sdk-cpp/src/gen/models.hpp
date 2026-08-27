@@ -1111,6 +1111,45 @@ using OrganisationId = std::any;
 
 using OrganisationIdList = std::any;
 
+using ParseBlock = std::any;
+
+struct ParseBoundingBox {
+	double bottom_right_x;
+	double bottom_right_y;
+	double top_left_x;
+	double top_left_y;
+};
+
+struct ParseImage {
+	std::map<std::string, std::any> bounding_box;
+	std::map<std::string, std::any> bounding_box_normalized;
+	std::any category;
+	std::string description;
+	std::string id;
+};
+
+using ParsePage = std::any;
+
+struct ParseRequest {
+	std::map<std::string, std::any> debug;
+	std::map<std::string, std::any> document;
+	std::optional<bool> echo_upstream_request;
+	std::string model;
+	std::any output_format;
+	std::map<std::string, std::any> provider;
+	std::map<std::string, std::any> routing;
+};
+
+struct ParseResponse {
+	std::string id;
+	std::map<std::string, std::any> meta;
+	std::string model;
+	std::any object;
+	std::vector<std::any> pages;
+	std::string provider;
+	std::map<std::string, std::any> usage;
+};
+
 struct Provider {
 	std::string api_provider_id;
 	std::optional<std::string> api_provider_name;

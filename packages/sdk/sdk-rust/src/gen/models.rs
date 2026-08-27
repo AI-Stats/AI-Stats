@@ -1107,6 +1107,45 @@ pub type OrganisationId = JsonValue;
 
 pub type OrganisationIdList = JsonValue;
 
+pub type ParseBlock = JsonValue;
+
+pub struct ParseBoundingBox {
+	pub bottom_right_x: f64,
+	pub bottom_right_y: f64,
+	pub top_left_x: f64,
+	pub top_left_y: f64,
+}
+
+pub struct ParseImage {
+	pub bounding_box: HashMap<String, String>,
+	pub bounding_box_normalized: HashMap<String, String>,
+	pub category: String,
+	pub description: String,
+	pub id: String,
+}
+
+pub type ParsePage = JsonValue;
+
+pub struct ParseRequest {
+	pub debug: Option<HashMap<String, String>>,
+	pub document: HashMap<String, String>,
+	pub echo_upstream_request: Option<bool>,
+	pub model: String,
+	pub output_format: Option<String>,
+	pub provider: Option<HashMap<String, String>>,
+	pub routing: Option<HashMap<String, String>>,
+}
+
+pub struct ParseResponse {
+	pub id: String,
+	pub meta: Option<HashMap<String, String>>,
+	pub model: String,
+	pub object: String,
+	pub pages: Vec<String>,
+	pub provider: String,
+	pub usage: Option<HashMap<String, String>>,
+}
+
 pub struct Provider {
 	pub api_provider_id: Option<String>,
 	pub api_provider_name: Option<Option<String>>,

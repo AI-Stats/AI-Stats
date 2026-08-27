@@ -26,6 +26,8 @@ import type {
   MusicGenerateResponse,
   OcrRequest,
   OcrResponse,
+  ParseRequest,
+  ParseResponse,
   RerankRequest,
   RerankResponse,
   ResponsesRequest,
@@ -328,6 +330,8 @@ export type {
   MusicGenerateResponse,
   OcrRequest,
   OcrResponse,
+  ParseRequest,
+  ParseResponse,
   RerankRequest,
   RerankResponse,
   ResponsesRequest,
@@ -452,6 +456,10 @@ export class Phaseo {
 
   readonly ocr = {
     create: async (req: OcrRequest): Promise<OcrResponse> => this.createOcr(req),
+  };
+
+  readonly parse = {
+    create: async (req: ParseRequest): Promise<ParseResponse> => this.createParse(req),
   };
 
   readonly rerank = {
@@ -886,6 +894,18 @@ export class Phaseo {
       () => this.telemetry.wrap(
         "ocr",
         () => ops.createOcr(this.client, { body: req }),
+        () => req,
+        extractGatewayMetadata
+      )
+    );
+  }
+
+  createParse(req: ParseRequest): Promise<ParseResponse> {
+    return this.withLifecycleGuard(
+      req,
+      () => this.telemetry.wrap(
+        "parse",
+        () => ops.createParse(this.client, { body: req }),
         () => req,
         extractGatewayMetadata
       )

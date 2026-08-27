@@ -145,6 +145,7 @@ type Capability =
 	| "audio.translations"
 	| "video.generate"
 	| "ocr"
+	| "parse"
 	| "music.generate";
 type ProviderCapabilityMap = Partial<Record<Capability, ProviderExecutor>>;
 
@@ -298,6 +299,7 @@ export const EXECUTORS_BY_PROVIDER: Record<string, ProviderCapabilityMap> = {
 		embeddings: openaiEmbeddings,
 		rerank: openaiRerank,
 		"audio.transcription": nonTextAdapterExecutor,
+		parse: nonTextAdapterExecutor,
 	},
 	crofai: {
 		"text.generate": crofaiText,

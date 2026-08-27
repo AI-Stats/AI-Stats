@@ -79,6 +79,11 @@ inline Response CreateOcr(Client& client, const std::map<std::string, std::strin
 	return client.request("POST", resolved_path, body);
 }
 
+inline Response CreateParse(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/parse";
+	return client.request("POST", resolved_path, body);
+}
+
 inline Response CreateRerank(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/rerank";
 	return client.request("POST", resolved_path, body);

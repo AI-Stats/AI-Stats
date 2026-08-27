@@ -71,6 +71,7 @@ export type KnownModelId =
   | "cohere/embed-english-v3"
   | "cohere/embed-multilingual-v3"
   | "cohere/embed-v4"
+  | "cohere/parse-v5.0"
   | "cohere/rerank-v3.5"
   | "cohere/rerank-v4.0-fast"
   | "cohere/rerank-v4.0-pro"

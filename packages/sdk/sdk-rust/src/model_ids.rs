@@ -108,9 +108,6 @@ pub mod model_ids {
     /// Model ID: `baidu/cobuddy`.
     /// Model page: https://phaseo.app/models/baidu/cobuddy
     pub const BAIDU_COBUDDY: &str = "baidu/cobuddy";
-    /// Model ID: `baidu/ernie-4.5-21b-a3b`.
-    /// Model page: https://phaseo.app/models/baidu/ernie-4.5-21b-a3b
-    pub const BAIDU_ERNIE_4_5_21B_A3B: &str = "baidu/ernie-4.5-21b-a3b";
     /// Model ID: `baidu/ernie-4.5-300b-a47b`.
     /// Model page: https://phaseo.app/models/baidu/ernie-4.5-300b-a47b
     pub const BAIDU_ERNIE_4_5_300B_A47B: &str = "baidu/ernie-4.5-300b-a47b";
@@ -213,6 +210,9 @@ pub mod model_ids {
     /// Model ID: `cohere/embed-v4`.
     /// Model page: https://phaseo.app/models/cohere/embed-v4
     pub const COHERE_EMBED_V4: &str = "cohere/embed-v4";
+    /// Model ID: `cohere/parse-v5.0`.
+    /// Model page: https://phaseo.app/models/cohere/parse-v5.0
+    pub const COHERE_PARSE_V5_0: &str = "cohere/parse-v5.0";
     /// Model ID: `cohere/rerank-v3.5`.
     /// Model page: https://phaseo.app/models/cohere/rerank-v3.5
     pub const COHERE_RERANK_V3_5: &str = "cohere/rerank-v3.5";
@@ -246,6 +246,9 @@ pub mod model_ids {
     /// Model ID: `deepseek/deepseek-r1-0528`.
     /// Model page: https://phaseo.app/models/deepseek/deepseek-r1-0528
     pub const DEEPSEEK_DEEPSEEK_R1_0528: &str = "deepseek/deepseek-r1-0528";
+    /// Model ID: `deepseek/deepseek-r1-2025-05-28`.
+    /// Model page: https://phaseo.app/models/deepseek/deepseek-r1-2025-05-28
+    pub const DEEPSEEK_DEEPSEEK_R1_2025_05_28: &str = "deepseek/deepseek-r1-2025-05-28";
     /// Model ID: `deepseek/deepseek-r1-distill-llama-70b`.
     /// Model page: https://phaseo.app/models/deepseek/deepseek-r1-distill-llama-70b
     pub const DEEPSEEK_DEEPSEEK_R1_DISTILL_LLAMA_70B: &str = "deepseek/deepseek-r1-distill-llama-70b";
@@ -537,6 +540,9 @@ pub mod model_ids {
     /// Model ID: `meta/muse-glimmer-30b`.
     /// Model page: https://phaseo.app/models/meta/muse-glimmer-30b
     pub const META_MUSE_GLIMMER_30B: &str = "meta/muse-glimmer-30b";
+    /// Model ID: `meta/muse-image-1.0`.
+    /// Model page: https://phaseo.app/models/meta/muse-image-1.0
+    pub const META_MUSE_IMAGE_1_0: &str = "meta/muse-image-1.0";
     /// Model ID: `meta/muse-spark-1.2`.
     /// Model page: https://phaseo.app/models/meta/muse-spark-1.2
     pub const META_MUSE_SPARK_1_2: &str = "meta/muse-spark-1.2";
@@ -1359,6 +1365,9 @@ pub mod model_ids {
     /// Model ID: `qwen/qwen3.8-27b`.
     /// Model page: https://phaseo.app/models/qwen/qwen3.8-27b
     pub const QWEN_QWEN3_8_27B: &str = "qwen/qwen3.8-27b";
+    /// Model ID: `qwen/qwen3.8-flash`.
+    /// Model page: https://phaseo.app/models/qwen/qwen3.8-flash
+    pub const QWEN_QWEN3_8_FLASH: &str = "qwen/qwen3.8-flash";
     /// Model ID: `qwen/qwen3.8-max`.
     /// Model page: https://phaseo.app/models/qwen/qwen3.8-max
     pub const QWEN_QWEN3_8_MAX: &str = "qwen/qwen3.8-max";
@@ -1434,9 +1443,6 @@ pub mod model_ids {
     /// Model ID: `spacex-ai/grok-tts`.
     /// Model page: https://phaseo.app/models/spacex-ai/grok-tts
     pub const SPACEX_AI_GROK_TTS: &str = "spacex-ai/grok-tts";
-    /// Model ID: `stealth/ox-alpha`.
-    /// Model page: https://phaseo.app/models/stealth/ox-alpha
-    pub const STEALTH_OX_ALPHA: &str = "stealth/ox-alpha";
     /// Model ID: `stepfun/step-3.5-flash`.
     /// Model page: https://phaseo.app/models/stepfun/step-3.5-flash
     pub const STEPFUN_STEP_3_5_FLASH: &str = "stepfun/step-3.5-flash";
@@ -1662,6 +1668,9 @@ pub mod model_ids {
     /// Model ID: `z-ai/glm-5.3`.
     /// Model page: https://phaseo.app/models/z-ai/glm-5.3
     pub const Z_AI_GLM_5_3: &str = "z-ai/glm-5.3";
+    /// Model ID: `z-ai/glm-5.3-flash`.
+    /// Model page: https://phaseo.app/models/z-ai/glm-5.3-flash
+    pub const Z_AI_GLM_5_3_FLASH: &str = "z-ai/glm-5.3-flash";
     /// Model ID: `z-ai/glm-5v-turbo`.
     /// Model page: https://phaseo.app/models/z-ai/glm-5v-turbo
     pub const Z_AI_GLM_5V_TURBO: &str = "z-ai/glm-5v-turbo";
@@ -1711,7 +1720,6 @@ pub mod model_ids {
         BAAI_BGE_MULTILINGUAL_GEMMA2,
         BAAI_BGE_RERANKER_V2_M3,
         BAIDU_COBUDDY,
-        BAIDU_ERNIE_4_5_21B_A3B,
         BAIDU_ERNIE_4_5_300B_A47B,
         BAIDU_ERNIE_4_5_VL_424B_A47B,
         BLACK_FOREST_LABS_FLUX_1_DEV,
@@ -1746,6 +1754,7 @@ pub mod model_ids {
         COHERE_EMBED_ENGLISH_V3,
         COHERE_EMBED_MULTILINGUAL_V3,
         COHERE_EMBED_V4,
+        COHERE_PARSE_V5_0,
         COHERE_RERANK_V3_5,
         COHERE_RERANK_V4_0_FAST,
         COHERE_RERANK_V4_0_PRO,
@@ -1757,6 +1766,7 @@ pub mod model_ids {
         DEEPSEEK_DEEPSEEK_OCR_2,
         DEEPSEEK_DEEPSEEK_R1,
         DEEPSEEK_DEEPSEEK_R1_0528,
+        DEEPSEEK_DEEPSEEK_R1_2025_05_28,
         DEEPSEEK_DEEPSEEK_R1_DISTILL_LLAMA_70B,
         DEEPSEEK_DEEPSEEK_R1_TURBO,
         DEEPSEEK_DEEPSEEK_V3,
@@ -1854,6 +1864,7 @@ pub mod model_ids {
         META_LLAMA_PROMPT_GUARD_2_22M,
         META_LLAMA_PROMPT_GUARD_2_86M,
         META_MUSE_GLIMMER_30B,
+        META_MUSE_IMAGE_1_0,
         META_MUSE_SPARK_1_2,
         MICROSOFT_PHI_4,
         MICROSOFT_WIZARDLM_2_8X22B,
@@ -2128,6 +2139,7 @@ pub mod model_ids {
         QWEN_QWEN3_7_PLUS_2026_05_26,
         QWEN_QWEN3_8_2_4T_A95B,
         QWEN_QWEN3_8_27B,
+        QWEN_QWEN3_8_FLASH,
         QWEN_QWEN3_8_MAX,
         QWEN_QWQ_32B,
         QWEN_QWQ_PLUS,
@@ -2153,7 +2165,6 @@ pub mod model_ids {
         SPACEX_AI_GROK_IMAGINE_IMAGE_QUALITY,
         SPACEX_AI_GROK_TRANSCRIBE,
         SPACEX_AI_GROK_TTS,
-        STEALTH_OX_ALPHA,
         STEPFUN_STEP_3_5_FLASH,
         STEPFUN_STEP_3_7_FLASH,
         TENCENT_HUNYUAN_A13B_INSTRUCT,
@@ -2229,6 +2240,7 @@ pub mod model_ids {
         Z_AI_GLM_5_1,
         Z_AI_GLM_5_2,
         Z_AI_GLM_5_3,
+        Z_AI_GLM_5_3_FLASH,
         Z_AI_GLM_5V_TURBO,
         ZAI_ORG_GLM_4_5_AIR,
         ZAI_GLM_5,

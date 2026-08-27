@@ -10,6 +10,7 @@ export type AdapterBackedCapability =
 	| "audio.translations"
 	| "video.generate"
 	| "ocr"
+	| "parse"
 	| "music.generate";
 
 export type TextReasoningEffort =

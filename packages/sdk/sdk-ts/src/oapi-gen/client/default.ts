@@ -2703,6 +2703,300 @@ export async function createOcr(
   });
 }
 
+export type CreateParseParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    debug?: {
+      enabled?: boolean;
+      return_upstream_request?: boolean;
+      return_upstream_response?: boolean;
+      trace?: boolean;
+      trace_level?: "summary" | "full";
+    };
+    document: {
+      image_url: string;
+      type: "image_url";
+    };
+    echo_upstream_request?: boolean;
+    model: string;
+    output_format?: "markdown" | "blocks";
+    provider?: {
+      allow_fallbacks?: boolean | null;
+      data_collection?: "allow" | "deny" | null;
+      enforce_distillable_text?: boolean | null;
+      ignore?: string[];
+      include_alpha?: boolean;
+      max_price?: {
+        audio?: number | string;
+        completion?: number | string;
+        image?: number | string;
+        prompt?: number | string;
+        request?: number | string;
+      };
+      only?: string[];
+      order?: string[];
+      preferred_max_latency?:
+        | number
+        | {
+            [key: string]: number;
+          };
+      preferred_min_throughput?:
+        | number
+        | {
+            [key: string]: number;
+          };
+      quantizations?: string[] | null;
+      require_parameters?: boolean | null;
+      require_zero_data_retention?: boolean | null;
+      required_data_region?: string | null;
+      required_execution_region?: string | null;
+      sort?:
+        | string
+        | {
+            [key: string]: unknown;
+          };
+      zdr?: boolean | null;
+    };
+    routing?: {
+      allow_fallbacks?: boolean | null;
+      data_collection?: "allow" | "deny" | null;
+      enforce_distillable_text?: boolean | null;
+      ignore?: string[];
+      include_alpha?: boolean;
+      max_price?: {
+        audio?: number | string;
+        completion?: number | string;
+        image?: number | string;
+        prompt?: number | string;
+        request?: number | string;
+      };
+      only?: string[];
+      order?: string[];
+      preferred_max_latency?:
+        | number
+        | {
+            [key: string]: number;
+          };
+      preferred_min_throughput?:
+        | number
+        | {
+            [key: string]: number;
+          };
+      quantizations?: string[] | null;
+      require_parameters?: boolean | null;
+      require_zero_data_retention?: boolean | null;
+      required_data_region?: string | null;
+      required_execution_region?: string | null;
+      sort?:
+        | string
+        | {
+            [key: string]: unknown;
+          };
+      zdr?: boolean | null;
+    };
+  };
+};
+
+/**
+ * Parses a document image into Markdown or ordered content blocks. The current Cohere Parse API accepts remote image URLs and base64 image data URIs; PDF and file URL inputs are not yet supported.
+ */
+export async function createParse(
+  client: Client,
+  args: CreateParseParams = {},
+): Promise<{
+  id: string;
+  meta?: {
+    [key: string]: unknown;
+  };
+  model: string;
+  object: "parse";
+  pages: (
+    | {
+        index: number;
+        markdown: {
+          content: string;
+          images?: {
+            bounding_box: {
+              bottom_right_x: number;
+              bottom_right_y: number;
+              top_left_x: number;
+              top_left_y: number;
+            };
+            bounding_box_normalized: {
+              bottom_right_x: number;
+              bottom_right_y: number;
+              top_left_x: number;
+              top_left_y: number;
+            };
+            category: "other" | "flowchart" | "logo" | "signature";
+            description: string;
+            id: string;
+          }[];
+        };
+        type: "markdown";
+      }
+    | {
+        blocks: (
+          | {
+              text: {
+                content: string;
+              };
+              type: "text";
+            }
+          | {
+              image: {
+                bounding_box: {
+                  bottom_right_x: number;
+                  bottom_right_y: number;
+                  top_left_x: number;
+                  top_left_y: number;
+                };
+                bounding_box_normalized: {
+                  bottom_right_x: number;
+                  bottom_right_y: number;
+                  top_left_x: number;
+                  top_left_y: number;
+                };
+                category: "other" | "flowchart" | "logo" | "signature";
+                description: string;
+                id: string;
+              };
+              type: "image";
+            }
+          | {
+              table: {
+                bounding_box: {
+                  bottom_right_x: number;
+                  bottom_right_y: number;
+                  top_left_x: number;
+                  top_left_y: number;
+                };
+                bounding_box_normalized: {
+                  bottom_right_x: number;
+                  bottom_right_y: number;
+                  top_left_x: number;
+                  top_left_y: number;
+                };
+                description?: string;
+                html: string;
+                title?: string;
+                type: "html";
+              };
+              type: "table";
+            }
+        )[];
+        index: number;
+        type: "blocks";
+      }
+  )[];
+  provider: string;
+  usage?: {
+    [key: string]: unknown;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/parse";
+  return client.request<{
+    id: string;
+    meta?: {
+      [key: string]: unknown;
+    };
+    model: string;
+    object: "parse";
+    pages: (
+      | {
+          index: number;
+          markdown: {
+            content: string;
+            images?: {
+              bounding_box: {
+                bottom_right_x: number;
+                bottom_right_y: number;
+                top_left_x: number;
+                top_left_y: number;
+              };
+              bounding_box_normalized: {
+                bottom_right_x: number;
+                bottom_right_y: number;
+                top_left_x: number;
+                top_left_y: number;
+              };
+              category: "other" | "flowchart" | "logo" | "signature";
+              description: string;
+              id: string;
+            }[];
+          };
+          type: "markdown";
+        }
+      | {
+          blocks: (
+            | {
+                text: {
+                  content: string;
+                };
+                type: "text";
+              }
+            | {
+                image: {
+                  bounding_box: {
+                    bottom_right_x: number;
+                    bottom_right_y: number;
+                    top_left_x: number;
+                    top_left_y: number;
+                  };
+                  bounding_box_normalized: {
+                    bottom_right_x: number;
+                    bottom_right_y: number;
+                    top_left_x: number;
+                    top_left_y: number;
+                  };
+                  category: "other" | "flowchart" | "logo" | "signature";
+                  description: string;
+                  id: string;
+                };
+                type: "image";
+              }
+            | {
+                table: {
+                  bounding_box: {
+                    bottom_right_x: number;
+                    bottom_right_y: number;
+                    top_left_x: number;
+                    top_left_y: number;
+                  };
+                  bounding_box_normalized: {
+                    bottom_right_x: number;
+                    bottom_right_y: number;
+                    top_left_x: number;
+                    top_left_y: number;
+                  };
+                  description?: string;
+                  html: string;
+                  title?: string;
+                  type: "html";
+                };
+                type: "table";
+              }
+          )[];
+          index: number;
+          type: "blocks";
+        }
+    )[];
+    provider: string;
+    usage?: {
+      [key: string]: unknown;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type CreateRerankParams = {
   path?: Record<string, never>;
   query?: Record<string, never>;

@@ -17,6 +17,7 @@ export type EndpointType =
   | "music.retrieve"
   | "embeddings"
   | "ocr"
+  | "parse"
   | "rerank"
   | "moderations"
   | "responses"

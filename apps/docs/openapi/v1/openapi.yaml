@@ -1243,6 +1243,29 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OcrResponse'
+  /parse:
+    post:
+      tags:
+        - Gateway
+      operationId: createParse
+      summary: Parse a document image
+      description: >-
+        Parses a document image into Markdown or ordered content blocks. The
+        current Cohere Parse API accepts remote image URLs and base64 image data
+        URIs; PDF and file URL inputs are not yet supported.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParseRequest'
+      responses:
+        '200':
+          description: Parsed document
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParseResponse'
   /music/generate:
     post:
       x-beta: true
@@ -6860,6 +6883,218 @@ components:
     OcrResponse:
       type: object
       additionalProperties: true
+    ParseBoundingBox:
+      type: object
+      required:
+        - top_left_x
+        - top_left_y
+        - bottom_right_x
+        - bottom_right_y
+      properties:
+        top_left_x:
+          type: number
+        top_left_y:
+          type: number
+        bottom_right_x:
+          type: number
+        bottom_right_y:
+          type: number
+    ParseImage:
+      type: object
+      required:
+        - id
+        - description
+        - category
+        - bounding_box
+        - bounding_box_normalized
+      properties:
+        id:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+          enum:
+            - other
+            - flowchart
+            - logo
+            - signature
+        bounding_box:
+          $ref: '#/components/schemas/ParseBoundingBox'
+        bounding_box_normalized:
+          $ref: '#/components/schemas/ParseBoundingBox'
+    ParseBlock:
+      oneOf:
+        - type: object
+          required:
+            - type
+            - text
+          properties:
+            type:
+              type: string
+              enum:
+                - text
+            text:
+              type: object
+              required:
+                - content
+              properties:
+                content:
+                  type: string
+        - type: object
+          required:
+            - type
+            - image
+          properties:
+            type:
+              type: string
+              enum:
+                - image
+            image:
+              $ref: '#/components/schemas/ParseImage'
+        - type: object
+          required:
+            - type
+            - table
+          properties:
+            type:
+              type: string
+              enum:
+                - table
+            table:
+              type: object
+              required:
+                - type
+                - html
+                - bounding_box
+                - bounding_box_normalized
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - html
+                html:
+                  type: string
+                title:
+                  type: string
+                description:
+                  type: string
+                bounding_box:
+                  $ref: '#/components/schemas/ParseBoundingBox'
+                bounding_box_normalized:
+                  $ref: '#/components/schemas/ParseBoundingBox'
+    ParsePage:
+      oneOf:
+        - type: object
+          required:
+            - type
+            - index
+            - markdown
+          properties:
+            type:
+              type: string
+              enum:
+                - markdown
+            index:
+              type: integer
+              minimum: 0
+            markdown:
+              type: object
+              required:
+                - content
+              properties:
+                content:
+                  type: string
+                images:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ParseImage'
+        - type: object
+          required:
+            - type
+            - index
+            - blocks
+          properties:
+            type:
+              type: string
+              enum:
+                - blocks
+            index:
+              type: integer
+              minimum: 0
+            blocks:
+              type: array
+              items:
+                $ref: '#/components/schemas/ParseBlock'
+    ParseRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - model
+        - document
+      properties:
+        model:
+          type: string
+          example: cohere/parse-v5.0
+        document:
+          type: object
+          additionalProperties: false
+          required:
+            - type
+            - image_url
+          properties:
+            type:
+              type: string
+              enum:
+                - image_url
+            image_url:
+              type: string
+              description: >-
+                Remote http(s) image URL or base64 image data URI. Maximum 20 MB
+                and 50 megapixels or 200 MB decoded.
+        output_format:
+          type: string
+          enum:
+            - markdown
+            - blocks
+          default: markdown
+        echo_upstream_request:
+          type: boolean
+        debug:
+          $ref: '#/components/schemas/DebugOptions'
+        provider:
+          $ref: '#/components/schemas/ProviderRoutingOptions'
+        routing:
+          $ref: '#/components/schemas/ProviderRoutingOptions'
+    ParseResponse:
+      type: object
+      required:
+        - id
+        - object
+        - model
+        - provider
+        - pages
+      properties:
+        id:
+          type: string
+        object:
+          type: string
+          enum:
+            - parse
+        model:
+          type: string
+        provider:
+          type: string
+        pages:
+          type: array
+          items:
+            $ref: '#/components/schemas/ParsePage'
+        meta:
+          type: object
+          additionalProperties: true
+        usage:
+          type: object
+          additionalProperties: true
     MusicGenerateRequest:
       type: object
       required:
@@ -9701,6 +9936,7 @@ components:
         - cohere/embed-english-v3
         - cohere/embed-multilingual-v3
         - cohere/embed-v4
+        - cohere/parse-v5.0
         - cohere/rerank-v3.5
         - cohere/rerank-v4.0-fast
         - cohere/rerank-v4.0-pro
