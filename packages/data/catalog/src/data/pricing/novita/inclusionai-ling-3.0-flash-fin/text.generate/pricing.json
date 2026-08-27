@@ -19,7 +19,12 @@
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": "https://novita.ai/models/model-detail/inclusionai-ling-3.0-flash-fin"
+      "source": {
+        "kind": "provider_pricing",
+        "url": "https://novita.ai/models/model-detail/inclusionai-ling-3.0-flash-fin",
+        "accessed_at": "2026-08-27T00:00:00Z",
+        "notes": "Novita's first-party model page reports time-limited free input pricing."
+      }
     },
     {
       "meter": "cached_read_text_tokens",
@@ -35,7 +40,12 @@
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": "https://novita.ai/models/model-detail/inclusionai-ling-3.0-flash-fin"
+      "source": {
+        "kind": "provider_pricing",
+        "url": "https://novita.ai/models/model-detail/inclusionai-ling-3.0-flash-fin",
+        "accessed_at": "2026-08-27T00:00:00Z",
+        "notes": "Novita's first-party model page reports zero cached-input pricing."
+      }
     },
     {
       "meter": "output_text_tokens",
@@ -51,7 +61,12 @@
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": "https://novita.ai/models/model-detail/inclusionai-ling-3.0-flash-fin"
+      "source": {
+        "kind": "provider_pricing",
+        "url": "https://novita.ai/models/model-detail/inclusionai-ling-3.0-flash-fin",
+        "accessed_at": "2026-08-27T00:00:00Z",
+        "notes": "Novita's first-party model page reports time-limited free output pricing."
+      }
     }
   ],
   "regions": [],
