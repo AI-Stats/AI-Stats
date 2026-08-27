@@ -155,7 +155,7 @@
     "context_length": 1048576,
     "max_output_tokens": null,
     "effective_from": "2026-06-01T00:00:00Z",
-    "effective_to": null,
+    "effective_to": "2026-08-31T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -593,7 +593,7 @@
     "context_length": 131072,
     "max_output_tokens": null,
     "effective_from": "2026-05-11T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-31T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -847,7 +847,7 @@
     "context_length": 196608,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-31T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -1456,7 +1456,7 @@
     "context_length": 131072,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-31T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -1519,7 +1519,7 @@
     "context_length": 262144,
     "max_output_tokens": null,
     "effective_from": "2026-06-01T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-31T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -1580,7 +1580,7 @@
     "context_length": 131072,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-31T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -1703,7 +1703,7 @@
     "context_length": 262144,
     "max_output_tokens": null,
     "effective_from": "2026-04-24T00:00:00Z",
-    "effective_to": null,
+    "effective_to": "2026-08-31T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -2306,7 +2306,7 @@
     "context_length": 32000,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-31T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -2643,7 +2643,7 @@
     "context_length": 40960,
     "max_output_tokens": null,
     "effective_from": "2026-05-11T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-31T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -2943,7 +2943,7 @@
     "context_length": 128000,
     "max_output_tokens": null,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-08-31T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
