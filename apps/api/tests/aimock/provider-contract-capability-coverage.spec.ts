@@ -10,6 +10,7 @@ const inheritedContractByProvider: Record<string, string> = {
     baidu: "openai",
     "mistral-eu": "mistral",
     "meta-contributor": "meta",
+    "io-net": "openai",
     streamlake: "openai",
     switchpoint: "openai",
 	"ionrouter-kimi": "ionrouter",
