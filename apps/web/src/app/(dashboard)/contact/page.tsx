@@ -23,6 +23,17 @@ export const metadata: Metadata = buildMetadata({
 	],
 });
 
+function getTawkConfig() {
+	return {
+		tawkPropertyId:
+			process.env.TAWK_PROPERTY_ID ?? process.env.NEXT_PUBLIC_TAWK_PROPERTY_ID,
+		tawkWidgetId:
+			process.env.TAWK_WIDGET_ID ??
+			process.env.NEXT_PUBLIC_TAWK_WIDGET_ID ??
+			"default",
+	};
+}
+
 async function ContactPersonalization() {
 	await connection();
 
@@ -43,12 +54,7 @@ async function ContactPersonalization() {
 			? `Support will be back online in ${backOnlineLabel}. Replies may be delayed, but you will still get a direct human response from me as soon as possible.`
 			: "I'm away right now. Replies may be delayed, but you will still get a direct human response from me as soon as possible.";
 	const personalization = await fetchContactPersonalization();
-	const tawkPropertyId =
-		process.env.TAWK_PROPERTY_ID ?? process.env.NEXT_PUBLIC_TAWK_PROPERTY_ID;
-	const tawkWidgetId =
-		process.env.TAWK_WIDGET_ID ??
-		process.env.NEXT_PUBLIC_TAWK_WIDGET_ID ??
-		"default";
+	const { tawkPropertyId, tawkWidgetId } = getTawkConfig();
 
 	return (
 		<ContactClient
@@ -68,6 +74,8 @@ async function ContactPersonalization() {
 }
 
 export default function ContactPage() {
+	const { tawkPropertyId, tawkWidgetId } = getTawkConfig();
+
 	return (
 		<Suspense
 			fallback={
@@ -81,6 +89,8 @@ export default function ContactPage() {
 					userEmail={null}
 					tierLabel=""
 					defaultInternalId=""
+					tawkPropertyId={tawkPropertyId}
+					tawkWidgetId={tawkWidgetId}
 				/>
 			}
 		>
