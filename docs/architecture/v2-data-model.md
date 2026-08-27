@@ -9,18 +9,18 @@ backfill and consumer cutover are verified.
 
 - `v2_models.model_slug` is the canonical model identity used by URLs,
   aliases, requests, rollups, and public rankings.
-- Provider offers ending in `:free` materialise as first-class model variants:
-  `{base_model_slug}:free`, displayed as `{base name} (Free)`. The row records
-  `variant_kind = 'free'` and `base_model_slug`, while the base/paid model
-  remains a separate `variant_kind = 'standard'` row. Provider routes,
+- Provider offers ending in `:free` materialise as first-class API model
+  identities, displayed as `{base name} (Free)`. The row records
+  `variant_kind = 'free'`. A free model may stand alone; `base_model_slug`
+  only links a genuine standard sibling when one exists. Provider routes,
   request facts, usage rollups, performance, and health all retain the free
   identity instead of merging it back into the base model.
-- Free variants are authored explicitly in the base model JSON `variants`
-  array, so static catalogue metadata remains defined once. Provider-model
+- Free models may be standalone model JSON records. When a genuine standard
+  sibling exists, they may instead use its `variants` array. Provider-model
   JSON points to the exact variant through `canonical_model_id`. A
   provider-specific free API ID that differs from the canonical spelling is
   stored as an alias to the canonical `:free` model. Validation rejects free
-  routes without an authored variant; the importer never manufactures one.
+  routes without an authored free model; the importer never manufactures one.
 - `v2_model_aliases` resolves client input to a canonical model slug.
 - `v2_labs` owns model metadata. `v2_providers` represents a provider endpoint
   (including `external` catalogue-only providers) and has global status and

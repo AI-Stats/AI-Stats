@@ -772,7 +772,7 @@ export async function syncV2Catalogue(): Promise<void> {
         },
     })), "lab_slug");
 
-    const baseModelRows = canonicalModels.filter(row => organisationIds.has(String(row.organisation_id))).map(row => ({
+    const canonicalModelRows = canonicalModels.filter(row => organisationIds.has(String(row.organisation_id))).map(row => ({
         model_slug: row.model_id,
         lab_slug: row.organisation_id,
         name: row.name,
@@ -792,8 +792,8 @@ export async function syncV2Catalogue(): Promise<void> {
         released_at: row.release_date ?? null,
         deprecated_at: row.deprecation_date ?? null,
         retired_at: row.retirement_date ?? null,
-        variant_kind: "standard",
-        base_model_slug: null,
+        variant_kind: String(row.variant_kind ?? (isFreeModelVariant(row.model_id) ? "free" : "standard")),
+        base_model_slug: canonicalModelSlug(row.base_model_id) || null,
         metadata: {
             source: "json",
             legacy_model_id: row.model_id,
@@ -811,7 +811,7 @@ export async function syncV2Catalogue(): Promise<void> {
             verification: source.models.get(String(row.model_id))?.verification ?? null,
         },
     }));
-    const baseModelRowsBySlug = new Map(baseModelRows.map(row => [String(row.model_slug), row]));
+    const baseModelRowsBySlug = new Map(canonicalModelRows.map(row => [String(row.model_slug), row]));
     const variantModelRows = [...source.modelVariants.values()].map(variant => {
         const baseModelSlug = canonicalModelSlug(variant.base_model_id);
         const base = baseModelRowsBySlug.get(baseModelSlug);
@@ -833,7 +833,7 @@ export async function syncV2Catalogue(): Promise<void> {
         };
     });
     for (const row of variantModelRows) modelById.set(String(row.model_slug), row);
-    await upsertChunks(supa, "v2_models", [...baseModelRows, ...variantModelRows], "model_slug");
+    await upsertChunks(supa, "v2_models", [...canonicalModelRows, ...variantModelRows], "model_slug");
 
     await upsertChunks(supa, "v2_model_families", source.families.map(family => ({
         family_slug: family.family_id,
@@ -1200,7 +1200,7 @@ export async function syncV2Catalogue(): Promise<void> {
             source.providerModels.get(String(row.provider_api_model_id)),
         );
         const aliasSlug = String(row.api_model_id ?? "").trim().toLowerCase();
-        if (!aliasSlug || aliasSlug === modelSlug || !source.modelVariants.has(modelSlug)) return [];
+        if (!aliasSlug || aliasSlug === modelSlug || !modelById.has(modelSlug)) return [];
         return [{
             alias_slug: aliasSlug,
             model_slug: modelSlug,
@@ -1530,7 +1530,7 @@ export async function syncV2Catalogue(): Promise<void> {
         ),
     ), "plan_uuid,feature_name");
 
-    const desiredModelSlugs = new Set([...baseModelRows, ...variantModelRows].map(row => String(row.model_slug)));
+    const desiredModelSlugs = new Set([...canonicalModelRows, ...variantModelRows].map(row => String(row.model_slug)));
     const existingModels = await fetchAll(supa, "v2_models", "model_slug,metadata");
     await deleteStaleModels(
         supa,

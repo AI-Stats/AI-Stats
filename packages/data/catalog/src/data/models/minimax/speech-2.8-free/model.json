@@ -1,7 +1,7 @@
 {
-  "model_id": "minimax/speech-2.8",
+  "model_id": "minimax/speech-2.8:free",
   "organisation_id": "minimax",
-  "name": "Speech 2.8",
+  "name": "Speech 2.8 (Free)",
   "status": "Available",
   "previous_model_id": "minimax/speech-2.6",
   "description": "Speech 2.8 is MiniMax's text-to-speech model with native sound tags for natural fillers, breaths, and pauses, high-fidelity voice cloning from a 10-second sample, and reduced background noise and digital artifacts for studio-grade output.",
@@ -12,14 +12,8 @@
   "license": "Proprietary",
   "input_types": "text",
   "output_types": "audio_tts",
-  "api_model_id": "minimax/speech-2.8",
-  "variants": [
-    {
-      "model_id": "minimax/speech-2.8:free",
-      "name": "Speech 2.8 (Free)",
-      "variant_kind": "free"
-    }
-  ],
+  "api_model_id": "minimax/speech-2.8:free",
+  "variant_kind": "free",
   "links": [
     {
       "title": "Announcement",

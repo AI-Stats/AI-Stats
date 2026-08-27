@@ -1,7 +1,7 @@
 {
-  "model_id": "google/gemma-3n-e2b",
+  "model_id": "google/gemma-3n-e2b:free",
   "organisation_id": "google",
-  "name": "Gemma 3n E2B",
+  "name": "Gemma 3n E2B (Free)",
   "status": "Available",
   "previous_model_id": null,
   "description": "Gemma 3n E2B is optimized for efficient execution on mobile and low-resource devices, such as phones, laptops, and tablets.",
@@ -12,14 +12,8 @@
   "license": "Gemma",
   "input_types": null,
   "output_types": null,
-  "api_model_id": "google/gemma-3n-e2b",
-  "variants": [
-    {
-      "model_id": "google/gemma-3n-e2b:free",
-      "name": "Gemma 3n E2B (Free)",
-      "variant_kind": "free"
-    }
-  ],
+  "api_model_id": "google/gemma-3n-e2b:free",
+  "variant_kind": "free",
   "family_id": "google/gemma-3",
   "links": [],
   "details": [],

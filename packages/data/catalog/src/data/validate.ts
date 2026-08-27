@@ -1328,10 +1328,29 @@ function loadModels(state: ValidationState): string[] {
                 }
             }
             const apiModelId = normalizeReference(data.api_model_id);
-            if (apiModelId?.toLowerCase().endsWith(':free')) {
-                errors.push(
-                    `Model ${modelId} api_model_id must identify the base model; free offers belong in variants`
-                );
+            const modelIsFree = modelId.toLowerCase().endsWith(':free');
+            const variantKind = normalizeReference(data.variant_kind) ?? 'standard';
+            const baseModelId = normalizeReference(data.base_model_id);
+            if (variantKind !== 'standard' && variantKind !== 'free') {
+                errors.push(`Model ${modelId} has unsupported variant_kind '${variantKind}'`);
+            }
+            if (modelIsFree !== (variantKind === 'free')) {
+                errors.push(`Model ${modelId} must use variant_kind '${modelIsFree ? 'free' : 'standard'}'`);
+            }
+            if (apiModelId?.toLowerCase().endsWith(':free') && apiModelId !== modelId) {
+                errors.push(`Standalone free model ${modelId} api_model_id must match its model_id`);
+            }
+            if (!modelIsFree && apiModelId?.toLowerCase().endsWith(':free')) {
+                errors.push(`Standard model ${modelId} cannot use a free api_model_id`);
+            }
+            if (baseModelId && variantKind !== 'free') {
+                errors.push(`Model ${modelId} can only use base_model_id when variant_kind is 'free'`);
+            }
+            if (baseModelId === modelId) {
+                errors.push(`Model ${modelId} cannot reference itself as base_model_id`);
+            }
+            if (modelIsFree && Array.isArray(data.variants) && data.variants.length > 0) {
+                errors.push(`Standalone free model ${modelId} cannot define nested variants`);
             }
             if (typeof data.organisation_id !== 'string' || !data.organisation_id.trim()) {
                 errors.push(`Model ${modelId} missing organisation_id`);
@@ -1377,6 +1396,13 @@ function loadModels(state: ValidationState): string[] {
                 });
             }
             state.models.push({ filePath, data });
+        }
+    }
+    for (const { data } of state.models) {
+        const modelId = normalizeReference(data.model_id);
+        const baseModelId = normalizeReference(data.base_model_id);
+        if (modelId && baseModelId && !state.modelIds.has(baseModelId)) {
+            errors.push(`Model ${modelId} references unknown base_model_id ${baseModelId}`);
         }
     }
     return errors;
@@ -1502,10 +1528,19 @@ function checkApiProviderModels(
                         `API provider model ${rowLabel} canonical_model_id must be '${canonicalVariantId}'`
                     );
                 }
-                if (canonicalModelId && !state.modelVariants.has(canonicalModelId)) {
+                const standaloneFreeModel = canonicalModelId
+                    ? modelEntriesById.get(canonicalModelId)
+                    : undefined;
+                const hasAuthoredFreeModel = Boolean(
+                    canonicalModelId && (
+                        state.modelVariants.has(canonicalModelId) ||
+                        standaloneFreeModel?.data.variant_kind === 'free'
+                    )
+                );
+                if (canonicalModelId && !hasAuthoredFreeModel) {
                     errors.push(
                         `API provider model ${rowLabel} references free offer '${apiModelId}' ` +
-                        `without authored model variant '${canonicalModelId}'`
+                        `without authored free model '${canonicalModelId}'`
                     );
                 } else if (canonicalModelId) {
                     referencedVariantIds.add(canonicalModelId);

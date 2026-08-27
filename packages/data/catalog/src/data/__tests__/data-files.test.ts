@@ -70,6 +70,8 @@ type ModelIndex = {
   status?: string | null;
   family_id?: string | null;
   previous_model_id?: string | null;
+  variant_kind?: string;
+  base_model_id?: string | null;
   filePath: string;
   benchmark_ids: string[];
   variants: Array<{ model_id: string; name: string; variant_kind: string }>;
@@ -93,6 +95,8 @@ for (const org of listDirs(modelsDir)) {
         status: j.status ?? null,
         family_id: j.family_id ?? null,
         previous_model_id: j.previous_model_id ?? null,
+        variant_kind: j.variant_kind,
+        base_model_id: j.base_model_id ?? null,
         filePath: p,
         benchmark_ids: Array.isArray(j.benchmarks) ? j.benchmarks.map((x: any) => x.benchmark_id) : [],
         variants,
@@ -249,7 +253,12 @@ describe('Models', () => {
     });
     test(`${m.model_id} variants use canonical identities`, () => {
       const j = readJson(m.filePath);
-      expect(j.api_model_id?.endsWith(':free')).toBe(false);
+      if (m.variant_kind === 'free') {
+        expect(m.model_id.endsWith(':free')).toBe(true);
+        expect(j.api_model_id).toBe(m.model_id);
+      } else {
+        expect(j.api_model_id?.endsWith(':free')).toBe(false);
+      }
       for (const variant of m.variants) {
         expect(variant).toEqual({
           model_id: `${m.model_id}:free`,

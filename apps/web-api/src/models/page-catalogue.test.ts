@@ -37,6 +37,30 @@ describe("fetchModelsPageCatalogue", () => {
 		expect(result.models.map((model) => model.model_id)).toEqual(["adept/fuyu-8b"]);
 		expect(fetchMock.mock.calls.some(([input]) => String(input).includes("organisation_id=eq"))).toBe(false);
 	});
+
+	it("keeps a standalone free model as its own family", () => {
+		const rows = attachModelsPageVariants([{
+			model_id: "mistral/leanstral-1.5:free",
+			name: "Leanstral 1.5 (Free)",
+			variant_kind: "free",
+			base_model_id: null,
+			gateway_provider_details: [],
+		}]);
+
+		expect(rows).toEqual([
+			expect.objectContaining({
+				model_id: "mistral/leanstral-1.5:free",
+				base_model_id: "mistral/leanstral-1.5:free",
+				variant_kind: "free",
+				variants: {
+					free: {
+						model_id: "mistral/leanstral-1.5:free",
+						name: "Leanstral 1.5 (Free)",
+					},
+				},
+			}),
+		]);
+	});
 });
 
 describe("buildModelsPageFacets", () => {

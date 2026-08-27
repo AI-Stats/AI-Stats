@@ -1,7 +1,7 @@
 {
-  "model_id": "cohere/north-mini-code-1-0",
+  "model_id": "cohere/north-mini-code-1-0:free",
   "organisation_id": "cohere",
-  "name": "North Mini Code 1.0",
+  "name": "North Mini Code 1.0 (Free)",
   "status": "Available",
   "previous_model_id": null,
   "description": "North-Mini-Code-1.0 is Cohere's first North-family code agent model, a 30B total / 3B active Mixture-of-Experts model built for agentic coding, terminal workflows, and local deployment.",
@@ -12,8 +12,8 @@
   "license": "Apache 2.0",
   "input_types": "text",
   "output_types": "text",
-  "api_model_id": "cohere/north-mini-code-1-0",
-  "variants": [{ "model_id": "cohere/north-mini-code-1-0:free", "name": "North Mini Code 1.0 (Free)", "variant_kind": "free" }],
+  "api_model_id": "cohere/north-mini-code-1-0:free",
+  "variant_kind": "free",
   "links": [
     {
       "title": "Docs",

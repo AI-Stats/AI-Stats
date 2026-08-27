@@ -139,8 +139,7 @@ export function normalizeModelsPagePricing(row: Row): Row {
 function baseModelId(row: Row): string {
 	const explicit = String(row.base_model_id ?? row.base_model_slug ?? "").trim();
 	if (explicit) return explicit;
-	const modelId = String(row.model_id ?? "").trim();
-	return modelId.toLowerCase().endsWith(":free") ? modelId.slice(0, -5) : modelId;
+	return String(row.model_id ?? "").trim();
 }
 
 function variantKind(row: Row): string {

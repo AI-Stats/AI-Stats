@@ -1,7 +1,7 @@
 {
-  "model_id": "xiaomi/mimo-v2-tts",
+  "model_id": "xiaomi/mimo-v2-tts:free",
   "organisation_id": "xiaomi",
-  "name": "MiMo V2 TTS",
+  "name": "MiMo V2 TTS (Free)",
   "status": "Retired",
   "previous_model_id": null,
   "description": "MiMo V2 TTS is a text-to-speech model from Xiaomi for turning text into spoken audio. It is suited to narration, assistants, and spoken user interfaces.",
@@ -12,8 +12,8 @@
   "license": null,
   "input_types": "text",
   "output_types": "audio_tts",
-  "api_model_id": "xiaomi/mimo-v2-tts",
-  "variants": [{ "model_id": "xiaomi/mimo-v2-tts:free", "name": "MiMo V2 TTS (Free)", "variant_kind": "free" }],
+  "api_model_id": "xiaomi/mimo-v2-tts:free",
+  "variant_kind": "free",
   "links": [],
   "details": [
     {
