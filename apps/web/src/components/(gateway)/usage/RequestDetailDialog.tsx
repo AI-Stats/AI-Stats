@@ -62,7 +62,7 @@ import {
 } from "@/lib/providers/promptTrainingPolicy";
 import { formatRoomError } from "@/lib/chat/formatRoomError";
 import UsageEntityHoverCard from "./UsageEntityHoverCard";
-import { RoutingTracePanel } from "./RoutingTracePanel";
+import { RoutingTracePanel } from "@/components/(gateway)/usage/RoutingTracePanel";
 import {
 	ProviderInspectorSheet,
 	ProviderInspectorSheetContent,
@@ -1114,45 +1114,6 @@ export default function RequestDetailDialog({
 	const consideredProviders = routingDiagnostics?.consideredProviders ?? [];
 	const rankedProviders = routingDiagnostics?.rankedProviders ?? [];
 	const storedRoutingDecisions = request.routing_decisions ?? [];
-	const storedExcludedProviders = new Set(
-		storedRoutingDecisions
-			.filter((decision) => decision.decision === "excluded")
-			.map((decision) => decision.provider_slug),
-	);
-	const missingWorkspaceExclusions = Math.max(
-		0,
-		(workspacePolicyDiagnostics?.beforeCount ?? 0) -
-			(workspacePolicyDiagnostics?.afterCount ?? 0) -
-			storedExcludedProviders.size,
-	);
-	const recoverableWorkspaceExclusions = Array.from(new Set([
-		...(workspacePolicyDiagnostics?.providerBlocklist ?? []),
-		...(workspacePolicyDiagnostics?.requestProviderIgnore ?? []),
-	]))
-		.filter((providerId) => !storedExcludedProviders.has(providerId))
-		.slice(0, missingWorkspaceExclusions)
-		.map((providerId, index) => ({
-			routing_decision_id: `workspace-policy-${providerId}`,
-			decision_order: storedRoutingDecisions.length + index + 1,
-			provider_slug: providerId,
-			provider_api_model_id: null,
-			decision: "excluded" as const,
-			rank: null,
-			score: null,
-			selected: false,
-			attempted: false,
-			breaker: null,
-			exclusion_stage: "workspace_policy",
-			exclusion_reason: (workspacePolicyDiagnostics?.requestProviderIgnore ?? []).includes(providerId)
-				? "listed_in_provider_ignore"
-				: "provider_in_blocklist",
-			score_factors: {},
-			score_trace: {},
-		}));
-	const visibleRoutingDecisions = [
-		...storedRoutingDecisions,
-		...recoverableWorkspaceExclusions,
-	];
 	const failedProviders = formattedGatewayError?.failedProviders ?? [];
 	const failedStatuses = formattedGatewayError?.failedStatuses ?? [];
 	const pluginExecutions = extractPluginExecutions(request.detail_metadata ?? null);
@@ -2691,7 +2652,7 @@ export default function RequestDetailDialog({
 							<DetailTimingBar items={responseTimelineItems} />
 							<RoutingTracePanel
 								trace={request.routing_trace ?? null}
-								decisions={visibleRoutingDecisions}
+								decisions={storedRoutingDecisions}
 								providerNames={providerNames}
 							/>
 						</GenerationSection>

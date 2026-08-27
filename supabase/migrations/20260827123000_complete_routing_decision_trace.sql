@@ -9,7 +9,9 @@ alter table public.v2_request_routing_decisions
 alter table public.v2_request_routing_decisions
   add constraint v2_request_routing_decisions_score_trace_check check (
     jsonb_typeof(score_trace) = 'object' and pg_column_size(score_trace) <= 16384
-  );
+  ) not valid;
+alter table public.v2_request_routing_decisions
+  validate constraint v2_request_routing_decisions_score_trace_check;
 
 create table if not exists public.v2_request_routing_traces (
   request_event_id uuid primary key references public.v2_request_facts(request_event_id) on delete cascade,
