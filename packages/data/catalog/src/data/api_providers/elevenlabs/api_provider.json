@@ -16,7 +16,7 @@
   "residency_mode": "customer_selectable",
   "default_execution_regions": ["US", "NL", "SG"],
   "default_data_regions": ["US", "EU", "IN", "SG"],
-  "zero_data_retention": "optional",
+  "zero_data_retention": false,
   "data_policy_tier": "logs",
   "data_policy_confidence": "confirmed",
   "data_policy_contract_mode": "none",

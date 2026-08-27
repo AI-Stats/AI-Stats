@@ -1,5 +1,8 @@
 {
   "api_provider_id": "stackit",
+  "data_policy_tier": "private",
+  "data_policy_confidence": "confirmed",
+  "data_policy_contract_mode": "none",
   "api_provider_name": "STACKIT",
   "provider_family_id": null,
   "offer_label": null,
@@ -13,7 +16,8 @@
   "default_data_regions": [
     "eu"
   ],
-  "zero_data_retention": "default",
+  "zero_data_retention": true,
+  "data_retention_days": 0,
   "residency_source_url": "https://docs.stackit.cloud/products/data-and-ai/ai-model-serving/basics/available-shared-models/",
   "prompt_training_policy": "no_train",
   "prompt_training_notes": "STACKIT states that customer request data is not stored and is not used to train models.",

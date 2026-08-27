@@ -6,7 +6,7 @@
   "residency_mode": "provider_managed",
   "default_execution_regions": null,
   "default_data_regions": null,
-  "zero_data_retention": "unknown",
+  "zero_data_retention": false,
   "residency_source_url": "https://www.inceptionlabs.ai/docs/privacy-policy",
   "residency_notes": "Inception's public terms and training opt-out language do not specify an API execution/storage region or a Zero Data Retention control; the training setting should not be treated as a retention guarantee.",
   "data_policy_tier": "trains",

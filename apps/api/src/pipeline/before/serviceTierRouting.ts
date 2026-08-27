@@ -96,15 +96,11 @@ function isTierDedicatedOffer(candidate: ProviderCandidate, requestedPlan: Servi
 
 function isTierSiblingModel(candidate: ProviderCandidate, requestedPlan: ServiceTierPlan): boolean {
     const apiModelId = String(candidate.apiModelId ?? "").trim().toLowerCase();
-    const providerModelSlug = String(candidate.providerModelSlug ?? "").trim().toLowerCase();
     if (requestedPlan === "priority") {
-        return (
-            apiModelId.endsWith("-fast") ||
-            providerModelSlug.endsWith("-fast") ||
-            PRIORITY_SIBLING_VALUE_IDS.has(apiModelId)
-        );
+        return PRIORITY_SIBLING_VALUE_IDS.has(apiModelId);
     }
     if (requestedPlan === "flex") {
+        const providerModelSlug = String(candidate.providerModelSlug ?? "").trim().toLowerCase();
         return apiModelId.endsWith("-flex") || providerModelSlug.endsWith("-flex");
     }
     return false;
@@ -382,14 +378,22 @@ export async function applyServiceTierRouting(args: {
     const requestedTier = normalizeRequestedServiceTier(args.body);
     const requestedPlan = normalizeRequestedPlan(requestedTier);
     if (!requestedPlan) {
+		const candidates = args.candidates.filter((candidate) =>
+			!isTierDedicatedOffer(candidate, "priority") && !isTierSiblingModel(candidate, "priority")
+		);
         return {
-            candidates: args.candidates,
+            candidates,
             diagnostics: {
                 requestedTier,
                 requestedPlan,
                 beforeCount: args.candidates.length,
-                afterCount: args.candidates.length,
-                droppedProviders: [],
+                afterCount: candidates.length,
+                droppedProviders: args.candidates.filter((candidate) => !candidates.includes(candidate)).map((candidate) => ({
+					providerId: candidate.providerId,
+					apiModelId: candidate.apiModelId ?? null,
+					providerModelSlug: candidate.providerModelSlug ?? null,
+					reason: "service_tier_priority_required",
+				})),
                 remappedProviders: [],
             },
         };
@@ -400,6 +404,15 @@ export async function applyServiceTierRouting(args: {
     const remappedProviders: ServiceTierRoutingDiagnostics["remappedProviders"] = [];
 
     for (const candidate of args.candidates) {
+		if (requestedPlan !== "priority" && (isTierDedicatedOffer(candidate, "priority") || isTierSiblingModel(candidate, "priority"))) {
+			droppedProviders.push({
+				providerId: candidate.providerId,
+				apiModelId: candidate.apiModelId ?? null,
+				providerModelSlug: candidate.providerModelSlug ?? null,
+				reason: "service_tier_priority_required",
+			});
+			continue;
+		}
         if (!hasConfiguredPricing(candidate)) {
             nextCandidates.push(candidate);
             continue;

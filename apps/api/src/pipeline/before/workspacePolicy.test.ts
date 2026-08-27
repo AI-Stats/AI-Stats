@@ -331,7 +331,7 @@ describe("applyWorkspacePolicy", () => {
 		const result = applyWorkspacePolicy({
 			providers: [
 				candidate({ providerId: "optional-zdr", apiModelId: "test/model", dataPolicyTier: "private", dataPolicyConfidence: "confirmed" }),
-				{ ...candidate({ providerId: "default-zdr", apiModelId: "test/model", dataPolicyTier: "private", dataPolicyConfidence: "confirmed" }), zeroDataRetention: "default" },
+				{ ...candidate({ providerId: "default-zdr", apiModelId: "test/model", dataPolicyTier: "private", dataPolicyConfidence: "confirmed" }), zeroDataRetention: true },
 			],
 			resolvedModel: "test/model",
 			body: {},

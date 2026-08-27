@@ -612,8 +612,7 @@ function toNormalizedStatus(value: string | null | undefined): string | null {
 }
 
 const COMING_SOON_CAPABILITIES = new Set([
-    "video.edit",
-    "music.generate",
+	"video.edit",
 ]);
 
 function normalizeCapabilityStatusForPublicCatalogue(

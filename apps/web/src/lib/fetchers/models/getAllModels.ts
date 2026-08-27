@@ -19,6 +19,9 @@ export interface ModelCard {
     hidden?: boolean;
     release_date?: string | null;
     announcement_date?: string | null;
+    deprecation_date?: string | null;
+    retirement_date?: string | null;
+    removal_date?: string | null;
     updated_at?: string | null;
     api_model_id?: string | null;
     input_types?: string[];
@@ -342,6 +345,9 @@ export function mapRawToModelCard(
         hidden: Boolean(raw.hidden),
         release_date: raw.release_date ?? null,
         announcement_date: raw.announcement_date ?? null,
+        deprecation_date: raw.deprecation_date ?? null,
+        retirement_date: raw.retirement_date ?? null,
+        removal_date: raw.removal_date ?? null,
         updated_at: raw.updated_at ?? null,
         api_model_id: raw.api_model_id ?? null,
         input_types: inputTypes,

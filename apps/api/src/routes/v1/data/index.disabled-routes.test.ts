@@ -32,7 +32,7 @@ describe("inferenceRouter staged feature mounts", () => {
 		expect(await response.json()).not.toMatchObject({ feature: "videos" });
 	});
 
-	it("mounts public batch and file routes while music remains disabled", async () => {
+	it("mounts public batch, file, and music routes", async () => {
 		const capabilitiesResponse = await request("https://example.com/batches/capabilities");
 		const batchResponse = await request("https://example.com/batches/batch_123");
 		const batchAliasResponse = await request("https://example.com/batch", {
@@ -55,8 +55,8 @@ describe("inferenceRouter staged feature mounts", () => {
 		expect(await batchFileResponse.json()).not.toMatchObject({ feature: "files" });
 		expect(await fileResponse.json()).not.toMatchObject({ feature: "files" });
 
-		expect(musicResponse.status).toBe(501);
-		expect(await musicResponse.json()).toMatchObject({
+		expect(musicResponse.status).toBe(401);
+		expect(await musicResponse.json()).not.toMatchObject({
 			error: "not_implemented",
 			feature: "music",
 		});

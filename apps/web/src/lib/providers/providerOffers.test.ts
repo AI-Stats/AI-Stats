@@ -1,5 +1,6 @@
 import {
     formatProviderOfferDisplayName,
+    formatProviderOfferVariantLabel,
     resolveProviderDisplayName,
     resolveProviderLogoId,
 } from "@/lib/providers/providerOffers";
@@ -90,5 +91,14 @@ describe("providerOffers", () => {
                 providerName: "Google Vertex",
             }),
         ).toBe("Google Vertex (EU)");
+    });
+
+    test("labels fast provider variants as Fast", () => {
+        expect(
+            formatProviderOfferVariantLabel({ providerId: "minimax-lightning" }),
+        ).toBe("Fast");
+        expect(
+            formatProviderOfferVariantLabel({ offerLabel: "priority" }),
+        ).toBe("Fast");
     });
 });

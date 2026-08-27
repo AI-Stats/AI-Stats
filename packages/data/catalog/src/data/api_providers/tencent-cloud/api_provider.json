@@ -1,5 +1,8 @@
 {
   "api_provider_id": "tencent-cloud",
+  "data_policy_tier": "unknown",
+  "data_policy_confidence": "unknown",
+  "data_policy_contract_mode": "none",
   "api_provider_name": "Tencent Cloud TokenHub",
   "provider_family_id": "tencent-cloud",
   "offer_scope": "regional",
@@ -8,7 +11,7 @@
   "residency_mode": "customer_selectable",
   "default_execution_regions": ["cn-guangzhou", "ap-singapore"],
   "default_data_regions": ["cn-guangzhou", "ap-singapore"],
-  "zero_data_retention": "unknown",
+  "zero_data_retention": false,
   "residency_source_url": "https://cloud.tencent.cn/document/product/1823/130078",
   "residency_notes": "Guangzhou dispatches within mainland China; Singapore dispatches globally. Services cannot be called across regions or sites.",
   "prompt_training_policy": "unknown",
