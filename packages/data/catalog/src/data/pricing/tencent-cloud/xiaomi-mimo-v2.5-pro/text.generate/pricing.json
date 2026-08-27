@@ -1,0 +1,73 @@
+{
+  "key": "tencent-cloud:xiaomi/mimo-v2.5-pro:text.generate",
+  "api_provider_id": "tencent-cloud",
+  "provider_slug": "tencent-cloud",
+  "api_model_id": "xiaomi/mimo-v2.5-pro",
+  "capability_id": "text.generate",
+  "rules": [
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 3,
+      "currency": "CNY",
+      "pricing_plan": "on-demand",
+      "note": "Guangzhou region",
+      "match": [],
+      "priority": 100,
+      "region": "cn-guangzhou",
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 6,
+      "currency": "CNY",
+      "pricing_plan": "on-demand",
+      "note": "Guangzhou region",
+      "match": [],
+      "priority": 100,
+      "region": "cn-guangzhou",
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.025,
+      "currency": "CNY",
+      "pricing_plan": "on-demand",
+      "note": "Guangzhou region",
+      "match": [],
+      "priority": 100,
+      "region": "cn-guangzhou",
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    }
+  ],
+  "regions": [
+    "cn-guangzhou"
+  ],
+  "service_tiers": [
+    "on-demand"
+  ],
+  "sources": [
+    {
+      "kind": "pricing",
+      "url": "https://cloud.tencent.cn/document/product/1823/130055",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official Guangzhou on-demand TokenHub pricing in CNY."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Verified against official TokenHub model price table."
+  }
+}

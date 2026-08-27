@@ -198,7 +198,7 @@ function getPricingPlanLabel(plan: string): string {
 		case "flex":
 			return "Flex";
 		case "priority":
-			return "Priority";
+			return "Fast";
 		default:
 			return plan ? plan.charAt(0).toUpperCase() + plan.slice(1) : plan;
 	}
@@ -603,33 +603,14 @@ function formatTokenLimit1dp(value: number | null | undefined): string {
 	return `${value.toFixed(1)}`;
 }
 
-function formatPolicyValue(value: string | null | undefined): string {
+
+function formatPolicyValue(value: string | boolean | null | undefined): string {
+	if (typeof value === "boolean") return value ? "True" : "False";
 	const normalized = String(value ?? "").trim();
 	if (!normalized) return "Unknown";
 	return normalized
 		.replace(/[_-]+/g, " ")
 		.replace(/\b\w/g, (char) => char.toUpperCase());
-}
-
-function formatProviderCountry(value: string | null | undefined): string {
-	const normalized = String(value ?? "").trim().toUpperCase();
-	if (!normalized || normalized === "XX") return "Unknown";
-	try {
-		return new Intl.DisplayNames(["en"], { type: "region" }).of(normalized) ?? normalized;
-	} catch {
-		return normalized;
-	}
-}
-
-function formatPromptRetentionValue(
-	days: number | null | undefined,
-): string {
-	if (typeof days === "number" && Number.isInteger(days) && days >= 0) {
-		return days === 0
-			? "No retention"
-			: `Retention for ${days} ${days === 1 ? "day" : "days"}`;
-	}
-	return "Unknown retention";
 }
 
 function getPlanTheme(plan: string) {
@@ -2773,24 +2754,18 @@ export default function ProviderCard({
 			value: formatPolicyValue(provider.provider.data_policy_tier),
 		},
 		{
-			label: "Prompt retention",
-			value: formatPromptRetentionValue(provider.provider.data_retention_days),
+			label: "ZDR",
+			value: formatPolicyValue(provider.provider.zero_data_retention),
 		},
 		{
-			label: "Headquarters",
-			value: formatProviderCountry(provider.provider.country_code),
+			label: "Processing",
+			value: provider.provider.default_execution_regions?.join(", ") || formatPolicyValue(provider.provider.residency_mode),
+		},
+		{
+			label: "Data centres",
+			value: provider.provider.default_data_regions?.join(", ") || "Unknown",
 		},
 	];
-	const dataPolicyEvidence =
-		provider.provider.data_policy_contract_notes ??
-		provider.provider.prompt_training_notes ??
-		provider.provider.residency_notes ??
-		null;
-	const dataPolicyEvidenceUrl =
-		provider.provider.residency_source_url ??
-		provider.provider.prompt_training_source_url ??
-		provider.provider.terms_of_service_url ??
-		null;
 
 	return (
 		<>
@@ -3435,21 +3410,6 @@ export default function ProviderCard({
 						</div>
 					))}
 				</div>
-				{dataPolicyEvidence ? (
-					<p className="text-xs leading-5 text-muted-foreground">
-						{dataPolicyEvidence}{" "}
-						{dataPolicyEvidenceUrl ? (
-							<Link
-								href={dataPolicyEvidenceUrl}
-								target="_blank"
-								rel="noreferrer"
-								className="font-medium text-foreground underline underline-offset-2"
-							>
-								Source
-							</Link>
-						) : null}
-					</p>
-				) : null}
 								{privacyReasonMeta.length > 0 ? (
 									<div className="border-l-2 border-red-400 pl-3 text-xs text-red-900 dark:text-red-100">
 										<div className="font-semibold">{isWorkspacePrivacyBlocked ? "Blocked by workspace Data Controls" : "Unavailable in Phaseo Chat"}</div>

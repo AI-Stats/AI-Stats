@@ -5,10 +5,19 @@ import { clearRuntime, configureRuntime } from "@/runtime/env";
 
 export const internalNotificationTestRoutes = new Hono<Env>();
 
+function timingSafeEqual(a: string, b: string): boolean {
+	const length = Math.max(a.length, b.length);
+	let difference = a.length === b.length ? 0 : 1;
+	for (let index = 0; index < length; index += 1) {
+		difference |= (a.charCodeAt(index) || 0) ^ (b.charCodeAt(index) || 0);
+	}
+	return difference === 0;
+}
+
 internalNotificationTestRoutes.post("/", async (c) => {
 	const expected = String(c.env.GATEWAY_INTERNAL_TEST_TOKEN ?? "").trim();
 	const provided = c.req.header("authorization")?.replace(/^Bearer\s+/i, "").trim() ?? "";
-	if (!expected || provided !== expected) return c.json({ error: "unauthorized" }, 401);
+	if (expected.length < 32 || !timingSafeEqual(provided, expected)) return c.json({ error: "unauthorized" }, 401);
 
 	const body: { type?: string; target?: string; destinationId?: string; workspaceId?: string } = await c.req.json().catch(() => ({}));
 	const workspaceId = String(body.workspaceId ?? "").trim();
