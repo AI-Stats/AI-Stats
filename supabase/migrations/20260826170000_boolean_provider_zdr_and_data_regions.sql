@@ -52,7 +52,8 @@ begin
   from _v2_rpc_providers_compat_view_definition stored
   limit 1;
   if definition is not null then
-    execute 'create view private.v2_rpc_providers_compat as ' || definition;
+    execute 'create view private.v2_rpc_providers_compat with (security_invoker = true) as ' || definition;
+    execute 'grant select on private.v2_rpc_providers_compat to service_role';
   end if;
 end;
 $$;
