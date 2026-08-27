@@ -80,6 +80,20 @@ describe("buildModelsPageFacets", () => {
 });
 
 describe("attachModelsPageVariants", () => {
+	it("uses a title-cased display label without changing the stealth provider ID", () => {
+		const [model] = attachModelsPageVariants([{
+			model_id: "stealth/test-model",
+			name: "Test Model",
+			gateway_provider_details: [{ id: "stealth", name: "stealth", is_active: true }],
+		}]);
+
+		expect(model).toMatchObject({
+			gateway_provider_details: [{ id: "stealth", name: "Stealth", is_active: true }],
+			gateway_provider_names: ["Stealth"],
+			gateway_active_provider_names: ["Stealth"],
+		});
+	});
+
 	it("keeps callable variants separate and links them to one model family", () => {
 		const rows = attachModelsPageVariants([
 			{

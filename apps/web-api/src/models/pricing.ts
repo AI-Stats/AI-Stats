@@ -1,10 +1,11 @@
 import { getDataClient } from "@/data/supabase";
 import type { Env } from "@/env";
+import { STEALTH_PROVIDER_DISPLAY_NAME, STEALTH_PROVIDER_ID } from "@/models/provider-identity";
 
 export type PricingSourceRow = Record<string, unknown>;
 type Row = PricingSourceRow;
 
-export const STEALTH_PROVIDER_IDENTITY = "stealth";
+export const STEALTH_PROVIDER_IDENTITY = STEALTH_PROVIDER_ID;
 
 export function publicPricingRouteIdentity(route: Row): Row {
 	if (route.is_stealth !== true) return route;
@@ -122,7 +123,7 @@ export async function fetchModelPricingSources(
 			updated_at: route.updated_at,
 			data_api_provider_model_capabilities: capabilitiesByRoute.get(id(route.provider_model_id)) ?? [],
 			data_api_providers: id(route.provider_slug) === STEALTH_PROVIDER_IDENTITY ? {
-				api_provider_name: STEALTH_PROVIDER_IDENTITY,
+				api_provider_name: STEALTH_PROVIDER_DISPLAY_NAME,
 				provider_family_id: STEALTH_PROVIDER_IDENTITY,
 				offer_label: null,
 				offer_scope: null,

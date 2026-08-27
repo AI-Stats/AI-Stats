@@ -4,10 +4,11 @@
 // How: Provides routing, health, and attempt helpers used by the execute stage.
 
 import type { PipelineContext } from "../before/types";
+import { buildSafeStealthUpstreamError, isStealthRequest } from "../stealth";
 import { applyDownstreamRateLimitHeaders } from "../upstream-rate-limit-headers";
 import type { PipelineTiming } from "./index";
 import type { ProviderCandidate } from "../before/types";
-import { err } from "./http";
+import { err, json } from "./http";
 import { captureTimingSnapshot } from "./utils";
 
 export type ExecuteGuardOk<T> = { ok: true; value: T };
@@ -491,6 +492,28 @@ export async function guardAllFailed(
         });
 
     captureTimingSnapshot(ctx, timing);
+    if (isStealthRequest(ctx)) {
+        const publicStatus = failedStatuses.length === 1 ? failedStatuses[0] : 502;
+        const retryAfter = [...attemptErrors]
+            .reverse()
+            .map((entry) => entry?.upstream_rate_limit_headers?.["Retry-After"])
+            .find((value): value is string => typeof value === "string") ?? null;
+        const keySource = attemptErrors.some((entry) => entry?.key_source === "byok") ? "byok" : "gateway";
+        const response = json(buildSafeStealthUpstreamError({
+            status: publicStatus,
+            failedStatuses,
+            model: ctx.model,
+            endpoint: ctx.endpoint,
+            requestId: ctx.requestId,
+            keySource,
+            retryAfter,
+        }), publicStatus);
+        applyDownstreamRateLimitHeaders(response.headers, retryAfter ? { "Retry-After": retryAfter } : null);
+        return {
+            ok: false,
+            response,
+        };
+    }
     const res = err(hasUpstreamPaymentRequired ? "provider_payment_required" : "upstream_error", {
         reason: hasUpstreamPaymentRequired
             ? "upstream_provider_payment_required"
@@ -521,10 +544,6 @@ export async function guardAllFailed(
 
     return { ok: false, response: res };
 }
-
-
-
-
 
 
 

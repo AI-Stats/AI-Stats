@@ -4,6 +4,7 @@ import type { Env } from "@/env";
 import { buildModelsPageFacets, fetchModelsPageCatalogue } from "@/models/page-catalogue";
 import { composeGatewayMetadata, fetchGatewayMetadataSource } from "@/models/gateway-metadata";
 import { fetchModelPricingSources, publicPricingRouteIdentity } from "@/models/pricing";
+import { publicProviderDisplayName, publicProviderPayload, STEALTH_PROVIDER_DISPLAY_NAME } from "@/models/provider-identity";
 import { buildFreeRouterCatalogueRow, fetchFreeRouterOverview } from "@/models/free-router";
 import { withPublicCache, type PublicCachePolicy } from "@/http/cache";
 
@@ -430,7 +431,7 @@ export async function fetchGatewayMonitorRows(
 	for (const row of rows) {
 		if (!stealthRouteIds.has(String(row.provider_api_model_id ?? ""))) continue;
 		row.provider_id = "stealth";
-		row.api_provider_name = "stealth";
+		row.api_provider_name = STEALTH_PROVIDER_DISPLAY_NAME;
 		row.provider_model_slug = row.model_id ?? row.api_model_id;
 		row.provider_api_model_id = `stealth:${String(row.model_id ?? row.api_model_id ?? "")}`;
 	}
@@ -479,7 +480,7 @@ export async function fetchGatewayMonitorRows(
 			organisationId: row.organisation_id ?? undefined,
 			organisationName: row.organisation_name ?? undefined,
 			provider: {
-				name: String(row.api_provider_name ?? providerId).trim() || providerId,
+				name: publicProviderDisplayName(providerId, row.api_provider_name),
 				id: providerId,
 				inputPrice: numberOrNull(row.input_price) ?? 0,
 				outputPrice: numberOrNull(row.output_price) ?? 0,
@@ -1280,7 +1281,7 @@ publicModelsRouter.get("/:modelId/gateway-metadata-source", async (c) => {
 	try {
 		const source = await fetchGatewayMetadataSource(c.env, modelId);
 		if (!source) return notFound(c);
-		return withPublicCache(c.json({ source }), sectionPolicy("pricing", modelId));
+		return withPublicCache(c.json({ source: publicProviderPayload(source) }), sectionPolicy("pricing", modelId));
 	} catch (error) { console.error("[web-api/models] gateway metadata source failed", { modelId, error }); return c.json({ error: "model_gateway_metadata_unavailable" }, 503); }
 });
 
@@ -1460,7 +1461,7 @@ publicModelsRouter.get("/:modelId/pricing", async (c) => {
 			standardPricingPromise,
 		]);
 		if (!v2Pricing.error && Array.isArray(v2Pricing.data)) {
-			const providers = requestedServiceTier === null
+			const providers = publicProviderPayload(requestedServiceTier === null
 				&& standardPricing
 				&& !standardPricing.error
 				&& Array.isArray(standardPricing.data)
@@ -1468,7 +1469,7 @@ publicModelsRouter.get("/:modelId/pricing", async (c) => {
 					v2Pricing.data as Array<Record<string, unknown>>,
 					standardPricing.data as Array<Record<string, unknown>>,
 				)
-				: v2Pricing.data as Array<Record<string, unknown>>;
+				: v2Pricing.data as Array<Record<string, unknown>>);
 			if (c.req.query("shape") === "source") {
 				return withPublicCache(c.json({
 					modelId,

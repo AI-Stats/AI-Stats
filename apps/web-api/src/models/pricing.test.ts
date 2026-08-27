@@ -79,7 +79,7 @@ describe("publicPricingRouteIdentity", () => {
 			provider_id: "stealth",
 			provider_model_slug: "stealth/preview",
 			data_api_providers: {
-				api_provider_name: "stealth",
+				api_provider_name: "Stealth",
 				provider_family_id: "stealth",
 			},
 		});

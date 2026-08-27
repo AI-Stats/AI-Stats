@@ -186,6 +186,103 @@ describe("audit request detail persistence", () => {
 		consoleErrorSpy.mockRestore();
 	});
 
+	it("persists only the synthetic identity for a stealth request", async () => {
+		const gatewayRequestRows: any[] = [];
+		const detailRows: any[] = [];
+		const v2Events: any[] = [];
+		getSupabaseAdminMock.mockReturnValue({
+			rpc: vi.fn(async (_rpc: string, payload: any) => {
+				v2Events.push(payload.p_event);
+				return { data: "v2_stealth", error: null };
+			}),
+			from: vi.fn((table: string) => {
+				if (table === "gateway_requests") return {
+					insert: vi.fn((row: any) => {
+						gatewayRequestRows.push(row);
+						return { select: vi.fn(() => ({ single: vi.fn(async () => ({
+							data: { id: "row_stealth", created_at: "2026-08-27T12:00:00.000Z", workspace_id: "ws_stealth" },
+							error: null,
+						})) })) };
+					}),
+				};
+				if (table === "gateway_request_details") return {
+					insert: vi.fn(async (row: any) => {
+						detailRows.push(row);
+						return { error: null };
+					}),
+				};
+				throw new Error(`unexpected table ${table}`);
+			}),
+		});
+
+		await auditSuccess({
+			requestId: "req_stealth",
+			workspaceId: "ws_stealth",
+			provider: "openai",
+			providerApiModelId: "pam_openai_secret",
+			providerModelSlug: "oai-stealth-test-model-internal",
+			model: "stealth/test-model-20260827",
+			requestedModel: "stealth/test-model-20260827",
+			endpoint: "chat.completions",
+			stream: false,
+			byok: false,
+			usagePriced: { input_tokens: 1, output_tokens: 1, pricing: { lines: [] } },
+			totalCents: 0.001,
+			currency: "USD",
+			statusCode: 200,
+			requestPayload: { model: "stealth/test-model-20260827", messages: [] },
+			gatewayResponse: { model: "oai-stealth-test-model-internal", output_text: "ok" },
+			providerRequest: { model: "oai-stealth-test-model-internal" },
+			providerResponse: { provider: "openai", model: "oai-stealth-test-model-internal" },
+			providerAttempts: [{
+				provider: "openai",
+				api_model_id: "pam_openai_secret",
+				provider_model_slug: "oai-stealth-test-model-internal",
+				upstream_url: "https://api.openai.com/v1/responses",
+				outcome: "success",
+				status: 200,
+			}],
+			detailMetadata: {
+				routing_snapshot: [{ provider_id: "openai", provider_model_slug: "oai-stealth-test-model-internal" }],
+				routing_diagnostics: { selected: { providerId: "openai", apiModelId: "pam_openai_secret" } },
+			},
+		});
+
+		expect(gatewayRequestRows[0]).toMatchObject({
+			model_id: "stealth/test-model-20260827",
+			canonical_model_id: "stealth/test-model-20260827",
+			provider: "stealth",
+			provider_attempts: [{
+				provider: "stealth",
+				api_model_id: "stealth/test-model-20260827",
+				provider_model_slug: "stealth/test-model-20260827",
+				upstream_url: null,
+			}],
+		});
+		expect(persistGatewayUpstreamRequestsMock).toHaveBeenCalledWith(expect.objectContaining({
+			modelId: "stealth/test-model-20260827",
+			provider: "stealth",
+			providerApiModelId: "stealth/test-model-20260827",
+			providerModelSlug: "stealth/test-model-20260827",
+		}));
+		expect(v2Events[0]).toMatchObject({
+			requested_model_input: "stealth/test-model-20260827",
+			routed_model_slug: "stealth/test-model-20260827",
+			provider: "stealth",
+			provider_model_id: "stealth:stealth/test-model-20260827",
+			provider_api_model_id: "stealth/test-model-20260827",
+		});
+		expect(detailRows[0]).toMatchObject({
+			model_id: "stealth/test-model-20260827",
+			provider: "stealth",
+			provider_request: null,
+			provider_response: null,
+			gateway_response: { model: "stealth/test-model-20260827", output_text: "ok" },
+		});
+		expect(JSON.stringify({ gatewayRequestRows, detailRows, v2Events, upstream: persistGatewayUpstreamRequestsMock.mock.calls }))
+			.not.toMatch(/openai|pam_openai_secret|oai-stealth-test-model-internal|api\.openai\.com/i);
+	});
+
 	it("stores replay-ready details for execute-stage failures", async () => {
 		const gatewayRequestRows: any[] = [];
 		const detailRows: any[] = [];

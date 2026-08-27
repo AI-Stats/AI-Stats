@@ -57,7 +57,7 @@ describe("stealth provider filters", () => {
 		const rows = await fetchGatewayMonitorRows(env);
 		const serialized = JSON.stringify([...rows.values()]);
 		expect(serialized).toContain('"id":"stealth"');
-		expect(serialized).toContain('"name":"stealth"');
+		expect(serialized).toContain('"name":"Stealth"');
 		expect(serialized).not.toContain("private-provider");
 		expect(serialized).not.toContain("secret-upstream-model");
 		expect(serialized).not.toContain("Private Provider");

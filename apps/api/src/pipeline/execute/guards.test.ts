@@ -12,6 +12,43 @@ function makeTiming() {
 }
 
 describe("guardAllFailed", () => {
+	it("hides every provider failure detail for stealth models", async () => {
+		const ctx: any = {
+			model: "stealth/test-model-20260827",
+			requestedModel: "stealth/test-model-20260827",
+			endpoint: "responses",
+			requestId: "req_stealth_failed",
+			attemptErrors: [{
+				provider: "openai",
+				status: 402,
+				upstream_error_code: "billing_secret",
+				upstream_error_message: "OpenAI billing failed",
+				upstream_payload_preview: "api.openai.com",
+			}],
+		};
+
+		const result = await guardAllFailed(ctx, makeTiming());
+		expect(result.ok).toBe(false);
+		if (result.ok) return;
+
+		expect(result.response.status).toBe(402);
+		const payload = await result.response.json();
+		expect(payload).toEqual({
+			error: "upstream_billing_required",
+			status_code: 402,
+			error_origin: "upstream",
+			responsibility: "phaseo",
+			retryable: false,
+			description: "The upstream service rejected the request because its billing requirements were not met.",
+			action: "Contact Phaseo support, or verify provider billing if you are using BYOK.",
+			request_id: "req_stealth_failed",
+			model: "stealth/test-model-20260827",
+			endpoint: "responses",
+			failed_statuses: [402],
+		});
+		expect(JSON.stringify(payload)).not.toMatch(/openai|billing_secret|failure_sample|provider_payment/i);
+	});
+
 	it("returns provider_payment_required when any upstream attempt failed with 402", async () => {
 		const ctx: any = {
 			model: "openai/gpt-4.1-mini",
