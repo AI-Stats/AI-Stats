@@ -766,7 +766,7 @@
       "nvidia/nemotron-3-nano-30b-a3b",
       "nvidia/nemotron-3-super-120b-a12b",
       "nvidia/nvidia-nemotron-nano-12b-v2",
-      "nvidia/nvidia-nemotron-nano-9b-v2",
+      "nvidia/nemotron-nano-9b-v2",
       "nvidia/openreasoning-nemotron-1.5b",
       "nvidia/openreasoning-nemotron-14b",
       "nvidia/openreasoning-nemotron-32b",
@@ -774,10 +774,9 @@
       "nvidia/cosmos3-super-reasoner",
       "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
       "nvidia/nemotron-3-ultra-550b-a55b",
-      "nvidia/nvidia-nemotron-nano-12b-v2-vl",
+      "nvidia/nemotron-nano-12b-v2-vl",
       "nvidia/nemotron-3.5-lightning",
-      "nvidia/nemotron-3-nano-omni",
-      "nvidia/nemotron-nano-9b-v2"
+      "nvidia/nemotron-3-nano-omni"
     ],
     "openai": [
       "openai/ada",

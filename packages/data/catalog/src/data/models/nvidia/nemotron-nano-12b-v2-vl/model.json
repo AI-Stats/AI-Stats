@@ -1,10 +1,10 @@
 {
   "model_id": "nvidia/nemotron-nano-12b-v2-vl",
   "organisation_id": "nvidia",
-  "name": "Nemotron Nano 12B v2 VL",
+  "name": "Nemotron Nano 12B V2 VL",
   "status": "Available",
   "previous_model_id": null,
-  "description": "Nemotron Nano 12B v2 VL is a DigitalOcean-hosted multimodal NVIDIA model exposed through DigitalOcean Inference.",
+  "description": "Nemotron Nano 12B V2 VL is a multimodal model from NVIDIA that can work across text and visual inputs. It is a smaller-footprint option suited to tighter latency or deployment budgets.",
   "announced_date": null,
   "release_date": null,
   "deprecation_date": null,
@@ -15,7 +15,16 @@
   "api_model_id": "nvidia/nemotron-nano-12b-v2-vl",
   "links": [],
   "details": [],
-  "benchmarks": [],
+  "benchmarks": [
+    {
+      "benchmark_id": "aa-intelligence-index-v4",
+      "score": 8.8,
+      "is_self_reported": false,
+      "other_info": "NVIDIA Nemotron Nano 12B v2 VL (Reasoning); Artificial Analysis Intelligence Index v4.1.1",
+      "source_link": "https://artificialanalysis.ai/models/nvidia-nemotron-nano-12b-v2-vl-reasoning",
+      "rank": 402
+    }
+  ],
   "family_id": null,
   "page_notice": null,
   "model_type": null,

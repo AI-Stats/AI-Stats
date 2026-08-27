@@ -58,6 +58,7 @@ function parseNumericValue(value: unknown): number | undefined {
 export function isMajorError(msg: string): boolean {
     const majorPatterns = [
         /model_id.*missing|model.*name.*missing/i,
+        /duplicate model[ _](?:id|identity)/i,
         /benchmark.*not found|benchmark.*missing/i,
         /pricing.*active.*no rules/i,
         /pricing.*invalid key/i,
@@ -73,6 +74,17 @@ export function isMajorError(msg: string): boolean {
         /pricing.*rule effective_(?:from|to).*match.*top-level/i,
     ];
     return majorPatterns.some((p) => p.test(msg));
+}
+
+export function normalizedModelIdentity(modelId: string, organisationId: string): string {
+    const [prefix, ...parts] = modelId.trim().split('/');
+    let slug = parts.join('/').trim().toLowerCase();
+    const organisationSlug = organisationId.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    if (prefix?.trim().toLowerCase() === organisationId.trim().toLowerCase() && organisationSlug) {
+        const redundantPrefix = `${organisationSlug}-`;
+        if (slug.startsWith(redundantPrefix)) slug = slug.slice(redundantPrefix.length);
+    }
+    return `${prefix?.trim().toLowerCase() ?? ''}/${slug}`;
 }
 
 function hasExplicitUtcTimestamp(value: unknown): value is string {
@@ -1283,6 +1295,7 @@ function checkApiProviders(state: ValidationState): string[] {
 
 function loadModels(state: ValidationState): string[] {
     const errors: string[] = [];
+    const modelIdentities = new Map<string, string>();
     const modelsDir = path.join(DATA_ROOT, 'models');
     for (const org of listDirs(modelsDir)) {
         const orgPath = path.join(modelsDir, org);
@@ -1303,6 +1316,16 @@ function loadModels(state: ValidationState): string[] {
                 errors.push(`Duplicate model_id detected: ${modelId}`);
             } else {
                 state.modelIds.set(modelId, filePath);
+            }
+            const organisationId = typeof data.organisation_id === 'string' ? data.organisation_id.trim() : org;
+            if (organisationId.toLowerCase() === 'nvidia') {
+                const identityKey = normalizedModelIdentity(modelId, organisationId);
+                const existingIdentity = modelIdentities.get(identityKey);
+                if (existingIdentity && existingIdentity !== modelId) {
+                    errors.push(`Duplicate model identity detected: ${modelId} conflicts with ${existingIdentity}`);
+                } else {
+                    modelIdentities.set(identityKey, modelId);
+                }
             }
             const apiModelId = normalizeReference(data.api_model_id);
             if (apiModelId?.toLowerCase().endsWith(':free')) {
