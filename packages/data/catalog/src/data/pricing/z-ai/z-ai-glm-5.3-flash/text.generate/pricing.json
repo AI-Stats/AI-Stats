@@ -9,21 +9,65 @@
       "meter": "input_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.15,
+      "price_per_unit": 0.075,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Official Z.AI GLM-5.3-Flash input price.",
+      "note": "50% GLM-5.3-Flash launch discount applied to the $0.15/M list input rate through 2026-09-09 24:00 UTC+8.",
       "match": [],
       "priority": 100,
       "effective_from": "2026-08-26T00:00:00Z",
+      "effective_to": "2026-09-09T16:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
       "source": {
         "kind": "pricing",
         "url": "https://docs.z.ai/guides/overview/pricing",
-        "accessed_at": "2026-08-26T00:00:00Z",
-        "notes": "Z.AI direct GLM-5.3-Flash pricing announcement supplied for this route."
+        "accessed_at": "2026-08-27T00:00:00Z",
+        "notes": "Official Z.AI pricing lists the 50% launch discount, list prices, and promotion end time."
+      }
+    },
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.15,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Undiscounted GLM-5.3-Flash list input rate after the launch promotion.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-09-09T16:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": {
+        "kind": "pricing",
+        "url": "https://docs.z.ai/guides/overview/pricing",
+        "accessed_at": "2026-08-27T00:00:00Z",
+        "notes": "Official Z.AI pricing lists the 50% launch discount, list prices, and promotion end time."
+      }
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.015,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "50% GLM-5.3-Flash launch discount applied to the $0.03/M list cached-input rate through 2026-09-09 24:00 UTC+8.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-26T00:00:00Z",
+      "effective_to": "2026-09-09T16:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": {
+        "kind": "pricing",
+        "url": "https://docs.z.ai/guides/overview/pricing",
+        "accessed_at": "2026-08-27T00:00:00Z",
+        "notes": "Official Z.AI pricing lists the 50% launch discount, list prices, and promotion end time."
       }
     },
     {
@@ -33,18 +77,40 @@
       "price_per_unit": 0.03,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Official Z.AI GLM-5.3-Flash cached-input price.",
+      "note": "Undiscounted GLM-5.3-Flash list cached-input rate after the launch promotion.",
       "match": [],
       "priority": 100,
-      "effective_from": "2026-08-26T00:00:00Z",
+      "effective_from": "2026-09-09T16:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
       "source": {
         "kind": "pricing",
         "url": "https://docs.z.ai/guides/overview/pricing",
-        "accessed_at": "2026-08-26T00:00:00Z",
-        "notes": "Z.AI direct GLM-5.3-Flash pricing announcement supplied for this route."
+        "accessed_at": "2026-08-27T00:00:00Z",
+        "notes": "Official Z.AI pricing lists the 50% launch discount, list prices, and promotion end time."
+      }
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.25,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "50% GLM-5.3-Flash launch discount applied to the $0.50/M list output rate through 2026-09-09 24:00 UTC+8.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-26T00:00:00Z",
+      "effective_to": "2026-09-09T16:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": {
+        "kind": "pricing",
+        "url": "https://docs.z.ai/guides/overview/pricing",
+        "accessed_at": "2026-08-27T00:00:00Z",
+        "notes": "Official Z.AI pricing lists the 50% launch discount, list prices, and promotion end time."
       }
     },
     {
@@ -54,18 +120,18 @@
       "price_per_unit": 0.5,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Official Z.AI GLM-5.3-Flash output price.",
+      "note": "Undiscounted GLM-5.3-Flash list output rate after the launch promotion.",
       "match": [],
       "priority": 100,
-      "effective_from": "2026-08-26T00:00:00Z",
+      "effective_from": "2026-09-09T16:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
       "source": {
         "kind": "pricing",
         "url": "https://docs.z.ai/guides/overview/pricing",
-        "accessed_at": "2026-08-26T00:00:00Z",
-        "notes": "Z.AI direct GLM-5.3-Flash pricing announcement supplied for this route."
+        "accessed_at": "2026-08-27T00:00:00Z",
+        "notes": "Official Z.AI pricing lists the 50% launch discount, list prices, and promotion end time."
       }
     }
   ],
@@ -77,13 +143,13 @@
     {
       "kind": "pricing",
       "url": "https://docs.z.ai/guides/overview/pricing",
-      "accessed_at": "2026-08-26T00:00:00Z",
-      "notes": "Z.AI direct GLM-5.3-Flash pricing: $0.15 input, $0.03 cached input, and $0.50 output per million tokens."
+      "accessed_at": "2026-08-27T00:00:00Z",
+      "notes": "Official Z.AI pricing lists the 50% launch discount, list prices, and promotion end time."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-26T00:00:00Z",
-    "notes": "Pricing supplied directly by Z.AI."
+    "checked_at": "2026-08-27T00:00:00Z",
+    "notes": "Z.AI documents a 50% launch discount through 2026-09-09 24:00 UTC+8, followed by the published list rates."
   }
 }
