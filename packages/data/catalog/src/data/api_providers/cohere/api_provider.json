@@ -27,7 +27,7 @@
   "api_base_url": "https://api.cohere.ai/compatibility/v1",
   "docs_url": "https://docs.cohere.com/v2/cohere-documentation",
   "auth_env": ["COHERE_API_KEY"],
-  "api_formats": ["openai.chat.completions", "openai.embeddings", "cohere.rerank", "openai.audio.transcriptions"],
+  "api_formats": ["openai.chat.completions", "openai.embeddings", "cohere.rerank", "openai.audio.transcriptions", "cohere.parse"],
   "service_tiers": ["standard"],
   "sources": [
     {
@@ -41,11 +41,17 @@
       "url": "https://docs.cohere.com/v2/reference/embed",
       "accessed_at": "2026-08-23T00:00:00Z",
       "notes": "Official native v2 Embed contract used to identify compatibility-layer boundaries."
+    },
+    {
+      "kind": "documentation",
+      "url": "https://docs.cohere.com/v2/reference/parse",
+      "accessed_at": "2026-08-27T00:00:00Z",
+      "notes": "Official native v2 Parse contract and authentication requirements."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-23T00:00:00Z",
-    "notes": "Verified the compatibility endpoint, bearer authentication, production Chat, Embeddings and Rerank routes, streaming, tools, structured outputs, reasoning, usage, and errors. Free experimental Command and Transcribe routes remain non-routable where unrestricted production pricing is unavailable."
+    "checked_at": "2026-08-27T00:00:00Z",
+    "notes": "Verified the compatibility endpoint, bearer authentication, production Chat, Embeddings and Rerank routes, and the native v2 Parse route. Parse is available as free, rate-limited evaluation access because Cohere has not published a production API rate."
   }
 }

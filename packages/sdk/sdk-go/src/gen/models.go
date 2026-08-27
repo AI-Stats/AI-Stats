@@ -1657,6 +1657,7 @@ const (
 	KnownModelIdCohereEmbedEnglishV3 KnownModelId = "cohere/embed-english-v3"
 	KnownModelIdCohereEmbedMultilingualV3 KnownModelId = "cohere/embed-multilingual-v3"
 	KnownModelIdCohereEmbedV4 KnownModelId = "cohere/embed-v4"
+	KnownModelIdCohereParseV50 KnownModelId = "cohere/parse-v5.0"
 	KnownModelIdCohereRerankV35 KnownModelId = "cohere/rerank-v3.5"
 	KnownModelIdCohereRerankV40Fast KnownModelId = "cohere/rerank-v4.0-fast"
 	KnownModelIdCohereRerankV40Pro KnownModelId = "cohere/rerank-v4.0-pro"
@@ -2452,6 +2453,45 @@ const (
 
 
 type OrganisationIdList = []string
+
+type ParseBlock = interface{}
+
+type ParseBoundingBox struct {
+	BottomRightX float64 `json:"bottom_right_x"`
+	BottomRightY float64 `json:"bottom_right_y"`
+	TopLeftX float64 `json:"top_left_x"`
+	TopLeftY float64 `json:"top_left_y"`
+}
+
+type ParseImage struct {
+	BoundingBox map[string]interface{} `json:"bounding_box"`
+	BoundingBoxNormalized map[string]interface{} `json:"bounding_box_normalized"`
+	Category string `json:"category"`
+	Description string `json:"description"`
+	Id string `json:"id"`
+}
+
+type ParsePage = interface{}
+
+type ParseRequest struct {
+	Debug *map[string]interface{} `json:"debug,omitempty"`
+	Document map[string]interface{} `json:"document"`
+	EchoUpstreamRequest *bool `json:"echo_upstream_request,omitempty"`
+	Model string `json:"model"`
+	OutputFormat *string `json:"output_format,omitempty"`
+	Provider *map[string]interface{} `json:"provider,omitempty"`
+	Routing *map[string]interface{} `json:"routing,omitempty"`
+}
+
+type ParseResponse struct {
+	Id string `json:"id"`
+	Meta *map[string]interface{} `json:"meta,omitempty"`
+	Model string `json:"model"`
+	Object string `json:"object"`
+	Pages []interface{} `json:"pages"`
+	Provider string `json:"provider"`
+	Usage *map[string]interface{} `json:"usage,omitempty"`
+}
 
 type Provider struct {
 	ApiProviderId *string `json:"api_provider_id,omitempty"`

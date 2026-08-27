@@ -1961,6 +1961,72 @@ class OrganisationId { }
 
 class OrganisationIdList { }
 
+class ParseBlock { }
+
+class ParseBoundingBox
+{
+	/** @var float */
+	public $bottom_right_x;
+	/** @var float */
+	public $bottom_right_y;
+	/** @var float */
+	public $top_left_x;
+	/** @var float */
+	public $top_left_y;
+}
+
+class ParseImage
+{
+	/** @var array<string, mixed> */
+	public $bounding_box;
+	/** @var array<string, mixed> */
+	public $bounding_box_normalized;
+	/** @var string */
+	public $category;
+	/** @var string */
+	public $description;
+	/** @var string */
+	public $id;
+}
+
+class ParsePage { }
+
+class ParseRequest
+{
+	/** @var array<string, mixed>|null */
+	public $debug;
+	/** @var array<string, mixed> */
+	public $document;
+	/** @var bool|null */
+	public $echo_upstream_request;
+	/** @var string */
+	public $model;
+	/** @var string|null */
+	public $output_format;
+	/** @var array<string, mixed>|null */
+	public $provider;
+	/** @var array<string, mixed>|null */
+	public $routing;
+}
+
+class ParseResponse
+{
+	/** @var string */
+	public $id;
+	/** @var array<string, mixed>|null */
+	public $meta;
+	/** @var string */
+	public $model;
+	/** @var string */
+	public $object;
+	/** @var array */
+	public $pages;
+	/** @var string */
+	public $provider;
+	/** @var array<string, mixed>|null */
+	public $usage;
+}
+
 class Provider
 {
 	/** @var string|null */

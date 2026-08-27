@@ -11,6 +11,7 @@ export type EndpointCollection =
     | "rerank"
     | "moderation"
     | "ocr"
+    | "parse"
     | "music"
     | "batch"
     | "files";
@@ -106,6 +107,12 @@ const ENDPOINT_METADATA: EndpointMetadata[] = [
         public_path: "/v1/ocr",
         collection: "ocr",
         aliases: [],
+    },
+    {
+        id: "parse",
+        public_path: "/v1/parse",
+        collection: "parse",
+        aliases: ["document.parse"],
     },
     {
         id: "music.generate",

@@ -2702,6 +2702,95 @@ public sealed class OrganisationId { }
 
 public sealed class OrganisationIdList { }
 
+public sealed class ParseBlock { }
+
+public sealed class ParseBoundingBox
+{
+	[JsonPropertyName("bottom_right_x")]
+	public double BottomRightX { get; set; }
+
+	[JsonPropertyName("bottom_right_y")]
+	public double BottomRightY { get; set; }
+
+	[JsonPropertyName("top_left_x")]
+	public double TopLeftX { get; set; }
+
+	[JsonPropertyName("top_left_y")]
+	public double TopLeftY { get; set; }
+
+}
+
+public sealed class ParseImage
+{
+	[JsonPropertyName("bounding_box")]
+	public Dictionary<string, object> BoundingBox { get; set; }
+
+	[JsonPropertyName("bounding_box_normalized")]
+	public Dictionary<string, object> BoundingBoxNormalized { get; set; }
+
+	[JsonPropertyName("category")]
+	public string Category { get; set; }
+
+	[JsonPropertyName("description")]
+	public string Description { get; set; }
+
+	[JsonPropertyName("id")]
+	public string Id { get; set; }
+
+}
+
+public sealed class ParsePage { }
+
+public sealed class ParseRequest
+{
+	[JsonPropertyName("debug")]
+	public Dictionary<string, object>? Debug { get; set; }
+
+	[JsonPropertyName("document")]
+	public Dictionary<string, object> Document { get; set; }
+
+	[JsonPropertyName("echo_upstream_request")]
+	public bool? EchoUpstreamRequest { get; set; }
+
+	[JsonPropertyName("model")]
+	public string Model { get; set; }
+
+	[JsonPropertyName("output_format")]
+	public string? OutputFormat { get; set; }
+
+	[JsonPropertyName("provider")]
+	public Dictionary<string, object>? Provider { get; set; }
+
+	[JsonPropertyName("routing")]
+	public Dictionary<string, object>? Routing { get; set; }
+
+}
+
+public sealed class ParseResponse
+{
+	[JsonPropertyName("id")]
+	public string Id { get; set; }
+
+	[JsonPropertyName("meta")]
+	public Dictionary<string, object>? Meta { get; set; }
+
+	[JsonPropertyName("model")]
+	public string Model { get; set; }
+
+	[JsonPropertyName("object")]
+	public string Object { get; set; }
+
+	[JsonPropertyName("pages")]
+	public List<object> Pages { get; set; }
+
+	[JsonPropertyName("provider")]
+	public string Provider { get; set; }
+
+	[JsonPropertyName("usage")]
+	public Dictionary<string, object>? Usage { get; set; }
+
+}
+
 public sealed class Provider
 {
 	[JsonPropertyName("api_provider_id")]

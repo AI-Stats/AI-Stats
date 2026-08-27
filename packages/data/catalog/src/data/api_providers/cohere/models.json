@@ -1125,5 +1125,53 @@
       "notes": "Catalogued but not routed: shared API access is free and rate-limited, while production requires Model Vault."
     },
     "rate_limits": []
+  },
+  {
+    "api_model_id": "cohere/parse-v5.0",
+    "provider_api_model_id": "cohere:cohere/parse-v5.0",
+    "provider_model_slug": "parse-v5.0",
+    "internal_model_id": "cohere/parse-v5.0",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "image",
+    "output_modalities": "text",
+    "context_length": 8192,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-27T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "ocr",
+        "status": "active",
+        "params": ["output_format"],
+        "reasoning": false,
+        "tool_call": false,
+        "structured_output": true,
+        "temperature": false,
+        "attachment": true,
+        "input_modalities": ["image"],
+        "output_modalities": ["text"],
+        "modes": ["markdown", "blocks"]
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": { "execution": ["global"], "data": ["global"] },
+    "service_tiers": ["free"],
+    "api": { "formats": ["cohere.parse"], "endpoint": "/v2/parse", "deployment": null },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://docs.cohere.com/v2/reference/parse",
+        "accessed_at": "2026-08-27T00:00:00Z",
+        "notes": "Exact model slug, native endpoint, request and response contract verified."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-27T00:00:00Z",
+      "notes": "Routed through Phaseo's dedicated Parse endpoint using Cohere's native v2 API."
+    },
+    "rate_limits": []
   }
 ]

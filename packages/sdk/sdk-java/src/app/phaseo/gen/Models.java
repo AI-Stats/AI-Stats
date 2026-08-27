@@ -1121,6 +1121,47 @@ public final class Models {
 	public static class OrganisationIdList {
 	}
 
+	public static class ParseBlock {
+	}
+
+	public static class ParseBoundingBox {
+		public Double bottom_right_x;
+		public Double bottom_right_y;
+		public Double top_left_x;
+		public Double top_left_y;
+	}
+
+	public static class ParseImage {
+		public Object bounding_box;
+		public Object bounding_box_normalized;
+		public Object category;
+		public String description;
+		public String id;
+	}
+
+	public static class ParsePage {
+	}
+
+	public static class ParseRequest {
+		public Object debug;
+		public Object document;
+		public Boolean echo_upstream_request;
+		public String model;
+		public Object output_format;
+		public Object provider;
+		public Object routing;
+	}
+
+	public static class ParseResponse {
+		public String id;
+		public Object meta;
+		public String model;
+		public Object object;
+		public java.util.List<Object> pages;
+		public String provider;
+		public Object usage;
+	}
+
 	public static class Provider {
 		public String api_provider_id;
 		public String api_provider_name;

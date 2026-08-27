@@ -80,6 +80,11 @@ pub fn createOcr<T: Transport>(client: &Client<T>, path: &HashMap<String, String
 	client.request("POST", &resolved_path, body)
 }
 
+pub fn createParse<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/parse");
+	client.request("POST", &resolved_path, body)
+}
+
 pub fn createRerank<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/rerank");
 	client.request("POST", &resolved_path, body)

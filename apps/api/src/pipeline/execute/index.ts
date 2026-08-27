@@ -82,6 +82,8 @@ import type {
 	IRRerankResponse,
 	IROcrRequest,
 	IROcrResponse,
+	IRParseRequest,
+	IRParseResponse,
 	IRMusicGenerateRequest,
 	IRMusicGenerateResponse,
 	IRVideoGenerationRequest,
@@ -373,6 +375,7 @@ export type IRRequestResult = {
 		| IRAudioTranslationResponse
 		| IRVideoGenerationResponse
 		| IROcrResponse
+		| IRParseResponse
 		| IRMusicGenerateResponse; // IR response (for completed requests)
 	normalized?: GatewayResponsePayload;
 	upstream: Response;
@@ -412,6 +415,7 @@ export async function doRequestWithIR(
 		| IRAudioTranslationRequest
 		| IRVideoGenerationRequest
 		| IROcrRequest
+		| IRParseRequest
 		| IRMusicGenerateRequest,
 	timing: PipelineTiming,
 ): Promise<Response | { ok: true; result: IRRequestResult }> {
@@ -564,6 +568,7 @@ async function attemptProviderWithIR(
 		| IRAudioTranslationRequest
 		| IRVideoGenerationRequest
 		| IROcrRequest
+		| IRParseRequest
 		| IRMusicGenerateRequest,
 	timing: PipelineTiming,
 	baseModel: string,

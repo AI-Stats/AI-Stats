@@ -26,7 +26,7 @@ export const capabilityToEndpoints: Record<string, string[]> = {
     "text.moderate": ["/moderations"],
     "batch": ["/batch", "/batches"],
     "batch.create": ["/batches"],
-    "ocr": ["/ocr"],
+    "ocr": ["/ocr", "/parse"],
     "music.generate": ["/music/generate", "/music/generations"],
     "video.generation": ["/videos", "/video/generations"],
     "video.generate": ["/videos", "/video/generations"],
@@ -65,6 +65,7 @@ const ENDPOINT_TO_PATH: Record<string, string> = {
     batch: "/batch",
     "music.generate": "/music/generate",
     ocr: "/ocr",
+    parse: "/parse",
 };
 
 export function resolveCapabilityFromEndpoint(endpoint: string): string {
@@ -75,4 +76,3 @@ export function resolveCapabilityFromEndpoint(endpoint: string): string {
         : ENDPOINT_TO_PATH[normalized] ?? `/${normalized.replace(/\.+/g, "/")}`;
     return endpointToCapability[path] ?? normalized;
 }
-

@@ -15,6 +15,8 @@ import type {
 	IRMusicGenerateResponse,
 	IROcrRequest,
 	IROcrResponse,
+	IRParseRequest,
+	IRParseResponse,
 	IRUsage,
 } from "@core/ir";
 import type { Endpoint } from "@core/types";
@@ -36,6 +38,7 @@ type NonTextEndpoint =
 	| "audio.transcription"
 	| "audio.translations"
 	| "ocr"
+	| "parse"
 	| "music.generate";
 
 type NonTextIRRequest =
@@ -44,6 +47,7 @@ type NonTextIRRequest =
 	| IRAudioTranscriptionRequest
 	| IRAudioTranslationRequest
 	| IROcrRequest
+	| IRParseRequest
 	| IRMusicGenerateRequest;
 
 type NonTextIRResponse =
@@ -52,6 +56,7 @@ type NonTextIRResponse =
 	| IRAudioTranscriptionResponse
 	| IRAudioTranslationResponse
 	| IROcrResponse
+	| IRParseResponse
 	| IRMusicGenerateResponse;
 
 function isNonTextEndpoint(endpoint: Endpoint): endpoint is NonTextEndpoint {
@@ -61,6 +66,7 @@ function isNonTextEndpoint(endpoint: Endpoint): endpoint is NonTextEndpoint {
 		endpoint === "audio.transcription" ||
 		endpoint === "audio.translations" ||
 		endpoint === "ocr" ||
+		endpoint === "parse" ||
 		endpoint === "music.generate";
 }
 
@@ -277,6 +283,16 @@ function decodeNonTextRequest(endpoint: NonTextEndpoint, body: any): NonTextIRRe
 				confidenceScoresGranularity: body?.confidence_scores_granularity,
 				rawRequest: body,
 			};
+		case "parse":
+			return {
+				model: body?.model,
+				document: {
+					type: "image_url",
+					imageUrl: body?.document?.image_url,
+				},
+				outputFormat: body?.output_format,
+				rawRequest: body,
+			};
 		case "music.generate":
 			return {
 				model: body?.model,
@@ -382,6 +398,19 @@ export function encodeNonTextResponse(
 				text: ocr.text ?? "",
 				...(Array.isArray(ocr.pages) ? { pages: ocr.pages } : {}),
 				...(ocr.documentAnnotation !== undefined ? { document_annotation: ocr.documentAnnotation } : {}),
+				...(usage ? { usage } : {}),
+			};
+		}
+
+		case "parse": {
+			const parsed = ir as IRParseResponse;
+			return {
+				id: parsed.nativeId ?? parsed.id ?? requestId,
+				object: "parse",
+				model: parsed.model,
+				provider: parsed.provider,
+				pages: parsed.pages,
+				...(parsed.meta ? { meta: parsed.meta } : {}),
 				...(usage ? { usage } : {}),
 			};
 		}

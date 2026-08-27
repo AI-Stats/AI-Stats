@@ -93,6 +93,12 @@ module Phaseo
         client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.createParse(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/parse"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.createRerank(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/rerank"

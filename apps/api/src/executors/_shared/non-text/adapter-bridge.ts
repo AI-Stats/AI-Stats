@@ -15,6 +15,8 @@ import type {
 	IRMusicGenerateResponse,
 	IROcrRequest,
 	IROcrResponse,
+	IRParseRequest,
+	IRParseResponse,
 	IRVideoGenerationRequest,
 	IRVideoGenerationResponse,
 	IRUsage,
@@ -39,6 +41,7 @@ import * as openaiAudioTranscription from "@providers/openai/endpoints/audio-tra
 import * as openaiAudioTranslation from "@providers/openai/endpoints/audio-translation";
 import * as openaiVideo from "@providers/openai/endpoints/video";
 import * as mistralOcr from "@providers/mistral/endpoints/ocr";
+import * as cohereParse from "@providers/cohere/endpoints/parse";
 import * as mistralAudioTranscription from "@providers/mistral/endpoints/audio-transcription";
 import * as elevenLabsAudioSpeech from "@providers/elevenlabs/endpoints/audio-speech";
 import * as elevenLabsAudioTranscription from "@providers/elevenlabs/endpoints/audio-transcription";
@@ -60,6 +63,7 @@ type NonTextEndpoint =
 	| "audio.translations"
 	| "video.generation"
 	| "ocr"
+	| "parse"
 	| "music.generate";
 
 type NonTextIRResponse =
@@ -69,6 +73,7 @@ type NonTextIRResponse =
 	| IRAudioTranslationResponse
 	| IRVideoGenerationResponse
 	| IROcrResponse
+	| IRParseResponse
 	| IRMusicGenerateResponse;
 
 function isNonTextEndpoint(endpoint: Endpoint): endpoint is NonTextEndpoint {
@@ -79,6 +84,7 @@ function isNonTextEndpoint(endpoint: Endpoint): endpoint is NonTextEndpoint {
 		endpoint === "audio.translations" ||
 		endpoint === "video.generation" ||
 		endpoint === "ocr" ||
+		endpoint === "parse" ||
 		endpoint === "music.generate";
 }
 
@@ -349,6 +355,18 @@ function irToAdapterBody(endpoint: NonTextEndpoint, ir: ExecutorExecuteArgs["ir"
 			};
 		}
 
+		case "parse": {
+			const request = ir as IRParseRequest;
+			return {
+				model: providerModel,
+				document: {
+					type: "image_url",
+					image_url: request.document.imageUrl,
+				},
+				output_format: request.outputFormat ?? "markdown",
+			};
+		}
+
 		case "music.generate": {
 			const request = ir as IRMusicGenerateRequest;
 			return {
@@ -520,6 +538,20 @@ async function adapterResultToIR(
 			};
 		}
 
+		case "parse": {
+			const payload = normalized ?? {};
+			return {
+				id: requestId,
+				nativeId: payload?.id ?? payload?.nativeResponseId ?? undefined,
+				model: payload?.model ?? model,
+				provider,
+				pages: Array.isArray(payload?.pages) ? payload.pages : [],
+				meta: payload?.meta,
+				usage,
+				rawResponse: payload,
+			};
+		}
+
 		case "music.generate": {
 			const payload = normalized ?? {};
 			const outputItem = Array.isArray(payload?.output) ? payload.output[0] : undefined;
@@ -639,6 +671,11 @@ async function executeProviderEndpoint(
 				throw new Error(`non_text_provider_not_supported_${providerId}_${endpoint}`);
 			}
 			return mistralOcr.exec(providerArgs);
+		case "parse":
+			if (providerId !== "cohere") {
+				throw new Error(`non_text_provider_not_supported_${providerId}_${endpoint}`);
+			}
+			return cohereParse.exec(providerArgs);
 		case "music.generate":
 			if (providerId === "elevenlabs") return elevenLabsMusic.exec(providerArgs);
 			throw new Error(`non_text_provider_not_supported_${providerId}_${endpoint}`);

@@ -20,6 +20,7 @@ import type {
 	IRVideoGenerationResponse,
 	IROcrRequest,
 	IROcrResponse,
+	IRParseResponse,
 	IRMusicGenerateRequest,
 	IRMusicGenerateResponse,
 	IRModerationsRequest,
@@ -113,6 +114,7 @@ export type ExecutorCompletedResult = {
 		| IRAudioTranslationResponse
 		| IRVideoGenerationResponse
 		| IROcrResponse
+		| IRParseResponse
 		| IRMusicGenerateResponse;
 	bill: Bill;
 	upstream: Response;

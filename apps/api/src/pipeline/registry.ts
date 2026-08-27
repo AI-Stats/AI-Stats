@@ -29,6 +29,7 @@ const PIPELINES: Record<Endpoint, PipelineRunner> = {
 	"audio.realtime": runNotImplementedPipeline,
 	"video.generation": runVideoGeneratePipeline,
 	ocr: runNonTextPipeline,
+	parse: runNonTextPipeline,
 	"music.generate": runNonTextPipeline,
 	batch: runNotImplementedPipeline,
 	"files.upload": runNotImplementedPipeline,

@@ -1606,6 +1606,58 @@ module Phaseo
     OcrResponse = Struct.new(:_unused, keyword_init: true)
     OrganisationId = Object
     OrganisationIdList = Object
+    ParseBlock = Object
+    # @!attribute [rw] bottom_right_x
+    #   @return [Float]
+    # @!attribute [rw] bottom_right_y
+    #   @return [Float]
+    # @!attribute [rw] top_left_x
+    #   @return [Float]
+    # @!attribute [rw] top_left_y
+    #   @return [Float]
+    ParseBoundingBox = Struct.new(:bottom_right_x, :bottom_right_y, :top_left_x, :top_left_y, keyword_init: true)
+    # @!attribute [rw] bounding_box
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] bounding_box_normalized
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] category
+    #   @return [String]
+    # @!attribute [rw] description
+    #   @return [String]
+    # @!attribute [rw] id
+    #   @return [String]
+    ParseImage = Struct.new(:bounding_box, :bounding_box_normalized, :category, :description, :id, keyword_init: true)
+    ParsePage = Object
+    # @!attribute [rw] debug
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] document
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] echo_upstream_request
+    #   @return [Boolean, nil]
+    # @!attribute [rw] model
+    #   @return [String]
+    # @!attribute [rw] output_format
+    #   @return [String, nil]
+    # @!attribute [rw] provider
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] routing
+    #   @return [Hash{String => Object}, nil]
+    ParseRequest = Struct.new(:debug, :document, :echo_upstream_request, :model, :output_format, :provider, :routing, keyword_init: true)
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] meta
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] model
+    #   @return [String]
+    # @!attribute [rw] object
+    #   @return [String]
+    # @!attribute [rw] pages
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] provider
+    #   @return [String]
+    # @!attribute [rw] usage
+    #   @return [Hash{String => Object}, nil]
+    ParseResponse = Struct.new(:id, :meta, :model, :object, :pages, :provider, :usage, keyword_init: true)
     # @!attribute [rw] api_provider_id
     #   @return [String, nil]
     # @!attribute [rw] api_provider_name

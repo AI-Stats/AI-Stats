@@ -237,7 +237,8 @@
       "cohere/rerank-v4.0-pro",
       "cohere/rerenk-english-v3",
       "cohere/command-r",
-      "cohere/command-r-plus"
+      "cohere/command-r-plus",
+      "cohere/parse-v5.0"
     ],
     "cursor": [
       "cursor/composer-1",

@@ -18,6 +18,7 @@ export type Endpoint =
     | "embeddings"
     | "batch"
     | "ocr"
+    | "parse"
     | "music.generate"
     | "files.upload"
     | "files.list"
