@@ -5,18 +5,14 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import {
-	Building2,
 	CircleHelp,
 	MapPin,
-	Shield,
 	ShieldAlert,
 	ShieldCheck,
 	Tag,
 	Workflow,
 } from "lucide-react";
 import {
-	PROVIDER_DATA_POLICY_CONFIDENCE_LABELS,
-	PROVIDER_DATA_POLICY_CONTRACT_MODE_LABELS,
 	PROVIDER_DATA_POLICY_TIER_LABELS,
 	type ProviderDataPolicyConfidence,
 	type ProviderDataPolicyContractMode,
@@ -24,7 +20,6 @@ import {
 	resolveProviderDataPolicy,
 } from "@/lib/providers/dataPolicy";
 import {
-	PROVIDER_PROMPT_TRAINING_POLICY_LABELS,
 	type ProviderPromptTrainingPolicy,
 	normalizeProviderPromptTrainingPolicy,
 } from "@/lib/providers/promptTrainingPolicy";
@@ -79,8 +74,6 @@ type PromptTrainingEntry = {
 	termsOfServiceUrl: string | null;
 	isOverride: boolean;
 };
-
-type PromptTrainingState = ProviderPromptTrainingPolicy | "mixed";
 
 type DataPolicyEntryInput = {
 	tier?: ProviderDataPolicyTier | string | null;
@@ -197,12 +190,6 @@ function normalizeDataPolicyEntries(values: DataPolicyEntryInput[]): DataPolicyE
 	});
 }
 
-function getPromptTrainingState(entries: PromptTrainingEntry[]): PromptTrainingState {
-	if (!entries.length) return "unknown";
-	const unique = Array.from(new Set(entries.map((entry) => entry.policy)));
-	return unique.length === 1 ? unique[0] : "mixed";
-}
-
 function getDataPolicyTierState(
 	entries: DataPolicyEntry[],
 ): ProviderDataPolicyTier | "mixed" {
@@ -211,57 +198,9 @@ function getDataPolicyTierState(
 	return unique.length === 1 ? unique[0] : "mixed";
 }
 
-function getDataPolicyConfidenceState(
-	entries: DataPolicyEntry[],
-): ProviderDataPolicyConfidence | "mixed" {
-	if (!entries.length) return "unknown";
-	const unique = Array.from(new Set(entries.map((entry) => entry.confidence)));
-	return unique.length === 1 ? unique[0] : "mixed";
-}
-
-function getDataPolicyContractState(
-	entries: DataPolicyEntry[],
-): ProviderDataPolicyContractMode | "mixed" {
-	if (!entries.length) return "none";
-	const unique = Array.from(new Set(entries.map((entry) => entry.contractMode)));
-	return unique.length === 1 ? unique[0] : "mixed";
-}
-
 function formatDataPolicyTier(value: ProviderDataPolicyTier | "mixed"): string {
 	if (value === "mixed") return "Varies by mapping";
 	return PROVIDER_DATA_POLICY_TIER_LABELS[value];
-}
-
-function formatDataPolicyConfidence(
-	value: ProviderDataPolicyConfidence | "mixed",
-): string {
-	if (value === "mixed") return "Varies by mapping";
-	return PROVIDER_DATA_POLICY_CONFIDENCE_LABELS[value];
-}
-
-function formatDataPolicyContractMode(
-	value: ProviderDataPolicyContractMode | "mixed",
-): string | null {
-	if (value === "mixed") return "Agreement varies by mapping";
-	if (value === "none") return null;
-	return PROVIDER_DATA_POLICY_CONTRACT_MODE_LABELS[value];
-}
-
-function getPromptTrainingIcon(state: PromptTrainingState) {
-	switch (state) {
-		case "no_train":
-			return <ShieldCheck className="h-3.5 w-3.5" />;
-		case "may_train":
-			return <ShieldAlert className="h-3.5 w-3.5" />;
-		case "opt_out_available":
-			return <Shield className="h-3.5 w-3.5" />;
-		case "enterprise_no_train":
-			return <Building2 className="h-3.5 w-3.5" />;
-		case "mixed":
-			return <Workflow className="h-3.5 w-3.5" />;
-		default:
-			return <CircleHelp className="h-3.5 w-3.5" />;
-	}
 }
 
 function getDataPolicyIcon(state: ProviderDataPolicyTier | "mixed") {
@@ -279,14 +218,6 @@ function getDataPolicyIcon(state: ProviderDataPolicyTier | "mixed") {
 	}
 }
 
-function getPromptTrainingSummary(state: PromptTrainingState): string {
-	if (state === "mixed") return "Training policy varies by endpoint/model mapping.";
-	if (state === "unknown") {
-		return "We do not currently have a clear public statement from this provider on whether API prompts and completions may be used for model training or improvement.";
-	}
-	return PROVIDER_PROMPT_TRAINING_POLICY_LABELS[state];
-}
-
 function getDataPolicySummary(state: ProviderDataPolicyTier | "mixed"): string {
 	switch (state) {
 		case "private":
@@ -302,66 +233,12 @@ function getDataPolicySummary(state: ProviderDataPolicyTier | "mixed"): string {
 	}
 }
 
-function getPromptLoggingValue(state: ProviderDataPolicyTier | "mixed"): string {
-	switch (state) {
-		case "private":
-			return "No prompt storage";
-		case "logs":
-			return "May retain logs";
-		case "trains":
-			return "May retain prompts";
-		case "mixed":
-			return "Varies by mapping";
-		default:
-			return "Unknown";
-	}
-}
-
-function getPromptLoggingSummary(state: ProviderDataPolicyTier | "mixed"): string {
-	switch (state) {
-		case "private":
-			return "Classified as private for provider-side prompt handling.";
-		case "logs":
-			return "Prompt or request logs may be retained by the provider.";
-		case "trains":
-			return "Prompt retention may be part of training or model improvement policy.";
-		case "mixed":
-			return "Retention policy differs across endpoint mappings.";
-		default:
-			return "Policy has not been confidently classified yet.";
-	}
-}
-
-function formatPolicyConfidence(value: ProviderDataPolicyConfidence | "mixed"): string | null {
-	if (value === "unknown") return null;
-	if (value === "mixed") return "Confidence varies by mapping";
-	return `Confidence: ${formatDataPolicyConfidence(value)}`;
-}
-
-function formatPromptTrainingValue(state: PromptTrainingState): string {
-	if (state === "mixed") return "Varies by mapping";
-	return PROVIDER_PROMPT_TRAINING_POLICY_LABELS[state];
-}
-
-function formatUserIdentifierPolicy(value: string | null): string {
-	switch (value) {
-		case "sent":
-			return "Provider-facing user identifier sent";
-		case "not_sent":
-			return "No provider-facing user identifier sent";
-		case "varies":
-			return "User identifier varies by endpoint";
-		default:
-			return "User identifier policy unclear";
-	}
-}
-
 function normalizeResidencyEntries(values: ResidencyEntryInput[]): ResidencyEntry[] {
 	return values.map((value) => ({
 		residencyMode: value.residencyMode ?? "unknown",
 		executionRegions: uniqueDefined(value.executionRegions ?? []),
 		dataRegions: uniqueDefined(value.dataRegions ?? []),
-		zeroDataRetention: value.zeroDataRetention ?? "unknown",
+		zeroDataRetention: value.zeroDataRetention ?? false,
 		notes:
 			typeof value.notes === "string" && value.notes.trim()
 				? value.notes.trim()
@@ -382,7 +259,7 @@ function getResidencyModeState(entries: ResidencyEntry[]): ResidencyMode | "mixe
 function getZeroDataRetentionState(
 	entries: ResidencyEntry[],
 ): ZeroDataRetentionMode | "mixed" {
-	if (!entries.length) return "unknown";
+	if (!entries.length) return false;
 	const unique = Array.from(new Set(entries.map((entry) => entry.zeroDataRetention)));
 	return unique.length === 1 ? unique[0] : "mixed";
 }
@@ -391,12 +268,10 @@ function getZeroDataRetentionDetail(
 	state: ZeroDataRetentionMode | "mixed",
 ): string | null {
 	switch (state) {
-		case "default":
-			return "Documented as the default handling for this provider mapping.";
-		case "optional":
-			return "Documented as available, but it can depend on provider-side configuration, account setup, or a specific endpoint.";
-		case "unsupported":
-			return "No zero-data-retention option is documented for this provider mapping.";
+		case true:
+			return "Documented as true for this provider mapping.";
+		case false:
+			return "ZDR is not guaranteed for this provider mapping.";
 		case "mixed":
 			return "Zero-data-retention handling varies across provider/model mappings.";
 		default:
@@ -524,22 +399,11 @@ export default function ProviderInfoHoverIcons({
 	const promptTrainingEntries = normalizePromptTrainingEntries(promptTraining);
 	const residencyEntries = normalizeResidencyEntries(residency);
 	const dataPolicyTierState = getDataPolicyTierState(dataPolicyEntries);
-	const dataPolicyConfidenceState =
-		getDataPolicyConfidenceState(dataPolicyEntries);
-	const dataPolicyContractState = getDataPolicyContractState(dataPolicyEntries);
 	const dataPolicySummary = getDataPolicySummary(dataPolicyTierState);
-	const promptTrainingState = getPromptTrainingState(promptTrainingEntries);
 	const residencyModeState = getResidencyModeState(residencyEntries);
 	const zeroDataRetentionState = getZeroDataRetentionState(residencyEntries);
-	const promptTrainingSummary = getPromptTrainingSummary(promptTrainingState);
-	const promptTrainingHasOverrides = promptTrainingEntries.some(
-		(entry) => entry.isOverride,
-	);
 	const zeroDataRetentionDetail = getZeroDataRetentionDetail(
 		zeroDataRetentionState,
-	);
-	const dataPolicyNotes = uniqueDefined(
-		dataPolicyEntries.flatMap((entry) => [entry.notes, entry.contractNotes]),
 	);
 	const dataPolicySourceUrls = uniqueDefined(
 		dataPolicyEntries.map((entry) => entry.sourceUrl),
@@ -552,15 +416,6 @@ export default function ProviderInfoHoverIcons({
 	);
 	const promptTrainingTermsUrls = uniqueDefined(
 		promptTrainingEntries.map((entry) => entry.termsOfServiceUrl),
-	);
-	const promptTrainingNotes = uniqueDefined(
-		promptTrainingEntries.map((entry) => entry.notes),
-	);
-	const userIdentifierPolicies = uniqueDefined(
-		promptTrainingEntries.map((entry) => entry.userIdentifierPolicy),
-	);
-	const userIdentifierNotes = uniqueDefined(
-		promptTrainingEntries.map((entry) => entry.userIdentifierNotes),
 	);
 	const residencyExecutionRegions = uniqueDefined(
 		residencyEntries.flatMap((entry) => entry.executionRegions),
@@ -609,156 +464,43 @@ export default function ProviderInfoHoverIcons({
 		(pricingPolicy?.regionalPricingMode ?? "unknown") !== "unknown" ||
 		pricingNotes.length > 0 ||
 		pricingSourceUrls.length > 0;
-	const promptTrainingPolicyBreakdown = Array.from(
-		promptTrainingEntries.reduce((acc, entry) => {
-			const current = acc.get(entry.policy) ?? 0;
-			acc.set(entry.policy, current + 1);
-			return acc;
-		}, new Map<ProviderPromptTrainingPolicy, number>()),
-	).sort((a, b) =>
-		PROVIDER_PROMPT_TRAINING_POLICY_LABELS[a[0]].localeCompare(
-			PROVIDER_PROMPT_TRAINING_POLICY_LABELS[b[0]],
-		),
-	);
 	const hasQuantization = showQuantizationTrigger && Boolean(quantization);
 	const hasModelMapping = showModelMappingTrigger && displayModelIds.length > 0;
-	const hasPromptTraining = promptTrainingEntries.length > 0;
-	const hasDataPolicy = dataPolicyEntries.some(
-		(entry) =>
-			entry.tier !== "unknown" ||
-			entry.confidence !== "unknown" ||
-			entry.contractMode !== "none" ||
-			Boolean(entry.notes) ||
-			Boolean(entry.contractNotes) ||
-			Boolean(entry.sourceUrl),
-	);
+	const hasDataPolicy =
+		dataPolicyEntries.length > 0 ||
+		promptTrainingEntries.length > 0 ||
+		residencyEntries.length > 0;
 	const hasResidency = residencyEntries.some(
 		(entry) =>
 			entry.executionRegions.length > 0 ||
 			entry.dataRegions.length > 0 ||
-			entry.zeroDataRetention !== "unknown" ||
 			entry.residencyMode !== "unknown" ||
 			Boolean(entry.notes) ||
 			Boolean(entry.sourceUrl),
 	);
 
-	if (!hasQuantization && !hasModelMapping && !hasPromptTraining && !hasResidency && !hasDataPolicy) return null;
+	if (!hasQuantization && !hasModelMapping && !hasResidency && !hasDataPolicy) return null;
 
 	return (
 		<div className={cn("flex items-center gap-1.5", className)}>
-			{hasPromptTraining || hasDataPolicy ? (
+			{hasDataPolicy ? (
 				<IconHover
 					ariaLabel="Data policy"
 					content={
 						<div className="space-y-2">
-							{hasDataPolicy ? (
-								<>
-									<InfoBlock
-										title="Data policy"
-										value={formatDataPolicyTier(dataPolicyTierState)}
-										meta={dataPolicySummary}
-										tone={dataPolicyTierState === "trains" ? "risk" : "default"}
-									/>
-									<div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-										<InfoBlock
-											title="Prompt logging"
-											value={getPromptLoggingValue(dataPolicyTierState)}
-											meta={getPromptLoggingSummary(dataPolicyTierState)}
-											tone={dataPolicyTierState === "trains" ? "risk" : "default"}
-										/>
-										<InfoBlock
-											title="Prompt training"
-											value={formatPromptTrainingValue(promptTrainingState)}
-											meta={promptTrainingSummary}
-											tone={
-												promptTrainingState === "may_train" ||
-												promptTrainingState === "opt_out_available"
-													? "risk"
-													: "default"
-											}
-										/>
-									</div>
-									<div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-										<InfoBlock
-											title="Zero data retention"
-											value={
-												zeroDataRetentionState !== "unknown"
-													? formatZeroDataRetention(zeroDataRetentionState)
-													: "Unknown"
-											}
-											meta={zeroDataRetentionDetail}
-										/>
-										<InfoBlock
-											title="Policy confidence"
-											value={formatPolicyConfidence(dataPolicyConfidenceState) ?? "Unknown"}
-											meta={
-												dataPolicyConfidenceState === "maybe"
-													? "Best-known classification, but not confirmed by a direct agreement."
-													: null
-											}
-										/>
-									</div>
-									{formatDataPolicyContractMode(dataPolicyContractState) ? (
-										<InfoBlock
-											title="Agreement"
-											value={formatDataPolicyContractMode(dataPolicyContractState) ?? "None"}
-											meta={dataPolicyNotes[0] ?? null}
-										/>
-									) : dataPolicyNotes.length > 0 ? (
-										<p className="text-muted-foreground">
-											{dataPolicyNotes[0]}
-										</p>
-									) : null}
-								</>
-							) : null}
-							{hasPromptTraining && !hasDataPolicy ? (
-								<p className="leading-relaxed text-muted-foreground">
-									{promptTrainingSummary}
-								</p>
-							) : null}
-							{promptTrainingState === "mixed" ? (
-								<div className="space-y-1">
-									{promptTrainingPolicyBreakdown.map(([policy, count]) => (
-										<div key={policy} className="flex items-center justify-between gap-2">
-											<span className="text-foreground">
-												{PROVIDER_PROMPT_TRAINING_POLICY_LABELS[policy]}
-											</span>
-											<span className="text-muted-foreground">
-												{count} mapping{count === 1 ? "" : "s"}
-											</span>
-										</div>
-									))}
-								</div>
-							) : null}
-							{promptTrainingHasOverrides ? (
-								<p className="text-muted-foreground">
-									Includes model-specific override values.
-								</p>
-							) : null}
-							{promptTrainingNotes.length > 0 ? (
-								<div className="space-y-1">
-									{promptTrainingNotes.slice(0, 2).map((note) => (
-										<p key={note} className="text-muted-foreground">
-											{note}
-										</p>
-									))}
-								</div>
-							) : null}
-							{userIdentifierPolicies.length > 0 || userIdentifierNotes.length > 0 ? (
-								<div className="rounded-md border border-zinc-200/80 p-2 dark:border-zinc-800">
-									<p className="font-medium text-foreground">Provider identifier</p>
-									{userIdentifierPolicies.length > 0 ? (
-										<p className="mt-1 text-muted-foreground">
-											{formatUserIdentifierPolicy(userIdentifierPolicies[0] ?? null)}
-										</p>
-									) : null}
-									{userIdentifierNotes.length > 0 ? (
-										<p className="mt-1 text-muted-foreground">
-											{userIdentifierNotes[0]}
-										</p>
-									) : null}
-								</div>
-							) : null}
+							<InfoBlock
+								title="Data policy"
+								value={formatDataPolicyTier(dataPolicyTierState)}
+								meta={dataPolicySummary}
+								tone={dataPolicyTierState === "trains" ? "risk" : "default"}
+							/>
+							<InfoBlock
+								title="Zero data retention"
+								value={
+									formatZeroDataRetention(zeroDataRetentionState)
+								}
+								meta={zeroDataRetentionDetail}
+							/>
 							{promptTrainingSourceUrls.length > 0 ? (
 								<div className="flex flex-col items-start gap-1">
 									{promptTrainingSourceUrls.slice(0, 2).map((url) => (
@@ -820,9 +562,7 @@ export default function ProviderInfoHoverIcons({
 						</div>
 					}
 				>
-					{hasDataPolicy
-						? getDataPolicyIcon(dataPolicyTierState)
-						: getPromptTrainingIcon(promptTrainingState)}
+					{getDataPolicyIcon(dataPolicyTierState)}
 				</IconHover>
 			) : null}
 
@@ -858,11 +598,11 @@ export default function ProviderInfoHoverIcons({
 
 			{hasResidency ? (
 				<IconHover
-					ariaLabel="Data policy and residency"
+					ariaLabel="Processing and data centre locations"
 					content={
 						<div className="space-y-2">
 							<InfoBlock
-								title="Execution"
+								title="Processing location"
 								value={
 									residencyExecutionRegions.length > 0
 										? formatResidencyRegionList(residencyExecutionRegions)
@@ -875,20 +615,13 @@ export default function ProviderInfoHoverIcons({
 								}
 							/>
 							<InfoBlock
-								title="Data residency"
+								title="Data centre location"
 								value={
 									residencyDataRegions.length > 0
 										? formatResidencyRegionList(residencyDataRegions)
 										: "Unknown"
 								}
 							/>
-							{zeroDataRetentionState !== "unknown" ? (
-								<InfoBlock
-									title="Zero data retention"
-									value={formatZeroDataRetention(zeroDataRetentionState)}
-									meta={zeroDataRetentionDetail}
-								/>
-							) : null}
 							{hasPricingPolicy ? (
 								<InfoBlock
 									title="Pricing"

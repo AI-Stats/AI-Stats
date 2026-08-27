@@ -68,10 +68,8 @@ export function buildProviderCandidatesWithDiagnostics(
             dataRegions: provider.dataRegions ?? null,
             zeroDataRetention:
                 effectiveDataPolicy.zdrEligibility === "eligible"
-                    ? "default"
-                    : effectiveDataPolicy.zdrEligibility === "ineligible"
-                      ? "unsupported"
-                      : provider.zeroDataRetention ?? null,
+                    ? true
+                    : false,
             promptTrainingPolicy: provider.promptTrainingPolicy ?? null,
             dataPolicyTier: effectiveDataPolicy.tier,
             dataPolicyConfidence: effectiveDataPolicy.confidence,

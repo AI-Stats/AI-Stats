@@ -673,7 +673,7 @@ function isZdrSpecializedOffer(candidate: ProviderCandidate): boolean {
 	return (
 		candidate.dataPolicyVariant === "zdr" &&
 		normalizeOfferScope(candidate.offerScope) === "specialized" &&
-		candidate.zeroDataRetention === "default"
+		candidate.zeroDataRetention === true
 	);
 }
 

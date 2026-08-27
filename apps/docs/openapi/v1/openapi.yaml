@@ -672,6 +672,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ChatCompletionsResponse'
+        '429':
+          $ref: '#/components/responses/UpstreamRateLimited'
   /responses:
     post:
       tags:
@@ -706,6 +708,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ResponsesResponse'
+        '429':
+          $ref: '#/components/responses/UpstreamRateLimited'
   /async/{kind}/{id}/ws:
     get:
       x-beta: true
@@ -1246,7 +1250,9 @@ paths:
         - Gateway
       operationId: generateMusic
       summary: Generate music
-      description: Generates music using the requested model and provider settings.
+      description: >-
+        Generates music through one provider-independent endpoint. Phaseo waits
+        for synchronous providers and handles provider queue polling internally.
       requestBody:
         required: true
         content:
@@ -1267,12 +1273,15 @@ paths:
         - Gateway
       operationId: getMusicGeneration
       summary: Get music generation status
-      description: Retrieves the status for a music generation request.
+      description: >-
+        Retrieves a normalized music result using the Phaseo request ID returned
+        by POST /music/generate. Provider-specific status APIs are handled
+        internally.
       parameters:
         - name: music_id
           in: path
           required: true
-          description: The ID of the music generation request.
+          description: The stable Phaseo request ID returned by POST /music/generate.
           schema:
             type: string
       responses:
@@ -3575,6 +3584,45 @@ components:
       type: http
       scheme: bearer
       description: Bearer token authentication
+  responses:
+    UpstreamRateLimited:
+      description: The selected upstream provider rate-limited the request.
+      headers:
+        Retry-After:
+          description: Validated provider guidance in seconds before retrying.
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 86400
+        X-Phaseo-Upstream-RateLimit-Limit:
+          $ref: '#/components/headers/UpstreamRateLimitValue'
+        X-Phaseo-Upstream-RateLimit-Remaining:
+          $ref: '#/components/headers/UpstreamRateLimitValue'
+        X-Phaseo-Upstream-RateLimit-Reset:
+          $ref: '#/components/headers/UpstreamRateLimitValue'
+        X-Phaseo-Upstream-RateLimit-Limit-Requests:
+          $ref: '#/components/headers/UpstreamRateLimitValue'
+        X-Phaseo-Upstream-RateLimit-Remaining-Requests:
+          $ref: '#/components/headers/UpstreamRateLimitValue'
+        X-Phaseo-Upstream-RateLimit-Reset-Requests:
+          $ref: '#/components/headers/UpstreamRateLimitValue'
+        X-Phaseo-Upstream-RateLimit-Limit-Tokens:
+          $ref: '#/components/headers/UpstreamRateLimitValue'
+        X-Phaseo-Upstream-RateLimit-Remaining-Tokens:
+          $ref: '#/components/headers/UpstreamRateLimitValue'
+        X-Phaseo-Upstream-RateLimit-Reset-Tokens:
+          $ref: '#/components/headers/UpstreamRateLimitValue'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  headers:
+    UpstreamRateLimitValue:
+      description: >-
+        BYOK-only provider quota metadata. Omitted for managed-provider
+        requests.
+      schema:
+        type: string
   schemas:
     ProviderRoutingOptions:
       type: object
@@ -6898,6 +6946,50 @@ components:
           $ref: '#/components/schemas/DebugOptions'
     MusicGenerateResponse:
       type: object
+      required:
+        - id
+        - object
+        - status
+        - model
+        - provider
+      properties:
+        id:
+          type: string
+          description: Stable Phaseo request ID used with GET /music/generate/{music_id}.
+        object:
+          type: string
+          enum:
+            - music
+        status:
+          type: string
+          enum:
+            - queued
+            - in_progress
+            - completed
+            - failed
+        model:
+          type: string
+        provider:
+          type: string
+        nativeResponseId:
+          type: string
+          nullable: true
+          description: Upstream provider identifier for correlation and support.
+        audio_url:
+          type: string
+          format: uri
+        audio_base64:
+          type: string
+        result:
+          description: Provider result metadata normalized by Phaseo.
+        output:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        usage:
+          type: object
+          additionalProperties: true
       additionalProperties: true
     BatchRequest:
       type: object
@@ -7449,18 +7541,15 @@ components:
         - nous
         - nvidia
         - openai
-        - openbmb
         - perplexity
         - poe
         - poolside
         - prime-intellect
-        - prism-ml
         - qwen
         - reka
         - relace
         - runway
         - sakana
-        - sao10k
         - sourceful
         - spacex-ai
         - stability-ai
@@ -9578,7 +9667,6 @@ components:
         - baai/bge-multilingual-gemma2
         - baai/bge-reranker-v2-m3
         - baidu/cobuddy
-        - baidu/ernie-4.5-21b-a3b
         - baidu/ernie-4.5-300b-a47b
         - baidu/ernie-4.5-vl-424b-a47b
         - black-forest-labs/flux-1-dev
@@ -9624,6 +9712,7 @@ components:
         - deepseek/deepseek-ocr-2
         - deepseek/deepseek-r1
         - deepseek/deepseek-r1-0528
+        - deepseek/deepseek-r1-2025-05-28
         - deepseek/deepseek-r1-distill-llama-70b
         - deepseek/deepseek-r1-turbo
         - deepseek/deepseek-v3
@@ -9686,6 +9775,9 @@ components:
         - google/veo-3.1-lite-preview
         - google/veo-3.1-preview
         - ibm/granite-4.1-8b
+        - ibm/granite-4.2-30b
+        - ibm/granite-4.2-3b
+        - ibm/granite-4.2-8b
         - inception/mercury-2
         - inception/mercury-edit-2
         - inclusionai/ling-2.6-1t
@@ -9718,6 +9810,7 @@ components:
         - meta/llama-prompt-guard-2-22m
         - meta/llama-prompt-guard-2-86m
         - meta/muse-glimmer-30b
+        - meta/muse-image-1.0
         - meta/muse-spark-1.2
         - microsoft/phi-4
         - microsoft/wizardlm-2-8x22b
@@ -9882,14 +9975,12 @@ components:
         - openai/whisper-1
         - openai/whisper-large-v3
         - openai/whisper-large-v3-turbo
-        - openbmb/minicpm-v-4.5
         - perplexity/pplx-embed-v1-0.6b
         - perplexity/pplx-embed-v1-4b
         - phaseo/free
         - poolside/laguna-m.1:free
         - poolside/laguna-s-2.1:free
         - poolside/laguna-xs-2.1:free
-        - prism-ml/ternary-bonsai-27b
         - qwen/qvq-max
         - qwen/qwen-flash
         - qwen/qwen-flash-character
@@ -9995,6 +10086,7 @@ components:
         - qwen/qwen3.7-plus-2026-05-26
         - qwen/qwen3.8-2.4t-a95b
         - qwen/qwen3.8-27b
+        - qwen/qwen3.8-flash
         - qwen/qwen3.8-max
         - qwen/qwq-32b
         - qwen/qwq-plus
@@ -10008,9 +10100,6 @@ components:
         - relace/relace-search
         - sakana/fugu-ultra
         - sakana/namazu
-        - sao10k/l3-8b-lunaris
-        - sao10k/l3-8b-stheno-v3.2
-        - sao10k/l31-70b-euryale-v2.2
         - spacex-ai/grok-4.20
         - spacex-ai/grok-4.20-multi-agent-beta
         - spacex-ai/grok-4.20-multi-agent-beta-0309
@@ -10023,7 +10112,6 @@ components:
         - spacex-ai/grok-imagine-image-quality
         - spacex-ai/grok-transcribe
         - spacex-ai/grok-tts
-        - stealth/ox-alpha
         - stepfun/step-3.5-flash
         - stepfun/step-3.7-flash
         - tencent/hunyuan-a13b-instruct
@@ -10099,6 +10187,7 @@ components:
         - z-ai/glm-5.1
         - z-ai/glm-5.2
         - z-ai/glm-5.3
+        - z-ai/glm-5.3-flash
         - z-ai/glm-5v-turbo
         - zai-org/glm-4.5-air
         - zai/glm-5

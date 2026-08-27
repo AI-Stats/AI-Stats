@@ -531,7 +531,7 @@ def getProviderDerankStatus(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> Dict[str, Any]:
+) -> OcrResponse:
 	path = path or {}
 	resolved_path = f"/health/providers/{path.get('provider_id', '')}/derank"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)

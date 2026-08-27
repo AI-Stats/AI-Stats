@@ -1,5 +1,8 @@
 {
   "api_provider_id": "orcarouter",
+  "data_policy_tier": "logs",
+  "data_policy_confidence": "maybe",
+  "data_policy_contract_mode": "none",
   "api_provider_name": "OrcaRouter",
   "provider_family_id": null,
   "offer_label": null,
@@ -9,8 +12,7 @@
   "residency_mode": "provider_managed",
   "default_execution_regions": null,
   "default_data_regions": null,
-  "zero_data_retention": "default",
-  "data_retention_days": 0,
+  "zero_data_retention": false,
   "residency_source_url": "https://docs.orcarouter.ai/operations/data-handling",
   "prompt_training_policy": "no_train",
   "prompt_training_notes": "OrcaRouter does not persist prompt or response content or train on it; upstream provider policies still apply.",

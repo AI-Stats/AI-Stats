@@ -2052,8 +2052,8 @@ async function main() {
 		else if (first === "analytics" && second === "get") action = analyticsGet(parsed.flags);
 		else if (first === "generation" && second === "get") action = generationGet(parsed.flags);
 		else if (first === "curie" && second === "run") action = runCurie(third, parsed.flags);
-		else if (first === "setup") action = runIntegrationCommand(["setup", ...parsed.command.slice(1)], parsed.flags, { installMissing: !flagBool(parsed.flags, "skip-install"), primaryOnly: true });
-		else if (isPrimarySetupName(first)) action = runIntegrationCommand(["setup", ...parsed.command], parsed.flags, { installMissing: !flagBool(parsed.flags, "skip-install"), primaryOnly: true });
+		else if (first === "setup") action = runIntegrationCommand(["setup", ...parsed.command.slice(1)], parsed.flags, { installMissing: false, primaryOnly: true });
+		else if (isPrimarySetupName(first)) action = runIntegrationCommand(["setup", ...parsed.command], parsed.flags, { installMissing: false, primaryOnly: true });
 		else if (first === "integrations") action = runIntegrationCommand(parsed.command.slice(1), parsed.flags);
 		else if (first === "webhooks" && second === "list") action = listWebhooks(parsed.flags);
 		else if (first === "webhooks" && second === "create") action = createWebhook(parsed.flags);

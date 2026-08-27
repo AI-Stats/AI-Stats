@@ -241,12 +241,11 @@ function normalizeModalityFilterValue(value: string): string {
 	if (normalized.includes("realtime") || normalized.includes("real time")) {
 		return "realtime";
 	}
-	if (normalized.includes("text")) return "text";
 	if (normalized.includes("image")) return "image";
 	if (normalized.includes("video")) return "video";
 	if (normalized.includes("music")) return "audio_music";
 	if (
-		normalized.includes("transcrib") ||
+		normalized.includes("transcri") ||
 		normalized.includes("speech to text") ||
 		normalized.includes("stt")
 	) {
@@ -260,6 +259,7 @@ function normalizeModalityFilterValue(value: string): string {
 	) {
 		return "audio_tts";
 	}
+	if (normalized.includes("text")) return "text";
 	if (normalized.includes("audio")) return "audio";
 	if (normalized.includes("file")) return "file";
 	if (normalized.includes("moderat")) return "moderations";
@@ -372,7 +372,7 @@ function getModalityIcon(modality: string): LucideIcon {
 	if (normalized.includes("video")) return Video;
 	if (normalized.includes("music")) return Music4;
 	if (
-		normalized.includes("transcrib") ||
+		normalized.includes("transcri") ||
 		normalized.includes("speech to text") ||
 		normalized.includes("stt")
 	) {

@@ -432,6 +432,15 @@ module PhaseoSdk
     # Model ID: ibm/granite-4.1-8b
     # Model page: https://phaseo.app/models/ibm/granite-4.1-8b
     IBM_GRANITE_4_1_8B = "ibm/granite-4.1-8b"
+    # Model ID: ibm/granite-4.2-30b
+    # Model page: https://phaseo.app/models/ibm/granite-4.2-30b
+    IBM_GRANITE_4_2_30B = "ibm/granite-4.2-30b"
+    # Model ID: ibm/granite-4.2-3b
+    # Model page: https://phaseo.app/models/ibm/granite-4.2-3b
+    IBM_GRANITE_4_2_3B = "ibm/granite-4.2-3b"
+    # Model ID: ibm/granite-4.2-8b
+    # Model page: https://phaseo.app/models/ibm/granite-4.2-8b
+    IBM_GRANITE_4_2_8B = "ibm/granite-4.2-8b"
     # Model ID: inception/mercury-2
     # Model page: https://phaseo.app/models/inception/mercury-2
     INCEPTION_MERCURY_2 = "inception/mercury-2"
@@ -1017,9 +1026,6 @@ module PhaseoSdk
     # Model ID: openai/whisper-large-v3-turbo
     # Model page: https://phaseo.app/models/openai/whisper-large-v3-turbo
     OPENAI_WHISPER_LARGE_V3_TURBO = "openai/whisper-large-v3-turbo"
-    # Model ID: openbmb/minicpm-v-4.5
-    # Model page: https://phaseo.app/models/openbmb/minicpm-v-4.5
-    OPENBMB_MINICPM_V_4_5 = "openbmb/minicpm-v-4.5"
     # Model ID: perplexity/pplx-embed-v1-0.6b
     # Model page: https://phaseo.app/models/perplexity/pplx-embed-v1-0.6b
     PERPLEXITY_PPLX_EMBED_V1_0_6B = "perplexity/pplx-embed-v1-0.6b"
@@ -1038,9 +1044,6 @@ module PhaseoSdk
     # Model ID: poolside/laguna-xs-2.1:free
     # Model page: https://phaseo.app/models/poolside/laguna-xs-2.1%3Afree
     POOLSIDE_LAGUNA_XS_2_1_FREE = "poolside/laguna-xs-2.1:free"
-    # Model ID: prism-ml/ternary-bonsai-27b
-    # Model page: https://phaseo.app/models/prism-ml/ternary-bonsai-27b
-    PRISM_ML_TERNARY_BONSAI_27B = "prism-ml/ternary-bonsai-27b"
     # Model ID: qwen/qvq-max
     # Model page: https://phaseo.app/models/qwen/qvq-max
     QWEN_QVQ_MAX = "qwen/qvq-max"
@@ -1395,15 +1398,6 @@ module PhaseoSdk
     # Model ID: sakana/namazu
     # Model page: https://phaseo.app/models/sakana/namazu
     SAKANA_NAMAZU = "sakana/namazu"
-    # Model ID: sao10k/l3-8b-lunaris
-    # Model page: https://phaseo.app/models/sao10k/l3-8b-lunaris
-    SAO10K_L3_8B_LUNARIS = "sao10k/l3-8b-lunaris"
-    # Model ID: sao10k/l3-8b-stheno-v3.2
-    # Model page: https://phaseo.app/models/sao10k/l3-8b-stheno-v3.2
-    SAO10K_L3_8B_STHENO_V3_2 = "sao10k/l3-8b-stheno-v3.2"
-    # Model ID: sao10k/l31-70b-euryale-v2.2
-    # Model page: https://phaseo.app/models/sao10k/l31-70b-euryale-v2.2
-    SAO10K_L31_70B_EURYALE_V2_2 = "sao10k/l31-70b-euryale-v2.2"
     # Model ID: spacex-ai/grok-4.20
     # Model page: https://phaseo.app/models/spacex-ai/grok-4.20
     SPACEX_AI_GROK_4_20 = "spacex-ai/grok-4.20"
@@ -1825,6 +1819,9 @@ module PhaseoSdk
     ModelIds::GOOGLE_VEO_3_1_LITE_PREVIEW,
     ModelIds::GOOGLE_VEO_3_1_PREVIEW,
     ModelIds::IBM_GRANITE_4_1_8B,
+    ModelIds::IBM_GRANITE_4_2_30B,
+    ModelIds::IBM_GRANITE_4_2_3B,
+    ModelIds::IBM_GRANITE_4_2_8B,
     ModelIds::INCEPTION_MERCURY_2,
     ModelIds::INCEPTION_MERCURY_EDIT_2,
     ModelIds::INCLUSIONAI_LING_2_6_1T,
@@ -2020,14 +2017,12 @@ module PhaseoSdk
     ModelIds::OPENAI_WHISPER_1,
     ModelIds::OPENAI_WHISPER_LARGE_V3,
     ModelIds::OPENAI_WHISPER_LARGE_V3_TURBO,
-    ModelIds::OPENBMB_MINICPM_V_4_5,
     ModelIds::PERPLEXITY_PPLX_EMBED_V1_0_6B,
     ModelIds::PERPLEXITY_PPLX_EMBED_V1_4B,
     ModelIds::PHASEO_FREE,
     ModelIds::POOLSIDE_LAGUNA_M_1_FREE,
     ModelIds::POOLSIDE_LAGUNA_S_2_1_FREE,
     ModelIds::POOLSIDE_LAGUNA_XS_2_1_FREE,
-    ModelIds::PRISM_ML_TERNARY_BONSAI_27B,
     ModelIds::QWEN_QVQ_MAX,
     ModelIds::QWEN_QWEN_FLASH,
     ModelIds::QWEN_QWEN_FLASH_CHARACTER,
@@ -2146,9 +2141,6 @@ module PhaseoSdk
     ModelIds::RELACE_RELACE_SEARCH,
     ModelIds::SAKANA_FUGU_ULTRA,
     ModelIds::SAKANA_NAMAZU,
-    ModelIds::SAO10K_L3_8B_LUNARIS,
-    ModelIds::SAO10K_L3_8B_STHENO_V3_2,
-    ModelIds::SAO10K_L31_70B_EURYALE_V2_2,
     ModelIds::SPACEX_AI_GROK_4_20,
     ModelIds::SPACEX_AI_GROK_4_20_MULTI_AGENT_BETA,
     ModelIds::SPACEX_AI_GROK_4_20_MULTI_AGENT_BETA_0309,

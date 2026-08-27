@@ -6,7 +6,7 @@
   "residency_mode": "provider_managed",
   "default_execution_regions": null,
   "default_data_regions": null,
-  "zero_data_retention": "unknown",
+  "zero_data_retention": false,
   "residency_source_url": "https://poolside.ai/legal/eula",
   "residency_notes": "Poolside's public terms and privacy materials describe service logging and an opt-out route for training-related use, but do not publish a standard Zero Data Retention commitment or a customer-selectable execution/storage region. Safety, feedback, and operational exceptions remain possible.",
   "country_code": "US",

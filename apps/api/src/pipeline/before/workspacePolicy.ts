@@ -877,7 +877,7 @@ function deriveDataPolicyTier(provider: ProviderCandidate): ProviderDataPolicyTi
 		return "trains";
 	}
 	if (promptTrainingPolicy === "no_train" || promptTrainingPolicy === "enterprise_no_train") {
-		return provider.zeroDataRetention === "default" ? "private" : "logs";
+		return provider.zeroDataRetention === true ? "private" : "logs";
 	}
 	return "unknown";
 }
@@ -921,7 +921,7 @@ function applyProviderDataPolicySettings(args: {
 		const costKind = routeCostKind(provider.pricingCard);
 		let reason: WorkspacePolicyDiagnostics["droppedByPrivacy"][number]["reason"] | null = null;
 
-		if (settings.privacyZdrOnly && provider.zeroDataRetention !== "default") {
+		if (settings.privacyZdrOnly && provider.zeroDataRetention !== true) {
 			reason = "zdr_required";
 		} else if (tier === "unknown") {
 			reason = "data_policy_unknown";

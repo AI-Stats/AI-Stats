@@ -626,7 +626,7 @@
       "canonical_slug": "x-ai/grok-4.6-20260810",
       "surface": "chat",
       "category": "model",
-      "canonical_model_id": "xai/grok-4.6",
+      "canonical_model_id": "spacex-ai/grok-4.6",
       "accounted": true,
       "input_modalities": [
         "text",
@@ -2532,7 +2532,7 @@
       "canonical_slug": "x-ai/grok-4.5-20260708",
       "surface": "chat",
       "category": "model",
-      "canonical_model_id": "xai/grok-4.5",
+      "canonical_model_id": "spacex-ai/grok-4.5",
       "accounted": true,
       "input_modalities": [
         "text",
@@ -2580,7 +2580,7 @@
       "canonical_slug": "~x-ai/grok-latest",
       "surface": "chat",
       "category": "alias",
-      "canonical_model_id": "xai/grok-4.6",
+      "canonical_model_id": "spacex-ai/grok-4.6",
       "accounted": true,
       "input_modalities": [
         "text",
@@ -3979,7 +3979,7 @@
       "canonical_slug": "x-ai/grok-build-0.1-20260520",
       "surface": "chat",
       "category": "model",
-      "canonical_model_id": "xai/grok-build-0.1",
+      "canonical_model_id": "spacex-ai/grok-build-0.1",
       "accounted": true,
       "input_modalities": [
         "text",
@@ -4152,40 +4152,6 @@
       "expiration_date": null
     },
     {
-      "id": "perceptron/perceptron-mk1",
-      "canonical_slug": "perceptron/perceptron-mk1-20260512",
-      "surface": "chat",
-      "category": "model",
-      "canonical_model_id": "perceptron/perceptron-mk1",
-      "accounted": true,
-      "input_modalities": [
-        "text",
-        "image",
-        "video"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "context_length": 32768,
-      "max_output_tokens": 8192,
-      "supported_parameters": [
-        "frequency_penalty",
-        "include_reasoning",
-        "max_tokens",
-        "presence_penalty",
-        "reasoning",
-        "structured_outputs",
-        "temperature",
-        "top_k",
-        "top_p"
-      ],
-      "pricing": {
-        "prompt": "0.00000015",
-        "completion": "0.0000015"
-      },
-      "expiration_date": null
-    },
-    {
       "id": "inclusionai/ring-2.6-1t",
       "canonical_slug": "inclusionai/ring-2.6-1t-20260508",
       "surface": "chat",
@@ -4353,7 +4319,7 @@
       "canonical_slug": "x-ai/grok-4.3-20260430",
       "surface": "chat",
       "category": "model",
-      "canonical_model_id": "xai/grok-4.3",
+      "canonical_model_id": "spacex-ai/grok-4.3",
       "accounted": true,
       "input_modalities": [
         "text",
@@ -4401,7 +4367,7 @@
       "canonical_slug": "ibm-granite/granite-4.1-8b-20260429",
       "surface": "chat",
       "category": "model",
-      "canonical_model_id": "ibm-granite/granite-4.1-8b",
+      "canonical_model_id": "ibm/granite-4.1-8b",
       "accounted": true,
       "input_modalities": [
         "text"
@@ -4440,7 +4406,7 @@
       "canonical_slug": "mistralai/mistral-medium-3.5-20260430",
       "surface": "chat",
       "category": "model",
-      "canonical_model_id": "mistralai/mistral-medium-3-5",
+      "canonical_model_id": "mistral/mistral-medium-3-5",
       "accounted": true,
       "input_modalities": [
         "text",
@@ -6083,7 +6049,7 @@
       "canonical_slug": "x-ai/grok-4.20-multi-agent-20260309",
       "surface": "chat",
       "category": "model",
-      "canonical_model_id": "xai/grok-4.20-multi-agent",
+      "canonical_model_id": "spacex-ai/grok-4.20-multi-agent-beta",
       "accounted": true,
       "input_modalities": [
         "text",
@@ -6129,7 +6095,7 @@
       "canonical_slug": "x-ai/grok-4.20-20260309",
       "surface": "chat",
       "category": "model",
-      "canonical_model_id": "xai/grok-4.20",
+      "canonical_model_id": "spacex-ai/grok-4.20",
       "accounted": true,
       "input_modalities": [
         "text",
@@ -6504,7 +6470,7 @@
       "canonical_slug": "mistralai/mistral-small-2603",
       "surface": "chat",
       "category": "model",
-      "canonical_model_id": "mistralai/mistral-small-2603",
+      "canonical_model_id": "mistral/mistral-small-2603",
       "accounted": true,
       "input_modalities": [
         "text",
@@ -8956,7 +8922,7 @@
       "canonical_slug": "mistralai/ministral-14b-2512",
       "surface": "chat",
       "category": "model",
-      "canonical_model_id": "mistralai/ministral-14b-2512",
+      "canonical_model_id": "mistral/ministral-14b-2512",
       "accounted": true,
       "input_modalities": [
         "text",
@@ -8992,7 +8958,7 @@
       "canonical_slug": "mistralai/ministral-8b-2512",
       "surface": "chat",
       "category": "model",
-      "canonical_model_id": "mistralai/ministral-8b-2512",
+      "canonical_model_id": "mistral/ministral-8b-2512",
       "accounted": true,
       "input_modalities": [
         "text",
@@ -9028,7 +8994,7 @@
       "canonical_slug": "mistralai/ministral-3b-2512",
       "surface": "chat",
       "category": "model",
-      "canonical_model_id": "mistralai/ministral-3b-2512",
+      "canonical_model_id": "mistral/ministral-3b-2512",
       "accounted": true,
       "input_modalities": [
         "text",
@@ -9064,7 +9030,7 @@
       "canonical_slug": "mistralai/mistral-large-2512",
       "surface": "chat",
       "category": "model",
-      "canonical_model_id": "mistralai/mistral-large-2512",
+      "canonical_model_id": "mistral/mistral-large-2512",
       "accounted": true,
       "input_modalities": [
         "text",
@@ -9553,7 +9519,7 @@
       "canonical_slug": "mistralai/voxtral-small-24b-2507",
       "surface": "chat",
       "category": "model",
-      "canonical_model_id": "mistralai/voxtral-small-24b-2507",
+      "canonical_model_id": "mistral/voxtral-small-24b-2507",
       "accounted": true,
       "input_modalities": [
         "text",
@@ -9737,7 +9703,7 @@
       "canonical_slug": "ibm-granite/granite-4.0-h-micro",
       "surface": "chat",
       "category": "model",
-      "canonical_model_id": "ibm-granite/granite-4.0-h-micro",
+      "canonical_model_id": "ibm/granite-4.0-h-micro",
       "accounted": true,
       "input_modalities": [
         "text"
@@ -11168,7 +11134,7 @@
       "canonical_slug": "mistralai/mistral-medium-3.1",
       "surface": "chat",
       "category": "model",
-      "canonical_model_id": "mistralai/mistral-medium-3.1",
+      "canonical_model_id": "mistral/mistral-medium-3.1",
       "accounted": true,
       "input_modalities": [
         "text",
@@ -11627,7 +11593,7 @@
       "canonical_slug": "mistralai/codestral-2508",
       "surface": "chat",
       "category": "model",
-      "canonical_model_id": "mistralai/codestral-2508",
+      "canonical_model_id": "mistral/codestral-2508",
       "accounted": true,
       "input_modalities": [
         "text",
@@ -12248,7 +12214,7 @@
       "canonical_slug": "mistralai/mistral-small-3.2-24b-instruct-2506",
       "surface": "chat",
       "category": "model",
-      "canonical_model_id": "mistralai/mistral-small-3.2-24b-instruct",
+      "canonical_model_id": "mistral/mistral-small-3.2-24b-instruct",
       "accounted": true,
       "input_modalities": [
         "image",
@@ -12808,7 +12774,7 @@
       "canonical_slug": "mistralai/mistral-medium-3",
       "surface": "chat",
       "category": "model",
-      "canonical_model_id": "mistralai/mistral-medium-3",
+      "canonical_model_id": "mistral/mistral-medium-3",
       "accounted": true,
       "input_modalities": [
         "text",
@@ -13775,7 +13741,7 @@
       "canonical_slug": "mistralai/mistral-small-3.1-24b-instruct-2503",
       "surface": "chat",
       "category": "model",
-      "canonical_model_id": "mistralai/mistral-small-3.1-24b-instruct",
+      "canonical_model_id": "mistral/mistral-small-3.1-24b-instruct",
       "accounted": true,
       "input_modalities": [
         "text",
@@ -14137,7 +14103,7 @@
       "canonical_slug": "mistralai/mistral-saba-2502",
       "surface": "chat",
       "category": "model",
-      "canonical_model_id": "mistralai/mistral-saba",
+      "canonical_model_id": "mistral/mistral-saba",
       "accounted": true,
       "input_modalities": [
         "text",
@@ -14424,7 +14390,7 @@
       "canonical_slug": "mistralai/mistral-small-24b-instruct-2501",
       "surface": "chat",
       "category": "model",
-      "canonical_model_id": "mistralai/mistral-small-24b-instruct-2501",
+      "canonical_model_id": "mistral/mistral-small-24b-instruct-2501",
       "accounted": true,
       "input_modalities": [
         "text"
@@ -14657,41 +14623,6 @@
       "pricing": {
         "prompt": "0.0000002574",
         "completion": "0.0000010287"
-      },
-      "expiration_date": null
-    },
-    {
-      "id": "sao10k/l3.3-euryale-70b",
-      "canonical_slug": "sao10k/l3.3-euryale-70b-v2.3",
-      "surface": "chat",
-      "category": "model",
-      "canonical_model_id": "sao10k/l3.3-euryale-70b",
-      "accounted": true,
-      "input_modalities": [
-        "text"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "context_length": 131072,
-      "max_output_tokens": 16384,
-      "supported_parameters": [
-        "frequency_penalty",
-        "logprobs",
-        "max_tokens",
-        "presence_penalty",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "top_logprobs",
-        "top_p"
-      ],
-      "pricing": {
-        "prompt": "0.00000065",
-        "completion": "0.00000075"
       },
       "expiration_date": null
     },
@@ -14974,7 +14905,7 @@
       "canonical_slug": "mistralai/mistral-large-2407",
       "surface": "chat",
       "category": "model",
-      "canonical_model_id": "mistralai/mistral-large-2407",
+      "canonical_model_id": "mistral/mistral-large-2407",
       "accounted": true,
       "input_modalities": [
         "text",
@@ -15079,50 +15010,11 @@
       "expiration_date": null
     },
     {
-      "id": "anthracite-org/magnum-v4-72b",
-      "canonical_slug": "anthracite-org/magnum-v4-72b",
-      "surface": "chat",
-      "category": "model",
-      "canonical_model_id": "anthracite-org/magnum-v4-72b",
-      "accounted": true,
-      "input_modalities": [
-        "text"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "context_length": 32768,
-      "max_output_tokens": 4096,
-      "supported_parameters": [
-        "frequency_penalty",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "top_a",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "pricing": {
-        "prompt": "0.000003",
-        "completion": "0.000005"
-      },
-      "expiration_date": null
-    },
-    {
       "id": "mistralai/ministral-8b",
       "canonical_slug": "mistralai/ministral-8b",
       "surface": "chat",
       "category": "model",
-      "canonical_model_id": "mistralai/ministral-8b",
+      "canonical_model_id": "mistral/ministral-8b",
       "accounted": true,
       "input_modalities": [
         "text"
@@ -15404,44 +15296,6 @@
       "expiration_date": null
     },
     {
-      "id": "sao10k/l3.1-euryale-70b",
-      "canonical_slug": "sao10k/l3.1-euryale-70b",
-      "surface": "chat",
-      "category": "model",
-      "canonical_model_id": "sao10k/l3.1-euryale-70b",
-      "accounted": true,
-      "input_modalities": [
-        "text"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "context_length": 131072,
-      "max_output_tokens": 16384,
-      "supported_parameters": [
-        "frequency_penalty",
-        "logit_bias",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "tool_choice",
-        "tools",
-        "top_k",
-        "top_p"
-      ],
-      "pricing": {
-        "prompt": "0.00000085",
-        "completion": "0.00000085"
-      },
-      "expiration_date": null
-    },
-    {
       "id": "nousresearch/hermes-3-llama-3.1-70b",
       "canonical_slug": "nousresearch/hermes-3-llama-3.1-70b",
       "surface": "chat",
@@ -15510,44 +15364,6 @@
       "pricing": {
         "prompt": "0.000001",
         "completion": "0.000001"
-      },
-      "expiration_date": null
-    },
-    {
-      "id": "sao10k/l3-lunaris-8b",
-      "canonical_slug": "sao10k/l3-lunaris-8b",
-      "surface": "chat",
-      "category": "model",
-      "canonical_model_id": "sao10k/l3-lunaris-8b",
-      "accounted": true,
-      "input_modalities": [
-        "text"
-      ],
-      "output_modalities": [
-        "text"
-      ],
-      "context_length": 8192,
-      "max_output_tokens": 16384,
-      "supported_parameters": [
-        "frequency_penalty",
-        "logit_bias",
-        "logprobs",
-        "max_tokens",
-        "min_p",
-        "presence_penalty",
-        "repetition_penalty",
-        "response_format",
-        "seed",
-        "stop",
-        "structured_outputs",
-        "temperature",
-        "top_k",
-        "top_logprobs",
-        "top_p"
-      ],
-      "pricing": {
-        "prompt": "0.00000004",
-        "completion": "0.00000005"
       },
       "expiration_date": null
     },
@@ -15680,7 +15496,7 @@
       "canonical_slug": "mistralai/mistral-nemo",
       "surface": "chat",
       "category": "model",
-      "canonical_model_id": "mistralai/mistral-nemo",
+      "canonical_model_id": "mistral/mistral-nemo",
       "accounted": true,
       "input_modalities": [
         "text"
@@ -16009,7 +15825,7 @@
       "canonical_slug": "mistralai/mixtral-8x22b-instruct",
       "surface": "chat",
       "category": "model",
-      "canonical_model_id": "mistralai/mixtral-8x22b-instruct",
+      "canonical_model_id": "mistral/mixtral-8x22b-instruct",
       "accounted": true,
       "input_modalities": [
         "text",
@@ -16190,7 +16006,7 @@
       "canonical_slug": "mistralai/mistral-large",
       "surface": "chat",
       "category": "model",
-      "canonical_model_id": "mistralai/mistral-large",
+      "canonical_model_id": "mistral/mistral-large",
       "accounted": true,
       "input_modalities": [
         "text",
@@ -17002,7 +16818,7 @@
       "canonical_slug": "x-ai/grok-imagine-video-1.5-20260719",
       "surface": "video",
       "category": "video-model",
-      "canonical_model_id": "xai/grok-imagine-video-1.5",
+      "canonical_model_id": "spacex-ai/grok-imagine-video-1.5",
       "accounted": true,
       "supported_resolutions": [
         "480p",
@@ -17181,7 +16997,7 @@
       "canonical_slug": "x-ai/grok-imagine-video-20260512",
       "surface": "video",
       "category": "video-model",
-      "canonical_model_id": "xai/grok-imagine-video",
+      "canonical_model_id": "spacex-ai/grok-imagine-video",
       "accounted": true,
       "supported_resolutions": [
         "480p",
@@ -17247,7 +17063,7 @@
       "canonical_slug": "kwaivgi/kling-v3.0-pro-20260429",
       "surface": "video",
       "category": "video-model",
-      "canonical_model_id": "kwaivgi/kling-v3.0-pro",
+      "canonical_model_id": "kling/kling-v3.0-pro",
       "accounted": true,
       "supported_resolutions": [
         "720p"
@@ -17303,7 +17119,7 @@
       "canonical_slug": "kwaivgi/kling-v3.0-std-20260429",
       "surface": "video",
       "category": "video-model",
-      "canonical_model_id": "kwaivgi/kling-v3.0-std",
+      "canonical_model_id": "kling/kling-v3.0-std",
       "accounted": true,
       "supported_resolutions": [
         "720p"
@@ -17458,7 +17274,7 @@
       "canonical_slug": "kwaivgi/kling-video-o1-20260420",
       "surface": "video",
       "category": "video-model",
-      "canonical_model_id": "kwaivgi/kling-video-o1",
+      "canonical_model_id": "kling/kling-video-o1",
       "accounted": true,
       "supported_resolutions": [
         "720p"

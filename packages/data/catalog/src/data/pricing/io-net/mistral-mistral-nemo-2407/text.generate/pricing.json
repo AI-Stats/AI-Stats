@@ -15,7 +15,7 @@
       "note": null,
       "match": [],
       "priority": 100,
-      "effective_from": "2026-08-24T00:00:00Z",
+      "effective_from": "2026-08-26T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -31,7 +31,7 @@
       "note": null,
       "match": [],
       "priority": 100,
-      "effective_from": "2026-08-24T00:00:00Z",
+      "effective_from": "2026-08-26T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -44,15 +44,15 @@
   ],
   "sources": [
     {
-      "kind": "pricing",
+      "kind": "provider_model",
       "url": "https://api.intelligence.io.solutions/api/v1/models",
-      "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "Live token prices published by IO.NET for provider model mistralai/Mistral-Nemo-Instruct-2407."
+      "accessed_at": "2026-08-26T00:00:00Z",
+      "notes": "Official IO.NET model catalog reports $0.029667 input, and $0.076667 output per million tokens for mistralai/Mistral-Nemo-Instruct-2407."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Input, cached-input (where supported), and output token prices verified from IO.NET's official live model endpoint."
+    "checked_at": "2026-08-26T00:00:00Z",
+    "notes": "Input and output token prices verified from IO.NET's official live model endpoint; prompt caching is not supported for this model."
   }
 }

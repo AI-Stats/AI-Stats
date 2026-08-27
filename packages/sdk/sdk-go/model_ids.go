@@ -436,6 +436,15 @@ const (
 	// Model ID: ibm/granite-4.1-8b
 	// Model page: https://phaseo.app/models/ibm/granite-4.1-8b
 	ModelIDIbmGranite418b gen.ModelId = "ibm/granite-4.1-8b"
+	// Model ID: ibm/granite-4.2-30b
+	// Model page: https://phaseo.app/models/ibm/granite-4.2-30b
+	ModelIDIbmGranite4230b gen.ModelId = "ibm/granite-4.2-30b"
+	// Model ID: ibm/granite-4.2-3b
+	// Model page: https://phaseo.app/models/ibm/granite-4.2-3b
+	ModelIDIbmGranite423b gen.ModelId = "ibm/granite-4.2-3b"
+	// Model ID: ibm/granite-4.2-8b
+	// Model page: https://phaseo.app/models/ibm/granite-4.2-8b
+	ModelIDIbmGranite428b gen.ModelId = "ibm/granite-4.2-8b"
 	// Model ID: inception/mercury-2
 	// Model page: https://phaseo.app/models/inception/mercury-2
 	ModelIDInceptionMercury2 gen.ModelId = "inception/mercury-2"
@@ -1021,9 +1030,6 @@ const (
 	// Model ID: openai/whisper-large-v3-turbo
 	// Model page: https://phaseo.app/models/openai/whisper-large-v3-turbo
 	ModelIDOpenaiWhisperLargeV3Turbo gen.ModelId = "openai/whisper-large-v3-turbo"
-	// Model ID: openbmb/minicpm-v-4.5
-	// Model page: https://phaseo.app/models/openbmb/minicpm-v-4.5
-	ModelIDOpenbmbMinicpmV45 gen.ModelId = "openbmb/minicpm-v-4.5"
 	// Model ID: perplexity/pplx-embed-v1-0.6b
 	// Model page: https://phaseo.app/models/perplexity/pplx-embed-v1-0.6b
 	ModelIDPerplexityPplxEmbedV106b gen.ModelId = "perplexity/pplx-embed-v1-0.6b"
@@ -1042,9 +1048,6 @@ const (
 	// Model ID: poolside/laguna-xs-2.1:free
 	// Model page: https://phaseo.app/models/poolside/laguna-xs-2.1%3Afree
 	ModelIDPoolsideLagunaXs21Free gen.ModelId = "poolside/laguna-xs-2.1:free"
-	// Model ID: prism-ml/ternary-bonsai-27b
-	// Model page: https://phaseo.app/models/prism-ml/ternary-bonsai-27b
-	ModelIDPrismMlTernaryBonsai27b gen.ModelId = "prism-ml/ternary-bonsai-27b"
 	// Model ID: qwen/qvq-max
 	// Model page: https://phaseo.app/models/qwen/qvq-max
 	ModelIDQwenQvqMax gen.ModelId = "qwen/qvq-max"
@@ -1399,15 +1402,6 @@ const (
 	// Model ID: sakana/namazu
 	// Model page: https://phaseo.app/models/sakana/namazu
 	ModelIDSakanaNamazu gen.ModelId = "sakana/namazu"
-	// Model ID: sao10k/l3-8b-lunaris
-	// Model page: https://phaseo.app/models/sao10k/l3-8b-lunaris
-	ModelIDSao10kL38bLunaris gen.ModelId = "sao10k/l3-8b-lunaris"
-	// Model ID: sao10k/l3-8b-stheno-v3.2
-	// Model page: https://phaseo.app/models/sao10k/l3-8b-stheno-v3.2
-	ModelIDSao10kL38bSthenoV32 gen.ModelId = "sao10k/l3-8b-stheno-v3.2"
-	// Model ID: sao10k/l31-70b-euryale-v2.2
-	// Model page: https://phaseo.app/models/sao10k/l31-70b-euryale-v2.2
-	ModelIDSao10kL3170bEuryaleV22 gen.ModelId = "sao10k/l31-70b-euryale-v2.2"
 	// Model ID: spacex-ai/grok-4.20
 	// Model page: https://phaseo.app/models/spacex-ai/grok-4.20
 	ModelIDSpacexAiGrok420 gen.ModelId = "spacex-ai/grok-4.20"
@@ -1829,6 +1823,9 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDGoogleVeo31LitePreview,
 	ModelIDGoogleVeo31Preview,
 	ModelIDIbmGranite418b,
+	ModelIDIbmGranite4230b,
+	ModelIDIbmGranite423b,
+	ModelIDIbmGranite428b,
 	ModelIDInceptionMercury2,
 	ModelIDInceptionMercuryEdit2,
 	ModelIDInclusionaiLing261t,
@@ -2024,14 +2021,12 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDOpenaiWhisper1,
 	ModelIDOpenaiWhisperLargeV3,
 	ModelIDOpenaiWhisperLargeV3Turbo,
-	ModelIDOpenbmbMinicpmV45,
 	ModelIDPerplexityPplxEmbedV106b,
 	ModelIDPerplexityPplxEmbedV14b,
 	ModelIDPhaseoFree,
 	ModelIDPoolsideLagunaM1Free,
 	ModelIDPoolsideLagunaS21Free,
 	ModelIDPoolsideLagunaXs21Free,
-	ModelIDPrismMlTernaryBonsai27b,
 	ModelIDQwenQvqMax,
 	ModelIDQwenQwenFlash,
 	ModelIDQwenQwenFlashCharacter,
@@ -2150,9 +2145,6 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDRelaceRelaceSearch,
 	ModelIDSakanaFuguUltra,
 	ModelIDSakanaNamazu,
-	ModelIDSao10kL38bLunaris,
-	ModelIDSao10kL38bSthenoV32,
-	ModelIDSao10kL3170bEuryaleV22,
 	ModelIDSpacexAiGrok420,
 	ModelIDSpacexAiGrok420MultiAgentBeta,
 	ModelIDSpacexAiGrok420MultiAgentBeta0309,

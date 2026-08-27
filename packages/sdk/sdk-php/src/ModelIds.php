@@ -437,6 +437,15 @@ final class ModelIds
     /** Model ID: ibm/granite-4.1-8b. Model page: https://phaseo.app/models/ibm/granite-4.1-8b */
     public const IBM_GRANITE_4_1_8B = 'ibm/granite-4.1-8b';
 
+    /** Model ID: ibm/granite-4.2-30b. Model page: https://phaseo.app/models/ibm/granite-4.2-30b */
+    public const IBM_GRANITE_4_2_30B = 'ibm/granite-4.2-30b';
+
+    /** Model ID: ibm/granite-4.2-3b. Model page: https://phaseo.app/models/ibm/granite-4.2-3b */
+    public const IBM_GRANITE_4_2_3B = 'ibm/granite-4.2-3b';
+
+    /** Model ID: ibm/granite-4.2-8b. Model page: https://phaseo.app/models/ibm/granite-4.2-8b */
+    public const IBM_GRANITE_4_2_8B = 'ibm/granite-4.2-8b';
+
     /** Model ID: inception/mercury-2. Model page: https://phaseo.app/models/inception/mercury-2 */
     public const INCEPTION_MERCURY_2 = 'inception/mercury-2';
 
@@ -1022,9 +1031,6 @@ final class ModelIds
     /** Model ID: openai/whisper-large-v3-turbo. Model page: https://phaseo.app/models/openai/whisper-large-v3-turbo */
     public const OPENAI_WHISPER_LARGE_V3_TURBO = 'openai/whisper-large-v3-turbo';
 
-    /** Model ID: openbmb/minicpm-v-4.5. Model page: https://phaseo.app/models/openbmb/minicpm-v-4.5 */
-    public const OPENBMB_MINICPM_V_4_5 = 'openbmb/minicpm-v-4.5';
-
     /** Model ID: perplexity/pplx-embed-v1-0.6b. Model page: https://phaseo.app/models/perplexity/pplx-embed-v1-0.6b */
     public const PERPLEXITY_PPLX_EMBED_V1_0_6B = 'perplexity/pplx-embed-v1-0.6b';
 
@@ -1042,9 +1048,6 @@ final class ModelIds
 
     /** Model ID: poolside/laguna-xs-2.1:free. Model page: https://phaseo.app/models/poolside/laguna-xs-2.1%3Afree */
     public const POOLSIDE_LAGUNA_XS_2_1_FREE = 'poolside/laguna-xs-2.1:free';
-
-    /** Model ID: prism-ml/ternary-bonsai-27b. Model page: https://phaseo.app/models/prism-ml/ternary-bonsai-27b */
-    public const PRISM_ML_TERNARY_BONSAI_27B = 'prism-ml/ternary-bonsai-27b';
 
     /** Model ID: qwen/qvq-max. Model page: https://phaseo.app/models/qwen/qvq-max */
     public const QWEN_QVQ_MAX = 'qwen/qvq-max';
@@ -1399,15 +1402,6 @@ final class ModelIds
 
     /** Model ID: sakana/namazu. Model page: https://phaseo.app/models/sakana/namazu */
     public const SAKANA_NAMAZU = 'sakana/namazu';
-
-    /** Model ID: sao10k/l3-8b-lunaris. Model page: https://phaseo.app/models/sao10k/l3-8b-lunaris */
-    public const SAO10K_L3_8B_LUNARIS = 'sao10k/l3-8b-lunaris';
-
-    /** Model ID: sao10k/l3-8b-stheno-v3.2. Model page: https://phaseo.app/models/sao10k/l3-8b-stheno-v3.2 */
-    public const SAO10K_L3_8B_STHENO_V3_2 = 'sao10k/l3-8b-stheno-v3.2';
-
-    /** Model ID: sao10k/l31-70b-euryale-v2.2. Model page: https://phaseo.app/models/sao10k/l31-70b-euryale-v2.2 */
-    public const SAO10K_L31_70B_EURYALE_V2_2 = 'sao10k/l31-70b-euryale-v2.2';
 
     /** Model ID: spacex-ai/grok-4.20. Model page: https://phaseo.app/models/spacex-ai/grok-4.20 */
     public const SPACEX_AI_GROK_4_20 = 'spacex-ai/grok-4.20';

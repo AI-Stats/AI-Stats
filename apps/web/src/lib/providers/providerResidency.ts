@@ -4,11 +4,7 @@ export type ResidencyMode =
 	| "customer_selectable"
 	| "account_selected";
 
-export type ZeroDataRetentionMode =
-	| "unknown"
-	| "unsupported"
-	| "optional"
-	| "default";
+export type ZeroDataRetentionMode = boolean;
 
 export type ProviderResidencyMetadata = {
 	residencyMode: ResidencyMode | null;
