@@ -91,6 +91,33 @@ describe("public rankings routes", () => {
 		});
 	});
 
+	it("serves model return rankings with catalogue metadata and aggregate-only fields", async () => {
+		const fetchMock = vi.fn(async (input: string | URL | Request) => {
+			const url = String(input);
+			if (url.includes("get_public_model_retention_rankings")) return new Response(JSON.stringify([{
+				model_id: "openai/gpt-test", retention_rate: 72.5, returning_workspace_weeks: 29,
+				workspace_weeks: 40, unique_workspaces: 18, weeks_observed: 8,
+				confidence_low: 57.2, confidence_high: 83.7, rank: 1,
+			}]), { status: 200 });
+			if (url.includes("v2_models")) return new Response(JSON.stringify([{
+				model_slug: "openai/gpt-test", name: "GPT Test", lab_slug: "openai", lab: { name: "OpenAI" },
+			}]), { status: 200 });
+			return new Response(JSON.stringify([]), { status: 200 });
+		});
+		vi.stubGlobal("fetch", fetchMock);
+		const response = await app.request("https://phaseo.app/api/_web/rankings/model-retention?weeks=8&limit=10&min_workspace_weeks=40&min_workspaces=8&min_weeks=3", {}, env);
+		expect(response.status).toBe(200);
+		expect(response.headers.get("cloudflare-cdn-cache-control")).toBe("public, max-age=900, stale-while-revalidate=900");
+		const rpcCall = fetchMock.mock.calls.find(([input]) => String(input).includes("get_public_model_retention_rankings"));
+		expect(String(rpcCall?.[1]?.body)).toContain('"p_weeks":8');
+		expect(String(rpcCall?.[1]?.body)).toContain('"p_min_workspace_weeks":40');
+		expect(String(rpcCall?.[1]?.body)).toContain('"p_min_workspaces":8');
+		await expect(response.json()).resolves.toMatchObject({
+			data: [{ model_id: "openai/gpt-test", model_name: "GPT Test", organisation_id: "openai", retention_rate: 72.5 }],
+			methodology: { cohortWeeks: 8, minimumWorkspaceWeeks: 40, minimumWorkspaces: 8, minimumWeeks: 3 },
+		});
+	});
+
 	it("serves Fastest Models from its dedicated cached RPC", async () => {
 		const fetchMock = vi.fn(async () => new Response(JSON.stringify([
 			{ model_id: "openai/gpt-test", provider: "openai", median_throughput: 42 },

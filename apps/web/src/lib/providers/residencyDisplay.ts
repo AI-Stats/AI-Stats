@@ -46,20 +46,12 @@ export function formatResidencyMode(mode: ResidencyMode | "mixed"): string {
 }
 
 export function formatZeroDataRetention(
-	mode: ZeroDataRetentionMode | "mixed"
+	mode: ZeroDataRetentionMode | "mixed" | null
 ): string {
-	switch (mode) {
-		case "default":
-			return "Enabled by default";
-		case "optional":
-			return "Available as an option";
-		case "unsupported":
-			return "Not supported";
-		case "mixed":
-			return "Varies by mapping";
-		default:
-			return "Unknown";
-	}
+	if (mode === true) return "True";
+	if (mode === false) return "False";
+	if (mode === "mixed") return "Varies by mapping";
+	return "Unknown";
 }
 
 export function buildResidencyBadges(args: {
@@ -95,10 +87,8 @@ export function buildResidencyBadges(args: {
 		});
 	}
 
-	if (args.zeroDataRetention === "default") {
+	if (args.zeroDataRetention === true) {
 		badges.push({ key: "zdr-default", label: "ZDR Default" });
-	} else if (args.zeroDataRetention === "optional") {
-		badges.push({ key: "zdr-optional", label: "ZDR Option" });
 	}
 
 	return badges.slice(0, maxBadges);

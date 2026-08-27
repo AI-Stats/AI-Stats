@@ -5,8 +5,8 @@
   "status": "Available",
   "previous_model_id": "xiaomi/mimo-v2-pro",
   "description": "MiMo V2.5 Pro is Xiaomi's flagship model, delivering strong performance in general agentic capabilities, complex software engineering, and long-horizon tasks, with top rankings on benchmarks such as ClawEval, GDPVal, and SWE-bench Pro.",
-  "announced_date": "2026-04-22T00:00:00",
-  "release_date": "2026-04-22T00:00:00",
+  "announced_date": "2026-04-23T00:00:00",
+  "release_date": "2026-04-23T00:00:00",
   "deprecation_date": null,
   "retirement_date": null,
   "license": "MIT",
@@ -32,7 +32,7 @@
     },
     {
       "name": "output_context_length",
-      "value": 128000
+      "value": 131072
     }
   ],
   "benchmarks": [
@@ -76,7 +76,7 @@
   "limits": {
     "context": 1048576,
     "input": 1048576,
-    "output": 128000
+    "output": 131072
   },
   "modalities": {
     "input": [
@@ -87,18 +87,18 @@
     ]
   },
   "reasoning": {
-    "supported": null,
+    "supported": true,
     "options": []
   },
   "capabilities": {
-    "attachment": null,
-    "tool_call": null,
-    "structured_output": null,
+    "attachment": false,
+    "tool_call": true,
+    "structured_output": true,
     "temperature": null,
-    "streaming": null,
+    "streaming": true,
     "web_search": null
   },
-  "open_weights": null,
+  "open_weights": true,
   "sources": [
     {
       "kind": "announcement",
@@ -114,11 +114,11 @@
     }
   ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Verified against Xiaomi MiMo's official model catalogue, changelog, and integration guides."
   },
-  "last_updated": null,
+  "last_updated": "2026-08-24T00:00:00Z",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

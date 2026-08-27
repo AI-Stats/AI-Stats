@@ -24,8 +24,9 @@ import {
 } from "@/lib/benchmarks/scoreFormat";
 import { cn } from "@/lib/utils";
 import { getTierFilterMeta } from "@/lib/models/tierFilterStyles";
-import { ExternalLink, Info, MessageSquare, Plus } from "lucide-react";
+import { ExternalLink, Info, MessageSquare } from "lucide-react";
 import { ProviderLogo } from "../ProviderLogo";
+import ModelCombobox from "../ModelCombobox";
 import type { CompareGatewayUsageByModel } from "../types";
 import {
 	ColumnGrid,
@@ -38,6 +39,9 @@ import {
 type DecisionMatrixProps = {
 	selectedModels: ExtendedModel[];
 	usageByModel: CompareGatewayUsageByModel;
+	models: ExtendedModel[];
+	selectedIds: string[];
+	onSelectedIdsChange: (ids: string[]) => void;
 };
 
 type ProviderOption = {
@@ -214,11 +218,15 @@ function getModelPrices(model: ExtendedModel): Price[] {
 				api_provider_id: group.provider.api_provider_id,
 				api_provider: {
 					api_provider_id: group.provider.api_provider_id,
-					api_provider_name:
-						group.provider.api_provider_name ?? group.provider.api_provider_id,
-					description: null,
-					link: group.provider.link ?? null,
-				},
+						api_provider_name:
+							group.provider.api_provider_name ?? group.provider.api_provider_id,
+						description: null,
+						link: group.provider.link ?? null,
+						zero_data_retention: false,
+						data_policy_tier: "unknown",
+						data_policy_confidence: "unknown",
+						data_policy_contract_mode: "none",
+					},
 				input_token_price: !isCached && !isOutput ? pricePerUnit : null,
 				cached_input_token_price: isCached ? pricePerUnit : null,
 				output_token_price: isOutput ? pricePerUnit : null,
@@ -239,6 +247,12 @@ function getModelPrices(model: ExtendedModel): Price[] {
 
 function getProviderOptions(model: ExtendedModel): ProviderOption[] {
 	const byProvider = new Map<string, ProviderOption>();
+	const providerNames = new Map(
+		((model as CompareExtendedModel).compare_provider_pricing ?? []).map((group) => [
+			group.provider.api_provider_id,
+			group.provider.api_provider_name ?? group.provider.api_provider_id,
+		])
+	);
 
 	for (const price of getModelPrices(model)) {
 		if (price.meter === "summary") continue;
@@ -251,7 +265,7 @@ function getProviderOptions(model: ExtendedModel): ProviderOption[] {
 		}
 		byProvider.set(id, {
 			id,
-			name: getProviderName(price) ?? id,
+			name: providerNames.get(id) ?? getProviderName(price) ?? id,
 			prices: [price],
 		});
 	}
@@ -292,13 +306,15 @@ function isMeterMatch(
 function getPricePoint(
 	model: ExtendedModel,
 	providerId: string | null | undefined,
-	kind: "input" | "output" | "cached"
+	kind: "input" | "output" | "cached",
+	pricingPlan?: string | null
 ): PricePoint {
 	let best: PricePoint = { valuePerMillion: null, providerName: null, price: null };
 
 	for (const price of getModelPrices(model)) {
 		if (price.meter === "summary") continue;
 		if (providerId && getProviderId(price) !== providerId) continue;
+		if (pricingPlan && price.pricing_plan !== pricingPlan) continue;
 		if (!isMeterMatch(price, kind)) continue;
 
 		const rawValue =
@@ -328,13 +344,28 @@ function getPricePoint(
 
 function getPriceBundle(
 	model: ExtendedModel,
-	providerId: string | null | undefined
+	providerId: string | null | undefined,
+	pricingPlan?: string | null
 ): PriceBundle {
 	return {
-		input: getPricePoint(model, providerId, "input"),
-		output: getPricePoint(model, providerId, "output"),
-		cached: getPricePoint(model, providerId, "cached"),
+		input: getPricePoint(model, providerId, "input", pricingPlan),
+		output: getPricePoint(model, providerId, "output", pricingPlan),
+		cached: getPricePoint(model, providerId, "cached", pricingPlan),
 	};
+}
+
+function getServiceTiers(option: ProviderOption | undefined): string[] {
+	return Array.from(
+		new Set(
+			(option?.prices ?? [])
+				.map((price) => price.pricing_plan?.trim())
+				.filter((tier): tier is string => Boolean(tier))
+		)
+	).sort((a, b) => a.localeCompare(b));
+}
+
+function getDefaultServiceTier(tiers: string[]): string | null {
+	return tiers.find((tier) => tier.toLowerCase() === "standard") ?? tiers[0] ?? null;
 }
 
 function selectDefaultProviderId(model: ExtendedModel): string | null {
@@ -516,9 +547,15 @@ function Highlight({
 export default function DecisionMatrix({
 	selectedModels,
 	usageByModel,
+	models,
+	selectedIds,
+	onSelectedIdsChange,
 }: DecisionMatrixProps) {
 	const [highlightBest, setHighlightBest] = React.useState(true);
 	const [selectedProviderByModel, setSelectedProviderByModel] = React.useState<
+		Record<string, string>
+	>({});
+	const [selectedTierByModel, setSelectedTierByModel] = React.useState<
 		Record<string, string>
 	>({});
 	const [prompt, setPrompt] = React.useState(DEFAULT_PROMPT);
@@ -548,7 +585,7 @@ export default function DecisionMatrix({
 				setShowStickyCompareBar(!entry.isIntersecting);
 			},
 			{
-				rootMargin: "-144px 0px 0px 0px",
+				rootMargin: "-64px 0px 0px 0px",
 				threshold: 0,
 			}
 		);
@@ -569,10 +606,15 @@ export default function DecisionMatrix({
 		})
 	);
 	const priceByModel = new Map(
-		selectedModels.map((model) => [
-			model.id,
-			getPriceBundle(model, selectedProviderIds.get(model.id)),
-		])
+		selectedModels.map((model) => {
+			const options = providerOptionsByModel.get(model.id) ?? [];
+			const providerId = selectedProviderIds.get(model.id);
+			const tiers = getServiceTiers(options.find((option) => option.id === providerId));
+			const tier = tiers.includes(selectedTierByModel[model.id])
+				? selectedTierByModel[model.id]
+				: getDefaultServiceTier(tiers);
+			return [model.id, getPriceBundle(model, providerId, tier)];
+		})
 	);
 	const inputTokens = estimateTokensFromText(prompt);
 	const safeOutputTokens = Math.max(0, Math.min(1_000_000, outputTokens || 0));
@@ -683,16 +725,14 @@ export default function DecisionMatrix({
 					<Switch checked={highlightBest} onCheckedChange={setHighlightBest} />
 					<span>Highlight best</span>
 				</label>
-				<Button
-					asChild
-					size="sm"
-					className="border border-zinc-800 bg-black text-white hover:bg-zinc-900 dark:border-zinc-700 dark:bg-black dark:text-white dark:hover:bg-zinc-900"
-				>
-					<Link href="/compare">
-						<Plus className="size-4" />
-						Add model
-					</Link>
-				</Button>
+				<ModelCombobox
+					models={models}
+					selected={selectedIds}
+					setSelected={onSelectedIdsChange}
+					labelWhenSelected={selectedIds.length >= 4 ? "Edit models" : "Add model"}
+					showSelectionCount={false}
+					className="h-9 border border-zinc-800 bg-black px-3 text-white hover:bg-zinc-900 hover:text-white dark:border-zinc-700"
+				/>
 				<Button asChild variant="outline" size="sm">
 					<Link href="/chat">
 						<MessageSquare className="size-4" />
@@ -707,6 +747,10 @@ export default function DecisionMatrix({
 					const selectedProvider = options.find(
 						(option) => option.id === selectedProviderId
 					);
+					const serviceTiers = getServiceTiers(selectedProvider);
+					const selectedTier = serviceTiers.includes(selectedTierByModel[model.id])
+						? selectedTierByModel[model.id]
+						: getDefaultServiceTier(serviceTiers) ?? undefined;
 
 					return (
 						<div key={`${keyPrefix}-${model.id}`} className="space-y-2">
@@ -763,12 +807,13 @@ export default function DecisionMatrix({
 							<Select
 								value={selectedProviderId ?? "__none__"}
 								disabled={!options.length}
-								onValueChange={(value) =>
+								onValueChange={(value) => {
+									setSelectedTierByModel((current) => ({ ...current, [model.id]: "" }));
 									setSelectedProviderByModel((current) => ({
 										...current,
 										[model.id]: value,
-									}))
-								}
+									}));
+								}}
 							>
 								<SelectTrigger
 									aria-label={`Select provider for ${model.name}`}
@@ -794,11 +839,31 @@ export default function DecisionMatrix({
 									) : null}
 									{options.map((option) => (
 										<SelectItem key={option.id} value={option.id}>
-											{option.name}
+											<span className="inline-flex items-center gap-2">
+												<ProviderLogo id={option.id} alt={option.name} size="xxs" />
+												<span>{option.name}</span>
+											</span>
 										</SelectItem>
 									))}
 								</SelectContent>
 							</Select>
+							{serviceTiers.length > 1 ? (
+								<Select
+									value={selectedTier}
+									onValueChange={(value) =>
+										setSelectedTierByModel((current) => ({ ...current, [model.id]: value }))
+									}
+								>
+									<SelectTrigger aria-label={`Select service tier for ${model.name}`} className="h-8 w-full rounded-md bg-background px-2 text-xs">
+										<SelectValue placeholder="Select service tier" />
+									</SelectTrigger>
+									<SelectContent>
+										{serviceTiers.map((tier) => (
+											<SelectItem key={tier} value={tier} className="capitalize">{tier.replace(/[_-]+/g, " ")}</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+							) : null}
 						</div>
 					);
 				})}
@@ -812,7 +877,7 @@ export default function DecisionMatrix({
 				{renderModelProviderBar("base")}
 			</div>
 			{showStickyCompareBar ? (
-				<div className="fixed left-0 right-0 top-[calc(var(--site-header-height,4rem)+4.5rem)] z-30 border-b border-border/70 bg-background/95 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/85 sm:top-[calc(var(--site-header-height,4rem)+5rem)]">
+				<div className="fixed left-0 right-0 top-[var(--site-header-height,4rem)] z-30 border-b border-border/70 bg-background/95 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/85">
 					<div className="mx-auto w-full max-w-6xl px-4 py-3">
 						{renderModelProviderBar("sticky")}
 					</div>
@@ -900,10 +965,6 @@ export default function DecisionMatrix({
 					const selectedProvider = providerOptionsByModel
 						.get(model.id)
 						?.find((option) => option.id === selectedProviderId);
-					const sourceLink =
-						prices?.input.price?.source_link ??
-						prices?.output.price?.source_link ??
-						prices?.cached.price?.source_link;
 					const plan =
 						prices?.input.price?.pricing_plan ??
 						prices?.output.price?.pricing_plan ??
@@ -971,20 +1032,6 @@ export default function DecisionMatrix({
 										/>
 										<span className="truncate">{plan}</span>
 									</span>
-								) : (
-									"-"
-								)}
-							</MetricRow>
-							<MetricRow label="Source">
-								{sourceLink ? (
-									<a
-										href={sourceLink}
-										target="_blank"
-										rel="noreferrer"
-										className="underline underline-offset-2"
-									>
-										Pricing source
-									</a>
 								) : (
 									"-"
 								)}

@@ -223,58 +223,40 @@
     "provider_api_model_id": "novita:baidu/ernie-4.5-21b-a3b",
     "provider_model_slug": "baidu/ernie-4.5-21B-a3b",
     "internal_model_id": "baidu/ernie-4.5-21b-a3b",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "BF16",
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 120000,
     "max_output_tokens": 8000,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-05-22T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
-        "params": [
-          "max_tokens",
-          "temperature",
-          "top_p",
-          "stop",
-          "frequency_penalty",
-          "presence_penalty",
-          "seed",
-          "tools",
-          "tool_choice"
-        ],
-        "reasoning": false,
-        "tool_call": true,
-        "structured_output": false,
-        "temperature": true,
-        "attachment": false,
-        "input_modalities": [
-          "text"
-        ],
-        "output_modalities": [
-          "text"
-        ],
+        "status": "inactive",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "inactive",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
     },
-    "service_tiers": [
-      "standard"
-    ],
+    "service_tiers": [],
     "api": {
-      "formats": [
-        "openai.chat.completions"
-      ],
-      "endpoint": "https://api.novita.ai/openai/v1/chat/completions",
-      "deployment": "serverless"
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
     },
     "sources": [
       {
@@ -309,7 +291,7 @@
     "context_length": 131072,
     "max_output_tokens": 65536,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": "2026-08-20T00:00:00Z",
+    "effective_to": "2026-05-22T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -364,7 +346,7 @@
     "context_length": 123000,
     "max_output_tokens": 12000,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": "2026-08-20T00:00:00Z",
+    "effective_to": "2026-05-22T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -518,7 +500,7 @@
     "context_length": 30000,
     "max_output_tokens": 8000,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": "2026-08-20T00:00:00Z",
+    "effective_to": "2026-05-22T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -927,7 +909,7 @@
     "context_length": null,
     "max_output_tokens": 8192,
     "effective_from": null,
-    "effective_to": "2026-08-20T00:00:00Z",
+    "effective_to": "2026-06-05T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -1432,7 +1414,7 @@
     "context_length": null,
     "max_output_tokens": 32000,
     "effective_from": null,
-    "effective_to": "2026-08-20T00:00:00Z",
+    "effective_to": "2026-01-08T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -2452,6 +2434,89 @@
       "status": "verified",
       "checked_at": "2026-08-20T00:00:00Z",
       "notes": "Historical Novita route retained but marked inactive because it is absent from the current first-party serverless catalog."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v4-flash-vision-exp",
+    "provider_api_model_id": "novita:deepseek/deepseek-v4-flash-vision-exp",
+    "provider_model_slug": "deepseek/deepseek-v4-flash-vision-exp",
+    "internal_model_id": "deepseek/deepseek-v4-flash-vision-exp",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 393216,
+    "effective_from": "2026-08-24T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "top_k",
+          "repetition_penalty",
+          "tools",
+          "tool_choice",
+          "response_format",
+          "logprobs",
+          "top_logprobs",
+          "reasoning_effort"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/v1/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Live Novita model registry confirms the exact model slug, multimodal input, context and output limits, pricing fields, supported features, and available endpoints."
+      },
+      {
+        "kind": "documentation",
+        "url": "https://novita.ai/docs/api-reference/model-apis-llm-list-models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official documentation for the model registry used to verify provider availability and model metadata."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Confirmed as a distinct live Novita multimodal deployment with the exact provider slug and provider-specific limits."
     },
     "rate_limits": []
   },
@@ -4410,7 +4475,7 @@
     "api_model_id": "minimax/minimax-m2.5-highspeed",
     "provider_api_model_id": "novita:minimax/minimax-m2.5-highspeed",
     "provider_model_slug": "minimax/minimax-m2.5-highspeed",
-    "internal_model_id": "minimax/minimax-m2.5-highspeed",
+    "internal_model_id": "minimax/minimax-m2.5",
     "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text",
@@ -5989,7 +6054,7 @@
     "context_length": 32000,
     "max_output_tokens": 32000,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": "2026-08-20T00:00:00Z",
+    "effective_to": "2026-05-22T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -6150,7 +6215,7 @@
     "context_length": 32768,
     "max_output_tokens": 32768,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": "2026-08-20T00:00:00Z",
+    "effective_to": "2026-05-22T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -6540,7 +6605,7 @@
     "context_length": 40960,
     "max_output_tokens": 20000,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": "2026-08-20T00:00:00Z",
+    "effective_to": "2026-06-05T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -6701,7 +6766,7 @@
     "context_length": 40960,
     "max_output_tokens": 20000,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": "2026-08-20T00:00:00Z",
+    "effective_to": "2026-06-05T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -6855,7 +6920,7 @@
     "context_length": 128000,
     "max_output_tokens": 20000,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": "2026-08-20T00:00:00Z",
+    "effective_to": "2026-05-22T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -9453,247 +9518,6 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "sao10k/l3-8b-lunaris",
-    "provider_api_model_id": "novita:sao10k/l3-8b-lunaris",
-    "provider_model_slug": "sao10k/l3-8b-lunaris",
-    "internal_model_id": "sao10k/l3-8b-lunaris",
-    "is_active_gateway": true,
-    "quantization_scheme": null,
-    "input_modalities": "text",
-    "output_modalities": "text",
-    "context_length": 8192,
-    "max_output_tokens": 8192,
-    "effective_from": "2026-08-20T00:00:00Z",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [
-          "max_tokens",
-          "temperature",
-          "top_p",
-          "stop",
-          "frequency_penalty",
-          "presence_penalty",
-          "seed",
-          "response_format",
-          "structured_outputs"
-        ],
-        "reasoning": false,
-        "tool_call": false,
-        "structured_output": true,
-        "temperature": true,
-        "attachment": false,
-        "input_modalities": [
-          "text"
-        ],
-        "output_modalities": [
-          "text"
-        ],
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": true,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [
-      "standard"
-    ],
-    "api": {
-      "formats": [
-        "openai.chat.completions"
-      ],
-      "endpoint": "https://api.novita.ai/openai/v1/chat/completions",
-      "deployment": "serverless"
-    },
-    "sources": [
-      {
-        "kind": "provider_pricing",
-        "url": "https://novita.ai/pricing?de=1",
-        "accessed_at": "2026-08-20T00:00:00Z",
-        "notes": "Current serverless availability and pricing."
-      },
-      {
-        "kind": "provider_model",
-        "url": "https://novita.ai/models/model-detail/sao10k-l3-8b-lunaris",
-        "accessed_at": "2026-08-20T00:00:00Z",
-        "notes": "Current slug, context, modalities, and feature support."
-      }
-    ],
-    "verification": {
-      "status": "verified",
-      "checked_at": "2026-08-20T00:00:00Z",
-      "notes": "Verified from Novita's first-party pricing catalog and model detail page."
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "sao10k/l3-8b-stheno-v3.2",
-    "provider_api_model_id": "novita:sao10k/l3-8b-stheno-v3.2",
-    "provider_model_slug": "Sao10K/L3-8B-Stheno-v3.2",
-    "internal_model_id": "sao10k/l3-8b-stheno-v3.2",
-    "is_active_gateway": true,
-    "quantization_scheme": null,
-    "input_modalities": "text",
-    "output_modalities": "text",
-    "context_length": 8192,
-    "max_output_tokens": 32000,
-    "effective_from": "2026-08-20T00:00:00Z",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [
-          "max_tokens",
-          "temperature",
-          "top_p",
-          "stop",
-          "frequency_penalty",
-          "presence_penalty",
-          "seed",
-          "tools",
-          "tool_choice"
-        ],
-        "reasoning": false,
-        "tool_call": true,
-        "structured_output": false,
-        "temperature": true,
-        "attachment": false,
-        "input_modalities": [
-          "text"
-        ],
-        "output_modalities": [
-          "text"
-        ],
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": true,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [
-      "standard"
-    ],
-    "api": {
-      "formats": [
-        "openai.chat.completions"
-      ],
-      "endpoint": "https://api.novita.ai/openai/v1/chat/completions",
-      "deployment": "serverless"
-    },
-    "sources": [
-      {
-        "kind": "provider_pricing",
-        "url": "https://novita.ai/pricing?de=1",
-        "accessed_at": "2026-08-20T00:00:00Z",
-        "notes": "Current serverless availability and pricing."
-      },
-      {
-        "kind": "provider_model",
-        "url": "https://novita.ai/models/model-detail/Sao10K-L3-8B-Stheno-v3.2",
-        "accessed_at": "2026-08-20T00:00:00Z",
-        "notes": "Current slug, context, modalities, and feature support."
-      }
-    ],
-    "verification": {
-      "status": "verified",
-      "checked_at": "2026-08-20T00:00:00Z",
-      "notes": "Verified from Novita's first-party pricing catalog and model detail page."
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "sao10k/l31-70b-euryale-v2.2",
-    "provider_api_model_id": "novita:sao10k/l31-70b-euryale-v2.2",
-    "provider_model_slug": "sao10k/l31-70b-euryale-v2.2",
-    "internal_model_id": "sao10k/l31-70b-euryale-v2.2",
-    "is_active_gateway": true,
-    "quantization_scheme": null,
-    "input_modalities": "text",
-    "output_modalities": "text",
-    "context_length": 8192,
-    "max_output_tokens": 8192,
-    "effective_from": "2026-08-20T00:00:00Z",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [
-          "max_tokens",
-          "temperature",
-          "top_p",
-          "stop",
-          "frequency_penalty",
-          "presence_penalty",
-          "seed",
-          "tools",
-          "tool_choice",
-          "response_format",
-          "structured_outputs",
-          "reasoning",
-          "include_reasoning"
-        ],
-        "reasoning": true,
-        "tool_call": true,
-        "structured_output": true,
-        "temperature": true,
-        "attachment": false,
-        "input_modalities": [
-          "text"
-        ],
-        "output_modalities": [
-          "text"
-        ],
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": true,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [
-      "standard"
-    ],
-    "api": {
-      "formats": [
-        "openai.chat.completions"
-      ],
-      "endpoint": "https://api.novita.ai/openai/v1/chat/completions",
-      "deployment": "serverless"
-    },
-    "sources": [
-      {
-        "kind": "provider_pricing",
-        "url": "https://novita.ai/pricing?de=1",
-        "accessed_at": "2026-08-20T00:00:00Z",
-        "notes": "Current serverless availability and pricing."
-      },
-      {
-        "kind": "provider_model",
-        "url": "https://novita.ai/models/model-detail/sao10k-l31-70b-euryale-v2.2",
-        "accessed_at": "2026-08-20T00:00:00Z",
-        "notes": "Current slug, context, modalities, and feature support."
-      }
-    ],
-    "verification": {
-      "status": "verified",
-      "checked_at": "2026-08-20T00:00:00Z",
-      "notes": "Verified from Novita's first-party pricing catalog and model detail page."
-    },
-    "rate_limits": []
-  },
-  {
     "api_model_id": "stepfun/step-3.7-flash",
     "provider_api_model_id": "novita:stepfun/step-3.7-flash",
     "provider_model_slug": "stepfun/step-3.7-flash",
@@ -11182,6 +11006,168 @@
       "status": "verified",
       "checked_at": "2026-08-20T00:00:00Z",
       "notes": "Verified from Novita's first-party pricing catalog and model detail page."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-5.3-flash",
+    "provider_api_model_id": "novita:zai-org/glm-5.3-flash",
+    "provider_model_slug": "zai-org/glm-5.3-flash",
+    "internal_model_id": "z-ai/glm-5.3-flash",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-08-26T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "tools",
+          "tool_choice",
+          "response_format",
+          "structured_outputs",
+          "reasoning",
+          "include_reasoning"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": [
+          "text",
+          "image",
+          "video"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://api.novita.ai/openai/v1/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "provider_model",
+        "url": "https://novita.ai/models/model-detail/zai-org-glm-5.3-flash",
+        "accessed_at": "2026-08-26T00:00:00Z",
+        "notes": "Novita announced zai-org/glm-5.3-flash as live."
+      },
+      {
+        "kind": "provider_pricing",
+        "url": "https://api.novita.ai/openai/v1/models",
+        "accessed_at": "2026-08-26T00:00:00Z",
+        "notes": "Novita's live model catalog reports the Flash input, cached-input, and output prices."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-26T00:00:00Z",
+      "notes": "Verified from Novita's live OpenAI-compatible model catalog and model listing."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.8-2.4t-a95b",
+    "provider_api_model_id": "novita:qwen/qwen3.8-2.4t-a95b",
+    "provider_model_slug": "qwen/qwen3.8-2.4t-a95b",
+    "internal_model_id": "qwen/qwen3.8-2.4t-a95b",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-08-26T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "tools",
+          "tool_choice",
+          "response_format",
+          "structured_outputs",
+          "reasoning",
+          "include_reasoning"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://api.novita.ai/openai/v1/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "provider_model",
+        "url": "https://api.novita.ai/openai/v1/models",
+        "accessed_at": "2026-08-26T00:00:00Z",
+        "notes": "Novita's live model catalog reports qwen/qwen3.8-2.4t-a95b availability and capabilities."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-26T00:00:00Z",
+      "notes": "Verified from Novita's live OpenAI-compatible model catalog."
     },
     "rate_limits": []
   }

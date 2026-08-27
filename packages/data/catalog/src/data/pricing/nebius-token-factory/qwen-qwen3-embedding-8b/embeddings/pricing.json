@@ -27,12 +27,12 @@
   "sources": [{
     "kind": "pricing",
     "url": "https://tokenfactory.nebius.com/api/public/models_info",
-    "accessed_at": "2026-08-12T00:00:00Z",
+    "accessed_at": "2026-08-24T00:00:00Z",
     "notes": "Live first-party model catalog."
   }],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-12T00:00:00Z",
+    "checked_at": "2026-08-24T00:00:00Z",
     "notes": "Verified $0.01 per million input tokens."
   }
 }

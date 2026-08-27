@@ -124,6 +124,16 @@ describe("provider sync registry", () => {
 		]);
 	});
 
+	test("does not duplicate Pioneer's Anthropic-compatible aliases", () => {
+		const provider = getProviderSyncProvider("pioneer");
+		expect(provider!.parseModels({ data: [
+			{ id: "gpt-5.5" },
+			{ id: "anthropic/pioneer/gpt-5.5" },
+		] })).toEqual([
+			{ id: "gpt-5.5", details: { id: "gpt-5.5" } },
+		]);
+	});
+
 	test("fetches provider data with an optional bearer token", async () => {
 		const provider = getProviderSyncProvider("openrouter");
 		expect(provider).toBeDefined();

@@ -7481,10 +7481,10 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "nvidia/nvidia-nemotron-nano-9b-v2",
+    "api_model_id": "nvidia/nemotron-nano-9b-v2",
     "provider_api_model_id": "nano-gpt:nvidia/nvidia-nemotron-nano-9b-v2",
     "provider_model_slug": "nvidia/nvidia-nemotron-nano-9b-v2",
-    "internal_model_id": "nvidia/nvidia-nemotron-nano-9b-v2",
+    "internal_model_id": "nvidia/nemotron-nano-9b-v2",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",

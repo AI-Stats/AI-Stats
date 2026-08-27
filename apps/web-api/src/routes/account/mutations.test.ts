@@ -15,6 +15,7 @@ describe("account mutation boundaries", () => {
 		["POST", "/api/account/credits/admin/grants", { code: "TEST", amount_nanos: 1_000_000_000, max_redemptions: 1 }],
 		["PUT", "/api/account/credits/auto-top-up", { workspaceId: "workspace-1", enabled: false }],
 		["PUT", "/api/account/credits/low-balance-alert", { workspaceId: "workspace-1", enabled: false }],
+		["PUT", "/api/account/credits/notification-routes/low_balance", { workspaceId: "workspace-1", destinationIds: [] }],
 		["POST", "/api/account/credits/redeem", { workspaceId: "workspace-1", code: "TEST" }],
 		["PUT", "/api/account/auth/onboarding", { status: "started" }],
 		["POST", "/api/account/settings/keys", { name: "Test", workspaceId: "workspace-1" }],
