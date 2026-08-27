@@ -140,7 +140,7 @@ function jsonError(status: number, code: string, message: string): Response {
 	return new Response(JSON.stringify({ error: code, message }), { status, headers: { "Content-Type": "application/json", ...PRIVATE_NO_STORE_HEADERS } });
 }
 
-function sanitizeAppHeaders(input: unknown): Record<string, string> {
+export function sanitizeAppHeaders(input: unknown): Record<string, string> {
 	if (!input || typeof input !== "object" || Array.isArray(input)) return {};
 	return Object.fromEntries(Object.entries(input).flatMap(([rawKey, rawValue]) => {
 		const key = rawKey.trim().toLowerCase();
@@ -156,7 +156,7 @@ export async function proxyGateway(request: Request, env: Env, waitUntil: (promi
 	try {
 		const upstream = await fetch(`${baseUrl}${args.path}`, {
 			method: args.method ?? "POST",
-			headers: { ...(args.method === "GET" ? {} : { "Content-Type": "application/json" }), ...sanitizeAppHeaders(args.appHeaders), ...CANONICAL_CHAT_APP_HEADERS, Authorization: `Bearer ${auth.apiKey}`, ...(args.debug ? { "x-gateway-debug": "true" } : {}), ...(args.stream ? { Accept: "text/event-stream" } : {}) },
+			headers: { ...(args.method === "GET" ? {} : { "Content-Type": "application/json" }), ...CANONICAL_CHAT_APP_HEADERS, ...sanitizeAppHeaders(args.appHeaders), Authorization: `Bearer ${auth.apiKey}`, ...(args.debug ? { "x-gateway-debug": "true" } : {}), ...(args.stream ? { Accept: "text/event-stream" } : {}) },
 			...(args.method === "GET" ? {} : { body: JSON.stringify(args.requestBody ?? {}) }),
 		});
 		return privateResponse(upstream);

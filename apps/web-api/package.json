@@ -7,11 +7,13 @@
     "dev": "wrangler dev --port 8788",
     "build": "wrangler deploy --dry-run --env=\"\"",
     "lint": "eslint src && pnpm run typecheck",
+    "pretypecheck": "pnpm --filter @phaseo/sdk build",
     "smoke:production": "node scripts/smoke-production.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
   "dependencies": {
+    "@phaseo/sdk": "workspace:*",
     "@supabase/supabase-js": "^2.106.2",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
