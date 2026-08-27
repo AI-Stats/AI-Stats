@@ -1669,6 +1669,7 @@ const (
 	KnownModelIdDeepseekDeepseekOcr2 KnownModelId = "deepseek/deepseek-ocr-2"
 	KnownModelIdDeepseekDeepseekR1 KnownModelId = "deepseek/deepseek-r1"
 	KnownModelIdDeepseekDeepseekR10528 KnownModelId = "deepseek/deepseek-r1-0528"
+	KnownModelIdDeepseekDeepseekR120250528 KnownModelId = "deepseek/deepseek-r1-2025-05-28"
 	KnownModelIdDeepseekDeepseekR1DistillLlama70b KnownModelId = "deepseek/deepseek-r1-distill-llama-70b"
 	KnownModelIdDeepseekDeepseekR1Turbo KnownModelId = "deepseek/deepseek-r1-turbo"
 	KnownModelIdDeepseekDeepseekV3 KnownModelId = "deepseek/deepseek-v3"

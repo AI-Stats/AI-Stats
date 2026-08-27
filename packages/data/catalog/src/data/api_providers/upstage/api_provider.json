@@ -19,7 +19,7 @@
   "terms_of_service_url": "https://www.upstage.ai/terms-of-service",
   "prompt_training_policy": "no_train",
   "prompt_training_notes": "Upstage's API terms say API input/output data is not used for service research, development, or model training by default, with temporary storage exceptions for asynchronous and Agent API features.",
-  "prompt_training_source_url": "https://www.upstage.ai/terms-of-service/update-january-27-2026",
+  "prompt_training_source_url": "https://www.upstage.ai/terms-of-service/update-april-01-2026",
   "gateway_kind": "openai_compatible",
   "routable": true,
   "routing_enabled": true,
