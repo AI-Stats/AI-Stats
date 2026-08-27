@@ -57,7 +57,7 @@
       "other_info": null
     },
     {
-      "model_id": "xiaomi/mimo-v2.5-tts",
+      "model_id": "xiaomi/mimo-v2.5-tts:free",
       "model_info": null,
       "rate_limit": null,
       "other_info": "Limited-time free"

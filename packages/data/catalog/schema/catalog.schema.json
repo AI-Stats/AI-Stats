@@ -123,6 +123,8 @@
         "input_types": { "type": ["string", "array", "null"] },
         "output_types": { "type": ["string", "array", "null"] },
         "api_model_id": { "type": ["string", "null"] },
+        "variant_kind": { "type": "string", "enum": ["standard", "free"] },
+        "base_model_id": { "type": ["string", "null"] },
         "variants": {
           "type": "array",
           "items": { "$ref": "#/$defs/modelVariant" },

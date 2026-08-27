@@ -480,7 +480,7 @@
     "canonical_model_id": "cohere/north-mini-code-1-0:free",
     "provider_api_model_id": "cohere:cohere/north-mini-code-1-0:free",
     "provider_model_slug": "north-mini-code-1-0",
-    "internal_model_id": "cohere/north-mini-code-1-0",
+    "internal_model_id": "cohere/north-mini-code-1-0:free",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",

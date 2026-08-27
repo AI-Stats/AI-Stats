@@ -25833,9 +25833,10 @@
   },
   {
     "api_model_id": "mistral/leanstral-1-5",
+    "canonical_model_id": "mistral/leanstral-1.5:free",
     "provider_api_model_id": "requesty:mistral/leanstral-1-5",
     "provider_model_slug": "mistral/leanstral-1-5",
-    "internal_model_id": "mistral/leanstral-1-5",
+    "internal_model_id": "mistral/leanstral-1.5:free",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",

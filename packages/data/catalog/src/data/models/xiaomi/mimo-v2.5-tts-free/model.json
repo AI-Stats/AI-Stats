@@ -1,19 +1,19 @@
 {
-  "model_id": "xiaomi/mimo-v2.5-tts",
+  "model_id": "xiaomi/mimo-v2.5-tts:free",
   "organisation_id": "xiaomi",
-  "name": "MiMo V2.5 TTS",
+  "name": "MiMo V2.5 TTS (Free)",
   "status": "Available",
-  "previous_model_id": "xiaomi/mimo-v2-tts",
+  "previous_model_id": "xiaomi/mimo-v2-tts:free",
   "description": "MiMo V2.5 TTS is a text-to-speech model from Xiaomi for turning text into spoken audio. It is suited to narration, assistants, and spoken user interfaces.",
-  "announced_date": "2026-04-23T00:00:00",
-  "release_date": "2026-04-23T00:00:00",
+  "announced_date": "2026-04-22T00:00:00",
+  "release_date": "2026-04-22T00:00:00",
   "deprecation_date": null,
   "retirement_date": null,
   "license": null,
   "input_types": "text",
   "output_types": "audio_tts",
-  "api_model_id": "xiaomi/mimo-v2.5-tts",
-  "variants": [{ "model_id": "xiaomi/mimo-v2.5-tts:free", "name": "MiMo V2.5 TTS (Free)", "variant_kind": "free" }],
+  "api_model_id": "xiaomi/mimo-v2.5-tts:free",
+  "variant_kind": "free",
   "links": [
     {
       "title": "Announcement",
@@ -50,18 +50,18 @@
     ]
   },
   "reasoning": {
-    "supported": false,
+    "supported": null,
     "options": []
   },
   "capabilities": {
-    "attachment": false,
-    "tool_call": false,
-    "structured_output": false,
+    "attachment": null,
+    "tool_call": null,
+    "structured_output": null,
     "temperature": null,
-    "streaming": true,
-    "web_search": false
+    "streaming": null,
+    "web_search": null
   },
-  "open_weights": false,
+  "open_weights": null,
   "sources": [
     {
       "kind": "announcement",
@@ -71,11 +71,11 @@
     }
   ],
   "verification": {
-    "status": "verified",
-    "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Verified against Xiaomi MiMo's official speech-synthesis guide and model catalogue."
+    "status": "unverified",
+    "checked_at": null,
+    "notes": null
   },
-  "last_updated": "2026-08-24T00:00:00Z",
+  "last_updated": null,
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

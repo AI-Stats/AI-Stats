@@ -1,9 +1,9 @@
 {
-  "model_id": "mistral/leanstral-1.5",
+  "model_id": "mistral/leanstral-1.5:free",
   "organisation_id": "mistral",
-  "name": "Leanstral 1.5",
+  "name": "Leanstral 1.5 (Free)",
   "status": "Available",
-  "previous_model_id": "mistral/leanstral",
+  "previous_model_id": "mistral/leanstral:free",
   "description": "Leanstral 1.5 is a Mistral Labs model optimized for Lean 4 formal proof engineering, automated theorem proving, and autoformalization. Mistral documents labs-leanstral-1-5 as the public API model slug.",
   "announced_date": "2026-06-30T00:00:00",
   "release_date": "2026-06-30T00:00:00",
@@ -12,8 +12,8 @@
   "license": "Proprietary",
   "input_types": "text,image",
   "output_types": "text",
-  "api_model_id": "mistral/leanstral-1.5",
-  "variants": [{ "model_id": "mistral/leanstral-1.5:free", "name": "Leanstral 1.5 (Free)", "variant_kind": "free" }],
+  "api_model_id": "mistral/leanstral-1.5:free",
+  "variant_kind": "free",
   "links": [
     {
       "title": "Model Card",

@@ -15,7 +15,11 @@ export async function deleteStaleModels(
     supa: ModelDeleteClient,
     modelSlugs: string[],
 ) {
-    for (const modelSlug of modelSlugs) {
+    const deletionOrder = [...modelSlugs].sort((left, right) => {
+        const freeDifference = Number(!left.endsWith(":free")) - Number(!right.endsWith(":free"));
+        return freeDifference || left.localeCompare(right);
+    });
+    for (const modelSlug of deletionOrder) {
         try {
             assertOk(
                 await supa.from("v2_models").delete().eq("model_slug", modelSlug),

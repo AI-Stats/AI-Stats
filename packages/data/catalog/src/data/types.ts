@@ -232,6 +232,8 @@ export interface Model {
     open_weights?: boolean | null;
     sources?: SourceMetadata[];
     verification?: VerificationMetadata;
+    variant_kind?: "standard" | "free";
+    base_model_id?: string | null;
     variants?: ModelVariant[];
 }
 
