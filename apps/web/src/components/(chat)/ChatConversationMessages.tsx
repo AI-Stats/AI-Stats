@@ -566,6 +566,27 @@ export function ChatConversationMessages({
 			);
 		}
 
+		const userModelChangeMarkerIds = new Set<string>();
+		let previousUserRequestContext: ReturnType<
+			typeof getRequestContextMarker
+		> = null;
+		for (const candidate of messages) {
+			if (candidate.role !== "user") continue;
+			const currentUserRequestContext = getRequestContextMarker(
+				candidate.meta,
+			);
+			if (
+				currentUserRequestContext &&
+				previousUserRequestContext &&
+				getComparableModelSet(currentUserRequestContext) &&
+				getComparableModelSet(currentUserRequestContext) !==
+					getComparableModelSet(previousUserRequestContext)
+			) {
+				userModelChangeMarkerIds.add(candidate.id);
+			}
+			previousUserRequestContext = currentUserRequestContext;
+		}
+
 		const renderMessage = (
 			message: ChatThread["messages"][number],
 			messageIndex: number,
@@ -599,27 +620,18 @@ export function ChatConversationMessages({
 					currentUserMessageIndex = index;
 				}
 			}
-			const currentUserRequestContext =
+			const currentUserMessage =
 				currentUserMessageIndex >= 0
-					? getRequestContextMarker(messages[currentUserMessageIndex]?.meta)
+					? messages[currentUserMessageIndex]
 					: null;
+			const currentUserRequestContext = currentUserMessage
+				? getRequestContextMarker(currentUserMessage.meta)
+				: null;
 			const requestContext = isUser ? currentUserRequestContext : null;
-			const previousUserRequestContext =
-				currentUserMessageIndex >= 0
-					? getRequestContextMarker(
-							messages
-								.slice(0, currentUserMessageIndex)
-								.reverse()
-								.find((item) => item.role === "user")?.meta,
-						)
-					: null;
 			const requestContextMarkers: ChatMessageMarker[] = [];
-			const hasUserModelChangeMarker = isUser && Boolean(
-				currentUserRequestContext &&
-				previousUserRequestContext &&
-				getComparableModelSet(currentUserRequestContext) &&
-				getComparableModelSet(currentUserRequestContext) !==
-					getComparableModelSet(previousUserRequestContext),
+			const hasUserModelChangeMarker = Boolean(
+				currentUserMessage &&
+				userModelChangeMarkerIds.has(currentUserMessage.id),
 			);
 			if (requestContext && hasUserModelChangeMarker) {
 				const currentModelSet = getComparableModelSet(requestContext);
