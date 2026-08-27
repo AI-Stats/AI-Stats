@@ -16,20 +16,22 @@
       "match": [],
       "priority": 100,
       "effective_from": "2025-07-17T00:00:00Z",
+      "effective_to": "2026-08-24T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
       "source": null
     }
   ],
+  "effective_to": "2026-08-24T00:00:00Z",
   "regions": [],
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [{ "kind": "third_party", "url": "https://docs.sunoapi.org/suno-api/generate-music", "accessed_at": "2026-08-24T00:00:00Z", "notes": "Historical unofficial third-party price observation; not current official Suno API pricing." }],
   "verification": {
     "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Preserved as closed history only. The $0.06/request value came from an unofficial third-party surface and is not verified as current official Suno API pricing."
   }
 }

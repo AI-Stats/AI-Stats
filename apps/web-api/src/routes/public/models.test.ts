@@ -610,10 +610,10 @@ describe("public model routes", () => {
 				expect.objectContaining({
 					provider: "poolside",
 					providerColor: "#12AB78",
-				cachedInputPct: 62.5,
-				cachedInputTokens: 625,
-				effectiveInputTokens: 1000,
-				cacheTelemetryRequests: 11,
+				cachedInputPct: null,
+				cachedInputTokens: null,
+				effectiveInputTokens: null,
+				cacheTelemetryRequests: 0,
 			}),
 		]);
 		expect(payload.metrics.providerPercentileDaily7d).toHaveLength(5);
@@ -625,7 +625,7 @@ describe("public model routes", () => {
 				avgLatencyMs: 900,
 				avgGenerationMs: 1200,
 				avgThroughput: 13.4,
-				cachedInputPct: 88.5,
+				cachedInputPct: null,
 			}),
 		);
 		expect(JSON.stringify(payload)).not.toContain('"unknown"');

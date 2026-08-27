@@ -16,6 +16,7 @@ import { CROFAI_OPENAI_COMPAT_CONFIGS } from "../crofai/config";
 import { CANOPY_WAVE_OPENAI_COMPAT_CONFIGS } from "../canopy-wave/config";
 import { VOYAGE_OPENAI_COMPAT_CONFIGS } from "../voyage/config";
 import { DEEPINFRA_OPENAI_COMPAT_CONFIGS } from "../deepinfra/config";
+import { IO_NET_OPENAI_COMPAT_CONFIGS } from "../io-net/config";
 import { DEEPSEEK_OPENAI_COMPAT_CONFIGS } from "../deepseek/config";
 import { FEATHERLESS_OPENAI_COMPAT_CONFIGS } from "../featherless/config";
 import { FRIENDLI_OPENAI_COMPAT_CONFIGS } from "../friendli/config";
@@ -94,6 +95,7 @@ export const OPENAI_COMPAT_CONFIG = {
 	...CANOPY_WAVE_OPENAI_COMPAT_CONFIGS,
 	...VOYAGE_OPENAI_COMPAT_CONFIGS,
 	...DEEPINFRA_OPENAI_COMPAT_CONFIGS,
+	...IO_NET_OPENAI_COMPAT_CONFIGS,
 	...DEEPSEEK_OPENAI_COMPAT_CONFIGS,
 	...FEATHERLESS_OPENAI_COMPAT_CONFIGS,
 	...FRIENDLI_OPENAI_COMPAT_CONFIGS,

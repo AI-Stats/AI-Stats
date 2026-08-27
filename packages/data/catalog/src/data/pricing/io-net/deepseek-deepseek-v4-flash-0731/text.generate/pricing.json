@@ -9,13 +9,13 @@
       "meter": "input_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.18,
+      "price_per_unit": 0.254,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
       "match": [],
       "priority": 100,
-      "effective_from": "2026-08-03T00:00:00Z",
+      "effective_from": "2026-08-26T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -25,13 +25,13 @@
       "meter": "cached_read_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.08,
+      "price_per_unit": 0.127,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
       "match": [],
       "priority": 100,
-      "effective_from": "2026-08-03T00:00:00Z",
+      "effective_from": "2026-08-26T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -41,13 +41,13 @@
       "meter": "output_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.34,
+      "price_per_unit": 0.644,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
       "match": [],
       "priority": 100,
-      "effective_from": "2026-08-03T00:00:00Z",
+      "effective_from": "2026-08-26T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -60,15 +60,15 @@
   ],
   "sources": [
     {
-      "kind": "pricing",
-      "url": "https://io.net/docs/guides/intelligence/io-intelligence",
-      "accessed_at": "2026-08-03T00:00:00Z",
-      "notes": "Provider deployment pricing recorded for this model route."
+      "kind": "provider_model",
+      "url": "https://api.intelligence.io.solutions/api/v1/models",
+      "accessed_at": "2026-08-26T00:00:00Z",
+      "notes": "Official IO.NET model catalog reports $0.254 input, $0.127 cached input, and $0.644 output per million tokens for deepseek-ai/DeepSeek-V4-Flash-0731."
     }
   ],
   "verification": {
-    "status": "partial",
-    "checked_at": "2026-08-03T00:00:00Z",
-    "notes": "Pricing recorded while direct provider verification remains partial."
+    "status": "verified",
+    "checked_at": "2026-08-26T00:00:00Z",
+    "notes": "Input, cached-input, and output token prices verified from IO.NET's official live model endpoint; prompt caching is supported for this model."
   }
 }
