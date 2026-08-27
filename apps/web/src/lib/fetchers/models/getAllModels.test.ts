@@ -39,6 +39,22 @@ describe("mapRawToModelCard", () => {
 
         expect(model.gateway_monitor_rows).toBeUndefined();
     });
+
+    it("preserves lifecycle dates for end-of-life card markers", () => {
+        const model = mapRawToModelCard({
+            model_id: "stealth/ox-alpha",
+            name: "Ox Alpha",
+            organisation_id: "stealth",
+            status: "Retired",
+            deprecation_date: "2026-08-26T00:00:00",
+            retirement_date: "2026-08-26T00:00:00",
+            removal_date: "2026-08-26T00:00:00",
+        });
+
+        expect(model.deprecation_date).toBe("2026-08-26T00:00:00");
+        expect(model.retirement_date).toBe("2026-08-26T00:00:00");
+        expect(model.removal_date).toBe("2026-08-26T00:00:00");
+    });
 });
 
 describe("summarizeMonitorRowsForModel", () => {

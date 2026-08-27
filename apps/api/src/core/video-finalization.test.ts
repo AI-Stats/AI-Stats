@@ -352,7 +352,7 @@ describe("video-finalization", () => {
 			reason: "released_and_charged_actual",
 		});
 		expect(computeBillMock).toHaveBeenCalledWith(
-			expect.objectContaining({ output_video_seconds: 12 }),
+			expect.objectContaining({ output_video_seconds: 12, output_video: 3 }),
 			expect.anything(),
 			expect.anything(),
 		);

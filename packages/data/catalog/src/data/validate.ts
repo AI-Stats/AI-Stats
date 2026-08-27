@@ -58,6 +58,7 @@ function parseNumericValue(value: unknown): number | undefined {
 export function isMajorError(msg: string): boolean {
     const majorPatterns = [
         /model_id.*missing|model.*name.*missing/i,
+        /duplicate model[ _](?:id|identity)/i,
         /benchmark.*not found|benchmark.*missing/i,
         /pricing.*active.*no rules/i,
         /pricing.*invalid key/i,
@@ -73,6 +74,17 @@ export function isMajorError(msg: string): boolean {
         /pricing.*rule effective_(?:from|to).*match.*top-level/i,
     ];
     return majorPatterns.some((p) => p.test(msg));
+}
+
+export function normalizedModelIdentity(modelId: string, organisationId: string): string {
+    const [prefix, ...parts] = modelId.trim().split('/');
+    let slug = parts.join('/').trim().toLowerCase();
+    const organisationSlug = organisationId.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    if (prefix?.trim().toLowerCase() === organisationId.trim().toLowerCase() && organisationSlug) {
+        const redundantPrefix = `${organisationSlug}-`;
+        if (slug.startsWith(redundantPrefix)) slug = slug.slice(redundantPrefix.length);
+    }
+    return `${prefix?.trim().toLowerCase() ?? ''}/${slug}`;
 }
 
 function hasExplicitUtcTimestamp(value: unknown): value is string {
@@ -317,7 +329,11 @@ export function checkApiProviderModelEntrySafety(
     const apiModelId = normalizeReference(row?.api_model_id);
     const rowLabel = `${providerId}${providerApiModelId ? ` (${providerApiModelId})` : apiModelId ? ` (${apiModelId})` : ''}`;
 
-    if (!normalizeReference(row?.provider_model_slug)) {
+    const canOmitProviderModelSlug =
+        row?.is_active_gateway === false &&
+        row?.routable === false &&
+        row?.routing_status === 'disabled';
+    if (!normalizeReference(row?.provider_model_slug) && !canOmitProviderModelSlug) {
         errors.push(`API provider model ${rowLabel} missing provider_model_slug`);
     }
 
@@ -1007,6 +1023,21 @@ function checkBenchmarks(state: ValidationState): string[] {
     return errors;
 }
 
+function hasProviderPolicySource(data: Record<string, any>): boolean {
+    const directSourceFields = [
+        'prompt_training_source_url',
+        'residency_source_url',
+        'privacy_policy_url',
+        'terms_of_service_url',
+    ];
+    if (directSourceFields.some((field) => typeof data[field] === 'string' && data[field].trim())) {
+        return true;
+    }
+    return Array.isArray(data.sources) && data.sources.some((source: any) =>
+        source && typeof source.url === 'string' && source.url.trim(),
+    );
+}
+
 function checkApiProviders(state: ValidationState): string[] {
     const errors: string[] = [];
     const providersDir = path.join(DATA_ROOT, 'api_providers');
@@ -1075,9 +1106,9 @@ function checkApiProviders(state: ValidationState): string[] {
         if (
             data.zero_data_retention !== undefined &&
             data.zero_data_retention !== null &&
-            !['unknown', 'unsupported', 'optional', 'default'].includes(String(data.zero_data_retention))
+            typeof data.zero_data_retention !== 'boolean'
         ) {
-            errors.push(`API provider ${providerId} has invalid zero_data_retention '${String(data.zero_data_retention)}'`);
+            errors.push(`API provider ${providerId} has invalid zero_data_retention '${String(data.zero_data_retention)}'; expected boolean`);
         }
         if (
             data.data_retention_days !== undefined &&
@@ -1131,8 +1162,8 @@ function checkApiProviders(state: ValidationState): string[] {
             if (data.offer_scope !== 'specialized') {
                 errors.push(`ZDR provider ${providerId} must use offer_scope 'specialized'`);
             }
-            if (data.zero_data_retention !== 'default') {
-                errors.push(`ZDR provider ${providerId} must set zero_data_retention to 'default'`);
+            if (data.zero_data_retention !== true) {
+                errors.push(`ZDR provider ${providerId} must set zero_data_retention to true`);
             }
             if (data.data_policy_tier !== 'private' || data.data_policy_confidence !== 'confirmed') {
                 errors.push(`ZDR provider ${providerId} must have a confirmed private data policy`);
@@ -1152,6 +1183,34 @@ function checkApiProviders(state: ValidationState): string[] {
         ) {
             errors.push(`API provider ${providerId} has invalid data_policy_contract_mode '${String(data.data_policy_contract_mode)}'`);
         }
+        for (const key of ['zero_data_retention', 'data_policy_tier', 'data_policy_confidence', 'data_policy_contract_mode']) {
+            const value = (data as Record<string, unknown>)[key];
+            if (value === undefined || value === null || (typeof value === 'string' && !value.trim())) {
+                errors.push(`API provider ${providerId} is missing ${key}`);
+            }
+        }
+        if (data.data_policy_tier === 'private') {
+            if (data.prompt_training_policy !== 'no_train') {
+                errors.push(`Private API provider ${providerId} must have prompt_training_policy 'no_train'`);
+            }
+            if (data.zero_data_retention !== true || data.data_policy_confidence !== 'confirmed') {
+                errors.push(`Private API provider ${providerId} must have confirmed default zero data retention`);
+            }
+        }
+        if (
+            data.data_policy_tier === 'private' ||
+            (data.zero_data_retention === true && data.data_policy_confidence === 'confirmed')
+        ) {
+            if (!hasProviderPolicySource(data)) {
+                errors.push(`Private or confirmed default-ZDR provider ${providerId} must cite a policy source`);
+            }
+            if (data.verification?.status !== 'verified') {
+                errors.push(`Private or confirmed default-ZDR provider ${providerId} must have verified provenance`);
+            }
+        }
+        if (data.zero_data_retention === true && data.data_retention_days !== 0) {
+            errors.push(`API provider ${providerId} with zero data retention must set data_retention_days to 0`);
+        }
 		const providerModelsPath = path.join(providersDir, provider, 'models.json');
 		const providerModels = fs.existsSync(providerModelsPath)
 			? safeReadJson(providerModelsPath, errors, 'API provider models')
@@ -1166,7 +1225,7 @@ function checkApiProviders(state: ValidationState): string[] {
 					errors.push(`Active API provider ${providerId} is missing ${key}`);
 				}
 			}
-			if (data.zero_data_retention === 'default' && data.data_retention_days !== 0) {
+            if (data.zero_data_retention === true && data.data_retention_days !== 0) {
 				errors.push(`Active ZDR provider ${providerId} must set data_retention_days to 0`);
 			}
 		}
@@ -1174,8 +1233,8 @@ function checkApiProviders(state: ValidationState): string[] {
 			if (data.offer_scope !== 'specialized') {
 				errors.push(`ZDR provider ${providerId} must use offer_scope 'specialized'`);
 			}
-			if (data.zero_data_retention !== 'default') {
-				errors.push(`ZDR provider ${providerId} must set zero_data_retention to 'default'`);
+            if (data.zero_data_retention !== true) {
+                errors.push(`ZDR provider ${providerId} must set zero_data_retention to true`);
 			}
 			if (data.data_policy_tier !== 'private' || data.data_policy_confidence !== 'confirmed') {
 				errors.push(`ZDR provider ${providerId} must have a confirmed private data policy`);
@@ -1236,6 +1295,7 @@ function checkApiProviders(state: ValidationState): string[] {
 
 function loadModels(state: ValidationState): string[] {
     const errors: string[] = [];
+    const modelIdentities = new Map<string, string>();
     const modelsDir = path.join(DATA_ROOT, 'models');
     for (const org of listDirs(modelsDir)) {
         const orgPath = path.join(modelsDir, org);
@@ -1256,6 +1316,16 @@ function loadModels(state: ValidationState): string[] {
                 errors.push(`Duplicate model_id detected: ${modelId}`);
             } else {
                 state.modelIds.set(modelId, filePath);
+            }
+            const organisationId = typeof data.organisation_id === 'string' ? data.organisation_id.trim() : org;
+            if (organisationId.toLowerCase() === 'nvidia') {
+                const identityKey = normalizedModelIdentity(modelId, organisationId);
+                const existingIdentity = modelIdentities.get(identityKey);
+                if (existingIdentity && existingIdentity !== modelId) {
+                    errors.push(`Duplicate model identity detected: ${modelId} conflicts with ${existingIdentity}`);
+                } else {
+                    modelIdentities.set(identityKey, modelId);
+                }
             }
             const apiModelId = normalizeReference(data.api_model_id);
             if (apiModelId?.toLowerCase().endsWith(':free')) {

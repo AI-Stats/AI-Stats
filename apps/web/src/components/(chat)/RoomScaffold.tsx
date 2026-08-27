@@ -35,7 +35,7 @@ function RoomSidebarHeader() {
 
 export function RoomScaffold({ children }: RoomScaffoldProps) {
 	return (
-		<SidebarProvider defaultOpen contained className="h-full overflow-hidden">
+		<SidebarProvider defaultOpen contained className="h-full min-w-0 overflow-hidden">
 			<Sidebar collapsible="icon" className="border-r border-border bg-background">
 				<RoomSidebarHeader />
 				<SidebarContent className="gap-0">

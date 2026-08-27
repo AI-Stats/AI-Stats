@@ -15,7 +15,6 @@
       "note": null,
       "match": [],
       "priority": 100,
-      "effective_to": "2026-05-11T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -31,21 +30,29 @@
       "note": null,
       "match": [],
       "priority": 100,
-      "effective_to": "2026-05-11T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
       "source": null
     }
   ],
-  "regions": [],
+  "regions": [
+    "eu-north1"
+  ],
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "api",
+      "url": "https://tokenfactory.nebius.com/api/public/models_info",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Live cheap flavor price for Qwen/Qwen3-Next-80B-A3B-Thinking."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Current token pricing verified against Nebius Token Factory's live public catalog."
   }
 }

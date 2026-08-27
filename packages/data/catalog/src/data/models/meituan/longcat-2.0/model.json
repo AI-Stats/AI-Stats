@@ -6,7 +6,7 @@
   "previous_model_id": "meituan/longcat-2.0-preview",
   "description": "LongCat 2.0 is Meituan's current LongCat generation model, replacing the earlier LongCat 2.0 Preview provider model ID for general text generation.",
   "announced_date": null,
-  "release_date": "2026-06-29T00:00:00",
+  "release_date": "2026-06-30T00:00:00",
   "deprecation_date": null,
   "retirement_date": null,
   "license": "Proprietary",
@@ -17,7 +17,18 @@
     "text"
   ],
   "api_model_id": "meituan/longcat-2.0",
-  "links": [],
+  "links": [
+    {
+      "title": "LongCat API documentation",
+      "kind": "api_reference",
+      "url": "https://longcat.chat/platform/docs/"
+    },
+    {
+      "title": "LongCat 2.0 pricing",
+      "kind": "pricing",
+      "url": "https://longcat.chat/platform/docs/Pricing/LongCat-2.0.html"
+    }
+  ],
   "details": [
     {
       "name": "upstream_discovery",
@@ -39,9 +50,9 @@
   "model_type": null,
   "knowledge_cutoff": null,
   "limits": {
-    "context": null,
+    "context": 1048576,
     "input": null,
-    "output": null
+    "output": 131072
   },
   "modalities": {
     "input": [
@@ -52,25 +63,38 @@
     ]
   },
   "reasoning": {
-    "supported": null,
-    "options": []
+    "supported": true,
+    "options": ["enabled", "disabled"]
   },
   "capabilities": {
-    "attachment": null,
-    "tool_call": null,
+    "attachment": false,
+    "tool_call": true,
     "structured_output": null,
-    "temperature": null,
-    "streaming": null,
+    "temperature": true,
+    "streaming": true,
     "web_search": null
   },
   "open_weights": null,
-  "sources": [],
+  "sources": [
+    {
+      "kind": "api_reference",
+      "url": "https://longcat.chat/platform/docs/api/chat",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact model ID, modalities, thinking control, streaming, temperature range, and maximum output."
+    },
+    {
+      "kind": "announcement",
+      "url": "https://longcat.chat/platform/docs/ChangeLog.html",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official June 30 release and native tool-calling support."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Reconciled against LongCat's live first-party quick start, Chat reference, pricing page, and changelog."
   },
-  "last_updated": null,
+  "last_updated": "2026-08-24T00:00:00Z",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

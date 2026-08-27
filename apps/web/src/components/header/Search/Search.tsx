@@ -59,6 +59,7 @@ import {
 	searchIndexPath,
 	wasAwayLongEnough,
 } from "./Search.freshness";
+import { compareSearchCategories } from "./Search.ranking";
 
 interface Props {
 	className?: string;
@@ -349,9 +350,10 @@ function filterAndSortIndexed<T extends SearchableItem>(
 	}
 
 	return items
-		.map((indexedItem) => ({
+		.map((indexedItem, sourceIndex) => ({
 			item: indexedItem.item,
 			score: getIndexedMatchScore(indexedItem, term),
+			sourceIndex,
 		}))
 		.filter(({ score }) => score > 0)
 		.sort((left, right) => {
@@ -359,7 +361,7 @@ function filterAndSortIndexed<T extends SearchableItem>(
 				return right.score - left.score;
 			}
 
-			return left.item.title.localeCompare(right.item.title);
+			return left.sourceIndex - right.sourceIndex;
 		})
 		.map(({ item }) => item)
 		.slice(0, limit);
@@ -1011,13 +1013,7 @@ export default function Search({
 			},
 		]
 			.filter((category) => category.items.length > 0)
-			.sort((left, right) => {
-				if (left.name === "models") return -1;
-				if (right.name === "models") return 1;
-				if (left.name === "workspaces") return 1;
-				if (right.name === "workspaces") return -1;
-				return right.score - left.score;
-			});
+			.sort(compareSearchCategories);
 	}, [
 		contextSearchIndex,
 		hasQuery,

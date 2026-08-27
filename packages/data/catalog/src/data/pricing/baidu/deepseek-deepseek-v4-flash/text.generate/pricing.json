@@ -19,7 +19,8 @@
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": null,
+      "effective_to": "2026-08-24T00:00:00Z"
     },
     {
       "meter": "cached_read_text_tokens",
@@ -35,7 +36,8 @@
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": null,
+      "effective_to": "2026-08-24T00:00:00Z"
     },
     {
       "meter": "output_text_tokens",
@@ -51,6 +53,55 @@
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
+      "source": null,
+      "effective_to": "2026-08-24T00:00:00Z"
+    },
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.147,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Converted from the official CNY per 1,000-token list price at the catalog's existing CNY/USD factor (0.147).",
+      "match": [],
+      "priority": 110,
+      "effective_from": "2026-08-24T00:00:00Z",
+      "region": "CN",
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.0294,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Converted from the official CNY per 1,000-token list price at the catalog's existing CNY/USD factor (0.147).",
+      "match": [],
+      "priority": 110,
+      "effective_from": "2026-08-24T00:00:00Z",
+      "region": "CN",
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.294,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Converted from the official CNY per 1,000-token list price at the catalog's existing CNY/USD factor (0.147).",
+      "match": [],
+      "priority": 110,
+      "effective_from": "2026-08-24T00:00:00Z",
+      "region": "CN",
+      "cache_duration_seconds": null,
+      "conditions": [],
       "source": null
     }
   ],
@@ -61,14 +112,14 @@
   "sources": [
     {
       "kind": "pricing",
-      "url": "https://cloud.baidu.com/doc/qianfan/s/rmh4stp0j",
-      "accessed_at": "2026-08-03T00:00:00Z",
-      "notes": "Provider deployment pricing recorded for this model route."
+      "url": "https://cloud.baidu.com/doc/qianfan/s/wmh4sv6ya",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official Qianfan online-inference list price; previous rules retained as history."
     }
   ],
   "verification": {
-    "status": "partial",
-    "checked_at": "2026-08-03T00:00:00Z",
-    "notes": "Pricing recorded while direct provider verification remains partial."
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Current price and historical rules verified and retained."
   }
 }

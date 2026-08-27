@@ -65,7 +65,7 @@ function normalizeModality(value: string): string {
 	if (normalized === "moderation") return "moderations";
 	if (normalized.includes("music")) return "audio_music";
 	if (
-		normalized.includes("transcrib") ||
+		normalized.includes("transcri") ||
 		normalized.includes("speech_to_text") ||
 		normalized.includes("stt")
 	) {
