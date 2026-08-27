@@ -469,4 +469,41 @@ describe("guardAllFailed", () => {
 			request_country: "CN",
 		});
 	});
+
+	it("hides route diagnostics when a stealth model is region unavailable", async () => {
+		const ctx: any = {
+			model: "stealth/test-model-20260827",
+			requestedModel: "stealth/test-model-20260827",
+			endpoint: "responses",
+			requestId: "req_stealth_region",
+			meta: { edgeCountry: "CN" },
+			attemptErrors: [],
+			routingDiagnostics: {
+				filterStages: [{
+					stage: "geographic_availability_gate",
+					beforeCount: 1,
+					afterCount: 0,
+					droppedProviders: [{
+						providerId: "openai",
+						apiModelId: "pam_openai_secret",
+						providerModelSlug: "oai-stealth-test-model-internal",
+					}],
+				}],
+			},
+		};
+
+		const result = await guardAllFailed(ctx, makeTiming());
+		expect(result.ok).toBe(false);
+		if (result.ok) return;
+		expect(result.response.status).toBe(403);
+		const payload = await result.response.json();
+		expect(payload).toMatchObject({
+			error: "model_region_unavailable",
+			status_code: 403,
+			error_origin: "gateway",
+			responsibility: "user",
+			request_country: "CN",
+		});
+		expect(JSON.stringify(payload)).not.toMatch(/openai|pam_openai_secret|oai-stealth|routing_diagnostics/i);
+	});
 });

@@ -463,6 +463,25 @@ export async function guardAllFailed(
         : null;
     if (geographicAvailabilityStage) {
         captureTimingSnapshot(ctx, timing);
+        if (isStealthRequest(ctx)) {
+            return {
+                ok: false,
+                response: json({
+                    error: "model_region_unavailable",
+                    status_code: 403,
+                    error_origin: "gateway",
+                    responsibility: "user",
+                    retryable: false,
+                    description: "This model is not available from the request's geographic location.",
+                    action: "Use the model from a supported location or select another model.",
+                    request_id: ctx.requestId,
+                    model: ctx.model,
+                    endpoint: ctx.endpoint,
+                    request_country: ctx.meta?.edgeCountry ?? null,
+                    request_subdivision: ctx.meta?.edgeRegionCode ?? null,
+                }, 403),
+            };
+        }
         return {
             ok: false,
             response: err("model_region_unavailable", {
@@ -544,7 +563,6 @@ export async function guardAllFailed(
 
     return { ok: false, response: res };
 }
-
 
 
 
