@@ -2,27 +2,20 @@
   "organisation_id": "gryphe",
   "name": "Gryphe",
   "country_code": null,
-  "description": "Gryphe publishes language models hosted by Mancer.",
-  "colour": null,
-  "organisation_links": [
-    {
-      "platform": "hugging_face",
-      "url": "https://huggingface.co/Gryphe"
-    }
-  ],
-  "status": "active",
-  "routable": null,
+  "description": "Model developer identified by Requesty's official model catalogue.",
+  "link": "https://router.requesty.ai/v1/models",
+  "aliases": [],
   "sources": [
     {
-      "kind": "model_card",
-      "url": "https://huggingface.co/Gryphe/MythoMax-L2-13b",
+      "kind": "provider_models",
+      "url": "https://router.requesty.ai/v1/models",
       "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "Primary model source linked by Mancer's official catalogue."
+      "notes": "Developer attribution from Requesty's live catalogue."
     }
   ],
   "verification": {
     "status": "partial",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Identity verified from the primary model source; country was not asserted."
+    "notes": "Requesty catalogue attribution; independent developer metadata remains to be enriched."
   }
 }

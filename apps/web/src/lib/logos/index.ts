@@ -55,7 +55,7 @@ const labelOverrides: Partial<Record<KnownLogoId, string>> = {
 	"google-gemma": "Gemma",
 	huggingface: "Hugging Face",
 	ibm: "IBM",
-	ionet: "IO.NET",
+	ionet: "IO.net",
 	lg: "LG",
 	llmgateway: "LLM Gateway",
 	mindai: "Mind Lab",

@@ -10,7 +10,7 @@
   "default_data_regions": [
     "FR"
   ],
-  "zero_data_retention": "default",
+  "zero_data_retention": true,
   "data_retention_days": 0,
   "data_policy_tier": "private",
   "data_policy_confidence": "confirmed",

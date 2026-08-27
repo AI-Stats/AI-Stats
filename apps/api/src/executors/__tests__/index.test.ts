@@ -118,6 +118,7 @@ describe("resolveProviderExecutor", () => {
 		}
 		expect(resolveProviderExecutor("mistral", "embeddings")).toBeTruthy();
 		expect(resolveProviderExecutor("mistral-eu", "embeddings")).toBeTruthy();
+		expect(resolveProviderExecutor("upstage", "embeddings")).toBeTruthy();
 		expect(resolveProviderExecutor("nebius-token-factory", "embeddings")).toBeTruthy();
 		expect(resolveProviderExecutor("nebius-token-factory-eu-north-1", "embeddings")).toBeTruthy();
 		expect(resolveProviderExecutor("nebius-token-factory-fast", "embeddings")).toBeNull();
@@ -314,6 +315,8 @@ describe("resolveProviderExecutor", () => {
 	it("resolves adapter-backed non-text executors only for supported providers", () => {
 		expect(resolveProviderExecutor("openai", "images.generations")).toBeTruthy();
 		expect(resolveProviderExecutor("openai", "images.edits")).toBeTruthy();
+		expect(resolveProviderExecutor("meta", "images.generations")).toBeTruthy();
+		expect(resolveProviderExecutor("meta", "images.edits")).toBeTruthy();
 		expect(resolveProviderExecutor("byteplus", "images.generations")).toBeTruthy();
 		expect(resolveProviderExecutor("byteplus", "images.edits")).toBeTruthy();
 		expect(resolveProviderExecutor("bytedance-seed", "images.generations")).toBeTruthy();
@@ -379,6 +382,8 @@ describe("resolveProviderExecutor", () => {
 		expect(resolveProviderExecutor("suno", "music.generate")).toBeNull();
 		expect(resolveProviderExecutor("elevenlabs", "music.generate")).toBeTruthy();
 		expect(resolveProviderExecutor("minimax", "music.generate")).toBeTruthy();
+		expect(resolveProviderExecutor("gmicloud", "audio.speech")).toBeTruthy();
+		expect(resolveProviderExecutor("gmicloud", "music.generate")).toBeTruthy();
 		expect(resolveProviderExecutor("minimax-lightning", "music.generate")).toBeNull();
 
 		expect(resolveProviderExecutor("anthropic", "images.generations")).toBeNull();

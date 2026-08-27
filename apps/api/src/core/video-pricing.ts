@@ -342,6 +342,10 @@ export function computeVideoPricedUsage(args: {
 	const usageMeters: Record<string, number> = pricingMode === "audio-to-video" && inputAudioSeconds
 		? { input_audio_seconds: inputAudioSeconds }
 		: { output_video_seconds: args.seconds };
+	const outputVideoCount = resolveNumericOption(args.requestOptions ?? {}, "outputCount")
+		?? resolveNumericOption(args.requestOptions ?? {}, "sampleCount")
+		?? resolveNumericOption(args.requestOptions ?? {}, "sample_count");
+	if (outputVideoCount && outputVideoCount > 0) usageMeters.output_video = Math.floor(outputVideoCount);
 	const inputImageCount =
 		resolveNumericOption(args.requestOptions ?? {}, "input_image_count") ??
 		resolveNumericOption(args.requestOptions ?? {}, "video_params.input_image_count");
