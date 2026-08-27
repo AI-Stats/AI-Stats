@@ -1,4 +1,5 @@
 -- Restore API-first model identities for free-only models.
+-- phaseo:allow-destructive-migration reason: consolidate synthetic and stale model rows after migrating every retained foreign-key reference to the canonical standalone free identities
 --
 -- A free API model may stand alone. base_model_slug remains available for
 -- providers that expose genuinely distinct standard and free offers, but it
@@ -418,4 +419,3 @@ where model_slug in (
   'xiaomi/mimo-v2.5-tts-voiceclone',
   'xiaomi/mimo-v2.5-tts-voicedesign'
 );
-
