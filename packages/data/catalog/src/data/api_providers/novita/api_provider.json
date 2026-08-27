@@ -59,13 +59,13 @@
     {
       "kind": "provider_docs",
       "url": "https://novita.ai/docs/changelog/22-05-26",
-      "accessed_at": "2026-08-27T00:00:00Z",
+      "accessed_at": "2026-08-26T00:00:00Z",
       "notes": "Official LLM Serverless Model Deprecation Notice records immediate May 22 and scheduled June 5, 2026 model EOLs; Dedicated Endpoints are the documented fallback."
     },
     {
       "kind": "provider_docs",
       "url": "https://novita.ai/docs/changelog/25-12-25",
-      "accessed_at": "2026-08-27T00:00:00Z",
+      "accessed_at": "2026-08-26T00:00:00Z",
       "notes": "Official January 8, 2026 Serverless model deprecation notice supports the historical retirement date recorded for DeepSeek R1 Distill Qwen 32B."
     }
   ],

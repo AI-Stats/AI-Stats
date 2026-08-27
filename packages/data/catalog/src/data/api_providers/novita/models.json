@@ -234,47 +234,29 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
-        "params": [
-          "max_tokens",
-          "temperature",
-          "top_p",
-          "stop",
-          "frequency_penalty",
-          "presence_penalty",
-          "seed",
-          "tools",
-          "tool_choice"
-        ],
-        "reasoning": false,
-        "tool_call": true,
-        "structured_output": false,
-        "temperature": true,
-        "attachment": false,
-        "input_modalities": [
-          "text"
-        ],
-        "output_modalities": [
-          "text"
-        ],
+        "status": "inactive",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "inactive",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
     },
-    "service_tiers": [
-      "standard"
-    ],
+    "service_tiers": [],
     "api": {
-      "formats": [
-        "openai.chat.completions"
-      ],
-      "endpoint": "https://api.novita.ai/openai/v1/chat/completions",
-      "deployment": "serverless"
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
     },
     "sources": [
       {
