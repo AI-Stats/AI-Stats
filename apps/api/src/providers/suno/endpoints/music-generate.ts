@@ -7,7 +7,6 @@ import { MusicGenerateSchema, type MusicGenerateRequest } from "@core/schemas";
 import { buildAdapterPayload } from "../../utils";
 import { resolveProviderKey } from "../../keys";
 import { getBindings } from "@/runtime/env";
-import { saveMusicJobMeta } from "@core/music-jobs";
 import { computeBill } from "@pipeline/pricing/engine";
 
 function toSunoStatus(value: unknown): "queued" | "in_progress" | "completed" | "failed" {
@@ -194,26 +193,6 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
 			(bill.usage ?? usageMeters) as Record<string, any>,
 		)
 		: undefined;
-
-	if (res.ok && normalized?.id) {
-		try {
-			await saveMusicJobMeta(args.workspaceId, String(normalized.id), {
-				provider: "suno",
-				model: String(model ?? typedPayload.model ?? ""),
-				duration: typeof typedPayload.duration === "number" ? typedPayload.duration : null,
-				format: typedPayload.format ?? null,
-				status: normalized.status ?? null,
-				nativeResponseId: normalized.nativeResponseId ?? null,
-				createdAt: Date.now(),
-			});
-		} catch (err) {
-			console.error("suno_music_job_meta_store_failed", {
-				error: err,
-				workspaceId: args.workspaceId,
-				musicId: normalized.id,
-			});
-		}
-	}
 
 	return {
 		kind: "completed",

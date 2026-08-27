@@ -10,5 +10,5 @@
   "capabilities": {"attachment":false,"tool_call":false,"structured_output":false,"temperature":false,"streaming":true,"web_search":false}, "open_weights": false,
   "sources": [{"kind":"api_reference","url":"https://platform.minimax.io/docs/api-reference/speech-t2a-http","accessed_at":"2026-08-21T00:00:00Z","notes":null}],
   "verification": {"status":"verified","checked_at":"2026-08-21T00:00:00Z","notes":"Verified as an available legacy T2A model."},
-  "last_updated": "2026-08-21T00:00:00Z", "removal_date": null, "replacement_model_id": "minimax/speech-2.8-turbo", "license_url": null
+  "last_updated": "2026-08-21T00:00:00Z", "removal_date": null, "replacement_model_id": "minimax/speech-2.8", "license_url": null
 }

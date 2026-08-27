@@ -763,6 +763,30 @@ const PROVIDER_PROFILES: ProviderProfile[] = [
 		},
 	},
 	{
+		id: "io-net",
+		adapterBackedOverrides: {
+			"image.generate": false,
+			"image.edit": false,
+			"audio.speech": false,
+			"audio.transcription": false,
+			"audio.translations": false,
+			"video.generate": false,
+		},
+		text: {
+			paramPolicy: {
+				supportedParams: [
+					"max_tokens", "temperature", "top_p", "stop", "seed",
+					"frequency_penalty", "presence_penalty", "logprobs", "top_logprobs",
+					"response_format", "tools", "tool_choice", "reasoning.effort",
+				],
+			},
+			normalize: {
+				maxTemperature: 2,
+				reasoningEffortFallback: ["none", "minimal", "low", "medium", "high", "xhigh", "max"],
+			},
+		},
+	},
+	{
 		id: "perplexity",
 		textOnly: true,
 		text: {

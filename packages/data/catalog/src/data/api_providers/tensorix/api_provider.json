@@ -1,5 +1,8 @@
 {
   "api_provider_id": "tensorix",
+  "data_policy_tier": "private",
+  "data_policy_confidence": "confirmed",
+  "data_policy_contract_mode": "none",
   "api_provider_name": "TensorX",
   "provider_family_id": "tensorix",
   "offer_scope": "global",
@@ -12,11 +15,8 @@
   "default_data_regions": [
     "eu"
   ],
-  "zero_data_retention": "default",
+  "zero_data_retention": true,
   "data_retention_days": 0,
-  "data_policy_tier": "private",
-  "data_policy_confidence": "confirmed",
-  "data_policy_contract_mode": "none",
   "residency_source_url": "https://tensorx.ai/pricing/",
   "regional_pricing_mode": "same_as_global",
   "pricing_source_url": "https://tensorx.ai/pricing/",

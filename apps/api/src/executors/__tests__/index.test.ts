@@ -317,6 +317,8 @@ describe("resolveProviderExecutor", () => {
 	it("resolves adapter-backed non-text executors only for supported providers", () => {
 		expect(resolveProviderExecutor("openai", "images.generations")).toBeTruthy();
 		expect(resolveProviderExecutor("openai", "images.edits")).toBeTruthy();
+		expect(resolveProviderExecutor("meta", "images.generations")).toBeTruthy();
+		expect(resolveProviderExecutor("meta", "images.edits")).toBeTruthy();
 		expect(resolveProviderExecutor("byteplus", "images.generations")).toBeTruthy();
 		expect(resolveProviderExecutor("byteplus", "images.edits")).toBeTruthy();
 		expect(resolveProviderExecutor("bytedance-seed", "images.generations")).toBeTruthy();
@@ -382,6 +384,8 @@ describe("resolveProviderExecutor", () => {
 		expect(resolveProviderExecutor("suno", "music.generate")).toBeNull();
 		expect(resolveProviderExecutor("elevenlabs", "music.generate")).toBeTruthy();
 		expect(resolveProviderExecutor("minimax", "music.generate")).toBeTruthy();
+		expect(resolveProviderExecutor("gmicloud", "audio.speech")).toBeTruthy();
+		expect(resolveProviderExecutor("gmicloud", "music.generate")).toBeTruthy();
 		expect(resolveProviderExecutor("minimax-lightning", "music.generate")).toBeNull();
 
 		expect(resolveProviderExecutor("anthropic", "images.generations")).toBeNull();

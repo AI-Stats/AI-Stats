@@ -1,5 +1,8 @@
 {
   "api_provider_id": "pioneer",
+  "data_policy_tier": "trains",
+  "data_policy_confidence": "confirmed",
+  "data_policy_contract_mode": "none",
   "api_provider_name": "Pioneer",
   "provider_family_id": null,
   "offer_label": null,
@@ -31,7 +34,7 @@
   "default_data_regions": [
     "US"
   ],
-  "zero_data_retention": "optional",
+  "zero_data_retention": false,
   "data_retention_days": null,
   "residency_source_url": "https://docs.pioneer.ai/trust-safety",
   "prompt_training_policy": "opt_out_available",

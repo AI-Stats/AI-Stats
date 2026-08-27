@@ -30,12 +30,12 @@ const resourceConfig: Record<
 		pathSegments: 2,
 	},
 	organisation: {
-		articleNoun: "organisation",
+		articleNoun: "lab",
 		browseHref: "/organisations",
-		browseLabel: "Browse organisations",
-		requestLabel: "Request an Organisation",
+		browseLabel: "Browse labs",
+		requestLabel: "Request a Lab",
 		description:
-			"New labs and organisations can arrive before their public profile is available. Try again shortly, or tell us where you found the link.",
+			"New labs can arrive before their public profile is available. Try again shortly, or tell us where you found the link.",
 		pathSegments: 1,
 	},
 	country: {

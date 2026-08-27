@@ -172,7 +172,7 @@ const LANGUAGE_VARIANT_LABELS: Partial<Record<string, string>> = {
 
 const SERVICE_TIER_LABELS: Record<ServiceTier, string> = {
 	standard: "Standard",
-	priority: "Priority",
+	priority: "Fast",
 	flex: "Flex",
 };
 const STREAMING_SNIPPET_LANGUAGES = new Set([

@@ -6,7 +6,7 @@
   "residency_mode": "unknown",
   "default_execution_regions": null,
   "default_data_regions": null,
-  "zero_data_retention": "unknown",
+  "zero_data_retention": false,
   "data_policy_tier": "unknown",
   "data_policy_confidence": "unknown",
   "data_policy_contract_mode": "none",

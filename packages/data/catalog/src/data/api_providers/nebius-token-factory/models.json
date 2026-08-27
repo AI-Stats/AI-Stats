@@ -155,7 +155,7 @@
     "context_length": 1048576,
     "max_output_tokens": null,
     "effective_from": "2026-06-01T00:00:00Z",
-    "effective_to": null,
+    "effective_to": "2026-08-31T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -593,7 +593,7 @@
     "context_length": 131072,
     "max_output_tokens": null,
     "effective_from": "2026-05-11T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-31T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -847,7 +847,7 @@
     "context_length": 196608,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-31T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -1456,7 +1456,7 @@
     "context_length": 131072,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-31T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -1519,7 +1519,7 @@
     "context_length": 262144,
     "max_output_tokens": null,
     "effective_from": "2026-06-01T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-31T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -1580,7 +1580,7 @@
     "context_length": 131072,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-31T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -1703,7 +1703,7 @@
     "context_length": 262144,
     "max_output_tokens": null,
     "effective_from": "2026-04-24T00:00:00Z",
-    "effective_to": null,
+    "effective_to": "2026-08-31T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -2144,67 +2144,6 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "openbmb/minicpm-v-4.5",
-    "provider_api_model_id": "nebius-token-factory:openbmb/minicpm-v-4.5",
-    "provider_model_slug": "openbmb/MiniCPM-V-4_5",
-    "internal_model_id": "openbmb/minicpm-v-4.5",
-    "is_active_gateway": true,
-    "quantization_scheme": "FP16",
-    "input_modalities": "text,image",
-    "output_modalities": "text",
-    "context_length": 32000,
-    "max_output_tokens": null,
-    "effective_from": "2026-06-01T00:00:00Z",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": true,
-    "regions": {
-      "execution": [
-        "eu-north1"
-      ],
-      "data": [
-        "eu-north1"
-      ]
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [
-        "openai.chat.completions"
-      ],
-      "endpoint": "https://api.tokenfactory.nebius.com/v1",
-      "deployment": "public"
-    },
-    "sources": [
-      {
-        "kind": "api",
-        "url": "https://tokenfactory.nebius.com/api/public/models_info",
-        "accessed_at": "2026-08-24T00:00:00Z",
-        "notes": "Live public catalog reports openbmb/MiniCPM-V-4_5, cheap flavor, eu-north1, fp16 quantization, 32,000-token context, and current token pricing."
-      }
-    ],
-    "verification": {
-      "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
-      "notes": "Route identity, lifecycle, region, modality, context, quantization, features, and pricing verified against the complete first-party live catalog."
-    },
-    "rate_limits": []
-  },
-  {
     "api_model_id": "primeintellect/intellect-3",
     "provider_api_model_id": "nebius-token-factory:primeintellect/intellect-3",
     "provider_model_slug": "PrimeIntellect/INTELLECT-3",
@@ -2367,7 +2306,7 @@
     "context_length": 32000,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-31T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -2704,7 +2643,7 @@
     "context_length": 40960,
     "max_output_tokens": null,
     "effective_from": "2026-05-11T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-31T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -3004,7 +2943,7 @@
     "context_length": 128000,
     "max_output_tokens": null,
     "effective_from": null,
-    "effective_to": null,
+    "effective_to": "2026-08-31T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -3754,6 +3693,54 @@
       "status": "verified",
       "checked_at": "2026-08-24T00:00:00Z",
       "notes": "Route identity, lifecycle, region, modality, context, quantization, features, and pricing verified against the complete first-party live catalog."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-5.3-flash",
+    "provider_api_model_id": "nebius-token-factory:zai-org/GLM-5.3-Flash",
+    "provider_model_slug": "zai-org/GLM-5.3-Flash",
+    "internal_model_id": "z-ai/glm-5.3-flash",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 131072,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "coming_soon",
+        "params": [],
+        "reasoning": null,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": "Coming-soon provider route; official Nebius Token Factory availability and pricing are not yet verified."
     },
     "rate_limits": []
   }

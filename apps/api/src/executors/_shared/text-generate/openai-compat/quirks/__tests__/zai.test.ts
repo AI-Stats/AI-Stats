@@ -102,6 +102,28 @@ describe("Z.AI Quirks", () => {
 			expect(request.thinking.type).toBe("enabled");
 			expect(request.reasoning_effort).toBe("low");
 		});
+
+		it("maps GLM-5.3-Flash to the mandatory thinking contract", () => {
+			const request: Record<string, any> = { model: "glm-5.3-flash" };
+			zaiQuirks.transformRequest!({
+				request,
+				ir: { reasoning: { effort: "max" } } as any,
+			});
+
+			expect(request.thinking).toEqual({
+				type: "enabled",
+				clear_thinking: false,
+			});
+			expect(request.reasoning_effort).toBe("max");
+
+			zaiQuirks.transformRequest!({
+				request,
+				ir: { reasoning: { enabled: false } } as any,
+			});
+
+			expect(request.thinking.type).toBe("enabled");
+			expect(request.reasoning_effort).toBe("low");
+		});
 	});
 
 	describe("normalizeResponse", () => {
