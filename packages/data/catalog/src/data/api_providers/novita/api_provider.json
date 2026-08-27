@@ -6,7 +6,7 @@
   "residency_mode": "unknown",
   "default_execution_regions": null,
   "default_data_regions": null,
-  "zero_data_retention": "default",
+  "zero_data_retention": true,
   "data_retention_days": 0,
   "residency_source_url": "https://novita.ai/legal/terms-of-service",
   "residency_notes": "Novita's current public terms document the inference-content retention policy but do not identify a customer-selectable data or execution region for the managed API. Public GPU-region material should not be treated as a managed API residency guarantee.",

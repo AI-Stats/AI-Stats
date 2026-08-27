@@ -18,6 +18,7 @@ export type MusicJobMeta = {
 		index?: number;
 		id?: string | null;
 		audio_url?: string | null;
+		audio_base64?: string | null;
 		stream_audio_url?: string | null;
 		image_url?: string | null;
 		title?: string | null;
@@ -83,4 +84,3 @@ export async function getMusicJobMeta(workspaceId: string, musicId: string): Pro
 	const dbRecord = await getAsyncOperation(workspaceId, "music", musicId);
 	return mergeDbMusicMeta(dbRecord);
 }
-

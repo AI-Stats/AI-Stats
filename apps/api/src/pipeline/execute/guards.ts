@@ -4,6 +4,7 @@
 // How: Provides routing, health, and attempt helpers used by the execute stage.
 
 import type { PipelineContext } from "../before/types";
+import { applyDownstreamRateLimitHeaders } from "../upstream-rate-limit-headers";
 import type { PipelineTiming } from "./index";
 import type { ProviderCandidate } from "../before/types";
 import { err } from "./http";
@@ -512,10 +513,14 @@ export async function guardAllFailed(
         provider_candidate_diagnostics: candidateBuild,
         provider_failure_diagnostics: providerFailureDiagnostics,
     });
+	const finalRateLimitHeaders = [...attemptErrors]
+		.reverse()
+		.map((entry) => entry?.upstream_rate_limit_headers)
+		.find((value): value is Record<string, unknown> => Boolean(value) && typeof value === "object");
+	applyDownstreamRateLimitHeaders(res.headers, finalRateLimitHeaders);
 
     return { ok: false, response: res };
 }
-
 
 
 

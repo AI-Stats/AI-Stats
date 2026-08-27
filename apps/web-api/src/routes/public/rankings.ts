@@ -98,6 +98,51 @@ publicRankingsRouter.get("/rankings/unique-users", async (c) => {
 	catch (error) { console.error("[web-api/rankings] unique users failed", error); return c.json({ error: "unique_users_unavailable" }, 503); }
 });
 
+publicRankingsRouter.get("/rankings/model-retention", async (c) => {
+	const cohortWeeks = bounded(c.req.query("weeks"), 10, 52);
+	const limit = bounded(c.req.query("limit"), 20, 100);
+	const minimumWorkspaceWeeks = bounded(c.req.query("min_workspace_weeks"), 25, 10_000);
+	const minimumWorkspaces = bounded(c.req.query("min_workspaces"), 5, 10_000);
+	const minimumWeeks = bounded(c.req.query("min_weeks"), 2, 52);
+	try {
+		const client = getDataClient(c.env);
+		const { data, error } = await client.rpc("get_public_model_retention_rankings", {
+			p_weeks: cohortWeeks, p_limit: limit,
+			p_min_workspace_weeks: minimumWorkspaceWeeks,
+			p_min_workspaces: minimumWorkspaces,
+			p_min_weeks: minimumWeeks,
+		});
+		if (error) throw error;
+		const rows = (data ?? []) as Array<Record<string, unknown>>;
+		const modelIds = rows.map((row) => String(row.model_id ?? "").trim()).filter(Boolean);
+		const modelsResult = modelIds.length
+			? await client.from("v2_models")
+				.select("model_slug,name,lab_slug,lab:v2_labs!v2_models_lab_slug_fkey(name)")
+				.in("model_slug", [...new Set(modelIds)]).eq("hidden", false)
+			: { data: [], error: null };
+		if (modelsResult.error) throw modelsResult.error;
+		const models = new Map((modelsResult.data ?? []).map((row) => {
+			const lab = Array.isArray(row.lab) ? row.lab[0] : row.lab;
+			return [row.model_slug, {
+				model_name: row.name ?? row.model_slug,
+				organisation_id: row.lab_slug ?? null,
+				organisation_name: lab?.name ?? row.lab_slug ?? null,
+			}];
+		}));
+		return withPublicCache(c.json({
+			data: rows.map((row) => ({ ...row,
+				...(models.get(String(row.model_id ?? "")) ?? {
+					model_name: String(row.model_id ?? ""), organisation_id: null, organisation_name: null,
+				}),
+			})),
+			methodology: { cohortWeeks, minimumWorkspaceWeeks, minimumWorkspaces, minimumWeeks },
+		}), LIVE_CACHE);
+	} catch (error) {
+		console.error("[web-api/rankings] model retention failed", error);
+		return c.json({ error: "model_retention_rankings_unavailable" }, 503);
+	}
+});
+
 publicRankingsRouter.get("/rankings/tool-calls", async (c) => {
 	try {
 		const { data, error } = await getDataClient(c.env).rpc(

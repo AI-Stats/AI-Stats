@@ -276,7 +276,14 @@ describe("doRequestWithIR pricing behavior in testing mode", () => {
 		const firstExecutor = vi.fn().mockResolvedValue({
 			kind: "completed",
 			ir: {},
-			upstream: new Response(JSON.stringify({ error: "rate_limited" }), { status: 429 }),
+			upstream: new Response(JSON.stringify({ error: "rate_limited" }), {
+				status: 429,
+				headers: {
+					"retry-after": "10",
+					"x-ratelimit-remaining-tokens": "0",
+					"set-cookie": "provider_session=secret",
+				},
+			}),
 			bill: { cost_cents: 0, currency: "USD" },
 			keySource: "gateway",
 			byokKeyId: null,
@@ -307,6 +314,9 @@ describe("doRequestWithIR pricing behavior in testing mode", () => {
 		expect(firstExecutor).toHaveBeenCalledTimes(1);
 		expect(secondExecutor).toHaveBeenCalledTimes(1);
 		expect(guardAllFailedMock).not.toHaveBeenCalled();
+		expect(ctx.attemptErrors?.[0]?.upstream_rate_limit_headers).toEqual({
+			"Retry-After": "10",
+		});
 		expect(onCallEndMock).toHaveBeenNthCalledWith(
 			1,
 			"images.generations",

@@ -2995,5 +2995,93 @@
       "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
     },
     "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-5.3-flash",
+    "provider_api_model_id": "cloudflare:@cf/zai-org/glm-5.3-flash",
+    "provider_model_slug": "@cf/zai-org/glm-5.3-flash",
+    "internal_model_id": "z-ai/glm-5.3-flash",
+    "is_active_gateway": true,
+    "quantization_scheme": "unknown",
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 1310720,
+    "max_output_tokens": 1179648,
+    "effective_from": "2026-08-26T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "top_k",
+          "seed",
+          "repetition_penalty",
+          "frequency_penalty",
+          "presence_penalty",
+          "min_p",
+          "stop",
+          "logit_bias",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": [
+          "text",
+          "image",
+          "video"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "provider_model",
+        "url": "https://openrouter.ai/api/v1/models/z-ai/glm-5.3-flash/endpoints",
+        "accessed_at": "2026-08-26T00:00:00Z",
+        "notes": "OpenRouter's live endpoint catalog lists Cloudflare as serving z-ai/glm-5.3-flash with multimodal input and the published provider limits."
+      },
+      {
+        "kind": "documentation",
+        "url": "https://developers.cloudflare.com/workers-ai/models/",
+        "accessed_at": "2026-08-26T00:00:00Z",
+        "notes": "Cloudflare Workers AI model catalog and API documentation."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-26T00:00:00Z",
+      "notes": "Live availability, limits, modalities, and capabilities verified in OpenRouter's endpoint catalog; direct Cloudflare model-page and pricing verification remains incomplete."
+    },
+    "rate_limits": []
   }
 ]

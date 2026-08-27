@@ -8,6 +8,18 @@ import { buildAdapterPayload } from "../../utils";
 import { resolveProviderKey } from "../../keys";
 import { getBindings } from "@/runtime/env";
 import { computeBill } from "@pipeline/pricing/engine";
+import { estimateAudioDurationSeconds } from "../../openai/endpoints/audio-transcription-usage";
+
+function responseAudioDurationSeconds(json: Record<string, any>): number | undefined {
+	for (const value of [json.usage?.input_audio_seconds, json.audio_duration, json.duration, json.duration_seconds]) {
+		if (typeof value === "number" && Number.isFinite(value) && value > 0) return value;
+	}
+	if (Array.isArray(json.words)) {
+		const maxEnd = Math.max(0, ...json.words.map((word: any) => Number(word?.end ?? word?.end_time ?? 0)));
+		if (Number.isFinite(maxEnd) && maxEnd > 0) return maxEnd;
+	}
+	return undefined;
+}
 
 function resolveElevenLabsModelSlug(requestedModel: string, providerModelSlug?: string | null): string {
 	if (providerModelSlug && providerModelSlug.trim().length > 0) {
@@ -31,6 +43,23 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
 	const modelId = resolveElevenLabsModelSlug(typedPayload.model, args.providerModelSlug);
 	const raw = typedPayload as AudioTranscriptionRequest & { config?: { elevenlabs?: Record<string, unknown> } };
 	const elevenlabs = raw.config?.elevenlabs ?? {};
+	const requiresAudioDuration = Boolean(args.pricingCard?.rules?.some((rule: any) => rule.meter === "input_audio_seconds"));
+	if (requiresAudioDuration && keyInfo.source !== "byok" && !typedPayload.file) {
+		return {
+			kind: "completed",
+			upstream: new Response(JSON.stringify({ error: { message: "Gateway-managed ElevenLabs transcription requires an uploaded file so usage can be measured" } }), {
+				status: 400,
+				headers: { "content-type": "application/json" },
+			}),
+			bill: { cost_cents: 0, currency: "USD", usage: undefined, upstream_id: null, finish_reason: null },
+			normalized: undefined,
+			keySource: keyInfo.source,
+			byokKeyId: keyInfo.byokId,
+		};
+	}
+	const estimatedAudioSeconds = typedPayload.file
+		? await estimateAudioDurationSeconds(typedPayload.file)
+		: undefined;
 
 	const form = new FormData();
 	form.append("model_id", modelId);
@@ -83,17 +112,19 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
 	if (res.ok) {
 		const json = await res.clone().json().catch(() => undefined);
 		if (json && typeof json === "object") {
+			const inputAudioSeconds = responseAudioDurationSeconds(json) ?? estimatedAudioSeconds;
 			const usageMeters = {
 				requests: 1,
 				...(json.usage && typeof json.usage === "object" ? json.usage : {}),
+				...(typeof inputAudioSeconds === "number" ? { input_audio_seconds: inputAudioSeconds } : {}),
 			};
 			normalized = {
 				...json,
 				usage: usageMeters,
 			};
 			if (args.pricingCard) {
-				const pricedUsage = computeBill(usageMeters, args.pricingCard, { model: modelId });
-				bill.cost_cents = pricedUsage.pricing.total_cents;
+				const pricedUsage = computeBill(usageMeters, args.pricingCard, { model: modelId, pricing_plan: "standard" }, "standard");
+				bill.cost_cents = Number(pricedUsage.pricing.total_nanos ?? 0) / 10_000_000;
 				bill.currency = pricedUsage.pricing.currency;
 				bill.usage = pricedUsage;
 			}

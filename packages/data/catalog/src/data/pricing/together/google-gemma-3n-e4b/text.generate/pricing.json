@@ -15,6 +15,8 @@
       "note": null,
       "match": [],
       "priority": 100,
+      "effective_from": null,
+      "effective_to": "2026-08-04T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -30,6 +32,8 @@
       "note": null,
       "match": [],
       "priority": 100,
+      "effective_from": null,
+      "effective_to": "2026-08-04T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -44,6 +48,6 @@
   "verification": {
     "status": "partial",
     "checked_at": "2026-08-11T04:15:59.253+00:00",
-    "notes": "Pricing synchronized from the provider models API."
+    "notes": "Pricing synchronized from the provider models API; retained for historical billing provenance after route retirement."
   }
 }

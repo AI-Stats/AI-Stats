@@ -202,6 +202,37 @@ function createOpenAIChatMount(): Mountable {
     };
 }
 
+function createGmiRequestQueueMount(): Mountable {
+    let journal: Journal | null = null;
+    return {
+        setJournal(nextJournal) { journal = nextJournal; },
+        async handleRequest(req: IncomingMessage, res: ServerResponse, pathname: string) {
+            if (pathname !== "/ie/requestqueue/apikey/requests" || req.method !== "POST") return false;
+
+            const body = JSON.parse(await readIncomingBody(req)) as Record<string, any>;
+            const headers = flattenHeaders(req.headers as Record<string, string | string[] | undefined>);
+            journal?.add({
+                method: req.method,
+                path: req.url ?? pathname,
+                headers,
+                body,
+                service: "gmicloud-request-queue",
+                response: { status: 200, fixture: null },
+            });
+            res.writeHead(200, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({
+                request_id: "gmicloud_aimock_request",
+                status: "success",
+                model: body.model,
+                outcome: {
+                    audio_base64: Buffer.from("AIMOCK_TTS_AUDIO").toString("base64"),
+                },
+            }));
+            return true;
+        },
+    };
+}
+
 function createGoogleInteractionsMount(): Mountable {
     let journal: Journal | null = null;
     const sequenceCalls = new Map<string, number>();
@@ -479,6 +510,7 @@ function buildAimockBindings(): Partial<GatewayBindings> {
 		ANTHROPIC_AWS_API_KEY: "test-anthropic-aws-key",
 		ANTHROPIC_AWS_BASE_URL: `${AIMOCK_BASE_URL}/anthropic`,
 		ANTHROPIC_AWS_WORKSPACE_ID: "wrkspc_aimock",
+        GMI_QUEUE_BASE_URL: AIMOCK_BASE_URL,
         NODE_ENV: "test",
     };
 
@@ -649,6 +681,7 @@ export async function startAimock(): Promise<LLMock> {
     aimock.mount("/v1/solar", createOpenAIChatMount());
     aimock.mount("/deepseek", createOpenAIChatMount());
     aimock.mount("/api/v1", createOpenAIChatMount());
+    aimock.mount("/api/v1", createGmiRequestQueueMount());
     aimock.mount("/anthropic/v1", createBedrockMantleMessagesMount());
     aimock.mount("/v1/projects/aimock-project/locations/us-east5/publishers/anthropic/models", createAnthropicMessagesMount());
 

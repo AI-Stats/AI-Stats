@@ -7921,18 +7921,18 @@
     "provider_api_model_id": "venice:stealth/ox-alpha",
     "provider_model_slug": "stealth-ox-alpha",
     "internal_model_id": "stealth/ox-alpha",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image,video",
     "output_modalities": "text",
     "context_length": 1048576,
     "max_output_tokens": 131072,
     "effective_from": "2026-08-21T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-26T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "inactive",
         "params": [],
         "reasoning": {
           "supported": true,
@@ -7952,8 +7952,10 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "provider_status": "removed",
+    "phaseo_status": "disabled",
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": [
         "global"

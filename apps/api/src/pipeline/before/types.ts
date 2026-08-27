@@ -198,12 +198,7 @@ export type GatewayProviderSnapshot = {
         | null;
     executionRegions?: string[] | null;
     dataRegions?: string[] | null;
-    zeroDataRetention?:
-        | "unknown"
-        | "unsupported"
-        | "optional"
-        | "default"
-        | null;
+    zeroDataRetention?: boolean | null;
     promptTrainingPolicy?:
         | "unknown"
         | "no_train"
@@ -357,12 +352,7 @@ export type ProviderCandidate = {
         | null;
     executionRegions?: string[] | null;
     dataRegions?: string[] | null;
-    zeroDataRetention?:
-        | "unknown"
-        | "unsupported"
-        | "optional"
-        | "default"
-        | null;
+    zeroDataRetention?: boolean | null;
     promptTrainingPolicy?:
         | "unknown"
         | "no_train"

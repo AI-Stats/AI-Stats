@@ -1084,6 +1084,17 @@ public final class Models {
 	}
 
 	public static class MusicGenerateResponse {
+		public String audio_base64;
+		public String audio_url;
+		public String id;
+		public String model;
+		public String nativeResponseId;
+		public Object object;
+		public java.util.List<Object> output;
+		public String provider;
+		public Object result;
+		public Object status;
+		public Object usage;
 	}
 
 	public static class NotImplementedResponse {
