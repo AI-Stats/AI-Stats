@@ -592,7 +592,7 @@ describe("routeProviders testing mode", () => {
 		expect(result.diagnostics.routingMode).toBe("price");
 	});
 
-	it("uses cheapest stable providers first for default balanced routing", async () => {
+	it("balances price with latency and throughput in default routing", async () => {
 		readHealthManyMock.mockImplementation(() => ({
 			openai: health("openai", {
 				lat_ewma_60s: 250,
@@ -626,10 +626,35 @@ describe("routeProviders testing mode", () => {
 			},
 		);
 
-		expect(result.ranked.map((entry) => entry.candidate.providerId)[0]).toBe("anthropic");
+		expect(result.ranked.map((entry) => entry.candidate.providerId)[0]).toBe("openai");
 		expect(result.diagnostics.routingMode).toBe("balanced");
-		expect(result.diagnostics.rankedProviders[0]?.scoreFactors.priceScore).toBe(1);
+		expect(result.diagnostics.rankedProviders[0]?.scoreFactors.priceScore).toBeGreaterThan(0);
 		expect(result.diagnostics.rankedProviders[0]?.scoreFactors.reliabilitySample).toEqual(expect.any(Number));
+		expect(result.diagnostics.algorithm).toEqual(expect.objectContaining({
+			version: "provider-score-v3",
+			selectionMethod: "score_sort",
+			seed: expect.any(Number),
+			poolBounds: expect.objectContaining({
+				comparablePriceMin: expect.any(Number),
+				comparablePriceMax: expect.any(Number),
+			}),
+		}));
+		expect(result.ranked[0]?.scoreTrace).toEqual(expect.objectContaining({
+			inputs: expect.objectContaining({
+				comparablePrice: expect.any(Number),
+				priceMeters: expect.arrayContaining(["input_text_tokens"]),
+			}),
+			calculation: expect.objectContaining({
+				formula: "balanced_weighted_additive",
+				finalScore: expect.any(Number),
+			}),
+			contributions: expect.objectContaining({
+				reliability: expect.any(Number),
+				latency: expect.any(Number),
+				throughput: expect.any(Number),
+				price: expect.any(Number),
+			}),
+		}));
 	});
 
 	it("prefers a more reliable provider when the cheapest provider is repeatedly failing", async () => {

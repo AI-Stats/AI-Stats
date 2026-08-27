@@ -284,7 +284,6 @@ async function upsertV2RequestFact(args: {
         "reliability_sample",
         "reliability_observations",
         "token_affinity",
-        "load_penalty",
         "base_weight",
         "rollout_multiplier",
         "routing_multiplier",
@@ -371,12 +370,14 @@ async function upsertV2RequestFact(args: {
                     }))
                     : entry.score_factors && typeof entry.score_factors === "object"
                         ? entry.score_factors : {},
+                score_trace: entry.score_trace && typeof entry.score_trace === "object"
+                    ? entry.score_trace : {},
             };
         });
     const filterStages = Array.isArray((args.routingDiagnostics as any)?.filterStages)
         ? (args.routingDiagnostics as any).filterStages
         : [];
-    const excludedDecisions = filterStages.flatMap((stage: any) =>
+    const routingStageExclusions = filterStages.flatMap((stage: any) =>
         (Array.isArray(stage?.droppedProviders) ? stage.droppedProviders : []).map((entry: any) => ({
             decision_order: rankedDecisions.length + 1,
             decision: "excluded",
@@ -392,8 +393,43 @@ async function upsertV2RequestFact(args: {
             exclusion_stage: typeof stage?.stage === "string" ? stage.stage : null,
             exclusion_reason: typeof entry?.reason === "string" ? entry.reason : null,
             score_factors: {},
+            score_trace: {},
         }))
-    ).slice(0, Math.max(0, 128 - rankedDecisions.length))
+    );
+    const workspacePolicy = (args.routingDiagnostics as any)?.workspacePolicy;
+    const workspacePolicyDrops = [
+        ...(Array.isArray(workspacePolicy?.droppedProviders) ? workspacePolicy.droppedProviders : []),
+        ...(Array.isArray(workspacePolicy?.droppedByPrivacy) ? workspacePolicy.droppedByPrivacy : []),
+    ];
+    const seenExclusions = new Set(routingStageExclusions.map((entry: any) =>
+        `${entry.provider ?? ""}::${entry.provider_api_model_id ?? ""}`
+    ));
+    const workspacePolicyExclusions = workspacePolicyDrops.flatMap((entry: any) => {
+        const provider = typeof entry?.providerId === "string" ? entry.providerId : null;
+        const providerApiModelId =
+            typeof entry?.apiModelId === "string" ? entry.apiModelId :
+            typeof entry?.providerModelSlug === "string" ? entry.providerModelSlug : null;
+        const key = `${provider ?? ""}::${providerApiModelId ?? ""}`;
+        if (!provider || seenExclusions.has(key)) return [];
+        seenExclusions.add(key);
+        return [{
+            decision_order: rankedDecisions.length + 1,
+            decision: "excluded",
+            rank: null,
+            provider,
+            provider_model_id: toProviderModelId(provider, entry?.providerModelSlug),
+            provider_api_model_id: providerApiModelId,
+            score: null,
+            selected: false,
+            attempted: false,
+            exclusion_stage: "workspace_policy",
+            exclusion_reason: typeof entry?.reason === "string" ? entry.reason : "excluded_by_workspace_policy",
+            score_factors: {},
+            score_trace: {},
+        }];
+    });
+    const excludedDecisions = [...routingStageExclusions, ...workspacePolicyExclusions]
+        .slice(0, Math.max(0, 128 - rankedDecisions.length))
         .map((entry: Record<string, unknown>, index: number) => ({
             ...entry,
             decision_order: rankedDecisions.length + index + 1,
@@ -469,6 +505,16 @@ async function upsertV2RequestFact(args: {
             usage_meters: usageMeters,
             pricing_lines: pricingLines,
             routing_decisions: [...rankedDecisions, ...excludedDecisions],
+            routing_trace: {
+                algorithm: (args.routingDiagnostics as any)?.algorithm ?? null,
+                model: (args.routingDiagnostics as any)?.model ?? args.requestedModel,
+                endpoint: (args.routingDiagnostics as any)?.endpoint ?? args.endpoint,
+                priority: (args.routingDiagnostics as any)?.priority ?? null,
+                routing_mode: (args.routingDiagnostics as any)?.routingMode ?? null,
+                requested_routing: (args.routingDiagnostics as any)?.requestedRouting ?? null,
+                sticky_routing: (args.routingDiagnostics as any)?.stickyRouting ?? null,
+                final_candidate_count: (args.routingDiagnostics as any)?.finalCandidateCount ?? rankedDecisions.length,
+            },
             safe_metadata: {
                 provider: args.provider ?? null,
                 routed_model: publicRoutedModel ?? args.requestedModel,
@@ -499,7 +545,7 @@ async function upsertV2RequestFact(args: {
     if (!error) return;
     if (!isMissingRpcError(error, routingRpc)) throw error;
 
-    const { routing_decisions: _routingDecisions, ...baseEvent } = event;
+    const { routing_decisions: _routingDecisions, routing_trace: _routingTrace, ...baseEvent } = event;
     const { error: baseError } = await client.rpc("ingest_v2_gateway_request", {
         p_event: baseEvent,
     });
@@ -1524,8 +1570,6 @@ export async function auditFailure(args: AuditFailureBefore | AuditFailureExecut
         releaseRuntime();
     }
 }
-
-
 
 
 

@@ -61,18 +61,26 @@ function isRateLimitSignal(value: unknown): boolean {
 export function classifyProviderHealthImpact(args: {
     upstreamStatus?: number | null;
     aborted?: boolean;
+	midStreamError?: boolean;
+	finishReason?: string | null;
     errorCode?: string | null;
     errorMessage?: string | null;
 }): HealthImpact {
     if (args.aborted) return "neutral";
+	if (args.midStreamError) return "failure";
+	const finishReason = normalizeHealthSignal(args.finishReason);
+	if (finishReason === "error" || finishReason === "failed" || finishReason === "failure" || finishReason === "upstream_failure") {
+		return "failure";
+	}
 
     const status = Number(args.upstreamStatus ?? 0);
     if (Number.isFinite(status) && status >= 200 && status < 300) {
         return "success";
     }
-    if (status === 429) return "failure";
+	if (status === 400 || status === 403 || status === 413 || status === 429) return "neutral";
+	if (status === 401 || status === 402 || status === 404 || status >= 500) return "failure";
     if (isRateLimitSignal(args.errorCode) || isRateLimitSignal(args.errorMessage)) {
-        return "failure";
+		return "neutral";
     }
     return "failure";
 }
@@ -873,7 +881,8 @@ export async function onCallEnd(
         const lat60 = decay(readNumber(map, provider, "lat_ewma_60s"), latency_ms, decay60);
         const lat300 = decay(readNumber(map, provider, "lat_ewma_300s"), latency_ms, decay300);
 
-        const errSample = ok ? 0 : 1;
+		const healthOk = impact === "success";
+		const errSample = healthOk ? 0 : 1;
         const err10 = decay(readNumber(map, provider, "err_ewma_10s"), errSample, decay10);
         const err60 = decay(readNumber(map, provider, "err_ewma_60s"), errSample, decay60);
         const err300 = decay(readNumber(map, provider, "err_ewma_300s"), errSample, decay300);
@@ -887,7 +896,7 @@ export async function onCallEnd(
             tp60 = decay(tp60, tps, decay60);
         }
 
-        const recOk = decay(readNumber(map, provider, "rec_ok_ew_60s"), ok ? 1 : 0, decay60);
+		const recOk = decay(readNumber(map, provider, "rec_ok_ew_60s"), healthOk ? 1 : 0, decay60);
         const recTot = decay(readNumber(map, provider, "rec_tot_ew_60s"), 1, decay60);
         map[field(provider, "lat_ewma_10s")] = String(lat10);
         map[field(provider, "lat_ewma_60s")] = String(lat60);

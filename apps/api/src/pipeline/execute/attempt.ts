@@ -180,6 +180,7 @@ export async function attemptProvider(
 
             const healthImpact = classifyProviderHealthImpact({
                 upstreamStatus: r.upstream.status,
+				finishReason: (r.ir as any)?.choices?.[0]?.finishReason ?? r.bill?.finish_reason ?? null,
             });
             await onCallEnd(ctx.endpoint, {
                 provider: adapter.name,
@@ -192,7 +193,7 @@ export async function attemptProvider(
                 tokens_out: tokensOut,
             });
             if (isProbe && healthImpact !== "neutral") {
-                await reportProbeResult(ctx.endpoint, adapter.name, baseModel, r.upstream.ok);
+				await reportProbeResult(ctx.endpoint, adapter.name, baseModel, healthImpact === "success");
             } else if (healthImpact === "failure") {
                 await maybeOpenOnRecentErrors(ctx.endpoint, adapter.name, baseModel);
             }
@@ -269,7 +270,7 @@ export async function attemptProvider(
         });
 
         if (isProbe && errorHealthImpact !== "neutral") {
-            await reportProbeResult(ctx.endpoint, adapter.name, baseModel, false);
+			await reportProbeResult(ctx.endpoint, adapter.name, baseModel, errorHealthImpact === "success");
         } else if (errorHealthImpact === "failure") {
             await maybeOpenOnRecentErrors(ctx.endpoint, adapter.name, baseModel);
         }

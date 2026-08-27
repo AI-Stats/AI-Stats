@@ -80,21 +80,35 @@ describe("execute health state", () => {
         expect(snapshot.last_updated).toBeGreaterThan(0);
     });
 
-    it("treats upstream rate limits as availability failures", async () => {
+    it("classifies only provider uptime failures as failures", async () => {
         const health = await import("./health");
 
-        expect(
-            health.classifyProviderHealthImpact({
-                upstreamStatus: 429,
-            }),
-        ).toBe("failure");
-
-        expect(
-            health.classifyProviderHealthImpact({
-                errorCode: "rate_limit_exceeded",
-            }),
-        ).toBe("failure");
+		for (const upstreamStatus of [401, 402, 404, 500, 502, 503]) {
+			expect(health.classifyProviderHealthImpact({ upstreamStatus })).toBe("failure");
+		}
+		for (const upstreamStatus of [400, 403, 413, 429]) {
+			expect(health.classifyProviderHealthImpact({ upstreamStatus })).toBe("neutral");
+		}
+		expect(health.classifyProviderHealthImpact({ errorCode: "rate_limit_exceeded" })).toBe("neutral");
+		expect(health.classifyProviderHealthImpact({ upstreamStatus: 200, finishReason: "error" })).toBe("failure");
+		expect(health.classifyProviderHealthImpact({ upstreamStatus: 200, midStreamError: true })).toBe("failure");
     });
+
+	it("uses classified health impact instead of HTTP success for reliability", async () => {
+		const health = await import("./health");
+		await health.onCallEnd("responses", {
+			provider: "openai",
+			model: "gpt-5.4-nano",
+			ok: true,
+			healthImpact: "failure",
+			latency_ms: 250,
+		});
+		await flushBackground();
+		const snapshot = await health.readHealth("responses", "openai", "gpt-5.4-nano");
+		expect(snapshot.err_ewma_60s).toBe(1);
+		expect(snapshot.rec_ok_ew_60s).toBe(0);
+		expect(snapshot.rec_tot_ew_60s).toBe(1);
+	});
 
     it("initializes health EWMAs from the first failure", async () => {
         const health = await import("./health");

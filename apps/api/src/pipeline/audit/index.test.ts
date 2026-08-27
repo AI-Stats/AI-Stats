@@ -469,9 +469,25 @@ describe("audit request detail persistence", () => {
 					provider_api_model_id: "gpt-5-nano",
 					score: 0.82,
 					breaker: "closed",
-					score_factor_values: [0.99, 0.8, 0.7, 0.6, 1, 0.95, 50, 0.5, 0, 1, 1, 1, 1, 1, 1],
+					score_factor_values: [0.99, 0.8, 0.7, 0.6, 1, 0.95, 50, 0.5, 1, 1, 1, 1, 1, 1],
+					score_trace: { calculation: { baseScore: 0.82, finalScore: 0.82 } },
 				}],
 				routing_diagnostics: {
+					algorithm: {
+						version: "provider-score-v2",
+						seed: 123,
+						selectionMethod: "score_sort",
+						poolBounds: { latencyP50MinMs: 100, latencyP50MaxMs: 200 },
+					},
+					routingMode: "balanced",
+					workspacePolicy: {
+						droppedProviders: [{
+							providerId: "blocked-provider",
+							apiModelId: "blocked-model",
+							providerModelSlug: "blocked-route",
+							reason: "provider_in_blocklist",
+						}],
+					},
 					filterStages: [{
 						stage: "hints.ignore",
 						droppedProviders: [{
@@ -525,6 +541,9 @@ describe("audit request detail persistence", () => {
 					price_score: 1,
 					success_rate: 0.99,
 				}),
+				score_trace: expect.objectContaining({
+					calculation: expect.objectContaining({ finalScore: 0.82 }),
+				}),
 			}),
 			expect.objectContaining({
 				decision: "excluded",
@@ -532,7 +551,18 @@ describe("audit request detail persistence", () => {
 				exclusion_stage: "hints.ignore",
 				exclusion_reason: "listed_in_provider.ignore",
 			}),
+			expect.objectContaining({
+				decision: "excluded",
+				provider: "blocked-provider",
+				provider_api_model_id: "blocked-model",
+				exclusion_stage: "workspace_policy",
+				exclusion_reason: "provider_in_blocklist",
+			}),
 		]);
+		expect(event.routing_trace).toEqual(expect.objectContaining({
+			algorithm: expect.objectContaining({ version: "provider-score-v2", seed: 123 }),
+			routing_mode: "balanced",
+		}));
 		expect(JSON.stringify(event)).not.toContain("private prompt");
 		expect(JSON.stringify(event)).not.toContain("private response");
 		expect(persistGatewayIoLogMock).not.toHaveBeenCalled();
