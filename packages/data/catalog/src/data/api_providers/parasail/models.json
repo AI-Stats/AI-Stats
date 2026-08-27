@@ -2512,5 +2512,87 @@
         "notes": "Verified against Parasail public model detail page; authenticated /v1/models availability was not checked."
       },
       "rate_limits": []
-    }
+    },
+  {
+    "api_model_id": "z-ai/glm-5.3-flash",
+    "provider_api_model_id": "parasail:z-ai/glm-5.3-flash",
+    "provider_model_slug": "z-ai/glm-5.3-flash",
+    "internal_model_id": "z-ai/glm-5.3-flash",
+    "is_active_gateway": false,
+    "quantization_scheme": "FP8",
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 943718,
+    "effective_from": "2026-08-27T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "repetition_penalty",
+          "seed",
+          "min_p",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "logprobs",
+          "top_logprobs",
+          "reasoning_effort"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://openrouter.ai/api/v1/models/z-ai/glm-5.3-flash-20260826/endpoints",
+        "accessed_at": "2026-08-27T00:00:00Z",
+        "notes": "OpenRouter's live endpoint catalog lists Parasail as serving z-ai/glm-5.3-flash with FP8 quantization and multimodal input."
+      },
+      {
+        "kind": "documentation",
+        "url": "https://docs.parasail.io/parasail-docs/serverless-and-models/serverless",
+        "accessed_at": "2026-08-27T00:00:00Z",
+        "notes": "Parasail documents its OpenAI-compatible Serverless API; provider-level routing remains disabled in this catalog."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-27T00:00:00Z",
+      "notes": "Endpoint availability, limits, capabilities, and pricing were recorded from OpenRouter; provider-level routing remains non-routable pending direct onboarding verification."
+    },
+    "rate_limits": []
+  }
 ]
