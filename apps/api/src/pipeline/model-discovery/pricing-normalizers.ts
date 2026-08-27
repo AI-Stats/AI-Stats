@@ -44,6 +44,18 @@ function novitaPerMillion(value: unknown): number | null {
 	return parsed >= 1_000 ? parsed / 10_000 : parsed;
 }
 
+function novitaPricing(model: JsonRecord): NormalizedProviderPricing | null {
+	const pricing = asRecord(model.pricing);
+	const prompt = asRecord(pricing?.prompt);
+	const completion = asRecord(pricing?.completion);
+	const cacheRead = asRecord(pricing?.input_cache_read);
+	return fromMeters({
+		input_text_tokens: asNumber(prompt?.price_per_m_decimal) ?? novitaPerMillion(model.input_token_price_per_m),
+		cached_read_text_tokens: asNumber(cacheRead?.price_per_m_decimal) ?? novitaPerMillion(cacheRead?.price_per_m),
+		output_text_tokens: asNumber(completion?.price_per_m_decimal) ?? novitaPerMillion(model.output_token_price_per_m),
+	});
+}
+
 function usd(value: unknown): number | null {
 	const record = asRecord(value);
 	return asNumber(record?.usd ?? value);
@@ -124,11 +136,7 @@ export function normalizeProviderModelPricing(providerId: string, modelDetails: 
 		case "novita-ai":
 		case "novita":
 		case "novitaai":
-			return fromMeters({
-				input_text_tokens: novitaPerMillion(model.input_token_price_per_m),
-				cached_read_text_tokens: novitaPerMillion(asRecord(asRecord(model.pricing)?.input_cache_read)?.price_per_m),
-				output_text_tokens: novitaPerMillion(model.output_token_price_per_m),
-			});
+			return novitaPricing(model);
 		case "pioneer":
 			return fromMeters({
 				input_text_tokens: asNumber(model.input_price_per_million),
