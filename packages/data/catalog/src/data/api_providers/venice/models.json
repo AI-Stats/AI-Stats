@@ -8126,7 +8126,7 @@
   {
     "api_model_id": "z-ai/glm-5.3-flash",
     "provider_api_model_id": "venice:z-ai/glm-5.3-flash",
-    "provider_model_slug": "z-ai/glm-5.3-flash",
+    "provider_model_slug": "z-ai-glm-5-3-flash",
     "internal_model_id": "z-ai/glm-5.3-flash",
     "is_active_gateway": true,
     "quantization_scheme": null,
@@ -8188,15 +8188,15 @@
     "sources": [
       {
         "kind": "provider_models",
-        "url": "https://openrouter.ai/api/v1/models/z-ai/glm-5.3-flash-20260826/endpoints",
-        "accessed_at": "2026-08-27T00:00:00Z",
-        "notes": "OpenRouter's live endpoint catalog lists Venice as serving z-ai/glm-5.3-flash with multimodal input and a 1M-token context window."
+        "url": "https://api.venice.ai/api/v1/models",
+        "accessed_at": "2026-08-27T06:00:00Z",
+        "notes": "Venice's live models API lists the native model ID z-ai-glm-5-3-flash with multimodal input and a 1M-token context window."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-27T00:00:00Z",
-      "notes": "Availability, limits, capabilities, and pricing were recorded from OpenRouter's current endpoint catalog."
+      "status": "verified",
+      "checked_at": "2026-08-27T06:00:00Z",
+      "notes": "Availability, native model ID, limits, capabilities, and pricing were verified against Venice's live models API."
     },
     "rate_limits": []
   }
