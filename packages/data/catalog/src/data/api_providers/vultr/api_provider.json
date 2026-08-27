@@ -1,26 +1,31 @@
 {
   "api_provider_id": "vultr",
+  "data_policy_tier": "private",
+  "data_policy_confidence": "confirmed",
+  "data_policy_contract_mode": "none",
   "api_provider_name": "Vultr",
   "provider_family_id": null,
   "offer_label": null,
   "offer_scope": "specialized",
-  "description": null,
+  "description": "Vultr Serverless Inference provides an OpenAI-compatible, usage-priced catalogue of hosted text-generation models.",
   "link": "https://api.vultrinference.com/",
-  "residency_mode": null,
+  "residency_mode": "provider_managed",
   "default_execution_regions": null,
   "default_data_regions": null,
-  "zero_data_retention": null,
-  "residency_source_url": null,
-  "prompt_training_policy": null,
-  "prompt_training_notes": null,
-  "prompt_training_source_url": null,
+  "zero_data_retention": true,
+  "data_retention_days": 0,
+  "residency_source_url": "https://docs.vultr.com/products/compute/serverless-inference/provisioning",
+  "residency_notes": "Vultr describes service delivery across six continents but does not document customer-selectable execution or data-residency regions for the serverless inference API.",
+  "prompt_training_policy": "no_train",
+  "prompt_training_notes": "Vultr states inference data is processed in memory and is not stored persistently by default; no separate model-training use is documented.",
+  "prompt_training_source_url": "https://docs.vultr.com/support/products/serverless/how-secure-is-my-data-using-vultr-serverless-inference",
   "user_identifier_policy": null,
   "user_identifier_notes": null,
-  "privacy_policy_url": null,
-  "terms_of_service_url": null,
+  "privacy_policy_url": "https://www.vultr.com/legal/privacy/",
+  "terms_of_service_url": "https://www.vultr.com/legal/tos/",
   "regional_pricing_mode": null,
   "regional_pricing_uplift_percent": null,
-  "pricing_source_url": null,
+  "pricing_source_url": "https://api.vultrinference.com/v1/provider",
   "regional_pricing_notes": null,
   "country_code": "US",
   "status": "Active",
@@ -34,9 +39,27 @@
   "auth_env": [
     "VULTR_API_KEY"
   ],
-  "api_formats": [],
-  "service_tiers": [],
+  "api_formats": ["openai.chat.completions"],
+  "service_tiers": ["standard"],
   "sources": [
+    {
+      "kind": "api",
+      "url": "https://api.vultrinference.com/v1/provider",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Live provider configuration documents the complete hosted model catalogue, per-model pricing, capabilities, context windows, and output limits."
+    },
+    {
+      "kind": "documentation",
+      "url": "https://api.vultrinference.com/",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Vultr Inference API 1.1.3 documents OpenAI-compatible chat completions, authenticated model discovery, and provider configuration."
+    },
+    {
+      "kind": "documentation",
+      "url": "https://docs.vultr.com/support/products/serverless/how-secure-is-my-data-using-vultr-serverless-inference",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Documents TLS, API-key access, in-memory processing, and no persistent storage by default."
+    },
     {
       "kind": "official_company_blog",
       "url": "https://blogs.vultr.com/entrepreneur-of-the-year-2022-florida-award-finalists",
@@ -50,9 +73,5 @@
       "notes": "Provider metadata and model support enrichment; not a Phaseo-routable offer."
     }
   ],
-  "verification": {
-    "status": "partial",
-    "checked_at": "2026-07-23T09:08:52.190Z",
-    "notes": "Imported from the public models.dev provider registry."
-  }
+  "verification": {"status":"verified","checked_at":"2026-08-24T00:00:00Z","notes":"Complete live Vultr provider catalogue reconciled: 10 active chat models, zero unaccounted."}
 }

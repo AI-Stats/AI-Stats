@@ -15,6 +15,7 @@ describe("providerProfiles", () => {
 		expect(getProviderProfile("arcee")?.textOnly).toBe(true);
 		expect(getProviderProfile("friendli")?.textOnly).not.toBe(true);
 		expect(getProviderProfile("deepseek")?.textOnly).toBe(true);
+		expect(getProviderProfile("io-net")?.textOnly).not.toBe(true);
 		expect(getProviderProfile("poolside")?.text?.paramPolicy?.supportedParams).toEqual(
 			expect.arrayContaining(["top_k", "min_p", "parallel_tool_calls", "reasoning.enabled"]),
 		);
@@ -41,6 +42,10 @@ describe("providerProfiles", () => {
 		const gmicloud = getProviderProfile("gmicloud");
 		expect(gmicloud?.text?.normalize?.maxTemperature).toBe(2);
 		expect(gmicloud?.adapterBackedOverrides?.["video.generate"]).toBe(false);
+		const ioNet = getProviderProfile("io-net");
+		expect(ioNet?.text?.normalize?.maxTemperature).toBe(2);
+		expect(ioNet?.adapterBackedOverrides?.["image.generate"]).toBe(false);
+		expect(ioNet?.adapterBackedOverrides?.["audio.speech"]).toBe(false);
 		const inception = getProviderProfile("inception");
 		expect(inception?.textOnly).toBe(true);
 		expect(inception?.text?.normalize?.maxTemperature).toBe(1);

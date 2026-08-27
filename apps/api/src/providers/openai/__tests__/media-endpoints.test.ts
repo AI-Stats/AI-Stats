@@ -209,6 +209,44 @@ describe("OpenAI media endpoints", () => {
 		expect(capturedBody.output_compression).toBe(60);
 	});
 
+	it("routes Meta Muse Image through the OpenAI-compatible image endpoint", async () => {
+		let capturedUrl = "";
+		let capturedBody: any = null;
+		const mock = installFetchMock([{
+			match: (url) => url === "https://api.meta.ai/v1/images/generations",
+			response: jsonResponse({ created: 1700000000, data: [{ b64_json: "meta-image" }] }),
+			onRequest: (call) => {
+				capturedUrl = call.url;
+				capturedBody = call.bodyJson;
+			},
+		}]);
+
+		const result = await execImages({
+			endpoint: "images.generations",
+			model: "meta/muse-image-1.0",
+			body: {
+				model: "meta/muse-image-1.0",
+				prompt: "A studio portrait with a cobalt background.",
+				size: "1024x1024",
+			},
+			meta: REQUEST_META,
+			workspaceId: "team_test",
+			providerId: "meta",
+			byokMeta: [{ id: "meta-key", key: "test-meta-key" }],
+			pricingCard: null,
+			providerModelSlug: "muse-image-1.0",
+			stream: false,
+		} as any);
+
+		mock.restore();
+
+		expect(result.upstream.status).toBe(200);
+		expect(capturedUrl).toBe("https://api.meta.ai/v1/images/generations");
+		expect(capturedBody.model).toBe("muse-image-1.0");
+		expect(capturedBody.prompt).toContain("cobalt background");
+		expect(capturedBody.size).toBe("1024x1024");
+	});
+
 	it("uses the OpenAI EU image-generation endpoint without changing the wire contract", async () => {
 		let capturedUrl = "";
 		const mock = installFetchMock([{

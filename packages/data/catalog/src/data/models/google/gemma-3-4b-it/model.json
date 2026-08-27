@@ -1,18 +1,18 @@
 {
   "model_id": "google/gemma-3-4b-it",
   "organisation_id": "google",
-  "name": "gemma 3 4b it",
+  "name": "Google: Gemma 3 4B",
   "status": "Available",
   "previous_model_id": null,
-  "description": "gemma 3 4b it is a Hugging Face Hub model currently exposed through the Hugging Face Inference Providers chat router.",
+  "description": "Gemma 3 introduces multimodality, supporting vision-language input and text outputs. It handles context windows up to 128k tokens, understands over 140 languages, and offers improved math, reasoning, and chat capabilities,...",
   "announced_date": null,
-  "release_date": null,
+  "release_date": "2025-03-13",
   "deprecation_date": null,
   "retirement_date": null,
   "license": null,
   "input_types": [
     "text",
-    "image"
+    "image/*"
   ],
   "output_types": [
     "text"
@@ -20,25 +20,26 @@
   "api_model_id": "google/gemma-3-4b-it",
   "links": [
     {
-      "title": "Official model card",
-      "kind": "model_card",
-      "url": "https://huggingface.co/google/gemma-3-4b-it"
+      "platform": "model",
+      "title": "OpenRouter model page",
+      "url": "https://openrouter.ai/google/gemma-3-4b-it"
     }
   ],
   "details": [],
   "benchmarks": [],
   "family_id": null,
-  "model_type": null,
-  "knowledge_cutoff": null,
+  "page_notice": null,
+  "model_type": "language",
+  "knowledge_cutoff": "2024-08-31",
   "limits": {
     "context": 131072,
-    "input": 131072,
-    "output": null
+    "input": null,
+    "output": 16384
   },
   "modalities": {
     "input": [
       "text",
-      "image"
+      "image/*"
     ],
     "output": [
       "text"
@@ -50,35 +51,28 @@
   },
   "capabilities": {
     "attachment": true,
-    "tool_call": true,
+    "tool_call": false,
     "structured_output": true,
-    "temperature": null,
+    "temperature": true,
     "streaming": true,
     "web_search": false
   },
   "open_weights": true,
   "sources": [
     {
-      "kind": "model_card",
-      "url": "https://huggingface.co/google/gemma-3-4b-it",
+      "kind": "provider_models",
+      "url": "https://openrouter.ai/api/v1/models",
       "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "Official Hub identity linked from the live Hugging Face router catalogue."
-    },
-    {
-      "kind": "official_api",
-      "url": "https://router.huggingface.co/v1/models",
-      "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "Current chat availability, modalities, context limit, selected external providers, and route feature flags."
+      "notes": "Exact live OpenRouter ID: google/gemma-3-4b-it."
     }
   ],
   "verification": {
     "status": "partial",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Exact identity and current routed support verified; descriptive metadata is intentionally limited to facts published by the Hub and router APIs."
+    "notes": "Availability, modalities, limits and parameters verified against OpenRouter's official models API; upstream publisher metadata remains provider-reported."
   },
-  "last_updated": "2026-08-24T00:00:00",
+  "last_updated": "2026-08-24",
   "removal_date": null,
   "replacement_model_id": null,
-  "license_url": null,
-  "page_notice": null
+  "license_url": null
 }

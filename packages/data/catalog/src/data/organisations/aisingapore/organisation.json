@@ -1,26 +1,21 @@
 {
   "organisation_id": "aisingapore",
-  "name": "AI Singapore",
-  "country_code": "SG",
-  "description": "AI Singapore publishes machine-learning models on the Hugging Face Hub.",
-  "links": [
-    {
-      "title": "AI Singapore on Hugging Face",
-      "kind": "hugging_face",
-      "url": "https://huggingface.co/aisingapore"
-    }
-  ],
+  "name": "Aisingapore",
+  "country_code": null,
+  "description": "Aisingapore publishes models available through NVIDIA's hosted NIM API catalog.",
+  "links": [],
+  "leaders": [],
   "sources": [
     {
-      "kind": "official_profile",
-      "url": "https://huggingface.co/aisingapore",
+      "kind": "api_reference",
+      "url": "https://integrate.api.nvidia.com/v1/models",
       "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "Official Hugging Face publisher profile for models exposed by the Hugging Face router."
+      "notes": "NVIDIA's live hosted model registry identifies aisingapore as a model owner."
     }
   ],
   "verification": {
     "status": "partial",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Publisher identity verified from the official Hub namespace; country metadata follows the publisher's public organizational identity."
+    "notes": "Organisation presence verified through NVIDIA's live hosted model registry."
   }
 }

@@ -10,6 +10,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import NotificationRouteSelector from "@/components/(gateway)/settings/notifications/NotificationRouteSelector";
+import type { NotificationDestination, NotificationEventKind } from "@/lib/fetchers/internal/settingsTypes";
 import { cn } from "@/lib/utils";
 
 function parseThreshold(value: string): number | null {
@@ -26,6 +28,8 @@ export default function LowBalanceEmailAlertsClient(props: {
 	enabled: boolean;
 	paymentMethodExpiringEmailEnabled: boolean;
 	thresholdUsd: number | null;
+	destinations: NotificationDestination[];
+	notificationRoutes: Partial<Record<NotificationEventKind, string[]>>;
 }) {
 	const [autoTopUpFailureEnabled, setAutoTopUpFailureEnabled] = React.useState(props.autoTopUpFailureEmailEnabled);
 	const [enabled, setEnabled] = React.useState(Boolean(props.enabled));
@@ -79,27 +83,30 @@ export default function LowBalanceEmailAlertsClient(props: {
 			</h2>
 			<div className="overflow-hidden rounded-xl border bg-background/40">
 				<div className="px-4 py-4">
-					<div className="flex items-center justify-between gap-4">
+					<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 						<div className="min-w-0">
 							<h3 className="text-sm font-medium">Low Balance Alerts</h3>
 							<p className="mt-0.5 text-sm text-muted-foreground">
-								Emails are sent to the workspace owner.
+								Alert when workspace credit reaches the configured threshold.
 							</p>
 						</div>
-						<Switch
-							checked={enabled}
-							aria-label="Enable low balance email alerts"
-							onCheckedChange={(nextEnabled) => {
-								const next = Boolean(nextEnabled);
-								setEnabled(next);
-								if (next) {
-									setThreshold("0");
-									scheduleSave({ enabled: true, thresholdUsd: 0 });
-									return;
-								}
-								scheduleSave({ enabled: false, thresholdUsd: null });
-							}}
-						/>
+						<div className="flex shrink-0 items-center gap-2 self-end sm:self-auto">
+							<NotificationRouteSelector destinations={props.destinations} eventKind="low_balance" initialDestinationIds={props.notificationRoutes.low_balance ?? []} />
+							<Switch
+								checked={enabled}
+								aria-label="Enable low balance alerts"
+								onCheckedChange={(nextEnabled) => {
+									const next = Boolean(nextEnabled);
+									setEnabled(next);
+									if (next) {
+										setThreshold("0");
+										scheduleSave({ enabled: true, thresholdUsd: 0 });
+										return;
+									}
+									scheduleSave({ enabled: false, thresholdUsd: null });
+								}}
+							/>
+						</div>
 					</div>
 					<div
 						className={cn(
@@ -152,38 +159,43 @@ export default function LowBalanceEmailAlertsClient(props: {
 						</div>
 					</div>
 				</div>
-				<div className="flex items-center justify-between gap-4 border-t px-4 py-3.5">
+				<div className="flex flex-col gap-3 border-t px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between">
 					<div className="min-w-0">
 						<h3 className="text-sm font-medium">Auto Top-Up Failed</h3>
-						<p className="mt-0.5 text-sm text-muted-foreground">Email the workspace owner when an automatic charge fails.</p>
+						<p className="mt-0.5 text-sm text-muted-foreground">Alert when an automatic credit charge fails.</p>
 					</div>
-					<Switch
-						checked={autoTopUpFailureEnabled}
-						aria-label="Email the workspace owner when auto top-up fails"
-						onCheckedChange={(nextEnabled) => {
-							const next = Boolean(nextEnabled);
-							setAutoTopUpFailureEnabled(next);
-							schedulePreferenceSave("autoTopUpFailure", next);
-						}}
-					/>
+					<div className="flex shrink-0 items-center gap-2 self-end sm:self-auto">
+						<NotificationRouteSelector destinations={props.destinations} eventKind="auto_top_up_failed" initialDestinationIds={props.notificationRoutes.auto_top_up_failed ?? []} />
+						<Switch
+							checked={autoTopUpFailureEnabled}
+							aria-label="Enable auto top-up failure alerts"
+							onCheckedChange={(nextEnabled) => {
+								const next = Boolean(nextEnabled);
+								setAutoTopUpFailureEnabled(next);
+								schedulePreferenceSave("autoTopUpFailure", next);
+							}}
+						/>
+					</div>
 				</div>
-				<div className="flex items-center justify-between gap-4 border-t px-4 py-3.5">
+				<div className="flex flex-col gap-3 border-t px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between">
 					<div className="min-w-0">
 						<h3 className="text-sm font-medium">Payment Method Expiring</h3>
-						<p className="mt-0.5 text-sm text-muted-foreground">Email the workspace owner before a saved card expires.</p>
+						<p className="mt-0.5 text-sm text-muted-foreground">Alert before a saved payment method expires.</p>
 					</div>
-					<Switch
-						checked={paymentMethodExpiringEnabled}
-						aria-label="Email the workspace owner before a payment method expires"
-						onCheckedChange={(nextEnabled) => {
-							const next = Boolean(nextEnabled);
-							setPaymentMethodExpiringEnabled(next);
-							schedulePreferenceSave("paymentMethodExpiring", next);
-						}}
-					/>
+					<div className="flex shrink-0 items-center gap-2 self-end sm:self-auto">
+						<NotificationRouteSelector destinations={props.destinations} eventKind="payment_method_expiring" initialDestinationIds={props.notificationRoutes.payment_method_expiring ?? []} />
+						<Switch
+							checked={paymentMethodExpiringEnabled}
+							aria-label="Enable payment method expiry alerts"
+							onCheckedChange={(nextEnabled) => {
+								const next = Boolean(nextEnabled);
+								setPaymentMethodExpiringEnabled(next);
+								schedulePreferenceSave("paymentMethodExpiring", next);
+							}}
+						/>
+					</div>
 				</div>
 			</div>
 		</section>
 	);
 }
-
