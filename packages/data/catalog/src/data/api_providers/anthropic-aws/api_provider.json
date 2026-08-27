@@ -11,9 +11,7 @@
     "global",
     "us"
   ],
-  "default_data_regions": [
-    "us"
-  ],
+  "default_data_regions": null,
   "zero_data_retention": false,
   "data_retention_days": 30,
   "data_policy_tier": "logs",
