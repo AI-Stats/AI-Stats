@@ -1,13 +1,9 @@
-import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { IRMusicGenerateRequest } from "@core/ir";
 import type { ExecutorExecuteArgs } from "@executors/types";
 import { execute } from "./index";
 import { installFetchMock, jsonResponse } from "../../../../tests/helpers/mock-fetch";
 import { setupTestRuntime, teardownTestRuntime } from "../../../../tests/helpers/runtime";
-
-vi.mock("@core/music-jobs", () => ({
-	saveMusicJobMeta: vi.fn(async () => undefined),
-}));
 
 function buildArgs(ir: IRMusicGenerateRequest): ExecutorExecuteArgs {
 	return {

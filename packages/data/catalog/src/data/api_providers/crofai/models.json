@@ -65,7 +65,7 @@
         "capability_id": "text.generate",
         "status": "active",
         "params": [],
-        "reasoning": null,
+        "reasoning": true,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
@@ -342,7 +342,7 @@
         "capability_id": "text.generate",
         "status": "active",
         "params": [],
-        "reasoning": null,
+        "reasoning": true,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
@@ -378,7 +378,7 @@
     "provider_model_slug": "deepseek-v4-flash-0731",
     "internal_model_id": "deepseek/deepseek-v4-flash-0731",
     "is_active_gateway": true,
-    "quantization_scheme": "Q4_0",
+    "quantization_scheme": "Q8_0",
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 1000000,
@@ -416,14 +416,14 @@
       {
         "kind": "pricing",
         "url": "https://crof.ai/pricing",
-        "accessed_at": "2026-08-01T00:00:00Z",
-        "notes": "Official live CrofAI pricing payload lists the explicit 0731 slug, Q4_0 quantisation, limits, speed and token rates."
+        "accessed_at": "2026-08-26T00:00:00Z",
+        "notes": "Official live CrofAI model payload lists the explicit 0731 slug, Q8_0 quantisation, limits, reasoning capability and token rates."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-01T00:00:00Z",
-      "notes": "Confirmed as a distinct live CrofAI route rather than an upgrade of the preview slug."
+      "checked_at": "2026-08-26T00:00:00Z",
+      "notes": "Confirmed against CrofAI's live model payload as a distinct active route with Q8_0 quantisation."
     },
     "rate_limits": []
   },
@@ -541,7 +541,7 @@
         "capability_id": "text.generate",
         "status": "active",
         "params": [],
-        "reasoning": null,
+        "reasoning": true,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
@@ -692,7 +692,7 @@
         "capability_id": "text.generate",
         "status": "active",
         "params": [],
-        "reasoning": null,
+        "reasoning": true,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
@@ -795,7 +795,7 @@
         "capability_id": "text.generate",
         "status": "active",
         "params": [],
-        "reasoning": null,
+        "reasoning": true,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
@@ -1227,7 +1227,7 @@
         "capability_id": "text.generate",
         "status": "active",
         "params": [],
-        "reasoning": null,
+        "reasoning": true,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
@@ -1330,7 +1330,7 @@
         "capability_id": "text.generate",
         "status": "active",
         "params": [],
-        "reasoning": null,
+        "reasoning": true,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
@@ -1655,7 +1655,7 @@
         "capability_id": "text.generate",
         "status": "active",
         "params": [],
-        "reasoning": null,
+        "reasoning": true,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
@@ -1758,7 +1758,7 @@
         "capability_id": "text.generate",
         "status": "active",
         "params": [],
-        "reasoning": null,
+        "reasoning": true,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
@@ -1806,7 +1806,7 @@
         "capability_id": "text.generate",
         "status": "active",
         "params": [],
-        "reasoning": null,
+        "reasoning": true,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
@@ -1854,7 +1854,7 @@
         "capability_id": "text.generate",
         "status": "active",
         "params": [],
-        "reasoning": null,
+        "reasoning": true,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
@@ -2065,7 +2065,7 @@
     "context_length": 1000000,
     "max_output_tokens": 131072,
     "effective_from": "2026-08-23T00:00:00Z",
-    "effective_to": null,
+    "effective_to": "2026-08-26T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -2122,7 +2122,7 @@
     "context_length": 262144,
     "max_output_tokens": 262144,
     "effective_from": "2026-08-23T00:00:00Z",
-    "effective_to": null,
+    "effective_to": "2026-08-26T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -2177,7 +2177,7 @@
     "context_length": 131072,
     "max_output_tokens": 32768,
     "effective_from": "2026-08-23T00:00:00Z",
-    "effective_to": null,
+    "effective_to": "2026-08-26T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -2227,14 +2227,14 @@
     "provider_api_model_id": "crofai:glm-5",
     "provider_model_slug": "glm-5",
     "internal_model_id": "z-ai/glm-5",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "Q4_0",
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 202752,
     "max_output_tokens": 202752,
     "effective_from": "2026-08-23T00:00:00Z",
-    "effective_to": null,
+    "effective_to": "2026-08-26T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -2282,14 +2282,14 @@
     "provider_api_model_id": "crofai:glm-4.7",
     "provider_model_slug": "glm-4.7",
     "internal_model_id": "z-ai/glm-4.7",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "Q8_0",
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 202752,
     "max_output_tokens": 202752,
     "effective_from": "2026-08-23T00:00:00Z",
-    "effective_to": null,
+    "effective_to": "2026-08-26T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -2337,14 +2337,14 @@
     "provider_api_model_id": "crofai:glm-4.7-flash",
     "provider_model_slug": "glm-4.7-flash",
     "internal_model_id": "z-ai/glm-4.7-flash",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "fp8",
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 202752,
     "max_output_tokens": 131072,
     "effective_from": "2026-08-23T00:00:00Z",
-    "effective_to": null,
+    "effective_to": "2026-08-26T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -2392,14 +2392,14 @@
     "provider_api_model_id": "crofai:minimax-m2.5",
     "provider_model_slug": "minimax-m2.5",
     "internal_model_id": "minimax/minimax-m2.5",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": "awq",
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 204800,
     "max_output_tokens": 131072,
     "effective_from": "2026-08-23T00:00:00Z",
-    "effective_to": null,
+    "effective_to": "2026-08-26T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -2439,6 +2439,128 @@
       "status": "verified",
       "checked_at": "2026-08-23T00:00:00Z",
       "notes": "Availability, slug, quantization, context, output limit, and token prices verified against CrofAI's current public rate card."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v4-pro-0813",
+    "provider_api_model_id": "crofai:deepseek-v4-pro-0813",
+    "provider_model_slug": "deepseek-v4-pro-0813",
+    "internal_model_id": "deepseek/deepseek-v4-pro-0813",
+    "is_active_gateway": true,
+    "quantization_scheme": "Q8_0",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-08-26T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api",
+        "url": "https://crof.ai/v1/models",
+        "accessed_at": "2026-08-26T00:00:00Z",
+        "notes": "Live CrofAI model payload lists deepseek-v4-pro-0813 with Q8_0 quantization, a 1M context window, and 131,072 maximum output tokens."
+      },
+      {
+        "kind": "pricing",
+        "url": "https://crof.ai/pricing",
+        "accessed_at": "2026-08-26T00:00:00Z",
+        "notes": "Current CrofAI pricing payload lists $0.35 input, $0.01 cached input, and $0.80 output per 1M tokens."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-26T00:00:00Z",
+      "notes": "Reactivated after the live CrofAI model payload listed the route again."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.8-27b",
+    "provider_api_model_id": "crofai:qwen3.8-27b",
+    "provider_model_slug": "qwen3.8-27b",
+    "internal_model_id": "qwen/qwen3.8-27b",
+    "is_active_gateway": true,
+    "quantization_scheme": "Q4_0",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": 262144,
+    "effective_from": "2026-08-26T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api",
+        "url": "https://crof.ai/v1/models",
+        "accessed_at": "2026-08-26T00:00:00Z",
+        "notes": "Live CrofAI model payload lists qwen3.8-27b with Q4_0 quantization, a 262,144-token context window, and 262,144 maximum output tokens."
+      },
+      {
+        "kind": "pricing",
+        "url": "https://crof.ai/pricing",
+        "accessed_at": "2026-08-26T00:00:00Z",
+        "notes": "Current CrofAI pricing payload lists $0.20 input, $0.03 cached input, and $1.50 output per 1M tokens."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-26T00:00:00Z",
+      "notes": "Added from the live CrofAI model payload."
     },
     "rate_limits": []
   }

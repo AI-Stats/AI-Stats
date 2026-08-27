@@ -262,14 +262,22 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	const inputVideoSource = normalizeInputSource(ir.inputVideo ?? ir.input?.video);
 	const referencedVideoCount = (ir.inputReferences ?? []).filter((entry) => entry.type === "video").length;
 	const inputVideoCount = Math.max(referencedVideoCount, inputVideoSource ? 1 : 0);
-	const inputVideoSeconds =
-		toNonNegativeNumber(
-			bytedanceConfig.input_video_seconds ??
-			bytedanceConfig.inputVideoSeconds ??
-			bytedanceConfig.video_input_seconds ??
-			bytedanceConfig.videoInputSeconds,
-		) ??
-		(inputVideoCount > 0 ? (seconds ?? 1) * inputVideoCount : 0);
+	if (inputVideoCount > 0 && !(typeof ir.inputVideoDurationSeconds === "number" && ir.inputVideoDurationSeconds > 0)) {
+		return {
+			kind: "completed",
+			ir: undefined,
+			bill: { cost_cents: 0, currency: "USD", usage: undefined as any, upstream_id: undefined, finish_reason: null },
+			upstream: new Response(JSON.stringify({ error: {
+				type: "invalid_request_error",
+				message: "input_video_duration is required for BytePlus source-video generation",
+				param: "input_video_duration",
+			} }), { status: 400, headers: { "content-type": "application/json" } }),
+			keySource: null,
+			byokKeyId: null,
+			mappedRequest: undefined,
+		};
+	}
+	const inputVideoSeconds = inputVideoCount > 0 ? ir.inputVideoDurationSeconds! : 0;
 	const frameRateForPricing =
 		toPositiveNumber(bytedanceConfig.frame_rate ?? bytedanceConfig.frameRate ?? ir.frameRate ?? ir.fps);
 	const keyInfo = resolveProviderKey(

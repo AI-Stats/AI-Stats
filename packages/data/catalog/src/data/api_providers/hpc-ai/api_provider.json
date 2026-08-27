@@ -1,5 +1,8 @@
 {
   "api_provider_id": "hpc-ai",
+  "data_policy_tier": "unknown",
+  "data_policy_confidence": "unknown",
+  "data_policy_contract_mode": "none",
   "api_provider_name": "HPC-AI",
   "provider_family_id": null,
   "offer_label": null,
@@ -9,7 +12,7 @@
   "residency_mode": "provider_managed",
   "default_execution_regions": null,
   "default_data_regions": null,
-  "zero_data_retention": "optional",
+  "zero_data_retention": false,
   "residency_source_url": "https://www.hpc-ai.com/agreement/privacy",
   "prompt_training_policy": "no_train",
   "prompt_training_notes": "Paid MaaS/API customer content is not used to train or fine-tune shared foundation models by default unless the customer opts in or law requires it. Operational logs may be retained for up to 30 days; eligible customers can request stricter controls including zero retention on supported endpoints.",

@@ -253,7 +253,7 @@ function outputTokens(usage: unknown): number | null {
 }
 
 const USAGE_INTEGER_FIELDS: Record<string, string> = {
-	requests: "requests", success_requests: "successRequests", failed_requests: "failedRequests", neutral_requests: "neutralRequests", rate_limited_requests: "rateLimitedRequests", total_tokens: "totalTokens", input_tokens: "inputTokens", output_tokens: "outputTokens", reasoning_tokens: "reasoningTokens", input_text_tokens: "inputTextTokens", output_text_tokens: "outputTextTokens", input_image_tokens: "inputImageTokens", output_image_tokens: "outputImageTokens", input_audio_tokens: "inputAudioTokens", output_audio_tokens: "outputAudioTokens", input_video_tokens: "inputVideoTokens", output_video_tokens: "outputVideoTokens", image_inputs: "imageInputs", image_outputs: "imageOutputs", audio_inputs: "audioInputs", audio_outputs: "audioOutputs", video_inputs: "videoInputs", video_outputs: "videoOutputs", cached_read_tokens: "cachedReadTokens", cached_write_tokens: "cachedWriteTokens", cached_read_text_tokens: "cachedReadTextTokens", cached_write_text_tokens: "cachedWriteTextTokens", cached_write_text_tokens_5m: "cachedWriteTextTokens5m", cached_write_text_tokens_1h: "cachedWriteTextTokens1h", cached_read_image_tokens: "cachedReadImageTokens", cached_write_image_tokens: "cachedWriteImageTokens", cached_read_audio_tokens: "cachedReadAudioTokens", cached_write_audio_tokens: "cachedWriteAudioTokens", cached_read_video_tokens: "cachedReadVideoTokens", cached_write_video_tokens: "cachedWriteVideoTokens", input_quad_tokens: "inputQuadTokens", output_quad_tokens: "outputQuadTokens", total_quad_tokens: "totalQuadTokens", text_quad_tokens: "textQuadTokens", rerank_quad_tokens: "rerankQuadTokens", embedding_quad_tokens: "embeddingQuadTokens", moderation_quad_tokens: "moderationQuadTokens", ocr_quad_tokens: "ocrQuadTokens", input_characters: "inputCharacters", output_characters: "outputCharacters", total_characters: "totalCharacters", total_cost_nanos: "totalCostNanos",
+	requests: "requests", success_requests: "successRequests", failed_requests: "failedRequests", neutral_requests: "neutralRequests", rate_limited_requests: "rateLimitedRequests", total_tokens: "totalTokens", input_tokens: "inputTokens", output_tokens: "outputTokens", reasoning_tokens: "reasoningTokens", input_text_tokens: "inputTextTokens", output_text_tokens: "outputTextTokens", input_image_tokens: "inputImageTokens", output_image_tokens: "outputImageTokens", input_audio_tokens: "inputAudioTokens", output_audio_tokens: "outputAudioTokens", input_video_tokens: "inputVideoTokens", output_video_tokens: "outputVideoTokens", image_inputs: "imageInputs", image_outputs: "imageOutputs", audio_inputs: "audioInputs", audio_outputs: "audioOutputs", video_inputs: "videoInputs", video_outputs: "videoOutputs", cached_read_tokens: "cachedReadTokens", cached_write_tokens: "cachedWriteTokens", cached_read_text_tokens: "cachedReadTextTokens", cached_write_text_tokens: "cachedWriteTextTokens", cached_write_text_tokens_5m: "cachedWriteTextTokens5m", cached_write_text_tokens_1h: "cachedWriteTextTokens1h", cached_read_image_tokens: "cachedReadImageTokens", cached_write_image_tokens: "cachedWriteImageTokens", cached_read_audio_tokens: "cachedReadAudioTokens", cached_write_audio_tokens: "cachedWriteAudioTokens", cached_read_video_tokens: "cachedReadVideoTokens", cached_write_video_tokens: "cachedWriteVideoTokens", input_quad_tokens: "inputQuadTokens", output_quad_tokens: "outputQuadTokens", total_quad_tokens: "totalQuadTokens", text_quad_tokens: "textQuadTokens", rerank_quad_tokens: "rerankQuadTokens", embedding_quad_tokens: "embeddingQuadTokens", moderation_quad_tokens: "moderationQuadTokens", ocr_quad_tokens: "ocrQuadTokens", input_characters: "inputCharacters", output_characters: "outputCharacters", total_characters: "totalCharacters",
 };
 
 function mapUsageDailyRow(row: Record<string, unknown>) {
@@ -273,9 +273,6 @@ function mapEffectivePricingDailyRow(row: Record<string, unknown>) {
 		outputTokens: Math.max(0, Number(row.output_tokens ?? 0) || 0),
 		cachedReadTokens: Math.max(0, Number(row.cached_read_tokens ?? 0) || 0),
 		cachedWriteTokens: Math.max(0, Number(row.cached_write_tokens ?? 0) || 0),
-		inputCostNanos: Math.max(0, Number(row.input_cost_nanos ?? 0) || 0),
-		outputCostNanos: Math.max(0, Number(row.output_cost_nanos ?? 0) || 0),
-		totalCostNanos: Math.max(0, Number(row.total_cost_nanos ?? 0) || 0),
 	};
 }
 
@@ -1199,7 +1196,7 @@ publicModelsRouter.get("/:modelId/provider-health", async (c) => {
 		const windowDays = Math.max(1, Math.min(90, parseBoundedInt(c.req.query("window_days"), 3, 90)));
 		const v2 = await getDataClient(c.env).rpc("get_v2_model_provider_health_metrics", { p_model_slug: modelId, p_window_days: windowDays, p_percentile: percentile / 100 });
 		if (!v2.error && Array.isArray(v2.data)) {
-			const rows = (v2.data as Array<Record<string, unknown>>).filter((row) => providerIds.includes(String(row.provider_id ?? "")));
+			const rows = (v2.data as Array<Record<string, unknown>>).filter((row) => providerIds.includes(String(row.provider_id ?? "")) && Number(row.health_requests ?? row.requests ?? 0) >= 20);
 			return withPublicCache(c.json({ rows, source: "v2" }), sectionPolicy("providerHealth", modelId));
 		}
 		throw v2.error ?? new Error("V2 provider health query returned an invalid payload");
@@ -1501,10 +1498,10 @@ publicModelsRouter.get("/:modelId/performance", async (c) => {
 		) {
 			performance = {
 				...performance,
-				provider_uptime_24h: (health.data as Array<Record<string, unknown>>).map((row) => ({
+				provider_uptime_24h: (health.data as Array<Record<string, unknown>>).filter((row) => Number(row.health_requests ?? row.requests ?? 0) >= 20).map((row) => ({
 					provider: row.provider_id, provider_name: row.provider_name ?? row.provider_id, requests: row.health_requests ?? row.requests,
 					uptime_pct: row.uptime_pct, avg_latency_ms: row.percentile_latency_ms ?? row.avg_latency_ms, avg_generation_ms: null, avg_throughput: row.percentile_throughput ?? row.avg_throughput,
-					uptime_buckets: row.buckets ?? [],
+					uptime_buckets: Array.isArray(row.buckets) ? row.buckets.filter((bucket) => Number((bucket as Record<string, unknown>).requests ?? (bucket as Record<string, unknown>).health_requests ?? 0) >= 20) : [],
 				})),
 			};
 		}
@@ -1543,12 +1540,14 @@ publicModelsRouter.get("/:modelId/performance", async (c) => {
 		const cachedInputProviderDaily = new Map((cachedInputMetrics.provider_daily_7d ?? []).map((value: Record<string, unknown>) => [`${String(value.day ?? "")}:${String(value.provider ?? "")}`, value]));
 		const hourly = (performance.hourly_24h ?? []).map((value: Record<string, unknown>) => {
 			const cache = cachedInputHourly.get(String(value.bucket ?? "")) as Record<string, unknown> | undefined;
-			return { bucket: value.bucket ?? "", avgThroughput: number(value.avg_throughput), avgOutputSpeed: number(value.output_speed_tps), avgLatencyMs: number(value.avg_latency_ms), avgGenerationMs: number(value.avg_generation_ms), avgPhaseoOverheadMs: number(value.phaseo_overhead_ms), avgTpotMs: number(value.tpot_ms), avgItlMs: number(value.itl_ms), cachedInputPct: number(cache?.cached_input_pct), cacheTelemetryRequests: Number(cache?.telemetry_requests ?? 0), requests: Number(value.requests ?? 0), successPct: number(value.success_pct) };
+			const cacheRequests = Number(cache?.telemetry_requests ?? 0);
+			return { bucket: value.bucket ?? "", avgThroughput: number(value.avg_throughput), avgOutputSpeed: number(value.output_speed_tps), avgLatencyMs: number(value.avg_latency_ms), avgGenerationMs: number(value.avg_generation_ms), avgPhaseoOverheadMs: number(value.phaseo_overhead_ms), avgTpotMs: number(value.tpot_ms), avgItlMs: number(value.itl_ms), cachedInputPct: cacheRequests >= 20 ? number(cache?.cached_input_pct) : null, cacheTelemetryRequests: cacheRequests >= 20 ? cacheRequests : 0, requests: Number(value.requests ?? 0), successPct: number(value.success_pct) };
 		});
 		const providerPerformance = (performance.provider_uptime_24h ?? []).map((value: Record<string, any>) => ({ provider: value.provider ?? "", providerName: value.provider_name ?? value.provider ?? "", providerColor: providerColor(value.provider), avgThroughput: number(value.avg_throughput), avgLatencyMs: number(value.avg_latency_ms), avgGenerationMs: number(value.avg_generation_ms), requests: Number(value.requests ?? 0), uptimePct: number(value.uptime_pct), uptimeBuckets: (value.uptime_buckets ?? []).map((bucket: Record<string, unknown>) => ({ start: bucket.start ?? "", end: bucket.end ?? "", successPct: number(bucket.success_pct) })) }));
 		const providerDaily7d = (performance.provider_daily_7d ?? []).map((value: Record<string, unknown>) => {
 			const cache = cachedInputProviderDaily.get(`${String(value.day ?? "")}:${String(value.provider ?? "")}`) as Record<string, unknown> | undefined;
-			return { day: value.day ?? "", provider: value.provider ?? "", providerName: value.provider_name ?? value.provider ?? "", providerColor: providerColor(value.provider), avgThroughput: number(value.avg_throughput), avgOutputSpeed: number(value.output_speed_tps), avgLatencyMs: number(value.avg_latency_ms), avgGenerationMs: number(value.avg_generation_ms), avgPhaseoOverheadMs: number(value.phaseo_overhead_ms), avgTpotMs: number(value.tpot_ms), avgItlMs: number(value.itl_ms), cachedInputPct: number(cache?.cached_input_pct), cachedInputTokens: number(cache?.cached_input_tokens), effectiveInputTokens: number(cache?.effective_input_tokens), cacheTelemetryRequests: Number(cache?.telemetry_requests ?? 0), requests: Number(value.requests ?? 0) };
+			const cacheRequests = Number(cache?.telemetry_requests ?? 0);
+			return { day: value.day ?? "", provider: value.provider ?? "", providerName: value.provider_name ?? value.provider ?? "", providerColor: providerColor(value.provider), avgThroughput: number(value.avg_throughput), avgOutputSpeed: number(value.output_speed_tps), avgLatencyMs: number(value.avg_latency_ms), avgGenerationMs: number(value.avg_generation_ms), avgPhaseoOverheadMs: number(value.phaseo_overhead_ms), avgTpotMs: number(value.tpot_ms), avgItlMs: number(value.itl_ms), cachedInputPct: cacheRequests >= 20 ? number(cache?.cached_input_pct) : null, cachedInputTokens: cacheRequests >= 20 ? number(cache?.cached_input_tokens) : null, effectiveInputTokens: cacheRequests >= 20 ? number(cache?.effective_input_tokens) : null, cacheTelemetryRequests: cacheRequests >= 20 ? cacheRequests : 0, requests: Number(value.requests ?? 0) };
 		});
 		const providerCount = providerPerformance.filter((provider: Record<string, unknown>) => Number(provider.requests ?? 0) > 0).length;
 		const sevenDayProviderCount = new Set(
@@ -1584,11 +1583,11 @@ publicModelsRouter.get("/:modelId/performance", async (c) => {
 				avgPhaseoOverheadMs: number(value.phaseo_overhead_ms),
 				avgTpotMs: number(value.tpot_ms),
 				avgItlMs: number(value.itl_ms),
-				cachedInputPct: number(value.cached_input_pct),
+				cachedInputPct: Number(value.requests ?? 0) >= 20 ? number(value.cached_input_pct) : null,
 				requests: Number(value.requests ?? 0),
 			};
 		}).filter((value) => String(value.provider).trim().length > 0);
-		const qualitySeries = (performance.quality_series ?? []).map((value: Record<string, unknown>) => ({ bucket: value.bucket ?? "", toolCallSuccessPct: number(value.tool_call_success_pct), structuredOutputSuccessPct: number(value.structured_output_success_pct), cacheHitRatePct: number(value.cache_hit_rate_pct), requests: Number(value.requests ?? 0) }));
+		const qualitySeries = (performance.quality_series ?? []).map((value: Record<string, unknown>) => ({ bucket: value.bucket ?? "", toolCallSuccessPct: number(value.tool_call_success_pct), structuredOutputSuccessPct: number(value.structured_output_success_pct), cacheHitRatePct: Number(value.requests ?? 0) >= 20 ? number(value.cache_hit_rate_pct) : null, requests: Number(value.requests ?? 0) }));
 		const metrics = { cloudflareColo: performance.cloudflare_colo ?? cloudflareColo, percentile, streamMode, contextBucket, summary: summary(performance.last_24h), prevSummary: performance.prev_24h ? summary(performance.prev_24h) : null, hourly, successSeries, timeOfDay, providerPerformance, providerDaily7d, providerPercentileDaily7d, qualitySeries, dataRange: hourly.length ? { start: hourly[0]?.bucket ?? "", end: hourly[hourly.length - 1]?.bucket ?? "" } : { start: "", end: "" }, cumulativeTokens: number(performance.cumulative_tokens?.total_tokens), releaseDate: performance.cumulative_tokens?.release_date ?? null };
 		const activity = { summary: metrics.summary, providerPerformance, cumulativeTokens: metrics.cumulativeTokens };
 		return withPublicCache(c.json({ modelId, performance, metrics, activity }), sectionPolicy("performance", modelId));
