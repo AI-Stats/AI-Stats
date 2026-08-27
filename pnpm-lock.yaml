@@ -725,6 +725,9 @@ importers:
 
   apps/web-api:
     dependencies:
+      '@phaseo/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk/sdk-ts
       '@supabase/supabase-js':
         specifier: ^2.106.2
         version: 2.110.3

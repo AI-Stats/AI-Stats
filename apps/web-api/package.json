@@ -12,6 +12,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@phaseo/sdk": "workspace:*",
     "@supabase/supabase-js": "^2.106.2",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
