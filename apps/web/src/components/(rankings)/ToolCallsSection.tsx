@@ -24,7 +24,9 @@ export async function ToolCallsSection() {
 				),
 		),
 	);
-	const metaMap = await fetchFrontendModelLeaderboardMetaByIds(modelIds);
+	const metaMap = await fetchFrontendModelLeaderboardMetaByIds(modelIds).catch(
+		(): Awaited<ReturnType<typeof fetchFrontendModelLeaderboardMetaByIds>> => ({}),
+	);
 	const nameMap = Object.fromEntries(
 		modelIds.map((modelId) => [
 			modelId,
