@@ -16,19 +16,20 @@
   "residency_mode": "provider_managed",
   "default_execution_regions": ["SG"],
   "default_data_regions": ["SG"],
-  "zero_data_retention": "unknown",
+  "zero_data_retention": false,
   "residency_source_url": "https://docs.z.ai/legal-agreement/privacy-policy",
-  "residency_notes": "z.AI says its services and group companies are generally provided from Singapore and personal data is generally processed there, subject to lawful overseas transfers. The privacy policy describes retention of personal data and does not provide a standard API Zero Data Retention commitment, so Singapore processing should not be treated as zero retention.",
+  "residency_notes": "Z.AI's API Data Processing Addendum says API content is processed in real time and is not saved on its servers; non-content customer data may be temporarily stored for service delivery or legal compliance. Z.AI generally provides the service from Singapore and permits lawful international transfers.",
   "data_policy_tier": "logs",
   "data_policy_confidence": "confirmed",
-  "data_policy_contract_mode": "enterprise_agreement",
+  "data_policy_contract_mode": "customer_agreement",
+  "data_policy_contract_notes": "The API Additional Terms and Data Processing Addendum apply to business and developer API users. The documents protect API content, but permit temporary storage of other customer data and do not provide a blanket ZDR product commitment.",
   "country_code": "CN",
   "status": "Active",
   "colour": "#141618",
   "privacy_policy_url": "https://docs.z.ai/legal-agreement/privacy-policy",
   "terms_of_service_url": "https://docs.z.ai/legal-agreement/terms-of-use",
-  "prompt_training_policy": "enterprise_no_train",
-  "prompt_training_notes": "z.AI's developer terms distinguish enterprise and developer API services from individual users, and say API-service user content will not be used to develop or improve the services unless the customer explicitly agrees.",
+  "prompt_training_policy": "no_train",
+  "prompt_training_notes": "Z.AI's Additional Terms for API Services say it will only use End User Content as necessary to provide API Services, comply with law, enforce policies, and prevent abuse; it will not use that content to develop or improve services unless the customer explicitly agrees.",
   "prompt_training_source_url": "https://docs.z.ai/legal-agreement/terms-of-use",
   "gateway_kind": null,
   "routable": null,
@@ -39,10 +40,23 @@
   "auth_env": null,
   "api_formats": [],
   "service_tiers": [],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "official_api_terms",
+      "url": "https://docs.z.ai/legal-agreement/terms-of-use",
+      "accessed_at": "2026-08-26T00:00:00Z",
+      "notes": "Z.AI's Additional Terms for API Services limit End User Content use to service delivery, legal compliance, policy enforcement, and abuse prevention unless the customer explicitly agrees to development or improvement use."
+    },
+    {
+      "kind": "official_data_processing_addendum",
+      "url": "https://docs.z.ai/legal-agreement/privacy-policy",
+      "accessed_at": "2026-08-26T00:00:00Z",
+      "notes": "Z.AI's API Data Processing Addendum says customer and end-user content is processed in real time and is not saved on its servers; other customer data may be temporarily stored for service delivery or legal compliance."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-26T00:00:00Z",
+    "notes": "Direct API policy reviewed against Z.AI's current API terms and Data Processing Addendum."
   }
 }

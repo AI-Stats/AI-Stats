@@ -86,8 +86,14 @@
           "or_group": 1,
           "and_index": 1,
           "value": 200000
-        }
-      ],
+        },
+        {
+          "path": "cache_ttl",
+          "op": "eq",
+          "or_group": 1,
+          "and_index": 1,
+          "value": "5m"
+        }],
       "priority": 200,
       "effective_from": "2026-08-21T00:00:00Z",
       "effective_to": null,
@@ -100,8 +106,14 @@
           "or_group": 1,
           "and_index": 1,
           "value": 200000
-        }
-      ],
+        },
+        {
+          "path": "cache_ttl",
+          "op": "eq",
+          "or_group": 1,
+          "and_index": 1,
+          "value": "5m"
+        }],
       "source": "https://docs.digitalocean.com/products/inference/details/pricing/"
     },
     {
@@ -119,8 +131,14 @@
           "or_group": 1,
           "and_index": 1,
           "value": 200000
-        }
-      ],
+        },
+        {
+          "path": "cache_ttl",
+          "op": "eq",
+          "or_group": 1,
+          "and_index": 1,
+          "value": "1h"
+        }],
       "priority": 200,
       "effective_from": "2026-08-21T00:00:00Z",
       "effective_to": null,
@@ -133,8 +151,14 @@
           "or_group": 1,
           "and_index": 1,
           "value": 200000
-        }
-      ],
+        },
+        {
+          "path": "cache_ttl",
+          "op": "eq",
+          "or_group": 1,
+          "and_index": 1,
+          "value": "1h"
+        }],
       "source": "https://docs.digitalocean.com/products/inference/details/pricing/"
     },
     {
@@ -251,8 +275,14 @@
           "or_group": 1,
           "and_index": 1,
           "value": 200000
-        }
-      ],
+        },
+        {
+          "path": "cache_ttl",
+          "op": "eq",
+          "or_group": 1,
+          "and_index": 1,
+          "value": "5m"
+        }],
       "priority": 200,
       "effective_from": "2026-08-21T00:00:00Z",
       "effective_to": null,
@@ -265,8 +295,14 @@
           "or_group": 1,
           "and_index": 1,
           "value": 200000
-        }
-      ],
+        },
+        {
+          "path": "cache_ttl",
+          "op": "eq",
+          "or_group": 1,
+          "and_index": 1,
+          "value": "5m"
+        }],
       "source": "https://docs.digitalocean.com/products/inference/details/pricing/"
     },
     {
@@ -284,8 +320,14 @@
           "or_group": 1,
           "and_index": 1,
           "value": 200000
-        }
-      ],
+        },
+        {
+          "path": "cache_ttl",
+          "op": "eq",
+          "or_group": 1,
+          "and_index": 1,
+          "value": "1h"
+        }],
       "priority": 200,
       "effective_from": "2026-08-21T00:00:00Z",
       "effective_to": null,
@@ -298,8 +340,14 @@
           "or_group": 1,
           "and_index": 1,
           "value": 200000
-        }
-      ],
+        },
+        {
+          "path": "cache_ttl",
+          "op": "eq",
+          "or_group": 1,
+          "and_index": 1,
+          "value": "1h"
+        }],
       "source": "https://docs.digitalocean.com/products/inference/details/pricing/"
     },
     {

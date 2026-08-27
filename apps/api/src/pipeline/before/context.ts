@@ -75,6 +75,29 @@ const MIN_GATEWAY_CREDIT_NANOS = 1_000_000_000;
 
 const contextInflight = new Map<string, Promise<GatewayContextData>>();
 
+async function assertPresetAccess(args: {
+	workspaceId: string;
+	apiKeyId: string;
+	model: string;
+}): Promise<void> {
+	if (!args.model.startsWith("@")) return;
+	const supabase = getSupabaseAdmin();
+	const slug = args.model.slice(1);
+	const [{ data: key, error: keyError }, { data: preset, error: presetError }] =
+		await Promise.all([
+			supabase.from("keys").select("created_by,workspace_id,status").eq("id", args.apiKeyId).maybeSingle(),
+			supabase.from("presets").select("created_by,visibility").eq("workspace_id", args.workspaceId).eq("slug", slug).is("archived_at", null).maybeSingle(),
+		]);
+	if (keyError || presetError) throw new Error("preset_access_lookup_failed");
+	if (!key || key.workspace_id !== args.workspaceId || key.status !== "active") {
+		throw new Error("api_key_not_authorized");
+	}
+	if (!preset) throw new Error("preset_not_found");
+	if (preset.visibility === "private" && preset.created_by !== key.created_by) {
+		throw new Error("preset_not_found");
+	}
+}
+
 type CreditContextSnapshot = Pick<
 	GatewayContextData,
 	"workspaceId" | "credit" | "teamEnrichment"
@@ -924,6 +947,7 @@ export async function fetchGatewayContext(args: {
     includeTestingMode?: boolean;
     disableCache?: boolean;
 }): Promise<GatewayContextData> {
+	await assertPresetAccess(args);
     const supabase = getSupabaseAdmin();
     const cache = getCache();
     const fetchStartedAt = performance.now();
@@ -955,7 +979,7 @@ export async function fetchGatewayContext(args: {
     const dynamicCacheKey = `${DYNAMIC_CACHE_PREFIX}:${testingModeCacheSegment}:${args.workspaceId}:${args.apiKeyId}:${versionToken}`;
     const creditCacheKey = gatewayCreditCacheKey(args.workspaceId);
     const staticCacheKey = isPreset
-        ? `${PRESET_CACHE_PREFIX}:${testingModeCacheSegment}:${args.workspaceId}:${args.model}:${args.endpoint}`
+        ? `${PRESET_CACHE_PREFIX}:${testingModeCacheSegment}:${args.workspaceId}:${args.apiKeyId}:${versionToken}:${args.model}:${args.endpoint}`
         : `${STATIC_CACHE_PREFIX}:${testingModeCacheSegment}:${args.workspaceId}:${args.endpoint}:${args.model}`;
     const compositionCacheKey = `${CONTEXT_CACHE_PREFIX}:compose:${testingModeCacheSegment}:${args.workspaceId}:${args.apiKeyId}:${versionToken}:${args.endpoint}:${args.model}`;
 
@@ -1528,11 +1552,7 @@ export async function fetchGatewayContext(args: {
 					);
 					zeroDataRetentionByProvider.set(
 						providerId,
-						row.zero_data_retention === "unsupported" ||
-						row.zero_data_retention === "optional" ||
-						row.zero_data_retention === "default"
-							? row.zero_data_retention
-							: "unknown",
+						row.zero_data_retention === true,
 					);
                     promptTrainingPolicyByProvider.set(
                         providerId,
@@ -1760,8 +1780,6 @@ export async function fetchGatewayContext(args: {
         }
     }
 }
-
-
 
 
 

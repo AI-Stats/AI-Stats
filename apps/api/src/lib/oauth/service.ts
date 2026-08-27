@@ -8,6 +8,7 @@ import {
 } from "@/lib/authz/capabilities";
 import { resolveActiveKeyPepper, resolveKeyPepperCandidates } from "@/lib/security/keyPepper";
 import { generateGatewayKey, hmacSecret, timingSafeEqual } from "@/routes/auth.helpers";
+import { validateWebhookEndpointUrlForDelivery } from "@/core/webhook-endpoints";
 import { validateOAuthToken, type JWTClaims } from "./jwt";
 
 const encoder = new TextEncoder();
@@ -497,7 +498,9 @@ async function loadCimdClient(clientId: string): Promise<OAuthClient | null> {
 
 	let response: Response;
 	try {
-		response = await fetch(clientUrl, {
+		const validated = await validateWebhookEndpointUrlForDelivery(clientUrl.toString());
+		if (!validated.ok) return null;
+		response = await fetch(validated.url, {
 			headers: { Accept: "application/json" },
 			redirect: "error",
 			signal: AbortSignal.timeout(CIMD_FETCH_TIMEOUT_MS),

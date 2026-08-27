@@ -2944,9 +2944,9 @@ export function ChatConversationComposer(props: ChatConversationComposerProps) {
 	return (
 		<div
 			data-chat-composer-footer="true"
-			className="border-t border-border bg-background px-4 py-[17px] md:px-8"
+			className="min-w-0 border-t border-border bg-background px-4 py-[17px] md:px-8"
 		>
-			<div className="mx-auto flex w-full max-w-3xl flex-col gap-3">
+			<div className="mx-auto flex min-w-0 w-full max-w-3xl flex-col gap-3">
 				{queuedPrompts.length > 0 ? (
 					<div className="rounded-md border border-border bg-card/95 p-1.5">
 						<div className="grid gap-0.5">

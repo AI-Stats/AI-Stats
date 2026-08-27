@@ -74,12 +74,9 @@ function parseCapabilityOverride(params: Record<string, any> | null | undefined)
 }
 
 function providerZdrEligibility(
-    value: GatewayProviderSnapshot["zeroDataRetention"],
+	value: GatewayProviderSnapshot["zeroDataRetention"],
 ): EffectiveDataPolicy["zdrEligibility"] {
-    if (value === "default") return "eligible";
-    if (value === "unsupported") return "ineligible";
-    if (value === "optional") return "conditional";
-    return "unknown";
+	return value === true ? "eligible" : "ineligible";
 }
 
 export function resolveEffectiveDataPolicy(args: {
@@ -91,7 +88,7 @@ export function resolveEffectiveDataPolicy(args: {
         tier: provider.dataPolicyTier ?? "unknown",
         confidence: provider.dataPolicyConfidence ?? "unknown",
         zdrEligibility: providerZdrEligibility(provider.zeroDataRetention),
-        retentionMode: provider.zeroDataRetention === "default" ? "none" : "unknown",
+		retentionMode: provider.zeroDataRetention === true ? "none" : "unknown",
         retentionDays: null,
         source: "provider",
         reason: null,

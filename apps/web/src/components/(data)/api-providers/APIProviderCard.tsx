@@ -102,7 +102,7 @@ export default function APIProviderCard({ api_provider }: Props) {
 
 	return (
 		<div
-			className="group h-full cursor-pointer py-4 transition-colors hover:bg-muted/20 md:py-5"
+			className="group h-full w-full min-w-0 cursor-pointer bg-background py-4 transition-colors hover:bg-muted/20 md:py-5"
 			style={rowStyle}
 			onClick={handleCardClick}
 		>

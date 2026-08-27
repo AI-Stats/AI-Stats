@@ -21,7 +21,15 @@ import {
     phaseoRoutingEnabled,
     staleJsonProviderRouteIds,
     staleOwnedModelChildRows,
+    canonicalServiceTierSlug,
 } from "./v2";
+
+describe("service tier canonicalization", () => {
+    it("stores fast as the canonical priority tier", () => {
+        expect(canonicalServiceTierSlug("fast")).toBe("priority");
+        expect(canonicalServiceTierSlug("priority")).toBe("priority");
+    });
+});
 
 describe("V2 child reconciliation", () => {
     it("removes repository-owned notices that disappeared from JSON", () => {
