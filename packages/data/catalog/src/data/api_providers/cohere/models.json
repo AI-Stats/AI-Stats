@@ -1157,7 +1157,7 @@
     "routing_status": "active",
     "routable": true,
     "regions": { "execution": ["global"], "data": ["global"] },
-    "service_tiers": ["free"],
+    "service_tiers": ["standard"],
     "api": { "formats": ["cohere.parse"], "endpoint": "/v2/parse", "deployment": null },
     "sources": [
       {
