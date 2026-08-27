@@ -9,7 +9,6 @@ import { buildAdapterPayload } from "../../utils";
 import { resolveProviderKey } from "../../keys";
 import { getBindings } from "@/runtime/env";
 import { computeBill } from "@pipeline/pricing/engine";
-import { saveMusicJobMeta } from "@core/music-jobs";
 
 function toBase64(buffer: ArrayBuffer): string {
 	const bytes = new Uint8Array(buffer);
@@ -190,33 +189,6 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
                 bill.currency = pricedUsage.pricing.currency;
                 bill.usage = pricedUsage;
             }
-        }
-    }
-
-    if (res.ok && normalized?.id) {
-        try {
-            const firstOutput = Array.isArray(normalized.output) ? normalized.output[0] : null;
-            const durationSeconds =
-                typeof firstOutput?.duration === "number"
-                    ? firstOutput.duration
-                    : (typeof typedPayload.duration === "number" ? typedPayload.duration : null);
-            await saveMusicJobMeta(args.workspaceId, String(normalized.id), {
-                provider: "elevenlabs",
-                model: requestBody.model_id ?? null,
-                duration: durationSeconds,
-                format: typedPayload.format ?? null,
-                status: normalized?.status ?? null,
-                nativeResponseId: normalized?.nativeResponseId ?? null,
-				audioBase64: normalized?.audio_base64 ?? null,
-                output: Array.isArray(normalized.output) ? normalized.output : null,
-                createdAt: Date.now(),
-            });
-        } catch (err) {
-            console.error("elevenlabs_music_job_meta_store_failed", {
-                error: err,
-                workspaceId: args.workspaceId,
-                musicId: normalized.id,
-            });
         }
     }
 

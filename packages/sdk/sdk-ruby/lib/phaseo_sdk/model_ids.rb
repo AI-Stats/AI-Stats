@@ -126,27 +126,45 @@ module PhaseoSdk
     # Model ID: bytedance/seed-1.6
     # Model page: https://phaseo.app/models/bytedance/seed-1.6
     BYTEDANCE_SEED_1_6 = "bytedance/seed-1.6"
+    # Model ID: bytedance/seed-1.6-2025-10-15
+    # Model page: https://phaseo.app/models/bytedance/seed-1.6-2025-10-15
+    BYTEDANCE_SEED_1_6_2025_10_15 = "bytedance/seed-1.6-2025-10-15"
     # Model ID: bytedance/seed-1.6-250915
     # Model page: https://phaseo.app/models/bytedance/seed-1.6-250915
     BYTEDANCE_SEED_1_6_250915 = "bytedance/seed-1.6-250915"
     # Model ID: bytedance/seed-1.6-flash
     # Model page: https://phaseo.app/models/bytedance/seed-1.6-flash
     BYTEDANCE_SEED_1_6_FLASH = "bytedance/seed-1.6-flash"
+    # Model ID: bytedance/seed-1.6-flash-2025-08-28
+    # Model page: https://phaseo.app/models/bytedance/seed-1.6-flash-2025-08-28
+    BYTEDANCE_SEED_1_6_FLASH_2025_08_28 = "bytedance/seed-1.6-flash-2025-08-28"
     # Model ID: bytedance/seed-1.6-flash-250715
     # Model page: https://phaseo.app/models/bytedance/seed-1.6-flash-250715
     BYTEDANCE_SEED_1_6_FLASH_250715 = "bytedance/seed-1.6-flash-250715"
     # Model ID: bytedance/seed-1.8
     # Model page: https://phaseo.app/models/bytedance/seed-1.8
     BYTEDANCE_SEED_1_8 = "bytedance/seed-1.8"
+    # Model ID: bytedance/seed-1.8-2025-12-28
+    # Model page: https://phaseo.app/models/bytedance/seed-1.8-2025-12-28
+    BYTEDANCE_SEED_1_8_2025_12_28 = "bytedance/seed-1.8-2025-12-28"
+    # Model ID: bytedance/seed-2.0-code-preview-2026-02-15
+    # Model page: https://phaseo.app/models/bytedance/seed-2.0-code-preview-2026-02-15
+    BYTEDANCE_SEED_2_0_CODE_PREVIEW_2026_02_15 = "bytedance/seed-2.0-code-preview-2026-02-15"
     # Model ID: bytedance/seed-2.0-lite
     # Model page: https://phaseo.app/models/bytedance/seed-2.0-lite
     BYTEDANCE_SEED_2_0_LITE = "bytedance/seed-2.0-lite"
+    # Model ID: bytedance/seed-2.0-lite-2026-04-28
+    # Model page: https://phaseo.app/models/bytedance/seed-2.0-lite-2026-04-28
+    BYTEDANCE_SEED_2_0_LITE_2026_04_28 = "bytedance/seed-2.0-lite-2026-04-28"
     # Model ID: bytedance/seed-2.0-lite-260428
     # Model page: https://phaseo.app/models/bytedance/seed-2.0-lite-260428
     BYTEDANCE_SEED_2_0_LITE_260428 = "bytedance/seed-2.0-lite-260428"
     # Model ID: bytedance/seed-2.0-mini
     # Model page: https://phaseo.app/models/bytedance/seed-2.0-mini
     BYTEDANCE_SEED_2_0_MINI = "bytedance/seed-2.0-mini"
+    # Model ID: bytedance/seed-2.0-mini-2026-04-28
+    # Model page: https://phaseo.app/models/bytedance/seed-2.0-mini-2026-04-28
+    BYTEDANCE_SEED_2_0_MINI_2026_04_28 = "bytedance/seed-2.0-mini-2026-04-28"
     # Model ID: bytedance/seed-2.0-mini-260428
     # Model page: https://phaseo.app/models/bytedance/seed-2.0-mini-260428
     BYTEDANCE_SEED_2_0_MINI_260428 = "bytedance/seed-2.0-mini-260428"
@@ -255,9 +273,6 @@ module PhaseoSdk
     # Model ID: deepseek/deepseek-v3.2-exp
     # Model page: https://phaseo.app/models/deepseek/deepseek-v3.2-exp
     DEEPSEEK_DEEPSEEK_V3_2_EXP = "deepseek/deepseek-v3.2-exp"
-    # Model ID: deepseek/deepseek-v3.2-speciale
-    # Model page: https://phaseo.app/models/deepseek/deepseek-v3.2-speciale
-    DEEPSEEK_DEEPSEEK_V3_2_SPECIALE = "deepseek/deepseek-v3.2-speciale"
     # Model ID: deepseek/deepseek-v4-flash
     # Model page: https://phaseo.app/models/deepseek/deepseek-v4-flash
     DEEPSEEK_DEEPSEEK_V4_FLASH = "deepseek/deepseek-v4-flash"
@@ -417,6 +432,15 @@ module PhaseoSdk
     # Model ID: ibm/granite-4.1-8b
     # Model page: https://phaseo.app/models/ibm/granite-4.1-8b
     IBM_GRANITE_4_1_8B = "ibm/granite-4.1-8b"
+    # Model ID: ibm/granite-4.2-30b
+    # Model page: https://phaseo.app/models/ibm/granite-4.2-30b
+    IBM_GRANITE_4_2_30B = "ibm/granite-4.2-30b"
+    # Model ID: ibm/granite-4.2-3b
+    # Model page: https://phaseo.app/models/ibm/granite-4.2-3b
+    IBM_GRANITE_4_2_3B = "ibm/granite-4.2-3b"
+    # Model ID: ibm/granite-4.2-8b
+    # Model page: https://phaseo.app/models/ibm/granite-4.2-8b
+    IBM_GRANITE_4_2_8B = "ibm/granite-4.2-8b"
     # Model ID: inception/mercury-2
     # Model page: https://phaseo.app/models/inception/mercury-2
     INCEPTION_MERCURY_2 = "inception/mercury-2"
@@ -453,15 +477,9 @@ module PhaseoSdk
     # Model ID: kwaipilot/kat-coder-air-v2.5
     # Model page: https://phaseo.app/models/kwaipilot/kat-coder-air-v2.5
     KWAIPILOT_KAT_CODER_AIR_V2_5 = "kwaipilot/kat-coder-air-v2.5"
-    # Model ID: kwaipilot/kat-coder-exp-72b-1010
-    # Model page: https://phaseo.app/models/kwaipilot/kat-coder-exp-72b-1010
-    KWAIPILOT_KAT_CODER_EXP_72B_1010 = "kwaipilot/kat-coder-exp-72b-1010"
     # Model ID: kwaipilot/kat-coder-pro
     # Model page: https://phaseo.app/models/kwaipilot/kat-coder-pro
     KWAIPILOT_KAT_CODER_PRO = "kwaipilot/kat-coder-pro"
-    # Model ID: kwaipilot/kat-coder-pro-v1
-    # Model page: https://phaseo.app/models/kwaipilot/kat-coder-pro-v1
-    KWAIPILOT_KAT_CODER_PRO_V1 = "kwaipilot/kat-coder-pro-v1"
     # Model ID: kwaipilot/kat-coder-pro-v2
     # Model page: https://phaseo.app/models/kwaipilot/kat-coder-pro-v2
     KWAIPILOT_KAT_CODER_PRO_V2 = "kwaipilot/kat-coder-pro-v2"
@@ -567,15 +585,24 @@ module PhaseoSdk
     # Model ID: minimax/minimax-m2.7
     # Model page: https://phaseo.app/models/minimax/minimax-m2.7
     MINIMAX_MINIMAX_M2_7 = "minimax/minimax-m2.7"
+    # Model ID: minimax/minimax-m2.7:free
+    # Model page: https://phaseo.app/models/minimax/minimax-m2.7%3Afree
+    MINIMAX_MINIMAX_M2_7_FREE = "minimax/minimax-m2.7:free"
     # Model ID: minimax/minimax-m3
     # Model page: https://phaseo.app/models/minimax/minimax-m3
     MINIMAX_MINIMAX_M3 = "minimax/minimax-m3"
+    # Model ID: minimax/minimax-m3:free
+    # Model page: https://phaseo.app/models/minimax/minimax-m3%3Afree
+    MINIMAX_MINIMAX_M3_FREE = "minimax/minimax-m3:free"
     # Model ID: minimax/music-2.6
     # Model page: https://phaseo.app/models/minimax/music-2.6
     MINIMAX_MUSIC_2_6 = "minimax/music-2.6"
     # Model ID: minimax/music-3.0
     # Model page: https://phaseo.app/models/minimax/music-3.0
     MINIMAX_MUSIC_3_0 = "minimax/music-3.0"
+    # Model ID: minimax/music-3.0:free
+    # Model page: https://phaseo.app/models/minimax/music-3.0%3Afree
+    MINIMAX_MUSIC_3_0_FREE = "minimax/music-3.0:free"
     # Model ID: minimax/speech-2.6-hd
     # Model page: https://phaseo.app/models/minimax/speech-2.6-hd
     MINIMAX_SPEECH_2_6_HD = "minimax/speech-2.6-hd"
@@ -588,6 +615,9 @@ module PhaseoSdk
     # Model ID: minimax/speech-2.8-turbo
     # Model page: https://phaseo.app/models/minimax/speech-2.8-turbo
     MINIMAX_SPEECH_2_8_TURBO = "minimax/speech-2.8-turbo"
+    # Model ID: minimax/speech-2.8:free
+    # Model page: https://phaseo.app/models/minimax/speech-2.8%3Afree
+    MINIMAX_SPEECH_2_8_FREE = "minimax/speech-2.8:free"
     # Model ID: mistral/codestral
     # Model page: https://phaseo.app/models/mistral/codestral
     MISTRAL_CODESTRAL = "mistral/codestral"
@@ -702,12 +732,6 @@ module PhaseoSdk
     # Model ID: moonshotai/kimi-k2-0905
     # Model page: https://phaseo.app/models/moonshotai/kimi-k2-0905
     MOONSHOTAI_KIMI_K2_0905 = "moonshotai/kimi-k2-0905"
-    # Model ID: moonshotai/kimi-k2-instruct
-    # Model page: https://phaseo.app/models/moonshotai/kimi-k2-instruct
-    MOONSHOTAI_KIMI_K2_INSTRUCT = "moonshotai/kimi-k2-instruct"
-    # Model ID: moonshotai/kimi-k2-instruct-0905
-    # Model page: https://phaseo.app/models/moonshotai/kimi-k2-instruct-0905
-    MOONSHOTAI_KIMI_K2_INSTRUCT_0905 = "moonshotai/kimi-k2-instruct-0905"
     # Model ID: moonshotai/kimi-k2-thinking
     # Model page: https://phaseo.app/models/moonshotai/kimi-k2-thinking
     MOONSHOTAI_KIMI_K2_THINKING = "moonshotai/kimi-k2-thinking"
@@ -1020,9 +1044,6 @@ module PhaseoSdk
     # Model ID: poolside/laguna-xs-2.1:free
     # Model page: https://phaseo.app/models/poolside/laguna-xs-2.1%3Afree
     POOLSIDE_LAGUNA_XS_2_1_FREE = "poolside/laguna-xs-2.1:free"
-    # Model ID: prism-ml/ternary-bonsai-27b
-    # Model page: https://phaseo.app/models/prism-ml/ternary-bonsai-27b
-    PRISM_ML_TERNARY_BONSAI_27B = "prism-ml/ternary-bonsai-27b"
     # Model ID: qwen/qvq-max
     # Model page: https://phaseo.app/models/qwen/qvq-max
     QWEN_QVQ_MAX = "qwen/qvq-max"
@@ -1170,9 +1191,6 @@ module PhaseoSdk
     # Model ID: qwen/qwen3-8b
     # Model page: https://phaseo.app/models/qwen/qwen3-8b
     QWEN_QWEN3_8B = "qwen/qwen3-8b"
-    # Model ID: qwen/qwen3-coder
-    # Model page: https://phaseo.app/models/qwen/qwen3-coder
-    QWEN_QWEN3_CODER = "qwen/qwen3-coder"
     # Model ID: qwen/qwen3-coder-30b-a3b
     # Model page: https://phaseo.app/models/qwen/qwen3-coder-30b-a3b
     QWEN_QWEN3_CODER_30B_A3B = "qwen/qwen3-coder-30b-a3b"
@@ -1239,9 +1257,6 @@ module PhaseoSdk
     # Model ID: qwen/qwen3-reranker
     # Model page: https://phaseo.app/models/qwen/qwen3-reranker
     QWEN_QWEN3_RERANKER = "qwen/qwen3-reranker"
-    # Model ID: qwen/qwen3-reranker-8b
-    # Model page: https://phaseo.app/models/qwen/qwen3-reranker-8b
-    QWEN_QWEN3_RERANKER_8B = "qwen/qwen3-reranker-8b"
     # Model ID: qwen/qwen3-vl-235b-a22b
     # Model page: https://phaseo.app/models/qwen/qwen3-vl-235b-a22b
     QWEN_QWEN3_VL_235B_A22B = "qwen/qwen3-vl-235b-a22b"
@@ -1383,15 +1398,6 @@ module PhaseoSdk
     # Model ID: sakana/namazu
     # Model page: https://phaseo.app/models/sakana/namazu
     SAKANA_NAMAZU = "sakana/namazu"
-    # Model ID: sao10k/l3-8b-lunaris
-    # Model page: https://phaseo.app/models/sao10k/l3-8b-lunaris
-    SAO10K_L3_8B_LUNARIS = "sao10k/l3-8b-lunaris"
-    # Model ID: sao10k/l3-8b-stheno-v3.2
-    # Model page: https://phaseo.app/models/sao10k/l3-8b-stheno-v3.2
-    SAO10K_L3_8B_STHENO_V3_2 = "sao10k/l3-8b-stheno-v3.2"
-    # Model ID: sao10k/l31-70b-euryale-v2.2
-    # Model page: https://phaseo.app/models/sao10k/l31-70b-euryale-v2.2
-    SAO10K_L31_70B_EURYALE_V2_2 = "sao10k/l31-70b-euryale-v2.2"
     # Model ID: spacex-ai/grok-4.20
     # Model page: https://phaseo.app/models/spacex-ai/grok-4.20
     SPACEX_AI_GROK_4_20 = "spacex-ai/grok-4.20"
@@ -1455,6 +1461,18 @@ module PhaseoSdk
     # Model ID: thinking-machines/inkling-small
     # Model page: https://phaseo.app/models/thinking-machines/inkling-small
     THINKING_MACHINES_INKLING_SMALL = "thinking-machines/inkling-small"
+    # Model ID: upstage/solar-embedding-1-large-passage
+    # Model page: https://phaseo.app/models/upstage/solar-embedding-1-large-passage
+    UPSTAGE_SOLAR_EMBEDDING_1_LARGE_PASSAGE = "upstage/solar-embedding-1-large-passage"
+    # Model ID: upstage/solar-embedding-1-large-query
+    # Model page: https://phaseo.app/models/upstage/solar-embedding-1-large-query
+    UPSTAGE_SOLAR_EMBEDDING_1_LARGE_QUERY = "upstage/solar-embedding-1-large-query"
+    # Model ID: upstage/solar-embedding-2-passage
+    # Model page: https://phaseo.app/models/upstage/solar-embedding-2-passage
+    UPSTAGE_SOLAR_EMBEDDING_2_PASSAGE = "upstage/solar-embedding-2-passage"
+    # Model ID: upstage/solar-embedding-2-query
+    # Model page: https://phaseo.app/models/upstage/solar-embedding-2-query
+    UPSTAGE_SOLAR_EMBEDDING_2_QUERY = "upstage/solar-embedding-2-query"
     # Model ID: upstage/solar-mini
     # Model page: https://phaseo.app/models/upstage/solar-mini
     UPSTAGE_SOLAR_MINI = "upstage/solar-mini"
@@ -1485,6 +1503,12 @@ module PhaseoSdk
     # Model ID: voyage/rerank-2-lite
     # Model page: https://phaseo.app/models/voyage/rerank-2-lite
     VOYAGE_RERANK_2_LITE = "voyage/rerank-2-lite"
+    # Model ID: voyage/rerank-2.5
+    # Model page: https://phaseo.app/models/voyage/rerank-2.5
+    VOYAGE_RERANK_2_5 = "voyage/rerank-2.5"
+    # Model ID: voyage/rerank-2.5-lite
+    # Model page: https://phaseo.app/models/voyage/rerank-2.5-lite
+    VOYAGE_RERANK_2_5_LITE = "voyage/rerank-2.5-lite"
     # Model ID: voyage/rerank-lite-1
     # Model page: https://phaseo.app/models/voyage/rerank-lite-1
     VOYAGE_RERANK_LITE_1 = "voyage/rerank-lite-1"
@@ -1527,6 +1551,9 @@ module PhaseoSdk
     # Model ID: voyage/voyage-code-3
     # Model page: https://phaseo.app/models/voyage/voyage-code-3
     VOYAGE_VOYAGE_CODE_3 = "voyage/voyage-code-3"
+    # Model ID: voyage/voyage-code-4
+    # Model page: https://phaseo.app/models/voyage/voyage-code-4
+    VOYAGE_VOYAGE_CODE_4 = "voyage/voyage-code-4"
     # Model ID: voyage/voyage-context-3
     # Model page: https://phaseo.app/models/voyage/voyage-context-3
     VOYAGE_VOYAGE_CONTEXT_3 = "voyage/voyage-context-3"
@@ -1560,15 +1587,24 @@ module PhaseoSdk
     # Model ID: voyage/voyage-multimodal-3.5
     # Model page: https://phaseo.app/models/voyage/voyage-multimodal-3.5
     VOYAGE_VOYAGE_MULTIMODAL_3_5 = "voyage/voyage-multimodal-3.5"
-    # Model ID: xiaomi/mimo-v2-flash
-    # Model page: https://phaseo.app/models/xiaomi/mimo-v2-flash
-    XIAOMI_MIMO_V2_FLASH = "xiaomi/mimo-v2-flash"
     # Model ID: xiaomi/mimo-v2.5
     # Model page: https://phaseo.app/models/xiaomi/mimo-v2.5
     XIAOMI_MIMO_V2_5 = "xiaomi/mimo-v2.5"
+    # Model ID: xiaomi/mimo-v2.5-asr
+    # Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-asr
+    XIAOMI_MIMO_V2_5_ASR = "xiaomi/mimo-v2.5-asr"
     # Model ID: xiaomi/mimo-v2.5-pro
     # Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-pro
     XIAOMI_MIMO_V2_5_PRO = "xiaomi/mimo-v2.5-pro"
+    # Model ID: xiaomi/mimo-v2.5-pro-ultraspeed
+    # Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-pro-ultraspeed
+    XIAOMI_MIMO_V2_5_PRO_ULTRASPEED = "xiaomi/mimo-v2.5-pro-ultraspeed"
+    # Model ID: xiaomi/mimo-v2.5-tts-voiceclone:free
+    # Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-tts-voiceclone%3Afree
+    XIAOMI_MIMO_V2_5_TTS_VOICECLONE_FREE = "xiaomi/mimo-v2.5-tts-voiceclone:free"
+    # Model ID: xiaomi/mimo-v2.5-tts-voicedesign:free
+    # Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-tts-voicedesign%3Afree
+    XIAOMI_MIMO_V2_5_TTS_VOICEDESIGN_FREE = "xiaomi/mimo-v2.5-tts-voicedesign:free"
     # Model ID: xiaomi/mimo-v2.5-tts:free
     # Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-tts%3Afree
     XIAOMI_MIMO_V2_5_TTS_FREE = "xiaomi/mimo-v2.5-tts:free"
@@ -1681,13 +1717,19 @@ module PhaseoSdk
     ModelIds::BLACK_FOREST_LABS_FLUX_1_DEV,
     ModelIds::BLACK_FOREST_LABS_FLUX_1_SCHNELL,
     ModelIds::BYTEDANCE_SEED_1_6,
+    ModelIds::BYTEDANCE_SEED_1_6_2025_10_15,
     ModelIds::BYTEDANCE_SEED_1_6_250915,
     ModelIds::BYTEDANCE_SEED_1_6_FLASH,
+    ModelIds::BYTEDANCE_SEED_1_6_FLASH_2025_08_28,
     ModelIds::BYTEDANCE_SEED_1_6_FLASH_250715,
     ModelIds::BYTEDANCE_SEED_1_8,
+    ModelIds::BYTEDANCE_SEED_1_8_2025_12_28,
+    ModelIds::BYTEDANCE_SEED_2_0_CODE_PREVIEW_2026_02_15,
     ModelIds::BYTEDANCE_SEED_2_0_LITE,
+    ModelIds::BYTEDANCE_SEED_2_0_LITE_2026_04_28,
     ModelIds::BYTEDANCE_SEED_2_0_LITE_260428,
     ModelIds::BYTEDANCE_SEED_2_0_MINI,
+    ModelIds::BYTEDANCE_SEED_2_0_MINI_2026_04_28,
     ModelIds::BYTEDANCE_SEED_2_0_MINI_260428,
     ModelIds::BYTEDANCE_SEED_2_0_PRO,
     ModelIds::BYTEDANCE_SEED_2_1_TURBO,
@@ -1724,7 +1766,6 @@ module PhaseoSdk
     ModelIds::DEEPSEEK_DEEPSEEK_V3_1_TERMINUS,
     ModelIds::DEEPSEEK_DEEPSEEK_V3_2,
     ModelIds::DEEPSEEK_DEEPSEEK_V3_2_EXP,
-    ModelIds::DEEPSEEK_DEEPSEEK_V3_2_SPECIALE,
     ModelIds::DEEPSEEK_DEEPSEEK_V4_FLASH,
     ModelIds::DEEPSEEK_DEEPSEEK_V4_FLASH_0731,
     ModelIds::DEEPSEEK_DEEPSEEK_V4_FLASH_VISION_EXP,
@@ -1778,6 +1819,9 @@ module PhaseoSdk
     ModelIds::GOOGLE_VEO_3_1_LITE_PREVIEW,
     ModelIds::GOOGLE_VEO_3_1_PREVIEW,
     ModelIds::IBM_GRANITE_4_1_8B,
+    ModelIds::IBM_GRANITE_4_2_30B,
+    ModelIds::IBM_GRANITE_4_2_3B,
+    ModelIds::IBM_GRANITE_4_2_8B,
     ModelIds::INCEPTION_MERCURY_2,
     ModelIds::INCEPTION_MERCURY_EDIT_2,
     ModelIds::INCLUSIONAI_LING_2_6_1T,
@@ -1790,9 +1834,7 @@ module PhaseoSdk
     ModelIds::INFLECTION_INFLECTION_3_PRODUCTIVITY,
     ModelIds::JETBRAINS_MELLUM2_12B_A2_5B,
     ModelIds::KWAIPILOT_KAT_CODER_AIR_V2_5,
-    ModelIds::KWAIPILOT_KAT_CODER_EXP_72B_1010,
     ModelIds::KWAIPILOT_KAT_CODER_PRO,
-    ModelIds::KWAIPILOT_KAT_CODER_PRO_V1,
     ModelIds::KWAIPILOT_KAT_CODER_PRO_V2,
     ModelIds::KWAIPILOT_KAT_CODER_PRO_V2_5,
     ModelIds::LIQUID_AI_LFM_2_24B_A2B,
@@ -1828,13 +1870,17 @@ module PhaseoSdk
     ModelIds::MINIMAX_MINIMAX_M2_5,
     ModelIds::MINIMAX_MINIMAX_M2_5_HIGHSPEED,
     ModelIds::MINIMAX_MINIMAX_M2_7,
+    ModelIds::MINIMAX_MINIMAX_M2_7_FREE,
     ModelIds::MINIMAX_MINIMAX_M3,
+    ModelIds::MINIMAX_MINIMAX_M3_FREE,
     ModelIds::MINIMAX_MUSIC_2_6,
     ModelIds::MINIMAX_MUSIC_3_0,
+    ModelIds::MINIMAX_MUSIC_3_0_FREE,
     ModelIds::MINIMAX_SPEECH_2_6_HD,
     ModelIds::MINIMAX_SPEECH_2_6_TURBO,
     ModelIds::MINIMAX_SPEECH_2_8_HD,
     ModelIds::MINIMAX_SPEECH_2_8_TURBO,
+    ModelIds::MINIMAX_SPEECH_2_8_FREE,
     ModelIds::MISTRAL_CODESTRAL,
     ModelIds::MISTRAL_CODESTRAL_EMBED,
     ModelIds::MISTRAL_DEVSTRAL_2,
@@ -1873,8 +1919,6 @@ module PhaseoSdk
     ModelIds::MISTRAL_VOXTRAL_SMALL,
     ModelIds::MOONSHOTAI_KIMI_K2,
     ModelIds::MOONSHOTAI_KIMI_K2_0905,
-    ModelIds::MOONSHOTAI_KIMI_K2_INSTRUCT,
-    ModelIds::MOONSHOTAI_KIMI_K2_INSTRUCT_0905,
     ModelIds::MOONSHOTAI_KIMI_K2_THINKING,
     ModelIds::MOONSHOTAI_KIMI_K2_5,
     ModelIds::MOONSHOTAI_KIMI_K2_6,
@@ -1979,7 +2023,6 @@ module PhaseoSdk
     ModelIds::POOLSIDE_LAGUNA_M_1_FREE,
     ModelIds::POOLSIDE_LAGUNA_S_2_1_FREE,
     ModelIds::POOLSIDE_LAGUNA_XS_2_1_FREE,
-    ModelIds::PRISM_ML_TERNARY_BONSAI_27B,
     ModelIds::QWEN_QVQ_MAX,
     ModelIds::QWEN_QWEN_FLASH,
     ModelIds::QWEN_QWEN_FLASH_CHARACTER,
@@ -2029,7 +2072,6 @@ module PhaseoSdk
     ModelIds::QWEN_QWEN3_32B,
     ModelIds::QWEN_QWEN3_4B,
     ModelIds::QWEN_QWEN3_8B,
-    ModelIds::QWEN_QWEN3_CODER,
     ModelIds::QWEN_QWEN3_CODER_30B_A3B,
     ModelIds::QWEN_QWEN3_CODER_480B_A35B,
     ModelIds::QWEN_QWEN3_CODER_FLASH,
@@ -2052,7 +2094,6 @@ module PhaseoSdk
     ModelIds::QWEN_QWEN3_OMNI_30B_A3B,
     ModelIds::QWEN_QWEN3_OMNI_30B_A3B_THINKING,
     ModelIds::QWEN_QWEN3_RERANKER,
-    ModelIds::QWEN_QWEN3_RERANKER_8B,
     ModelIds::QWEN_QWEN3_VL_235B_A22B,
     ModelIds::QWEN_QWEN3_VL_235B_A22B_INSTRUCT,
     ModelIds::QWEN_QWEN3_VL_235B_A22B_THINKING,
@@ -2100,9 +2141,6 @@ module PhaseoSdk
     ModelIds::RELACE_RELACE_SEARCH,
     ModelIds::SAKANA_FUGU_ULTRA,
     ModelIds::SAKANA_NAMAZU,
-    ModelIds::SAO10K_L3_8B_LUNARIS,
-    ModelIds::SAO10K_L3_8B_STHENO_V3_2,
-    ModelIds::SAO10K_L31_70B_EURYALE_V2_2,
     ModelIds::SPACEX_AI_GROK_4_20,
     ModelIds::SPACEX_AI_GROK_4_20_MULTI_AGENT_BETA,
     ModelIds::SPACEX_AI_GROK_4_20_MULTI_AGENT_BETA_0309,
@@ -2124,6 +2162,10 @@ module PhaseoSdk
     ModelIds::TENCENT_HY3_FREE,
     ModelIds::THINKING_MACHINES_INKLING,
     ModelIds::THINKING_MACHINES_INKLING_SMALL,
+    ModelIds::UPSTAGE_SOLAR_EMBEDDING_1_LARGE_PASSAGE,
+    ModelIds::UPSTAGE_SOLAR_EMBEDDING_1_LARGE_QUERY,
+    ModelIds::UPSTAGE_SOLAR_EMBEDDING_2_PASSAGE,
+    ModelIds::UPSTAGE_SOLAR_EMBEDDING_2_QUERY,
     ModelIds::UPSTAGE_SOLAR_MINI,
     ModelIds::UPSTAGE_SOLAR_PRO_2,
     ModelIds::UPSTAGE_SOLAR_PRO_3,
@@ -2134,6 +2176,8 @@ module PhaseoSdk
     ModelIds::VOYAGE_RERANK_1,
     ModelIds::VOYAGE_RERANK_2,
     ModelIds::VOYAGE_RERANK_2_LITE,
+    ModelIds::VOYAGE_RERANK_2_5,
+    ModelIds::VOYAGE_RERANK_2_5_LITE,
     ModelIds::VOYAGE_RERANK_LITE_1,
     ModelIds::VOYAGE_VOYAGE_01,
     ModelIds::VOYAGE_VOYAGE_02,
@@ -2148,6 +2192,7 @@ module PhaseoSdk
     ModelIds::VOYAGE_VOYAGE_4_LITE,
     ModelIds::VOYAGE_VOYAGE_CODE_2,
     ModelIds::VOYAGE_VOYAGE_CODE_3,
+    ModelIds::VOYAGE_VOYAGE_CODE_4,
     ModelIds::VOYAGE_VOYAGE_CONTEXT_3,
     ModelIds::VOYAGE_VOYAGE_FINANCE_2,
     ModelIds::VOYAGE_VOYAGE_LARGE_2,
@@ -2159,9 +2204,12 @@ module PhaseoSdk
     ModelIds::VOYAGE_VOYAGE_MULTILINGUAL_2,
     ModelIds::VOYAGE_VOYAGE_MULTIMODAL_3,
     ModelIds::VOYAGE_VOYAGE_MULTIMODAL_3_5,
-    ModelIds::XIAOMI_MIMO_V2_FLASH,
     ModelIds::XIAOMI_MIMO_V2_5,
+    ModelIds::XIAOMI_MIMO_V2_5_ASR,
     ModelIds::XIAOMI_MIMO_V2_5_PRO,
+    ModelIds::XIAOMI_MIMO_V2_5_PRO_ULTRASPEED,
+    ModelIds::XIAOMI_MIMO_V2_5_TTS_VOICECLONE_FREE,
+    ModelIds::XIAOMI_MIMO_V2_5_TTS_VOICEDESIGN_FREE,
     ModelIds::XIAOMI_MIMO_V2_5_TTS_FREE,
     ModelIds::Z_AI_AUTOGLM_PHONE_9B_MULTILINGUAL,
     ModelIds::Z_AI_GLM_4_32B,

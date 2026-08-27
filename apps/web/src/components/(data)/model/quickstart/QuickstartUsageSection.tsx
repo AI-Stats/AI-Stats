@@ -63,7 +63,7 @@ type ServiceTierOption = {
 
 const SERVICE_TIER_OPTIONS: ServiceTierOption[] = [
 	{ value: "standard", label: "Standard" },
-	{ value: "priority", label: "Priority" },
+	{ value: "priority", label: "Fast" },
 	{ value: "flex", label: "Flex" },
 	{ value: "batch", label: "Batch", disabled: true, hint: "Coming soon" },
 ];

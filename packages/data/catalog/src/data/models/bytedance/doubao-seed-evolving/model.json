@@ -1,49 +1,35 @@
 {
   "model_id": "bytedance/doubao-seed-evolving",
   "organisation_id": "bytedance",
-  "name": "Doubao Seed Evolving",
+  "name": "Doubao-Seed-Evolving",
   "status": "Available",
   "previous_model_id": null,
-  "description": "火山引擎豆包 Seed Evolving 快速迭代推理模型 (latest-version 滚动更新), 内嵌 thinking。OpenAI + Anthropic + Responses 三端点。ARK id doubao-seed-evolving 解析为 -latest-version。",
+  "description": "Doubao-Seed-Evolving is available through ZenMux's unified model API.",
   "announced_date": null,
   "release_date": "2026-06-23T00:00:00",
   "deprecation_date": null,
   "retirement_date": null,
   "license": null,
-  "input_types": "text,image",
+  "input_types": "text,image,video",
   "output_types": "text",
   "api_model_id": "bytedance/doubao-seed-evolving",
-  "family_id": null,
-  "links": [
-    {
-      "title": "OfoxAI model catalogue",
-      "kind": "documentation",
-      "url": "https://ofox.ai/models/volcengine"
-    }
-  ],
-  "details": [
-    {
-      "name": "ofox_provider_slug",
-      "value": "volcengine/doubao-seed-evolving"
-    },
-    {
-      "name": "ofox_supported_endpoints",
-      "value": "/v1/chat/completions,/v1/responses"
-    }
-  ],
+  "links": [],
+  "details": [],
   "benchmarks": [],
+  "family_id": null,
   "page_notice": null,
   "model_type": null,
   "knowledge_cutoff": null,
   "limits": {
     "context": 256000,
-    "input": null,
-    "output": 256000
+    "input": 256000,
+    "output": null
   },
   "modalities": {
     "input": [
       "text",
-      "image"
+      "image/*",
+      "video/*"
     ],
     "output": [
       "text"
@@ -55,25 +41,25 @@
   },
   "capabilities": {
     "attachment": true,
-    "tool_call": true,
-    "structured_output": true,
-    "temperature": true,
-    "streaming": false,
+    "tool_call": null,
+    "structured_output": null,
+    "temperature": null,
+    "streaming": null,
     "web_search": false
   },
   "open_weights": null,
   "sources": [
     {
-      "kind": "api",
-      "url": "https://api.ofox.ai/v1/models",
+      "kind": "provider_models",
+      "url": "https://zenmux.ai/api/v1/models",
       "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "Public live model catalogue, exact model IDs, endpoints, modalities, limits, parameters, lifecycle and pricing."
+      "notes": "Official live ZenMux model, modality, context, capability, publication, and pricing metadata."
     }
   ],
   "verification": {
-    "status": "verified",
+    "status": "partial",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Canonical identity and OfoxAI availability verified from the live catalogue."
+    "notes": "Availability, namespace, modalities, context, and publication date verified against the official ZenMux models API; upstream model metadata was not independently re-audited."
   },
   "last_updated": "2026-08-24T00:00:00Z",
   "removal_date": null,

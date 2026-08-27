@@ -1,6 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import type { ExtendedModel } from "@/data/types";
 import { cn } from "@/lib/utils";
+import { getModalityTone } from "@/lib/models/modalityStyles";
+import { Binary, Captions, FileText, Image as ImageIcon, Music4, Radio, Speech, Type, Video, Volume2 } from "lucide-react";
 
 function formatInteger(value: number | null | undefined): string {
 	if (value == null || !Number.isFinite(value)) return "-";
@@ -20,16 +22,18 @@ function normalizeTypeLabel(value: string): string {
 	return value;
 }
 
-function getShortTypeLabel(value: string): string {
-	const normalized = normalizeTypeLabel(value);
-	if (normalized === "Text") return "T";
-	if (normalized === "Image") return "Img";
-	if (normalized === "Audio") return "Aud";
-	if (normalized === "Video") return "Vid";
-	if (normalized === "Embeddings") return "Emb";
-	if (normalized === "Speech-to-text") return "STT";
-	if (normalized === "Text-to-speech") return "TTS";
-	return normalized.slice(0, 3);
+function getModalityIcon(value: string) {
+	const normalized = value.toLowerCase().replace(/[._/-]+/g, " ");
+	if (normalized.includes("realtime")) return Radio;
+	if (normalized.includes("embed")) return Binary;
+	if (normalized.includes("file")) return FileText;
+	if (normalized.includes("image")) return ImageIcon;
+	if (normalized.includes("music")) return Music4;
+	if (normalized.includes("speech to text") || normalized.includes("stt")) return Captions;
+	if (normalized.includes("text to speech") || normalized.includes("tts")) return Speech;
+	if (normalized.includes("audio")) return Volume2;
+	if (normalized.includes("video")) return Video;
+	return Type;
 }
 
 export function ColumnGrid({
@@ -59,16 +63,16 @@ export function TypeBadges({ values }: { values: string[] }) {
 
 	return (
 		<div className="flex flex-wrap justify-end gap-1">
-			{values.map((value) => (
-				<Badge
-					key={value}
-					variant="outline"
-					className="h-5 rounded px-1.5 text-[10px] font-semibold"
-					title={normalizeTypeLabel(value)}
-				>
-					{getShortTypeLabel(value)}
-				</Badge>
-			))}
+			{values.map((value) => {
+				const Icon = getModalityIcon(value);
+				const tone = getModalityTone(value);
+				return (
+					<Badge key={value} variant="outline" className={cn("h-6 gap-1 rounded-md px-1.5 text-[10px] font-medium", tone.badgeClassName)}>
+						<Icon className={cn("size-3", tone.iconClassName)} />
+						{normalizeTypeLabel(value)}
+					</Badge>
+				);
+			})}
 		</div>
 	);
 }

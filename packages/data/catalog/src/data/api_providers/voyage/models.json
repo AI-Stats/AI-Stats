@@ -1,4 +1,280 @@
 [
+{
+  "api_model_id": "voyage/voyage-code-4",
+  "provider_api_model_id": "voyage:voyage/voyage-code-4",
+  "provider_model_slug": "voyage-code-4",
+  "internal_model_id": "voyage/voyage-code-4",
+  "is_active_gateway": true,
+  "quantization_scheme": null,
+  "input_modalities": "text",
+  "output_modalities": "embeddings",
+  "context_length": 32000,
+  "max_output_tokens": null,
+  "effective_from": "2026-08-24T00:00:00",
+  "effective_to": null,
+  "capabilities": [
+    {
+      "capability_id": "text.embed",
+      "status": "active",
+      "params": [],
+      "reasoning": null,
+      "tool_call": null,
+      "structured_output": null,
+      "temperature": null,
+      "attachment": null,
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "embeddings"
+      ],
+      "modes": []
+    }
+  ],
+  "routing_status": "active",
+  "routable": true,
+  "regions": {
+    "execution": null,
+    "data": null
+  },
+  "service_tiers": [
+    "standard"
+  ],
+  "api": {
+    "formats": [
+      "voyage"
+    ],
+    "endpoint": "/embeddings",
+    "deployment": null
+  },
+  "sources": [
+    {
+      "kind": "provider_docs",
+      "url": "https://docs.voyageai.com/docs/embeddings",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official live model, endpoint, and limit documentation."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Live hosted API route verified."
+  },
+  "rate_limits": [
+    {
+      "requests_per_minute": 2000,
+      "tokens_per_minute": 8000000,
+      "source_url": "https://docs.voyageai.com/docs/rate-limits"
+    }
+  ]
+},
+  {
+    "api_model_id": "voyage/voyage-context-4",
+  "provider_api_model_id": "voyage:voyage/voyage-context-4",
+  "provider_model_slug": "voyage-context-4",
+  "internal_model_id": "voyage/voyage-context-4",
+  "is_active_gateway": false,
+  "quantization_scheme": null,
+  "input_modalities": "text",
+  "output_modalities": "embeddings",
+  "context_length": 120000,
+  "max_output_tokens": null,
+  "effective_from": "2026-08-24T00:00:00",
+  "effective_to": null,
+  "capabilities": [
+    {
+      "capability_id": "text.embed",
+      "status": "active",
+      "params": [],
+      "reasoning": null,
+      "tool_call": null,
+      "structured_output": null,
+      "temperature": null,
+      "attachment": null,
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "embeddings"
+      ],
+      "modes": []
+    }
+  ],
+  "routing_status": "catalog_only",
+  "routable": false,
+  "regions": {
+    "execution": null,
+    "data": null
+  },
+  "service_tiers": [
+    "standard"
+  ],
+  "api": {
+    "formats": [
+      "voyage"
+    ],
+    "endpoint": "/contextualizedembeddings",
+    "deployment": null
+  },
+  "sources": [
+    {
+      "kind": "provider_docs",
+      "url": "https://docs.voyageai.com/docs/contextualized-chunk-embeddings",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official live model, endpoint, and limit documentation."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Live hosted API route verified."
+  },
+  "rate_limits": [
+    {
+      "requests_per_minute": 2000,
+      "tokens_per_minute": 3000000,
+      "source_url": "https://docs.voyageai.com/docs/rate-limits"
+    }
+  ]
+},
+  {
+  "api_model_id": "voyage/rerank-2.5",
+  "provider_api_model_id": "voyage:voyage/rerank-2.5",
+  "provider_model_slug": "rerank-2.5",
+  "internal_model_id": "voyage/rerank-2.5",
+  "is_active_gateway": true,
+  "quantization_scheme": null,
+  "input_modalities": "text",
+  "output_modalities": "rerank",
+  "context_length": 32000,
+  "max_output_tokens": null,
+  "effective_from": "2026-08-24T00:00:00",
+  "effective_to": null,
+  "capabilities": [
+    {
+      "capability_id": "rerank",
+      "status": "active",
+      "params": [],
+      "reasoning": null,
+      "tool_call": null,
+      "structured_output": null,
+      "temperature": null,
+      "attachment": null,
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "rerank"
+      ],
+      "modes": []
+    }
+  ],
+  "routing_status": "active",
+  "routable": true,
+  "regions": {
+    "execution": null,
+    "data": null
+  },
+  "service_tiers": [
+    "standard"
+  ],
+  "api": {
+    "formats": [
+      "voyage"
+    ],
+    "endpoint": "/rerank",
+    "deployment": null
+  },
+  "sources": [
+    {
+      "kind": "provider_docs",
+      "url": "https://docs.voyageai.com/docs/reranker",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official live model, endpoint, and limit documentation."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Live hosted API route verified."
+  },
+  "rate_limits": [
+    {
+      "requests_per_minute": 2000,
+      "tokens_per_minute": 2000000,
+      "source_url": "https://docs.voyageai.com/docs/rate-limits"
+    }
+  ]
+},
+  {
+  "api_model_id": "voyage/rerank-2.5-lite",
+  "provider_api_model_id": "voyage:voyage/rerank-2.5-lite",
+  "provider_model_slug": "rerank-2.5-lite",
+  "internal_model_id": "voyage/rerank-2.5-lite",
+  "is_active_gateway": true,
+  "quantization_scheme": null,
+  "input_modalities": "text",
+  "output_modalities": "rerank",
+  "context_length": 32000,
+  "max_output_tokens": null,
+  "effective_from": "2026-08-24T00:00:00",
+  "effective_to": null,
+  "capabilities": [
+    {
+      "capability_id": "rerank",
+      "status": "active",
+      "params": [],
+      "reasoning": null,
+      "tool_call": null,
+      "structured_output": null,
+      "temperature": null,
+      "attachment": null,
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "rerank"
+      ],
+      "modes": []
+    }
+  ],
+  "routing_status": "active",
+  "routable": true,
+  "regions": {
+    "execution": null,
+    "data": null
+  },
+  "service_tiers": [
+    "standard"
+  ],
+  "api": {
+    "formats": [
+      "voyage"
+    ],
+    "endpoint": "/rerank",
+    "deployment": null
+  },
+  "sources": [
+    {
+      "kind": "provider_docs",
+      "url": "https://docs.voyageai.com/docs/reranker",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official live model, endpoint, and limit documentation."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Live hosted API route verified."
+  },
+  "rate_limits": [
+    {
+      "requests_per_minute": 2000,
+      "tokens_per_minute": 4000000,
+      "source_url": "https://docs.voyageai.com/docs/rate-limits"
+    }
+  ]
+},
   {
     "api_model_id": "voyage/voyage-4-large",
     "provider_api_model_id": "voyage:voyage/voyage-4-large",
@@ -1302,7 +1578,7 @@
     "internal_model_id": "voyage/voyage-multimodal-3",
     "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": "text,image,video",
+    "input_modalities": "text,image",
     "output_modalities": "embeddings",
     "context_length": null,
     "max_output_tokens": null,

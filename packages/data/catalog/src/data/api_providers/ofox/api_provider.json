@@ -1,5 +1,8 @@
 {
   "api_provider_id": "ofox",
+  "data_policy_tier": "unknown",
+  "data_policy_confidence": "unknown",
+  "data_policy_contract_mode": "none",
   "api_provider_name": "Ofox",
   "provider_family_id": null,
   "offer_label": null,
@@ -9,7 +12,7 @@
   "residency_mode": "provider_managed",
   "default_execution_regions": ["global"],
   "default_data_regions": ["global"],
-  "zero_data_retention": "default",
+  "zero_data_retention": false,
   "residency_source_url": "https://ofox.ai/docs/develop/security",
   "prompt_training_policy": "not_used_for_training",
   "prompt_training_notes": "OfoxAI states that standard synchronous API request and response bodies are processed in real time, are not persisted by its gateway, and are not used for training. The selected upstream provider receives request content and its own terms apply.",

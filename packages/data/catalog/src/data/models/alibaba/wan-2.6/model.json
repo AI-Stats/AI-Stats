@@ -1,52 +1,52 @@
 {
   "model_id": "alibaba/wan-2.6",
   "organisation_id": "alibaba",
-  "name": "Wan 2.6",
+  "name": "Alibaba: Wan 2.6",
   "status": "Available",
   "previous_model_id": null,
-  "description": "阿里通义万相 2.6 视频生成模型，面向专业影视级制作全面升级。首创角色扮演能力，可用人物或任意物体作为主角生成单人表演或多人协作，具备多镜头叙事、智能调度、多人对话稳定、时长更长、指令遵循更强、音画同步等特性。",
+  "description": "Alibaba's most advanced video generation model, supporting over 10 visual creation capabilities in a unified system. Wan 2.6 generates 1080p video at 24fps from text, images, reference videos, or audio,...",
   "announced_date": null,
-  "release_date": "2026-03-27T00:00:00",
+  "release_date": "2026-03-28",
   "deprecation_date": null,
   "retirement_date": null,
   "license": null,
-  "input_types": "text,image",
-  "output_types": "video",
+  "input_types": [
+    "text",
+    "image/*"
+  ],
+  "output_types": [
+    "video/*"
+  ],
   "api_model_id": "alibaba/wan-2.6",
-  "family_id": null,
   "links": [
     {
-      "title": "OfoxAI model catalogue",
-      "kind": "documentation",
-      "url": "https://ofox.ai/models/alibaba"
+      "platform": "model",
+      "title": "OpenRouter model page",
+      "url": "https://openrouter.ai/alibaba/wan-2.6"
     }
   ],
-  "details": [
-    {
-      "name": "ofox_supported_endpoints",
-      "value": "/v1/videos"
-    }
-  ],
+  "details": [],
   "benchmarks": [],
+  "family_id": null,
   "page_notice": null,
-  "model_type": null,
+  "model_type": "video",
   "knowledge_cutoff": null,
   "limits": {
-    "context": 0,
+    "context": null,
     "input": null,
     "output": null
   },
   "modalities": {
     "input": [
       "text",
-      "image"
+      "image/*"
     ],
     "output": [
-      "video"
+      "video/*"
     ]
   },
   "reasoning": {
-    "supported": false,
+    "supported": null,
     "options": []
   },
   "capabilities": {
@@ -54,24 +54,24 @@
     "tool_call": false,
     "structured_output": false,
     "temperature": false,
-    "streaming": false,
+    "streaming": true,
     "web_search": false
   },
   "open_weights": null,
   "sources": [
     {
-      "kind": "api",
-      "url": "https://api.ofox.ai/v1/models",
+      "kind": "provider_models",
+      "url": "https://openrouter.ai/api/v1/models",
       "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "Public live model catalogue, exact model IDs, endpoints, modalities, limits, parameters, lifecycle and pricing."
+      "notes": "Exact live OpenRouter ID: alibaba/wan-2.6."
     }
   ],
   "verification": {
-    "status": "verified",
+    "status": "partial",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Exact model identity and availability verified from OfoxAI live catalogue."
+    "notes": "Availability, modalities, limits and parameters verified against OpenRouter's official models API; upstream publisher metadata remains provider-reported."
   },
-  "last_updated": "2026-08-24T00:00:00Z",
+  "last_updated": "2026-08-24",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

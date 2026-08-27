@@ -1,53 +1,52 @@
 {
   "model_id": "bytedance/seedance-2.0-mini",
   "organisation_id": "bytedance",
-  "name": "Seedance 2.0 Mini",
+  "name": "ByteDance: Seedance 2.0 Mini",
   "status": "Available",
   "previous_model_id": null,
-  "description": "Seedance 2.0 轻量版，面向低成本快速视频生成，在保证画面质量的前提下进一步降低单位成本。支持文生视频与图生视频，适合预览、验证与大规模低成本生成。",
+  "description": "Seedance 2.0 Mini is a video generation model from ByteDance. It supports text-to-video, image-to-video with first and last frame control, and multimodal reference-to-video with image, video, and audio inputs. It...",
   "announced_date": null,
-  "release_date": "2026-06-15T00:00:00",
+  "release_date": "2026-08-12",
   "deprecation_date": null,
   "retirement_date": null,
   "license": null,
-  "input_types": "text,image,video",
-  "output_types": "video",
+  "input_types": [
+    "text",
+    "image/*"
+  ],
+  "output_types": [
+    "video/*"
+  ],
   "api_model_id": "bytedance/seedance-2.0-mini",
-  "family_id": null,
   "links": [
     {
-      "title": "OfoxAI model catalogue",
-      "kind": "documentation",
-      "url": "https://ofox.ai/models/bytedance"
+      "platform": "model",
+      "title": "OpenRouter model page",
+      "url": "https://openrouter.ai/bytedance/seedance-2.0-mini"
     }
   ],
-  "details": [
-    {
-      "name": "ofox_supported_endpoints",
-      "value": "/v1/videos"
-    }
-  ],
+  "details": [],
   "benchmarks": [],
+  "family_id": null,
   "page_notice": null,
-  "model_type": null,
+  "model_type": "video",
   "knowledge_cutoff": null,
   "limits": {
-    "context": 0,
+    "context": null,
     "input": null,
     "output": null
   },
   "modalities": {
     "input": [
       "text",
-      "image",
-      "video"
+      "image/*"
     ],
     "output": [
-      "video"
+      "video/*"
     ]
   },
   "reasoning": {
-    "supported": false,
+    "supported": null,
     "options": []
   },
   "capabilities": {
@@ -55,24 +54,24 @@
     "tool_call": false,
     "structured_output": false,
     "temperature": false,
-    "streaming": false,
+    "streaming": true,
     "web_search": false
   },
   "open_weights": null,
   "sources": [
     {
-      "kind": "api",
-      "url": "https://api.ofox.ai/v1/models",
+      "kind": "provider_models",
+      "url": "https://openrouter.ai/api/v1/models",
       "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "Public live model catalogue, exact model IDs, endpoints, modalities, limits, parameters, lifecycle and pricing."
+      "notes": "Exact live OpenRouter ID: bytedance/seedance-2.0-mini."
     }
   ],
   "verification": {
-    "status": "verified",
+    "status": "partial",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Exact model identity and availability verified from OfoxAI live catalogue."
+    "notes": "Availability, modalities, limits and parameters verified against OpenRouter's official models API; upstream publisher metadata remains provider-reported."
   },
-  "last_updated": "2026-08-24T00:00:00Z",
+  "last_updated": "2026-08-24",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

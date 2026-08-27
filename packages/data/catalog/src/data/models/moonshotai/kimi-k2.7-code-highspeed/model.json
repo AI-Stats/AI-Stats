@@ -1,44 +1,35 @@
 {
   "model_id": "moonshotai/kimi-k2.7-code-highspeed",
   "organisation_id": "moonshotai",
-  "name": "MoonshotAI: Kimi K2.7 Code Highspeed",
+  "name": "Kimi K2.7 Code HighSpeed",
   "status": "Available",
   "previous_model_id": null,
-  "description": "Kimi K2.7 Code 高速档, 同模型加速推理。OpenAI 协议直用; Anthropic 协议同 code (bifrost thinking 待修)。",
+  "description": "Kimi K2.7 Code HighSpeed is available through ZenMux's unified model API.",
   "announced_date": null,
-  "release_date": "2026-06-12T00:00:00",
+  "release_date": "2026-06-15T00:00:00",
   "deprecation_date": null,
   "retirement_date": null,
   "license": null,
-  "input_types": "text",
+  "input_types": "text,image,video",
   "output_types": "text",
   "api_model_id": "moonshotai/kimi-k2.7-code-highspeed",
-  "family_id": null,
-  "links": [
-    {
-      "title": "OfoxAI model catalogue",
-      "kind": "documentation",
-      "url": "https://ofox.ai/models/moonshotai"
-    }
-  ],
-  "details": [
-    {
-      "name": "ofox_supported_endpoints",
-      "value": "/v1/chat/completions"
-    }
-  ],
+  "links": [],
+  "details": [],
   "benchmarks": [],
+  "family_id": null,
   "page_notice": null,
   "model_type": null,
   "knowledge_cutoff": null,
   "limits": {
     "context": 262144,
-    "input": null,
-    "output": 262144
+    "input": 262144,
+    "output": null
   },
   "modalities": {
     "input": [
-      "text"
+      "text",
+      "image/*",
+      "video/*"
     ],
     "output": [
       "text"
@@ -49,26 +40,26 @@
     "options": []
   },
   "capabilities": {
-    "attachment": false,
-    "tool_call": true,
-    "structured_output": true,
-    "temperature": true,
-    "streaming": false,
-    "web_search": false
+    "attachment": true,
+    "tool_call": null,
+    "structured_output": null,
+    "temperature": null,
+    "streaming": null,
+    "web_search": true
   },
   "open_weights": null,
   "sources": [
     {
-      "kind": "api",
-      "url": "https://api.ofox.ai/v1/models",
+      "kind": "provider_models",
+      "url": "https://zenmux.ai/api/v1/models",
       "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "Public live model catalogue, exact model IDs, endpoints, modalities, limits, parameters, lifecycle and pricing."
+      "notes": "Official live ZenMux model, modality, context, capability, publication, and pricing metadata."
     }
   ],
   "verification": {
-    "status": "verified",
+    "status": "partial",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Exact model identity and availability verified from OfoxAI live catalogue."
+    "notes": "Availability, namespace, modalities, context, and publication date verified against the official ZenMux models API; upstream model metadata was not independently re-audited."
   },
   "last_updated": "2026-08-24T00:00:00Z",
   "removal_date": null,

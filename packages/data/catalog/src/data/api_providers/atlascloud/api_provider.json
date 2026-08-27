@@ -6,7 +6,7 @@
   "residency_mode": "provider_managed",
   "default_execution_regions": null,
   "default_data_regions": ["US"],
-  "zero_data_retention": "unknown",
+  "zero_data_retention": false,
   "residency_source_url": "https://www.atlascloud.ai/docs/en/privacy",
   "residency_notes": "Atlas Cloud says its services are hosted in the United States and that it forwards requests to underlying model providers. The upstream provider's policy applies to model processing, so Atlas Cloud's US hosting statement is not a single end-to-end execution or residency guarantee and no named ZDR control is documented.",
   "pricing_source_url": "https://www.atlascloud.ai/pricing/models?sort=new",
