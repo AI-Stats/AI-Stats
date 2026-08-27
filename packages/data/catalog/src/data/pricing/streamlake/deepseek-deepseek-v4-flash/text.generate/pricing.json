@@ -9,49 +9,61 @@
       "meter": "input_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.0882,
+      "price_per_unit": 0.14,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
       "match": [],
       "priority": 100,
-      "effective_from": "2026-08-03T00:00:00Z",
+      "effective_from": "2026-08-07T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      }
     },
     {
       "meter": "cached_read_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.01764,
+      "price_per_unit": 0.028,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
       "match": [],
       "priority": 100,
-      "effective_from": "2026-08-03T00:00:00Z",
+      "effective_from": "2026-08-07T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      }
     },
     {
       "meter": "output_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.1764,
+      "price_per_unit": 0.28,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
       "match": [],
       "priority": 100,
-      "effective_from": "2026-08-03T00:00:00Z",
+      "effective_from": "2026-08-07T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": {
+        "kind": "pricing",
+        "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+        "accessed_at": "2026-08-24T00:00:00Z"
+      }
     }
   ],
   "regions": [],
@@ -61,14 +73,13 @@
   "sources": [
     {
       "kind": "pricing",
-      "url": "https://www.streamlake.ai/document/DOC/mg6k6nlp8j6qxicx4c9",
-      "accessed_at": "2026-08-03T00:00:00Z",
-      "notes": "Provider deployment pricing recorded for this model route."
+      "url": "https://www.streamlake.ai/document/DOC/mgrnm4xm362hvp5wyce",
+      "accessed_at": "2026-08-24T00:00:00Z"
     }
   ],
   "verification": {
-    "status": "partial",
-    "checked_at": "2026-08-03T00:00:00Z",
-    "notes": "Pricing recorded while direct provider verification remains partial."
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Official StreamLake pay-as-you-go token pricing."
   }
 }

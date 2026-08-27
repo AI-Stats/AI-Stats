@@ -415,8 +415,7 @@ function getIgnoredPrivacyReasons(
     }
 
     if (settings.privacyZdrOnly) {
-        const zdr = provider.provider.zero_data_retention ?? "unknown";
-        if (zdr !== "default" && zdr !== "optional") {
+        if (provider.provider.zero_data_retention !== true) {
             reasons.push("Does not meet workspace ZDR-only requirement");
         }
     }
@@ -441,8 +440,7 @@ function matchesPrivacyFilter(
 ): boolean {
     if (filter === "all") return true;
     if (filter === "zdr") {
-        const zdr = provider.provider.zero_data_retention;
-        return zdr === "default" || zdr === "optional";
+        return provider.provider.zero_data_retention === true;
     }
     if (filter === "no_training") {
         return getProviderPromptTrainingPolicy(provider) !== "may_train";

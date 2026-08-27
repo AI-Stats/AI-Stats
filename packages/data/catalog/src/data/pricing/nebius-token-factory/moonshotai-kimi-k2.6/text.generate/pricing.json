@@ -36,14 +36,23 @@
       "source": null
     }
   ],
-  "regions": [],
+  "regions": [
+    "us-central1"
+  ],
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "api",
+      "url": "https://tokenfactory.nebius.com/api/public/models_info",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Live cheap flavor price for moonshotai/Kimi-K2.6."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Current token pricing verified against Nebius Token Factory's live public catalog."
   }
 }

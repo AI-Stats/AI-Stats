@@ -6,47 +6,40 @@
   "previous_model_id": null,
   "description": "OpenAI o3-mini-high is the same model as [o3-mini](/openai/o3-mini) with reasoning_effort set to high. o3-mini is a cost-efficient language model optimized for STEM reasoning tasks, particularly excelling in science, mathematics, and...",
   "announced_date": null,
-  "release_date": null,
+  "release_date": "2025-02-12",
   "deprecation_date": null,
   "retirement_date": null,
   "license": null,
   "input_types": [
     "text",
-    "file",
-    "pdf"
+    "file"
   ],
   "output_types": [
     "text"
   ],
   "api_model_id": "openai/o3-mini-high",
-  "family_id": null,
   "links": [
     {
-      "title": "Kilo Gateway models",
-      "kind": "api_reference",
-      "url": "https://api.kilo.ai/api/gateway/models"
+      "platform": "model",
+      "title": "OpenRouter model page",
+      "url": "https://openrouter.ai/openai/o3-mini-high"
     }
   ],
-  "details": [
-    {
-      "name": "kilo_catalog_created",
-      "value": "2025-02-12T15:03:31.000Z"
-    }
-  ],
+  "details": [],
   "benchmarks": [],
+  "family_id": null,
   "page_notice": null,
-  "model_type": "inference",
-  "knowledge_cutoff": null,
+  "model_type": "language",
+  "knowledge_cutoff": "2023-10-31",
   "limits": {
     "context": 200000,
-    "input": 200000,
+    "input": null,
     "output": 100000
   },
   "modalities": {
     "input": [
       "text",
-      "file",
-      "pdf"
+      "file"
     ],
     "output": [
       "text"
@@ -54,7 +47,9 @@
   },
   "reasoning": {
     "supported": true,
-    "options": []
+    "options": [
+      "high"
+    ]
   },
   "capabilities": {
     "attachment": true,
@@ -62,23 +57,23 @@
     "structured_output": true,
     "temperature": false,
     "streaming": true,
-    "web_search": true
+    "web_search": false
   },
   "open_weights": null,
   "sources": [
     {
-      "kind": "official_models",
-      "url": "https://api.kilo.ai/api/gateway/models",
+      "kind": "provider_models",
+      "url": "https://openrouter.ai/api/v1/models",
       "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "Exact Kilo Gateway model identity, description, availability, modalities, limits, and supported parameters."
+      "notes": "Exact live OpenRouter ID: openai/o3-mini-high."
     }
   ],
   "verification": {
     "status": "partial",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Kilo Gateway availability and technical metadata verified; upstream release lifecycle was not published by Kilo."
+    "notes": "Availability, modalities, limits and parameters verified against OpenRouter's official models API; upstream publisher metadata remains provider-reported."
   },
-  "last_updated": "2026-08-24T00:00:00Z",
+  "last_updated": "2026-08-24",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

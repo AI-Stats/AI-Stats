@@ -19,12 +19,21 @@ export function createScimRouter(authenticate: Authenticate = authenticateScim) 
 	const router = new Hono<{ Bindings: Env; Variables: ScimVariables }>();
 
 	router.use("*", async (c, next) => {
+		const limiter = c.env.SCIM_RATE_LIMITER;
+		const sourceAddress = c.req.header("cf-connecting-ip") ?? c.req.header("x-real-ip") ?? "unknown";
+		try {
+			if (!limiter && c.env.ENV === "production") return scimError(503, "SCIM rate limiting is temporarily unavailable.");
+			if (limiter && !(await limiter.limit({ key: `unauthenticated:${sourceAddress}` })).success) {
+				const response = scimError(429, "Too many SCIM requests. Retry shortly.", "tooMany"); response.headers.set("retry-after", "1"); return response;
+			}
+		} catch (error) {
+			console.error("[web-api/scim] pre-auth rate limiter unavailable", { sourceAddress, error: error instanceof Error ? error.message : String(error) });
+			if (c.env.ENV === "production") return scimError(503, "SCIM rate limiting is temporarily unavailable.");
+		}
 		const context = await authenticate(c.req.raw, c.env);
 		if (!context) return scimError(401, "A valid SCIM bearer token is required.");
 		c.set("scim", context);
 		try {
-			const limiter = c.env.SCIM_RATE_LIMITER;
-			if (!limiter && c.env.ENV === "production") return scimError(503, "SCIM rate limiting is temporarily unavailable.");
 			if (limiter && !(await limiter.limit({ key: context.tokenId })).success) {
 				const response = scimError(429, "Too many SCIM requests. Retry shortly.", "tooMany"); response.headers.set("retry-after", "1"); return response;
 			}

@@ -1,5 +1,8 @@
 {
   "api_provider_id": "kilo",
+  "data_policy_tier": "unknown",
+  "data_policy_confidence": "unknown",
+  "data_policy_contract_mode": "none",
   "api_provider_name": "Kilo Gateway",
   "provider_family_id": null,
   "offer_label": null,
@@ -11,7 +14,7 @@
   "default_data_regions": [
     "US"
   ],
-  "zero_data_retention": "unknown",
+  "zero_data_retention": false,
   "residency_source_url": "https://kilo.ai/privacy",
   "prompt_training_policy": "unknown",
   "prompt_training_notes": "Training and retention depend on the selected upstream route. Kilo flags models whose providers may train on prompts, and Auto Free may route to providers that log prompts and outputs for service improvement.",

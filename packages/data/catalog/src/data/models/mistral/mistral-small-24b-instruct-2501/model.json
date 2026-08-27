@@ -6,7 +6,7 @@
   "previous_model_id": null,
   "description": "Mistral Small 3 is a 24B-parameter language model optimized for low-latency performance across common AI tasks. Released under the Apache 2.0 license, it features both pre-trained and instruction-tuned versions designed...",
   "announced_date": null,
-  "release_date": null,
+  "release_date": "2025-01-30",
   "deprecation_date": null,
   "retirement_date": null,
   "license": null,
@@ -17,27 +17,22 @@
     "text"
   ],
   "api_model_id": "mistral/mistral-small-24b-instruct-2501",
-  "family_id": null,
   "links": [
     {
-      "title": "Kilo Gateway models",
-      "kind": "api_reference",
-      "url": "https://api.kilo.ai/api/gateway/models"
+      "platform": "model",
+      "title": "OpenRouter model page",
+      "url": "https://openrouter.ai/mistralai/mistral-small-24b-instruct-2501"
     }
   ],
-  "details": [
-    {
-      "name": "kilo_catalog_created",
-      "value": "2025-01-30T16:43:29.000Z"
-    }
-  ],
+  "details": [],
   "benchmarks": [],
+  "family_id": null,
   "page_notice": null,
-  "model_type": "inference",
-  "knowledge_cutoff": null,
+  "model_type": "language",
+  "knowledge_cutoff": "2023-10-31",
   "limits": {
     "context": 32768,
-    "input": 32768,
+    "input": null,
     "output": 16384
   },
   "modalities": {
@@ -49,7 +44,7 @@
     ]
   },
   "reasoning": {
-    "supported": false,
+    "supported": null,
     "options": []
   },
   "capabilities": {
@@ -60,21 +55,21 @@
     "streaming": true,
     "web_search": false
   },
-  "open_weights": null,
+  "open_weights": true,
   "sources": [
     {
-      "kind": "official_models",
-      "url": "https://api.kilo.ai/api/gateway/models",
+      "kind": "provider_models",
+      "url": "https://openrouter.ai/api/v1/models",
       "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "Exact Kilo Gateway model identity, description, availability, modalities, limits, and supported parameters."
+      "notes": "Exact live OpenRouter ID: mistralai/mistral-small-24b-instruct-2501."
     }
   ],
   "verification": {
     "status": "partial",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Kilo Gateway availability and technical metadata verified; upstream release lifecycle was not published by Kilo."
+    "notes": "Availability, modalities, limits and parameters verified against OpenRouter's official models API; upstream publisher metadata remains provider-reported."
   },
-  "last_updated": "2026-08-24T00:00:00Z",
+  "last_updated": "2026-08-24",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

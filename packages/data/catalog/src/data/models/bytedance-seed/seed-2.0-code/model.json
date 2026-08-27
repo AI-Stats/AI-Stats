@@ -6,47 +6,42 @@
   "previous_model_id": null,
   "description": "Seed 2.0 Code is a model from ByteDance Seed optimized for agentic coding. It is suited for frontend development, multilingual programming tasks, and coding-agent workflows in tools such as Claude...",
   "announced_date": null,
-  "release_date": null,
+  "release_date": "2026-08-12",
   "deprecation_date": null,
   "retirement_date": null,
   "license": null,
   "input_types": [
     "text",
-    "image",
-    "video"
+    "image/*",
+    "video/*"
   ],
   "output_types": [
     "text"
   ],
   "api_model_id": "bytedance-seed/seed-2.0-code",
-  "family_id": null,
   "links": [
     {
-      "title": "Kilo Gateway models",
-      "kind": "api_reference",
-      "url": "https://api.kilo.ai/api/gateway/models"
+      "platform": "model",
+      "title": "OpenRouter model page",
+      "url": "https://openrouter.ai/bytedance-seed/seed-2.0-code"
     }
   ],
-  "details": [
-    {
-      "name": "kilo_catalog_created",
-      "value": "2026-08-12T16:05:01.000Z"
-    }
-  ],
+  "details": [],
   "benchmarks": [],
+  "family_id": null,
   "page_notice": null,
-  "model_type": "inference",
+  "model_type": "language",
   "knowledge_cutoff": null,
   "limits": {
     "context": 262144,
-    "input": 262144,
+    "input": null,
     "output": 131072
   },
   "modalities": {
     "input": [
       "text",
-      "image",
-      "video"
+      "image/*",
+      "video/*"
     ],
     "output": [
       "text"
@@ -54,7 +49,11 @@
   },
   "reasoning": {
     "supported": true,
-    "options": []
+    "options": [
+      "high",
+      "medium",
+      "low"
+    ]
   },
   "capabilities": {
     "attachment": true,
@@ -67,18 +66,18 @@
   "open_weights": null,
   "sources": [
     {
-      "kind": "official_models",
-      "url": "https://api.kilo.ai/api/gateway/models",
+      "kind": "provider_models",
+      "url": "https://openrouter.ai/api/v1/models",
       "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "Exact Kilo Gateway model identity, description, availability, modalities, limits, and supported parameters."
+      "notes": "Exact live OpenRouter ID: bytedance-seed/seed-2.0-code."
     }
   ],
   "verification": {
     "status": "partial",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Kilo Gateway availability and technical metadata verified; upstream release lifecycle was not published by Kilo."
+    "notes": "Availability, modalities, limits and parameters verified against OpenRouter's official models API; upstream publisher metadata remains provider-reported."
   },
-  "last_updated": "2026-08-24T00:00:00Z",
+  "last_updated": "2026-08-24",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

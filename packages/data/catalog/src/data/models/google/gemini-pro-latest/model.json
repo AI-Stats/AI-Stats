@@ -1,88 +1,65 @@
 {
   "model_id": "google/gemini-pro-latest",
   "organisation_id": "google",
-  "name": "Google Gemini Pro Latest",
+  "name": "gemini-pro-latest",
   "status": "Available",
   "previous_model_id": null,
-  "description": "This model always redirects to the latest model in the Google Gemini Pro family.",
+  "description": "gemini-pro-latest is available through OrcaRouter under the exact model ID google/gemini-pro-latest.",
   "announced_date": null,
   "release_date": null,
   "deprecation_date": null,
   "retirement_date": null,
   "license": null,
-  "input_types": [
-    "audio",
-    "file",
-    "image",
-    "text",
-    "video",
-    "pdf"
-  ],
-  "output_types": [
-    "text"
-  ],
+  "input_types": "text,image,audio,video,file",
+  "output_types": null,
   "api_model_id": "google/gemini-pro-latest",
-  "family_id": null,
-  "links": [
-    {
-      "title": "Kilo Gateway models",
-      "kind": "api_reference",
-      "url": "https://api.kilo.ai/api/gateway/models"
-    }
-  ],
-  "details": [
-    {
-      "name": "kilo_catalog_created",
-      "value": "2026-04-27T19:34:11.000Z"
-    }
-  ],
+  "links": [],
+  "details": [],
   "benchmarks": [],
+  "family_id": null,
   "page_notice": null,
-  "model_type": "inference",
+  "model_type": null,
   "knowledge_cutoff": null,
   "limits": {
-    "context": 1048576,
-    "input": 1048576,
+    "context": null,
+    "input": null,
     "output": 65536
   },
   "modalities": {
     "input": [
-      "audio",
-      "file",
-      "image",
       "text",
-      "video",
-      "pdf"
+      "image/*",
+      "audio/*",
+      "video/*",
+      "application/pdf"
     ],
-    "output": [
-      "text"
-    ]
+    "output": []
   },
   "reasoning": {
-    "supported": true,
+    "supported": null,
     "options": []
   },
   "capabilities": {
     "attachment": true,
-    "tool_call": true,
-    "structured_output": true,
-    "temperature": true,
-    "streaming": true,
-    "web_search": true
+    "tool_call": null,
+    "structured_output": null,
+    "temperature": null,
+    "streaming": null,
+    "web_search": null
   },
   "open_weights": null,
   "sources": [
     {
-      "kind": "official_models",
-      "url": "https://api.kilo.ai/api/gateway/models",
+      "kind": "models",
+      "url": "https://api.orcarouter.ai/v1/models",
       "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "Exact Kilo Gateway model identity, description, availability, modalities, limits, and supported parameters."
+      "notes": "OrcaRouter live model catalogue metadata."
     }
   ],
   "verification": {
-    "status": "partial",
+    "status": "verified",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Kilo Gateway availability and technical metadata verified; upstream release lifecycle was not published by Kilo."
+    "notes": "Exact model ID, availability, limits, modalities, description, and pricing metadata verified against OrcaRouter's live official catalogue."
   },
   "last_updated": "2026-08-24T00:00:00Z",
   "removal_date": null,

@@ -2,22 +2,20 @@
   "organisation_id": "gryphe",
   "name": "Gryphe",
   "country_code": null,
-  "description": "Model publisher represented in the Kilo Gateway catalogue under the gryphe namespace.",
-  "colour": null,
-  "organisation_links": [],
-  "status": "active",
-  "routable": null,
+  "description": "Model developer identified by Requesty's official model catalogue.",
+  "link": "https://router.requesty.ai/v1/models",
+  "aliases": [],
   "sources": [
     {
-      "kind": "official_models",
-      "url": "https://api.kilo.ai/api/gateway/models",
+      "kind": "provider_models",
+      "url": "https://router.requesty.ai/v1/models",
       "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "Kilo Gateway publisher namespace: gryphe."
+      "notes": "Developer attribution from Requesty's live catalogue."
     }
   ],
   "verification": {
     "status": "partial",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Publisher namespace verified from Kilo's live catalogue; legal identity and location were not independently verified."
+    "notes": "Requesty catalogue attribution; independent developer metadata remains to be enriched."
   }
 }

@@ -1,12 +1,12 @@
 {
   "model_id": "cohere/north-mini-code",
   "organisation_id": "cohere",
-  "name": "Cohere: North Mini Code (free)",
+  "name": "Cohere: North Mini Code",
   "status": "Available",
   "previous_model_id": null,
   "description": "North Mini Code is Cohere's first agentic coding model and the debut of its North family. A sparse mixture-of-experts model with 30B total parameters and 3B active, it is optimized...",
   "announced_date": null,
-  "release_date": null,
+  "release_date": "2026-06-17",
   "deprecation_date": null,
   "retirement_date": null,
   "license": null,
@@ -17,27 +17,29 @@
     "text"
   ],
   "api_model_id": "cohere/north-mini-code",
-  "family_id": null,
+  "variants": [
+    {
+      "model_id": "cohere/north-mini-code:free",
+      "name": "Cohere: North Mini Code (Free)",
+      "variant_kind": "free"
+    }
+  ],
   "links": [
     {
-      "title": "Kilo Gateway models",
-      "kind": "api_reference",
-      "url": "https://api.kilo.ai/api/gateway/models"
+      "platform": "model",
+      "title": "OpenRouter model page",
+      "url": "https://openrouter.ai/cohere/north-mini-code:free"
     }
   ],
-  "details": [
-    {
-      "name": "kilo_catalog_created",
-      "value": "2026-06-17T19:15:48.000Z"
-    }
-  ],
+  "details": [],
   "benchmarks": [],
+  "family_id": null,
   "page_notice": null,
-  "model_type": "inference",
+  "model_type": "language",
   "knowledge_cutoff": null,
   "limits": {
     "context": 256000,
-    "input": 256000,
+    "input": null,
     "output": 64000
   },
   "modalities": {
@@ -60,29 +62,22 @@
     "streaming": true,
     "web_search": false
   },
-  "open_weights": null,
+  "open_weights": true,
   "sources": [
     {
-      "kind": "official_models",
-      "url": "https://api.kilo.ai/api/gateway/models",
+      "kind": "provider_models",
+      "url": "https://openrouter.ai/api/v1/models",
       "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "Exact Kilo Gateway model identity, description, availability, modalities, limits, and supported parameters."
+      "notes": "Exact live OpenRouter ID: cohere/north-mini-code:free."
     }
   ],
   "verification": {
     "status": "partial",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Kilo Gateway availability and technical metadata verified; upstream release lifecycle was not published by Kilo."
+    "notes": "Availability, modalities, limits and parameters verified against OpenRouter's official models API; upstream publisher metadata remains provider-reported."
   },
-  "last_updated": "2026-08-24T00:00:00Z",
+  "last_updated": "2026-08-24",
   "removal_date": null,
   "replacement_model_id": null,
-  "license_url": null,
-  "variants": [
-    {
-      "model_id": "cohere/north-mini-code:free",
-      "name": "Cohere: North Mini Code (free) (Free)",
-      "variant_kind": "free"
-    }
-  ]
+  "license_url": null
 }

@@ -6,51 +6,44 @@
   "previous_model_id": null,
   "description": "Gemini 2.5 Pro is Google’s state-of-the-art AI model designed for advanced reasoning, coding, mathematics, and scientific tasks. It employs “thinking” capabilities, enabling it to reason through responses with enhanced accuracy...",
   "announced_date": null,
-  "release_date": null,
+  "release_date": "2025-06-05",
   "deprecation_date": null,
   "retirement_date": null,
   "license": null,
   "input_types": [
     "file",
-    "image",
+    "image/*",
     "text",
-    "audio",
-    "pdf"
+    "audio/*"
   ],
   "output_types": [
     "text"
   ],
   "api_model_id": "google/gemini-2.5-pro-preview",
-  "family_id": null,
   "links": [
     {
-      "title": "Kilo Gateway models",
-      "kind": "api_reference",
-      "url": "https://api.kilo.ai/api/gateway/models"
+      "platform": "model",
+      "title": "OpenRouter model page",
+      "url": "https://openrouter.ai/google/gemini-2.5-pro-preview"
     }
   ],
-  "details": [
-    {
-      "name": "kilo_catalog_created",
-      "value": "2025-06-05T15:27:37.000Z"
-    }
-  ],
+  "details": [],
   "benchmarks": [],
+  "family_id": null,
   "page_notice": null,
-  "model_type": "inference",
-  "knowledge_cutoff": null,
+  "model_type": "language",
+  "knowledge_cutoff": "2025-01-31",
   "limits": {
     "context": 1048576,
-    "input": 1048576,
+    "input": null,
     "output": 65536
   },
   "modalities": {
     "input": [
       "file",
-      "image",
+      "image/*",
       "text",
-      "audio",
-      "pdf"
+      "audio/*"
     ],
     "output": [
       "text"
@@ -66,23 +59,23 @@
     "structured_output": true,
     "temperature": true,
     "streaming": true,
-    "web_search": true
+    "web_search": false
   },
   "open_weights": null,
   "sources": [
     {
-      "kind": "official_models",
-      "url": "https://api.kilo.ai/api/gateway/models",
+      "kind": "provider_models",
+      "url": "https://openrouter.ai/api/v1/models",
       "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "Exact Kilo Gateway model identity, description, availability, modalities, limits, and supported parameters."
+      "notes": "Exact live OpenRouter ID: google/gemini-2.5-pro-preview."
     }
   ],
   "verification": {
     "status": "partial",
     "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Kilo Gateway availability and technical metadata verified; upstream release lifecycle was not published by Kilo."
+    "notes": "Availability, modalities, limits and parameters verified against OpenRouter's official models API; upstream publisher metadata remains provider-reported."
   },
-  "last_updated": "2026-08-24T00:00:00Z",
+  "last_updated": "2026-08-24",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

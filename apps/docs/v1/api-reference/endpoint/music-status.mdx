@@ -3,20 +3,16 @@ title: "Get music generation"
 sidebarTitle: "Get music generation"
 badge: "Beta"
 openapi: "GET /music/generate/{music_id}"
-description: "Check the status of an asynchronous music generation job."
+description: "Retrieve a music generation using its Phaseo request ID."
 ---
 
-Poll a music job created by `POST /music/generate`.
-
-<Warning>
-The public music routes are currently mounted but temporarily disabled, so this route currently returns `501 not_implemented`.
-</Warning>
+Retrieve a music result created by `POST /music/generate`. This endpoint returns the stored normalized result for completed providers and polls the upstream provider when a job is still asynchronous.
 
 ## Response Shape
 
 ```json
 {
-  "id": "task_123",
+  "id": "req_01JY6MUSIC123",
   "object": "music",
   "status": "completed",
   "provider": "suno",
@@ -45,4 +41,5 @@ The public music routes are currently mounted but temporarily disabled, so this 
 
 - `status` can be: `queued`, `in_progress`, `completed`, `failed`.
 - `usage` is included when generation is complete.
-- Status polling supports provider-specific backends behind one endpoint.
+- Pass the Phaseo `id` returned by `POST /music/generate`, not `nativeResponseId`.
+- Provider-specific status and retrieval APIs are handled behind this endpoint.
