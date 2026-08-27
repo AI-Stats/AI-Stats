@@ -1141,7 +1141,7 @@
     "effective_to": null,
     "capabilities": [
       {
-        "capability_id": "ocr",
+        "capability_id": "parse",
         "status": "active",
         "params": ["output_format"],
         "reasoning": false,

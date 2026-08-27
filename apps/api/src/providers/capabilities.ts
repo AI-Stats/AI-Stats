@@ -60,7 +60,9 @@ function defaultAdapterBackedSupport(providerId: string, capability: AdapterBack
 		case "audio.transcription":
 			return compatNonTextSupported || providerId === "elevenlabs";
 		case "ocr":
-			return providerId === "mistral" || providerId === "cohere";
+			return providerId === "mistral";
+		case "parse":
+			return providerId === "cohere";
 		case "music.generate":
 			return providerId === "elevenlabs";
 		default:
