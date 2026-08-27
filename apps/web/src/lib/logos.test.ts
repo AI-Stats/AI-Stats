@@ -138,6 +138,11 @@ describe("logos", () => {
 		}
 	});
 
+	test("uses the IO.net brand capitalization", () => {
+		expect(getLogoLabel("io-net")).toBe("IO.net");
+		expect(resolveLogo("io-net")).toMatchObject({ label: "IO.net" });
+	});
+
 	test("resolves the Moonshot display name to the MoonshotAI asset", () => {
 		expect(resolveLogo("Moonshot", { theme: "dark" })).toMatchObject({
 			id: "moonshotai",

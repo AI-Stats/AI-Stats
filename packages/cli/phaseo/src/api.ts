@@ -139,6 +139,9 @@ export async function refreshSession(session: Session): Promise<Session> {
 			integrationGatewayKeyId: session.integrationGatewayKeyId,
 			integrationGatewayKeyExpiresAt: session.integrationGatewayKeyExpiresAt,
 		} : {}),
+		...(session.integrationGatewayCredentials ? {
+			integrationGatewayCredentials: session.integrationGatewayCredentials,
+		} : {}),
 	};
 	await writeSession(next);
 	return next;

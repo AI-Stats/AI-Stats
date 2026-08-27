@@ -1452,7 +1452,7 @@
   {
     "api_model_id": "deepseek/deepseek-v4-flash-0731",
     "provider_api_model_id": "baseten:deepseek/deepseek-v4-flash-0731",
-    "provider_model_slug": "deepseek/deepseek-v4-flash-0731",
+    "provider_model_slug": "deepseek-ai/DeepSeek-V4-Flash-0731",
     "internal_model_id": "deepseek/deepseek-v4-flash-0731",
     "is_active_gateway": true,
     "quantization_scheme": "fp8",
@@ -1505,16 +1505,90 @@
     },
     "sources": [
       {
-        "kind": "models",
-        "url": "https://www.baseten.co/products/model-apis/",
-        "accessed_at": "2026-08-23T00:00:00Z",
-        "notes": "Current Baseten shared Model API catalogue."
+        "kind": "documentation",
+        "url": "https://www.baseten.co/library/deepseek-v4-flash-0731/",
+        "accessed_at": "2026-08-26T00:00:00Z",
+        "notes": "Baseten's official Model API page documents the upstream slug deepseek-ai/DeepSeek-V4-Flash-0731."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-23T00:00:00Z",
-      "notes": "Verified in Baseten's current shared Model API catalogue."
+      "checked_at": "2026-08-26T00:00:00Z",
+      "notes": "Verified against Baseten's official DeepSeek V4 Flash 0731 Model API documentation and pricing."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-5.3-flash",
+    "provider_api_model_id": "baseten:zai-org/GLM-5.3-Flash",
+    "provider_model_slug": "zai-org/GLM-5.3-Flash",
+    "internal_model_id": "z-ai/glm-5.3-flash",
+    "is_active_gateway": true,
+    "quantization_scheme": "FP8",
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-08-26T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "top_k",
+          "response_format",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "/v1/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "provider_model",
+        "url": "https://www.baseten.co/library/family/glm/",
+        "accessed_at": "2026-08-26T00:00:00Z",
+        "notes": "Baseten's provider feed reports the live model slug zai-org/GLM-5.3-Flash; Baseten's GLM model library documents the managed Model API family."
+      },
+      {
+        "kind": "documentation",
+        "url": "https://docs.baseten.co/inference/model-apis/overview",
+        "accessed_at": "2026-08-26T00:00:00Z",
+        "notes": "Baseten Model APIs provide OpenAI-compatible chat completions, tool calling, structured outputs, and per-million-token pricing."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-26T00:00:00Z",
+      "notes": "Live provider slug and availability supplied by Baseten's provider feed; current Baseten pricing was not included in the feed and remains unverified."
     },
     "rate_limits": []
   }

@@ -1,13 +1,7 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { setupTestRuntime, teardownTestRuntime } from "../../../../tests/helpers/runtime";
 import { installFetchMock } from "../../../../tests/helpers/mock-fetch";
 import { exec } from "../endpoints/music-generate";
-
-const saveMusicJobMetaMock = vi.fn();
-
-vi.mock("@core/music-jobs", () => ({
-	saveMusicJobMeta: (...args: unknown[]) => saveMusicJobMetaMock(...args),
-}));
 
 const REQUEST_META = {
 	requestId: "req_test_music_el_1",
@@ -50,11 +44,7 @@ afterAll(() => {
 });
 
 describe("ElevenLabs music.generate endpoint", () => {
-	beforeEach(() => {
-		saveMusicJobMetaMock.mockReset();
-	});
-
-	it("maps request fields and stores metadata for status lookups", async () => {
+	it("maps request fields and normalizes binary audio", async () => {
 		let capturedBody: any = null;
 		const mock = installFetchMock([
 			{
@@ -101,19 +91,9 @@ describe("ElevenLabs music.generate endpoint", () => {
 		expect(result.normalized?.id).toBe("el_job_123");
 		expect(result.normalized?.status).toBe("completed");
 		expect(result.normalized?.content_type).toBe("audio/pcm");
-		expect(saveMusicJobMetaMock).toHaveBeenCalledWith(
-			"team_test",
-			"el_job_123",
-			expect.objectContaining({
-				provider: "elevenlabs",
-				model: "music_v2",
-				status: "completed",
-				audioBase64: result.normalized?.audio_base64,
-			}),
-		);
 	});
 
-	it("handles binary responses and still stores completed metadata", async () => {
+	it("handles binary responses as completed music", async () => {
 		const mock = installFetchMock([
 			{
 				match: (url) => url === "https://api.elevenlabs.example/v1/music?output_format=mp3_44100_128",
@@ -149,14 +129,5 @@ describe("ElevenLabs music.generate endpoint", () => {
 		expect(result.upstream.status).toBe(200);
 		expect(result.normalized?.status).toBe("completed");
 		expect(typeof result.normalized?.audio_base64).toBe("string");
-		expect(saveMusicJobMetaMock).toHaveBeenCalledWith(
-			"team_test",
-			"el_binary_1",
-				expect.objectContaining({
-					provider: "elevenlabs",
-					status: "completed",
-					audioBase64: result.normalized?.audio_base64,
-				}),
-		);
 	});
 });

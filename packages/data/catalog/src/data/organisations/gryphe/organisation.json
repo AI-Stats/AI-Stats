@@ -1,1 +1,21 @@
-{"organisation_id":"gryphe","name":"Gryphe","country_code":null,"description":"Open model creator behind the MythoMax family.","colour":null,"organisation_links":[{"platform":"hugging_face","url":"https://huggingface.co/Gryphe"}],"status":"active","routable":null,"sources":[{"kind":"repository","url":"https://huggingface.co/Gryphe","accessed_at":"2026-08-24T00:00:00.000Z","notes":"Creator profile."}],"verification":{"status":"partial","checked_at":"2026-08-24T00:00:00.000Z","notes":"Organisation identity verified from its repository profile."}}
+{
+  "organisation_id": "gryphe",
+  "name": "Gryphe",
+  "country_code": null,
+  "description": "Model developer identified by Requesty's official model catalogue.",
+  "link": "https://router.requesty.ai/v1/models",
+  "aliases": [],
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://router.requesty.ai/v1/models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Developer attribution from Requesty's live catalogue."
+    }
+  ],
+  "verification": {
+    "status": "partial",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Requesty catalogue attribution; independent developer metadata remains to be enriched."
+  }
+}
