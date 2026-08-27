@@ -11296,5 +11296,80 @@
       "notes": "Availability, provider model slug, limits, capabilities, modalities, endpoints, and pricing verified from Novita's live OpenAI-compatible models endpoint."
     },
     "rate_limits": []
+  },
+  {
+    "api_model_id": "inclusionai/ling-3.0-flash-fin",
+    "provider_api_model_id": "novita:inclusionai/ling-3.0-flash-fin",
+    "provider_model_slug": "inclusionai/ling-3.0-flash-fin",
+    "internal_model_id": "inclusionai/ling-3.0-flash-fin",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": 32768,
+    "effective_from": "2026-08-27T10:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "tools",
+          "tool_choice",
+          "reasoning",
+          "include_reasoning"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": false,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://api.novita.ai/openai/v1/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "provider_model",
+        "url": "https://novita.ai/models/model-detail/inclusionai-ling-3.0-flash-fin",
+        "accessed_at": "2026-08-27T00:00:00Z",
+        "notes": "Novita's live model page reports the slug, limits, text modalities, function calling, reasoning, serverless chat endpoint, release time, and zero token prices."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-27T00:00:00Z",
+      "notes": "Verified from Novita's first-party live model payload."
+    },
+    "rate_limits": []
   }
 ]

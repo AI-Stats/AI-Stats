@@ -2520,5 +2520,28 @@
       "sources": [{"kind":"provider_models","url":"https://docs.wandb.ai/inference/models","accessed_at":"2026-08-21T00:00:00Z","notes":"Official W&B catalogue lists JetBrains/Mellum2-12B-A2.5B-Instruct with 131K context."}],
       "verification": {"status":"verified","checked_at":"2026-08-21T00:00:00Z","notes":"Verified against the current W&B serverless catalogue."},
       "rate_limits": []
+    },
+    {
+      "api_model_id": "z-ai/glm-5.3-flash",
+      "provider_api_model_id": "weights-and-biases:z-ai/glm-5.3-flash",
+      "provider_model_slug": "zai-org/GLM-5.3-Flash",
+      "internal_model_id": "z-ai/glm-5.3-flash",
+      "is_active_gateway": true,
+      "quantization_scheme": null,
+      "input_modalities": "text",
+      "output_modalities": "text",
+      "context_length": 1048576,
+      "max_output_tokens": 131072,
+      "effective_from": "2026-08-27T00:00:00Z",
+      "effective_to": null,
+      "capabilities": [{"capability_id":"text.generate","status":"active","params":[],"reasoning":true,"tool_call":true,"structured_output":null,"temperature":null,"attachment":null,"input_modalities":null,"output_modalities":null,"modes":[]}],
+      "routing_status": "active",
+      "routable": true,
+      "regions": {"execution":null,"data":null},
+      "service_tiers": [],
+      "api": {"formats":[],"endpoint":null,"deployment":null},
+      "sources": [{"kind":"provider_models","url":"https://api.inference.wandb.ai/v1/models","accessed_at":"2026-08-27T00:00:00Z","notes":"W&B's live authenticated models endpoint reports zai-org/GLM-5.3-Flash availability."}],
+      "verification": {"status":"partial","checked_at":"2026-08-27T00:00:00Z","notes":"Availability is confirmed by W&B's live model discovery; W&B's public catalogue and pricing page have not yet added the model."},
+      "rate_limits": []
     }
 ]
