@@ -64,7 +64,7 @@ describe("provider capability profiles", () => {
 		expect(supportsAdapterBackedCapability("friendli", "video.generate")).toBe(false);
 	});
 
-	it("does not expose GMI request-queue modalities through OpenAI media routes", () => {
+	it("does not expose GMI request-queue modalities through the generic OpenAI adapter", () => {
 		for (const capability of NON_TEXT_CAPABILITIES) {
 			expect(
 				supportsAdapterBackedCapability("gmicloud", capability),
@@ -127,7 +127,7 @@ describe("provider capability profiles", () => {
 		expect(supportsAdapterBackedCapability("google-vertex", "audio.transcription")).toBe(false);
 		expect(supportsAdapterBackedCapability("google-vertex", "audio.translations")).toBe(false);
 		expect(supportsAdapterBackedCapability("google-vertex", "video.generate")).toBe(true);
-		expect(supportsAdapterBackedCapability("google-vertex-eu", "video.generate")).toBe(true);
+		expect(supportsAdapterBackedCapability("google-vertex-eu", "video.generate")).toBe(false);
 	});
 
 	it.each(["x-ai", "xai", "spacex-ai"])("exposes only documented xAI standalone media APIs for %s", (provider) => {

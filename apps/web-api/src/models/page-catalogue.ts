@@ -158,9 +158,12 @@ function providerDetails(value: unknown): Row[] {
 function withoutExternalProviders(row: Row): Row {
 	const details = providerDetails(row.gateway_provider_details);
 	if (details.length === 0) return row;
-	const visibleDetails = details.filter((detail) =>
-		String(detail.status ?? "").trim().toLowerCase() !== "external"
-	);
+	const visibleDetails = details.filter((detail) => {
+		const status = String(detail.status ?? "").trim().toLowerCase();
+		const accessScope = String(detail.access_scope ?? "public").trim().toLowerCase();
+		const capabilityStatus = String(detail.capability_status ?? "").trim().toLowerCase();
+		return status !== "external" && accessScope === "public" && capabilityStatus !== "internal_testing";
+	});
 	const providerNames = strings(visibleDetails.map((detail) => detail.name));
 	const activeProviderNames = strings(
 		visibleDetails.filter((detail) => detail.is_active === true).map((detail) => detail.name),
@@ -225,7 +228,7 @@ function modality(value: string): string {
 	if (normalized.includes("image")) return "image";
 	if (normalized.includes("video")) return "video";
 	if (normalized.includes("music")) return "audio_music";
-	if (normalized.includes("transcrib") || normalized.includes("speech to text") || normalized.includes("stt")) return "audio_stt";
+	if (normalized.includes("transcri") || normalized.includes("speech to text") || normalized.includes("stt")) return "audio_stt";
 	if (normalized.includes("text to speech") || normalized.includes("audio speech") || normalized.includes("speech synth") || normalized.includes("tts")) return "audio_tts";
 	if (normalized.includes("audio")) return "audio";
 	if (normalized.includes("file")) return "file";
@@ -309,12 +312,14 @@ async function databasePageRows(env: Env, query: ModelsPageQuery = {}): Promise<
 				)
 				: client.rpc("get_public_models_page_rows")
 		);
-		if (query.organisationId) {
-			request = request.eq("organisation_id", query.organisationId);
-		}
 		const result = await request.range(offset, offset + 999);
 		if (result.error) throw result.error;
-		rows.push(...((result.data ?? []) as Row[]));
+		const pageRows = (result.data ?? []) as Row[];
+		rows.push(...(
+			query.organisationId
+				? pageRows.filter((row) => String(row.organisation_id ?? "") === query.organisationId)
+				: pageRows
+		));
 		if ((result.data?.length ?? 0) < 1_000) break;
 	}
 	return rows;
@@ -374,7 +379,9 @@ export async function fetchModelsPageCatalogue(
 	);
 	return {
 		models: attachModelsPageVariants(mergeModelWeeklyMetrics(
-			databaseRows.map(normalizeModelsPagePricing),
+		databaseRows
+			.filter((row) => String(row.access_scope ?? "public").trim().toLowerCase() === "public" && String(row.capability_status ?? "").trim().toLowerCase() !== "internal_testing")
+			.map(normalizeModelsPagePricing),
 			modelWeeklyMetrics,
 		)),
 		pricingComplete: true,

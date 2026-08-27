@@ -1,23 +1,23 @@
 {
   "organisation_id": "thedrummer",
-  "name": "TheDrummer",
+  "name": "Thedrummer",
   "country_code": null,
-  "description": null,
+  "description": "Thedrummer publishes models available through OpenRouter.",
   "colour": null,
   "organisation_links": [],
   "status": "active",
   "routable": null,
   "sources": [
     {
-      "kind": "provider_docs",
-      "url": "https://docs.meganova.ai/inference-models/model-list.md",
-      "accessed_at": "2026-08-24T03:00:00Z",
-      "notes": "MegaNova identifies TheDrummer as the publisher namespace for listed model TheDrummer/Cydonia-24B-v4.1."
+      "kind": "provider_models",
+      "url": "https://openrouter.ai/api/v1/models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Publisher namespace observed in OpenRouter's official model catalog."
     }
   ],
   "verification": {
     "status": "partial",
-    "checked_at": "2026-08-24T03:00:00Z",
-    "notes": "Publisher namespace verified from MegaNova’s official model catalogue; jurisdiction was not independently published."
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Publisher identity is based on OpenRouter's official namespace."
   }
 }

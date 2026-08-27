@@ -8,7 +8,6 @@ import { fetchUpstream } from "@executors/_shared/timing/upstream";
 import { getBindings } from "@/runtime/env";
 import { resolveProviderKey } from "@providers/keys";
 import { googleUsageMetadataToIRUsage } from "@providers/google-ai-studio/usage";
-import { saveMusicJobMeta } from "@core/music-jobs";
 import { resolveGoogleModelCandidates } from "../shared/model";
 import { irPartsToGeminiParts } from "../shared/media";
 import type { ProviderExecutor } from "../../types";
@@ -429,25 +428,6 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 				mappedRequest,
 				rawResponse: json,
 			};
-		}
-
-		try {
-			await saveMusicJobMeta(args.workspaceId, args.requestId, {
-				provider: args.providerId,
-				model,
-				status: irResponse.status,
-				nativeResponseId: irResponse.nativeId ?? null,
-				audioBase64: irResponse.audioBase64 ?? null,
-				result: irResponse.result ?? null,
-				rawResponse: irResponse.rawResponse ?? null,
-				createdAt: Date.now(),
-			});
-		} catch (storeErr) {
-			console.error("google_music_job_meta_store_failed", {
-				error: storeErr,
-				workspaceId: args.workspaceId,
-				musicId: args.requestId,
-			});
 		}
 
 		return {

@@ -11,15 +11,24 @@ import type { CompareGatewayUsageByModel } from "./types";
 export default function ComparisonDisplay({
 	selectedModels,
 	usageByModel,
+	models,
+	selectedIds,
+	onSelectedIdsChange,
 }: {
 	selectedModels: ExtendedModel[];
 	usageByModel: CompareGatewayUsageByModel;
+	models: ExtendedModel[];
+	selectedIds: string[];
+	onSelectedIdsChange: (ids: string[]) => void;
 }) {
 	return (
 		<div className="w-full flex flex-col space-y-10">
 			<DecisionMatrix
 				selectedModels={selectedModels}
 				usageByModel={usageByModel}
+				models={models}
+				selectedIds={selectedIds}
+				onSelectedIdsChange={onSelectedIdsChange}
 			/>
 			<OverviewCard selectedModels={selectedModels} />
 			<GatewayUsageComparison

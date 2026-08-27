@@ -5,11 +5,59 @@
   "api_model_id": "meta/llama-guard-4-12b",
   "capability_id": "text.generate",
   "rules": [
-    {"meter":"input_text_tokens","unit":"token","unit_size":1000000,"price_per_unit":0.2,"currency":"USD","pricing_plan":"standard","note":null,"match":[],"priority":100,"effective_from":null,"region":null,"cache_duration_seconds":null,"conditions":[],"source":{"kind":"pricing","url":"https://docs.together.ai/docs/serverless/models","accessed_at":"2026-08-20T00:00:00Z","notes":"Official moderation model rate."}},
-    {"meter":"output_text_tokens","unit":"token","unit_size":1000000,"price_per_unit":0.2,"currency":"USD","pricing_plan":"standard","note":null,"match":[],"priority":100,"effective_from":null,"region":null,"cache_duration_seconds":null,"conditions":[],"source":{"kind":"pricing","url":"https://docs.together.ai/docs/serverless/models","accessed_at":"2026-08-20T00:00:00Z","notes":"Official moderation model rate."}}
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.2,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": null,
+      "match": [],
+      "priority": 100,
+      "effective_from": null,
+      "effective_to": "2026-08-26T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": {
+        "kind": "pricing",
+        "url": "https://docs.together.ai/docs/serverless/models",
+        "accessed_at": "2026-08-20T00:00:00Z",
+        "notes": "Official moderation model rate."
+      }
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.2,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": null,
+      "match": [],
+      "priority": 100,
+      "effective_from": null,
+      "effective_to": "2026-08-26T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": {
+        "kind": "pricing",
+        "url": "https://docs.together.ai/docs/serverless/models",
+        "accessed_at": "2026-08-20T00:00:00Z",
+        "notes": "Official moderation model rate."
+      }
+    }
   ],
   "regions": [],
-  "service_tiers": ["standard"],
+  "service_tiers": [
+    "standard"
+  ],
   "sources": [],
-  "verification": {"status":"verified","checked_at":"2026-08-20T00:00:00Z","notes":"Verified from Together's current serverless model catalogue."}
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-20T00:00:00Z",
+    "notes": "Verified from Together's serverless model catalogue; retained for historical billing provenance after route retirement."
+  }
 }

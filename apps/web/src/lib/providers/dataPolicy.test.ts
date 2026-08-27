@@ -7,7 +7,7 @@ describe("resolveProviderDataPolicy", () => {
 		expect(
 			resolveProviderDataPolicy({
 				promptTrainingPolicy: "no_train",
-				zeroDataRetention: "default",
+				zeroDataRetention: true,
 			}),
 		).toEqual({
 			tier: "private",
@@ -20,7 +20,20 @@ describe("resolveProviderDataPolicy", () => {
 		expect(
 			resolveProviderDataPolicy({
 				promptTrainingPolicy: "no_train",
-				zeroDataRetention: "optional",
+				zeroDataRetention: false,
+			}),
+		).toEqual({
+			tier: "logs",
+			confidence: "maybe",
+			contractMode: "none",
+		});
+	});
+
+	it("abstracts enterprise-only no-train into the logs tier", () => {
+		expect(
+			resolveProviderDataPolicy({
+				promptTrainingPolicy: "enterprise_no_train",
+				zeroDataRetention: false,
 			}),
 		).toEqual({
 			tier: "logs",
@@ -33,7 +46,7 @@ describe("resolveProviderDataPolicy", () => {
 		expect(
 			resolveProviderDataPolicy({
 				promptTrainingPolicy: "may_train",
-				zeroDataRetention: "unknown",
+				zeroDataRetention: false,
 			}),
 		).toEqual({
 			tier: "trains",
@@ -43,7 +56,7 @@ describe("resolveProviderDataPolicy", () => {
 		expect(
 			resolveProviderDataPolicy({
 				promptTrainingPolicy: "opt_out_available",
-				zeroDataRetention: "unknown",
+				zeroDataRetention: false,
 			}),
 		).toEqual({
 			tier: "trains",
@@ -59,7 +72,7 @@ describe("resolveProviderDataPolicy", () => {
 				confidence: "confirmed",
 				contractMode: "enterprise_agreement",
 				promptTrainingPolicy: "may_train",
-				zeroDataRetention: "unknown",
+				zeroDataRetention: false,
 			}),
 		).toEqual({
 			tier: "private",

@@ -24,7 +24,7 @@ export const zaiQuirks: ProviderQuirks = {
 		}
 
 		const upstreamModel = String(request.model ?? ir.model ?? "").toLowerCase();
-		const isGlm53 = /(^|\/)glm-5\.3(?:\[1m\])?$/.test(upstreamModel);
+		const isGlm53 = /(^|\/)glm-5\.3(?:-flash)?(?:\[1m\])?$/.test(upstreamModel);
 
 		// GLM-5.3 always reasons. Normalise Phaseo's effort vocabulary to the
 		// three upstream levels and map attempts to disable thinking to low.

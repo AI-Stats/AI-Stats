@@ -1,25 +1,19 @@
 {
   "model_id": "qwen/qwen3-vl-plus",
   "organisation_id": "qwen",
-  "name": "Qwen3 VL Plus",
+  "name": "Qwen3-VL-Plus",
   "status": "Available",
   "previous_model_id": null,
-  "description": "Model offered through MegaNova under the exact upstream ID Qwen/Qwen3-VL-Plus.",
+  "description": "Qwen3-VL-Plus is available through ZenMux's unified model API.",
   "announced_date": null,
-  "release_date": null,
+  "release_date": "2025-09-23T00:00:00",
   "deprecation_date": null,
   "retirement_date": null,
   "license": null,
   "input_types": "text,image",
   "output_types": "text",
   "api_model_id": "qwen/qwen3-vl-plus",
-  "links": [
-    {
-      "title": "MegaNova model list",
-      "kind": "documentation",
-      "url": "https://docs.meganova.ai/inference-models/model-list"
-    }
-  ],
+  "links": [],
   "details": [],
   "benchmarks": [],
   "family_id": null,
@@ -27,8 +21,8 @@
   "model_type": null,
   "knowledge_cutoff": null,
   "limits": {
-    "context": null,
-    "input": null,
+    "context": 262144,
+    "input": 262144,
     "output": null
   },
   "modalities": {
@@ -41,7 +35,7 @@
     ]
   },
   "reasoning": {
-    "supported": null,
+    "supported": true,
     "options": []
   },
   "capabilities": {
@@ -50,23 +44,23 @@
     "structured_output": null,
     "temperature": null,
     "streaming": null,
-    "web_search": null
+    "web_search": false
   },
   "open_weights": null,
   "sources": [
     {
-      "kind": "provider_docs",
-      "url": "https://docs.meganova.ai/inference-models/model-list.md",
-      "accessed_at": "2026-08-24T03:00:00Z",
-      "notes": "MegaNova documents this model under exact upstream ID Qwen/Qwen3-VL-Plus."
+      "kind": "provider_models",
+      "url": "https://zenmux.ai/api/v1/models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official live ZenMux model, modality, context, capability, publication, and pricing metadata."
     }
   ],
   "verification": {
-    "status": "verified",
-    "checked_at": "2026-08-24T03:00:00Z",
-    "notes": "Canonical identity and modalities verified against MegaNova’s official current model catalogue."
+    "status": "partial",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Availability, namespace, modalities, context, and publication date verified against the official ZenMux models API; upstream model metadata was not independently re-audited."
   },
-  "last_updated": "2026-08-24T03:00:00Z",
+  "last_updated": "2026-08-24T00:00:00Z",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

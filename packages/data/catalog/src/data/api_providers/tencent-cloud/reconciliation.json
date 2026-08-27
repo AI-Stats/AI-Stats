@@ -1,0 +1,31 @@
+{
+  "provider": "tencent-cloud",
+  "checked_at": "2026-08-24T00:00:00Z",
+  "official_source": "https://cloud.tencent.cn/document/product/1823/130051",
+  "accounting": {
+    "implemented_routes": 92,
+    "schema_blocked": 3,
+    "unaccounted": 0
+  },
+  "schema_blocked": [
+    {
+      "name": "HY-3D-3.0",
+      "model_id": "hy-3d-3.0",
+      "reason": "No 3D generation capability exists in the catalog schema."
+    },
+    {
+      "name": "HY-3D-3.1",
+      "model_id": "hy-3d-3.1",
+      "reason": "No 3D generation capability exists in the catalog schema."
+    },
+    {
+      "name": "HY-3D-Express",
+      "model_id": "hy-3d-express",
+      "reason": "No 3D generation capability exists in the catalog schema."
+    }
+  ],
+  "notes": [
+    "All implemented routes are disabled and non-routable pending an executor.",
+    "The ledger covers the official TokenHub model list updated 2026-08-22."
+  ]
+}

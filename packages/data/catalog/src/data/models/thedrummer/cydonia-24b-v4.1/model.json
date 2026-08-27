@@ -1,35 +1,39 @@
 {
   "model_id": "thedrummer/cydonia-24b-v4.1",
   "organisation_id": "thedrummer",
-  "name": "Cydonia 24B v4.1",
+  "name": "TheDrummer: Cydonia 24B V4.1",
   "status": "Available",
   "previous_model_id": null,
-  "description": "Model offered through MegaNova under the exact upstream ID TheDrummer/Cydonia-24B-v4.1.",
+  "description": "Uncensored and creative writing model based on Mistral Small 3.2 24B with good recall, prompt adherence, and intelligence.",
   "announced_date": null,
-  "release_date": null,
+  "release_date": "2025-09-27",
   "deprecation_date": null,
   "retirement_date": null,
   "license": null,
-  "input_types": "text",
-  "output_types": "text",
+  "input_types": [
+    "text"
+  ],
+  "output_types": [
+    "text"
+  ],
   "api_model_id": "thedrummer/cydonia-24b-v4.1",
   "links": [
     {
-      "title": "MegaNova model list",
-      "kind": "documentation",
-      "url": "https://docs.meganova.ai/inference-models/model-list"
+      "platform": "model",
+      "title": "OpenRouter model page",
+      "url": "https://openrouter.ai/thedrummer/cydonia-24b-v4.1"
     }
   ],
   "details": [],
   "benchmarks": [],
   "family_id": null,
   "page_notice": null,
-  "model_type": null,
-  "knowledge_cutoff": null,
+  "model_type": "language",
+  "knowledge_cutoff": "2024-04-30",
   "limits": {
-    "context": null,
+    "context": 131072,
     "input": null,
-    "output": null
+    "output": 131072
   },
   "modalities": {
     "input": [
@@ -45,27 +49,27 @@
   },
   "capabilities": {
     "attachment": false,
-    "tool_call": null,
-    "structured_output": null,
-    "temperature": null,
-    "streaming": null,
-    "web_search": null
+    "tool_call": false,
+    "structured_output": true,
+    "temperature": true,
+    "streaming": true,
+    "web_search": false
   },
-  "open_weights": null,
+  "open_weights": true,
   "sources": [
     {
-      "kind": "provider_docs",
-      "url": "https://docs.meganova.ai/inference-models/model-list.md",
-      "accessed_at": "2026-08-24T03:00:00Z",
-      "notes": "MegaNova documents this model under exact upstream ID TheDrummer/Cydonia-24B-v4.1."
+      "kind": "provider_models",
+      "url": "https://openrouter.ai/api/v1/models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Exact live OpenRouter ID: thedrummer/cydonia-24b-v4.1."
     }
   ],
   "verification": {
-    "status": "verified",
-    "checked_at": "2026-08-24T03:00:00Z",
-    "notes": "Canonical identity and modalities verified against MegaNova’s official current model catalogue."
+    "status": "partial",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Availability, modalities, limits and parameters verified against OpenRouter's official models API; upstream publisher metadata remains provider-reported."
   },
-  "last_updated": "2026-08-24T03:00:00Z",
+  "last_updated": "2026-08-24",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null
