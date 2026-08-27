@@ -6,7 +6,7 @@
   "residency_mode": "provider_managed",
   "default_execution_regions": null,
   "default_data_regions": ["US"],
-  "zero_data_retention": "default",
+  "zero_data_retention": true,
   "data_retention_days": 0,
   "residency_source_url": "https://www.openinference.ai/privacy",
   "residency_notes": "OpenInference says prompts and responses are processed transiently and not retained after delivery. Its privacy policy says personal information is transferred to and processed in the United States; it does not publish model-execution regions.",

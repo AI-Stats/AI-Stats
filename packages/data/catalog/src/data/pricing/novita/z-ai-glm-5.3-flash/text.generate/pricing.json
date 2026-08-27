@@ -1,0 +1,86 @@
+{
+  "key": "novita:z-ai/glm-5.3-flash:text.generate",
+  "api_provider_id": "novita",
+  "provider_slug": "novita",
+  "api_model_id": "z-ai/glm-5.3-flash",
+  "capability_id": "text.generate",
+  "rules": [
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.03,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Novita GLM-5.3-Flash cached-input price.",
+      "match": [],
+      "priority": 100,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": {
+        "kind": "provider_model",
+        "url": "https://api.novita.ai/openai/v1/models",
+        "accessed_at": "2026-08-26T00:00:00Z",
+        "notes": "Live Novita model catalog pricing for zai-org/glm-5.3-flash."
+      }
+    },
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.15,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Novita GLM-5.3-Flash input price.",
+      "match": [],
+      "priority": 100,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": {
+        "kind": "provider_model",
+        "url": "https://api.novita.ai/openai/v1/models",
+        "accessed_at": "2026-08-26T00:00:00Z",
+        "notes": "Live Novita model catalog pricing for zai-org/glm-5.3-flash."
+      }
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.5,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Novita GLM-5.3-Flash output price.",
+      "match": [],
+      "priority": 100,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": {
+        "kind": "provider_model",
+        "url": "https://api.novita.ai/openai/v1/models",
+        "accessed_at": "2026-08-26T00:00:00Z",
+        "notes": "Live Novita model catalog pricing for zai-org/glm-5.3-flash."
+      }
+    }
+  ],
+  "regions": [],
+  "service_tiers": [
+    "standard"
+  ],
+  "sources": [
+    {
+      "kind": "provider_model",
+      "url": "https://api.novita.ai/openai/v1/models",
+      "accessed_at": "2026-08-26T00:00:00Z",
+      "notes": "Novita's live model catalog reports $0.15 input, $0.03 cached input, and $0.50 output per million tokens."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-26T00:00:00Z",
+    "notes": "Verified from Novita's live OpenAI-compatible model catalog."
+  }
+}

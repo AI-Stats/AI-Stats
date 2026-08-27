@@ -19,8 +19,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Switch } from "@/components/ui/switch";
-import type { NotificationDestination } from "@/lib/fetchers/internal/settingsTypes";
+import type { NotificationDestination, NotificationEventKind } from "@/lib/fetchers/internal/settingsTypes";
 import { cn } from "@/lib/utils";
+import NotificationRouteSelector from "./NotificationRouteSelector";
 
 type DestinationType = NotificationDestination["type"];
 type ProviderIconProps = { className?: string };
@@ -56,7 +57,7 @@ const providers: Provider[] = [
 
 const providerByType = new Map(providers.map((provider) => [provider.type, provider]));
 
-export default function NotificationDestinationsClient({ initialDestinations, initialModelDeprecationEnabled }: { initialDestinations: NotificationDestination[]; initialModelDeprecationEnabled: boolean }) {
+export default function NotificationDestinationsClient({ initialDestinations, initialModelDeprecationEnabled, initialNotificationRoutes }: { initialDestinations: NotificationDestination[]; initialModelDeprecationEnabled: boolean; initialNotificationRoutes: Partial<Record<NotificationEventKind, string[]>> }) {
 	const [destinations, setDestinations] = React.useState(initialDestinations ?? []);
 	const [modelDeprecationEnabled, setModelDeprecationEnabled] = React.useState(initialModelDeprecationEnabled);
 	const [open, setOpen] = React.useState(false);
@@ -108,19 +109,19 @@ export default function NotificationDestinationsClient({ initialDestinations, in
 			<section aria-labelledby="event-alerts-title" className="space-y-3">
 				<h2 id="event-alerts-title" className="font-heading text-base font-medium">Product alerts</h2>
 				<div className="rounded-xl border bg-background/40 px-4 py-4">
-					<div className="flex items-center justify-between gap-4">
+					<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 						<div><h3 className="text-sm font-medium">Model Deprecation Alerts</h3><p className="mt-0.5 text-sm text-muted-foreground">Get notice before a model your workspace uses is retired.</p></div>
-						<Switch checked={modelDeprecationEnabled} aria-label="Enable model deprecation alerts" onCheckedChange={(checked) => {
+						<div className="flex shrink-0 items-center gap-2 self-end sm:self-auto"><NotificationRouteSelector destinations={destinations} eventKind="model_deprecation" initialDestinationIds={initialNotificationRoutes.model_deprecation ?? []} /><Switch checked={modelDeprecationEnabled} aria-label="Enable model deprecation alerts" onCheckedChange={(checked) => {
 							const next = Boolean(checked); setModelDeprecationEnabled(next);
 							toast.promise(setBillingNotificationPreference({ preference: "modelDeprecationAlerts", enabled: next }), { loading: "Saving alert…", success: "Saved", error: "Could not save alert" });
-						}} />
+						}} /></div>
 					</div>
 				</div>
 			</section>
 
 			<section aria-labelledby="destinations-title" className="space-y-3">
 				<div className="flex items-end justify-between gap-4">
-					<div><h2 id="destinations-title" className="font-heading text-base font-medium">Destinations</h2><p className="mt-1 text-sm text-muted-foreground">Send enabled alerts beyond the workspace owner’s email.</p></div>
+					<div><h2 id="destinations-title" className="font-heading text-base font-medium">Destinations</h2><p className="mt-1 text-sm text-muted-foreground">Create reusable channels, then choose them on each alert above.</p></div>
 					<Button className="rounded-md" onClick={() => setOpen(true)}><Plus /> Add destination</Button>
 				</div>
 				<div className="overflow-hidden rounded-xl border bg-background/40">

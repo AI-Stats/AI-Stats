@@ -6,7 +6,7 @@
   "residency_mode": "unknown",
   "default_execution_regions": null,
   "default_data_regions": null,
-  "zero_data_retention": "optional",
+  "zero_data_retention": false,
   "residency_source_url": "https://docs.voyageai.com/docs/faq",
   "residency_notes": "Voyage documents its opt-out retention control but the reviewed public API documentation does not specify a customer-selected data or execution region.",
   "data_policy_tier": "trains",

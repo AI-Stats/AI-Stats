@@ -436,6 +436,15 @@ public final class ModelIds {
     /** Model ID: <code>ibm/granite-4.1-8b</code>. Model page: https://phaseo.app/models/ibm/granite-4.1-8b */
     public static final String IBM_GRANITE_4_1_8B = "ibm/granite-4.1-8b";
 
+    /** Model ID: <code>ibm/granite-4.2-30b</code>. Model page: https://phaseo.app/models/ibm/granite-4.2-30b */
+    public static final String IBM_GRANITE_4_2_30B = "ibm/granite-4.2-30b";
+
+    /** Model ID: <code>ibm/granite-4.2-3b</code>. Model page: https://phaseo.app/models/ibm/granite-4.2-3b */
+    public static final String IBM_GRANITE_4_2_3B = "ibm/granite-4.2-3b";
+
+    /** Model ID: <code>ibm/granite-4.2-8b</code>. Model page: https://phaseo.app/models/ibm/granite-4.2-8b */
+    public static final String IBM_GRANITE_4_2_8B = "ibm/granite-4.2-8b";
+
     /** Model ID: <code>inception/mercury-2</code>. Model page: https://phaseo.app/models/inception/mercury-2 */
     public static final String INCEPTION_MERCURY_2 = "inception/mercury-2";
 
@@ -1021,9 +1030,6 @@ public final class ModelIds {
     /** Model ID: <code>openai/whisper-large-v3-turbo</code>. Model page: https://phaseo.app/models/openai/whisper-large-v3-turbo */
     public static final String OPENAI_WHISPER_LARGE_V3_TURBO = "openai/whisper-large-v3-turbo";
 
-    /** Model ID: <code>openbmb/minicpm-v-4.5</code>. Model page: https://phaseo.app/models/openbmb/minicpm-v-4.5 */
-    public static final String OPENBMB_MINICPM_V_4_5 = "openbmb/minicpm-v-4.5";
-
     /** Model ID: <code>perplexity/pplx-embed-v1-0.6b</code>. Model page: https://phaseo.app/models/perplexity/pplx-embed-v1-0.6b */
     public static final String PERPLEXITY_PPLX_EMBED_V1_0_6B = "perplexity/pplx-embed-v1-0.6b";
 
@@ -1041,9 +1047,6 @@ public final class ModelIds {
 
     /** Model ID: <code>poolside/laguna-xs-2.1:free</code>. Model page: https://phaseo.app/models/poolside/laguna-xs-2.1%3Afree */
     public static final String POOLSIDE_LAGUNA_XS_2_1_FREE = "poolside/laguna-xs-2.1:free";
-
-    /** Model ID: <code>prism-ml/ternary-bonsai-27b</code>. Model page: https://phaseo.app/models/prism-ml/ternary-bonsai-27b */
-    public static final String PRISM_ML_TERNARY_BONSAI_27B = "prism-ml/ternary-bonsai-27b";
 
     /** Model ID: <code>qwen/qvq-max</code>. Model page: https://phaseo.app/models/qwen/qvq-max */
     public static final String QWEN_QVQ_MAX = "qwen/qvq-max";
@@ -1398,15 +1401,6 @@ public final class ModelIds {
 
     /** Model ID: <code>sakana/namazu</code>. Model page: https://phaseo.app/models/sakana/namazu */
     public static final String SAKANA_NAMAZU = "sakana/namazu";
-
-    /** Model ID: <code>sao10k/l3-8b-lunaris</code>. Model page: https://phaseo.app/models/sao10k/l3-8b-lunaris */
-    public static final String SAO10K_L3_8B_LUNARIS = "sao10k/l3-8b-lunaris";
-
-    /** Model ID: <code>sao10k/l3-8b-stheno-v3.2</code>. Model page: https://phaseo.app/models/sao10k/l3-8b-stheno-v3.2 */
-    public static final String SAO10K_L3_8B_STHENO_V3_2 = "sao10k/l3-8b-stheno-v3.2";
-
-    /** Model ID: <code>sao10k/l31-70b-euryale-v2.2</code>. Model page: https://phaseo.app/models/sao10k/l31-70b-euryale-v2.2 */
-    public static final String SAO10K_L31_70B_EURYALE_V2_2 = "sao10k/l31-70b-euryale-v2.2";
 
     /** Model ID: <code>spacex-ai/grok-4.20</code>. Model page: https://phaseo.app/models/spacex-ai/grok-4.20 */
     public static final String SPACEX_AI_GROK_4_20 = "spacex-ai/grok-4.20";

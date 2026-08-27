@@ -4651,8 +4651,7 @@
       "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
     },
     "rate_limits": []
-  }
-,
+  },
   {
     "api_model_id": "qwen/qwen3.8-27b",
     "provider_api_model_id": "gmicloud:qwen/qwen3.8-27b",
@@ -5123,7 +5122,7 @@
     "api_model_id": "minimax/music-3.0:free",
     "canonical_model_id": "minimax/music-3.0:free",
     "provider_api_model_id": "gmicloud:minimax/music-3.0:free",
-    "provider_model_slug": "music-3.0",
+    "provider_model_slug": "minimax-music-3.0",
     "internal_model_id": "minimax/music-3.0",
     "is_active_gateway": true,
     "quantization_scheme": null,
@@ -5149,7 +5148,7 @@
       }
     ],
     "routing_status": "active",
-    "routable": false,
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
@@ -5157,7 +5156,7 @@
     "service_tiers": [],
     "api": {
       "formats": [],
-      "endpoint": "/v1/music_generation",
+      "endpoint": "/api/v1/ie/requestqueue/apikey/requests",
       "deployment": null
     },
     "sources": [
@@ -5205,7 +5204,7 @@
       }
     ],
     "routing_status": "active",
-    "routable": false,
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
@@ -5213,7 +5212,7 @@
     "service_tiers": [],
     "api": {
       "formats": [],
-      "endpoint": null,
+      "endpoint": "/api/v1/ie/requestqueue/apikey/requests",
       "deployment": null
     },
     "sources": [
@@ -5228,6 +5227,80 @@
       "status": "verified",
       "checked_at": "2026-08-24T00:00:00Z",
       "notes": "Promotional free route for MiniMax Week x GMI Cloud (2026-08-24 to 2026-09-06)."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-5.3-flash",
+    "provider_api_model_id": "gmicloud:zai-org/GLM-5.3-Flash",
+    "provider_model_slug": "zai-org/GLM-5.3-Flash",
+    "internal_model_id": "z-ai/glm-5.3-flash",
+    "is_active_gateway": true,
+    "quantization_scheme": "FP8",
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-08-26T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "response_format",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "/chat/completions",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_model",
+        "url": "https://openrouter.ai/api/v1/models/z-ai/glm-5.3-flash/endpoints",
+        "accessed_at": "2026-08-26T00:00:00Z",
+        "notes": "OpenRouter's live endpoint catalog lists GMICloud as serving z-ai/glm-5.3-flash with FP8 quantization and OpenAI-compatible chat support."
+      },
+      {
+        "kind": "documentation",
+        "url": "https://docs.gmicloud.ai/",
+        "accessed_at": "2026-08-26T00:00:00Z",
+        "notes": "GMI Cloud OpenAI-compatible inference documentation."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-26T00:00:00Z",
+      "notes": "Live availability and provider slug verified in OpenRouter's endpoint catalog; direct GMI Cloud pricing and model-page verification remain incomplete."
     },
     "rate_limits": []
   }

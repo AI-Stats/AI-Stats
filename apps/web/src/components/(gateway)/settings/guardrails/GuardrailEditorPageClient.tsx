@@ -107,7 +107,7 @@ type ActiveProviderModel = {
 	organisationId?: string | null;
 	organisationName?: string | null;
 	providerPolicy?: {
-		zeroDataRetention: string;
+		zeroDataRetention: boolean;
 		dataPolicyTier: string;
 		dataPolicyConfidence: string;
 	};
@@ -774,11 +774,13 @@ function capabilityPrivacyDecision(args: {
 	const stateful = ["batch", "files.upload", "files.list", "files.retrieve"].includes(args.capability.id);
 	const tier = String(policy?.tier ?? (stateful ? "logs" : args.row.providerPolicy?.dataPolicyTier ?? "unknown"));
 	const confidence = String(policy?.confidence ?? (stateful ? "confirmed" : args.row.providerPolicy?.dataPolicyConfidence ?? "unknown"));
-	const zdrEligibility = String(policy?.zdrEligibility ?? (stateful
-		? "ineligible"
-		: args.row.providerPolicy?.zeroDataRetention === "default" ? "eligible"
-			: args.row.providerPolicy?.zeroDataRetention === "optional" ? "conditional"
-				: args.row.providerPolicy?.zeroDataRetention === "unsupported" ? "ineligible" : "unknown"));
+	const zdrEligibility = String(policy?.zdrEligibility ?? (
+		stateful
+			? "ineligible"
+			: args.row.providerPolicy?.zeroDataRetention === true
+				? "eligible"
+				: "ineligible"
+	));
 
 	if (args.privacyZdrOnly && zdrEligibility !== "eligible") {
 		return {

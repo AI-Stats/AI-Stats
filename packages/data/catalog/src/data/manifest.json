@@ -62,13 +62,10 @@
     "baai",
     "reka",
     "sakana",
-    "sao10k",
     "hexgrad",
-    "prism-ml",
     "jetbrains",
     "stealth",
-    "stability-ai",
-    "openbmb"
+    "stability-ai"
   ],
   "models": {
     "ai21": [
@@ -443,7 +440,9 @@
       "google/gemini-robotics-er-2-preview",
       "google/veo-3.1",
       "google/veo-3.1-fast",
-      "google/gemma-4-12b"
+      "google/gemma-4-12b",
+      "google/gemini-3.5-transcribe",
+      "google/gemini-3.5-transcribe-live"
     ],
     "ibm": [
       "ibm/granite-20b-code-instruct-8k",
@@ -489,7 +488,10 @@
       "ibm/granite-vision-3.2-2b",
       "ibm/granite-vision-3.3-2b",
       "ibm/granite-vision-3.3-2b-embedding",
-      "ibm/granite-4.1-8b"
+      "ibm/granite-4.1-8b",
+      "ibm/granite-4.2-8b",
+      "ibm/granite-4.2-3b",
+      "ibm/granite-4.2-30b"
     ],
     "inception": [
       "inception/mercury-2",
@@ -562,6 +564,7 @@
       "meta/muse-spark",
       "meta/muse-spark-1.1",
       "meta/muse-spark-contemplating",
+      "meta/muse-image-1.0",
       "meta/llama-3-8b-lite",
       "meta/llama-guard-4-12b",
       "meta/llama-prompt-guard-2-22m",
@@ -627,17 +630,15 @@
       "minimax/speech-2.5-turbo-preview",
       "minimax/speech-2.6",
       "minimax/t2v-01-director",
-      "minimax/minimax-m2.5-highspeed",
       "minimax/minimax-m3",
       "minimax/music-3.0",
       "minimax/speech-2.6-hd",
       "minimax/speech-2.6-turbo",
-      "minimax/speech-2.8-hd",
-      "minimax/speech-2.8-turbo",
       "minimax/minimax-m2.7:free",
       "minimax/minimax-m3:free",
       "minimax/music-3.0:free",
-      "minimax/speech-2.8:free"
+      "minimax/speech-2.8:free",
+      "minimax/speech-2.8"
     ],
     "mistral": [
       "mistral/codestral",
@@ -765,7 +766,7 @@
       "nvidia/nemotron-3-nano-30b-a3b",
       "nvidia/nemotron-3-super-120b-a12b",
       "nvidia/nvidia-nemotron-nano-12b-v2",
-      "nvidia/nvidia-nemotron-nano-9b-v2",
+      "nvidia/nemotron-nano-9b-v2",
       "nvidia/openreasoning-nemotron-1.5b",
       "nvidia/openreasoning-nemotron-14b",
       "nvidia/openreasoning-nemotron-32b",
@@ -773,10 +774,9 @@
       "nvidia/cosmos3-super-reasoner",
       "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
       "nvidia/nemotron-3-ultra-550b-a55b",
-      "nvidia/nvidia-nemotron-nano-12b-v2-vl",
+      "nvidia/nemotron-nano-12b-v2-vl",
       "nvidia/nemotron-3.5-lightning",
-      "nvidia/nemotron-3-nano-omni",
-      "nvidia/nemotron-nano-9b-v2"
+      "nvidia/nemotron-3-nano-omni"
     ],
     "openai": [
       "openai/ada",
@@ -1166,7 +1166,8 @@
       "qwen/qwen3.8-2.4t-a95b",
       "qwen/qwen3-omni-30b-a3b",
       "qwen/qwen3.8-27b",
-      "qwen/qwen3.6-flash"
+      "qwen/qwen3.6-flash",
+      "qwen/qwen3.8-flash"
     ],
     "relace": [
       "relace/relace-apply-3",
@@ -1338,7 +1339,8 @@
       "z-ai/glm-4.7-flash:free",
       "z-ai/glm-5.3",
       "z-ai/autoglm-phone-9b-multilingual",
-      "z-ai/glm-4.7-flash-heretic"
+      "z-ai/glm-4.7-flash-heretic",
+      "z-ai/glm-5.3-flash"
     ],
     "crofai": [
       "crofai/greg-1-mini",
@@ -1404,16 +1406,8 @@
       "sakana/fugu-ultra",
       "sakana/namazu"
     ],
-    "sao10k": [
-      "sao10k/l3-8b-lunaris",
-      "sao10k/l3-8b-stheno-v3.2",
-      "sao10k/l31-70b-euryale-v2.2"
-    ],
     "hexgrad": [
       "hexgrad/kokoro-82m"
-    ],
-    "prism-ml": [
-      "prism-ml/ternary-bonsai-27b"
     ],
     "jetbrains": [
       "jetbrains/mellum2-12b-a2.5b"
@@ -1423,9 +1417,6 @@
     ],
     "stability-ai": [
       "stability-ai/stable-diffusion-xl-base-1.0"
-    ],
-    "openbmb": [
-      "openbmb/minicpm-v-4.5"
     ]
   },
   "benchmarks": [
@@ -2328,6 +2319,7 @@
     "alibaba-cloud:text.generate:qwen-qwen3.7-max-2026-05-17",
     "alibaba-cloud:text.generate:qwen-qwen3.7-plus",
     "alibaba-cloud:text.generate:qwen-qwen3.7-plus-2026-05-26",
+    "alibaba-cloud:text.generate:qwen-qwen3.8-flash",
     "amazon-bedrock:text.generate:ai21-jamba-1.5-large",
     "amazon-bedrock:text.generate:ai21-jamba-1.5-mini",
     "amazon-bedrock:text.generate:amazon-nova-2-lite",

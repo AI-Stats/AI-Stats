@@ -1096,8 +1096,7 @@
       "notes": "Provider support imported from models.dev; routing remains disabled."
     },
     "rate_limits": []
-  }
-,
+  },
   {
   "api_model_id": "anthropic/claude-opus-4.7",
   "provider_api_model_id": "anyapi:anthropic/claude-opus-4-7",

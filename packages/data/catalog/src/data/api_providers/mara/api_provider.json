@@ -1,5 +1,8 @@
 {
   "api_provider_id": "mara",
+  "data_policy_tier": "unknown",
+  "data_policy_confidence": "unknown",
+  "data_policy_contract_mode": "none",
   "api_provider_name": "Mara",
   "provider_family_id": "mara",
   "offer_scope": "global",
@@ -8,7 +11,7 @@
   "residency_mode": "provider_managed",
   "default_execution_regions": null,
   "default_data_regions": null,
-  "zero_data_retention": "default",
+  "zero_data_retention": true,
   "data_retention_days": 0,
   "residency_source_url": "https://mara-cloud-docs-qa.vercel.app/data-privacy",
   "residency_notes": "MARA publishes no customer-selectable execution or data-residency region; inference inputs and outputs are not retained.",

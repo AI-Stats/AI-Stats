@@ -59,7 +59,7 @@
   "verification": {
     "status": "partial",
     "checked_at": "2026-08-25T00:00:00Z",
-    "notes": "Model identity and metadata verified against the official Hugging Face model card; no gateway route is enabled."
+    "notes": "Model identity and metadata verified against the official Hugging Face model card, W&B Inference model catalog, and DeepInfra provider catalogue."
   },
   "last_updated": "2026-08-25T00:00:00",
   "removal_date": null,

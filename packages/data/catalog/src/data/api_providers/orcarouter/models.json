@@ -4490,7 +4490,7 @@
     "api_model_id": "minimax/minimax-m2.5-highspeed",
     "provider_api_model_id": "orcarouter:minimax/minimax-m2.5-highspeed",
     "provider_model_slug": "minimax/minimax-m2.5-highspeed",
-    "internal_model_id": "minimax/minimax-m2.5-highspeed",
+    "internal_model_id": "minimax/minimax-m2.5",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
@@ -4612,7 +4612,7 @@
     "api_model_id": "minimax/minimax-m2.7-highspeed",
     "provider_api_model_id": "orcarouter:minimax/minimax-m2.7-highspeed",
     "provider_model_slug": "minimax/minimax-m2.7-highspeed",
-    "internal_model_id": "minimax/minimax-m2.7-highspeed",
+    "internal_model_id": "minimax/minimax-m2.7",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
@@ -9723,198 +9723,6 @@
     "input_modalities": null,
     "output_modalities": null,
     "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": null,
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": false,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": false,
-    "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [
-        "openai-chat-completions",
-        "openai-responses",
-        "anthropic-messages",
-        "google-gemini"
-      ],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [
-      {
-        "kind": "provider_models",
-        "url": "https://api.orcarouter.ai/v1/models",
-        "accessed_at": "2026-08-24T00:00:00Z",
-        "notes": "Live official model ID, availability, endpoint formats, modalities, limits, and pricing metadata."
-      }
-    ],
-    "verification": {
-      "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
-      "notes": "Reconciled against OrcaRouter's live official /v1/models catalog; Phaseo routing remains disabled."
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "orcarouter/fusion",
-    "provider_api_model_id": "orcarouter:orcarouter/fusion",
-    "provider_model_slug": "orcarouter/fusion",
-    "internal_model_id": "orcarouter/fusion",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": 1000000,
-    "max_output_tokens": null,
-    "effective_from": null,
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": false,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": false,
-    "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [
-        "openai-chat-completions",
-        "openai-responses",
-        "anthropic-messages",
-        "google-gemini"
-      ],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [
-      {
-        "kind": "provider_models",
-        "url": "https://api.orcarouter.ai/v1/models",
-        "accessed_at": "2026-08-24T00:00:00Z",
-        "notes": "Live official model ID, availability, endpoint formats, modalities, limits, and pricing metadata."
-      }
-    ],
-    "verification": {
-      "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
-      "notes": "Reconciled against OrcaRouter's live official /v1/models catalog; Phaseo routing remains disabled."
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "orcarouter/fusion-flash",
-    "provider_api_model_id": "orcarouter:orcarouter/fusion-flash",
-    "provider_model_slug": "orcarouter/fusion-flash",
-    "internal_model_id": "orcarouter/fusion-flash",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": 200000,
-    "max_output_tokens": null,
-    "effective_from": null,
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": false,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": false,
-    "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [
-        "openai-chat-completions",
-        "openai-responses",
-        "anthropic-messages",
-        "google-gemini"
-      ],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [
-      {
-        "kind": "provider_models",
-        "url": "https://api.orcarouter.ai/v1/models",
-        "accessed_at": "2026-08-24T00:00:00Z",
-        "notes": "Live official model ID, availability, endpoint formats, modalities, limits, and pricing metadata."
-      }
-    ],
-    "verification": {
-      "status": "verified",
-      "checked_at": "2026-08-24T00:00:00Z",
-      "notes": "Reconciled against OrcaRouter's live official /v1/models catalog; Phaseo routing remains disabled."
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "orcarouter/fusion-mini",
-    "provider_api_model_id": "orcarouter:orcarouter/fusion-mini",
-    "provider_model_slug": "orcarouter/fusion-mini",
-    "internal_model_id": "orcarouter/fusion-mini",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": 1000000,
     "max_output_tokens": null,
     "effective_from": null,
     "effective_to": null,

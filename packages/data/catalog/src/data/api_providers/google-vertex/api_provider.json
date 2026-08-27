@@ -12,13 +12,13 @@
   "default_data_regions": [
     "global"
   ],
-  "zero_data_retention": "unknown",
+  "zero_data_retention": false,
   "residency_source_url": "https://docs.cloud.google.com/vertex-ai/generative-ai/docs/learn/data-residency",
   "residency_notes": "Global Vertex endpoint. Google notes that the global endpoint does not provide regional ML-processing control.",
   "regional_pricing_mode": "same_as_global",
   "pricing_source_url": "https://cloud.google.com/vertex-ai/generative-ai/pricing",
   "regional_pricing_notes": "Global is the default Vertex endpoint offer. For generally available Gemini 3 and later model families, non-global endpoint pricing takes effect on July 1, 2026. Before July 1, 2026, Google states that Global endpoint pricing applies to non-global endpoints.",
-  "data_policy_tier": "private",
+  "data_policy_tier": "logs",
   "data_policy_confidence": "maybe",
   "data_policy_contract_mode": "none",
   "country_code": "US",
@@ -36,7 +36,7 @@
   "api_base_url": "https://aiplatform.googleapis.com/v1",
   "docs_url": "https://cloud.google.com/vertex-ai/generative-ai/docs",
   "auth_env": "GOOGLE_VERTEX_API_KEY",
-  "api_formats": ["google.generateContent", "openai.chat.completions"],
+  "api_formats": ["google.generateContent", "google.live", "openai.chat.completions"],
   "service_tiers": [],
   "sources": [{
     "kind": "documentation",

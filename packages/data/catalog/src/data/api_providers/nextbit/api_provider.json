@@ -1,5 +1,9 @@
 {
   "api_provider_id": "nextbit",
+  "zero_data_retention": false,
+  "data_policy_tier": "logs",
+  "data_policy_confidence": "maybe",
+  "data_policy_contract_mode": "none",
   "api_provider_name": "NextBit",
   "description": null,
   "link": "https://www.nextbit256.com/docs",

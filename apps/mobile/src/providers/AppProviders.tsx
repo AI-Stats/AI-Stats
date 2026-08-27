@@ -81,7 +81,11 @@ export function AppProviders({ children }: PropsWithChildren) {
     },
     signOut: async () => {
     await supabase?.auth.signOut();
-    await Promise.all([secureKey.clear(), AsyncStorage.multiRemove(["phaseo.workspace", "phaseo.private-cache"])]);
+    await Promise.all([
+      secureKey.clear(),
+      AsyncStorage.removeItem("phaseo.workspace"),
+      AsyncStorage.removeItem("phaseo.private-cache"),
+    ]);
     queryClient.clear();
   } }), [session, ready]);
   return <QueryClientProvider client={queryClient}><AuthContext.Provider value={value}>{children}</AuthContext.Provider></QueryClientProvider>;

@@ -64,5 +64,44 @@ describe("music-generate route helpers", () => {
 		expect(__musicGenerateTestUtils.isGoogleMusicProvider("google-ai-studio")).toBe(true);
 		expect(__musicGenerateTestUtils.isGoogleMusicProvider("suno")).toBe(false);
 	});
-});
 
+	it("builds the same stored retrieval shape for binary ElevenLabs output", () => {
+		const body = __musicGenerateTestUtils.buildStoredMusicBody("req_music_1", {
+			provider: "elevenlabs",
+			model: "music_v2",
+			status: "completed",
+			nativeResponseId: "song_1",
+			audioBase64: "AQIDBA==",
+			duration: 12,
+		});
+
+		expect(body).toMatchObject({
+			id: "req_music_1",
+			object: "music",
+			status: "completed",
+			provider: "elevenlabs",
+			nativeResponseId: "song_1",
+			audio_base64: "AQIDBA==",
+			usage: {
+				output_audio_count: 1,
+				output_audio_seconds: 12,
+			},
+		});
+		expect(body.output[0]?.audio_base64).toBe("AQIDBA==");
+		expect(__musicGenerateTestUtils.shouldServeStoredMusicSnapshot({
+			provider: "elevenlabs",
+			status: "completed",
+		})).toBe(true);
+	});
+
+	it("continues polling legacy MiniMax and Suno records without an explicit status", () => {
+		expect(__musicGenerateTestUtils.shouldServeStoredMusicSnapshot({
+			provider: "minimax",
+			nativeResponseId: "minimax_task_1",
+		})).toBe(false);
+		expect(__musicGenerateTestUtils.shouldServeStoredMusicSnapshot({
+			provider: "suno",
+			nativeResponseId: "suno_task_1",
+		})).toBe(false);
+	});
+});

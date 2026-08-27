@@ -111,12 +111,12 @@ export type GroupedProvider = {
 	state: ProviderState;
 };
 
-function mergeSingleResidencyValue<T extends string>(
+function mergeSingleResidencyValue<T extends string | boolean>(
 	current: T | "mixed" | null,
 	next: T | null | undefined,
 ): T | "mixed" | null {
-	if (!next) return current;
-	if (!current) return next;
+	if (next == null) return current;
+	if (current == null) return next;
 	if (current === next) return current;
 	return "mixed";
 }
