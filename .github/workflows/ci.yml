@@ -937,7 +937,7 @@ jobs:
 
             - name: Deploy web to Vercel (preview)
               id: deploy
-              timeout-minutes: 15
+              timeout-minutes: 30
               env:
                   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
                   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
