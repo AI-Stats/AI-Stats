@@ -31,6 +31,13 @@ jobs:
     check-paths:
         outputs:
             migrations-changed: \${{ steps.filter.outputs.migrations }}
+        steps:
+            - name: Detect migration changes
+              with:
+                  filters: |
+                      migrations:
+                          - 'supabase/migrations/**'
+                          - 'supabase/tests/**'
 
     migration-validation:
         if: >-
@@ -57,6 +64,8 @@ ${migrationCondition}
               run: supabase db push --dry-run
             - name: Apply pending production migrations
               run: supabase db push
+            - name: Verify stealth catalogue privacy boundary
+              run: supabase db query --linked --file supabase/tests/stealth_catalogue_security_smoke.sql
 
     deploy-preview-web:
         if: >
@@ -82,6 +91,38 @@ ${previewCondition}
 
 test("accepts trusted pull requests and approval-gated production migrations", () => {
 	assert.doesNotThrow(() => validateCiSecretBoundaries(workflowWithConditions()));
+});
+
+test("requires the stealth privacy smoke test after applying migrations", () => {
+	const workflow = workflowWithConditions().replace(
+		"            - name: Verify stealth catalogue privacy boundary\n              run: supabase db query --linked --file supabase/tests/stealth_catalogue_security_smoke.sql\n",
+		"",
+	);
+	assert.throws(
+		() => validateCiSecretBoundaries(workflow),
+		/verify the stealth catalogue privacy boundary after applying/,
+	);
+});
+
+for (const [label, replacement] of [
+	["comment-only", "              # supabase db query --linked --file supabase/tests/stealth_catalogue_security_smoke.sql"],
+	["echo-only", "              run: echo supabase db query --linked --file supabase/tests/stealth_catalogue_security_smoke.sql"],
+]) {
+	test(`rejects ${label} stealth smoke-test references`, () => {
+		const workflow = workflowWithConditions().replace(
+			"              run: supabase db query --linked --file supabase/tests/stealth_catalogue_security_smoke.sql",
+			replacement,
+		);
+		assert.throws(
+			() => validateCiSecretBoundaries(workflow),
+			/verify the stealth catalogue privacy boundary after applying/,
+		);
+	});
+}
+
+test("tracks database smoke-test changes as migration changes", () => {
+	const workflow = readFileSync(new URL("../.github/workflows/ci.yml", import.meta.url), "utf8");
+	assert.match(workflow, /- 'supabase\/tests\/\*\*'/);
 });
 
 test("rejects merge-group access to the Vercel credential boundary", () => {

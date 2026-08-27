@@ -21,6 +21,15 @@ function extractCondition(job, name) {
 	return condition;
 }
 
+function extractNamedStep(job, name) {
+	const marker = `            - name: ${name}`;
+	const start = job.indexOf(marker);
+	if (start < 0) throw new Error(`Missing CI step: ${name}`);
+	const remainder = job.slice(start + marker.length);
+	const nextStep = remainder.search(/\n            - name:/);
+	return nextStep < 0 ? remainder : remainder.slice(0, nextStep);
+}
+
 export function validateCiSecretBoundaries(workflow) {
 	const previewJob = extractJob(workflow, "deploy-preview-web");
 	const previewCondition = extractCondition(previewJob, "deploy-preview-web");
@@ -104,6 +113,19 @@ export function validateCiSecretBoundaries(workflow) {
 	const apply = productionMigrationJob.indexOf("Apply pending production migrations");
 	if (dryRun < 0 || apply < 0 || dryRun > apply) {
 		throw new Error("production migrations must dry-run before applying");
+	}
+
+	let stealthPrivacyStep = "";
+	try {
+		stealthPrivacyStep = extractNamedStep(productionMigrationJob, "Verify stealth catalogue privacy boundary");
+	} catch {
+		// Report the stable contract error below.
+	}
+	const normalizedStealthPrivacyStep = stealthPrivacyStep.replace(/\\\r?\n\s*/g, " ");
+	const executableStealthQuery = /^\s*(?:run:\s*)?(?:npx --yes supabase@\S+|supabase)\s+db\s+query\b(?=[^\r\n]*--linked)(?=[^\r\n]*--file\s+supabase\/tests\/stealth_catalogue_security_smoke\.sql)[^\r\n]*$/m;
+	const stealthPrivacyCheck = productionMigrationJob.indexOf("Verify stealth catalogue privacy boundary");
+	if (stealthPrivacyCheck < apply || !executableStealthQuery.test(normalizedStealthPrivacyStep)) {
+		throw new Error("production migrations must verify the stealth catalogue privacy boundary after applying");
 	}
 
 	if (

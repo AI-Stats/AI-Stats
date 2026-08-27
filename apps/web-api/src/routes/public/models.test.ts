@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import app from "@/index";
+import { CATALOGUE_CACHE_SCHEMA_VERSION, fetchGatewayMonitorRows, internalProviderFilters, publicProviderId } from "@/routes/public/models";
 
 const env = {
 	ENV: "development" as const,
@@ -9,6 +10,58 @@ const env = {
 
 afterEach(() => {
 	vi.unstubAllGlobals();
+});
+
+describe("stealth provider filters", () => {
+	it("invalidates catalogue cache entries created before stealth redaction", () => {
+		expect(CATALOGUE_CACHE_SCHEMA_VERSION).toBe("4");
+	});
+
+	it("maps internal identities to exactly stealth", () => {
+		expect(publicProviderId("private-provider", new Set(["private-provider"]))).toBe("stealth");
+		expect(publicProviderId("public-provider", new Set(["private-provider"]))).toBe("public-provider");
+	});
+
+	it("expands the public stealth filter internally and rejects guessed private filters", () => {
+		const privateProviders = new Set(["private-a", "private-b"]);
+		expect(internalProviderFilters(["stealth"], privateProviders)).toEqual(["private-a", "private-b"]);
+		expect(internalProviderFilters(["private-a"], privateProviders)).toEqual([]);
+		expect(internalProviderFilters(["public", "stealth"], privateProviders)).toEqual([
+			"private-a",
+			"private-b",
+			"public",
+		]);
+	});
+
+	it("redacts service-role monitor rows before building the public catalogue", async () => {
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+			const url = String(input);
+			if (url.includes("get_monitor_model_rows")) return new Response(JSON.stringify([{
+				model_id: "stealth/preview",
+				model_name: "Preview",
+				provider_api_model_id: "stealth:preview",
+				provider_id: "private-provider",
+				api_provider_name: "Private Provider",
+				api_model_id: "stealth/preview",
+				provider_model_slug: "secret-upstream-model",
+				capability_id: "text.generate",
+				capability_status: "active",
+				is_active_gateway: true,
+			}]));
+			if (url.includes("v2_model_provider_routes")) return new Response(JSON.stringify([{
+				provider_model_id: "stealth:preview",
+			}]));
+			return new Response(JSON.stringify([]));
+		}));
+
+		const rows = await fetchGatewayMonitorRows(env);
+		const serialized = JSON.stringify([...rows.values()]);
+		expect(serialized).toContain('"id":"stealth"');
+		expect(serialized).toContain('"name":"stealth"');
+		expect(serialized).not.toContain("private-provider");
+		expect(serialized).not.toContain("secret-upstream-model");
+		expect(serialized).not.toContain("Private Provider");
+	});
 });
 
 describe("public model routes", () => {

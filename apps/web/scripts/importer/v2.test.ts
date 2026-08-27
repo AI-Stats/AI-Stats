@@ -21,6 +21,13 @@ import {
     phaseoRoutingEnabled,
     staleJsonProviderRouteIds,
     staleOwnedModelChildRows,
+    protectedCatalogueIndex,
+    staleBenchmarkResultIds,
+    staleModelSlugs,
+    stalePricingSkuIds,
+    staleRouteVariantIds,
+    stealthRouteIds,
+    isProtectedProviderModel,
     canonicalServiceTierSlug,
 } from "./v2";
 
@@ -75,6 +82,98 @@ describe("V2 provider route reconciliation", () => {
             new Set(["provider:active", "provider:disabled"]),
             new Set(["provider:unresolved"]),
         )).toEqual(["provider:stale"]);
+    });
+
+    it("preserves protected stealth routes", () => {
+        expect(staleJsonProviderRouteIds(
+            [{ provider_model_id: "private-provider:hidden-model", metadata: { source: "json" } }],
+            new Set(),
+            new Set(),
+            new Set(["private-provider:hidden-model"]),
+        )).toEqual([]);
+    });
+});
+
+describe("stealth catalogue protection", () => {
+    it("indexes only dispositions protected from repository sync", () => {
+        expect(protectedCatalogueIndex([
+            { source_type: "providers", source_key: "private-provider", disposition: "stealth" },
+            { source_type: "models", source_key: "private-lab/hidden-model", disposition: "database_managed" },
+            { source_type: "providers", source_key: "draft", disposition: "unknown" },
+        ])).toEqual(new Map([
+            ["providers", new Set(["private-provider"])],
+            ["models", new Set(["private-lab/hidden-model"])],
+        ]));
+    });
+
+    it("preserves protected models and benchmark results", () => {
+        const protectedModels = new Set(["private-lab/hidden-model"]);
+        expect(staleModelSlugs(
+            [
+                { model_slug: "public/stale", metadata: { source: "json" } },
+                { model_slug: "private-lab/hidden-model", metadata: { source: "json" } },
+            ],
+            new Set(),
+            protectedModels,
+        )).toEqual(["public/stale"]);
+        expect(staleBenchmarkResultIds(
+            [
+                { result_id: "public-result", model_slug: "public/stale" },
+                { result_id: "private-result", model_slug: "private-lab/hidden-model" },
+            ],
+            new Set(),
+            protectedModels,
+        )).toEqual(["public-result"]);
+    });
+
+    it("preserves protected pricing rules and route SKUs", () => {
+        expect(stalePricingSkuIds(
+            [
+                { sku_id: "stale", provider_model_id: "public:model", sku_code: "old", version: 1, metadata: { source: "json" } },
+                { sku_id: "rule", provider_model_id: "public:model", sku_code: "managed", version: 1, metadata: { source: "json", source_key: "private-rule" } },
+                { sku_id: "route", provider_model_id: "private-provider:hidden-model", sku_code: "default", version: 1, metadata: { source: "json" } },
+            ],
+            new Set(),
+            new Set(["private-rule"]),
+            new Set(["private-provider:hidden-model"]),
+        )).toEqual(["stale"]);
+    });
+
+    it("blocks SKU and meter upserts for protected provider models", () => {
+        const protectedRoutes = new Set(["stealth:private-model"]);
+
+        expect(isProtectedProviderModel(
+            { provider_model_id: "stealth:private-model" },
+            protectedRoutes,
+        )).toBe(true);
+        expect(isProtectedProviderModel(
+            { provider_api_model_id: "stealth:private-model" },
+            protectedRoutes,
+        )).toBe(true);
+        expect(isProtectedProviderModel(
+            { provider_model_id: "public:model" },
+            protectedRoutes,
+        )).toBe(false);
+    });
+
+    it("preserves variants belonging to protected routes", () => {
+        expect(staleRouteVariantIds(
+            [
+                { variant_id: "public-variant", provider_model_id: "public:model", variant_key: "global:standard", metadata: { source: "json" } },
+                { variant_id: "private-variant", provider_model_id: "private-provider:hidden-model", variant_key: "global:standard", metadata: { source: "json" } },
+            ],
+            new Set(),
+            new Set(["private-provider:hidden-model"]),
+        )).toEqual(["public-variant"]);
+    });
+
+    it("treats only explicitly marked routes as stealth", () => {
+        expect(stealthRouteIds([
+            { provider_model_id: "private-provider:hidden-model", is_stealth: true },
+            { provider_model_id: "public-provider:model", is_stealth: false },
+            { provider_model_id: "missing-flag:model" },
+            { provider_model_id: "", is_stealth: true },
+        ])).toEqual(new Set(["private-provider:hidden-model"]));
     });
 });
 

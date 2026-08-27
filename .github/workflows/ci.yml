@@ -222,6 +222,7 @@ jobs:
                       data: 'packages/data/catalog/src/data/**'
                       migrations:
                           - 'supabase/migrations/**'
+                          - 'supabase/tests/**'
                           - 'supabase/config.toml'
                           - 'scripts/validate-supabase-migrations.mjs'
 
@@ -312,6 +313,15 @@ jobs:
                     --linked \
                     --include-all \
                     --password "${SUPABASE_DB_PASSWORD}"
+
+            - name: Verify stealth catalogue privacy boundary
+              shell: bash
+              run: |
+                  set -euo pipefail
+                  npx --yes supabase@2.111.0 db query \
+                    --linked \
+                    --file supabase/tests/stealth_catalogue_security_smoke.sql \
+                    --output table
 
     openapi-lint:
         name: OpenAPI lint

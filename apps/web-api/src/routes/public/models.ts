@@ -3,7 +3,7 @@ import { getDataClient } from "@/data/supabase";
 import type { Env } from "@/env";
 import { buildModelsPageFacets, fetchModelsPageCatalogue } from "@/models/page-catalogue";
 import { composeGatewayMetadata, fetchGatewayMetadataSource } from "@/models/gateway-metadata";
-import { fetchModelPricingSources } from "@/models/pricing";
+import { fetchModelPricingSources, publicPricingRouteIdentity } from "@/models/pricing";
 import { buildFreeRouterCatalogueRow, fetchFreeRouterOverview } from "@/models/free-router";
 import { withPublicCache, type PublicCachePolicy } from "@/http/cache";
 
@@ -256,18 +256,43 @@ const USAGE_INTEGER_FIELDS: Record<string, string> = {
 	requests: "requests", success_requests: "successRequests", failed_requests: "failedRequests", neutral_requests: "neutralRequests", rate_limited_requests: "rateLimitedRequests", total_tokens: "totalTokens", input_tokens: "inputTokens", output_tokens: "outputTokens", reasoning_tokens: "reasoningTokens", input_text_tokens: "inputTextTokens", output_text_tokens: "outputTextTokens", input_image_tokens: "inputImageTokens", output_image_tokens: "outputImageTokens", input_audio_tokens: "inputAudioTokens", output_audio_tokens: "outputAudioTokens", input_video_tokens: "inputVideoTokens", output_video_tokens: "outputVideoTokens", image_inputs: "imageInputs", image_outputs: "imageOutputs", audio_inputs: "audioInputs", audio_outputs: "audioOutputs", video_inputs: "videoInputs", video_outputs: "videoOutputs", cached_read_tokens: "cachedReadTokens", cached_write_tokens: "cachedWriteTokens", cached_read_text_tokens: "cachedReadTextTokens", cached_write_text_tokens: "cachedWriteTextTokens", cached_write_text_tokens_5m: "cachedWriteTextTokens5m", cached_write_text_tokens_1h: "cachedWriteTextTokens1h", cached_read_image_tokens: "cachedReadImageTokens", cached_write_image_tokens: "cachedWriteImageTokens", cached_read_audio_tokens: "cachedReadAudioTokens", cached_write_audio_tokens: "cachedWriteAudioTokens", cached_read_video_tokens: "cachedReadVideoTokens", cached_write_video_tokens: "cachedWriteVideoTokens", input_quad_tokens: "inputQuadTokens", output_quad_tokens: "outputQuadTokens", total_quad_tokens: "totalQuadTokens", text_quad_tokens: "textQuadTokens", rerank_quad_tokens: "rerankQuadTokens", embedding_quad_tokens: "embeddingQuadTokens", moderation_quad_tokens: "moderationQuadTokens", ocr_quad_tokens: "ocrQuadTokens", input_characters: "inputCharacters", output_characters: "outputCharacters", total_characters: "totalCharacters",
 };
 
-function mapUsageDailyRow(row: Record<string, unknown>) {
-	const mapped: Record<string, unknown> = { dayBucket: String(row.day_bucket ?? "").slice(0, 10), modelId: String(row.model_id ?? ""), providerId: String(row.provider_id ?? ""), endpoint: String(row.endpoint ?? "") };
+export function publicProviderId(value: unknown, stealthProviderIds: ReadonlySet<string>): string {
+	const providerId = String(value ?? "").trim();
+	return stealthProviderIds.has(providerId) ? "stealth" : providerId;
+}
+
+export function internalProviderFilters(
+	requestedProviderIds: string[],
+	stealthProviderIds: ReadonlySet<string>,
+): string[] {
+	return [...new Set(requestedProviderIds.flatMap((providerId) => {
+		if (providerId === "stealth") return [...stealthProviderIds];
+		return stealthProviderIds.has(providerId) ? [] : [providerId];
+	}))].sort();
+}
+
+async function stealthProviderIdsForModel(env: Env, modelId: string): Promise<Set<string>> {
+	const { data, error } = await getDataClient(env)
+		.from("v2_model_provider_routes")
+		.select("provider_slug")
+		.eq("model_slug", modelId)
+		.eq("is_stealth", true);
+	if (error) throw error;
+	return new Set((data ?? []).map((row) => String(row.provider_slug ?? "").trim()).filter(Boolean));
+}
+
+function mapUsageDailyRow(row: Record<string, unknown>, stealthProviderIds: ReadonlySet<string> = new Set()) {
+	const mapped: Record<string, unknown> = { dayBucket: String(row.day_bucket ?? "").slice(0, 10), modelId: String(row.model_id ?? ""), providerId: publicProviderId(row.provider_id, stealthProviderIds), endpoint: String(row.endpoint ?? "") };
 	for (const [source, target] of Object.entries(USAGE_INTEGER_FIELDS)) mapped[target] = Math.max(0, Math.trunc(Number(row[source] ?? 0) || 0));
 	for (const [source, target] of [["image_megapixels", "imageMegapixels"], ["audio_seconds", "audioSeconds"], ["video_pixel_seconds", "videoPixelSeconds"]] as const) mapped[target] = Number(row[source] ?? 0) || 0;
 	for (const [source, target] of [["avg_latency_ms", "avgLatencyMs"], ["avg_generation_ms", "avgGenerationMs"], ["avg_throughput", "avgThroughput"]] as const) mapped[target] = numberOrNull(row[source]);
 	return mapped;
 }
 
-function mapEffectivePricingDailyRow(row: Record<string, unknown>) {
+function mapEffectivePricingDailyRow(row: Record<string, unknown>, stealthProviderIds: ReadonlySet<string> = new Set()) {
 	return {
 		dayBucket: String(row.day_bucket ?? "").slice(0, 10),
-		providerId: String(row.provider_id ?? ""),
+		providerId: publicProviderId(row.provider_id, stealthProviderIds),
 		pricingPlan: String(row.pricing_plan ?? "standard"),
 		inputTokens: Math.max(0, Number(row.input_tokens ?? 0) || 0),
 		outputTokens: Math.max(0, Number(row.output_tokens ?? 0) || 0),
@@ -390,6 +415,24 @@ export async function fetchGatewayMonitorRows(
 		const page = (data ?? []) as Record<string, unknown>[];
 		rows.push(...page.filter((row) => String(row.capability_status ?? "").toLowerCase() !== "internal_testing"));
 		if (page.length < 1000) break;
+	}
+	const monitorRouteIds = [...new Set(rows.map((row) => String(row.provider_api_model_id ?? "").trim()).filter(Boolean))];
+	const stealthRouteIds = new Set<string>();
+	for (let offset = 0; offset < monitorRouteIds.length; offset += 200) {
+		const result = await client
+			.from("v2_model_provider_routes")
+			.select("provider_model_id")
+			.in("provider_model_id", monitorRouteIds.slice(offset, offset + 200))
+			.eq("is_stealth", true);
+		if (result.error) throw result.error;
+		for (const route of result.data ?? []) stealthRouteIds.add(String(route.provider_model_id));
+	}
+	for (const row of rows) {
+		if (!stealthRouteIds.has(String(row.provider_api_model_id ?? ""))) continue;
+		row.provider_id = "stealth";
+		row.api_provider_name = "stealth";
+		row.provider_model_slug = row.model_id ?? row.api_model_id;
+		row.provider_api_model_id = `stealth:${String(row.model_id ?? row.api_model_id ?? "")}`;
 	}
 	const providerIds = Array.from(
 		new Set(
@@ -585,7 +628,9 @@ function buildModelsTablePayload(
 	};
 }
 
-const CATALOGUE_CACHE_SCHEMA_VERSION = "3";
+// Bump whenever catalogue response redaction changes so previously cached
+// public payloads cannot bypass the new privacy boundary after deployment.
+export const CATALOGUE_CACHE_SCHEMA_VERSION = "4";
 
 function catalogueCacheRequest(request: Request): Request {
 	const url = new URL(request.url);
@@ -920,12 +965,12 @@ publicModelsRouter.get("/catalog-pricing-rules", async (c) => {
 		const routeIds = [...new Set((skus.data ?? []).map((row) => row.provider_model_id))];
 		const [meters, routes] = await Promise.all([
 			skuIds.length ? client.from("v2_pricing_sku_meters").select("sku_id,meter_key,unit,unit_quantity,price_nanos").in("sku_id", skuIds) : Promise.resolve({ data: [], error: null }),
-			routeIds.length ? client.from("v2_model_provider_routes").select("provider_model_id,provider_slug,model_slug").in("provider_model_id", routeIds) : Promise.resolve({ data: [], error: null }),
+			routeIds.length ? client.from("v2_model_provider_routes").select("provider_model_id,provider_slug,model_slug,provider_model_slug,is_stealth").in("provider_model_id", routeIds) : Promise.resolve({ data: [], error: null }),
 		]);
 		if (meters.error) throw meters.error;
 		if (routes.error) throw routes.error;
 		const skuById = new Map((skus.data ?? []).map((row) => [row.sku_id, row]));
-		const routeById = new Map((routes.data ?? []).map((row) => [row.provider_model_id, row]));
+		const routeById = new Map((routes.data ?? []).map((row) => [row.provider_model_id, publicPricingRouteIdentity(row)]));
 		const rows = (meters.data ?? []).flatMap((meter) => {
 			const sku = skuById.get(meter.sku_id); const route = sku ? routeById.get(sku.provider_model_id) : null;
 			const priceNanos = Number(meter.price_nanos); if (!sku || !route || !Number.isFinite(priceNanos)) return [];
@@ -1155,11 +1200,13 @@ publicModelsRouter.get("/:modelId/usage-daily", async (c) => {
 	const modelId = c.req.param("modelId");
 	try {
 		const days = Math.max(1, Math.min(365, parseBoundedInt(c.req.query("days"), 30, 365))); const now = new Date(); const defaultSince = new Date(now); defaultSince.setUTCDate(defaultSince.getUTCDate() - days);
-		const providerIds = [...new Set((c.req.query("provider_ids") ?? "").split(",").map((id) => id.trim()).filter(Boolean))]; const client = getDataClient(c.env);
-		const v2 = await client.rpc("get_v2_model_usage_daily", { p_model_slug: modelId, p_provider_ids: providerIds.length ? providerIds.sort() : null, p_since: c.req.query("since")?.slice(0, 10) || defaultSince.toISOString().slice(0, 10), p_until: c.req.query("until")?.slice(0, 10) || now.toISOString().slice(0, 10) });
+		const requestedProviderIds = [...new Set((c.req.query("provider_ids") ?? "").split(",").map((id) => id.trim()).filter(Boolean))]; const client = getDataClient(c.env);
+		const stealthProviderIds = await stealthProviderIdsForModel(c.env, modelId);
+		const providerIds = internalProviderFilters(requestedProviderIds, stealthProviderIds);
+		const v2 = await client.rpc("get_v2_model_usage_daily", { p_model_slug: modelId, p_provider_ids: requestedProviderIds.length ? providerIds : null, p_since: c.req.query("since")?.slice(0, 10) || defaultSince.toISOString().slice(0, 10), p_until: c.req.query("until")?.slice(0, 10) || now.toISOString().slice(0, 10) });
 		if (v2.error) throw v2.error;
 		if (!Array.isArray(v2.data)) throw new Error("V2 usage query returned an invalid payload");
-		return withPublicCache(c.json({ rows: (v2.data as Array<Record<string, unknown>>).map(mapUsageDailyRow), source: "v2" }), sectionPolicy("usageDaily", modelId));
+		return withPublicCache(c.json({ rows: (v2.data as Array<Record<string, unknown>>).map((row) => mapUsageDailyRow(row, stealthProviderIds)), source: "v2" }), sectionPolicy("usageDaily", modelId));
 	} catch (error) { console.error("[web-api/models] usage daily failed", { modelId, error }); return c.json({ error: "model_usage_daily_unavailable" }, 503); }
 });
 
@@ -1170,17 +1217,19 @@ publicModelsRouter.get("/:modelId/effective-pricing-daily", async (c) => {
 		const now = new Date();
 		const defaultSince = new Date(now);
 		defaultSince.setUTCDate(defaultSince.getUTCDate() - days);
-		const providerIds = [...new Set((c.req.query("provider_ids") ?? "").split(",").map((id) => id.trim()).filter(Boolean))].sort();
-		if (providerIds.length > 100) return c.json({ error: "too_many_provider_ids" }, 400);
+		const requestedProviderIds = [...new Set((c.req.query("provider_ids") ?? "").split(",").map((id) => id.trim()).filter(Boolean))].sort();
+		if (requestedProviderIds.length > 100) return c.json({ error: "too_many_provider_ids" }, 400);
+		const stealthProviderIds = await stealthProviderIdsForModel(c.env, modelId);
+		const providerIds = internalProviderFilters(requestedProviderIds, stealthProviderIds);
 		const result = await getDataClient(c.env).rpc("get_v2_model_effective_pricing_daily", {
 			p_model_slug: modelId,
-			p_provider_ids: providerIds.length ? providerIds : null,
+			p_provider_ids: requestedProviderIds.length ? providerIds : null,
 			p_since: c.req.query("since")?.slice(0, 10) || defaultSince.toISOString().slice(0, 10),
 			p_until: c.req.query("until")?.slice(0, 10) || now.toISOString().slice(0, 10),
 		});
 		if (result.error) throw result.error;
 		if (!Array.isArray(result.data)) throw new Error("Effective pricing query returned an invalid payload");
-		return withPublicCache(c.json({ rows: (result.data as Array<Record<string, unknown>>).map(mapEffectivePricingDailyRow) }), sectionPolicy("effectivePricing", modelId));
+		return withPublicCache(c.json({ rows: (result.data as Array<Record<string, unknown>>).map((row) => mapEffectivePricingDailyRow(row, stealthProviderIds)) }), sectionPolicy("effectivePricing", modelId));
 	} catch (error) {
 		console.error("[web-api/models] effective pricing daily failed", { modelId, error });
 		return c.json({ error: "model_effective_pricing_unavailable" }, 503);
@@ -1190,13 +1239,17 @@ publicModelsRouter.get("/:modelId/effective-pricing-daily", async (c) => {
 publicModelsRouter.get("/:modelId/provider-health", async (c) => {
 	const modelId = c.req.param("modelId");
 	const percentile = parsePercentile(c.req.query("percentile"));
-	const providerIds = [...new Set((c.req.query("provider_ids") ?? "").split(",").map((id) => id.trim()).filter(Boolean))].sort();
-	if (!providerIds.length) return withPublicCache(c.json({ rows: [] }), sectionPolicy("providerHealth", modelId));
+	const requestedProviderIds = [...new Set((c.req.query("provider_ids") ?? "").split(",").map((id) => id.trim()).filter(Boolean))].sort();
+	if (!requestedProviderIds.length) return withPublicCache(c.json({ rows: [] }), sectionPolicy("providerHealth", modelId));
 	try {
+		const stealthProviderIds = await stealthProviderIdsForModel(c.env, modelId);
+		const providerIds = internalProviderFilters(requestedProviderIds, stealthProviderIds);
 		const windowDays = Math.max(1, Math.min(90, parseBoundedInt(c.req.query("window_days"), 3, 90)));
 		const v2 = await getDataClient(c.env).rpc("get_v2_model_provider_health_metrics", { p_model_slug: modelId, p_window_days: windowDays, p_percentile: percentile / 100 });
 		if (!v2.error && Array.isArray(v2.data)) {
-			const rows = (v2.data as Array<Record<string, unknown>>).filter((row) => providerIds.includes(String(row.provider_id ?? "")) && Number(row.health_requests ?? row.requests ?? 0) >= 20);
+			const rows = (v2.data as Array<Record<string, unknown>>)
+				.filter((row) => providerIds.includes(String(row.provider_id ?? "")) && Number(row.health_requests ?? row.requests ?? 0) >= 20)
+				.map((row) => ({ ...row, provider_id: publicProviderId(row.provider_id, stealthProviderIds) }));
 			return withPublicCache(c.json({ rows, source: "v2" }), sectionPolicy("providerHealth", modelId));
 		}
 		throw v2.error ?? new Error("V2 provider health query returned an invalid payload");
