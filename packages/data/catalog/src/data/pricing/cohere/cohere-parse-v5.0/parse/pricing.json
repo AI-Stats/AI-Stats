@@ -24,7 +24,7 @@
     }
   ],
   "regions": ["global"],
-  "service_tiers": ["free"],
+  "service_tiers": ["standard"],
   "sources": [
     {
       "kind": "pricing",
