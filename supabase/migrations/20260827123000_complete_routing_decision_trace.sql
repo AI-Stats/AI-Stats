@@ -102,6 +102,7 @@ begin
       coalesce((item.value->>'attempt_number')::integer, item.ordinality::integer)
     );
 
+  -- phaseo:allow-destructive-migration reason: Replace this request's incomplete routing rows with its completed decision trace.
   delete from public.v2_request_routing_decisions decision
   where decision.request_event_id = v_request_event_id;
 
