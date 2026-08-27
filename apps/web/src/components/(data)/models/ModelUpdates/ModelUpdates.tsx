@@ -10,6 +10,8 @@ import type {
 	EventType,
 } from "@/lib/fetchers/updates/types";
 
+const RECENT_EVENT_LIMIT = 250;
+
 interface ModelUpdatesPageProps {
 	pastEvents: ModelEvent[];
 	upcomingEvents: ModelEvent[];
@@ -47,7 +49,8 @@ export default function ModelUpdatesPage({
 			.sort(
 				(a, b) =>
 					new Date(b.date).getTime() - new Date(a.date).getTime()
-			);
+			)
+			.slice(0, RECENT_EVENT_LIMIT);
 	}, [allEvents]);
 
 	const upcomingList = React.useMemo(
