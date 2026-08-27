@@ -62,6 +62,12 @@ describe("Meta OpenAI-compatible config", () => {
 		expect(openAICompatUrl("meta-contributor", "/responses")).toBe(
 			"https://api.meta.ai/v1/responses",
 		);
+		expect(openAICompatUrl("meta", "/images/generations")).toBe(
+			"https://api.meta.ai/v1/images/generations",
+		);
+		expect(openAICompatUrl("meta", "/images/edits")).toBe(
+			"https://api.meta.ai/v1/images/edits",
+		);
 	});
 
 	it("supports the gateway and official Meta Model API key names", () => {

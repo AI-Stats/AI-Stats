@@ -74,10 +74,23 @@
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "official_documentation",
+      "url": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Standard model token and prompt-cache rates plus the 1.1x multiplier for inference_geo=us on Claude Platform on AWS."
+    },
+    {
+      "kind": "official_documentation",
+      "url": "https://platform.claude.com/docs/en/manage-claude/data-residency",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "US-only inference eligibility and multiplier coverage across input, output, cache-write, and cache-read token categories."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Current US-only token prices verified as 1.1x the official standard Claude rate card; historical and conditional rules were preserved."
   }
 }

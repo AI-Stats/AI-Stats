@@ -8,7 +8,7 @@
   "residency_mode": "unknown",
   "default_execution_regions": null,
   "default_data_regions": null,
-  "zero_data_retention": "unknown",
+  "zero_data_retention": false,
   "data_policy_tier": "logs",
   "data_policy_confidence": "confirmed",
   "data_policy_contract_mode": "none",
@@ -57,11 +57,16 @@
       "url": "https://docs.parasail.io/parasail-docs/security-and-account-management/data-privacy-retention",
       "title": "Parasail data privacy and retention",
       "type": "privacy"
+    },
+    {
+      "url": "https://www.parasail.io/models",
+      "title": "Parasail model library",
+      "type": "models"
     }
   ],
   "verification": {
     "status": "partial",
-    "checked_at": "2026-08-23",
-    "notes": "Official documentation verifies the active OpenAI-compatible Serverless API, API-key auth, request parameters, rate limits, pricing method, Batch discount, and privacy posture. The live /models inventory and exact current per-model Serverless prices require authentication, so all observed model routes remain disabled and their historical pricing is preserved."
+    "checked_at": "2026-08-26",
+    "notes": "Official documentation verifies the active OpenAI-compatible Serverless API, API-key auth, request parameters, rate limits, pricing method, Batch discount, and privacy posture. Parasail's public model library was reconciled on 2026-08-26 and lists 37 models. The authenticated /v1/models inventory and exact current per-model Serverless prices still require an API key."
   }
 }

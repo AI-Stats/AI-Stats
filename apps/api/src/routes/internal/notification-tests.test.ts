@@ -29,10 +29,11 @@ describe("internal notification tests", () => {
 	});
 
 	it("configures and clears runtime around synchronous delivery", async () => {
-		const env = { GATEWAY_INTERNAL_TEST_TOKEN: "secret" } as never;
+		const token = "notification-test-token-at-least-32-bytes";
+		const env = { GATEWAY_INTERNAL_TEST_TOKEN: token } as never;
 		const response = await internalNotificationTestRoutes.request("/", {
 			method: "POST",
-			headers: { authorization: "Bearer secret", "content-type": "application/json" },
+			headers: { authorization: `Bearer ${token}`, "content-type": "application/json" },
 			body: JSON.stringify({ workspaceId: "workspace-1", destinationId: "destination-1" }),
 		}, env);
 		expect(response.status).toBe(200);

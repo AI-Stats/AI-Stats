@@ -1,5 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import {
 	authorizeUrl,
 	DEFAULT_API_URL,
@@ -9,8 +12,10 @@ import {
 	parseScopeArgument,
 	exchangeAuthorizationCode,
 	revokeRefreshToken,
+	refreshSession,
 	v1Url,
 } from "../src/api.ts";
+import { readSession } from "../src/session.ts";
 import {
 	buildLogsListPath,
 	buildModelsListPath,
@@ -475,4 +480,41 @@ test("compares semantic versions and renders version details", () => {
 	assert.match(text, /Phaseo CLI 0.1.0/);
 	assert.match(text, /pnpm add -g @phaseo\/cli@latest/);
 	assert.match(text, /update available/);
+});
+
+test("refresh preserves per-integration credential revocation metadata", async () => {
+	const directory = await mkdtemp(join(tmpdir(), "phaseo-refresh-session-"));
+	const previousFetch = globalThis.fetch;
+	const previousBackend = process.env.PHASEO_SESSION_BACKEND;
+	const previousConfigDir = process.env.PHASEO_CONFIG_DIR;
+	try {
+		process.env.PHASEO_SESSION_BACKEND = "file";
+		process.env.PHASEO_CONFIG_DIR = directory;
+		globalThis.fetch = async () => new Response(JSON.stringify({
+			access_token: "new-access",
+			refresh_token: "new-refresh",
+			expires_in: 3600,
+			scope: "openid",
+		}), { status: 200, headers: { "content-type": "application/json" } });
+		const refreshed = await refreshSession({
+			accessToken: "old-access",
+			refreshToken: "old-refresh",
+			expiresAt: Date.now() - 1,
+			apiUrl: "https://api.phaseo.app",
+			integrationGatewayCredentials: {
+				codex: { key: "phaseo-key", keyId: "key-codex" },
+			},
+		});
+		assert.deepEqual(refreshed.integrationGatewayCredentials, {
+			codex: { key: "phaseo-key", keyId: "key-codex" },
+		});
+		assert.deepEqual((await readSession())?.integrationGatewayCredentials, refreshed.integrationGatewayCredentials);
+	} finally {
+		globalThis.fetch = previousFetch;
+		if (previousBackend === undefined) delete process.env.PHASEO_SESSION_BACKEND;
+		else process.env.PHASEO_SESSION_BACKEND = previousBackend;
+		if (previousConfigDir === undefined) delete process.env.PHASEO_CONFIG_DIR;
+		else process.env.PHASEO_CONFIG_DIR = previousConfigDir;
+		await rm(directory, { recursive: true, force: true });
+	}
 });

@@ -6,7 +6,7 @@
   "residency_mode": "provider_managed",
   "default_execution_regions": null,
   "default_data_regions": null,
-  "zero_data_retention": "default",
+  "zero_data_retention": true,
   "data_retention_days": 0,
   "residency_source_url": "https://www.hyperbolic.ai/docs/inference/performance-limits",
   "residency_notes": "Hyperbolic says serverless inference uses real-time processing with no logging, storage, or sharing of requests and responses. The public materials do not identify a fixed execution or storage region; dedicated hosting has separate infrastructure characteristics.",
