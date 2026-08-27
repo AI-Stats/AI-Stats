@@ -555,11 +555,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [{ "kind": "documentation", "url": "https://akashml.com/docs/platform/models", "accessed_at": "2026-08-21T00:00:00Z" }],
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://akashml.com/docs/platform/models",
+        "accessed_at": "2026-08-27T00:00:00Z",
+        "notes": "AkashML documentation identifies zai-org/GLM-5.2 as an available API model, and the provider models monitor confirmed its current presence."
+      }
+    ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-21",
-      "notes": "Availability, limits, and current promotional pricing verified against the official AkashML model catalogue."
+      "checked_at": "2026-08-27T00:00:00Z",
+      "notes": "Current availability and exact provider slug confirmed by the AkashML models monitor; limits and promotional pricing remain sourced from the provider catalogue."
     },
     "rate_limits": []
   },
