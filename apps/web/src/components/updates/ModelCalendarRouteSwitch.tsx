@@ -19,7 +19,7 @@ export default function ModelCalendarRouteSwitch({
 				asChild
 				size="sm"
 				variant={active === "models" ? "default" : "ghost"}
-				className={cn(active !== "models" && "text-muted-foreground")}
+				className={cn("rounded-md", active !== "models" && "text-muted-foreground")}
 			>
 				<Link href="/updates/models">
 					Updates
@@ -29,7 +29,7 @@ export default function ModelCalendarRouteSwitch({
 				asChild
 				size="sm"
 				variant={active === "calendar" ? "default" : "ghost"}
-				className={cn(active !== "calendar" && "text-muted-foreground")}
+				className={cn("rounded-md", active !== "calendar" && "text-muted-foreground")}
 			>
 				<Link href="/updates/calendar">
 					Calendar

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Rocket } from "lucide-react";
 import { headers } from "next/headers";
-import UpdateCard, { type UpdateBadge } from "@/components/updates/UpdateCard";
+import ModelUpdateCard, { type EventTypeOption } from "@/components/(data)/models/ModelUpdates/ModelUpdateCard";
 import ModelCalendarRouteSwitch from "@/components/updates/ModelCalendarRouteSwitch";
 import type { ModelEvent } from "@/lib/fetchers/updates/types";
 import { fetchFrontendOrganisationReleaseEvents } from "@/lib/fetchers/frontend/fetchPublicCatalog";
@@ -35,16 +35,6 @@ const WEEKDAY_SERIES = [
 
 function parseViewMode(value: string | undefined): ViewMode {
 	return value === "today" ? "today" : "all";
-}
-
-function withAlpha(hex: string, alpha: number) {
-	const normalized = hex.startsWith("#") ? hex.slice(1) : hex;
-	if (normalized.length !== 6) return undefined;
-	const r = Number.parseInt(normalized.slice(0, 2), 16);
-	const g = Number.parseInt(normalized.slice(2, 4), 16);
-	const b = Number.parseInt(normalized.slice(4, 6), 16);
-	if (![r, g, b].every((value) => Number.isFinite(value))) return undefined;
-	return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
 function getWeekdaySeries(date: Date) {
@@ -166,17 +156,17 @@ export default async function OrganisationCalendarPage({
 		(a, b) => a.weekdayIndex - b.weekdayIndex
 	);
 
-	const releaseBadge: UpdateBadge = {
+	const releaseBadge: EventTypeOption = {
+		type: "Released",
 		label: "Release",
-		icon: Rocket,
-		className:
+		icon: <Rocket className="size-3.5" />,
+		badgeClass:
 			"bg-green-100 text-green-800 border border-green-300 px-2 py-1 text-xs flex items-center gap-1 dark:bg-green-950 dark:text-green-300 dark:border-green-800",
 	};
 
 	return (
-		<main className="flex min-h-screen flex-col">
-			<div className="container mx-auto flex-1 px-4 py-4">
-				<div className="space-y-3 rounded-2xl border border-zinc-200/80 bg-white/90 p-4 dark:border-zinc-800 dark:bg-zinc-950/80">
+		<div className="w-full">
+				<div className="space-y-3 border-b border-zinc-200 pb-5 dark:border-zinc-800">
 					<div className="flex flex-wrap items-center justify-between gap-2">
 						<div className="flex flex-wrap items-center gap-2 text-sm">
 							<Link
@@ -200,25 +190,25 @@ export default async function OrganisationCalendarPage({
 					</div>
 
 					<div className="flex flex-wrap items-center gap-2 text-xs">
-						<span className="rounded-full border border-zinc-200 bg-white px-2.5 py-1 dark:border-zinc-700 dark:bg-zinc-950">
+						<span className="rounded-md border border-zinc-200 bg-white px-2.5 py-1 dark:border-zinc-700 dark:bg-zinc-950">
 							Total release events:{" "}
 							<span className="font-semibold">
 								{releasedEvents.length.toLocaleString()}
 							</span>
 						</span>
-						<span className="rounded-full border border-zinc-200 bg-white px-2.5 py-1 dark:border-zinc-700 dark:bg-zinc-950">
+						<span className="rounded-md border border-zinc-200 bg-white px-2.5 py-1 dark:border-zinc-700 dark:bg-zinc-950">
 							Released models:{" "}
 							<span className="font-semibold">
 								{uniqueReleasedModelCount.toLocaleString()}
 							</span>
 						</span>
-						<span className="rounded-full border border-zinc-200 bg-white px-2.5 py-1 dark:border-zinc-700 dark:bg-zinc-950">
+						<span className="rounded-md border border-zinc-200 bg-white px-2.5 py-1 dark:border-zinc-700 dark:bg-zinc-950">
 							Released on this day:{" "}
 							<span className="font-semibold">
 								{releasedTodayEvents.length.toLocaleString()}
 							</span>
 						</span>
-						<span className="rounded-full border border-zinc-200 bg-white px-2.5 py-1 dark:border-zinc-700 dark:bg-zinc-950">
+						<span className="rounded-md border border-zinc-200 bg-white px-2.5 py-1 dark:border-zinc-700 dark:bg-zinc-950">
 							Weekday groups:{" "}
 							<span className="font-semibold">
 								{groupedByDay.length.toLocaleString()}
@@ -231,7 +221,7 @@ export default async function OrganisationCalendarPage({
 							href={`/updates/calendar/organisations/${encodeURIComponent(
 								organisationId
 							)}?view=today`}
-							className={`rounded-full border px-3 py-1 text-xs font-medium transition ${
+							className={`rounded-md border px-3 py-1 text-xs font-medium transition ${
 								view === "today"
 									? "border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900"
 									: "border-zinc-300 bg-white text-zinc-700 hover:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-300 dark:hover:border-zinc-500"
@@ -243,7 +233,7 @@ export default async function OrganisationCalendarPage({
 							href={`/updates/calendar/organisations/${encodeURIComponent(
 								organisationId
 							)}?view=all`}
-							className={`rounded-full border px-3 py-1 text-xs font-medium transition ${
+							className={`rounded-md border px-3 py-1 text-xs font-medium transition ${
 								view === "all"
 									? "border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900"
 									: "border-zinc-300 bg-white text-zinc-700 hover:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-300 dark:hover:border-zinc-500"
@@ -259,7 +249,7 @@ export default async function OrganisationCalendarPage({
 						{cardsTitle}
 					</h2>
 					{groupedByDay.length === 0 ? (
-						<div className="rounded-2xl border border-dashed border-zinc-300 p-6 text-sm text-zinc-600 dark:border-zinc-700 dark:text-zinc-300">
+						<div className="rounded-md border border-dashed border-zinc-300 p-4 text-sm text-zinc-600 dark:border-zinc-700 dark:text-zinc-300">
 							No model releases found for this day across recorded years.
 						</div>
 					) : (
@@ -267,20 +257,10 @@ export default async function OrganisationCalendarPage({
 							{groupedByDay.map((dayGroup) => (
 								<section
 									key={dayGroup.weekdayKey}
-									className="overflow-hidden rounded-2xl border border-zinc-200/90 bg-white/90 dark:border-zinc-800 dark:bg-zinc-950/80"
+									className="overflow-hidden rounded-md border border-zinc-200 dark:border-zinc-800"
 								>
 									<header
-										className="flex flex-wrap items-center justify-between gap-2 border-b px-4 py-3"
-										style={{
-											backgroundColor: withAlpha(
-												dayGroup.weekdayColor,
-												0.12
-											),
-											borderBottomColor: withAlpha(
-												dayGroup.weekdayColor,
-												0.35
-											),
-										}}
+										className="flex flex-wrap items-center justify-between gap-2 border-b bg-zinc-50 px-3 py-2 dark:bg-zinc-900"
 									>
 										<div className="flex items-center gap-2">
 											<span
@@ -295,22 +275,7 @@ export default async function OrganisationCalendarPage({
 											</h3>
 										</div>
 										<div className="flex items-center gap-2 text-xs">
-											<span
-												className="rounded-full border px-2.5 py-1 font-medium text-zinc-800 dark:text-zinc-200"
-												style={{
-													borderColor: withAlpha(
-														dayGroup.weekdayColor,
-														0.55
-													),
-													backgroundColor: withAlpha(
-														dayGroup.weekdayColor,
-														0.18
-													),
-												}}
-											>
-												{dayGroup.weekdayLabel}
-											</span>
-											<span className="rounded-full border border-zinc-300 bg-white px-2.5 py-1 font-medium text-zinc-700 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-300">
+											<span className="rounded-md border border-zinc-300 bg-white px-2 py-0.5 font-medium text-zinc-700 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-300">
 												{dayGroup.events.length} release
 												{dayGroup.events.length === 1
 													? ""
@@ -318,27 +283,13 @@ export default async function OrganisationCalendarPage({
 											</span>
 										</div>
 									</header>
-									<div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+									<div className="grid grid-cols-1 gap-3 p-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
 										{dayGroup.events.map((event) => (
-											<div
+											<ModelUpdateCard
 												key={`${event.model.model_id}-${event.date}`}
-												className="rounded-2xl border-l-2"
-												style={{
-													borderLeftColor:
-														dayGroup.weekdayColor,
-												}}
-											>
-												<ModelReleaseCard
-													event={event}
-													organisationId={
-														organisationId
-													}
-													releaseBadge={releaseBadge}
-													todayMonthDayKey={
-														todayMonthDayKey
-													}
-												/>
-											</div>
+												event={event}
+												eventTypeOptions={[releaseBadge]}
+											/>
 										))}
 									</div>
 								</section>
@@ -346,40 +297,6 @@ export default async function OrganisationCalendarPage({
 						</div>
 					)}
 				</section>
-			</div>
-		</main>
-	);
-}
-
-function ModelReleaseCard({
-	event,
-	organisationId,
-	releaseBadge,
-	todayMonthDayKey,
-}: {
-	event: ModelEvent;
-	organisationId: string;
-	releaseBadge: UpdateBadge;
-	todayMonthDayKey: string;
-}) {
-	const dateIso = new Date(event.date).toISOString();
-	return (
-		<UpdateCard
-			id={`${event.model.model_id}-${event.date}`}
-			badges={[releaseBadge]}
-			avatar={{
-				organisationId,
-				name: event.model.organisation.name,
-			}}
-			title={event.model.name}
-			subtitle={event.model.organisation.name}
-			link={{
-				href: `/models/${event.model.model_id}`,
-				cta: "View",
-			}}
-			dateIso={dateIso}
-			isReleaseToday={event.date.slice(5, 10) === todayMonthDayKey}
-			accentClass="bg-green-500"
-		/>
+		</div>
 	);
 }

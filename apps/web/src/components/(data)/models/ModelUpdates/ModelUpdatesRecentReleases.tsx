@@ -1,22 +1,11 @@
-import UpdateCard, { type UpdateBadge } from "@/components/updates/UpdateCard";
-import type {
-	EventType,
-	ModelEvent,
-} from "@/lib/fetchers/updates/types";
+import ModelUpdateCard, { type EventTypeOption } from "./ModelUpdateCard";
+import type { ModelEvent } from "@/lib/fetchers/updates/types";
 import type React from "react";
-
-interface EventTypeOption {
-	type: EventType;
-	label: string;
-	icon: React.ReactNode;
-	badgeClass: string;
-}
 
 interface ModelUpdatesRecentReleasesProps {
 	events: ModelEvent[];
 	eventTypeOptions: EventTypeOption[];
 	title: string;
-	getRelativeLabel: (dateStr: string) => string | null;
 	emptyMessage?: string;
 	headerActions?: React.ReactNode;
 }
@@ -25,20 +14,9 @@ export default function ModelUpdatesRecentReleases({
 	events,
 	eventTypeOptions,
 	title,
-	getRelativeLabel,
 	emptyMessage,
 	headerActions,
 }: ModelUpdatesRecentReleasesProps) {
-	const isUtcToday = (iso: string) => {
-		const now = new Date();
-		const date = new Date(iso);
-		return (
-			now.getUTCFullYear() === date.getUTCFullYear() &&
-			now.getUTCMonth() === date.getUTCMonth() &&
-			now.getUTCDate() === date.getUTCDate()
-		);
-	};
-
 	if (events.length === 0) {
 		return (
 			<div className="mb-6">
@@ -59,93 +37,14 @@ export default function ModelUpdatesRecentReleases({
 				<h2 className="text-xl font-bold">{title}</h2>
 				{headerActions ? <div className="shrink-0">{headerActions}</div> : null}
 			</div>
-			<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-				{events.map((event) => {
-					const { model } = event;
-
-					// map event types to UpdateCard badges
-					const badges: UpdateBadge[] = event.types
-						.map((t) =>
-							eventTypeOptions.find((option) => option.type === t)
-						)
-						.filter(
-							(opt): opt is EventTypeOption =>
-								opt !== undefined && opt !== null
-						)
-						.map((opt) => {
-							// opt.icon may be a JSX element (e.g. <Rocket />) or a component.
-							// UpdateCard expects a component type, so wrap JSX into a small component that accepts className.
-							let IconComp: React.ComponentType<{
-								className?: string;
-							}> | null = null;
-							if (opt.icon) {
-								IconComp =
-									typeof opt.icon === "function"
-										? (opt.icon as React.ComponentType<{
-												className?: string;
-										  }>)
-										: ({
-												className,
-										  }: {
-												className?: string;
-										  }) => (
-												<span className={className}>
-													{opt.icon}
-												</span>
-										  );
-							}
-
-							return {
-								label: opt.label,
-								icon: IconComp,
-								className: opt.badgeClass,
-							};
-						});
-
-					const accentMap: Record<string, string> = {
-						Released: "bg-green-500",
-						Announced: "bg-blue-500",
-						Deprecated: "bg-red-500",
-						Retired: "bg-zinc-500",
-					};
-
-					const primaryType = event.types[0];
-					const accentClass = accentMap[primaryType] ?? null;
-					const dateIso = new Date(event.date).toISOString();
-					const hasReleaseType = event.types.includes("Released");
-
-					return (
-						<UpdateCard
-							key={
-								model.model_id +
-								"-" +
-								event.types.join("+") +
-								"-" +
-								event.date
-							}
-							id={`${model.model_id}-${event.date}`}
-							badges={badges}
-							avatar={{
-								organisationId: (
-									model.organisation.organisation_id || ""
-								).toLowerCase(),
-								name: model.organisation.name,
-							}}
-							title={model.name}
-							subtitle={model.organisation.name}
-							source={model.organisation.name}
-							link={{
-								href: `/models/${model.model_id}`,
-								external: false,
-								cta: "View",
-							}}
-							dateIso={dateIso}
-							isReleaseToday={hasReleaseType && isUtcToday(dateIso)}
-							// relative={getRelativeLabel(event.date)}
-							accentClass={accentClass}
-						/>
-					);
-				})}
+			<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+				{events.map((event) => (
+					<ModelUpdateCard
+						key={`${event.model.model_id}-${event.types.join("+")}-${event.date}`}
+						event={event}
+						eventTypeOptions={eventTypeOptions}
+					/>
+				))}
 			</div>
 		</div>
 	);
