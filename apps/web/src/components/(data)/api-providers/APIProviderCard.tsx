@@ -21,6 +21,10 @@ type Props = {
 	api_provider: APIProviderCardType;
 };
 
+function isExternalProvider(provider: APIProviderCardType): boolean {
+	return String(provider.provider_status ?? "").trim().toLowerCase() === "external";
+}
+
 type ModalityMeta = {
 	key: keyof APIProviderCardType["modality_support"];
 	label: string;
@@ -62,6 +66,7 @@ function formatTokens(value: number): string {
 export default function APIProviderCard({ api_provider }: Props) {
 	const id = api_provider.api_provider_id;
 	const name = api_provider.api_provider_name;
+	const isExternal = isExternalProvider(api_provider);
 	const totalModels = Number(api_provider.total_models ?? 0);
 	const freeModels = Number(api_provider.free_models ?? 0);
 	const dailyTokens = Number(api_provider.total_daily_tokens ?? 0);
@@ -97,7 +102,7 @@ export default function APIProviderCard({ api_provider }: Props) {
 
 	return (
 		<div
-			className="group h-full cursor-pointer py-4 transition-colors hover:bg-muted/20 md:py-5"
+			className="group h-full w-full min-w-0 cursor-pointer bg-background py-4 transition-colors hover:bg-muted/20 md:py-5"
 			style={rowStyle}
 			onClick={handleCardClick}
 		>
@@ -122,7 +127,10 @@ export default function APIProviderCard({ api_provider }: Props) {
 						</Link>
 					</div>
 					<div className="min-w-0 space-y-0.5 self-center">
-						<Link href={href} prefetch={false} className="line-clamp-1 text-sm font-semibold leading-[1.1] text-foreground transition-colors hover:underline underline-offset-4">{name}</Link>
+						<div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+							<Link href={href} prefetch={false} className="line-clamp-1 text-sm font-semibold leading-[1.1] text-foreground transition-colors hover:underline underline-offset-4">{name}</Link>
+							{isExternal ? <span className="inline-flex shrink-0 items-center gap-1 rounded-md border border-violet-200 bg-violet-50 px-1.5 py-0.5 text-[10px] font-medium leading-none text-violet-700 dark:border-violet-900/60 dark:bg-violet-950/40 dark:text-violet-300"><ArrowUpRight className="size-3" />External</span> : null}
+						</div>
 						<div className="truncate font-mono text-xs leading-[1.15] text-muted-foreground">{id}</div>
 					</div>
 					<Button asChild size="icon" variant="ghost" className="h-8 w-8 shrink-0"><Link href={href} prefetch={false} aria-label={`Open ${name} provider page`} className="group/open"><ArrowUpRight className={cn("h-4 w-4 text-muted-foreground transition-colors", api_provider.colour ? "group-hover:text-[var(--provider-accent)]" : "group-hover:text-primary")} /></Link></Button>
@@ -143,4 +151,3 @@ export default function APIProviderCard({ api_provider }: Props) {
 		</div>
 	);
 }
-

@@ -412,6 +412,22 @@ describe('api provider model safety checks', () => {
         );
     });
 
+    test('disabled unroutable future row may omit unverified provider_model_slug', () => {
+        const row = {
+            api_model_id: 'qwen/qwen3.8-27b',
+            provider_api_model_id: 'cerebras:qwen/qwen3.8-27b',
+            internal_model_id: 'qwen/qwen3.8-27b',
+            is_active_gateway: false,
+            routable: false,
+            routing_status: 'disabled',
+            capabilities: [{ capability_id: 'text.generate', status: 'disabled', params: [] }],
+        };
+        const result = checkApiProviderModelEntrySafety(row, { providerId: 'cerebras' });
+        expect(result.errors).not.toEqual(
+            expect.arrayContaining([expect.stringContaining('missing provider_model_slug')])
+        );
+    });
+
     test('active gateway row with active capabilities and missing modalities -> warning', () => {
         const bad = {
             api_model_id: 'deepseek/deepseek-v3.1',

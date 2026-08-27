@@ -89,6 +89,7 @@ const PROVIDER_OVERRIDES: Record<string, ProviderOverride> = {
 	},
 	cohere: { providerName: "Cohere" },
 	crofai: { providerName: "CrofAI", authStyle: "none" },
+	"canopy-wave": { providerName: "Canopy Wave", authStyle: "bearer" },
 	deepinfra: { providerName: "DeepInfra", authStyle: "optional_bearer" },
 	deepseek: { providerName: "DeepSeek" },
 	darkbloom: { providerName: "Darkbloom" },
@@ -139,6 +140,7 @@ const PROVIDER_OVERRIDES: Record<string, ProviderOverride> = {
 	poolside: { providerName: "Poolside" },
 	reka: { providerName: "Reka", authStyle: "x_api_key" },
 	sambanova: { providerName: "SambaNova" },
+	"sail-research": { providerName: "Sail Research", authStyle: "bearer" },
 	stepfun: { providerName: "StepFun" },
 	// StreamLake exposes endpoint-bound models and its public list API requires an undocumented Action parameter.
 	streamlake: { providerName: "StreamLake", disabled: true },
@@ -220,27 +222,6 @@ const NATIVE_DISCOVERY_PROVIDERS: ProviderConfig[] = [
 		providerName: "CrossModel",
 		modelsEndpoint: "https://www.crossmodel.ai/api/models",
 		apiKeyEnv: ["CROSSMODEL_API_KEY"],
-		authStyle: "optional_bearer",
-	},
-	{
-		providerId: "huggingface",
-		providerName: "Hugging Face Router",
-		modelsEndpoint: "https://router.huggingface.co/v1/models",
-		apiKeyEnv: ["HF_TOKEN", "HUGGINGFACE_API_KEY"],
-		authStyle: "optional_bearer",
-	},
-	{
-		providerId: "kilo",
-		providerName: "Kilo Gateway",
-		modelsEndpoint: "https://api.kilo.ai/api/gateway/models",
-		apiKeyEnv: ["KILO_API_KEY"],
-		authStyle: "optional_bearer",
-	},
-	{
-		providerId: "nano-gpt",
-		providerName: "NanoGPT",
-		modelsEndpoint: "https://nano-gpt.com/api/v1/models?detailed=true",
-		apiKeyEnv: ["NANO_GPT_API_KEY", "NANOGPT_API_KEY"],
 		authStyle: "optional_bearer",
 	},
 	{

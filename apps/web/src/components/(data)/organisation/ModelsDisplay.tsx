@@ -50,7 +50,7 @@ export default function ModelsDisplay({
 					</EmptyMedia>
 					<EmptyTitle>No models found</EmptyTitle>
 					<EmptyDescription>
-						There are no models to display for this organisation.
+						There are no models to display for this lab.
 					</EmptyDescription>
 				</EmptyHeader>
 			</Empty>
@@ -59,7 +59,7 @@ export default function ModelsDisplay({
 
 	if (!showStatusHeadings) {
 		return (
-			<div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+			<div className="grid grid-cols-1 divide-y divide-border/70 overflow-hidden rounded-lg border border-border/70 sm:grid-cols-2 sm:divide-x sm:divide-y-0 sm:[&>*:nth-child(n+3)]:border-t sm:[&>*:nth-child(odd)]:border-l-0 2xl:grid-cols-3 2xl:[&>*:nth-child(n+3)]:border-t-0 2xl:[&>*:nth-child(n+4)]:border-t 2xl:[&>*:nth-child(odd)]:border-l 2xl:[&>*:nth-child(3n+1)]:border-l-0">
 				{sortModels(models as DisplayModel[]).map((model) => (
 					<div key={model.model_id}>
 						<ModelCard model={model} />
@@ -219,7 +219,7 @@ export default function ModelsDisplay({
 						{title} Models
 					</span>
 				</div>
-				<div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+				<div className="grid grid-cols-1 divide-y divide-border/70 overflow-hidden rounded-lg border border-border/70 sm:grid-cols-2 sm:divide-x sm:divide-y-0 sm:[&>*:nth-child(n+3)]:border-t sm:[&>*:nth-child(odd)]:border-l-0 2xl:grid-cols-3 2xl:[&>*:nth-child(n+3)]:border-t-0 2xl:[&>*:nth-child(n+4)]:border-t 2xl:[&>*:nth-child(odd)]:border-l 2xl:[&>*:nth-child(3n+1)]:border-l-0">
 					{sortModels(group).map((model) => (
 						<div key={model.model_id}>
 							<ModelCard model={model} />

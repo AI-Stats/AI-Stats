@@ -24,6 +24,10 @@
     {
       "name": "input_context_length",
       "value": 204800
+    },
+    {
+      "name": "api_model_variants",
+      "value": "minimax-m2.5-highspeed, minimax-m2.5-lightning"
     }
   ],
   "benchmarks": [

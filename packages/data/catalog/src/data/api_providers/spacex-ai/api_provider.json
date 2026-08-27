@@ -14,7 +14,7 @@
   "country_code": "US",
   "status": "Active",
   "colour": "#000000",
-  "zero_data_retention": "default",
+  "zero_data_retention": true,
   "data_retention_days": 0,
   "privacy_policy_url": "https://x.ai/privacy-policy",
   "terms_of_service_url": "https://x.ai/legal/terms-of-service-enterprise/",

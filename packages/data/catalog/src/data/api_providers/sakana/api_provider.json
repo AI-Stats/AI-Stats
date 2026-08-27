@@ -8,7 +8,7 @@
   "residency_mode": "provider_managed",
   "default_execution_regions": null,
   "default_data_regions": null,
-  "zero_data_retention": "unsupported",
+  "zero_data_retention": false,
   "data_policy_tier": "trains",
   "data_policy_confidence": "confirmed",
   "data_policy_contract_mode": "none",
@@ -35,19 +35,19 @@
     {
       "kind": "api_reference",
       "url": "https://console.sakana.ai/models",
-      "accessed_at": "2026-08-12T00:00:00Z",
+      "accessed_at": "2026-08-24T00:00:00Z",
       "notes": "Current endpoints, request fields, model IDs, modalities, tools, and usage contract."
     },
     {
       "kind": "documentation",
       "url": "https://console.sakana.ai/get-started",
-      "accessed_at": "2026-08-12T00:00:00Z",
+      "accessed_at": "2026-08-24T00:00:00Z",
       "notes": "Bearer authentication, base URL, context limits, and model-specific reasoning efforts."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-12T00:00:00Z",
-    "notes": "Verified against the current Sakana console model reference, quickstart, pricing, terms, and privacy policy."
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Verified first-party hosted API against the current Sakana console model reference, quickstart, pricing, terms, and privacy policy; all eight published upstream model slugs are reconciled."
   }
 }

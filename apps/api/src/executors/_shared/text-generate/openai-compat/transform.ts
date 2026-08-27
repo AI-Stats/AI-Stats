@@ -79,6 +79,7 @@ function usesOpenAIResponsesShape(providerId?: string): boolean {
 	return (
 		providerId === "openai" ||
 		providerId === "openai-eu" ||
+		providerId === "deepseek" ||
 		providerId === "meta" ||
 		providerId === "meta-contributor" ||
 		providerId === "amazon-bedrock" ||
@@ -87,6 +88,7 @@ function usesOpenAIResponsesShape(providerId?: string): boolean {
 		providerId === "darkbloom" ||
 		providerId === "stepfun" ||
 		providerId === "sakana" ||
+		providerId === "sail-research" ||
 		providerId === "ovhcloud" ||
 		providerId === "nebius-token-factory" ||
 		providerId === "nebius-token-factory-fast" ||

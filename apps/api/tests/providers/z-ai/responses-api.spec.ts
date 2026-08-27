@@ -12,7 +12,7 @@ import {
 
 const CONFIG: ProviderTestConfig = {
 	providerId: "z-ai",
-	baseModel: "z-ai/glm-4-7-flash:free",
+	baseModel: "z-ai/glm-5.1",
 	capabilities: {
 		chatCompletions: true,
 		responsesApi: true,

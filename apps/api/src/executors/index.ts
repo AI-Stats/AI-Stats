@@ -37,8 +37,10 @@ import { executor as googleVertexText } from "./google-vertex/text-generate";
 import { executor as googleVertexVideo } from "./google-vertex/video-generate";
 import { executor as googleAiStudioVideo } from "./google/video-generate";
 import { executor as deepinfraText } from "./deepinfra/text-generate";
+import { executor as ioNetText } from "./io-net/text-generate";
 import { executor as togetherText } from "./together/text-generate";
 import { executor as crofaiText } from "./crofai/text-generate";
+import { executor as canopyWaveText } from "./canopy-wave/text-generate";
 import { executor as tensorixText } from "./tensorix/text-generate";
 import { executor as basetenText } from "./baseten/text-generate";
 import { executor as baiduText } from "./baidu/text-generate";
@@ -59,10 +61,14 @@ import { executor as bytedanceSeedText } from "./bytedance-seed/text-generate";
 import { executor as chutesText } from "./chutes/text-generate";
 import { executor as clarifaiText } from "./clarifai/text-generate";
 import { executor as cloudflareText } from "./cloudflare/text-generate";
+import { executor as cloudflareImage } from "./cloudflare/image-generate";
+import { executor as cloudflareAudioTranscription } from "./cloudflare/audio-transcription";
 import { executor as crusoeText } from "./crusoe/text-generate";
 import { executor as featherlessText } from "./featherless/text-generate";
 import { executor as friendliText } from "./friendli/text-generate";
 import { executor as gmicloudText } from "./gmicloud/text-generate";
+import { executor as gmicloudMusic } from "./gmicloud/music-generate";
+import { executor as gmicloudAudioSpeech } from "./gmicloud/audio-speech";
 import { executor as hyperbolicText } from "./hyperbolic/text-generate";
 import { executor as inceptionText } from "./inception/text-generate";
 import { executor as infermaticText } from "./infermatic/text-generate";
@@ -83,6 +89,7 @@ import { executor as phalaText } from "./phala/text-generate";
 import { executor as poolsideText } from "./poolside/text-generate";
 import { executor as relaceText } from "./relace/text-generate";
 import { executor as sambanovaText } from "./sambanova/text-generate";
+import { executor as sailResearchText } from "./sail-research/text-generate";
 import { executor as siliconflowText } from "./siliconflow/text-generate";
 import { executor as stepfunText } from "./stepfun/text-generate";
 import { executor as veniceText } from "./venice/text-generate";
@@ -174,7 +181,6 @@ export const EXECUTORS_BY_PROVIDER: Record<string, ProviderCapabilityMap> = {
 		moderations: openaiModerations,
 		"image.generate": nonTextAdapterExecutor,
 		"image.edit": nonTextAdapterExecutor,
-		"audio.speech": nonTextAdapterExecutor,
 		"audio.transcription": nonTextAdapterExecutor,
 		"audio.translations": nonTextAdapterExecutor,
 		"video.generate": openaiVideo,
@@ -239,6 +245,7 @@ export const EXECUTORS_BY_PROVIDER: Record<string, ProviderCapabilityMap> = {
 	},
 	upstage: {
 		"text.generate": upstageText,
+		embeddings: openaiEmbeddings,
 	},
 	wafer: {
 		"text.generate": waferText,
@@ -282,14 +289,21 @@ export const EXECUTORS_BY_PROVIDER: Record<string, ProviderCapabilityMap> = {
 	},
 	cloudflare: {
 		"text.generate": cloudflareText,
+		embeddings: openaiEmbeddings,
+		"image.generate": cloudflareImage,
+		"audio.transcription": cloudflareAudioTranscription,
 	},
 	cohere: {
 		"text.generate": cohereText,
 		embeddings: openaiEmbeddings,
 		rerank: openaiRerank,
+		"audio.transcription": nonTextAdapterExecutor,
 	},
 	crofai: {
 		"text.generate": crofaiText,
+	},
+	"canopy-wave": {
+		"text.generate": canopyWaveText,
 	},
 	tensorix: {
 		"text.generate": tensorixText,
@@ -313,7 +327,11 @@ export const EXECUTORS_BY_PROVIDER: Record<string, ProviderCapabilityMap> = {
 	featherless: { "text.generate": featherlessText },
 	friendli: { "text.generate": friendliText },
 	deepseek: { "text.generate": deepseekText },
-	gmicloud: { "text.generate": gmicloudText },
+	gmicloud: {
+		"text.generate": gmicloudText,
+		"music.generate": gmicloudMusic,
+		"audio.speech": gmicloudAudioSpeech,
+	},
 	hyperbolic: { "text.generate": hyperbolicText },
 	inception: { "text.generate": inceptionText },
 	infermatic: { "text.generate": infermaticText },
@@ -356,10 +374,15 @@ export const EXECUTORS_BY_PROVIDER: Record<string, ProviderCapabilityMap> = {
 	aionlabs: { "text.generate": aionLabsText },
 	"amazon-bedrock": { "text.generate": amazonBedrockText },
 	"google-vertex": { "text.generate": googleVertexText, "video.generate": googleVertexVideo },
-	"google-vertex-eu": { "text.generate": googleVertexText, "video.generate": googleVertexVideo },
+	"google-vertex-eu": { "text.generate": googleVertexText },
 	deepinfra: { "text.generate": deepinfraText },
+	"io-net": { "text.generate": ioNetText },
 	fireworks: { "text.generate": fireworksText, embeddings: openaiEmbeddings, rerank: openaiRerank, "image.generate": nonTextAdapterExecutor },
-	groq: { "text.generate": groqText },
+	groq: {
+		"text.generate": groqText,
+		"audio.transcription": nonTextAdapterExecutor,
+		"audio.translations": nonTextAdapterExecutor,
+	},
 	liquid: { "text.generate": liquidAiText },
 	"liquid-ai": { "text.generate": liquidAiText },
 	novitaai: { "text.generate": novitaaiText, embeddings: openaiEmbeddings, rerank: openaiRerank },
@@ -367,15 +390,27 @@ export const EXECUTORS_BY_PROVIDER: Record<string, ProviderCapabilityMap> = {
 	perplexity: { "text.generate": perplexityText, embeddings: openaiEmbeddings },
 	relace: { "text.generate": relaceText },
 	sambanova: { "text.generate": sambanovaText },
+	"sail-research": { "text.generate": sailResearchText },
 	siliconflow: { "text.generate": siliconflowText },
 	stepfun: { "text.generate": stepfunText },
-	together: { "text.generate": togetherText, embeddings: openaiEmbeddings },
+	together: {
+		"text.generate": togetherText,
+		embeddings: openaiEmbeddings,
+		"image.generate": nonTextAdapterExecutor,
+		"audio.speech": nonTextAdapterExecutor,
+		"audio.transcription": nonTextAdapterExecutor,
+		"audio.translations": nonTextAdapterExecutor,
+	},
 	venice: { "text.generate": veniceText },
 	"venice-e2ee": { "text.generate": veniceText },
 	voyage: { embeddings: openaiEmbeddings, rerank: openaiRerank },
 	voyageai: { embeddings: openaiEmbeddings, rerank: openaiRerank },
 	"weights-and-biases": { "text.generate": weightsAndBiasesText },
-	meta: { "text.generate": metaText },
+	meta: {
+		"text.generate": metaText,
+		"image.generate": nonTextAdapterExecutor,
+		"image.edit": nonTextAdapterExecutor,
+	},
 	"meta-contributor": { "text.generate": metaText },
 	ovhcloud: {
 		"text.generate": ovhcloudText,

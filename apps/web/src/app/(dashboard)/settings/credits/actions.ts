@@ -123,11 +123,12 @@ export async function setLowBalanceEmailAlert(args: SetLowBalanceEmailAlertArgs)
 	await fetchAccountWebApi("/api/account/credits/low-balance-alert", context.accessToken, { method: "PUT", body: JSON.stringify({ workspaceId, enabled, thresholdUsd }) });
 
 	revalidatePath("/settings/credits");
+	revalidatePath("/settings/notifications");
 	return { ok: true };
 }
 
 export async function setBillingNotificationPreference(args: {
-	preference: "autoTopUpFailure" | "paymentMethodExpiring";
+	preference: "autoTopUpFailure" | "paymentMethodExpiring" | "modelDeprecationAlerts";
 	enabled: boolean;
 }) {
 	const context = await getServerAccountContext();
@@ -140,6 +141,53 @@ export async function setBillingNotificationPreference(args: {
 	});
 
 	revalidatePath("/settings/credits");
+	revalidatePath("/settings/notifications");
+	return { ok: true };
+}
+
+export async function createNotificationDestination(destination: { name: string; type: import("@/lib/fetchers/internal/settingsTypes").NotificationDestination["type"]; target: string }) {
+	const context = await getServerAccountContext();
+	const workspaceId = context.workspaceId ?? await resolveWorkspaceIdFromActiveCookie();
+	if (!context.accessToken) throw new Error("Unauthorized");
+	const result = await fetchAccountWebApi<{ destination: import("@/lib/fetchers/internal/settingsTypes").NotificationDestination }>("/api/account/credits/notification-destinations", context.accessToken, {
+		method: "POST",
+		body: JSON.stringify({ workspaceId, ...destination }),
+	});
+	revalidatePath("/settings/notifications");
+	return result.destination;
+}
+
+export async function deleteNotificationDestination(destinationId: string) {
+	const context = await getServerAccountContext();
+	const workspaceId = context.workspaceId ?? await resolveWorkspaceIdFromActiveCookie();
+	if (!context.accessToken) throw new Error("Unauthorized");
+	await fetchAccountWebApi(`/api/account/credits/notification-destinations/${encodeURIComponent(destinationId)}`, context.accessToken, { method: "DELETE", body: JSON.stringify({ workspaceId }) });
+	revalidatePath("/settings/notifications");
+	return { ok: true };
+}
+
+export async function setNotificationRoute(eventKind: import("@/lib/fetchers/internal/settingsTypes").NotificationEventKind, destinationIds: string[]) {
+	const context = await getServerAccountContext();
+	const workspaceId = context.workspaceId ?? await resolveWorkspaceIdFromActiveCookie();
+	if (!context.accessToken) throw new Error("Unauthorized");
+	await fetchAccountWebApi(`/api/account/credits/notification-routes/${eventKind}`, context.accessToken, { method: "PUT", body: JSON.stringify({ workspaceId, destinationIds }) });
+	revalidatePath("/settings/notifications");
+	return { ok: true };
+}
+
+export async function testNotificationDestination(destinationId: string) {
+	const context = await getServerAccountContext();
+	const workspaceId = context.workspaceId ?? await resolveWorkspaceIdFromActiveCookie();
+	if (!context.accessToken) throw new Error("Unauthorized");
+	await fetchAccountWebApi(`/api/account/credits/notification-destinations/${encodeURIComponent(destinationId)}/test`, context.accessToken, { method: "POST", body: JSON.stringify({ workspaceId }) });
+	return { ok: true };
+}
+
+export async function testNotificationConfiguration(configuration: { type: import("@/lib/fetchers/internal/settingsTypes").NotificationDestination["type"]; target: string }) {
+	const context = await getServerAccountContext();
+	const workspaceId = context.workspaceId ?? await resolveWorkspaceIdFromActiveCookie();
+	if (!context.accessToken) throw new Error("Unauthorized");
+	await fetchAccountWebApi("/api/account/credits/notification-destinations/test", context.accessToken, { method: "POST", body: JSON.stringify({ workspaceId, ...configuration }) });
 	return { ok: true };
 }
 

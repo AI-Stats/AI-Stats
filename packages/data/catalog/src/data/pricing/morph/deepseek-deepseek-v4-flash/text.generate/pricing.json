@@ -19,7 +19,7 @@
       "cache_duration_seconds": null,
       "conditions": [],
       "source": "https://www.morphllm.com/pricing",
-      "price_per_unit": 0.14
+      "price_per_unit": 0.139
     },
     {
       "meter": "cached_read_text_tokens",
@@ -51,7 +51,7 @@
       "cache_duration_seconds": null,
       "conditions": [],
       "source": "https://www.morphllm.com/pricing",
-      "price_per_unit": 0.28
+      "price_per_unit": 0.278
     }
   ],
   "regions": [

@@ -8,7 +8,7 @@
   "residency_mode": "provider_managed",
   "default_execution_regions": null,
   "default_data_regions": ["SG"],
-  "zero_data_retention": "unknown",
+  "zero_data_retention": false,
   "residency_source_url": "https://platform.kimi.ai/docs/agreement/userprivacy",
   "residency_notes": "Moonshot's Kimi OpenPlatform policy says it is controlled from Singapore, stores information on secure Singapore servers, and may transfer data cross-border. Account, input, and payment information are retained while the account is active, and user content may be used to optimize or improve the service; no Zero Data Retention control is documented.",
   "data_policy_tier": "trains",
@@ -30,7 +30,7 @@
   "docs_url": "https://platform.kimi.ai/docs/api/chat",
   "auth_env": "MOONSHOT_API_KEY",
   "api_formats": ["openai.chat.completions"],
-  "service_tiers": [],
+  "service_tiers": ["standard", "priority"],
   "sources": [{
     "kind": "api_reference",
     "url": "https://platform.kimi.ai/docs/api/chat",
@@ -39,7 +39,7 @@
   }],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-12T00:00:00Z",
-    "notes": "Runtime and Chat contract verified against the current Kimi API reference."
+    "checked_at": "2026-08-23T00:00:00Z",
+    "notes": "Verified current K3, K2.7 Code, K2.6 and grandfathered K2.5/Moonshot V1 routes, K2-series retirement, K2.7 Code HighSpeed priority routing, and the announced 31 August 2026 platform sunset."
   }
 }

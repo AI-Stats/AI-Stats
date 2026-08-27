@@ -12,8 +12,7 @@ import { fetchPreviousModelsByProviders, markPendingModelRemovals } from "./inde
 type SeenModelRow = {
 	provider_id: string;
 	model_id: string;
-	model_details: Record<string, unknown>;
-	pricing_details: null;
+	watch_snapshot?: unknown;
 	removal_pending?: boolean;
 };
 
@@ -43,8 +42,7 @@ describe("fetchPreviousModelsByProviders", () => {
 		const rows = Array.from({ length: 1_093 }, (_, index) => ({
 			provider_id: "large-provider",
 			model_id: `model-${index.toString().padStart(4, "0")}`,
-			model_details: {},
-			pricing_details: null,
+			watch_snapshot: { contextLength: null, maxCompletionTokens: null, pricingDetails: null, pricingFingerprint: null },
 		}));
 		const supabase = buildPagedSupabase(rows);
 		getSupabaseAdminMock.mockReturnValue(supabase.client);
@@ -59,8 +57,7 @@ describe("fetchPreviousModelsByProviders", () => {
 		const rows = Array.from({ length: 1_000 }, (_, index) => ({
 			provider_id: "exact-provider",
 			model_id: `model-${index.toString().padStart(4, "0")}`,
-			model_details: {},
-			pricing_details: null,
+			watch_snapshot: null,
 		}));
 		const supabase = buildPagedSupabase(rows);
 		getSupabaseAdminMock.mockReturnValue(supabase.client);
@@ -75,8 +72,7 @@ describe("fetchPreviousModelsByProviders", () => {
 		const supabase = buildPagedSupabase([{
 			provider_id: "provider",
 			model_id: "occasionally-missing-model",
-			model_details: {},
-			pricing_details: null,
+			watch_snapshot: null,
 			removal_pending: true,
 		}]);
 		getSupabaseAdminMock.mockReturnValue(supabase.client);

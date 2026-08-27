@@ -1903,6 +1903,28 @@ class MusicGenerateRequest
 
 class MusicGenerateResponse
 {
+	/** @var string|null */
+	public $audio_base64;
+	/** @var string|null */
+	public $audio_url;
+	/** @var string */
+	public $id;
+	/** @var string */
+	public $model;
+	/** @var string|null */
+	public $nativeResponseId;
+	/** @var string */
+	public $object;
+	/** @var array|null */
+	public $output;
+	/** @var string */
+	public $provider;
+	/** @var mixed|null */
+	public $result;
+	/** @var string */
+	public $status;
+	/** @var array<string, mixed>|null */
+	public $usage;
 }
 
 class NotImplementedResponse

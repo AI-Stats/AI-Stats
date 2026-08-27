@@ -121,9 +121,12 @@ export function formatProviderOfferVariantLabel(args: {
     const offerScope = args.offerScope ?? null;
     const providerId = String(args.providerId ?? "").trim().toLowerCase();
 
-    if (offerLabel) return toTitleCase(offerLabel);
+    if (offerLabel) {
+        if (offerLabel.toLowerCase() === "priority") return "Fast";
+        return toTitleCase(offerLabel);
+    }
     if (PRIORITY_SUFFIXES.some((suffix) => providerId.endsWith(suffix))) {
-        return "Priority";
+        return "Fast";
     }
     if (REGIONAL_SUFFIXES.some((suffix) => providerId.endsWith(suffix))) {
         return "Regional";

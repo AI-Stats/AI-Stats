@@ -103,7 +103,7 @@ function externalProvider(providerSlug: string, provider: SourceProvider, access
 		residency_mode: null,
 		default_execution_regions: null,
 		default_data_regions: null,
-		zero_data_retention: null,
+		zero_data_retention: false,
 		residency_source_url: null,
 		prompt_training_policy: null,
 		prompt_training_notes: null,

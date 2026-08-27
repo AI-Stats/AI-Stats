@@ -11,7 +11,7 @@ function provider(overrides: Partial<GatewayProviderSnapshot> = {}): GatewayProv
         providerModelSlug: "gpt-5",
         dataPolicyTier: "private",
         dataPolicyConfidence: "confirmed",
-        zeroDataRetention: "default",
+        zeroDataRetention: true,
         ...overrides,
     };
 }

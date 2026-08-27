@@ -90,6 +90,12 @@ describe("low-balance notifications", () => {
 		});
 
 		expect(fetchMock).toHaveBeenCalledTimes(1);
+		expect(state.insertCalls).toHaveLength(1);
+		expect(state.insertCalls[0]?.payload).toMatchObject({
+			kind: "low_balance",
+			workspace_id: "ws_1",
+		});
+		expect(state.insertCalls[0]?.payload.sent_at).toEqual(expect.any(String));
 		const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
 		expect(url).toBe("https://api.resend.com/events");
 		expect(JSON.parse(String(init.body))).toMatchObject({
@@ -192,5 +198,6 @@ describe("low-balance notifications", () => {
 			to_email: "owner@example.com",
 			workspace_id: "ws_1",
 		});
+		expect(state.insertCalls[0]?.payload).not.toHaveProperty("sent_at");
 	});
 });

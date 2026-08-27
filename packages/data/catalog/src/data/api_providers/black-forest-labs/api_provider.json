@@ -1,5 +1,9 @@
 {
   "api_provider_id": "black-forest-labs",
+  "zero_data_retention": false,
+  "data_policy_tier": "trains",
+  "data_policy_confidence": "confirmed",
+  "data_policy_contract_mode": "none",
   "api_provider_name": "Black Forest Labs",
   "description": null,
   "link": "https://docs.bfl.ai/",
@@ -20,10 +24,14 @@
   "auth_env": ["BFL_API_KEY", "BLACK_FOREST_LABS_API_KEY"],
   "api_formats": ["bfl-async-image"],
   "service_tiers": [],
-  "sources": [{ "kind": "official_documentation", "url": "https://docs.bfl.ai/quick_start/get_started", "accessed_at": "2026-08-12T00:00:00Z", "notes": "Authentication, canonical host, async polling, signed output URLs, and credit conversion." }],
+  "sources": [
+    { "kind": "official_documentation", "url": "https://docs.bfl.ai/quick_start/get_started", "accessed_at": "2026-08-24T00:00:00Z", "notes": "Authentication, canonical host, and credit conversion." },
+    { "kind": "official_documentation", "url": "https://docs.bfl.ai/api_integration/integration_guidelines", "accessed_at": "2026-08-24T00:00:00Z", "notes": "Global and regional hosts, async polling, webhooks, and signed-result delivery." },
+    { "kind": "official_documentation", "url": "https://docs.bfl.ai/flux_3/flux3_overview", "accessed_at": "2026-08-24T00:00:00Z", "notes": "FLUX 3 Video public API contract, availability, modes, limits, and pricing." }
+  ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-12T00:00:00Z",
-    "notes": "FLUX.1/FLUX.2 generation and multi-reference editing verified against the first-party API reference."
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "FLUX.1, FLUX.2, and FLUX 3 Video endpoints verified against the current first-party API reference."
   }
 }

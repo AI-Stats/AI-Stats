@@ -702,6 +702,54 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "google/gemma-4-12b",
+    "provider_api_model_id": "siliconflow:google/gemma-4-12b",
+    "provider_model_slug": "google/gemma-4-12B-it",
+    "internal_model_id": "google/gemma-4-12b",
+    "is_active_gateway": true,
+    "quantization_scheme": "FP8",
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": 262144,
+    "effective_from": "2026-06-09T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": ["response_format", "tools", "tool_choice", "max_tokens"],
+        "reasoning": false,
+        "tool_call": true,
+        "structured_output": false,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": { "execution": ["global"], "data": ["global"] },
+    "service_tiers": [],
+    "api": { "formats": ["openai.chat.completions"], "endpoint": null, "deployment": null },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://www.siliconflow.com/models/gemma-4-12b-it",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "SiliconFlow serverless model page."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Serverless availability, provider slug, limits, FP8 precision, image input, JSON mode, and tool support verified."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "google/gemma-4-26b-a4b",
     "provider_api_model_id": "siliconflow:google/gemma-4-26b-a4b",
     "provider_model_slug": "google/gemma-4-26B-A4B-it",
@@ -954,6 +1002,54 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "minimax/minimax-m3",
+    "provider_api_model_id": "siliconflow:minimax/minimax-m3",
+    "provider_model_slug": "MiniMaxAI/MiniMax-M3",
+    "internal_model_id": "minimax/minimax-m3",
+    "is_active_gateway": true,
+    "quantization_scheme": "FP8",
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-06-01T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": ["response_format", "tools", "tool_choice", "max_tokens"],
+        "reasoning": false,
+        "tool_call": true,
+        "structured_output": false,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": { "execution": ["global"], "data": ["global"] },
+    "service_tiers": [],
+    "api": { "formats": ["openai.chat.completions"], "endpoint": null, "deployment": null },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://www.siliconflow.com/models/minimax-m3",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "SiliconFlow serverless model page."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Serverless availability, provider slug, limits, FP8 precision, image input, JSON mode, and tool support verified."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "moonshotai/kimi-k2",
     "provider_api_model_id": "siliconflow:moonshotai/kimi-k2",
     "provider_model_slug": "moonshotai/Kimi-K2-Instruct",
@@ -1174,7 +1270,7 @@
     "provider_api_model_id": "siliconflow:moonshotai/kimi-k2.7-code",
     "provider_model_slug": "moonshotai/Kimi-K2.7-Code",
     "internal_model_id": "moonshotai/kimi-k2.7-code",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": "FP8",
     "input_modalities": "text,image",
     "output_modalities": "text",
@@ -1197,8 +1293,8 @@
         "modes": []
       }
     ],
-    "routing_status": null,
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
@@ -1209,11 +1305,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://www.siliconflow.com/models/kimi-k2-7-code",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "SiliconFlow serverless model page."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless availability, provider slug, limits, FP8 precision, image input, JSON mode, and tool support verified."
     },
     "rate_limits": []
   },
@@ -3885,7 +3988,7 @@
     "provider_api_model_id": "siliconflow:z-ai/glm-5.2",
     "provider_model_slug": "zai-org/GLM-5.2",
     "internal_model_id": "z-ai/glm-5.2",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": "FP8",
     "input_modalities": "text",
     "output_modalities": "text",
@@ -3908,8 +4011,8 @@
         "modes": []
       }
     ],
-    "routing_status": null,
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
@@ -3920,11 +4023,18 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://www.siliconflow.com/models/glm-5-2",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "SiliconFlow serverless model page."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current serverless availability, provider slug, limits, FP8 precision, and tool support verified."
     },
     "rate_limits": []
   },

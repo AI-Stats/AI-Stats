@@ -13,8 +13,10 @@ import { CLARIFAI_OPENAI_COMPAT_CONFIGS } from "../clarifai/config";
 import { CHUTES_OPENAI_COMPAT_CONFIGS } from "../chutes/config";
 import { COHERE_OPENAI_COMPAT_CONFIGS } from "../cohere/config";
 import { CROFAI_OPENAI_COMPAT_CONFIGS } from "../crofai/config";
+import { CANOPY_WAVE_OPENAI_COMPAT_CONFIGS } from "../canopy-wave/config";
 import { VOYAGE_OPENAI_COMPAT_CONFIGS } from "../voyage/config";
 import { DEEPINFRA_OPENAI_COMPAT_CONFIGS } from "../deepinfra/config";
+import { IO_NET_OPENAI_COMPAT_CONFIGS } from "../io-net/config";
 import { DEEPSEEK_OPENAI_COMPAT_CONFIGS } from "../deepseek/config";
 import { FEATHERLESS_OPENAI_COMPAT_CONFIGS } from "../featherless/config";
 import { FRIENDLI_OPENAI_COMPAT_CONFIGS } from "../friendli/config";
@@ -41,6 +43,7 @@ import { PARASAIL_OPENAI_COMPAT_CONFIGS } from "../parasail/config";
 import { PHALA_OPENAI_COMPAT_CONFIGS } from "../phala/config";
 import { SAMBANOVA_OPENAI_COMPAT_CONFIGS } from "../sambanova/config";
 import { SAKANA_OPENAI_COMPAT_CONFIGS } from "../sakana/config";
+import { SAIL_RESEARCH_OPENAI_COMPAT_CONFIGS } from "../sail-research/config";
 import { SCALEWAY_OPENAI_COMPAT_CONFIGS } from "../scaleway/config";
 import { SILICONFLOW_OPENAI_COMPAT_CONFIGS } from "../siliconflow/config";
 import { WEIGHTS_AND_BIASES_OPENAI_COMPAT_CONFIGS } from "../weights-and-biases/config";
@@ -89,8 +92,10 @@ export const OPENAI_COMPAT_CONFIG = {
 	...CHUTES_OPENAI_COMPAT_CONFIGS,
 	...COHERE_OPENAI_COMPAT_CONFIGS,
 	...CROFAI_OPENAI_COMPAT_CONFIGS,
+	...CANOPY_WAVE_OPENAI_COMPAT_CONFIGS,
 	...VOYAGE_OPENAI_COMPAT_CONFIGS,
 	...DEEPINFRA_OPENAI_COMPAT_CONFIGS,
+	...IO_NET_OPENAI_COMPAT_CONFIGS,
 	...DEEPSEEK_OPENAI_COMPAT_CONFIGS,
 	...FEATHERLESS_OPENAI_COMPAT_CONFIGS,
 	...FRIENDLI_OPENAI_COMPAT_CONFIGS,
@@ -117,6 +122,7 @@ export const OPENAI_COMPAT_CONFIG = {
 	...PHALA_OPENAI_COMPAT_CONFIGS,
 	...SAMBANOVA_OPENAI_COMPAT_CONFIGS,
 	...SAKANA_OPENAI_COMPAT_CONFIGS,
+	...SAIL_RESEARCH_OPENAI_COMPAT_CONFIGS,
 	...SCALEWAY_OPENAI_COMPAT_CONFIGS,
 	...SILICONFLOW_OPENAI_COMPAT_CONFIGS,
 	...WEIGHTS_AND_BIASES_OPENAI_COMPAT_CONFIGS,

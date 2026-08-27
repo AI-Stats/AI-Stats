@@ -2,7 +2,12 @@ import {
 	hasRecentInteractiveAuthentication,
 	hasRecentSignIn,
 	latestInteractiveAuthenticationTimestamp,
+	ssoProviderIdFromSession,
 } from "./method";
+
+function jwt(payload: Record<string, unknown>): string {
+	return `header.${Buffer.from(JSON.stringify(payload)).toString("base64url")}.signature`;
+}
 
 describe("recent authentication helpers", () => {
 	it("uses the latest interactive AMR timestamp", () => {
@@ -59,5 +64,11 @@ describe("recent authentication helpers", () => {
 				nowMilliseconds: now,
 			}),
 		).toBe(false);
+	});
+
+	it("extracts the provider identifier only from an SSO AMR entry", () => {
+		expect(ssoProviderIdFromSession({ access_token: jwt({ amr: [{ method: "sso/saml", provider: "provider-123", timestamp: 1_000 }] }) })).toBe("provider-123");
+		expect(ssoProviderIdFromSession({ access_token: jwt({ amr: [{ method: "password", timestamp: 1_000 }] }) })).toBeNull();
+		expect(ssoProviderIdFromSession({ access_token: jwt({ amr: [{ method: "sso/saml", timestamp: 1_000 }] }) })).toBeNull();
 	});
 });

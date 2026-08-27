@@ -15,7 +15,6 @@ const specs = [
   { id: "x-ai", capability: "video.generate", method: "post", path: "/v1/videos/generations" },
   { id: "minimax", capability: "video.generate", method: "post", path: "/v1/video_generation" },
   { id: "minimax", capability: "music.generate", method: "post", path: "/v1/music_generation" },
-  { id: "google-vertex-eu", capability: "video.generate", method: "post", path: "/v1/projects/{project}/locations/{location}/publishers/google/models/{model}:predictLongRunning" },
   { id: "voyage", capability: "text.generate", method: "post", path: "/v1/chat/completions" },
 ];
 

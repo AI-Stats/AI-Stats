@@ -200,6 +200,30 @@ describe("video-pricing", () => {
 		expect((priced as any)?.pricing?.total_usd_str).toBe("0.56");
 	});
 
+	it("prices each requested output for per-video cards", () => {
+		const card = makeCard([
+			{
+				pricing_plan: "standard",
+				meter: "output_video",
+				unit: "video",
+				unit_size: 1,
+				price_per_unit: "0.4",
+				currency: "USD",
+				match: [],
+				priority: 100,
+			},
+		]);
+
+		const priced = computeVideoPricedUsage({
+			seconds: 16,
+			card,
+			model: "google/veo-3.1",
+			requestOptions: { sampleCount: 2 },
+		});
+
+		expect((priced as any)?.pricing?.total_usd_str).toBe("0.8");
+	});
+
 	it("prices Seedance 2.5 without video input from resolution, ratio, duration, and frame rate", () => {
 		const priced = computeVideoPricedUsage({
 			seconds: 5,

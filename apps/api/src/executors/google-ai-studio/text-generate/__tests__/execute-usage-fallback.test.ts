@@ -48,21 +48,43 @@ afterAll(() => {
 });
 
 describe("google-ai-studio execute usage fallback", () => {
-	it("rejects explicit cached content instead of sending an invalid Interactions field", async () => {
+	it("uses generateContent for explicit cached content", async () => {
+		const mock = installFetchMock([{
+			match: (url) => url.endsWith("/v1beta/models/gemini-2.5-flash:generateContent"),
+			response: new Response(JSON.stringify({
+				candidates: [{ content: { role: "model", parts: [{ text: "Cached response" }] }, finishReason: "STOP" }],
+				usageMetadata: { promptTokenCount: 8, candidatesTokenCount: 2, totalTokenCount: 10 },
+			}), { status: 200, headers: { "Content-Type": "application/json" } }),
+		}]);
+
 		const result = await executor(buildArgs({
 			model: "google/gemini-2.5-flash",
 			googleCachedContent: "cachedContents/example",
-		}));
+		}, { providerModelSlug: "gemini-2.5-flash" }));
+		mock.restore();
 
 		expect(result.kind).toBe("completed");
-		if (result.kind !== "completed") return;
-		expect(result.upstream?.status).toBe(400);
-		expect(await result.upstream?.json()).toMatchObject({
-			error: {
-				code: "google_interactions_explicit_cache_unsupported",
-				param: "cached_content",
-			},
-		});
+		expect(mock.calls).toHaveLength(1);
+		expect(mock.calls[0]?.bodyJson?.cachedContent).toBe("cachedContents/example");
+		expect(mock.calls[0]?.bodyJson).not.toHaveProperty("model");
+	});
+
+	it("uses generateContent for active models not supported by Interactions", async () => {
+		const mock = installFetchMock([{
+			match: (url) => url.endsWith("/v1beta/models/gemma-3-27b-it:generateContent"),
+			response: new Response(JSON.stringify({
+				candidates: [{ content: { role: "model", parts: [{ text: "Gemma response" }] }, finishReason: "STOP" }],
+				usageMetadata: { promptTokenCount: 6, candidatesTokenCount: 2, totalTokenCount: 8 },
+			}), { status: 200, headers: { "Content-Type": "application/json" } }),
+		}]);
+
+		const result = await executor(buildArgs());
+		mock.restore();
+
+		expect(result.kind).toBe("completed");
+		expect(mock.calls).toHaveLength(1);
+		expect(mock.calls[0]?.bodyJson?.contents).toHaveLength(1);
+		expect(mock.calls[0]?.bodyJson).not.toHaveProperty("model");
 	});
 
 	it("preserves billable usage when current Gemini Flash models return empty output", async () => {
@@ -289,7 +311,8 @@ describe("google-ai-studio execute usage fallback", () => {
 			}),
 		}]);
 
-		const result = await executor(buildArgs(undefined, {
+		const result = await executor(buildArgs({ model: "google/gemini-3.6-flash" }, {
+			providerModelSlug: "gemini-3.6-flash",
 			endpoint: "interactions",
 			protocol: "google.interactions",
 		}));
@@ -375,24 +398,20 @@ describe("google-ai-studio execute usage fallback", () => {
 				total_tokens: 27,
 			},
 		};
-		let attempts = 0;
-
 		const mock = installFetchMock([
 			{
+				match: (url) => url.endsWith("/v1beta/models/lyria-3-pro:generateContent"),
+				response: new Response(JSON.stringify({ error: { message: "Model not found." } }), {
+					status: 404,
+					headers: { "Content-Type": "application/json" },
+				}),
+			},
+			{
 				match: (url) => url.endsWith("/v1beta/interactions"),
-				response: () => {
-					attempts += 1;
-					if (attempts === 1) {
-						return new Response(JSON.stringify({ error: { message: "Model not found." } }), {
-							status: 404,
-							headers: { "Content-Type": "application/json" },
-						});
-					}
-					return new Response(JSON.stringify(payload), {
+				response: new Response(JSON.stringify(payload), {
 						status: 200,
 						headers: { "Content-Type": "application/json" },
-					});
-				},
+					}),
 			},
 		]);
 

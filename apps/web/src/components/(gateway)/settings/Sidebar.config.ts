@@ -14,6 +14,7 @@ import {
 	RadioTower,
 	Shield,
 	ShieldCheck,
+	Settings as SettingsIcon,
 	User,
 	UserCog,
 	UserKey,
@@ -120,7 +121,7 @@ const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
 			{
 				href: "/settings/workspaces/settings",
 				label: "Settings",
-				icon: Building2,
+				icon: SettingsIcon,
 				match: [
 					"/settings/workspaces",
 					"/settings/teams",
@@ -129,11 +130,13 @@ const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
 					"/settings/teams/members",
 					"/settings/teams/access",
 					"/settings/teams/settings",
+					"/settings/notifications",
 				],
 				children: [
 					{ href: "/settings/workspaces/settings", label: "General" },
 					{ href: "/settings/workspaces/members", label: "Members" },
 					{ href: "/settings/workspaces/access", label: "Access" },
+					{ href: "/settings/notifications", label: "Notifications" },
 				],
 			},
 			{
@@ -142,6 +145,20 @@ const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
 				icon: ShieldCheck,
 				badge: "Beta",
 				match: ["/settings/guardrails"],
+			},
+			{
+				href: "/settings/workspaces/enterprise",
+				label: "Enterprise",
+				icon: Building2,
+				badge: "Preview",
+				match: ["/settings/workspaces/enterprise"],
+				children: [
+					{ href: "/settings/workspaces/enterprise", label: "Overview", exactOnly: true },
+					{ href: "/settings/workspaces/enterprise/directory", label: "Directory" },
+					{ href: "/settings/workspaces/enterprise/departments", label: "Departments" },
+					{ href: "/settings/workspaces/enterprise/sso", label: "Single Sign-On" },
+					{ href: "/settings/workspaces/enterprise/scim", label: "SCIM" },
+				],
 			},
 			{
 				href: "/settings/privacy",
@@ -275,7 +292,8 @@ const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
 ];
 
 const WORKSPACE_NAV_ORDER = [
-	"/settings/workspaces/settings",
+"/settings/workspaces/settings",
+	"/settings/workspaces/enterprise",
 	"/settings/keys",
 	"/settings/usage",
 	"/settings/usage/logs",
@@ -291,15 +309,17 @@ const WORKSPACE_NAV_ORDER = [
 	"/settings/webhooks",
 ] as const;
 
-export function getSettingsSidebar(options?: { showBroadcast?: boolean; showWebhooks?: boolean }): NavGroup[] {
+export function getSettingsSidebar(options?: { showBroadcast?: boolean; showWebhooks?: boolean; showEnterprise?: boolean }): NavGroup[] {
 	const showBroadcast = options?.showBroadcast ?? true;
 	const showWebhooks = options?.showWebhooks ?? true;
+	const showEnterprise = options?.showEnterprise ?? true;
 	const groups = BASE_SETTINGS_SIDEBAR.map((group) => ({
 		...group,
 		items: group.items
 			.filter((item) =>
 				(showBroadcast ? true : item.href !== "/settings/broadcast") &&
-				(showWebhooks ? true : item.href !== "/settings/webhooks"),
+				(showWebhooks ? true : item.href !== "/settings/webhooks") &&
+				(showEnterprise ? true : item.href !== "/settings/workspaces/enterprise"),
 			)
 			.map((item) => ({
 				...item,

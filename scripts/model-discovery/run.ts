@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { extractProviderApiModelSnapshot } from "../../apps/api/src/pipeline/model-discovery/watch-snapshot";
 import { createAdminClient } from "../../apps/web/src/utils/supabase/admin";
 import { getProviderDiscoveryRule } from "./providers/discovery-policy";
 import type { ProviderDefinition, ProviderModel } from "./providers/_shared";
@@ -126,8 +127,9 @@ type SeenModelUpsertRow = {
     provider_id: string;
     provider_name: string;
     model_id: string;
-    model_details: Record<string, unknown>;
-    pricing_details: unknown;
+    watch_snapshot: Record<string, unknown>;
+    model_details: null;
+    pricing_details: null;
     last_seen_at: string;
     last_run_id: string;
     removal_pending: boolean;
@@ -474,6 +476,10 @@ function extractPricingDetails(modelPayload: Record<string, unknown>): unknown {
         }
     }
     return null;
+}
+
+function buildWatchSnapshot(providerId: string, modelPayload: Record<string, unknown>): Record<string, unknown> {
+    return extractProviderApiModelSnapshot(providerId, modelPayload, extractPricingDetails(modelPayload));
 }
 
 async function insertRunStart(
@@ -981,8 +987,9 @@ async function main(): Promise<void> {
                         provider_id: provider.id,
                         provider_name: provider.name,
                         model_id: model.id,
-                        model_details: sortKeysDeep(modelDetails) as Record<string, unknown>,
-                        pricing_details: extractPricingDetails(modelDetails),
+                        watch_snapshot: buildWatchSnapshot(provider.id, modelDetails),
+                        model_details: null,
+                        pricing_details: null,
                         last_seen_at: fetchedAt,
                         last_run_id: runId,
                         removal_pending: false,

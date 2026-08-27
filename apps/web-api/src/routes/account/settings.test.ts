@@ -39,6 +39,12 @@ function authenticatedFetch(input: RequestInfo | URL): Response {
 	if (url.includes("workspace_members")) {
 		return new Response(JSON.stringify([{ role: "admin" }]), { status: 200 });
 	}
+	if (url.includes("notification_event_destinations")) {
+		return new Response(JSON.stringify([{ event_kind: "low_balance", destination_id: "destination-1" }]), { status: 200 });
+	}
+	if (url.includes("notification_destinations")) {
+		return new Response(JSON.stringify([{ id: "destination-1", name: "Operations", type: "slack", status: "active", target_preview: "hooks.slack.com/•••", created_at: "2026-08-24T00:00:00Z" }]), { status: 200 });
+	}
 	if (url.includes("select=owner_user_id")) {
 		return new Response(JSON.stringify([{ owner_user_id: "user-1" }]), { status: 200 });
 	}
@@ -196,7 +202,7 @@ function authenticatedFetch(input: RequestInfo | URL): Response {
 		]), { status: 200 });
 	}
 	if (url.includes("workspace_byok_monthly_usage")) {
-		return new Response(JSON.stringify([{ request_count: 100_250 }]), { status: 200 });
+		return new Response(JSON.stringify([{ request_count: 1_000_250 }]), { status: 200 });
 	}
 	if (url.includes("workspace_invoice_profiles")) {
 		return new Response(JSON.stringify([{
@@ -470,7 +476,7 @@ describe("account settings routes", () => {
 				{ id: "byok-old", providerId: "openai", suffix: "0000", lastUsedAt: null, verificationStatus: null, errorMessage: null },
 			],
 			legacyHiddenTotal: 0,
-			monthlyRequestCount: 100250,
+			monthlyRequestCount: 1_000_250,
 			paidTierRequests: 250,
 			workspaceId: "workspace-1",
 		});
@@ -511,6 +517,8 @@ describe("account settings routes", () => {
 			latestPaymentSuccessAt: "2026-07-13T00:00:00Z",
 			lowBalanceEmailEnabled: true,
 			lowBalanceEmailThresholdUsd: 5,
+			notificationRoutes: { low_balance: ["destination-1"] },
+			notificationDestinations: [{ id: "destination-1", name: "Operations" }],
 			obfuscateInfo: true,
 			stripeInfo: {
 				customer: { id: null, email: null },

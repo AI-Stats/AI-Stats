@@ -6,44 +6,36 @@
   "capability_id": "text.generate",
   "rules": [
     {
-      "meter": "input_text_tokens",
-      "unit": "token",
-      "unit_size": 1000000,
+      "meter": "requests",
+      "unit": "request",
+      "unit_size": 1,
       "price_per_unit": 0.8,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": null,
+      "note": "Standard WarpGrep request with up to 100K tokens of repository context.",
       "match": [],
       "priority": 100,
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
-    },
-    {
-      "meter": "output_text_tokens",
-      "unit": "token",
-      "unit_size": 1000000,
-      "price_per_unit": 0.8,
-      "currency": "USD",
-      "pricing_plan": "standard",
-      "note": null,
-      "match": [],
-      "priority": 100,
-      "region": null,
-      "cache_duration_seconds": null,
-      "conditions": [],
-      "source": null
+      "source": "https://www.morphllm.com/pricing"
     }
   ],
-  "regions": [],
+  "regions": [
+    "US"
+  ],
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [
+    {
+      "url": "https://www.morphllm.com/pricing",
+      "kind": "pricing"
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-20T00:00:00Z",
+    "notes": "Morph lists WarpGrep at $0.80 per standard request with a 100K context allowance."
   }
 }

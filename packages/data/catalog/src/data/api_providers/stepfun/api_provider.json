@@ -1,7 +1,11 @@
 {
   "api_provider_id": "stepfun",
+  "zero_data_retention": false,
+  "data_policy_tier": "trains",
+  "data_policy_confidence": "maybe",
+  "data_policy_contract_mode": "none",
   "api_provider_name": "StepFun",
-  "description": "StepFun's OpenAI-compatible Chat and Responses APIs with native multimodal image, audio, realtime, search, file, and vector-store services.",
+  "description": "StepFun's mainland-China first-party API for text, vision, video understanding, image generation and editing, speech, transcription, realtime audio, search, files, and vector stores. Step Plan subscription and Model Lab availability constraints are recorded per model.",
   "link": "https://platform.stepfun.com/",
   "country_code": "CN",
   "status": "Active",

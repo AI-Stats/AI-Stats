@@ -28,6 +28,9 @@ export type ProviderProfile = {
 	textOnly?: boolean;
 	adapterBackedOverrides?: Partial<Record<AdapterBackedCapability, boolean>>;
 	text?: {
+		endpointSupport?: {
+			interactionsModels?: string[];
+		};
 		paramPolicy?: {
 			supportedParams?: string[];
 			unsupportedParams?: string[];
@@ -84,6 +87,30 @@ const PROVIDER_PROFILES: ProviderProfile[] = [
 	},
 	{
 		id: "google-ai-studio",
+		text: {
+			endpointSupport: {
+				interactionsModels: [
+					"gemini-2.5-flash",
+					"gemini-2.5-flash-lite",
+					"gemini-2.5-pro",
+					"gemini-3-flash-preview",
+					"gemini-3.1-flash-image",
+					"gemini-3.1-flash-lite",
+					"gemini-3.1-flash-tts-preview",
+					"gemini-3.1-pro-preview",
+					"gemini-3-pro-image",
+					"gemini-3.5-flash",
+					"gemini-3.5-flash-lite",
+					"gemini-3.6-flash",
+					"gemini-3.7-flash",
+					"gemini-robotics-er-2-preview",
+					"gemma-4-26b-a4b-it",
+					"gemma-4-31b-it",
+					"lyria-3-clip-preview",
+					"lyria-3-pro-preview",
+				],
+			},
+		},
 		adapterBackedOverrides: {
 			"image.generate": true,
 			"image.edit": false,
@@ -727,6 +754,30 @@ const PROVIDER_PROFILES: ProviderProfile[] = [
 				supportedParams: [
 					"max_tokens", "temperature", "top_p", "frequency_penalty",
 					"presence_penalty", "response_format", "tools", "reasoning.effort",
+				],
+			},
+			normalize: {
+				maxTemperature: 2,
+				reasoningEffortFallback: ["none", "minimal", "low", "medium", "high", "xhigh", "max"],
+			},
+		},
+	},
+	{
+		id: "io-net",
+		adapterBackedOverrides: {
+			"image.generate": false,
+			"image.edit": false,
+			"audio.speech": false,
+			"audio.transcription": false,
+			"audio.translations": false,
+			"video.generate": false,
+		},
+		text: {
+			paramPolicy: {
+				supportedParams: [
+					"max_tokens", "temperature", "top_p", "stop", "seed",
+					"frequency_penalty", "presence_penalty", "logprobs", "top_logprobs",
+					"response_format", "tools", "tool_choice", "reasoning.effort",
 				],
 			},
 			normalize: {

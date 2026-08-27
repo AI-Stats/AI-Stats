@@ -112,10 +112,10 @@ function deriveLegacyTier(args: {
 	if (promptTrainingPolicy === "may_train") return "trains";
 	if (promptTrainingPolicy === "opt_out_available") return "trains";
 	if (promptTrainingPolicy === "no_train") {
-		return args.zeroDataRetention === "default" ? "private" : "logs";
+		return args.zeroDataRetention === true ? "private" : "logs";
 	}
 	if (promptTrainingPolicy === "enterprise_no_train") {
-		return args.zeroDataRetention === "default" ? "private" : "logs";
+		return args.zeroDataRetention === true ? "private" : "logs";
 	}
 	return "unknown";
 }
@@ -127,7 +127,7 @@ function deriveLegacyConfidence(args: {
 	const promptTrainingPolicy = normalizeProviderPromptTrainingPolicy(
 		args.promptTrainingPolicy,
 	);
-	if (promptTrainingPolicy === "no_train" && args.zeroDataRetention === "default") {
+	if (promptTrainingPolicy === "no_train" && args.zeroDataRetention === true) {
 		return "confirmed";
 	}
 	if (
@@ -172,4 +172,3 @@ export function resolveProviderDataPolicy(args: {
 		contractMode: normalizedContractMode,
 	};
 }
-

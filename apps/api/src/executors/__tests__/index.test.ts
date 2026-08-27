@@ -110,11 +110,15 @@ describe("resolveProviderExecutor", () => {
 		expect(resolveProviderExecutor("openai", "embeddings")).toBeTruthy();
 		expect(resolveProviderExecutor("google-ai-studio", "embeddings")).toBeTruthy();
 		expect(resolveProviderExecutor("together", "embeddings")).toBeTruthy();
+		expect(resolveProviderExecutor("together", "image.generate")).toBeTruthy();
+		expect(resolveProviderExecutor("together", "audio.transcription")).toBeTruthy();
+		expect(resolveProviderExecutor("together", "audio.translations")).toBeTruthy();
 		for (const providerId of ["alibaba-cloud", "alibaba", "qwen"]) {
 			expect(resolveProviderExecutor(providerId, "embeddings")).toBeTruthy();
 		}
 		expect(resolveProviderExecutor("mistral", "embeddings")).toBeTruthy();
 		expect(resolveProviderExecutor("mistral-eu", "embeddings")).toBeTruthy();
+		expect(resolveProviderExecutor("upstage", "embeddings")).toBeTruthy();
 		expect(resolveProviderExecutor("nebius-token-factory", "embeddings")).toBeTruthy();
 		expect(resolveProviderExecutor("nebius-token-factory-eu-north-1", "embeddings")).toBeTruthy();
 		expect(resolveProviderExecutor("nebius-token-factory-fast", "embeddings")).toBeNull();
@@ -123,6 +127,12 @@ describe("resolveProviderExecutor", () => {
 		expect(resolveProviderExecutor("voyage", "embeddings")).toBeTruthy();
 		expect(resolveProviderExecutor("voyageai", "embeddings")).toBeTruthy();
 		expect(resolveProviderExecutor("anthropic", "embeddings")).toBeNull();
+		expect(resolveProviderExecutor("cloudflare", "embeddings")).toBeTruthy();
+	});
+
+	it("resolves Cloudflare-hosted native media capabilities", () => {
+		expect(resolveProviderExecutor("cloudflare", "image.generate")).toBeTruthy();
+		expect(resolveProviderExecutor("cloudflare", "audio.transcribe")).toBeTruthy();
 	});
 
 	it("does not route Alibaba native media APIs through OpenAI-shaped endpoints", () => {
@@ -305,6 +315,8 @@ describe("resolveProviderExecutor", () => {
 	it("resolves adapter-backed non-text executors only for supported providers", () => {
 		expect(resolveProviderExecutor("openai", "images.generations")).toBeTruthy();
 		expect(resolveProviderExecutor("openai", "images.edits")).toBeTruthy();
+		expect(resolveProviderExecutor("meta", "images.generations")).toBeTruthy();
+		expect(resolveProviderExecutor("meta", "images.edits")).toBeTruthy();
 		expect(resolveProviderExecutor("byteplus", "images.generations")).toBeTruthy();
 		expect(resolveProviderExecutor("byteplus", "images.edits")).toBeTruthy();
 		expect(resolveProviderExecutor("bytedance-seed", "images.generations")).toBeTruthy();
@@ -370,6 +382,8 @@ describe("resolveProviderExecutor", () => {
 		expect(resolveProviderExecutor("suno", "music.generate")).toBeNull();
 		expect(resolveProviderExecutor("elevenlabs", "music.generate")).toBeTruthy();
 		expect(resolveProviderExecutor("minimax", "music.generate")).toBeTruthy();
+		expect(resolveProviderExecutor("gmicloud", "audio.speech")).toBeTruthy();
+		expect(resolveProviderExecutor("gmicloud", "music.generate")).toBeTruthy();
 		expect(resolveProviderExecutor("minimax-lightning", "music.generate")).toBeNull();
 
 		expect(resolveProviderExecutor("anthropic", "images.generations")).toBeNull();

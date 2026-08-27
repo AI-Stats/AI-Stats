@@ -18,7 +18,7 @@
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": "https://www.morphllm.com/pricing"
     },
     {
       "meter": "output_text_tokens",
@@ -33,17 +33,24 @@
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": "https://www.morphllm.com/pricing"
     }
   ],
-  "regions": [],
+  "regions": [
+    "US"
+  ],
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [
+    {
+      "url": "https://www.morphllm.com/pricing",
+      "kind": "pricing"
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-20T00:00:00Z",
+    "notes": "Morph's official pricing page lists Compact at $0.20 input and $0.50 output per 1M tokens."
   }
 }

@@ -49,8 +49,9 @@ describe("resolveOpenAICompatRoute", () => {
 			expect(resolveOpenAICompatRoute("deepinfra", "meta-llama/Meta-Llama-3.1-8B-Instruct")).toBe("chat");
 			expect(resolveOpenAICompatRoute("friendli", "meta-llama-3.1-8b-instruct")).toBe("chat");
 			expect(resolveOpenAICompatRoute("gmicloud", "Qwen/Qwen3-235B-A22B-Thinking-2507")).toBe("chat");
-			expect(resolveOpenAICompatRoute("deepseek", "deepseek-v4-flash")).toBe("chat");
-			expect(resolveOpenAICompatRoute("deepseek", "deepseek-v4-pro")).toBe("chat");
+			expect(resolveOpenAICompatRoute("deepseek", "deepseek-v4-flash")).toBe("responses");
+			expect(resolveOpenAICompatRoute("deepseek", "deepseek-v4-pro")).toBe("responses");
+			expect(resolveOpenAICompatRoute("deepseek", "deepseek-v4-flash-vision-exp")).toBe("responses");
 			expect(resolveOpenAICompatRoute("deepseek", "deepseek-chat")).toBe("chat");
 			expect(resolveOpenAICompatRoute("deepseek", "deepseek-reasoner")).toBe("chat");
 			expect(resolveOpenAICompatRoute("tensorix", "z-ai/glm-5")).toBe("chat");
@@ -60,6 +61,7 @@ describe("resolveOpenAICompatRoute", () => {
 				expect(resolveOpenAICompatRoute("nebius-token-factory-eu-north-1", "nvidia/nemotron-3-super-120b-a12b")).toBe("chat");
 				expect(resolveOpenAICompatRoute("nebius-token-factory-us-central-1", "nvidia/nemotron-3-super-120b-a12b")).toBe("chat");
 				expect(resolveOpenAICompatRoute("nebius-token-factory", "Qwen/Qwen3-32B")).toBe("responses");
+				expect(resolveOpenAICompatRoute("nebius-token-factory", "deepseek-ai/DeepSeek-V4-Flash-0731")).toBe("responses");
 				expect(resolveOpenAICompatRoute("nebius-token-factory-fast", "Qwen/Qwen3-32B-fast")).toBe("responses");
 				expect(resolveOpenAICompatRoute("nebius-token-factory-eu-north-1", "Qwen/Qwen3-32B")).toBe("responses");
 				expect(resolveOpenAICompatRoute("nebius-token-factory-us-central-1", "moonshotai/Kimi-K2.7-Code")).toBe("chat");
@@ -350,7 +352,7 @@ describe("openAICompatUrl", () => {
 		);
 	});
 
-	it("uses Api-Key Authorization prefix for baseten", () => {
+	it("uses Bearer Authorization for baseten", () => {
 		teardownTestRuntime();
 		setupRuntimeFromEnv({
 			BASETEN_API_KEY: "test-baseten-key",
@@ -358,7 +360,7 @@ describe("openAICompatUrl", () => {
 
 		expect(openAICompatHeaders("baseten", "test-baseten-key")).toEqual(
 			expect.objectContaining({
-				Authorization: "Api-Key test-baseten-key",
+				Authorization: "Bearer test-baseten-key",
 				"Content-Type": "application/json",
 			}),
 		);

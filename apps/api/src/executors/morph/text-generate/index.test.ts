@@ -35,6 +35,9 @@ function request(): IRChatRequest {
 describe("Morph current OpenAI-compatible text contract", () => {
 	it("uses the documented Chat endpoint and Bearer authentication", () => {
 		expect(resolveOpenAICompatRoute("morph", "morph-glm52-744b")).toBe("chat");
+		expect(resolveOpenAICompatRoute("morph", "morph-qwen38-27b")).toBe("chat");
+		expect(resolveOpenAICompatRoute("morph", "morph-compactor")).toBe("chat");
+		expect(resolveOpenAICompatRoute("morph", "morph-warp-grep-v2.1")).toBe("chat");
 		expect(openAICompatUrl("morph", "/chat/completions")).toBe("https://api.morphllm.com/v1/chat/completions");
 		expect(openAICompatHeaders("morph", "secret").Authorization).toBe("Bearer secret");
 		expect(normalizeTextProviderServiceTier("morph", "standard")).toBe("default");

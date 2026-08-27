@@ -31,23 +31,35 @@
     "routable": false,
     "regions": {
       "execution": [
-        "global"
+        "eu"
       ],
       "data": [
-        "global"
+        "eu"
       ]
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard",
+      "batch"
+    ],
     "api": {
-      "formats": [],
-      "endpoint": null,
+      "formats": [
+        "anthropic.messages"
+      ],
+      "endpoint": "/v1/projects/{project}/locations/eu/publishers/anthropic/models/{model}:rawPredict",
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/partner-models/use-partner-models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Google documents Claude versions 4.7 and later on the EU multi-region endpoint; this model uses the Anthropic rawPredict route."
+      }
+    ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-11T04:15:58.137+00:00",
-      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Google documents Claude versions 4.7 and later on the EU multi-region endpoint; this model uses the Anthropic rawPredict route."
     },
     "rate_limits": []
   },
@@ -83,23 +95,35 @@
     "routable": false,
     "regions": {
       "execution": [
-        "global"
+        "eu"
       ],
       "data": [
-        "global"
+        "eu"
       ]
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard",
+      "batch"
+    ],
     "api": {
-      "formats": [],
-      "endpoint": null,
+      "formats": [
+        "anthropic.messages"
+      ],
+      "endpoint": "/v1/projects/{project}/locations/eu/publishers/anthropic/models/{model}:rawPredict",
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/partner-models/use-partner-models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Google documents Claude versions 4.7 and later on the EU multi-region endpoint; this model uses the Anthropic rawPredict route."
+      }
+    ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-11T04:15:58.137+00:00",
-      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Google documents Claude versions 4.7 and later on the EU multi-region endpoint; this model uses the Anthropic rawPredict route."
     },
     "rate_limits": []
   },
@@ -108,7 +132,7 @@
     "provider_api_model_id": "google-vertex-eu:anthropic/claude-sonnet-5",
     "provider_model_slug": "claude-sonnet-5",
     "internal_model_id": "anthropic/claude-sonnet-5",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "text",
@@ -120,7 +144,17 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "include_reasoning",
+          "max_tokens",
+          "reasoning",
+          "response_format",
+          "stop",
+          "structured_outputs",
+          "tool_choice",
+          "tools",
+          "verbosity"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -131,8 +165,8 @@
         "modes": []
       }
     ],
-    "routing_status": null,
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": [
         "eu"
@@ -141,433 +175,29 @@
         "eu"
       ]
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard",
+      "batch"
+    ],
     "api": {
-      "formats": [],
-      "endpoint": null,
+      "formats": [
+        "anthropic.messages"
+      ],
+      "endpoint": "/v1/projects/{project}/locations/eu/publishers/anthropic/models/{model}:rawPredict",
       "deployment": null
     },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "google/gemini-1.5-pro-002",
-    "provider_api_model_id": "google-vertex-eu:google/gemini-1.5-pro-002",
-    "provider_model_slug": "gemini-1.5-pro-002",
-    "internal_model_id": "google/gemini-1.5-pro-002",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": null,
-    "effective_to": null,
-    "capabilities": [
+    "sources": [
       {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
+        "kind": "documentation",
+        "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/partner-models/use-partner-models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Google documents Claude versions 4.7 and later on the EU multi-region endpoint; this model uses the Anthropic rawPredict route."
       }
     ],
-    "routing_status": "active",
-    "routable": false,
-    "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-11T04:15:58.137+00:00",
-      "notes": "Discovered from the provider models API; routing remains disabled pending review."
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "google/gemini-2.5-flash",
-    "provider_api_model_id": "google-vertex-eu:google/gemini-2.5-flash",
-    "provider_model_slug": "gemini-2.5-flash",
-    "internal_model_id": "google/gemini-2.5-flash",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": null,
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": false,
-    "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-11T04:15:58.137+00:00",
-      "notes": "Discovered from the provider models API; routing remains disabled pending review."
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "google/gemini-2.5-flash-lite",
-    "provider_api_model_id": "google-vertex-eu:google/gemini-2.5-flash-lite",
-    "provider_model_slug": "gemini-2.5-flash-lite",
-    "internal_model_id": "google/gemini-2.5-flash-lite",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": null,
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": false,
-    "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-11T04:15:58.137+00:00",
-      "notes": "Discovered from the provider models API; routing remains disabled pending review."
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "google/gemini-2.5-pro",
-    "provider_api_model_id": "google-vertex-eu:google/gemini-2.5-pro",
-    "provider_model_slug": "gemini-2.5-pro",
-    "internal_model_id": "google/gemini-2.5-pro",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": null,
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": false,
-    "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-11T04:15:58.137+00:00",
-      "notes": "Discovered from the provider models API; routing remains disabled pending review."
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "google/gemini-3-flash-preview",
-    "provider_api_model_id": "google-vertex-eu:google/gemini-3-flash-preview",
-    "provider_model_slug": "gemini-3-flash-preview",
-    "internal_model_id": "google/gemini-3-flash-preview",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": null,
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": false,
-    "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-11T04:15:58.137+00:00",
-      "notes": "Discovered from the provider models API; routing remains disabled pending review."
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "google/gemini-3-pro-image",
-    "provider_api_model_id": "google-vertex-eu:google/gemini-3-pro-image",
-    "provider_model_slug": "gemini-3-pro-image",
-    "internal_model_id": "google/gemini-3-pro-image",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": null,
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": false,
-    "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-11T04:15:58.137+00:00",
-      "notes": "Discovered from the provider models API; routing remains disabled pending review."
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "google/gemini-3.1-flash-image",
-    "provider_api_model_id": "google-vertex-eu:google/gemini-3.1-flash-image",
-    "provider_model_slug": "gemini-3.1-flash-image",
-    "internal_model_id": "google/gemini-3.1-flash-image",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": null,
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": false,
-    "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-11T04:15:58.137+00:00",
-      "notes": "Discovered from the provider models API; routing remains disabled pending review."
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "google/gemini-3.1-flash-image-preview",
-    "provider_api_model_id": "google-vertex-eu:google/gemini-3.1-flash-image-preview",
-    "provider_model_slug": "gemini-3.1-flash-image-preview",
-    "internal_model_id": "google/gemini-3.1-flash-image-preview",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": null,
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": false,
-    "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-11T04:15:58.137+00:00",
-      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Google documents Claude versions 4.7 and later on the EU multi-region endpoint; this model uses the Anthropic rawPredict route."
     },
     "rate_limits": []
   },
@@ -672,329 +302,30 @@
         "eu"
       ]
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard",
+      "batch",
+      "flex"
+    ],
     "api": {
-      "formats": [],
-      "endpoint": null,
+      "formats": [
+        "google.generateContent"
+      ],
+      "endpoint": "/v1/projects/{project}/locations/eu/publishers/google/models/{model}:streamGenerateContent",
       "deployment": null
     },
-    "sources": [],
-    "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "google/gemini-3.1-flash-lite-image",
-    "provider_api_model_id": "google-vertex-eu:google/gemini-3.1-flash-lite-image",
-    "provider_model_slug": "gemini-3.1-flash-lite-image",
-    "internal_model_id": "google/gemini-3.1-flash-lite-image",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": null,
-    "effective_to": null,
-    "capabilities": [
+    "sources": [
       {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
+        "kind": "documentation",
+        "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/3-1-flash-lite",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Google documents Gemini 3.1 Flash-Lite as GA in the EU multi-region with data-residency controls for online and batch inference."
       }
     ],
-    "routing_status": "active",
-    "routable": false,
-    "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-11T04:15:58.137+00:00",
-      "notes": "Discovered from the provider models API; routing remains disabled pending review."
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "google/gemini-3.1-pro-preview",
-    "provider_api_model_id": "google-vertex-eu:google/gemini-3.1-pro-preview",
-    "provider_model_slug": "gemini-3.1-pro-preview",
-    "internal_model_id": "google/gemini-3.1-pro-preview",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": null,
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": false,
-    "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-11T04:15:58.137+00:00",
-      "notes": "Discovered from the provider models API; routing remains disabled pending review."
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "google/gemini-3.5-flash",
-    "provider_api_model_id": "google-vertex-eu:google/gemini-3.5-flash",
-    "provider_model_slug": "gemini-3.5-flash",
-    "internal_model_id": "google/gemini-3.5-flash",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": null,
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": false,
-    "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-11T04:15:58.137+00:00",
-      "notes": "Discovered from the provider models API; routing remains disabled pending review."
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "google/gemini-3.5-flash-lite",
-    "provider_api_model_id": "google-vertex-eu:google/gemini-3.5-flash-lite",
-    "provider_model_slug": "gemini-3.5-flash-lite",
-    "internal_model_id": "google/gemini-3.5-flash-lite",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": null,
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": false,
-    "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-11T04:15:58.137+00:00",
-      "notes": "Discovered from the provider models API; routing remains disabled pending review."
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "google/gemini-3.6-flash",
-    "provider_api_model_id": "google-vertex-eu:google/gemini-3.6-flash",
-    "provider_model_slug": "gemini-3.6-flash",
-    "internal_model_id": "google/gemini-3.6-flash",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": null,
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": false,
-    "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-11T04:15:58.137+00:00",
-      "notes": "Discovered from the provider models API; routing remains disabled pending review."
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "google/gemini-embedding-2",
-    "provider_api_model_id": "google-vertex-eu:google/gemini-embedding-2",
-    "provider_model_slug": "gemini-embedding-2",
-    "internal_model_id": "google/gemini-embedding-2",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": null,
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.embed",
-        "status": "active",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": false,
-    "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [],
-    "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-11T04:15:58.137+00:00",
-      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Google documents Gemini 3.1 Flash-Lite as GA in the EU multi-region with data-residency controls for online and batch inference."
     },
     "rate_limits": []
   }

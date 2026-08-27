@@ -25,7 +25,7 @@
       "meter": "cached_read_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.26,
+      "price_per_unit": 0.14,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
@@ -73,7 +73,7 @@
       "meter": "cached_read_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.13,
+      "price_per_unit": 0.07,
       "currency": "USD",
       "pricing_plan": "batch",
       "note": "Mistral Batch API is billed at 50% of standard list pricing.",
@@ -121,7 +121,7 @@
       "meter": "cached_read_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.455,
+      "price_per_unit": 0.245,
       "currency": "USD",
       "pricing_plan": "priority",
       "note": "The 1.75x Priority Tier multiplier applies after the prompt-cache discount.",
@@ -161,12 +161,12 @@
       "kind": "docs",
       "url": "https://docs.mistral.ai/models/zai-glm-5-2",
       "accessed_at": "2026-08-11T00:00:00Z",
-      "notes": "Mistral model card pricing shown in USD: $1.40 input, $0.26 cached input, and $4.40 output per million tokens."
+      "notes": "Mistral pricing shown in USD: $1.40 input, $0.14 cached input, and $4.40 output per million tokens."
     },
     {
       "kind": "pricing",
-      "url": "https://mistral.ai/pricing/api/",
-      "accessed_at": "2026-08-11T00:00:00Z",
+      "url": "https://docs.mistral.ai/inference/pricing",
+      "accessed_at": "2026-08-20T00:00:00Z",
       "notes": "Mistral documents Batch processing at a 50% discount."
     },
     {
@@ -178,7 +178,7 @@
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-11T00:00:00Z",
-    "notes": "Verified against the Mistral model card."
+    "checked_at": "2026-08-20T00:00:00Z",
+    "notes": "Verified against Mistral's current inference pricing table."
   }
 }

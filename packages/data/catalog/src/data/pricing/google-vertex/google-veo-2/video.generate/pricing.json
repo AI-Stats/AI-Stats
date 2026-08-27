@@ -9,7 +9,7 @@
       "meter": "output_video_seconds",
       "unit": "second",
       "unit_size": 1,
-      "price_per_unit": 0.35,
+      "price_per_unit": 0.5,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": null,
@@ -26,10 +26,16 @@
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [
+    {
+      "kind": "pricing",
+      "url": "https://cloud.google.com/gemini-enterprise-agent-platform/generative-ai/pricing",
+      "accessed_at": "2026-08-21T00:00:00Z"
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-21T00:00:00Z",
+    "notes": "Verified against Google Agent Platform pricing at $0.50 per generated video second."
   }
 }

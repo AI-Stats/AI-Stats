@@ -28,6 +28,7 @@ function DropdownMenuTrigger({
         data-slot="dropdown-menu-trigger"
         render={renderAsChild(asChild, children)}
         {...props}
+        nativeButton={false}
       />
     )
   }

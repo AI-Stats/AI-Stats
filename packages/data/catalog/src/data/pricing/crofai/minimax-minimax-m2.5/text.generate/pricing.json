@@ -55,6 +55,57 @@
       "cache_duration_seconds": null,
       "conditions": [],
       "source": null
+    },
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.11,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Verified against CrofAI's current public rate card.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-23T00:00:00Z",
+      "effective_to": "2026-08-26T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.02,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Verified against CrofAI's current public rate card.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-23T00:00:00Z",
+      "effective_to": "2026-08-26T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.95,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Verified against CrofAI's current public rate card.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-23T00:00:00Z",
+      "effective_to": "2026-08-26T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
     }
   ],
   "regions": [],
@@ -67,11 +118,17 @@
       "url": null,
       "accessed_at": null,
       "notes": "CrofAI Discord notice supplied by the maintainer: the seven listed routes were scheduled for removal at 13:30 CDT on 8/13/2026."
+    },
+    {
+      "kind": "provider_pricing",
+      "url": "https://crof.ai/pricing",
+      "accessed_at": "2026-08-23T00:00:00Z",
+      "notes": "Current CrofAI public rate card."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": null,
-    "notes": "Retirement boundary is taken from the provider notice rather than inferred from a later live API observation."
+    "checked_at": "2026-08-23T00:00:00Z",
+    "notes": "Current rates verified against CrofAI's public pricing page."
   }
 }

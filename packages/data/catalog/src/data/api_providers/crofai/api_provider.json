@@ -8,7 +8,7 @@
   "residency_mode": "unknown",
   "default_execution_regions": null,
   "default_data_regions": null,
-  "zero_data_retention": "default",
+  "zero_data_retention": true,
   "data_retention_days": 0,
   "data_policy_tier": "private",
   "data_policy_confidence": "confirmed",
@@ -28,9 +28,9 @@
   "country_code": "US",
   "status": "Active",
   "colour": "#7C3AED",
-  "gateway_kind": null,
-  "routable": null,
-  "routing_enabled": null,
+  "gateway_kind": "native",
+  "routable": true,
+  "routing_enabled": true,
   "sdk_package": null,
   "api_base_url": "https://ai.nahcrof.com/v1",
   "docs_url": "https://crof.ai/docs",
@@ -44,8 +44,8 @@
   ],
   "sources": [],
   "verification": {
-    "status": "unverified",
-    "checked_at": "2026-08-12",
-    "notes": "Current first-party home and pricing pages verify the chat endpoint, Bearer authentication, model slugs, context/output limits, reasoning/tool labels, and vision flags. The documentation page does not expose a detailed parameter reference."
+    "status": "verified",
+    "checked_at": "2026-08-23",
+    "notes": "First-party home and pricing pages verify the OpenAI-compatible chat endpoint, Bearer authentication, current model slugs, context/output limits, quantization, vision labels, and token rates."
   }
 }

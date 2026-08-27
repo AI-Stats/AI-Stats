@@ -110,9 +110,12 @@ export type GatewayBindings = {
     CLOUDFLARE_API_TOKEN?: string;
     CLOUDFLARE_ACCOUNT_ID?: string;
     CLOUDFLARE_AI_GATEWAY_BASE_URL?: string;
+    CLOUDFLARE_AI_GATEWAY_ID?: string;
     COHERE_API_KEY?: string;
     COHERE_BASE_URL?: string;
     CROFAI_API_KEY?: string;
+    CANOPYWAVE_API_KEY?: string;
+    CANOPYWAVE_BASE_URL?: string;
     CROFAI_BASE_URL?: string;
     CROF_AI_API_KEY?: string;
     CROF_AI_BASE_URL?: string;
@@ -122,6 +125,8 @@ export type GatewayBindings = {
     CRUSOE_BASE_URL?: string;
     DEEPINFRA_API_KEY?: string;
     DEEPINFRA_BASE_URL?: string;
+    IOINTELLIGENCE_API_KEY?: string;
+    IOINTELLIGENCE_BASE_URL?: string;
     DEEPSEEK_API_KEY?: string;
     DEEPSEEK_BASE_URL?: string;
     DARKBLOOM_API_KEY?: string;
@@ -140,6 +145,7 @@ export type GatewayBindings = {
     GMI_API_KEY?: string;
     GMI_CLOUD_API_KEY?: string;
     GMI_BASE_URL?: string;
+    GMI_QUEUE_BASE_URL?: string;
     GROQ_API_KEY?: string;
     GROQ_BASE_URL?: string;
     GOOGLE_VERTEX_API_KEY?: string;
@@ -247,6 +253,8 @@ export type GatewayBindings = {
     REKA_BASE_URL?: string;
     SAKANA_API_KEY?: string;
     SAKANA_BASE_URL?: string;
+    SAIL_API_KEY?: string;
+    SAIL_BASE_URL?: string;
     SAMBANOVA_API_KEY?: string;
     SAMBANOVA_BASE_URL?: string;
     SCW_SECRET_KEY?: string;

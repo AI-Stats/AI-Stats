@@ -75,6 +75,7 @@
         { "label": "peak", "timezone": "UTC", "start_time": "06:00", "end_time": "10:00", "price_per_unit": 1.32 }
       ],
       "effective_from": "2026-08-16T16:00:00Z",
+      "effective_to": "2026-08-22T16:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -96,6 +97,7 @@
         { "label": "peak", "timezone": "UTC", "start_time": "06:00", "end_time": "10:00", "price_per_unit": 0.044 }
       ],
       "effective_from": "2026-08-16T16:00:00Z",
+      "effective_to": "2026-08-22T16:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -117,10 +119,44 @@
         { "label": "peak", "timezone": "UTC", "start_time": "06:00", "end_time": "10:00", "price_per_unit": 3.96 }
       ],
       "effective_from": "2026-08-16T16:00:00Z",
+      "effective_to": "2026-08-22T16:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
       "source": "https://api-docs.deepseek.com/quick_start/pricing/"
+    },
+    {
+      "meter": "input_text_tokens", "unit": "token", "unit_size": 1000000, "price_per_unit": 0.66,
+      "currency": "USD", "pricing_plan": "standard", "note": "Off-peak price; peak windows apply on weekdays only.",
+      "match": [], "priority": 100, "billing_timestamp_basis": "provider_accept",
+      "time_windows": [
+        { "label": "peak", "timezone": "UTC", "days_of_week": ["mon", "tue", "wed", "thu", "fri"], "start_time": "01:00", "end_time": "04:00", "price_per_unit": 1.32 },
+        { "label": "peak", "timezone": "UTC", "days_of_week": ["mon", "tue", "wed", "thu", "fri"], "start_time": "06:00", "end_time": "10:00", "price_per_unit": 1.32 }
+      ],
+      "effective_from": "2026-08-22T16:00:00Z", "region": null, "cache_duration_seconds": null,
+      "conditions": [], "source": "https://api-docs.deepseek.com/quick_start/pricing/"
+    },
+    {
+      "meter": "cached_read_text_tokens", "unit": "token", "unit_size": 1000000, "price_per_unit": 0.022,
+      "currency": "USD", "pricing_plan": "standard", "note": "Off-peak price; peak windows apply on weekdays only.",
+      "match": [], "priority": 100, "billing_timestamp_basis": "provider_accept",
+      "time_windows": [
+        { "label": "peak", "timezone": "UTC", "days_of_week": ["mon", "tue", "wed", "thu", "fri"], "start_time": "01:00", "end_time": "04:00", "price_per_unit": 0.044 },
+        { "label": "peak", "timezone": "UTC", "days_of_week": ["mon", "tue", "wed", "thu", "fri"], "start_time": "06:00", "end_time": "10:00", "price_per_unit": 0.044 }
+      ],
+      "effective_from": "2026-08-22T16:00:00Z", "region": null, "cache_duration_seconds": null,
+      "conditions": [], "source": "https://api-docs.deepseek.com/quick_start/pricing/"
+    },
+    {
+      "meter": "output_text_tokens", "unit": "token", "unit_size": 1000000, "price_per_unit": 1.98,
+      "currency": "USD", "pricing_plan": "standard", "note": "Off-peak price; peak windows apply on weekdays only.",
+      "match": [], "priority": 100, "billing_timestamp_basis": "provider_accept",
+      "time_windows": [
+        { "label": "peak", "timezone": "UTC", "days_of_week": ["mon", "tue", "wed", "thu", "fri"], "start_time": "01:00", "end_time": "04:00", "price_per_unit": 3.96 },
+        { "label": "peak", "timezone": "UTC", "days_of_week": ["mon", "tue", "wed", "thu", "fri"], "start_time": "06:00", "end_time": "10:00", "price_per_unit": 3.96 }
+      ],
+      "effective_from": "2026-08-22T16:00:00Z", "region": null, "cache_duration_seconds": null,
+      "conditions": [], "source": "https://api-docs.deepseek.com/quick_start/pricing/"
     }
   ],
   "regions": [],
@@ -131,13 +167,13 @@
     {
       "kind": "pricing",
       "url": "https://api-docs.deepseek.com/quick_start/pricing/",
-      "accessed_at": "2026-08-13T00:00:00Z",
-      "notes": "Official current prices and peak/off-peak prices effective 16:00 UTC on 16 August 2026."
+      "accessed_at": "2026-08-22T00:00:00Z",
+      "notes": "Peak windows apply only on weekdays from 00:00 Beijing time on 23 August 2026; weekends are off-peak all day."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-13T00:00:00Z",
-    "notes": "Confirmed current prices and the scheduled peak/off-peak cutover."
+    "checked_at": "2026-08-22T00:00:00Z",
+    "notes": "Confirmed weekday-only peak windows and all-day weekend off-peak pricing."
   }
 }

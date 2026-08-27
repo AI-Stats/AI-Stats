@@ -4,7 +4,7 @@
   "provider_family_id": "google-vertex",
   "offer_label": "EU",
   "offer_scope": "regional",
-  "description": "Google Cloud Vertex AI Europe multi-region offer for regionally available Gemini and partner-model inference.",
+  "description": "Google Cloud Vertex AI EU multi-region offer for supported Gemini and Anthropic Claude inference, with ML processing restricted to EU member states.",
   "link": "https://cloud.google.com/vertex-ai?hl=en",
   "residency_mode": "provider_managed",
   "default_execution_regions": [
@@ -13,14 +13,15 @@
   "default_data_regions": [
     "eu"
   ],
-  "zero_data_retention": "unknown",
-  "data_policy_tier": "private",
+  "zero_data_retention": false,
+  "data_policy_tier": "logs",
   "data_policy_confidence": "maybe",
   "data_policy_contract_mode": "none",
-  "residency_source_url": "https://docs.cloud.google.com/vertex-ai/generative-ai/docs/learn/locations",
+  "residency_source_url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/resources/data-residency",
+  "residency_notes": "The EU jurisdictional endpoint keeps ML processing within EU member states. The United Kingdom and Switzerland are outside this boundary; availability and supported controls remain model- and capability-specific.",
   "regional_pricing_mode": "offer_specific",
   "pricing_source_url": "https://cloud.google.com/vertex-ai/generative-ai/pricing",
-  "regional_pricing_notes": "Europe multi-region Vertex endpoint. Anthropic partner-model rates use offer-specific regional pricing when modeled; Claude Sonnet 5 EU multi-region rates are 10% above the global Vertex rates in Google's official pricing table.",
+  "regional_pricing_notes": "EU multi-region requests use endpoint-specific pricing where Google publishes it. Anthropic partner-model EU rates are 10% above corresponding global rates in Google's official regional pricing tables.",
   "country_code": "US",
   "status": "Active",
   "colour": "#4285F4",
@@ -33,20 +34,34 @@
   "routable": null,
   "routing_enabled": null,
   "sdk_package": null,
-  "api_base_url": "https://europe-west4-aiplatform.googleapis.com/v1",
+  "api_base_url": "https://aiplatform.eu.rep.googleapis.com/v1",
   "docs_url": "https://cloud.google.com/vertex-ai/generative-ai/docs/learn/locations",
   "auth_env": "GOOGLE_VERTEX_API_KEY",
-  "api_formats": ["google.generateContent", "openai.chat.completions"],
-  "service_tiers": [],
-  "sources": [{
-    "kind": "documentation",
-    "url": "https://cloud.google.com/vertex-ai/generative-ai/docs/learn/locations",
-    "accessed_at": "2026-08-12T00:00:00Z",
-    "notes": "Regional availability and data-processing location constraints."
-  }],
+  "api_formats": ["google.generateContent", "anthropic.messages"],
+  "service_tiers": ["standard", "batch", "flex"],
+  "sources": [
+    {
+      "kind": "documentation",
+      "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/resources/data-residency",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "EU jurisdictional processing boundary and per-model support matrix."
+    },
+    {
+      "kind": "documentation",
+      "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/partner-models/use-partner-models",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "EU multi-region host, location identifier, Claude model coverage, route shape, quotas, and prompt-caching support."
+    },
+    {
+      "kind": "pricing",
+      "url": "https://cloud.google.com/gemini-enterprise-agent-platform/generative-ai/pricing",
+      "accessed_at": "2026-08-24T00:00:00Z",
+      "notes": "Official regional pricing tables for Google and partner models."
+    }
+  ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-12T00:00:00Z",
-    "notes": "EU text and Veo registrations use native regional Vertex execution; unsupported generic media registrations removed."
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Verified as the EU multi-region variant of Google Vertex AI. Native text routes use aiplatform.eu.rep.googleapis.com with locations/eu; the catalog is limited to models explicitly documented for EU multi-region processing."
   }
 }

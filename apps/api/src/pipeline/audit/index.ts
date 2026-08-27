@@ -780,7 +780,7 @@ export async function auditSuccess(args: {
     stream: boolean; byok: boolean;
     nativeResponseId?: string | null;
     appTitle?: string | null; referer?: string | null;
-    appId?: string | null; appName?: string | null;
+    appId?: string | null; appName?: string | null; appCategories?: string | null;
     requestMethod?: string | null;
     requestPath?: string | null;
     requestUrl?: string | null;
@@ -837,6 +837,7 @@ export async function auditSuccess(args: {
             referer: args.referer ?? null,
             appId: args.appId ?? null,
             appName: args.appName ?? null,
+            appCategories: args.appCategories ?? null,
         });
         const hasExplicitAppAttribution = [args.appTitle, args.referer, args.appId, args.appName]
             .some((value) => String(value ?? "").trim().length > 0);
@@ -1078,6 +1079,7 @@ type AuditFailureBefore = {
     referer?: string | null;
     appId?: string | null;
     appName?: string | null;
+    appCategories?: string | null;
     requestMethod?: string | null;
     requestPath?: string | null;
     requestUrl?: string | null;
@@ -1127,6 +1129,7 @@ type AuditFailureExecute = {
     referer?: string | null;
     appId?: string | null;
     appName?: string | null;
+    appCategories?: string | null;
     requestMethod?: string | null;
     requestPath?: string | null;
     requestUrl?: string | null;
@@ -1169,6 +1172,7 @@ export async function auditFailure(args: AuditFailureBefore | AuditFailureExecut
                     referer: args.referer ?? null,
                     appId: args.appId ?? null,
                     appName: args.appName ?? null,
+                    appCategories: args.appCategories ?? null,
                 })
                 : null;
             const row = buildSupaRow({
@@ -1339,6 +1343,7 @@ export async function auditFailure(args: AuditFailureBefore | AuditFailureExecut
             referer: args.referer ?? null,
             appId: args.appId ?? null,
             appName: args.appName ?? null,
+            appCategories: args.appCategories ?? null,
         });
         const row = buildSupaRow({
             requestId: args.requestId,
@@ -1519,7 +1524,6 @@ export async function auditFailure(args: AuditFailureBefore | AuditFailureExecut
         releaseRuntime();
     }
 }
-
 
 
 

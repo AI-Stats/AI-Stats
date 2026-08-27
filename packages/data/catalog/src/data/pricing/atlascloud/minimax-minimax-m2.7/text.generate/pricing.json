@@ -6,6 +6,57 @@
   "capability_id": "text.generate",
   "rules": [
     {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.06,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Effective cached-input price.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-23T00:00:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://www.atlascloud.ai/pricing/models?sort=new"
+    },
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.3,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Effective input price.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-23T00:00:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://www.atlascloud.ai/pricing/models?sort=new"
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 1.2,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Effective output price.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-23T00:00:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://www.atlascloud.ai/pricing/models?sort=new"
+    },
+    {
       "meter": "input_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
@@ -18,7 +69,8 @@
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": null,
+      "effective_to": "2026-08-23T00:00:00Z"
     },
     {
       "meter": "cached_read_text_tokens",
@@ -33,7 +85,8 @@
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": null,
+      "effective_to": "2026-08-23T00:00:00Z"
     },
     {
       "meter": "output_text_tokens",
@@ -48,17 +101,25 @@
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": null,
+      "effective_to": "2026-08-23T00:00:00Z"
     }
   ],
   "regions": [],
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [
+    {
+      "url": "https://www.atlascloud.ai/pricing/models?sort=new",
+      "kind": "pricing",
+      "accessed_at": "2026-08-23T00:00:00Z",
+      "notes": "Official live AtlasCloud effective pricing."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-23T00:00:00Z",
+    "notes": "Verified against AtlasCloud's live official pricing catalogue."
   }
 }

@@ -17,13 +17,13 @@ export default function OrganisationCard({
 		<Card
 			style={{ borderColor: organisation.colour || undefined }}
 			className={cn(
-				"h-full flex flex-col shadow-lg relative dark:shadow-zinc-900/25 dark:bg-zinc-950 transition-transform transform hover:scale-105 duration-200 ease-in-out",
-				organisation.colour && "border-2"
+				"relative flex h-full flex-col overflow-hidden border-border/70 bg-card shadow-none transition-colors hover:bg-muted/25",
+				organisation.colour && "border-l-2"
 			)}
 		>
-			<CardContent className="flex flex-row items-center gap-3 pt-6">
+			<CardContent className="flex flex-row items-center gap-3 p-4">
 				<Link
-					href={`organisations/${organisation.organisation_id}`}
+					href={`/organisations/${organisation.organisation_id}`}
 					className="group"
 				>
 					<div className="w-10 h-10 relative flex items-center justify-center rounded-xl border">
@@ -32,7 +32,7 @@ export default function OrganisationCard({
 								id={organisation.organisation_id}
 								alt={
 									organisation.organisation_name ||
-									"Provider Logo"
+									"Lab logo"
 								}
 								className="object-contain"
 								fill
@@ -80,8 +80,8 @@ export default function OrganisationCard({
 						}
 					>
 						<Link
-							href={`organisations/${organisation.organisation_id}`}
-							aria-label={`Go to ${organisation.organisation_name} details`}
+							href={`/organisations/${organisation.organisation_id}`}
+							aria-label={`Open ${organisation.organisation_name} lab`}
 							tabIndex={-1}
 						>
 							<ArrowRight className="w-5 h-5 transition-colors group-hover:text-(--provider-color)" />

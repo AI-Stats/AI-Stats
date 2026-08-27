@@ -209,6 +209,44 @@ describe("OpenAI media endpoints", () => {
 		expect(capturedBody.output_compression).toBe(60);
 	});
 
+	it("routes Meta Muse Image through the OpenAI-compatible image endpoint", async () => {
+		let capturedUrl = "";
+		let capturedBody: any = null;
+		const mock = installFetchMock([{
+			match: (url) => url === "https://api.meta.ai/v1/images/generations",
+			response: jsonResponse({ created: 1700000000, data: [{ b64_json: "meta-image" }] }),
+			onRequest: (call) => {
+				capturedUrl = call.url;
+				capturedBody = call.bodyJson;
+			},
+		}]);
+
+		const result = await execImages({
+			endpoint: "images.generations",
+			model: "meta/muse-image-1.0",
+			body: {
+				model: "meta/muse-image-1.0",
+				prompt: "A studio portrait with a cobalt background.",
+				size: "1024x1024",
+			},
+			meta: REQUEST_META,
+			workspaceId: "team_test",
+			providerId: "meta",
+			byokMeta: [{ id: "meta-key", key: "test-meta-key" }],
+			pricingCard: null,
+			providerModelSlug: "muse-image-1.0",
+			stream: false,
+		} as any);
+
+		mock.restore();
+
+		expect(result.upstream.status).toBe(200);
+		expect(capturedUrl).toBe("https://api.meta.ai/v1/images/generations");
+		expect(capturedBody.model).toBe("muse-image-1.0");
+		expect(capturedBody.prompt).toContain("cobalt background");
+		expect(capturedBody.size).toBe("1024x1024");
+	});
+
 	it("uses the OpenAI EU image-generation endpoint without changing the wire contract", async () => {
 		let capturedUrl = "";
 		const mock = installFetchMock([{
@@ -274,6 +312,69 @@ describe("OpenAI media endpoints", () => {
 		expect(result.bill.usage?.output_image).toBe(1);
 		expect(result.bill.usage?.pricing?.lines?.some((line: any) => line.dimension === "output_image")).toBe(true);
 		expect(result.bill.usage?.pricing?.total_nanos).toBe(36_000_000);
+	});
+
+	it("forwards Together image controls and meters generated pixels", async () => {
+		let capturedBody: any = null;
+		const mock = installFetchMock([{
+			match: (url) => url.includes("/images/generations"),
+			response: jsonResponse({ data: [{ b64_json: "first" }, { b64_json: "second" }] }),
+			onRequest: (call) => { capturedBody = call.bodyJson; },
+		}]);
+
+		const result = await execImages({
+			endpoint: "images.generations",
+			model: "qwen/qwen-image",
+			body: { model: "qwen/qwen-image", prompt: "A poster", n: 2, width: 1200, height: 800, steps: 12, seed: 7 },
+			meta: REQUEST_META,
+			workspaceId: "team_test",
+			providerId: "together",
+			byokMeta: [],
+			pricingCard: {
+				key: "together:qwen/qwen-image:image.generate",
+				currency: "USD",
+				rules: [{ meter: "image_pixels", unit: "pixel", unit_size: 1_000_000, price_per_unit: 0.0058, pricing_plan: "standard" }],
+			},
+			providerModelSlug: "Qwen/Qwen-Image",
+			stream: false,
+		} as any);
+
+		mock.restore();
+		expect(capturedBody).toMatchObject({ width: 1200, height: 800, steps: 12, seed: 7 });
+		expect(result.bill.usage?.image_pixels).toBe(1_920_000);
+		expect(result.bill.usage?.pricing?.lines).toEqual(expect.arrayContaining([
+			expect.objectContaining({ dimension: "image_pixels" }),
+		]));
+	});
+
+	it("uses Together's documented 1024-square default for image pixel billing", async () => {
+		const mock = installFetchMock([{
+			match: (url) => url.includes("/images/generations"),
+			response: jsonResponse({ data: [{ b64_json: "image" }] }),
+		}]);
+
+		const result = await execImages({
+			endpoint: "images.generations",
+			model: "qwen/qwen-image",
+			body: { model: "qwen/qwen-image", prompt: "A poster" },
+			meta: REQUEST_META,
+			workspaceId: "team_test",
+			providerId: "together",
+			byokMeta: [],
+			pricingCard: {
+				key: "together:qwen/qwen-image:image.generate",
+				currency: "USD",
+				rules: [{ meter: "image_pixels", unit: "pixel", unit_size: 1_000_000, price_per_unit: 0.0058, pricing_plan: "standard" }],
+			},
+			providerModelSlug: "Qwen/Qwen-Image",
+			stream: false,
+		} as any);
+
+		mock.restore();
+		expect(result.bill.usage?.image_pixels).toBe(1_048_576);
+		expect(result.bill.usage?.pricing?.lines).toEqual(expect.arrayContaining([
+			expect.objectContaining({ dimension: "image_pixels" }),
+		]));
 	});
 
 	it("prices GPT Image 2 from image tokens for every documented preset resolution", async () => {

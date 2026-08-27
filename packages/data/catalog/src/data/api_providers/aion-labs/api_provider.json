@@ -6,7 +6,7 @@
   "residency_mode": "provider_managed",
   "default_execution_regions": null,
   "default_data_regions": null,
-  "zero_data_retention": "unknown",
+  "zero_data_retention": false,
   "residency_source_url": "https://www.aionlabs.ai/privacy/",
   "residency_notes": "Aion Labs says it routes API requests to upstream model providers and uses third-party hosting infrastructure. Its public policy does not identify a fixed execution or data-residency region or a named ZDR control; it retains personal data only as long as needed for stated purposes.",
   "data_policy_tier": "logs",
@@ -32,10 +32,13 @@
     "openai_responses"
   ],
   "service_tiers": [],
-  "sources": [],
+  "sources": [
+    { "kind": "api_reference", "url": "https://api.aionlabs.ai/v1/models", "accessed_at": "2026-08-21T00:00:00Z" },
+    { "kind": "documentation", "url": "https://api.aionlabs.ai/docs/api-reference/", "accessed_at": "2026-08-21T00:00:00Z" }
+  ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-12",
-    "notes": "Verified against the official API reference. Both provider IDs use the same Aion Labs OpenAI-compatible API."
+    "checked_at": "2026-08-21",
+    "notes": "Verified against the official API reference and live unauthenticated model endpoint."
   }
 }

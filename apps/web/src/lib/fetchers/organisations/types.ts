@@ -13,6 +13,7 @@ export interface OrganisationOverview {
 	updated_at?: string | null;
 	organisation_links: { platform: string; url: string }[];
 	recent_models: OrganisationModelCards[];
+	performance_models: OrganisationModelCards[];
 }
 
 export interface OrganisationModelsGrouped {

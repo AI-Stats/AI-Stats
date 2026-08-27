@@ -36,6 +36,7 @@ describe("settings sidebar navigation", () => {
 			heading: undefined,
 			items: [
 				"Settings",
+				"Enterprise",
 				"API Keys",
 				"Usage",
 				"Logs",

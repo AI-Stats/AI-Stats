@@ -61,7 +61,11 @@
     "lightricks",
     "baai",
     "reka",
-    "sakana"
+    "sakana",
+    "hexgrad",
+    "jetbrains",
+    "stealth",
+    "stability-ai"
   ],
   "models": {
     "ai21": [
@@ -162,7 +166,8 @@
       "baidu/qianfan-vl-3b",
       "baidu/qianfan-vl-70b",
       "baidu/qianfan-vl-8b",
-      "baidu/ernie-4.5-vl-28b-a3b-thinking"
+      "baidu/ernie-4.5-vl-28b-a3b-thinking",
+      "baidu/cobuddy"
     ],
     "black-forest-labs": [
       "black-forest-labs/flux-2-dev",
@@ -230,7 +235,9 @@
       "cohere/rerank-v3.5",
       "cohere/rerank-v4.0-fast",
       "cohere/rerank-v4.0-pro",
-      "cohere/rerenk-english-v3"
+      "cohere/rerenk-english-v3",
+      "cohere/command-r",
+      "cohere/command-r-plus"
     ],
     "cursor": [
       "cursor/composer-1",
@@ -258,6 +265,7 @@
       "deepseek/deepseek-v3.2-speciale",
       "deepseek/deepseek-v4-flash",
       "deepseek/deepseek-v4-flash-0731",
+      "deepseek/deepseek-v4-flash-vision-exp",
       "deepseek/deepseek-v4-pro",
       "deepseek/deepseek-v4-pro-0813",
       "deepseek/deepseek-vl2",
@@ -267,7 +275,8 @@
       "deepseek/deepseek-r1",
       "deepseek/deepseek-r1-turbo",
       "deepseek/deepseek-v3",
-      "deepseek/deepseek-v3-turbo"
+      "deepseek/deepseek-v3-turbo",
+      "deepseek/deepseek-r1-distill-llama-70b"
     ],
     "eleven-labs": [
       "eleven-labs/eleven-english-sts-v2",
@@ -428,7 +437,12 @@
       "google/gemma-4-26b-a4b:free",
       "google/gemma-4-31b:free",
       "google/gemini-3.7-flash",
-      "google/gemini-robotics-er-2-preview"
+      "google/gemini-robotics-er-2-preview",
+      "google/veo-3.1",
+      "google/veo-3.1-fast",
+      "google/gemma-4-12b",
+      "google/gemini-3.5-transcribe",
+      "google/gemini-3.5-transcribe-live"
     ],
     "ibm": [
       "ibm/granite-20b-code-instruct-8k",
@@ -474,7 +488,10 @@
       "ibm/granite-vision-3.2-2b",
       "ibm/granite-vision-3.3-2b",
       "ibm/granite-vision-3.3-2b-embedding",
-      "ibm/granite-4.1-8b"
+      "ibm/granite-4.1-8b",
+      "ibm/granite-4.2-8b",
+      "ibm/granite-4.2-3b",
+      "ibm/granite-4.2-30b"
     ],
     "inception": [
       "inception/mercury-2",
@@ -487,7 +504,9 @@
       "inclusionai/ling-flash-2.0",
       "inclusionai/ring-flash-2.0",
       "inclusionai/ling-3.0-flash:free",
-      "inclusionai/ling-3.0-tiny"
+      "inclusionai/ling-3.0-tiny",
+      "inclusionai/ling-2.6-flash",
+      "inclusionai/ring-2.6-1t"
     ],
     "kwaipilot": [
       "kwaipilot/kat-coder-air-v2.5",
@@ -519,7 +538,8 @@
       "liquid-ai/lfm-2.5-1.2b-jp",
       "liquid-ai/lfm-2.5-1.2b-thinking",
       "liquid-ai/lfm-2.5-audio-1.5b",
-      "liquid-ai/lfm-2.5-vl-1.6b"
+      "liquid-ai/lfm-2.5-vl-1.6b",
+      "liquid-ai/lfm-2.5-8b-a1b"
     ],
     "meituan": [
       "meituan/longcat-2.0",
@@ -544,6 +564,7 @@
       "meta/muse-spark",
       "meta/muse-spark-1.1",
       "meta/muse-spark-contemplating",
+      "meta/muse-image-1.0",
       "meta/llama-3-8b-lite",
       "meta/llama-guard-4-12b",
       "meta/llama-prompt-guard-2-22m",
@@ -577,7 +598,8 @@
       "microsoft/phi-ground",
       "microsoft/phi-ground-any",
       "microsoft/phi-mini-moe-instruct",
-      "microsoft/phi-tiny-moe-instruct"
+      "microsoft/phi-tiny-moe-instruct",
+      "microsoft/wizardlm-2-8x22b"
     ],
     "minimax": [
       "minimax/hailuo-02",
@@ -608,8 +630,15 @@
       "minimax/speech-2.5-turbo-preview",
       "minimax/speech-2.6",
       "minimax/t2v-01-director",
-      "minimax/minimax-m2.5-highspeed",
-      "minimax/minimax-m3"
+      "minimax/minimax-m3",
+      "minimax/music-3.0",
+      "minimax/speech-2.6-hd",
+      "minimax/speech-2.6-turbo",
+      "minimax/minimax-m2.7:free",
+      "minimax/minimax-m3:free",
+      "minimax/music-3.0:free",
+      "minimax/speech-2.8:free",
+      "minimax/speech-2.8"
     ],
     "mistral": [
       "mistral/codestral",
@@ -670,6 +699,7 @@
       "mistral/voxtral-mini",
       "mistral/voxtral-mini-transcribe",
       "mistral/voxtral-mini-transcribe-2",
+      "mistral/voxtral-mini-transcribe-realtime",
       "mistral/voxtral-small",
       "mistral/voxtral-tts",
       "mistral/mistral-medium-3.5",
@@ -746,7 +776,8 @@
       "nvidia/nemotron-3-ultra-550b-a55b",
       "nvidia/nvidia-nemotron-nano-12b-v2-vl",
       "nvidia/nemotron-3.5-lightning",
-      "nvidia/nemotron-3-nano-omni"
+      "nvidia/nemotron-3-nano-omni",
+      "nvidia/nemotron-nano-9b-v2"
     ],
     "openai": [
       "openai/ada",
@@ -784,8 +815,9 @@
       "openai/gpt-4-32k",
       "openai/gpt-4-32k-0314",
       "openai/gpt-4-32k-0613",
+      "openai/gpt-4-0125-preview",
+      "openai/gpt-4-1106-vision-preview",
       "openai/gpt-4-turbo",
-      "openai/gpt-4-turbo-2023-03-14",
       "openai/gpt-4-turbo-2023-11-06",
       "openai/gpt-4.1",
       "openai/gpt-4.1-mini",
@@ -914,7 +946,10 @@
       "openai/gpt-image-2",
       "openai/gpt-transcribe",
       "openai/whisper-large-v3",
-      "openai/whisper-large-v3-turbo"
+      "openai/whisper-large-v3-turbo",
+      "openai/daybreak-blue-latest",
+      "openai/daybreak-red-latest",
+      "openai/gpt-5.6-cyber"
     ],
     "perplexity": [
       "perplexity/pplx-embed-v1-0.6b",
@@ -1129,9 +1164,16 @@
       "qwen/text-embedding-v3",
       "qwen/text-embedding-v4",
       "qwen/wan2.7-t2v",
-      "qwen/qwen3.8-2.4t-a95b"
+      "qwen/qwen3.8-2.4t-a95b",
+      "qwen/qwen3-omni-30b-a3b",
+      "qwen/qwen3.8-27b",
+      "qwen/qwen3.6-flash",
+      "qwen/qwen3.8-flash"
     ],
     "relace": [
+      "relace/relace-apply-3",
+      "relace/relace-compact",
+      "relace/relace-rank",
       "relace/relace-search"
     ],
     "sourceful": [
@@ -1165,7 +1207,11 @@
       "upstage/solar-pro-2-preview",
       "upstage/solar-pro-3",
       "upstage/solar-mini",
-      "upstage/solar-pro-4"
+      "upstage/solar-pro-4",
+      "upstage/solar-embedding-1-large-passage",
+      "upstage/solar-embedding-1-large-query",
+      "upstage/solar-embedding-2-passage",
+      "upstage/solar-embedding-2-query"
     ],
     "vercel": [
       "vercel/v0-1.0-md",
@@ -1201,7 +1247,11 @@
       "voyage/voyage-lite-02-instruct",
       "voyage/voyage-multilingual-2",
       "voyage/voyage-multimodal-3",
-      "voyage/voyage-multimodal-3.5"
+      "voyage/voyage-multimodal-3.5",
+      "voyage/rerank-2.5",
+      "voyage/rerank-2.5-lite",
+      "voyage/voyage-code-4",
+      "voyage/voyage-context-4"
     ],
     "windsurf": [
       "windsurf/swe-1",
@@ -1255,7 +1305,11 @@
       "xiaomi/mimo-v2.5",
       "xiaomi/mimo-v2.5-pro",
       "xiaomi/mimo-v2.5-tts",
-      "xiaomi/mimo-v2.5-tts:free"
+      "xiaomi/mimo-v2.5-tts:free",
+      "xiaomi/mimo-v2.5-asr",
+      "xiaomi/mimo-v2.5-pro-ultraspeed",
+      "xiaomi/mimo-v2.5-tts-voiceclone:free",
+      "xiaomi/mimo-v2.5-tts-voicedesign:free"
     ],
     "z-ai": [
       "z-ai/glm-4-32b",
@@ -1284,7 +1338,10 @@
       "z-ai/glm-5v-turbo",
       "z-ai/glm-image",
       "z-ai/glm-4.7-flash:free",
-      "z-ai/glm-5.3"
+      "z-ai/glm-5.3",
+      "z-ai/autoglm-phone-9b-multilingual",
+      "z-ai/glm-4.7-flash-heretic",
+      "z-ai/glm-5.3-flash"
     ],
     "crofai": [
       "crofai/greg-1-mini",
@@ -1303,7 +1360,9 @@
     ],
     "morph": [
       "morph/morph-v3-fast",
-      "morph/morph-v3-large"
+      "morph/morph-v3-large",
+      "morph/morph-compactor",
+      "morph/morph-warp-grep-v2.1"
     ],
     "thinking-machines": [
       "thinking-machines/inkling",
@@ -1311,7 +1370,12 @@
     ],
     "venice": [
       "venice/venice-uncensored",
-      "venice/venice-uncensored-1.1"
+      "venice/venice-uncensored-1.1",
+      "venice/gemma-4-26b-a4b-uncensored",
+      "venice/gemma-4-uncensored",
+      "venice/qwen3.6-35b-a3b-uncensored",
+      "venice/venice-role-play-uncensored",
+      "venice/venice-uncensored-1.2"
     ],
     "alibaba": [
       "alibaba/happyhorse-1.0",
@@ -1342,6 +1406,18 @@
     "sakana": [
       "sakana/fugu-ultra",
       "sakana/namazu"
+    ],
+    "hexgrad": [
+      "hexgrad/kokoro-82m"
+    ],
+    "jetbrains": [
+      "jetbrains/mellum2-12b-a2.5b"
+    ],
+    "stealth": [
+      "stealth/ox-alpha"
+    ],
+    "stability-ai": [
+      "stability-ai/stable-diffusion-xl-base-1.0"
     ]
   },
   "benchmarks": [
@@ -2244,6 +2320,7 @@
     "alibaba-cloud:text.generate:qwen-qwen3.7-max-2026-05-17",
     "alibaba-cloud:text.generate:qwen-qwen3.7-plus",
     "alibaba-cloud:text.generate:qwen-qwen3.7-plus-2026-05-26",
+    "alibaba-cloud:text.generate:qwen-qwen3.8-flash",
     "amazon-bedrock:text.generate:ai21-jamba-1.5-large",
     "amazon-bedrock:text.generate:ai21-jamba-1.5-mini",
     "amazon-bedrock:text.generate:amazon-nova-2-lite",
