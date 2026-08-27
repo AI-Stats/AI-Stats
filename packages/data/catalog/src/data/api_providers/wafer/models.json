@@ -527,17 +527,28 @@
         "status": "active",
         "params": [
           "reasoning",
+          "include_reasoning",
           "tools",
           "tool_choice",
           "max_tokens",
           "temperature",
           "top_p",
-          "response_format"
+          "top_k",
+          "min_p",
+          "frequency_penalty",
+          "presence_penalty",
+          "repetition_penalty",
+          "stop",
+          "seed",
+          "logit_bias",
+          "response_format",
+          "structured_outputs",
+          "reasoning_effort"
         ],
         "reasoning": true,
         "tool_call": true,
         "structured_output": true,
-        "temperature": null,
+        "temperature": true,
         "attachment": false,
         "input_modalities": null,
         "output_modalities": null,
@@ -557,9 +568,11 @@
     "service_tiers": [],
     "api": {
       "formats": [
-        "openai.chat.completions"
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
       ],
-      "endpoint": "/v1/chat/completions",
+      "endpoint": "https://pass.wafer.ai/v1",
       "deployment": "serverless"
     },
     "sources": [
@@ -568,6 +581,12 @@
         "url": "https://pass.wafer.ai/v1/models",
         "accessed_at": "2026-08-27T00:00:00Z",
         "notes": "Wafer's live model API reports GLM-5.3-Flash as a serverless model with a 1M-token context window, reasoning, tools, structured text formats, streaming, and ZDR support."
+      },
+      {
+        "kind": "docs",
+        "url": "https://docs.wafer.ai/serverless/api-reference",
+        "accessed_at": "2026-08-27T00:00:00Z",
+        "notes": "Official Serverless API reference documents sampling, penalties, stop, seed, logit bias, reasoning effort, tools, JSON mode, and JSON Schema parameters."
       }
     ],
     "verification": {
