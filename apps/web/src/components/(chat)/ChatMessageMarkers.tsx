@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import type { LucideIcon } from "lucide-react";
+import { useState, type ReactNode } from "react";
 import {
 	ChevronDown,
 	Wrench,
@@ -28,8 +27,9 @@ export type RequestContextMarker = {
 
 export type ChatMessageMarker = {
 	id: string;
-	icon: LucideIcon;
+	icon: ReactNode;
 	label: string;
+	title?: string;
 };
 
 export function getRequestContextMarker(
@@ -88,24 +88,32 @@ export function formatReasoningEffort(value: string | null) {
 export function ChatMessageMarkers({
 	markers,
 	messageId,
+	separatorLabel,
 }: {
 	markers: ChatMessageMarker[];
 	messageId: string;
+	separatorLabel?: string | null;
 }) {
-	if (!markers.length) return null;
+	if (!markers.length && !separatorLabel) return null;
 
 	return (
 		<div className="flex flex-col items-center gap-1 px-1 py-2">
+			{separatorLabel ? (
+				<Marker
+					className="min-h-6 justify-center px-1 text-[11px] font-medium tracking-wide text-muted-foreground/70"
+				>
+					<MarkerContent>{separatorLabel}</MarkerContent>
+				</Marker>
+			) : null}
 			{markers.map((marker) => {
-				const Icon = marker.icon;
 				return (
 					<Marker
+						variant="separator"
 						key={`${messageId}-${marker.id}`}
-						className="w-fit rounded-full border border-border bg-muted/60 px-2.5 py-1 text-xs font-medium text-muted-foreground shadow-sm"
+						title={marker.title}
+						className="min-h-6 px-1 text-[11px] font-medium tracking-wide text-muted-foreground/80"
 					>
-						<MarkerIcon>
-							<Icon className="h-3.5 w-3.5" />
-						</MarkerIcon>
+						<MarkerIcon className="size-3.5">{marker.icon}</MarkerIcon>
 						<MarkerContent>{marker.label}</MarkerContent>
 					</Marker>
 				);

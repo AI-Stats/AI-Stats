@@ -67,7 +67,6 @@ import type {
 	ChatResponseLayout,
 } from "@/components/(chat)/playground/chat-playground-core";
 import {
-	Cpu,
 	Save,
 	X,
 } from "lucide-react";
@@ -78,6 +77,11 @@ import {
 	getRequestContextMarker,
 	type ChatMessageMarker,
 } from "@/components/(chat)/ChatMessageMarkers";
+import {
+	formatChatTimeSeparator,
+	formatModelChangeMarker,
+	shouldShowChatTimeSeparator,
+} from "@/components/(chat)/chatMessageMarkerHelpers";
 import type {
 	ChatToolCall,
 	ChatTraceEvent,
@@ -126,6 +130,54 @@ function formatProviderIdLabel(providerId: string | null | undefined) {
 		.filter(Boolean)
 		.map((part) => part.charAt(0).toUpperCase() + part.slice(1))
 		.join(" ");
+}
+
+function ModelChangeMarkerIcon({
+	modelIds,
+	modelOrgIdById,
+	orgNameById,
+}: {
+	modelIds: string[];
+	modelOrgIdById: Record<string, string>;
+	orgNameById: Record<string, string>;
+}) {
+	const labIds = Array.from(
+		new Set(
+			modelIds.map((modelId) => {
+				const mappedOrgId = modelOrgIdById[modelId]?.trim();
+				return (
+					mappedOrgId ||
+					(isInternalModelId(modelId) ? getOrgId(modelId) : "phaseo")
+				);
+			}),
+		),
+	);
+	const visibleLabIds = labIds.slice(0, 3);
+	const remainingLabCount = labIds.length - visibleLabIds.length;
+
+	return (
+		<span className="flex items-center -space-x-1" aria-hidden="true">
+			{visibleLabIds.map((labId) => (
+				<span
+					key={labId}
+					className="flex size-4 shrink-0 items-center justify-center rounded-sm bg-background ring-1 ring-background"
+				>
+					<Logo
+						id={labId}
+						alt={orgNameById[labId] ?? labId}
+						width={14}
+						height={14}
+						className="size-3.5 rounded-none object-contain"
+					/>
+				</span>
+			))}
+			{remainingLabCount > 0 ? (
+				<span className="flex size-4 shrink-0 items-center justify-center rounded-full bg-muted text-[9px] font-semibold text-muted-foreground ring-1 ring-background">
+					+{remainingLabCount}
+				</span>
+			) : null}
+		</span>
+	);
 }
 
 function GeneratingResponseIndicator() {
@@ -223,6 +275,14 @@ function formatMessageSentAt(value: string): string | null {
 			: { year: "numeric" as const }),
 	}).format(date);
 	return `${dateLabel}, ${time}`;
+}
+
+function getChatMessageTimestamp(message: ChatThread["messages"][number]) {
+	if (message.role !== "assistant") return message.createdAt;
+	const variants = ensureVariants(message);
+	const activeVariant =
+		variants[message.activeVariantIndex ?? 0] ?? variants[0];
+	return activeVariant?.createdAt ?? message.createdAt;
 }
 
 const getReadableTextColor = (backgroundColor: string) => {
@@ -533,43 +593,74 @@ export function ChatConversationMessages({
 				(message.meta as Record<string, unknown> | null) ??
 				null;
 			const toolCalls = isUser ? [] : getToolCallsFromMeta(activeMeta);
-			const requestContext = isUser
-				? getRequestContextMarker(message.meta)
-				: null;
-			const previousUserRequestContext = isUser
-				? getRequestContextMarker(
-						activeThread.messages
-							.slice(0, messageIndex)
-							.reverse()
-							.find((item) => item.role === "user")?.meta,
-					)
-				: null;
+			let currentUserMessageIndex = -1;
+			for (let index = 0; index <= messageIndex; index += 1) {
+				if (messages[index]?.role === "user") {
+					currentUserMessageIndex = index;
+				}
+			}
+			const currentUserRequestContext =
+				currentUserMessageIndex >= 0
+					? getRequestContextMarker(messages[currentUserMessageIndex]?.meta)
+					: null;
+			const requestContext = isUser ? currentUserRequestContext : null;
+			const previousUserRequestContext =
+				currentUserMessageIndex >= 0
+					? getRequestContextMarker(
+							messages
+								.slice(0, currentUserMessageIndex)
+								.reverse()
+								.find((item) => item.role === "user")?.meta,
+						)
+					: null;
 			const requestContextMarkers: ChatMessageMarker[] = [];
-			if (requestContext && previousUserRequestContext) {
+			const hasUserModelChangeMarker = isUser && Boolean(
+				currentUserRequestContext &&
+				previousUserRequestContext &&
+				getComparableModelSet(currentUserRequestContext) &&
+				getComparableModelSet(currentUserRequestContext) !==
+					getComparableModelSet(previousUserRequestContext),
+			);
+			if (requestContext && hasUserModelChangeMarker) {
 				const currentModelSet = getComparableModelSet(requestContext);
-				const previousModelSet = getComparableModelSet(previousUserRequestContext);
-				if (currentModelSet && currentModelSet !== previousModelSet) {
-					const labels = [
-						requestContext.modelId
-							? (modelDisplayNameById[requestContext.modelId] ??
-								formatModelLabel(requestContext.modelId))
-							: null,
-						...requestContext.compareModelIds.map(
-							(modelId) =>
-								modelDisplayNameById[modelId] ??
-								formatModelLabel(modelId),
+				if (currentModelSet) {
+					const modelIds = Array.from(
+						new Set(
+							[requestContext.modelId, ...requestContext.compareModelIds].filter(
+								(value): value is string => Boolean(value),
+							),
 						),
-					].filter((value): value is string => Boolean(value));
+					);
+					const labels = modelIds.map(
+						(modelId) =>
+							modelDisplayNameById[modelId] ?? formatModelLabel(modelId),
+					);
+					const modelChange = formatModelChangeMarker(labels);
 					requestContextMarkers.push({
 						id: "model",
-						icon: Cpu,
-						label:
-							labels.length > 1
-								? `Models changed to ${labels.join(", ")}`
-								: `Model changed to ${labels[0] ?? "selected model"}`,
+						icon: (
+							<ModelChangeMarkerIcon
+								modelIds={modelIds}
+								modelOrgIdById={modelOrgIdById}
+								orgNameById={orgNameById}
+							/>
+						),
+						label: modelChange.label,
+						title: modelChange.title,
 					});
 				}
 			}
+			const timestamp = getChatMessageTimestamp(message);
+			const previousTimestamp =
+				messageIndex > 0
+					? getChatMessageTimestamp(messages[messageIndex - 1])
+					: null;
+			const timeSeparatorLabel = shouldShowChatTimeSeparator(
+				timestamp,
+				previousTimestamp,
+			)
+				? formatChatTimeSeparator(timestamp)
+				: null;
 			let messageRequestError: ChatRequestErrorDetails | null = null;
 			if (!isUser) {
 				if (
@@ -658,6 +749,36 @@ export function ChatConversationMessages({
 				overrideModelLabel ||
 				mappedModelLabel ||
 				(displayModelId ? formatModelLabel(displayModelId) : "Model");
+			const previousAssistant = !isUser
+				? messages
+						.slice(0, messageIndex)
+						.reverse()
+						.find((item) => item.role === "assistant")
+				: null;
+			const previousAssistantModelId = previousAssistant
+				? (previousAssistant.modelId ?? activeThread.modelId ?? "").trim()
+				: "";
+			if (
+				!isUser &&
+				displayModelId &&
+				previousAssistantModelId &&
+				displayModelId !== previousAssistantModelId &&
+				!hasUserModelChangeMarker
+			) {
+				const modelChange = formatModelChangeMarker([modelLabel]);
+				requestContextMarkers.push({
+					id: "model",
+					icon: (
+						<ModelChangeMarkerIcon
+							modelIds={[displayModelId]}
+							modelOrgIdById={modelOrgIdById}
+							orgNameById={orgNameById}
+						/>
+					),
+					label: modelChange.label,
+					title: modelChange.title,
+				});
+			}
 			const orgId =
 				(displayModelId ? modelOrgIdById[displayModelId] : undefined) ??
 				(displayModelId
@@ -1215,6 +1336,7 @@ export function ChatConversationMessages({
 						<ChatMessageMarkers
 							markers={requestContextMarkers}
 							messageId={message.id}
+							separatorLabel={timeSeparatorLabel}
 						/>
 					)}
 					<MessageScroller.Item
