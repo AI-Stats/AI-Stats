@@ -11233,5 +11233,68 @@
       "notes": "Verified from Novita's live OpenAI-compatible model catalog."
     },
     "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.8-27b",
+    "provider_api_model_id": "novita:qwen/qwen3.8-27b",
+    "provider_model_slug": "qwen/qwen3.8-27b",
+    "internal_model_id": "qwen/qwen3.8-27b",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-08-27T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": [
+          "text",
+          "image",
+          "video"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "https://api.novita.ai/openai/v1/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.novita.ai/openai/v1/models",
+        "accessed_at": "2026-08-27T00:00:00Z",
+        "notes": "Novita's live model catalogue reports qwen/qwen3.8-27b availability, limits, modalities, features, endpoints, and pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-27T00:00:00Z",
+      "notes": "Availability, provider model slug, limits, capabilities, modalities, endpoints, and pricing verified from Novita's live OpenAI-compatible models endpoint."
+    },
+    "rate_limits": []
   }
 ]
