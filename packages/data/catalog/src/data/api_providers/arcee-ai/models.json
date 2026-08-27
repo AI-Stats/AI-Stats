@@ -146,17 +146,149 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://docs.arcee.ai/get-started/models-overview",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official Trinity hosted-model overview."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified against Arcee's current Trinity model and pricing documentation."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "arcee-ai/trinity-large-thinking",
+    "provider_api_model_id": "arcee-ai:arcee-ai/trinity-large-thinking",
+    "provider_model_slug": "trinity-large-thinking",
+    "internal_model_id": "arcee-ai/trinity-large-thinking",
+    "is_active_gateway": true,
+    "quantization_scheme": "BF16",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": 32768,
+    "effective_from": "2026-04-01T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "max_tokens",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "temperature",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_k",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tool_choice",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "logprobs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "frequency_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "presence_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          "reasoning",
+          "include_reasoning"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://docs.arcee.ai/get-started/models-overview",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official Trinity hosted-model overview."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified against Arcee's current Trinity model and pricing documentation."
     },
     "rate_limits": []
   },
@@ -307,17 +439,26 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://docs.arcee.ai/get-started/models-overview",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official Trinity hosted-model overview."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified against Arcee's current Trinity model and pricing documentation."
     },
     "rate_limits": []
   },
@@ -337,7 +478,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
+        "status": "disabled",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -349,7 +490,7 @@
         "modes": []
       }
     ],
-    "routing_status": null,
+    "routing_status": "disabled",
     "routable": false,
     "regions": {
       "execution": null,
@@ -361,96 +502,39 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://docs.arcee.ai/get-started/models-overview",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Official Trinity hosted-model overview."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Current model overview marks Trinity Nano as non-hosted/coming soon; retained disabled for catalogue history."
     },
     "rate_limits": []
   },
   {
-    "api_model_id": "arcee-ai/trinity-large-thinking",
-    "provider_api_model_id": "arcee-ai:arcee-ai/trinity-large-thinking",
-    "provider_model_slug": "trinity-large-thinking",
-    "internal_model_id": "arcee-ai/trinity-large-thinking",
+    "api_model_id": "deepseek/deepseek-v4-flash-0731",
+    "provider_api_model_id": "arcee-ai:deepseek/deepseek-v4-flash-latest",
+    "provider_model_slug": "deepseek/deepseek-v4-flash-latest",
+    "internal_model_id": "deepseek/deepseek-v4-flash-0731",
     "is_active_gateway": true,
-    "quantization_scheme": "BF16",
+    "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": 262144,
-    "max_output_tokens": 32768,
-    "effective_from": "2026-04-01T00:00:00",
+    "context_length": 1000000,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-14T00:00:00",
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [
-          {
-            "param_id": "max_tokens",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "temperature",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "top_k",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "top_p",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "tools",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "tool_choice",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "logprobs",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "frequency_penalty",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          },
-          {
-            "param_id": "presence_penalty",
-            "provider_min": null,
-            "provider_max": null,
-            "provider_default": null,
-            "notes": null
-          }
-        ],
+        "params": [],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -467,17 +551,258 @@
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "url": "https://docs.arcee.ai/get-started/pricing",
+        "kind": "pricing",
+        "accessed_at": "2026-08-14T00:00:00Z",
+        "notes": "Listed in Arcee AI's official pricing documentation."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-14T00:00:00Z",
+      "notes": "Model is listed as an Arcee Platform text model."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "thinking-machines/inkling-small",
+    "provider_api_model_id": "arcee-ai:thinkingmachines/inkling-small",
+    "provider_model_slug": "thinkingmachines/inkling-small",
+    "internal_model_id": "thinking-machines/inkling-small",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-14T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.arcee.ai/get-started/pricing",
+        "kind": "pricing",
+        "accessed_at": "2026-08-14T00:00:00Z",
+        "notes": "Listed in Arcee AI's official pricing documentation."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-14T00:00:00Z",
+      "notes": "Model is listed as an Arcee Platform text model."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v4-pro",
+    "provider_api_model_id": "arcee-ai:deepseek/deepseek-v4-pro",
+    "provider_model_slug": "deepseek/deepseek-v4-pro",
+    "internal_model_id": "deepseek/deepseek-v4-pro",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-14T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.arcee.ai/get-started/pricing",
+        "kind": "pricing",
+        "accessed_at": "2026-08-14T00:00:00Z",
+        "notes": "Listed in Arcee AI's official pricing documentation."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-14T00:00:00Z",
+      "notes": "Model is listed as an Arcee Platform text model."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-5.2",
+    "provider_api_model_id": "arcee-ai:zai-org/glm-5.2",
+    "provider_model_slug": "zai-org/glm-5.2",
+    "internal_model_id": "z-ai/glm-5.2",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-14T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.arcee.ai/get-started/pricing",
+        "kind": "pricing",
+        "accessed_at": "2026-08-14T00:00:00Z",
+        "notes": "Listed in Arcee AI's official pricing documentation."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-14T00:00:00Z",
+      "notes": "Model is listed as an Arcee Platform text model."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "moonshotai/kimi-k3",
+    "provider_api_model_id": "arcee-ai:moonshotai/kimi-k3",
+    "provider_model_slug": "moonshotai/kimi-k3",
+    "internal_model_id": "moonshotai/kimi-k3",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "url": "https://docs.arcee.ai/get-started/pricing",
+        "kind": "pricing",
+        "accessed_at": "2026-08-14T00:00:00Z",
+        "notes": "Listed in Arcee AI's official pricing documentation."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-14T00:00:00Z",
+      "notes": "Model is listed as an Arcee Platform text model."
     },
     "rate_limits": []
   }

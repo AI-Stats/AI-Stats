@@ -1,8 +1,12 @@
 import type { Metadata, Viewport } from "next";
+import { connection } from "next/server";
 import { ChatViewportLock } from "./ChatViewportLock";
 import { buildMetadata } from "@/lib/seo";
 import { ChatFeatureFlagsProvider } from "@/components/(chat)/ChatFeatureFlags";
 import { realtimeVoiceFlag, videoApiFlag } from "@/lib/flags";
+import { fetchInternalAuthHeaderData } from "@/lib/fetchers/internal/fetchInternalAuthHeaderData";
+import type { InternalAuthHeaderData } from "@/lib/fetchers/internal/authTypes";
+import { ChatAuthProvider } from "@/components/(chat)/ChatAuthProvider";
 
 export const metadata: Metadata = buildMetadata({
 	title: "AI Chat",
@@ -21,23 +25,34 @@ export default async function ChatLayout({
 }: {
 	children: React.ReactNode;
 }) {
-	const [realtimeEnabled, videoEnabled] = await Promise.all([
+	await connection();
+	const emptyAuth: InternalAuthHeaderData = {
+		isLoggedIn: false,
+		user: undefined,
+		teams: [],
+		currentTeamId: undefined,
+		userRole: undefined,
+	};
+	const [realtimeEnabled, videoEnabled, initialAuth] = await Promise.all([
 		realtimeVoiceFlag().catch(() => false),
 		videoApiFlag().catch(() => false),
+		fetchInternalAuthHeaderData().catch(() => emptyAuth),
 	]);
 
 	return (
-		<ChatFeatureFlagsProvider
-			realtimeEnabled={realtimeEnabled}
-			videoEnabled={videoEnabled}
-		>
-			<ChatViewportLock />
-			<div
-				data-chat-viewport-root="true"
-				className="fixed inset-x-0 top-[calc(var(--chat-viewport-top,0px)+var(--site-header-height,3.75rem))] box-border flex h-[calc(var(--chat-viewport-height,100dvh)-var(--site-header-height,3.75rem))] min-h-0 flex-col overflow-hidden overscroll-none bg-background pb-[env(safe-area-inset-bottom)] [&_[data-slot=sidebar-container]]:!top-[calc(var(--chat-viewport-top,0px)+var(--site-header-height,3.75rem))] [&_[data-slot=sidebar-container]]:!bottom-[env(safe-area-inset-bottom)] [&_[data-slot=sidebar-container]]:!h-auto"
+		<ChatAuthProvider initialAuth={initialAuth}>
+			<ChatFeatureFlagsProvider
+				realtimeEnabled={realtimeEnabled}
+				videoEnabled={videoEnabled}
 			>
-				{children}
-			</div>
-		</ChatFeatureFlagsProvider>
+				<ChatViewportLock />
+				<div
+					data-chat-viewport-root="true"
+				className="fixed inset-x-0 top-[calc(var(--chat-viewport-top,0px)+var(--site-header-height,3.75rem))] box-border flex h-[calc(var(--chat-viewport-height,100dvh)-var(--site-header-height,3.75rem))] min-h-0 min-w-0 flex-col overflow-hidden overscroll-none bg-background pb-[env(safe-area-inset-bottom)] [&_[data-slot=sidebar-container]]:!top-[calc(var(--chat-viewport-top,0px)+var(--site-header-height,3.75rem))] [&_[data-slot=sidebar-container]]:!bottom-[env(safe-area-inset-bottom)] [&_[data-slot=sidebar-container]]:!h-auto"
+				>
+					{children}
+				</div>
+			</ChatFeatureFlagsProvider>
+		</ChatAuthProvider>
 	);
 }

@@ -19,7 +19,7 @@
         "params": [],
         "reasoning": true,
         "tool_call": true,
-        "structured_output": null,
+        "structured_output": true,
         "temperature": null,
         "attachment": true,
         "input_modalities": null,
@@ -39,24 +39,457 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
       "endpoint": null,
       "deployment": null
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: anthropic/claude-fable-5"
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is stable and availability is available. Phaseo routing remains disabled."
     },
-    "rate_limits": []
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
+  },
+  {
+    "api_model_id": "anthropic/claude-haiku-4-5",
+    "provider_api_model_id": "crossmodel:anthropic/claude-haiku-4-5",
+    "provider_model_slug": "anthropic/claude-haiku-4-5",
+    "internal_model_id": "anthropic/claude-haiku-4.5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 200000,
+    "max_output_tokens": 64000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is stable and availability is available. Phaseo routing remains disabled."
+    },
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
+  },
+  {
+    "api_model_id": "anthropic/claude-opus-4-7",
+    "provider_api_model_id": "crossmodel:anthropic/claude-opus-4-7",
+    "provider_model_slug": "anthropic/claude-opus-4-7",
+    "internal_model_id": "anthropic/claude-opus-4.7",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 128000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is legacy and availability is available. Phaseo routing remains disabled."
+    },
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
+  },
+  {
+    "api_model_id": "anthropic/claude-opus-4-8",
+    "provider_api_model_id": "crossmodel:anthropic/claude-opus-4-8",
+    "provider_model_slug": "anthropic/claude-opus-4-8",
+    "internal_model_id": "anthropic/claude-opus-4.8",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 128000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is legacy and availability is available. Phaseo routing remains disabled."
+    },
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
+  },
+  {
+    "api_model_id": "anthropic/claude-opus-5",
+    "provider_api_model_id": "crossmodel:anthropic/claude-opus-5",
+    "provider_model_slug": "anthropic/claude-opus-5",
+    "internal_model_id": "anthropic/claude-opus-5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 128000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is stable and availability is available. Phaseo routing remains disabled."
+    },
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
+  },
+  {
+    "api_model_id": "anthropic/claude-sonnet-4-6",
+    "provider_api_model_id": "crossmodel:anthropic/claude-sonnet-4-6",
+    "provider_model_slug": "anthropic/claude-sonnet-4-6",
+    "internal_model_id": "anthropic/claude-sonnet-4.6",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 128000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is legacy and availability is available. Phaseo routing remains disabled."
+    },
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
   },
   {
     "api_model_id": "anthropic/claude-sonnet-5",
@@ -78,7 +511,7 @@
         "params": [],
         "reasoning": true,
         "tool_call": true,
-        "structured_output": null,
+        "structured_output": true,
         "temperature": null,
         "attachment": true,
         "input_modalities": null,
@@ -98,24 +531,47 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
       "endpoint": null,
       "deployment": null
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: anthropic/claude-sonnet-5"
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is stable and availability is available. Phaseo routing remains disabled."
     },
-    "rate_limits": []
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
   },
   {
     "api_model_id": "deepseek/deepseek-v4-flash",
@@ -127,7 +583,7 @@
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 1000000,
-    "max_output_tokens": 65000,
+    "max_output_tokens": 384000,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
@@ -137,7 +593,7 @@
         "params": [],
         "reasoning": true,
         "tool_call": true,
-        "structured_output": true,
+        "structured_output": null,
         "temperature": null,
         "attachment": false,
         "input_modalities": null,
@@ -157,24 +613,129 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
       "endpoint": null,
       "deployment": null
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: deepseek/deepseek-v4-flash"
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is stable and availability is available. Phaseo routing remains disabled."
     },
-    "rate_limits": []
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v4-flash-vision-exp",
+    "provider_api_model_id": "crossmodel:deepseek/deepseek-v4-flash-vision-exp",
+    "provider_model_slug": "deepseek/deepseek-v4-flash-vision-exp",
+    "internal_model_id": "deepseek/deepseek-v4-flash-vision-exp",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 384000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": false,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is experimental and availability is available. Phaseo routing remains disabled."
+    },
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
   },
   {
     "api_model_id": "deepseek/deepseek-v4-pro",
@@ -186,7 +747,7 @@
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 1000000,
-    "max_output_tokens": 65000,
+    "max_output_tokens": 384000,
     "effective_from": null,
     "effective_to": null,
     "capabilities": [
@@ -196,7 +757,7 @@
         "params": [],
         "reasoning": true,
         "tool_call": true,
-        "structured_output": true,
+        "structured_output": null,
         "temperature": null,
         "attachment": false,
         "input_modalities": null,
@@ -216,24 +777,785 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
       "endpoint": null,
       "deployment": null
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: deepseek/deepseek-v4-pro"
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is stable and availability is available. Phaseo routing remains disabled."
     },
-    "rate_limits": []
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
+  },
+  {
+    "api_model_id": "gemini/gemini-2.5-flash",
+    "provider_api_model_id": "crossmodel:gemini/gemini-2.5-flash",
+    "provider_model_slug": "gemini/gemini-2.5-flash",
+    "internal_model_id": "google/gemini-2.5-flash",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video,audio",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is stable and availability is available. Phaseo routing remains disabled."
+    },
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
+  },
+  {
+    "api_model_id": "gemini/gemini-2.5-flash-lite",
+    "provider_api_model_id": "crossmodel:gemini/gemini-2.5-flash-lite",
+    "provider_model_slug": "gemini/gemini-2.5-flash-lite",
+    "internal_model_id": "google/gemini-2.5-flash-lite",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,audio,video",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is stable and availability is available. Phaseo routing remains disabled."
+    },
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
+  },
+  {
+    "api_model_id": "gemini/gemini-2.5-pro",
+    "provider_api_model_id": "crossmodel:gemini/gemini-2.5-pro",
+    "provider_model_slug": "gemini/gemini-2.5-pro",
+    "internal_model_id": "google/gemini-2.5-pro",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,audio,video",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is stable and availability is available. Phaseo routing remains disabled."
+    },
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
+  },
+  {
+    "api_model_id": "gemini/gemini-3-flash-preview",
+    "provider_api_model_id": "crossmodel:gemini/gemini-3-flash-preview",
+    "provider_model_slug": "gemini/gemini-3-flash-preview",
+    "internal_model_id": "google/gemini-3-flash-preview",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video,audio",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is preview and availability is available. Phaseo routing remains disabled."
+    },
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
+  },
+  {
+    "api_model_id": "gemini/gemini-3.1-pro-preview",
+    "provider_api_model_id": "crossmodel:gemini/gemini-3.1-pro-preview",
+    "provider_model_slug": "gemini/gemini-3.1-pro-preview",
+    "internal_model_id": "google/gemini-3.1-pro-preview",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,audio,video",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is preview and availability is available. Phaseo routing remains disabled."
+    },
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
+  },
+  {
+    "api_model_id": "gemini/gemini-3.5-flash",
+    "provider_api_model_id": "crossmodel:gemini/gemini-3.5-flash",
+    "provider_model_slug": "gemini/gemini-3.5-flash",
+    "internal_model_id": "google/gemini-3.5-flash",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,audio,video",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is stable and availability is available. Phaseo routing remains disabled."
+    },
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
+  },
+  {
+    "api_model_id": "gemini/gemini-3.5-flash-lite",
+    "provider_api_model_id": "crossmodel:gemini/gemini-3.5-flash-lite",
+    "provider_model_slug": "gemini/gemini-3.5-flash-lite",
+    "internal_model_id": "google/gemini-3.5-flash-lite",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,audio,video",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is stable and availability is available. Phaseo routing remains disabled."
+    },
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
+  },
+  {
+    "api_model_id": "gemini/gemini-3.6-flash",
+    "provider_api_model_id": "crossmodel:gemini/gemini-3.6-flash",
+    "provider_model_slug": "gemini/gemini-3.6-flash",
+    "internal_model_id": "google/gemini-3.6-flash",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,audio,video",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is stable and availability is available. Phaseo routing remains disabled."
+    },
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
+  },
+  {
+    "api_model_id": "gemini/gemini-3.7-flash",
+    "provider_api_model_id": "crossmodel:gemini/gemini-3.7-flash",
+    "provider_model_slug": "gemini/gemini-3.7-flash",
+    "internal_model_id": "google/gemini-3.7-flash",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,audio,video",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is stable and availability is available. Phaseo routing remains disabled."
+    },
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
   },
   {
     "api_model_id": "minimax/minimax-m2.7",
@@ -275,24 +1597,47 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
       "endpoint": null,
       "deployment": null
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: minimax/minimax-m2.7"
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is stable and availability is available. Phaseo routing remains disabled."
     },
-    "rate_limits": []
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
   },
   {
     "api_model_id": "minimax/minimax-m3",
@@ -334,24 +1679,375 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
       "endpoint": null,
       "deployment": null
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: minimax/minimax-m3"
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is stable and availability is available. Phaseo routing remains disabled."
     },
-    "rate_limits": []
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
+  },
+  {
+    "api_model_id": "moonshot/kimi-k2.5",
+    "provider_api_model_id": "crossmodel:moonshot/kimi-k2.5",
+    "provider_model_slug": "moonshot/kimi-k2.5",
+    "internal_model_id": "moonshotai/kimi-k2.5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 262000,
+    "max_output_tokens": 262000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is deprecated and availability is available. Phaseo routing remains disabled."
+    },
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
+  },
+  {
+    "api_model_id": "moonshot/kimi-k2.6",
+    "provider_api_model_id": "crossmodel:moonshot/kimi-k2.6",
+    "provider_model_slug": "moonshot/kimi-k2.6",
+    "internal_model_id": "moonshotai/kimi-k2.6",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 262000,
+    "max_output_tokens": 262000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is stable and availability is available. Phaseo routing remains disabled."
+    },
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
+  },
+  {
+    "api_model_id": "moonshot/kimi-k2.7-code",
+    "provider_api_model_id": "crossmodel:moonshot/kimi-k2.7-code",
+    "provider_model_slug": "moonshot/kimi-k2.7-code",
+    "internal_model_id": "moonshotai/kimi-k2.7-code",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 262000,
+    "max_output_tokens": 262000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is stable and availability is available. Phaseo routing remains disabled."
+    },
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
+  },
+  {
+    "api_model_id": "moonshot/kimi-k3",
+    "provider_api_model_id": "crossmodel:moonshot/kimi-k3",
+    "provider_model_slug": "moonshot/kimi-k3",
+    "internal_model_id": "moonshotai/kimi-k3",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 1048576,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is stable and availability is available. Phaseo routing remains disabled."
+    },
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
   },
   {
     "api_model_id": "openai/gpt-4o-mini",
@@ -393,24 +2089,47 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
       "endpoint": null,
       "deployment": null
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: openai/gpt-4o-mini"
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is stable and availability is available. Phaseo routing remains disabled."
     },
-    "rate_limits": []
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
   },
   {
     "api_model_id": "openai/gpt-5.4",
@@ -452,24 +2171,47 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
       "endpoint": null,
       "deployment": null
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: openai/gpt-5.4"
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is stable and availability is available. Phaseo routing remains disabled."
     },
-    "rate_limits": []
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
   },
   {
     "api_model_id": "openai/gpt-5.4-mini",
@@ -511,24 +2253,47 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
       "endpoint": null,
       "deployment": null
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: openai/gpt-5.4-mini"
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is stable and availability is available. Phaseo routing remains disabled."
     },
-    "rate_limits": []
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
   },
   {
     "api_model_id": "openai/gpt-5.4-nano",
@@ -570,24 +2335,47 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
       "endpoint": null,
       "deployment": null
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: openai/gpt-5.4-nano"
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is stable and availability is available. Phaseo routing remains disabled."
     },
-    "rate_limits": []
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
   },
   {
     "api_model_id": "openai/gpt-5.5",
@@ -629,24 +2417,47 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
       "endpoint": null,
       "deployment": null
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: openai/gpt-5.5"
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is stable and availability is available. Phaseo routing remains disabled."
     },
-    "rate_limits": []
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
   },
   {
     "api_model_id": "openai/gpt-5.5-pro",
@@ -688,24 +2499,47 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
       "endpoint": null,
       "deployment": null
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: openai/gpt-5.5-pro"
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is stable and availability is available. Phaseo routing remains disabled."
     },
-    "rate_limits": []
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
   },
   {
     "api_model_id": "openai/gpt-5.6-luna",
@@ -747,24 +2581,47 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
       "endpoint": null,
       "deployment": null
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: openai/gpt-5.6-luna"
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is stable and availability is available. Phaseo routing remains disabled."
     },
-    "rate_limits": []
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
   },
   {
     "api_model_id": "openai/gpt-5.6-sol",
@@ -806,24 +2663,47 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
       "endpoint": null,
       "deployment": null
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: openai/gpt-5.6-sol"
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is stable and availability is available. Phaseo routing remains disabled."
     },
-    "rate_limits": []
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
   },
   {
     "api_model_id": "openai/gpt-5.6-terra",
@@ -865,24 +2745,129 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
       "endpoint": null,
       "deployment": null
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: openai/gpt-5.6-terra"
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is stable and availability is available. Phaseo routing remains disabled."
     },
-    "rate_limits": []
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
+  },
+  {
+    "api_model_id": "qwen/qwen3.6-flash",
+    "provider_api_model_id": "crossmodel:qwen/qwen3.6-flash",
+    "provider_model_slug": "qwen/qwen3.6-flash",
+    "internal_model_id": "qwen/qwen3.6-flash",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is legacy and availability is available. Phaseo routing remains disabled."
+    },
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
   },
   {
     "api_model_id": "qwen/qwen3.6-plus",
@@ -906,7 +2891,7 @@
         "tool_call": true,
         "structured_output": null,
         "temperature": null,
-        "attachment": false,
+        "attachment": true,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
@@ -924,24 +2909,129 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
       "endpoint": null,
       "deployment": null
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: qwen/qwen3.6-plus"
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is legacy and availability is available. Phaseo routing remains disabled."
     },
-    "rate_limits": []
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
+  },
+  {
+    "api_model_id": "qwen/qwen3.7-flash",
+    "provider_api_model_id": "crossmodel:qwen/qwen3.7-flash",
+    "provider_model_slug": "qwen/qwen3.7-flash",
+    "internal_model_id": "qwen/qwen3.7-flash",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is stable and availability is available. Phaseo routing remains disabled."
+    },
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
   },
   {
     "api_model_id": "qwen/qwen3.7-max",
@@ -983,24 +3073,47 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
       "endpoint": null,
       "deployment": null
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: qwen/qwen3.7-max"
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is stable and availability is available. Phaseo routing remains disabled."
     },
-    "rate_limits": []
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
   },
   {
     "api_model_id": "qwen/qwen3.7-plus",
@@ -1024,7 +3137,7 @@
         "tool_call": true,
         "structured_output": null,
         "temperature": null,
-        "attachment": false,
+        "attachment": true,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
@@ -1042,30 +3155,135 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
       "endpoint": null,
       "deployment": null
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: qwen/qwen3.7-plus"
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is stable and availability is available. Phaseo routing remains disabled."
     },
-    "rate_limits": []
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
   },
   {
-    "api_model_id": "tencent/hy3-preview",
-    "provider_api_model_id": "crossmodel:tencent/hy3-preview",
-    "provider_model_slug": "tencent/hy3-preview",
-    "internal_model_id": "tencent/hy3-preview",
+    "api_model_id": "qwen/qwen3.8-max",
+    "provider_api_model_id": "crossmodel:qwen/qwen3.8-max",
+    "provider_model_slug": "qwen/qwen3.8-max",
+    "internal_model_id": "qwen/qwen3.8-max",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 131072,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is stable and availability is available. Phaseo routing remains disabled."
+    },
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
+  },
+  {
+    "api_model_id": "tencent/hy3",
+    "provider_api_model_id": "crossmodel:tencent/hy3",
+    "provider_model_slug": "tencent/hy3",
+    "internal_model_id": "tencent/hy3",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
@@ -1101,6 +3319,88 @@
     },
     "service_tiers": [],
     "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is stable and availability is available. Phaseo routing remains disabled."
+    },
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
+  },
+  {
+    "api_model_id": "tencent/hy3-preview",
+    "provider_api_model_id": "crossmodel:tencent/hy3-preview",
+    "provider_model_slug": "tencent/hy3-preview",
+    "internal_model_id": "tencent/hy3-preview",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": 262144,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "inactive",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "retired",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
       "formats": [],
       "endpoint": null,
       "deployment": null
@@ -1111,14 +3411,348 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: tencent/hy3-preview"
+      },
+      {
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Preserved as historical provider support; no longer returned by CrossModel's official current catalogue. Phaseo routing remains disabled."
     },
     "rate_limits": []
+  },
+  {
+    "api_model_id": "x-ai/grok-4.3",
+    "provider_api_model_id": "crossmodel:x-ai/grok-4.3",
+    "provider_model_slug": "x-ai/grok-4.3",
+    "internal_model_id": "spacex-ai/grok-4.3",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 1000000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is stable and availability is available. Phaseo routing remains disabled."
+    },
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
+  },
+  {
+    "api_model_id": "x-ai/grok-4.5",
+    "provider_api_model_id": "crossmodel:x-ai/grok-4.5",
+    "provider_model_slug": "x-ai/grok-4.5",
+    "internal_model_id": "spacex-ai/grok-4.5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 500000,
+    "max_output_tokens": 500000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is stable and availability is available. Phaseo routing remains disabled."
+    },
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
+  },
+  {
+    "api_model_id": "x-ai/grok-4.6",
+    "provider_api_model_id": "crossmodel:x-ai/grok-4.6",
+    "provider_model_slug": "x-ai/grok-4.6",
+    "internal_model_id": "spacex-ai/grok-4.6",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 500000,
+    "max_output_tokens": 500000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is stable and availability is available. Phaseo routing remains disabled."
+    },
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
+  },
+  {
+    "api_model_id": "x-ai/grok-build-0.1",
+    "provider_api_model_id": "crossmodel:x-ai/grok-build-0.1",
+    "provider_model_slug": "x-ai/grok-build-0.1",
+    "internal_model_id": "spacex-ai/grok-build-0.1",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 256000,
+    "max_output_tokens": 256000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is preview and availability is available. Phaseo routing remains disabled."
+    },
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
   },
   {
     "api_model_id": "xiaomi/mimo-v2.5",
@@ -1160,24 +3794,47 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
       "endpoint": null,
       "deployment": null
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: xiaomi/mimo-v2.5"
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is stable and availability is available. Phaseo routing remains disabled."
     },
-    "rate_limits": []
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
   },
   {
     "api_model_id": "xiaomi/mimo-v2.5-pro",
@@ -1219,24 +3876,47 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
       "endpoint": null,
       "deployment": null
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: xiaomi/mimo-v2.5-pro"
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is stable and availability is available. Phaseo routing remains disabled."
     },
-    "rate_limits": []
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
   },
   {
     "api_model_id": "z-ai/glm-4.7",
@@ -1278,24 +3958,47 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
       "endpoint": null,
       "deployment": null
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: z-ai/glm-4.7"
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is legacy and availability is available. Phaseo routing remains disabled."
     },
-    "rate_limits": []
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
   },
   {
     "api_model_id": "z-ai/glm-5",
@@ -1337,24 +4040,47 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
       "endpoint": null,
       "deployment": null
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: z-ai/glm-5"
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is legacy and availability is available. Phaseo routing remains disabled."
     },
-    "rate_limits": []
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
   },
   {
     "api_model_id": "z-ai/glm-5-turbo",
@@ -1376,7 +4102,7 @@
         "params": [],
         "reasoning": true,
         "tool_call": true,
-        "structured_output": true,
+        "structured_output": null,
         "temperature": null,
         "attachment": false,
         "input_modalities": null,
@@ -1396,24 +4122,47 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
       "endpoint": null,
       "deployment": null
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: z-ai/glm-5-turbo"
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is stable and availability is available. Phaseo routing remains disabled."
     },
-    "rate_limits": []
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
   },
   {
     "api_model_id": "z-ai/glm-5.1",
@@ -1435,7 +4184,7 @@
         "params": [],
         "reasoning": true,
         "tool_call": true,
-        "structured_output": true,
+        "structured_output": null,
         "temperature": null,
         "attachment": false,
         "input_modalities": null,
@@ -1455,24 +4204,47 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
       "endpoint": null,
       "deployment": null
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: z-ai/glm-5.1"
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is stable and availability is available. Phaseo routing remains disabled."
     },
-    "rate_limits": []
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
   },
   {
     "api_model_id": "z-ai/glm-5.2",
@@ -1494,7 +4266,7 @@
         "params": [],
         "reasoning": true,
         "tool_call": true,
-        "structured_output": true,
+        "structured_output": null,
         "temperature": null,
         "attachment": false,
         "input_modalities": null,
@@ -1514,23 +4286,128 @@
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
       "endpoint": null,
       "deployment": null
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: z-ai/glm-5.2"
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is stable and availability is available. Phaseo routing remains disabled."
     },
-    "rate_limits": []
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
+  },
+  {
+    "api_model_id": "z-ai/glm-5.3",
+    "provider_api_model_id": "crossmodel:z-ai/glm-5.3",
+    "provider_model_slug": "z-ai/glm-5.3",
+    "internal_model_id": "z-ai/glm-5.3",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 128000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.chat.completions",
+        "openai.responses",
+        "anthropic.messages"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "api_reference",
+        "url": "https://www.crossmodel.ai/api/models",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "Official public CrossModel model catalogue, including availability, lifecycle, limits, modalities, capabilities, and pricing."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Verified against CrossModel's official catalogue; upstream lifecycle stage is stable and availability is available. Phaseo routing remains disabled."
+    },
+    "rate_limits": [
+      {
+        "limit_type": "requests",
+        "value": 60,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      },
+      {
+        "limit_type": "tokens",
+        "value": 5000000,
+        "window": "minute",
+        "scope": "api_key",
+        "region": null,
+        "service_tier": null,
+        "source_url": "https://www.crossmodel.ai/docs/rate-limits"
+      }
+    ]
   }
 ]

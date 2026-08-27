@@ -1,7 +1,8 @@
 import type { Session, User } from "@supabase/supabase-js";
 import { Resend } from "resend";
 import { createAdminClient } from "@/utils/supabase/admin";
-import { classifyAuthMethodFromSession } from "@/lib/auth/method";
+import { classifyAuthMethodFromSession, ssoProviderIdFromSession } from "@/lib/auth/method";
+import { linkScimDirectoryUser } from "@/lib/auth/scimDirectory";
 import { evaluateTeamSsoEnforcementNoop } from "@/lib/auth/ssoEnforcement";
 import { sendAccountLifecycleDiscordWebhook } from "@/lib/auth/accountLifecycleDiscord";
 import {
@@ -10,6 +11,7 @@ import {
 } from "@/lib/automations/resend-events";
 import { ensureWorkspaceStripeWallet } from "@/lib/server/activeTeamStripe";
 import type { createClient } from "@/utils/supabase/server";
+import { setActiveWorkspaceCookie } from "@/utils/workspaceCookie";
 import { shouldRedirectToOnboardingAfterLogin } from "@/lib/auth/post-login-onboarding";
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
@@ -449,13 +451,32 @@ export async function finalizePostLogin(
 		"User";
 
 	const supabaseAdmin = createAdminClient();
-
-	const provisionedTeam = await provisionPersonalWorkspace({
-		supabaseAdmin,
-		userId: user.id,
-		displayName,
-	});
+	const session = input.session ?? (await input.supabaseUser.auth.getSession()).data.session;
+	const directoryLink = await linkScimDirectoryUser({ admin: supabaseAdmin, authUserId: user.id, email: user.email, ssoProviderId: ssoProviderIdFromSession(session) });
+	const provisionedTeam = directoryLink
+		? { workspaceId: directoryLink.workspaceId, createdPersonalTeam: false }
+		: await provisionPersonalWorkspace({ supabaseAdmin, userId: user.id, displayName });
 	const workspaceId = provisionedTeam.workspaceId;
+	await setActiveWorkspaceCookie(workspaceId);
+
+	if (directoryLink) {
+		const { error: usageError } = await supabaseAdmin.rpc(
+			"record_workspace_sso_active_user",
+			{
+				p_workspace_id: workspaceId,
+				p_auth_user_id: user.id,
+				p_seen_at: new Date().toISOString(),
+			},
+		);
+		if (usageError) {
+			console.error("Failed to record workspace SSO active user", {
+				source: input.source,
+				workspaceId,
+				userId: user.id,
+				error: usageError.message,
+			});
+		}
+	}
 
 	try {
 		await ensureWalletRow(
@@ -520,11 +541,6 @@ export async function finalizePostLogin(
 	}
 
 	try {
-		const session =
-			input.session ??
-			(
-				await input.supabaseUser.auth.getSession()
-			).data.session;
 		await evaluateTeamSsoEnforcementNoop({
 			workspaceId,
 			userId: user.id,

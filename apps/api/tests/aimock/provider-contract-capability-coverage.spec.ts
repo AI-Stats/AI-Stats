@@ -8,9 +8,14 @@ const contractsRoot = path.resolve(import.meta.dirname, "../../../../packages/te
 const inheritedContractByProvider: Record<string, string> = {
     ambient: "openai",
     baidu: "openai",
+    "mistral-eu": "mistral",
     "meta-contributor": "meta",
+    "io-net": "openai",
     streamlake: "openai",
     switchpoint: "openai",
+	"ionrouter-kimi": "ionrouter",
+	"ionrouter-minimax": "ionrouter",
+	tensorx: "tensorix",
     wafer: "openai",
 };
 

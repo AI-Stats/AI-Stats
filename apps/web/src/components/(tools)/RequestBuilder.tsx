@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CopyButton } from "@/components/ui/copy-button";
+import { ToolPageHeader } from "@/components/(tools)/ToolPageHeader";
 import {
 	Command,
 	CommandEmpty,
@@ -273,14 +274,8 @@ print(response.json()["choices"][0]["message"]["content"])`;
 	);
 
 	return (
-		<div className="container mx-auto py-8 px-4">
-			<div className="mb-8">
-				<h1 className="text-3xl font-bold mb-2">Request Builder</h1>
-				<p className="text-muted-foreground">
-					Build API requests interactively and generate code snippets
-					in multiple languages.
-				</p>
-			</div>
+		<div className="container mx-auto px-4 py-8 sm:py-12">
+			<ToolPageHeader title="Request Builder" description="Build API requests interactively and generate code snippets in multiple languages." />
 
 			<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 				<Card>

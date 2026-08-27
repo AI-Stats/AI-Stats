@@ -14,6 +14,7 @@ import {
 	ProviderInspectorSheetTitle,
 } from "@/components/(data)/model/pricing/ProviderInspectorSheet";
 import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import {
 	Table,
@@ -137,13 +138,19 @@ export default function UpstreamRequestsTable({
 	return (
 		<>
 			<div className="min-w-0 max-w-full overflow-hidden rounded-lg border border-border/70">
-				<div className="w-full overflow-x-auto">
+				<ScrollArea
+					className="w-full"
+					scrollBarOrientation="horizontal"
+					keepScrollbarMounted
+					viewportClassName="w-full pb-2"
+				>
 					<Table wrapInContainer={false} className="min-w-[1080px] whitespace-nowrap text-xs">
 						<TableHeader>
 							<TableRow className="h-9">
 								<TableHead>Date</TableHead>
 								<TableHead>Model</TableHead>
 								<TableHead>Provider</TableHead>
+								<TableHead>Source</TableHead>
 								<TableHead>Generation ID</TableHead>
 								<TableHead>Status</TableHead>
 								<TableHead className="text-right">Attempts</TableHead>
@@ -155,7 +162,7 @@ export default function UpstreamRequestsTable({
 						<TableBody>
 							{rows.length === 0 ? (
 								<TableRow>
-									<TableCell colSpan={9} className="h-28 text-center text-muted-foreground">
+									<TableCell colSpan={10} className="h-28 text-center text-muted-foreground">
 										No upstream requests in this period.
 									</TableCell>
 								</TableRow>
@@ -216,6 +223,7 @@ export default function UpstreamRequestsTable({
 											</UsageEntityHoverCard>
 										) : providerLabel}
 									</TableCell>
+									<TableCell>{row.client_source_name ?? row.client_source_id ?? "Direct HTTP"}</TableCell>
 										<TableCell className="max-w-[210px] truncate font-mono" title={row.request_id}>{row.request_id}</TableCell>
 										<TableCell>
 											<Badge variant="outline" className={cn("gap-1", row.success ? "border-emerald-500/30 text-emerald-600" : "border-rose-500/30 text-rose-600")}>
@@ -242,7 +250,7 @@ export default function UpstreamRequestsTable({
 							})}
 						</TableBody>
 					</Table>
-				</div>
+				</ScrollArea>
 			</div>
 
 			<ProviderInspectorSheet open={selected !== null} onOpenChange={(open) => { if (!open) setSelected(null); }}>
@@ -260,6 +268,7 @@ export default function UpstreamRequestsTable({
 								<div className="grid grid-cols-2 gap-x-5">
 									<DetailField label="Model" value={getModelDisplayName(selected.model_id, modelMetadata)} />
 									<DetailField label="Provider model" value={selected.provider_model_slug ?? selected.api_model_id ?? "—"} />
+									<DetailField label="Source" value={selected.client_source_name ?? selected.client_source_id ?? "Direct HTTP"} />
 									<DetailField label="Status" value={selected.status_code ?? selected.outcome} />
 									<DetailField label="Attempt" value={attemptLabel(selected)} />
 									<DetailField label="Key used" value={keySourceLabel(selected.key_source)} />

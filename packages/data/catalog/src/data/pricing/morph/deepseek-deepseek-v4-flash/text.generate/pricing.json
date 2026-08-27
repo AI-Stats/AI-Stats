@@ -19,7 +19,7 @@
       "cache_duration_seconds": null,
       "conditions": [],
       "source": "https://www.morphllm.com/pricing",
-      "price_per_unit": 0.14
+      "price_per_unit": 0.139
     },
     {
       "meter": "cached_read_text_tokens",
@@ -35,7 +35,7 @@
       "cache_duration_seconds": null,
       "conditions": [],
       "source": "https://www.morphllm.com/pricing",
-      "price_per_unit": 0.03
+      "price_per_unit": 0.07
     },
     {
       "meter": "output_text_tokens",
@@ -51,7 +51,7 @@
       "cache_duration_seconds": null,
       "conditions": [],
       "source": "https://www.morphllm.com/pricing",
-      "price_per_unit": 0.28
+      "price_per_unit": 0.278
     }
   ],
   "regions": [
@@ -69,6 +69,6 @@
   "verification": {
     "status": "verified",
     "checked_at": "2026-07-30T00:00:00Z",
-    "notes": "Official Morph pricing page lists DeepSeek V4 Flash at $0.14 input, $0.03 cached input, and $0.28 output per 1M tokens."
+    "notes": "Verified against Morph's current pricing page: $0.14 input, $0.07 cached input, and $0.28 output per 1M tokens."
   }
 }

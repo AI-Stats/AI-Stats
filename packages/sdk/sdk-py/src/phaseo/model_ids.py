@@ -10,21 +10,17 @@ from typing import Final
 class ModelIds:
     """Known model ID constants for editor autocomplete and hover docs."""
 
-    # Model ID: ai21/jamba-large-1.7
-    # Model page: https://phaseo.app/models/ai21/jamba-large-1.7
-    AI21_JAMBA_LARGE_1_7: Final[str] = "ai21/jamba-large-1.7"
+    # Model ID: ai21/jamba-1.5-large
+    # Model page: https://phaseo.app/models/ai21/jamba-1.5-large
+    AI21_JAMBA_1_5_LARGE: Final[str] = "ai21/jamba-1.5-large"
 
-    # Model ID: ai21/jamba-mini-2
-    # Model page: https://phaseo.app/models/ai21/jamba-mini-2
-    AI21_JAMBA_MINI_2: Final[str] = "ai21/jamba-mini-2"
+    # Model ID: ai21/jamba-1.5-mini
+    # Model page: https://phaseo.app/models/ai21/jamba-1.5-mini
+    AI21_JAMBA_1_5_MINI: Final[str] = "ai21/jamba-1.5-mini"
 
     # Model ID: aion-labs/aion-2.0
     # Model page: https://phaseo.app/models/aion-labs/aion-2.0
     AION_LABS_AION_2_0: Final[str] = "aion-labs/aion-2.0"
-
-    # Model ID: aion-labs/aion-2.5
-    # Model page: https://phaseo.app/models/aion-labs/aion-2.5
-    AION_LABS_AION_2_5: Final[str] = "aion-labs/aion-2.5"
 
     # Model ID: aion-labs/aion-3.0
     # Model page: https://phaseo.app/models/aion-labs/aion-3.0
@@ -42,9 +38,37 @@ class ModelIds:
     # Model page: https://phaseo.app/models/allenai/molmo-2-8b
     ALLENAI_MOLMO_2_8B: Final[str] = "allenai/molmo-2-8b"
 
-    # Model ID: allenai/olmo-3.1-32b
-    # Model page: https://phaseo.app/models/allenai/olmo-3.1-32b
-    ALLENAI_OLMO_3_1_32B: Final[str] = "allenai/olmo-3.1-32b"
+    # Model ID: amazon/nova-2-lite
+    # Model page: https://phaseo.app/models/amazon/nova-2-lite
+    AMAZON_NOVA_2_LITE: Final[str] = "amazon/nova-2-lite"
+
+    # Model ID: amazon/nova-lite-1.0
+    # Model page: https://phaseo.app/models/amazon/nova-lite-1.0
+    AMAZON_NOVA_LITE_1_0: Final[str] = "amazon/nova-lite-1.0"
+
+    # Model ID: amazon/nova-micro-1.0
+    # Model page: https://phaseo.app/models/amazon/nova-micro-1.0
+    AMAZON_NOVA_MICRO_1_0: Final[str] = "amazon/nova-micro-1.0"
+
+    # Model ID: amazon/nova-premier
+    # Model page: https://phaseo.app/models/amazon/nova-premier
+    AMAZON_NOVA_PREMIER: Final[str] = "amazon/nova-premier"
+
+    # Model ID: amazon/nova-pro-1.0
+    # Model page: https://phaseo.app/models/amazon/nova-pro-1.0
+    AMAZON_NOVA_PRO_1_0: Final[str] = "amazon/nova-pro-1.0"
+
+    # Model ID: anthropic/claude-3-haiku
+    # Model page: https://phaseo.app/models/anthropic/claude-3-haiku
+    ANTHROPIC_CLAUDE_3_HAIKU: Final[str] = "anthropic/claude-3-haiku"
+
+    # Model ID: anthropic/claude-3.5-haiku
+    # Model page: https://phaseo.app/models/anthropic/claude-3.5-haiku
+    ANTHROPIC_CLAUDE_3_5_HAIKU: Final[str] = "anthropic/claude-3.5-haiku"
+
+    # Model ID: anthropic/claude-3.7-sonnet
+    # Model page: https://phaseo.app/models/anthropic/claude-3.7-sonnet
+    ANTHROPIC_CLAUDE_3_7_SONNET: Final[str] = "anthropic/claude-3.7-sonnet"
 
     # Model ID: anthropic/claude-fable-5
     # Model page: https://phaseo.app/models/anthropic/claude-fable-5
@@ -53,6 +77,10 @@ class ModelIds:
     # Model ID: anthropic/claude-haiku-4.5
     # Model page: https://phaseo.app/models/anthropic/claude-haiku-4.5
     ANTHROPIC_CLAUDE_HAIKU_4_5: Final[str] = "anthropic/claude-haiku-4.5"
+
+    # Model ID: anthropic/claude-opus-4
+    # Model page: https://phaseo.app/models/anthropic/claude-opus-4
+    ANTHROPIC_CLAUDE_OPUS_4: Final[str] = "anthropic/claude-opus-4"
 
     # Model ID: anthropic/claude-opus-4.1
     # Model page: https://phaseo.app/models/anthropic/claude-opus-4.1
@@ -70,10 +98,6 @@ class ModelIds:
     # Model page: https://phaseo.app/models/anthropic/claude-opus-4.7
     ANTHROPIC_CLAUDE_OPUS_4_7: Final[str] = "anthropic/claude-opus-4.7"
 
-    # Model ID: anthropic/claude-opus-4.7-fast
-    # Model page: https://phaseo.app/models/anthropic/claude-opus-4.7-fast
-    ANTHROPIC_CLAUDE_OPUS_4_7_FAST: Final[str] = "anthropic/claude-opus-4.7-fast"
-
     # Model ID: anthropic/claude-opus-4.8
     # Model page: https://phaseo.app/models/anthropic/claude-opus-4.8
     ANTHROPIC_CLAUDE_OPUS_4_8: Final[str] = "anthropic/claude-opus-4.8"
@@ -81,6 +105,10 @@ class ModelIds:
     # Model ID: anthropic/claude-opus-5
     # Model page: https://phaseo.app/models/anthropic/claude-opus-5
     ANTHROPIC_CLAUDE_OPUS_5: Final[str] = "anthropic/claude-opus-5"
+
+    # Model ID: anthropic/claude-sonnet-4
+    # Model page: https://phaseo.app/models/anthropic/claude-sonnet-4
+    ANTHROPIC_CLAUDE_SONNET_4: Final[str] = "anthropic/claude-sonnet-4"
 
     # Model ID: anthropic/claude-sonnet-4.5
     # Model page: https://phaseo.app/models/anthropic/claude-sonnet-4.5
@@ -106,29 +134,37 @@ class ModelIds:
     # Model page: https://phaseo.app/models/arcee-ai/trinity-mini
     ARCEE_AI_TRINITY_MINI: Final[str] = "arcee-ai/trinity-mini"
 
+    # Model ID: baai/bge-m3
+    # Model page: https://phaseo.app/models/baai/bge-m3
+    BAAI_BGE_M3: Final[str] = "baai/bge-m3"
+
+    # Model ID: baai/bge-multilingual-gemma2
+    # Model page: https://phaseo.app/models/baai/bge-multilingual-gemma2
+    BAAI_BGE_MULTILINGUAL_GEMMA2: Final[str] = "baai/bge-multilingual-gemma2"
+
+    # Model ID: baai/bge-reranker-v2-m3
+    # Model page: https://phaseo.app/models/baai/bge-reranker-v2-m3
+    BAAI_BGE_RERANKER_V2_M3: Final[str] = "baai/bge-reranker-v2-m3"
+
+    # Model ID: baidu/cobuddy
+    # Model page: https://phaseo.app/models/baidu/cobuddy
+    BAIDU_COBUDDY: Final[str] = "baidu/cobuddy"
+
     # Model ID: baidu/ernie-4.5-21b-a3b
     # Model page: https://phaseo.app/models/baidu/ernie-4.5-21b-a3b
     BAIDU_ERNIE_4_5_21B_A3B: Final[str] = "baidu/ernie-4.5-21b-a3b"
-
-    # Model ID: baidu/ernie-4.5-21b-a3b-thinking
-    # Model page: https://phaseo.app/models/baidu/ernie-4.5-21b-a3b-thinking
-    BAIDU_ERNIE_4_5_21B_A3B_THINKING: Final[str] = "baidu/ernie-4.5-21b-a3b-thinking"
 
     # Model ID: baidu/ernie-4.5-300b-a47b
     # Model page: https://phaseo.app/models/baidu/ernie-4.5-300b-a47b
     BAIDU_ERNIE_4_5_300B_A47B: Final[str] = "baidu/ernie-4.5-300b-a47b"
 
-    # Model ID: baidu/ernie-4.5-vl-28b-a3b
-    # Model page: https://phaseo.app/models/baidu/ernie-4.5-vl-28b-a3b
-    BAIDU_ERNIE_4_5_VL_28B_A3B: Final[str] = "baidu/ernie-4.5-vl-28b-a3b"
-
-    # Model ID: baidu/ernie-4.5-vl-28b-a3b-thinking
-    # Model page: https://phaseo.app/models/baidu/ernie-4.5-vl-28b-a3b-thinking
-    BAIDU_ERNIE_4_5_VL_28B_A3B_THINKING: Final[str] = "baidu/ernie-4.5-vl-28b-a3b-thinking"
-
     # Model ID: baidu/ernie-4.5-vl-424b-a47b
     # Model page: https://phaseo.app/models/baidu/ernie-4.5-vl-424b-a47b
     BAIDU_ERNIE_4_5_VL_424B_A47B: Final[str] = "baidu/ernie-4.5-vl-424b-a47b"
+
+    # Model ID: black-forest-labs/flux-1-dev
+    # Model page: https://phaseo.app/models/black-forest-labs/flux-1-dev
+    BLACK_FOREST_LABS_FLUX_1_DEV: Final[str] = "black-forest-labs/flux-1-dev"
 
     # Model ID: black-forest-labs/flux-1-schnell
     # Model page: https://phaseo.app/models/black-forest-labs/flux-1-schnell
@@ -138,6 +174,10 @@ class ModelIds:
     # Model page: https://phaseo.app/models/bytedance/seed-1.6
     BYTEDANCE_SEED_1_6: Final[str] = "bytedance/seed-1.6"
 
+    # Model ID: bytedance/seed-1.6-2025-10-15
+    # Model page: https://phaseo.app/models/bytedance/seed-1.6-2025-10-15
+    BYTEDANCE_SEED_1_6_2025_10_15: Final[str] = "bytedance/seed-1.6-2025-10-15"
+
     # Model ID: bytedance/seed-1.6-250915
     # Model page: https://phaseo.app/models/bytedance/seed-1.6-250915
     BYTEDANCE_SEED_1_6_250915: Final[str] = "bytedance/seed-1.6-250915"
@@ -145,6 +185,10 @@ class ModelIds:
     # Model ID: bytedance/seed-1.6-flash
     # Model page: https://phaseo.app/models/bytedance/seed-1.6-flash
     BYTEDANCE_SEED_1_6_FLASH: Final[str] = "bytedance/seed-1.6-flash"
+
+    # Model ID: bytedance/seed-1.6-flash-2025-08-28
+    # Model page: https://phaseo.app/models/bytedance/seed-1.6-flash-2025-08-28
+    BYTEDANCE_SEED_1_6_FLASH_2025_08_28: Final[str] = "bytedance/seed-1.6-flash-2025-08-28"
 
     # Model ID: bytedance/seed-1.6-flash-250715
     # Model page: https://phaseo.app/models/bytedance/seed-1.6-flash-250715
@@ -154,9 +198,21 @@ class ModelIds:
     # Model page: https://phaseo.app/models/bytedance/seed-1.8
     BYTEDANCE_SEED_1_8: Final[str] = "bytedance/seed-1.8"
 
+    # Model ID: bytedance/seed-1.8-2025-12-28
+    # Model page: https://phaseo.app/models/bytedance/seed-1.8-2025-12-28
+    BYTEDANCE_SEED_1_8_2025_12_28: Final[str] = "bytedance/seed-1.8-2025-12-28"
+
+    # Model ID: bytedance/seed-2.0-code-preview-2026-02-15
+    # Model page: https://phaseo.app/models/bytedance/seed-2.0-code-preview-2026-02-15
+    BYTEDANCE_SEED_2_0_CODE_PREVIEW_2026_02_15: Final[str] = "bytedance/seed-2.0-code-preview-2026-02-15"
+
     # Model ID: bytedance/seed-2.0-lite
     # Model page: https://phaseo.app/models/bytedance/seed-2.0-lite
     BYTEDANCE_SEED_2_0_LITE: Final[str] = "bytedance/seed-2.0-lite"
+
+    # Model ID: bytedance/seed-2.0-lite-2026-04-28
+    # Model page: https://phaseo.app/models/bytedance/seed-2.0-lite-2026-04-28
+    BYTEDANCE_SEED_2_0_LITE_2026_04_28: Final[str] = "bytedance/seed-2.0-lite-2026-04-28"
 
     # Model ID: bytedance/seed-2.0-lite-260428
     # Model page: https://phaseo.app/models/bytedance/seed-2.0-lite-260428
@@ -166,6 +222,10 @@ class ModelIds:
     # Model page: https://phaseo.app/models/bytedance/seed-2.0-mini
     BYTEDANCE_SEED_2_0_MINI: Final[str] = "bytedance/seed-2.0-mini"
 
+    # Model ID: bytedance/seed-2.0-mini-2026-04-28
+    # Model page: https://phaseo.app/models/bytedance/seed-2.0-mini-2026-04-28
+    BYTEDANCE_SEED_2_0_MINI_2026_04_28: Final[str] = "bytedance/seed-2.0-mini-2026-04-28"
+
     # Model ID: bytedance/seed-2.0-mini-260428
     # Model page: https://phaseo.app/models/bytedance/seed-2.0-mini-260428
     BYTEDANCE_SEED_2_0_MINI_260428: Final[str] = "bytedance/seed-2.0-mini-260428"
@@ -173,6 +233,10 @@ class ModelIds:
     # Model ID: bytedance/seed-2.0-pro
     # Model page: https://phaseo.app/models/bytedance/seed-2.0-pro
     BYTEDANCE_SEED_2_0_PRO: Final[str] = "bytedance/seed-2.0-pro"
+
+    # Model ID: bytedance/seed-2.1-turbo
+    # Model page: https://phaseo.app/models/bytedance/seed-2.1-turbo
+    BYTEDANCE_SEED_2_1_TURBO: Final[str] = "bytedance/seed-2.1-turbo"
 
     # Model ID: bytedance/seed-oss-36b-instruct
     # Model page: https://phaseo.app/models/bytedance/seed-oss-36b-instruct
@@ -198,6 +262,46 @@ class ModelIds:
     # Model page: https://phaseo.app/models/bytedance/seedream-5.0-pro
     BYTEDANCE_SEEDREAM_5_0_PRO: Final[str] = "bytedance/seedream-5.0-pro"
 
+    # Model ID: cohere/command-a
+    # Model page: https://phaseo.app/models/cohere/command-a
+    COHERE_COMMAND_A: Final[str] = "cohere/command-a"
+
+    # Model ID: cohere/command-r
+    # Model page: https://phaseo.app/models/cohere/command-r
+    COHERE_COMMAND_R: Final[str] = "cohere/command-r"
+
+    # Model ID: cohere/command-r-plus
+    # Model page: https://phaseo.app/models/cohere/command-r-plus
+    COHERE_COMMAND_R_PLUS: Final[str] = "cohere/command-r-plus"
+
+    # Model ID: cohere/command-r7b
+    # Model page: https://phaseo.app/models/cohere/command-r7b
+    COHERE_COMMAND_R7B: Final[str] = "cohere/command-r7b"
+
+    # Model ID: cohere/embed-english-v3
+    # Model page: https://phaseo.app/models/cohere/embed-english-v3
+    COHERE_EMBED_ENGLISH_V3: Final[str] = "cohere/embed-english-v3"
+
+    # Model ID: cohere/embed-multilingual-v3
+    # Model page: https://phaseo.app/models/cohere/embed-multilingual-v3
+    COHERE_EMBED_MULTILINGUAL_V3: Final[str] = "cohere/embed-multilingual-v3"
+
+    # Model ID: cohere/embed-v4
+    # Model page: https://phaseo.app/models/cohere/embed-v4
+    COHERE_EMBED_V4: Final[str] = "cohere/embed-v4"
+
+    # Model ID: cohere/rerank-v3.5
+    # Model page: https://phaseo.app/models/cohere/rerank-v3.5
+    COHERE_RERANK_V3_5: Final[str] = "cohere/rerank-v3.5"
+
+    # Model ID: cohere/rerank-v4.0-fast
+    # Model page: https://phaseo.app/models/cohere/rerank-v4.0-fast
+    COHERE_RERANK_V4_0_FAST: Final[str] = "cohere/rerank-v4.0-fast"
+
+    # Model ID: cohere/rerank-v4.0-pro
+    # Model page: https://phaseo.app/models/cohere/rerank-v4.0-pro
+    COHERE_RERANK_V4_0_PRO: Final[str] = "cohere/rerank-v4.0-pro"
+
     # Model ID: crofai/greg-1-mini
     # Model page: https://phaseo.app/models/crofai/greg-1-mini
     CROFAI_GREG_1_MINI: Final[str] = "crofai/greg-1-mini"
@@ -222,10 +326,6 @@ class ModelIds:
     # Model page: https://phaseo.app/models/deepseek/deepseek-ocr-2
     DEEPSEEK_DEEPSEEK_OCR_2: Final[str] = "deepseek/deepseek-ocr-2"
 
-    # Model ID: deepseek/deepseek-prover-v2-671b
-    # Model page: https://phaseo.app/models/deepseek/deepseek-prover-v2-671b
-    DEEPSEEK_DEEPSEEK_PROVER_V2_671B: Final[str] = "deepseek/deepseek-prover-v2-671b"
-
     # Model ID: deepseek/deepseek-r1
     # Model page: https://phaseo.app/models/deepseek/deepseek-r1
     DEEPSEEK_DEEPSEEK_R1: Final[str] = "deepseek/deepseek-r1"
@@ -234,9 +334,9 @@ class ModelIds:
     # Model page: https://phaseo.app/models/deepseek/deepseek-r1-0528
     DEEPSEEK_DEEPSEEK_R1_0528: Final[str] = "deepseek/deepseek-r1-0528"
 
-    # Model ID: deepseek/deepseek-r1-2025-05-28
-    # Model page: https://phaseo.app/models/deepseek/deepseek-r1-2025-05-28
-    DEEPSEEK_DEEPSEEK_R1_2025_05_28: Final[str] = "deepseek/deepseek-r1-2025-05-28"
+    # Model ID: deepseek/deepseek-r1-distill-llama-70b
+    # Model page: https://phaseo.app/models/deepseek/deepseek-r1-distill-llama-70b
+    DEEPSEEK_DEEPSEEK_R1_DISTILL_LLAMA_70B: Final[str] = "deepseek/deepseek-r1-distill-llama-70b"
 
     # Model ID: deepseek/deepseek-r1-turbo
     # Model page: https://phaseo.app/models/deepseek/deepseek-r1-turbo
@@ -270,10 +370,6 @@ class ModelIds:
     # Model page: https://phaseo.app/models/deepseek/deepseek-v3.2-exp
     DEEPSEEK_DEEPSEEK_V3_2_EXP: Final[str] = "deepseek/deepseek-v3.2-exp"
 
-    # Model ID: deepseek/deepseek-v3.2-speciale
-    # Model page: https://phaseo.app/models/deepseek/deepseek-v3.2-speciale
-    DEEPSEEK_DEEPSEEK_V3_2_SPECIALE: Final[str] = "deepseek/deepseek-v3.2-speciale"
-
     # Model ID: deepseek/deepseek-v4-flash
     # Model page: https://phaseo.app/models/deepseek/deepseek-v4-flash
     DEEPSEEK_DEEPSEEK_V4_FLASH: Final[str] = "deepseek/deepseek-v4-flash"
@@ -282,13 +378,17 @@ class ModelIds:
     # Model page: https://phaseo.app/models/deepseek/deepseek-v4-flash-0731
     DEEPSEEK_DEEPSEEK_V4_FLASH_0731: Final[str] = "deepseek/deepseek-v4-flash-0731"
 
+    # Model ID: deepseek/deepseek-v4-flash-vision-exp
+    # Model page: https://phaseo.app/models/deepseek/deepseek-v4-flash-vision-exp
+    DEEPSEEK_DEEPSEEK_V4_FLASH_VISION_EXP: Final[str] = "deepseek/deepseek-v4-flash-vision-exp"
+
     # Model ID: deepseek/deepseek-v4-pro
     # Model page: https://phaseo.app/models/deepseek/deepseek-v4-pro
     DEEPSEEK_DEEPSEEK_V4_PRO: Final[str] = "deepseek/deepseek-v4-pro"
 
-    # Model ID: deepseek/deepseek-v4-pro-lightning
-    # Model page: https://phaseo.app/models/deepseek/deepseek-v4-pro-lightning
-    DEEPSEEK_DEEPSEEK_V4_PRO_LIGHTNING: Final[str] = "deepseek/deepseek-v4-pro-lightning"
+    # Model ID: deepseek/deepseek-v4-pro-0813
+    # Model page: https://phaseo.app/models/deepseek/deepseek-v4-pro-0813
+    DEEPSEEK_DEEPSEEK_V4_PRO_0813: Final[str] = "deepseek/deepseek-v4-pro-0813"
 
     # Model ID: eleven-labs/eleven-flash-v2
     # Model page: https://phaseo.app/models/eleven-labs/eleven-flash-v2
@@ -314,6 +414,14 @@ class ModelIds:
     # Model page: https://phaseo.app/models/eleven-labs/eleven-v3
     ELEVEN_LABS_ELEVEN_V3: Final[str] = "eleven-labs/eleven-v3"
 
+    # Model ID: eleven-labs/music
+    # Model page: https://phaseo.app/models/eleven-labs/music
+    ELEVEN_LABS_MUSIC: Final[str] = "eleven-labs/music"
+
+    # Model ID: eleven-labs/scribe-v2
+    # Model page: https://phaseo.app/models/eleven-labs/scribe-v2
+    ELEVEN_LABS_SCRIBE_V2: Final[str] = "eleven-labs/scribe-v2"
+
     # Model ID: essential-ai/rnj-1
     # Model page: https://phaseo.app/models/essential-ai/rnj-1
     ESSENTIAL_AI_RNJ_1: Final[str] = "essential-ai/rnj-1"
@@ -322,17 +430,13 @@ class ModelIds:
     # Model page: https://phaseo.app/models/google/gemini-2.5-flash
     GOOGLE_GEMINI_2_5_FLASH: Final[str] = "google/gemini-2.5-flash"
 
+    # Model ID: google/gemini-2.5-flash-image
+    # Model page: https://phaseo.app/models/google/gemini-2.5-flash-image
+    GOOGLE_GEMINI_2_5_FLASH_IMAGE: Final[str] = "google/gemini-2.5-flash-image"
+
     # Model ID: google/gemini-2.5-flash-lite
     # Model page: https://phaseo.app/models/google/gemini-2.5-flash-lite
     GOOGLE_GEMINI_2_5_FLASH_LITE: Final[str] = "google/gemini-2.5-flash-lite"
-
-    # Model ID: google/gemini-2.5-flash-lite-preview-2025-06-17
-    # Model page: https://phaseo.app/models/google/gemini-2.5-flash-lite-preview-2025-06-17
-    GOOGLE_GEMINI_2_5_FLASH_LITE_PREVIEW_2025_06_17: Final[str] = "google/gemini-2.5-flash-lite-preview-2025-06-17"
-
-    # Model ID: google/gemini-2.5-flash-lite-preview-2025-09-25
-    # Model page: https://phaseo.app/models/google/gemini-2.5-flash-lite-preview-2025-09-25
-    GOOGLE_GEMINI_2_5_FLASH_LITE_PREVIEW_2025_09_25: Final[str] = "google/gemini-2.5-flash-lite-preview-2025-09-25"
 
     # Model ID: google/gemini-2.5-pro
     # Model page: https://phaseo.app/models/google/gemini-2.5-pro
@@ -350,10 +454,6 @@ class ModelIds:
     # Model page: https://phaseo.app/models/google/gemini-3.1-flash-image
     GOOGLE_GEMINI_3_1_FLASH_IMAGE: Final[str] = "google/gemini-3.1-flash-image"
 
-    # Model ID: google/gemini-3.1-flash-image-preview
-    # Model page: https://phaseo.app/models/google/gemini-3.1-flash-image-preview
-    GOOGLE_GEMINI_3_1_FLASH_IMAGE_PREVIEW: Final[str] = "google/gemini-3.1-flash-image-preview"
-
     # Model ID: google/gemini-3.1-flash-lite
     # Model page: https://phaseo.app/models/google/gemini-3.1-flash-lite
     GOOGLE_GEMINI_3_1_FLASH_LITE: Final[str] = "google/gemini-3.1-flash-lite"
@@ -362,9 +462,9 @@ class ModelIds:
     # Model page: https://phaseo.app/models/google/gemini-3.1-flash-lite-image
     GOOGLE_GEMINI_3_1_FLASH_LITE_IMAGE: Final[str] = "google/gemini-3.1-flash-lite-image"
 
-    # Model ID: google/gemini-3.1-flash-lite-preview
-    # Model page: https://phaseo.app/models/google/gemini-3.1-flash-lite-preview
-    GOOGLE_GEMINI_3_1_FLASH_LITE_PREVIEW: Final[str] = "google/gemini-3.1-flash-lite-preview"
+    # Model ID: google/gemini-3.1-flash-live-preview
+    # Model page: https://phaseo.app/models/google/gemini-3.1-flash-live-preview
+    GOOGLE_GEMINI_3_1_FLASH_LIVE_PREVIEW: Final[str] = "google/gemini-3.1-flash-live-preview"
 
     # Model ID: google/gemini-3.1-flash-tts-preview
     # Model page: https://phaseo.app/models/google/gemini-3.1-flash-tts-preview
@@ -382,9 +482,17 @@ class ModelIds:
     # Model page: https://phaseo.app/models/google/gemini-3.5-flash
     GOOGLE_GEMINI_3_5_FLASH: Final[str] = "google/gemini-3.5-flash"
 
-    # Model ID: google/gemini-3.5-pro
-    # Model page: https://phaseo.app/models/google/gemini-3.5-pro
-    GOOGLE_GEMINI_3_5_PRO: Final[str] = "google/gemini-3.5-pro"
+    # Model ID: google/gemini-3.5-flash-lite
+    # Model page: https://phaseo.app/models/google/gemini-3.5-flash-lite
+    GOOGLE_GEMINI_3_5_FLASH_LITE: Final[str] = "google/gemini-3.5-flash-lite"
+
+    # Model ID: google/gemini-3.6-flash
+    # Model page: https://phaseo.app/models/google/gemini-3.6-flash
+    GOOGLE_GEMINI_3_6_FLASH: Final[str] = "google/gemini-3.6-flash"
+
+    # Model ID: google/gemini-3.7-flash
+    # Model page: https://phaseo.app/models/google/gemini-3.7-flash
+    GOOGLE_GEMINI_3_7_FLASH: Final[str] = "google/gemini-3.7-flash"
 
     # Model ID: google/gemini-embedding-001
     # Model page: https://phaseo.app/models/google/gemini-embedding-001
@@ -394,21 +502,29 @@ class ModelIds:
     # Model page: https://phaseo.app/models/google/gemini-embedding-2
     GOOGLE_GEMINI_EMBEDDING_2: Final[str] = "google/gemini-embedding-2"
 
-    # Model ID: google/gemini-embedding-2-preview
-    # Model page: https://phaseo.app/models/google/gemini-embedding-2-preview
-    GOOGLE_GEMINI_EMBEDDING_2_PREVIEW: Final[str] = "google/gemini-embedding-2-preview"
-
     # Model ID: google/gemini-robotics-er-1.6-preview
     # Model page: https://phaseo.app/models/google/gemini-robotics-er-1.6-preview
     GOOGLE_GEMINI_ROBOTICS_ER_1_6_PREVIEW: Final[str] = "google/gemini-robotics-er-1.6-preview"
+
+    # Model ID: google/gemini-robotics-er-2-preview
+    # Model page: https://phaseo.app/models/google/gemini-robotics-er-2-preview
+    GOOGLE_GEMINI_ROBOTICS_ER_2_PREVIEW: Final[str] = "google/gemini-robotics-er-2-preview"
+
+    # Model ID: google/gemma-3-12b
+    # Model page: https://phaseo.app/models/google/gemma-3-12b
+    GOOGLE_GEMMA_3_12B: Final[str] = "google/gemma-3-12b"
 
     # Model ID: google/gemma-3-27b
     # Model page: https://phaseo.app/models/google/gemma-3-27b
     GOOGLE_GEMMA_3_27B: Final[str] = "google/gemma-3-27b"
 
-    # Model ID: google/gemma-3n-e4b
-    # Model page: https://phaseo.app/models/google/gemma-3n-e4b
-    GOOGLE_GEMMA_3N_E4B: Final[str] = "google/gemma-3n-e4b"
+    # Model ID: google/gemma-3-4b
+    # Model page: https://phaseo.app/models/google/gemma-3-4b
+    GOOGLE_GEMMA_3_4B: Final[str] = "google/gemma-3-4b"
+
+    # Model ID: google/gemma-4-12b
+    # Model page: https://phaseo.app/models/google/gemma-4-12b
+    GOOGLE_GEMMA_4_12B: Final[str] = "google/gemma-4-12b"
 
     # Model ID: google/gemma-4-26b-a4b
     # Model page: https://phaseo.app/models/google/gemma-4-26b-a4b
@@ -430,6 +546,10 @@ class ModelIds:
     # Model page: https://phaseo.app/models/google/gemma-4-31b%3Afree
     GOOGLE_GEMMA_4_31B_FREE: Final[str] = "google/gemma-4-31b:free"
 
+    # Model ID: google/imagen-4.0-preview
+    # Model page: https://phaseo.app/models/google/imagen-4.0-preview
+    GOOGLE_IMAGEN_4_0_PREVIEW: Final[str] = "google/imagen-4.0-preview"
+
     # Model ID: google/lyria-3-clip-preview
     # Model page: https://phaseo.app/models/google/lyria-3-clip-preview
     GOOGLE_LYRIA_3_CLIP_PREVIEW: Final[str] = "google/lyria-3-clip-preview"
@@ -438,17 +558,21 @@ class ModelIds:
     # Model page: https://phaseo.app/models/google/lyria-3-pro-preview
     GOOGLE_LYRIA_3_PRO_PREVIEW: Final[str] = "google/lyria-3-pro-preview"
 
-    # Model ID: google/veo-2
-    # Model page: https://phaseo.app/models/google/veo-2
-    GOOGLE_VEO_2: Final[str] = "google/veo-2"
+    # Model ID: google/veo-3.1
+    # Model page: https://phaseo.app/models/google/veo-3.1
+    GOOGLE_VEO_3_1: Final[str] = "google/veo-3.1"
+
+    # Model ID: google/veo-3.1-fast
+    # Model page: https://phaseo.app/models/google/veo-3.1-fast
+    GOOGLE_VEO_3_1_FAST: Final[str] = "google/veo-3.1-fast"
 
     # Model ID: google/veo-3.1-fast-preview
     # Model page: https://phaseo.app/models/google/veo-3.1-fast-preview
     GOOGLE_VEO_3_1_FAST_PREVIEW: Final[str] = "google/veo-3.1-fast-preview"
 
-    # Model ID: google/veo-3.1-lite-generate-preview
-    # Model page: https://phaseo.app/models/google/veo-3.1-lite-generate-preview
-    GOOGLE_VEO_3_1_LITE_GENERATE_PREVIEW: Final[str] = "google/veo-3.1-lite-generate-preview"
+    # Model ID: google/veo-3.1-lite-preview
+    # Model page: https://phaseo.app/models/google/veo-3.1-lite-preview
+    GOOGLE_VEO_3_1_LITE_PREVIEW: Final[str] = "google/veo-3.1-lite-preview"
 
     # Model ID: google/veo-3.1-preview
     # Model page: https://phaseo.app/models/google/veo-3.1-preview
@@ -457,6 +581,18 @@ class ModelIds:
     # Model ID: ibm/granite-4.1-8b
     # Model page: https://phaseo.app/models/ibm/granite-4.1-8b
     IBM_GRANITE_4_1_8B: Final[str] = "ibm/granite-4.1-8b"
+
+    # Model ID: ibm/granite-4.2-30b
+    # Model page: https://phaseo.app/models/ibm/granite-4.2-30b
+    IBM_GRANITE_4_2_30B: Final[str] = "ibm/granite-4.2-30b"
+
+    # Model ID: ibm/granite-4.2-3b
+    # Model page: https://phaseo.app/models/ibm/granite-4.2-3b
+    IBM_GRANITE_4_2_3B: Final[str] = "ibm/granite-4.2-3b"
+
+    # Model ID: ibm/granite-4.2-8b
+    # Model page: https://phaseo.app/models/ibm/granite-4.2-8b
+    IBM_GRANITE_4_2_8B: Final[str] = "ibm/granite-4.2-8b"
 
     # Model ID: inception/mercury-2
     # Model page: https://phaseo.app/models/inception/mercury-2
@@ -470,17 +606,21 @@ class ModelIds:
     # Model page: https://phaseo.app/models/inclusionai/ling-2.6-1t
     INCLUSIONAI_LING_2_6_1T: Final[str] = "inclusionai/ling-2.6-1t"
 
+    # Model ID: inclusionai/ling-2.6-flash
+    # Model page: https://phaseo.app/models/inclusionai/ling-2.6-flash
+    INCLUSIONAI_LING_2_6_FLASH: Final[str] = "inclusionai/ling-2.6-flash"
+
     # Model ID: inclusionai/ling-3.0-flash
     # Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash
     INCLUSIONAI_LING_3_0_FLASH: Final[str] = "inclusionai/ling-3.0-flash"
 
-    # Model ID: inclusionai/ling-3.0-tiny
-    # Model page: https://phaseo.app/models/inclusionai/ling-3.0-tiny
-    INCLUSIONAI_LING_3_0_TINY: Final[str] = "inclusionai/ling-3.0-tiny"
-
     # Model ID: inclusionai/ling-flash-2.0
     # Model page: https://phaseo.app/models/inclusionai/ling-flash-2.0
     INCLUSIONAI_LING_FLASH_2_0: Final[str] = "inclusionai/ling-flash-2.0"
+
+    # Model ID: inclusionai/ring-2.6-1t
+    # Model page: https://phaseo.app/models/inclusionai/ring-2.6-1t
+    INCLUSIONAI_RING_2_6_1T: Final[str] = "inclusionai/ring-2.6-1t"
 
     # Model ID: inclusionai/ring-flash-2.0
     # Model page: https://phaseo.app/models/inclusionai/ring-flash-2.0
@@ -494,21 +634,17 @@ class ModelIds:
     # Model page: https://phaseo.app/models/inflection/inflection-3-productivity
     INFLECTION_INFLECTION_3_PRODUCTIVITY: Final[str] = "inflection/inflection-3-productivity"
 
+    # Model ID: jetbrains/mellum2-12b-a2.5b
+    # Model page: https://phaseo.app/models/jetbrains/mellum2-12b-a2.5b
+    JETBRAINS_MELLUM2_12B_A2_5B: Final[str] = "jetbrains/mellum2-12b-a2.5b"
+
     # Model ID: kwaipilot/kat-coder-air-v2.5
     # Model page: https://phaseo.app/models/kwaipilot/kat-coder-air-v2.5
     KWAIPILOT_KAT_CODER_AIR_V2_5: Final[str] = "kwaipilot/kat-coder-air-v2.5"
 
-    # Model ID: kwaipilot/kat-coder-exp-72b-1010
-    # Model page: https://phaseo.app/models/kwaipilot/kat-coder-exp-72b-1010
-    KWAIPILOT_KAT_CODER_EXP_72B_1010: Final[str] = "kwaipilot/kat-coder-exp-72b-1010"
-
     # Model ID: kwaipilot/kat-coder-pro
     # Model page: https://phaseo.app/models/kwaipilot/kat-coder-pro
     KWAIPILOT_KAT_CODER_PRO: Final[str] = "kwaipilot/kat-coder-pro"
-
-    # Model ID: kwaipilot/kat-coder-pro-v1
-    # Model page: https://phaseo.app/models/kwaipilot/kat-coder-pro-v1
-    KWAIPILOT_KAT_CODER_PRO_V1: Final[str] = "kwaipilot/kat-coder-pro-v1"
 
     # Model ID: kwaipilot/kat-coder-pro-v2
     # Model page: https://phaseo.app/models/kwaipilot/kat-coder-pro-v2
@@ -522,21 +658,29 @@ class ModelIds:
     # Model page: https://phaseo.app/models/liquid-ai/lfm-2-24b-a2b
     LIQUID_AI_LFM_2_24B_A2B: Final[str] = "liquid-ai/lfm-2-24b-a2b"
 
+    # Model ID: liquid-ai/lfm-2.5-8b-a1b
+    # Model page: https://phaseo.app/models/liquid-ai/lfm-2.5-8b-a1b
+    LIQUID_AI_LFM_2_5_8B_A1B: Final[str] = "liquid-ai/lfm-2.5-8b-a1b"
+
+    # Model ID: ltx-2-3-fast
+    # Model page: https://phaseo.app/models/ltx-2-3-fast
+    LTX_2_3_FAST: Final[str] = "ltx-2-3-fast"
+
+    # Model ID: ltx-2-3-pro
+    # Model page: https://phaseo.app/models/ltx-2-3-pro
+    LTX_2_3_PRO: Final[str] = "ltx-2-3-pro"
+
+    # Model ID: ltx-2-5-fast
+    # Model page: https://phaseo.app/models/ltx-2-5-fast
+    LTX_2_5_FAST: Final[str] = "ltx-2-5-fast"
+
+    # Model ID: ltx-2-5-pro
+    # Model page: https://phaseo.app/models/ltx-2-5-pro
+    LTX_2_5_PRO: Final[str] = "ltx-2-5-pro"
+
     # Model ID: meituan/longcat-2.0
     # Model page: https://phaseo.app/models/meituan/longcat-2.0
     MEITUAN_LONGCAT_2_0: Final[str] = "meituan/longcat-2.0"
-
-    # Model ID: meta/llama-3-70b
-    # Model page: https://phaseo.app/models/meta/llama-3-70b
-    META_LLAMA_3_70B: Final[str] = "meta/llama-3-70b"
-
-    # Model ID: meta/llama-3-8b
-    # Model page: https://phaseo.app/models/meta/llama-3-8b
-    META_LLAMA_3_8B: Final[str] = "meta/llama-3-8b"
-
-    # Model ID: meta/llama-3-8b-lite
-    # Model page: https://phaseo.app/models/meta/llama-3-8b-lite
-    META_LLAMA_3_8B_LITE: Final[str] = "meta/llama-3-8b-lite"
 
     # Model ID: meta/llama-3.1-70b
     # Model page: https://phaseo.app/models/meta/llama-3.1-70b
@@ -545,10 +689,6 @@ class ModelIds:
     # Model ID: meta/llama-3.1-8b
     # Model page: https://phaseo.app/models/meta/llama-3.1-8b
     META_LLAMA_3_1_8B: Final[str] = "meta/llama-3.1-8b"
-
-    # Model ID: meta/llama-3.2-11b-vision
-    # Model page: https://phaseo.app/models/meta/llama-3.2-11b-vision
-    META_LLAMA_3_2_11B_VISION: Final[str] = "meta/llama-3.2-11b-vision"
 
     # Model ID: meta/llama-3.2-3b
     # Model page: https://phaseo.app/models/meta/llama-3.2-3b
@@ -578,17 +718,29 @@ class ModelIds:
     # Model page: https://phaseo.app/models/meta/llama-prompt-guard-2-86m
     META_LLAMA_PROMPT_GUARD_2_86M: Final[str] = "meta/llama-prompt-guard-2-86m"
 
+    # Model ID: meta/muse-glimmer-30b
+    # Model page: https://phaseo.app/models/meta/muse-glimmer-30b
+    META_MUSE_GLIMMER_30B: Final[str] = "meta/muse-glimmer-30b"
+
+    # Model ID: meta/muse-spark-1.2
+    # Model page: https://phaseo.app/models/meta/muse-spark-1.2
+    META_MUSE_SPARK_1_2: Final[str] = "meta/muse-spark-1.2"
+
     # Model ID: microsoft/phi-4
     # Model page: https://phaseo.app/models/microsoft/phi-4
     MICROSOFT_PHI_4: Final[str] = "microsoft/phi-4"
 
-    # Model ID: microsoft/phi-4-mini
-    # Model page: https://phaseo.app/models/microsoft/phi-4-mini
-    MICROSOFT_PHI_4_MINI: Final[str] = "microsoft/phi-4-mini"
+    # Model ID: microsoft/wizardlm-2-8x22b
+    # Model page: https://phaseo.app/models/microsoft/wizardlm-2-8x22b
+    MICROSOFT_WIZARDLM_2_8X22B: Final[str] = "microsoft/wizardlm-2-8x22b"
 
     # Model ID: mindai/macaron-v1-tall
     # Model page: https://phaseo.app/models/mindai/macaron-v1-tall
     MINDAI_MACARON_V1_TALL: Final[str] = "mindai/macaron-v1-tall"
+
+    # Model ID: mindai/macaron-v1-venti
+    # Model page: https://phaseo.app/models/mindai/macaron-v1-venti
+    MINDAI_MACARON_V1_VENTI: Final[str] = "mindai/macaron-v1-venti"
 
     # Model ID: minimax/hailuo-02
     # Model page: https://phaseo.app/models/minimax/hailuo-02
@@ -601,6 +753,10 @@ class ModelIds:
     # Model ID: minimax/hailuo-2.3-fast
     # Model page: https://phaseo.app/models/minimax/hailuo-2.3-fast
     MINIMAX_HAILUO_2_3_FAST: Final[str] = "minimax/hailuo-2.3-fast"
+
+    # Model ID: minimax/image-01
+    # Model page: https://phaseo.app/models/minimax/image-01
+    MINIMAX_IMAGE_01: Final[str] = "minimax/image-01"
 
     # Model ID: minimax/m2-her
     # Model page: https://phaseo.app/models/minimax/m2-her
@@ -630,17 +786,53 @@ class ModelIds:
     # Model page: https://phaseo.app/models/minimax/minimax-m2.7
     MINIMAX_MINIMAX_M2_7: Final[str] = "minimax/minimax-m2.7"
 
+    # Model ID: minimax/minimax-m2.7:free
+    # Model page: https://phaseo.app/models/minimax/minimax-m2.7%3Afree
+    MINIMAX_MINIMAX_M2_7_FREE: Final[str] = "minimax/minimax-m2.7:free"
+
     # Model ID: minimax/minimax-m3
     # Model page: https://phaseo.app/models/minimax/minimax-m3
     MINIMAX_MINIMAX_M3: Final[str] = "minimax/minimax-m3"
+
+    # Model ID: minimax/minimax-m3:free
+    # Model page: https://phaseo.app/models/minimax/minimax-m3%3Afree
+    MINIMAX_MINIMAX_M3_FREE: Final[str] = "minimax/minimax-m3:free"
 
     # Model ID: minimax/music-2.6
     # Model page: https://phaseo.app/models/minimax/music-2.6
     MINIMAX_MUSIC_2_6: Final[str] = "minimax/music-2.6"
 
-    # Model ID: minimax/music-2.6-free
-    # Model page: https://phaseo.app/models/minimax/music-2.6-free
-    MINIMAX_MUSIC_2_6_FREE: Final[str] = "minimax/music-2.6-free"
+    # Model ID: minimax/music-3.0
+    # Model page: https://phaseo.app/models/minimax/music-3.0
+    MINIMAX_MUSIC_3_0: Final[str] = "minimax/music-3.0"
+
+    # Model ID: minimax/music-3.0:free
+    # Model page: https://phaseo.app/models/minimax/music-3.0%3Afree
+    MINIMAX_MUSIC_3_0_FREE: Final[str] = "minimax/music-3.0:free"
+
+    # Model ID: minimax/speech-2.6-hd
+    # Model page: https://phaseo.app/models/minimax/speech-2.6-hd
+    MINIMAX_SPEECH_2_6_HD: Final[str] = "minimax/speech-2.6-hd"
+
+    # Model ID: minimax/speech-2.6-turbo
+    # Model page: https://phaseo.app/models/minimax/speech-2.6-turbo
+    MINIMAX_SPEECH_2_6_TURBO: Final[str] = "minimax/speech-2.6-turbo"
+
+    # Model ID: minimax/speech-2.8-hd
+    # Model page: https://phaseo.app/models/minimax/speech-2.8-hd
+    MINIMAX_SPEECH_2_8_HD: Final[str] = "minimax/speech-2.8-hd"
+
+    # Model ID: minimax/speech-2.8-turbo
+    # Model page: https://phaseo.app/models/minimax/speech-2.8-turbo
+    MINIMAX_SPEECH_2_8_TURBO: Final[str] = "minimax/speech-2.8-turbo"
+
+    # Model ID: minimax/speech-2.8:free
+    # Model page: https://phaseo.app/models/minimax/speech-2.8%3Afree
+    MINIMAX_SPEECH_2_8_FREE: Final[str] = "minimax/speech-2.8:free"
+
+    # Model ID: mistral/codestral
+    # Model page: https://phaseo.app/models/mistral/codestral
+    MISTRAL_CODESTRAL: Final[str] = "mistral/codestral"
 
     # Model ID: mistral/codestral-embed
     # Model page: https://phaseo.app/models/mistral/codestral-embed
@@ -649,6 +841,10 @@ class ModelIds:
     # Model ID: mistral/devstral-2
     # Model page: https://phaseo.app/models/mistral/devstral-2
     MISTRAL_DEVSTRAL_2: Final[str] = "mistral/devstral-2"
+
+    # Model ID: mistral/devstral-2.0
+    # Model page: https://phaseo.app/models/mistral/devstral-2.0
+    MISTRAL_DEVSTRAL_2_0: Final[str] = "mistral/devstral-2.0"
 
     # Model ID: mistral/devstral-medium-1.0
     # Model page: https://phaseo.app/models/mistral/devstral-medium-1.0
@@ -666,6 +862,10 @@ class ModelIds:
     # Model page: https://phaseo.app/models/mistral/magistral-medium-1.2
     MISTRAL_MAGISTRAL_MEDIUM_1_2: Final[str] = "mistral/magistral-medium-1.2"
 
+    # Model ID: mistral/magistral-small-1.2
+    # Model page: https://phaseo.app/models/mistral/magistral-small-1.2
+    MISTRAL_MAGISTRAL_SMALL_1_2: Final[str] = "mistral/magistral-small-1.2"
+
     # Model ID: mistral/ministral-3-14b
     # Model page: https://phaseo.app/models/mistral/ministral-3-14b
     MISTRAL_MINISTRAL_3_14B: Final[str] = "mistral/ministral-3-14b"
@@ -677,6 +877,18 @@ class ModelIds:
     # Model ID: mistral/ministral-3-8b
     # Model page: https://phaseo.app/models/mistral/ministral-3-8b
     MISTRAL_MINISTRAL_3_8B: Final[str] = "mistral/ministral-3-8b"
+
+    # Model ID: mistral/ministral-3.0-14b
+    # Model page: https://phaseo.app/models/mistral/ministral-3.0-14b
+    MISTRAL_MINISTRAL_3_0_14B: Final[str] = "mistral/ministral-3.0-14b"
+
+    # Model ID: mistral/ministral-3.0-3b
+    # Model page: https://phaseo.app/models/mistral/ministral-3.0-3b
+    MISTRAL_MINISTRAL_3_0_3B: Final[str] = "mistral/ministral-3.0-3b"
+
+    # Model ID: mistral/ministral-3.0-8b
+    # Model page: https://phaseo.app/models/mistral/ministral-3.0-8b
+    MISTRAL_MINISTRAL_3_0_8B: Final[str] = "mistral/ministral-3.0-8b"
 
     # Model ID: mistral/mistral-embed
     # Model page: https://phaseo.app/models/mistral/mistral-embed
@@ -690,6 +902,10 @@ class ModelIds:
     # Model page: https://phaseo.app/models/mistral/mistral-large-3
     MISTRAL_MISTRAL_LARGE_3: Final[str] = "mistral/mistral-large-3"
 
+    # Model ID: mistral/mistral-large-3.0
+    # Model page: https://phaseo.app/models/mistral/mistral-large-3.0
+    MISTRAL_MISTRAL_LARGE_3_0: Final[str] = "mistral/mistral-large-3.0"
+
     # Model ID: mistral/mistral-medium-3.0
     # Model page: https://phaseo.app/models/mistral/mistral-medium-3.0
     MISTRAL_MISTRAL_MEDIUM_3_0: Final[str] = "mistral/mistral-medium-3.0"
@@ -702,13 +918,13 @@ class ModelIds:
     # Model page: https://phaseo.app/models/mistral/mistral-medium-3.5
     MISTRAL_MISTRAL_MEDIUM_3_5: Final[str] = "mistral/mistral-medium-3.5"
 
-    # Model ID: mistral/mistral-moderation
-    # Model page: https://phaseo.app/models/mistral/mistral-moderation
-    MISTRAL_MISTRAL_MODERATION: Final[str] = "mistral/mistral-moderation"
-
     # Model ID: mistral/mistral-moderation-2
     # Model page: https://phaseo.app/models/mistral/mistral-moderation-2
     MISTRAL_MISTRAL_MODERATION_2: Final[str] = "mistral/mistral-moderation-2"
+
+    # Model ID: mistral/mistral-nemo
+    # Model page: https://phaseo.app/models/mistral/mistral-nemo
+    MISTRAL_MISTRAL_NEMO: Final[str] = "mistral/mistral-nemo"
 
     # Model ID: mistral/mistral-nemo-12b
     # Model page: https://phaseo.app/models/mistral/mistral-nemo-12b
@@ -730,17 +946,33 @@ class ModelIds:
     # Model page: https://phaseo.app/models/mistral/mistral-small-4
     MISTRAL_MISTRAL_SMALL_4: Final[str] = "mistral/mistral-small-4"
 
-    # Model ID: mistral/mixtral-8x7b
-    # Model page: https://phaseo.app/models/mistral/mixtral-8x7b
-    MISTRAL_MIXTRAL_8X7B: Final[str] = "mistral/mixtral-8x7b"
+    # Model ID: mistral/ocr-3
+    # Model page: https://phaseo.app/models/mistral/ocr-3
+    MISTRAL_OCR_3: Final[str] = "mistral/ocr-3"
+
+    # Model ID: mistral/ocr-4
+    # Model page: https://phaseo.app/models/mistral/ocr-4
+    MISTRAL_OCR_4: Final[str] = "mistral/ocr-4"
+
+    # Model ID: mistral/ocr-4.1
+    # Model page: https://phaseo.app/models/mistral/ocr-4.1
+    MISTRAL_OCR_4_1: Final[str] = "mistral/ocr-4.1"
 
     # Model ID: mistral/pixtral-large
     # Model page: https://phaseo.app/models/mistral/pixtral-large
     MISTRAL_PIXTRAL_LARGE: Final[str] = "mistral/pixtral-large"
 
-    # Model ID: mistralai/mistral-nemo
-    # Model page: https://phaseo.app/models/mistralai/mistral-nemo
-    MISTRALAI_MISTRAL_NEMO: Final[str] = "mistralai/mistral-nemo"
+    # Model ID: mistral/voxtral-mini
+    # Model page: https://phaseo.app/models/mistral/voxtral-mini
+    MISTRAL_VOXTRAL_MINI: Final[str] = "mistral/voxtral-mini"
+
+    # Model ID: mistral/voxtral-mini-transcribe-2
+    # Model page: https://phaseo.app/models/mistral/voxtral-mini-transcribe-2
+    MISTRAL_VOXTRAL_MINI_TRANSCRIBE_2: Final[str] = "mistral/voxtral-mini-transcribe-2"
+
+    # Model ID: mistral/voxtral-small
+    # Model page: https://phaseo.app/models/mistral/voxtral-small
+    MISTRAL_VOXTRAL_SMALL: Final[str] = "mistral/voxtral-small"
 
     # Model ID: moonshotai/kimi-k2
     # Model page: https://phaseo.app/models/moonshotai/kimi-k2
@@ -750,14 +982,6 @@ class ModelIds:
     # Model page: https://phaseo.app/models/moonshotai/kimi-k2-0905
     MOONSHOTAI_KIMI_K2_0905: Final[str] = "moonshotai/kimi-k2-0905"
 
-    # Model ID: moonshotai/kimi-k2-instruct
-    # Model page: https://phaseo.app/models/moonshotai/kimi-k2-instruct
-    MOONSHOTAI_KIMI_K2_INSTRUCT: Final[str] = "moonshotai/kimi-k2-instruct"
-
-    # Model ID: moonshotai/kimi-k2-instruct-0905
-    # Model page: https://phaseo.app/models/moonshotai/kimi-k2-instruct-0905
-    MOONSHOTAI_KIMI_K2_INSTRUCT_0905: Final[str] = "moonshotai/kimi-k2-instruct-0905"
-
     # Model ID: moonshotai/kimi-k2-thinking
     # Model page: https://phaseo.app/models/moonshotai/kimi-k2-thinking
     MOONSHOTAI_KIMI_K2_THINKING: Final[str] = "moonshotai/kimi-k2-thinking"
@@ -766,10 +990,6 @@ class ModelIds:
     # Model page: https://phaseo.app/models/moonshotai/kimi-k2.5
     MOONSHOTAI_KIMI_K2_5: Final[str] = "moonshotai/kimi-k2.5"
 
-    # Model ID: moonshotai/kimi-k2.5-lightning
-    # Model page: https://phaseo.app/models/moonshotai/kimi-k2.5-lightning
-    MOONSHOTAI_KIMI_K2_5_LIGHTNING: Final[str] = "moonshotai/kimi-k2.5-lightning"
-
     # Model ID: moonshotai/kimi-k2.6
     # Model page: https://phaseo.app/models/moonshotai/kimi-k2.6
     MOONSHOTAI_KIMI_K2_6: Final[str] = "moonshotai/kimi-k2.6"
@@ -777,6 +997,14 @@ class ModelIds:
     # Model ID: moonshotai/kimi-k2.7-code
     # Model page: https://phaseo.app/models/moonshotai/kimi-k2.7-code
     MOONSHOTAI_KIMI_K2_7_CODE: Final[str] = "moonshotai/kimi-k2.7-code"
+
+    # Model ID: moonshotai/kimi-k3
+    # Model page: https://phaseo.app/models/moonshotai/kimi-k3
+    MOONSHOTAI_KIMI_K3: Final[str] = "moonshotai/kimi-k3"
+
+    # Model ID: moonshotai/kimi-k3-fast
+    # Model page: https://phaseo.app/models/moonshotai/kimi-k3-fast
+    MOONSHOTAI_KIMI_K3_FAST: Final[str] = "moonshotai/kimi-k3-fast"
 
     # Model ID: moonshotai/moonshot-v1-128k
     # Model page: https://phaseo.app/models/moonshotai/moonshot-v1-128k
@@ -802,6 +1030,10 @@ class ModelIds:
     # Model page: https://phaseo.app/models/moonshotai/moonshot-v1-8k-vision-preview
     MOONSHOTAI_MOONSHOT_V1_8K_VISION_PREVIEW: Final[str] = "moonshotai/moonshot-v1-8k-vision-preview"
 
+    # Model ID: morph/morph-compactor
+    # Model page: https://phaseo.app/models/morph/morph-compactor
+    MORPH_MORPH_COMPACTOR: Final[str] = "morph/morph-compactor"
+
     # Model ID: morph/morph-v3-fast
     # Model page: https://phaseo.app/models/morph/morph-v3-fast
     MORPH_MORPH_V3_FAST: Final[str] = "morph/morph-v3-fast"
@@ -810,21 +1042,17 @@ class ModelIds:
     # Model page: https://phaseo.app/models/morph/morph-v3-large
     MORPH_MORPH_V3_LARGE: Final[str] = "morph/morph-v3-large"
 
+    # Model ID: morph/morph-warp-grep-v2.1
+    # Model page: https://phaseo.app/models/morph/morph-warp-grep-v2.1
+    MORPH_MORPH_WARP_GREP_V2_1: Final[str] = "morph/morph-warp-grep-v2.1"
+
     # Model ID: nex-agi/deepseek-v3.1-nex-n1
     # Model page: https://phaseo.app/models/nex-agi/deepseek-v3.1-nex-n1
     NEX_AGI_DEEPSEEK_V3_1_NEX_N1: Final[str] = "nex-agi/deepseek-v3.1-nex-n1"
 
-    # Model ID: nex-agi/nex-n2-pro
-    # Model page: https://phaseo.app/models/nex-agi/nex-n2-pro
-    NEX_AGI_NEX_N2_PRO: Final[str] = "nex-agi/nex-n2-pro"
-
     # Model ID: nous/hermes-3-llama-3.1-405b
     # Model page: https://phaseo.app/models/nous/hermes-3-llama-3.1-405b
     NOUS_HERMES_3_LLAMA_3_1_405B: Final[str] = "nous/hermes-3-llama-3.1-405b"
-
-    # Model ID: nousresearch/hermes-3-llama-3.1-405b
-    # Model page: https://phaseo.app/models/nousresearch/hermes-3-llama-3.1-405b
-    NOUSRESEARCH_HERMES_3_LLAMA_3_1_405B: Final[str] = "nousresearch/hermes-3-llama-3.1-405b"
 
     # Model ID: nousresearch/hermes-3-llama-3.1-70b
     # Model page: https://phaseo.app/models/nousresearch/hermes-3-llama-3.1-70b
@@ -842,25 +1070,17 @@ class ModelIds:
     # Model page: https://phaseo.app/models/nvidia/cosmos3-super-reasoner
     NVIDIA_COSMOS3_SUPER_REASONER: Final[str] = "nvidia/cosmos3-super-reasoner"
 
-    # Model ID: nvidia/llama-3.1-nemotron-70b-instruct
-    # Model page: https://phaseo.app/models/nvidia/llama-3.1-nemotron-70b-instruct
-    NVIDIA_LLAMA_3_1_NEMOTRON_70B_INSTRUCT: Final[str] = "nvidia/llama-3.1-nemotron-70b-instruct"
-
     # Model ID: nvidia/llama-3.1-nemotron-ultra-253b
     # Model page: https://phaseo.app/models/nvidia/llama-3.1-nemotron-ultra-253b
     NVIDIA_LLAMA_3_1_NEMOTRON_ULTRA_253B: Final[str] = "nvidia/llama-3.1-nemotron-ultra-253b"
-
-    # Model ID: nvidia/llama-3.3-nemotron-super-49b-v1.5
-    # Model page: https://phaseo.app/models/nvidia/llama-3.3-nemotron-super-49b-v1.5
-    NVIDIA_LLAMA_3_3_NEMOTRON_SUPER_49B_V1_5: Final[str] = "nvidia/llama-3.3-nemotron-super-49b-v1.5"
 
     # Model ID: nvidia/nemotron-3-nano-30b-a3b
     # Model page: https://phaseo.app/models/nvidia/nemotron-3-nano-30b-a3b
     NVIDIA_NEMOTRON_3_NANO_30B_A3B: Final[str] = "nvidia/nemotron-3-nano-30b-a3b"
 
-    # Model ID: nvidia/nemotron-3-nano-omni-30b-a3b-reasoning
-    # Model page: https://phaseo.app/models/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning
-    NVIDIA_NEMOTRON_3_NANO_OMNI_30B_A3B_REASONING: Final[str] = "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning"
+    # Model ID: nvidia/nemotron-3-nano-omni
+    # Model page: https://phaseo.app/models/nvidia/nemotron-3-nano-omni
+    NVIDIA_NEMOTRON_3_NANO_OMNI: Final[str] = "nvidia/nemotron-3-nano-omni"
 
     # Model ID: nvidia/nemotron-3-super-120b-a12b
     # Model page: https://phaseo.app/models/nvidia/nemotron-3-super-120b-a12b
@@ -869,6 +1089,14 @@ class ModelIds:
     # Model ID: nvidia/nemotron-3-ultra-550b-a55b
     # Model page: https://phaseo.app/models/nvidia/nemotron-3-ultra-550b-a55b
     NVIDIA_NEMOTRON_3_ULTRA_550B_A55B: Final[str] = "nvidia/nemotron-3-ultra-550b-a55b"
+
+    # Model ID: nvidia/nemotron-3.5-lightning
+    # Model page: https://phaseo.app/models/nvidia/nemotron-3.5-lightning
+    NVIDIA_NEMOTRON_3_5_LIGHTNING: Final[str] = "nvidia/nemotron-3.5-lightning"
+
+    # Model ID: nvidia/nemotron-nano-9b-v2
+    # Model page: https://phaseo.app/models/nvidia/nemotron-nano-9b-v2
+    NVIDIA_NEMOTRON_NANO_9B_V2: Final[str] = "nvidia/nemotron-nano-9b-v2"
 
     # Model ID: nvidia/nvidia-nemotron-3-nano-30b-a3b
     # Model page: https://phaseo.app/models/nvidia/nvidia-nemotron-3-nano-30b-a3b
@@ -890,10 +1118,6 @@ class ModelIds:
     # Model page: https://phaseo.app/models/openai/chatgpt-4o
     OPENAI_CHATGPT_4O: Final[str] = "openai/chatgpt-4o"
 
-    # Model ID: openai/computer-use-preview
-    # Model page: https://phaseo.app/models/openai/computer-use-preview
-    OPENAI_COMPUTER_USE_PREVIEW: Final[str] = "openai/computer-use-preview"
-
     # Model ID: openai/davinci-002
     # Model page: https://phaseo.app/models/openai/davinci-002
     OPENAI_DAVINCI_002: Final[str] = "openai/davinci-002"
@@ -910,18 +1134,6 @@ class ModelIds:
     # Model page: https://phaseo.app/models/openai/gpt-4-2023-06-13
     OPENAI_GPT_4_2023_06_13: Final[str] = "openai/gpt-4-2023-06-13"
 
-    # Model ID: openai/gpt-4-turbo-2023-03-14
-    # Model page: https://phaseo.app/models/openai/gpt-4-turbo-2023-03-14
-    OPENAI_GPT_4_TURBO_2023_03_14: Final[str] = "openai/gpt-4-turbo-2023-03-14"
-
-    # Model ID: openai/gpt-4-turbo-2023-11-06
-    # Model page: https://phaseo.app/models/openai/gpt-4-turbo-2023-11-06
-    OPENAI_GPT_4_TURBO_2023_11_06: Final[str] = "openai/gpt-4-turbo-2023-11-06"
-
-    # Model ID: openai/gpt-4-turbo-2024-01-25
-    # Model page: https://phaseo.app/models/openai/gpt-4-turbo-2024-01-25
-    OPENAI_GPT_4_TURBO_2024_01_25: Final[str] = "openai/gpt-4-turbo-2024-01-25"
-
     # Model ID: openai/gpt-4.1
     # Model page: https://phaseo.app/models/openai/gpt-4.1
     OPENAI_GPT_4_1: Final[str] = "openai/gpt-4.1"
@@ -933,6 +1145,10 @@ class ModelIds:
     # Model ID: openai/gpt-4.1-nano
     # Model page: https://phaseo.app/models/openai/gpt-4.1-nano
     OPENAI_GPT_4_1_NANO: Final[str] = "openai/gpt-4.1-nano"
+
+    # Model ID: openai/gpt-4o
+    # Model page: https://phaseo.app/models/openai/gpt-4o
+    OPENAI_GPT_4O: Final[str] = "openai/gpt-4o"
 
     # Model ID: openai/gpt-4o-2024-05-13
     # Model page: https://phaseo.app/models/openai/gpt-4o-2024-05-13
@@ -966,14 +1182,6 @@ class ModelIds:
     # Model page: https://phaseo.app/models/openai/gpt-5
     OPENAI_GPT_5: Final[str] = "openai/gpt-5"
 
-    # Model ID: openai/gpt-5-chat
-    # Model page: https://phaseo.app/models/openai/gpt-5-chat
-    OPENAI_GPT_5_CHAT: Final[str] = "openai/gpt-5-chat"
-
-    # Model ID: openai/gpt-5-codex
-    # Model page: https://phaseo.app/models/openai/gpt-5-codex
-    OPENAI_GPT_5_CODEX: Final[str] = "openai/gpt-5-codex"
-
     # Model ID: openai/gpt-5-mini
     # Model page: https://phaseo.app/models/openai/gpt-5-mini
     OPENAI_GPT_5_MINI: Final[str] = "openai/gpt-5-mini"
@@ -990,29 +1198,9 @@ class ModelIds:
     # Model page: https://phaseo.app/models/openai/gpt-5.1
     OPENAI_GPT_5_1: Final[str] = "openai/gpt-5.1"
 
-    # Model ID: openai/gpt-5.1-chat
-    # Model page: https://phaseo.app/models/openai/gpt-5.1-chat
-    OPENAI_GPT_5_1_CHAT: Final[str] = "openai/gpt-5.1-chat"
-
-    # Model ID: openai/gpt-5.1-codex
-    # Model page: https://phaseo.app/models/openai/gpt-5.1-codex
-    OPENAI_GPT_5_1_CODEX: Final[str] = "openai/gpt-5.1-codex"
-
-    # Model ID: openai/gpt-5.1-codex-max
-    # Model page: https://phaseo.app/models/openai/gpt-5.1-codex-max
-    OPENAI_GPT_5_1_CODEX_MAX: Final[str] = "openai/gpt-5.1-codex-max"
-
-    # Model ID: openai/gpt-5.1-codex-mini
-    # Model page: https://phaseo.app/models/openai/gpt-5.1-codex-mini
-    OPENAI_GPT_5_1_CODEX_MINI: Final[str] = "openai/gpt-5.1-codex-mini"
-
     # Model ID: openai/gpt-5.2
     # Model page: https://phaseo.app/models/openai/gpt-5.2
     OPENAI_GPT_5_2: Final[str] = "openai/gpt-5.2"
-
-    # Model ID: openai/gpt-5.2-chat
-    # Model page: https://phaseo.app/models/openai/gpt-5.2-chat
-    OPENAI_GPT_5_2_CHAT: Final[str] = "openai/gpt-5.2-chat"
 
     # Model ID: openai/gpt-5.2-codex
     # Model page: https://phaseo.app/models/openai/gpt-5.2-codex
@@ -1021,10 +1209,6 @@ class ModelIds:
     # Model ID: openai/gpt-5.2-pro
     # Model page: https://phaseo.app/models/openai/gpt-5.2-pro
     OPENAI_GPT_5_2_PRO: Final[str] = "openai/gpt-5.2-pro"
-
-    # Model ID: openai/gpt-5.3-chat
-    # Model page: https://phaseo.app/models/openai/gpt-5.3-chat
-    OPENAI_GPT_5_3_CHAT: Final[str] = "openai/gpt-5.3-chat"
 
     # Model ID: openai/gpt-5.3-codex
     # Model page: https://phaseo.app/models/openai/gpt-5.3-codex
@@ -1054,6 +1238,30 @@ class ModelIds:
     # Model page: https://phaseo.app/models/openai/gpt-5.5-pro
     OPENAI_GPT_5_5_PRO: Final[str] = "openai/gpt-5.5-pro"
 
+    # Model ID: openai/gpt-5.6-luna
+    # Model page: https://phaseo.app/models/openai/gpt-5.6-luna
+    OPENAI_GPT_5_6_LUNA: Final[str] = "openai/gpt-5.6-luna"
+
+    # Model ID: openai/gpt-5.6-luna-pro
+    # Model page: https://phaseo.app/models/openai/gpt-5.6-luna-pro
+    OPENAI_GPT_5_6_LUNA_PRO: Final[str] = "openai/gpt-5.6-luna-pro"
+
+    # Model ID: openai/gpt-5.6-sol
+    # Model page: https://phaseo.app/models/openai/gpt-5.6-sol
+    OPENAI_GPT_5_6_SOL: Final[str] = "openai/gpt-5.6-sol"
+
+    # Model ID: openai/gpt-5.6-sol-pro
+    # Model page: https://phaseo.app/models/openai/gpt-5.6-sol-pro
+    OPENAI_GPT_5_6_SOL_PRO: Final[str] = "openai/gpt-5.6-sol-pro"
+
+    # Model ID: openai/gpt-5.6-terra
+    # Model page: https://phaseo.app/models/openai/gpt-5.6-terra
+    OPENAI_GPT_5_6_TERRA: Final[str] = "openai/gpt-5.6-terra"
+
+    # Model ID: openai/gpt-5.6-terra-pro
+    # Model page: https://phaseo.app/models/openai/gpt-5.6-terra-pro
+    OPENAI_GPT_5_6_TERRA_PRO: Final[str] = "openai/gpt-5.6-terra-pro"
+
     # Model ID: openai/gpt-image-1
     # Model page: https://phaseo.app/models/openai/gpt-image-1
     OPENAI_GPT_IMAGE_1: Final[str] = "openai/gpt-image-1"
@@ -1078,9 +1286,29 @@ class ModelIds:
     # Model page: https://phaseo.app/models/openai/gpt-oss-20b
     OPENAI_GPT_OSS_20B: Final[str] = "openai/gpt-oss-20b"
 
+    # Model ID: openai/gpt-oss-safeguard-120b
+    # Model page: https://phaseo.app/models/openai/gpt-oss-safeguard-120b
+    OPENAI_GPT_OSS_SAFEGUARD_120B: Final[str] = "openai/gpt-oss-safeguard-120b"
+
     # Model ID: openai/gpt-oss-safeguard-20b
     # Model page: https://phaseo.app/models/openai/gpt-oss-safeguard-20b
     OPENAI_GPT_OSS_SAFEGUARD_20B: Final[str] = "openai/gpt-oss-safeguard-20b"
+
+    # Model ID: openai/gpt-realtime
+    # Model page: https://phaseo.app/models/openai/gpt-realtime
+    OPENAI_GPT_REALTIME: Final[str] = "openai/gpt-realtime"
+
+    # Model ID: openai/gpt-realtime-1.5
+    # Model page: https://phaseo.app/models/openai/gpt-realtime-1.5
+    OPENAI_GPT_REALTIME_1_5: Final[str] = "openai/gpt-realtime-1.5"
+
+    # Model ID: openai/gpt-realtime-2
+    # Model page: https://phaseo.app/models/openai/gpt-realtime-2
+    OPENAI_GPT_REALTIME_2: Final[str] = "openai/gpt-realtime-2"
+
+    # Model ID: openai/gpt-transcribe
+    # Model page: https://phaseo.app/models/openai/gpt-transcribe
+    OPENAI_GPT_TRANSCRIBE: Final[str] = "openai/gpt-transcribe"
 
     # Model ID: openai/o1
     # Model page: https://phaseo.app/models/openai/o1
@@ -1098,10 +1326,6 @@ class ModelIds:
     # Model page: https://phaseo.app/models/openai/o3
     OPENAI_O3: Final[str] = "openai/o3"
 
-    # Model ID: openai/o3-deep-research
-    # Model page: https://phaseo.app/models/openai/o3-deep-research
-    OPENAI_O3_DEEP_RESEARCH: Final[str] = "openai/o3-deep-research"
-
     # Model ID: openai/o3-mini
     # Model page: https://phaseo.app/models/openai/o3-mini
     OPENAI_O3_MINI: Final[str] = "openai/o3-mini"
@@ -1113,10 +1337,6 @@ class ModelIds:
     # Model ID: openai/o4-mini
     # Model page: https://phaseo.app/models/openai/o4-mini
     OPENAI_O4_MINI: Final[str] = "openai/o4-mini"
-
-    # Model ID: openai/o4-mini-deep-research
-    # Model page: https://phaseo.app/models/openai/o4-mini-deep-research
-    OPENAI_O4_MINI_DEEP_RESEARCH: Final[str] = "openai/o4-mini-deep-research"
 
     # Model ID: openai/omni-moderation
     # Model page: https://phaseo.app/models/openai/omni-moderation
@@ -1146,6 +1366,22 @@ class ModelIds:
     # Model page: https://phaseo.app/models/openai/whisper-1
     OPENAI_WHISPER_1: Final[str] = "openai/whisper-1"
 
+    # Model ID: openai/whisper-large-v3
+    # Model page: https://phaseo.app/models/openai/whisper-large-v3
+    OPENAI_WHISPER_LARGE_V3: Final[str] = "openai/whisper-large-v3"
+
+    # Model ID: openai/whisper-large-v3-turbo
+    # Model page: https://phaseo.app/models/openai/whisper-large-v3-turbo
+    OPENAI_WHISPER_LARGE_V3_TURBO: Final[str] = "openai/whisper-large-v3-turbo"
+
+    # Model ID: perplexity/pplx-embed-v1-0.6b
+    # Model page: https://phaseo.app/models/perplexity/pplx-embed-v1-0.6b
+    PERPLEXITY_PPLX_EMBED_V1_0_6B: Final[str] = "perplexity/pplx-embed-v1-0.6b"
+
+    # Model ID: perplexity/pplx-embed-v1-4b
+    # Model page: https://phaseo.app/models/perplexity/pplx-embed-v1-4b
+    PERPLEXITY_PPLX_EMBED_V1_4B: Final[str] = "perplexity/pplx-embed-v1-4b"
+
     # Model ID: phaseo/free
     # Model page: https://phaseo.app/models/phaseo/free
     PHASEO_FREE: Final[str] = "phaseo/free"
@@ -1153,6 +1389,10 @@ class ModelIds:
     # Model ID: poolside/laguna-m.1:free
     # Model page: https://phaseo.app/models/poolside/laguna-m.1%3Afree
     POOLSIDE_LAGUNA_M_1_FREE: Final[str] = "poolside/laguna-m.1:free"
+
+    # Model ID: poolside/laguna-s-2.1:free
+    # Model page: https://phaseo.app/models/poolside/laguna-s-2.1%3Afree
+    POOLSIDE_LAGUNA_S_2_1_FREE: Final[str] = "poolside/laguna-s-2.1:free"
 
     # Model ID: poolside/laguna-xs-2.1:free
     # Model page: https://phaseo.app/models/poolside/laguna-xs-2.1%3Afree
@@ -1162,10 +1402,6 @@ class ModelIds:
     # Model page: https://phaseo.app/models/qwen/qvq-max
     QWEN_QVQ_MAX: Final[str] = "qwen/qvq-max"
 
-    # Model ID: qwen/qwen-3.6-plus
-    # Model page: https://phaseo.app/models/qwen/qwen-3.6-plus
-    QWEN_QWEN_3_6_PLUS: Final[str] = "qwen/qwen-3.6-plus"
-
     # Model ID: qwen/qwen-flash
     # Model page: https://phaseo.app/models/qwen/qwen-flash
     QWEN_QWEN_FLASH: Final[str] = "qwen/qwen-flash"
@@ -1173,6 +1409,10 @@ class ModelIds:
     # Model ID: qwen/qwen-flash-character
     # Model page: https://phaseo.app/models/qwen/qwen-flash-character
     QWEN_QWEN_FLASH_CHARACTER: Final[str] = "qwen/qwen-flash-character"
+
+    # Model ID: qwen/qwen-image
+    # Model page: https://phaseo.app/models/qwen/qwen-image
+    QWEN_QWEN_IMAGE: Final[str] = "qwen/qwen-image"
 
     # Model ID: qwen/qwen-max
     # Model page: https://phaseo.app/models/qwen/qwen-max
@@ -1310,6 +1550,10 @@ class ModelIds:
     # Model page: https://phaseo.app/models/qwen/qwen3-14b
     QWEN_QWEN3_14B: Final[str] = "qwen/qwen3-14b"
 
+    # Model ID: qwen/qwen3-235b-a22b
+    # Model page: https://phaseo.app/models/qwen/qwen3-235b-a22b
+    QWEN_QWEN3_235B_A22B: Final[str] = "qwen/qwen3-235b-a22b"
+
     # Model ID: qwen/qwen3-235b-a22b-2507
     # Model page: https://phaseo.app/models/qwen/qwen3-235b-a22b-2507
     QWEN_QWEN3_235B_A22B_2507: Final[str] = "qwen/qwen3-235b-a22b-2507"
@@ -1350,10 +1594,6 @@ class ModelIds:
     # Model page: https://phaseo.app/models/qwen/qwen3-8b
     QWEN_QWEN3_8B: Final[str] = "qwen/qwen3-8b"
 
-    # Model ID: qwen/qwen3-coder
-    # Model page: https://phaseo.app/models/qwen/qwen3-coder
-    QWEN_QWEN3_CODER: Final[str] = "qwen/qwen3-coder"
-
     # Model ID: qwen/qwen3-coder-30b-a3b
     # Model page: https://phaseo.app/models/qwen/qwen3-coder-30b-a3b
     QWEN_QWEN3_CODER_30B_A3B: Final[str] = "qwen/qwen3-coder-30b-a3b"
@@ -1378,9 +1618,21 @@ class ModelIds:
     # Model page: https://phaseo.app/models/qwen/qwen3-coder-plus-2025-09-23
     QWEN_QWEN3_CODER_PLUS_2025_09_23: Final[str] = "qwen/qwen3-coder-plus-2025-09-23"
 
+    # Model ID: qwen/qwen3-embedding-0.6b
+    # Model page: https://phaseo.app/models/qwen/qwen3-embedding-0.6b
+    QWEN_QWEN3_EMBEDDING_0_6B: Final[str] = "qwen/qwen3-embedding-0.6b"
+
     # Model ID: qwen/qwen3-embedding-8b
     # Model page: https://phaseo.app/models/qwen/qwen3-embedding-8b
     QWEN_QWEN3_EMBEDDING_8B: Final[str] = "qwen/qwen3-embedding-8b"
+
+    # Model ID: qwen/qwen3-guard-gen-0.6b
+    # Model page: https://phaseo.app/models/qwen/qwen3-guard-gen-0.6b
+    QWEN_QWEN3_GUARD_GEN_0_6B: Final[str] = "qwen/qwen3-guard-gen-0.6b"
+
+    # Model ID: qwen/qwen3-guard-gen-8b
+    # Model page: https://phaseo.app/models/qwen/qwen3-guard-gen-8b
+    QWEN_QWEN3_GUARD_GEN_8B: Final[str] = "qwen/qwen3-guard-gen-8b"
 
     # Model ID: qwen/qwen3-max
     # Model page: https://phaseo.app/models/qwen/qwen3-max
@@ -1417,6 +1669,10 @@ class ModelIds:
     # Model ID: qwen/qwen3-next-80b-a3b-thinking
     # Model page: https://phaseo.app/models/qwen/qwen3-next-80b-a3b-thinking
     QWEN_QWEN3_NEXT_80B_A3B_THINKING: Final[str] = "qwen/qwen3-next-80b-a3b-thinking"
+
+    # Model ID: qwen/qwen3-omni-30b-a3b
+    # Model page: https://phaseo.app/models/qwen/qwen3-omni-30b-a3b
+    QWEN_QWEN3_OMNI_30B_A3B: Final[str] = "qwen/qwen3-omni-30b-a3b"
 
     # Model ID: qwen/qwen3-omni-30b-a3b-thinking
     # Model page: https://phaseo.app/models/qwen/qwen3-omni-30b-a3b-thinking
@@ -1498,10 +1754,6 @@ class ModelIds:
     # Model page: https://phaseo.app/models/qwen/qwen3.5-397b-a17b
     QWEN_QWEN3_5_397B_A17B: Final[str] = "qwen/qwen3.5-397b-a17b"
 
-    # Model ID: qwen/qwen3.5-4b
-    # Model page: https://phaseo.app/models/qwen/qwen3.5-4b
-    QWEN_QWEN3_5_4B: Final[str] = "qwen/qwen3.5-4b"
-
     # Model ID: qwen/qwen3.5-9b
     # Model page: https://phaseo.app/models/qwen/qwen3.5-9b
     QWEN_QWEN3_5_9B: Final[str] = "qwen/qwen3.5-9b"
@@ -1530,6 +1782,10 @@ class ModelIds:
     # Model page: https://phaseo.app/models/qwen/qwen3.6-35b-a3b
     QWEN_QWEN3_6_35B_A3B: Final[str] = "qwen/qwen3.6-35b-a3b"
 
+    # Model ID: qwen/qwen3.6-flash
+    # Model page: https://phaseo.app/models/qwen/qwen3.6-flash
+    QWEN_QWEN3_6_FLASH: Final[str] = "qwen/qwen3.6-flash"
+
     # Model ID: qwen/qwen3.6-max-preview
     # Model page: https://phaseo.app/models/qwen/qwen3.6-max-preview
     QWEN_QWEN3_6_MAX_PREVIEW: Final[str] = "qwen/qwen3.6-max-preview"
@@ -1554,6 +1810,18 @@ class ModelIds:
     # Model page: https://phaseo.app/models/qwen/qwen3.7-plus-2026-05-26
     QWEN_QWEN3_7_PLUS_2026_05_26: Final[str] = "qwen/qwen3.7-plus-2026-05-26"
 
+    # Model ID: qwen/qwen3.8-2.4t-a95b
+    # Model page: https://phaseo.app/models/qwen/qwen3.8-2.4t-a95b
+    QWEN_QWEN3_8_2_4T_A95B: Final[str] = "qwen/qwen3.8-2.4t-a95b"
+
+    # Model ID: qwen/qwen3.8-27b
+    # Model page: https://phaseo.app/models/qwen/qwen3.8-27b
+    QWEN_QWEN3_8_27B: Final[str] = "qwen/qwen3.8-27b"
+
+    # Model ID: qwen/qwen3.8-max
+    # Model page: https://phaseo.app/models/qwen/qwen3.8-max
+    QWEN_QWEN3_8_MAX: Final[str] = "qwen/qwen3.8-max"
+
     # Model ID: qwen/qwq-32b
     # Model page: https://phaseo.app/models/qwen/qwq-32b
     QWEN_QWQ_32B: Final[str] = "qwen/qwq-32b"
@@ -1574,9 +1842,41 @@ class ModelIds:
     # Model page: https://phaseo.app/models/qwen/wan2.7-t2v
     QWEN_WAN2_7_T2V: Final[str] = "qwen/wan2.7-t2v"
 
-    # Model ID: spacex-ai/grok-4.20-beta-0309
-    # Model page: https://phaseo.app/models/spacex-ai/grok-4.20-beta-0309
-    SPACEX_AI_GROK_4_20_BETA_0309: Final[str] = "spacex-ai/grok-4.20-beta-0309"
+    # Model ID: reka-edge
+    # Model page: https://phaseo.app/models/reka-edge
+    REKA_EDGE: Final[str] = "reka-edge"
+
+    # Model ID: reka-edge-2603
+    # Model page: https://phaseo.app/models/reka-edge-2603
+    REKA_EDGE_2603: Final[str] = "reka-edge-2603"
+
+    # Model ID: reka-flash
+    # Model page: https://phaseo.app/models/reka-flash
+    REKA_FLASH: Final[str] = "reka-flash"
+
+    # Model ID: reka-flash-research
+    # Model page: https://phaseo.app/models/reka-flash-research
+    REKA_FLASH_RESEARCH: Final[str] = "reka-flash-research"
+
+    # Model ID: relace/relace-search
+    # Model page: https://phaseo.app/models/relace/relace-search
+    RELACE_RELACE_SEARCH: Final[str] = "relace/relace-search"
+
+    # Model ID: sakana/fugu-ultra
+    # Model page: https://phaseo.app/models/sakana/fugu-ultra
+    SAKANA_FUGU_ULTRA: Final[str] = "sakana/fugu-ultra"
+
+    # Model ID: sakana/namazu
+    # Model page: https://phaseo.app/models/sakana/namazu
+    SAKANA_NAMAZU: Final[str] = "sakana/namazu"
+
+    # Model ID: spacex-ai/grok-4.20
+    # Model page: https://phaseo.app/models/spacex-ai/grok-4.20
+    SPACEX_AI_GROK_4_20: Final[str] = "spacex-ai/grok-4.20"
+
+    # Model ID: spacex-ai/grok-4.20-multi-agent-beta
+    # Model page: https://phaseo.app/models/spacex-ai/grok-4.20-multi-agent-beta
+    SPACEX_AI_GROK_4_20_MULTI_AGENT_BETA: Final[str] = "spacex-ai/grok-4.20-multi-agent-beta"
 
     # Model ID: spacex-ai/grok-4.20-multi-agent-beta-0309
     # Model page: https://phaseo.app/models/spacex-ai/grok-4.20-multi-agent-beta-0309
@@ -1590,29 +1890,37 @@ class ModelIds:
     # Model page: https://phaseo.app/models/spacex-ai/grok-4.5
     SPACEX_AI_GROK_4_5: Final[str] = "spacex-ai/grok-4.5"
 
+    # Model ID: spacex-ai/grok-4.6
+    # Model page: https://phaseo.app/models/spacex-ai/grok-4.6
+    SPACEX_AI_GROK_4_6: Final[str] = "spacex-ai/grok-4.6"
+
     # Model ID: spacex-ai/grok-build-0.1
     # Model page: https://phaseo.app/models/spacex-ai/grok-build-0.1
     SPACEX_AI_GROK_BUILD_0_1: Final[str] = "spacex-ai/grok-build-0.1"
-
-    # Model ID: spacex-ai/grok-code-fast-1
-    # Model page: https://phaseo.app/models/spacex-ai/grok-code-fast-1
-    SPACEX_AI_GROK_CODE_FAST_1: Final[str] = "spacex-ai/grok-code-fast-1"
 
     # Model ID: spacex-ai/grok-imagine-image
     # Model page: https://phaseo.app/models/spacex-ai/grok-imagine-image
     SPACEX_AI_GROK_IMAGINE_IMAGE: Final[str] = "spacex-ai/grok-imagine-image"
 
+    # Model ID: spacex-ai/grok-imagine-image-2.0
+    # Model page: https://phaseo.app/models/spacex-ai/grok-imagine-image-2.0
+    SPACEX_AI_GROK_IMAGINE_IMAGE_2_0: Final[str] = "spacex-ai/grok-imagine-image-2.0"
+
     # Model ID: spacex-ai/grok-imagine-image-quality
     # Model page: https://phaseo.app/models/spacex-ai/grok-imagine-image-quality
     SPACEX_AI_GROK_IMAGINE_IMAGE_QUALITY: Final[str] = "spacex-ai/grok-imagine-image-quality"
 
-    # Model ID: spacex-ai/grok-imagine-video
-    # Model page: https://phaseo.app/models/spacex-ai/grok-imagine-video
-    SPACEX_AI_GROK_IMAGINE_VIDEO: Final[str] = "spacex-ai/grok-imagine-video"
+    # Model ID: spacex-ai/grok-transcribe
+    # Model page: https://phaseo.app/models/spacex-ai/grok-transcribe
+    SPACEX_AI_GROK_TRANSCRIBE: Final[str] = "spacex-ai/grok-transcribe"
 
     # Model ID: spacex-ai/grok-tts
     # Model page: https://phaseo.app/models/spacex-ai/grok-tts
     SPACEX_AI_GROK_TTS: Final[str] = "spacex-ai/grok-tts"
+
+    # Model ID: stealth/ox-alpha
+    # Model page: https://phaseo.app/models/stealth/ox-alpha
+    STEALTH_OX_ALPHA: Final[str] = "stealth/ox-alpha"
 
     # Model ID: stepfun/step-3.5-flash
     # Model page: https://phaseo.app/models/stepfun/step-3.5-flash
@@ -1638,13 +1946,57 @@ class ModelIds:
     # Model page: https://phaseo.app/models/tencent/hy3%3Afree
     TENCENT_HY3_FREE: Final[str] = "tencent/hy3:free"
 
-    # Model ID: venice/venice-uncensored
-    # Model page: https://phaseo.app/models/venice/venice-uncensored
-    VENICE_VENICE_UNCENSORED: Final[str] = "venice/venice-uncensored"
+    # Model ID: thinking-machines/inkling
+    # Model page: https://phaseo.app/models/thinking-machines/inkling
+    THINKING_MACHINES_INKLING: Final[str] = "thinking-machines/inkling"
 
-    # Model ID: venice/venice-uncensored-1.1
-    # Model page: https://phaseo.app/models/venice/venice-uncensored-1.1
-    VENICE_VENICE_UNCENSORED_1_1: Final[str] = "venice/venice-uncensored-1.1"
+    # Model ID: thinking-machines/inkling-small
+    # Model page: https://phaseo.app/models/thinking-machines/inkling-small
+    THINKING_MACHINES_INKLING_SMALL: Final[str] = "thinking-machines/inkling-small"
+
+    # Model ID: upstage/solar-embedding-1-large-passage
+    # Model page: https://phaseo.app/models/upstage/solar-embedding-1-large-passage
+    UPSTAGE_SOLAR_EMBEDDING_1_LARGE_PASSAGE: Final[str] = "upstage/solar-embedding-1-large-passage"
+
+    # Model ID: upstage/solar-embedding-1-large-query
+    # Model page: https://phaseo.app/models/upstage/solar-embedding-1-large-query
+    UPSTAGE_SOLAR_EMBEDDING_1_LARGE_QUERY: Final[str] = "upstage/solar-embedding-1-large-query"
+
+    # Model ID: upstage/solar-embedding-2-passage
+    # Model page: https://phaseo.app/models/upstage/solar-embedding-2-passage
+    UPSTAGE_SOLAR_EMBEDDING_2_PASSAGE: Final[str] = "upstage/solar-embedding-2-passage"
+
+    # Model ID: upstage/solar-embedding-2-query
+    # Model page: https://phaseo.app/models/upstage/solar-embedding-2-query
+    UPSTAGE_SOLAR_EMBEDDING_2_QUERY: Final[str] = "upstage/solar-embedding-2-query"
+
+    # Model ID: upstage/solar-mini
+    # Model page: https://phaseo.app/models/upstage/solar-mini
+    UPSTAGE_SOLAR_MINI: Final[str] = "upstage/solar-mini"
+
+    # Model ID: upstage/solar-pro-2
+    # Model page: https://phaseo.app/models/upstage/solar-pro-2
+    UPSTAGE_SOLAR_PRO_2: Final[str] = "upstage/solar-pro-2"
+
+    # Model ID: upstage/solar-pro-3
+    # Model page: https://phaseo.app/models/upstage/solar-pro-3
+    UPSTAGE_SOLAR_PRO_3: Final[str] = "upstage/solar-pro-3"
+
+    # Model ID: upstage/solar-pro-4
+    # Model page: https://phaseo.app/models/upstage/solar-pro-4
+    UPSTAGE_SOLAR_PRO_4: Final[str] = "upstage/solar-pro-4"
+
+    # Model ID: venice/gemma-4-uncensored
+    # Model page: https://phaseo.app/models/venice/gemma-4-uncensored
+    VENICE_GEMMA_4_UNCENSORED: Final[str] = "venice/gemma-4-uncensored"
+
+    # Model ID: venice/venice-role-play-uncensored
+    # Model page: https://phaseo.app/models/venice/venice-role-play-uncensored
+    VENICE_VENICE_ROLE_PLAY_UNCENSORED: Final[str] = "venice/venice-role-play-uncensored"
+
+    # Model ID: venice/venice-uncensored-1.2
+    # Model page: https://phaseo.app/models/venice/venice-uncensored-1.2
+    VENICE_VENICE_UNCENSORED_1_2: Final[str] = "venice/venice-uncensored-1.2"
 
     # Model ID: voyage/rerank-1
     # Model page: https://phaseo.app/models/voyage/rerank-1
@@ -1657,6 +2009,14 @@ class ModelIds:
     # Model ID: voyage/rerank-2-lite
     # Model page: https://phaseo.app/models/voyage/rerank-2-lite
     VOYAGE_RERANK_2_LITE: Final[str] = "voyage/rerank-2-lite"
+
+    # Model ID: voyage/rerank-2.5
+    # Model page: https://phaseo.app/models/voyage/rerank-2.5
+    VOYAGE_RERANK_2_5: Final[str] = "voyage/rerank-2.5"
+
+    # Model ID: voyage/rerank-2.5-lite
+    # Model page: https://phaseo.app/models/voyage/rerank-2.5-lite
+    VOYAGE_RERANK_2_5_LITE: Final[str] = "voyage/rerank-2.5-lite"
 
     # Model ID: voyage/rerank-lite-1
     # Model page: https://phaseo.app/models/voyage/rerank-lite-1
@@ -1714,6 +2074,10 @@ class ModelIds:
     # Model page: https://phaseo.app/models/voyage/voyage-code-3
     VOYAGE_VOYAGE_CODE_3: Final[str] = "voyage/voyage-code-3"
 
+    # Model ID: voyage/voyage-code-4
+    # Model page: https://phaseo.app/models/voyage/voyage-code-4
+    VOYAGE_VOYAGE_CODE_4: Final[str] = "voyage/voyage-code-4"
+
     # Model ID: voyage/voyage-context-3
     # Model page: https://phaseo.app/models/voyage/voyage-context-3
     VOYAGE_VOYAGE_CONTEXT_3: Final[str] = "voyage/voyage-context-3"
@@ -1758,29 +2122,41 @@ class ModelIds:
     # Model page: https://phaseo.app/models/voyage/voyage-multimodal-3.5
     VOYAGE_VOYAGE_MULTIMODAL_3_5: Final[str] = "voyage/voyage-multimodal-3.5"
 
-    # Model ID: xiaomi/mimo-v2-flash
-    # Model page: https://phaseo.app/models/xiaomi/mimo-v2-flash
-    XIAOMI_MIMO_V2_FLASH: Final[str] = "xiaomi/mimo-v2-flash"
-
     # Model ID: xiaomi/mimo-v2.5
     # Model page: https://phaseo.app/models/xiaomi/mimo-v2.5
     XIAOMI_MIMO_V2_5: Final[str] = "xiaomi/mimo-v2.5"
+
+    # Model ID: xiaomi/mimo-v2.5-asr
+    # Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-asr
+    XIAOMI_MIMO_V2_5_ASR: Final[str] = "xiaomi/mimo-v2.5-asr"
 
     # Model ID: xiaomi/mimo-v2.5-pro
     # Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-pro
     XIAOMI_MIMO_V2_5_PRO: Final[str] = "xiaomi/mimo-v2.5-pro"
 
+    # Model ID: xiaomi/mimo-v2.5-pro-ultraspeed
+    # Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-pro-ultraspeed
+    XIAOMI_MIMO_V2_5_PRO_ULTRASPEED: Final[str] = "xiaomi/mimo-v2.5-pro-ultraspeed"
+
+    # Model ID: xiaomi/mimo-v2.5-tts-voiceclone:free
+    # Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-tts-voiceclone%3Afree
+    XIAOMI_MIMO_V2_5_TTS_VOICECLONE_FREE: Final[str] = "xiaomi/mimo-v2.5-tts-voiceclone:free"
+
+    # Model ID: xiaomi/mimo-v2.5-tts-voicedesign:free
+    # Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-tts-voicedesign%3Afree
+    XIAOMI_MIMO_V2_5_TTS_VOICEDESIGN_FREE: Final[str] = "xiaomi/mimo-v2.5-tts-voicedesign:free"
+
     # Model ID: xiaomi/mimo-v2.5-tts:free
     # Model page: https://phaseo.app/models/xiaomi/mimo-v2.5-tts%3Afree
     XIAOMI_MIMO_V2_5_TTS_FREE: Final[str] = "xiaomi/mimo-v2.5-tts:free"
 
+    # Model ID: z-ai/autoglm-phone-9b-multilingual
+    # Model page: https://phaseo.app/models/z-ai/autoglm-phone-9b-multilingual
+    Z_AI_AUTOGLM_PHONE_9B_MULTILINGUAL: Final[str] = "z-ai/autoglm-phone-9b-multilingual"
+
     # Model ID: z-ai/glm-4-32b
     # Model page: https://phaseo.app/models/z-ai/glm-4-32b
     Z_AI_GLM_4_32B: Final[str] = "z-ai/glm-4-32b"
-
-    # Model ID: z-ai/glm-4-7-flash:free
-    # Model page: https://phaseo.app/models/z-ai/glm-4-7-flash%3Afree
-    Z_AI_GLM_4_7_FLASH_FREE: Final[str] = "z-ai/glm-4-7-flash:free"
 
     # Model ID: z-ai/glm-4.5
     # Model page: https://phaseo.app/models/z-ai/glm-4.5
@@ -1822,13 +2198,13 @@ class ModelIds:
     # Model page: https://phaseo.app/models/z-ai/glm-4.7-flash
     Z_AI_GLM_4_7_FLASH: Final[str] = "z-ai/glm-4.7-flash"
 
+    # Model ID: z-ai/glm-4.7-flash-heretic
+    # Model page: https://phaseo.app/models/z-ai/glm-4.7-flash-heretic
+    Z_AI_GLM_4_7_FLASH_HERETIC: Final[str] = "z-ai/glm-4.7-flash-heretic"
+
     # Model ID: z-ai/glm-5
     # Model page: https://phaseo.app/models/z-ai/glm-5
     Z_AI_GLM_5: Final[str] = "z-ai/glm-5"
-
-    # Model ID: z-ai/glm-5-code
-    # Model page: https://phaseo.app/models/z-ai/glm-5-code
-    Z_AI_GLM_5_CODE: Final[str] = "z-ai/glm-5-code"
 
     # Model ID: z-ai/glm-5-turbo
     # Model page: https://phaseo.app/models/z-ai/glm-5-turbo
@@ -1841,6 +2217,10 @@ class ModelIds:
     # Model ID: z-ai/glm-5.2
     # Model page: https://phaseo.app/models/z-ai/glm-5.2
     Z_AI_GLM_5_2: Final[str] = "z-ai/glm-5.2"
+
+    # Model ID: z-ai/glm-5.3
+    # Model page: https://phaseo.app/models/z-ai/glm-5.3
+    Z_AI_GLM_5_3: Final[str] = "z-ai/glm-5.3"
 
     # Model ID: z-ai/glm-5v-turbo
     # Model page: https://phaseo.app/models/z-ai/glm-5v-turbo
@@ -1860,63 +2240,88 @@ class ModelIds:
 
 MODEL_IDS: Final[tuple[str, ...]] = tuple(
     (
-        ModelIds.AI21_JAMBA_LARGE_1_7,
-        ModelIds.AI21_JAMBA_MINI_2,
+        ModelIds.AI21_JAMBA_1_5_LARGE,
+        ModelIds.AI21_JAMBA_1_5_MINI,
         ModelIds.AION_LABS_AION_2_0,
-        ModelIds.AION_LABS_AION_2_5,
         ModelIds.AION_LABS_AION_3_0,
         ModelIds.AION_LABS_AION_3_0_MINI,
         ModelIds.AION_LABS_AION_RP_LLAMA_3_1_8B,
         ModelIds.ALLENAI_MOLMO_2_8B,
-        ModelIds.ALLENAI_OLMO_3_1_32B,
+        ModelIds.AMAZON_NOVA_2_LITE,
+        ModelIds.AMAZON_NOVA_LITE_1_0,
+        ModelIds.AMAZON_NOVA_MICRO_1_0,
+        ModelIds.AMAZON_NOVA_PREMIER,
+        ModelIds.AMAZON_NOVA_PRO_1_0,
+        ModelIds.ANTHROPIC_CLAUDE_3_HAIKU,
+        ModelIds.ANTHROPIC_CLAUDE_3_5_HAIKU,
+        ModelIds.ANTHROPIC_CLAUDE_3_7_SONNET,
         ModelIds.ANTHROPIC_CLAUDE_FABLE_5,
         ModelIds.ANTHROPIC_CLAUDE_HAIKU_4_5,
+        ModelIds.ANTHROPIC_CLAUDE_OPUS_4,
         ModelIds.ANTHROPIC_CLAUDE_OPUS_4_1,
         ModelIds.ANTHROPIC_CLAUDE_OPUS_4_5,
         ModelIds.ANTHROPIC_CLAUDE_OPUS_4_6,
         ModelIds.ANTHROPIC_CLAUDE_OPUS_4_7,
-        ModelIds.ANTHROPIC_CLAUDE_OPUS_4_7_FAST,
         ModelIds.ANTHROPIC_CLAUDE_OPUS_4_8,
         ModelIds.ANTHROPIC_CLAUDE_OPUS_5,
+        ModelIds.ANTHROPIC_CLAUDE_SONNET_4,
         ModelIds.ANTHROPIC_CLAUDE_SONNET_4_5,
         ModelIds.ANTHROPIC_CLAUDE_SONNET_4_6,
         ModelIds.ANTHROPIC_CLAUDE_SONNET_5,
         ModelIds.ARCEE_AI_TRINITY_LARGE,
         ModelIds.ARCEE_AI_TRINITY_LARGE_THINKING,
         ModelIds.ARCEE_AI_TRINITY_MINI,
+        ModelIds.BAAI_BGE_M3,
+        ModelIds.BAAI_BGE_MULTILINGUAL_GEMMA2,
+        ModelIds.BAAI_BGE_RERANKER_V2_M3,
+        ModelIds.BAIDU_COBUDDY,
         ModelIds.BAIDU_ERNIE_4_5_21B_A3B,
-        ModelIds.BAIDU_ERNIE_4_5_21B_A3B_THINKING,
         ModelIds.BAIDU_ERNIE_4_5_300B_A47B,
-        ModelIds.BAIDU_ERNIE_4_5_VL_28B_A3B,
-        ModelIds.BAIDU_ERNIE_4_5_VL_28B_A3B_THINKING,
         ModelIds.BAIDU_ERNIE_4_5_VL_424B_A47B,
+        ModelIds.BLACK_FOREST_LABS_FLUX_1_DEV,
         ModelIds.BLACK_FOREST_LABS_FLUX_1_SCHNELL,
         ModelIds.BYTEDANCE_SEED_1_6,
+        ModelIds.BYTEDANCE_SEED_1_6_2025_10_15,
         ModelIds.BYTEDANCE_SEED_1_6_250915,
         ModelIds.BYTEDANCE_SEED_1_6_FLASH,
+        ModelIds.BYTEDANCE_SEED_1_6_FLASH_2025_08_28,
         ModelIds.BYTEDANCE_SEED_1_6_FLASH_250715,
         ModelIds.BYTEDANCE_SEED_1_8,
+        ModelIds.BYTEDANCE_SEED_1_8_2025_12_28,
+        ModelIds.BYTEDANCE_SEED_2_0_CODE_PREVIEW_2026_02_15,
         ModelIds.BYTEDANCE_SEED_2_0_LITE,
+        ModelIds.BYTEDANCE_SEED_2_0_LITE_2026_04_28,
         ModelIds.BYTEDANCE_SEED_2_0_LITE_260428,
         ModelIds.BYTEDANCE_SEED_2_0_MINI,
+        ModelIds.BYTEDANCE_SEED_2_0_MINI_2026_04_28,
         ModelIds.BYTEDANCE_SEED_2_0_MINI_260428,
         ModelIds.BYTEDANCE_SEED_2_0_PRO,
+        ModelIds.BYTEDANCE_SEED_2_1_TURBO,
         ModelIds.BYTEDANCE_SEED_OSS_36B_INSTRUCT,
         ModelIds.BYTEDANCE_SEED_TRANSLATION,
         ModelIds.BYTEDANCE_SEEDANCE_2_0,
         ModelIds.BYTEDANCE_SEEDANCE_2_0_FAST,
         ModelIds.BYTEDANCE_SEEDANCE_2_0_MINI_260615,
         ModelIds.BYTEDANCE_SEEDREAM_5_0_PRO,
+        ModelIds.COHERE_COMMAND_A,
+        ModelIds.COHERE_COMMAND_R,
+        ModelIds.COHERE_COMMAND_R_PLUS,
+        ModelIds.COHERE_COMMAND_R7B,
+        ModelIds.COHERE_EMBED_ENGLISH_V3,
+        ModelIds.COHERE_EMBED_MULTILINGUAL_V3,
+        ModelIds.COHERE_EMBED_V4,
+        ModelIds.COHERE_RERANK_V3_5,
+        ModelIds.COHERE_RERANK_V4_0_FAST,
+        ModelIds.COHERE_RERANK_V4_0_PRO,
         ModelIds.CROFAI_GREG_1_MINI,
         ModelIds.CROFAI_GREG_2_SUPER,
         ModelIds.CROFAI_GREG_2_ULTRA,
         ModelIds.CROFAI_GREG_RP,
         ModelIds.DEEPSEEK_DEEPSEEK_OCR,
         ModelIds.DEEPSEEK_DEEPSEEK_OCR_2,
-        ModelIds.DEEPSEEK_DEEPSEEK_PROVER_V2_671B,
         ModelIds.DEEPSEEK_DEEPSEEK_R1,
         ModelIds.DEEPSEEK_DEEPSEEK_R1_0528,
-        ModelIds.DEEPSEEK_DEEPSEEK_R1_2025_05_28,
+        ModelIds.DEEPSEEK_DEEPSEEK_R1_DISTILL_LLAMA_70B,
         ModelIds.DEEPSEEK_DEEPSEEK_R1_TURBO,
         ModelIds.DEEPSEEK_DEEPSEEK_V3,
         ModelIds.DEEPSEEK_DEEPSEEK_V3_0324,
@@ -1925,76 +2330,86 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.DEEPSEEK_DEEPSEEK_V3_1_TERMINUS,
         ModelIds.DEEPSEEK_DEEPSEEK_V3_2,
         ModelIds.DEEPSEEK_DEEPSEEK_V3_2_EXP,
-        ModelIds.DEEPSEEK_DEEPSEEK_V3_2_SPECIALE,
         ModelIds.DEEPSEEK_DEEPSEEK_V4_FLASH,
         ModelIds.DEEPSEEK_DEEPSEEK_V4_FLASH_0731,
+        ModelIds.DEEPSEEK_DEEPSEEK_V4_FLASH_VISION_EXP,
         ModelIds.DEEPSEEK_DEEPSEEK_V4_PRO,
-        ModelIds.DEEPSEEK_DEEPSEEK_V4_PRO_LIGHTNING,
+        ModelIds.DEEPSEEK_DEEPSEEK_V4_PRO_0813,
         ModelIds.ELEVEN_LABS_ELEVEN_FLASH_V2,
         ModelIds.ELEVEN_LABS_ELEVEN_FLASH_V2_5,
         ModelIds.ELEVEN_LABS_ELEVEN_MULTILINGUAL_V2,
         ModelIds.ELEVEN_LABS_ELEVEN_TURBO_V2,
         ModelIds.ELEVEN_LABS_ELEVEN_TURBO_V2_5,
         ModelIds.ELEVEN_LABS_ELEVEN_V3,
+        ModelIds.ELEVEN_LABS_MUSIC,
+        ModelIds.ELEVEN_LABS_SCRIBE_V2,
         ModelIds.ESSENTIAL_AI_RNJ_1,
         ModelIds.GOOGLE_GEMINI_2_5_FLASH,
+        ModelIds.GOOGLE_GEMINI_2_5_FLASH_IMAGE,
         ModelIds.GOOGLE_GEMINI_2_5_FLASH_LITE,
-        ModelIds.GOOGLE_GEMINI_2_5_FLASH_LITE_PREVIEW_2025_06_17,
-        ModelIds.GOOGLE_GEMINI_2_5_FLASH_LITE_PREVIEW_2025_09_25,
         ModelIds.GOOGLE_GEMINI_2_5_PRO,
         ModelIds.GOOGLE_GEMINI_3_FLASH_PREVIEW,
         ModelIds.GOOGLE_GEMINI_3_PRO_IMAGE,
         ModelIds.GOOGLE_GEMINI_3_1_FLASH_IMAGE,
-        ModelIds.GOOGLE_GEMINI_3_1_FLASH_IMAGE_PREVIEW,
         ModelIds.GOOGLE_GEMINI_3_1_FLASH_LITE,
         ModelIds.GOOGLE_GEMINI_3_1_FLASH_LITE_IMAGE,
-        ModelIds.GOOGLE_GEMINI_3_1_FLASH_LITE_PREVIEW,
+        ModelIds.GOOGLE_GEMINI_3_1_FLASH_LIVE_PREVIEW,
         ModelIds.GOOGLE_GEMINI_3_1_FLASH_TTS_PREVIEW,
         ModelIds.GOOGLE_GEMINI_3_1_PRO_PREVIEW,
         ModelIds.GOOGLE_GEMINI_3_1_PRO_PREVIEW_CUSTOMTOOLS,
         ModelIds.GOOGLE_GEMINI_3_5_FLASH,
-        ModelIds.GOOGLE_GEMINI_3_5_PRO,
+        ModelIds.GOOGLE_GEMINI_3_5_FLASH_LITE,
+        ModelIds.GOOGLE_GEMINI_3_6_FLASH,
+        ModelIds.GOOGLE_GEMINI_3_7_FLASH,
         ModelIds.GOOGLE_GEMINI_EMBEDDING_001,
         ModelIds.GOOGLE_GEMINI_EMBEDDING_2,
-        ModelIds.GOOGLE_GEMINI_EMBEDDING_2_PREVIEW,
         ModelIds.GOOGLE_GEMINI_ROBOTICS_ER_1_6_PREVIEW,
+        ModelIds.GOOGLE_GEMINI_ROBOTICS_ER_2_PREVIEW,
+        ModelIds.GOOGLE_GEMMA_3_12B,
         ModelIds.GOOGLE_GEMMA_3_27B,
-        ModelIds.GOOGLE_GEMMA_3N_E4B,
+        ModelIds.GOOGLE_GEMMA_3_4B,
+        ModelIds.GOOGLE_GEMMA_4_12B,
         ModelIds.GOOGLE_GEMMA_4_26B_A4B,
         ModelIds.GOOGLE_GEMMA_4_26B_A4B_FREE,
         ModelIds.GOOGLE_GEMMA_4_31B,
         ModelIds.GOOGLE_GEMMA_4_31B_IT,
         ModelIds.GOOGLE_GEMMA_4_31B_FREE,
+        ModelIds.GOOGLE_IMAGEN_4_0_PREVIEW,
         ModelIds.GOOGLE_LYRIA_3_CLIP_PREVIEW,
         ModelIds.GOOGLE_LYRIA_3_PRO_PREVIEW,
-        ModelIds.GOOGLE_VEO_2,
+        ModelIds.GOOGLE_VEO_3_1,
+        ModelIds.GOOGLE_VEO_3_1_FAST,
         ModelIds.GOOGLE_VEO_3_1_FAST_PREVIEW,
-        ModelIds.GOOGLE_VEO_3_1_LITE_GENERATE_PREVIEW,
+        ModelIds.GOOGLE_VEO_3_1_LITE_PREVIEW,
         ModelIds.GOOGLE_VEO_3_1_PREVIEW,
         ModelIds.IBM_GRANITE_4_1_8B,
+        ModelIds.IBM_GRANITE_4_2_30B,
+        ModelIds.IBM_GRANITE_4_2_3B,
+        ModelIds.IBM_GRANITE_4_2_8B,
         ModelIds.INCEPTION_MERCURY_2,
         ModelIds.INCEPTION_MERCURY_EDIT_2,
         ModelIds.INCLUSIONAI_LING_2_6_1T,
+        ModelIds.INCLUSIONAI_LING_2_6_FLASH,
         ModelIds.INCLUSIONAI_LING_3_0_FLASH,
-        ModelIds.INCLUSIONAI_LING_3_0_TINY,
         ModelIds.INCLUSIONAI_LING_FLASH_2_0,
+        ModelIds.INCLUSIONAI_RING_2_6_1T,
         ModelIds.INCLUSIONAI_RING_FLASH_2_0,
         ModelIds.INFLECTION_INFLECTION_3_PI,
         ModelIds.INFLECTION_INFLECTION_3_PRODUCTIVITY,
+        ModelIds.JETBRAINS_MELLUM2_12B_A2_5B,
         ModelIds.KWAIPILOT_KAT_CODER_AIR_V2_5,
-        ModelIds.KWAIPILOT_KAT_CODER_EXP_72B_1010,
         ModelIds.KWAIPILOT_KAT_CODER_PRO,
-        ModelIds.KWAIPILOT_KAT_CODER_PRO_V1,
         ModelIds.KWAIPILOT_KAT_CODER_PRO_V2,
         ModelIds.KWAIPILOT_KAT_CODER_PRO_V2_5,
         ModelIds.LIQUID_AI_LFM_2_24B_A2B,
+        ModelIds.LIQUID_AI_LFM_2_5_8B_A1B,
+        ModelIds.LTX_2_3_FAST,
+        ModelIds.LTX_2_3_PRO,
+        ModelIds.LTX_2_5_FAST,
+        ModelIds.LTX_2_5_PRO,
         ModelIds.MEITUAN_LONGCAT_2_0,
-        ModelIds.META_LLAMA_3_70B,
-        ModelIds.META_LLAMA_3_8B,
-        ModelIds.META_LLAMA_3_8B_LITE,
         ModelIds.META_LLAMA_3_1_70B,
         ModelIds.META_LLAMA_3_1_8B,
-        ModelIds.META_LLAMA_3_2_11B_VISION,
         ModelIds.META_LLAMA_3_2_3B,
         ModelIds.META_LLAMA_3_3_70B,
         ModelIds.META_LLAMA_4_MAVERICK,
@@ -2002,12 +2417,16 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.META_LLAMA_GUARD_4_12B,
         ModelIds.META_LLAMA_PROMPT_GUARD_2_22M,
         ModelIds.META_LLAMA_PROMPT_GUARD_2_86M,
+        ModelIds.META_MUSE_GLIMMER_30B,
+        ModelIds.META_MUSE_SPARK_1_2,
         ModelIds.MICROSOFT_PHI_4,
-        ModelIds.MICROSOFT_PHI_4_MINI,
+        ModelIds.MICROSOFT_WIZARDLM_2_8X22B,
         ModelIds.MINDAI_MACARON_V1_TALL,
+        ModelIds.MINDAI_MACARON_V1_VENTI,
         ModelIds.MINIMAX_HAILUO_02,
         ModelIds.MINIMAX_HAILUO_2_3,
         ModelIds.MINIMAX_HAILUO_2_3_FAST,
+        ModelIds.MINIMAX_IMAGE_01,
         ModelIds.MINIMAX_M2_HER,
         ModelIds.MINIMAX_MINIMAX_M1_80K,
         ModelIds.MINIMAX_MINIMAX_M2,
@@ -2015,82 +2434,97 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.MINIMAX_MINIMAX_M2_5,
         ModelIds.MINIMAX_MINIMAX_M2_5_HIGHSPEED,
         ModelIds.MINIMAX_MINIMAX_M2_7,
+        ModelIds.MINIMAX_MINIMAX_M2_7_FREE,
         ModelIds.MINIMAX_MINIMAX_M3,
+        ModelIds.MINIMAX_MINIMAX_M3_FREE,
         ModelIds.MINIMAX_MUSIC_2_6,
-        ModelIds.MINIMAX_MUSIC_2_6_FREE,
+        ModelIds.MINIMAX_MUSIC_3_0,
+        ModelIds.MINIMAX_MUSIC_3_0_FREE,
+        ModelIds.MINIMAX_SPEECH_2_6_HD,
+        ModelIds.MINIMAX_SPEECH_2_6_TURBO,
+        ModelIds.MINIMAX_SPEECH_2_8_HD,
+        ModelIds.MINIMAX_SPEECH_2_8_TURBO,
+        ModelIds.MINIMAX_SPEECH_2_8_FREE,
+        ModelIds.MISTRAL_CODESTRAL,
         ModelIds.MISTRAL_CODESTRAL_EMBED,
         ModelIds.MISTRAL_DEVSTRAL_2,
+        ModelIds.MISTRAL_DEVSTRAL_2_0,
         ModelIds.MISTRAL_DEVSTRAL_MEDIUM_1_0,
         ModelIds.MISTRAL_DEVSTRAL_SMALL_1_1,
         ModelIds.MISTRAL_LEANSTRAL_1_5_FREE,
         ModelIds.MISTRAL_MAGISTRAL_MEDIUM_1_2,
+        ModelIds.MISTRAL_MAGISTRAL_SMALL_1_2,
         ModelIds.MISTRAL_MINISTRAL_3_14B,
         ModelIds.MISTRAL_MINISTRAL_3_3B,
         ModelIds.MISTRAL_MINISTRAL_3_8B,
+        ModelIds.MISTRAL_MINISTRAL_3_0_14B,
+        ModelIds.MISTRAL_MINISTRAL_3_0_3B,
+        ModelIds.MISTRAL_MINISTRAL_3_0_8B,
         ModelIds.MISTRAL_MISTRAL_EMBED,
         ModelIds.MISTRAL_MISTRAL_LARGE_2_1,
         ModelIds.MISTRAL_MISTRAL_LARGE_3,
+        ModelIds.MISTRAL_MISTRAL_LARGE_3_0,
         ModelIds.MISTRAL_MISTRAL_MEDIUM_3_0,
         ModelIds.MISTRAL_MISTRAL_MEDIUM_3_1,
         ModelIds.MISTRAL_MISTRAL_MEDIUM_3_5,
-        ModelIds.MISTRAL_MISTRAL_MODERATION,
         ModelIds.MISTRAL_MISTRAL_MODERATION_2,
+        ModelIds.MISTRAL_MISTRAL_NEMO,
         ModelIds.MISTRAL_MISTRAL_NEMO_12B,
         ModelIds.MISTRAL_MISTRAL_NEMO_2407,
         ModelIds.MISTRAL_MISTRAL_SMALL_24B_2501,
         ModelIds.MISTRAL_MISTRAL_SMALL_3_2,
         ModelIds.MISTRAL_MISTRAL_SMALL_4,
-        ModelIds.MISTRAL_MIXTRAL_8X7B,
+        ModelIds.MISTRAL_OCR_3,
+        ModelIds.MISTRAL_OCR_4,
+        ModelIds.MISTRAL_OCR_4_1,
         ModelIds.MISTRAL_PIXTRAL_LARGE,
-        ModelIds.MISTRALAI_MISTRAL_NEMO,
+        ModelIds.MISTRAL_VOXTRAL_MINI,
+        ModelIds.MISTRAL_VOXTRAL_MINI_TRANSCRIBE_2,
+        ModelIds.MISTRAL_VOXTRAL_SMALL,
         ModelIds.MOONSHOTAI_KIMI_K2,
         ModelIds.MOONSHOTAI_KIMI_K2_0905,
-        ModelIds.MOONSHOTAI_KIMI_K2_INSTRUCT,
-        ModelIds.MOONSHOTAI_KIMI_K2_INSTRUCT_0905,
         ModelIds.MOONSHOTAI_KIMI_K2_THINKING,
         ModelIds.MOONSHOTAI_KIMI_K2_5,
-        ModelIds.MOONSHOTAI_KIMI_K2_5_LIGHTNING,
         ModelIds.MOONSHOTAI_KIMI_K2_6,
         ModelIds.MOONSHOTAI_KIMI_K2_7_CODE,
+        ModelIds.MOONSHOTAI_KIMI_K3,
+        ModelIds.MOONSHOTAI_KIMI_K3_FAST,
         ModelIds.MOONSHOTAI_MOONSHOT_V1_128K,
         ModelIds.MOONSHOTAI_MOONSHOT_V1_128K_VISION_PREVIEW,
         ModelIds.MOONSHOTAI_MOONSHOT_V1_32K,
         ModelIds.MOONSHOTAI_MOONSHOT_V1_32K_VISION_PREVIEW,
         ModelIds.MOONSHOTAI_MOONSHOT_V1_8K,
         ModelIds.MOONSHOTAI_MOONSHOT_V1_8K_VISION_PREVIEW,
+        ModelIds.MORPH_MORPH_COMPACTOR,
         ModelIds.MORPH_MORPH_V3_FAST,
         ModelIds.MORPH_MORPH_V3_LARGE,
+        ModelIds.MORPH_MORPH_WARP_GREP_V2_1,
         ModelIds.NEX_AGI_DEEPSEEK_V3_1_NEX_N1,
-        ModelIds.NEX_AGI_NEX_N2_PRO,
         ModelIds.NOUS_HERMES_3_LLAMA_3_1_405B,
-        ModelIds.NOUSRESEARCH_HERMES_3_LLAMA_3_1_405B,
         ModelIds.NOUSRESEARCH_HERMES_3_LLAMA_3_1_70B,
         ModelIds.NOUSRESEARCH_HERMES_4_405B,
         ModelIds.NOUSRESEARCH_HERMES_4_70B,
         ModelIds.NVIDIA_COSMOS3_SUPER_REASONER,
-        ModelIds.NVIDIA_LLAMA_3_1_NEMOTRON_70B_INSTRUCT,
         ModelIds.NVIDIA_LLAMA_3_1_NEMOTRON_ULTRA_253B,
-        ModelIds.NVIDIA_LLAMA_3_3_NEMOTRON_SUPER_49B_V1_5,
         ModelIds.NVIDIA_NEMOTRON_3_NANO_30B_A3B,
-        ModelIds.NVIDIA_NEMOTRON_3_NANO_OMNI_30B_A3B_REASONING,
+        ModelIds.NVIDIA_NEMOTRON_3_NANO_OMNI,
         ModelIds.NVIDIA_NEMOTRON_3_SUPER_120B_A12B,
         ModelIds.NVIDIA_NEMOTRON_3_ULTRA_550B_A55B,
+        ModelIds.NVIDIA_NEMOTRON_3_5_LIGHTNING,
+        ModelIds.NVIDIA_NEMOTRON_NANO_9B_V2,
         ModelIds.NVIDIA_NVIDIA_NEMOTRON_3_NANO_30B_A3B,
         ModelIds.NVIDIA_NVIDIA_NEMOTRON_NANO_12B_V2_VL,
         ModelIds.OPENAI_BABBAGE_002,
         ModelIds.OPENAI_CHAT_LATEST,
         ModelIds.OPENAI_CHATGPT_4O,
-        ModelIds.OPENAI_COMPUTER_USE_PREVIEW,
         ModelIds.OPENAI_DAVINCI_002,
         ModelIds.OPENAI_GPT_3_5_TURBO_16K,
         ModelIds.OPENAI_GPT_3_5_TURBO_2023_03_21,
         ModelIds.OPENAI_GPT_4_2023_06_13,
-        ModelIds.OPENAI_GPT_4_TURBO_2023_03_14,
-        ModelIds.OPENAI_GPT_4_TURBO_2023_11_06,
-        ModelIds.OPENAI_GPT_4_TURBO_2024_01_25,
         ModelIds.OPENAI_GPT_4_1,
         ModelIds.OPENAI_GPT_4_1_MINI,
         ModelIds.OPENAI_GPT_4_1_NANO,
+        ModelIds.OPENAI_GPT_4O,
         ModelIds.OPENAI_GPT_4O_2024_05_13,
         ModelIds.OPENAI_GPT_4O_2024_08_06,
         ModelIds.OPENAI_GPT_4O_2024_11_20,
@@ -2099,21 +2533,13 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.OPENAI_GPT_4O_MINI_TTS,
         ModelIds.OPENAI_GPT_4O_TRANSCRIBE,
         ModelIds.OPENAI_GPT_5,
-        ModelIds.OPENAI_GPT_5_CHAT,
-        ModelIds.OPENAI_GPT_5_CODEX,
         ModelIds.OPENAI_GPT_5_MINI,
         ModelIds.OPENAI_GPT_5_NANO,
         ModelIds.OPENAI_GPT_5_PRO,
         ModelIds.OPENAI_GPT_5_1,
-        ModelIds.OPENAI_GPT_5_1_CHAT,
-        ModelIds.OPENAI_GPT_5_1_CODEX,
-        ModelIds.OPENAI_GPT_5_1_CODEX_MAX,
-        ModelIds.OPENAI_GPT_5_1_CODEX_MINI,
         ModelIds.OPENAI_GPT_5_2,
-        ModelIds.OPENAI_GPT_5_2_CHAT,
         ModelIds.OPENAI_GPT_5_2_CODEX,
         ModelIds.OPENAI_GPT_5_2_PRO,
-        ModelIds.OPENAI_GPT_5_3_CHAT,
         ModelIds.OPENAI_GPT_5_3_CODEX,
         ModelIds.OPENAI_GPT_5_4,
         ModelIds.OPENAI_GPT_5_4_MINI,
@@ -2121,22 +2547,31 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.OPENAI_GPT_5_4_PRO,
         ModelIds.OPENAI_GPT_5_5,
         ModelIds.OPENAI_GPT_5_5_PRO,
+        ModelIds.OPENAI_GPT_5_6_LUNA,
+        ModelIds.OPENAI_GPT_5_6_LUNA_PRO,
+        ModelIds.OPENAI_GPT_5_6_SOL,
+        ModelIds.OPENAI_GPT_5_6_SOL_PRO,
+        ModelIds.OPENAI_GPT_5_6_TERRA,
+        ModelIds.OPENAI_GPT_5_6_TERRA_PRO,
         ModelIds.OPENAI_GPT_IMAGE_1,
         ModelIds.OPENAI_GPT_IMAGE_1_MINI,
         ModelIds.OPENAI_GPT_IMAGE_1_5,
         ModelIds.OPENAI_GPT_IMAGE_2,
         ModelIds.OPENAI_GPT_OSS_120B,
         ModelIds.OPENAI_GPT_OSS_20B,
+        ModelIds.OPENAI_GPT_OSS_SAFEGUARD_120B,
         ModelIds.OPENAI_GPT_OSS_SAFEGUARD_20B,
+        ModelIds.OPENAI_GPT_REALTIME,
+        ModelIds.OPENAI_GPT_REALTIME_1_5,
+        ModelIds.OPENAI_GPT_REALTIME_2,
+        ModelIds.OPENAI_GPT_TRANSCRIBE,
         ModelIds.OPENAI_O1,
         ModelIds.OPENAI_O1_MINI,
         ModelIds.OPENAI_O1_PRO,
         ModelIds.OPENAI_O3,
-        ModelIds.OPENAI_O3_DEEP_RESEARCH,
         ModelIds.OPENAI_O3_MINI,
         ModelIds.OPENAI_O3_PRO,
         ModelIds.OPENAI_O4_MINI,
-        ModelIds.OPENAI_O4_MINI_DEEP_RESEARCH,
         ModelIds.OPENAI_OMNI_MODERATION,
         ModelIds.OPENAI_SORA_2,
         ModelIds.OPENAI_SORA_2_PRO,
@@ -2144,13 +2579,18 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.OPENAI_TEXT_EMBEDDING_3_SMALL,
         ModelIds.OPENAI_TEXT_EMBEDDING_ADA_002,
         ModelIds.OPENAI_WHISPER_1,
+        ModelIds.OPENAI_WHISPER_LARGE_V3,
+        ModelIds.OPENAI_WHISPER_LARGE_V3_TURBO,
+        ModelIds.PERPLEXITY_PPLX_EMBED_V1_0_6B,
+        ModelIds.PERPLEXITY_PPLX_EMBED_V1_4B,
         ModelIds.PHASEO_FREE,
         ModelIds.POOLSIDE_LAGUNA_M_1_FREE,
+        ModelIds.POOLSIDE_LAGUNA_S_2_1_FREE,
         ModelIds.POOLSIDE_LAGUNA_XS_2_1_FREE,
         ModelIds.QWEN_QVQ_MAX,
-        ModelIds.QWEN_QWEN_3_6_PLUS,
         ModelIds.QWEN_QWEN_FLASH,
         ModelIds.QWEN_QWEN_FLASH_CHARACTER,
+        ModelIds.QWEN_QWEN_IMAGE,
         ModelIds.QWEN_QWEN_MAX,
         ModelIds.QWEN_QWEN_MT_FLASH,
         ModelIds.QWEN_QWEN_MT_LITE,
@@ -2185,6 +2625,7 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.QWEN_QWEN3_0_6B,
         ModelIds.QWEN_QWEN3_1_7B,
         ModelIds.QWEN_QWEN3_14B,
+        ModelIds.QWEN_QWEN3_235B_A22B,
         ModelIds.QWEN_QWEN3_235B_A22B_2507,
         ModelIds.QWEN_QWEN3_235B_A22B_INSTRUCT_2507,
         ModelIds.QWEN_QWEN3_235B_A22B_THINKING_2507,
@@ -2195,14 +2636,16 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.QWEN_QWEN3_32B,
         ModelIds.QWEN_QWEN3_4B,
         ModelIds.QWEN_QWEN3_8B,
-        ModelIds.QWEN_QWEN3_CODER,
         ModelIds.QWEN_QWEN3_CODER_30B_A3B,
         ModelIds.QWEN_QWEN3_CODER_480B_A35B,
         ModelIds.QWEN_QWEN3_CODER_FLASH,
         ModelIds.QWEN_QWEN3_CODER_NEXT,
         ModelIds.QWEN_QWEN3_CODER_PLUS_2025_07_22,
         ModelIds.QWEN_QWEN3_CODER_PLUS_2025_09_23,
+        ModelIds.QWEN_QWEN3_EMBEDDING_0_6B,
         ModelIds.QWEN_QWEN3_EMBEDDING_8B,
+        ModelIds.QWEN_QWEN3_GUARD_GEN_0_6B,
+        ModelIds.QWEN_QWEN3_GUARD_GEN_8B,
         ModelIds.QWEN_QWEN3_MAX,
         ModelIds.QWEN_QWEN3_MAX_2025_09_23,
         ModelIds.QWEN_QWEN3_MAX_2026_01_23,
@@ -2212,6 +2655,7 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.QWEN_QWEN3_NEXT_80B_A3B,
         ModelIds.QWEN_QWEN3_NEXT_80B_A3B_INSTRUCT,
         ModelIds.QWEN_QWEN3_NEXT_80B_A3B_THINKING,
+        ModelIds.QWEN_QWEN3_OMNI_30B_A3B,
         ModelIds.QWEN_QWEN3_OMNI_30B_A3B_THINKING,
         ModelIds.QWEN_QWEN3_RERANKER,
         ModelIds.QWEN_QWEN3_VL_235B_A22B,
@@ -2232,7 +2676,6 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.QWEN_QWEN3_5_27B,
         ModelIds.QWEN_QWEN3_5_35B_A3B,
         ModelIds.QWEN_QWEN3_5_397B_A17B,
-        ModelIds.QWEN_QWEN3_5_4B,
         ModelIds.QWEN_QWEN3_5_9B,
         ModelIds.QWEN_QWEN3_5_FLASH,
         ModelIds.QWEN_QWEN3_5_LIVETRANSLATE_FLASH_REALTIME_2026_05_19,
@@ -2240,38 +2683,65 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.QWEN_QWEN3_5_PLUS_2026_04_20,
         ModelIds.QWEN_QWEN3_6_27B,
         ModelIds.QWEN_QWEN3_6_35B_A3B,
+        ModelIds.QWEN_QWEN3_6_FLASH,
         ModelIds.QWEN_QWEN3_6_MAX_PREVIEW,
         ModelIds.QWEN_QWEN3_6_PLUS,
         ModelIds.QWEN_QWEN3_7_MAX,
         ModelIds.QWEN_QWEN3_7_MAX_2026_05_17,
         ModelIds.QWEN_QWEN3_7_PLUS,
         ModelIds.QWEN_QWEN3_7_PLUS_2026_05_26,
+        ModelIds.QWEN_QWEN3_8_2_4T_A95B,
+        ModelIds.QWEN_QWEN3_8_27B,
+        ModelIds.QWEN_QWEN3_8_MAX,
         ModelIds.QWEN_QWQ_32B,
         ModelIds.QWEN_QWQ_PLUS,
         ModelIds.QWEN_TEXT_EMBEDDING_V3,
         ModelIds.QWEN_TEXT_EMBEDDING_V4,
         ModelIds.QWEN_WAN2_7_T2V,
-        ModelIds.SPACEX_AI_GROK_4_20_BETA_0309,
+        ModelIds.REKA_EDGE,
+        ModelIds.REKA_EDGE_2603,
+        ModelIds.REKA_FLASH,
+        ModelIds.REKA_FLASH_RESEARCH,
+        ModelIds.RELACE_RELACE_SEARCH,
+        ModelIds.SAKANA_FUGU_ULTRA,
+        ModelIds.SAKANA_NAMAZU,
+        ModelIds.SPACEX_AI_GROK_4_20,
+        ModelIds.SPACEX_AI_GROK_4_20_MULTI_AGENT_BETA,
         ModelIds.SPACEX_AI_GROK_4_20_MULTI_AGENT_BETA_0309,
         ModelIds.SPACEX_AI_GROK_4_3,
         ModelIds.SPACEX_AI_GROK_4_5,
+        ModelIds.SPACEX_AI_GROK_4_6,
         ModelIds.SPACEX_AI_GROK_BUILD_0_1,
-        ModelIds.SPACEX_AI_GROK_CODE_FAST_1,
         ModelIds.SPACEX_AI_GROK_IMAGINE_IMAGE,
+        ModelIds.SPACEX_AI_GROK_IMAGINE_IMAGE_2_0,
         ModelIds.SPACEX_AI_GROK_IMAGINE_IMAGE_QUALITY,
-        ModelIds.SPACEX_AI_GROK_IMAGINE_VIDEO,
+        ModelIds.SPACEX_AI_GROK_TRANSCRIBE,
         ModelIds.SPACEX_AI_GROK_TTS,
+        ModelIds.STEALTH_OX_ALPHA,
         ModelIds.STEPFUN_STEP_3_5_FLASH,
         ModelIds.STEPFUN_STEP_3_7_FLASH,
         ModelIds.TENCENT_HUNYUAN_A13B_INSTRUCT,
         ModelIds.TENCENT_HY3,
         ModelIds.TENCENT_HY3_PREVIEW,
         ModelIds.TENCENT_HY3_FREE,
-        ModelIds.VENICE_VENICE_UNCENSORED,
-        ModelIds.VENICE_VENICE_UNCENSORED_1_1,
+        ModelIds.THINKING_MACHINES_INKLING,
+        ModelIds.THINKING_MACHINES_INKLING_SMALL,
+        ModelIds.UPSTAGE_SOLAR_EMBEDDING_1_LARGE_PASSAGE,
+        ModelIds.UPSTAGE_SOLAR_EMBEDDING_1_LARGE_QUERY,
+        ModelIds.UPSTAGE_SOLAR_EMBEDDING_2_PASSAGE,
+        ModelIds.UPSTAGE_SOLAR_EMBEDDING_2_QUERY,
+        ModelIds.UPSTAGE_SOLAR_MINI,
+        ModelIds.UPSTAGE_SOLAR_PRO_2,
+        ModelIds.UPSTAGE_SOLAR_PRO_3,
+        ModelIds.UPSTAGE_SOLAR_PRO_4,
+        ModelIds.VENICE_GEMMA_4_UNCENSORED,
+        ModelIds.VENICE_VENICE_ROLE_PLAY_UNCENSORED,
+        ModelIds.VENICE_VENICE_UNCENSORED_1_2,
         ModelIds.VOYAGE_RERANK_1,
         ModelIds.VOYAGE_RERANK_2,
         ModelIds.VOYAGE_RERANK_2_LITE,
+        ModelIds.VOYAGE_RERANK_2_5,
+        ModelIds.VOYAGE_RERANK_2_5_LITE,
         ModelIds.VOYAGE_RERANK_LITE_1,
         ModelIds.VOYAGE_VOYAGE_01,
         ModelIds.VOYAGE_VOYAGE_02,
@@ -2286,6 +2756,7 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.VOYAGE_VOYAGE_4_LITE,
         ModelIds.VOYAGE_VOYAGE_CODE_2,
         ModelIds.VOYAGE_VOYAGE_CODE_3,
+        ModelIds.VOYAGE_VOYAGE_CODE_4,
         ModelIds.VOYAGE_VOYAGE_CONTEXT_3,
         ModelIds.VOYAGE_VOYAGE_FINANCE_2,
         ModelIds.VOYAGE_VOYAGE_LARGE_2,
@@ -2297,12 +2768,15 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.VOYAGE_VOYAGE_MULTILINGUAL_2,
         ModelIds.VOYAGE_VOYAGE_MULTIMODAL_3,
         ModelIds.VOYAGE_VOYAGE_MULTIMODAL_3_5,
-        ModelIds.XIAOMI_MIMO_V2_FLASH,
         ModelIds.XIAOMI_MIMO_V2_5,
+        ModelIds.XIAOMI_MIMO_V2_5_ASR,
         ModelIds.XIAOMI_MIMO_V2_5_PRO,
+        ModelIds.XIAOMI_MIMO_V2_5_PRO_ULTRASPEED,
+        ModelIds.XIAOMI_MIMO_V2_5_TTS_VOICECLONE_FREE,
+        ModelIds.XIAOMI_MIMO_V2_5_TTS_VOICEDESIGN_FREE,
         ModelIds.XIAOMI_MIMO_V2_5_TTS_FREE,
+        ModelIds.Z_AI_AUTOGLM_PHONE_9B_MULTILINGUAL,
         ModelIds.Z_AI_GLM_4_32B,
-        ModelIds.Z_AI_GLM_4_7_FLASH_FREE,
         ModelIds.Z_AI_GLM_4_5,
         ModelIds.Z_AI_GLM_4_5_AIR,
         ModelIds.Z_AI_GLM_4_5_AIR_X,
@@ -2313,11 +2787,12 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.Z_AI_GLM_4_6V_FLASH,
         ModelIds.Z_AI_GLM_4_7,
         ModelIds.Z_AI_GLM_4_7_FLASH,
+        ModelIds.Z_AI_GLM_4_7_FLASH_HERETIC,
         ModelIds.Z_AI_GLM_5,
-        ModelIds.Z_AI_GLM_5_CODE,
         ModelIds.Z_AI_GLM_5_TURBO,
         ModelIds.Z_AI_GLM_5_1,
         ModelIds.Z_AI_GLM_5_2,
+        ModelIds.Z_AI_GLM_5_3,
         ModelIds.Z_AI_GLM_5V_TURBO,
         ModelIds.ZAI_ORG_GLM_4_5_AIR,
         ModelIds.ZAI_GLM_5,

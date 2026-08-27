@@ -4,7 +4,7 @@
 
 import { computeBill } from "@pipeline/pricing/engine";
 import type { PriceCard } from "@pipeline/pricing/types";
-import { buildVideoPricingRequestOptions } from "@core/video-request-options";
+import { buildVideoPricingRequestOptions, resolveVideoOutputCount } from "@core/video-request-options";
 
 const DEFAULT_VIDEO_FRAME_RATE = 24;
 const SEEDANCE_MIN_TOKENS_480P: Record<number, number> = {
@@ -337,7 +337,15 @@ export function computeVideoPricedUsage(args: {
 		model: args.model,
 		requestOptions: args.requestOptions,
 	});
-	const usageMeters: Record<string, number> = { output_video_seconds: args.seconds };
+	const pricingMode = resolveStringOption(args.requestOptions ?? {}, ["mode", "video_params.mode"]);
+	const inputAudioSeconds = resolveNumericOption(args.requestOptions ?? {}, "input_audio_seconds") ?? resolveNumericOption(args.requestOptions ?? {}, "video_params.input_audio_seconds");
+	const usageMeters: Record<string, number> = pricingMode === "audio-to-video" && inputAudioSeconds
+		? { input_audio_seconds: inputAudioSeconds }
+		: { output_video_seconds: args.seconds };
+	const outputVideoCount = resolveNumericOption(args.requestOptions ?? {}, "outputCount")
+		?? resolveNumericOption(args.requestOptions ?? {}, "sampleCount")
+		?? resolveNumericOption(args.requestOptions ?? {}, "sample_count");
+	if (outputVideoCount && outputVideoCount > 0) usageMeters.output_video = Math.floor(outputVideoCount);
 	const inputImageCount =
 		resolveNumericOption(args.requestOptions ?? {}, "input_image_count") ??
 		resolveNumericOption(args.requestOptions ?? {}, "video_params.input_image_count");
@@ -372,10 +380,9 @@ export function computeVideoPricedUsage(args: {
 		normalizeLegacyResolutionCase: true,
 	});
 	priced = computeBill(
-		{ output_video: 1 },
+		{ output_video: resolveVideoOutputCount(args.requestOptions ?? {}) },
 		args.card,
 		legacyContext,
 	);
 	return priced as Record<string, unknown>;
 }
-

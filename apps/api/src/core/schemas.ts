@@ -122,9 +122,16 @@ const ResponseFormatSchema = z.union([
 	}).passthrough(),
 ]);
 
-const OpenAIContextManagementSchema = z.object({
+const OpenAIContextManagementEntrySchema = z.object({
 	type: z.literal("compaction"),
 	compact_threshold: z.number().optional(),
+}).passthrough();
+
+const OpenAIContextManagementSchema = z.array(OpenAIContextManagementEntrySchema);
+
+const OpenAIPromptCacheOptionsSchema = z.object({
+	mode: z.enum(["implicit", "explicit"]).optional(),
+	ttl: z.string().optional(),
 }).passthrough();
 
 const CacheControlSchema = z.object({
@@ -134,8 +141,14 @@ const CacheControlSchema = z.object({
 }).passthrough();
 
 const OpenAIProviderOptionsSchema = z.object({
-	context_management: OpenAIContextManagementSchema.optional(),
+	// Retain the historical object form for the gateway extension while the
+	// first-class OpenAI field follows the official array contract.
+	context_management: z.union([
+		OpenAIContextManagementSchema,
+		OpenAIContextManagementEntrySchema,
+	]).optional(),
 	prompt_cache_retention: z.string().optional(),
+	prompt_cache_options: OpenAIPromptCacheOptionsSchema.optional(),
 }).passthrough();
 
 const AnthropicProviderOptionsSchema = z.object({
@@ -148,11 +161,46 @@ const GoogleProviderOptionsSchema = z.object({
 	cache_ttl: z.string().optional(),
 }).passthrough();
 
+const DeepInfraProviderOptionsSchema = z.object({
+	fail_fast: z.boolean().optional(),
+	min_p: z.number().min(0).max(1).optional(),
+	stop_token_ids: z.array(z.number().int()).max(16).optional(),
+	chat_template_kwargs: z.record(z.string(), z.any()).optional(),
+	continue_final_message: z.boolean().optional(),
+	ignore_eos: z.boolean().optional(),
+}).passthrough();
+
+const FireworksProviderOptionsSchema = z.object({
+	min_p: z.number().min(0).max(1).optional(),
+	typical_p: z.number().min(0).max(1).optional(),
+	prompt_cache_isolation_key: z.string().optional(),
+	raw_output: z.boolean().optional(),
+	perf_metrics_in_response: z.boolean().optional(),
+	mirostat_target: z.number().optional(),
+	mirostat_lr: z.number().optional(),
+	echo: z.boolean().optional(),
+	echo_last: z.number().int().optional(),
+	ignore_eos: z.boolean().optional(),
+	context_length_exceeded_behavior: z.enum(["error", "truncate"]).optional(),
+	reasoning_history: z.enum(["disabled", "interleaved", "preserved"]).optional(),
+	return_token_ids: z.boolean().optional(),
+	prompt_truncate_len: z.number().int().positive().optional(),
+	safe_tokenization: z.boolean().optional(),
+}).passthrough();
+
+const GMICloudProviderOptionsSchema = z.object({
+	ignore_eos: z.boolean().optional(),
+	context_length_exceeded_behavior: z.enum(["truncate", "error"]).optional(),
+}).passthrough();
+
 
 const ResponsesProviderOptionsSchema = z.object({
 	openai: OpenAIProviderOptionsSchema.optional(),
 	anthropic: AnthropicProviderOptionsSchema.optional(),
 	google: GoogleProviderOptionsSchema.optional(),
+	deepinfra: DeepInfraProviderOptionsSchema.optional(),
+	fireworks: FireworksProviderOptionsSchema.optional(),
+	gmicloud: GMICloudProviderOptionsSchema.optional(),
 }).passthrough();
 
 const OPENAI_ASSISTANT_PHASE_VALUES = new Set(["commentary", "final_answer"]);
@@ -222,7 +270,13 @@ export const BatchSchema = z.object({
     requests: z.array(BatchRequestItemSchema).min(1).optional(),
     endpoint: z.string().min(1),
     completion_window: z.string().optional(),
-    metadata: z.record(z.string(), z.any()).optional(),
+    metadata: z.record(z.string().max(64), z.string().max(512))
+        .refine((value) => Object.keys(value).length <= 16, "metadata supports at most 16 entries")
+        .optional(),
+    output_expires_after: z.object({
+        anchor: z.literal("created_at"),
+        seconds: z.number().int().min(3_600).max(2_592_000),
+    }).strict().optional(),
     session_id: z.string().trim().min(1).max(256).optional(),
     webhook: BatchWebhookSchema.optional(),
     webhook_endpoint_id: z.string().min(1).optional(),
@@ -248,10 +302,12 @@ export const ResponsesSchema = z.object({
     metadata: z.record(z.string(), z.string()).optional(),
     parallel_tool_calls: z.boolean().optional(),
     previous_response_id: z.string().optional(),
+	context_management: OpenAIContextManagementSchema.optional(),
     reasoning: z.object({
         effort: z.enum(["none", "minimal", "low", "medium", "high", "xhigh", "max"]).nullable().optional(),
         mode: z.enum(["standard", "pro"]).nullable().optional(),
         summary: z.enum(["auto", "concise", "detailed"]).nullable().optional(),
+		context: z.enum(["auto", "current_turn", "all_turns"]).nullable().optional(),
         enabled: z.boolean().nullable().optional(),
         max_tokens: z.number().int().nonnegative().nullable().optional(),
     }).optional(),
@@ -269,6 +325,7 @@ export const ResponsesSchema = z.object({
     truncation: z.enum(["auto", "disabled"]).optional(),
     user: z.string().optional(),
     prompt_cache_key: z.string().nullable().optional(),
+	prompt_cache_options: OpenAIPromptCacheOptionsSchema.optional(),
     safety_identifier: z.string().nullable().optional(),
     modalities: z.array(z.string()).optional(),
     image_config: ImageConfigSchema,
@@ -360,20 +417,27 @@ const EmbeddingsMultimodalContentSchema = z.array(EmbeddingsInputPartSchema).min
 const EmbeddingsInputObjectSchema = z.object({
 	content: EmbeddingsMultimodalContentSchema,
 }).passthrough();
+const EmbeddingsStructuredInputSchema = z.record(z.string(), z.any()).refine(
+	(value) => Object.keys(value).length > 0 && typeof value.type !== "string",
+	{ message: "structured embedding input must not be empty" },
+);
 
-const EmbeddingsInputTokenArraySchema = z.array(z.number().int());
+const EmbeddingsInputStringSchema = z.string().min(1);
+const EmbeddingsInputTokenArraySchema = z.array(z.number().int()).max(2048);
 
 const EmbeddingsInputItemSchema = z.union([
-	z.string(),
+	EmbeddingsInputStringSchema,
 	EmbeddingsInputTokenArraySchema,
 	EmbeddingsInputObjectSchema,
+	EmbeddingsStructuredInputSchema,
 ]);
 
 const EmbeddingsInputSchema = z.union([
-	z.string(),
+	EmbeddingsInputStringSchema,
 	EmbeddingsInputTokenArraySchema,
 	EmbeddingsInputObjectSchema,
-	z.array(EmbeddingsInputItemSchema),
+	EmbeddingsStructuredInputSchema,
+	z.array(EmbeddingsInputItemSchema).max(2048),
 ]);
 
 const EmbeddingsProviderOptionsSchema = z.object({
@@ -390,13 +454,21 @@ const EmbeddingsProviderOptionsSchema = z.object({
         output_dtype: z.enum(["float", "int8", "uint8", "binary", "ubinary"]).optional(),
         output_dimension: z.number().int().positive().optional(),
     }).optional(),
+	fireworks: z.object({
+		prompt_template: z.string().optional(),
+		return_logits: z.array(z.number().int()).optional(),
+		normalize: z.boolean().optional(),
+	}).optional(),
 }).optional();
 
 export const EmbeddingsSchema = z.object({
     model: z.string().min(1),
     input: EmbeddingsInputSchema,
+    session_id: z.string().trim().min(1).max(256).optional(),
     encoding_format: z.enum(["float", "base64", "base64_int8", "base64_binary"]).optional(),
     dimensions: z.number().int().positive().optional(),
+	service_tier: z.enum(["auto", "default", "over-limit", "flex", "no-limit"]).optional(),
+    metadata: z.record(z.string(), z.unknown()).optional(),
     provider_options: EmbeddingsProviderOptionsSchema,
     // Back-compat alias; normalized to provider_options below.
     embedding_options: EmbeddingsProviderOptionsSchema.optional(),
@@ -427,6 +499,7 @@ const ImageUrlPartSchema = z.object({
     type: z.literal("image_url"),
     image_url: z.object({
         url: z.string().min(1),
+		detail: z.enum(["auto", "low", "high", "original"]).optional(),
     }),
 });
 
@@ -438,6 +511,13 @@ const InputAudioPartSchema = z.object({
         format: z.string().optional(),
     }).refine((value) => value.data != null || value.url != null, {
         message: "input_audio.data or input_audio.url is required",
+    }),
+});
+
+const AudioUrlPartSchema = z.object({
+    type: z.literal("audio_url"),
+    audio_url: z.object({
+        url: z.string().min(1),
     }),
 });
 
@@ -468,6 +548,7 @@ const MessageContentPartSchema = z.union([
     TextPartSchema,
     ImageUrlPartSchema,
     InputAudioPartSchema,
+    AudioUrlPartSchema,
     InputVideoPartSchema,
     VideoUrlPartSchema,
     ToolCallPartSchema,
@@ -494,9 +575,19 @@ const FunctionToolSchema = z.object({
 	function: z.object({
 		name: z.string(),
 		description: z.string().optional(),
-		parameters: z.any(),
+		parameters: z.any().optional(),
+		strict: z.boolean().nullable().optional(),
 	}),
 });
+
+const OpenAICustomToolSchema = z.object({
+	type: z.literal("custom"),
+	custom: z.object({
+		name: z.string().min(1),
+		description: z.string().optional(),
+		format: z.record(z.string(), z.any()).optional(),
+	}).passthrough(),
+}).passthrough();
 
 const GatewayDatetimeToolSchema = z.object({
 	type: z.enum(["phaseo:datetime", "gateway:datetime"]),
@@ -731,12 +822,17 @@ export const ChatCompletionsSchema = z.object({
         ])
     ).min(1),
     reasoning: z.object({
-        effort: z.enum(["none", "minimal", "low", "medium", "high", "xhigh", "max"]).optional().default("medium"),
+        effort: z.enum(["none", "instant", "minimal", "low", "medium", "high", "xhigh", "max"]).optional().default("medium"),
         mode: z.enum(["standard", "pro"]).optional(),
         summary: z.enum(["auto", "concise", "detailed"]).optional().default("auto"),
         enabled: z.boolean().optional(),
         max_tokens: z.number().int().nonnegative().optional(),
     }).optional(),
+    reasoning_effort: z.enum(["none", "instant", "minimal", "low", "medium", "high", "xhigh", "max"]).optional(),
+	reasoning_summary: z.union([z.boolean(), z.enum(["auto", "concise", "detailed"])]).optional(),
+	reasoning_summary_wait: z.boolean().optional(),
+	diffusing: z.boolean().optional(),
+	realtime: z.boolean().optional(),
 
 
     frequency_penalty: z.number().min(-2).max(2).optional(),
@@ -754,13 +850,21 @@ export const ChatCompletionsSchema = z.object({
     store: z.boolean().optional(),
     stream: z.boolean().optional().default(false),
     stream_options: z.record(z.string(), z.any()).optional(),
-    n: z.never().optional(),
+    n: z.number().int().min(1).max(16).optional(),
+    documents: z.array(z.object({
+        content: z.string().min(1),
+        metadata: z.array(z.object({
+            key: z.string().min(1),
+            value: z.string(),
+        }).strict()).optional(),
+    }).strict()).optional(),
     temperature: z.number().min(0).max(2).optional().default(1),
 
     // Tools
     tools: z.array(
 		z.union([
 			FunctionToolSchema,
+			OpenAICustomToolSchema,
 			GatewayDatetimeToolSchema,
 			GatewayWebSearchToolSchema,
 			GatewayWebFetchToolSchema,
@@ -781,6 +885,9 @@ export const ChatCompletionsSchema = z.object({
     logprobs: z.boolean().optional().default(false),
     top_logprobs: z.number().int().min(0).max(20).optional(),
     top_p: z.number().min(0).max(1).optional(),
+    top_k: z.number().int().min(-1).optional(),
+    min_p: z.number().min(0).max(1).optional(),
+    repetition_penalty: z.number().positive().optional(),
     stop: z.union([z.string(), z.array(z.string())]).optional(),
     response_format: ResponseFormatSchema.optional(),
     modalities: z.array(z.string()).optional(),
@@ -791,6 +898,15 @@ export const ChatCompletionsSchema = z.object({
 
     service_tier: ServiceTierSchema.optional(),
     prompt_cache_key: z.string().nullable().optional(),
+	prompt_cache_options: OpenAIPromptCacheOptionsSchema.optional(),
+	verbosity: z.enum(["low", "medium", "high"]).optional(),
+	audio: z.object({
+		format: z.enum(["wav", "aac", "mp3", "flac", "opus", "pcm", "pcm16"]),
+		voice: z.union([
+			z.string().min(1),
+			z.object({ id: z.string().min(1) }).passthrough(),
+		]),
+	}).optional(),
     provider_options: ResponsesProviderOptionsSchema.optional(),
     safety_identifier: z.string().nullable().optional(),
     provider: ProviderRoutingSchema,
@@ -853,6 +969,9 @@ const AnthropicContentBlockSchema = z.union([
     AnthropicToolResultContentSchema,
     AnthropicServerToolUseContentSchema,
     AnthropicAdvisorToolResultContentSchema,
+	// Preserve current and future Anthropic-native blocks such as document,
+	// thinking, redacted_thinking, search results, and server-tool results.
+	z.object({ type: z.string().min(1) }).passthrough(),
 ]);
 
 const AnthropicMessageContentSchema = z.union([
@@ -865,13 +984,20 @@ const AnthropicToolSchema = z.object({
     description: z.string().optional(),
     input_schema: z.record(z.string(), z.any()),
     cache_control: CacheControlSchema.optional(),
+	strict: z.boolean().optional(),
 });
+
+const AnthropicNativeToolSchema = z.object({
+	type: z.string().min(1),
+	name: z.string().optional(),
+}).passthrough();
 
 const AnthropicToolChoiceSchema = z.union([
     z.object({ type: z.literal("auto") }),
     z.object({ type: z.literal("any") }),
+	z.object({ type: z.literal("none") }),
     z.object({ type: z.literal("tool"), name: z.string() }),
-]);
+]).and(z.object({ disable_parallel_tool_use: z.boolean().optional() }).passthrough());
 
 export const AnthropicMessagesSchema = z.object({
     model: z.string().min(1),
@@ -881,12 +1007,12 @@ export const AnthropicMessagesSchema = z.object({
             role: z.enum(["user", "assistant"]),
             content: AnthropicMessageContentSchema,
         })
-    ).min(1),
+    ).min(1).max(100000),
     system: z.union([z.string(), z.array(AnthropicTextContentSchema)]).optional(),
-    max_tokens: z.number().int().positive(),
+    max_tokens: z.number().int().nonnegative(),
     temperature: z.number().min(0).max(1).optional(),
     top_p: z.number().min(0).max(1).optional(),
-    top_k: z.number().int().positive().optional(),
+    top_k: z.number().int().nonnegative().optional(),
     stream: z.boolean().optional().default(false),
     tools: z.array(z.union([
 		AnthropicToolSchema,
@@ -901,12 +1027,28 @@ export const AnthropicMessagesSchema = z.object({
 		AnthropicNativeWebSearchToolSchema,
 		AnthropicNativeWebFetchToolSchema,
 		AnthropicNativeAdvisorToolSchema,
+		AnthropicNativeToolSchema,
 	])).optional(),
     tool_choice: AnthropicToolChoiceSchema.optional(),
     metadata: z.object({
         user_id: z.string().optional(),
     }).passthrough().optional(),
     service_tier: ServiceTierSchema.optional(),
+	thinking: z.discriminatedUnion("type", [
+		z.object({ type: z.literal("enabled"), budget_tokens: z.number().int().min(1024) }).passthrough(),
+		z.object({ type: z.literal("disabled") }).passthrough(),
+		z.object({
+			type: z.literal("adaptive"),
+			display: z.enum(["summarized", "omitted"]).optional(),
+		}).passthrough(),
+	]).optional(),
+	output_config: z.object({
+		effort: z.enum(["low", "medium", "high", "max"]).optional(),
+		format: z.object({
+			type: z.literal("json_schema"),
+			schema: z.record(z.string(), z.any()),
+		}).nullable().optional(),
+	}).passthrough().optional(),
     reasoning: z.object({
         effort: z.enum(["none", "minimal", "low", "medium", "high", "xhigh", "max"]).optional(),
         enabled: z.boolean().optional(),
@@ -952,24 +1094,98 @@ export const ImagesGenerationSchema = z.object({
     beta: BetaOptionsSchema,
     provider: ProviderRoutingSchema,
     routing: ProviderRoutingSchema,
+}).superRefine((request, ctx) => {
+    const model = request.model.trim().toLowerCase().replace(/^openai\//, "");
+    const isGptImage = model.startsWith("gpt-image-") || model === "chatgpt-image-latest";
+    if (!isGptImage) return;
+
+    if (request.prompt.length > 32_000) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["prompt"], message: "GPT Image prompts must be at most 32000 characters" });
+    }
+    if (request.quality && !["auto", "low", "medium", "high"].includes(request.quality)) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["quality"], message: "GPT Image quality must be auto, low, medium, or high" });
+    }
+    if (request.response_format !== undefined) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["response_format"], message: "response_format is not supported by GPT Image models" });
+    }
+    if (request.style !== undefined) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["style"], message: "style is only supported by dall-e-3" });
+    }
+    if (request.output_compression !== undefined && request.output_format !== "jpeg" && request.output_format !== "webp") {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["output_compression"], message: "output_compression requires jpeg or webp output_format" });
+    }
+    if (request.background === "transparent" && request.output_format === "jpeg") {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["background"], message: "transparent backgrounds require png or webp output_format" });
+    }
+
+    const isGptImage2 = /^gpt-image-2(?:$|-)/.test(model);
+    if (!isGptImage2) return;
+    if (request.background === "transparent") {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["background"], message: "gpt-image-2 does not support transparent backgrounds" });
+    }
+    if (!request.size || request.size === "auto") return;
+    const dimensions = /^(\d+)x(\d+)$/i.exec(request.size);
+    if (!dimensions) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["size"], message: "gpt-image-2 size must be auto or WIDTHxHEIGHT" });
+        return;
+    }
+    const width = Number(dimensions[1]);
+    const height = Number(dimensions[2]);
+    const shortEdge = Math.min(width, height);
+    const longEdge = Math.max(width, height);
+    const pixels = width * height;
+    if (width % 16 !== 0 || height % 16 !== 0 || longEdge > 3840 || longEdge / shortEdge > 3 || pixels < 655_360 || pixels > 8_294_400) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["size"],
+            message: "gpt-image-2 dimensions must be multiples of 16, at most 3840px per edge, within a 3:1 ratio, and between 655360 and 8294400 pixels",
+        });
+    }
 });
 export type ImagesGenerationRequest = z.infer<typeof ImagesGenerationSchema>;
 
 // Images Edit schema (OpenAI compatible)
+const ImageEditUploadSchema = z.custom<string | Blob>(
+    (value) => typeof value === "string"
+        ? value.trim().length > 0
+        : typeof Blob !== "undefined" && value instanceof Blob && value.size > 0,
+    "Expected a non-empty image upload, URL, or base64 value",
+);
+
+const ImageEditOptionalInteger = (minimum: number, maximum: number) => z.preprocess(
+    (value) => value === null || value === "" || value === undefined ? undefined : value,
+    z.coerce.number().int().min(minimum).max(maximum).optional(),
+);
+
+const ImageEditOptionalBoolean = z.preprocess(
+    (value) => value === null || value === "" || value === undefined
+        ? undefined
+        : typeof value === "string"
+            ? value.toLowerCase() === "true"
+                ? true
+                : value.toLowerCase() === "false"
+                    ? false
+                    : value
+            : value,
+    z.boolean().optional(),
+);
+
 export const ImagesEditSchema = z.object({
-    model: z.string().min(1),
+    model: z.string().min(1).optional().default("openai/gpt-image-1.5"),
     image: z.union([
-        z.string().min(1), // base64 or URL
-        z.array(z.string().min(1)).min(1), // OpenAI-compatible multi-image edits
+        ImageEditUploadSchema,
+        z.array(ImageEditUploadSchema).min(1).max(16),
     ]),
-    mask: z.string().optional(),
-    prompt: z.string().min(1),
+    mask: ImageEditUploadSchema.optional(),
+    prompt: z.string().min(1).max(32000),
     size: z.string().optional(),
-    n: z.number().int().min(1).max(10).optional(),
-    quality: z.string().optional(),
-    response_format: z.string().optional(),
+    n: ImageEditOptionalInteger(1, 10),
+    quality: z.enum(["standard", "low", "medium", "high", "auto"]).optional(),
+    stream: ImageEditOptionalBoolean,
+    partial_images: ImageEditOptionalInteger(0, 3),
+    response_format: z.enum(["url", "b64_json"]).optional(),
     output_format: z.enum(["png", "jpeg", "webp"]).optional(),
-    output_compression: z.number().int().min(0).max(100).optional(),
+    output_compression: ImageEditOptionalInteger(0, 100),
     moderation: z.enum(["auto", "low"]).optional(),
     input_fidelity: z.enum(["high", "low"]).optional(),
     background: z.enum(["transparent", "opaque", "auto"]).optional(),
@@ -980,18 +1196,107 @@ export const ImagesEditSchema = z.object({
     beta: BetaOptionsSchema,
     provider: ProviderRoutingSchema,
     routing: ProviderRoutingSchema,
+}).superRefine((body, ctx) => {
+    const model = body.model.split("/").pop()?.toLowerCase();
+    const isDallE2 = model === "dall-e-2";
+    const isGptImage = model?.startsWith("gpt-image-") || model === "chatgpt-image-latest";
+    if (isDallE2) {
+        if (body.prompt.length > 1000) {
+            ctx.addIssue({
+                code: "custom",
+                path: ["prompt"],
+                message: "dall-e-2 image edit prompts must be 1000 characters or fewer",
+            });
+        }
+        if (Array.isArray(body.image) && body.image.length > 1) {
+            ctx.addIssue({
+                code: "custom",
+                path: ["image"],
+                message: "dall-e-2 accepts only one image per edit request",
+            });
+        }
+        if (body.size != null && !["256x256", "512x512", "1024x1024"].includes(body.size)) {
+            ctx.addIssue({
+                code: "custom",
+                path: ["size"],
+                message: "dall-e-2 edit size must be 256x256, 512x512, or 1024x1024",
+            });
+        }
+    }
+    if (isGptImage && body.quality === "standard") {
+        ctx.addIssue({
+            code: "custom",
+            path: ["quality"],
+            message: "GPT Image quality must be low, medium, high, or auto",
+        });
+    }
+    if (isGptImage && body.response_format != null) {
+        ctx.addIssue({
+            code: "custom",
+            path: ["response_format"],
+            message: "GPT Image models always return base64 images and do not accept response_format",
+        });
+    }
+    if (model === "gpt-image-1-mini" && body.input_fidelity != null) {
+        ctx.addIssue({
+            code: "custom",
+            path: ["input_fidelity"],
+            message: "gpt-image-1-mini does not support input_fidelity",
+        });
+    }
+    if (model === "gpt-image-2" || model === "gpt-image-2-2026-04-21") {
+        if (body.input_fidelity != null) {
+            ctx.addIssue({
+                code: "custom",
+                path: ["input_fidelity"],
+                message: "gpt-image-2 always uses high input fidelity and does not accept input_fidelity",
+            });
+        }
+        if (body.background === "transparent") {
+            ctx.addIssue({
+                code: "custom",
+                path: ["background"],
+                message: "gpt-image-2 does not support transparent backgrounds",
+            });
+        }
+    }
+    if (body.background === "transparent" && body.output_format === "jpeg") {
+        ctx.addIssue({
+            code: "custom",
+            path: ["output_format"],
+            message: "Transparent image output requires png or webp",
+        });
+    }
+    if (body.output_compression != null && body.output_format !== "jpeg" && body.output_format !== "webp") {
+        ctx.addIssue({
+            code: "custom",
+            path: ["output_compression"],
+            message: "output_compression requires output_format jpeg or webp",
+        });
+    }
+    if (body.partial_images != null && body.stream !== true) {
+        ctx.addIssue({
+            code: "custom",
+            path: ["partial_images"],
+            message: "partial_images requires stream=true",
+        });
+    }
 });
 export type ImagesEditRequest = z.infer<typeof ImagesEditSchema>;
 
 // Moderations schema
 export const ModerationsSchema = z.object({
-    model: z.string().min(1),
+    // OpenAI makes `model` optional and defaults it to omni-moderation-latest.
+    // Use the gateway's canonical model id so omitted-model requests can still
+    // pass through model discovery before the executor maps the provider slug.
+    model: z.string().min(1).optional().default("openai/omni-moderation"),
     meta: z.boolean().optional().default(false),
     echo_upstream_request: z.boolean().optional(),
     debug: DebugOptionsSchema,
     beta: BetaOptionsSchema,
     provider: ProviderRoutingSchema,
     routing: ProviderRoutingSchema,
+	metadata: z.record(z.string(), z.any()).nullable().optional(),
     input: z.union([
         z.string(),
         z.array(z.string()),
@@ -1016,7 +1321,15 @@ export const ModerationsSchema = z.object({
                     })
                 })
             ])
-        )
+        ),
+		z.array(z.object({
+			role: z.enum(["system", "user", "assistant", "tool"]),
+			content: z.any(),
+		}).passthrough()),
+		z.array(z.array(z.object({
+			role: z.enum(["system", "user", "assistant", "tool"]),
+			content: z.any(),
+		}).passthrough())),
     ]),
 });
 export type ModerationsRequest = z.infer<typeof ModerationsSchema>;
@@ -1036,8 +1349,11 @@ export const RerankSchema = z.object({
     top_k: z.number().int().positive().optional(),
     return_documents: z.boolean().optional(),
     max_chunks_per_doc: z.number().int().positive().optional(),
+    max_tokens_per_doc: z.number().int().positive().optional(),
+    priority: z.number().int().min(0).max(999).optional(),
     rank_fields: z.array(z.string().min(1)).optional(),
     user: z.string().optional(),
+    service_tier: z.enum(["auto", "default", "over-limit", "flex", "no-limit"]).optional(),
     metadata: z.record(z.string(), z.string()).optional(),
     provider_options: z.record(z.string(), z.any()).optional(),
     meta: z.boolean().optional().default(false),
@@ -1072,7 +1388,8 @@ const ElevenLabsSpeechConfigSchema = z.object({
 
 export const AudioSpeechSchema = z.object({
     model: z.string().min(1),
-    input: z.string().min(1),
+    input: z.string().min(1).max(40000),
+	session_id: z.string().trim().min(1).max(256).optional(),
     voice: z.union([
         z.string(),
         z.object({
@@ -1084,10 +1401,11 @@ export const AudioSpeechSchema = z.object({
     format: z.enum(["mp3", "wav", "ogg", "aac", "flac", "opus", "pcm"]).optional(),
     response_format: z.enum(["mp3", "wav", "aac", "flac", "opus", "pcm"]).optional(),
     stream_format: z.enum(["audio", "sse"]).optional(),
-    speed: z.number().positive().optional(),
-    instructions: z.string().optional(),
+    speed: z.number().min(0.25).max(4).optional(),
+    instructions: z.string().max(4096).optional(),
     config: z.object({
         elevenlabs: ElevenLabsSpeechConfigSchema.optional(),
+		minimax: z.record(z.string(), z.any()).optional(),
         google: z.object({
             voice_name: z.string().optional(),
             voiceName: z.string().optional(),
@@ -1098,26 +1416,71 @@ export const AudioSpeechSchema = z.object({
     beta: BetaOptionsSchema,
     provider: ProviderRoutingSchema,
     routing: ProviderRoutingSchema,
-}).superRefine((obj, ctx) => {
-    if (obj.stream_format !== undefined) {
-        ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            path: ["stream_format"],
-            message: "audio.speech does not support stream_format; binary audio is returned by default and response_format controls the encoding.",
-        });
-    }
+}).superRefine((body, ctx) => {
+	const isMiniMax = body.model.toLowerCase().startsWith("minimax/");
+	const isXAi = /(?:^|\/)(?:grok-tts|grok-voice)/i.test(body.model);
+	const model = body.model.split("/").pop()?.toLowerCase() ?? "";
+	const isElevenLabs = body.model.toLowerCase().startsWith("eleven-labs/");
+	const elevenLabsLimit = model.includes("flash-v2.5") || model.includes("flash-v2-5")
+		? 40000
+		: model.includes("flash-v2")
+			? 30000
+		: model.includes("multilingual-v2")
+			? 10000
+			: model === "eleven-v3"
+				? 5000
+				: 10000;
+	if (isElevenLabs && body.input.length > elevenLabsLimit) {
+		ctx.addIssue({ code: "custom", path: ["input"], message: `Speech input must be at most ${elevenLabsLimit} characters for this ElevenLabs model` });
+	} else if (!isElevenLabs && !isMiniMax && !isXAi && body.input.length > 4096) {
+		ctx.addIssue({ code: "custom", path: ["input"], message: "Speech input must be at most 4096 characters for this provider" });
+	}
 });
 export type AudioSpeechRequest = z.infer<typeof AudioSpeechSchema>;
 
 // Audio Transcription schema
 export const AudioTranscriptionSchema = z.object({
     model: z.string().min(1),
-    file: UploadFileSchema,
+    file: UploadFileSchema.optional(),
+    file_url: z.string().url().max(2083).nullable().optional(),
+	s3_presigned_url: z.string().url().max(2083).nullable().optional(),
+    file_id: z.string().min(1).nullable().optional(),
     language: z.string().optional(),
+    languages: z.array(z.string().regex(/^[A-Za-z]{2}$/, "languages must contain ISO-639-1 codes")).min(1).optional(),
+    keywords: z.array(z.string().min(1)).optional(),
     prompt: z.string().optional(),
-    temperature: z.coerce.number().min(0).max(2).optional(),
-    response_format: z.string().optional(),
+    temperature: z.coerce.number().optional(),
+    response_format: z.enum(["json", "text", "srt", "verbose_json", "vtt", "diarized_json"]).optional(),
+    stream: z.preprocess(
+        (value) => typeof value === "string"
+            ? value.toLowerCase() === "true"
+                ? true
+                : value.toLowerCase() === "false"
+                    ? false
+                    : value
+            : value,
+        z.boolean().nullable().optional(),
+    ),
     timestamp_granularities: z.array(z.enum(["word", "segment"])).optional(),
+    diarize: z.preprocess(
+        (value) => typeof value === "string"
+            ? value.toLowerCase() === "true"
+                ? true
+                : value.toLowerCase() === "false"
+                    ? false
+                    : value
+            : value,
+        z.boolean().optional(),
+    ),
+	enable_diarization: z.preprocess(
+		(value) => typeof value === "string"
+			? value.toLowerCase() === "true" ? true : value.toLowerCase() === "false" ? false : value
+			: value,
+		z.boolean().optional(),
+	),
+	output_content: z.string().optional(),
+	session_id: z.string().trim().min(1).max(256).optional(),
+    context_bias: z.array(z.string().min(1).regex(/^[^,\s]+$/, "context_bias entries cannot contain commas or whitespace")).max(100).optional(),
     include: z.array(z.string()).optional(),
     chunking_strategy: z.union([
         z.literal("auto"),
@@ -1130,22 +1493,125 @@ export const AudioTranscriptionSchema = z.object({
     ]).optional(),
     known_speaker_names: z.array(z.string().min(1)).max(4).optional(),
     known_speaker_references: z.array(z.string().min(1)).max(4).optional(),
+	config: z.object({
+		elevenlabs: z.record(z.string(), z.any()).optional(),
+	}).passthrough().optional(),
     echo_upstream_request: z.boolean().optional(),
     debug: DebugOptionsSchema,
     beta: BetaOptionsSchema,
     provider: ProviderRoutingSchema,
     routing: ProviderRoutingSchema,
+}).superRefine((body, ctx) => {
+    const model = body.model.split("/").pop()?.toLowerCase() ?? "";
+    const isMistralTranscription = body.model.toLowerCase().startsWith("mistral/") || model.startsWith("voxtral-");
+    const isGptTranscribe = model === "gpt-transcribe";
+    const isDiarize = model === "gpt-4o-transcribe-diarize";
+    const isMorpheusTranscription = body.model.toLowerCase().startsWith("morpheus/");
+	const isXAiTranscription = model === "grok-transcribe";
+	const isElevenLabsTranscription = body.model.toLowerCase().startsWith("eleven-labs/") || model.startsWith("scribe-");
+    const sources = [body.file, body.file_url, body.s3_presigned_url, body.file_id].filter(Boolean);
+    if (isMistralTranscription && sources.length !== 1) {
+        ctx.addIssue({ code: "custom", path: ["file"], message: "Mistral transcription requires exactly one of file, file_url, or file_id" });
+	} else if (isElevenLabsTranscription && sources.length !== 1) {
+		ctx.addIssue({ code: "custom", path: ["file"], message: "ElevenLabs transcription requires exactly one of file, file_url, or s3_presigned_url" });
+	} else if (!isMistralTranscription && !isMorpheusTranscription && !isElevenLabsTranscription && !body.file) {
+        ctx.addIssue({ code: "custom", path: ["file"], message: "file is required" });
+	} else if (isMorpheusTranscription && sources.length !== 1) {
+		ctx.addIssue({ code: "custom", path: ["file"], message: "Morpheus transcription requires exactly one of file, file_url, or s3_presigned_url" });
+    }
+	const isOvhWhisper = model === "whisper-large-v3" || model === "whisper-large-v3-turbo";
+	const maxFileBytes = isElevenLabsTranscription ? 5 * 1024 * 1024 * 1024 : isXAiTranscription ? 500 * 1024 * 1024 : isOvhWhisper ? 2048 * 1024 * 1024 : 25 * 1024 * 1024;
+    if (!isMistralTranscription && body.file && body.file.size > maxFileBytes) {
+		ctx.addIssue({ code: "custom", path: ["file"], message: `Transcription files must be ${isElevenLabsTranscription ? "5 GB" : isXAiTranscription ? "500 MB" : isOvhWhisper ? "2048 MB" : "25 MB"} or smaller` });
+    }
+    const file = body.file;
+    const filename = file && typeof File !== "undefined" && file instanceof File ? file.name.toLowerCase() : "";
+    const extension = filename.includes(".") ? filename.split(".").pop() : "";
+    const supportedExtensions = new Set(["aac", "flac", "mp3", "mp4", "mpeg", "mpga", "m4a", "ogg", "opus", "wav", "webm"]);
+    const mimeType = file?.type.toLowerCase() ?? "";
+    const hasSupportedMime = mimeType.startsWith("audio/") || mimeType === "video/mp4" || mimeType === "video/webm";
+    if (file && (!extension || !supportedExtensions.has(extension)) && !hasSupportedMime) {
+        ctx.addIssue({ code: "custom", path: ["file"], message: "Unsupported transcription file format" });
+    }
+    if (isMistralTranscription && body.language && (body.timestamp_granularities?.length ?? 0) > 0) {
+        ctx.addIssue({ code: "custom", path: ["timestamp_granularities"], message: "Mistral timestamp_granularities cannot be combined with language" });
+    }
+    if (isMistralTranscription && body.language && !/^\w{2}$/.test(body.language)) {
+        ctx.addIssue({ code: "custom", path: ["language"], message: "Mistral language must be a two-character code" });
+    }
+	if (!isMistralTranscription && ((body.temperature ?? 0) < 0 || (body.temperature ?? 0) > (isElevenLabsTranscription ? 2 : 1))) {
+		ctx.addIssue({ code: "custom", path: ["temperature"], message: `temperature must be between 0 and ${isElevenLabsTranscription ? 2 : 1}` });
+    }
+    if (body.languages && !isGptTranscribe) {
+        ctx.addIssue({ code: "custom", path: ["languages"], message: "languages is only supported by gpt-transcribe" });
+    }
+	if (body.keywords && !isGptTranscribe && !isXAiTranscription && !isElevenLabsTranscription) {
+        ctx.addIssue({ code: "custom", path: ["keywords"], message: "keywords is only supported by gpt-transcribe" });
+    }
+    if (body.language && body.languages) {
+        ctx.addIssue({ code: "custom", path: ["languages"], message: "Send either language or languages, not both" });
+    }
+	for (const [index, keyword] of (body.keywords ?? []).entries()) {
+        if (/[<>\r\n]/.test(keyword)) {
+            ctx.addIssue({ code: "custom", path: ["keywords", index], message: "keywords cannot contain angle brackets or line breaks" });
+        }
+    }
+	if (isElevenLabsTranscription && (body.keywords?.length ?? 0) > 1000) {
+		ctx.addIssue({ code: "custom", path: ["keywords"], message: "ElevenLabs supports at most 1000 keyterms" });
+	}
+	for (const [index, keyword] of (isElevenLabsTranscription ? body.keywords ?? [] : []).entries()) {
+		if (keyword.length >= 50 || keyword.trim().split(/\s+/).length > 5 || /[<>{}\[\]\\]/.test(keyword)) {
+			ctx.addIssue({ code: "custom", path: ["keywords", index], message: "ElevenLabs keyterms must be under 50 characters, at most 5 words, and exclude angle/square/curly brackets and backslashes" });
+		}
+	}
+    if ((body.known_speaker_names || body.known_speaker_references) && !isDiarize) {
+        ctx.addIssue({ code: "custom", path: ["known_speaker_names"], message: "Known speakers are only supported by gpt-4o-transcribe-diarize" });
+    }
+    if ((body.known_speaker_names?.length ?? 0) !== (body.known_speaker_references?.length ?? 0)) {
+        ctx.addIssue({ code: "custom", path: ["known_speaker_references"], message: "Known speaker names and references must have matching lengths" });
+    }
+    for (const [index, reference] of (body.known_speaker_references ?? []).entries()) {
+        if (!/^data:(?:audio|video)\/[a-z0-9.+-]+;base64,/i.test(reference)) {
+            ctx.addIssue({ code: "custom", path: ["known_speaker_references", index], message: "Known speaker references must be base64 data URLs" });
+        }
+    }
 });
 export type AudioTranscriptionRequest = z.infer<typeof AudioTranscriptionSchema>;
 
 // Audio Translation schema
+const OPENAI_TRANSLATION_MAX_FILE_BYTES = 25 * 1024 * 1024;
+const OPENAI_TRANSLATION_EXTENSIONS = new Set([
+    "flac", "mp3", "mp4", "mpeg", "mpga", "m4a", "ogg", "wav", "webm",
+]);
+const OPENAI_TRANSLATION_MIME_TYPES = new Set([
+    "audio/flac", "audio/mpeg", "audio/mp4", "video/mp4", "audio/mpga",
+    "audio/x-m4a", "audio/m4a", "audio/ogg", "application/ogg",
+    "audio/wav", "audio/x-wav", "audio/webm", "video/webm",
+]);
+
+function hasSupportedOpenAITranslationFormat(file: File | Blob): boolean {
+    const filename = typeof File !== "undefined" && file instanceof File ? file.name : "";
+    const extension = filename.includes(".") ? filename.split(".").pop()?.toLowerCase() : undefined;
+    const mimeType = typeof file.type === "string" ? file.type.toLowerCase().split(";", 1)[0] : "";
+    return Boolean(
+        (extension && OPENAI_TRANSLATION_EXTENSIONS.has(extension)) ||
+        (mimeType && OPENAI_TRANSLATION_MIME_TYPES.has(mimeType))
+    );
+}
+
 export const AudioTranslationSchema = z.object({
     model: z.string().min(1),
-    file: UploadFileSchema,
+    file: UploadFileSchema
+        .refine((file) => file.size <= OPENAI_TRANSLATION_MAX_FILE_BYTES, {
+            message: "audio translation files must be 25 MB or smaller",
+        })
+        .refine(hasSupportedOpenAITranslationFormat, {
+            message: "audio translation file must be flac, mp3, mp4, mpeg, mpga, m4a, ogg, wav, or webm",
+        }),
     language: z.string().optional(),
     prompt: z.string().optional(),
-    temperature: z.coerce.number().min(0).max(2).optional(),
-    response_format: z.string().optional(),
+    temperature: z.coerce.number().min(0).max(1).optional(),
+    response_format: z.enum(["json", "text", "srt", "verbose_json", "vtt"]).optional(),
     echo_upstream_request: z.boolean().optional(),
     debug: DebugOptionsSchema,
     beta: BetaOptionsSchema,
@@ -1213,6 +1679,8 @@ const VIDEO_PROVIDER_CONTROLLED_KEYS = new Set([
 	"inputvideoduration",
 	"input_video_duration_seconds",
 	"inputvideodurationseconds",
+	"input_audio_duration",
+	"inputaudioduration",
 	"seconds",
 	"size",
 	"resolution",
@@ -1257,10 +1725,24 @@ const VideoProviderParamsSchema = z.record(z.string(), z.any()).superRefine((val
 
 // Video Generation schema
 export const VideoGenerationSchema = z.object({
-	model: z.string().min(1),
-	prompt: z.string().min(1),
+	model: z.string().min(1).default("sora-2"),
+	prompt: z.string().max(32_000).default(""),
+	seconds: z.enum(["4", "8", "12", "16", "20"]).optional(),
+	input_reference: z.union([
+		z.custom<Blob>((value) => typeof Blob !== "undefined" && value instanceof Blob),
+		z.object({
+			file_id: z.string().min(1).optional(),
+			// A 20 MB image expands to roughly 26.7 MB when represented as a base64 data URL.
+			image_url: z.string().min(1).max(28_000_000).optional(),
+		}).strict().superRefine((value, ctx) => {
+			if ((value.file_id ? 1 : 0) + (value.image_url ? 1 : 0) !== 1) {
+				ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Provide exactly one of file_id or image_url" });
+			}
+		}),
+	]).optional(),
 	duration: z.number().int().positive().max(120).optional(),
 	input_video_duration: z.number().positive().max(3600).optional(),
+	input_audio_duration: z.number().min(2).max(20).optional(),
 	size: z.string().min(1).optional(),
 	resolution: z.string().min(1).optional(),
 	aspect_ratio: z.string().min(1).optional(),
@@ -1282,6 +1764,14 @@ export const VideoGenerationSchema = z.object({
 	provider: ProviderRoutingSchema,
 	routing: ProviderRoutingSchema,
 }).strict().superRefine((obj, ctx) => {
+	const hasImageInput = obj.input_reference != null || obj.input_references?.some((reference) => reference.type === "image_url");
+	if (!obj.prompt.trim() && !hasImageInput) {
+		ctx.addIssue({
+			code: z.ZodIssueCode.custom,
+			message: "prompt is required unless an image input reference is provided",
+			path: ["prompt"],
+		});
+	}
 	if (obj.size && (obj.resolution || obj.aspect_ratio)) {
 		ctx.addIssue({
 			code: z.ZodIssueCode.custom,
@@ -1293,15 +1783,75 @@ export const VideoGenerationSchema = z.object({
 export type VideoGenerationRequest = z.infer<typeof VideoGenerationSchema>;
 
 // OCR schema
+const MistralOcrAnnotationFormatSchema = z.object({
+    type: z.literal("json_schema"),
+    json_schema: z.object({
+        name: z.string().min(1),
+        description: z.string().nullable().optional(),
+        schema: z.record(z.string(), z.any()),
+        strict: z.boolean().optional(),
+    }).strict(),
+}).strict();
+
+const MistralOcrDocumentSchema = z.discriminatedUnion("type", [
+    z.object({
+        type: z.literal("file"),
+        file_id: z.string().uuid(),
+    }).strict(),
+    z.object({
+        type: z.literal("document_url"),
+        document_url: z.string().min(1),
+        document_name: z.string().nullable().optional(),
+    }).strict(),
+    z.object({
+        type: z.literal("image_url"),
+        image_url: z.union([
+            z.string().min(1),
+            z.object({
+                url: z.string().min(1),
+                detail: z.enum(["auto", "low", "high"]).nullable().optional(),
+            }).strict(),
+        ]),
+    }).strict(),
+]);
+
 export const OcrSchema = z.object({
     model: z.string().min(1),
-    image: z.string().min(1), // URL or base64
-    language: z.string().optional(),
+    // Legacy shorthand retained for compatibility; `document` mirrors Mistral's native API.
+    image: z.string().min(1).optional(),
+    document: MistralOcrDocumentSchema.optional(),
+    pages: z.union([z.string().min(1), z.array(z.number().int().nonnegative())]).nullable().optional(),
+    include_image_base64: z.boolean().nullable().optional(),
+    image_limit: z.number().int().nonnegative().nullable().optional(),
+    image_min_size: z.number().int().nonnegative().nullable().optional(),
+    bbox_annotation_format: MistralOcrAnnotationFormatSchema.nullable().optional(),
+    document_annotation_format: MistralOcrAnnotationFormatSchema.nullable().optional(),
+    document_annotation_prompt: z.string().nullable().optional(),
+    table_format: z.enum(["markdown", "html"]).nullable().optional(),
+    extract_header: z.boolean().optional(),
+    extract_footer: z.boolean().optional(),
+    include_blocks: z.boolean().optional(),
+    confidence_scores_granularity: z.enum(["word", "page"]).nullable().optional(),
     echo_upstream_request: z.boolean().optional(),
     debug: DebugOptionsSchema,
     beta: BetaOptionsSchema,
     provider: ProviderRoutingSchema,
     routing: ProviderRoutingSchema,
+}).superRefine((request, ctx) => {
+    if ((request.image ? 1 : 0) + (request.document ? 1 : 0) !== 1) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["document"],
+            message: "Exactly one of image or document is required",
+        });
+    }
+    if (request.document_annotation_prompt != null && request.document_annotation_format == null) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["document_annotation_prompt"],
+            message: "document_annotation_prompt requires document_annotation_format",
+        });
+    }
 });
 export type OcrRequest = z.infer<typeof OcrSchema>;
 
@@ -1341,11 +1891,21 @@ export const MusicGenerateSchema = z.object({
         output_format: z.string().optional(),
     }).passthrough().optional(),
     minimax: z.object({
-        prompt: z.string().optional(),
-        duration: z.number().int().positive().optional(),
-        callback_url: z.string().url().optional(),
-        request: z.record(z.string(), z.any()).optional(),
-    }).passthrough().optional(),
+        prompt: z.string().max(2000).optional(),
+        lyrics: z.string().max(3500).optional(),
+        stream: z.boolean().optional(),
+        output_format: z.enum(["url", "hex"]).optional(),
+        lyrics_optimizer: z.boolean().optional(),
+        is_instrumental: z.boolean().optional(),
+        audio_url: z.string().url().optional(),
+        audio_base64: z.string().min(1).optional(),
+        cover_feature_id: z.string().min(1).optional(),
+        audio_setting: z.object({
+            sample_rate: z.union([z.literal(16000), z.literal(24000), z.literal(32000), z.literal(44100)]).optional(),
+            bitrate: z.union([z.literal(32000), z.literal(64000), z.literal(128000), z.literal(256000)]).optional(),
+            format: z.enum(["mp3", "wav", "pcm"]).optional(),
+        }).strict().optional(),
+    }).strict().optional(),
     echo_upstream_request: z.boolean().optional(),
     debug: DebugOptionsSchema,
     beta: BetaOptionsSchema,

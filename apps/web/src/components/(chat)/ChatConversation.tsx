@@ -2,9 +2,11 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ChangeEvent } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import { MessageScroller } from "@shadcn/react/message-scroller";
 import { ChatConversationComposer } from "@/components/(chat)/ChatConversationComposer";
 import { ChatConversationMessages } from "@/components/(chat)/ChatConversationMessages";
+import { appendChatSelectionPrompt } from "@/components/(chat)/chatSelectionActions";
 import type { ChatRequestErrorDetails } from "@/components/(chat)/ChatRequestErrorNotice";
 import {
 	shouldResetComposerForConversationChange,
@@ -26,6 +28,11 @@ import {
 	getSupportedRecordingMimeType,
 } from "./chatConversationHelpers";
 import { startChatSendPerformanceRun } from "@/components/(chat)/playground/chat-performance";
+import {
+	clearChatAuthDraft,
+	readChatAuthDraft,
+	saveChatAuthDraft,
+} from "@/components/(chat)/chatAuthDraft";
 import type {
 	ChatResponseLayout,
 	ModelOption,
@@ -152,7 +159,20 @@ export function ChatConversation({
 	responseLayout = "sequential",
 }: ChatConversationProps) {
 	const isUnified = mode === "unified";
+	const pathname = usePathname();
+	const searchParams = useSearchParams();
+	const search = searchParams.toString();
+	const authReturnUrl = `${pathname}${search ? `?${search}` : ""}`;
 	const [composer, setComposer] = useState("");
+	const handleSelectionAction = useCallback((prompt: string) => {
+		setComposer((current) => appendChatSelectionPrompt(current, prompt));
+		requestAnimationFrame(() => {
+			const input = document.querySelector<HTMLTextAreaElement>(
+				"[data-chat-composer-input='true']",
+			);
+			input?.focus();
+		});
+	}, []);
 	const [editingId, setEditingId] = useState<string | null>(null);
 	const [editingValue, setEditingValue] = useState("");
 	const [metadataOpenId, setMetadataOpenId] = useState<string | null>(null);
@@ -191,6 +211,17 @@ export function ChatConversation({
 	useEffect(() => {
 		setPlaceholder(getRandomPlaceholder());
 	}, []);
+
+	useEffect(() => {
+		if (!isAuthenticated) return;
+		const restoredDraft = readChatAuthDraft();
+		if (!restoredDraft) return;
+		const timeout = window.setTimeout(() => {
+			setComposer(restoredDraft);
+			clearChatAuthDraft();
+		}, 1_000);
+		return () => window.clearTimeout(timeout);
+	}, [isAuthenticated]);
 
 	useEffect(() => {
 		setRecordingSupported(
@@ -671,6 +702,7 @@ export function ChatConversation({
 			Boolean(selectedModelId);
 		if (!hasSelectedModel) return;
 		if (!isAuthenticated) {
+			saveChatAuthDraft(composer);
 			setSendGateType("auth");
 			return;
 		}
@@ -697,6 +729,11 @@ export function ChatConversation({
 		setComposer("");
 		setAttachments([]);
 	};
+
+	const handleComposerChange = useCallback((value: string) => {
+		setComposer(value);
+		if (!isAuthenticated) saveChatAuthDraft(value);
+	}, [isAuthenticated]);
 
 	const handleEditQueuedPrompt = (id: string) => {
 		const promptIndex = queuedPrompts.findIndex((prompt) => prompt.id === id);
@@ -763,8 +800,6 @@ export function ChatConversation({
 	const effectiveSendGateType =
 		isAuthenticated && sendGateType === "auth" ? null : sendGateType;
 	const hasNoMessages = (activeThread?.messages.length ?? 0) === 0;
-	const useWideComparisonLayout =
-		responseLayout === "side-by-side" && selectedModelCount > 1;
 	const promptHistory = useMemo(
 		() =>
 			(activeThread?.messages ?? [])
@@ -774,20 +809,20 @@ export function ChatConversation({
 	);
 
 	return (
-		<main className="flex min-h-0 flex-1 flex-col overflow-hidden">
+		<main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
 			<MessageScroller.Provider
 				autoScroll
 				defaultScrollPosition="end"
 				scrollEdgeThreshold={48}
 				scrollMargin={24}
 			>
-				<MessageScroller.Root className="relative flex min-h-0 flex-1 overflow-hidden overscroll-contain">
+				<MessageScroller.Root className="relative flex min-h-0 min-w-0 flex-1 overflow-hidden overscroll-contain">
 					<MessageScroller.Viewport
 						ref={scrollViewportRef}
-						className="h-full w-full overflow-y-auto overscroll-contain"
+						className="h-full min-w-0 w-full overflow-y-auto overscroll-contain"
 					>
 						<MessageScroller.Content
-							className={`mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 py-6 md:px-8 ${useWideComparisonLayout ? "2xl:max-w-[96rem]" : ""} ${hasNoMessages ? "min-h-full" : ""}`}
+							className={`mx-auto flex min-w-0 w-full max-w-5xl flex-col gap-4 px-4 py-6 md:px-8 ${hasNoMessages ? "min-h-full" : ""}`}
 						>
 							<ChatConversationMessages
 								activeThread={activeThread}
@@ -813,10 +848,9 @@ export function ChatConversation({
 								scrollViewportRef={scrollViewportRef}
 								responseLayout={responseLayout}
 								modelOrderIds={selectedModelIds}
-								modelOptions={modelOptions}
-								selectedModelIds={selectedModelIds}
-								onAddModelSet={onAddModelSet}
+								onSelectPrompt={handleSelectEvaluationPrompt}
 								temporaryMode={temporaryMode}
+								onSelectionAction={handleSelectionAction}
 							/>
 						</MessageScroller.Content>
 					</MessageScroller.Viewport>
@@ -832,6 +866,7 @@ export function ChatConversation({
 			<ChatConversationComposer
 				sendGateType={effectiveSendGateType}
 				isSending={isSending}
+				authReturnUrl={authReturnUrl}
 				composer={composer}
 				promptHistory={promptHistory}
 				attachments={attachments}
@@ -883,7 +918,7 @@ export function ChatConversation({
 				onEditQueuedPrompt={handleEditQueuedPrompt}
 				onReorderQueuedPrompt={handleReorderQueuedPrompt}
 				onSelectEvaluationPrompt={handleSelectEvaluationPrompt}
-				onComposerChange={setComposer}
+				onComposerChange={handleComposerChange}
 				onRemoveAttachment={(index) =>
 					setAttachments((prev) => prev.filter((_, i) => i !== index))
 				}

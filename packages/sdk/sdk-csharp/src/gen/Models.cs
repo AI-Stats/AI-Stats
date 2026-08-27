@@ -1178,6 +1178,9 @@ public sealed class ChatCompletionsRequest
 	[JsonPropertyName("reasoning")]
 	public Dictionary<string, object>? Reasoning { get; set; }
 
+	[JsonPropertyName("reasoning_effort")]
+	public string? ReasoningEffort { get; set; }
+
 	[JsonPropertyName("response_format")]
 	public object? ResponseFormat { get; set; }
 
@@ -2577,6 +2580,9 @@ public sealed class ModerationsResponse
 	[JsonPropertyName("id")]
 	public string? Id { get; set; }
 
+	[JsonPropertyName("meta")]
+	public Dictionary<string, object>? Meta { get; set; }
+
 	[JsonPropertyName("model")]
 	public string? Model { get; set; }
 
@@ -2618,6 +2624,39 @@ public sealed class MusicGenerateRequest
 
 public sealed class MusicGenerateResponse
 {
+	[JsonPropertyName("audio_base64")]
+	public string? AudioBase64 { get; set; }
+
+	[JsonPropertyName("audio_url")]
+	public string? AudioUrl { get; set; }
+
+	[JsonPropertyName("id")]
+	public string Id { get; set; }
+
+	[JsonPropertyName("model")]
+	public string Model { get; set; }
+
+	[JsonPropertyName("nativeResponseId")]
+	public string? NativeResponseId { get; set; }
+
+	[JsonPropertyName("object")]
+	public string Object { get; set; }
+
+	[JsonPropertyName("output")]
+	public List<Dictionary<string, object>>? Output { get; set; }
+
+	[JsonPropertyName("provider")]
+	public string Provider { get; set; }
+
+	[JsonPropertyName("result")]
+	public object? Result { get; set; }
+
+	[JsonPropertyName("status")]
+	public string Status { get; set; }
+
+	[JsonPropertyName("usage")]
+	public Dictionary<string, object>? Usage { get; set; }
+
 }
 
 public sealed class NotImplementedResponse
@@ -3391,6 +3430,9 @@ public sealed class VideoGenerationRequest
 
 	[JsonPropertyName("generate_audio")]
 	public bool? GenerateAudio { get; set; }
+
+	[JsonPropertyName("input_audio_duration")]
+	public double? InputAudioDuration { get; set; }
 
 	[JsonPropertyName("input_references")]
 	public List<object>? InputReferences { get; set; }

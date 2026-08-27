@@ -31,12 +31,12 @@ export async function generateMetadata(props: {
 	// Fallback SEO if the organisation can't be loaded
 	if (!organisation) {
 		return buildMetadata({
-			title: "AI Organisation Overview",
+			title: "AI Lab Overview",
 			description:
-				"Discover AI organisations, their latest models, and gateway availability with profile-level insights, release timelines, and ecosystem context across the Phaseo directory.",
+				"Discover AI labs, their latest models, and gateway availability with profile-level insights, release timelines, and ecosystem context across the Phaseo directory.",
 			path,
 			keywords: [
-				"AI organisation",
+				"AI lab",
 				"AI provider",
 				"AI models",
 				"Phaseo",
@@ -48,7 +48,7 @@ export async function generateMetadata(props: {
 	const launchedModels = organisation.recent_models?.length ?? 0;
 
 	const description = [
-		`${organisation.name} on Phaseo - organisation overview, AI models, and gateway coverage.`,
+		`${organisation.name} on Phaseo - lab overview, AI models, and gateway coverage.`,
 		organisation.description?.slice(0, 180) ?? undefined,
 		launchedModels
 			? `Explore ${launchedModels} recent models, gateway availability, and pricing coverage.`
@@ -60,8 +60,8 @@ export async function generateMetadata(props: {
 	const keywords = [
 		organisation.name,
 		`${organisation.name} AI`,
-		`${organisation.name} AI organisation`,
-		"AI organisation",
+		`${organisation.name} AI lab`,
+		"AI lab",
 		"AI models",
 		"AI gateway",
 		"Phaseo",
@@ -115,7 +115,7 @@ export default async function Page({
 				{
 					"@type": "ListItem",
 					"position": 2,
-					"name": "Organizations",
+					"name": "Labs",
 					"item": absoluteUrl("/organisations"),
 				},
 				{
@@ -142,10 +142,10 @@ export default async function Page({
 							<span className="text-xl">🏢</span>
 						</div>
 						<p className="text-base font-medium">
-							Organisation not found
+							Lab not found
 						</p>
 						<p className="mt-1 text-sm text-muted-foreground">
-							We&apos;re continuously adding new organisations.
+							We&apos;re continuously adding new labs.
 							Got one to suggest?
 						</p>
 						<div className="mt-3">
@@ -206,10 +206,11 @@ export default async function Page({
 					...(organisation.description
 						? [{ id: "about", label: "About" }]
 						: []),
+					{ id: "performance", label: "Performance" },
+					{ id: "latest-models", label: "Latest Models" },
 					...(organisation.organisation_links?.length
 						? [{ id: "links", label: "Links" }]
 						: []),
-					{ id: "latest-models", label: "Latest Models" },
 				]}
 			>
 				<OrganisationPageContent organisation={organisation} />

@@ -199,6 +199,23 @@
       "cache_duration_seconds": null,
       "conditions": [],
       "source": null
+    },
+    {
+      "meter": "native_web_search_requests",
+      "unit": "request",
+      "unit_size": 1,
+      "price_per_unit": 0.01,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Web search content tokens are billed at the model's input-token rate.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-20T00:00:00Z",
+      "effective_to": null,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://developers.openai.com/api/docs/pricing"
     }
   ],
   "regions": [],

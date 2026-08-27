@@ -126,15 +126,29 @@ function createOpenAIChatMount(): Mountable {
     return {
         setJournal(nextJournal) { journal = nextJournal; },
         async handleRequest(req: IncomingMessage, res: ServerResponse, pathname: string) {
-            const route = pathname.endsWith("/chat/completions")
+            const route = pathname.endsWith("/chat/completions") || pathname.endsWith("/sonar")
                 ? "/chat/completions"
                 : pathname.endsWith("/responses")
                     ? "/responses"
+                    : pathname.endsWith("/embeddings")
+                        ? "/embeddings"
                     : null;
             if (!route || req.method !== "POST") return false;
             const body = JSON.parse(await readIncomingBody(req)) as Record<string, any>;
             const headers = flattenHeaders(req.headers as Record<string, string | string[] | undefined>);
             const serialized = JSON.stringify(body);
+			if (route === "/embeddings") {
+				const response = {
+					object: "list",
+					model: body.model,
+					data: [{ object: "embedding", index: 0, embedding: [0.11, 0.22, 0.33, 0.44] }],
+					usage: { prompt_tokens: 4, total_tokens: 4 },
+				};
+				journal?.add({ method: req.method, path: req.url ?? pathname, headers, body, service: "embedding", response: { status: 200, fixture: null } });
+				res.writeHead(200, { "Content-Type": "application/json" });
+				res.end(JSON.stringify(response));
+				return true;
+			}
             const prompt = serialized.includes("[aimock-tool] weather")
                 ? "[aimock-tool] weather"
                 : serialized.includes("[aimock-structured] person")
@@ -188,8 +202,40 @@ function createOpenAIChatMount(): Mountable {
     };
 }
 
+function createGmiRequestQueueMount(): Mountable {
+    let journal: Journal | null = null;
+    return {
+        setJournal(nextJournal) { journal = nextJournal; },
+        async handleRequest(req: IncomingMessage, res: ServerResponse, pathname: string) {
+            if (pathname !== "/ie/requestqueue/apikey/requests" || req.method !== "POST") return false;
+
+            const body = JSON.parse(await readIncomingBody(req)) as Record<string, any>;
+            const headers = flattenHeaders(req.headers as Record<string, string | string[] | undefined>);
+            journal?.add({
+                method: req.method,
+                path: req.url ?? pathname,
+                headers,
+                body,
+                service: "gmicloud-request-queue",
+                response: { status: 200, fixture: null },
+            });
+            res.writeHead(200, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({
+                request_id: "gmicloud_aimock_request",
+                status: "success",
+                model: body.model,
+                outcome: {
+                    audio_base64: Buffer.from("AIMOCK_TTS_AUDIO").toString("base64"),
+                },
+            }));
+            return true;
+        },
+    };
+}
+
 function createGoogleInteractionsMount(): Mountable {
     let journal: Journal | null = null;
+    const sequenceCalls = new Map<string, number>();
     return {
         setJournal(nextJournal) { journal = nextJournal; },
         async handleRequest(req: IncomingMessage, res: ServerResponse, pathname: string) {
@@ -197,14 +243,25 @@ function createGoogleInteractionsMount(): Mountable {
             const body = JSON.parse(await readIncomingBody(req)) as Record<string, any>;
             const headers = flattenHeaders(req.headers as Record<string, string | string[] | undefined>);
             const serialized = JSON.stringify(body);
-            const prompt = serialized.includes("[aimock-tool] weather")
-                ? "[aimock-tool] weather"
+            const prompt = serialized.includes("[aimock-sequence] weather")
+                ? "[aimock-sequence] weather"
+                : serialized.includes("[aimock-tool] weather")
+                    ? "[aimock-tool] weather"
                 : serialized.includes("[aimock-structured] person")
                     ? "[aimock-structured] person"
                     : "[aimock-chat] hello";
-            const tool = prompt === "[aimock-tool] weather" ? body.tools?.[0] : undefined;
+            const testId = headers["x-test-id"] ?? "";
+            const sequenceCall = prompt === "[aimock-sequence] weather"
+                ? (sequenceCalls.get(testId) ?? 0) + 1
+                : 0;
+            if (sequenceCall) sequenceCalls.set(testId, sequenceCall);
+            const tool = prompt === "[aimock-tool] weather" || (prompt === "[aimock-sequence] weather" && sequenceCall === 1)
+                ? body.tools?.[0]
+                : undefined;
             const content = prompt === "[aimock-structured] person"
                 ? JSON.stringify({ name: "Ava", city: "London" })
+                : prompt === "[aimock-sequence] weather"
+                    ? "AIMock workflow completed."
                 : "Hello from AIMock via Phaseo.";
             const payload = {
                 id: "interaction_cross_provider",
@@ -277,16 +334,21 @@ function createBedrockMantleMessagesMount(): Mountable {
             if (pathname !== "/messages" || req.method !== "POST") return false;
             const body = JSON.parse(await readIncomingBody(req)) as Record<string, any>;
             const headers = flattenHeaders(req.headers as Record<string, string | string[] | undefined>);
-            const text = JSON.stringify(body).includes("[aimock-structured] person")
+            const serialized = JSON.stringify(body);
+            const tool = serialized.includes("[aimock-tool] weather") ? body.tools?.[0] : undefined;
+            const text = serialized.includes("[aimock-structured] person")
                 ? JSON.stringify({ name: "Ava", city: "London" })
                 : "Hello from AIMock via Phaseo.";
+            const content = tool
+                ? [{ type: "tool_use", id: "toolu_aimock_weather", name: tool.name, input: { city: "London", unit: "celsius" } }]
+                : [{ type: "text", text }];
             const payload = {
                 id: "msg_bedrock_mantle_aimock",
                 type: "message",
                 role: "assistant",
                 model: body.model,
-                content: [{ type: "text", text }],
-                stop_reason: "end_turn",
+                content,
+                stop_reason: tool ? "tool_use" : "end_turn",
                 stop_sequence: null,
                 usage: { input_tokens: 4, output_tokens: 3 },
             };
@@ -298,10 +360,12 @@ function createBedrockMantleMessagesMount(): Mountable {
             }
             const events = [
                 { type: "message_start", message: { ...payload, content: [], stop_reason: null, usage: { input_tokens: 4, output_tokens: 0 } } },
-                { type: "content_block_start", index: 0, content_block: { type: "text", text: "" } },
-                { type: "content_block_delta", index: 0, delta: { type: "text_delta", text } },
+                { type: "content_block_start", index: 0, content_block: tool ? { type: "tool_use", id: "toolu_aimock_weather", name: tool.name, input: {} } : { type: "text", text: "" } },
+                tool
+                    ? { type: "content_block_delta", index: 0, delta: { type: "input_json_delta", partial_json: JSON.stringify({ city: "London", unit: "celsius" }) } }
+                    : { type: "content_block_delta", index: 0, delta: { type: "text_delta", text } },
                 { type: "content_block_stop", index: 0 },
-                { type: "message_delta", delta: { stop_reason: "end_turn", stop_sequence: null }, usage: { output_tokens: 3 } },
+                { type: "message_delta", delta: { stop_reason: tool ? "tool_use" : "end_turn", stop_sequence: null }, usage: { output_tokens: 3 } },
                 { type: "message_stop" },
             ];
             res.writeHead(200, { "Content-Type": "text/event-stream" });
@@ -441,6 +505,12 @@ function buildAimockBindings(): Partial<GatewayBindings> {
         GOOGLE_BASE_URL: AIMOCK_BASE_URL,
         GOOGLE_VERTEX_PROJECT: "aimock-project",
         GOOGLE_VERTEX_LOCATION: "us-east5",
+		AMAZON_BEDROCK_API_KEY: "test-bedrock-key",
+		AMAZON_BEDROCK_MANTLE_BASE_URL: `${AIMOCK_BASE_URL}/anthropic/v1`,
+		ANTHROPIC_AWS_API_KEY: "test-anthropic-aws-key",
+		ANTHROPIC_AWS_BASE_URL: `${AIMOCK_BASE_URL}/anthropic`,
+		ANTHROPIC_AWS_WORKSPACE_ID: "wrkspc_aimock",
+        GMI_QUEUE_BASE_URL: AIMOCK_BASE_URL,
         NODE_ENV: "test",
     };
 
@@ -455,6 +525,17 @@ function buildAimockBindings(): Partial<GatewayBindings> {
                 : AIMOCK_BASE_URL;
         }
     }
+
+	for (const name of [
+		"AMBIENT_BASE_URL",
+		"PERPLEXITY_BASE_URL",
+		"RELACE_BASE_URL",
+		"SAMBANOVA_BASE_URL",
+		"SCALEWAY_BASE_URL",
+		"XIAOMI_MIMO_BASE_URL",
+	]) {
+		bindings[name] = `${AIMOCK_BASE_URL}/v1/openai`;
+	}
 
     return bindings as Partial<GatewayBindings>;
 }
@@ -600,6 +681,7 @@ export async function startAimock(): Promise<LLMock> {
     aimock.mount("/v1/solar", createOpenAIChatMount());
     aimock.mount("/deepseek", createOpenAIChatMount());
     aimock.mount("/api/v1", createOpenAIChatMount());
+    aimock.mount("/api/v1", createGmiRequestQueueMount());
     aimock.mount("/anthropic/v1", createBedrockMantleMessagesMount());
     aimock.mount("/v1/projects/aimock-project/locations/us-east5/publishers/anthropic/models", createAnthropicMessagesMount());
 

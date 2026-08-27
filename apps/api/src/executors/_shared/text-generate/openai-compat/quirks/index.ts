@@ -29,6 +29,29 @@ import { crofAIQuirks } from "../providers/crofai/quirks";
 import { veniceQuirks } from "../providers/venice/quirks";
 import { sakanaQuirks } from "../providers/sakana/quirks";
 import { waferQuirks } from "../providers/wafer/quirks";
+import { ambientQuirks } from "../providers/ambient/quirks";
+import { baiduQuirks } from "../providers/baidu/quirks";
+import { chutesQuirks } from "../providers/chutes/quirks";
+import { bytePlusQuirks } from "../providers/byteplus/quirks";
+import { cloudflareQuirks } from "../providers/cloudflare/quirks";
+import { deepInfraQuirks } from "../providers/deepinfra/quirks";
+import { hyperbolicQuirks } from "../providers/hyperbolic/quirks";
+import { infermaticQuirks } from "../providers/infermatic/quirks";
+import { longCatQuirks } from "../providers/longcat/quirks";
+import { friendliQuirks } from "../providers/friendli/quirks";
+import { gmiCloudQuirks } from "../providers/gmicloud/quirks";
+import { darkbloomQuirks } from "../providers/darkbloom/quirks";
+import { featherlessQuirks } from "../providers/featherless/quirks";
+import { inferenceNetQuirks } from "../providers/inference-net/quirks";
+import { mancerQuirks } from "../providers/mancer/quirks";
+import { maraQuirks } from "../providers/mara/quirks";
+import { poolsideQuirks } from "../providers/poolside/quirks";
+import { rekaQuirks } from "../providers/reka/quirks";
+import { siliconFlowQuirks } from "../providers/siliconflow/quirks";
+import { stepFunQuirks } from "../providers/stepfun/quirks";
+import { sambaNovaQuirks } from "../providers/sambanova/quirks";
+import { scalewayQuirks } from "../providers/scaleway/quirks";
+import { weightsAndBiasesQuirks } from "../providers/weights-and-biases/quirks";
 import { defaultQuirks } from "./default";
 
 /**
@@ -44,6 +67,7 @@ const PROVIDER_QUIRKS: Record<string, ProviderQuirks> = {
 	zai: zaiQuirks,
 	deepseek: deepseekQuirks,
 	mistral: mistralQuirks,
+	"mistral-eu": mistralQuirks,
 	"moonshot-ai": moonshotQuirks,
 	moonshotai: moonshotQuirks,
 	"moonshot-ai-turbo": moonshotQuirks,
@@ -68,8 +92,32 @@ const PROVIDER_QUIRKS: Record<string, ProviderQuirks> = {
 	together: togetherQuirks,
 	inception: inceptionQuirks,
 	venice: veniceQuirks,
+	"venice-e2ee": veniceQuirks,
 	sakana: sakanaQuirks,
 	wafer: waferQuirks,
+	ambient: ambientQuirks,
+	baidu: baiduQuirks,
+	chutes: chutesQuirks,
+	byteplus: bytePlusQuirks,
+	cloudflare: cloudflareQuirks,
+	deepinfra: deepInfraQuirks,
+	hyperbolic: hyperbolicQuirks,
+	infermatic: infermaticQuirks,
+	longcat: longCatQuirks,
+	friendli: friendliQuirks,
+	gmicloud: gmiCloudQuirks,
+	darkbloom: darkbloomQuirks,
+	featherless: featherlessQuirks,
+	"inference-net": inferenceNetQuirks,
+	mancer: mancerQuirks,
+	mara: maraQuirks,
+	poolside: poolsideQuirks,
+	reka: rekaQuirks,
+	siliconflow: siliconFlowQuirks,
+	stepfun: stepFunQuirks,
+	sambanova: sambaNovaQuirks,
+	scaleway: scalewayQuirks,
+	"weights-and-biases": weightsAndBiasesQuirks,
 	// Note: Google quirks removed - Google now uses native implementation, not OpenAI-compat
 };
 
@@ -83,5 +131,3 @@ export function getProviderQuirks(providerId?: string | null): ProviderQuirks {
 }
 
 export type { ProviderQuirks } from "./types";
-
-

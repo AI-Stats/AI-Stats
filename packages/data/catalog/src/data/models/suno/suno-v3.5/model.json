@@ -4,26 +4,26 @@
   "name": "Suno V3.5",
   "status": "Available",
   "previous_model_id": null,
-  "description": "Suno V3.5 is a language model from Suno for chat, writing, analysis, and general-purpose automation.",
-  "announced_date": "2024-05-25T00:00:00",
-  "release_date": "2024-05-25T00:00:00",
+  "description": "Suno v3.5 is a proprietary music-generation model that introduced four-minute initial generations, two-minute extensions, and improved song structure and vocal flow.",
+  "announced_date": "2024-05-24T00:00:00",
+  "release_date": "2024-05-30T00:00:00",
   "deprecation_date": null,
   "retirement_date": null,
   "license": "Proprietary",
-  "input_types": null,
-  "output_types": null,
+  "input_types": "text,audio",
+  "output_types": "music",
   "api_model_id": "suno/suno-v3.5",
-  "links": [],
+  "links": [{ "title": "Suno release notes", "kind": "announcement", "url": "https://suno.com/release-notes" }],
   "details": [],
   "benchmarks": [],
   "family_id": null,
   "page_notice": null,
-  "model_type": null,
+  "model_type": "music",
   "knowledge_cutoff": null,
   "limits": {
     "context": null,
-    "input": null,
-    "output": null
+    "input": ["text", "audio/*"],
+    "output": ["audio/*"]
   },
   "modalities": {
     "input": null,
@@ -41,14 +41,14 @@
     "streaming": null,
     "web_search": null
   },
-  "open_weights": null,
-  "sources": [],
+  "open_weights": false,
+  "sources": [{ "kind": "announcement", "url": "https://suno.com/release-notes", "accessed_at": "2026-08-24T00:00:00Z", "notes": "Official release notes document v3.5 early access on 24 May 2024 and general availability on 30 May 2024." }],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00Z",
+    "notes": "Product lifecycle verified from official Suno release notes; API identity is not verified."
   },
-  "last_updated": null,
+  "last_updated": "2026-08-24T00:00:00Z",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

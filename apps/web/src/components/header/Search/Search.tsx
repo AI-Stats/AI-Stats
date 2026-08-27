@@ -59,10 +59,12 @@ import {
 	searchIndexPath,
 	wasAwayLongEnough,
 } from "./Search.freshness";
+import { compareSearchCategories } from "./Search.ranking";
 
 interface Props {
 	className?: string;
 	mobileGhost?: boolean;
+	initiallyOpen?: boolean;
 }
 
 type SearchableItem = PaletteItem;
@@ -348,9 +350,10 @@ function filterAndSortIndexed<T extends SearchableItem>(
 	}
 
 	return items
-		.map((indexedItem) => ({
+		.map((indexedItem, sourceIndex) => ({
 			item: indexedItem.item,
 			score: getIndexedMatchScore(indexedItem, term),
+			sourceIndex,
 		}))
 		.filter(({ score }) => score > 0)
 		.sort((left, right) => {
@@ -358,7 +361,7 @@ function filterAndSortIndexed<T extends SearchableItem>(
 				return right.score - left.score;
 			}
 
-			return left.item.title.localeCompare(right.item.title);
+			return left.sourceIndex - right.sourceIndex;
 		})
 		.map(({ item }) => item)
 		.slice(0, limit);
@@ -618,7 +621,11 @@ function SearchEmptyState({
 	);
 }
 
-export default function Search({ className, mobileGhost = false }: Props) {
+export default function Search({
+	className,
+	mobileGhost = false,
+	initiallyOpen = false,
+}: Props) {
 	const router = useRouter();
 	const pathname = usePathname() ?? "/";
 	const { resolvedTheme, setTheme } = useTheme();
@@ -627,7 +634,7 @@ export default function Search({ className, mobileGhost = false }: Props) {
 	const inputValueRef = useRef("");
 	const awaySinceRef = useRef<number | null>(null);
 	const searchGenerationRef = useRef(1);
-	const [open, setOpen] = useState(false);
+	const [open, setOpen] = useState(initiallyOpen);
 	const [query, setQuery] = useState("");
 	const [activeRowIndex, setActiveRowIndex] = useState(0);
 	const {
@@ -1006,13 +1013,7 @@ export default function Search({ className, mobileGhost = false }: Props) {
 			},
 		]
 			.filter((category) => category.items.length > 0)
-			.sort((left, right) => {
-				if (left.name === "models") return -1;
-				if (right.name === "models") return 1;
-				if (left.name === "workspaces") return 1;
-				if (right.name === "workspaces") return -1;
-				return right.score - left.score;
-			});
+			.sort(compareSearchCategories);
 	}, [
 		contextSearchIndex,
 		hasQuery,
@@ -1301,7 +1302,7 @@ export default function Search({ className, mobileGhost = false }: Props) {
 											workspaces: { heading: "Workspaces", type: "workspace" as const, showSubtitle: true },
 											models: { heading: "Models", type: undefined, showSubtitle: false },
 											apiProviders: { heading: "API Providers", type: undefined, showSubtitle: true },
-											organisations: { heading: "Organisations", type: undefined, showSubtitle: true },
+											organisations: { heading: "Labs", type: undefined, showSubtitle: true },
 											benchmarks: { heading: "Benchmarks", type: "benchmark" as const, showSubtitle: true },
 										}[category.name];
 
@@ -1393,4 +1394,3 @@ export default function Search({ className, mobileGhost = false }: Props) {
 		</div>
 	);
 }
-

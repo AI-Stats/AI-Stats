@@ -8,6 +8,62 @@ import { decodeOpenAIResponsesRequest } from "../decode";
 import type { IRChatRequest } from "@core/ir";
 
 describe("decodeOpenAIResponsesRequest", () => {
+	it("preserves current OpenAI Responses controls through IR", () => {
+		const ir = decodeOpenAIResponsesRequest({
+			model: "gpt-5.6-sol",
+			input: [{
+				type: "message",
+				role: "user",
+				content: [{
+					type: "input_text",
+					text: "hello",
+					prompt_cache_breakpoint: { mode: "explicit" },
+				}],
+			}],
+			context_management: [{ type: "compaction", compact_threshold: 12_000 }],
+			prompt_cache_options: { mode: "explicit", ttl: "30m" },
+			reasoning: { effort: "high", context: "all_turns" },
+			text: { verbosity: "low" },
+			tool_choice: {
+				type: "allowed_tools",
+				mode: "required",
+				tools: [{ type: "function", name: "lookup" }],
+			},
+		} as any);
+
+		expect(ir.contextManagement).toEqual([
+			{ type: "compaction", compact_threshold: 12_000 },
+		]);
+		expect(ir.promptCacheOptions).toEqual({ mode: "explicit", ttl: "30m" });
+		expect(ir.reasoning).toMatchObject({ effort: "high", context: "all_turns" });
+		expect(ir.textVerbosity).toBe("low");
+		expect(ir.messages[0]).toMatchObject({
+			content: [{
+				type: "text",
+				text: "hello",
+				cacheControl: { type: "prompt_cache_breakpoint", mode: "explicit" },
+			}],
+		});
+		expect((ir.vendor as any)?.openai?.tool_choice?.type).toBe("allowed_tools");
+	});
+
+	it("preserves current native and custom Responses tools for lossless re-encoding", () => {
+		const ir = decodeOpenAIResponsesRequest({
+			model: "gpt-5.6-sol",
+			input: "hello",
+			tools: [
+				{ type: "file_search", vector_store_ids: ["vs_123"] },
+				{ type: "code_interpreter", container: { type: "auto" } },
+				{ type: "custom", name: "grammar", description: "Parse input", format: { type: "grammar", syntax: "lark", definition: "start: WORD" } },
+			],
+		} as any);
+
+		expect(ir.tools).toEqual([
+			expect.objectContaining({ type: "file_search", raw: { type: "file_search", vector_store_ids: ["vs_123"] } }),
+			expect.objectContaining({ type: "code_interpreter", raw: { type: "code_interpreter", container: { type: "auto" } } }),
+			expect.objectContaining({ type: "custom", name: "grammar" }),
+		]);
+	});
 	it("should decode simple string input as user message", () => {
 		const request = {
 			model: "gpt-4",
@@ -128,10 +184,10 @@ describe("decodeOpenAIResponsesRequest", () => {
 
 		expect(ir.vendor).toEqual({
 			openai: {
-				context_management: {
+				context_management: [{
 					type: "compaction",
 					compact_threshold: 0.75,
-				},
+				}],
 			},
 		});
 	});
@@ -509,7 +565,7 @@ describe("decodeOpenAIResponsesRequest", () => {
 		});
 	});
 
-	it("should ignore unsupported top-level reasoning_effort", () => {
+	it("decodes Meta's top-level reasoning_effort extension", () => {
 		const request = {
 			model: "meta/muse-spark-1.1",
 			input: "Solve this problem",
@@ -518,8 +574,18 @@ describe("decodeOpenAIResponsesRequest", () => {
 
 		const ir: IRChatRequest = decodeOpenAIResponsesRequest(request as any);
 
-		expect(ir.reasoning).toBeUndefined();
+		expect(ir.reasoning).toEqual({ effort: "xhigh" });
 		expect(ir.vendor?.meta).toBeUndefined();
+	});
+
+	it("preserves minimal from nested reasoning effort", () => {
+		const ir = decodeOpenAIResponsesRequest({
+			model: "google/gemma-4-31b:free",
+			input: "Hello",
+			reasoning: { effort: "minimal" },
+		});
+
+		expect(ir.reasoning?.effort).toBe("minimal");
 	});
 
 	it("should omit empty reasoning object", () => {
@@ -834,4 +900,3 @@ describe("decodeOpenAIResponsesRequest cache options", () => {
 		expect(ir.googleCachedContent).toBeUndefined();
 	});
 });
-

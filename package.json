@@ -63,6 +63,7 @@
 		"data:probe-model-endpoints": "node internal/fetch-provider-model-endpoints.mjs",
 		"data:check-new-models:test": "tsx scripts/model-discovery/validate-providers.ts",
 		"data:check-new-models:test:watch": "tsx watch scripts/model-discovery/validate-providers.ts",
+		"data:sync-provider-params": "tsx --tsconfig apps/api/tsconfig.json scripts/sync-provider-parameter-overlays.mjs",
 		"data:sync-manifest": "tsx scripts/sync-catalog-manifest.ts",
 		"data:check-manifest": "tsx scripts/sync-catalog-manifest.ts --check",
 		"data:test-sampling-params": "node scripts/test-sampling-params.js",
@@ -133,7 +134,7 @@
 	"devDependencies": {
 		"@changesets/changelog-github": "^0.7.0",
 		"@changesets/cli": "^2.31.0",
-		"@stoplight/spectral-cli": "^6.16.0",
+		"@stoplight/spectral-cli": "^6.16.3",
 		"ajv": "^8.20.0",
 		"dotenv-cli": "^11.0.0",
 		"js-yaml": "^4.2.0",
@@ -141,7 +142,7 @@
 		"rimraf": "^6.0.0",
 		"supabase": "^2.89.1",
 		"tsx": "^4.21.0",
-		"turbo": "^2.9.14"
+		"turbo": "^2.10.8"
 	},
 	"pnpm": {
 		"overrides": {

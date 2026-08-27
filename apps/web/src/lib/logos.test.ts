@@ -89,6 +89,8 @@ describe("logos", () => {
 		["sarvam", "/logos/sarvam_light.svg", "/logos/sarvam_dark.svg"],
 		["tinfoil", "/logos/tinfoil_light.svg", "/logos/tinfoil_dark.svg"],
 		["v0", "/logos/v0_light.svg", "/logos/v0_dark.svg"],
+		["ltx", "/logos/ltx_light.svg", "/logos/ltx_dark.svg"],
+		["lightricks", "/logos/ltx_light.svg", "/logos/ltx_dark.svg"],
 	])("resolves themed %s logo variants", (id, lightSrc, darkSrc) => {
 		expect(resolveLogo(id, { theme: "light" })).toMatchObject({
 			src: lightSrc,
@@ -134,6 +136,11 @@ describe("logos", () => {
 		] as const) {
 			expect(resolveLogo(id)).toMatchObject({ src });
 		}
+	});
+
+	test("uses the IO.net brand capitalization", () => {
+		expect(getLogoLabel("io-net")).toBe("IO.net");
+		expect(resolveLogo("io-net")).toMatchObject({ label: "IO.net" });
 	});
 
 	test("resolves the Moonshot display name to the MoonshotAI asset", () => {

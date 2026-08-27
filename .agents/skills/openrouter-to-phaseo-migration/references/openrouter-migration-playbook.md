@@ -39,8 +39,7 @@ Use a single mapper function so callers keep current model names while migration
 
 ```ts
 const openRouterToPhaseoModelMap: Record<string, string> = {
-  "openai/gpt-4o": "gpt-4o",
-  "openai/gpt-4": "gpt-4",
+  // Add only mappings verified against the current Phaseo /v1/models response.
 };
 
 export function mapModelId(input: string): string {
@@ -49,6 +48,7 @@ export function mapModelId(input: string): string {
 ```
 
 Then validate each mapped value exists in `GET /v1/models` before rollout.
+Do not remove provider prefixes or guess replacement IDs.
 
 ## Validation Commands
 ```bash
@@ -65,7 +65,7 @@ curl https://api.phaseo.app/v1/chat/completions \
   -H "Authorization: Bearer $PHASEO_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "gpt-4o",
+    "model": "<verified-provider/model-id>",
     "messages": [{"role":"user","content":"Return exactly: ok"}]
   }'
 ```

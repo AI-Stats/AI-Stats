@@ -97,6 +97,18 @@ function stringParam(url: URL, name: string) { return url.searchParams.get(name)
 const OBSERVABILITY_SELECT = "created_at,model_id,provider,app_id,key_id,usage,cost_nanos,success,error_payload,error_message,pricing_lines";
 const OBSERVABILITY_EXCLUDED_ENDPOINTS = '("video.generation","batch","music.generate")';
 
+export function sortUpstreamRequestsNewestFirst<
+	T extends { attempt_number?: number | null; created_at?: string | null; request_id?: string | null },
+>(rows: T[]): T[] {
+	return rows.sort((left, right) => {
+		const startedAtDifference = Date.parse(right.created_at ?? "") - Date.parse(left.created_at ?? "");
+		if (Number.isFinite(startedAtDifference) && startedAtDifference !== 0) return startedAtDifference;
+		const requestDifference = String(left.request_id ?? "").localeCompare(String(right.request_id ?? ""));
+		if (requestDifference !== 0) return requestDifference;
+		return Number(right.attempt_number ?? 0) - Number(left.attempt_number ?? 0);
+	});
+}
+
 accountSettingsUsageRouter.get("/usage/metadata", async (c) => {
 	const user = await requireUser(c.req.raw, c.env);
 	if (!user) return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
@@ -211,15 +223,20 @@ accountSettingsUsageRouter.get("/usage/logs", async (c) => {
 	if (view === "upstream") {
 		const v2Result = await context.client
 			.from("v2_request_facts")
-			.select("request_event_id,occurred_at,request_id,key_id,endpoint,requested_model_input,requested_model_slug,routed_model_slug,provider_model_id,status_code,success,error_code,byok,latency_ms,generation_ms,gateway_total_ms,upstream_attempt_count,throughput,cost_nanos,currency,v2_request_attempts(attempt_id,attempt_number,provider_model_id,started_at,completed_at,status_code,success,error_code,failure_class,upstream_response_id,latency_ms,safe_metadata)")
+			.select("request_event_id,occurred_at,request_id,key_id,endpoint,requested_model_input,requested_model_slug,routed_model_slug,provider_model_id,status_code,success,error_code,byok,latency_ms,generation_ms,gateway_total_ms,upstream_attempt_count,throughput,cost_nanos,currency,client_source_id,client_source_name,client_source_kind,client_source_version,client_source_detection,v2_request_attempts(attempt_id,attempt_number,provider_model_id,started_at,completed_at,status_code,success,error_code,failure_class,upstream_response_id,latency_ms,safe_metadata)")
 			.eq("workspace_id", workspaceId)
 			.gte("occurred_at", timeRange.from)
 			.lte("occurred_at", timeRange.to)
 			.order("occurred_at", { ascending: false })
 			.limit(500);
-		const v2UpstreamRequests = (v2Result.data ?? []).flatMap((fact: any) => {
+		const v2UpstreamRequests = sortUpstreamRequestsNewestFirst((v2Result.data ?? []).flatMap((fact: any) => {
 			const attempts = Array.isArray(fact.v2_request_attempts) ? fact.v2_request_attempts : [];
-			return attempts.map((attempt: any) => {
+			const newestAttemptsFirst = [...attempts].sort((left: any, right: any) => {
+				const startedAtDifference = Date.parse(right.started_at ?? "") - Date.parse(left.started_at ?? "");
+				if (Number.isFinite(startedAtDifference) && startedAtDifference !== 0) return startedAtDifference;
+				return Number(right.attempt_number ?? 0) - Number(left.attempt_number ?? 0);
+			});
+			return newestAttemptsFirst.map((attempt: any) => {
 				const safeMetadata = attempt.safe_metadata && typeof attempt.safe_metadata === "object" && !Array.isArray(attempt.safe_metadata)
 					? attempt.safe_metadata as Record<string, unknown>
 					: {};
@@ -264,6 +281,11 @@ accountSettingsUsageRouter.get("/usage/logs", async (c) => {
 					usage: {},
 					cost_nanos: fact.cost_nanos,
 					currency: fact.currency,
+					client_source_id: fact.client_source_id ?? null,
+					client_source_name: fact.client_source_name ?? null,
+					client_source_kind: fact.client_source_kind ?? null,
+					client_source_version: fact.client_source_version ?? null,
+					client_source_detection: fact.client_source_detection ?? null,
 					error_code: attempt.error_code ?? fact.error_code,
 					error_type: attempt.failure_class,
 					error_message: null,
@@ -272,8 +294,8 @@ accountSettingsUsageRouter.get("/usage/logs", async (c) => {
 					metadata: { ...safeMetadata, throughput: fact.throughput },
 				};
 			});
-		});
-		let upstreamRequests = v2UpstreamRequests;
+		}));
+		let upstreamRequests: any[] = v2UpstreamRequests;
 		if (upstreamRequests.length === 0) {
 			const legacyResult = await context.client
 				.from("gateway_upstream_requests")
@@ -300,7 +322,16 @@ accountSettingsUsageRouter.get("/usage/logs", async (c) => {
 		const provider = stringParam(url, "job_provider"); if (provider) query = query.eq("provider", provider);
 		const result = await query.order("updated_at", { ascending: false }).limit(50);
 		if (result.error) return c.json({ error: "usage_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-		const recentJobs = (result.data ?? []).map((row) => ({ ...row, ...(row.meta && typeof row.meta === "object" && !Array.isArray(row.meta) ? row.meta : {}), webhook: row.meta && typeof row.meta === "object" && !Array.isArray(row.meta) ? (row.meta as Record<string, unknown>).webhook ?? null : null }));
+		const recentJobsBase = (result.data ?? []).map((row) => ({ ...row, ...(row.meta && typeof row.meta === "object" && !Array.isArray(row.meta) ? row.meta : {}), webhook: row.meta && typeof row.meta === "object" && !Array.isArray(row.meta) ? (row.meta as Record<string, unknown>).webhook ?? null : null }));
+		const requestIds = Array.from(new Set(recentJobsBase.map((row) => row.request_id).filter(Boolean)));
+		const requestSourcesResult = requestIds.length
+			? await context.client.from("gateway_requests")
+				.select("request_id,client_source_id,client_source_name,client_source_kind,client_source_version,client_source_detection")
+				.eq("workspace_id", workspaceId)
+				.in("request_id", requestIds)
+			: { data: [], error: null };
+		const requestSources = new Map((requestSourcesResult.data ?? []).map((row) => [row.request_id, row]));
+		const recentJobs = recentJobsBase.map((row) => ({ ...row, ...(requestSources.get(row.request_id) ?? {}) }));
 		const models = recentJobs.map((row) => String(row.model ?? "")).filter(Boolean); const providers = recentJobs.map((row) => String(row.provider ?? "")).filter(Boolean); const apps = recentJobs.map((row) => String(row.app_id ?? "")).filter(Boolean);
 		const metadata = await metadataForIds(context, { models, providers, apps });
 		return c.json({ data: { appMetadataEntries: metadata.appMetadataEntries, jobProviders: Array.from(new Set(providers)), modelMetadataEntries: metadata.modelMetadataEntries, providerNameEntries: metadata.providerNameEntries, recentJobs }, signedIn: true, view, workspaceId }, 200, PRIVATE_NO_STORE_HEADERS);
@@ -376,9 +407,15 @@ accountSettingsUsageRouter.get("/usage/logs", async (c) => {
 	}
 	const requestsResult = await requestQuery.order("created_at", { ascending: false }).order("id", { ascending: false }).limit(pageSize + 1);
 	if (requestsResult.error) return c.json({ error: "usage_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-	const [rollupResult, keysResult] = await Promise.all([
+	const [rollupResult, keysResult, facetsResult] = await Promise.all([
 		context.client.from("v2_web_private_usage_daily").select("canonical_model_id,provider,app_id").eq("workspace_id", workspaceId).gte("bucket_15m", timeRange.from).lte("bucket_15m", timeRange.to),
 		context.client.from("keys").select("id,name,prefix").eq("workspace_id", workspaceId).neq("status", "deleted").neq("name", "__chat_route_managed_key__").order("created_at", { ascending: true }),
+		context.client.rpc("get_gateway_request_facets", {
+			p_workspace_id: workspaceId,
+			p_from: timeRange.from,
+			p_to: timeRange.to,
+			p_filters: {},
+		}),
 	]);
 	const requestRows = requestsResult.data ?? [];
 	const hasMoreRequests = requestRows.length > pageSize;
@@ -391,7 +428,11 @@ accountSettingsUsageRouter.get("/usage/logs", async (c) => {
 	const metadata = await metadataForIds(context, { models, providers, apps });
 	const lastRequestRow = visibleRequestRows.at(-1);
 	const nextRequestCursor = hasMoreRequests && lastRequestRow ? { createdAt: lastRequestRow.created_at, id: lastRequestRow.id } : null;
-	const clientSources = values((row) => row.client_source_id).map((id) => ({ id, name: visibleRequestRows.find((row) => row.client_source_id === id)?.client_source_name ?? id }));
+	const clientSources = facetsResult.error
+		? values((row) => row.client_source_id).map((id) => ({ id, name: visibleRequestRows.find((row) => row.client_source_id === id)?.client_source_name ?? id }))
+		: (facetsResult.data ?? [])
+			.filter((row) => row.facet === "source" && row.value)
+			.map((row) => ({ id: row.value, name: row.value_label ?? row.value }));
 	const logEndpoints = values((row) => row.endpoint);
 	const logFinishReasons = values((row) => row.finish_reason);
 	const logErrorCodes = values((row) => row.error_code);

@@ -5,8 +5,8 @@
   "status": "Available",
   "previous_model_id": "mistral/ocr-3",
   "description": "OCR 4 is Mistral's current document understanding model for OCR, extraction, and page-level visual reasoning across PDFs, scans, and screenshots.",
-  "announced_date": "2026-06-30T00:00:00",
-  "release_date": "2026-06-30T00:00:00",
+  "announced_date": "2026-06-23T00:00:00",
+  "release_date": "2026-06-23T00:00:00",
   "deprecation_date": null,
   "retirement_date": null,
   "license": "Proprietary",
@@ -15,9 +15,9 @@
   "api_model_id": "mistral/ocr-4",
   "links": [
     {
-      "title": "Docs",
-      "kind": "docs",
-      "url": "https://docs.mistral.ai/getting-started/models/models_overview/"
+      "title": "OCR 4 model card",
+      "kind": "model_card",
+      "url": "https://docs.mistral.ai/models/ocr-4-0"
     }
   ],
   "details": [
@@ -61,18 +61,18 @@
   "open_weights": null,
   "sources": [
     {
-      "kind": "docs",
-      "url": "https://docs.mistral.ai/getting-started/models/models_overview/",
-      "accessed_at": null,
-      "notes": null
+      "kind": "model_card",
+      "url": "https://docs.mistral.ai/models/ocr-4-0",
+      "accessed_at": "2026-08-12T00:00:00Z",
+      "notes": "Lists mistral-ocr-4-0, OCR, structured annotations, bounding-box extraction, and current page pricing."
     }
   ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-12T00:00:00Z",
+    "notes": "Verified against the first-party OCR 4 model card and OCR API reference."
   },
-  "last_updated": null,
+  "last_updated": "2026-08-12T00:00:00Z",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

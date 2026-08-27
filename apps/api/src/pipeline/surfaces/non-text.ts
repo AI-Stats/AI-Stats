@@ -19,6 +19,7 @@ import type {
 } from "@core/ir";
 import type { Endpoint } from "@core/types";
 import { handleError } from "@core/error-handler";
+import { saveMusicJobMeta } from "@core/music-jobs";
 import { doRequestWithIR } from "../execute";
 import { finalizeRequest } from "../after";
 import { auditFailure } from "../audit";
@@ -65,6 +66,9 @@ function isNonTextEndpoint(endpoint: Endpoint): endpoint is NonTextEndpoint {
 
 function decodeUsage(usage: IRUsage | undefined): Record<string, any> | undefined {
 	if (!usage || typeof usage !== "object") return undefined;
+	if ((usage as any).type === "duration" && typeof (usage as any).seconds === "number") {
+		return { type: "duration", seconds: (usage as any).seconds };
+	}
 	const inputTokens = Number(
 		(usage as any).inputTokens ??
 		(usage as any).input_tokens ??
@@ -93,10 +97,20 @@ function decodeUsage(usage: IRUsage | undefined): Record<string, any> | undefine
 	);
 
 	const output: Record<string, any> = {
+		...((usage as any).type ? { type: (usage as any).type } : {}),
 		input_tokens: Number.isFinite(inputTokens) ? inputTokens : 0,
 		output_tokens: Number.isFinite(outputTokens) ? outputTokens : 0,
 		total_tokens: Number.isFinite(totalTokens) ? totalTokens : inputTokens + outputTokens,
 	};
+	if ((usage as any).input_tokens_details && typeof (usage as any).input_tokens_details === "object") {
+		output.input_tokens_details = (usage as any).input_tokens_details;
+	}
+	if ((usage as any).input_token_details && typeof (usage as any).input_token_details === "object") {
+		output.input_token_details = (usage as any).input_token_details;
+	}
+	if ((usage as any).output_tokens_details && typeof (usage as any).output_tokens_details === "object") {
+		output.output_tokens_details = (usage as any).output_tokens_details;
+	}
 
 	const passthroughNumericKeys = [
 		"requests",
@@ -197,8 +211,10 @@ function decodeNonTextRequest(endpoint: NonTextEndpoint, body: any): NonTextIRRe
 				streamFormat: body?.stream_format,
 				speed: body?.speed,
 				instructions: body?.instructions,
+				sessionId: body?.session_id,
 				vendor: {
 					elevenlabs: body?.config?.elevenlabs,
+					minimax: body?.config?.minimax,
 				},
 				userId: body?.user,
 				rawRequest: body,
@@ -208,13 +224,24 @@ function decodeNonTextRequest(endpoint: NonTextEndpoint, body: any): NonTextIRRe
 			return {
 				model: body?.model,
 				file: body?.file,
+				fileUrl: body?.file_url,
+				s3PresignedUrl: body?.s3_presigned_url,
+				fileId: body?.file_id,
 				language: body?.language,
+				languages: Array.isArray(body?.languages) ? body.languages : undefined,
+				keywords: Array.isArray(body?.keywords) ? body.keywords : undefined,
 				prompt: body?.prompt,
 				temperature: body?.temperature,
 				responseFormat: body?.response_format,
+				stream: body?.stream,
 				timestampGranularities: Array.isArray(body?.timestamp_granularities)
 					? body.timestamp_granularities
 					: undefined,
+				diarize: body?.diarize,
+				enableDiarization: body?.enable_diarization,
+				outputContent: body?.output_content,
+				sessionId: body?.session_id,
+				contextBias: Array.isArray(body?.context_bias) ? body.context_bias : undefined,
 				include: Array.isArray(body?.include) ? body.include : undefined,
 				chunkingStrategy: body?.chunking_strategy,
 				knownSpeakerNames: Array.isArray(body?.known_speaker_names) ? body.known_speaker_names : undefined,
@@ -235,7 +262,19 @@ function decodeNonTextRequest(endpoint: NonTextEndpoint, body: any): NonTextIRRe
 			return {
 				model: body?.model,
 				image: body?.image,
-				language: body?.language,
+				document: body?.document,
+				pages: body?.pages,
+				includeImageBase64: body?.include_image_base64,
+				imageLimit: body?.image_limit,
+				imageMinSize: body?.image_min_size,
+				bboxAnnotationFormat: body?.bbox_annotation_format,
+				documentAnnotationFormat: body?.document_annotation_format,
+				documentAnnotationPrompt: body?.document_annotation_prompt,
+				tableFormat: body?.table_format,
+				extractHeader: body?.extract_header,
+				extractFooter: body?.extract_footer,
+				includeBlocks: body?.include_blocks,
+				confidenceScoresGranularity: body?.confidence_scores_granularity,
 				rawRequest: body,
 			};
 		case "music.generate":
@@ -254,7 +293,7 @@ function decodeNonTextRequest(endpoint: NonTextEndpoint, body: any): NonTextIRRe
 	}
 }
 
-function encodeNonTextResponse(
+export function encodeNonTextResponse(
 	endpoint: NonTextEndpoint,
 	ir: NonTextIRResponse,
 	requestId: string,
@@ -269,6 +308,10 @@ function encodeNonTextResponse(
 				...(image.nativeId ? { id: image.nativeId } : {}),
 				created: image.created ?? Math.floor(Date.now() / 1000),
 				model: image.model,
+				...(image.background ? { background: image.background } : {}),
+				...(image.outputFormat ? { output_format: image.outputFormat } : {}),
+				...(image.size ? { size: image.size } : {}),
+				...(image.quality ? { quality: image.quality } : {}),
 				data: Array.isArray(image.data)
 					? image.data.map((item) => ({
 						...(item.url != null ? { url: item.url } : {}),
@@ -302,7 +345,14 @@ function encodeNonTextResponse(
 				model: transcription.model,
 				provider: transcription.provider,
 				text: transcription.text ?? "",
+				...(transcription.task ? { task: transcription.task } : {}),
+				...(transcription.language ? { language: transcription.language } : {}),
+				...(Array.isArray(transcription.languages) ? { languages: transcription.languages } : {}),
+				...(typeof transcription.duration === "number" ? { duration: transcription.duration } : {}),
+				...(Array.isArray(transcription.words) ? { words: transcription.words } : {}),
 				...(Array.isArray(transcription.segments) ? { segments: transcription.segments } : {}),
+				...(Array.isArray(transcription.diarization) ? { diarization: transcription.diarization } : {}),
+				...(Array.isArray(transcription.logprobs) ? { logprobs: transcription.logprobs } : {}),
 				...(usage ? { usage } : {}),
 			};
 		}
@@ -315,6 +365,8 @@ function encodeNonTextResponse(
 				model: translation.model,
 				provider: translation.provider,
 				text: translation.text ?? "",
+				...(typeof translation.duration === "number" ? { duration: translation.duration } : {}),
+				...(typeof translation.language === "string" ? { language: translation.language } : {}),
 				...(Array.isArray(translation.segments) ? { segments: translation.segments } : {}),
 				...(usage ? { usage } : {}),
 			};
@@ -328,6 +380,8 @@ function encodeNonTextResponse(
 				model: ocr.model,
 				provider: ocr.provider,
 				text: ocr.text ?? "",
+				...(Array.isArray(ocr.pages) ? { pages: ocr.pages } : {}),
+				...(ocr.documentAnnotation !== undefined ? { document_annotation: ocr.documentAnnotation } : {}),
 				...(usage ? { usage } : {}),
 			};
 		}
@@ -335,7 +389,7 @@ function encodeNonTextResponse(
 		case "music.generate": {
 			const music = ir as IRMusicGenerateResponse;
 			return {
-				id: music.nativeId ?? music.id ?? requestId,
+				id: music.id ?? requestId,
 				object: "music",
 				status: music.status ?? "completed",
 				model: music.model,
@@ -349,6 +403,76 @@ function encodeNonTextResponse(
 		}
 	}
 }
+
+async function persistMusicResponse(
+	workspaceId: string,
+	requestId: string,
+	request: IRMusicGenerateRequest,
+	response: IRMusicGenerateResponse,
+): Promise<void> {
+	const usage = response.usage as (IRUsage & Record<string, unknown>) | undefined;
+	const duration = typeof usage?.output_audio_seconds === "number"
+		? usage.output_audio_seconds
+		: null;
+	const output = Array.isArray(response.output) && response.output.length > 0
+		? response.output.map((item, index) => ({
+			index: typeof item.index === "number" ? item.index : index,
+			id: item.id ?? null,
+			audio_url: item.audioUrl ?? null,
+			stream_audio_url: item.streamAudioUrl ?? null,
+			image_url: item.imageUrl ?? null,
+			title: item.title ?? null,
+			tags: item.tags ?? null,
+			duration: item.duration ?? duration,
+		}))
+		: response.audioUrl
+			? [{
+				index: 0,
+				id: response.nativeId ?? requestId,
+				audio_url: response.audioUrl,
+				duration,
+			}]
+			: null;
+	const result = stripInlineMusicAudio(response.result, response.audioBase64);
+	const rawResponse = stripInlineMusicAudio(response.rawResponse, response.audioBase64);
+	await saveMusicJobMeta(workspaceId, requestId, {
+		provider: response.provider,
+		model: response.model,
+		duration,
+		format: request.format ?? null,
+		status: response.status ?? "completed",
+		nativeResponseId: response.nativeId ?? null,
+		audioBase64: response.audioBase64 ?? null,
+		output,
+		result: result ?? null,
+		rawResponse: rawResponse ?? null,
+		createdAt: Date.now(),
+	});
+}
+
+function stripInlineMusicAudio(value: unknown, audioBase64: string | undefined): unknown {
+	if (!audioBase64 || value == null || typeof value !== "object") return value;
+	if (Array.isArray(value)) {
+		return value.map((item) => stripInlineMusicAudio(item, audioBase64));
+	}
+	const output: Record<string, unknown> = {};
+	for (const [key, item] of Object.entries(value as Record<string, unknown>)) {
+		if (
+			typeof item === "string" &&
+			item === audioBase64 &&
+			["audio", "audio_base64", "audioBase64", "data"].includes(key)
+		) {
+			continue;
+		}
+		output[key] = stripInlineMusicAudio(item, audioBase64);
+	}
+	return output;
+}
+
+export const __nonTextTestUtils = {
+	persistMusicResponse,
+	stripInlineMusicAudio,
+};
 
 export async function runNonTextPipeline(args: PipelineRunnerArgs): Promise<Response> {
 	const { pre, req, endpoint, timing } = args;
@@ -387,6 +511,23 @@ export async function runNonTextPipeline(args: PipelineRunnerArgs): Promise<Resp
 				exec.result.ir as NonTextIRResponse,
 				pre.ctx.requestId,
 			);
+			if (endpoint === "music.generate") {
+				try {
+					await persistMusicResponse(
+						pre.ctx.workspaceId,
+						pre.ctx.requestId,
+						ir as IRMusicGenerateRequest,
+						exec.result.ir as IRMusicGenerateResponse,
+					);
+				} catch (error) {
+					console.error("music_job_meta_store_failed", {
+						error,
+						workspaceId: pre.ctx.workspaceId,
+						musicId: pre.ctx.requestId,
+						provider: exec.result.provider,
+					});
+				}
+			}
 		}
 		timing.timer.end("ir_encode");
 

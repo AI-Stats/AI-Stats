@@ -1,27 +1,27 @@
 [
   {
-    "api_model_id": "deepseek/deepseek-v4-flash-0731",
-    "provider_api_model_id": "gmicloud:deepseek/deepseek-v4-flash-0731",
-    "provider_model_slug": "deepseek-ai/DeepSeek-V4-Flash-0731",
-    "internal_model_id": "deepseek/deepseek-v4-flash-0731",
+    "api_model_id": "anthropic/claude-fable-5",
+    "provider_api_model_id": "gmicloud:anthropic/claude-fable-5",
+    "provider_model_slug": "anthropic/claude-fable-5",
+    "internal_model_id": "anthropic/claude-fable-5",
     "is_active_gateway": false,
-    "quantization_scheme": "FP8",
-    "input_modalities": "text",
-    "output_modalities": "text",
-    "context_length": 1048575,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1048576,
     "max_output_tokens": null,
-    "effective_from": "2026-07-31T00:00:00",
+    "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
         "status": "active",
         "params": [],
-        "reasoning": true,
-        "tool_call": true,
-        "structured_output": true,
-        "temperature": true,
-        "attachment": false,
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
@@ -29,25 +29,181 @@
     ],
     "routing_status": "active",
     "routable": false,
-    "regions": { "execution": null, "data": null },
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
     "service_tiers": [],
     "api": {
-      "formats": ["openai.chat.completions"],
+      "formats": [],
       "endpoint": null,
       "deployment": null
     },
-    "sources": [
-      {
-        "kind": "documentation",
-        "url": "https://docs.gmicloud.ai/",
-        "accessed_at": "2026-08-01T00:00:00Z",
-        "notes": "GMICloud model availability and OpenAI-compatible MaaS documentation."
-      }
-    ],
+    "sources": [],
     "verification": {
       "status": "partial",
-      "checked_at": "2026-08-01T00:00:00Z",
-      "notes": "Deployment availability, FP8 quantisation, limits and supported request parameters confirmed; direct Phaseo routing remains disabled."
+      "checked_at": "2026-08-11T03:45:54.588+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "anthropic/claude-haiku-4.5",
+    "provider_api_model_id": "gmicloud:anthropic/claude-haiku-4.5",
+    "provider_model_slug": "anthropic/claude-haiku-4.5",
+    "internal_model_id": "anthropic/claude-haiku-4.5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 409600,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:54.588+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "anthropic/claude-opus-4.1",
+    "provider_api_model_id": "gmicloud:anthropic/claude-opus-4.1",
+    "provider_model_slug": "anthropic/claude-opus-4.1",
+    "internal_model_id": "anthropic/claude-opus-4.1",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 409600,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:54.588+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "anthropic/claude-opus-4.5",
+    "provider_api_model_id": "gmicloud:anthropic/claude-opus-4.5",
+    "provider_model_slug": "anthropic/claude-opus-4.5",
+    "internal_model_id": "anthropic/claude-opus-4.5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 409600,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:54.588+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -82,8 +238,12 @@
     "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": ["global"],
-      "data": ["global"]
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
     },
     "service_tiers": [],
     "api": {
@@ -137,8 +297,12 @@
     "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": ["global"],
-      "data": ["global"]
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
     },
     "service_tiers": [],
     "api": {
@@ -152,6 +316,65 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: anthropic/claude-opus-4.7"
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-07-23T09:08:52.190Z",
+      "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "anthropic/claude-opus-4.8",
+    "provider_api_model_id": "gmicloud:anthropic/claude-opus-4.8",
+    "provider_model_slug": "anthropic/claude-opus-4.8",
+    "internal_model_id": "anthropic/claude-opus-4.8",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,pdf",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 128000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models.dev",
+        "url": "https://models.dev/api.json",
+        "accessed_at": "2026-07-23T09:08:52.190Z",
+        "notes": "Provider model slug: anthropic/claude-opus-4.8"
       }
     ],
     "verification": {
@@ -192,8 +415,12 @@
     "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": ["global"],
-      "data": ["global"]
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
     },
     "service_tiers": [],
     "api": {
@@ -213,6 +440,110 @@
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "anthropic/claude-sonnet-4",
+    "provider_api_model_id": "gmicloud:anthropic/claude-sonnet-4",
+    "provider_model_slug": "anthropic/claude-sonnet-4",
+    "internal_model_id": "anthropic/claude-sonnet-4",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 409600,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:54.588+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "anthropic/claude-sonnet-4.5",
+    "provider_api_model_id": "gmicloud:anthropic/claude-sonnet-4.5",
+    "provider_model_slug": "anthropic/claude-sonnet-4.5",
+    "internal_model_id": "anthropic/claude-sonnet-4.5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 409600,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:54.588+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -247,8 +578,12 @@
     "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": ["global"],
-      "data": ["global"]
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
     },
     "service_tiers": [],
     "api": {
@@ -272,17 +607,17 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "bytedance/seed-2.0-mini",
-    "provider_api_model_id": "gmicloud:bytedance/seed-2.0-mini",
-    "provider_model_slug": "bytedance/seed-2.0-mini",
-    "internal_model_id": "bytedance/seed-2.0-mini",
-    "is_active_gateway": true,
+    "api_model_id": "anthropic/claude-sonnet-5",
+    "provider_api_model_id": "gmicloud:anthropic/claude-sonnet-5",
+    "provider_model_slug": "anthropic/claude-sonnet-5",
+    "internal_model_id": "anthropic/claude-sonnet-5",
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
-    "context_length": null,
+    "context_length": 409600,
     "max_output_tokens": null,
-    "effective_from": "2026-03-25T00:00:00",
+    "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
@@ -300,7 +635,59 @@
       }
     ],
     "routing_status": "active",
-    "routable": true,
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:54.588+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "bytedance/seed-2.0-mini",
+    "provider_api_model_id": "gmicloud:bytedance/seed-2.0-mini",
+    "provider_model_slug": "bytedance/seed-2.0-mini",
+    "internal_model_id": "bytedance/seed-2.0-mini",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 262144,
+    "max_output_tokens": null,
+    "effective_from": "2026-03-25T00:00:00",
+    "effective_to": "2026-08-23T00:00:00Z",
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -313,9 +700,9 @@
     },
     "sources": [],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Removed from GMI Cloud's authenticated serverless Model Hub; historical pricing retained."
     },
     "rate_limits": []
   },
@@ -328,7 +715,7 @@
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
-    "context_length": null,
+    "context_length": 163840,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
     "effective_to": null,
@@ -376,7 +763,7 @@
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
-    "context_length": null,
+    "context_length": 163840,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
     "effective_to": null,
@@ -420,14 +807,14 @@
     "provider_api_model_id": "gmicloud:deepseek/deepseek-v3.1",
     "provider_model_slug": "deepseek-ai/DeepSeek-V3.1",
     "internal_model_id": "deepseek/deepseek-v3.1",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": "2026-04-24T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-23T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -443,8 +830,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -457,9 +844,9 @@
     },
     "sources": [],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Removed from GMI Cloud's authenticated serverless Model Hub; historical pricing retained."
     },
     "rate_limits": []
   },
@@ -468,14 +855,14 @@
     "provider_api_model_id": "gmicloud:deepseek/deepseek-v3.1-terminus",
     "provider_model_slug": "deepseek-ai/DeepSeek-V3.1-Terminus",
     "internal_model_id": "deepseek/deepseek-v3.1-terminus",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": "2026-04-24T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-23T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -491,8 +878,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -505,9 +892,9 @@
     },
     "sources": [],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Removed from GMI Cloud's authenticated serverless Model Hub; historical pricing retained."
     },
     "rate_limits": []
   },
@@ -520,7 +907,7 @@
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
-    "context_length": null,
+    "context_length": 163840,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
     "effective_to": null,
@@ -528,7 +915,16 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "tools",
+          "tool_choice"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -564,11 +960,186 @@
     "provider_api_model_id": "gmicloud:deepseek/deepseek-v3.2-exp",
     "provider_model_slug": "deepseek-ai/DeepSeek-V3.2-Exp",
     "internal_model_id": "deepseek/deepseek-v3.2-exp",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
     "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-04-24T00:00:00",
+    "effective_to": "2026-08-23T00:00:00Z",
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "retired",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Removed from GMI Cloud's authenticated serverless Model Hub; historical pricing retained."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v4-flash",
+    "provider_api_model_id": "gmicloud:deepseek/deepseek-v4-flash",
+    "provider_model_slug": "deepseek-ai/DeepSeek-V4-Flash",
+    "internal_model_id": "deepseek/deepseek-v4-flash",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "tools",
+          "tool_choice",
+          "response_format",
+          "reasoning_effort"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://www.gmicloud.ai/",
+        "accessed_at": "2026-08-03T00:00:00Z",
+        "notes": "Provider deployment recorded; direct catalogue verification remains partial."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-03T00:00:00Z",
+      "notes": "Provider deployment and existing Phaseo executor recorded."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v4-flash-0731",
+    "provider_api_model_id": "gmicloud:deepseek/deepseek-v4-flash-0731",
+    "provider_model_slug": "deepseek-ai/DeepSeek-V4-Flash-0731",
+    "internal_model_id": "deepseek/deepseek-v4-flash-0731",
+    "is_active_gateway": true,
+    "quantization_scheme": "FP8",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048575,
+    "max_output_tokens": null,
+    "effective_from": "2026-07-31T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": ["standard"],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "/chat/completions",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://docs.gmicloud.ai/",
+        "accessed_at": "2026-08-01T00:00:00Z",
+        "notes": "GMICloud model availability and OpenAI-compatible MaaS documentation."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Exact model slug, OpenAI-compatible chat route, 1,048,575-token context, pricing and request examples verified in the authenticated GMI Cloud Model Hub."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v4-pro",
+    "provider_api_model_id": "gmicloud:deepseek/deepseek-v4-pro",
+    "provider_model_slug": "deepseek-ai/DeepSeek-V4-Pro",
+    "internal_model_id": "deepseek/deepseek-v4-pro",
+    "is_active_gateway": true,
+    "quantization_scheme": "FP8",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
     "max_output_tokens": null,
     "effective_from": "2026-04-24T00:00:00",
     "effective_to": null,
@@ -576,7 +1147,18 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "tools",
+          "tool_choice",
+          "response_format",
+          "reasoning_effort"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -608,17 +1190,17 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "deepseek/deepseek-v4-pro",
-    "provider_api_model_id": "gmicloud:deepseek/deepseek-v4-pro",
-    "provider_model_slug": "deepseek-ai/DeepSeek-V4-Pro",
-    "internal_model_id": "deepseek/deepseek-v4-pro",
-    "is_active_gateway": true,
-    "quantization_scheme": "FP8",
-    "input_modalities": "text",
-    "output_modalities": "text",
+    "api_model_id": "google/gemini-3-flash-preview",
+    "provider_api_model_id": "gmicloud:google/gemini-3-flash-preview",
+    "provider_model_slug": "google/gemini-3-flash-preview",
+    "internal_model_id": "google/gemini-3-flash-preview",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
     "context_length": 1048576,
     "max_output_tokens": null,
-    "effective_from": "2026-04-24T00:00:00",
+    "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
@@ -636,10 +1218,14 @@
       }
     ],
     "routing_status": "active",
-    "routable": true,
+    "routable": false,
     "regions": {
-      "execution": null,
-      "data": null
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
     },
     "service_tiers": [],
     "api": {
@@ -649,9 +1235,269 @@
     },
     "sources": [],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:54.588+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-3.1-flash-lite-preview",
+    "provider_api_model_id": "gmicloud:google/gemini-3.1-flash-lite-preview",
+    "provider_model_slug": "google/gemini-3.1-flash-lite-preview",
+    "internal_model_id": "google/gemini-3.1-flash-lite-preview",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:54.588+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-3.1-pro-preview",
+    "provider_api_model_id": "gmicloud:google/gemini-3.1-pro-preview",
+    "provider_model_slug": "google/gemini-3.1-pro-preview",
+    "internal_model_id": "google/gemini-3.1-pro-preview",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:54.588+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-3.5-flash",
+    "provider_api_model_id": "gmicloud:google/gemini-3.5-flash",
+    "provider_model_slug": "google/gemini-3.5-flash",
+    "internal_model_id": "google/gemini-3.5-flash",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:54.588+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-3.5-flash-lite",
+    "provider_api_model_id": "gmicloud:google/gemini-3.5-flash-lite",
+    "provider_model_slug": "google/gemini-3.5-flash-lite",
+    "internal_model_id": "google/gemini-3.5-flash-lite",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:54.588+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-3.6-flash",
+    "provider_api_model_id": "gmicloud:google/gemini-3.6-flash",
+    "provider_model_slug": "google/gemini-3.6-flash",
+    "internal_model_id": "google/gemini-3.6-flash",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:54.588+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -808,7 +1654,7 @@
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
-    "context_length": null,
+    "context_length": 196608,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
     "effective_to": null,
@@ -856,7 +1702,7 @@
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
-    "context_length": null,
+    "context_length": 196608,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
     "effective_to": null,
@@ -864,7 +1710,17 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "response_format",
+          "tools",
+          "tool_choice"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -912,7 +1768,15 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "response_format"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -948,14 +1812,14 @@
     "provider_api_model_id": "gmicloud:moonshotai/kimi-k2",
     "provider_model_slug": "kimi-k2",
     "internal_model_id": "moonshotai/kimi-k2",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-23T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -971,8 +1835,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -985,9 +1849,9 @@
     },
     "sources": [],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Removed from GMI Cloud's authenticated serverless Model Hub; historical pricing retained."
     },
     "rate_limits": []
   },
@@ -1000,7 +1864,7 @@
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
-    "context_length": null,
+    "context_length": 262144,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
     "effective_to": null,
@@ -1040,6 +1904,69 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "moonshotai/kimi-k2-thinking",
+    "provider_api_model_id": "gmicloud:moonshotai/kimi-k2-thinking",
+    "provider_model_slug": "moonshotai/Kimi-K2-Thinking",
+    "internal_model_id": "moonshotai/kimi-k2-thinking",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "/chat/completions",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_console",
+        "url": "https://console.gmicloud.ai/user-console/ie/model-hub",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Exact serverless model slug, availability and pricing verified in the authenticated GMI Cloud Model Hub."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified as a callable OpenAI-compatible serverless route in the authenticated GMI Cloud catalog."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "moonshotai/kimi-k2.5",
     "provider_api_model_id": "gmicloud:moonshotai/kimi-k2.5",
     "provider_model_slug": "moonshotai/Kimi-K2.5",
@@ -1048,7 +1975,7 @@
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
-    "context_length": null,
+    "context_length": 262144,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
     "effective_to": null,
@@ -1096,7 +2023,7 @@
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
-    "context_length": null,
+    "context_length": 262144,
     "max_output_tokens": null,
     "effective_from": "2026-04-20T00:00:00",
     "effective_to": null,
@@ -1140,7 +2067,7 @@
     "provider_api_model_id": "gmicloud:moonshotai/kimi-k2.7-code",
     "provider_model_slug": "moonshotai/Kimi-K2.7-Code",
     "internal_model_id": "moonshotai/kimi-k2.7-code",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text,image,video",
     "output_modalities": "text",
@@ -1163,23 +2090,34 @@
         "modes": []
       }
     ],
-    "routing_status": null,
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
-      "formats": [],
-      "endpoint": null,
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "/chat/completions",
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_console",
+        "url": "https://console.gmicloud.ai/user-console/ie/model-hub",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Exact serverless model slug, availability and pricing verified in the authenticated GMI Cloud Model Hub."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified as a callable OpenAI-compatible serverless route in the authenticated GMI Cloud catalog."
     },
     "rate_limits": []
   },
@@ -1279,14 +2217,14 @@
     "provider_api_model_id": "gmicloud:nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
     "provider_model_slug": "nvidia/Nemotron-3-Nano-Omni-30B-A3B-Reasoning",
     "internal_model_id": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image,video,audio",
     "output_modalities": "text",
     "context_length": 256000,
     "max_output_tokens": null,
     "effective_from": "2026-04-28T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-23T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -1302,8 +2240,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -1316,9 +2254,9 @@
     },
     "sources": [],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Removed from GMI Cloud's authenticated serverless Model Hub; historical pricing retained."
     },
     "rate_limits": []
   },
@@ -1331,7 +2269,7 @@
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
-    "context_length": null,
+    "context_length": 262144,
     "max_output_tokens": null,
     "effective_from": "2026-06-08T00:00:00",
     "effective_to": null,
@@ -1371,6 +2309,682 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "openai/gpt-4o",
+    "provider_api_model_id": "gmicloud:openai/gpt-4o",
+    "provider_model_slug": "openai/gpt-4o",
+    "internal_model_id": "openai/gpt-4o",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 131072,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:54.588+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-4o-mini",
+    "provider_api_model_id": "gmicloud:openai/gpt-4o-mini",
+    "provider_model_slug": "openai/gpt-4o-mini",
+    "internal_model_id": "openai/gpt-4o-mini",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 131072,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:54.588+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5",
+    "provider_api_model_id": "gmicloud:openai/gpt-5",
+    "provider_model_slug": "openai/gpt-5",
+    "internal_model_id": "openai/gpt-5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 409600,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:54.588+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.1",
+    "provider_api_model_id": "gmicloud:openai/gpt-5.1",
+    "provider_model_slug": "openai/gpt-5.1",
+    "internal_model_id": "openai/gpt-5.1",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 409600,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:54.588+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.1-chat",
+    "provider_api_model_id": "gmicloud:openai/gpt-5.1-chat",
+    "provider_model_slug": "openai/gpt-5.1-chat",
+    "internal_model_id": "openai/gpt-5.1-chat",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 409600,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:54.588+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.2",
+    "provider_api_model_id": "gmicloud:openai/gpt-5.2",
+    "provider_model_slug": "openai/gpt-5.2",
+    "internal_model_id": "openai/gpt-5.2",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 409600,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:54.588+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.2-chat",
+    "provider_api_model_id": "gmicloud:openai/gpt-5.2-chat",
+    "provider_model_slug": "openai/gpt-5.2-chat",
+    "internal_model_id": "openai/gpt-5.2-chat",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 409600,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:54.588+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.2-codex",
+    "provider_api_model_id": "gmicloud:openai/gpt-5.2-codex",
+    "provider_model_slug": "openai/gpt-5.2-codex",
+    "internal_model_id": "openai/gpt-5.2-codex",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 409600,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:54.588+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.3-codex",
+    "provider_api_model_id": "gmicloud:openai/gpt-5.3-codex",
+    "provider_model_slug": "openai/gpt-5.3-codex",
+    "internal_model_id": "openai/gpt-5.3-codex",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 409600,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:54.588+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.4",
+    "provider_api_model_id": "gmicloud:openai/gpt-5.4",
+    "provider_model_slug": "openai/gpt-5.4",
+    "internal_model_id": "openai/gpt-5.4",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 409600,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:54.588+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.4-mini",
+    "provider_api_model_id": "gmicloud:openai/gpt-5.4-mini",
+    "provider_model_slug": "openai/gpt-5.4-mini",
+    "internal_model_id": "openai/gpt-5.4-mini",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 409600,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:54.588+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.4-nano",
+    "provider_api_model_id": "gmicloud:openai/gpt-5.4-nano",
+    "provider_model_slug": "openai/gpt-5.4-nano",
+    "internal_model_id": "openai/gpt-5.4-nano",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 409600,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:54.588+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.4-pro",
+    "provider_api_model_id": "gmicloud:openai/gpt-5.4-pro",
+    "provider_model_slug": "openai/gpt-5.4-pro",
+    "internal_model_id": "openai/gpt-5.4-pro",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 409600,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:54.588+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "openai/gpt-5.5",
     "provider_api_model_id": "gmicloud:openai/gpt-5.5",
     "provider_model_slug": "openai/gpt-5.5",
@@ -1401,8 +3015,12 @@
     "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": ["global"],
-      "data": ["global"]
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
     },
     "service_tiers": [],
     "api": {
@@ -1426,17 +3044,17 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "openai/gpt-oss-120b",
-    "provider_api_model_id": "gmicloud:openai/gpt-oss-120b",
-    "provider_model_slug": "openai/gpt-oss-120b",
-    "internal_model_id": "openai/gpt-oss-120b",
-    "is_active_gateway": true,
+    "api_model_id": "openai/gpt-5.6-luna",
+    "provider_api_model_id": "gmicloud:openai/gpt-5.6-luna",
+    "provider_model_slug": "openai/gpt-5.6-luna",
+    "internal_model_id": "openai/gpt-5.6-luna",
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
-    "context_length": null,
+    "context_length": 1050000,
     "max_output_tokens": null,
-    "effective_from": "2026-05-11T00:00:00",
+    "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
@@ -1454,7 +3072,163 @@
       }
     ],
     "routing_status": "active",
-    "routable": true,
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:54.588+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.6-sol",
+    "provider_api_model_id": "gmicloud:openai/gpt-5.6-sol",
+    "provider_model_slug": "openai/gpt-5.6-sol",
+    "internal_model_id": "openai/gpt-5.6-sol",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1050000,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:54.588+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.6-terra",
+    "provider_api_model_id": "gmicloud:openai/gpt-5.6-terra",
+    "provider_model_slug": "openai/gpt-5.6-terra",
+    "internal_model_id": "openai/gpt-5.6-terra",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1050000,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:54.588+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-oss-120b",
+    "provider_api_model_id": "gmicloud:openai/gpt-oss-120b",
+    "provider_model_slug": "openai/gpt-oss-120b",
+    "internal_model_id": "openai/gpt-oss-120b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-05-11T00:00:00",
+    "effective_to": "2026-08-23T00:00:00Z",
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -1467,9 +3241,9 @@
     },
     "sources": [],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Removed from GMI Cloud's authenticated serverless Model Hub; historical pricing retained."
     },
     "rate_limits": []
   },
@@ -1482,7 +3256,7 @@
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
-    "context_length": null,
+    "context_length": 262144,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
     "effective_to": null,
@@ -1530,7 +3304,7 @@
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
-    "context_length": null,
+    "context_length": 262141,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
     "effective_to": null,
@@ -1574,14 +3348,14 @@
     "provider_api_model_id": "gmicloud:qwen/qwen3-30b-a3b",
     "provider_model_slug": "Qwen/Qwen3-30B-A3B",
     "internal_model_id": "qwen/qwen3-30b-a3b",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": "2026-05-11T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-23T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -1597,8 +3371,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -1611,9 +3385,9 @@
     },
     "sources": [],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Removed from GMI Cloud's authenticated serverless Model Hub; historical pricing retained."
     },
     "rate_limits": []
   },
@@ -1622,14 +3396,14 @@
     "provider_api_model_id": "gmicloud:qwen/qwen3-32b",
     "provider_model_slug": "Qwen/Qwen3-32B",
     "internal_model_id": "qwen/qwen3-32b",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": "2026-05-11T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-23T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -1645,8 +3419,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -1659,9 +3433,9 @@
     },
     "sources": [],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Removed from GMI Cloud's authenticated serverless Model Hub; historical pricing retained."
     },
     "rate_limits": []
   },
@@ -1674,7 +3448,7 @@
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
-    "context_length": null,
+    "context_length": 262128,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
     "effective_to": null,
@@ -1722,7 +3496,7 @@
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
-    "context_length": null,
+    "context_length": 262144,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
     "effective_to": null,
@@ -1770,7 +3544,7 @@
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
-    "context_length": null,
+    "context_length": 262144,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
     "effective_to": null,
@@ -1814,14 +3588,14 @@
     "provider_api_model_id": "gmicloud:qwen/qwen3.5-122b-a10b",
     "provider_model_slug": "Qwen/Qwen3.5-122B-A10B",
     "internal_model_id": "qwen/qwen3.5-122b-a10b",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
-    "context_length": null,
+    "context_length": 262144,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-23T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -1837,8 +3611,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -1851,9 +3625,9 @@
     },
     "sources": [],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Removed from GMI Cloud's authenticated serverless Model Hub; historical pricing retained."
     },
     "rate_limits": []
   },
@@ -1862,14 +3636,14 @@
     "provider_api_model_id": "gmicloud:qwen/qwen3.5-27b",
     "provider_model_slug": "Qwen/Qwen3.5-27B",
     "internal_model_id": "qwen/qwen3.5-27b",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
-    "context_length": null,
+    "context_length": 262144,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-23T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -1885,8 +3659,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -1899,9 +3673,9 @@
     },
     "sources": [],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Removed from GMI Cloud's authenticated serverless Model Hub; historical pricing retained."
     },
     "rate_limits": []
   },
@@ -1910,14 +3684,14 @@
     "provider_api_model_id": "gmicloud:qwen/qwen3.5-35b-a3b",
     "provider_model_slug": "Qwen/Qwen3.5-35B-A3B",
     "internal_model_id": "qwen/qwen3.5-35b-a3b",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
-    "context_length": null,
+    "context_length": 262144,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-23T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -1933,8 +3707,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -1947,9 +3721,9 @@
     },
     "sources": [],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Removed from GMI Cloud's authenticated serverless Model Hub; historical pricing retained."
     },
     "rate_limits": []
   },
@@ -1958,13 +3732,73 @@
     "provider_api_model_id": "gmicloud:qwen/qwen3.5-397b-a17b",
     "provider_model_slug": "Qwen/Qwen3.5-397B-A17B",
     "internal_model_id": "qwen/qwen3.5-397b-a17b",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
-    "context_length": null,
+    "context_length": 262144,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
+    "effective_to": "2026-08-23T00:00:00Z",
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "tools",
+          "tool_choice",
+          "response_format",
+          "logprobs",
+          "top_logprobs"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "retired",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Removed from GMI Cloud's authenticated serverless Model Hub; historical pricing retained."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.6-35b-a3b",
+    "provider_api_model_id": "gmicloud:qwen/qwen3.6-35b-a3b",
+    "provider_model_slug": "Qwen/Qwen3.6-35B-A3B",
+    "internal_model_id": "qwen/qwen3.6-35b-a3b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 262144,
+    "max_output_tokens": null,
+    "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
@@ -1982,10 +3816,14 @@
       }
     ],
     "routing_status": "active",
-    "routable": true,
+    "routable": false,
     "regions": {
-      "execution": null,
-      "data": null
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
     },
     "service_tiers": [],
     "api": {
@@ -1995,9 +3833,113 @@
     },
     "sources": [],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:54.588+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.6-max-preview",
+    "provider_api_model_id": "gmicloud:qwen/qwen3.6-max-preview",
+    "provider_model_slug": "Qwen/Qwen3.6-Max-Preview",
+    "internal_model_id": "qwen/qwen3.6-max-preview",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 262144,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:54.588+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.6-plus",
+    "provider_api_model_id": "gmicloud:qwen/qwen3.6-plus",
+    "provider_model_slug": "Qwen/Qwen3.6-Plus",
+    "internal_model_id": "qwen/qwen3.6-plus",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 262144,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:54.588+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -2050,17 +3992,17 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "z-ai/glm-4.5",
-    "provider_api_model_id": "gmicloud:z-ai/glm-4.5",
-    "provider_model_slug": "zai-org/GLM-4.5-FP8",
-    "internal_model_id": "z-ai/glm-4.5",
+    "api_model_id": "qwen/qwen3.8-max",
+    "provider_api_model_id": "gmicloud:qwen/qwen3.8-max",
+    "provider_model_slug": "Qwen/Qwen3.8-Max",
+    "internal_model_id": "qwen/qwen3.8-max",
     "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": null,
-    "output_modalities": null,
-    "context_length": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
     "max_output_tokens": null,
-    "effective_from": "2026-05-11T00:00:00",
+    "effective_from": null,
     "effective_to": null,
     "capabilities": [
       {
@@ -2080,6 +4022,173 @@
     "routing_status": "active",
     "routable": true,
     "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "/chat/completions",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_console",
+        "url": "https://console.gmicloud.ai/user-console/ie/model-hub/llm/8881dcb5-e26b-473c-aa5e-9f43054eecb9",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Exact serverless model slug, availability and pricing verified in the authenticated GMI Cloud Model Hub."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified as a callable OpenAI-compatible serverless route in the authenticated GMI Cloud catalog."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "tencent/hy3",
+    "provider_api_model_id": "gmicloud:tencent/hy3",
+    "provider_model_slug": "tencent/Hy3",
+    "internal_model_id": "tencent/hy3",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 262144,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:54.588+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "tencent/hy3-preview",
+    "provider_api_model_id": "gmicloud:tencent/hy3-preview",
+    "provider_model_slug": "tencent/hy3-preview",
+    "internal_model_id": "tencent/hy3-preview",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 262144,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T03:45:54.588+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-4.5",
+    "provider_api_model_id": "gmicloud:z-ai/glm-4.5",
+    "provider_model_slug": "zai-org/GLM-4.5-FP8",
+    "internal_model_id": "z-ai/glm-4.5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-05-11T00:00:00",
+    "effective_to": "2026-08-23T00:00:00Z",
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "retired",
+    "routable": false,
+    "regions": {
       "execution": null,
       "data": null
     },
@@ -2091,9 +4200,9 @@
     },
     "sources": [],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Removed from GMI Cloud's authenticated serverless Model Hub; historical pricing retained."
     },
     "rate_limits": []
   },
@@ -2102,14 +4211,14 @@
     "provider_api_model_id": "gmicloud:z-ai/glm-4.5-air",
     "provider_model_slug": "zai-org/GLM-4.5-Air-FP8",
     "internal_model_id": "z-ai/glm-4.5-air",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": "2026-05-11T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-23T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -2125,8 +4234,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -2139,9 +4248,9 @@
     },
     "sources": [],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Removed from GMI Cloud's authenticated serverless Model Hub; historical pricing retained."
     },
     "rate_limits": []
   },
@@ -2150,14 +4259,14 @@
     "provider_api_model_id": "gmicloud:z-ai/glm-4.6",
     "provider_model_slug": "zai-org/GLM-4.6",
     "internal_model_id": "z-ai/glm-4.6",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": "2026-05-11T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-23T00:00:00Z",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -2173,8 +4282,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": "retired",
+    "routable": false,
     "regions": {
       "execution": null,
       "data": null
@@ -2187,9 +4296,9 @@
     },
     "sources": [],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Removed from GMI Cloud's authenticated serverless Model Hub; historical pricing retained."
     },
     "rate_limits": []
   },
@@ -2210,7 +4319,18 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "tools",
+          "tool_choice",
+          "structured_outputs",
+          "response_format"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -2258,7 +4378,16 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "logprobs",
+          "top_logprobs"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -2294,7 +4423,7 @@
     "provider_api_model_id": "gmicloud:z-ai/glm-5.2",
     "provider_model_slug": "zai-org/GLM-5.2-FP8",
     "internal_model_id": "z-ai/glm-5.2",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": "FP8",
     "input_modalities": "text",
     "output_modalities": "text",
@@ -2305,7 +4434,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "coming_soon",
+        "status": "active",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -2317,23 +4446,34 @@
         "modes": []
       }
     ],
-    "routing_status": null,
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
-      "formats": [],
-      "endpoint": null,
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "/chat/completions",
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_console",
+        "url": "https://console.gmicloud.ai/user-console/ie/model-hub/llm/1f12423b-ac10-4690-a670-36f768d7b9bf",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Exact serverless model slug, availability and pricing verified in the authenticated GMI Cloud Model Hub."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified as a callable OpenAI-compatible serverless route in the authenticated GMI Cloud catalog."
     },
     "rate_limits": []
   },
@@ -2346,7 +4486,7 @@
     "quantization_scheme": null,
     "input_modalities": null,
     "output_modalities": null,
-    "context_length": null,
+    "context_length": 202752,
     "max_output_tokens": null,
     "effective_from": "2026-03-25T00:00:00",
     "effective_to": null,
@@ -2386,38 +4526,46 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "anthropic/claude-opus-4.8",
-    "provider_api_model_id": "gmicloud:anthropic/claude-opus-4.8",
-    "provider_model_slug": "anthropic/claude-opus-4.8",
-    "internal_model_id": "anthropic/claude-opus-4.8",
+    "api_model_id": "xiaomi/mimo-v2.5-pro",
+    "provider_api_model_id": "gmicloud:xiaomi/mimo-v2.5-pro",
+    "provider_model_slug": "xiaomi/mimo-v2.5-pro",
+    "internal_model_id": "xiaomi/mimo-v2.5-pro",
     "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": "text,image,pdf",
+    "quantization_scheme": "bf16",
+    "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": 1000000,
+    "context_length": 1050000,
     "max_output_tokens": 128000,
-    "effective_from": null,
+    "effective_from": "2026-08-12T00:00:00Z",
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": true,
-        "tool_call": true,
+        "status": "disabled",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "response_format"
+        ],
+        "reasoning": null,
+        "tool_call": null,
         "structured_output": null,
         "temperature": null,
-        "attachment": true,
+        "attachment": null,
         "input_modalities": null,
         "output_modalities": null,
         "modes": []
       }
     ],
-    "routing_status": "active",
+    "routing_status": "disabled",
     "routable": false,
     "regions": {
-      "execution": ["global"],
-      "data": ["global"]
+      "execution": null,
+      "data": null
     },
     "service_tiers": [],
     "api": {
@@ -2427,31 +4575,95 @@
     },
     "sources": [
       {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: anthropic/claude-opus-4.8"
+        "kind": "provider_models",
+        "url": null,
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
       }
     ],
     "verification": {
       "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
     },
     "rate_limits": []
   },
   {
-    "api_model_id": "deepseek/deepseek-v4-flash",
-    "provider_api_model_id": "gmicloud:deepseek/deepseek-v4-flash",
-    "provider_model_slug": "deepseek-ai/DeepSeek-V4-Flash",
-    "internal_model_id": "deepseek/deepseek-v4-flash",
+    "api_model_id": "xiaomi/mimo-v2.5",
+    "provider_api_model_id": "gmicloud:xiaomi/mimo-v2.5",
+    "provider_model_slug": "xiaomi/mimo-v2.5",
+    "internal_model_id": "xiaomi/mimo-v2.5",
+    "is_active_gateway": false,
+    "quantization_scheme": "fp8",
+    "input_modalities": "text,image,video,audio",
+    "output_modalities": "text",
+    "context_length": 1050000,
+    "max_output_tokens": 128000,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "disabled",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "tools",
+          "tool_choice"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": null,
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.8-27b",
+    "provider_api_model_id": "gmicloud:qwen/qwen3.8-27b",
+    "provider_model_slug": "Qwen/Qwen3.8-27B",
+    "internal_model_id": "qwen/qwen3.8-27b",
     "is_active_gateway": true,
     "quantization_scheme": null,
-    "input_modalities": "text",
+    "input_modalities": "text,image,video",
     "output_modalities": "text",
-    "context_length": 1048576,
+    "context_length": 262144,
     "max_output_tokens": null,
-    "effective_from": null,
+    "effective_from": "2026-08-23T00:00:00Z",
     "effective_to": null,
     "capabilities": [
       {
@@ -2460,7 +4672,302 @@
         "params": [],
         "reasoning": true,
         "tool_call": true,
-        "structured_output": null,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "/chat/completions",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_console",
+        "url": "https://console.gmicloud.ai/user-console/ie/model-hub/llm/ed878143-66b2-4dbb-a2ee-c05667f8312a",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Exact serverless model slug, availability and pricing verified in the authenticated GMI Cloud Model Hub."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified against the authenticated GMI Cloud serverless catalog."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "stepfun/step-3.7-flash",
+    "provider_api_model_id": "gmicloud:stepfun/step-3.7-flash",
+    "provider_model_slug": "StepFun: Step-3.7-Flash",
+    "internal_model_id": "stepfun/step-3.7-flash",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 256000,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-23T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "/chat/completions",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_console",
+        "url": "https://console.gmicloud.ai/user-console/ie/model-hub/llm/824d96ea-74f3-42c1-aa61-c7a21c1e1449",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Exact serverless model slug, availability and pricing verified in the authenticated GMI Cloud Model Hub."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified against the authenticated GMI Cloud serverless catalog."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-3.7-flash",
+    "provider_api_model_id": "gmicloud:google/gemini-3.7-flash",
+    "provider_model_slug": "Gemini 3.7 Flash",
+    "internal_model_id": "google/gemini-3.7-flash",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video,audio",
+    "output_modalities": "text",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-23T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "/chat/completions",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_console",
+        "url": "https://console.gmicloud.ai/user-console/ie/model-hub/llm/7e7e7f50-2a84-4ef6-809e-9db5d51bee96",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Exact serverless model slug, availability and pricing verified in the authenticated GMI Cloud Model Hub."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified against the authenticated GMI Cloud serverless catalog."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "spacex-ai/grok-4.5",
+    "provider_api_model_id": "gmicloud:spacex-ai/grok-4.5",
+    "provider_model_slug": "grok-4.5",
+    "internal_model_id": "spacex-ai/grok-4.5",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-23T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "/chat/completions",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_console",
+        "url": "https://console.gmicloud.ai/user-console/ie/model-hub/llm/74d835b8-6689-4caa-a580-e4a28128a64d",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Exact serverless model slug, availability and pricing verified in the authenticated GMI Cloud Model Hub."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified against the authenticated GMI Cloud serverless catalog."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "spacex-ai/grok-4.6",
+    "provider_api_model_id": "gmicloud:spacex-ai/grok-4.6",
+    "provider_model_slug": "grok-4.6",
+    "internal_model_id": "spacex-ai/grok-4.6",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 500000,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-23T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "/chat/completions",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_console",
+        "url": "https://console.gmicloud.ai/user-console/ie/model-hub/llm/95a8cd9c-de97-456d-8828-261c81e42ac2",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Exact serverless model slug, availability and pricing verified in the authenticated GMI Cloud Model Hub."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified against the authenticated GMI Cloud serverless catalog."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v4-pro-0813",
+    "provider_api_model_id": "gmicloud:deepseek/deepseek-v4-pro-0813",
+    "provider_model_slug": "deepseek-ai/DeepSeek-V4-Pro-0813",
+    "internal_model_id": "deepseek/deepseek-v4-pro-0813",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-23T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
         "temperature": true,
         "attachment": false,
         "input_modalities": null,
@@ -2481,21 +4988,319 @@
       "formats": [
         "openai.chat.completions"
       ],
+      "endpoint": "/chat/completions",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_console",
+        "url": "https://console.gmicloud.ai/user-console/ie/model-hub/llm/de6e71be-d065-49a7-b77c-53cec002d8b2",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Exact serverless model slug, availability and pricing verified in the authenticated GMI Cloud Model Hub."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified against the authenticated GMI Cloud serverless catalog."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "minimax/minimax-m3:free",
+    "canonical_model_id": "minimax/minimax-m3:free",
+    "provider_api_model_id": "gmicloud:minimax/minimax-m3:free",
+    "provider_model_slug": "MiniMaxAI/MiniMax-M3",
+    "internal_model_id": "minimax/minimax-m3",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-24T00:00:00Z",
+    "effective_to": "2026-09-07T00:00:00Z",
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
       "endpoint": null,
       "deployment": null
     },
     "sources": [
       {
+        "kind": "promotion",
+        "url": "https://www.gmicloud.ai/minimax-week",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "MiniMax Week x GMI Cloud: MiniMax M3 free from 2026.08.24 to 2026.09.06 via GMI API key or OpenRouter."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Promotional free route for MiniMax Week x GMI Cloud (2026-08-24 to 2026-09-06)."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "minimax/minimax-m2.7:free",
+    "canonical_model_id": "minimax/minimax-m2.7:free",
+    "provider_api_model_id": "gmicloud:minimax/minimax-m2.7:free",
+    "provider_model_slug": "MiniMaxAI/MiniMax-M2.7",
+    "internal_model_id": "minimax/minimax-m2.7",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 196608,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-24T00:00:00Z",
+    "effective_to": "2026-09-07T00:00:00Z",
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "promotion",
+        "url": "https://www.gmicloud.ai/minimax-week",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "MiniMax Week x GMI Cloud: MiniMax M2.7 free from 2026.08.24 to 2026.09.06 via GMI API key or OpenRouter."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Promotional free route for MiniMax Week x GMI Cloud (2026-08-24 to 2026-09-06)."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "minimax/music-3.0:free",
+    "canonical_model_id": "minimax/music-3.0:free",
+    "provider_api_model_id": "gmicloud:minimax/music-3.0:free",
+    "provider_model_slug": "minimax-music-3.0",
+    "internal_model_id": "minimax/music-3.0",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "music",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-24T00:00:00Z",
+    "effective_to": "2026-09-07T00:00:00Z",
+    "capabilities": [
+      {
+        "capability_id": "music.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": "/api/v1/ie/requestqueue/apikey/requests",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "promotion",
+        "url": "https://www.gmicloud.ai/minimax-week",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "MiniMax Week x GMI Cloud: MiniMax Music 3.0 free from 2026.08.24 to 2026.09.06."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Promotional free route for MiniMax Week x GMI Cloud (2026-08-24 to 2026-09-06)."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "minimax/speech-2.8:free",
+    "canonical_model_id": "minimax/speech-2.8:free",
+    "provider_api_model_id": "gmicloud:minimax/speech-2.8:free",
+    "provider_model_slug": "minimax-tts-speech-2.8-hd",
+    "internal_model_id": "minimax/speech-2.8",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "audio_tts",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-24T00:00:00Z",
+    "effective_to": "2026-09-07T00:00:00Z",
+    "capabilities": [
+      {
+        "capability_id": "audio.speech",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": "/api/v1/ie/requestqueue/apikey/requests",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "promotion",
+        "url": "https://www.gmicloud.ai/minimax-week",
+        "accessed_at": "2026-08-24T00:00:00Z",
+        "notes": "MiniMax Week x GMI Cloud: MiniMax Speech 2.8 free from 2026.08.24 to 2026.09.06; GMI model hub route minimax-tts-speech-2.8-hd."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-24T00:00:00Z",
+      "notes": "Promotional free route for MiniMax Week x GMI Cloud (2026-08-24 to 2026-09-06)."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-5.3-flash",
+    "provider_api_model_id": "gmicloud:zai-org/GLM-5.3-Flash",
+    "provider_model_slug": "zai-org/GLM-5.3-Flash",
+    "internal_model_id": "z-ai/glm-5.3-flash",
+    "is_active_gateway": true,
+    "quantization_scheme": "FP8",
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-08-26T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "response_format",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "/chat/completions",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_model",
+        "url": "https://openrouter.ai/api/v1/models/z-ai/glm-5.3-flash/endpoints",
+        "accessed_at": "2026-08-26T00:00:00Z",
+        "notes": "OpenRouter's live endpoint catalog lists GMICloud as serving z-ai/glm-5.3-flash with FP8 quantization and OpenAI-compatible chat support."
+      },
+      {
         "kind": "documentation",
-        "url": "https://www.gmicloud.ai/",
-        "accessed_at": "2026-08-03T00:00:00Z",
-        "notes": "Provider deployment recorded; direct catalogue verification remains partial."
+        "url": "https://docs.gmicloud.ai/",
+        "accessed_at": "2026-08-26T00:00:00Z",
+        "notes": "GMI Cloud OpenAI-compatible inference documentation."
       }
     ],
     "verification": {
       "status": "partial",
-      "checked_at": "2026-08-03T00:00:00Z",
-      "notes": "Provider deployment and existing Phaseo executor recorded."
+      "checked_at": "2026-08-26T00:00:00Z",
+      "notes": "Live availability and provider slug verified in OpenRouter's endpoint catalog; direct GMI Cloud pricing and model-page verification remain incomplete."
     },
     "rate_limits": []
   }

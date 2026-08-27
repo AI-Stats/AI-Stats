@@ -96,6 +96,10 @@ const priceRuleSchema = z
         time_windows: z.array(z.object({
             label: z.string(),
             timezone: z.literal("UTC"),
+            days_of_week: z.array(z.enum(["mon", "tue", "wed", "thu", "fri", "sat", "sun"]))
+                .min(1)
+                .max(7)
+                .optional(),
             start_time: utcMinuteTimeSchema,
             end_time: utcMinuteTimeSchema,
             price_per_unit: z.union([z.string(), z.number()]).nullable().optional()
@@ -237,7 +241,10 @@ const providerSchema = z
         execution_regions: z.array(z.string()).nullable().optional(),
         data_regions: z.array(z.string()).nullable().optional(),
         zero_data_retention: z
-            .enum(["unknown", "unsupported", "optional", "default"])
+            .union([
+                z.boolean(),
+                z.enum(["unknown", "unsupported", "optional", "default"]),
+            ])
             .nullable()
             .optional(),
         prompt_training_policy: z
@@ -274,6 +281,7 @@ const providerSchema = z
             effective_to: z.string().nullable().optional(),
         }).nullable().optional(),
         provider_model_slug: z.string().nullable().optional(),
+        quantization_scheme: z.string().nullable().optional(),
         input_modalities: z.union([z.array(z.string()), z.string()]).nullable().optional(),
         output_modalities: z.union([z.array(z.string()), z.string()]).nullable().optional(),
         supports_endpoint: z.boolean().optional().default(true),
@@ -299,7 +307,9 @@ const providerSchema = z
         executionRegions: provider.execution_regions ?? null,
         dataRegions: provider.data_regions ?? null,
         zeroDataRetention:
-            (provider.zero_data_retention ?? null) as GatewayProviderSnapshot["zeroDataRetention"],
+            provider.zero_data_retention == null
+                ? null
+                : provider.zero_data_retention === true || provider.zero_data_retention === "default",
         promptTrainingPolicy:
             (provider.prompt_training_policy ?? null) as GatewayProviderSnapshot["promptTrainingPolicy"],
         dataPolicyTier:
@@ -330,6 +340,7 @@ const providerSchema = z
             effectiveTo: provider.availability.effective_to ?? null,
         } : null,
         providerModelSlug: provider.provider_model_slug ?? null,
+        quantizationScheme: provider.quantization_scheme ?? null,
         supportsEndpoint: provider.supports_endpoint ?? true,
         baseWeight: Number.isFinite(provider.base_weight) ? provider.base_weight : 1,
         byokMeta: provider.byok_meta,

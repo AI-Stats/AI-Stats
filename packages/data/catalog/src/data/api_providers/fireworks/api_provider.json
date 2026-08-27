@@ -3,28 +3,58 @@
   "api_provider_name": "Fireworks",
   "description": null,
   "link": "https://docs.fireworks.ai/getting-started/introduction",
-  "pricing_source_url": "https://fireworks.ai/pricing",
+  "residency_mode": "customer_selectable",
+  "default_execution_regions": ["GLOBAL","US","EUROPE","APAC"],
+  "default_data_regions": null,
+  "residency_source_url": "https://docs.fireworks.ai/deployments/regions",
+  "residency_notes": "Fireworks defaults deployments to the GLOBAL multi-region and supports US, EUROPE, and APAC multi-region groupings plus selected single regions. Single-region placement is a deployment-level control and should not be inferred for serverless routes.",
+  "pricing_source_url": "https://docs.fireworks.ai/serverless/pricing",
+  "data_policy_tier": "logs",
+  "data_policy_confidence": "maybe",
+  "data_policy_contract_mode": "none",
   "country_code": "US",
   "status": "Active",
   "colour": "#EF4444",
   "privacy_policy_url": "https://fireworks.ai/privacy-policy",
   "terms_of_service_url": "https://fireworks.ai/terms-of-service",
-  "prompt_training_policy": "no_train",
-  "prompt_training_notes": "Fireworks says prompt and generation data for open-model inference is not logged or stored in persistent storage without explicit user opt-in.",
-  "prompt_training_source_url": "https://docs.fireworks.ai/guides/security_compliance/data_handling",
+  "prompt_training_policy": "unknown",
+  "zero_data_retention": false,
+  "prompt_training_notes": "Fireworks says open-model inference prompts and generations are not logged or stored without explicit opt-in. Its public data-security page describes customer-controlled training workflows but does not establish a direct platform-wide inference prompt-training policy for every model route.",
+  "prompt_training_source_url": "https://docs.fireworks.ai/guides/security_compliance/data_security",
   "gateway_kind": null,
   "routable": null,
   "routing_enabled": null,
   "sdk_package": null,
-  "api_base_url": null,
-  "docs_url": "https://docs.fireworks.ai/getting-started/introduction",
-  "auth_env": null,
-  "api_formats": [],
-  "service_tiers": [],
-  "sources": [],
+  "api_base_url": "https://api.fireworks.ai/inference/v1",
+  "docs_url": "https://docs.fireworks.ai/api-reference/post-chatcompletions",
+  "auth_env": ["FIREWORKS_API_KEY"],
+  "api_formats": [
+    "openai.chat.completions",
+    "openai.responses",
+    "openai.embeddings",
+    "fireworks.rerank"
+  ],
+  "service_tiers": [
+    "default",
+    "priority"
+  ],
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://fireworks.ai/models?modelTypes=Serverless&serverless=true",
+      "accessed_at": "2026-08-21T00:00:00Z",
+      "notes": "Official current Fireworks serverless model library."
+    },
+    {
+      "kind": "provider_pricing",
+      "url": "https://docs.fireworks.ai/serverless/pricing",
+      "accessed_at": "2026-08-21T00:00:00Z",
+      "notes": "Official Standard, Priority, Fast, cached-input, and embedding pricing."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-21",
+    "notes": "Verified against the official Fireworks serverless model library, pricing, and API references."
   }
 }

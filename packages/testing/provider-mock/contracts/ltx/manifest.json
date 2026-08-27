@@ -1,0 +1,28 @@
+{
+  "providerId": "ltx",
+  "displayName": "LTX",
+  "source": {
+    "kind": "official-docs",
+    "url": "https://docs.ltx.io/api-documentation/api-reference/async-video-generation"
+  },
+  "operations": [
+    {
+      "capability": "video.generate",
+      "method": "post",
+      "path": "/v2/text-to-video",
+      "operationId": "ltx_text_to_video"
+    },
+    {
+      "capability": "video.generate",
+      "method": "post",
+      "path": "/v2/image-to-video",
+      "operationId": "ltx_image_to_video"
+    },
+    {
+      "capability": "video.generate",
+      "method": "post",
+      "path": "/v2/audio-to-video",
+      "operationId": "ltx_audio_to_video"
+    }
+  ]
+}

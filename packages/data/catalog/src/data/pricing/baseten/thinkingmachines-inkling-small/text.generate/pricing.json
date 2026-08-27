@@ -6,26 +6,10 @@
   "capability_id": "text.generate",
   "rules": [
     {
-      "meter": "input_text_tokens",
-      "unit": "token",
-      "unit_size": 1000000,
-      "price_per_unit": 1,
-      "currency": "USD",
-      "pricing_plan": "standard",
-      "note": "Mapped from the Baseten Inkling-Small Model API rate card.",
-      "match": [],
-      "priority": 100,
-      "effective_from": "2026-07-30T00:00:00Z",
-      "region": null,
-      "cache_duration_seconds": null,
-      "conditions": [],
-      "source": null
-    },
-    {
       "meter": "cached_read_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.17,
+      "price_per_unit": 0.1,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": "Mapped from the Baseten Inkling-Small Model API cached input rate.",
@@ -38,10 +22,41 @@
       "source": null
     },
     {
+      "meter": "input_image_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": null,
+      "match": [],
+      "priority": 100,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    },
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.5,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Mapped from the Baseten Inkling-Small Model API rate card.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-07-30T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": null
+    },
+    {
       "meter": "output_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 4.05,
+      "price_per_unit": 1.2,
       "currency": "USD",
       "pricing_plan": "standard",
       "note": "Mapped from the Baseten Inkling-Small Model API rate card.",
@@ -60,15 +75,15 @@
   ],
   "sources": [
     {
-      "url": "https://www.baseten.co/pricing/",
       "kind": "pricing",
-      "accessed_at": "2026-07-30T00:00:00Z",
-      "notes": "Official Baseten Model API pricing table."
+      "url": "https://www.baseten.co/pricing/",
+      "accessed_at": "2026-08-23T00:00:00Z",
+      "notes": "Current Baseten Model API pricing."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-07-30T00:00:00Z",
-    "notes": "Input, cached-input, and output rates verified against Baseten's public pricing table."
+    "checked_at": "2026-08-23T00:00:00Z",
+    "notes": "Verified against Baseten's current Model API pricing."
   }
 }

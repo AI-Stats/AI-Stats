@@ -1,5 +1,9 @@
 {
   "api_provider_id": "meta-contributor",
+  "zero_data_retention": false,
+  "data_policy_tier": "trains",
+  "data_policy_confidence": "confirmed",
+  "data_policy_contract_mode": "none",
   "provider_family_id": "meta",
   "offer_scope": "specialized",
   "offer_label": "contributor",
@@ -20,7 +24,7 @@
   "sdk_package": null,
   "api_base_url": "https://api.meta.ai/v1",
   "docs_url": "https://dev.meta.ai/docs",
-  "auth_env": "META_MODEL_API_KEY",
+  "auth_env": "MODEL_API_KEY",
   "api_formats": [],
   "service_tiers": [],
   "sources": [],

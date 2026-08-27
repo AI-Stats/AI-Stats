@@ -9,7 +9,7 @@
   "release_date": "2025-12-01T00:00:00",
   "deprecation_date": null,
   "retirement_date": null,
-  "license": "Apache 2.0",
+  "license": "OpenMDW-1.1",
   "input_types": "text",
   "output_types": "text",
   "api_model_id": "arcee-ai/trinity-mini",
@@ -46,14 +46,21 @@
     "web_search": null
   },
   "open_weights": null,
-  "sources": [],
+  "sources": [
+    {
+      "kind": "license",
+      "url": "https://www.arcee.ai/blog/trinity-is-moving-to-openmdw-1-1",
+      "accessed_at": "2026-08-23T00:00:00Z",
+      "notes": "Arcee relicensed the full Trinity family to OpenMDW-1.1."
+    }
+  ],
   "verification": {
     "status": "unverified",
     "checked_at": null,
     "notes": null
   },
-  "last_updated": null,
+  "last_updated": "2026-08-23T00:00:00Z",
   "removal_date": null,
   "replacement_model_id": null,
-  "license_url": null
+  "license_url": "https://www.arcee.ai/blog/trinity-is-moving-to-openmdw-1-1"
 }

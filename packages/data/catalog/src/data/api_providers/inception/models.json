@@ -44,7 +44,13 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning",
+          "include_reasoning",
+          "tool_choice",
+          "response_format",
+          "structured_outputs",
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,

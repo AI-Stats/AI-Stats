@@ -10,6 +10,8 @@
 - [Pricing](https://phaseo.app/pricing): Gateway pricing, credit fees, and cost guidance.
 - [Docs](https://phaseo.app/docs/v1): Developer documentation for the gateway and API.
 - [Docs LLM index](https://phaseo.app/llms.txt): Documentation index for AI tools and answer engines.
+- [OpenRouter alternative and migration guide](https://phaseo.app/migrate/openrouter): Move an OpenRouter integration to Phaseo with endpoint, API key, model mapping, streaming, validation, and rollback instructions.
+- [Phaseo vs OpenRouter](https://phaseo.app/compare/openrouter): Compare gateway routing, pricing, BYOK, model intelligence, and observability.
 
 ## Data and methodology
 

@@ -4,7 +4,7 @@
     "provider_api_model_id": "anthropic:anthropic/claude-3-haiku",
     "provider_model_slug": "claude-3-haiku-20240307",
     "internal_model_id": "anthropic/claude-3-haiku",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "text",
@@ -91,8 +91,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": null,
+    "routable": false,
     "regions": {
       "execution": [
         "global",
@@ -181,7 +181,7 @@
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": "2024-11-04T00:00:00",
-    "effective_to": "2026-06-15T00:00:00",
+    "effective_to": "2026-02-19T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -298,7 +298,7 @@
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": "2025-02-24T00:00:00",
-    "effective_to": "2026-06-15T00:00:00",
+    "effective_to": "2026-02-19T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -427,7 +427,18 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "max_tokens",
+          "stop",
+          "reasoning",
+          "include_reasoning",
+          "tool_choice",
+          "tools",
+          "structured_outputs",
+          "response_format",
+          "verbosity",
+          "reasoning_effort"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -705,7 +716,7 @@
     "provider_api_model_id": "anthropic:anthropic/claude-opus-4",
     "provider_model_slug": "claude-opus-4-20250514",
     "internal_model_id": "anthropic/claude-opus-4",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "text",
@@ -799,8 +810,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": null,
+    "routable": false,
     "regions": {
       "execution": [
         "global",
@@ -829,14 +840,14 @@
     "provider_api_model_id": "anthropic:anthropic/claude-opus-4.1",
     "provider_model_slug": "claude-opus-4-1-20250805",
     "internal_model_id": "anthropic/claude-opus-4.1",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "text",
     "context_length": 200000,
     "max_output_tokens": 32000,
     "effective_from": "2025-08-05T00:00:00",
-    "effective_to": null,
+    "effective_to": "2026-08-05T00:00:00",
     "capabilities": [
       {
         "capability_id": "text.generate",
@@ -916,8 +927,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": null,
+    "routable": false,
     "regions": {
       "execution": [
         "global",
@@ -1159,7 +1170,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -1276,7 +1288,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -1393,7 +1406,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,
@@ -1435,7 +1449,7 @@
     "provider_api_model_id": "anthropic:anthropic/claude-sonnet-4",
     "provider_model_slug": "claude-sonnet-4-20250514",
     "internal_model_id": "anthropic/claude-sonnet-4",
-    "is_active_gateway": true,
+    "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text,image",
     "output_modalities": "text",
@@ -1529,8 +1543,8 @@
         "modes": []
       }
     ],
-    "routing_status": "active",
-    "routable": true,
+    "routing_status": null,
+    "routable": false,
     "regions": {
       "execution": [
         "global",
@@ -1702,7 +1716,20 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "max_tokens",
+          "top_p",
+          "temperature",
+          "stop",
+          "reasoning",
+          "include_reasoning",
+          "tools",
+          "tool_choice",
+          "structured_outputs",
+          "response_format",
+          "verbosity",
+          "reasoning_effort"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -1755,7 +1782,18 @@
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          "max_tokens",
+          "stop",
+          "reasoning",
+          "include_reasoning",
+          "tools",
+          "tool_choice",
+          "structured_outputs",
+          "response_format",
+          "verbosity",
+          "reasoning_effort"
+        ],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -1871,7 +1909,8 @@
             "provider_max": null,
             "provider_default": null,
             "notes": null
-          }
+          },
+          "reasoning_effort"
         ],
         "reasoning": null,
         "tool_call": null,

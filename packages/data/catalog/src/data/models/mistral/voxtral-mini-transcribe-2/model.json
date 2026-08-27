@@ -3,7 +3,7 @@
   "organisation_id": "mistral",
   "name": "Voxtral Mini Transcribe 2",
   "status": "Available",
-  "previous_model_id": "mistral/voxtral-mini-transcribe-2025-07-15",
+  "previous_model_id": "mistral/voxtral-mini-transcribe",
   "description": "Voxtral Mini Transcribe 2 is a speech-to-text model from Mistral for transcription and spoken-language understanding workflows. It is suited to captioning, meeting notes, transcription, and speech analytics pipelines.",
   "announced_date": "2026-02-04T00:00:00",
   "release_date": "2026-02-04T00:00:00",
@@ -13,50 +13,15 @@
   "input_types": "audio",
   "output_types": "text,audio_stt",
   "api_model_id": "mistral/voxtral-mini-transcribe-2",
-  "links": [],
-  "details": [],
-  "benchmarks": [
+  "links": [
     {
-      "benchmark_id": "gsm8k",
-      "score": 93,
-      "is_self_reported": true,
-      "other_info": "manual fallback alias from mistral-large-2-2407",
-      "source_link": "https://huggingface.co/mistralai/Mistral-Large-Instruct-2407",
-      "rank": 11
-    },
-    {
-      "benchmark_id": "humaneval",
-      "score": 92,
-      "is_self_reported": true,
-      "other_info": "manual fallback alias from mistral-large-2-2407",
-      "source_link": "https://huggingface.co/mistralai/Mistral-Large-Instruct-2407",
-      "rank": 6
-    },
-    {
-      "benchmark_id": "mmlu",
-      "score": 84,
-      "is_self_reported": true,
-      "other_info": "manual fallback alias from mistral-large-2-2407",
-      "source_link": "https://mistral.ai/news/mistral-large-2407/",
-      "rank": 67
-    },
-    {
-      "benchmark_id": "mmlu-french",
-      "score": 0.828,
-      "is_self_reported": true,
-      "other_info": "manual fallback alias from mistral-large-2-2407",
-      "source_link": "https://huggingface.co/mistralai/Mistral-Large-Instruct-2407",
-      "rank": 4
-    },
-    {
-      "benchmark_id": "mt-bench",
-      "score": 0.863,
-      "is_self_reported": true,
-      "other_info": "manual fallback alias from mistral-large-2-2407",
-      "source_link": "https://huggingface.co/mistralai/Mistral-Large-Instruct-2407",
-      "rank": 13
+      "kind": "documentation",
+      "title": "Official model card",
+      "url": "https://docs.mistral.ai/models/model-cards/voxtral-mini-transcribe-26-02"
     }
   ],
+  "details": [],
+  "benchmarks": [],
   "family_id": null,
   "page_notice": null,
   "model_type": "audio",
@@ -70,10 +35,7 @@
     "input": [
       "audio/*"
     ],
-    "output": [
-      "text",
-      "audio/*"
-    ]
+    "output": ["text"]
   },
   "reasoning": {
     "supported": null,
@@ -84,17 +46,30 @@
     "tool_call": null,
     "structured_output": null,
     "temperature": null,
-    "streaming": null,
+    "streaming": true,
     "web_search": null
   },
   "open_weights": null,
-  "sources": [],
+  "sources": [
+    {
+      "kind": "model_card",
+      "url": "https://docs.mistral.ai/models/model-cards/voxtral-mini-transcribe-26-02",
+      "accessed_at": "2026-08-12T00:00:00Z",
+      "notes": "Official model identity, release, transcription route, timestamps, and price."
+    },
+    {
+      "kind": "docs",
+      "url": "https://docs.mistral.ai/studio-api/audio/speech_to_text",
+      "accessed_at": "2026-08-12T00:00:00Z",
+      "notes": "Official transcription capabilities and supported languages."
+    }
+  ],
   "verification": {
-    "status": "unverified",
-    "checked_at": null,
-    "notes": null
+    "status": "verified",
+    "checked_at": "2026-08-12T00:00:00Z",
+    "notes": "Verified against current first-party model and audio API documentation."
   },
-  "last_updated": null,
+  "last_updated": "2026-08-12T00:00:00Z",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": null

@@ -18,6 +18,8 @@ const TEXT_ENDPOINT_REGISTRY: Record<TextEndpoint, EndpointParamRegistry> = {
 			"model",
 			"system",
 			"messages",
+			"n",
+			"documents",
 			"usage",
 			"reasoning",
 			"reasoning_effort",
@@ -32,6 +34,7 @@ const TEXT_ENDPOINT_REGISTRY: Record<TextEndpoint, EndpointParamRegistry> = {
 			"debug",
 			"presence_penalty",
 			"seed",
+			"store",
 			"stream",
 			"stream_options",
 			"temperature",
@@ -41,6 +44,32 @@ const TEXT_ENDPOINT_REGISTRY: Record<TextEndpoint, EndpointParamRegistry> = {
 			"parallel_tool_calls",
 			"tool_choice",
 			"top_k",
+			"min_p",
+			"repetition_penalty",
+			"respond_as",
+			"min_tokens",
+			"custom_token_bans",
+			"dynatemp_mode",
+			"dynatemp_min",
+			"dynatemp_max",
+			"dynatemp_exponent",
+			"epsilon_cutoff",
+			"top_a",
+			"typical_p",
+			"eta_cutoff",
+			"tfs",
+			"smoothing_factor",
+			"smoothing_curve",
+			"xtc_probability",
+			"xtc_threshold",
+			"dry_multiplier",
+			"dry_base",
+			"dry_allowed_length",
+			"dry_range",
+			"dry_sequence_breakers",
+			"ignore_eos",
+			"custom_timeout",
+			"allow_logging",
 			"logprobs",
 			"top_logprobs",
 			"top_p",
@@ -62,6 +91,7 @@ const TEXT_ENDPOINT_REGISTRY: Record<TextEndpoint, EndpointParamRegistry> = {
 			"providerOptions",
 			"web_search_options",
 			"webSearchOptions",
+			"mcp_servers",
 			"safety_identifier",
 			"route",
 			"session_id",
@@ -72,6 +102,8 @@ const TEXT_ENDPOINT_REGISTRY: Record<TextEndpoint, EndpointParamRegistry> = {
 			"routing",
 		]),
 		keyToCanonicalParam: {
+			n: "n",
+			documents: "documents",
 			tools: "tools",
 			tool_choice: "tool_choice",
 			parallel_tool_calls: "parallel_tool_calls",
@@ -80,6 +112,32 @@ const TEXT_ENDPOINT_REGISTRY: Record<TextEndpoint, EndpointParamRegistry> = {
 			temperature: "temperature",
 			top_p: "top_p",
 			top_k: "top_k",
+			min_p: "min_p",
+			repetition_penalty: "repetition_penalty",
+			respond_as: "respond_as",
+			min_tokens: "min_tokens",
+			custom_token_bans: "custom_token_bans",
+			dynatemp_mode: "dynatemp_mode",
+			dynatemp_min: "dynatemp_min",
+			dynatemp_max: "dynatemp_max",
+			dynatemp_exponent: "dynatemp_exponent",
+			epsilon_cutoff: "epsilon_cutoff",
+			top_a: "top_a",
+			typical_p: "typical_p",
+			eta_cutoff: "eta_cutoff",
+			tfs: "tfs",
+			smoothing_factor: "smoothing_factor",
+			smoothing_curve: "smoothing_curve",
+			xtc_probability: "xtc_probability",
+			xtc_threshold: "xtc_threshold",
+			dry_multiplier: "dry_multiplier",
+			dry_base: "dry_base",
+			dry_allowed_length: "dry_allowed_length",
+			dry_range: "dry_range",
+			dry_sequence_breakers: "dry_sequence_breakers",
+			ignore_eos: "ignore_eos",
+			custom_timeout: "custom_timeout",
+			allow_logging: "allow_logging",
 			max_tokens: "max_tokens",
 			max_output_tokens: "max_tokens",
 			max_completion_tokens: "max_tokens",
@@ -108,6 +166,7 @@ const TEXT_ENDPOINT_REGISTRY: Record<TextEndpoint, EndpointParamRegistry> = {
 			providerOptions: "provider_options",
 			web_search_options: "web_search_options",
 			webSearchOptions: "web_search_options",
+			mcp_servers: "mcp_servers",
 			safety_identifier: "safety_identifier",
 		},
 	},
@@ -146,6 +205,7 @@ const TEXT_ENDPOINT_REGISTRY: Record<TextEndpoint, EndpointParamRegistry> = {
 			"image_config",
 			"imageConfig",
 			"reasoning",
+			"reasoning_effort",
 			"thinking",
 			"reasoning_split",
 			"safety_identifier",
@@ -163,6 +223,7 @@ const TEXT_ENDPOINT_REGISTRY: Record<TextEndpoint, EndpointParamRegistry> = {
 			"top_logprobs",
 			"top_p",
 			"top_k",
+			"min_p",
 			"truncation",
 			"background",
 			"user",
@@ -185,6 +246,7 @@ const TEXT_ENDPOINT_REGISTRY: Record<TextEndpoint, EndpointParamRegistry> = {
 			temperature: "temperature",
 			top_p: "top_p",
 			top_k: "top_k",
+			min_p: "min_p",
 			max_tokens: "max_tokens",
 			max_output_tokens: "max_tokens",
 			max_completion_tokens: "max_tokens",
@@ -203,6 +265,7 @@ const TEXT_ENDPOINT_REGISTRY: Record<TextEndpoint, EndpointParamRegistry> = {
 			frequency_penalty: "frequency_penalty",
 			metadata: "metadata",
 			reasoning: "reasoning",
+			reasoning_effort: "reasoning.effort",
 			thinking: "reasoning",
 			reasoning_split: "reasoning_split",
 			service_tier: "service_tier",
@@ -318,6 +381,29 @@ export function textEndpointRegistryFor(
 	return null;
 }
 
+/**
+ * Returns the canonical parameter IDs understood by the gateway's text
+ * endpoint mapping registry. Data tooling uses this to avoid advertising
+ * upstream-only fields that cannot be represented in the IR.
+ */
+export function gatewayMappedParamIds(): Set<string> {
+	const ids = new Set<string>();
+	for (const endpoint of ["chat.completions", "responses", "messages"] as const) {
+		const registry = TEXT_ENDPOINT_REGISTRY[endpoint];
+		for (const canonical of Object.values(registry.keyToCanonicalParam)) ids.add(canonical);
+	}
+	for (const id of [
+		"include_reasoning",
+		"reasoning.effort",
+		"reasoning.enabled",
+		"reasoning.mode",
+		"reasoning_effort",
+		"structured_outputs",
+		"verbosity",
+	]) ids.add(id);
+	return ids;
+}
+
 export function expandCapabilityParamAliases(rootParam: string): string[] {
 	return CAPABILITY_PARAM_ALIASES[rootParam] ?? [rootParam];
 }
@@ -339,4 +425,3 @@ export function resolveProviderParamSupportOverride(
 		paramPathCandidates: candidates,
 	});
 }
-

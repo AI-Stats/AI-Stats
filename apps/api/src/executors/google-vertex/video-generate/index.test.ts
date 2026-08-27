@@ -138,7 +138,14 @@ describe("google-vertex video executor", () => {
 			generateAudio: true,
 			storageUri: "gs://bucket/output",
 		});
-		expect(state.reservationCalls[0]).toMatchObject({ seconds: 16 });
+		expect(state.reservationCalls[0]).toMatchObject({
+			seconds: 16,
+			requestOptions: expect.objectContaining({
+				size: "1080p",
+				sample_count: 2,
+				video_params: expect.objectContaining({ audio: true }),
+			}),
+		});
 		expect(saveVideoJobMetaMock).toHaveBeenCalledWith(
 			"team_test",
 			"req_google_vertex_video_test",
@@ -175,6 +182,12 @@ describe("google-vertex video executor", () => {
 			image: { gcsUri: "gs://bucket/first.png" },
 			lastFrame: { gcsUri: "gs://bucket/last.png" },
 			referenceImages: [{ image: { gcsUri: "gs://bucket/subject.png" }, referenceType: "asset" }],
+		});
+		expect(state.reservationCalls[0]).toMatchObject({
+			requestOptions: expect.objectContaining({
+				size: "720p",
+				video_params: expect.objectContaining({ audio: true }),
+			}),
 		});
 	});
 

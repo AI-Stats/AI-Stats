@@ -1,0 +1,228 @@
+[
+  {
+    "api_model_id": "minimax/minimax-m2.7",
+    "provider_api_model_id": "mara:MiniMax-M2.7",
+    "provider_model_slug": "MiniMax-M2.7",
+    "internal_model_id": "minimax/minimax-m2.7",
+    "is_active_gateway": false,
+    "quantization_scheme": "unknown",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 196608,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "disabled",
+        "params": [
+          "max_tokens",
+          "temperature",
+          "stop",
+          "top_k",
+          "top_p",
+          "structured_outputs",
+          "response_format"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://mara-cloud-docs-qa.vercel.app/models/model-catalog",
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "MARA verifies the exact MiniMax-M2.7 API model ID, 192K context, production availability, and token pricing."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Exact API model ID, context, production availability, and pricing verified; disabled pending complete policy verification."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-oss-120b",
+    "provider_api_model_id": "mara:gpt-oss-120b",
+    "provider_model_slug": "gpt-oss-120b",
+    "internal_model_id": "openai/gpt-oss-120b",
+    "is_active_gateway": false,
+    "quantization_scheme": "unknown",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 131072,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "disabled",
+        "params": [
+          "reasoning",
+          "max_tokens",
+          "temperature",
+          "stop",
+          "top_k",
+          "top_p",
+          "tool_choice",
+          "tools",
+          "structured_outputs",
+          "response_format",
+          "reasoning_effort"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://mara-cloud-docs-qa.vercel.app/models/model-catalog",
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "MARA verifies the exact gpt-oss-120b API model ID, 128K context, production availability, and token pricing."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Exact API model ID, context, production availability, and pricing verified; disabled pending complete policy verification."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v3.1",
+    "provider_api_model_id": "mara:DeepSeek-V3.1",
+    "provider_model_slug": "DeepSeek-V3.1",
+    "internal_model_id": "deepseek/deepseek-v3.1",
+    "is_active_gateway": false,
+    "quantization_scheme": "unknown",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 131072,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "disabled",
+        "params": ["max_tokens", "temperature", "stop", "top_k", "top_p", "tool_choice", "tools", "structured_outputs", "response_format"],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": { "execution": null, "data": null },
+    "service_tiers": [],
+    "api": { "formats": [], "endpoint": null, "deployment": null },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://mara-cloud-docs-qa.vercel.app/models/model-catalog",
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "MARA verifies the exact model ID, 128K context, production availability, and token pricing."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Production model and documented Chat features verified; routing remains disabled pending complete policy verification."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "minimax/minimax-m2.5",
+    "provider_api_model_id": "mara:MiniMax-M2.5",
+    "provider_model_slug": "MiniMax-M2.5",
+    "internal_model_id": "minimax/minimax-m2.5",
+    "is_active_gateway": false,
+    "quantization_scheme": "unknown",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 196608,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "disabled",
+        "params": ["max_tokens", "temperature", "stop", "top_k", "top_p", "tool_choice", "tools", "structured_outputs", "response_format"],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": { "execution": null, "data": null },
+    "service_tiers": [],
+    "api": { "formats": [], "endpoint": null, "deployment": null },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://mara-cloud-docs-qa.vercel.app/models/model-catalog",
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "MARA verifies the exact model ID, 192K context, production availability, and token pricing."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Production model and documented Chat features verified; routing remains disabled pending complete policy verification."
+    },
+    "rate_limits": []
+  }
+]

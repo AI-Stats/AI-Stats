@@ -468,6 +468,7 @@ pub struct ChatCompletionsRequest {
 	pub provider: Option<String>,
 	pub provider_options: Option<HashMap<String, String>>,
 	pub reasoning: Option<HashMap<String, String>>,
+	pub reasoning_effort: Option<String>,
 	pub response_format: Option<String>,
 	pub safety_identifier: Option<Option<String>>,
 	pub seed: Option<i64>,
@@ -1053,6 +1054,7 @@ pub struct ModerationsRequest {
 
 pub struct ModerationsResponse {
 	pub id: Option<String>,
+	pub meta: Option<HashMap<String, String>>,
 	pub model: Option<String>,
 	pub results: Option<Vec<HashMap<String, String>>>,
 }
@@ -1070,6 +1072,17 @@ pub struct MusicGenerateRequest {
 }
 
 pub struct MusicGenerateResponse {
+	pub audio_base64: Option<String>,
+	pub audio_url: Option<String>,
+	pub id: String,
+	pub model: String,
+	pub nativeResponseId: Option<Option<String>>,
+	pub object: String,
+	pub output: Option<Vec<HashMap<String, String>>>,
+	pub provider: String,
+	pub result: Option<String>,
+	pub status: String,
+	pub usage: Option<HashMap<String, String>>,
 }
 
 pub struct NotImplementedResponse {
@@ -1391,6 +1404,7 @@ pub struct VideoGenerationRequest {
 	pub duration: Option<i64>,
 	pub enhance_prompt: Option<bool>,
 	pub generate_audio: Option<bool>,
+	pub input_audio_duration: Option<f64>,
 	pub input_references: Option<Vec<String>>,
 	pub input_video_duration: Option<f64>,
 	pub model: String,

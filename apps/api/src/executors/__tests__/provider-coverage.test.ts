@@ -7,7 +7,6 @@ const EXCLUDED_NON_TEXT_OR_NOT_YET_SUPPORTED = new Map<string, string>([
 	["black-forest-labs", "image-only provider"],
 	["suno", "audio/music-only provider"],
 	["elevenlabs", "audio/music-only provider"],
-	["canopy-wave", "not-ready provider"],
 ]);
 
 const MEDIA_CAPABILITIES = new Set([

@@ -77,10 +77,13 @@ import {
 import { ImageModelSettingsDialog } from "@/components/(chat)/rooms/settings/ImageModelSettingsDialog";
 import { VideoModelSettingsDialog } from "@/components/(chat)/rooms/settings/VideoModelSettingsDialog";
 import { RoomErrorNotice } from "@/components/(chat)/rooms/RoomErrorNotice";
+import { RoomResponseTimestamp } from "@/components/(chat)/RoomResponseTimestamp";
 import {
 	RoomComposerFooter,
 	RoomComposerSurface,
 } from "@/components/(chat)/RoomComposer";
+import { RoomWorkingIndicator } from "@/components/(chat)/RoomWorkingIndicator";
+import { RoomEmptyState } from "@/components/(chat)/RoomEmptyState";
 import {
 	PanelLeftClose,
 	PanelLeftOpen,
@@ -875,7 +878,8 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 	const [activeModelId, setActiveModelId] = useState("");
 	const [temporaryMode, setTemporaryMode] = useState(false);
 	const [prompt, setPrompt] = useState("");
-	const [isLoading, setIsLoading] = useState(false);
+	const [activeRequestCount, setActiveRequestCount] = useState(0);
+	const isLoading = activeRequestCount > 0;
 	const [error, setError] = useState<string | null>(null);
 	const [infoNotice, setInfoNotice] = useState<string | null>(null);
 	const [entries, setEntries] = useState<GenerationEntry[]>([]);
@@ -1494,13 +1498,17 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 									: enabledSelectedModelIds[0];
 							return preferredModelId ? [preferredModelId] : [];
 						})();
-			if (!trimmedPrompt || isLoading || effectiveSubmitModelIds.length === 0) return;
+			if (
+				!trimmedPrompt ||
+				(roomId === "video" && isLoading) ||
+				effectiveSubmitModelIds.length === 0
+			) return;
 			if (roomId === "video" && hasPendingEntries) {
 				setError("Please wait until the current video generation has completed.");
 				return;
 			}
 			setError(null);
-			setIsLoading(true);
+			setActiveRequestCount((count) => count + 1);
 			try {
 				const pendingEntries = effectiveSubmitModelIds.map((selectedId) => {
 					const profile = modelSettings.getProfileForModel(selectedId);
@@ -1577,13 +1585,14 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 				const pendingEntryByModelId = new Map(
 					pendingEntries.map((entry) => [entry.modelId, entry]),
 				);
+				if (clearPromptAfterSuccess) {
+					setPrompt("");
+				}
 				if (retryEntryId) {
 					await replaceEntry(retryEntryId, pendingEntries);
 				} else {
 					await addEntries(pendingEntries);
 				}
-
-				let hasSuccess = false;
 				const failures: string[] = [];
 				await Promise.all(
 					effectiveSubmitModelIds.map(async (targetModelId) => {
@@ -1658,7 +1667,6 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 										progressPercent: 100,
 									},
 								]);
-								hasSuccess = true;
 								return;
 							}
 
@@ -1706,7 +1714,6 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 								void pollVideoEntryUntilSettled(nextEntries[0]?.id ?? pendingEntry.id);
 							}
 							if (nextStatus !== "failed") {
-								hasSuccess = true;
 							}
 						} catch (err) {
 							failures.push(
@@ -1724,9 +1731,6 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 					}),
 				);
 
-				if (hasSuccess && clearPromptAfterSuccess) {
-					setPrompt("");
-				}
 				if (failures.length > 0) {
 					setError(
 						failures.length === 1
@@ -1737,7 +1741,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 			} catch (err) {
 				setError(err instanceof Error ? err.message : "Generation failed");
 			} finally {
-				setIsLoading(false);
+				setActiveRequestCount((count) => Math.max(0, count - 1));
 			}
 		},
 		[
@@ -1758,7 +1762,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 
 	const retryEntry = useCallback(
 		async (entry: GenerationEntry) => {
-			if (isLoading) return;
+			if (roomId === "video" && isLoading) return;
 			setRetryingEntryId(entry.id);
 			try {
 				await submitGeneration({
@@ -1774,7 +1778,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 				setRetryingEntryId((current) => (current === entry.id ? null : current));
 			}
 		},
-		[isLoading, submitGeneration, temporaryMode],
+		[isLoading, roomId, submitGeneration, temporaryMode],
 	);
 
 	const submit = useCallback(() => {
@@ -1846,7 +1850,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 				</div>
 				</header>
 
-			<main className="min-h-0 flex-1 overflow-auto overscroll-contain px-4 py-5 md:px-6">
+			<main className="flex min-h-0 flex-1 flex-col overflow-auto overscroll-contain px-4 py-5 md:px-6">
 				{hasPendingEntries ? (
 					<div className="mb-4 flex items-start gap-2 rounded-lg border border-amber-300/60 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-700/60 dark:bg-amber-950/30 dark:text-amber-200">
 						<CircleAlert className="mt-0.5 h-4 w-4 shrink-0" />
@@ -1858,9 +1862,29 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 					</div>
 				) : null}
 				{entries.length === 0 ? (
-					<div className="flex min-h-[240px] items-center justify-center rounded-2xl border border-dashed border-border bg-muted/15 px-6 text-center text-sm text-muted-foreground">
-						{isImageRoom ? "Your generated images will appear here." : "Your generated videos will appear here."}
-					</div>
+					<RoomEmptyState
+						description={
+							isImageRoom
+								? "What would you like to bring to life?"
+								: "What story would you like to set in motion?"
+						}
+						suggestions={
+							isImageRoom
+								? [
+										{ label: "Design a product shot", prompt: "A refined studio product photograph with soft directional light" },
+										{ label: "Create a cinematic scene", prompt: "A cinematic landscape at golden hour with dramatic atmosphere" },
+										{ label: "Illustrate an idea", prompt: "A thoughtful editorial illustration about creativity and technology" },
+										{ label: "Make something playful", prompt: "A playful, colorful character in a richly detailed miniature world" },
+									]
+								: [
+										{ label: "Create a product reveal", prompt: "A slow cinematic product reveal with controlled studio lighting" },
+										{ label: "Animate a landscape", prompt: "A sweeping camera move across a misty landscape at sunrise" },
+										{ label: "Make a short story", prompt: "A quiet visual story about finding wonder in an ordinary moment" },
+										{ label: "Explore abstract motion", prompt: "Elegant abstract forms flowing and transforming in slow motion" },
+									]
+						}
+						onSelectPrompt={setPrompt}
+					/>
 				) : isImageRoom ? (
 					<div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-7">
 						{entries.map((entry) => {
@@ -1869,7 +1893,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 							return (
 								<div
 									key={entry.id}
-									className="overflow-hidden rounded-2xl border border-border bg-card"
+									className="group/response overflow-hidden rounded-md border border-border bg-card"
 								>
 									<div className="relative aspect-[4/5] bg-muted/20">
 										{entry.status === "failed" ? (
@@ -1893,14 +1917,13 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 													className="h-full w-full object-cover"
 												/>
 												<div className="pointer-events-none absolute inset-0 bg-black/25 opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
-												<span className="pointer-events-none absolute left-1/2 top-1/2 inline-flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 scale-95 items-center justify-center rounded-full bg-white/85 text-foreground opacity-0 shadow-sm backdrop-blur transition-all duration-200 group-hover:scale-100 group-hover:opacity-100">
+												<span className="pointer-events-none absolute left-1/2 top-1/2 inline-flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 scale-95 items-center justify-center rounded-md border border-border/70 bg-background/85 text-foreground opacity-0 shadow-sm backdrop-blur transition-all duration-200 group-hover:scale-100 group-hover:opacity-100">
 													<Expand className="h-4 w-4" />
 												</span>
 											</button>
 										) : (
 											<div className="flex h-full w-full flex-col items-center justify-center gap-2 px-4 text-center">
-												<Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-												<p className="text-xs font-medium text-foreground">{pendingState.label}</p>
+												<RoomWorkingIndicator label={pendingState.label} size={28} />
 												{pendingState.progress !== null ? (
 													<div className="w-24">
 														<div className="h-1.5 overflow-hidden rounded-full bg-muted">
@@ -1924,26 +1947,30 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 											{modelLabel}
 										</p>
 										<div className="flex items-center justify-between gap-2">
-											<p className="text-[11px] text-muted-foreground">Cost: {formatCost(entry.costUsd)}</p>
-											{entry.status === "failed" ? (
+										<p className="text-[11px] text-muted-foreground">Cost: {formatCost(entry.costUsd)}</p>
+										{entry.status === "completed" ? (
+											<RoomResponseTimestamp createdAt={entry.createdAt} className="order-last ml-auto" />
+										) : null}
+										{entry.status !== "completed" ? (
 												<div className="flex items-center gap-1">
-													<Button
-														type="button"
-														variant="ghost"
-														size="icon"
-														className="h-7 w-7"
-														onClick={() => {
-															void retryEntry(entry);
-														}}
-														disabled={isLoading}
-														aria-label="Retry failed generation"
-													>
-														{retryingEntryId === entry.id && isLoading ? (
-															<Loader2 className="h-3.5 w-3.5 animate-spin" />
-														) : (
-															<RotateCcw className="h-3.5 w-3.5" />
-														)}
-													</Button>
+													{entry.status === "failed" ? (
+														<Button
+															type="button"
+															variant="ghost"
+															size="icon"
+															className="h-7 w-7"
+															onClick={() => {
+																void retryEntry(entry);
+															}}
+															aria-label="Retry failed generation"
+														>
+															{retryingEntryId === entry.id ? (
+																<Loader2 className="h-3.5 w-3.5 animate-spin" />
+															) : (
+																<RotateCcw className="h-3.5 w-3.5" />
+															)}
+														</Button>
+													) : null}
 													<AlertDialog
 														open={deleteEntryId === entry.id}
 														onOpenChange={(open) => {
@@ -1956,7 +1983,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 																variant="ghost"
 																size="icon"
 																className="h-7 w-7 text-destructive hover:bg-destructive/10 hover:text-destructive"
-																aria-label="Delete failed generation"
+																aria-label={entry.status === "pending" ? "Remove pending generation" : "Delete failed generation"}
 															>
 																<Trash2 className="h-3.5 w-3.5" />
 															</Button>
@@ -1964,7 +1991,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 														<AlertDialogContent>
 															<AlertDialogHeader>
 																<AlertDialogTitle>
-																	Remove failed generation?
+																	{entry.status === "pending" ? "Remove pending generation?" : "Remove failed generation?"}
 																</AlertDialogTitle>
 																<AlertDialogDescription>
 																	This removes the failed item from your local room
@@ -2010,7 +2037,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 							const modelLabel = modelLabelById.get(entry.modelId) ?? entry.modelId;
 							const pendingState = getPendingGenerationState(entry, "video");
 							return (
-								<div className="flex min-h-[460px] flex-col overflow-hidden rounded-2xl border border-border bg-card">
+								<div className="group/response flex min-h-[460px] flex-col overflow-hidden rounded-md border border-border bg-card">
 									<div className="flex items-start justify-between gap-3 border-b border-border px-4 py-3">
 										<div className="min-w-0">
 											<p className="truncate text-sm font-medium text-foreground" title={modelLabel}>
@@ -2021,6 +2048,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 											</p>
 										</div>
 										<div className="flex items-center gap-2">
+											<RoomResponseTimestamp createdAt={entry.createdAt} className="order-last" />
 											<p className="text-xs text-muted-foreground">Cost: {formatCost(entry.costUsd)}</p>
 											{entry.status === "failed" ? (
 												<div className="flex items-center gap-1">
@@ -2105,7 +2133,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 										) : entry.url ? (
 											<MediaPlayer
 												theme="surface"
-										className="h-full w-full overflow-hidden rounded-2xl border border-border/70 bg-gradient-to-b from-muted/80 to-background shadow-sm"
+									className="h-full w-full overflow-hidden rounded-md border border-border/70 bg-gradient-to-b from-muted/80 to-background shadow-sm"
 											>
 												<div className="flex h-full min-h-[320px] items-center justify-center px-3 pb-2 pt-3">
 													<MediaPlayerVideo
@@ -2134,8 +2162,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 											</MediaPlayer>
 										) : (
 											<div className="flex max-w-lg flex-col items-center gap-3 text-center">
-												<Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-												<p className="text-sm font-medium text-foreground">{pendingState.label}</p>
+											<RoomWorkingIndicator label={pendingState.label} />
 												{pendingState.progress !== null ? (
 													<div className="w-56 max-w-full">
 														<div className="h-2 overflow-hidden rounded-full bg-muted">
@@ -2157,7 +2184,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 						})()}
 					</div>
 				) : (
-					<div className="flex min-h-[240px] items-center justify-center rounded-2xl border border-dashed border-border bg-muted/15 px-6 text-center text-sm text-muted-foreground">
+					<div className="flex min-h-[240px] items-center justify-center rounded-md border border-dashed border-border bg-muted/15 px-6 text-center text-sm text-muted-foreground">
 						Your generated videos will appear here.
 					</div>
 				)}
@@ -2191,8 +2218,8 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 							}}
 							placeholder={
 								roomId === "image"
-									? "Describe the image you want to create..."
-									: "Describe the video you want to create..."
+									? "Generate an image of anything"
+									: "Generate a video of anything"
 							}
 							disabled={roomId === "video" && hasPendingEntries}
 							rows={1}
@@ -2204,15 +2231,15 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 								onClick={submit}
 								disabled={
 									!prompt.trim() ||
-									isLoading ||
+									(roomId === "video" && isLoading) ||
 									submitModelIds.length === 0 ||
 									(roomId === "video" && hasPendingEntries)
 								}
 							>
-								{(roomId === "video" && hasPendingEntries) || isLoading
-									? roomId === "video"
-										? "Generating..."
-										: "Creating..."
+								{roomId === "video" && (hasPendingEntries || isLoading)
+									? <RoomWorkingIndicator
+										label="Generating video..."
+									/>
 									: submitModelIds.length > 1
 										? `Create (${submitModelIds.length})`
 										: "Create"}
@@ -2243,7 +2270,7 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 									</DialogHeader>
 								</div>
 								<div className="bg-muted/20 p-4">
-									<div className="flex max-h-[62vh] min-h-[320px] items-center justify-center overflow-hidden rounded-2xl border border-border bg-background/60">
+									<div className="flex max-h-[62vh] min-h-[320px] items-center justify-center overflow-hidden rounded-md border border-border bg-background/60">
 										<img
 											src={previewEntry.url}
 											alt={previewEntry.prompt || "Generated image"}
@@ -2353,11 +2380,11 @@ export function MediaStudioRoom({ roomId, models }: MediaStudioRoomProps) {
 									</DialogHeader>
 								</div>
 								<div className="bg-muted/20 p-4">
-									<div className="flex min-h-[260px] items-center justify-center overflow-hidden rounded-2xl border border-border bg-background/60 p-2">
+									<div className="flex min-h-[260px] items-center justify-center overflow-hidden rounded-md border border-border bg-background/60 p-2">
 										{previewEntry.url ? (
 											<MediaPlayer
 												theme="surface"
-											className="w-full overflow-hidden rounded-2xl border border-border/70 bg-gradient-to-b from-muted/80 to-background shadow-sm"
+										className="w-full overflow-hidden rounded-md border border-border/70 bg-gradient-to-b from-muted/80 to-background shadow-sm"
 											>
 												<div className="flex items-center justify-center px-3 pb-2 pt-3">
 													<div

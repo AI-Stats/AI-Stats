@@ -34,16 +34,13 @@ import { notFound, permanentRedirect } from "next/navigation";
 import { Suspense } from "react";
 import { isFreeRouterModelId } from "@/lib/models/freeRouter";
 import FreeRouterOverview from "@/components/(data)/model/free-router/FreeRouterOverview";
-import {
-	resolveQuickstartRequestContext,
-	type QuickstartSearchParams,
-} from "@/components/(data)/model/quickstart/requestContext";
 import { JsonLdScript } from "@/components/seo/JsonLdScript";
 import ModelFaqSection from "@/components/(data)/model/overview/ModelFaqSection";
 import {
 	getModelLineageLinks,
 	resolveModelLineageNames,
 } from "@/components/(data)/model/overview/modelOverviewMetadata";
+import { supportsProvenanceVerification } from "@/components/(data)/model/overview/ModelVerificationSection";
 
 async function ModelCreatorModelsSectionContent({
 	modelId,
@@ -118,7 +115,7 @@ const baseModelPageTocItems: ModelPageTocItem[] = [
 	{ id: "activity", label: "Activity" },
 	{ id: "apps", label: "Apps" },
 	{ id: "uptime", label: "Uptime" },
-	{ id: "quickstart", label: "Quickstart" },
+	{ id: "verification", label: "Verification" },
 	{ id: "about", label: "About" },
 	{ id: "subscriptions", label: "Subscriptions" },
 	{ id: "faq", label: "FAQ" },
@@ -129,16 +126,19 @@ function getModelPageTocItems({
 	showSubscriptions,
 	status,
 	isGatewayActive,
+	showVerification,
 }: {
 	showBenchmarks: boolean;
 	showSubscriptions: boolean;
 	status?: string | null;
 	isGatewayActive: boolean;
+	showVerification: boolean;
 }): ModelPageTocItem[] {
 	if (status === "Retired") {
 		return baseModelPageTocItems.filter((item) => {
 			if (item.id === "benchmarks") return showBenchmarks;
 			if (item.id === "subscriptions") return showSubscriptions;
+			if (item.id === "verification") return showVerification;
 			return item.id === "about" || item.id === "faq";
 		});
 	}
@@ -152,6 +152,7 @@ function getModelPageTocItems({
 		}
 		if (item.id === "benchmarks") return showBenchmarks;
 		if (item.id === "subscriptions") return showSubscriptions;
+		if (item.id === "verification") return showVerification;
 		return true;
 	});
 }
@@ -191,18 +192,11 @@ export async function generateMetadata(props: {
 
 export default async function Page({
 	params,
-	searchParams,
 }: {
 	params: Promise<ModelRouteParams>;
-	searchParams: Promise<QuickstartSearchParams>;
 }) {
-	const [routeParams, routeSearchParams] = await Promise.all([
-		params,
-		searchParams,
-	]);
+	const routeParams = await params;
 	const includeHidden = false;
-	const quickstartRequestContext =
-		resolveQuickstartRequestContext(routeSearchParams);
 	const { requestedModelId, canonicalModelId } = await resolveModelRouteIds(
 		routeParams,
 		includeHidden,
@@ -247,6 +241,7 @@ export default async function Page({
 		showSubscriptions,
 		status: modelOverview?.status,
 		isGatewayActive,
+		showVerification: supportsProvenanceVerification(modelOverview.output_types),
 	});
 	const modelName = modelOverview?.name ?? modelId.split("/").slice(-1)[0] ?? modelId;
 	const organisationName =
@@ -338,7 +333,6 @@ export default async function Page({
 								status={modelOverview?.status}
 								isGatewayActive={isGatewayActive}
 								performancePromise={resolvedPerformancePromise}
-								quickstartRequestContext={quickstartRequestContext}
 							/>
 							{modelOverview ? (
 								<Suspense fallback={null}>

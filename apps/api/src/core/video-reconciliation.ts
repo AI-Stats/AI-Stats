@@ -28,6 +28,7 @@ import { buildVideoPricingRequestOptions } from "@core/video-request-options";
 const GOOGLE_BASE_URL = "https://generativelanguage.googleapis.com";
 const DEFAULT_BYTEDANCE_BASE_URL = "https://ark.ap-southeast.bytepluses.com";
 const DEFAULT_RUNWAY_BASE_URL = "https://api.dev.runwayml.com";
+const DEFAULT_LTX_BASE_URL = "https://api.ltx.io";
 const DASHSCOPE_TASK_PREFIX = "dscope_";
 const XAI_VIDEO_PREFIX = "xaivid_";
 const MINIMAX_VIDEO_PREFIX = "mmxvid_";
@@ -638,14 +639,13 @@ async function fetchAlibabaVideoStatus(job: VideoJobRecord): Promise<VideoProvid
 	const taskId = resolveStoredProviderTaskId(job, (value) => decodePrefixedBase64Id(value, DASHSCOPE_TASK_PREFIX));
 	if (!taskId) return null;
 	const providerId = String(job.provider ?? "alibaba").trim() || "alibaba";
+	const bindings = getBindings() as unknown as Record<string, string | undefined>;
 	const key = await resolveProviderPollingKey({
 		job,
 		providerId,
-		defaultEnvKey: "ALIBABA_CLOUD_API_KEY",
+		defaultEnvKey: bindings.ALIBABA_CLOUD_API_KEY ? "ALIBABA_CLOUD_API_KEY" : "DASHSCOPE_API_KEY",
 	});
 	if (!key) return null;
-	const bindings = getBindings() as unknown as Record<string, string | undefined>;
-
 	const baseUrl = (bindings.ALIBABA_BASE_URL || "https://dashscope-intl.aliyuncs.com").replace(/\/+$/, "");
 	const res = await fetch(`${baseUrl}/api/v1/tasks/${encodeURIComponent(taskId)}`, {
 		method: "GET",
@@ -883,13 +883,13 @@ async function fetchRunwayVideoStatus(job: VideoJobRecord): Promise<VideoProvide
 	const taskId = resolveStoredProviderTaskId(job, (value) => decodePrefixedBase64Id(value, RUNWAY_VIDEO_PREFIX));
 	if (!taskId) return null;
 	const providerId = String(job.provider ?? "runway").trim() || "runway";
+	const bindings = getBindings() as unknown as Record<string, string | undefined>;
 	const key = await resolveProviderPollingKey({
 		job,
 		providerId,
-		defaultEnvKey: "RUNWAY_API_KEY",
+		defaultEnvKey: bindings.RUNWAY_API_KEY ? "RUNWAY_API_KEY" : "RUNWAYML_API_SECRET",
 	});
 	if (!key) return null;
-	const bindings = getBindings() as unknown as Record<string, string | undefined>;
 	const baseUrl = String(bindings.RUNWAY_BASE_URL || DEFAULT_RUNWAY_BASE_URL).replace(/\/+$/, "");
 	const apiVersion = resolveRunwayApiVersion(job, bindings);
 	const headers: Record<string, string> = {
@@ -983,6 +983,34 @@ async function fetchFalVideoStatus(job: VideoJobRecord): Promise<VideoProviderSt
 	};
 }
 
+async function fetchLtxVideoStatus(job: VideoJobRecord): Promise<VideoProviderStatusResult | null> {
+	const taskId = resolveStoredProviderTaskId(job, (value) => value);
+	if (!taskId) return null;
+	const key = await resolveProviderPollingKey({ job, providerId: "ltx", defaultEnvKey: "LTX_API_KEY" });
+	if (!key) return null;
+	const endpoint = toNonEmptyString((job.meta as any)?.ltxEndpoint) ?? (toNonNegativeNumber(job.meta?.inputImageCount) ? "image-to-video" : "text-to-video");
+	const bindings = getBindings() as unknown as Record<string, string | undefined>;
+	const baseUrl = String(bindings.LTX_BASE_URL || DEFAULT_LTX_BASE_URL).replace(/\/+$/, "");
+	const res = await fetch(`${baseUrl}/v2/${endpoint}/${encodeURIComponent(taskId)}`, {
+		headers: { Authorization: `Bearer ${key}`, Accept: "application/json" },
+		signal: AbortSignal.timeout(15_000),
+	}).catch(() => null);
+	if (!res?.ok) return null;
+	const json = await res.json().catch(() => null);
+	if (!json || typeof json !== "object") return null;
+	const status = mapOpenAiVideoStatus((json as any).status);
+	const downloadUrl = toNonEmptyString((json as any).result?.video_url);
+	return {
+		status,
+		providerId: "ltx",
+		model: job.model ?? undefined,
+		seconds: toPositiveNumber(job.meta?.seconds),
+		requestOptions: buildVideoPricingRequestOptions({ resolution: job.meta?.resolution, frame_rate: job.meta?.frameRate, input_image_count: job.meta?.inputImageCount, input_audio_seconds: job.meta?.inputAudioSeconds, mode: endpoint }),
+		metaPatch: downloadUrl ? { downloadUrl } : undefined,
+		raw: json,
+	};
+}
+
 export async function fetchVideoProviderStatus(job: VideoJobRecord): Promise<VideoProviderStatusResult | null> {
 	const provider = String(job.provider ?? job.meta?.provider ?? "").trim().toLowerCase();
 	if (provider === "google-ai-studio") return fetchGoogleAiStudioVideoStatus(job);
@@ -994,6 +1022,7 @@ export async function fetchVideoProviderStatus(job: VideoJobRecord): Promise<Vid
 	if (provider === "bytedance-seed" || provider === "byteplus") return fetchBytedanceVideoStatus(job);
 	if (provider === "runway" || provider === "runwayml") return fetchRunwayVideoStatus(job);
 	if (provider === "fal") return fetchFalVideoStatus(job);
+	if (provider === "ltx") return fetchLtxVideoStatus(job);
 	if (provider === "openai" || isOpenAICompatProvider(provider)) return fetchOpenAiVideoStatus(job, provider || "openai");
 	return null;
 }

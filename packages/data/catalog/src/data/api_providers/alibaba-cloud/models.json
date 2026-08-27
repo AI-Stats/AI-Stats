@@ -4357,13 +4357,13 @@
   {
     "api_model_id": "z-ai/glm-5.2",
     "provider_api_model_id": "alibaba-cloud:z-ai/glm-5.2",
-    "provider_model_slug": "zai-org/GLM-5.2",
+    "provider_model_slug": "glm-5.2",
     "internal_model_id": "z-ai/glm-5.2",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": 1048576,
+    "context_length": 202752,
     "max_output_tokens": 131072,
     "effective_from": "2026-06-16T00:00:00",
     "effective_to": null,
@@ -4382,23 +4382,150 @@
         "modes": []
       }
     ],
-    "routing_status": null,
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard",
+      "priority"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://www.alibabacloud.com/help/en/model-studio/text-generation-model",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Alibaba Cloud Model Studio International model catalogue."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified for the Singapore (International) Model Studio endpoint."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.8-flash",
+    "provider_api_model_id": "alibaba-cloud:qwen/qwen3.8-flash",
+    "provider_model_slug": "qwen3.8-flash",
+    "internal_model_id": "qwen/qwen3.8-flash",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-26T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "max_tokens",
+            "provider_min": 1,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "temperature",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "stop",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "stream",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": false,
+            "notes": null
+          },
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": "OpenAI- and Anthropic-compatible tool definitions are supported."
+          },
+          {
+            "param_id": "tool_choice",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "response_format",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": "Structured output is supported."
+          }
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai",
+        "anthropic"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://modelstudio.console.alibabacloud.com/ap-southeast-1/?tab=doc#/doc/?type=model&url=2840914_2&modelId=qwen3.8-flash&serviceSite=international",
+        "accessed_at": "2026-08-26T00:00:00Z",
+        "notes": "Model Studio lists the production qwen3.8-flash endpoint, multimodal inputs, million-token context, supported capabilities, and OpenAI/Anthropic-compatible APIs."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-26T00:00:00Z",
+      "notes": "Verified against the live Alibaba Cloud Model Studio model page."
     },
     "rate_limits": []
   },
@@ -4641,7 +4768,7 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": 1048576,
+    "context_length": 1000000,
     "max_output_tokens": 393216,
     "effective_from": null,
     "effective_to": null,
@@ -4678,16 +4805,16 @@
     },
     "sources": [
       {
-        "kind": "documentation",
-        "url": "https://www.alibabacloud.com/help/en/model-studio/deepseek-api",
-        "accessed_at": "2026-08-03T00:00:00Z",
-        "notes": "Official Model Studio model ID, context and feature documentation."
+        "kind": "models",
+        "url": "https://www.alibabacloud.com/help/en/model-studio/text-generation-model",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Alibaba Cloud Model Studio International model catalogue."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-03T00:00:00Z",
-      "notes": "Provider deployment and existing Phaseo executor recorded."
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified for the Singapore (International) Model Studio endpoint."
     },
     "rate_limits": []
   },
@@ -4709,48 +4836,111 @@
         "capability_id": "video.generate",
         "status": "coming_soon",
         "params": {
-          "prompt": { "type": "string" },
+          "prompt": {
+            "type": "string"
+          },
           "duration": {
             "type": "number",
             "min": 3,
             "max": 15,
             "default": 5,
-            "aliases": ["seconds", "duration_seconds"]
+            "aliases": [
+              "seconds",
+              "duration_seconds"
+            ]
           },
           "size": {
             "type": "enum",
-            "values": ["720P", "720p", "1280x720", "720x1280", "1080P", "1080p", "1920x1080", "1080x1920"],
+            "values": [
+              "720P",
+              "720p",
+              "1280x720",
+              "720x1280",
+              "1080P",
+              "1080p",
+              "1920x1080",
+              "1080x1920"
+            ],
             "default": "1080P",
-            "aliases": ["resolution"]
+            "aliases": [
+              "resolution"
+            ]
           },
           "aspect_ratio": {
             "type": "enum",
-            "values": ["16:9", "9:16", "1:1", "4:3", "3:4", "4:5", "5:4", "9:21", "21:9"],
-            "aliases": ["ratio"]
+            "values": [
+              "16:9",
+              "9:16",
+              "1:1",
+              "4:3",
+              "3:4",
+              "4:5",
+              "5:4",
+              "9:21",
+              "21:9"
+            ],
+            "aliases": [
+              "ratio"
+            ]
           },
-          "input_references": { "type": "array" },
-          "seed": { "type": "integer", "min": 0, "max": 2147483647 },
-          "generate_audio": { "type": "boolean", "default": true }
+          "input_references": {
+            "type": "array"
+          },
+          "seed": {
+            "type": "integer",
+            "min": 0,
+            "max": 2147483647
+          },
+          "generate_audio": {
+            "type": "boolean",
+            "default": true
+          }
         },
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
         "attachment": true,
-        "input_modalities": ["text", "image"],
-        "output_modalities": ["video", "audio"],
-        "modes": ["text-to-video", "image-to-video", "reference-to-video"]
+        "input_modalities": [
+          "text",
+          "image"
+        ],
+        "output_modalities": [
+          "video",
+          "audio"
+        ],
+        "modes": [
+          "text-to-video",
+          "image-to-video",
+          "reference-to-video"
+        ]
       }
     ],
     "routing_status": null,
     "routable": false,
     "regions": {
-      "execution": ["ap-southeast-1", "us-east-1", "cn-beijing", "eu-central-1", "cn-hongkong"],
-      "data": ["ap-southeast-1", "us-east-1", "cn-beijing", "eu-central-1", "cn-hongkong"]
+      "execution": [
+        "ap-southeast-1",
+        "us-east-1",
+        "cn-beijing",
+        "eu-central-1",
+        "cn-hongkong"
+      ],
+      "data": [
+        "ap-southeast-1",
+        "us-east-1",
+        "cn-beijing",
+        "eu-central-1",
+        "cn-hongkong"
+      ]
     },
-    "service_tiers": ["standard"],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
-      "formats": ["dashscope.async.video"],
+      "formats": [
+        "dashscope.async.video"
+      ],
       "endpoint": "/api/v1/services/aigc/video-generation/video-synthesis",
       "deployment": "regional"
     },
@@ -4793,48 +4983,113 @@
         "capability_id": "video.generate",
         "status": "coming_soon",
         "params": {
-          "prompt": { "type": "string" },
+          "prompt": {
+            "type": "string"
+          },
           "duration": {
             "type": "number",
             "min": 3,
             "max": 15,
             "default": 5,
-            "aliases": ["seconds", "duration_seconds"]
+            "aliases": [
+              "seconds",
+              "duration_seconds"
+            ]
           },
           "size": {
             "type": "enum",
-            "values": ["720P", "720p", "1280x720", "720x1280", "1080P", "1080p", "1920x1080", "1080x1920"],
+            "values": [
+              "720P",
+              "720p",
+              "1280x720",
+              "720x1280",
+              "1080P",
+              "1080p",
+              "1920x1080",
+              "1080x1920"
+            ],
             "default": "1080P",
-            "aliases": ["resolution"]
+            "aliases": [
+              "resolution"
+            ]
           },
           "aspect_ratio": {
             "type": "enum",
-            "values": ["16:9", "9:16", "1:1", "4:3", "3:4", "4:5", "5:4", "9:21", "21:9"],
-            "aliases": ["ratio"]
+            "values": [
+              "16:9",
+              "9:16",
+              "1:1",
+              "4:3",
+              "3:4",
+              "4:5",
+              "5:4",
+              "9:21",
+              "21:9"
+            ],
+            "aliases": [
+              "ratio"
+            ]
           },
-          "input_references": { "type": "array" },
-          "seed": { "type": "integer", "min": 0, "max": 2147483647 },
-          "generate_audio": { "type": "boolean", "default": true }
+          "input_references": {
+            "type": "array"
+          },
+          "seed": {
+            "type": "integer",
+            "min": 0,
+            "max": 2147483647
+          },
+          "generate_audio": {
+            "type": "boolean",
+            "default": true
+          }
         },
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
         "temperature": null,
         "attachment": true,
-        "input_modalities": ["text", "image", "video"],
-        "output_modalities": ["video", "audio"],
-        "modes": ["text-to-video", "image-to-video", "reference-to-video", "video-edit"]
+        "input_modalities": [
+          "text",
+          "image",
+          "video"
+        ],
+        "output_modalities": [
+          "video",
+          "audio"
+        ],
+        "modes": [
+          "text-to-video",
+          "image-to-video",
+          "reference-to-video",
+          "video-edit"
+        ]
       }
     ],
     "routing_status": null,
     "routable": false,
     "regions": {
-      "execution": ["ap-southeast-1", "us-east-1", "cn-beijing", "eu-central-1", "cn-hongkong"],
-      "data": ["ap-southeast-1", "us-east-1", "cn-beijing", "eu-central-1", "cn-hongkong"]
+      "execution": [
+        "ap-southeast-1",
+        "us-east-1",
+        "cn-beijing",
+        "eu-central-1",
+        "cn-hongkong"
+      ],
+      "data": [
+        "ap-southeast-1",
+        "us-east-1",
+        "cn-beijing",
+        "eu-central-1",
+        "cn-hongkong"
+      ]
     },
-    "service_tiers": ["standard"],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
-      "formats": ["dashscope.async.video"],
+      "formats": [
+        "dashscope.async.video"
+      ],
       "endpoint": "/api/v1/services/aigc/video-generation/video-synthesis",
       "deployment": "regional"
     },
@@ -4856,6 +5111,1192 @@
       "status": "verified",
       "checked_at": "2026-08-10T00:00:00Z",
       "notes": "Gateway adapter covers t2v, i2v, r2v, and video edit with deterministic request, persistence, polling, and content tests."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "moonshotai/kimi-k2.7-code",
+    "provider_api_model_id": "alibaba-cloud:moonshotai/kimi-k2.7-code",
+    "provider_model_slug": "kimi-k2.7-code",
+    "internal_model_id": "moonshotai/kimi-k2.7-code",
+    "is_active_gateway": true,
+    "quantization_scheme": "fp8",
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": 16384,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "presence_penalty",
+          "response_format",
+          "tools",
+          "structured_outputs",
+          "tool_choice",
+          "logprobs",
+          "top_logprobs"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://www.alibabacloud.com/help/en/model-studio/text-generation-model",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Alibaba Cloud Model Studio International model catalogue."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified for the Singapore (International) Model Studio endpoint."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v4-pro",
+    "provider_api_model_id": "alibaba-cloud:deepseek/deepseek-v4-pro",
+    "provider_model_slug": "deepseek-v4-pro",
+    "internal_model_id": "deepseek/deepseek-v4-pro",
+    "is_active_gateway": true,
+    "quantization_scheme": "fp8",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 393216,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "presence_penalty",
+          "response_format",
+          "tool_choice",
+          "tools",
+          "structured_outputs",
+          "top_k",
+          "frequency_penalty",
+          "stop",
+          "reasoning_effort"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://www.alibabacloud.com/help/en/model-studio/text-generation-model",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Alibaba Cloud Model Studio International model catalogue."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified for the Singapore (International) Model Studio endpoint."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-5.1",
+    "provider_api_model_id": "alibaba-cloud:z-ai/glm-5.1",
+    "provider_model_slug": "glm-5.1",
+    "internal_model_id": "z-ai/glm-5.1",
+    "is_active_gateway": true,
+    "quantization_scheme": "fp8",
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 202752,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "presence_penalty",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "logprobs",
+          "top_logprobs",
+          "top_k",
+          "frequency_penalty",
+          "stop",
+          "tool_choice"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://www.alibabacloud.com/help/en/model-studio/text-generation-model",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Alibaba Cloud Model Studio International model catalogue."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified for the Singapore (International) Model Studio endpoint."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-max-thinking",
+    "provider_api_model_id": "alibaba-cloud:qwen/qwen3-max-thinking",
+    "provider_model_slug": "qwen/qwen3-max-thinking",
+    "internal_model_id": "qwen/qwen3-max-thinking",
+    "is_active_gateway": false,
+    "quantization_scheme": "unknown",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": 65536,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "disabled",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "presence_penalty",
+          "response_format",
+          "tools",
+          "tool_choice",
+          "structured_outputs",
+          "logprobs",
+          "top_logprobs",
+          "top_k",
+          "frequency_penalty",
+          "stop"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": null,
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v3.2",
+    "provider_api_model_id": "alibaba-cloud:deepseek/deepseek-v3.2",
+    "provider_model_slug": "deepseek-v3.2",
+    "internal_model_id": "deepseek/deepseek-v3.2",
+    "is_active_gateway": true,
+    "quantization_scheme": "fp8",
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 131072,
+    "max_output_tokens": 65536,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "presence_penalty",
+          "response_format",
+          "tool_choice",
+          "tools",
+          "structured_outputs",
+          "top_k",
+          "frequency_penalty",
+          "stop"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://www.alibabacloud.com/help/en/model-studio/text-generation-model",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Alibaba Cloud Model Studio International model catalogue."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified for the Singapore (International) Model Studio endpoint."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-vl-32b-instruct",
+    "provider_api_model_id": "alibaba-cloud:qwen/qwen3-vl-32b-instruct",
+    "provider_model_slug": "qwen/qwen3-vl-32b-instruct",
+    "internal_model_id": "qwen/qwen3-vl-32b-instruct",
+    "is_active_gateway": false,
+    "quantization_scheme": "unknown",
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 131072,
+    "max_output_tokens": 32768,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "disabled",
+        "params": [
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "presence_penalty",
+          "response_format",
+          "tools",
+          "tool_choice",
+          "structured_outputs",
+          "logprobs",
+          "top_logprobs",
+          "top_k",
+          "frequency_penalty",
+          "stop"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": null,
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-vl-8b-thinking",
+    "provider_api_model_id": "alibaba-cloud:qwen/qwen3-vl-8b-thinking",
+    "provider_model_slug": "qwen/qwen3-vl-8b-thinking",
+    "internal_model_id": "qwen/qwen3-vl-8b-thinking",
+    "is_active_gateway": false,
+    "quantization_scheme": "unknown",
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 131072,
+    "max_output_tokens": 32768,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "disabled",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "structured_outputs",
+          "response_format",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "presence_penalty",
+          "tools",
+          "tool_choice",
+          "logprobs",
+          "top_logprobs",
+          "top_k",
+          "frequency_penalty",
+          "stop"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": null,
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-vl-8b-instruct",
+    "provider_api_model_id": "alibaba-cloud:qwen/qwen3-vl-8b-instruct",
+    "provider_model_slug": "qwen/qwen3-vl-8b-instruct",
+    "internal_model_id": "qwen/qwen3-vl-8b-instruct",
+    "is_active_gateway": false,
+    "quantization_scheme": "unknown",
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 131072,
+    "max_output_tokens": 32768,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "disabled",
+        "params": [
+          "structured_outputs",
+          "response_format",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "presence_penalty",
+          "tools",
+          "tool_choice",
+          "logprobs",
+          "top_logprobs",
+          "top_k",
+          "frequency_penalty",
+          "stop"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": null,
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-vl-30b-a3b-thinking",
+    "provider_api_model_id": "alibaba-cloud:qwen/qwen3-vl-30b-a3b-thinking",
+    "provider_model_slug": "qwen/qwen3-vl-30b-a3b-thinking",
+    "internal_model_id": "qwen/qwen3-vl-30b-a3b-thinking",
+    "is_active_gateway": false,
+    "quantization_scheme": "unknown",
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 131072,
+    "max_output_tokens": 32768,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "disabled",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "presence_penalty",
+          "response_format",
+          "tools",
+          "tool_choice",
+          "structured_outputs",
+          "logprobs",
+          "top_logprobs",
+          "top_k",
+          "frequency_penalty",
+          "stop"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": null,
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-vl-30b-a3b-instruct",
+    "provider_api_model_id": "alibaba-cloud:qwen/qwen3-vl-30b-a3b-instruct",
+    "provider_model_slug": "qwen/qwen3-vl-30b-a3b-instruct",
+    "internal_model_id": "qwen/qwen3-vl-30b-a3b-instruct",
+    "is_active_gateway": false,
+    "quantization_scheme": "unknown",
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 131072,
+    "max_output_tokens": 32768,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "disabled",
+        "params": [
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "presence_penalty",
+          "response_format",
+          "tools",
+          "tool_choice",
+          "structured_outputs",
+          "logprobs",
+          "top_logprobs",
+          "top_k",
+          "frequency_penalty",
+          "stop"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": null,
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-max",
+    "provider_api_model_id": "alibaba-cloud:qwen/qwen3-max",
+    "provider_model_slug": "qwen/qwen3-max",
+    "internal_model_id": "qwen/qwen3-max",
+    "is_active_gateway": false,
+    "quantization_scheme": "unknown",
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 262144,
+    "max_output_tokens": 65536,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "disabled",
+        "params": [
+          "response_format",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "presence_penalty",
+          "tools",
+          "tool_choice",
+          "structured_outputs",
+          "logprobs",
+          "top_logprobs",
+          "top_k",
+          "frequency_penalty",
+          "stop"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": null,
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-coder",
+    "provider_api_model_id": "alibaba-cloud:qwen/qwen3-coder",
+    "provider_model_slug": "qwen/qwen3-coder",
+    "internal_model_id": "qwen/qwen3-coder",
+    "is_active_gateway": false,
+    "quantization_scheme": "unknown",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": 65536,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "disabled",
+        "params": [
+          "structured_outputs",
+          "response_format",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "presence_penalty",
+          "tools",
+          "tool_choice",
+          "logprobs",
+          "top_logprobs",
+          "top_k",
+          "frequency_penalty",
+          "stop"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": null,
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-30b-a3b",
+    "provider_api_model_id": "alibaba-cloud:qwen/qwen3-30b-a3b",
+    "provider_model_slug": "qwen/qwen3-30b-a3b",
+    "internal_model_id": "qwen/qwen3-30b-a3b",
+    "is_active_gateway": false,
+    "quantization_scheme": "unknown",
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 131072,
+    "max_output_tokens": 8192,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "disabled",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "presence_penalty",
+          "response_format",
+          "tool_choice",
+          "tools",
+          "top_k",
+          "frequency_penalty",
+          "stop"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": null,
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-235b-a22b",
+    "provider_api_model_id": "alibaba-cloud:qwen/qwen3-235b-a22b",
+    "provider_model_slug": "qwen/qwen3-235b-a22b",
+    "internal_model_id": "qwen/qwen3-235b-a22b",
+    "is_active_gateway": false,
+    "quantization_scheme": "unknown",
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 131072,
+    "max_output_tokens": 8192,
+    "effective_from": "2026-08-12T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "disabled",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "presence_penalty",
+          "response_format",
+          "tools",
+          "tool_choice",
+          "top_k",
+          "frequency_penalty",
+          "stop"
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": null,
+        "accessed_at": "2026-08-12T00:00:00Z",
+        "notes": "Third-party availability observation; direct provider documentation, slug, and official pricing remain to be verified."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Third-party availability observed; disabled until direct provider documentation, slug, and pricing are verified."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-5.2-fast",
+    "provider_api_model_id": "alibaba-cloud:z-ai/glm-5.2-fast",
+    "provider_model_slug": "glm-5.2-fast-preview",
+    "internal_model_id": "z-ai/glm-5.2",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 202752,
+    "max_output_tokens": 131072,
+    "effective_from": "2026-06-16T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "priority"
+    ],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://www.alibabacloud.com/help/en/model-studio/text-generation-model",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Alibaba Cloud Model Studio International model catalogue."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Hidden sibling selected when z-ai/glm-5.2 requests the priority service tier; the upstream fast-preview slug serves the same underlying model."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.6-flash",
+    "provider_api_model_id": "alibaba-cloud:qwen/qwen3.6-flash",
+    "provider_model_slug": "qwen3.6-flash",
+    "internal_model_id": "qwen/qwen3.6-flash",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 65536,
+    "effective_from": "2026-04-16T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "tools",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "tool_choice",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "structured_outputs",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "temperature",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "max_tokens",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "top_p",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "seed",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "presence_penalty",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "response_format",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          },
+          {
+            "param_id": "include_reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": null,
+            "notes": null
+          }
+        ],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://www.alibabacloud.com/help/en/model-studio/text-generation-model",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Current recommended Qwen flash deployment for International Model Studio."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified against Alibaba Cloud's current model catalogue."
     },
     "rate_limits": []
   }

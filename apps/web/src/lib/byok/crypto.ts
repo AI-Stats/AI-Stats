@@ -1,6 +1,8 @@
 // src/lib/byok/crypto.ts
 import { randomBytes, createCipheriv, createDecipheriv, pbkdf2Sync } from "crypto";
 
+const FINGERPRINT_PBKDF2_ITERATIONS = 100_000;
+
 type Encrypted = {
     ciphertextB64: string;
     ivB64: string;
@@ -41,7 +43,7 @@ function getFingerprintSalt(): Buffer {
 
 export function fingerprintSecretHex(secret: string): string {
     // PBKDF2 makes offline cracking far more expensive than raw SHA-256.
-    return pbkdf2Sync(secret, getFingerprintSalt(), 210_000, 32, "sha256").toString("hex");
+    return pbkdf2Sync(secret, getFingerprintSalt(), FINGERPRINT_PBKDF2_ITERATIONS, 32, "sha256").toString("hex");
 }
 
 export function encryptSecret(plaintext: string, keyVersion = Number(process.env.BYOK_ACTIVE_KEY_VERSION || "1")): Encrypted {

@@ -709,6 +709,8 @@ module Phaseo
     #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] reasoning
     #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] reasoning_effort
+    #   @return [String, nil]
     # @!attribute [rw] response_format
     #   @return [String, Hash{String => Object}, nil]
     # @!attribute [rw] safety_identifier
@@ -743,7 +745,7 @@ module Phaseo
     #   @return [String, nil]
     # @!attribute [rw] user_id
     #   @return [String, nil]
-    ChatCompletionsRequest = Struct.new(:debug, :echo_upstream_request, :frequency_penalty, :image_config, :logit_bias, :logprobs, :max_completion_tokens, :max_tokens, :max_tool_calls, :messages, :meta, :metadata, :modalities, :model, :parallel_tool_calls, :presence_penalty, :prompt_cache_key, :provider, :provider_options, :reasoning, :response_format, :safety_identifier, :seed, :service_tier, :session_id, :stop, :store, :stream, :stream_options, :temperature, :tool_choice, :tools, :top_logprobs, :top_p, :usage, :user, :user_id, keyword_init: true)
+    ChatCompletionsRequest = Struct.new(:debug, :echo_upstream_request, :frequency_penalty, :image_config, :logit_bias, :logprobs, :max_completion_tokens, :max_tokens, :max_tool_calls, :messages, :meta, :metadata, :modalities, :model, :parallel_tool_calls, :presence_penalty, :prompt_cache_key, :provider, :provider_options, :reasoning, :reasoning_effort, :response_format, :safety_identifier, :seed, :service_tier, :session_id, :stop, :store, :stream, :stream_options, :temperature, :tool_choice, :tools, :top_logprobs, :top_p, :usage, :user, :user_id, keyword_init: true)
     # @!attribute [rw] choices
     #   @return [Array<Hash{String => Object}>, nil]
     # @!attribute [rw] created
@@ -1532,11 +1534,13 @@ module Phaseo
     ModerationsRequest = Struct.new(:debug, :input, :meta, :model, :provider, keyword_init: true)
     # @!attribute [rw] id
     #   @return [String, nil]
+    # @!attribute [rw] meta
+    #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] model
     #   @return [String, nil]
     # @!attribute [rw] results
     #   @return [Array<Hash{String => Object}>, nil]
-    ModerationsResponse = Struct.new(:id, :model, :results, keyword_init: true)
+    ModerationsResponse = Struct.new(:id, :meta, :model, :results, keyword_init: true)
     # @!attribute [rw] debug
     #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] duration
@@ -1556,7 +1560,29 @@ module Phaseo
     # @!attribute [rw] suno
     #   @return [Hash{String => Object}, nil]
     MusicGenerateRequest = Struct.new(:debug, :duration, :echo_upstream_request, :elevenlabs, :format, :model, :prompt, :provider, :suno, keyword_init: true)
-    MusicGenerateResponse = Struct.new(:_unused, keyword_init: true)
+    # @!attribute [rw] audio_base64
+    #   @return [String, nil]
+    # @!attribute [rw] audio_url
+    #   @return [String, nil]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] model
+    #   @return [String]
+    # @!attribute [rw] nativeResponseId
+    #   @return [String, nil]
+    # @!attribute [rw] object
+    #   @return [String]
+    # @!attribute [rw] output
+    #   @return [Array<Hash{String => Object}>, nil]
+    # @!attribute [rw] provider
+    #   @return [String]
+    # @!attribute [rw] result
+    #   @return [Object, nil]
+    # @!attribute [rw] status
+    #   @return [String]
+    # @!attribute [rw] usage
+    #   @return [Hash{String => Object}, nil]
+    MusicGenerateResponse = Struct.new(:audio_base64, :audio_url, :id, :model, :nativeResponseId, :object, :output, :provider, :result, :status, :usage, keyword_init: true)
     # @!attribute [rw] description
     #   @return [String]
     # @!attribute [rw] error
@@ -2015,6 +2041,8 @@ module Phaseo
     #   @return [Boolean, nil]
     # @!attribute [rw] generate_audio
     #   @return [Boolean, nil]
+    # @!attribute [rw] input_audio_duration
+    #   @return [Float, nil]
     # @!attribute [rw] input_references
     #   @return [Array<Hash{String => Object}>, nil]
     # @!attribute [rw] input_video_duration
@@ -2045,7 +2073,7 @@ module Phaseo
     #   @return [String, nil]
     # @!attribute [rw] webhook
     #   @return [Hash{String => Object}, nil]
-    VideoGenerationRequest = Struct.new(:aspect_ratio, :compression_quality, :duration, :enhance_prompt, :generate_audio, :input_references, :input_video_duration, :model, :negative_prompt, :output, :person_generation, :prompt, :provider, :provider_params, :resize_mode, :resolution, :sample_count, :seed, :size, :webhook, keyword_init: true)
+    VideoGenerationRequest = Struct.new(:aspect_ratio, :compression_quality, :duration, :enhance_prompt, :generate_audio, :input_audio_duration, :input_references, :input_video_duration, :model, :negative_prompt, :output, :person_generation, :prompt, :provider, :provider_params, :resize_mode, :resolution, :sample_count, :seed, :size, :webhook, keyword_init: true)
     # @!attribute [rw] asset
     #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] audio

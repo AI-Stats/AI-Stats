@@ -209,6 +209,73 @@ describe("OpenAI media endpoints", () => {
 		expect(capturedBody.output_compression).toBe(60);
 	});
 
+	it("routes Meta Muse Image through the OpenAI-compatible image endpoint", async () => {
+		let capturedUrl = "";
+		let capturedBody: any = null;
+		const mock = installFetchMock([{
+			match: (url) => url === "https://api.meta.ai/v1/images/generations",
+			response: jsonResponse({ created: 1700000000, data: [{ b64_json: "meta-image" }] }),
+			onRequest: (call) => {
+				capturedUrl = call.url;
+				capturedBody = call.bodyJson;
+			},
+		}]);
+
+		const result = await execImages({
+			endpoint: "images.generations",
+			model: "meta/muse-image-1.0",
+			body: {
+				model: "meta/muse-image-1.0",
+				prompt: "A studio portrait with a cobalt background.",
+				size: "1024x1024",
+			},
+			meta: REQUEST_META,
+			workspaceId: "team_test",
+			providerId: "meta",
+			byokMeta: [{ id: "meta-key", key: "test-meta-key" }],
+			pricingCard: null,
+			providerModelSlug: "muse-image-1.0",
+			stream: false,
+		} as any);
+
+		mock.restore();
+
+		expect(result.upstream.status).toBe(200);
+		expect(capturedUrl).toBe("https://api.meta.ai/v1/images/generations");
+		expect(capturedBody.model).toBe("muse-image-1.0");
+		expect(capturedBody.prompt).toContain("cobalt background");
+		expect(capturedBody.size).toBe("1024x1024");
+	});
+
+	it("uses the OpenAI EU image-generation endpoint without changing the wire contract", async () => {
+		let capturedUrl = "";
+		const mock = installFetchMock([{
+			match: (url) => url === "https://eu.api.openai.com/v1/images/generations",
+			response: jsonResponse({ created: 1700000000, data: [{ b64_json: "eu-image" }] }),
+			onRequest: (call) => {
+				capturedUrl = call.url;
+			},
+		}]);
+
+		const result = await execImages({
+			endpoint: "images.generations",
+			model: "openai/gpt-image-2",
+			body: { model: "gpt-image-2", prompt: "A rainy London street" },
+			meta: REQUEST_META,
+			workspaceId: "team_test",
+			providerId: "openai-eu",
+			byokMeta: [],
+			pricingCard: null,
+			providerModelSlug: "gpt-image-2",
+			stream: false,
+		} as any);
+
+		mock.restore();
+		expect(capturedUrl).toBe("https://eu.api.openai.com/v1/images/generations");
+		expect(result.upstream.status).toBe(200);
+		expect(result.normalized?.data).toEqual([{ b64_json: "eu-image" }]);
+	});
+
 	it("prices image generations using output_image + image_params context", async () => {
 		const mock = installFetchMock([
 			{
@@ -245,6 +312,69 @@ describe("OpenAI media endpoints", () => {
 		expect(result.bill.usage?.output_image).toBe(1);
 		expect(result.bill.usage?.pricing?.lines?.some((line: any) => line.dimension === "output_image")).toBe(true);
 		expect(result.bill.usage?.pricing?.total_nanos).toBe(36_000_000);
+	});
+
+	it("forwards Together image controls and meters generated pixels", async () => {
+		let capturedBody: any = null;
+		const mock = installFetchMock([{
+			match: (url) => url.includes("/images/generations"),
+			response: jsonResponse({ data: [{ b64_json: "first" }, { b64_json: "second" }] }),
+			onRequest: (call) => { capturedBody = call.bodyJson; },
+		}]);
+
+		const result = await execImages({
+			endpoint: "images.generations",
+			model: "qwen/qwen-image",
+			body: { model: "qwen/qwen-image", prompt: "A poster", n: 2, width: 1200, height: 800, steps: 12, seed: 7 },
+			meta: REQUEST_META,
+			workspaceId: "team_test",
+			providerId: "together",
+			byokMeta: [],
+			pricingCard: {
+				key: "together:qwen/qwen-image:image.generate",
+				currency: "USD",
+				rules: [{ meter: "image_pixels", unit: "pixel", unit_size: 1_000_000, price_per_unit: 0.0058, pricing_plan: "standard" }],
+			},
+			providerModelSlug: "Qwen/Qwen-Image",
+			stream: false,
+		} as any);
+
+		mock.restore();
+		expect(capturedBody).toMatchObject({ width: 1200, height: 800, steps: 12, seed: 7 });
+		expect(result.bill.usage?.image_pixels).toBe(1_920_000);
+		expect(result.bill.usage?.pricing?.lines).toEqual(expect.arrayContaining([
+			expect.objectContaining({ dimension: "image_pixels" }),
+		]));
+	});
+
+	it("uses Together's documented 1024-square default for image pixel billing", async () => {
+		const mock = installFetchMock([{
+			match: (url) => url.includes("/images/generations"),
+			response: jsonResponse({ data: [{ b64_json: "image" }] }),
+		}]);
+
+		const result = await execImages({
+			endpoint: "images.generations",
+			model: "qwen/qwen-image",
+			body: { model: "qwen/qwen-image", prompt: "A poster" },
+			meta: REQUEST_META,
+			workspaceId: "team_test",
+			providerId: "together",
+			byokMeta: [],
+			pricingCard: {
+				key: "together:qwen/qwen-image:image.generate",
+				currency: "USD",
+				rules: [{ meter: "image_pixels", unit: "pixel", unit_size: 1_000_000, price_per_unit: 0.0058, pricing_plan: "standard" }],
+			},
+			providerModelSlug: "Qwen/Qwen-Image",
+			stream: false,
+		} as any);
+
+		mock.restore();
+		expect(result.bill.usage?.image_pixels).toBe(1_048_576);
+		expect(result.bill.usage?.pricing?.lines).toEqual(expect.arrayContaining([
+			expect.objectContaining({ dimension: "image_pixels" }),
+		]));
 	});
 
 	it("prices GPT Image 2 from image tokens for every documented preset resolution", async () => {
@@ -304,6 +434,7 @@ describe("OpenAI media endpoints", () => {
 				response: jsonResponse({
 					created: 1700000000,
 					data: [{ b64_json: "abc" }],
+					background: "transparent",
 					output_format: "png",
 					quality: "high",
 					size: "1024x1536",
@@ -311,6 +442,7 @@ describe("OpenAI media endpoints", () => {
 						input_tokens: 12,
 						output_tokens: 6240,
 						total_tokens: 6252,
+						input_tokens_details: { text_tokens: 10, image_tokens: 2 },
 					},
 				}),
 			},
@@ -351,11 +483,82 @@ describe("OpenAI media endpoints", () => {
 		expect(result.upstream.status).toBe(200);
 		expect(result.normalized?.quality).toBe("high");
 		expect(result.normalized?.size).toBe("1024x1536");
+		expect(result.normalized?.background).toBe("transparent");
 		expect(result.normalized?.output_format).toBe("png");
+		expect(result.normalized?.usage?.input_tokens_details).toEqual({ text_tokens: 10, image_tokens: 2 });
 		expect(result.bill.usage?.quality).toBe("high");
 		expect(result.bill.usage?.size).toBe("1024x1536");
 		expect(result.bill.usage?.pricing?.lines?.some((line: any) => line.dimension === "output_image")).toBe(true);
 		expect(result.bill.usage?.pricing?.total_nanos).toBe(52_000_000);
+	});
+
+	it("streams partial and completed GPT image events unchanged and prices completed usage", async () => {
+		let capturedBody: any = null;
+		const frames = [
+			{
+				type: "image_generation.partial_image",
+				b64_json: "partial",
+				created_at: 1700000000,
+				size: "1024x1024",
+				quality: "high",
+				background: "opaque",
+				output_format: "webp",
+				partial_image_index: 0,
+			},
+			{
+				type: "image_generation.completed",
+				b64_json: "complete",
+				created_at: 1700000001,
+				size: "1024x1024",
+				quality: "high",
+				background: "opaque",
+				output_format: "png",
+				usage: {
+					input_tokens: 12,
+					output_tokens: 4160,
+					total_tokens: 4172,
+					input_tokens_details: { text_tokens: 10, image_tokens: 2 },
+				},
+			},
+		];
+		const mock = installFetchMock([{
+			match: (url) => url.includes("/images/generations"),
+			response: sseResponse(frames),
+			onRequest: (call) => {
+				capturedBody = call.bodyJson;
+			},
+		}]);
+
+		const result = await execImages({
+			endpoint: "images.generations",
+			model: "openai/gpt-image-1.5",
+			body: {
+				model: "openai/gpt-image-1.5",
+				prompt: "A lighthouse in a storm",
+				stream: true,
+				partial_images: 1,
+			},
+			meta: REQUEST_META,
+			workspaceId: "team_test",
+			providerId: "openai",
+			byokMeta: [],
+			pricingCard: GPT_IMAGE_2_TOKEN_PRICING_CARD,
+			providerModelSlug: "gpt-image-1.5",
+			stream: true,
+		} as any);
+
+		mock.restore();
+		expect(capturedBody).toMatchObject({ model: "gpt-image-1.5", stream: true, partial_images: 1 });
+		expect(result.kind).toBe("stream");
+		if (result.kind === "stream") {
+			const streamed = await new Response(result.stream).text();
+			expect(streamed).toContain("image_generation.partial_image");
+			expect(streamed).toContain("image_generation.completed");
+			const finalized = await result.usageFinalizer?.();
+			expect(finalized?.usage?.input_text_tokens).toBe(10);
+			expect(finalized?.usage?.input_image_tokens).toBe(2);
+			expect(finalized?.usage?.output_image_tokens).toBe(4160);
+		}
 	});
 
 	it("forwards GPT image edit parameters", async () => {
@@ -392,7 +595,7 @@ describe("OpenAI media endpoints", () => {
 				model: "openai/gpt-image-1",
 				image: pngData,
 				prompt: "Make the sky dusk.",
-				output_format: "png",
+				output_format: "webp",
 				output_compression: 90,
 				moderation: "low",
 				input_fidelity: "high",
@@ -409,10 +612,85 @@ describe("OpenAI media endpoints", () => {
 		mock.restore();
 
 		expect(result.upstream.status).toBe(200);
-		expect(outputFormat).toBe("png");
+		expect(outputFormat).toBe("webp");
 		expect(outputCompression).toBe("90");
 		expect(moderation).toBe("low");
 		expect(inputFidelity).toBe("high");
+	});
+
+	it("forwards multipart image arrays, mask, and streaming edit options", async () => {
+		let capturedForm: FormData | undefined;
+		const frames = [
+			{ type: "image_edit.partial_image", b64_json: "partial", partial_image_index: 0 },
+			{
+				type: "image_edit.completed",
+				b64_json: "complete",
+				usage: {
+					input_tokens: 20,
+					output_tokens: 272,
+					total_tokens: 292,
+					input_tokens_details: { text_tokens: 4, image_tokens: 16 },
+				},
+			},
+		];
+		const mock = installFetchMock([{
+			match: (url, init) => {
+				if (!url.includes("/images/edits")) return false;
+				capturedForm = init?.body as FormData;
+				return true;
+			},
+			response: sseResponse(frames),
+		}]);
+
+		const result = await execImageEdits({
+			endpoint: "images.edits",
+			model: "openai/gpt-image-1.5",
+			body: {
+				model: "openai/gpt-image-1.5",
+				image: [
+					new File(["first"], "first.png", { type: "image/png" }),
+					new File(["second"], "second.webp", { type: "image/webp" }),
+				],
+				mask: new File(["mask"], "mask.png", { type: "image/png" }),
+				prompt: "Combine these products",
+				size: "1024x1024",
+				quality: "high",
+				n: 2,
+				stream: true,
+				partial_images: 1,
+				output_format: "webp",
+				output_compression: 70,
+				background: "opaque",
+				moderation: "auto",
+				input_fidelity: "high",
+				user: "user-123",
+			},
+			meta: REQUEST_META,
+			workspaceId: "team_test",
+			providerId: "openai",
+			byokMeta: [],
+			pricingCard: { ...GPT_IMAGE_2_TOKEN_PRICING_CARD, endpoint: "images.edits" },
+			providerModelSlug: "gpt-image-1.5",
+			stream: true,
+		} as any);
+		mock.restore();
+
+		expect(capturedForm?.getAll("image[]")).toHaveLength(2);
+		expect((capturedForm?.getAll("image[]")[0] as File)?.name).toBe("first.png");
+		expect((capturedForm?.get("mask") as File)?.name).toBe("mask.png");
+		expect(capturedForm?.get("stream")).toBe("true");
+		expect(capturedForm?.get("partial_images")).toBe("1");
+		expect(capturedForm?.get("user")).toBe("user-123");
+		expect(result.kind).toBe("stream");
+		if (result.kind === "stream") {
+			const streamed = await new Response(result.stream).text();
+			expect(streamed).toContain("image_edit.partial_image");
+			expect(streamed).toContain("image_edit.completed");
+			const finalized = await result.usageFinalizer?.();
+			expect(finalized?.usage?.input_text_tokens).toBe(4);
+			expect(finalized?.usage?.input_image_tokens).toBe(16);
+			expect(finalized?.usage?.output_image_tokens).toBe(272);
+		}
 	});
 
 	it("prices GPT Image 2 edits from image tokens", async () => {
@@ -496,8 +774,18 @@ describe("OpenAI media endpoints", () => {
 		expect(capturedBody.format).toBeUndefined();
 	});
 
-	it("rejects stream_format for speech", async () => {
-		await expect(execSpeech({
+	it("passes through requested speech SSE and finalizes authoritative usage", async () => {
+		let capturedBody: any = null;
+		const mock = installFetchMock([{
+			match: (url) => url.includes("/audio/speech"),
+			response: sseResponse([
+				{ type: "speech.audio.delta", audio: Buffer.from([1, 2, 3]).toString("base64") },
+				{ type: "speech.audio.done", usage: { input_tokens: 2, output_tokens: 8, total_tokens: 10 } },
+				"[DONE]",
+			]),
+			onRequest: (call) => { capturedBody = call.bodyJson; },
+		}]);
+		const result = await execSpeech({
 			endpoint: "audio.speech",
 			model: "openai/gpt-4o-mini-tts",
 			body: {
@@ -513,8 +801,20 @@ describe("OpenAI media endpoints", () => {
 			byokMeta: [],
 			pricingCard: { ...PRICING_CARD, endpoint: "audio.speech" },
 			providerModelSlug: null,
-			stream: false,
-		} as any)).rejects.toThrow(/stream_format/i);
+			stream: true,
+		} as any);
+		mock.restore();
+
+		expect(capturedBody.stream_format).toBe("sse");
+		expect(result.kind).toBe("stream");
+		if (result.kind === "stream") {
+			const streamed = await new Response(result.stream).text();
+			expect(streamed).toContain("speech.audio.delta");
+			expect(streamed).toContain("speech.audio.done");
+			const finalized = await result.usageFinalizer?.();
+			expect(finalized?.usage?.input_text_tokens).toBe(2);
+			expect(finalized?.usage?.output_audio_tokens).toBe(8);
+		}
 	});
 
 	it("fails when OpenAI speech response does not include authoritative usage", async () => {
@@ -554,6 +854,7 @@ describe("OpenAI media endpoints", () => {
 
 		expect(result.upstream.status).toBe(502);
 		expect(result.bill.upstream_id).toBe("req_openai_tts_usage_test");
+		expect(result.kind).toBe("completed");
 		expect(result.bill.usage).toBeUndefined();
 		const payload = await result.upstream.clone().json();
 		expect(payload?.error?.type).toBe("upstream_usage_missing");
@@ -602,7 +903,8 @@ describe("OpenAI media endpoints", () => {
 		expect(result.upstream.headers.get("content-type")).toContain("audio/wav");
 		expect(capturedBody.stream_format).toBeUndefined();
 		expect(result.bill.upstream_id).toBe("req_compat_tts_binary_test");
-		expect(result.bill.usage).toBeUndefined();
+		expect(result.kind).toBe("stream");
+		expect(result.bill.usage).toEqual({ requests: 1, input_characters: 18 });
 	});
 
 	it("prefers authoritative SSE usage for successful OpenAI speech responses", async () => {
@@ -732,7 +1034,7 @@ describe("OpenAI media endpoints", () => {
 			body: {
 				model: "openai/gpt-4o-mini-tts",
 				input: "Hello custom voice alias",
-				voice: { id: "alloy" },
+				voice: { id: "voice_custom_123" },
 				response_format: "wav",
 			},
 			meta: REQUEST_META,
@@ -747,7 +1049,7 @@ describe("OpenAI media endpoints", () => {
 		mock.restore();
 
 		expect(result.upstream.status).toBe(200);
-		expect(capturedBody.voice).toBe("alloy");
+		expect(capturedBody.voice).toEqual({ id: "voice_custom_123" });
 	});
 
 	it("normalizes OpenAI voice aliases before forwarding speech requests", async () => {
@@ -788,6 +1090,65 @@ describe("OpenAI media endpoints", () => {
 
 		expect(result.upstream.status).toBe(200);
 		expect(capturedBody.voice).toBe("alloy");
+	});
+
+	it("rejects model-incompatible speech controls and missing voices", async () => {
+		const base = {
+			endpoint: "audio.speech",
+			model: "openai/tts-1",
+			meta: REQUEST_META,
+			workspaceId: "team_test",
+			providerId: "openai",
+			byokMeta: [],
+			pricingCard: { ...PRICING_CARD, endpoint: "audio.speech" },
+			providerModelSlug: "tts-1",
+			stream: false,
+		} as any;
+		const legacySse = await execSpeech({
+			...base,
+			body: { model: "openai/tts-1", input: "hello", voice: "alloy", stream_format: "sse" },
+		});
+		const legacyInstructions = await execSpeech({
+			...base,
+			body: { model: "openai/tts-1", input: "hello", voice: "alloy", instructions: "Whisper." },
+		});
+		const missingVoice = await execSpeech({
+			...base,
+			body: { model: "openai/tts-1", input: "hello" },
+		});
+
+		expect((await legacySse.upstream.json()).error.param).toBe("stream_format");
+		expect((await legacyInstructions.upstream.json()).error.param).toBe("instructions");
+		expect((await missingVoice.upstream.json()).error.param).toBe("voice");
+	});
+
+	it("uses the OpenAI EU speech endpoint and authoritative SSE accounting", async () => {
+		let capturedUrl = "";
+		const mock = installFetchMock([{
+			match: (url) => url === "https://eu.api.openai.com/v1/audio/speech",
+			response: sseResponse([
+				{ type: "speech.audio.delta", audio: Buffer.from([1, 2]).toString("base64") },
+				{ type: "speech.audio.done", usage: { input_tokens: 1, output_tokens: 4, total_tokens: 5 } },
+			]),
+			onRequest: (call) => { capturedUrl = call.url; },
+		}]);
+		const result = await execSpeech({
+			endpoint: "audio.speech",
+			model: "openai/gpt-4o-mini-tts",
+			body: { model: "openai/gpt-4o-mini-tts", input: "hello", voice: "cedar" },
+			meta: REQUEST_META,
+			workspaceId: "team_test",
+			providerId: "openai-eu",
+			byokMeta: [],
+			pricingCard: { ...PRICING_CARD, endpoint: "audio.speech" },
+			providerModelSlug: "gpt-4o-mini-tts",
+			stream: false,
+		} as any);
+		mock.restore();
+
+		expect(capturedUrl).toBe("https://eu.api.openai.com/v1/audio/speech");
+		expect(result.kind).toBe("stream");
+		expect(result.bill.usage?.output_audio_tokens).toBe(4);
 	});
 
 	it("returns 400 for unsupported OpenAI speech voice", async () => {
@@ -1047,6 +1408,51 @@ describe("OpenAI media endpoints", () => {
 		expect(translation.upstream.status).toBe(200);
 		expect(translation.normalized?.text).toBe("translated text");
 		expect(translationFormat).toBe("text");
+	});
+
+	it("uses the official json default and preserves translation multipart fields for openai-eu", async () => {
+		let capturedForm: FormData | null = null;
+		const mock = installFetchMock([{
+			match: (url, init) => {
+				if (!url.includes("/audio/translations")) return false;
+				capturedForm = init?.body as FormData;
+				return true;
+			},
+			response: jsonResponse({ text: "Hello", duration: 1.5, language: "english", segments: [] }),
+		}]);
+
+		const result = await execTranslation({
+			endpoint: "audio.translations",
+			model: "openai/whisper-1",
+			body: {
+				model: "openai/whisper-1",
+				file: makeAudioFile("german.wav"),
+				prompt: "Phaseo",
+				temperature: 0,
+			},
+			meta: REQUEST_META,
+			workspaceId: "team_test",
+			providerId: "openai-eu",
+			byokMeta: [],
+			pricingCard: { ...PRICING_CARD, endpoint: "audio.translations" },
+			providerModelSlug: "whisper-1",
+			stream: false,
+		} as any);
+		mock.restore();
+
+		expect(result.upstream.status).toBe(200);
+		expect(capturedForm?.get("model")).toBe("whisper-1");
+		expect(capturedForm?.get("response_format")).toBe("json");
+		expect(capturedForm?.get("prompt")).toBe("Phaseo");
+		expect(capturedForm?.get("temperature")).toBe("0");
+		const uploaded = capturedForm?.get("file") as File;
+		expect(uploaded.name).toBe("german.wav");
+		expect(result.normalized).toMatchObject({
+			text: "Hello",
+			duration: 1.5,
+			language: "english",
+			segments: [],
+		});
 	});
 
 	it("estimates usage for transcription and translation when upstream omits it", async () => {

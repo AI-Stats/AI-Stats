@@ -153,4 +153,48 @@ describe("guardUpstreamStatus", () => {
 			],
 		});
 	});
+
+	it("forwards retry guidance while hiding managed-key quota details", async () => {
+		const result = await guardUpstreamStatus(
+			makeCtx(),
+			makeResult({
+				keySource: "gateway",
+				upstream: new Response(JSON.stringify({ error: "rate_limited" }), {
+					status: 429,
+					headers: {
+						"retry-after": "15",
+						"x-ratelimit-remaining-requests": "0",
+					},
+				}),
+			}),
+		);
+
+		expect(result.ok).toBe(false);
+		if (result.ok) return;
+		expect(result.response.headers.get("Retry-After")).toBe("15");
+		expect(result.response.headers.get("X-Phaseo-Upstream-RateLimit-Remaining-Requests")).toBeNull();
+	});
+
+	it("exposes prefixed quota details for a BYOK provider response", async () => {
+		const result = await guardUpstreamStatus(
+			makeCtx(),
+			makeResult({
+				keySource: "byok",
+				upstream: new Response(JSON.stringify({ error: "rate_limited" }), {
+					status: 429,
+					headers: {
+						"x-ratelimit-limit-requests": "100",
+						"x-ratelimit-remaining-requests": "0",
+						"set-cookie": "provider_session=secret",
+					},
+				}),
+			}),
+		);
+
+		expect(result.ok).toBe(false);
+		if (result.ok) return;
+		expect(result.response.headers.get("X-Phaseo-Upstream-RateLimit-Limit-Requests")).toBe("100");
+		expect(result.response.headers.get("X-Phaseo-Upstream-RateLimit-Remaining-Requests")).toBe("0");
+		expect(result.response.headers.get("Set-Cookie")).toBeNull();
+	});
 });

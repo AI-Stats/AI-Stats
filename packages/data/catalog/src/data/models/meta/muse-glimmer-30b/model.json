@@ -352,14 +352,20 @@
       "url": "https://www.together.ai/models/muse-glimmer",
       "accessed_at": "2026-08-10",
       "notes": "Together publishes and serves Muse Glimmer through its serverless API."
+    },
+    {
+      "kind": "api_reference",
+      "url": "https://fireworks.ai/models/fireworks/muse-glimmer-30b",
+      "accessed_at": "2026-08-21",
+      "notes": "Fireworks publishes the verified serverless slug, pricing, context length, and supported image input."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-10T00:00:00",
-    "notes": "Verified against Meta's announcement and canonical Hugging Face repository. Together serves the model through its serverless API; OpenRouter exposes Together as its upstream endpoint. No independent Fireworks AI route was found."
+    "checked_at": "2026-08-21T00:00:00",
+    "notes": "Verified against Meta's announcement and canonical Hugging Face repository. Together and Fireworks serve the model through their serverless APIs; the Fireworks route and pricing were verified on 2026-08-21."
   },
-  "last_updated": "2026-08-10T00:00:00",
+  "last_updated": "2026-08-21T00:00:00",
   "removal_date": null,
   "replacement_model_id": null,
   "license_url": "https://huggingface.co/meta-models/Muse-Glimmer-30B/blob/main/LICENSE"

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
 import {
@@ -80,7 +80,6 @@ import {
 } from "@/components/(data)/model/pricing/providerPlanRouting";
 import {
 	formatProviderOfferDisplayName,
-	resolveProviderLogoId,
 } from "@/lib/providers/providerOffers";
 import {
 	chooseGatewayStatus,
@@ -91,6 +90,12 @@ import {
 	summarizeProviderLifecycle,
 	type ProviderLifecycleStatusInput,
 } from "@/components/(data)/model/pricing/providerLifecycleStatus";
+import {
+	clearProviderInspector,
+	dispatchProviderInspectorOpen,
+	PROVIDER_INSPECTOR_OPEN_EVENT,
+	type ProviderInspectorOpenDetail,
+} from "@/components/(data)/model/pricing/providerInspectorSync";
 
 const PROVIDER_STATUSES_DOCS_HREF =
 	"https://phaseo.app/docs/v1/guides/provider-statuses";
@@ -102,7 +107,6 @@ const PROVIDER_SHEET_DOCS = {
 	dataRetention:
 		"https://phaseo.app/docs/v1/cookbook/route-only-to-eu-or-zdr-providers",
 } as const;
-const PROVIDER_INSPECTOR_OPEN_EVENT = "ai-stats-provider-inspector-open";
 const PROVIDER_INSPECTOR_STATE_KEY = "__aiStatsOpenProviderInspectorId";
 const PROVIDER_INSPECTOR_SUPPRESS_ANIMATION_KEY =
 	"__aiStatsSuppressProviderInspectorAnimationForId";
@@ -194,7 +198,7 @@ function getPricingPlanLabel(plan: string): string {
 		case "flex":
 			return "Flex";
 		case "priority":
-			return "Priority";
+			return "Fast";
 		default:
 			return plan ? plan.charAt(0).toUpperCase() + plan.slice(1) : plan;
 	}
@@ -599,7 +603,9 @@ function formatTokenLimit1dp(value: number | null | undefined): string {
 	return `${value.toFixed(1)}`;
 }
 
-function formatPolicyValue(value: string | null | undefined): string {
+
+function formatPolicyValue(value: string | boolean | null | undefined): string {
+	if (typeof value === "boolean") return value ? "True" : "False";
 	const normalized = String(value ?? "").trim();
 	if (!normalized) return "Unknown";
 	return normalized
@@ -703,15 +709,6 @@ function formatRequestMeterUnit(unitLabel: string | null | undefined): string {
 	return `/ ${fmtCompact(Number(match[1].replace(/,/g, "")))} req`;
 }
 
-function formatRulePrice(
-	rule: ProviderPricing["pricing_rules"][number],
-	price: string | number | null | undefined,
-): string {
-	const numeric = Number(price);
-	if (!Number.isFinite(numeric)) return "--";
-	return `${fmtUSD(numeric)} ${formatRuleUnitLabel(rule)}`;
-}
-
 function parseUtcClockMinutes(value: string | null | undefined): number | null {
 	const match = String(value ?? "").match(/^([01]\d|2[0-3]):([0-5]\d)$/);
 	if (!match) return null;
@@ -723,6 +720,10 @@ function isUtcTimeWindowActiveNow(
 	now: Date,
 ): boolean {
 	if (window.timezone !== "UTC") return false;
+	const utcDay = PRICING_UTC_DAY_KEYS[now.getUTCDay()];
+	if (window.days_of_week?.length && !window.days_of_week.includes(utcDay)) {
+		return false;
+	}
 	const start = parseUtcClockMinutes(window.start_time);
 	const end = parseUtcClockMinutes(window.end_time);
 	if (start == null || end == null) return false;
@@ -730,6 +731,70 @@ function isUtcTimeWindowActiveNow(
 	if (start === end) return true;
 	if (start < end) return nowMinutes >= start && nowMinutes < end;
 	return nowMinutes >= start || nowMinutes < end;
+}
+
+type PricingTimezoneMode = "local" | "utc";
+
+const PRICING_TIMEZONE_MODE_KEY = "phaseo:pricing-timezone-mode:v1";
+const PRICING_TIMEZONE_MODE_EVENT = "phaseo:pricing-timezone-mode-change";
+const PRICING_UTC_DAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
+const PRICING_DAY_LABELS: Record<string, string> = {
+	mon: "Mon",
+	tue: "Tue",
+	wed: "Wed",
+	thu: "Thu",
+	fri: "Fri",
+	sat: "Sat",
+	sun: "Sun",
+};
+
+function getPricingTimezoneModeSnapshot(): PricingTimezoneMode {
+	const mode = window.localStorage.getItem(PRICING_TIMEZONE_MODE_KEY);
+	return mode === "utc" ? "utc" : "local";
+}
+
+function getServerPricingTimezoneModeSnapshot(): PricingTimezoneMode {
+	return "local";
+}
+
+function subscribeToPricingTimezoneMode(onChange: () => void): () => void {
+	window.addEventListener(PRICING_TIMEZONE_MODE_EVENT, onChange);
+	window.addEventListener("storage", onChange);
+	return () => {
+		window.removeEventListener(PRICING_TIMEZONE_MODE_EVENT, onChange);
+		window.removeEventListener("storage", onChange);
+	};
+}
+
+function formatPricingWindowDays(days: string[] | undefined): string {
+	if (!days?.length) return "Every day";
+	if (days.join(",") === "mon,tue,wed,thu,fri") return "Mon–Fri";
+	if (days.join(",") === "sat,sun") return "Sat–Sun";
+	return days.map((day) => PRICING_DAY_LABELS[day] ?? day).join(", ");
+}
+
+function formatPricingWindowRange(
+	window: NonNullable<ProviderPricing["pricing_rules"][number]["time_windows"]>[number],
+	mode: PricingTimezoneMode,
+	now: Date,
+): string {
+	if (mode === "utc") return `${window.start_time}–${window.end_time} UTC`;
+	const start = parseUtcClockMinutes(window.start_time);
+	const end = parseUtcClockMinutes(window.end_time);
+	if (start == null || end == null) return `${window.start_time}–${window.end_time} UTC`;
+	const allowedDays: Set<string> | null = window.days_of_week?.length ? new Set(window.days_of_week) : null;
+	const day = new Date(now);
+	day.setUTCHours(0, 0, 0, 0);
+	for (let offset = 0; offset < 8; offset += 1) {
+		const candidateDay = new Date(day.getTime() + offset * 86_400_000);
+		if (allowedDays && !allowedDays.has(PRICING_UTC_DAY_KEYS[candidateDay.getUTCDay()])) continue;
+		const startAt = new Date(candidateDay.getTime() + start * 60_000);
+		const endAt = new Date(candidateDay.getTime() + end * 60_000 + (end <= start ? 86_400_000 : 0));
+		const weekday = new Intl.DateTimeFormat(undefined, { weekday: "short" }).format(startAt);
+		const timeFormatter = new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit", hour12: false });
+		return `${weekday} ${timeFormatter.format(startAt)}–${timeFormatter.format(endAt)}`;
+	}
+	return `${window.start_time}–${window.end_time} UTC`;
 }
 
 function renderTablePriceSummary(
@@ -1222,16 +1287,16 @@ function getPrivacyReasonMeta(reason: string): {
 } | null {
 	if (reason === "Blocked by account provider restrictions") {
 		return {
-			label: "Unavailable in Phaseo Chat because of your Personal Data Controls.",
-			href: "/settings/account/privacy",
-			linkLabel: "Review Personal Data Controls",
+			label: "Unavailable because of workspace privacy or an assigned guardrail.",
+			href: "/settings/privacy",
+			linkLabel: "Review workspace privacy",
 		};
 	}
 	if (reason === "Not in account provider allowlist") {
 		return {
-			label: "Unavailable in Phaseo Chat because it is outside your personal allowlist.",
-			href: "/settings/account/privacy",
-			linkLabel: "Review Personal Data Controls",
+			label: "Unavailable because it is outside the workspace or assigned guardrail allowlist.",
+			href: "/settings/privacy",
+			linkLabel: "Review workspace privacy",
 		};
 	}
 	if (reason === "Blocked by workspace provider restrictions") {
@@ -1512,7 +1577,13 @@ export default function ProviderCard({
 	const [expanded, setExpanded] = useState(false);
 	const reduceMotion = useReducedMotion();
 	const [disableInspectorAnimation, setDisableInspectorAnimation] = useState(false);
+	const [inspectorNavigationProviderIds, setInspectorNavigationProviderIds] = useState<string[] | null>(null);
 	const [copiedInspectorValue, setCopiedInspectorValue] = useState<string | null>(null);
+	const pricingTimezoneMode = useSyncExternalStore(
+		subscribeToPricingTimezoneMode,
+		getPricingTimezoneModeSnapshot,
+		getServerPricingTimezoneModeSnapshot,
+	);
 	const inspectorAnimationResetRef = useRef<number | null>(null);
 	const inspectorStateClearRef = useRef<number | null>(null);
 	const inspectorProviderId = provider.provider.api_provider_id;
@@ -1526,14 +1597,19 @@ export default function ProviderCard({
 		setSelectedPlan(defaultPlan);
 	}, [defaultPlan]);
 
+	const updatePricingTimezoneMode = (mode: PricingTimezoneMode) => {
+		window.localStorage.setItem(PRICING_TIMEZONE_MODE_KEY, mode);
+		window.dispatchEvent(new CustomEvent(PRICING_TIMEZONE_MODE_EVENT, { detail: mode }));
+	};
+
 	useEffect(() => {
 		const handleOpen = (event: Event) => {
-			const detail = (event as CustomEvent<{
-				providerId?: string;
-				disableAnimation?: boolean;
-			}>).detail;
+			const detail = (event as CustomEvent<ProviderInspectorOpenDetail>).detail;
 			const providerId = detail?.providerId;
 			if (!providerId) return;
+			setInspectorNavigationProviderIds(
+				detail.navigationProviderIds?.length ? detail.navigationProviderIds : null,
+			);
 			const isTargetProvider = providerId === inspectorProviderId;
 			if (inspectorStateClearRef.current !== null) {
 				window.clearTimeout(inspectorStateClearRef.current);
@@ -2009,7 +2085,9 @@ export default function ProviderCard({
 	const uptimeTrendPoints = getUptimeTrendPoints(runtimeStats);
 	const throughputValue = formatThroughputValue(runtimeStats?.throughput30m);
 	const activeDiscountEntries = collectDiscountEntriesFromSections(sec);
-	const activePromotionEntries = activeDiscountEntries.filter((entry) => entry.endsAt);
+	// A promotion can have an open-ended published duration. Show its discount
+	// without fabricating a deadline; the countdown remains conditional below.
+	const activePromotionEntries = activeDiscountEntries;
 	const tableActiveDiscountEntries = collectDiscountEntriesFromSections(tableSec);
 	const discountCount = activePromotionEntries.length;
 	const tableDiscountCount = tableActiveDiscountEntries.length;
@@ -2077,10 +2155,7 @@ export default function ProviderCard({
 		}
 		return name;
 	})();
-	const logoProviderId = resolveProviderLogoId({
-		providerId: sec.providerId,
-		providerFamilyId: provider.provider.provider_family_id ?? null,
-	});
+	const logoProviderId = sec.logoProviderId;
 	const tableInputPriceSummary = buildProviderTablePriceSummary(tableSec, "input");
 	const tableOutputPriceSummary = buildProviderTablePriceSummary(tableSec, "output");
 	const tableCacheReadPriceSummary = showCacheReadColumn
@@ -2096,7 +2171,7 @@ export default function ProviderCard({
 		...visibleVariantLabels,
 		hiddenVariantCount > 0 ? `+${hiddenVariantCount} more` : null,
 	].filter((value): value is string => Boolean(value));
-	const providerNavigationItems = Array.from(
+	const defaultProviderNavigationItems = Array.from(
 		new Map(
 			navigationProviders.map((candidate) => [
 				candidate.provider.api_provider_id,
@@ -2109,6 +2184,21 @@ export default function ProviderCard({
 			]),
 		).values(),
 	);
+	const navigationProviderById = new Map(
+		[...comparisonProviders, ...navigationProviders].map((candidate) => [
+			candidate.provider.api_provider_id,
+			{
+				id: candidate.provider.api_provider_id,
+				name: candidate.provider.api_provider_name || candidate.provider.api_provider_id,
+			},
+		]),
+	);
+	const providerNavigationItems = inspectorNavigationProviderIds
+		? inspectorNavigationProviderIds.flatMap((providerId) => {
+			const item = navigationProviderById.get(providerId);
+			return item ? [item] : [];
+		})
+		: defaultProviderNavigationItems;
 	const currentProviderNavigationIndex = providerNavigationItems.findIndex(
 		(item) => item.id === inspectorProviderId,
 	);
@@ -2128,7 +2218,7 @@ export default function ProviderCard({
 			: null;
 	const openInspectorForProvider = (
 		providerId: string,
-		options: { disableAnimation?: boolean } = {},
+		options: { disableAnimation?: boolean; navigationProviderIds?: string[] } = {},
 	) => {
 		const currentOpenProviderId = window[PROVIDER_INSPECTOR_STATE_KEY] ?? null;
 		const suppressAnimationForProviderId =
@@ -2169,19 +2259,26 @@ export default function ProviderCard({
 				}
 			}, 250);
 		}
-		window.dispatchEvent(
-			new CustomEvent(PROVIDER_INSPECTOR_OPEN_EVENT, {
-				detail: { providerId, disableAnimation },
-			}),
+		dispatchProviderInspectorOpen(
+			providerId,
+			disableAnimation,
+			options.navigationProviderIds ?? inspectorNavigationProviderIds ?? navigationProviders.map(
+				(candidate) => candidate.provider.api_provider_id,
+			),
 		);
 	};
 	const toggleExpanded = () => {
 		if (expanded) {
 			window[PROVIDER_INSPECTOR_STATE_KEY] = null;
+			clearProviderInspector(inspectorProviderId);
 			setExpanded(false);
 			return;
 		}
-		openInspectorForProvider(inspectorProviderId);
+		openInspectorForProvider(inspectorProviderId, {
+			navigationProviderIds: navigationProviders.map(
+				(candidate) => candidate.provider.api_provider_id,
+			),
+		});
 	};
 	const handleSummaryRowClick = (event: React.MouseEvent<HTMLTableRowElement>) => {
 		const interactiveTarget = (event.target as HTMLElement).closest(
@@ -2219,6 +2316,7 @@ export default function ProviderCard({
 	};
 	const handleInspectorOpenChange = (open: boolean) => {
 		if (!open && expanded) {
+			clearProviderInspector(inspectorProviderId);
 			const closingProviderId = inspectorProviderId;
 			window[PROVIDER_INSPECTOR_RECENTLY_CLOSED_ID_KEY] = closingProviderId;
 			window[PROVIDER_INSPECTOR_RECENTLY_CLOSED_AT_KEY] = Date.now();
@@ -2638,6 +2736,12 @@ export default function ProviderCard({
 			),
 		}))
 		.filter((entry) => entry.windows.length > 0);
+	const representativePricingWindows = timeWindowPricingRules[0]?.windows ?? [];
+	const peakPricingActiveNow = representativePricingWindows.some((window) =>
+		isUtcTimeWindowActiveNow(window, now),
+	);
+	const weekdayOnlyPricing = representativePricingWindows[0]?.days_of_week?.join(",") === "mon,tue,wed,thu,fri";
+	const localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "Local time";
 	const sheetSectionPrefix = `provider-${sec.providerId.replace(/[^a-z0-9_-]/gi, "-")}-${selectedPlan}`;
 	const pricingSectionId = `${sheetSectionPrefix}-pricing`;
 	const performanceSectionId = `${sheetSectionPrefix}-performance`;
@@ -2646,20 +2750,20 @@ export default function ProviderCard({
 	const parametersSectionId = `${sheetSectionPrefix}-parameters`;
 	const dataPolicySummary = [
 		{
-			label: "Training Policy",
-			value: formatPolicyValue(provider.provider.prompt_training_policy),
-		},
-		{
-			label: "Zero Data Retention",
-			value: formatPolicyValue(provider.provider.zero_data_retention),
-		},
-		{
 			label: "Data Policy",
 			value: formatPolicyValue(provider.provider.data_policy_tier),
 		},
 		{
-			label: "Residency",
-			value: formatPolicyValue(provider.provider.residency_mode),
+			label: "ZDR",
+			value: formatPolicyValue(provider.provider.zero_data_retention),
+		},
+		{
+			label: "Processing",
+			value: provider.provider.default_execution_regions?.join(", ") || formatPolicyValue(provider.provider.residency_mode),
+		},
+		{
+			label: "Data centres",
+			value: provider.provider.default_data_regions?.join(", ") || "Unknown",
 		},
 	];
 
@@ -2766,7 +2870,7 @@ export default function ProviderCard({
 										<HoverCardContent align="start" className="w-80 p-2 text-xs">
 											<p className="font-semibold text-foreground">{isWorkspacePrivacyBlocked ? "Workspace blocked" : "Chat unavailable"}</p>
 											<p className="mt-1 text-muted-foreground">
-												{isWorkspacePrivacyBlocked ? "Workspace Data Controls prevent API and Chat traffic from using this provider." : "Your Personal Data Controls prevent Phaseo Chat from using this provider; workspace API keys are unaffected."}
+												{isWorkspacePrivacyBlocked ? "Workspace privacy prevents API and Chat traffic from using this provider." : "An assigned guardrail prevents this request from using the provider."}
 											</p>
 											<div className="mt-2 space-y-1 border-t border-zinc-200/70 pt-2 dark:border-zinc-800">
 												{privacyReasonMeta.map(({ reason, meta }) => (
@@ -3068,74 +3172,89 @@ export default function ProviderCard({
 						{pricingPrimaryContent}
 						{pricingGeneratedOutputContent}
 						{timeWindowPricingRules.length > 0 ? (
-									<div className="py-2">
-										<div className="pb-2">
-											<div className="text-xs font-semibold text-foreground">
-												Time-window pricing
-											</div>
-											<div className="mt-0.5 text-[11px] text-muted-foreground">
-												Selected by {formatBillingTimestampBasis(timeWindowPricingRules[0]?.rule.billing_timestamp_basis)} time.
-											</div>
-										</div>
-										<div className="divide-y divide-zinc-200/80 dark:divide-zinc-800">
-											{timeWindowPricingRules.map(({ rule, windows }) => {
-												const windowsWithActiveState = windows.map((window) => ({
-													window,
-													active: isUtcTimeWindowActiveNow(window, now),
-												}));
-												const baseActive = !windowsWithActiveState.some((entry) => entry.active);
-												return (
-													<div key={rule.id} className="py-2.5">
-														<div className="flex items-center justify-between gap-3">
-															<div className="min-w-0 text-xs font-medium text-foreground">
-																{formatMeterLabel(rule.meter)}
-															</div>
-															<div
-																className={cn(
-																	"shrink-0 text-xs tabular-nums",
-																	baseActive ? selectedPlanTheme.accent : "text-muted-foreground",
-																)}
-															>
-																Base {formatRulePrice(rule, rule.price_per_unit)}
-																{baseActive ? <span className="ml-2 font-semibold">Active now</span> : null}
-															</div>
-														</div>
-														<div className="mt-2 divide-y divide-zinc-200/70 text-xs dark:divide-zinc-800">
-															{windowsWithActiveState.map(({ window, active }, index) => (
-																<div
-																	key={`${rule.id}-${window.label}-${window.start_time}-${index}`}
-																	className="flex items-center justify-between gap-3 py-1.5"
-																>
-																	<div className="min-w-0">
-																		<span className="font-medium text-foreground">
-																			{window.label}
-																		</span>
-																		<span className="ml-2 tabular-nums text-muted-foreground">
-																			{window.start_time}-{window.end_time} UTC
-																		</span>
-																		{active ? (
-																			<span className={cn("ml-2 font-semibold", selectedPlanTheme.accent)}>
-																				Active now
-																			</span>
-																		) : null}
-																	</div>
-																	<div
-																		className={cn(
-																			"shrink-0 font-semibold tabular-nums",
-																			active ? selectedPlanTheme.accent : "text-foreground",
-																		)}
-																	>
-																		{formatRulePrice(rule, window.price_per_unit)}
-																	</div>
-																</div>
-															))}
-														</div>
-													</div>
-												);
-											})}
+							<div className="py-3">
+								<div className="flex items-start justify-between gap-3">
+									<div>
+										<div className="text-xs font-semibold text-foreground">Scheduled pricing</div>
+										<div className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
+											Selected by {formatBillingTimestampBasis(timeWindowPricingRules[0]?.rule.billing_timestamp_basis)} time.
 										</div>
 									</div>
-								) : null}
+									<div className="inline-flex shrink-0 rounded-md border border-zinc-200 p-0.5 text-[11px] dark:border-zinc-800" aria-label="Pricing schedule timezone">
+										{(["local", "utc"] as const).map((mode) => (
+											<button
+												key={mode}
+												type="button"
+												aria-pressed={pricingTimezoneMode === mode}
+												onClick={() => updatePricingTimezoneMode(mode)}
+												className={cn(
+													"rounded px-2 py-1 font-medium transition-colors",
+													pricingTimezoneMode === mode ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground",
+												)}
+											>
+												{mode === "local" ? "Your time" : "UTC"}
+											</button>
+										))}
+									</div>
+								</div>
+
+								<div className="mt-3 rounded-lg border border-zinc-200/80 dark:border-zinc-800">
+									<div className="grid grid-cols-[1fr_auto] gap-3 border-b border-zinc-200/80 px-3 py-2.5 dark:border-zinc-800">
+										<div>
+											<div className="flex items-center gap-2 text-xs font-semibold text-foreground">
+												Off Peak
+												{!peakPricingActiveNow ? <span className={selectedPlanTheme.accent}>Active now</span> : null}
+											</div>
+											<div className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
+												{weekdayOnlyPricing
+													? "Weekends all day and outside the weekday periods below."
+													: "Outside the periods below."}
+											</div>
+										</div>
+									</div>
+									<div className="border-b border-zinc-200/80 px-3 py-2.5 dark:border-zinc-800">
+										<div className="flex items-center gap-2 text-xs font-semibold text-foreground">
+											Peak · {formatPricingWindowDays(representativePricingWindows[0]?.days_of_week)}
+											{peakPricingActiveNow ? <span className={selectedPlanTheme.accent}>Active now</span> : null}
+										</div>
+										<div className="mt-1 space-y-0.5 text-[11px] tabular-nums text-muted-foreground">
+											{representativePricingWindows.map((window, index) => (
+												<div key={`${window.start_time}-${window.end_time}-${index}`}>
+													{formatPricingWindowRange(window, pricingTimezoneMode, now)}
+												</div>
+											))}
+										</div>
+										<div className="mt-1 text-[10px] text-muted-foreground">
+											{pricingTimezoneMode === "local" ? localTimezone : "Coordinated Universal Time"}
+										</div>
+									</div>
+									<div className="divide-y divide-zinc-200/70 px-3 dark:divide-zinc-800">
+										{timeWindowPricingRules.map(({ rule, windows }) => (
+											<div key={rule.id} className="py-2.5">
+												<div className="flex items-baseline justify-between gap-3">
+													<div className="min-w-0 text-xs font-medium text-foreground">{formatMeterLabel(rule.meter)}</div>
+													<div className="shrink-0 text-[10px] text-muted-foreground">{formatRuleUnitLabel(rule).replace(/^\//, "per")}</div>
+												</div>
+												<div className="mt-1.5 grid grid-cols-2 gap-2">
+													<div>
+														<div className="text-[10px] font-medium text-muted-foreground">Off Peak</div>
+														<div className={cn("mt-0.5 text-xs font-semibold tabular-nums", !peakPricingActiveNow ? selectedPlanTheme.accent : "text-foreground")}>
+															{fmtUSD(Number(rule.price_per_unit))}
+														</div>
+													</div>
+													<div>
+														<div className="text-[10px] font-medium text-muted-foreground">Peak</div>
+														<div className={cn("mt-0.5 text-xs font-semibold tabular-nums", peakPricingActiveNow ? selectedPlanTheme.accent : "text-foreground")}>
+															{fmtUSD(Number(windows[0]?.price_per_unit))}
+														</div>
+													</div>
+												</div>
+											</div>
+										))}
+									</div>
+								</div>
+							</div>
+						) : null}
 								{pricingAdditionalContent}
 							</section>
 
@@ -3276,21 +3395,21 @@ export default function ProviderCard({
 								<div>
 									<h3 className="text-[15px] font-semibold text-foreground">
 										<ProviderSheetSectionLink href={PROVIDER_SHEET_DOCS.dataRetention}>
-											Data and Retention
+											Data Policy
 										</ProviderSheetSectionLink>
 									</h3>
 								</div>
 								<div className="space-y-2">
-									{dataPolicySummary.map((item) => (
+					{dataPolicySummary.map((item) => (
 										<div
 											key={item.label}
 											className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-4"
 										>
 											<div className="text-[11px] text-muted-foreground">{item.label}</div>
 											<div className="text-right text-sm font-medium text-foreground">{item.value}</div>
-										</div>
-									))}
-								</div>
+						</div>
+					))}
+				</div>
 								{privacyReasonMeta.length > 0 ? (
 									<div className="border-l-2 border-red-400 pl-3 text-xs text-red-900 dark:text-red-100">
 										<div className="font-semibold">{isWorkspacePrivacyBlocked ? "Blocked by workspace Data Controls" : "Unavailable in Phaseo Chat"}</div>

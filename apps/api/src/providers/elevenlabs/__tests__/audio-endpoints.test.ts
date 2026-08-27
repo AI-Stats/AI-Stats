@@ -418,6 +418,34 @@ describe("ElevenLabs audio endpoints", () => {
 		expect(fileName).toBe("sample.wav");
 	});
 
+	it("derives billable audio seconds when ElevenLabs omits usage", async () => {
+		const mock = installFetchMock([{
+			match: (url) => url.includes("/v1/speech-to-text"),
+			response: jsonResponse({ text: "Transcribed" }),
+		}]);
+		const file = new File([new Uint8Array(16000 * 3)], "sample.mp3", { type: "" });
+		const result = await execTranscription({
+			endpoint: "audio.transcription",
+			model: "eleven-labs/scribe-v2",
+			body: { model: "eleven-labs/scribe-v2", file },
+			meta: REQUEST_META,
+			workspaceId: "team_test",
+			providerId: "elevenlabs",
+			byokMeta: [],
+			pricingCard: {
+				...PRICING_CARD,
+				endpoint: "audio.transcription",
+				rules: [{ ...PRICING_CARD.rules[0], meter: "input_audio_seconds", unit: "second", price_per_unit: 0.22, unit_size: 3600 }],
+			},
+			providerModelSlug: null,
+			stream: false,
+		} as any);
+		mock.restore();
+		expect(result.normalized?.usage?.input_audio_seconds).toBe(3);
+		expect(result.bill.usage?.input_audio_seconds).toBe(3);
+		expect(result.bill.cost_cents).toBeGreaterThan(0);
+	});
+
 	it("forwards language_code for ElevenLabs transcriptions", async () => {
 		let languageCode: string | null = null;
 		const mock = installFetchMock([
@@ -458,5 +486,41 @@ describe("ElevenLabs audio endpoints", () => {
 
 		expect(result.upstream.status).toBe(200);
 		expect(languageCode).toBe("en");
+	});
+
+	it("maps URL input and Scribe controls to the native multipart contract", async () => {
+		let capturedUrl = "";
+		let capturedForm: FormData | null = null;
+		const mock = installFetchMock([{ match: (url, init) => {
+			capturedUrl = url;
+			capturedForm = init?.body as FormData;
+			return url.includes("/v1/speech-to-text");
+		}, response: jsonResponse({ text: "Transcribed" }) }]);
+
+		const result = await execTranscription({
+			endpoint: "audio.transcription",
+			model: "eleven-labs/scribe-v2",
+			body: {
+				model: "eleven-labs/scribe-v2",
+				file_url: "https://example.com/call.mp3",
+				keywords: ["Phaseo", "AC 42"],
+				temperature: 1.5,
+				diarize: true,
+				timestamp_granularities: ["word"],
+				config: { elevenlabs: { enable_logging: false, tag_audio_events: true } },
+			},
+			meta: REQUEST_META, workspaceId: "team_test", providerId: "elevenlabs",
+			byokMeta: [], pricingCard: null, providerModelSlug: null, stream: false,
+		} as any);
+		mock.restore();
+
+		expect(result.upstream.status).toBe(200);
+		expect(capturedUrl).toContain("enable_logging=false");
+		expect(capturedForm?.get("source_url")).toBe("https://example.com/call.mp3");
+		expect(capturedForm?.getAll("keyterms")).toEqual(["Phaseo", "AC 42"]);
+		expect(capturedForm?.get("temperature")).toBe("1.5");
+		expect(capturedForm?.get("diarize")).toBe("true");
+		expect(capturedForm?.get("timestamps_granularity")).toBe("word");
+		expect(capturedForm?.get("tag_audio_events")).toBe("true");
 	});
 });

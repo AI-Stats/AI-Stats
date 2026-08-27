@@ -19,6 +19,7 @@ import {
 export type VideoJobMeta = {
 	provider: string;
 	providerTaskId?: string | null;
+	ltxEndpoint?: "text-to-video" | "image-to-video" | "audio-to-video" | null;
 	requestId?: string | null;
 	sessionId?: string | null;
 	appId?: string | null;
@@ -32,6 +33,7 @@ export type VideoJobMeta = {
 	inputImageCount?: number | null;
 	inputVideoCount?: number | null;
 	inputVideoSeconds?: number | null;
+	inputAudioSeconds?: number | null;
 	frameRate?: number | null;
 	outputAccess?: "bytes" | "signed_url" | "both" | null;
 	downloadUrl?: string | null;
@@ -130,6 +132,8 @@ function parseVideoJobMeta(value: unknown): VideoJobMeta | null {
 	const out: VideoJobMeta = { provider };
 	if (typeof source.providerTaskId === "string") out.providerTaskId = source.providerTaskId;
 	if (typeof source.provider_task_id === "string") out.providerTaskId = source.provider_task_id;
+	if (source.ltxEndpoint === "text-to-video" || source.ltxEndpoint === "image-to-video" || source.ltxEndpoint === "audio-to-video") out.ltxEndpoint = source.ltxEndpoint;
+	if (source.ltx_endpoint === "text-to-video" || source.ltx_endpoint === "image-to-video" || source.ltx_endpoint === "audio-to-video") out.ltxEndpoint = source.ltx_endpoint;
 	if (typeof source.requestId === "string") out.requestId = source.requestId;
 	if (typeof source.request_id === "string") out.requestId = source.request_id;
 	if (typeof source.sessionId === "string") out.sessionId = source.sessionId;
@@ -156,6 +160,8 @@ function parseVideoJobMeta(value: unknown): VideoJobMeta | null {
 	if (typeof source.input_video_count === "number") out.inputVideoCount = source.input_video_count;
 	if (typeof source.inputVideoSeconds === "number") out.inputVideoSeconds = source.inputVideoSeconds;
 	if (typeof source.input_video_seconds === "number") out.inputVideoSeconds = source.input_video_seconds;
+	if (typeof source.inputAudioSeconds === "number") out.inputAudioSeconds = source.inputAudioSeconds;
+	if (typeof source.input_audio_seconds === "number") out.inputAudioSeconds = source.input_audio_seconds;
 	if (typeof source.frameRate === "number") out.frameRate = source.frameRate;
 	if (typeof source.frame_rate === "number") out.frameRate = source.frame_rate;
 	if (source.outputAccess === "bytes" || source.outputAccess === "signed_url" || source.outputAccess === "both") {

@@ -92,8 +92,10 @@ import ModelPercentileSelect, {
 	DEFAULT_MODEL_PERCENTILE,
 	type ModelPercentile,
 } from "@/components/(data)/models/ModelPercentileSelect";
+import { publishProviderView } from "@/components/(data)/model/pricing/providerViewSync";
 const SORT_QUERY_KEY = "sort";
 const SORT_DIRECTION_QUERY_KEY = "dir";
+const LEGACY_PROVIDER_VIEW_QUERY_KEY = "provider_view";
 const RUNTIME_STATS_ERROR_RETRY_COUNT = 2;
 
 export function isTerminalRuntimeStatsRetry(retryCount: number) {
@@ -413,8 +415,7 @@ function getIgnoredPrivacyReasons(
     }
 
     if (settings.privacyZdrOnly) {
-        const zdr = provider.provider.zero_data_retention ?? "unknown";
-        if (zdr !== "default" && zdr !== "optional") {
+        if (provider.provider.zero_data_retention !== true) {
             reasons.push("Does not meet workspace ZDR-only requirement");
         }
     }
@@ -439,8 +440,7 @@ function matchesPrivacyFilter(
 ): boolean {
     if (filter === "all") return true;
     if (filter === "zdr") {
-        const zdr = provider.provider.zero_data_retention;
-        return zdr === "default" || zdr === "optional";
+        return provider.provider.zero_data_retention === true;
     }
     if (filter === "no_training") {
         return getProviderPromptTrainingPolicy(provider) !== "may_train";
@@ -923,12 +923,29 @@ export default function ModelPricingClient({
                 }
             }
             const nextQuery = next.toString();
-            router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname, {
+            const hash = window.location.hash;
+            const nextUrl = nextQuery ? `${pathname}?${nextQuery}${hash}` : `${pathname}${hash}`;
+            router.replace(nextUrl, {
                 scroll: false,
             });
         },
         [effectiveSearchParams, pathname, router]
     );
+
+    useLayoutEffect(() => {
+		publishProviderView(modelId, activeFilterCount > 0
+            ? filteredProviders
+                .map((provider) => provider.provider.api_provider_id)
+                .sort((a, b) => a.localeCompare(b))
+                .join(",") || "none"
+            : null);
+		return () => publishProviderView(modelId, null);
+	}, [activeFilterCount, filteredProviders, modelId]);
+
+    useEffect(() => {
+        if (!effectiveSearchParams.has(LEGACY_PROVIDER_VIEW_QUERY_KEY)) return;
+        updateUrlState({ [LEGACY_PROVIDER_VIEW_QUERY_KEY]: null });
+    }, [effectiveSearchParams, updateUrlState]);
 
     useEffect(() => {
         const nextSort = parseSortOption(effectiveSearchParams.get(SORT_QUERY_KEY));

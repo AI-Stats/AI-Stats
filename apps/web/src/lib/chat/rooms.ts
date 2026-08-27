@@ -9,7 +9,9 @@ export type ChatRoomId =
 	| "music"
 	| "realtime"
 	| "moderation"
-	| "embeddings";
+	| "embeddings"
+	| "ocr"
+	| "rerank";
 
 export type ChatRoomConfig = {
 	id: ChatRoomId;
@@ -32,6 +34,8 @@ const IMAGE_CAPABILITY_HINTS = [
 	"images.generate",
 	"images.generations",
 	"image.generation",
+	"image.edit",
+	"images.edits",
 ];
 const VIDEO_CAPABILITY_HINTS = [
 	"video.generate",
@@ -63,6 +67,8 @@ const MUSIC_CAPABILITY_HINTS = ["music.generate", "music", "song", "audio.music"
 const REALTIME_CAPABILITY_HINTS = ["audio.realtime", "realtime", "real-time"];
 const MODERATION_CAPABILITY_HINTS = ["moderation", "moderations.create", "text.moderate"];
 const EMBEDDINGS_CAPABILITY_HINTS = ["text.embed", "embeddings", "embedding"];
+const OCR_CAPABILITY_HINTS = ["ocr"];
+const RERANK_CAPABILITY_HINTS = ["rerank"];
 
 export const CHAT_ROOMS: ChatRoomConfig[] = [
 	{
@@ -129,6 +135,20 @@ export const CHAT_ROOMS: ChatRoomConfig[] = [
 		capabilityHints: EMBEDDINGS_CAPABILITY_HINTS,
 	},
 	{
+		id: "ocr",
+		label: "OCR",
+		route: "/chat/ocr",
+		description: "Extract structured text from documents and images.",
+		capabilityHints: OCR_CAPABILITY_HINTS,
+	},
+	{
+		id: "rerank",
+		label: "Rerank",
+		route: "/chat/rerank",
+		description: "Rank documents by relevance to a query.",
+		capabilityHints: RERANK_CAPABILITY_HINTS,
+	},
+	{
 		id: "fusion",
 		label: "Fusion",
 		route: "/chat/fusion",
@@ -155,7 +175,9 @@ export const CHAT_ROOM_BY_ID: Record<ChatRoomId, ChatRoomConfig> = {
 	realtime: CHAT_ROOMS[6],
 	moderation: CHAT_ROOMS[7],
 	embeddings: CHAT_ROOMS[8],
-	fusion: CHAT_ROOMS[9],
+	ocr: CHAT_ROOMS[9],
+	rerank: CHAT_ROOMS[10],
+	fusion: CHAT_ROOMS[11],
 };
 
 const IMAGE_MODEL_HINTS = [
@@ -188,6 +210,24 @@ function normalizeCapability(capabilityId: string): string {
 	return capabilityId.trim().toLowerCase();
 }
 
+function matchesCapability(capabilityId: string, supported: string[]): boolean {
+	return supported.includes(capabilityId);
+}
+
+const CAPABILITY_ALIASES: Record<string, string> = {
+	"images.generate": "image.generate",
+	"images.generations": "image.generate",
+	"image.generation": "image.generate",
+	"images.edits": "image.edit",
+	"rerank.create": "rerank",
+	"text.rerank": "rerank",
+};
+
+export function normalizeChatCapabilityId(capabilityId: string): string {
+	const normalized = normalizeCapability(capabilityId);
+	return CAPABILITY_ALIASES[normalized] ?? normalized;
+}
+
 function includesHint(value: string, hints: string[]) {
 	return hints.some((hint) => value.includes(hint));
 }
@@ -195,40 +235,42 @@ function includesHint(value: string, hints: string[]) {
 export function capabilityIdToRoomId(
 	capabilityId: string,
 ): ChatRoomId | null {
-	const normalized = normalizeCapability(capabilityId);
-	if (
-		TEXT_CAPABILITY_HINTS.some((hint) => normalized.includes(hint)) &&
-		!normalized.includes("embed") &&
-		!normalized.includes("moderate")
-	) {
+	const normalized = normalizeChatCapabilityId(capabilityId);
+	if (matchesCapability(normalized, TEXT_CAPABILITY_HINTS)) {
 		return "text";
 	}
-	if (IMAGE_CAPABILITY_HINTS.some((hint) => normalized.includes(hint))) {
+	if (matchesCapability(normalized, IMAGE_CAPABILITY_HINTS)) {
 		return "image";
 	}
-	if (VIDEO_CAPABILITY_HINTS.some((hint) => normalized.includes(hint))) {
+	if (matchesCapability(normalized, VIDEO_CAPABILITY_HINTS)) {
 		return "video";
 	}
-	if (REALTIME_CAPABILITY_HINTS.some((hint) => normalized.includes(hint))) {
+	if (matchesCapability(normalized, REALTIME_CAPABILITY_HINTS)) {
 		return "realtime";
 	}
-	if (SPEECH_TO_TEXT_CAPABILITY_HINTS.some((hint) => normalized.includes(hint))) {
+	if (matchesCapability(normalized, SPEECH_TO_TEXT_CAPABILITY_HINTS)) {
 		return "speech-to-text";
 	}
-	if (SPEECH_CAPABILITY_HINTS.some((hint) => normalized.includes(hint))) {
+	if (matchesCapability(normalized, SPEECH_CAPABILITY_HINTS)) {
 		return "speech";
 	}
-	if (MUSIC_CAPABILITY_HINTS.some((hint) => normalized.includes(hint))) {
+	if (matchesCapability(normalized, MUSIC_CAPABILITY_HINTS)) {
 		return "music";
 	}
-	if (AUDIO_CAPABILITY_HINTS.some((hint) => normalized.includes(hint))) {
+	if (matchesCapability(normalized, AUDIO_CAPABILITY_HINTS)) {
 		return "audio";
 	}
-	if (MODERATION_CAPABILITY_HINTS.some((hint) => normalized.includes(hint))) {
+	if (matchesCapability(normalized, MODERATION_CAPABILITY_HINTS)) {
 		return "moderation";
 	}
-	if (EMBEDDINGS_CAPABILITY_HINTS.some((hint) => normalized.includes(hint))) {
+	if (matchesCapability(normalized, EMBEDDINGS_CAPABILITY_HINTS)) {
 		return "embeddings";
+	}
+	if (matchesCapability(normalized, OCR_CAPABILITY_HINTS)) {
+		return "ocr";
+	}
+	if (matchesCapability(normalized, RERANK_CAPABILITY_HINTS)) {
+		return "rerank";
 	}
 	return null;
 }
@@ -265,7 +307,29 @@ export function inferModelRoomFromId(modelId: string): ChatRoomId {
 type ModelWithCapabilities = {
 	modelId: string;
 	capabilities?: string[] | null;
+	outputModalities?: string[] | null;
 };
+
+function roomIdsFromOutputModalities(
+	modalities: string[] | null | undefined,
+): ChatRoomId[] {
+	const rooms = new Set<ChatRoomId>();
+	for (const value of modalities ?? []) {
+		const modality = value.trim().toLowerCase().replace(/[\s/-]+/g, "_");
+		if (modality === "text") rooms.add("text");
+		else if (modality === "image") rooms.add("image");
+		else if (modality === "video") rooms.add("video");
+		else if (modality === "music" || modality === "audio_music") rooms.add("music");
+		else if (modality === "audio_tts") rooms.add("speech");
+		else if (modality === "audio_stt") rooms.add("speech-to-text");
+		else if (modality === "audio") rooms.add("audio");
+		else if (modality === "embeddings") rooms.add("embeddings");
+		else if (modality === "moderations") rooms.add("moderation");
+		else if (modality === "ocr") rooms.add("ocr");
+		else if (modality === "rerank") rooms.add("rerank");
+	}
+	return Array.from(rooms);
+}
 
 export function modelSupportsRoom(
 	model: ModelWithCapabilities,
@@ -284,6 +348,18 @@ export function modelSupportsRoom(
 			);
 		}
 		return capabilityRooms.includes(roomId);
+	}
+	const hasDeclaredCapabilities = (model.capabilities ?? []).some(
+		(capabilityId) => capabilityId.trim().length > 0,
+	);
+	if (hasDeclaredCapabilities) {
+		return false;
+	}
+	const modalityRooms = roomIdsFromOutputModalities(model.outputModalities);
+	if (modalityRooms.length > 0) {
+		return roomId === "audio"
+			? modalityRooms.some((id) => ["audio", "speech", "speech-to-text", "music"].includes(id))
+			: modalityRooms.includes(roomId);
 	}
 	if (roomId === "text") {
 		return inferModelRoomFromId(model.modelId) === "text";

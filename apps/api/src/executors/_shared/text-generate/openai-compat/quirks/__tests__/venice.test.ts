@@ -21,4 +21,20 @@ describe("Venice quirks", () => {
 		expect(Array.isArray(request.input)).toBe(true);
 		expect(request.input_items).toBeUndefined();
 	});
+
+	it("passes Venice extensions and preserves reasoning output", () => {
+		const request: Record<string, any> = { model: "zai-org-glm-5-1", messages: [] };
+		veniceQuirks.transformRequest?.({
+			request,
+			ir: { vendor: { venice: { enable_web_search: "auto", disable_thinking: false } } } as any,
+		});
+		expect(request.venice_parameters).toEqual({
+			enable_web_search: "auto",
+			disable_thinking: false,
+		});
+		expect(veniceQuirks.extractReasoning?.({
+			choice: { message: { reasoning_content: "working" } },
+			rawContent: "answer",
+		})).toEqual({ main: "answer", reasoning: ["working"] });
+	});
 });

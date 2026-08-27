@@ -7,6 +7,44 @@ import { describe, expect, it } from "vitest";
 import { irToOpenAIResponses, openAIResponsesToIR } from "../transform";
 
 describe("openAIResponsesToIR", () => {
+	it("maps official incomplete status, refusal, annotations, and current usage details", () => {
+		const ir = openAIResponsesToIR({
+			id: "resp_incomplete",
+			status: "incomplete",
+			incomplete_details: { reason: "content_filter" },
+			output: [{
+				type: "message",
+				role: "assistant",
+				content: [
+					{
+						type: "output_text",
+						text: "Partial",
+						annotations: [{ type: "url_citation", url: "https://example.com" }],
+					},
+					{ type: "refusal", refusal: "Cannot continue." },
+				],
+			}],
+			usage: {
+				input_tokens: 10,
+				output_tokens: 4,
+				total_tokens: 14,
+				input_tokens_details: { cached_tokens: 6, cache_write_tokens: 2, audio_tokens: 3 },
+				output_tokens_details: { reasoning_tokens: 1, audio_tokens: 2 },
+			},
+		}, "req-1", "gpt-5.6-sol", "openai");
+
+		expect(ir.choices[0].finishReason).toBe("content_filter");
+		expect(ir.choices[0].message.refusal).toBe("Cannot continue.");
+		expect(ir.choices[0].message.content[0]).toMatchObject({
+			type: "text",
+			annotations: [{ type: "url_citation", url: "https://example.com" }],
+		});
+		expect(ir.usage).toMatchObject({
+			cachedInputTokens: 6,
+			reasoningTokens: 1,
+			_ext: { cachedWriteTokens: 2, inputAudioTokens: 3, outputAudioTokens: 2 },
+		});
+	});
 	describe("Z.AI Reasoning Format", () => {
 		it("should convert Z.AI multi-message response to reasoning + message", () => {
 			// Simulate Z.AI's response format: two message items instead of reasoning + message
@@ -613,6 +651,54 @@ describe("irToOpenAIResponses", () => {
 		expect(request.reasoning).toBeUndefined();
 	});
 
+	it("preserves Meta multimodal and file inputs in Responses format", () => {
+		const request = irToOpenAIResponses({
+			model: "meta/muse-spark-1.2",
+			messages: [{
+				role: "user",
+				content: [
+					{ type: "text", text: "Compare these inputs." },
+					{ type: "image", source: "url", data: "https://example.com/chart.png" },
+					{ type: "video", source: "url", url: "https://example.com/demo.mp4" },
+					{ type: "audio", source: "url", data: "https://example.com/note.mp3", format: "mp3" },
+					{ type: "provider_block", block: { type: "input_file", file_url: "https://example.com/report.pdf" } },
+				],
+			}],
+			stream: false,
+		} as any, "muse-spark-1.2", "meta");
+
+		expect(request.input[0].content).toEqual([
+			{ type: "input_text", text: "Compare these inputs." },
+			{ type: "input_image", image_url: "https://example.com/chart.png" },
+			{ type: "input_video", video_url: { url: "https://example.com/demo.mp4" } },
+			{ type: "input_audio", input_audio: { url: "https://example.com/note.mp3", format: "mp3" } },
+			{ type: "input_file", file_url: "https://example.com/report.pdf" },
+		]);
+	});
+
+	it("maps DeepSeek Vision image inputs to the documented Responses shape", () => {
+		const request = irToOpenAIResponses({
+			model: "deepseek/deepseek-v4-flash-vision-exp",
+			messages: [{
+				role: "user",
+				content: [
+					{ type: "text", text: "Read this chart." },
+					{ type: "image", source: "url", data: "https://example.com/chart.png", detail: "low" },
+				],
+			}],
+			stream: false,
+		} as any, "deepseek-v4-flash-vision-exp", "deepseek");
+
+		expect(request.input).toEqual([{
+			type: "message",
+			role: "user",
+			content: [
+				{ type: "input_text", text: "Read this chart." },
+				{ type: "input_image", image_url: "https://example.com/chart.png", detail: "low" },
+			],
+		}]);
+	});
+
 	it("maps Meta disabled reasoning to minimal effort", () => {
 		const request = irToOpenAIResponses({
 			model: "meta/muse-spark-1.1",
@@ -958,10 +1044,103 @@ describe("irToOpenAIResponses", () => {
 			},
 		} as any, "gpt-5-nano", "openai");
 
-		expect(request.context_management).toEqual({
+		expect(request.context_management).toEqual([{
 			type: "compaction",
 			compact_threshold: 0.65,
+		}]);
+	});
+
+	it("passes current OpenAI Responses cache, reasoning context, verbosity, and allowed-tools fields", () => {
+		const request = irToOpenAIResponses({
+			model: "openai/gpt-5.6-sol",
+			messages: [{ role: "user", content: [{ type: "text", text: "hello" }] }],
+			stream: false,
+			reasoning: { effort: "high", context: "all_turns" },
+			promptCacheOptions: { mode: "explicit", ttl: "30m" },
+			textVerbosity: "low",
+			toolChoice: { name: "allowed_tools" },
+			vendor: {
+				openai: {
+					tool_choice: {
+						type: "allowed_tools",
+						mode: "required",
+						tools: [{ type: "function", name: "lookup" }],
+					},
+				},
+			},
+		} as any, "gpt-5.6-sol", "openai-eu");
+
+		expect(request.reasoning).toMatchObject({ effort: "high", context: "all_turns" });
+		expect(request.prompt_cache_options).toEqual({ mode: "explicit", ttl: "30m" });
+		expect(request.text).toMatchObject({ verbosity: "low" });
+		expect(request.tool_choice).toEqual({
+			type: "allowed_tools",
+			mode: "required",
+			tools: [{ type: "function", name: "lookup" }],
 		});
+	});
+
+	it("re-emits native Responses tools without converting them to functions", () => {
+		const tools = [
+			{ name: "file_search", type: "file_search", parameters: {}, raw: { type: "file_search", vector_store_ids: ["vs_123"] } },
+			{ name: "grammar", type: "custom", parameters: {}, raw: { type: "custom", name: "grammar", format: { type: "text" } } },
+		];
+		const request = irToOpenAIResponses({
+			model: "openai/gpt-5.6-sol",
+			messages: [{ role: "user", content: [{ type: "text", text: "hello" }] }],
+			stream: false,
+			tools,
+		} as any, "gpt-5.6-sol", "openai");
+
+		expect(request.tools).toEqual([
+			{ type: "file_search", vector_store_ids: ["vs_123"] },
+			{ type: "custom", name: "grammar", format: { type: "text" } },
+		]);
+	});
+
+	it("round-trips Responses custom tool calls and outputs", () => {
+		const decoded = openAIResponsesToIR({
+			id: "resp_custom",
+			status: "completed",
+			output: [{
+				type: "custom_tool_call",
+				call_id: "call_custom",
+				name: "grammar",
+				input: "raw input",
+			}],
+		}, "req-custom", "gpt-5.6-sol", "openai");
+
+		expect(decoded.choices[0].message.toolCalls).toEqual([{
+			id: "call_custom",
+			name: "grammar",
+			arguments: "raw input",
+			type: "custom",
+		}]);
+
+		const request = irToOpenAIResponses({
+			model: "openai/gpt-5.6-sol",
+			stream: false,
+			messages: [
+				{
+					role: "assistant",
+					content: [],
+					toolCalls: decoded.choices[0].message.toolCalls,
+				},
+				{
+					role: "tool",
+					toolResults: [{
+						toolCallId: "call_custom",
+						content: "tool output",
+						type: "custom",
+					}],
+				},
+			],
+		} as any, "gpt-5.6-sol", "openai");
+
+		expect(request.input).toEqual([
+			{ type: "custom_tool_call", call_id: "call_custom", name: "grammar", input: "raw input" },
+			{ type: "custom_tool_call_output", call_id: "call_custom", output: "tool output" },
+		]);
 	});
 
 	it("does not pass OpenAI context_management to non-OpenAI providers", () => {
@@ -1003,4 +1182,3 @@ describe("irToOpenAIResponses", () => {
 		expect("phase" in request.input[0]).toBe(false);
 	});
 });
-

@@ -1,5 +1,241 @@
 [
   {
+    "api_model_id": "ai21/jamba-large-1.6",
+    "provider_api_model_id": "nano-gpt:ai21/jamba-large-1.6",
+    "provider_model_slug": "jamba-large-1.6",
+    "internal_model_id": "ai21/jamba-large-1.6",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 256000,
+    "max_output_tokens": 4096,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "ai21/jamba-large-1.7",
+    "provider_api_model_id": "nano-gpt:ai21/jamba-large-1.7",
+    "provider_model_slug": "jamba-large-1.7",
+    "internal_model_id": "ai21/jamba-large-1.7",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 256000,
+    "max_output_tokens": 4096,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "ai21/jamba-mini-1.6",
+    "provider_api_model_id": "nano-gpt:ai21/jamba-mini-1.6",
+    "provider_model_slug": "jamba-mini-1.6",
+    "internal_model_id": "ai21/jamba-mini-1.6",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 256000,
+    "max_output_tokens": 4096,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "ai21/jamba-mini-1.7",
+    "provider_api_model_id": "nano-gpt:ai21/jamba-mini-1.7",
+    "provider_model_slug": "jamba-mini-1.7",
+    "internal_model_id": "ai21/jamba-mini-1.7",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 256000,
+    "max_output_tokens": 4096,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "aion-labs/aion-1.0",
     "provider_api_model_id": "nano-gpt:aion-labs/aion-1.0",
     "provider_model_slug": "aion-labs/aion-1.0",
@@ -167,6 +403,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: aion-labs/aion-2.0"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -226,12 +468,136 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: aion-labs/aion-2.5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "aion-labs/aion-3.0",
+    "provider_api_model_id": "nano-gpt:aion-labs/aion-3.0",
+    "provider_model_slug": "aion-labs/aion-3.0",
+    "internal_model_id": "aion-labs/aion-3.0",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 131072,
+    "max_output_tokens": 32768,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "aion-labs/aion-3.0-mini",
+    "provider_api_model_id": "nano-gpt:aion-labs/aion-3.0-mini",
+    "provider_model_slug": "aion-labs/aion-3.0-mini",
+    "internal_model_id": "aion-labs/aion-3.0-mini",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 131072,
+    "max_output_tokens": 32768,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -285,6 +651,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: aion-labs/aion-rp-llama-3.1-8b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -354,6 +726,124 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "anthropic/claude-fable-5",
+    "provider_api_model_id": "nano-gpt:anthropic/claude-fable-5",
+    "provider_model_slug": "anthropic/claude-fable-5",
+    "internal_model_id": "anthropic/claude-fable-5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1000000,
+    "max_output_tokens": 128000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "anthropic/claude-fable-5",
+    "provider_api_model_id": "nano-gpt:anthropic/claude-fable-5",
+    "provider_model_slug": "anthropic/claude-fable-latest",
+    "internal_model_id": "anthropic/claude-fable-5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1000000,
+    "max_output_tokens": 128000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "anthropic/claude-haiku-4.5",
     "provider_api_model_id": "nano-gpt:anthropic/claude-haiku-4.5",
     "provider_model_slug": "anthropic/claude-haiku-latest",
@@ -403,6 +893,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: anthropic/claude-haiku-latest"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -462,6 +958,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: anthropic/claude-opus-4.6"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -521,6 +1023,77 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: anthropic/claude-opus-4.7"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-07-23T09:08:52.190Z",
+      "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "anthropic/claude-opus-4.8",
+    "provider_api_model_id": "nano-gpt:anthropic/claude-opus-4.8",
+    "provider_model_slug": "anthropic/claude-opus-4.8",
+    "internal_model_id": "anthropic/claude-opus-4.8",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,pdf",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": 128000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models.dev",
+        "url": "https://models.dev/api.json",
+        "accessed_at": "2026-07-23T09:08:52.190Z",
+        "notes": "Provider model slug: anthropic/claude-opus-4.8"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -580,12 +1153,77 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: anthropic/claude-opus-5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "anthropic/claude-opus-5",
+    "provider_api_model_id": "nano-gpt:anthropic/claude-opus-5",
+    "provider_model_slug": "anthropic/claude-opus-latest",
+    "internal_model_id": "anthropic/claude-opus-5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1000000,
+    "max_output_tokens": 128000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -639,12 +1277,77 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: anthropic/claude-sonnet-4.6"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "anthropic/claude-sonnet-5",
+    "provider_api_model_id": "nano-gpt:anthropic/claude-sonnet-5",
+    "provider_model_slug": "anthropic/claude-sonnet-5",
+    "internal_model_id": "anthropic/claude-sonnet-5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1000000,
+    "max_output_tokens": 128000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -698,6 +1401,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: anthropic/claude-sonnet-latest"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -757,6 +1466,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: arcee-ai/trinity-large-thinking"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -944,6 +1659,124 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "crofai/greg-2-super",
+    "provider_api_model_id": "nano-gpt:crofai/greg-2-super",
+    "provider_model_slug": "crofai/greg-2-super",
+    "internal_model_id": "crofai/greg-2-super",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 229376,
+    "max_output_tokens": 229376,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "crofai/greg-2-ultra",
+    "provider_api_model_id": "nano-gpt:crofai/greg-2-ultra",
+    "provider_model_slug": "crofai/greg-2-ultra",
+    "internal_model_id": "crofai/greg-2-ultra",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 229376,
+    "max_output_tokens": 229376,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "deepseek/deepseek-prover-v2-671b",
     "provider_api_model_id": "nano-gpt:deepseek/deepseek-prover-v2-671b",
     "provider_model_slug": "deepseek/deepseek-prover-v2-671b",
@@ -993,12 +1826,77 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: deepseek/deepseek-prover-v2-671b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-r1",
+    "provider_api_model_id": "nano-gpt:deepseek/deepseek-r1",
+    "provider_model_slug": "deepseek-r1",
+    "internal_model_id": "deepseek/deepseek-r1",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 128000,
+    "max_output_tokens": 8192,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -1052,6 +1950,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: deepseek/deepseek-v3.2"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1170,12 +2074,77 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: deepseek/deepseek-v4-flash"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v4-flash-0731",
+    "provider_api_model_id": "nano-gpt:deepseek/deepseek-v4-flash-0731",
+    "provider_model_slug": "deepseek/deepseek-v4-flash-0731",
+    "internal_model_id": "deepseek/deepseek-v4-flash-0731",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1000000,
+    "max_output_tokens": 131072,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -1229,12 +2198,254 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: deepseek/deepseek-v4-pro"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-2.5-flash",
+    "provider_api_model_id": "nano-gpt:google/gemini-2.5-flash",
+    "provider_model_slug": "gemini-2.5-flash",
+    "internal_model_id": "google/gemini-2.5-flash",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1048756,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-2.5-flash-lite",
+    "provider_api_model_id": "nano-gpt:google/gemini-2.5-flash-lite",
+    "provider_model_slug": "gemini-2.5-flash-lite",
+    "internal_model_id": "google/gemini-2.5-flash-lite",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1048756,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-2.5-pro",
+    "provider_api_model_id": "nano-gpt:google/gemini-2.5-pro",
+    "provider_model_slug": "gemini-2.5-pro",
+    "internal_model_id": "google/gemini-2.5-pro",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1048756,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-3-flash-preview",
+    "provider_api_model_id": "nano-gpt:google/gemini-3-flash-preview",
+    "provider_model_slug": "google/gemini-3-flash-preview",
+    "internal_model_id": "google/gemini-3-flash-preview",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1048756,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -1288,12 +2499,136 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/gemini-flash-latest"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-3-pro-image-preview",
+    "provider_api_model_id": "nano-gpt:google/gemini-3-pro-image-preview",
+    "provider_model_slug": "gemini-3-pro-image-preview",
+    "internal_model_id": "google/gemini-3-pro-image-preview",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1048756,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-3.1-flash-lite",
+    "provider_api_model_id": "nano-gpt:google/gemini-3.1-flash-lite",
+    "provider_model_slug": "google/gemini-3.1-flash-lite",
+    "internal_model_id": "google/gemini-3.1-flash-lite",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1048576,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -1347,6 +2682,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/gemini-flash-lite-latest"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1406,12 +2747,77 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/gemini-3.1-pro-preview"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-3.1-pro-preview",
+    "provider_api_model_id": "nano-gpt:google/gemini-3.1-pro-preview",
+    "provider_model_slug": "google/gemini-pro-latest",
+    "internal_model_id": "google/gemini-3.1-pro-preview",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1048756,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -1465,6 +2871,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/gemini-3.1-pro-preview-customtools"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1524,12 +2936,313 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/gemini-3.5-flash"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-3.5-flash-lite",
+    "provider_api_model_id": "nano-gpt:google/gemini-3.5-flash-lite",
+    "provider_model_slug": "google/gemini-3.5-flash-lite",
+    "internal_model_id": "google/gemini-3.5-flash-lite",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1048576,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-3.6-flash",
+    "provider_api_model_id": "nano-gpt:google/gemini-3.6-flash",
+    "provider_model_slug": "google/gemini-3.6-flash",
+    "internal_model_id": "google/gemini-3.6-flash",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1048576,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-exp-1206",
+    "provider_api_model_id": "nano-gpt:google/gemini-exp-1206",
+    "provider_model_slug": "gemini-exp-1206",
+    "internal_model_id": "google/gemini-exp-1206",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 2097152,
+    "max_output_tokens": 8192,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/learnlm-1.5-pro-experimental",
+    "provider_api_model_id": "nano-gpt:google/learnlm-1.5-pro-experimental",
+    "provider_model_slug": "learnlm-1.5-pro-experimental",
+    "internal_model_id": "google/learnlm-1.5-pro-experimental",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 32767,
+    "max_output_tokens": 8192,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "inception/mercury-2",
+    "provider_api_model_id": "nano-gpt:inception/mercury-2",
+    "provider_model_slug": "mercury-2",
+    "internal_model_id": "inception/mercury-2",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 128000,
+    "max_output_tokens": 50000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -1583,12 +3296,136 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: inclusionai/ling-2.6-1t"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "inclusionai/ling-3.0-flash",
+    "provider_api_model_id": "nano-gpt:inclusionai/ling-3.0-flash",
+    "provider_model_slug": "inclusionai/ling-3.0-flash",
+    "internal_model_id": "inclusionai/ling-3.0-flash",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 262144,
+    "max_output_tokens": 32768,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "inclusionai/ling-3.0-tiny",
+    "provider_api_model_id": "nano-gpt:inclusionai/ling-3.0-tiny",
+    "provider_model_slug": "inclusionai/ling-3.0-tiny",
+    "internal_model_id": "inclusionai/ling-3.0-tiny",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 262144,
+    "max_output_tokens": 32768,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -1642,6 +3479,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: inflection/inflection-3-pi"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1701,12 +3544,77 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: inflection/inflection-3-productivity"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "kwaipilot/kat-coder-air-v2.5",
+    "provider_api_model_id": "nano-gpt:kwaipilot/kat-coder-air-v2.5",
+    "provider_model_slug": "kwaipilot/kat-coder-air-v2.5",
+    "internal_model_id": "kwaipilot/kat-coder-air-v2.5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 256000,
+    "max_output_tokens": 80000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -1760,12 +3668,490 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: kwaipilot/kat-coder-pro-v2"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "kwaipilot/kat-coder-pro-v2.5",
+    "provider_api_model_id": "nano-gpt:kwaipilot/kat-coder-pro-v2.5",
+    "provider_model_slug": "kwaipilot/kat-coder-pro-v2.5",
+    "internal_model_id": "kwaipilot/kat-coder-pro-v2.5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 256000,
+    "max_output_tokens": 80000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "meituan/longcat-2.0",
+    "provider_api_model_id": "nano-gpt:meituan/longcat-2.0",
+    "provider_model_slug": "longcat-2.0",
+    "internal_model_id": "meituan/longcat-2.0",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1048756,
+    "max_output_tokens": 262144,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "meta/muse-glimmer-30b",
+    "provider_api_model_id": "nano-gpt:meta/muse-glimmer-30b",
+    "provider_model_slug": "meta/muse-glimmer-30b",
+    "internal_model_id": "meta/muse-glimmer-30b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 131072,
+    "max_output_tokens": 131072,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "meta/muse-spark-1.1",
+    "provider_api_model_id": "nano-gpt:meta/muse-spark-1.1",
+    "provider_model_slug": "meta/muse-spark-1.1",
+    "internal_model_id": "meta/muse-spark-1.1",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1000000,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "meta/muse-spark-1.2",
+    "provider_api_model_id": "nano-gpt:meta/muse-spark-1.2",
+    "provider_model_slug": "meta/muse-spark-1.2",
+    "internal_model_id": "meta/muse-spark-1.2",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1000000,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "meta/muse-spark-1.2-contributor",
+    "provider_api_model_id": "nano-gpt:meta/muse-spark-1.2-contributor",
+    "provider_model_slug": "meta/muse-spark-1.2-contributor",
+    "internal_model_id": "meta/muse-spark-1.2-contributor",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1000000,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "microsoft/phi-4-multimodal-instruct",
+    "provider_api_model_id": "nano-gpt:microsoft/phi-4-multimodal-instruct",
+    "provider_model_slug": "phi-4-multimodal-instruct",
+    "internal_model_id": "microsoft/phi-4-multimodal-instruct",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 128000,
+    "max_output_tokens": 16384,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "minimax/minimax-m2",
+    "provider_api_model_id": "nano-gpt:minimax/minimax-m2",
+    "provider_model_slug": "MiniMax-M2",
+    "internal_model_id": "minimax/minimax-m2",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 200000,
+    "max_output_tokens": 131072,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -1819,6 +4205,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: minimax/minimax-m2-her"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1878,6 +4270,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: minimax/minimax-m2.1"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1937,6 +4335,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: minimax/minimax-m2.5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1996,12 +4400,77 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: minimax/minimax-m2.7"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "minimax/minimax-m3",
+    "provider_api_model_id": "nano-gpt:minimax/minimax-m3",
+    "provider_model_slug": "minimax/minimax-latest",
+    "internal_model_id": "minimax/minimax-m3",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 512000,
+    "max_output_tokens": 80000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -2055,6 +4524,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: minimax/minimax-m3"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2114,6 +4589,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: mistral/mistral-medium-3.5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2173,6 +4654,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: moonshotai/kimi-k2-thinking"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2232,6 +4719,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: moonshotai/kimi-k2.5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2291,12 +4784,313 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: moonshotai/kimi-k2.6"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "moonshotai/kimi-k2.6",
+    "provider_api_model_id": "nano-gpt:moonshotai/kimi-k2.6",
+    "provider_model_slug": "moonshotai/kimi-latest",
+    "internal_model_id": "moonshotai/kimi-k2.6",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1048576,
+    "max_output_tokens": 1048576,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "moonshotai/kimi-k2.7-code",
+    "provider_api_model_id": "nano-gpt:moonshotai/kimi-k2.7-code",
+    "provider_model_slug": "moonshotai/kimi-k2.7-code",
+    "internal_model_id": "moonshotai/kimi-k2.7-code",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 262144,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "moonshotai/kimi-k3",
+    "provider_api_model_id": "nano-gpt:moonshotai/kimi-k3",
+    "provider_model_slug": "moonshotai/kimi-k3",
+    "internal_model_id": "moonshotai/kimi-k3",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1048576,
+    "max_output_tokens": 1048576,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "nex-agi/nex-n2-mini",
+    "provider_api_model_id": "nano-gpt:nex-agi/nex-n2-mini",
+    "provider_model_slug": "nex-agi/nex-n2-mini",
+    "internal_model_id": "nex-agi/nex-n2-mini",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 262144,
+    "max_output_tokens": 262144,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "nex-agi/nex-n2-pro",
+    "provider_api_model_id": "nano-gpt:nex-agi/nex-n2-pro",
+    "provider_model_slug": "nex-agi/nex-n2-pro",
+    "internal_model_id": "nex-agi/nex-n2-pro",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 262144,
+    "max_output_tokens": 262144,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -2350,6 +5144,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: nvidia/llama-3.3-nemotron-super-49b-v1"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2409,6 +5209,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: nvidia/nemotron-3-nano-30b-a3b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2468,6 +5274,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: nvidia/nemotron-3-nano-omni-30b-a3b-reasoning"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2527,6 +5339,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: nvidia/nemotron-3-super-120b-a12b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2537,10 +5355,69 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "nvidia/nemotron-3-ultra-550b-a55b",
+    "provider_api_model_id": "nano-gpt:nvidia/nemotron-3-ultra-550b-a55b",
+    "provider_model_slug": "nvidia/nemotron-3-ultra-550b-a55b",
+    "internal_model_id": "nvidia/nemotron-3-ultra-550b-a55b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1000000,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "nvidia/nvidia-nemotron-nano-9b-v2",
     "provider_api_model_id": "nano-gpt:nvidia/nvidia-nemotron-nano-9b-v2",
     "provider_model_slug": "nvidia/nvidia-nemotron-nano-9b-v2",
-    "internal_model_id": "nvidia/nvidia-nemotron-nano-9b-v2",
+    "internal_model_id": "nvidia/nemotron-nano-9b-v2",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "text",
@@ -2645,6 +5522,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-chat-latest"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2704,6 +5587,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-4-turbo"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2763,6 +5652,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-4.1"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2822,6 +5717,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-4.1-mini"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2881,6 +5782,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-4.1-nano"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2940,6 +5847,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-4o"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2999,6 +5912,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-4o-2024-08-06"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3058,6 +5977,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-4o-mini"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3117,6 +6042,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-4o-mini-search-preview"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3176,6 +6107,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-4o-search-preview"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3235,6 +6172,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3294,6 +6237,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5-codex"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3353,6 +6302,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5-mini"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3412,6 +6367,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5-nano"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3471,6 +6432,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5-pro"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3530,6 +6497,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.1"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3589,6 +6562,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.1-codex"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3648,6 +6627,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.1-codex-max"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3707,6 +6692,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.1-codex-mini"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3766,6 +6757,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.2"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3825,6 +6822,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.2-codex"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3943,6 +6946,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.3-codex"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4002,6 +7011,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.4"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4061,6 +7076,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.4-mini"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4120,6 +7141,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.4-nano"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4238,12 +7265,195 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.6-luna",
+    "provider_api_model_id": "nano-gpt:openai/gpt-5.6-luna",
+    "provider_model_slug": "openai/gpt-5.6-luna",
+    "internal_model_id": "openai/gpt-5.6-luna",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1050000,
+    "max_output_tokens": 128000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.6-luna-pro",
+    "provider_api_model_id": "nano-gpt:openai/gpt-5.6-luna-pro",
+    "provider_model_slug": "openai/gpt-5.6-luna-pro",
+    "internal_model_id": "openai/gpt-5.6-luna-pro",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1050000,
+    "max_output_tokens": 128000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.6-sol",
+    "provider_api_model_id": "nano-gpt:openai/gpt-5.6-sol",
+    "provider_model_slug": "openai/gpt-5.6-sol",
+    "internal_model_id": "openai/gpt-5.6-sol",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1050000,
+    "max_output_tokens": 128000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -4297,12 +7507,195 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-latest"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.6-sol-pro",
+    "provider_api_model_id": "nano-gpt:openai/gpt-5.6-sol-pro",
+    "provider_model_slug": "openai/gpt-5.6-sol-pro",
+    "internal_model_id": "openai/gpt-5.6-sol-pro",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1050000,
+    "max_output_tokens": 128000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.6-terra",
+    "provider_api_model_id": "nano-gpt:openai/gpt-5.6-terra",
+    "provider_model_slug": "openai/gpt-5.6-terra",
+    "internal_model_id": "openai/gpt-5.6-terra",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1050000,
+    "max_output_tokens": 128000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-5.6-terra-pro",
+    "provider_api_model_id": "nano-gpt:openai/gpt-5.6-terra-pro",
+    "provider_model_slug": "openai/gpt-5.6-terra-pro",
+    "internal_model_id": "openai/gpt-5.6-terra-pro",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1050000,
+    "max_output_tokens": 128000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -4356,6 +7749,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-oss-120b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4415,6 +7814,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-oss-20b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4474,6 +7879,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-oss-safeguard-20b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4533,6 +7944,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/o1"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4592,6 +8009,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/o1-preview"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4651,6 +8074,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/o1-pro"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4710,6 +8139,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/o3"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4769,6 +8204,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/o3-deep-research"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4828,6 +8269,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/o3-mini"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4887,6 +8334,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/o4-mini"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4946,6 +8399,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/o4-mini-deep-research"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5005,12 +8464,77 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: poolside/laguna-m.1"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "poolside/laguna-s-2.1",
+    "provider_api_model_id": "nano-gpt:poolside/laguna-s-2.1",
+    "provider_model_slug": "poolside/laguna-s-2.1",
+    "internal_model_id": "poolside/laguna-s-2.1",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1048576,
+    "max_output_tokens": 131072,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -5074,6 +8598,124 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "qwen/qvq-max",
+    "provider_api_model_id": "nano-gpt:qwen/qvq-max",
+    "provider_model_slug": "qvq-max",
+    "internal_model_id": "qwen/qvq-max",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 128000,
+    "max_output_tokens": 8192,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen-max",
+    "provider_api_model_id": "nano-gpt:qwen/qwen-max",
+    "provider_model_slug": "qwen-max",
+    "internal_model_id": "qwen/qwen-max",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 32000,
+    "max_output_tokens": 8192,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "qwen/qwen3-14b",
     "provider_api_model_id": "nano-gpt:qwen/qwen3-14b",
     "provider_model_slug": "qwen/qwen3-14b",
@@ -5123,6 +8765,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-14b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5182,6 +8830,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-235b-a22b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5241,6 +8895,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-235b-a22b-thinking-2507"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5300,12 +8960,77 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-30b-a3b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-30b-a3b-instruct-2507",
+    "provider_api_model_id": "nano-gpt:qwen/qwen3-30b-a3b-instruct-2507",
+    "provider_model_slug": "qwen3-30b-a3b-instruct-2507",
+    "internal_model_id": "qwen/qwen3-30b-a3b-instruct-2507",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 256000,
+    "max_output_tokens": 32768,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -5359,6 +9084,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-32b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5418,6 +9149,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-8b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5477,6 +9214,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-coder"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5536,6 +9279,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-coder-flash"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5595,6 +9344,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-coder-next"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5654,12 +9409,77 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-max"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-max-2026-01-23",
+    "provider_api_model_id": "nano-gpt:qwen/qwen3-max-2026-01-23",
+    "provider_model_slug": "qwen3-max-2026-01-23",
+    "internal_model_id": "qwen/qwen3-max-2026-01-23",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 256000,
+    "max_output_tokens": 32768,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -5713,6 +9533,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-next-80b-a3b-instruct"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5772,6 +9598,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-next-80b-a3b-thinking"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5831,12 +9663,254 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-vl-235b-a22b-instruct"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-vl-235b-a22b-thinking",
+    "provider_api_model_id": "nano-gpt:qwen/qwen3-vl-235b-a22b-thinking",
+    "provider_model_slug": "qwen3-vl-235b-a22b-thinking",
+    "internal_model_id": "qwen/qwen3-vl-235b-a22b-thinking",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": 32768,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.5-122b-a10b",
+    "provider_api_model_id": "nano-gpt:qwen/qwen3.5-122b-a10b",
+    "provider_model_slug": "qwen3.5-122b-a10b",
+    "internal_model_id": "qwen/qwen3.5-122b-a10b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 131072,
+    "max_output_tokens": 32768,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.5-27b",
+    "provider_api_model_id": "nano-gpt:qwen/qwen3.5-27b",
+    "provider_model_slug": "qwen3.5-27b",
+    "internal_model_id": "qwen/qwen3.5-27b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 260096,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.5-35b-a3b",
+    "provider_api_model_id": "nano-gpt:qwen/qwen3.5-35b-a3b",
+    "provider_model_slug": "qwen3.5-35b-a3b",
+    "internal_model_id": "qwen/qwen3.5-35b-a3b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 260096,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -5890,6 +9964,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3.5-397b-a17b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5949,12 +10029,77 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3.5-9b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.5-flash",
+    "provider_api_model_id": "nano-gpt:qwen/qwen3.5-flash",
+    "provider_model_slug": "qwen3.5-flash",
+    "internal_model_id": "qwen/qwen3.5-flash",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 991808,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -6008,6 +10153,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3.5-plus"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -6067,12 +10218,313 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3.6-35b-a3b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.6-max-preview",
+    "provider_api_model_id": "nano-gpt:qwen/qwen3.6-max-preview",
+    "provider_model_slug": "qwen3.6-max-preview",
+    "internal_model_id": "qwen/qwen3.6-max-preview",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 245760,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.7-max",
+    "provider_api_model_id": "nano-gpt:qwen/qwen3.7-max",
+    "provider_model_slug": "qwen3.7-max",
+    "internal_model_id": "qwen/qwen3.7-max",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1000000,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.7-plus",
+    "provider_api_model_id": "nano-gpt:qwen/qwen3.7-plus",
+    "provider_model_slug": "qwen3.7-plus",
+    "internal_model_id": "qwen/qwen3.7-plus",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 991808,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.8-max",
+    "provider_api_model_id": "nano-gpt:qwen/qwen3.8-max",
+    "provider_model_slug": "qwen3.8-max",
+    "internal_model_id": "qwen/qwen3.8-max",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 991000,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.8-max-preview",
+    "provider_api_model_id": "nano-gpt:qwen/qwen3.8-max-preview",
+    "provider_model_slug": "qwen3.8-max-preview",
+    "internal_model_id": "qwen/qwen3.8-max-preview",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 991000,
+    "max_output_tokens": 64000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -6132,6 +10584,124 @@
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "sakana/fugu-ultra",
+    "provider_api_model_id": "nano-gpt:sakana/fugu-ultra",
+    "provider_model_slug": "sakana/fugu-ultra",
+    "internal_model_id": "sakana/fugu-ultra",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1000000,
+    "max_output_tokens": 16384,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "tencent/hy3",
+    "provider_api_model_id": "nano-gpt:tencent/hy3",
+    "provider_model_slug": "tencent/hy3",
+    "internal_model_id": "tencent/hy3",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 262144,
+    "max_output_tokens": 262144,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -6244,12 +10814,77 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: upstage/solar-pro-3"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "venice/venice-uncensored",
+    "provider_api_model_id": "nano-gpt:venice/venice-uncensored",
+    "provider_model_slug": "venice-uncensored",
+    "internal_model_id": "venice/venice-uncensored",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 128000,
+    "max_output_tokens": 16384,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -6480,6 +11115,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: xiaomi/mimo-v2.5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -6539,6 +11180,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: xiaomi/mimo-v2.5-pro"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -6598,6 +11245,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: z-ai/glm-4.5v"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -6657,6 +11310,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: z-ai/glm-4.6"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -6716,6 +11375,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: z-ai/glm-5-turbo"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -6775,65 +11440,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: z-ai/glm-5v-turbo"
-      }
-    ],
-    "verification": {
-      "status": "partial",
-      "checked_at": "2026-07-23T09:08:52.190Z",
-      "notes": "Provider support imported from models.dev; routing remains disabled."
-    },
-    "rate_limits": []
-  },
-  {
-    "api_model_id": "anthropic/claude-opus-4.8",
-    "provider_api_model_id": "nano-gpt:anthropic/claude-opus-4.8",
-    "provider_model_slug": "anthropic/claude-opus-4.8",
-    "internal_model_id": "anthropic/claude-opus-4.8",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": "text,image,pdf",
-    "output_modalities": "text",
-    "context_length": 1000000,
-    "max_output_tokens": 128000,
-    "effective_from": null,
-    "effective_to": null,
-    "capabilities": [
+      },
       {
-        "capability_id": "text.generate",
-        "status": "active",
-        "params": [],
-        "reasoning": true,
-        "tool_call": true,
-        "structured_output": true,
-        "temperature": null,
-        "attachment": true,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": "active",
-    "routable": false,
-    "regions": {
-      "execution": [
-        "global"
-      ],
-      "data": [
-        "global"
-      ]
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [
-      {
-        "kind": "models.dev",
-        "url": "https://models.dev/api.json",
-        "accessed_at": "2026-07-23T09:08:52.190Z",
-        "notes": "Provider model slug: anthropic/claude-opus-4.8"
+        "kind": "provider_models",
+        "url": "https://nano-gpt.com/api/v1/models?detailed=true",
+        "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {

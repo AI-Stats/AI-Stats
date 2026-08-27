@@ -1,6 +1,7 @@
 {
-  "sourceUrl": "https://docs.canopywave.io/",
-  "reconstruction": "phaseo-executor-and-official-reference",
-  "unsupportedReason": "Provider is explicitly marked not-ready by Phaseo executor coverage.",
-  "bundleSha256": "b2617d3851f0415d4a53265ec7520c545599f892c424ad10c6fbd2aeaff92056"
+  "sourceUrl": "https://canopywave.com/docs/get-started/quick-start",
+  "reconstruction": "openai-compatible-reference-overlay",
+  "baseContract": "openai",
+  "bundleSha256": "a206d3ff3312226d847b094370b64dc964a09fc13ce953659d8158ab0088f351",
+  "gatewayPathPrefix": "/v1"
 }

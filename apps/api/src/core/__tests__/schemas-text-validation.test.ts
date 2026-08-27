@@ -2,6 +2,35 @@ import { describe, expect, it } from "vitest";
 import { AnthropicMessagesSchema, ChatCompletionsSchema, ResponsesSchema } from "../schemas";
 
 describe("text request schema validation", () => {
+	it("accepts minimal reasoning effort on public text request shapes", () => {
+		const chatNested = ChatCompletionsSchema.safeParse({
+			model: "google/gemma-4-26b-a4b:free",
+			messages: [{ role: "user", content: "hello" }],
+			reasoning: { effort: "minimal" },
+		});
+		const chatAlias = ChatCompletionsSchema.safeParse({
+			model: "google/gemma-4-26b-a4b:free",
+			messages: [{ role: "user", content: "hello" }],
+			reasoning_effort: "minimal",
+		});
+		const responses = ResponsesSchema.safeParse({
+			model: "google/gemma-4-31b:free",
+			input: "hello",
+			reasoning: { effort: "minimal" },
+		});
+		const messages = AnthropicMessagesSchema.safeParse({
+			model: "google/gemma-4-31b:free",
+			max_tokens: 32,
+			messages: [{ role: "user", content: "hello" }],
+			reasoning: { effort: "minimal" },
+		});
+
+		expect(chatNested.success).toBe(true);
+		expect(chatAlias.success).toBe(true);
+		expect(responses.success).toBe(true);
+		expect(messages.success).toBe(true);
+	});
+
 	it("accepts chat streaming when tools are present", () => {
 		const parsed = ChatCompletionsSchema.safeParse({
 			model: "gpt-4.1",
@@ -143,14 +172,14 @@ describe("text request schema validation", () => {
 		expect(parsed.success).toBe(false);
 	});
 
-	it("rejects chat n", () => {
+	it("accepts chat n", () => {
 		const parsed = ChatCompletionsSchema.safeParse({
 			model: "gpt-4.1",
 			n: 1,
 			messages: [{ role: "user", content: "hello" }],
 		});
 
-		expect(parsed.success).toBe(false);
+		expect(parsed.success).toBe(true);
 	});
 
 	it("accepts responses streaming when tools are present", () => {
@@ -345,6 +374,19 @@ describe("text request schema validation", () => {
 					},
 				},
 			},
+		});
+
+		expect(parsed.success).toBe(true);
+	});
+
+	it("accepts current first-class OpenAI Responses controls", () => {
+		const parsed = ResponsesSchema.safeParse({
+			model: "openai/gpt-5.6-sol",
+			input: "hello",
+			context_management: [{ type: "compaction", compact_threshold: 12_000 }],
+			prompt_cache_options: { mode: "explicit", ttl: "30m" },
+			reasoning: { effort: "high", context: "all_turns" },
+			text: { verbosity: "low", format: { type: "text" } },
 		});
 
 		expect(parsed.success).toBe(true);

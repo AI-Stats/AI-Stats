@@ -9,6 +9,8 @@ const NOVITA_ENABLE_THINKING_MODELS = new Set<string>([
 	"deepseek/deepseek-v3.1",
 	"deepseek/deepseek-v3.1-terminus",
 	"deepseek/deepseek-v3.2-exp",
+	"deepseek/deepseek-v4-pro-0813",
+	"deepseek/deepseek-v4-flash-vision-exp",
 ]);
 
 const NOVITA_SEPARATE_REASONING_MODELS = new Set<string>([
@@ -31,6 +33,7 @@ function normalizeNovitaModel(value: unknown): string {
 	// Gateway model IDs may include provider prefix (novitaai/<model-id>).
 	if (trimmed.startsWith("novitaai/")) return trimmed.slice("novitaai/".length);
 	if (trimmed.startsWith("novita-ai/")) return trimmed.slice("novita-ai/".length);
+	if (trimmed.startsWith("novita/")) return trimmed.slice("novita/".length);
 	return trimmed;
 }
 
@@ -84,4 +87,3 @@ export const novitaQuirks: ProviderQuirks = {
 		};
 	},
 };
-

@@ -138,7 +138,7 @@ Phaseo supports agentic workflows through:
 ### Migration
 
 - `v1/migration-guides/index`
-- `v1/migration-guides/from-openrouter`
+- `v1/migration-guides/from-openrouter` for replacing OpenRouter with Phaseo, including agent-ready inventory, model mapping, streaming, failure-path, rollout, and rollback steps
 - `v1/migration-guides/from-vercel`
 - `v1/migration-guides/from-llmgateway`
 

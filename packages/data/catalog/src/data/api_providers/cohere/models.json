@@ -1,23 +1,41 @@
 [
   {
-    "api_model_id": "cohere/command-a",
-    "provider_api_model_id": "cohere:cohere/command-a",
-    "provider_model_slug": "command-a-03-2025",
-    "internal_model_id": "cohere/command-a",
+    "api_model_id": "cohere/c4ai-aya-expanse-32b",
+    "provider_api_model_id": "cohere:cohere/c4ai-aya-expanse-32b",
+    "provider_model_slug": "c4ai-aya-expanse-32b",
+    "internal_model_id": "cohere/c4ai-aya-expanse-32b",
     "is_active_gateway": false,
     "quantization_scheme": null,
-    "input_modalities": "text",
-    "output_modalities": "text",
+    "input_modalities": null,
+    "output_modalities": null,
     "context_length": null,
     "max_output_tokens": null,
     "effective_from": null,
     "effective_to": null,
-    "capabilities": [],
-    "routing_status": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
     "routable": false,
     "regions": {
-      "execution": null,
-      "data": null
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
     },
     "service_tiers": [],
     "api": {
@@ -27,9 +45,120 @@
     },
     "sources": [],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "partial",
+      "checked_at": "2026-08-11T04:15:55.658+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "cohere/c4ai-aya-vision-32b",
+    "provider_api_model_id": "cohere:cohere/c4ai-aya-vision-32b",
+    "provider_model_slug": "c4ai-aya-vision-32b",
+    "internal_model_id": "cohere/c4ai-aya-vision-32b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-11T04:15:55.658+00:00",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "cohere/command-a",
+    "provider_api_model_id": "cohere:cohere/command-a",
+    "provider_model_slug": "command-a-03-2025",
+    "internal_model_id": "cohere/command-a",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 256000,
+    "max_output_tokens": 8000,
+    "effective_from": "2025-03-13T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://docs.cohere.com/docs/models",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Cohere current model catalogue and API endpoints."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified as a production Cohere Platform Chat API model."
     },
     "rate_limits": []
   },
@@ -174,32 +303,57 @@
     "provider_api_model_id": "cohere:cohere/command-r",
     "provider_model_slug": "command-r-08-2024",
     "internal_model_id": "cohere/command-r",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": null,
+    "context_length": 128000,
+    "max_output_tokens": 4000,
+    "effective_from": "2024-08-30T00:00:00Z",
     "effective_to": null,
-    "capabilities": [],
-    "routing_status": null,
-    "routable": false,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai.chat.completions"
+      ],
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://docs.cohere.com/docs/models",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Cohere current model catalogue and API endpoints."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified as a production Cohere Platform Chat API model."
     },
     "rate_limits": []
   },
@@ -208,32 +362,57 @@
     "provider_api_model_id": "cohere:cohere/command-r-plus",
     "provider_model_slug": "command-r-plus-08-2024",
     "internal_model_id": "cohere/command-r-plus",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": null,
+    "context_length": 128000,
+    "max_output_tokens": 4000,
+    "effective_from": "2024-08-30T00:00:00Z",
     "effective_to": null,
-    "capabilities": [],
-    "routing_status": null,
-    "routable": false,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai.chat.completions"
+      ],
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://docs.cohere.com/docs/models",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Cohere current model catalogue and API endpoints."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified as a production Cohere Platform Chat API model."
     },
     "rate_limits": []
   },
@@ -242,32 +421,57 @@
     "provider_api_model_id": "cohere:cohere/command-r7b",
     "provider_model_slug": "command-r7b-12-2024",
     "internal_model_id": "cohere/command-r-7b",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
-    "effective_from": null,
+    "context_length": 128000,
+    "max_output_tokens": 4000,
+    "effective_from": "2024-12-12T00:00:00Z",
     "effective_to": null,
-    "capabilities": [],
-    "routing_status": null,
-    "routable": false,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "standard"
+    ],
     "api": {
-      "formats": [],
+      "formats": [
+        "openai.chat.completions"
+      ],
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://docs.cohere.com/docs/models",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Cohere current model catalogue and API endpoints."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified as a production Cohere Platform Chat API model."
     },
     "rate_limits": []
   },
@@ -303,6 +507,195 @@
       "status": "unverified",
       "checked_at": null,
       "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "cohere/rerank-v3.5",
+    "provider_api_model_id": "cohere:cohere/rerank-v3.5",
+    "provider_model_slug": "rerank-v3.5",
+    "internal_model_id": "cohere/rerank-v3.5",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 4096,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "rerank",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "cohere.rerank"
+      ],
+      "endpoint": "/v2/rerank",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://docs.cohere.com/docs/rerank",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Cohere current Rerank model catalogue."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified through Cohere's native v2 Rerank API."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "cohere/rerank-v4.0-fast",
+    "provider_api_model_id": "cohere:cohere/rerank-v4.0-fast",
+    "provider_model_slug": "rerank-v4.0-fast",
+    "internal_model_id": "cohere/rerank-v4.0-fast",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 32768,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "rerank",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "cohere.rerank"
+      ],
+      "endpoint": "/v2/rerank",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://docs.cohere.com/docs/rerank",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Cohere current Rerank model catalogue."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified through Cohere's native v2 Rerank API."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "cohere/rerank-v4.0-pro",
+    "provider_api_model_id": "cohere:cohere/rerank-v4.0-pro",
+    "provider_model_slug": "rerank-v4.0-pro",
+    "internal_model_id": "cohere/rerank-v4.0-pro",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 32768,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "rerank",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "cohere.rerank"
+      ],
+      "endpoint": "/v2/rerank",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://docs.cohere.com/docs/rerank",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Cohere current Rerank model catalogue."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified through Cohere's native v2 Rerank API."
     },
     "rate_limits": []
   },
@@ -439,6 +832,297 @@
       "status": "unverified",
       "checked_at": null,
       "notes": null
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "cohere/embed-v4",
+    "provider_api_model_id": "cohere:cohere/embed-v4",
+    "provider_model_slug": "embed-v4.0",
+    "internal_model_id": "cohere/embed-v4",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "embedding",
+    "context_length": 128000,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "embeddings",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.embeddings"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://docs.cohere.com/docs/embed",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Cohere model and API documentation."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified on the Cohere Platform compatibility API."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "cohere/embed-english-v3",
+    "provider_api_model_id": "cohere:cohere/embed-english-v3",
+    "provider_model_slug": "embed-english-v3.0",
+    "internal_model_id": "cohere/embed-english-v3",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "embedding",
+    "context_length": 512,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "embeddings",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.embeddings"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://docs.cohere.com/docs/embed",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Cohere model and API documentation."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified on the Cohere Platform compatibility API."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "cohere/embed-multilingual-v3",
+    "provider_api_model_id": "cohere:cohere/embed-multilingual-v3",
+    "provider_model_slug": "embed-multilingual-v3.0",
+    "internal_model_id": "cohere/embed-multilingual-v3",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "embedding",
+    "context_length": 512,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "embeddings",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai.embeddings"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://docs.cohere.com/docs/embed",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Cohere model and API documentation."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Verified on the Cohere Platform compatibility API."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "cohere/cohere-transcribe",
+    "provider_api_model_id": "cohere:cohere/cohere-transcribe",
+    "provider_model_slug": "cohere-transcribe-03-2026",
+    "internal_model_id": "cohere/cohere-transcribe",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "audio",
+    "output_modalities": "text",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "audio.transcription",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.audio.transcriptions"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://docs.cohere.com/docs/transcribe",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Cohere model and API documentation."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Catalogued but not routed: shared API access is free and rate-limited, while production requires Model Vault."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "cohere/cohere-transcribe-arabic",
+    "provider_api_model_id": "cohere:cohere/cohere-transcribe-arabic",
+    "provider_model_slug": "cohere-transcribe-arabic-07-2026",
+    "internal_model_id": "cohere/cohere-transcribe-arabic",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "audio",
+    "output_modalities": "text",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "audio.transcription",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": null,
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.audio.transcriptions"
+      ],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://docs.cohere.com/docs/transcribe",
+        "accessed_at": "2026-08-23T00:00:00Z",
+        "notes": "Cohere model and API documentation."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-23T00:00:00Z",
+      "notes": "Catalogued but not routed: shared API access is free and rate-limited, while production requires Model Vault."
     },
     "rate_limits": []
   }

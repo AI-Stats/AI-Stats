@@ -7,7 +7,6 @@ export const BASETEN_OPENAI_COMPAT_CONFIGS = {
 		pathPrefix: "/v1",
 		apiKeyEnv: "BASETEN_API_KEY",
 		baseUrlEnv: "BASETEN_BASE_URL",
-		apiKeyPrefix: "Api-Key ",
 		supportsResponses: false,
 	},
 } satisfies Record<string, OpenAICompatConfig>;

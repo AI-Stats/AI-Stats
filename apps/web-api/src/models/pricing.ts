@@ -9,7 +9,7 @@ export type ModelPricingSource = {
 	pricingRows: Row[];
 };
 
-const PROVIDER_FIELDS = "api_provider_name,provider_family_id,offer_label,offer_scope,colour,link,country_code,status,routing_status,residency_mode,default_execution_regions,default_data_regions,zero_data_retention,residency_source_url,residency_notes,regional_pricing_mode,regional_pricing_uplift_percent,pricing_source_url,regional_pricing_notes,prompt_training_policy,prompt_training_notes,prompt_training_source_url,user_identifier_policy,user_identifier_notes,privacy_policy_url,terms_of_service_url";
+const PROVIDER_FIELDS = "api_provider_name,provider_family_id,offer_label,offer_scope,colour,link,country_code,status,routing_status,residency_mode,default_execution_regions,default_data_regions,zero_data_retention,data_retention_days,residency_source_url,residency_notes,regional_pricing_mode,regional_pricing_uplift_percent,pricing_source_url,regional_pricing_notes,prompt_training_policy,prompt_training_notes,prompt_training_source_url,user_identifier_policy,user_identifier_notes,privacy_policy_url,terms_of_service_url";
 const PROVIDER_MODEL_FIELDS = "provider_api_model_id,provider_id,api_model_id,model_id,provider_model_slug,is_active_gateway,routing_status,input_modalities,output_modalities,quantization_scheme,context_length,max_output_tokens,prompt_training_policy_override,prompt_training_override_notes,prompt_training_override_source_url,effective_from,effective_to,created_at,updated_at,data_api_provider_model_capabilities(capability_id,params,max_input_tokens,max_output_tokens,status)";
 const POLICY_FIELDS = "data_policy_tier,data_policy_confidence,data_policy_contract_mode,data_policy_contract_notes";
 const PRICING_FIELDS = "rule_id,model_key,capability_id,pricing_plan,meter,unit,unit_size,price_per_unit,currency,priority,effective_from,effective_to,note,match,billing_timestamp_basis,time_windows";
@@ -39,6 +39,8 @@ export async function fetchModelPricingSources(
 	env: Env,
 	modelIds: string[],
 	includeInternal = false,
+	includeExpiredPricing = false,
+	pricingWindow?: { startMs: number; endMs: number },
 ): Promise<ModelPricingSource> {
 	const variants = uniqueModelVariants(modelIds);
 	if (variants.length === 0) return { providerRows: [], pricingRows: [] };
@@ -52,10 +54,18 @@ export async function fetchModelPricingSources(
 	);
 	const routeIds = routes.map((row) => id(row.provider_model_id)).filter(Boolean);
 	const providerIds = [...new Set(routes.map((row) => id(row.provider_slug)).filter(Boolean))];
+	let skusQuery = client.from("v2_pricing_skus")
+		.select("sku_id,provider_model_id,service_tier_slug,operation,status,currency,effective_from,effective_to,metadata")
+		.in("provider_model_id", routeIds);
+	if (pricingWindow) {
+		skusQuery = skusQuery
+			.lte("effective_from", new Date(pricingWindow.endMs).toISOString())
+			.or(`effective_to.is.null,effective_to.gte.${new Date(pricingWindow.startMs).toISOString()}`);
+	}
 	const [capabilitiesResult, providersResult, skusResult] = await Promise.all([
 		routeIds.length ? client.from("v2_route_capabilities").select("provider_model_id,capability_id,params,max_input_tokens,max_output_tokens,status").in("provider_model_id", routeIds) : Promise.resolve({ data: [], error: null }),
-		providerIds.length ? client.from("v2_providers").select("provider_slug,name,provider_family_slug,offer_label,offer_scope,country_code,status,routing_enabled,residency_mode,default_execution_regions,default_data_regions,zero_data_retention,prompt_training_policy,data_policy_tier,data_policy_confidence,data_policy_contract_mode,metadata").in("provider_slug", providerIds) : Promise.resolve({ data: [], error: null }),
-		routeIds.length ? client.from("v2_pricing_skus").select("sku_id,provider_model_id,service_tier_slug,operation,status,currency,effective_from,effective_to,metadata").in("provider_model_id", routeIds) : Promise.resolve({ data: [], error: null }),
+		providerIds.length ? client.from("v2_providers").select("provider_slug,name,provider_family_slug,offer_label,offer_scope,country_code,status,routing_enabled,residency_mode,default_execution_regions,default_data_regions,zero_data_retention,data_retention_days,prompt_training_policy,data_policy_tier,data_policy_confidence,data_policy_contract_mode,metadata").in("provider_slug", providerIds) : Promise.resolve({ data: [], error: null }),
+		routeIds.length ? skusQuery : Promise.resolve({ data: [], error: null }),
 	]);
 	for (const result of [capabilitiesResult, providersResult, skusResult]) if (result.error) throw result.error;
 	const skuIds = (skusResult.data ?? []).map((row) => id(row.sku_id)).filter(Boolean);
@@ -107,10 +117,16 @@ export async function fetchModelPricingSources(
 				default_execution_regions: provider.default_execution_regions,
 				default_data_regions: provider.default_data_regions,
 				zero_data_retention: provider.zero_data_retention,
+				data_retention_days: provider.data_retention_days,
 				prompt_training_policy: provider.prompt_training_policy,
+				prompt_training_notes: providerMetadata.prompt_training_notes ?? null,
+				prompt_training_source_url: providerMetadata.prompt_training_source_url ?? null,
 				data_policy_tier: provider.data_policy_tier,
 				data_policy_confidence: provider.data_policy_confidence,
 				data_policy_contract_mode: provider.data_policy_contract_mode,
+				data_policy_contract_notes: providerMetadata.data_policy_contract_notes ?? null,
+				residency_source_url: providerMetadata.residency_source_url ?? null,
+				residency_notes: providerMetadata.residency_notes ?? null,
 				privacy_policy_url: providerMetadata.privacy_policy_url ?? null,
 				terms_of_service_url: providerMetadata.terms_of_service_url ?? null,
 			} : null,
@@ -124,7 +140,7 @@ export async function fetchModelPricingSources(
 		const route = sku ? routeMap.get(id(sku.provider_model_id)) : null;
 		if (!sku || !route || id(sku.status) === "disabled") return [];
 		const effectiveTo = sku.effective_to ? Date.parse(String(sku.effective_to)) : Number.POSITIVE_INFINITY;
-		if (now >= effectiveTo) return [];
+		if (!includeExpiredPricing && now >= effectiveTo) return [];
 		const priceNanos = Number(meter.price_nanos);
 		if (!Number.isFinite(priceNanos)) return [];
 		return [{
@@ -191,6 +207,7 @@ function providerInfo(providerId: string, provider: Row | null) {
 		default_execution_regions: Array.isArray(provider?.default_execution_regions) ? provider.default_execution_regions : null,
 		default_data_regions: Array.isArray(provider?.default_data_regions) ? provider.default_data_regions : null,
 		zero_data_retention: provider?.zero_data_retention ?? null,
+		data_retention_days: provider?.data_retention_days ?? null,
 		residency_source_url: provider?.residency_source_url ?? null,
 		residency_notes: provider?.residency_notes ?? null,
 		regional_pricing_mode: provider?.regional_pricing_mode ?? null,

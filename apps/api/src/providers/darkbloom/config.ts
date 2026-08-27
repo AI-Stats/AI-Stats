@@ -7,5 +7,6 @@ export const DARKBLOOM_OPENAI_COMPAT_CONFIGS = {
 		pathPrefix: "/v1",
 		apiKeyEnv: "DARKBLOOM_API_KEY",
 		baseUrlEnv: "DARKBLOOM_BASE_URL",
+		supportsResponses: true,
 	},
 } satisfies Record<string, OpenAICompatConfig>;

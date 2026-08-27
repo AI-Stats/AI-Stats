@@ -9,6 +9,9 @@ import {
 
 type TextProviderProfile = {
 	id: string;
+	endpointSupport?: {
+		interactionsModels?: string[];
+	};
 	paramPolicy?: {
 		supportedParams?: string[];
 		unsupportedParams?: string[];
@@ -36,9 +39,18 @@ export function getTextProviderProfile(providerId: string): TextProviderProfile 
 	if (!profile?.text) return null;
 	return {
 		id: profile.id,
+		endpointSupport: profile.text.endpointSupport,
 		paramPolicy: profile.text.paramPolicy,
 		normalize: profile.text.normalize,
 	};
+}
+
+export function supportsTextProviderInteractionsModel(
+	providerId: string,
+	model: string,
+): boolean {
+	return getTextProviderProfile(providerId)?.endpointSupport?.interactionsModels
+		?.includes(model.toLowerCase()) ?? false;
 }
 
 export function resolveTextProviderParamPolicyOverride(args: {

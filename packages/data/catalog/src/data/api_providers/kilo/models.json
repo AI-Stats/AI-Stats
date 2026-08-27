@@ -49,6 +49,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: ai21/jamba-large-1.7"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -226,6 +232,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: aion-labs/aion-2.0"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -279,7 +291,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T04:00:58.599+00:00",
@@ -331,7 +350,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T04:00:58.599+00:00",
@@ -389,6 +415,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: aion-labs/aion-rp-llama-3.1-8b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -448,6 +480,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: allenai/olmo-3-32b-think"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -507,6 +545,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: anthropic/claude-3-haiku"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -619,7 +663,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T04:00:58.599+00:00",
@@ -677,6 +728,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: anthropic/claude-haiku-4.5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -736,6 +793,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: anthropic/claude-opus-4"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -795,6 +858,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: anthropic/claude-opus-4.1"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -854,6 +923,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: anthropic/claude-opus-4.5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -913,6 +988,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: anthropic/claude-opus-4.6"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -972,6 +1053,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: anthropic/claude-opus-4.7"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -982,10 +1069,10 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "anthropic/claude-opus-4.7-fast",
+    "api_model_id": "anthropic/claude-opus-4.7",
     "provider_api_model_id": "kilo:anthropic/claude-opus-4.7-fast",
     "provider_model_slug": "anthropic/claude-opus-4.7-fast",
-    "internal_model_id": "anthropic/claude-opus-4.7-fast",
+    "internal_model_id": "anthropic/claude-opus-4.7",
     "is_active_gateway": false,
     "quantization_scheme": null,
     "input_modalities": "image,pdf,text",
@@ -1019,7 +1106,9 @@
         "global"
       ]
     },
-    "service_tiers": [],
+    "service_tiers": [
+      "priority"
+    ],
     "api": {
       "formats": [],
       "endpoint": null,
@@ -1031,6 +1120,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: anthropic/claude-opus-4.7-fast"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1084,7 +1179,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T04:00:58.599+00:00",
@@ -1136,7 +1238,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T04:00:58.599+00:00",
@@ -1253,6 +1362,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: anthropic/claude-sonnet-4"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1312,6 +1427,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: anthropic/claude-sonnet-4.5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1371,6 +1492,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: anthropic/claude-sonnet-4.6"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1424,7 +1551,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T04:00:58.599+00:00",
@@ -1541,6 +1675,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: arcee-ai/trinity-large-thinking"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1895,6 +2035,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: baidu/ernie-4.5-vl-424b-a47b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1954,6 +2100,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: cohere/command-a"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2013,6 +2165,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: deepseek/deepseek-r1"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2072,6 +2230,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: deepseek/deepseek-r1-distill-llama-70b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2190,6 +2354,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: deepseek/deepseek-v3.1-terminus"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2249,6 +2419,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: deepseek/deepseek-v3.2"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2308,6 +2484,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: deepseek/deepseek-v3.2-exp"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2426,6 +2608,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: deepseek/deepseek-v4-flash"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2479,7 +2667,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T04:00:58.599+00:00",
@@ -2537,6 +2732,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: deepseek/deepseek-v4-pro"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2596,6 +2797,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/gemini-2.5-flash"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2655,6 +2862,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/gemini-2.5-flash-image"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2714,6 +2927,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/gemini-2.5-flash-lite"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2773,6 +2992,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/gemini-2.5-pro"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2832,6 +3057,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/gemini-3-flash-preview"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2885,7 +3116,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T04:00:58.599+00:00",
@@ -2943,6 +3181,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/gemini-3-pro-image-preview"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2996,7 +3240,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T04:00:58.599+00:00",
@@ -3054,6 +3305,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/gemini-3.1-flash-image-preview"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3113,6 +3370,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/gemini-3.1-flash-lite"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3166,7 +3429,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T04:00:58.599+00:00",
@@ -3224,6 +3494,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/gemini-3.1-flash-lite-preview"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3283,6 +3559,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/gemini-3.1-pro-preview"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3342,6 +3624,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/gemini-3.1-pro-preview-customtools"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3401,6 +3689,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/gemini-3.5-flash"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3454,7 +3748,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T04:00:58.599+00:00",
@@ -3506,7 +3807,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T04:00:58.599+00:00",
@@ -3564,6 +3872,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/lyria-3-clip-preview"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3623,6 +3937,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: google/lyria-3-pro-preview"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3682,6 +4002,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: ibm-granite/granite-4.0-h-micro"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3741,6 +4067,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: inception/mercury-2"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3800,6 +4132,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: inclusionai/ling-2.6-1t"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3853,7 +4191,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T04:00:58.599+00:00",
@@ -4023,7 +4368,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T04:00:58.599+00:00",
@@ -4081,6 +4433,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: kwaipilot/kat-coder-pro-v2"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4134,7 +4492,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T04:00:58.599+00:00",
@@ -4186,7 +4551,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T04:00:58.599+00:00",
@@ -4238,7 +4610,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T04:00:58.599+00:00",
@@ -4290,7 +4669,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T04:00:58.599+00:00",
@@ -4342,7 +4728,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T04:00:58.599+00:00",
@@ -4400,6 +4793,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: microsoft/phi-4"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4459,6 +4858,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: minimax/minimax-m2"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4518,6 +4923,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: minimax/minimax-m2-her"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4577,6 +4988,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: minimax/minimax-m2.1"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4636,6 +5053,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: minimax/minimax-m2.5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4695,6 +5118,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: minimax/minimax-m2.7"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4754,6 +5183,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: minimax/minimax-m3"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4813,6 +5248,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: mistralai/mistral-nemo"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4872,6 +5313,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: moonshotai/kimi-k2"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4931,6 +5378,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: moonshotai/kimi-k2-thinking"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4990,6 +5443,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: moonshotai/kimi-k2.5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5049,6 +5508,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: moonshotai/kimi-k2.6"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5102,7 +5567,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T04:00:58.599+00:00",
@@ -5154,7 +5626,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T04:00:58.599+00:00",
@@ -5212,6 +5691,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: morph/morph-v3-fast"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5271,6 +5756,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: morph/morph-v3-large"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5324,7 +5815,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T04:00:58.599+00:00",
@@ -5376,7 +5874,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T04:00:58.599+00:00",
@@ -5434,6 +5939,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: nousresearch/hermes-3-llama-3.1-405b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5552,6 +6063,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: nvidia/nemotron-3-nano-30b-a3b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5611,6 +6128,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: nvidia/nemotron-3-super-120b-a12b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5664,7 +6187,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T04:00:58.599+00:00",
@@ -5781,6 +6311,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-chat-latest"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5840,6 +6376,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-3.5-turbo-0613"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5899,6 +6441,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-3.5-turbo-16k"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5958,6 +6506,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-3.5-turbo-instruct"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -6017,6 +6571,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-4"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -6076,6 +6636,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-4-turbo"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -6135,6 +6701,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-4.1"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -6194,6 +6766,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-4.1-mini"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -6253,6 +6831,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-4.1-nano"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -6312,6 +6896,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-4o"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -6371,6 +6961,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-4o-2024-05-13"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -6430,6 +7026,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-4o-2024-08-06"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -6489,6 +7091,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-4o-mini"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -6666,6 +7274,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -6843,6 +7457,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5-mini"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -6902,6 +7522,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5-nano"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -6961,6 +7587,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5-pro"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -7020,6 +7652,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.1"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -7138,6 +7776,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.1-codex"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -7197,6 +7841,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.1-codex-max"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -7256,6 +7906,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.1-codex-mini"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -7315,6 +7971,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.2"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -7374,6 +8036,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.2-chat"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -7433,6 +8101,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.2-codex"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -7492,6 +8166,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.2-pro"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -7610,6 +8290,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.3-codex"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -7669,6 +8355,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.4"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -7728,6 +8420,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.4-mini"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -7787,6 +8485,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.4-nano"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -7846,6 +8550,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.4-pro"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -7905,6 +8615,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -7964,6 +8680,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-5.5-pro"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -8017,7 +8739,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T04:00:58.599+00:00",
@@ -8069,7 +8798,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T04:00:58.599+00:00",
@@ -8121,7 +8857,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T04:00:58.599+00:00",
@@ -8232,7 +8975,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T04:00:58.599+00:00",
@@ -8284,7 +9034,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T04:00:58.599+00:00",
@@ -8336,7 +9093,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T04:00:58.599+00:00",
@@ -8394,6 +9158,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-audio"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -8453,6 +9223,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-audio-mini"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -8512,6 +9288,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-oss-120b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -8571,6 +9353,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-oss-20b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -8630,6 +9418,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/gpt-oss-safeguard-20b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -8689,6 +9483,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/o1"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -8748,6 +9548,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/o1-pro"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -8807,6 +9613,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/o3"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -8925,6 +9737,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/o3-mini"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -8984,6 +9802,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/o3-pro"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -9043,6 +9867,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: openai/o4-mini"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -9155,7 +9985,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T04:00:58.599+00:00",
@@ -9207,7 +10044,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T04:00:58.599+00:00",
@@ -9324,6 +10168,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen-plus-2025-07-28"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -9383,6 +10233,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-14b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -9442,6 +10298,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-235b-a22b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -9501,6 +10363,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-235b-a22b-2507"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -9560,6 +10428,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-235b-a22b-thinking-2507"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -9619,6 +10493,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-30b-a3b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -9678,6 +10558,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-30b-a3b-instruct-2507"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -9737,6 +10623,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-30b-a3b-thinking-2507"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -9796,6 +10688,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-32b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -9855,6 +10753,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-8b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -9914,6 +10818,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-coder"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -9973,6 +10883,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-coder-flash"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -10032,6 +10948,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-coder-next"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -10091,6 +11013,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-max"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -10150,6 +11078,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-max-thinking"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -10209,6 +11143,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-next-80b-a3b-instruct"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -10268,6 +11208,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-next-80b-a3b-thinking"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -10327,6 +11273,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-vl-235b-a22b-instruct"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -10386,6 +11338,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-vl-235b-a22b-thinking"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -10445,6 +11403,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-vl-30b-a3b-instruct"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -10504,6 +11468,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-vl-30b-a3b-thinking"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -10563,6 +11533,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-vl-32b-instruct"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -10622,6 +11598,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-vl-8b-instruct"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -10681,6 +11663,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3-vl-8b-thinking"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -10740,6 +11728,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3.5-122b-a10b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -10799,6 +11793,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3.5-27b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -10858,6 +11858,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3.5-35b-a3b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -10917,6 +11923,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3.5-397b-a17b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -10976,6 +11988,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3.5-9b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -11035,6 +12053,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3.6-27b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -11094,6 +12118,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3.6-35b-a3b"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -11153,6 +12183,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3.6-max-preview"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -11212,6 +12248,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3.6-plus"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -11271,6 +12313,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: qwen/qwen3.7-max"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -11324,7 +12372,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T04:00:58.599+00:00",
@@ -11376,7 +12431,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T04:00:58.599+00:00",
@@ -11434,6 +12496,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: relace/relace-search"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -11487,7 +12555,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T04:00:58.599+00:00",
@@ -11545,6 +12620,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: stepfun/step-3.5-flash"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -11598,7 +12679,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T04:00:58.599+00:00",
@@ -11656,6 +12744,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: tencent/hunyuan-a13b-instruct"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -11709,7 +12803,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T04:00:58.599+00:00",
@@ -11767,6 +12868,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: tencent/hy3-preview"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -11826,6 +12933,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: upstage/solar-pro-3"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -12062,6 +13175,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: xiaomi/mimo-v2.5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -12121,6 +13240,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: xiaomi/mimo-v2.5-pro"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -12239,6 +13364,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: z-ai/glm-4.5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -12298,6 +13429,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: z-ai/glm-4.5-air"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -12357,6 +13494,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: z-ai/glm-4.5v"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -12416,6 +13559,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: z-ai/glm-4.6"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -12475,6 +13624,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: z-ai/glm-4.6v"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -12534,6 +13689,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: z-ai/glm-4.7"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -12593,6 +13754,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: z-ai/glm-4.7-flash"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -12652,6 +13819,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: z-ai/glm-5"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -12711,6 +13884,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: z-ai/glm-5-turbo"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -12770,6 +13949,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: z-ai/glm-5.1"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -12823,7 +14008,14 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T04:00:58.599+00:00",
@@ -12881,6 +14073,12 @@
         "url": "https://models.dev/api.json",
         "accessed_at": "2026-07-23T09:08:52.190Z",
         "notes": "Provider model slug: z-ai/glm-5v-turbo"
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://api.kilo.ai/api/gateway/models",
+        "accessed_at": "2026-08-11T12:09:13.440Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {

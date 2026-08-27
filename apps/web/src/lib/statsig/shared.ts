@@ -31,6 +31,7 @@ export const PRESET_EXPERIMENTS_GATE =
 export const SAML_SSO_GATE =
 	process.env.NEXT_PUBLIC_STATSIG_SAML_SSO_GATE ?? "workspace_saml_sso";
 export const CATALOGUE_GAMES_PREVIEW_GATE = "catalogue_games_preview";
+export const ENTERPRISE_SELF_SERVE_PREVIEW_GATE = "enterprise_self_serve_preview";
 export const NEW_GATEWAY_HERO_GATE = NEW_LANDING_PAGE_GATE;
 export const NEW_GATEWAY_HERO_EXPERIMENT = NEW_LANDING_PAGE_EXPERIMENT;
 export const REALTIME_VOICE_BETA_FEATURE = "chat_realtime_voice";

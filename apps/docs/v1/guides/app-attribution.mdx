@@ -1,31 +1,85 @@
 ---
 title: "App Attribution"
-description: "Attach app metadata to Gateway requests for analytics and auditing."
+description: "Group Gateway usage by application with stable IDs, names, URLs, and categories."
 icon: "badge-check"
 ---
 
-App attribution lets you tag requests with the app name and referer so usage appears correctly in analytics and audits.
+Use app attribution to separate usage from different products, environments, or customer-facing experiences. Attribution appears in app analytics and request audits without changing the inference response.
 
-## Supported headers
+## Add attribution headers
 
-- `x-title`: Human-readable app name.
-- `http-referer`: The URL that initiated the request.
-
-## Example
+Send a stable app ID on every request. Add a name, URL, and up to three categories when you want richer dashboard grouping.
 
 ```bash
 curl https://api.phaseo.app/v1/responses \
   -H "Authorization: Bearer $PHASEO_API_KEY" \
   -H "Content-Type: application/json" \
-  -H "x-title: Acme Support Bot" \
-  -H "http-referer: https://acme.example/support" \
+  -H "X-App-Id: acme-support" \
+  -H "X-App-Name: Acme Support" \
+  -H "HTTP-Referer: https://acme.example/support" \
+  -H "X-App-Categories: chat,productivity" \
   -d '{
-    "model": "gpt-5-nano-2025-08-07",
-    "messages": [{"role": "user", "content": "Summarize this ticket."}]
+    "model": "openai/gpt-5-nano",
+    "input": "Summarize this ticket."
   }'
 ```
 
-## Notes
+Use the same `X-App-Id` for every request from the same application. Phaseo uses it as the stable identity when a URL is unavailable.
 
-- Keep titles consistent so dashboards group requests correctly.
-- Referer values can be set by your infrastructure or reverse proxy if not provided by clients.
+## Use the TypeScript SDK
+
+```typescript
+import Phaseo from "@phaseo/sdk";
+
+const phaseo = new Phaseo({
+  apiKey: process.env.PHASEO_API_KEY,
+  app: {
+    id: "acme-support",
+    name: "Acme Support",
+    url: "https://acme.example/support",
+    categories: ["chat", "productivity"],
+  },
+});
+
+const response = await phaseo.generateResponse({
+  model: "openai/gpt-5-nano",
+  input: "Summarize this ticket.",
+});
+```
+
+## Supported headers
+
+| Header | Purpose |
+| --- | --- |
+| `X-App-Id` | Stable identifier chosen by your application. |
+| `X-App-Name` | Human-readable name shown in app and usage views. |
+| `HTTP-Referer` | Public page or deployment URL associated with the app. |
+| `X-App-Categories` | Comma-separated list of up to three supported categories. |
+| `X-Title` | Compatibility alias for a human-readable app name. |
+
+`HTTP-Referer` is attribution metadata; it does not need to match the browser's automatic `Referer` header. Set it explicitly in server-side integrations when you want one canonical app URL.
+
+## Categories
+
+Choose up to three values:
+
+- `chat`
+- `developer-tools`
+- `research`
+- `productivity`
+- `education`
+- `commerce`
+- `media`
+- `finance`
+- `other`
+
+Values are case-insensitive. Phaseo ignores unknown values, removes duplicates, and keeps the first three valid categories. Categories received on later requests are merged with categories already saved for the app; they do not remove dashboard selections.
+
+You can also edit categories in **Gateway → Settings → Apps**. Use the dashboard when classification is managed centrally rather than by application code.
+
+## Attribution guidelines
+
+- Keep IDs stable across deployments so usage remains grouped.
+- Use separate IDs for applications that need separate cost or usage reporting.
+- Do not put customer IDs, email addresses, or other personal data in attribution headers.
+- Treat the URL as public metadata when the app may appear in shared or public app views.

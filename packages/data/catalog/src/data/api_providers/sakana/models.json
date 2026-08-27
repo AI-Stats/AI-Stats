@@ -1,7 +1,7 @@
 [
   {
     "api_model_id": "sakana/fugu",
-    "provider_api_model_id": "sakana:sakana/fugu",
+    "provider_api_model_id": "sakana:fugu",
     "provider_model_slug": "fugu",
     "internal_model_id": "sakana/fugu",
     "is_active_gateway": false,
@@ -15,7 +15,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "coming_soon",
+        "status": "active",
         "params": [
           {
             "param_id": "max_output_tokens",
@@ -130,6 +130,106 @@
             "notes": "Accepted but ignored by Chat Completions."
           }
         ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": false,
+        "attachment": true,
+        "input_modalities": ["text","image"],
+        "output_modalities": ["text"],
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": ["openai-responses", "openai-chat-completions", "anthropic-messages"],
+      "endpoint": "https://api.sakana.ai/v1",
+      "deployment": null
+    },
+    "sources": [{"url":"https://console.sakana.ai/models","kind":"api_reference","accessed_at":"2026-08-12T00:00:00Z"}],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Upstream contract verified; gateway routing remains disabled because Fugu uses dynamic underlying-model pricing."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "sakana/fugu-cyber",
+    "provider_api_model_id": "sakana:fugu-cyber",
+    "provider_model_slug": "fugu-cyber",
+    "internal_model_id": "sakana/fugu-cyber",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "disabled",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-10T20:45:32.974+00:00",
+      "notes": "Official alias verified; gateway routing is disabled because Fugu Cyber is access-gated and current public pricing directs customers to sales."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "sakana/fugu-cyber",
+    "provider_api_model_id": "sakana:fugu-cyber-v1.0",
+    "provider_model_slug": "fugu-cyber-v1.0",
+    "internal_model_id": "sakana/fugu-cyber",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": null,
+    "effective_from": "2026-07-21T00:00:00",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "disabled",
+        "params": [],
         "reasoning": null,
         "tool_call": null,
         "structured_output": null,
@@ -152,17 +252,78 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "url": "https://sakana.ai/fugu-cyber-release/",
+        "kind": "announcement"
+      },
+      {
+        "url": "https://sakana.ai/fugu/",
+        "kind": "documentation"
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-07-24T00:00:00Z",
+      "notes": "Official Sakana release and API page."
     },
     "rate_limits": []
   },
   {
     "api_model_id": "sakana/fugu-ultra",
-    "provider_api_model_id": "sakana:sakana/fugu-ultra",
+    "provider_api_model_id": "sakana:fugu-ultra",
+    "provider_model_slug": "fugu-ultra",
+    "internal_model_id": "sakana/fugu-ultra",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": ["max_output_tokens","max_completion_tokens","max_tokens","reasoning","reasoning_effort","tools","tool_choice","response_format","structured_outputs","parallel_tool_calls","temperature","top_p","stop","seed","frequency_penalty","presence_penalty","metadata","stream"],
+        "reasoning": null,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": ["text","image"],
+        "output_modalities": ["text"],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": ["openai-responses", "openai-chat-completions", "anthropic-messages"],
+      "endpoint": "https://api.sakana.ai/v1",
+      "deployment": null
+    },
+    "sources": [{"url":"https://console.sakana.ai/models","kind":"api_reference","accessed_at":"2026-08-12T00:00:00Z"}],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Current alias resolves to fugu-ultra-v1.1; endpoint, modalities, reasoning, tools, structured output, and pricing verified."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "sakana/fugu-ultra",
+    "provider_api_model_id": "sakana:fugu-ultra-20260615",
     "provider_model_slug": "fugu-ultra-20260615",
     "internal_model_id": "sakana/fugu-ultra",
     "is_active_gateway": false,
@@ -176,7 +337,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "coming_soon",
+        "status": "active",
         "params": [
           {
             "param_id": "max_output_tokens",
@@ -322,68 +483,11 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "sakana/fugu-cyber",
-    "provider_api_model_id": "sakana:sakana/fugu-cyber",
-    "provider_model_slug": "fugu-cyber-v1.0",
-    "internal_model_id": "sakana/fugu-cyber",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": "text,image",
-    "output_modalities": "text",
-    "context_length": 1000000,
-    "max_output_tokens": null,
-    "effective_from": "2026-07-21T00:00:00",
-    "effective_to": null,
-    "capabilities": [
-      {
-        "capability_id": "text.generate",
-        "status": "coming_soon",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
-        "modes": []
-      }
-    ],
-    "routing_status": null,
-    "routable": false,
-    "regions": {
-      "execution": null,
-      "data": null
-    },
-    "service_tiers": [],
-    "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
-    },
-    "sources": [
-      {
-        "url": "https://sakana.ai/fugu-cyber-release/",
-        "kind": "announcement"
-      },
-      {
-        "url": "https://sakana.ai/fugu/",
-        "kind": "documentation"
-      }
-    ],
-    "verification": {
-      "status": "verified",
-      "checked_at": "2026-07-24T00:00:00Z",
-      "notes": "Official Sakana release and API page."
-    },
-    "rate_limits": []
-  },
-  {
     "api_model_id": "sakana/namazu",
     "provider_api_model_id": "sakana:sakana-namazu",
     "provider_model_slug": "sakana-namazu",
     "internal_model_id": "sakana/namazu",
-    "is_active_gateway": false,
+    "is_active_gateway": true,
     "quantization_scheme": null,
     "input_modalities": "text,image,file",
     "output_modalities": "text",
@@ -394,28 +498,28 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "coming_soon",
-        "params": [],
-        "reasoning": null,
-        "tool_call": null,
-        "structured_output": null,
-        "temperature": null,
-        "attachment": null,
-        "input_modalities": null,
-        "output_modalities": null,
+        "status": "active",
+        "params": ["max_output_tokens","max_completion_tokens","max_tokens","reasoning","reasoning_effort","tools","tool_choice","response_format","structured_outputs","parallel_tool_calls","temperature","top_p","stop","seed","frequency_penalty","presence_penalty","metadata","stream"],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": false,
+        "attachment": true,
+        "input_modalities": ["text","image","file"],
+        "output_modalities": ["text"],
         "modes": []
       }
     ],
-    "routing_status": null,
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
       "execution": null,
       "data": null
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
-      "endpoint": null,
+      "formats": ["openai-responses", "openai-chat-completions", "anthropic-messages"],
+      "endpoint": "https://api.sakana.ai/v1",
       "deployment": null
     },
     "sources": [
@@ -434,8 +538,8 @@
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-03T00:00:00Z",
-      "notes": "API identifier, release availability, pricing, supported inputs and regional restrictions verified against Sakana AI's official API documentation. Phaseo routing remains globally disabled."
+      "checked_at": "2026-08-12T00:00:00Z",
+      "notes": "Current API identifier, pricing, multimodal/file inputs, tools, protocols, and regional restrictions verified; gateway routing enabled."
     },
     "rate_limits": []
   },
@@ -455,7 +559,7 @@
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "coming_soon",
+        "status": "active",
         "params": [],
         "reasoning": null,
         "tool_call": null,
@@ -498,6 +602,76 @@
       "checked_at": "2026-08-03T00:00:00Z",
       "notes": "API identifier, release availability, pricing, supported inputs and regional restrictions verified against Sakana AI's official API documentation. Phaseo routing remains globally disabled."
     },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "sakana/fugu-ultra",
+    "provider_api_model_id": "sakana:fugu-ultra-v1.0",
+    "provider_model_slug": "fugu-ultra-v1.0",
+    "internal_model_id": "sakana/fugu-ultra",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": null,
+    "effective_from": "2026-06-22T00:00:00",
+    "effective_to": null,
+    "capabilities": [{
+      "capability_id": "text.generate",
+      "status": "active",
+      "params": ["max_output_tokens","max_completion_tokens","max_tokens","reasoning","reasoning_effort","tools","tool_choice","response_format","structured_outputs","parallel_tool_calls","temperature","top_p","stop","seed","frequency_penalty","presence_penalty","metadata","stream"],
+      "reasoning": true,
+      "tool_call": true,
+      "structured_output": true,
+      "temperature": false,
+      "attachment": true,
+      "input_modalities": ["text","image"],
+      "output_modalities": ["text"],
+      "modes": []
+    }],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {"execution": null, "data": null},
+    "service_tiers": [],
+    "api": {"formats": ["openai-responses","openai-chat-completions","anthropic-messages"], "endpoint": "https://api.sakana.ai/v1", "deployment": null},
+    "sources": [{"url":"https://console.sakana.ai/models","kind":"api_reference","accessed_at":"2026-08-24T00:00:00Z"},{"url":"https://console.sakana.ai/pricing","kind":"pricing","accessed_at":"2026-08-24T00:00:00Z"}],
+    "verification": {"status":"verified","checked_at":"2026-08-24T00:00:00Z","notes":"Official versioned v1.0 route; fugu-ultra-20260615 is an equivalent historical identifier. Preserved as a non-routing alias."},
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "sakana/fugu-ultra",
+    "provider_api_model_id": "sakana:fugu-ultra-v1.1",
+    "provider_model_slug": "fugu-ultra-v1.1",
+    "internal_model_id": "sakana/fugu-ultra",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": null,
+    "effective_from": "2026-07-24T00:00:00",
+    "effective_to": null,
+    "capabilities": [{
+      "capability_id": "text.generate",
+      "status": "active",
+      "params": ["max_output_tokens","max_completion_tokens","max_tokens","reasoning","reasoning_effort","tools","tool_choice","response_format","structured_outputs","parallel_tool_calls","temperature","top_p","stop","seed","frequency_penalty","presence_penalty","metadata","stream"],
+      "reasoning": true,
+      "tool_call": true,
+      "structured_output": true,
+      "temperature": false,
+      "attachment": true,
+      "input_modalities": ["text","image"],
+      "output_modalities": ["text"],
+      "modes": []
+    }],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {"execution": null, "data": null},
+    "service_tiers": [],
+    "api": {"formats": ["openai-responses","openai-chat-completions","anthropic-messages"], "endpoint": "https://api.sakana.ai/v1", "deployment": null},
+    "sources": [{"url":"https://console.sakana.ai/models","kind":"api_reference","accessed_at":"2026-08-24T00:00:00Z"},{"url":"https://sakana.ai/fugu-1-1-claude-code-interface/","kind":"announcement","accessed_at":"2026-08-24T00:00:00Z"},{"url":"https://console.sakana.ai/pricing","kind":"pricing","accessed_at":"2026-08-24T00:00:00Z"}],
+    "verification": {"status":"verified","checked_at":"2026-08-24T00:00:00Z","notes":"Official current versioned route; the fugu-ultra alias resolves here. Preserved as a non-routing alias."},
     "rate_limits": []
   }
 ]

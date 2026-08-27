@@ -5,7 +5,9 @@ import {
     checkApiProviderModelEntrySafety,
     checkPreviousModelReference,
     checkPricingEntrySafety,
+    checkSubscriptionPlanModels,
     isMajorError,
+    normalizedModelIdentity,
 } from '@/data/validate';
 
 const DATA_ROOT = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
@@ -43,6 +45,40 @@ describe('model lineage reference checks', () => {
             previousModelExists: true,
             previousModelOrganisationId: 'openai',
         })[0]).toContain('from a different organisation');
+    });
+});
+
+describe('subscription plan model checks', () => {
+    test('duplicate model IDs are rejected before import', () => {
+        expect(checkSubscriptionPlanModels(
+            'example-plan',
+            [
+                { model_id: 'example/model' },
+                { model_id: 'example/model' },
+            ],
+            new Set(['example/model']),
+        )).toEqual([
+            'Subscription plan example-plan contains duplicate model example/model',
+        ]);
+    });
+});
+
+describe('model identity normalization', () => {
+    test('collapses a redundant organisation prefix without changing distinct models', () => {
+        expect(normalizedModelIdentity(
+            'nvidia/nvidia-nemotron-nano-9b-v2',
+            'nvidia',
+        )).toBe(normalizedModelIdentity('nvidia/nemotron-nano-9b-v2', 'nvidia'));
+        expect(normalizedModelIdentity(
+            'nvidia/nemotron-nano-9b-v2',
+            'nvidia',
+        )).not.toBe(normalizedModelIdentity('nvidia/nemotron-nano-12b-v2', 'nvidia'));
+    });
+});
+
+describe('validation error severity', () => {
+    test('classifies duplicate model_id errors as major', () => {
+        expect(isMajorError('Duplicate model_id detected: nvidia/example')).toBe(true);
     });
 });
 
@@ -277,6 +313,12 @@ describe('pricing safety checks', () => {
 });
 
 describe('api provider model safety checks', () => {
+    test('Venice E2EE models remain unroutable until the encryption protocol is implemented', () => {
+        const rows = readProviderModels('venice-e2ee');
+        expect(rows.length).toBeGreaterThan(0);
+        expect(rows.every((row: any) => row.is_active_gateway === false && row.routable === false)).toBe(true);
+    });
+
     test('Kimi K3 provider rows retain provider-specific limits and support', () => {
         const gmi = readProviderModels('gmicloud').find(
             (row: any) => row.provider_api_model_id === 'gmicloud:moonshotai/kimi-k3'
@@ -386,6 +428,22 @@ describe('api provider model safety checks', () => {
         };
         const result = checkApiProviderModelEntrySafety(bad, { providerId: 'gmicloud' });
         expect(result.errors).toEqual(
+            expect.arrayContaining([expect.stringContaining('missing provider_model_slug')])
+        );
+    });
+
+    test('disabled unroutable future row may omit unverified provider_model_slug', () => {
+        const row = {
+            api_model_id: 'qwen/qwen3.8-27b',
+            provider_api_model_id: 'cerebras:qwen/qwen3.8-27b',
+            internal_model_id: 'qwen/qwen3.8-27b',
+            is_active_gateway: false,
+            routable: false,
+            routing_status: 'disabled',
+            capabilities: [{ capability_id: 'text.generate', status: 'disabled', params: [] }],
+        };
+        const result = checkApiProviderModelEntrySafety(row, { providerId: 'cerebras' });
+        expect(result.errors).not.toEqual(
             expect.arrayContaining([expect.stringContaining('missing provider_model_slug')])
         );
     });

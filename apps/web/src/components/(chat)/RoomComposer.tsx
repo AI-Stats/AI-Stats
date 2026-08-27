@@ -35,7 +35,7 @@ export function RoomComposerToolsMenu({ tools }: { tools: RoomComposerTool[] }) 
 					<Plus className="h-4 w-4" />
 
 			</DropdownMenuTrigger>
-			<DropdownMenuContent side="top" align="start" sideOffset={8} className="w-52 rounded-[8px]! [&_[data-slot=dropdown-menu-item]]:rounded-[8px]!">
+			<DropdownMenuContent side="top" align="start" sideOffset={8} className="w-52 rounded-md [&_[data-slot=dropdown-menu-item]]:rounded-md">
 				{tools.map((tool) => {
 					const Icon = tool.icon;
 					return (
@@ -84,7 +84,7 @@ export function RoomComposerSurface({
 		<div
 			data-chat-composer-surface="true"
 			className={cn(
-				"rounded-2xl border border-border bg-card shadow-sm transition-colors duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:transition-none",
+				"rounded-md border border-border bg-card shadow-sm transition-colors duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] motion-reduce:transition-none",
 				className,
 			)}
 			{...props}

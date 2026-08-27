@@ -12,6 +12,8 @@ const oauthCleanupRpcMock = vi.fn();
 const runGatewayIoRetentionBillingJobMock = vi.fn();
 const pruneExpiredDataContributionsMock = vi.fn();
 const runPaymentMethodExpiryNotificationJobMock = vi.fn();
+const runNotificationDeliveryJobMock = vi.fn();
+const enqueueModelDeprecationNotificationsMock = vi.fn();
 
 vi.mock("@/runtime/env", () => ({
 	clearRuntime: (...args: unknown[]) => clearRuntimeMock(...args),
@@ -42,6 +44,11 @@ vi.mock("@/pipeline/notifications/email-outbox", () => ({
 vi.mock("@/pipeline/notifications/billing-alerts", () => ({
 	runPaymentMethodExpiryNotificationJob: (...args: unknown[]) =>
 		runPaymentMethodExpiryNotificationJobMock(...args),
+}));
+
+vi.mock("@/pipeline/notifications/notification-delivery", () => ({
+	runNotificationDeliveryJob: (...args: unknown[]) => runNotificationDeliveryJobMock(...args),
+	enqueueModelDeprecationNotifications: (...args: unknown[]) => enqueueModelDeprecationNotificationsMock(...args),
 }));
 
 vi.mock("@/pipeline/model-discovery", () => ({
@@ -85,6 +92,8 @@ describe("handleScheduledEvent", () => {
 		runGatewayIoRetentionBillingJobMock.mockReset();
 		pruneExpiredDataContributionsMock.mockReset();
 		runPaymentMethodExpiryNotificationJobMock.mockReset();
+		runNotificationDeliveryJobMock.mockReset().mockResolvedValue({ queued: 0, sent: 0, failed: 0 });
+		enqueueModelDeprecationNotificationsMock.mockReset().mockResolvedValue({ workspaces: 0, enqueued: 0 });
 		oauthCleanupRpcMock.mockResolvedValue({ error: null });
 		runAsyncWebhookRetriesJobMock.mockResolvedValue({
 			startedAt: "2026-06-10T00:05:00.000Z",

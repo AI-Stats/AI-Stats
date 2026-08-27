@@ -1,19 +1,22 @@
 {
   "api_provider_id": "vercel",
+  "data_policy_tier": "unknown",
+  "data_policy_confidence": "unknown",
+  "data_policy_contract_mode": "none",
   "api_provider_name": "Vercel AI Gateway",
   "provider_family_id": null,
   "offer_label": null,
   "offer_scope": "specialized",
   "description": "Vercel AI Gateway is Vercel's gateway service; Vercel's San Francisco headquarters are listed at 201 Mission Street.",
-  "link": "https://github.com/vercel/ai/tree/5eb85cc45a259553501f535b8ac79a77d0e79223/packages/gateway",
+  "link": "https://vercel.com/ai-gateway",
   "residency_mode": null,
   "default_execution_regions": null,
   "default_data_regions": null,
-  "zero_data_retention": null,
+  "zero_data_retention": false,
   "residency_source_url": null,
-  "prompt_training_policy": null,
-  "prompt_training_notes": null,
-  "prompt_training_source_url": null,
+  "prompt_training_policy": "opt_out_available",
+  "prompt_training_notes": "Vercel says the gateway itself does not store or train on customer data, but upstream providers set their own policies. The gateway exposes request-level no-training and ZDR controls that route only to providers covered by the relevant agreement; this record does not claim a universal provider-level policy for every model route.",
+  "prompt_training_source_url": "https://vercel.com/ai-gateway",
   "user_identifier_policy": null,
   "user_identifier_notes": null,
   "privacy_policy_url": null,
@@ -30,7 +33,7 @@
   "routing_enabled": false,
   "sdk_package": "@ai-sdk/gateway",
   "api_base_url": null,
-  "docs_url": "https://github.com/vercel/ai/tree/5eb85cc45a259553501f535b8ac79a77d0e79223/packages/gateway",
+  "docs_url": "https://vercel.com/ai-gateway",
   "auth_env": [
     "AI_GATEWAY_API_KEY"
   ],
@@ -48,11 +51,17 @@
       "url": "https://vercel.com/go/builder-day",
       "accessed_at": "2026-08-09T00:00:00Z",
       "notes": "Vercel's official Builder Day page identifies its San Francisco headquarters at 201 Mission Street."
+    },
+    {
+      "kind": "provider_docs",
+      "url": "https://vercel.com/ai-gateway",
+      "accessed_at": "2026-08-26T00:00:00Z",
+      "notes": "Vercel documents no prompt logging/training at the gateway layer, while provider-level ZDR and no-training guarantees are route controls that depend on the selected upstream provider."
     }
   ],
   "verification": {
-    "status": "partial",
-    "checked_at": "2026-08-09T00:00:00Z",
-    "notes": "Location metadata verified; other provider policy and catalogue fields were not re-audited. Existing provider verification note: Gateway metadata seed; verify provider policy and regional semantics before enabling routing."
+    "status": "verified",
+    "checked_at": "2026-08-26T00:00:00Z",
+    "notes": "The official AI Gateway policy was checked. Gateway-level no-storage/no-training is documented, but upstream retention and training vary by route; ZDR is an opt-in routing control, so the aggregate provider tier remains unknown and ZDR is false by default."
   }
 }
