@@ -11,7 +11,7 @@
       "unit_size": 1,
       "price_per_unit": 0,
       "currency": "USD",
-      "pricing_plan": "free",
+      "pricing_plan": "standard",
       "note": "Free, rate-limited evaluation API access. Cohere does not currently publish a production Parse API rate.",
       "match": [],
       "priority": 100,
@@ -24,7 +24,7 @@
     }
   ],
   "regions": ["global"],
-  "service_tiers": ["free"],
+  "service_tiers": ["standard"],
   "sources": [
     {
       "kind": "pricing",
