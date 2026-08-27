@@ -12,13 +12,13 @@
       "price_per_unit": 0.1,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": null,
+      "note": "AkashML pricing page, checked 2026-08-27.",
       "match": [],
       "priority": 100,
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": "https://akashml.com/models/qwen3.6-35b-a3b"
     },
     {
       "meter": "implicit_cached_input_text_tokens",
@@ -42,23 +42,32 @@
       "price_per_unit": 0.9,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": null,
+      "note": "AkashML pricing page, checked 2026-08-27.",
       "match": [],
       "priority": 100,
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": "https://akashml.com/models/qwen3.6-35b-a3b"
     }
   ],
   "regions": [],
   "service_tiers": [
     "standard"
   ],
-  "sources": [],
+  "sources": [
+    {
+      "url": "https://akashml.com/models/qwen3.6-35b-a3b",
+      "kind": "pricing"
+    },
+    {
+      "url": "https://akashml.com/docs/platform/models",
+      "kind": "pricing"
+    }
+  ],
   "verification": {
-    "status": "partial",
-    "checked_at": "2026-08-11T04:15:54.294+00:00",
-    "notes": "Pricing synchronized from the provider models API."
+    "status": "verified",
+    "checked_at": "2026-08-27T00:00:00Z",
+    "notes": "Pricing verified against AkashML's published model pricing page."
   }
 }
