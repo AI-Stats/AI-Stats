@@ -17,7 +17,7 @@
   "data_policy_tier": "logs",
   "data_policy_confidence": "maybe",
   "data_policy_contract_mode": "none",
-  "residency_source_url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/resources/data-residency",
+  "residency_source_url": "https://docs.cloud.google.com/vertex-ai/generative-ai/docs/learn/data-residency",
   "residency_notes": "The EU jurisdictional endpoint keeps ML processing within EU member states. The United Kingdom and Switzerland are outside this boundary; availability and supported controls remain model- and capability-specific.",
   "regional_pricing_mode": "offer_specific",
   "pricing_source_url": "https://cloud.google.com/vertex-ai/generative-ai/pricing",
