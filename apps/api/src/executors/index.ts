@@ -357,7 +357,7 @@ export const EXECUTORS_BY_PROVIDER: Record<string, ProviderCapabilityMap> = {
 	"nebius-token-factory-us-central-1": { "text.generate": nebiusTokenFactoryUsText },
 	nvidia: { "text.generate": nvidiaText },
 	parasail: { "text.generate": parasailText },
-	phala: { "text.generate": phalaText },
+	phala: { "text.generate": phalaText, embeddings: openaiEmbeddings },
 	poolside: { "text.generate": poolsideText },
 	runway: { "video.generate": runwayVideo },
 	runwayml: { "video.generate": runwayVideo },

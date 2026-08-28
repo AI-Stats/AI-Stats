@@ -9,6 +9,8 @@ type OpenAICompatProviderConfig = {
     pathPrefix?: string;
     apiKeyHeader?: string;
     apiKeyPrefix?: string;
+    providerAttribution?: string;
+    additionalModelPaths?: string[];
 };
 
 function normalizePathSegment(value?: string): string {
@@ -16,7 +18,7 @@ function normalizePathSegment(value?: string): string {
     return "/" + value.replace(/^\/+|\/+$/g, "");
 }
 
-function normalizeModelsUrl(baseUrl: string, pathPrefix?: string): string {
+function normalizeModelsUrl(baseUrl: string, pathPrefix?: string, modelPath = "/models"): string {
     const base = baseUrl.replace(/\/+$/, "");
     let prefix = normalizePathSegment(pathPrefix);
 
@@ -32,7 +34,8 @@ function normalizeModelsUrl(baseUrl: string, pathPrefix?: string): string {
         }
     }
 
-    return prefix ? base + prefix + "/models" : base + "/models";
+    const suffix = normalizePathSegment(modelPath);
+    return prefix ? base + prefix + suffix : base + suffix;
 }
 
 export function defineOpenAICompatibleProvider(config: OpenAICompatProviderConfig) {
@@ -66,20 +69,29 @@ export function defineOpenAICompatibleProvider(config: OpenAICompatProviderConfi
                 throw new Error("Missing base URL for " + config.providerId);
             }
 
-            const payload = await fetchJson({
-                url: normalizeModelsUrl(baseUrl, config.pathPrefix),
-                init: {
-                    headers: {
-                        [config.apiKeyHeader ?? "Authorization"]: (config.apiKeyPrefix ?? "Bearer ") + key,
+            const modelPaths = ["/models", ...(config.additionalModelPaths ?? [])];
+            const payloads = await Promise.all(modelPaths.map((modelPath) =>
+                fetchJson({
+                    url: normalizeModelsUrl(baseUrl, config.pathPrefix, modelPath),
+                    init: {
+                        headers: {
+                            [config.apiKeyHeader ?? "Authorization"]: (config.apiKeyPrefix ?? "Bearer ") + key,
+                        },
                     },
-                },
-            });
+                })
+            ));
 
-            const models = Array.isArray(payload)
+            const models = payloads.flatMap((payload) => Array.isArray(payload)
                 ? payload
                 : asArray(asRecord(payload)?.data).length
                     ? asArray(asRecord(payload)?.data)
-                    : asArray(asRecord(payload)?.models);
+                    : asArray(asRecord(payload)?.models)
+            ).filter((model) => {
+                if (!config.providerAttribution) return true;
+                const providers = asArray(asRecord(model)?.providers)
+                    .filter((provider): provider is string => typeof provider === "string");
+                return providers.length === 0 || providers.includes(config.providerAttribution);
+            });
 
             return normalizeModelEntries(models, (item) => (typeof item.id === "string" ? item.id : null));
         },

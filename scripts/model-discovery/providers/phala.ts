@@ -4,8 +4,9 @@ export default defineOpenAICompatibleProvider({
     providerId: "phala",
     name: "Phala",
     apiKeyEnv: "PHALA_API_KEY",
-    baseUrl: "https://api.redpill.ai",
+    baseUrl: "https://inference.phala.com",
     baseUrlEnv: "PHALA_BASE_URL",
     pathPrefix: "/v1",
+    providerAttribution: "phala",
+    additionalModelPaths: ["/embeddings/models"],
 });
-
