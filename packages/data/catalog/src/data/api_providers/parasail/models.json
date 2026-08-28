@@ -2594,5 +2594,83 @@
       "notes": "Endpoint availability, limits, capabilities, and pricing were recorded from OpenRouter; provider-level routing remains non-routable pending direct onboarding verification."
     },
     "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-5.3",
+    "canonical_model_id": "z-ai/glm-5.3",
+    "provider_api_model_id": "parasail:z-ai/glm-5.3",
+    "provider_model_slug": "zai-org/GLM-5.3",
+    "internal_model_id": "z-ai/glm-5.3",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-28T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": "max",
+            "values": ["low", "high", "max"],
+            "notes": "GLM-5.3 always reasons and Parasail documents low, high, and max reasoning effort."
+          },
+          "include_reasoning",
+          "reasoning_effort",
+          "temperature",
+          "top_p",
+          "top_k",
+          "max_tokens",
+          "repetition_penalty",
+          "presence_penalty",
+          "frequency_penalty",
+          "seed"
+        ],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": ["text"],
+        "output_modalities": ["text"],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {"execution": null, "data": null},
+    "service_tiers": ["standard"],
+    "api": {
+      "formats": ["openai.chat.completions"],
+      "endpoint": "/v1/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "official_company_page",
+        "url": "https://www.parasail.io/models/glm-53",
+        "accessed_at": "2026-08-28T22:47:52Z",
+        "notes": "Parasail publishes the exact zai-org/GLM-5.3 request model, parasail-glm-53 endpoint label, 1M context, reasoning levels, and current token pricing."
+      },
+      {
+        "kind": "documentation",
+        "url": "https://docs.parasail.io/parasail-docs/serverless/available-parameters",
+        "accessed_at": "2026-08-28T22:47:52Z",
+        "notes": "Parasail documents the supported vLLM sampling parameters for serverless models."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-28T22:47:52Z",
+      "notes": "Exact request slug, endpoint, context, reasoning behavior, supported parameters, and pricing verified from first-party Parasail pages; provider-level gateway routing remains disabled."
+    },
+    "rate_limits": []
   }
 ]
