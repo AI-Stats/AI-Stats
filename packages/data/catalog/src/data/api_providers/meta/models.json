@@ -420,5 +420,60 @@
       "notes": null
     },
     "rate_limits": []
+  },
+  {
+    "api_model_id": "meta/muse-spark-1.2-contributor",
+    "canonical_model_id": "meta/muse-spark-1.2-contributor",
+    "provider_api_model_id": "meta:meta/muse-spark-1.2-contributor",
+    "provider_model_slug": "muse-spark-1.2-contributor",
+    "internal_model_id": "meta/muse-spark-1.2-contributor",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video,audio",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-05T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": ["contributor"],
+    "api": {
+      "formats": ["openai_responses"],
+      "endpoint": "/v1/responses",
+      "deployment": null
+    },
+    "sources": [],
+    "verification": {
+      "status": "unverified",
+      "checked_at": null,
+      "notes": "Meta documents this contributor model, but the Phaseo Meta team API catalogue did not expose it on 2026-08-06. Keep routing disabled until the upstream credential can retrieve the model."
+    },
+    "rate_limits": [
+      {
+        "scope": "team",
+        "requests_per_minute": 60,
+        "tokens_per_minute": 2100000
+      }
+    ]
   }
 ]

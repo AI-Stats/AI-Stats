@@ -25,7 +25,7 @@
   "status": "Active",
   "colour": "#111111",
   "gateway_kind": "openai_compatible_beta",
-  "routable": false,
+  "routable": true,
   "routing_enabled": false,
   "sdk_package": "openai",
   "api_base_url": "https://tinker.thinkingmachines.dev/services/tinker-prod/oai/api/v1",

@@ -24,7 +24,7 @@
   "prompt_training_notes": "Moonshot says user content helps optimize its models and that content may be used to provide, maintain, develop, and improve the services.",
   "prompt_training_source_url": "https://platform.kimi.ai/docs/agreement/userprivacy",
   "gateway_kind": "openai_compatible",
-  "routable": false,
+  "routable": true,
   "routing_enabled": false,
   "sdk_package": null,
   "api_base_url": "https://api.moonshot.ai",

@@ -30,7 +30,7 @@
   "status": "Active",
   "colour": null,
   "gateway_kind": "catalogue",
-  "routable": false,
+  "routable": true,
   "routing_enabled": false,
   "sdk_package": "@ai-sdk/openai-compatible",
   "api_base_url": "https://api-inference.modelscope.cn/v1",

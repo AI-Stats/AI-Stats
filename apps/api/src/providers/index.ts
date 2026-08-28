@@ -18,6 +18,7 @@ import { SunoAdapter } from "./suno/index";
 import { createOpenAICompatibleAdapter } from "./openai-compatible/index";
 import { createUnsupportedAdapter } from "./unsupported";
 import { getSupabaseAdmin } from "@/runtime/env";
+import { normalizeProviderId } from "@/lib/config/providerAliases";
 
 // NOTE: All adapters are legacy and unused - the IR pipeline uses executors instead
 // These are kept for backward compatibility but are never called in production
@@ -93,7 +94,6 @@ const ADAPTERS: Record<string, ProviderAdapter> = {
     morph: createOpenAICompatibleAdapter("morph"),
     morpheus: createOpenAICompatibleAdapter("morpheus"),
     "nebius-token-factory": createOpenAICompatibleAdapter("nebius-token-factory"),
-    "nebius-token-factory-fast": createOpenAICompatibleAdapter("nebius-token-factory-fast"),
     "nebius-token-factory-eu-north-1": createOpenAICompatibleAdapter("nebius-token-factory-eu-north-1"),
     "nebius-token-factory-us-central-1": createOpenAICompatibleAdapter("nebius-token-factory-us-central-1"),
     "z-ai": createOpenAICompatibleAdapter("z-ai"),
@@ -130,7 +130,6 @@ const ADAPTERS: Record<string, ProviderAdapter> = {
     "google-vertex": createOpenAICompatibleAdapter("google-vertex"),
     "google-vertex-eu": createOpenAICompatibleAdapter("google-vertex-eu"),
     meta: createOpenAICompatibleAdapter("meta"),
-    "meta-contributor": createOpenAICompatibleAdapter("meta-contributor"),
     upstage: createOpenAICompatibleAdapter("upstage"),
     wafer: createOpenAICompatibleAdapter("wafer"),
     "tencent-cloud": createOpenAICompatibleAdapter("tencent-cloud"),
@@ -218,11 +217,12 @@ export function allProviderNames(): string[] {
 }
 
 export function adapterFor(providerId: string, endpoint: Endpoint): ProviderAdapter | null {
-    const override = ADAPTERS_BY_CAPABILITY[endpoint]?.[providerId];
-    return override ?? ADAPTERS[providerId] ?? null;
+	const canonicalProviderId = normalizeProviderId(providerId);
+	const override = ADAPTERS_BY_CAPABILITY[endpoint]?.[canonicalProviderId];
+	return override ?? ADAPTERS[canonicalProviderId] ?? null;
 }
 
 // Backward-compat shim for legacy tests/tools that resolve adapters by provider only.
 export function adapterById(providerId: string): ProviderAdapter | null {
-    return ADAPTERS[providerId] ?? null;
+	return ADAPTERS[normalizeProviderId(providerId)] ?? null;
 }

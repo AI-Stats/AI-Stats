@@ -28,7 +28,7 @@
   "status": "Active",
   "colour": null,
   "gateway_kind": null,
-  "routable": false,
+  "routable": true,
   "routing_enabled": false,
   "sdk_package": null,
   "api_base_url": null,

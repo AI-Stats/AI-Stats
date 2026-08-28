@@ -9,6 +9,7 @@ import { isIRNativeToolDefinition } from "@core/nativeTools";
 import { applyResponsesRequestQuirks, applyResponsesResponseQuirks } from "./responses-quirks";
 import { applyReasoningParams } from "./reasoning";
 import { getProviderQuirks } from "./quirks";
+import { normalizeProviderId } from "@/lib/config/providerAliases";
 
 function readResponseToolCallName(item: any): string | null {
 	const candidates = [
@@ -76,24 +77,23 @@ function readCustomResponseToolCall(item: any): { id: string | null; name: strin
 }
 
 function usesOpenAIResponsesShape(providerId?: string): boolean {
+	const canonicalProviderId = providerId ? normalizeProviderId(providerId) : providerId;
 	return (
-		providerId === "openai" ||
-		providerId === "openai-eu" ||
-		providerId === "deepseek" ||
-		providerId === "meta" ||
-		providerId === "meta-contributor" ||
-		providerId === "amazon-bedrock" ||
-		providerId === "byteplus" ||
-		providerId === "clarifai" ||
-		providerId === "darkbloom" ||
-		providerId === "stepfun" ||
-		providerId === "sakana" ||
-		providerId === "sail-research" ||
-		providerId === "ovhcloud" ||
-		providerId === "nebius-token-factory" ||
-		providerId === "nebius-token-factory-fast" ||
-		providerId === "nebius-token-factory-eu-north-1" ||
-		providerId === "nebius-token-factory-us-central-1"
+		canonicalProviderId === "openai" ||
+		canonicalProviderId === "openai-eu" ||
+		canonicalProviderId === "deepseek" ||
+		canonicalProviderId === "meta" ||
+		canonicalProviderId === "amazon-bedrock" ||
+		canonicalProviderId === "byteplus" ||
+		canonicalProviderId === "clarifai" ||
+		canonicalProviderId === "darkbloom" ||
+		canonicalProviderId === "stepfun" ||
+		canonicalProviderId === "sakana" ||
+		canonicalProviderId === "sail-research" ||
+		canonicalProviderId === "ovhcloud" ||
+		canonicalProviderId === "nebius-token-factory" ||
+		canonicalProviderId === "nebius-token-factory-eu-north-1" ||
+		canonicalProviderId === "nebius-token-factory-us-central-1"
 	);
 }
 
@@ -399,7 +399,7 @@ export function irToOpenAIResponses(
 	if (ir.promptCacheOptions !== undefined) request.prompt_cache_options = ir.promptCacheOptions;
 	if (ir.safetyIdentifier !== undefined) request.safety_identifier = ir.safetyIdentifier;
 	if (ir.webSearchOptions !== undefined) request.web_search_options = ir.webSearchOptions;
-	if (providerId === "meta" || providerId === "meta-contributor") addMetaWebSearchTool(request, ir);
+	if (providerId && normalizeProviderId(providerId) === "meta") addMetaWebSearchTool(request, ir);
 	const openAIContextManagement = ir.contextManagement
 		?? (ir.vendor as any)?.openai?.context_management;
 	if (

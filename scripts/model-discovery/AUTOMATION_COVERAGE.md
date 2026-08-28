@@ -19,6 +19,7 @@ Phaseo fetches provider and aggregator sources directly. It also uses the public
 | EmpirioLabs | Direct public `/v1/models` | Single-tier prices auto-normalized; tier arrays are review-only | None |
 | Google | Direct Gemini and Vertex model APIs | Model metadata only; official API responses do not contain authoritative prices | API key/access token |
 | LLM Gateway | Direct aggregator API | Token prices auto-normalized | Optional API key |
+| Mara | Direct public OpenAI-compatible `/v1/models` | Per-million token prices auto-normalized | Optional API key |
 | NovitaAI | Direct public OpenAI-compatible `/models` | Per-million token prices auto-normalized, including Novita's documented integer scale | Optional API key |
 | OpenAI | Direct `/v1/models` plus official documentation parser | Model API is availability-only; simple docs prices may update safe rules | API key for model list; docs are public |
 | OpenRouter | Direct aggregator API | Token, cache, multimodal token, and reasoning prices auto-normalized | Optional API key |

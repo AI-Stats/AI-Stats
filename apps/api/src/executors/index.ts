@@ -13,6 +13,7 @@
  */
 
 import type { ProviderExecutor } from "./types";
+import { normalizeProviderId } from "@/lib/config/providerAliases";
 
 // Text generation executors (migrated providers only)
 import { executor as openaiText } from "./openai/text-generate";
@@ -95,7 +96,6 @@ import { executor as stepfunText } from "./stepfun/text-generate";
 import { executor as veniceText } from "./venice/text-generate";
 import { executor as weightsAndBiasesText } from "./weights-and-biases/text-generate";
 import { executor as metaText } from "./meta/text-generate";
-import { executor as nebiusTokenFactoryFastText } from "./nebius-token-factory-fast/text-generate";
 import { executor as ovhcloudText } from "./ovhcloud/text-generate";
 import { executor as ovhcloudModerations } from "./ovhcloud/moderations";
 import { executor as sakanaText } from "./sakana/text-generate";
@@ -354,7 +354,6 @@ export const EXECUTORS_BY_PROVIDER: Record<string, ProviderCapabilityMap> = {
 	morph: { "text.generate": morphText },
 	morpheus: { "text.generate": morpheusText, embeddings: openaiEmbeddings, "audio.speech": nonTextAdapterExecutor },
 	"nebius-token-factory": { "text.generate": nebiusTokenFactoryText, embeddings: openaiEmbeddings, rerank: openaiRerank },
-	"nebius-token-factory-fast": { "text.generate": nebiusTokenFactoryFastText },
 	"nebius-token-factory-eu-north-1": { "text.generate": nebiusTokenFactoryEuText, embeddings: openaiEmbeddings },
 	"nebius-token-factory-us-central-1": { "text.generate": nebiusTokenFactoryUsText },
 	nvidia: { "text.generate": nvidiaText },
@@ -415,7 +414,6 @@ export const EXECUTORS_BY_PROVIDER: Record<string, ProviderCapabilityMap> = {
 		"image.generate": nonTextAdapterExecutor,
 		"image.edit": nonTextAdapterExecutor,
 	},
-	"meta-contributor": { "text.generate": metaText },
 	ovhcloud: {
 		"text.generate": ovhcloudText,
 		embeddings: openaiEmbeddings,
@@ -431,7 +429,7 @@ export const EXECUTORS_BY_PROVIDER: Record<string, ProviderCapabilityMap> = {
 
 export function resolveProviderExecutor(providerId: string, capability: string): ProviderExecutor | null {
 	const normalizedCapability = normalizeCapability(capability);
-	const provider = EXECUTORS_BY_PROVIDER[providerId];
+	const provider = EXECUTORS_BY_PROVIDER[normalizeProviderId(providerId)];
 	if (provider) {
 		const executor = provider[normalizedCapability];
 		if (executor) return executor;
@@ -441,7 +439,7 @@ export function resolveProviderExecutor(providerId: string, capability: string):
 
 export function isProviderCapabilityEnabled(providerId: string, capability: string): boolean {
 	const normalizedCapability = normalizeCapability(capability);
-	const provider = EXECUTORS_BY_PROVIDER[providerId];
+	const provider = EXECUTORS_BY_PROVIDER[normalizeProviderId(providerId)];
 	if (provider?.[normalizedCapability]) return true;
 	return false;
 }

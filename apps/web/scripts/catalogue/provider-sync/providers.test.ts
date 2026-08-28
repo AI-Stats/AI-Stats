@@ -6,6 +6,7 @@ describe("provider sync registry", () => {
 		expect(getProviderSyncProviderIds()).toEqual([
 			"deepinfra",
 			"fastrouter",
+			"mara",
 			"novita-ai",
 			"openrouter",
 			"orcarouter",
@@ -15,6 +16,39 @@ describe("provider sync registry", () => {
 			"vercel",
 			"zenmux",
 		]);
+	});
+
+	test("fetches MARA's OpenAI-compatible model list with an optional bearer token", async () => {
+		const provider = getProviderSyncProvider("mara");
+		expect(provider).toBeDefined();
+		const originalKey = process.env.MARA_API_KEY;
+		process.env.MARA_API_KEY = "test-mara-key";
+		const request = jest.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+			expect(init?.headers).toEqual({
+				accept: "application/json",
+				authorization: "Bearer test-mara-key",
+			});
+			return new Response(JSON.stringify({
+				object: "list",
+				data: [{
+					id: "MiniMax-M2.7",
+					context_length: 196608,
+					max_completion_tokens: 196608,
+					pricing: { prompt: "0.00000060", completion: "0.00000240" },
+				}],
+			}), { status: 200 });
+		});
+
+		try {
+			const payload = await provider!.fetchModels(request);
+			expect(provider!.parseModels(payload)).toEqual([
+			{ id: "MiniMax-M2.7", details: expect.objectContaining({ context_length: 196608 }) },
+		]);
+			expect(request).toHaveBeenCalledWith(provider!.sourceUrl, expect.any(Object));
+		} finally {
+			if (originalKey === undefined) delete process.env.MARA_API_KEY;
+			else process.env.MARA_API_KEY = originalKey;
+		}
 	});
 
 	test("does not invent a zero DeepInfra cache price when no cache rate is published", () => {
