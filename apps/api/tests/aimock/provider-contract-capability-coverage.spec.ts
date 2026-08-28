@@ -13,6 +13,7 @@ const inheritedContractByProvider: Record<string, string> = {
     "io-net": "openai",
     streamlake: "openai",
     switchpoint: "openai",
+	"tencent-cloud": "openai",
 	"ionrouter-kimi": "ionrouter",
 	"ionrouter-minimax": "ionrouter",
 	tensorx: "tensorix",
