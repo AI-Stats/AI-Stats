@@ -50,8 +50,9 @@ import {
 	HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import {
-	Table,
-	TableBody,
+    Table,
+    TableBody,
+    TableCell,
 	TableHead,
 	TableHeader,
 	TableRow,
@@ -79,8 +80,8 @@ import {
 } from "@/components/(data)/model/pricing/providerPlanRouting";
 import { getPricingProviderVariantLabels } from "@/components/(data)/model/pricing/pricingProviderVariants";
 import {
-    buildProviderSections,
-    buildProviderTablePriceSummary,
+	buildProviderSections,
+	buildProviderTablePriceSummary,
 } from "@/components/(data)/model/pricing/pricingHelpers";
 import {
     chooseGatewayStatus,
@@ -93,6 +94,12 @@ import ModelPercentileSelect, {
 	type ModelPercentile,
 } from "@/components/(data)/models/ModelPercentileSelect";
 import { publishProviderView } from "@/components/(data)/model/pricing/providerViewSync";
+import {
+    dispatchProviderInspectorOpen,
+    subscribeProviderInspectorSelection,
+    type ProviderInspectorSelection,
+} from "@/components/(data)/model/pricing/providerInspectorSync";
+import { getTierFilterMeta } from "@/lib/models/tierFilterStyles";
 const SORT_QUERY_KEY = "sort";
 const SORT_DIRECTION_QUERY_KEY = "dir";
 const LEGACY_PROVIDER_VIEW_QUERY_KEY = "provider_view";
@@ -451,6 +458,104 @@ function matchesPrivacyFilter(
 		.length === 0;
 }
 
+function formatServiceTierLabel(plan: string): string {
+	return plan
+		.replace(/[_-]+/g, " ")
+		.replace(/\b\w/g, (character) => character.toUpperCase());
+}
+
+function renderTierTablePrice(
+	summary: ReturnType<typeof buildProviderTablePriceSummary>,
+	accentClassName: string,
+) {
+	return summary.primary ? (
+		<div className={cn("font-medium tabular-nums", accentClassName)}>
+			{summary.primary.formattedPrice}
+		</div>
+	) : (
+		<div className="font-medium tabular-nums text-foreground">--</div>
+	);
+}
+
+function ProviderServiceTierRow({
+	provider,
+	plan,
+	pricingTimeMs,
+	showCacheReadColumn,
+	navigationProviderIds,
+	isActive,
+}: {
+	provider: ProviderPricing;
+	plan: string;
+	pricingTimeMs: number;
+	showCacheReadColumn: boolean;
+	navigationProviderIds: string[];
+	isActive: boolean;
+}) {
+	const sections = useMemo(
+		() => buildProviderSections(provider, plan, pricingTimeMs),
+		[plan, pricingTimeMs, provider],
+	);
+	const inputPrice = buildProviderTablePriceSummary(sections, "input");
+	const outputPrice = buildProviderTablePriceSummary(sections, "output");
+	const cacheReadPrice = showCacheReadColumn
+		? buildProviderTablePriceSummary(sections, "cached")
+		: null;
+	const tierMeta = getTierFilterMeta(plan);
+	const TierIcon = tierMeta.icon;
+	const providerName = provider.provider.api_provider_name || provider.provider.api_provider_id;
+	const openTier = () => {
+		dispatchProviderInspectorOpen(
+			provider.provider.api_provider_id,
+			false,
+			navigationProviderIds,
+			plan,
+		);
+	};
+
+	return (
+		<TableRow
+			role="button"
+			tabIndex={0}
+			aria-label={`Open ${providerName} ${formatServiceTierLabel(plan)} service tier`}
+			onClick={openTier}
+			onKeyDown={(event) => {
+				if (event.key !== "Enter" && event.key !== " ") return;
+				event.preventDefault();
+				openTier();
+			}}
+			className={cn(
+				"cursor-pointer bg-muted/20 hover:bg-muted/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
+				isActive && "bg-primary/[0.06]",
+			)}
+		>
+			<TableCell className="relative min-w-[280px] py-1 pl-[3.75rem] pr-2">
+				{isActive ? <span aria-hidden="true" className="absolute inset-y-0 left-0 w-0.5 bg-primary" /> : null}
+				<span className="inline-flex items-center gap-2.5 whitespace-nowrap text-xs font-medium text-foreground">
+					<span className="grid size-6 shrink-0 place-items-center rounded-md border border-border bg-background">
+						<TierIcon className={cn("size-3.5", tierMeta.iconClassName)} aria-hidden="true" />
+					</span>
+					<span>{providerName} ({formatServiceTierLabel(plan)})</span>
+				</span>
+			</TableCell>
+			<TableCell className="py-1 pl-2 pr-4 text-right tabular-nums whitespace-nowrap">
+				{renderTierTablePrice(inputPrice, tierMeta.iconClassName)}
+			</TableCell>
+			<TableCell className="py-1 pl-2 pr-4 text-right tabular-nums whitespace-nowrap">
+				{renderTierTablePrice(outputPrice, tierMeta.iconClassName)}
+			</TableCell>
+			{showCacheReadColumn ? (
+				<TableCell className="py-1 pl-2 pr-4 text-right tabular-nums whitespace-nowrap">
+					{cacheReadPrice ? renderTierTablePrice(cacheReadPrice, tierMeta.iconClassName) : "--"}
+				</TableCell>
+			) : null}
+			<TableCell className="py-1 pl-2 pr-4 text-right tabular-nums whitespace-nowrap">--</TableCell>
+			<TableCell className="py-1 pl-2 pr-4 text-right tabular-nums whitespace-nowrap">--</TableCell>
+			<TableCell className="py-1 pl-2 pr-4 text-right tabular-nums whitespace-nowrap">--</TableCell>
+		</TableRow>
+	);
+}
+
 export default function ModelPricingClient({
 	modelId,
 	providers,
@@ -594,6 +699,25 @@ export default function ModelPricingClient({
         DEFAULT_PROVIDER_STATUS_FILTERS,
     );
     const [privacyFilter, setPrivacyFilter] = useState<PrivacyFilter>("workspace");
+    const [expandedProviderTiers, setExpandedProviderTiers] = useState<Set<string>>(
+        () => new Set(),
+    );
+    const [activeInspectorSelection, setActiveInspectorSelection] =
+        useState<ProviderInspectorSelection | null>(null);
+
+    useEffect(
+        () => subscribeProviderInspectorSelection(setActiveInspectorSelection),
+        [],
+    );
+
+    const toggleProviderTiers = (providerId: string) => {
+        setExpandedProviderTiers((current) => {
+            const next = new Set(current);
+            if (next.has(providerId)) next.delete(providerId);
+            else next.add(providerId);
+            return next;
+        });
+    };
 
     const sortedProviders = useMemo(() => {
         const list = displayProviders.filter((provider) =>
@@ -1289,35 +1413,71 @@ export default function ModelPricingClient({
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {visibleProviders.map((prov, index) => (
-                                            <ProviderCard
-                                                key={prov.provider.api_provider_id}
-                                                provider={prov}
-                                                defaultPlan={getProviderDefaultPlan(prov)}
-                                                availablePlans={getProviderAvailablePlans(prov)}
-                                                comparisonProviders={displayProviders}
-                                                navigationProviders={visibleProviders}
-                                                privacyIgnoredReasons={
-                                                    ignoredProviderReasons.get(
-                                                        prov.provider.api_provider_id
-                                                    ) ?? null
-                                                }
-                                                runtimeStats={
-                                                    liveRuntimeStats[prov.provider.api_provider_id] ?? null
-                                                }
-                                                routingStatus={
-                                                    routingHealth[prov.provider.api_provider_id] ?? null
-                                                }
-                                                pricingTimeMs={pricingTimeMs}
-                                                variantLabels={
-                                                    providerVariantLabelsById.get(
-                                                        prov.provider.api_provider_id
-                                                    ) ?? null
-                                                }
-                                                showCacheReadColumn={showCacheReadColumn}
-                                                isLastVisible={index === visibleProviders.length - 1}
-                                            />
-                                        ))}
+                                        {visibleProviders.map((prov, index) => {
+                                            const providerId = prov.provider.api_provider_id;
+                                            const defaultPlan = getProviderDefaultPlan(prov);
+                                            const availablePlans = getProviderAvailablePlans(prov);
+                                            const alternativePlans = availablePlans.filter(
+                                                (plan) => plan !== defaultPlan,
+                                            );
+                                            const isTiersExpanded = expandedProviderTiers.has(providerId);
+
+                                            return (
+                                                <React.Fragment key={providerId}>
+                                                    <ProviderCard
+                                                        provider={prov}
+                                                        defaultPlan={defaultPlan}
+                                                        availablePlans={availablePlans}
+                                                        comparisonProviders={displayProviders}
+                                                        navigationProviders={visibleProviders}
+                                                        privacyIgnoredReasons={
+                                                            ignoredProviderReasons.get(providerId) ?? null
+                                                        }
+                                                        runtimeStats={
+                                                            liveRuntimeStats[providerId] ?? null
+                                                        }
+                                                        routingStatus={
+                                                            routingHealth[providerId] ?? null
+                                                        }
+                                                        pricingTimeMs={pricingTimeMs}
+                                                        variantLabels={
+                                                            providerVariantLabelsById.get(providerId) ?? null
+                                                        }
+                                                        showCacheReadColumn={showCacheReadColumn}
+                                                        isLastVisible={
+                                                            index === visibleProviders.length - 1 &&
+                                                            !isTiersExpanded
+                                                        }
+                                                        serviceTiersExpanded={isTiersExpanded}
+                                                        onToggleServiceTiers={
+                                                            alternativePlans.length > 0
+                                                                ? () => toggleProviderTiers(providerId)
+                                                                : undefined
+                                                        }
+                                                    />
+                                                    {isTiersExpanded
+                                                        ? alternativePlans.map((plan) => (
+                                                              <ProviderServiceTierRow
+                                                                  key={`${providerId}-${plan}`}
+                                                                  provider={prov}
+                                                                  plan={plan}
+                                                                  pricingTimeMs={pricingTimeMs}
+                                                                  showCacheReadColumn={showCacheReadColumn}
+                                                                  navigationProviderIds={visibleProviders.map(
+                                                                      (candidate) =>
+                                                                          candidate.provider.api_provider_id,
+                                                                  )}
+                                                                  isActive={
+                                                                      activeInspectorSelection?.providerId ===
+                                                                          providerId &&
+                                                                      activeInspectorSelection.serviceTier === plan
+                                                                  }
+                                                              />
+                                                          ))
+                                                        : null}
+                                                </React.Fragment>
+                                            );
+                                        })}
                                     </TableBody>
                                 </Table>
                             </ScrollArea>

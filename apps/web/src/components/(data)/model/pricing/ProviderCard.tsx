@@ -7,6 +7,7 @@ import {
 	AlertTriangle,
 	ArrowUpRight,
 	Ban,
+	ChevronDown,
 	ChevronLeft,
 	ChevronRight,
 	CheckCircle2,
@@ -1558,6 +1559,8 @@ export default function ProviderCard({
 	variantLabels,
 	showCacheReadColumn = false,
 	isLastVisible = false,
+	serviceTiersExpanded = false,
+	onToggleServiceTiers,
 }: {
 	provider: ProviderPricing;
 	defaultPlan: string;
@@ -1572,6 +1575,8 @@ export default function ProviderCard({
 	variantLabels?: string[] | null;
 	showCacheReadColumn?: boolean;
 	isLastVisible?: boolean;
+	serviceTiersExpanded?: boolean;
+	onToggleServiceTiers?: () => void;
 }) {
 	const [selectedPlan, setSelectedPlan] = useState(defaultPlan);
 	const [expanded, setExpanded] = useState(false);
@@ -1646,6 +1651,11 @@ export default function ProviderCard({
 				}, 250);
 			}
 			if (isTargetProvider) {
+				setSelectedPlan(
+					detail.serviceTier && availablePlans.includes(detail.serviceTier)
+						? detail.serviceTier
+						: defaultPlan,
+				);
 				window[PROVIDER_INSPECTOR_STATE_KEY] = providerId;
 				window[PROVIDER_INSPECTOR_LAST_OPEN_ID_KEY] = providerId;
 				window[PROVIDER_INSPECTOR_LAST_OPEN_AT_KEY] = Date.now();
@@ -2218,7 +2228,11 @@ export default function ProviderCard({
 			: null;
 	const openInspectorForProvider = (
 		providerId: string,
-		options: { disableAnimation?: boolean; navigationProviderIds?: string[] } = {},
+		options: {
+			disableAnimation?: boolean;
+			navigationProviderIds?: string[];
+			serviceTier?: string;
+		} = {},
 	) => {
 		const currentOpenProviderId = window[PROVIDER_INSPECTOR_STATE_KEY] ?? null;
 		const suppressAnimationForProviderId =
@@ -2265,6 +2279,7 @@ export default function ProviderCard({
 			options.navigationProviderIds ?? inspectorNavigationProviderIds ?? navigationProviders.map(
 				(candidate) => candidate.provider.api_provider_id,
 			),
+			options.serviceTier,
 		);
 	};
 	const toggleExpanded = () => {
@@ -2827,7 +2842,21 @@ export default function ProviderCard({
 							}
 						/>
 					) : null}
-					<div>
+					<div className="flex items-center gap-1.5">
+						{availablePlans.length > 1 && onToggleServiceTiers ? (
+							<button
+								type="button"
+								aria-expanded={serviceTiersExpanded}
+								aria-label={`${serviceTiersExpanded ? "Collapse" : "Expand"} ${displayName} service tiers`}
+								onClick={onToggleServiceTiers}
+								className="inline-flex size-6 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+							>
+								<ChevronDown className={cn("size-3.5 transition-transform", !serviceTiersExpanded && "-rotate-90")} aria-hidden="true" />
+							</button>
+						) : (
+							<span className="size-6 shrink-0" aria-hidden="true" />
+						)}
+						<div>
 						<div className="flex items-center gap-2.5">
 							<Link
 								href={`/api-providers/${sec.providerId}`}
@@ -2955,6 +2984,7 @@ export default function ProviderCard({
 									) : null}
 								</div>
 							) : null}
+						</div>
 						</div>
 					</div>
 				</TableCell>
