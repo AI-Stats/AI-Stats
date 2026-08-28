@@ -381,7 +381,6 @@ export type KnownModelId =
   | "qwen/qwen2.5-72b"
   | "qwen/qwen2.5-7b"
   | "qwen/qwen2.5-7b-1m"
-  | "qwen/qwen2.5-coder-7b"
   | "qwen/qwen2.5-vl-32b"
   | "qwen/qwen2.5-vl-32b-instruct"
   | "qwen/qwen2.5-vl-72b"
