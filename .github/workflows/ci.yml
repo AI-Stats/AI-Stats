@@ -1084,6 +1084,10 @@ jobs:
                     exit 1
                   fi
 
+            - name: Build Web API workspace dependencies
+              if: matrix.target == 'web-api'
+              run: corepack pnpm --filter @phaseo/sdk build
+
             - name: Validate wrangler.toml KV binding config
               if: matrix.target == 'api'
               shell: bash
