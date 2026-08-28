@@ -1,0 +1,41 @@
+{
+  "key": "nano-gpt:qwen/qwen3-embedding-4b:text.embed",
+  "api_provider_id": "nano-gpt",
+  "provider_slug": "nano-gpt",
+  "api_model_id": "qwen/qwen3-embedding-4b",
+  "capability_id": "text.embed",
+  "rules": [
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.02,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": null,
+      "match": [],
+      "priority": 100,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://nano-gpt.com/api/v1/embedding-models"
+    }
+  ],
+  "regions": [],
+  "service_tiers": [
+    "standard"
+  ],
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://nano-gpt.com/api/v1/embedding-models",
+      "accessed_at": "2026-08-24T00:00:00.000Z",
+      "notes": "NanoGPT public model feed pricing."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00.000Z",
+    "notes": "Exact fixed price from NanoGPT's public model feed."
+  }
+}

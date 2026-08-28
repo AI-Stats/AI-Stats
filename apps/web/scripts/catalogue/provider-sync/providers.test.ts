@@ -6,6 +6,7 @@ describe("provider sync registry", () => {
 		expect(getProviderSyncProviderIds()).toEqual([
 			"deepinfra",
 			"fastrouter",
+			"nano-gpt",
 			"novita-ai",
 			"openrouter",
 			"orcarouter",
@@ -103,6 +104,23 @@ describe("provider sync registry", () => {
 		expect(parseProviderModelList({ models: [{ model_id: "example/model" }, { id: "second" }] })).toEqual([
 			{ id: "example/model", details: { model_id: "example/model" } },
 			{ id: "second", details: { id: "second" } },
+		]);
+	});
+
+	test("joins every public NanoGPT modality feed", async () => {
+		const provider = getProviderSyncProvider("nano-gpt");
+		const request = jest.fn(async (input: RequestInfo | URL) => new Response(JSON.stringify({
+			data: [{ id: String(input).split("/").at(-1) }],
+		}), { status: 200 }));
+
+		const models = provider!.parseModels(await provider!.fetchModels(request));
+		expect(request).toHaveBeenCalledTimes(5);
+		expect(models.map((model) => model.details.type)).toEqual([
+			undefined,
+			"image",
+			"video",
+			"speech",
+			"embedding",
 		]);
 	});
 

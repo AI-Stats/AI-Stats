@@ -1,0 +1,41 @@
+{
+  "key": "nano-gpt:openai/tts-1:audio.speech",
+  "api_provider_id": "nano-gpt",
+  "provider_slug": "nano-gpt",
+  "api_model_id": "openai/tts-1",
+  "capability_id": "audio.speech",
+  "rules": [
+    {
+      "meter": "input_characters",
+      "unit": "character",
+      "unit_size": 1000,
+      "price_per_unit": 0.0255,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": null,
+      "match": [],
+      "priority": 100,
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://nano-gpt.com/api/v1/audio-models"
+    }
+  ],
+  "regions": [],
+  "service_tiers": [
+    "standard"
+  ],
+  "sources": [
+    {
+      "kind": "provider_models",
+      "url": "https://nano-gpt.com/api/v1/audio-models",
+      "accessed_at": "2026-08-24T00:00:00.000Z",
+      "notes": "NanoGPT public model feed pricing."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-24T00:00:00.000Z",
+    "notes": "Exact fixed price from NanoGPT's public model feed."
+  }
+}

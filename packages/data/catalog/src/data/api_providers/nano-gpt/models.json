@@ -49,6 +49,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -107,6 +113,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -167,6 +179,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -225,6 +243,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -409,6 +433,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -533,6 +563,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -591,6 +627,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -657,12 +699,136 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "alibaba/happyhorse-1.0",
+    "provider_api_model_id": "nano-gpt:alibaba/happyhorse-1.0",
+    "provider_model_slug": "happyhorse-1.0",
+    "internal_model_id": "alibaba/happyhorse-1.0",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "video.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "alibaba/happyhorse-1.1",
+    "provider_api_model_id": "nano-gpt:alibaba/happyhorse-1.1",
+    "provider_model_slug": "happyhorse-1.1",
+    "internal_model_id": "alibaba/happyhorse-1.1",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "video.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -775,6 +941,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -833,6 +1005,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -899,6 +1077,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -963,6 +1147,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -1029,6 +1219,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1093,6 +1289,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -1159,6 +1361,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1217,6 +1425,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -1283,6 +1497,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1341,6 +1561,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -1407,6 +1633,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1471,6 +1703,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -1541,6 +1779,65 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "baai/bge-m3",
+    "provider_api_model_id": "nano-gpt:baai/bge-m3",
+    "provider_model_slug": "BAAI/bge-m3",
+    "internal_model_id": "baai/bge-m3",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.embed",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "baidu/ernie-4.5-vl-28b-a3b",
     "provider_api_model_id": "nano-gpt:baidu/ernie-4.5-vl-28b-a3b",
     "provider_model_slug": "baidu/ernie-4.5-vl-28b-a3b",
@@ -1596,6 +1893,419 @@
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "black-forest-labs/flux-2-dev",
+    "provider_api_model_id": "nano-gpt:black-forest-labs/flux-2-dev",
+    "provider_model_slug": "flux-2-dev",
+    "internal_model_id": "black-forest-labs/flux-2-dev",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "image.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "black-forest-labs/flux-2-flex",
+    "provider_api_model_id": "nano-gpt:black-forest-labs/flux-2-flex",
+    "provider_model_slug": "flux-2-flex",
+    "internal_model_id": "black-forest-labs/flux-2-flex",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "image.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "black-forest-labs/flux-2-klein-4b",
+    "provider_api_model_id": "nano-gpt:black-forest-labs/flux-2-klein-4b",
+    "provider_model_slug": "flux-2-klein-4b",
+    "internal_model_id": "black-forest-labs/flux-2-klein-4b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "image.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "black-forest-labs/flux-2-klein-9b",
+    "provider_api_model_id": "nano-gpt:black-forest-labs/flux-2-klein-9b",
+    "provider_model_slug": "flux-2-klein-9b",
+    "internal_model_id": "black-forest-labs/flux-2-klein-9b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "image.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "black-forest-labs/flux-2-max",
+    "provider_api_model_id": "nano-gpt:black-forest-labs/flux-2-max",
+    "provider_model_slug": "flux-2-max",
+    "internal_model_id": "black-forest-labs/flux-2-max",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "image.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "black-forest-labs/flux-2-pro",
+    "provider_api_model_id": "nano-gpt:black-forest-labs/flux-2-pro",
+    "provider_model_slug": "flux-2-pro",
+    "internal_model_id": "black-forest-labs/flux-2-pro",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "image.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "bytedance/seedance-2.5",
+    "provider_api_model_id": "nano-gpt:bytedance/seedance-2.5",
+    "provider_model_slug": "bytedance/seedance-2.5",
+    "internal_model_id": "bytedance/seedance-2.5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "video.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -1708,6 +2418,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1766,6 +2482,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -1832,6 +2554,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -1890,6 +2618,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -1955,6 +2689,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -2080,6 +2820,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2139,11 +2885,76 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v4-flash-vision-exp",
+    "provider_api_model_id": "nano-gpt:deepseek/deepseek-v4-flash-vision-exp",
+    "provider_model_slug": "deepseek/deepseek-v4-flash-vision-exp",
+    "internal_model_id": "deepseek/deepseek-v4-flash-vision-exp",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1048576,
+    "max_output_tokens": 384000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
       "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
@@ -2204,12 +3015,77 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "deepseek/deepseek-v4-pro-0813",
+    "provider_api_model_id": "nano-gpt:deepseek/deepseek-v4-pro-0813",
+    "provider_model_slug": "deepseek/deepseek-v4-pro-0813",
+    "internal_model_id": "deepseek/deepseek-v4-pro-0813",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1048576,
+    "max_output_tokens": 384000,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -2262,6 +3138,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -2322,6 +3204,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2381,11 +3269,76 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-2.5-pro-preview-tts",
+    "provider_api_model_id": "nano-gpt:google/gemini-2.5-pro-preview-tts",
+    "provider_model_slug": "gemini-2.5-pro-preview-tts",
+    "internal_model_id": "google/gemini-2.5-pro-preview-tts",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "audio.speech",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
       "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
@@ -2439,6 +3392,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -2505,6 +3464,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2564,6 +3529,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2622,6 +3593,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -2688,12 +3665,77 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-3.1-flash-tts-preview",
+    "provider_api_model_id": "nano-gpt:google/gemini-3.1-flash-tts-preview",
+    "provider_model_slug": "gemini-3.1-flash-tts-preview",
+    "internal_model_id": "google/gemini-3.1-flash-tts-preview",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "audio.speech",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -2753,6 +3795,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2811,6 +3859,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -2877,6 +3931,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -2942,6 +4002,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3000,6 +4066,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -3060,11 +4132,253 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-3.7-flash",
+    "provider_api_model_id": "nano-gpt:google/gemini-3.7-flash",
+    "provider_model_slug": "google/gemini-3.7-flash",
+    "internal_model_id": "google/gemini-3.7-flash",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1048576,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-embedding-001",
+    "provider_api_model_id": "nano-gpt:google/gemini-embedding-001",
+    "provider_model_slug": "gemini-embedding-001",
+    "internal_model_id": "google/gemini-embedding-001",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.embed",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-embedding-2",
+    "provider_api_model_id": "nano-gpt:google/gemini-embedding-2",
+    "provider_model_slug": "gemini-embedding-2",
+    "internal_model_id": "google/gemini-embedding-2",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.embed",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-embedding-2-preview",
+    "provider_api_model_id": "nano-gpt:google/gemini-embedding-2-preview",
+    "provider_model_slug": "gemini-embedding-2-preview",
+    "internal_model_id": "google/gemini-embedding-2-preview",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.embed",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
       "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
@@ -3119,11 +4433,135 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/gemini-omni-flash",
+    "provider_api_model_id": "nano-gpt:google/gemini-omni-flash",
+    "provider_model_slug": "google/gemini-omni-flash",
+    "internal_model_id": "google/gemini-omni-flash",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "video.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "google/imagen-3.0-generate-002",
+    "provider_api_model_id": "nano-gpt:google/imagen-3.0-generate-002",
+    "provider_model_slug": "imagen-3.0-generate-002",
+    "internal_model_id": "google/imagen-3.0-generate-002",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "image.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
       "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
@@ -3178,11 +4616,76 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "hexgrad/kokoro-82m",
+    "provider_api_model_id": "nano-gpt:hexgrad/kokoro-82m",
+    "provider_model_slug": "Kokoro-82m",
+    "internal_model_id": "hexgrad/kokoro-82m",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "audio.speech",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
       "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
@@ -3236,6 +4739,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -3302,12 +4811,77 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "inclusionai/ling-2.6-flash",
+    "provider_api_model_id": "nano-gpt:inclusionai/ling-2.6-flash",
+    "provider_model_slug": "inclusionai/ling-2.6-flash",
+    "internal_model_id": "inclusionai/ling-2.6-flash",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 262144,
+    "max_output_tokens": 32768,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -3360,6 +4934,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -3430,6 +5010,65 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "inclusionai/ring-2.6-1t",
+    "provider_api_model_id": "nano-gpt:inclusionai/ring-2.6-1t",
+    "provider_model_slug": "inclusionai/ring-2.6-1t",
+    "internal_model_id": "inclusionai/ring-2.6-1t",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 262144,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "inflection/inflection-3-pi",
     "provider_api_model_id": "nano-gpt:inflection/inflection-3-pi",
     "provider_model_slug": "inflection/inflection-3-pi",
@@ -3484,6 +5123,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -3550,6 +5195,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3608,6 +5259,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -3674,6 +5331,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3732,6 +5395,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -3792,6 +5461,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3850,6 +5525,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -3910,6 +5591,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -3968,6 +5655,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -4028,11 +5721,135 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "microsoft/mai-transcribe-1.5",
+    "provider_api_model_id": "nano-gpt:microsoft/mai-transcribe-1.5",
+    "provider_model_slug": "microsoft/mai-transcribe-1.5",
+    "internal_model_id": "microsoft/mai-transcribe-1.5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "audio.transcription",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "microsoft/mai-voice-2",
+    "provider_api_model_id": "nano-gpt:microsoft/mai-voice-2",
+    "provider_model_slug": "microsoft/mai-voice-2",
+    "internal_model_id": "microsoft/mai-voice-2",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "audio.speech",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
       "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
@@ -4087,11 +5904,76 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "microsoft/wizardlm-2-8x22b",
+    "provider_api_model_id": "nano-gpt:microsoft/wizardlm-2-8x22b",
+    "provider_model_slug": "microsoft/wizardlm-2-8x22b",
+    "internal_model_id": "microsoft/wizardlm-2-8x22b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 65536,
+    "max_output_tokens": 8192,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
       "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
@@ -4145,6 +6027,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -4211,6 +6099,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4275,6 +6169,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -4341,6 +6241,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4406,6 +6312,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4464,6 +6376,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -4530,6 +6448,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4594,6 +6518,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -4660,6 +6590,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4724,6 +6660,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -4790,6 +6732,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4848,6 +6796,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -4908,6 +6862,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -4966,6 +6926,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -5026,6 +6992,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5084,6 +7056,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -5150,6 +7128,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5214,6 +7198,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -5280,6 +7270,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5345,6 +7341,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5404,6 +7406,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5414,7 +7422,66 @@
     "rate_limits": []
   },
   {
-    "api_model_id": "nvidia/nvidia-nemotron-nano-9b-v2",
+    "api_model_id": "nvidia/nemotron-3.5-lightning",
+    "provider_api_model_id": "nano-gpt:nvidia/nemotron-3.5-lightning",
+    "provider_model_slug": "nvidia/nemotron-3.5-lightning",
+    "internal_model_id": "nvidia/nemotron-3.5-lightning",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1000000,
+    "max_output_tokens": 65536,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "nvidia/nemotron-nano-9b-v2",
     "provider_api_model_id": "nano-gpt:nvidia/nvidia-nemotron-nano-9b-v2",
     "provider_model_slug": "nvidia/nvidia-nemotron-nano-9b-v2",
     "internal_model_id": "nvidia/nemotron-nano-9b-v2",
@@ -5528,12 +7595,77 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/dall-e-3",
+    "provider_api_model_id": "nano-gpt:openai/dall-e-3",
+    "provider_model_slug": "dall-e-3",
+    "internal_model_id": "openai/dall-e-3",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "image.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -5592,6 +7724,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -5658,6 +7796,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5722,6 +7866,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -5788,6 +7938,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5852,6 +8008,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -5918,6 +8080,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -5982,6 +8150,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -6048,12 +8222,254 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-4o-mini-transcribe",
+    "provider_api_model_id": "nano-gpt:openai/gpt-4o-mini-transcribe",
+    "provider_model_slug": "gpt-4o-mini-transcribe",
+    "internal_model_id": "openai/gpt-4o-mini-transcribe",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "audio.transcription",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-4o-mini-transcribe-2025-03-20",
+    "provider_api_model_id": "nano-gpt:openai/gpt-4o-mini-transcribe-2025-03-20",
+    "provider_model_slug": "gpt-4o-mini-transcribe-2025-03-20",
+    "internal_model_id": "openai/gpt-4o-mini-transcribe-2025-03-20",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "audio.transcription",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-4o-mini-tts",
+    "provider_api_model_id": "nano-gpt:openai/gpt-4o-mini-tts",
+    "provider_model_slug": "gpt-4o-mini-tts",
+    "internal_model_id": "openai/gpt-4o-mini-tts",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "audio.speech",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-4o-mini-tts-2025-03-20",
+    "provider_api_model_id": "nano-gpt:openai/gpt-4o-mini-tts-2025-03-20",
+    "provider_model_slug": "gpt-4o-mini-tts-2025-03-20",
+    "internal_model_id": "openai/gpt-4o-mini-tts-2025-03-20",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "audio.speech",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -6112,6 +8528,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -6178,6 +8600,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -6242,6 +8670,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -6308,6 +8742,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -6372,6 +8812,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -6438,6 +8884,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -6502,6 +8954,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -6568,6 +9026,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -6632,6 +9096,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -6698,6 +9168,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -6763,6 +9239,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -6827,6 +9309,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -6952,6 +9440,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -7016,6 +9510,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -7082,6 +9582,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -7146,6 +9652,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -7271,6 +9783,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -7329,6 +9847,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -7389,6 +9913,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -7447,6 +9977,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -7513,6 +10049,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -7571,6 +10113,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -7631,6 +10179,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -7690,11 +10244,253 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-image-1",
+    "provider_api_model_id": "nano-gpt:openai/gpt-image-1",
+    "provider_model_slug": "gpt-image-1",
+    "internal_model_id": "openai/gpt-image-1",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "image.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-image-1-mini",
+    "provider_api_model_id": "nano-gpt:openai/gpt-image-1-mini",
+    "provider_model_slug": "gpt-image-1-mini",
+    "internal_model_id": "openai/gpt-image-1-mini",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "image.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-image-1.5",
+    "provider_api_model_id": "nano-gpt:openai/gpt-image-1.5",
+    "provider_model_slug": "gpt-image-1.5",
+    "internal_model_id": "openai/gpt-image-1.5",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "image.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/gpt-image-2",
+    "provider_api_model_id": "nano-gpt:openai/gpt-image-2",
+    "provider_model_slug": "gpt-image-2",
+    "internal_model_id": "openai/gpt-image-2",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "image.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
       "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
@@ -7754,6 +10550,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -7820,6 +10622,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -7884,6 +10692,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -7950,6 +10764,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -8014,6 +10834,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -8080,6 +10906,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -8144,6 +10976,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -8210,6 +11048,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -8274,6 +11118,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -8340,6 +11190,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -8405,12 +11261,490 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/sora-2",
+    "provider_api_model_id": "nano-gpt:openai/sora-2",
+    "provider_model_slug": "sora-2",
+    "internal_model_id": "openai/sora-2",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "video.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/text-embedding-3-large",
+    "provider_api_model_id": "nano-gpt:openai/text-embedding-3-large",
+    "provider_model_slug": "text-embedding-3-large",
+    "internal_model_id": "openai/text-embedding-3-large",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.embed",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/text-embedding-3-small",
+    "provider_api_model_id": "nano-gpt:openai/text-embedding-3-small",
+    "provider_model_slug": "text-embedding-3-small",
+    "internal_model_id": "openai/text-embedding-3-small",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.embed",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/text-embedding-ada-002",
+    "provider_api_model_id": "nano-gpt:openai/text-embedding-ada-002",
+    "provider_model_slug": "text-embedding-ada-002",
+    "internal_model_id": "openai/text-embedding-ada-002",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.embed",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/tts-1",
+    "provider_api_model_id": "nano-gpt:openai/tts-1",
+    "provider_model_slug": "tts-1",
+    "internal_model_id": "openai/tts-1",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "audio.speech",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/tts-1-hd",
+    "provider_api_model_id": "nano-gpt:openai/tts-1-hd",
+    "provider_model_slug": "tts-1-hd",
+    "internal_model_id": "openai/tts-1-hd",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "audio.speech",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/whisper-1",
+    "provider_api_model_id": "nano-gpt:openai/whisper-1",
+    "provider_model_slug": "whisper-1",
+    "internal_model_id": "openai/whisper-1",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "audio.transcription",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "openai/whisper-large-v3",
+    "provider_api_model_id": "nano-gpt:openai/whisper-large-v3",
+    "provider_model_slug": "Whisper-Large-V3",
+    "internal_model_id": "openai/whisper-large-v3",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "audio.transcription",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -8470,6 +11804,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -8528,6 +11868,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -8647,11 +11993,194 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen-image",
+    "provider_api_model_id": "nano-gpt:qwen/qwen-image",
+    "provider_model_slug": "qwen-image",
+    "internal_model_id": "qwen/qwen-image",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "image.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen-image-2512",
+    "provider_api_model_id": "nano-gpt:qwen/qwen-image-2512",
+    "provider_model_slug": "qwen-image-2512",
+    "internal_model_id": "qwen/qwen-image-2512",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "image.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen-image-max",
+    "provider_api_model_id": "nano-gpt:qwen/qwen-image-max",
+    "provider_model_slug": "qwen-image-max",
+    "internal_model_id": "qwen/qwen-image-max",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "image.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
       "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
@@ -8705,6 +12234,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -8771,6 +12306,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -8835,6 +12376,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -8901,6 +12448,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -8966,6 +12519,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -9024,6 +12583,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -9090,6 +12655,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -9154,6 +12725,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -9220,6 +12797,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -9284,6 +12867,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -9350,12 +12939,195 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-embedding-0.6b",
+    "provider_api_model_id": "nano-gpt:qwen/qwen3-embedding-0.6b",
+    "provider_model_slug": "Qwen/Qwen3-Embedding-0.6B",
+    "internal_model_id": "qwen/qwen3-embedding-0.6b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.embed",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-embedding-4b",
+    "provider_api_model_id": "nano-gpt:qwen/qwen3-embedding-4b",
+    "provider_model_slug": "Qwen/Qwen3-Embedding-4B",
+    "internal_model_id": "qwen/qwen3-embedding-4b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.embed",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3-embedding-8b",
+    "provider_api_model_id": "nano-gpt:qwen/qwen3-embedding-8b",
+    "provider_model_slug": "qwen/qwen3-embedding-8b",
+    "internal_model_id": "qwen/qwen3-embedding-8b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.embed",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -9415,6 +13187,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -9473,6 +13251,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -9539,6 +13323,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -9603,6 +13393,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -9669,6 +13465,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -9728,11 +13530,76 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.5-0.8b",
+    "provider_api_model_id": "nano-gpt:qwen/qwen3.5-0.8b",
+    "provider_model_slug": "qwen3.5-0.8b",
+    "internal_model_id": "qwen/qwen3.5-0.8b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 262144,
+    "max_output_tokens": 32768,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
       "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
@@ -9786,6 +13653,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -9846,11 +13719,76 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.5-2b",
+    "provider_api_model_id": "nano-gpt:qwen/qwen3.5-2b",
+    "provider_model_slug": "qwen3.5-2b",
+    "internal_model_id": "qwen/qwen3.5-2b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 262144,
+    "max_output_tokens": 32768,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
       "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
@@ -9904,6 +13842,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -9970,12 +13914,77 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.5-4b",
+    "provider_api_model_id": "nano-gpt:qwen/qwen3.5-4b",
+    "provider_model_slug": "qwen3.5-4b",
+    "internal_model_id": "qwen/qwen3.5-4b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 262144,
+    "max_output_tokens": 32768,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   },
@@ -10035,6 +14044,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -10093,6 +14108,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -10159,6 +14180,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -10224,6 +14251,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -10282,6 +14315,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -10342,6 +14381,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -10401,11 +14446,76 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "qwen/qwen3.8-27b",
+    "provider_api_model_id": "nano-gpt:qwen/qwen3.8-27b",
+    "provider_model_slug": "qwen3.8-27b",
+    "internal_model_id": "qwen/qwen3.8-27b",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 262144,
+    "max_output_tokens": 32768,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
       "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
@@ -10459,6 +14569,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -10637,11 +14753,253 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-08-11T12:09:44.036Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "sao10k/l3-8b-stheno-v3.2",
+    "provider_api_model_id": "nano-gpt:sao10k/l3-8b-stheno-v3.2",
+    "provider_model_slug": "Sao10K/L3-8B-Stheno-v3.2",
+    "internal_model_id": "sao10k/l3-8b-stheno-v3.2",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 16384,
+    "max_output_tokens": 8192,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "spacex-ai/grok-imagine-image",
+    "provider_api_model_id": "nano-gpt:spacex-ai/grok-imagine-image",
+    "provider_model_slug": "grok-imagine-image",
+    "internal_model_id": "spacex-ai/grok-imagine-image",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "image.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "spacex-ai/grok-imagine-video",
+    "provider_api_model_id": "nano-gpt:spacex-ai/grok-imagine-video",
+    "provider_model_slug": "grok-imagine-video",
+    "internal_model_id": "spacex-ai/grok-imagine-video",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "video.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "stealth/ox-alpha",
+    "provider_api_model_id": "nano-gpt:stealth/ox-alpha",
+    "provider_model_slug": "stealth/ox-alpha",
+    "internal_model_id": "stealth/ox-alpha",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": 1000000,
+    "max_output_tokens": 32768,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
       "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
@@ -10695,6 +15053,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -10820,6 +15184,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -10878,6 +15248,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -11121,6 +15497,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -11185,6 +15567,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -11251,6 +15639,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -11315,6 +15709,12 @@
         "kind": "provider_models",
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
+        "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
         "notes": "Provider model and pricing metadata."
       }
     ],
@@ -11381,6 +15781,12 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
@@ -11446,12 +15852,77 @@
         "url": "https://nano-gpt.com/api/v1/models?detailed=true",
         "accessed_at": "2026-08-11T12:09:44.036Z",
         "notes": "Provider model and pricing metadata."
+      },
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
       }
     ],
     "verification": {
       "status": "partial",
       "checked_at": "2026-07-23T09:08:52.190Z",
       "notes": "Provider support imported from models.dev; routing remains disabled."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-image",
+    "provider_api_model_id": "nano-gpt:z-ai/glm-image",
+    "provider_model_slug": "glm-image",
+    "internal_model_id": "z-ai/glm-image",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": null,
+    "output_modalities": null,
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": null,
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "image.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": null,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": null,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [],
+      "endpoint": null,
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://docs.nano-gpt.com/introduction",
+        "accessed_at": "2026-08-24T02:05:46.683Z",
+        "notes": "Provider model and pricing metadata."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-24T02:05:46.683Z",
+      "notes": "Discovered from the provider models API; routing remains disabled pending review."
     },
     "rate_limits": []
   }
