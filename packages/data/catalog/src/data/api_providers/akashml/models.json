@@ -643,5 +643,89 @@
       "notes": "Availability, provider slug, limits, and pricing verified against the official AkashML model catalogue."
     },
     "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-5.3",
+    "canonical_model_id": "z-ai/glm-5.3",
+    "provider_api_model_id": "akashml:z-ai/glm-5.3",
+    "provider_model_slug": "zai-org/GLM-5.3",
+    "internal_model_id": "z-ai/glm-5.3",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-28T16:22:34Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          {
+            "param_id": "reasoning",
+            "provider_min": null,
+            "provider_max": null,
+            "provider_default": "max",
+            "values": ["low", "high", "max"],
+            "notes": "GLM-5.3 always reasons and accepts low, high, and max reasoning effort; the gateway maps Phaseo effort levels to the nearest supported value."
+          },
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "frequency_penalty",
+          "presence_penalty",
+          "reasoning_effort"
+        ],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": ["text"],
+        "output_modalities": ["text"],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": ["standard"],
+    "api": {
+      "formats": ["openai.chat.completions"],
+      "endpoint": "/v1/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://api.akashml.com/v1/models",
+        "accessed_at": "2026-08-28T19:38:22Z",
+        "notes": "AkashML's authenticated models endpoint lists the exact zai-org/GLM-5.3 API model ID."
+      },
+      {
+        "kind": "provider_model",
+        "url": "https://akashml.com/models/glm-5.3",
+        "accessed_at": "2026-08-28T19:38:22Z",
+        "notes": "AkashML's first-party model page documents the exact API ID, 1M context, forced reasoning support, and current token pricing."
+      },
+      {
+        "kind": "documentation",
+        "url": "https://akashml.com/docs/platform/models",
+        "accessed_at": "2026-08-28T19:38:22Z",
+        "notes": "AkashML documents its OpenAI-compatible endpoint and supported sampling parameters."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-28T19:38:22Z",
+      "notes": "Availability, exact provider slug, context, reasoning behavior, request parameters, and pricing verified against first-party AkashML surfaces."
+    },
+    "rate_limits": []
   }
 ]
