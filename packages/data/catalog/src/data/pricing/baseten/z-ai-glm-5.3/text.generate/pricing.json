@@ -1,0 +1,72 @@
+{
+  "key": "baseten:z-ai/glm-5.3:text.generate",
+  "api_provider_id": "baseten",
+  "provider_slug": "baseten",
+  "api_model_id": "z-ai/glm-5.3",
+  "capability_id": "text.generate",
+  "rules": [
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 1.4,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Official Baseten GLM-5.3 input price.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-28T00:00:00Z",
+      "region": "US",
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://www.baseten.co/library/glm-53/"
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.14,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Official Baseten GLM-5.3 cached-input price.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-28T00:00:00Z",
+      "region": "US",
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://www.baseten.co/library/glm-53/"
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 4.4,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Official Baseten GLM-5.3 output price.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-28T00:00:00Z",
+      "region": "US",
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://www.baseten.co/library/glm-53/"
+    }
+  ],
+  "regions": ["US"],
+  "service_tiers": ["standard"],
+  "sources": [
+    {
+      "kind": "pricing",
+      "url": "https://www.baseten.co/library/glm-53/",
+      "accessed_at": "2026-08-28T00:00:00Z",
+      "notes": "Baseten lists GLM-5.3 at $1.40 input, $0.14 cached input, and $4.40 output per million tokens."
+    }
+  ],
+  "verification": {
+    "status": "verified",
+    "checked_at": "2026-08-28T00:00:00Z",
+    "notes": "Pricing verified against Baseten's official GLM-5.3 model page."
+  }
+}
