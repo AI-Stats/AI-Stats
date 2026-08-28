@@ -259,6 +259,7 @@ function providerInfo(providerId: string, provider: Row | null) {
 		data_policy_confidence: provider?.data_policy_confidence ?? null,
 		data_policy_contract_mode: provider?.data_policy_contract_mode ?? null,
 		data_policy_contract_notes: provider?.data_policy_contract_notes ?? null,
+		service_tier_data_policies: provider?.service_tier_data_policies ?? null,
 		user_identifier_policy: provider?.user_identifier_policy ?? null,
 		user_identifier_notes: provider?.user_identifier_notes ?? null,
 		privacy_policy_url: provider?.privacy_policy_url ?? null,
