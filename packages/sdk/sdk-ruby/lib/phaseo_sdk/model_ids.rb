@@ -459,6 +459,9 @@ module PhaseoSdk
     # Model ID: inclusionai/ling-3.0-flash
     # Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash
     INCLUSIONAI_LING_3_0_FLASH = "inclusionai/ling-3.0-flash"
+    # Model ID: inclusionai/ling-3.0-flash-fin
+    # Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash-fin
+    INCLUSIONAI_LING_3_0_FLASH_FIN = "inclusionai/ling-3.0-flash-fin"
     # Model ID: inclusionai/ling-flash-2.0
     # Model page: https://phaseo.app/models/inclusionai/ling-flash-2.0
     INCLUSIONAI_LING_FLASH_2_0 = "inclusionai/ling-flash-2.0"
@@ -1461,6 +1464,9 @@ module PhaseoSdk
     # Model ID: tencent/hy3:free
     # Model page: https://phaseo.app/models/tencent/hy3%3Afree
     TENCENT_HY3_FREE = "tencent/hy3:free"
+    # Model ID: tencent/hy4-preview
+    # Model page: https://phaseo.app/models/tencent/hy4-preview
+    TENCENT_HY4_PREVIEW = "tencent/hy4-preview"
     # Model ID: thinking-machines/inkling
     # Model page: https://phaseo.app/models/thinking-machines/inkling
     THINKING_MACHINES_INKLING = "thinking-machines/inkling"
@@ -1837,6 +1843,7 @@ module PhaseoSdk
     ModelIds::INCLUSIONAI_LING_2_6_1T,
     ModelIds::INCLUSIONAI_LING_2_6_FLASH,
     ModelIds::INCLUSIONAI_LING_3_0_FLASH,
+    ModelIds::INCLUSIONAI_LING_3_0_FLASH_FIN,
     ModelIds::INCLUSIONAI_LING_FLASH_2_0,
     ModelIds::INCLUSIONAI_RING_2_6_1T,
     ModelIds::INCLUSIONAI_RING_FLASH_2_0,
@@ -2171,6 +2178,7 @@ module PhaseoSdk
     ModelIds::TENCENT_HY3,
     ModelIds::TENCENT_HY3_PREVIEW,
     ModelIds::TENCENT_HY3_FREE,
+    ModelIds::TENCENT_HY4_PREVIEW,
     ModelIds::THINKING_MACHINES_INKLING,
     ModelIds::THINKING_MACHINES_INKLING_SMALL,
     ModelIds::UPSTAGE_SOLAR_EMBEDDING_1_LARGE_PASSAGE,

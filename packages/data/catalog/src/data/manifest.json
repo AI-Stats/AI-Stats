@@ -1193,7 +1193,8 @@
       "tencent/hy3",
       "tencent/hunyuan-a13b-instruct",
       "tencent/hy3-preview",
-      "tencent/hy3:free"
+      "tencent/hy3:free",
+      "tencent/hy4-preview"
     ],
     "upstage": [
       "upstage/solar-pro",

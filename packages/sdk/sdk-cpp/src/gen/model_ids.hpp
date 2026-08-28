@@ -462,6 +462,9 @@ inline constexpr std::string_view INCLUSIONAI_LING_2_6_FLASH = "inclusionai/ling
 // Model ID: inclusionai/ling-3.0-flash
 // Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash
 inline constexpr std::string_view INCLUSIONAI_LING_3_0_FLASH = "inclusionai/ling-3.0-flash";
+// Model ID: inclusionai/ling-3.0-flash-fin
+// Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash-fin
+inline constexpr std::string_view INCLUSIONAI_LING_3_0_FLASH_FIN = "inclusionai/ling-3.0-flash-fin";
 // Model ID: inclusionai/ling-flash-2.0
 // Model page: https://phaseo.app/models/inclusionai/ling-flash-2.0
 inline constexpr std::string_view INCLUSIONAI_LING_FLASH_2_0 = "inclusionai/ling-flash-2.0";
@@ -1464,6 +1467,9 @@ inline constexpr std::string_view TENCENT_HY3_PREVIEW = "tencent/hy3-preview";
 // Model ID: tencent/hy3:free
 // Model page: https://phaseo.app/models/tencent/hy3%3Afree
 inline constexpr std::string_view TENCENT_HY3_FREE = "tencent/hy3:free";
+// Model ID: tencent/hy4-preview
+// Model page: https://phaseo.app/models/tencent/hy4-preview
+inline constexpr std::string_view TENCENT_HY4_PREVIEW = "tencent/hy4-preview";
 // Model ID: thinking-machines/inkling
 // Model page: https://phaseo.app/models/thinking-machines/inkling
 inline constexpr std::string_view THINKING_MACHINES_INKLING = "thinking-machines/inkling";
@@ -1686,7 +1692,7 @@ inline constexpr std::string_view ZAI_GLM_5 = "zai/glm-5";
 // Deprecated alias for deepseek/deepseek-v4; use deepseek/deepseek-v4-pro. Remove in the next major SDK release.
 inline constexpr std::string_view DEEPSEEK_DEEPSEEK_V4 = DEEPSEEK_DEEPSEEK_V4_PRO;
 
-inline constexpr std::array<std::string_view, 559> ALL = {
+inline constexpr std::array<std::string_view, 561> ALL = {
 	AI21_JAMBA_1_5_LARGE,
 	AI21_JAMBA_1_5_MINI,
 	AION_LABS_AION_2_0,
@@ -1839,6 +1845,7 @@ inline constexpr std::array<std::string_view, 559> ALL = {
 	INCLUSIONAI_LING_2_6_1T,
 	INCLUSIONAI_LING_2_6_FLASH,
 	INCLUSIONAI_LING_3_0_FLASH,
+	INCLUSIONAI_LING_3_0_FLASH_FIN,
 	INCLUSIONAI_LING_FLASH_2_0,
 	INCLUSIONAI_RING_2_6_1T,
 	INCLUSIONAI_RING_FLASH_2_0,
@@ -2173,6 +2180,7 @@ inline constexpr std::array<std::string_view, 559> ALL = {
 	TENCENT_HY3,
 	TENCENT_HY3_PREVIEW,
 	TENCENT_HY3_FREE,
+	TENCENT_HY4_PREVIEW,
 	THINKING_MACHINES_INKLING,
 	THINKING_MACHINES_INKLING_SMALL,
 	UPSTAGE_SOLAR_EMBEDDING_1_LARGE_PASSAGE,

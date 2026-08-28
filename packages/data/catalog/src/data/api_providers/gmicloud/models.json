@@ -4159,6 +4159,89 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "tencent/hy4-preview",
+    "provider_api_model_id": "gmicloud:tencent/hy4-preview",
+    "provider_model_slug": "tencent/hy4-preview",
+    "internal_model_id": "tencent/hy4-preview",
+    "is_active_gateway": true,
+    "quantization_scheme": "BF16",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 262144,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-28T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "stop",
+          "response_format",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": true,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": null,
+        "output_modalities": null,
+        "modes": [
+          "none",
+          "low",
+          "high"
+        ]
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": null,
+      "data": null
+    },
+    "service_tiers": [],
+    "api": {
+      "formats": [
+        "openai.chat.completions"
+      ],
+      "endpoint": "/chat/completions",
+      "deployment": null
+    },
+    "sources": [
+      {
+        "kind": "provider_model",
+        "url": "https://console.gmicloud.ai/user-console/ie/model-hub",
+        "accessed_at": "2026-08-28T00:00:00Z",
+        "notes": "GMICloud model page confirms the exact tencent/hy4-preview route, BF16 serving, and 256K provider context."
+      },
+      {
+        "kind": "documentation",
+        "url": "https://docs.gmicloud.ai/inference-engine/api-reference/llm-api-reference",
+        "accessed_at": "2026-08-28T00:00:00Z",
+        "notes": "GMI Cloud OpenAI-compatible LLM API reference."
+      },
+      {
+        "kind": "provider_model",
+        "url": "https://openrouter.ai/api/v1/models/tencent/hy4-preview/endpoints",
+        "accessed_at": "2026-08-28T00:00:00Z",
+        "notes": "Current Hy4 Preview endpoint metadata and OpenAI-compatible parameter support."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-28T00:00:00Z",
+      "notes": "Exact model slug and displayed GMICloud provider metadata are verified from the current model page; the authenticated model-list endpoint was unavailable in this environment."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "z-ai/glm-4.5",
     "provider_api_model_id": "gmicloud:z-ai/glm-4.5",
     "provider_model_slug": "zai-org/GLM-4.5-FP8",

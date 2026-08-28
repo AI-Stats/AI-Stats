@@ -463,6 +463,9 @@ public final class ModelIds {
     /** Model ID: <code>inclusionai/ling-3.0-flash</code>. Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash */
     public static final String INCLUSIONAI_LING_3_0_FLASH = "inclusionai/ling-3.0-flash";
 
+    /** Model ID: <code>inclusionai/ling-3.0-flash-fin</code>. Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash-fin */
+    public static final String INCLUSIONAI_LING_3_0_FLASH_FIN = "inclusionai/ling-3.0-flash-fin";
+
     /** Model ID: <code>inclusionai/ling-flash-2.0</code>. Model page: https://phaseo.app/models/inclusionai/ling-flash-2.0 */
     public static final String INCLUSIONAI_LING_FLASH_2_0 = "inclusionai/ling-flash-2.0";
 
@@ -1464,6 +1467,9 @@ public final class ModelIds {
 
     /** Model ID: <code>tencent/hy3:free</code>. Model page: https://phaseo.app/models/tencent/hy3%3Afree */
     public static final String TENCENT_HY3_FREE = "tencent/hy3:free";
+
+    /** Model ID: <code>tencent/hy4-preview</code>. Model page: https://phaseo.app/models/tencent/hy4-preview */
+    public static final String TENCENT_HY4_PREVIEW = "tencent/hy4-preview";
 
     /** Model ID: <code>thinking-machines/inkling</code>. Model page: https://phaseo.app/models/thinking-machines/inkling */
     public static final String THINKING_MACHINES_INKLING = "thinking-machines/inkling";

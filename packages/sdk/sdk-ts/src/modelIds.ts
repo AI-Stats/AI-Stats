@@ -307,6 +307,8 @@ export const ModelIds = {
   INCLUSIONAI_LING_2_6_FLASH: "inclusionai/ling-2.6-flash",
   /** Model ID: `inclusionai/ling-3.0-flash`. Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash */
   INCLUSIONAI_LING_3_0_FLASH: "inclusionai/ling-3.0-flash",
+  /** Model ID: `inclusionai/ling-3.0-flash-fin`. Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash-fin */
+  INCLUSIONAI_LING_3_0_FLASH_FIN: "inclusionai/ling-3.0-flash-fin",
   /** Model ID: `inclusionai/ling-flash-2.0`. Model page: https://phaseo.app/models/inclusionai/ling-flash-2.0 */
   INCLUSIONAI_LING_FLASH_2_0: "inclusionai/ling-flash-2.0",
   /** Model ID: `inclusionai/ring-2.6-1t`. Model page: https://phaseo.app/models/inclusionai/ring-2.6-1t */
@@ -975,6 +977,8 @@ export const ModelIds = {
   TENCENT_HY3_PREVIEW: "tencent/hy3-preview",
   /** Model ID: `tencent/hy3:free`. Model page: https://phaseo.app/models/tencent/hy3%3Afree */
   TENCENT_HY3_FREE: "tencent/hy3:free",
+  /** Model ID: `tencent/hy4-preview`. Model page: https://phaseo.app/models/tencent/hy4-preview */
+  TENCENT_HY4_PREVIEW: "tencent/hy4-preview",
   /** Model ID: `thinking-machines/inkling`. Model page: https://phaseo.app/models/thinking-machines/inkling */
   THINKING_MACHINES_INKLING: "thinking-machines/inkling",
   /** Model ID: `thinking-machines/inkling-small`. Model page: https://phaseo.app/models/thinking-machines/inkling-small */

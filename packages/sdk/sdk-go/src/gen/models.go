@@ -2075,6 +2075,7 @@ const (
 	KnownModelIdTencentHy3 KnownModelId = "tencent/hy3"
 	KnownModelIdTencentHy3Preview KnownModelId = "tencent/hy3-preview"
 	KnownModelIdTencentHy3Free KnownModelId = "tencent/hy3:free"
+	KnownModelIdTencentHy4Preview KnownModelId = "tencent/hy4-preview"
 	KnownModelIdThinkingMachinesInkling KnownModelId = "thinking-machines/inkling"
 	KnownModelIdThinkingMachinesInklingSmall KnownModelId = "thinking-machines/inkling-small"
 	KnownModelIdUpstageSolarEmbedding1LargePassage KnownModelId = "upstage/solar-embedding-1-large-passage"

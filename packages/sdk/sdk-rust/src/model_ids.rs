@@ -459,6 +459,9 @@ pub mod model_ids {
     /// Model ID: `inclusionai/ling-3.0-flash`.
     /// Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash
     pub const INCLUSIONAI_LING_3_0_FLASH: &str = "inclusionai/ling-3.0-flash";
+    /// Model ID: `inclusionai/ling-3.0-flash-fin`.
+    /// Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash-fin
+    pub const INCLUSIONAI_LING_3_0_FLASH_FIN: &str = "inclusionai/ling-3.0-flash-fin";
     /// Model ID: `inclusionai/ling-flash-2.0`.
     /// Model page: https://phaseo.app/models/inclusionai/ling-flash-2.0
     pub const INCLUSIONAI_LING_FLASH_2_0: &str = "inclusionai/ling-flash-2.0";
@@ -1461,6 +1464,9 @@ pub mod model_ids {
     /// Model ID: `tencent/hy3:free`.
     /// Model page: https://phaseo.app/models/tencent/hy3%3Afree
     pub const TENCENT_HY3_FREE: &str = "tencent/hy3:free";
+    /// Model ID: `tencent/hy4-preview`.
+    /// Model page: https://phaseo.app/models/tencent/hy4-preview
+    pub const TENCENT_HY4_PREVIEW: &str = "tencent/hy4-preview";
     /// Model ID: `thinking-machines/inkling`.
     /// Model page: https://phaseo.app/models/thinking-machines/inkling
     pub const THINKING_MACHINES_INKLING: &str = "thinking-machines/inkling";
@@ -1837,6 +1843,7 @@ pub mod model_ids {
         INCLUSIONAI_LING_2_6_1T,
         INCLUSIONAI_LING_2_6_FLASH,
         INCLUSIONAI_LING_3_0_FLASH,
+        INCLUSIONAI_LING_3_0_FLASH_FIN,
         INCLUSIONAI_LING_FLASH_2_0,
         INCLUSIONAI_RING_2_6_1T,
         INCLUSIONAI_RING_FLASH_2_0,
@@ -2171,6 +2178,7 @@ pub mod model_ids {
         TENCENT_HY3,
         TENCENT_HY3_PREVIEW,
         TENCENT_HY3_FREE,
+        TENCENT_HY4_PREVIEW,
         THINKING_MACHINES_INKLING,
         THINKING_MACHINES_INKLING_SMALL,
         UPSTAGE_SOLAR_EMBEDDING_1_LARGE_PASSAGE,
