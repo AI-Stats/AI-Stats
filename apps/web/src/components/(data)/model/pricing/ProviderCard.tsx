@@ -2884,7 +2884,7 @@ export default function ProviderCard({
 										<button
 											type="button"
 											aria-label={`Provider status: ${tableStatusLabel}`}
-											className="inline-flex h-5 w-5 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+										className="inline-flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
 										>
 											{React.createElement(tableStatusIcon, {
 												className: cn("h-3 w-3", tableStatusClass),
@@ -2921,7 +2921,7 @@ export default function ProviderCard({
 											<button
 												type="button"
 											aria-label={isWorkspacePrivacyBlocked ? "Blocked by workspace Data Controls" : "Unavailable in Phaseo Chat"}
-												className="inline-flex h-5 w-5 items-center justify-center rounded-sm text-red-600 transition-colors hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+											className="inline-flex h-6 w-6 items-center justify-center rounded-sm text-red-600 transition-colors hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
 											>
 											{isWorkspacePrivacyBlocked ? <Ban className="h-3.5 w-3.5" /> : <ShieldBan className="h-3.5 w-3.5" />}
 											</button>
