@@ -9,10 +9,12 @@ grant select, insert, update, delete on table
   public.provider_catalog_sync_runs,
   public.provider_catalog_sync_models,
   public.provider_catalog_sync_model_capabilities,
-  public.provider_catalog_review_events,
   public.provider_catalog_models,
   public.provider_catalog_model_capabilities,
   public.provider_catalog_events,
   public.provider_catalog_route_candidates,
   public.provider_claim_challenges
 to service_role;
+
+-- Review decisions are an append-only audit trail.
+grant select, insert on table public.provider_catalog_review_events to service_role;
