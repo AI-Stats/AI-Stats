@@ -3,6 +3,7 @@
 // How: Maps IR to OpenAI formats and normalizes streaming events.
 
 import type { IRChatRequest } from "@core/ir";
+import { normalizeProviderId } from "@/lib/config/providerAliases";
 
 /**
  * Configuration for provider-specific reasoning parameter mapping
@@ -129,7 +130,7 @@ export function applyReasoningParams(args: {
 		return;
 	}
 
-	if (args.providerId === "meta" || args.providerId === "meta-contributor") {
+	if (normalizeProviderId(args.providerId) === "meta") {
 		const rawEffort =
 			typeof reasoning.effort === "string"
 				? reasoning.effort

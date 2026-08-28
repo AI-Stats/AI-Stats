@@ -121,7 +121,7 @@ describe("resolveProviderExecutor", () => {
 		expect(resolveProviderExecutor("upstage", "embeddings")).toBeTruthy();
 		expect(resolveProviderExecutor("nebius-token-factory", "embeddings")).toBeTruthy();
 		expect(resolveProviderExecutor("nebius-token-factory-eu-north-1", "embeddings")).toBeTruthy();
-		expect(resolveProviderExecutor("nebius-token-factory-fast", "embeddings")).toBeNull();
+		expect(resolveProviderExecutor("nebius-token-factory-fast", "embeddings")).toBeTruthy();
 		expect(resolveProviderExecutor("nebius-token-factory-us-central-1", "embeddings")).toBeNull();
 		expect(resolveProviderExecutor("cohere", "embeddings")).toBeTruthy();
 		expect(resolveProviderExecutor("voyage", "embeddings")).toBeTruthy();
@@ -183,7 +183,7 @@ describe("resolveProviderExecutor", () => {
 		expect(resolveProviderExecutor("voyageai", "rerank")).toBeTruthy();
 		expect(resolveProviderExecutor("anthropic", "rerank")).toBeNull();
 		expect(resolveProviderExecutor("nebius-token-factory", "rerank")).toBeTruthy();
-		expect(resolveProviderExecutor("nebius-token-factory-fast", "rerank")).toBeNull();
+		expect(resolveProviderExecutor("nebius-token-factory-fast", "rerank")).toBeTruthy();
 		expect(resolveProviderExecutor("nebius-token-factory-eu-north-1", "rerank")).toBeNull();
 		expect(resolveProviderExecutor("nebius-token-factory-us-central-1", "rerank")).toBeNull();
 	});
