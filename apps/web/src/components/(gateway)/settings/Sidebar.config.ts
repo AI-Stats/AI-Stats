@@ -21,6 +21,7 @@ import {
 	Waypoints,
 	Webhook,
 	Workflow,
+	ClipboardCheck,
 } from "lucide-react";
 
 export type NavItem = {
@@ -79,6 +80,7 @@ const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
 				children: [
 					{ href: "/settings/account/details", label: "Details" },
 					{ href: "/settings/account/mfa", label: "MFA" },
+					{ href: "/settings/account/providers", label: "Provider onboarding" },
 					{ href: "/settings/authorized-apps", label: "Connected Apps" },
 					{ href: "/settings/account/danger", label: "Danger Zone" },
 				],
@@ -283,6 +285,11 @@ const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
 			},
 		],
 	},
+	{
+		heading: "Internal",
+		scope: "personal",
+		items: [{ href: "/settings/internal/provider-review", label: "Provider review", icon: ClipboardCheck, match: ["/settings/internal/provider-review"] }],
+	},
 
     // Example external group (remove or edit as needed):
     // {
@@ -309,17 +316,19 @@ const WORKSPACE_NAV_ORDER = [
 	"/settings/webhooks",
 ] as const;
 
-export function getSettingsSidebar(options?: { showBroadcast?: boolean; showWebhooks?: boolean; showEnterprise?: boolean }): NavGroup[] {
+export function getSettingsSidebar(options?: { showBroadcast?: boolean; showWebhooks?: boolean; showEnterprise?: boolean; showInternal?: boolean }): NavGroup[] {
 	const showBroadcast = options?.showBroadcast ?? true;
 	const showWebhooks = options?.showWebhooks ?? true;
 	const showEnterprise = options?.showEnterprise ?? true;
+	const showInternal = options?.showInternal ?? false;
 	const groups = BASE_SETTINGS_SIDEBAR.map((group) => ({
 		...group,
 		items: group.items
 			.filter((item) =>
 				(showBroadcast ? true : item.href !== "/settings/broadcast") &&
 				(showWebhooks ? true : item.href !== "/settings/webhooks") &&
-				(showEnterprise ? true : item.href !== "/settings/workspaces/enterprise"),
+				(showEnterprise ? true : item.href !== "/settings/workspaces/enterprise") &&
+				(showInternal ? true : item.href !== "/settings/internal/provider-review"),
 			)
 			.map((item) => ({
 				...item,
