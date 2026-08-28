@@ -109,6 +109,7 @@ import { executor as streamlakeText } from "./streamlake/text-generate";
 import { executor as switchpointText } from "./switchpoint/text-generate";
 import { executor as upstageText } from "./upstage/text-generate";
 import { executor as waferText } from "./wafer/text-generate";
+import { executor as tencentCloudText } from "./tencent-cloud/text-generate";
 
 // Embeddings executors (migrated providers only)
 import { executor as openaiEmbeddings } from "./openai/embeddings";
@@ -251,6 +252,7 @@ export const EXECUTORS_BY_PROVIDER: Record<string, ProviderCapabilityMap> = {
 	wafer: {
 		"text.generate": waferText,
 	},
+	"tencent-cloud": { "text.generate": tencentCloudText },
 	"alibaba-cloud": {
 		"text.generate": alibabaCloudText,
 		embeddings: openaiEmbeddings,

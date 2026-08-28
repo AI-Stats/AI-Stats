@@ -1,31 +1,16 @@
 {
   "provider": "tencent-cloud",
-  "checked_at": "2026-08-24T00:00:00Z",
-  "official_source": "https://cloud.tencent.cn/document/product/1823/130051",
+  "checked_at": "2026-08-28T00:00:00Z",
+  "official_source": "https://intl.cloud.tencent.com/document/product/1300/78934",
   "accounting": {
-    "implemented_routes": 92,
-    "schema_blocked": 3,
+    "implemented_routes": 20,
+    "schema_blocked": 0,
     "unaccounted": 0
   },
-  "schema_blocked": [
-    {
-      "name": "HY-3D-3.0",
-      "model_id": "hy-3d-3.0",
-      "reason": "No 3D generation capability exists in the catalog schema."
-    },
-    {
-      "name": "HY-3D-3.1",
-      "model_id": "hy-3d-3.1",
-      "reason": "No 3D generation capability exists in the catalog schema."
-    },
-    {
-      "name": "HY-3D-Express",
-      "model_id": "hy-3d-express",
-      "reason": "No 3D generation capability exists in the catalog schema."
-    }
-  ],
+  "schema_blocked": [],
   "notes": [
-    "All implemented routes are disabled and non-routable pending an executor.",
-    "The ledger covers the official TokenHub model list updated 2026-08-22."
+    "The scoped catalog contains current international text routes only; vendor-direct DeepSeek routes, Kinfra embeddings, and media routes are excluded.",
+    "Hy-MT2-Pro, Hy-MT2-Plus, and Hy-MT2-Lite retain Tencent's exact TokenHub names; their canonical model records store the corresponding 30B-A3B, 7B, and 1.8B parameter counts.",
+    "All scoped routes remain disabled and non-routable pending live API-key smoke testing."
   ]
 }

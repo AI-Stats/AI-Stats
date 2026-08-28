@@ -76,6 +76,7 @@ import { AMBIENT_OPENAI_COMPAT_CONFIGS } from "../ambient/config";
 import { STREAMLAKE_OPENAI_COMPAT_CONFIGS } from "../streamlake/config";
 import { SWITCHPOINT_OPENAI_COMPAT_CONFIGS } from "../switchpoint/config";
 import { WAFER_OPENAI_COMPAT_CONFIGS } from "../wafer/config";
+import { TENCENT_CLOUD_OPENAI_COMPAT_CONFIGS } from "../tencent-cloud/config";
 
 export const OPENAI_COMPAT_CONFIG = {
 	...OPENAI_OPENAI_COMPAT_CONFIGS,
@@ -155,4 +156,5 @@ export const OPENAI_COMPAT_CONFIG = {
 	...STREAMLAKE_OPENAI_COMPAT_CONFIGS,
 	...SWITCHPOINT_OPENAI_COMPAT_CONFIGS,
 	...WAFER_OPENAI_COMPAT_CONFIGS,
+	...TENCENT_CLOUD_OPENAI_COMPAT_CONFIGS,
 } satisfies Record<string, OpenAICompatConfig>;

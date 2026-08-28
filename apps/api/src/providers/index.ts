@@ -133,6 +133,7 @@ const ADAPTERS: Record<string, ProviderAdapter> = {
     "meta-contributor": createOpenAICompatibleAdapter("meta-contributor"),
     upstage: createOpenAICompatibleAdapter("upstage"),
     wafer: createOpenAICompatibleAdapter("wafer"),
+    "tencent-cloud": createOpenAICompatibleAdapter("tencent-cloud"),
 };
 
 // Capability-specific adapter overrides (e.g. Mistral OCR)
