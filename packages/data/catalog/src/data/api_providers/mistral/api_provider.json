@@ -81,7 +81,7 @@
       "reason": "Mistral documents Zero Data Retention as available for eligible API customers on standard model endpoints by agreement.",
       "evidenceUrl": "https://docs.mistral.ai/admin/monitor-comply/privacy-data-controls"
     },
-    "audio.transcription": {
+    "audio.transcribe": {
       "tier": "private",
       "confidence": "confirmed",
       "zdrEligibility": "eligible",

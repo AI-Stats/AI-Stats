@@ -31,7 +31,7 @@ where route.provider_model_id = capability.provider_model_id
     'text.classify',
     'ocr',
     'audio.speech',
-    'audio.transcription'
+    'audio.transcribe'
   )
   and not (coalesce(capability.metadata, '{}'::jsonb) ? 'data_policy');
 

@@ -82,7 +82,7 @@ export async function fetchModelPricingSources(
 			.or(`effective_to.is.null,effective_to.gte.${new Date(pricingWindow.startMs).toISOString()}`);
 	}
 	const [capabilitiesResult, providersResult, skusResult] = await Promise.all([
-		routeIds.length ? client.from("v2_route_capabilities").select("provider_model_id,capability_id,params,max_input_tokens,max_output_tokens,status").in("provider_model_id", routeIds) : Promise.resolve({ data: [], error: null }),
+		routeIds.length ? client.from("v2_route_capabilities").select("provider_model_id,capability_id,params,max_input_tokens,max_output_tokens,status,metadata").in("provider_model_id", routeIds) : Promise.resolve({ data: [], error: null }),
 		providerIds.length ? client.from("v2_providers").select("provider_slug,name,provider_family_slug,offer_label,offer_scope,country_code,status,routing_enabled,residency_mode,default_execution_regions,default_data_regions,zero_data_retention,data_retention_days,prompt_training_policy,data_policy_tier,data_policy_confidence,data_policy_contract_mode,metadata").in("provider_slug", providerIds) : Promise.resolve({ data: [], error: null }),
 		routeIds.length ? skusQuery : Promise.resolve({ data: [], error: null }),
 	]);
@@ -121,7 +121,15 @@ export async function fetchModelPricingSources(
 			effective_to: route.effective_to,
 			created_at: route.created_at,
 			updated_at: route.updated_at,
-			data_api_provider_model_capabilities: capabilitiesByRoute.get(id(route.provider_model_id)) ?? [],
+			data_api_provider_model_capabilities: (capabilitiesByRoute.get(id(route.provider_model_id)) ?? []).map((capability) => ({
+				provider_model_id: capability.provider_model_id,
+				capability_id: capability.capability_id,
+				params: capability.params,
+				max_input_tokens: capability.max_input_tokens,
+				max_output_tokens: capability.max_output_tokens,
+				status: capability.status,
+				data_policy: asRow(capability.metadata)?.data_policy ?? null,
+			})),
 			data_api_providers: id(route.provider_slug) === STEALTH_PROVIDER_IDENTITY ? {
 				api_provider_name: STEALTH_PROVIDER_DISPLAY_NAME,
 				provider_family_id: STEALTH_PROVIDER_IDENTITY,
@@ -154,6 +162,7 @@ export async function fetchModelPricingSources(
 				data_policy_confidence: provider.data_policy_confidence,
 				data_policy_contract_mode: provider.data_policy_contract_mode,
 				data_policy_contract_notes: providerMetadata.data_policy_contract_notes ?? null,
+				service_tier_data_policies: providerMetadata.service_tier_data_policies ?? null,
 				residency_source_url: providerMetadata.residency_source_url ?? null,
 				residency_notes: providerMetadata.residency_notes ?? null,
 				privacy_policy_url: providerMetadata.privacy_policy_url ?? null,
@@ -284,6 +293,7 @@ function providerModel(row: Row, capability: Row | null) {
 		prompt_training_override_source_url: row.prompt_training_override_source_url ?? null,
 		max_input_tokens: capability?.max_input_tokens ?? null,
 		max_output_tokens: capability?.max_output_tokens ?? row.max_output_tokens ?? null,
+		data_policy: capability?.data_policy ?? null,
 	};
 }
 
