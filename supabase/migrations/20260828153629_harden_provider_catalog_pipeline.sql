@@ -169,7 +169,9 @@ begin
 
   select provider_model_id into provider_model_id_value
   from public.v2_model_provider_routes
-  where provider_slug = candidate.provider_slug and model_slug = candidate.canonical_model_slug
+  where provider_slug = candidate.provider_slug
+    and model_slug = candidate.canonical_model_slug
+    and provider_model_slug = candidate.provider_model_slug
   order by created_at limit 1;
   if provider_model_id_value is null then
     provider_model_id_value := candidate.provider_slug || ':' || candidate.canonical_model_slug || ':' || candidate.provider_model_slug;

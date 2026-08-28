@@ -67,6 +67,25 @@ export type ProviderCatalogPreview = {
 	truncated: boolean;
 };
 
+export async function validateProviderCatalogPricingMeters(client: any, preview: ProviderCatalogPreview): Promise<ProviderCatalogPreview> {
+	const submittedKeys = Array.from(new Set(preview.allModels.flatMap((model) => model.pricing.map((price) => price.meterKey))));
+	if (!submittedKeys.length) return preview;
+	const definitions = await client.from("v2_meter_definitions").select("meter_key").in("meter_key", submittedKeys).neq("status", "disabled");
+	if (definitions.error) throw definitions.error;
+	const allowed = new Set((definitions.data ?? []).map((row: { meter_key: string }) => String(row.meter_key)));
+	const issues = [...preview.issues];
+	for (const [modelIndex, model] of preview.allModels.entries()) {
+		const seen = new Set<string>();
+		for (const [priceIndex, price] of model.pricing.entries()) {
+			const path = `data[${modelIndex}].pricing[${priceIndex}].meter_key`;
+			if (seen.has(price.meterKey)) issues.push({ path, message: `Duplicate pricing meter: ${price.meterKey}.` });
+			else if (!allowed.has(price.meterKey)) issues.push({ path, message: `Unknown pricing meter: ${price.meterKey}.` });
+			seen.add(price.meterKey);
+		}
+	}
+	return { ...preview, valid: preview.valid && issues.length === 0, issues: issues.slice(0, 100) };
+}
+
 const catalogUrlSchema = z.string().trim().url().refine((value) => {
 	try {
 		const url = new URL(value);

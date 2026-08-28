@@ -8,6 +8,7 @@ import {
 	fetchAndValidateProviderCatalog,
 	sameOrSubdomain,
 	validateCatalogUrl,
+	validateProviderCatalogPricingMeters,
 	type ProviderCatalogPreview,
 } from "./provider-catalog";
 import {
@@ -187,7 +188,8 @@ accountSettingsProviderOnboardingRouter.post("/provider-onboarding/preview", asy
 	if (url.ok === false) return responseError(c, url.message);
 	try {
 		const result = await fetchAndValidateProviderCatalog(url.url);
-		return c.json({ ok: true, catalogUrl: url.url, sha256: result.sha256, preview: publicPreview(result.preview) }, 200, PRIVATE_NO_STORE_HEADERS);
+		const preview = await validateProviderCatalogPricingMeters(getDataClient(c.env), result.preview);
+		return c.json({ ok: true, catalogUrl: url.url, sha256: result.sha256, preview: publicPreview(preview) }, 200, PRIVATE_NO_STORE_HEADERS);
 	} catch (error) {
 		return responseError(c, error instanceof Error ? error.message : "Could not read the provider catalog.", 422);
 	}
@@ -205,10 +207,12 @@ accountSettingsProviderOnboardingRouter.post("/provider-onboarding/submit", asyn
 	if (!sameOrSubdomain(catalogHost, websiteHost)) {
 		return responseError(c, "The catalog URL must be hosted on the provider website domain or a subdomain.");
 	}
+	const client = getDataClient(c.env);
 
 	let catalog: Awaited<ReturnType<typeof fetchAndValidateProviderCatalog>>;
 	try {
 		catalog = await fetchAndValidateProviderCatalog(input.catalogUrl);
+		catalog = { ...catalog, preview: await validateProviderCatalogPricingMeters(client, catalog.preview) };
 	} catch (error) {
 		return responseError(c, error instanceof Error ? error.message : "Could not read the provider catalog.", 422);
 	}
@@ -216,7 +220,6 @@ accountSettingsProviderOnboardingRouter.post("/provider-onboarding/submit", asyn
 		return c.json({ ok: false, error: "catalog_invalid", message: "Fix the catalog validation issues before submitting.", preview: publicPreview(catalog.preview) }, 422, PRIVATE_NO_STORE_HEADERS);
 	}
 
-	const client = getDataClient(c.env);
 	const existing = await client.from("v2_providers")
 		.select("provider_slug,name,metadata,status,routing_enabled,routable")
 		.eq("provider_slug", input.providerSlug)

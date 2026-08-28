@@ -62,7 +62,9 @@ begin
   if has_function_privilege('anon', 'public.promote_provider_catalog_candidate(uuid,text)', 'execute')
      or has_function_privilege('authenticated', 'public.promote_provider_catalog_candidate(uuid,text)', 'execute')
      or has_function_privilege('anon', 'public.claim_provider_catalog_sync(text,uuid,integer)', 'execute')
-     or has_function_privilege('authenticated', 'public.claim_provider_catalog_sync(text,uuid,integer)', 'execute') then
+     or has_function_privilege('authenticated', 'public.claim_provider_catalog_sync(text,uuid,integer)', 'execute')
+     or has_function_privilege('anon', 'public.renew_provider_catalog_sync(text,uuid,integer)', 'execute')
+     or has_function_privilege('authenticated', 'public.renew_provider_catalog_sync(text,uuid,integer)', 'execute') then
     raise exception 'Privileged provider RPC is executable by an application role';
   end if;
 
@@ -72,6 +74,21 @@ begin
     30
   ) then
     raise exception 'Sync lease unexpectedly succeeded for a nonexistent provider';
+  end if;
+
+  if public.renew_provider_catalog_sync(
+    '__phaseo_nonexistent_provider_smoke__',
+    gen_random_uuid(),
+    30
+  ) then
+    raise exception 'Sync lease renewal unexpectedly succeeded for a nonexistent provider';
+  end if;
+
+  if position(
+    'provider_model_slug = candidate.provider_model_slug'
+    in pg_get_functiondef('public.promote_provider_catalog_candidate(uuid,text)'::regprocedure)
+  ) = 0 then
+    raise exception 'Candidate promotion does not match routes by provider model identity';
   end if;
 
   begin

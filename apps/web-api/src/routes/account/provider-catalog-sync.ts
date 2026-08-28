@@ -3,6 +3,7 @@ import type { Env } from "@/env";
 import {
 	fetchAndValidateProviderCatalog,
 	type ProviderCatalogPreview,
+	validateProviderCatalogPricingMeters,
 } from "./provider-catalog";
 import { reconcileProviderCatalogClaims } from "./provider-catalog-reconciliation";
 
@@ -125,6 +126,14 @@ export async function syncProviderCatalog(env: Env, providerSlug: string, trigge
 		await client.from("provider_catalog_sources").update({ refresh_requested: true, next_poll_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq("provider_slug", providerSlug);
 		return { status: "busy" };
 	}
+	let lastLeaseRenewal = Date.now();
+	const renewLease = async (force = false) => {
+		if (!force && Date.now() - lastLeaseRenewal < 60_000) return;
+		const renewed = await client.rpc("renew_provider_catalog_sync", { p_provider_slug: providerSlug, p_lease_token: leaseToken, p_lease_seconds: 300 });
+		if (renewed.error) throw renewed.error;
+		if (renewed.data !== true) throw new Error("provider_catalog_sync_lease_lost");
+		lastLeaseRenewal = Date.now();
+	};
 
 	try {
 	const runResult = await client.from("provider_catalog_sync_runs").insert({
@@ -149,8 +158,10 @@ export async function syncProviderCatalog(env: Env, providerSlug: string, trigge
 			await client.from("provider_catalog_sources").update({ last_polled_at: now, consecutive_failures: 0, next_poll_at: refresh.data === true ? now : nextPollAt(source.poll_interval_seconds, 0), etag: catalog.etag, last_modified: catalog.lastModified, updated_at: now }).eq("provider_slug", providerSlug);
 			return { status: "not_modified", runId };
 		}
-		const preview = catalog.preview;
+		await renewLease(true);
+		const preview = await validateProviderCatalogPricingMeters(client, catalog.preview);
 		if (!preview.valid) {
+			await renewLease(true);
 			await client.from("provider_catalog_sync_runs").update({ status: "rejected", review_status: "needs_changes", model_count: preview.modelCount, model_preview: publicPreview(preview), validation_summary: { valid: false, issues: preview.issues }, completed_at: new Date().toISOString(), error_message: "Catalog validation failed." }).eq("id", runId);
 			await client.from("provider_catalog_sources").update({ last_error: "Catalog validation failed.", consecutive_failures: source.consecutive_failures + 1, next_poll_at: nextPollAt(source.poll_interval_seconds, source.consecutive_failures + 1), updated_at: new Date().toISOString() }).eq("provider_slug", providerSlug);
 			await notifyProviderOwners(client, providerSlug, runId, "Catalog needs changes", preview.issues[0]?.message ?? "Catalog validation failed.");
@@ -159,7 +170,9 @@ export async function syncProviderCatalog(env: Env, providerSlug: string, trigge
 
 		const applied = await client.rpc("apply_provider_catalog_snapshot", { p_provider_slug: providerSlug, p_run_id: runId, p_models: preview.allModels });
 		if (applied.error) throw applied.error;
-		await reconcileProviderCatalogClaims(client, { providerSlug, runId, models: preview.allModels });
+		await renewLease(true);
+		await reconcileProviderCatalogClaims(client, { providerSlug, runId, models: preview.allModels, renewLease });
+		await renewLease(true);
 		const now = new Date().toISOString();
 		const refresh = await client.rpc("consume_provider_catalog_refresh", { p_provider_slug: providerSlug });
 		await client.from("provider_catalog_sync_runs").update({ status: "applied", catalog_sha256: catalog.sha256, model_count: preview.modelCount, model_preview: publicPreview(preview), validation_summary: { valid: true, issues: [], checked_at: now }, completed_at: now }).eq("id", runId);
@@ -167,6 +180,7 @@ export async function syncProviderCatalog(env: Env, providerSlug: string, trigge
 		return { status: "applied", runId, modelCount: Number(applied.data ?? preview.modelCount) };
 	} catch (error) {
 		const message = error instanceof Error ? error.message : "Provider catalog sync failed.";
+		await renewLease(true);
 		await client.rpc("consume_provider_catalog_refresh", { p_provider_slug: providerSlug });
 		await client.from("provider_catalog_sync_runs").update({ status: "failed", review_status: "needs_changes", error_message: message.slice(0, 500), completed_at: new Date().toISOString() }).eq("id", runId);
 		await client.from("provider_catalog_sources").update({ last_error: message.slice(0, 500), consecutive_failures: source.consecutive_failures + 1, next_poll_at: nextPollAt(source.poll_interval_seconds, source.consecutive_failures + 1), updated_at: new Date().toISOString() }).eq("provider_slug", providerSlug);

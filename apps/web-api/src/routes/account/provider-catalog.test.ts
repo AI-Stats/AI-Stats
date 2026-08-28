@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
 	fetchAndValidateProviderCatalog,
 	normalizeProviderCatalog,
+	validateProviderCatalogPricingMeters,
 	validateCatalogUrl,
 } from "./provider-catalog";
 import {
@@ -79,6 +80,25 @@ describe("provider catalog onboarding", () => {
 	it("normalizes billable pricing meters for staged routes", () => {
 		const model = normalizeProviderCatalog({ data: [{ id: "acme/atlas-1", capabilities: ["text.generate"], pricing: [{ meter_key: "input_tokens", modality: "text", direction: "input", unit: "token", unit_quantity: 1_000_000, price_nanos: 250_000_000, display_label: "Input tokens", display_unit: "1M tokens" }] }] }).models[0];
 		expect(model.pricing).toEqual([{ meterKey: "input_tokens", modality: "text", direction: "input", unit: "token", unitQuantity: 1_000_000, priceNanos: 250_000_000, displayLabel: "Input tokens", displayUnit: "1M tokens" }]);
+	});
+
+	it("rejects duplicate and unregistered pricing meters before submission", async () => {
+		const preview = normalizeProviderCatalog({ data: [{
+			id: "acme/atlas-1",
+			capabilities: ["text.generate"],
+			pricing: [
+				{ meter_key: "input_tokens", modality: "text", direction: "input", unit: "token", unit_quantity: 1, price_nanos: 1, display_label: "Input", display_unit: "token" },
+				{ meter_key: "input_tokens", modality: "text", direction: "input", unit: "token", unit_quantity: 1, price_nanos: 2, display_label: "Input", display_unit: "token" },
+				{ meter_key: "invented_meter", modality: "text", direction: "input", unit: "request", unit_quantity: 1, price_nanos: 3, display_label: "Invented", display_unit: "request" },
+			],
+		}] });
+		const client = { from: () => ({ select: () => ({ in: () => ({ neq: async () => ({ data: [{ meter_key: "input_tokens" }], error: null }) }) }) }) };
+		const validated = await validateProviderCatalogPricingMeters(client, preview);
+		expect(validated.valid).toBe(false);
+		expect(validated.issues.map((issue) => issue.message)).toEqual(expect.arrayContaining([
+			"Duplicate pricing meter: input_tokens.",
+			"Unknown pricing meter: invented_meter.",
+		]));
 	});
 
 	it("rejects invalid lifecycle data instead of silently making a route ready", () => {

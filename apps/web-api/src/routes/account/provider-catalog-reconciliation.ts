@@ -20,7 +20,7 @@ export async function stageApprovedProviderRoute(client: any, runId: string, pro
 	if (result.error) throw result.error;
 }
 
-export async function reconcileProviderCatalogClaims(client: any, args: { providerSlug: string; runId: string; models: CatalogModel[] }) {
+export async function reconcileProviderCatalogClaims(client: any, args: { providerSlug: string; runId: string; models: CatalogModel[]; renewLease?: () => Promise<void> }) {
 	const ids = args.models.map((model) => model.id.toLowerCase());
 	const now = new Date().toISOString();
 	const [exactResult, aliasResult, linkResult] = await Promise.all([
@@ -34,6 +34,7 @@ export async function reconcileProviderCatalogClaims(client: any, args: { provid
 	let approved = 0;
 	let pending = 0;
 	for (const model of args.models) {
+		await args.renewLease?.();
 		const id = model.id.toLowerCase();
 		const canonical = exact.has(id) ? id : aliases.get(id) ?? null;
 		const matchType = exact.has(id) ? "exact" : canonical ? "alias" : "new_model";
