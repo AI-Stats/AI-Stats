@@ -28,7 +28,7 @@
   "data_policy_confidence": "confirmed",
   "data_policy_contract_mode": "none",
   "gateway_kind": "catalogue",
-  "routable": false,
+  "routable": true,
   "routing_enabled": false,
   "sdk_package": "openai",
   "api_base_url": "https://inference.us-west.modal.direct/v1",

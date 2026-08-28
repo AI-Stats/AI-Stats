@@ -16,7 +16,7 @@
   "prompt_training_notes": "Phala says that when models are deployed in TEE mode, it does not collect or retain users' prompts, inputs, or requests and the interactions remain confidential throughout inference.",
   "prompt_training_source_url": "https://phala.com/solutions/private-ai-inference",
   "gateway_kind": null,
-  "routable": false,
+  "routable": true,
   "routing_enabled": false,
   "sdk_package": null,
   "api_base_url": "https://inference.phala.com/v1",

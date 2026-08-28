@@ -23,7 +23,7 @@
   "prompt_training_notes": "OpenInference says it does not retain prompt or response contents after delivery and does not use them to train or improve models.",
   "prompt_training_source_url": "https://www.openinference.ai/privacy",
   "gateway_kind": null,
-  "routable": false,
+  "routable": true,
   "routing_enabled": false,
   "sdk_package": null,
   "api_base_url": null,
