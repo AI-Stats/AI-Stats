@@ -9,49 +9,101 @@
       "meter": "input_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 12,
-      "currency": "CNY",
+      "price_per_unit": 1.74,
+      "currency": "USD",
       "pricing_plan": "on-demand",
-      "note": "Guangzhou region",
+      "note": "Singapore international portal USD list price.",
       "match": [],
       "priority": 100,
-      "region": "cn-guangzhou",
+      "effective_from": "2026-08-28T00:00:00Z",
+      "region": "SG",
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": "https://intl.cloud.tencent.com/document/product/1300/78937"
     },
     {
       "meter": "output_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 24,
-      "currency": "CNY",
+      "price_per_unit": 3.48,
+      "currency": "USD",
       "pricing_plan": "on-demand",
-      "note": "Guangzhou region",
+      "note": "Singapore international portal USD list price.",
       "match": [],
       "priority": 100,
-      "region": "cn-guangzhou",
+      "effective_from": "2026-08-28T00:00:00Z",
+      "region": "SG",
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": "https://intl.cloud.tencent.com/document/product/1300/78937"
     },
     {
       "meter": "cached_read_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 1,
-      "currency": "CNY",
+      "price_per_unit": 0.145,
+      "currency": "USD",
       "pricing_plan": "on-demand",
-      "note": "Guangzhou region",
+      "note": "Singapore international portal USD list price.",
       "match": [],
       "priority": 100,
+      "effective_from": "2026-08-28T00:00:00Z",
+      "region": "SG",
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://intl.cloud.tencent.com/document/product/1300/78937"
+    },
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 1.74,
+      "currency": "USD",
+      "pricing_plan": "on-demand",
+      "note": "Guangzhou international portal USD list price.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-28T00:00:00Z",
       "region": "cn-guangzhou",
       "cache_duration_seconds": null,
       "conditions": [],
-      "source": null
+      "source": "https://intl.cloud.tencent.com/document/product/1300/78937"
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 3.48,
+      "currency": "USD",
+      "pricing_plan": "on-demand",
+      "note": "Guangzhou international portal USD list price.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-28T00:00:00Z",
+      "region": "cn-guangzhou",
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://intl.cloud.tencent.com/document/product/1300/78937"
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.145,
+      "currency": "USD",
+      "pricing_plan": "on-demand",
+      "note": "Guangzhou international portal USD list price.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-28T00:00:00Z",
+      "region": "cn-guangzhou",
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://intl.cloud.tencent.com/document/product/1300/78937"
     }
   ],
   "regions": [
+    "SG",
     "cn-guangzhou"
   ],
   "service_tiers": [
@@ -59,15 +111,15 @@
   ],
   "sources": [
     {
-      "kind": "pricing",
-      "url": "https://cloud.tencent.cn/document/product/1823/130055",
-      "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "Official Guangzhou on-demand TokenHub pricing in CNY."
+      "kind": "official_pricing",
+      "url": "https://intl.cloud.tencent.com/document/product/1300/78937",
+      "accessed_at": "2026-08-28T00:00:00Z",
+      "notes": "International TokenHub USD model pricing for Singapore and Guangzhou."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Verified against official TokenHub model price table."
+    "checked_at": "2026-08-28T00:00:00Z",
+    "notes": "Verified against Tencent Cloud International TokenHub model pricing."
   }
 }

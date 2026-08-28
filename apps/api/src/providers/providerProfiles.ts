@@ -75,6 +75,10 @@ function openAIReasoningFallback(model: string): TextReasoningEffort[] {
 
 const PROVIDER_PROFILES: ProviderProfile[] = [
 	{
+		id: "tencent-cloud",
+		textOnly: true,
+	},
+	{
 		id: "atlascloud",
 		aliases: ["atlas-cloud"],
 		adapterBackedOverrides: {

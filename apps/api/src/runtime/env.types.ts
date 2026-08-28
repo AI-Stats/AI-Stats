@@ -211,6 +211,8 @@ export type GatewayBindings = {
     STEPFUN_BASE_URL?: string;
     TENSORIX_API_KEY?: string;
     TENSORIX_BASE_URL?: string;
+    TENCENT_CLOUD_TOKENHUB_API_KEY?: string;
+    TENCENT_CLOUD_TOKENHUB_BASE_URL?: string;
     TINKER_API_KEY?: string;
     TINKER_BASE_URL?: string;
     VENICE_API_KEY?: string;

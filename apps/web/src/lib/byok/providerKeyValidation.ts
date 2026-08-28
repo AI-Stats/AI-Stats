@@ -248,6 +248,12 @@ export const BYOK_PROVIDER_KEY_SPECS: Record<string, ProviderKeySpec> = {
 		docsUrl: "/api-providers/minimax",
 		minLength: 16,
 	},
+	"tencent-cloud": {
+		hint: "Tencent Cloud TokenHub API key from the TokenHub console.",
+		example: "sk-xxxxxxxxxxxxxxxx",
+		docsUrl: "https://intl.cloud.tencent.com/document/product/1300/78941",
+		minLength: 16,
+	},
 	mistral: {
 		hint: "Mistral API keys are usually OpenAI-style (sk-...).",
 		example: "sk-xxxxxxxx",
