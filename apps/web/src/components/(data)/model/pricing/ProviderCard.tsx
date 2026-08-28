@@ -1440,7 +1440,7 @@ function parseRuleAudioMode(value: unknown): "with-audio" | "without-audio" | nu
 	return null;
 }
 
-const PROVIDER_STATUS_META: Record<
+export const PROVIDER_STATUS_META: Record<
 	CanonicalGatewayStatus,
 	{
 		label: string;

@@ -70,7 +70,10 @@ import {
 	type ProviderRuntimeStatsMap,
 } from "@/lib/fetchers/models/getModelProviderRuntimeStats";
 import type { ProviderRoutingStatusMap } from "@/lib/fetchers/models/getModelProviderRoutingHealth";
-import ProviderCard from "@/components/(data)/model/pricing/ProviderCard";
+import ProviderCard, {
+	PROVIDER_STATUS_META,
+} from "@/components/(data)/model/pricing/ProviderCard";
+import ProviderInfoHoverIcons from "@/components/(data)/model/ProviderInfoHoverIcons";
 import { cn } from "@/lib/utils";
 import { normalizeProviderPromptTrainingPolicy } from "@/lib/providers/promptTrainingPolicy";
 import { mergeProviderPricingOffers } from "@/lib/providers/providerFamilyGroups";
@@ -477,6 +480,93 @@ function renderTierTablePrice(
 	);
 }
 
+function ProviderServiceTierInfoIcons({
+	provider,
+	plan,
+}: {
+	provider: ProviderPricing;
+	plan: string;
+}) {
+	const providerModels = getProviderModelScopeForPlan(provider, plan);
+	const statusKey = chooseGatewayStatus(
+		providerModels.map((providerModel) =>
+			resolveGatewayStatus({
+				isActiveGateway: providerModel.is_active_gateway,
+				providerAvailabilityStatus: providerModel.provider_availability_status,
+				phaseoStatus: providerModel.phaseo_status,
+				accessScope: providerModel.access_scope,
+				capabilityStatus: providerModel.capability_status,
+				providerStatus: provider.provider.status,
+				providerRoutingStatus: provider.provider.routing_status,
+				modelRoutingStatus: providerModel.routing_status,
+				effectiveFrom: providerModel.effective_from,
+				effectiveTo: providerModel.effective_to,
+			}),
+		),
+	);
+	const statusMeta = PROVIDER_STATUS_META[statusKey] ?? PROVIDER_STATUS_META.not_listed;
+	const tierPolicy = provider.provider.service_tier_data_policies?.[plan] ?? null;
+	const capabilityPolicies = providerModels
+		.map((providerModel) => providerModel.data_policy)
+		.filter((policy): policy is NonNullable<typeof policy> => Boolean(policy));
+	const policies = tierPolicy ? [tierPolicy] : capabilityPolicies;
+	const dataPolicy = (policies.length > 0 ? policies : [null]).map((policy) => ({
+		tier: policy?.tier ?? provider.provider.data_policy_tier ?? null,
+		confidence: policy?.confidence ?? provider.provider.data_policy_confidence ?? null,
+		contractMode: provider.provider.data_policy_contract_mode ?? null,
+		contractNotes: provider.provider.data_policy_contract_notes ?? null,
+		notes: policy?.reason ?? provider.provider.prompt_training_notes ?? null,
+		sourceUrl: policy?.evidenceUrl ?? provider.provider.prompt_training_source_url ?? null,
+		promptTrainingPolicy: provider.provider.prompt_training_policy ?? null,
+		zeroDataRetention:
+			policy?.zdrEligibility === "eligible"
+				? true
+				: policy?.zdrEligibility === "ineligible"
+					? false
+					: provider.provider.zero_data_retention ?? null,
+	}));
+
+	return (
+		<div className="flex shrink-0 items-center gap-1">
+			<HoverCard openDelay={120} closeDelay={80}>
+				<HoverCardTrigger asChild>
+					<button
+						type="button"
+						aria-label={`Provider status: ${statusMeta.label}`}
+						className="inline-flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+					>
+						{React.createElement(statusMeta.icon, {
+							className: cn("h-3 w-3", statusMeta.iconClass),
+						})}
+					</button>
+				</HoverCardTrigger>
+				<HoverCardContent align="start" className="w-auto p-2 text-xs">
+					<p className="font-semibold">{statusMeta.label}</p>
+					<p className="mt-1 text-muted-foreground">{statusMeta.description}</p>
+				</HoverCardContent>
+			</HoverCard>
+			<ProviderInfoHoverIcons
+				providerId={provider.provider.api_provider_id}
+				providerModelSlugs={providerModels.map((providerModel) => providerModel.provider_model_slug)}
+				apiModelIds={providerModels.map((providerModel) => providerModel.model_id)}
+				dataPolicy={dataPolicy}
+				residency={[
+					{
+						residencyMode: provider.provider.residency_mode ?? null,
+						executionRegions: provider.provider.default_execution_regions ?? null,
+						dataRegions: provider.provider.default_data_regions ?? null,
+						zeroDataRetention: provider.provider.zero_data_retention ?? null,
+						notes: provider.provider.residency_notes ?? null,
+						sourceUrl: provider.provider.residency_source_url ?? null,
+					},
+				]}
+				showQuantizationTrigger={false}
+				showModelMappingTrigger={false}
+			/>
+		</div>
+	);
+}
+
 function ProviderServiceTierRow({
 	provider,
 	plan,
@@ -531,12 +621,13 @@ function ProviderServiceTierRow({
 		>
 			<TableCell className="relative min-w-[280px] py-1 pl-[3.75rem] pr-2">
 				{isActive ? <span aria-hidden="true" className="absolute inset-y-0 left-0 w-0.5 bg-primary" /> : null}
-				<span className="inline-flex items-center gap-2.5 whitespace-nowrap text-xs font-medium text-foreground">
-					<span className="grid size-6 shrink-0 place-items-center rounded-md border border-border bg-background">
-						<TierIcon className={cn("size-3.5", tierMeta.iconClassName)} aria-hidden="true" />
+					<span className="inline-flex items-center gap-2.5 whitespace-nowrap text-xs font-medium text-foreground">
+						<span className="grid size-6 shrink-0 place-items-center rounded-md border border-border bg-background">
+							<TierIcon className={cn("size-3.5", tierMeta.iconClassName)} aria-hidden="true" />
+						</span>
+						<span>{providerName} ({formatServiceTierLabel(plan)})</span>
+						<ProviderServiceTierInfoIcons provider={provider} plan={plan} />
 					</span>
-					<span>{providerName} ({formatServiceTierLabel(plan)})</span>
-				</span>
 			</TableCell>
 			<TableCell className="py-1 pl-2 pr-4 text-right tabular-nums whitespace-nowrap">
 				{renderTierTablePrice(inputPrice, tierMeta.iconClassName)}
