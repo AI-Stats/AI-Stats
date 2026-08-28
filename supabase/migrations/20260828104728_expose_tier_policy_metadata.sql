@@ -24,88 +24,30 @@ from public.v2_model_provider_routes as route
 where route.provider_model_id = capability.provider_model_id
   and route.provider_slug = 'mistral'
   and coalesce(route.provider_model_slug, '') not like 'labs-%'
-  and capability.capability_id in (
-    'text.generate',
-    'text.embed',
-    'text.moderate',
-    'text.classify',
-    'ocr',
-    'audio.speech',
-    'audio.transcribe'
-  )
+  and capability.capability_id in ('text.generate','text.embed','text.moderate','text.classify','ocr','audio.speech','audio.transcription')
   and not (coalesce(capability.metadata, '{}'::jsonb) ? 'data_policy');
 
 do $migration$
-declare
-  definition text;
-  patched text;
+declare definition text; patched text;
 begin
-  select pg_get_functiondef(
-    'public.get_v2_model_pricing_without_stealth_redaction(text,text,text)'::regprocedure
-  ) into definition;
-
+  select pg_get_functiondef('public.get_v2_model_pricing_without_stealth_redaction(text,text,text)'::regprocedure) into definition;
   definition := replace(definition, chr(13) || chr(10), chr(10));
-  if position('capability.metadata->''data_policy'' as data_policy' in definition) > 0 then
-    return;
-  end if;
-
-  patched := replace(
-    definition,
-    '      capability.params,' || chr(10) ||
-    '      capability.max_input_tokens,',
-    '      capability.params,' || chr(10) ||
-    '      capability.metadata->''data_policy'' as data_policy,' || chr(10) ||
-    '      capability.max_input_tokens,'
-  );
-  patched := replace(
-    patched,
-    '        ''params'', model.params,' || chr(10) ||
-    '        ''service_tier'', model.service_tier_slug,',
-    '        ''params'', model.params,' || chr(10) ||
-    '        ''data_policy'', coalesce(model.data_policy, ''{}''::jsonb),' || chr(10) ||
-    '        ''service_tier'', model.service_tier_slug,'
-  );
-
-  if patched = definition
-     or position('capability.metadata->''data_policy'' as data_policy' in patched) = 0
-     or position('''data_policy'', coalesce(model.data_policy' in patched) = 0 then
-    raise exception 'get_v2_model_pricing_without_stealth_redaction has an unexpected definition';
-  end if;
-
+  if position('capability.metadata->''data_policy'' as data_policy' in definition) > 0 then return; end if;
+  patched := replace(definition, '      capability.params,' || chr(10) || '      capability.max_input_tokens,', '      capability.params,' || chr(10) || '      capability.metadata->''data_policy'' as data_policy,' || chr(10) || '      capability.max_input_tokens,');
+  patched := replace(patched, '        ''params'', model.params,' || chr(10) || '        ''service_tier'', model.service_tier_slug,', '        ''params'', model.params,' || chr(10) || '        ''data_policy'', coalesce(model.data_policy, ''{}''::jsonb),' || chr(10) || '        ''service_tier'', model.service_tier_slug,');
+  if patched = definition or position('capability.metadata->''data_policy'' as data_policy' in patched) = 0 or position('''data_policy'', coalesce(model.data_policy' in patched) = 0 then raise exception 'get_v2_model_pricing_without_stealth_redaction has an unexpected definition'; end if;
   execute patched;
 end
 $migration$;
 
--- The public pricing wrapper redacts provider policy for stealth routes. Keep
--- the newly projected capability policy redacted there as well.
 do $migration$
-declare
-  definition text;
-  patched text;
+declare definition text; patched text;
 begin
-  select pg_get_functiondef(
-    'public.get_v2_model_pricing(text,text,text)'::regprocedure
-  ) into definition;
-
+  select pg_get_functiondef('public.get_v2_model_pricing(text,text,text)'::regprocedure) into definition;
   definition := replace(definition, chr(13) || chr(10), chr(10));
-  if position('''data_policy'', ''{}''::jsonb' in definition) > 0 then
-    return;
-  end if;
-
-  patched := replace(
-    definition,
-    '            ''data_region'', null' || chr(10) ||
-    '          )',
-    '            ''data_region'', null,' || chr(10) ||
-    '            ''data_policy'', ''{}''::jsonb' || chr(10) ||
-    '          )'
-  );
-
-  if patched = definition
-     or position('''data_policy'', ''{}''::jsonb' in patched) = 0 then
-    raise exception 'get_v2_model_pricing has an unexpected definition';
-  end if;
-
+  if position('''data_policy'', ''{}''::jsonb' in definition) > 0 then return; end if;
+  patched := replace(definition, '            ''data_region'', null' || chr(10) || '          )', '            ''data_region'', null,' || chr(10) || '            ''data_policy'', ''{}''::jsonb' || chr(10) || '          )');
+  if patched = definition or position('''data_policy'', ''{}''::jsonb' in patched) = 0 then raise exception 'get_v2_model_pricing has an unexpected definition'; end if;
   execute patched;
 end
 $migration$;
