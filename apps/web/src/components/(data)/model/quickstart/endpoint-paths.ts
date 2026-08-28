@@ -23,6 +23,7 @@ const ENDPOINT_PATHS: Record<string, string> = {
     moderations: "/moderations",
     "moderations.create": "/moderations",
     moderation: "/moderations",
+    parse: "/parse",
     batch: "/batches",
     "batch.create": "/batches",
     "music.generate": "/music/generations",

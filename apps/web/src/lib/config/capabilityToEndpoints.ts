@@ -23,6 +23,7 @@ export const capabilityToEndpoints: Record<string, string[]> = {
     "music.generate": ["/music/generations"],
     "video.generations": ["/video/generations"],
     "ocr": ["/ocr"],
+    "parse": ["/parse"],
     // Add more as needed
 };
 

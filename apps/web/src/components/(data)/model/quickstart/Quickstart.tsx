@@ -405,6 +405,14 @@ export default function Quickstart({
 			]);
 		}
 		const normalizedEndpoint = normalizeEndpointValue(quickstartEndpoint);
+		if (normalizedEndpoint === "parse") {
+			return new Set<string>([
+				"curl",
+				"node-fetch",
+				"python-requests",
+				"typescript-sdk",
+			]);
+		}
 		const supported = new Set<string>([
 			"curl",
 			"node-fetch",
@@ -875,6 +883,18 @@ const outputText = response.output
   ?.text;
 
 console.log(outputText ?? response);`
+				: normalizedEndpoint === "parse"
+					? `import Phaseo from '@phaseo/sdk';
+
+const client = new Phaseo({
+  apiKey: process.env.PHASEO_API_KEY,
+});
+
+const response = await client.parse.create({
+${payloadObjectNode}
+});
+
+console.log(response.pages);`
 				: phaseoMethod
 					? `import Phaseo from '@phaseo/sdk';
 
