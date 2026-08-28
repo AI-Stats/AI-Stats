@@ -24,10 +24,6 @@
   ],
   "benchmarks": [],
   "family_id": null,
-  "page_notice": {
-    "tone": "info",
-    "markdown": "Experimental model."
-  },
   "model_type": null,
   "knowledge_cutoff": null,
   "limits": { "context": 1000000, "input": 1000000, "output": 384000 },
