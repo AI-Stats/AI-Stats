@@ -2608,14 +2608,14 @@
       {
         "kind": "pricing",
         "url": "https://crof.ai/pricing",
-        "accessed_at": "2026-08-26T00:00:00Z",
-        "notes": "Current CrofAI pricing payload lists $0.20 input, $0.03 cached input, and $1.50 output per 1M tokens."
+          "accessed_at": "2026-08-28T15:37:10Z",
+          "notes": "Current CrofAI pricing payload lists $0.09 input, $0.01 cached input, and $0.30 output per 1M tokens."
       }
     ],
     "verification": {
       "status": "verified",
-      "checked_at": "2026-08-26T00:00:00Z",
-      "notes": "Added from the live CrofAI model payload."
+        "checked_at": "2026-08-28T15:37:10Z",
+        "notes": "Availability, limits, quantization, and current pricing verified against CrofAI's live model and pricing payloads."
     },
     "rate_limits": []
   }
