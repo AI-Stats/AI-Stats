@@ -1967,7 +1967,6 @@ const (
 	KnownModelIdQwenQwen2572b KnownModelId = "qwen/qwen2.5-72b"
 	KnownModelIdQwenQwen257b KnownModelId = "qwen/qwen2.5-7b"
 	KnownModelIdQwenQwen257b1m KnownModelId = "qwen/qwen2.5-7b-1m"
-	KnownModelIdQwenQwen25Coder7b KnownModelId = "qwen/qwen2.5-coder-7b"
 	KnownModelIdQwenQwen25Vl32b KnownModelId = "qwen/qwen2.5-vl-32b"
 	KnownModelIdQwenQwen25Vl32bInstruct KnownModelId = "qwen/qwen2.5-vl-32b-instruct"
 	KnownModelIdQwenQwen25Vl72b KnownModelId = "qwen/qwen2.5-vl-72b"
