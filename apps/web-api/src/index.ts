@@ -8,6 +8,7 @@ import { frontendRouter } from "@/routes/frontend";
 import { frontendCreditAvailabilityRouter } from "@/routes/frontend-credit-availability";
 import { frontendProfileAvatarsRouter } from "@/routes/frontend-profile-avatars";
 import { scimRouter } from "@/scim/router";
+import { handleProviderCatalogScheduledEvent } from "@/scheduled/provider-catalog";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -22,4 +23,6 @@ app.route("/scim/v2", scimRouter);
 
 app.notFound((c) => c.json({ error: "not_found" }, 404));
 
-export default app;
+export default Object.assign(app, {
+	scheduled: handleProviderCatalogScheduledEvent,
+});

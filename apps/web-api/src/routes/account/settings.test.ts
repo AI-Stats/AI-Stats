@@ -49,7 +49,7 @@ function authenticatedFetch(input: RequestInfo | URL): Response {
 		return new Response(JSON.stringify([{ owner_user_id: "user-1" }]), { status: 200 });
 	}
 	if (url.includes("name%2Ctier%2Cbilling_mode")) {
-		return new Response(JSON.stringify([{ name: "Team One", tier: "enterprise", billing_mode: "invoice" }]), { status: 200 });
+		return new Response(JSON.stringify([{ name: "Team One", tier: "enterprise", billing_mode: "invoice", workspace_kind: "enterprise" }]), { status: 200 });
 	}
 	if (url.includes("tier%2Cbilling_mode")) {
 		return new Response(JSON.stringify([{ tier: "enterprise", billing_mode: "invoice" }]), { status: 200 });
@@ -386,6 +386,16 @@ describe("account settings routes", () => {
 			signedIn: true,
 			workspaceId: "workspace-1",
 			workspaceName: "Team One",
+			accountContext: {
+				platformRole: "user",
+				isInternalAdmin: false,
+				isProvider: false,
+				providerSlugs: [],
+				workspaceRole: "admin",
+				workspaceKind: "enterprise",
+				workspaceExperience: "enterprise",
+				experiences: ["enterprise"],
+			},
 		});
 		await expect(beta.json()).resolves.toMatchObject({
 			signedIn: true,

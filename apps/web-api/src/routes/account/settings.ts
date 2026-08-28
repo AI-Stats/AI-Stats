@@ -22,6 +22,7 @@ import { callDataContributionGateway } from "./settings-data-contribution";
 import { accountSettingsDynamicRoutesRouter } from "./settings-dynamic-routes";
 import { accountSettingsAccountPrivacyRouter } from "./settings-account-privacy";
 import { accountSettingsScimRouter } from "./settings-scim";
+import { accountSettingsProviderOnboardingRouter } from "./settings-provider-onboarding";
 import { purgeWorkerCacheTags } from "@/http/invalidation";
 
 // Mirrors the first-party CLI allowlist enforced by the gateway OAuth service.
@@ -117,6 +118,7 @@ accountSettingsRouter.route("/", accountSettingsDataContributionRouter);
 accountSettingsRouter.route("/", accountSettingsDynamicRoutesRouter);
 accountSettingsRouter.route("/", accountSettingsAccountPrivacyRouter);
 accountSettingsRouter.route("/", accountSettingsScimRouter);
+accountSettingsRouter.route("/", accountSettingsProviderOnboardingRouter);
 
 accountSettingsRouter.get("/layout", async (c) => {
 	const user = await requireUser(c.req.raw, c.env);
@@ -127,8 +129,27 @@ accountSettingsRouter.get("/layout", async (c) => {
 			signedIn: false,
 			workspaceId: null,
 			workspaceName: null,
+			accountContext: null,
 		}, 200, PRIVATE_NO_STORE_HEADERS);
 	}
+	const dataClient = getDataClient(c.env);
+	const [platformUserResult, membershipsResult, ownedWorkspacesResult] = await Promise.all([
+		dataClient.from("users").select("role").eq("user_id", user.id).maybeSingle(),
+		dataClient.from("workspace_members").select("workspace_id").eq("user_id", user.id),
+		dataClient.from("workspaces").select("id").eq("owner_user_id", user.id),
+	]);
+	if (platformUserResult.error || membershipsResult.error || ownedWorkspacesResult.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	const accessibleWorkspaceIds = [...new Set([...(membershipsResult.data ?? []).map((row) => String(row.workspace_id)), ...(ownedWorkspacesResult.data ?? []).map((row) => String(row.id))])];
+	const providerLinksResult = await dataClient.from("provider_account_links").select("provider_slug,workspace_id,role,status").in("workspace_id", accessibleWorkspaceIds.length ? accessibleWorkspaceIds : ["00000000-0000-0000-0000-000000000000"]).in("status", ["pending", "active"]);
+	if (providerLinksResult.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	const platformRole = String(platformUserResult.data?.role ?? "user").toLowerCase();
+	const providerSlugs = (providerLinksResult.data ?? []).map((link) => String(link.provider_slug));
+	const baseAccountContext = {
+		platformRole,
+		isInternalAdmin: platformRole === "admin",
+		isProvider: providerSlugs.length > 0,
+		providerSlugs,
+	};
 	const workspaceId = c.req.query("workspaceId")?.trim();
 	if (!workspaceId) {
 		return c.json({
@@ -137,6 +158,7 @@ accountSettingsRouter.get("/layout", async (c) => {
 			signedIn: true,
 			workspaceId: null,
 			workspaceName: null,
+			accountContext: { ...baseAccountContext, workspaceRole: null, workspaceKind: null, workspaceExperience: null, experiences: ["self_serve", ...(providerSlugs.length ? ["provider"] : []), ...(platformRole === "admin" ? ["internal"] : [])] },
 		}, 200, PRIVATE_NO_STORE_HEADERS);
 	}
 	const context = await requireAccountWorkspace({
@@ -147,7 +169,7 @@ accountSettingsRouter.get("/layout", async (c) => {
 	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
 	const { data, error } = await context.client
 		.from("workspaces")
-		.select("name,tier,billing_mode")
+		.select("name,tier,billing_mode,workspace_kind")
 		.eq("id", context.workspaceId)
 		.maybeSingle();
 	if (error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
@@ -159,6 +181,13 @@ accountSettingsRouter.get("/layout", async (c) => {
 		signedIn: true,
 		workspaceId: context.workspaceId,
 		workspaceName: data?.name ?? null,
+		accountContext: {
+			...baseAccountContext,
+			workspaceRole: context.role,
+			workspaceKind: data?.workspace_kind ?? "personal",
+			workspaceExperience: data?.workspace_kind === "provider" ? "provider" : String(data?.tier ?? "basic").toLowerCase() === "enterprise" ? "enterprise" : "self_serve",
+			experiences: [data?.workspace_kind === "provider" ? "provider" : String(data?.tier ?? "basic").toLowerCase() === "enterprise" ? "enterprise" : "self_serve", ...(providerSlugs.length && data?.workspace_kind !== "provider" ? ["provider"] : []), ...(platformRole === "admin" ? ["internal"] : [])],
+		},
 	}, 200, PRIVATE_NO_STORE_HEADERS);
 });
 

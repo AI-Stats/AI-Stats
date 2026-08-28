@@ -53,4 +53,10 @@ describe("settings sidebar navigation", () => {
 			],
 		}]);
 	});
+
+	it("shows provider review only to internal users", () => {
+		const labels = (showInternal: boolean) => getSettingsSidebar({ showInternal }).flatMap((group) => group.items.map((item) => item.label));
+		expect(labels(false)).not.toContain("Provider review");
+		expect(labels(true)).toContain("Provider review");
+	});
 });
