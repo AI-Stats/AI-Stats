@@ -2522,6 +2522,45 @@
       "rate_limits": []
     },
     {
+      "api_model_id": "deepseek/deepseek-v4-pro-0813",
+      "canonical_model_id": "deepseek/deepseek-v4-pro-0813",
+      "provider_api_model_id": "weights-and-biases:deepseek/deepseek-v4-pro-0813",
+      "provider_model_slug": "deepseek-ai/DeepSeek-V4-Pro-0813",
+      "internal_model_id": "deepseek/deepseek-v4-pro-0813",
+      "is_active_gateway": true,
+      "quantization_scheme": null,
+      "input_modalities": "text",
+      "output_modalities": "text",
+      "context_length": 1000000,
+      "max_output_tokens": 393216,
+      "effective_from": "2026-08-28T00:00:00Z",
+      "effective_to": null,
+      "capabilities": [{
+        "capability_id":"text.generate",
+        "status":"active",
+        "params":["max_tokens","temperature","top_p","stop","frequency_penalty","presence_penalty","response_format","tools","tool_choice","reasoning"],
+        "reasoning":true,
+        "tool_call":true,
+        "structured_output":true,
+        "temperature":true,
+        "attachment":false,
+        "input_modalities":["text"],
+        "output_modalities":["text"],
+        "modes":[]
+      }],
+      "routing_status": "active",
+      "routable": true,
+      "regions": {"execution":null,"data":null},
+      "service_tiers": ["standard"],
+      "api": {"formats":["openai.chat.completions"],"endpoint":"/v1/chat/completions","deployment":"serverless"},
+      "sources": [
+        {"kind":"provider_models","url":"https://api.inference.wandb.ai/v1/models","accessed_at":"2026-08-28T00:00:00Z","notes":"W&B's live authenticated models endpoint reports deepseek-ai/DeepSeek-V4-Pro-0813 availability and pricing metadata."},
+        {"kind":"provider_pricing","url":"https://wandb.ai/site/pricing/tokens/","accessed_at":"2026-08-28T00:00:00Z","notes":"W&B's hosted-model pricing surface documents per-million-token input, cache-hit, and output billing."}
+      ],
+      "verification": {"status":"verified","checked_at":"2026-08-28T00:00:00Z","notes":"Exact model ID, availability, context, features, and pricing verified against W&B's authenticated serverless model surface."},
+      "rate_limits": []
+    },
+    {
       "api_model_id": "z-ai/glm-5.3-flash",
       "provider_api_model_id": "weights-and-biases:z-ai/glm-5.3-flash",
       "provider_model_slug": "zai-org/GLM-5.3-Flash",
