@@ -384,6 +384,7 @@ describe('pricing safety checks', () => {
                     ['input_text_tokens', 0.75, 1.5],
                     ['cached_read_text_tokens', 0.075, 0.15],
                     ['output_text_tokens', 3.75, 7.5],
+                    ['cached_read_audio_tokens', 0.0375, 0.075],
                 ],
                 effective_from: '2026-08-13T00:00:00Z',
                 effective_to: '2027-01-01T00:00:00Z',
