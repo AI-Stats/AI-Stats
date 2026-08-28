@@ -29,7 +29,41 @@ import {
     stealthRouteIds,
     isProtectedProviderModel,
     canonicalServiceTierSlug,
+    resolveCapabilityDataPolicy,
 } from "./v2";
+
+describe("capability data policy resolution", () => {
+    const provider = {
+        capability_data_policies: {
+            "text.generate": {
+                tier: "private",
+                confidence: "confirmed",
+                zdrEligibility: "eligible",
+                retentionMode: "transient",
+                retentionDays: 0,
+            },
+        },
+        capability_data_policy_exclusions: [
+            { capability_id: "text.generate", provider_model_slug_prefix: "labs-" },
+        ],
+    };
+
+    it("uses the provider default for an eligible capability", () => {
+        expect(resolveCapabilityDataPolicy(provider, "text.generate", "mistral-small-4"))
+            .toMatchObject({ tier: "private", zdrEligibility: "eligible" });
+    });
+
+    it("does not apply a stateless default to excluded Labs models", () => {
+        expect(resolveCapabilityDataPolicy(provider, "text.generate", "labs-mistral-small-4"))
+            .toBeNull();
+    });
+
+    it("lets an explicit capability policy override the provider default", () => {
+        const explicit = { tier: "logs", confidence: "confirmed", zdrEligibility: "ineligible", retentionMode: "until_deleted" };
+        expect(resolveCapabilityDataPolicy(provider, "text.generate", "mistral-small-4", explicit))
+            .toEqual(explicit);
+    });
+});
 
 describe("service tier canonicalization", () => {
     it("stores fast as the canonical priority tier", () => {

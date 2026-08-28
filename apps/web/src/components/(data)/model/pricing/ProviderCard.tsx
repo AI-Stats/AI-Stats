@@ -2351,8 +2351,13 @@ export default function ProviderCard({
 		providerModelSlugs: tableProviderModelSlugs,
 		apiModelIds: tableProviderApiModelIds,
 		quantizationScheme,
-		dataPolicy: [
-			{
+		dataPolicy: (() => {
+			const tierPolicy = provider.provider.service_tier_data_policies?.[selectedPlan] ?? null;
+			const capabilityPolicies = infoScope
+				.map((providerModel) => providerModel.data_policy)
+				.filter((policy): policy is NonNullable<typeof policy> => Boolean(policy));
+			const policies = tierPolicy ? [tierPolicy] : capabilityPolicies;
+			if (!policies.length) return [{
 				tier: provider.provider.data_policy_tier ?? null,
 				confidence: provider.provider.data_policy_confidence ?? null,
 				contractMode: provider.provider.data_policy_contract_mode ?? null,
@@ -2361,8 +2366,22 @@ export default function ProviderCard({
 				sourceUrl: provider.provider.prompt_training_source_url ?? null,
 				promptTrainingPolicy: provider.provider.prompt_training_policy ?? null,
 				zeroDataRetention: provider.provider.zero_data_retention ?? null,
-			},
-		],
+			}];
+			return policies.map((policy) => ({
+				tier: policy.tier ?? null,
+				confidence: policy.confidence ?? null,
+				contractMode: provider.provider.data_policy_contract_mode ?? null,
+				contractNotes: provider.provider.data_policy_contract_notes ?? null,
+				notes: policy.reason ?? provider.provider.prompt_training_notes ?? null,
+				sourceUrl: policy.evidenceUrl ?? provider.provider.prompt_training_source_url ?? null,
+				promptTrainingPolicy: provider.provider.prompt_training_policy ?? null,
+				zeroDataRetention: policy.zdrEligibility === "eligible"
+					? true
+					: policy.zdrEligibility === "ineligible"
+						? false
+						: provider.provider.zero_data_retention ?? null,
+			}));
+		})(),
 		residency: [
 			{
 				residencyMode: provider.provider.residency_mode ?? null,
@@ -2748,14 +2767,25 @@ export default function ProviderCard({
 	const availabilitySectionId = `${sheetSectionPrefix}-availability`;
 	const dataPolicySectionId = `${sheetSectionPrefix}-data-policy`;
 	const parametersSectionId = `${sheetSectionPrefix}-parameters`;
+	const selectedTierPolicy = provider.provider.service_tier_data_policies?.[selectedPlan] ?? null;
+	const selectedCapabilityPolicies = providerModelsInScope
+		.map((providerModel) => providerModel.data_policy)
+		.filter((policy): policy is NonNullable<typeof policy> => Boolean(policy));
+	const selectedDataPolicy = selectedTierPolicy ?? selectedCapabilityPolicies[0] ?? null;
 	const dataPolicySummary = [
 		{
 			label: "Data Policy",
-			value: formatPolicyValue(provider.provider.data_policy_tier),
+			value: formatPolicyValue(selectedDataPolicy?.tier ?? provider.provider.data_policy_tier),
 		},
 		{
 			label: "ZDR",
-			value: formatPolicyValue(provider.provider.zero_data_retention),
+			value: formatPolicyValue(
+				selectedDataPolicy?.zdrEligibility === "eligible"
+					? true
+					: selectedDataPolicy?.zdrEligibility === "ineligible"
+						? false
+						: provider.provider.zero_data_retention,
+			),
 		},
 		{
 			label: "Processing",

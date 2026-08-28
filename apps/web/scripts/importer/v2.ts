@@ -45,6 +45,27 @@ function asTextArray(value: unknown): string[] {
     return text ? text.split(",").map(item => item.trim()).filter(Boolean) : [];
 }
 
+export function resolveCapabilityDataPolicy(
+    provider: Record<string, any> | null | undefined,
+    capabilityId: string,
+    providerModelSlug?: unknown,
+    explicitPolicy?: unknown,
+): Record<string, any> | null {
+    if (explicitPolicy && typeof explicitPolicy === "object" && !Array.isArray(explicitPolicy)) {
+        return explicitPolicy as Record<string, any>;
+    }
+    const policy = provider?.capability_data_policies?.[capabilityId];
+    if (!policy || typeof policy !== "object" || Array.isArray(policy)) return null;
+    const modelSlug = String(providerModelSlug ?? "").trim().toLowerCase();
+    const excluded = Array.isArray(provider?.capability_data_policy_exclusions) &&
+        provider.capability_data_policy_exclusions.some((exclusion: Record<string, any>) =>
+            exclusion?.capability_id === capabilityId &&
+            typeof exclusion.provider_model_slug_prefix === "string" &&
+            modelSlug.startsWith(exclusion.provider_model_slug_prefix.trim().toLowerCase()),
+        );
+    return excluded ? null : policy as Record<string, any>;
+}
+
 export function catalogueStatus(value: unknown): string {
     switch (String(value ?? "").trim().toLowerCase().replace(/[\s-]+/g, "_")) {
         case "rumoured": return "rumoured";
@@ -649,6 +670,12 @@ function sourceJsonMaps(): {
                         max_output_tokens: capability.max_output_tokens ?? null,
                         params: capability.params ?? {},
                         notes: capability.notes ?? null,
+                        data_policy: resolveCapabilityDataPolicy(
+                            providers.get(String(providerSlug)),
+                            String(capability.capability_id),
+                            entry.provider_model_slug,
+                            capability.data_policy,
+                        ),
                     });
                 }
             }
@@ -1111,6 +1138,7 @@ export async function syncV2Catalogue(): Promise<void> {
             auth_env: sourceProvider?.auth_env ?? null,
             api_formats: sourceProvider?.api_formats ?? [],
             service_tiers: sourceProvider?.service_tiers ?? [],
+            service_tier_data_policies: sourceProvider?.service_tier_data_policies ?? {},
             sources: sourceProvider?.sources ?? [],
             verification: sourceProvider?.verification ?? null,
             availability:
@@ -1281,6 +1309,7 @@ export async function syncV2Catalogue(): Promise<void> {
             metadata: {
                 source: "json",
                 notes: row.notes ?? null,
+                data_policy: row.data_policy ?? null,
                 capability_evidence: source.providerModels.get(String(row.provider_api_model_id))?.capabilities?.find((capability: Record<string, any>) => capability.capability_id === row.capability_id) ?? null,
             },
         })), row => `${row.provider_model_id}:${row.capability_id}`), "provider_model_id,capability_id");

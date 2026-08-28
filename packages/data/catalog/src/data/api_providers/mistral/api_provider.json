@@ -35,6 +35,85 @@
     "batch",
     "priority"
   ],
+  "capability_data_policies": {
+    "text.generate": {
+      "tier": "private",
+      "confidence": "confirmed",
+      "zdrEligibility": "eligible",
+      "retentionMode": "transient",
+      "retentionDays": 0,
+      "reason": "Mistral documents Zero Data Retention as available for eligible API customers on standard model endpoints by agreement.",
+      "evidenceUrl": "https://docs.mistral.ai/admin/monitor-comply/privacy-data-controls"
+    },
+    "text.embed": {
+      "tier": "private",
+      "confidence": "confirmed",
+      "zdrEligibility": "eligible",
+      "retentionMode": "transient",
+      "retentionDays": 0,
+      "reason": "Mistral documents Zero Data Retention as available for eligible API customers on standard model endpoints by agreement.",
+      "evidenceUrl": "https://docs.mistral.ai/admin/monitor-comply/privacy-data-controls"
+    },
+    "text.moderate": {
+      "tier": "private",
+      "confidence": "confirmed",
+      "zdrEligibility": "eligible",
+      "retentionMode": "transient",
+      "retentionDays": 0,
+      "reason": "Mistral documents Zero Data Retention as available for eligible API customers on standard model endpoints by agreement.",
+      "evidenceUrl": "https://docs.mistral.ai/admin/monitor-comply/privacy-data-controls"
+    },
+    "ocr": {
+      "tier": "private",
+      "confidence": "confirmed",
+      "zdrEligibility": "eligible",
+      "retentionMode": "transient",
+      "retentionDays": 0,
+      "reason": "Mistral documents Zero Data Retention as available for eligible API customers on standard model endpoints by agreement.",
+      "evidenceUrl": "https://docs.mistral.ai/admin/monitor-comply/privacy-data-controls"
+    },
+    "audio.speech": {
+      "tier": "private",
+      "confidence": "confirmed",
+      "zdrEligibility": "eligible",
+      "retentionMode": "transient",
+      "retentionDays": 0,
+      "reason": "Mistral documents Zero Data Retention as available for eligible API customers on standard model endpoints by agreement.",
+      "evidenceUrl": "https://docs.mistral.ai/admin/monitor-comply/privacy-data-controls"
+    },
+    "audio.transcription": {
+      "tier": "private",
+      "confidence": "confirmed",
+      "zdrEligibility": "eligible",
+      "retentionMode": "transient",
+      "retentionDays": 0,
+      "reason": "Mistral documents Zero Data Retention as available for eligible API customers on standard model endpoints by agreement.",
+      "evidenceUrl": "https://docs.mistral.ai/admin/monitor-comply/privacy-data-controls"
+    }
+  },
+  "capability_data_policy_exclusions": [
+    {
+      "capability_id": "text.generate",
+      "provider_model_slug_prefix": "labs-",
+      "reason": "Mistral Labs usage may be used to train Mistral models."
+    },
+    {
+      "capability_id": "text.embed",
+      "provider_model_slug_prefix": "labs-",
+      "reason": "Mistral Labs usage may be used to train Mistral models."
+    }
+  ],
+  "service_tier_data_policies": {
+    "batch": {
+      "tier": "logs",
+      "confidence": "confirmed",
+      "zdrEligibility": "ineligible",
+      "retentionMode": "until_deleted",
+      "retentionDays": null,
+      "reason": "Mistral Batch API data is retained for batch processing and is not covered by the standard endpoint ZDR eligibility.",
+      "evidenceUrl": "https://docs.mistral.ai/capabilities/batch"
+    }
+  },
   "sources": [
     {
       "kind": "official_legal_notice",
