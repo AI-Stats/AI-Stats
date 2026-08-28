@@ -310,6 +310,102 @@ describe('pricing safety checks', () => {
         );
         expect(pricing.rules.some((rule: any) => rule?.pricing_plan === 'flex')).toBe(false);
     });
+
+    test('GLM 5.3 Flash captures provider discounts and active list-price comparisons', () => {
+        for (const provider of ['z-ai', 'gmicloud', 'novita']) {
+            const pricing = readPricingJson(
+                `pricing/${provider}/z-ai-glm-5.3-flash/text.generate/pricing.json`
+            );
+            for (const [meter, discounted, list] of [
+                ['input_text_tokens', 0.075, 0.15],
+                ['cached_read_text_tokens', 0.015, 0.03],
+                ['output_text_tokens', 0.25, 0.5],
+            ] as const) {
+                expect(pricing.rules).toEqual(
+                    expect.arrayContaining([
+                        expect.objectContaining({
+                            meter,
+                            price_per_unit: discounted,
+                            priority: 200,
+                            effective_to: '2026-09-09T16:00:00Z',
+                        }),
+                        expect.objectContaining({
+                            meter,
+                            price_per_unit: list,
+                            priority: 100,
+                            effective_from: '2026-08-26T00:00:00Z',
+                        }),
+                    ])
+                );
+            }
+        }
+
+        const ioNet = readPricingJson(
+            'pricing/io-net/z-ai-glm-5.3-flash/text.generate/pricing.json'
+        );
+        expect(ioNet.rules).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    meter: 'cached_read_text_tokens',
+                    price_per_unit: 0.075,
+                }),
+            ])
+        );
+    });
+
+    test('confirmed provider promotions retain active list-price comparisons', () => {
+        const cases = [
+            {
+                path: 'pricing/friendli/lg-k-exaone-2.0/text.generate/pricing.json',
+                prices: [
+                    ['input_text_tokens', 0.6, 1.2],
+                    ['cached_read_text_tokens', 0.12, 0.24],
+                    ['output_text_tokens', 2.4, 4.8],
+                ],
+            },
+            {
+                path: 'pricing/upstage/upstage-solar-pro-4/text.generate/pricing.json',
+                prices: [
+                    ['input_text_tokens', 0.03, 0.3],
+                    ['cached_read_text_tokens', 0.006, 0.06],
+                    ['output_text_tokens', 0.12, 1.2],
+                ],
+                effective_from: '2026-08-11T00:00:00Z',
+                effective_to: '2026-09-11T00:00:00Z',
+            },
+            ...[
+                ['google-ai-studio', 'google/gemini-3.6-flash'],
+                ['google-ai-studio', 'google/gemini-3.7-flash'],
+                ['google-vertex', 'google/gemini-3.6-flash'],
+                ['google-vertex', 'google/gemini-3.7-flash'],
+            ].map(([provider, model]) => ({
+                path: `pricing/${provider}/${model.replaceAll('/', '-')}/text.generate/pricing.json`,
+                prices: [
+                    ['input_text_tokens', 0.75, 1.5],
+                    ['cached_read_text_tokens', 0.075, 0.15],
+                    ['output_text_tokens', 3.75, 7.5],
+                    ['cached_read_audio_tokens', 0.0375, 0.075],
+                ],
+                effective_from: '2026-08-13T00:00:00Z',
+                effective_to: '2027-01-01T00:00:00Z',
+            })),
+        ];
+
+        for (const entry of cases) {
+            const pricing = readPricingJson(entry.path);
+            for (const [meter, discounted, list] of entry.prices) {
+                const window = entry.effective_from
+                    ? { effective_from: entry.effective_from, effective_to: entry.effective_to }
+                    : {};
+                expect(pricing.rules).toEqual(
+                    expect.arrayContaining([
+                        expect.objectContaining({ meter, price_per_unit: discounted, priority: 200, ...window }),
+                        expect.objectContaining({ meter, price_per_unit: list, priority: 100, ...window }),
+                    ])
+                );
+            }
+        }
+    });
 });
 
 describe('api provider model safety checks', () => {
