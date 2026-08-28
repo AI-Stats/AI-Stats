@@ -5314,6 +5314,46 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "z-ai/glm-5.3",
+    "canonical_model_id": "z-ai/glm-5.3",
+    "provider_api_model_id": "gmicloud:zai-org/GLM-5.3",
+    "provider_model_slug": "zai-org/GLM-5.3",
+    "internal_model_id": "z-ai/glm-5.3",
+    "is_active_gateway": true,
+    "quantization_scheme": "FP8",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-28T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [{
+      "capability_id":"text.generate",
+      "status":"active",
+      "params":["reasoning","include_reasoning","max_tokens","temperature","top_p","stop","frequency_penalty","presence_penalty","response_format","tools","tool_choice","reasoning_effort"],
+      "reasoning":true,
+      "tool_call":true,
+      "structured_output":true,
+      "temperature":true,
+      "attachment":false,
+      "input_modalities":["text"],
+      "output_modalities":["text"],
+      "modes":[]
+    }],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {"execution":null,"data":null},
+    "service_tiers": ["standard"],
+    "api": {"formats":["openai.chat.completions"],"endpoint":"/chat/completions","deployment":"serverless"},
+    "sources": [
+      {"kind":"provider_models","url":"https://api.gmi-serving.com/v1/models","accessed_at":"2026-08-28T00:00:00Z","notes":"GMICloud's live authenticated model catalog lists the exact zai-org/GLM-5.3 slug."},
+      {"kind":"provider_console","url":"https://console.gmicloud.ai/user-console/ie/model-hub","accessed_at":"2026-08-28T00:00:00Z","notes":"Authenticated Model Hub reports FP8 quantization, a 1,048,576-token context window, and current token pricing."},
+      {"kind":"documentation","url":"https://www.gmicloud.ai/en/blog/glm-53-ships-as-the-strongest-coding-model-among-open-weight-labs","accessed_at":"2026-08-28T00:00:00Z","notes":"GMICloud documents GLM-5.3 reasoning effort levels and OpenAI-compatible migration behavior."}
+    ],
+    "verification": {"status":"verified","checked_at":"2026-08-28T00:00:00Z","notes":"Exact slug, availability, quantization, context, API compatibility, and pricing verified against GMICloud's authenticated model surfaces and documentation."},
+    "rate_limits": []
+  },
+  {
     "api_model_id": "z-ai/glm-5.3-flash",
     "provider_api_model_id": "gmicloud:zai-org/GLM-5.3-Flash",
     "provider_model_slug": "zai-org/GLM-5.3-Flash",
