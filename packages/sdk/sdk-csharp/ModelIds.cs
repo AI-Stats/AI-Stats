@@ -310,6 +310,8 @@ namespace PhaseoSdk
         public const string InclusionaiLing26Flash = "inclusionai/ling-2.6-flash";
         /// <summary>Model ID: <c>inclusionai/ling-3.0-flash</c>. Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash</summary>
         public const string InclusionaiLing30Flash = "inclusionai/ling-3.0-flash";
+        /// <summary>Model ID: <c>inclusionai/ling-3.0-flash-fin</c>. Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash-fin</summary>
+        public const string InclusionaiLing30FlashFin = "inclusionai/ling-3.0-flash-fin";
         /// <summary>Model ID: <c>inclusionai/ling-flash-2.0</c>. Model page: https://phaseo.app/models/inclusionai/ling-flash-2.0</summary>
         public const string InclusionaiLingFlash20 = "inclusionai/ling-flash-2.0";
         /// <summary>Model ID: <c>inclusionai/ring-2.6-1t</c>. Model page: https://phaseo.app/models/inclusionai/ring-2.6-1t</summary>
@@ -978,6 +980,8 @@ namespace PhaseoSdk
         public const string TencentHy3Preview = "tencent/hy3-preview";
         /// <summary>Model ID: <c>tencent/hy3:free</c>. Model page: https://phaseo.app/models/tencent/hy3%3Afree</summary>
         public const string TencentHy3Free = "tencent/hy3:free";
+        /// <summary>Model ID: <c>tencent/hy4-preview</c>. Model page: https://phaseo.app/models/tencent/hy4-preview</summary>
+        public const string TencentHy4Preview = "tencent/hy4-preview";
         /// <summary>Model ID: <c>thinking-machines/inkling</c>. Model page: https://phaseo.app/models/thinking-machines/inkling</summary>
         public const string ThinkingMachinesInkling = "thinking-machines/inkling";
         /// <summary>Model ID: <c>thinking-machines/inkling-small</c>. Model page: https://phaseo.app/models/thinking-machines/inkling-small</summary>

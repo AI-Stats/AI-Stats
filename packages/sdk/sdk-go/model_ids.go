@@ -463,6 +463,9 @@ const (
 	// Model ID: inclusionai/ling-3.0-flash
 	// Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash
 	ModelIDInclusionaiLing30Flash gen.ModelId = "inclusionai/ling-3.0-flash"
+	// Model ID: inclusionai/ling-3.0-flash-fin
+	// Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash-fin
+	ModelIDInclusionaiLing30FlashFin gen.ModelId = "inclusionai/ling-3.0-flash-fin"
 	// Model ID: inclusionai/ling-flash-2.0
 	// Model page: https://phaseo.app/models/inclusionai/ling-flash-2.0
 	ModelIDInclusionaiLingFlash20 gen.ModelId = "inclusionai/ling-flash-2.0"
@@ -1465,6 +1468,9 @@ const (
 	// Model ID: tencent/hy3:free
 	// Model page: https://phaseo.app/models/tencent/hy3%3Afree
 	ModelIDTencentHy3Free gen.ModelId = "tencent/hy3:free"
+	// Model ID: tencent/hy4-preview
+	// Model page: https://phaseo.app/models/tencent/hy4-preview
+	ModelIDTencentHy4Preview gen.ModelId = "tencent/hy4-preview"
 	// Model ID: thinking-machines/inkling
 	// Model page: https://phaseo.app/models/thinking-machines/inkling
 	ModelIDThinkingMachinesInkling gen.ModelId = "thinking-machines/inkling"
@@ -1841,6 +1847,7 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDInclusionaiLing261t,
 	ModelIDInclusionaiLing26Flash,
 	ModelIDInclusionaiLing30Flash,
+	ModelIDInclusionaiLing30FlashFin,
 	ModelIDInclusionaiLingFlash20,
 	ModelIDInclusionaiRing261t,
 	ModelIDInclusionaiRingFlash20,
@@ -2175,6 +2182,7 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDTencentHy3,
 	ModelIDTencentHy3Preview,
 	ModelIDTencentHy3Free,
+	ModelIDTencentHy4Preview,
 	ModelIDThinkingMachinesInkling,
 	ModelIDThinkingMachinesInklingSmall,
 	ModelIDUpstageSolarEmbedding1LargePassage,

@@ -489,6 +489,7 @@ export type KnownModelId =
   | "tencent/hy3"
   | "tencent/hy3-preview"
   | "tencent/hy3:free"
+  | "tencent/hy4-preview"
   | "thinking-machines/inkling"
   | "thinking-machines/inkling-small"
   | "upstage/solar-embedding-1-large-passage"

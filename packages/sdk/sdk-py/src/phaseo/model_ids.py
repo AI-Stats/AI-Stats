@@ -618,6 +618,10 @@ class ModelIds:
     # Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash
     INCLUSIONAI_LING_3_0_FLASH: Final[str] = "inclusionai/ling-3.0-flash"
 
+    # Model ID: inclusionai/ling-3.0-flash-fin
+    # Model page: https://phaseo.app/models/inclusionai/ling-3.0-flash-fin
+    INCLUSIONAI_LING_3_0_FLASH_FIN: Final[str] = "inclusionai/ling-3.0-flash-fin"
+
     # Model ID: inclusionai/ling-flash-2.0
     # Model page: https://phaseo.app/models/inclusionai/ling-flash-2.0
     INCLUSIONAI_LING_FLASH_2_0: Final[str] = "inclusionai/ling-flash-2.0"
@@ -1954,6 +1958,10 @@ class ModelIds:
     # Model page: https://phaseo.app/models/tencent/hy3%3Afree
     TENCENT_HY3_FREE: Final[str] = "tencent/hy3:free"
 
+    # Model ID: tencent/hy4-preview
+    # Model page: https://phaseo.app/models/tencent/hy4-preview
+    TENCENT_HY4_PREVIEW: Final[str] = "tencent/hy4-preview"
+
     # Model ID: thinking-machines/inkling
     # Model page: https://phaseo.app/models/thinking-machines/inkling
     THINKING_MACHINES_INKLING: Final[str] = "thinking-machines/inkling"
@@ -2404,6 +2412,7 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.INCLUSIONAI_LING_2_6_1T,
         ModelIds.INCLUSIONAI_LING_2_6_FLASH,
         ModelIds.INCLUSIONAI_LING_3_0_FLASH,
+        ModelIds.INCLUSIONAI_LING_3_0_FLASH_FIN,
         ModelIds.INCLUSIONAI_LING_FLASH_2_0,
         ModelIds.INCLUSIONAI_RING_2_6_1T,
         ModelIds.INCLUSIONAI_RING_FLASH_2_0,
@@ -2738,6 +2747,7 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.TENCENT_HY3,
         ModelIds.TENCENT_HY3_PREVIEW,
         ModelIds.TENCENT_HY3_FREE,
+        ModelIds.TENCENT_HY4_PREVIEW,
         ModelIds.THINKING_MACHINES_INKLING,
         ModelIds.THINKING_MACHINES_INKLING_SMALL,
         ModelIds.UPSTAGE_SOLAR_EMBEDDING_1_LARGE_PASSAGE,
