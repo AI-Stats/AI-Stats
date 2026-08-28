@@ -3929,18 +3929,20 @@
     "quantization_scheme": null,
     "input_modalities": "text",
     "output_modalities": "text",
-    "context_length": null,
-    "max_output_tokens": null,
+    "context_length": 1048576,
+    "max_output_tokens": 1048576,
     "effective_from": "2026-08-28T22:47:52Z",
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
         "status": "active",
-        "params": [],
+        "params": [
+          {"name": "reasoning_effort", "type": "enum", "required": false, "values": ["low", "high", "max"], "default": "max"}
+        ],
         "reasoning": true,
-        "tool_call": null,
-        "structured_output": null,
+        "tool_call": true,
+        "structured_output": true,
         "temperature": null,
         "attachment": false,
         "input_modalities": ["text"],
@@ -3959,12 +3961,67 @@
         "url": "https://inference.do-ai.run/v1/models",
         "accessed_at": "2026-08-28T22:47:52Z",
         "notes": "DigitalOcean's authenticated live model feed lists the exact glm-5.3 serverless model slug."
+      },
+      {
+        "kind": "provider_docs",
+        "url": "https://cloud.digitalocean.com/model-studio/explore-models/model-catalog",
+        "accessed_at": "2026-08-28T22:52:07Z",
+        "notes": "DigitalOcean's authenticated model catalog verifies the context window, output limit, reasoning levels, tool calling, structured output, Responses support, modalities, and serverless availability."
       }
     ],
     "verification": {
-      "status": "partial",
-      "checked_at": "2026-08-28T22:47:52Z",
-      "notes": "Exact live model slug verified from DigitalOcean's model feed. Limits, model-specific capabilities, and pricing remain unpublished, and gateway routing remains disabled pending integration."
+      "status": "verified",
+      "checked_at": "2026-08-28T22:52:07Z",
+      "notes": "Verified against DigitalOcean's authenticated model catalog; gateway routing remains disabled pending integration."
+    },
+    "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-5.3-flash",
+    "canonical_model_id": "z-ai/glm-5.3-flash",
+    "provider_api_model_id": "digitalocean:glm-5.3-flash",
+    "provider_model_slug": "glm-5.3-flash",
+    "internal_model_id": "z-ai/glm-5.3-flash",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text,image,video",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 1048576,
+    "effective_from": "2026-08-28T22:52:07Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": true,
+        "input_modalities": ["text", "image", "video"],
+        "output_modalities": ["text"],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {"execution": ["global"], "data": ["global"]},
+    "service_tiers": [],
+    "api": {"formats": [], "endpoint": null, "deployment": null},
+    "sources": [
+      {
+        "kind": "provider_docs",
+        "url": "https://cloud.digitalocean.com/model-studio/explore-models/model-catalog",
+        "accessed_at": "2026-08-28T22:52:07Z",
+        "notes": "DigitalOcean's authenticated model catalog verifies the glm-5.3-flash slug, 320B parameter count, 1M context, multimodal inputs, reasoning, tool calling, Responses support, and serverless availability."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-28T22:52:07Z",
+      "notes": "Verified against DigitalOcean's authenticated model catalog; gateway routing remains disabled pending integration."
     },
     "rate_limits": []
   }
