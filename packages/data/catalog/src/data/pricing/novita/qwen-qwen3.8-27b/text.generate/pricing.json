@@ -9,10 +9,10 @@
       "meter": "input_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.5,
+      "price_per_unit": 0.42,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Novita models endpoint pricing checked 2026-08-27: $0.50 per 1M input tokens.",
+      "note": "Novita models endpoint pricing checked 2026-08-28: $0.42 per 1M input tokens.",
       "match": [],
       "priority": 100,
       "region": null,
@@ -24,10 +24,10 @@
       "meter": "cached_read_text_tokens",
       "unit": "token",
       "unit_size": 1000000,
-      "price_per_unit": 0.1,
+      "price_per_unit": 0.085,
       "currency": "USD",
       "pricing_plan": "standard",
-      "note": "Novita models endpoint pricing checked 2026-08-27: $0.10 per 1M cache-read tokens.",
+      "note": "Novita models endpoint pricing checked 2026-08-28: $0.085 per 1M cache-read tokens.",
       "match": [],
       "priority": 100,
       "region": null,
@@ -59,13 +59,13 @@
     {
       "url": "https://api.novita.ai/openai/v1/models",
       "kind": "pricing",
-      "accessed_at": "2026-08-27T00:00:00Z",
+      "accessed_at": "2026-08-28T00:00:00Z",
       "notes": "Direct Novita model endpoint reports input, cache-read, and output pricing for qwen/qwen3.8-27b."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-27T00:00:00Z",
+    "checked_at": "2026-08-28T00:00:00Z",
     "notes": "Verified from the live Novita OpenAI-compatible models endpoint."
   }
 }
