@@ -60,8 +60,9 @@ export function resolveCapabilityDataPolicy(
     const excluded = Array.isArray(provider?.capability_data_policy_exclusions) &&
         provider.capability_data_policy_exclusions.some((exclusion: Record<string, any>) =>
             exclusion?.capability_id === capabilityId &&
-            typeof exclusion.provider_model_slug_prefix === "string" &&
-            modelSlug.startsWith(exclusion.provider_model_slug_prefix.trim().toLowerCase()),
+            (exclusion.provider_model_slug_prefix == null ||
+                (typeof exclusion.provider_model_slug_prefix === "string" &&
+                    modelSlug.startsWith(exclusion.provider_model_slug_prefix.trim().toLowerCase()))),
         );
     return excluded ? null : policy as Record<string, any>;
 }

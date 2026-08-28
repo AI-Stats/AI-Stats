@@ -403,7 +403,8 @@ function UptimeHeaderHoverContent() {
 
 function getIgnoredPrivacyReasons(
     provider: ProviderPricing,
-    settings: WorkspacePrivacySettings
+    settings: WorkspacePrivacySettings,
+    plan = getProviderDefaultPlan(provider),
 ): string[] {
     const reasons: string[] = [];
     const providerId = provider.provider.api_provider_id;
@@ -425,7 +426,7 @@ function getIgnoredPrivacyReasons(
     }
 
     if (settings.privacyZdrOnly) {
-        if (provider.provider.zero_data_retention !== true) {
+        if (getPlanZdrEligibility(provider, plan) !== true) {
             reasons.push("Does not meet workspace ZDR-only requirement");
         }
     }
@@ -447,18 +448,46 @@ function matchesPrivacyFilter(
     provider: ProviderPricing,
     filter: PrivacyFilter,
     workspacePrivacySettings: WorkspacePrivacySettings | null,
+    plan = getProviderDefaultPlan(provider),
 ): boolean {
     if (filter === "all") return true;
     if (filter === "zdr") {
-        return provider.provider.zero_data_retention === true;
+        return getPlanZdrEligibility(provider, plan) === true;
     }
     if (filter === "no_training") {
         return getProviderPromptTrainingPolicy(provider) !== "may_train";
     }
     if (!workspacePrivacySettings?.isAuthenticated) return true;
-	return getIgnoredPrivacyReasons(provider, workspacePrivacySettings)
+        return getIgnoredPrivacyReasons(provider, workspacePrivacySettings, plan)
 		.filter((reason) => !reason.includes("account provider"))
 		.length === 0;
+}
+
+function getPlanZdrEligibility(
+    provider: ProviderPricing,
+    plan: string,
+): boolean | null {
+    const tierPolicy = provider.provider.service_tier_data_policies?.[plan] ?? null;
+    const tierEligibility = tierPolicy?.zdrEligibility;
+    if (tierEligibility === "eligible") return true;
+    if (tierEligibility === "ineligible") return false;
+
+    const providerModels = getProviderModelScopeForPlan(provider, plan);
+    const capabilityPolicies = providerModels.map((providerModel) => providerModel.data_policy);
+    const policiesWithData = capabilityPolicies.filter(
+        (policy): policy is NonNullable<typeof policy> => Boolean(policy),
+    );
+    if (!policiesWithData.length) return provider.provider.zero_data_retention ?? null;
+    if (policiesWithData.length !== capabilityPolicies.length) return null;
+
+    const eligibilities = new Set(
+        policiesWithData.map((policy) => policy.zdrEligibility ?? null),
+    );
+    if (eligibilities.size !== 1) return null;
+    const eligibility = policiesWithData[0]?.zdrEligibility;
+    if (eligibility === "eligible") return true;
+    if (eligibility === "ineligible") return false;
+    return provider.provider.zero_data_retention ?? null;
 }
 
 function formatServiceTierLabel(plan: string): string {
@@ -1044,15 +1073,24 @@ export default function ModelPricingClient({
         const ignoredReasonMap = new Map<string, string[]>();
         for (const provider of sortedProviders) {
             const reasons = workspacePrivacySettings?.isAuthenticated
-                ? getIgnoredPrivacyReasons(provider, workspacePrivacySettings)
+                ? getIgnoredPrivacyReasons(
+                      provider,
+                      workspacePrivacySettings,
+                      getProviderDefaultPlan(provider),
+                  )
                 : [];
             if (reasons.length) {
                 ignoredReasonMap.set(provider.provider.api_provider_id, reasons);
             }
         }
 
-        const filteredProviders = sortedProviders.filter((provider) =>
-			matchesPrivacyFilter(provider, privacyFilter, workspacePrivacySettings),
+		const filteredProviders = sortedProviders.filter((provider) =>
+			matchesPrivacyFilter(
+				provider,
+				privacyFilter,
+				workspacePrivacySettings,
+				getProviderDefaultPlan(provider),
+			),
 		);
 		filteredProviders.sort((a, b) => {
 			const aAccountBlocked = (ignoredReasonMap.get(a.provider.api_provider_id) ?? []).some((reason) => reason.includes("account provider"));
@@ -1511,6 +1549,14 @@ export default function ModelPricingClient({
                                             const alternativePlans = availablePlans.filter(
                                                 (plan) => plan !== defaultPlan,
                                             );
+                                            const visibleAlternativePlans = alternativePlans.filter((plan) =>
+                                                matchesPrivacyFilter(
+                                                    prov,
+                                                    privacyFilter,
+                                                    workspacePrivacySettings,
+                                                    plan,
+                                                ),
+                                            );
                                             const isTiersExpanded = expandedProviderTiers.has(providerId);
 
                                             return (
@@ -1537,17 +1583,17 @@ export default function ModelPricingClient({
                                                         showCacheReadColumn={showCacheReadColumn}
                                                         isLastVisible={
                                                             index === visibleProviders.length - 1 &&
-                                                            !isTiersExpanded
+                                                            (!isTiersExpanded || visibleAlternativePlans.length === 0)
                                                         }
                                                         serviceTiersExpanded={isTiersExpanded}
                                                         onToggleServiceTiers={
-                                                            alternativePlans.length > 0
+                                                            visibleAlternativePlans.length > 0
                                                                 ? () => toggleProviderTiers(providerId)
                                                                 : undefined
                                                         }
                                                     />
                                                     {isTiersExpanded
-                                                        ? alternativePlans.map((plan) => (
+                                                        ? visibleAlternativePlans.map((plan) => (
                                                               <ProviderServiceTierRow
                                                                   key={`${providerId}-${plan}`}
                                                                   provider={prov}

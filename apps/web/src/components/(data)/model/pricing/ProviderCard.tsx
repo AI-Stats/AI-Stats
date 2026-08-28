@@ -614,6 +614,21 @@ function formatPolicyValue(value: string | boolean | null | undefined): string {
 		.replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
+const DATA_POLICY_FIELDS = [
+	"tier",
+	"confidence",
+	"zdrEligibility",
+	"retentionMode",
+	"retentionDays",
+] as const;
+
+function dataPoliciesMatch(
+	a: NonNullable<ProviderPricing["provider_models"][number]["data_policy"]>,
+	b: NonNullable<ProviderPricing["provider_models"][number]["data_policy"]>,
+): boolean {
+	return DATA_POLICY_FIELDS.every((field) => (a[field] ?? null) === (b[field] ?? null));
+}
+
 function getPlanTheme(plan: string) {
 	switch (plan) {
 		case "free":
@@ -2783,24 +2798,41 @@ export default function ProviderCard({
 	const dataPolicySectionId = `${sheetSectionPrefix}-data-policy`;
 	const parametersSectionId = `${sheetSectionPrefix}-parameters`;
 	const selectedTierPolicy = provider.provider.service_tier_data_policies?.[selectedPlan] ?? null;
-	const selectedCapabilityPolicies = providerModelsInScope
-		.map((providerModel) => providerModel.data_policy)
-		.filter((policy): policy is NonNullable<typeof policy> => Boolean(policy));
-	const selectedDataPolicy = selectedTierPolicy ?? selectedCapabilityPolicies[0] ?? null;
+	const scopedCapabilityPolicies = providerModelsInScope.map((providerModel) => providerModel.data_policy ?? null);
+	const selectedCapabilityPolicies = scopedCapabilityPolicies.filter(
+		(policy): policy is NonNullable<typeof policy> => Boolean(policy),
+	);
+	const firstCapabilityPolicy = selectedCapabilityPolicies[0] ?? null;
+	const hasMixedCapabilityPolicies =
+		!selectedTierPolicy &&
+		selectedCapabilityPolicies.length > 0 &&
+		(selectedCapabilityPolicies.length !== scopedCapabilityPolicies.length ||
+			(firstCapabilityPolicy
+				? !selectedCapabilityPolicies.every((policy) =>
+						dataPoliciesMatch(policy, firstCapabilityPolicy),
+					)
+				: false));
+	const selectedDataPolicy =
+		selectedTierPolicy ??
+		(hasMixedCapabilityPolicies ? null : firstCapabilityPolicy);
+	const selectedDataPolicyTier = hasMixedCapabilityPolicies
+		? null
+		: selectedDataPolicy?.tier ?? provider.provider.data_policy_tier;
+	const selectedZdr = hasMixedCapabilityPolicies
+		? null
+		: selectedDataPolicy?.zdrEligibility === "eligible"
+			? true
+			: selectedDataPolicy?.zdrEligibility === "ineligible"
+				? false
+				: provider.provider.zero_data_retention;
 	const dataPolicySummary = [
 		{
 			label: "Data Policy",
-			value: formatPolicyValue(selectedDataPolicy?.tier ?? provider.provider.data_policy_tier),
+			value: formatPolicyValue(selectedDataPolicyTier),
 		},
 		{
 			label: "ZDR",
-			value: formatPolicyValue(
-				selectedDataPolicy?.zdrEligibility === "eligible"
-					? true
-					: selectedDataPolicy?.zdrEligibility === "ineligible"
-						? false
-						: provider.provider.zero_data_retention,
-			),
+			value: formatPolicyValue(selectedZdr),
 		},
 		{
 			label: "Processing",

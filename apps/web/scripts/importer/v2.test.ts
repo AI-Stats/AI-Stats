@@ -58,6 +58,14 @@ describe("capability data policy resolution", () => {
             .toBeNull();
     });
 
+    it("supports capability-wide exclusions without a model prefix", () => {
+        expect(resolveCapabilityDataPolicy({
+            ...provider,
+            capability_data_policy_exclusions: [{ capability_id: "text.generate" }],
+        }, "text.generate", "mistral-small-4"))
+            .toBeNull();
+    });
+
     it("lets an explicit capability policy override the provider default", () => {
         const explicit = { tier: "logs", confidence: "confirmed", zdrEligibility: "ineligible", retentionMode: "until_deleted" };
         expect(resolveCapabilityDataPolicy(provider, "text.generate", "mistral-small-4", explicit))
