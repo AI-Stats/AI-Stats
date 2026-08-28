@@ -31,6 +31,7 @@ import {
 	buildModelOverviewMetadataTitle,
 } from "@/lib/models/modelDescription";
 import { notFound, permanentRedirect } from "next/navigation";
+import { connection } from "next/server";
 import { Suspense } from "react";
 import { isFreeRouterModelId } from "@/lib/models/freeRouter";
 import FreeRouterOverview from "@/components/(data)/model/free-router/FreeRouterOverview";
@@ -195,6 +196,7 @@ export default async function Page({
 }: {
 	params: Promise<ModelRouteParams>;
 }) {
+	await connection();
 	const routeParams = await params;
 	const includeHidden = false;
 	const { requestedModelId, canonicalModelId } = await resolveModelRouteIds(
