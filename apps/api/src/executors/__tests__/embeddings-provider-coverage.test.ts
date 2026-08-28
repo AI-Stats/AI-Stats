@@ -14,6 +14,7 @@ const KEY_EMBEDDINGS_PROVIDERS = [
 	"voyage",
 	"voyageai",
 	"mistral",
+	"phala",
 ] as const;
 
 const TEXT_ONLY_PROVIDERS = [

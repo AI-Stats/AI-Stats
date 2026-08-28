@@ -16,6 +16,7 @@
       "match": [],
       "priority": 100,
       "effective_from": "2026-05-26T00:00:00Z",
+      "effective_to": "2026-08-28T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
@@ -32,10 +33,59 @@
       "match": [],
       "priority": 100,
       "effective_from": "2026-05-26T00:00:00Z",
+      "effective_to": "2026-08-28T00:00:00Z",
       "region": null,
       "cache_duration_seconds": null,
       "conditions": [],
       "source": null
+    },
+    {
+      "meter": "input_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.15,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Live first-party Phala model catalog price per one million input tokens.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-28T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://inference.phala.com/v1/models"
+    },
+    {
+      "meter": "output_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.45999999999999996,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Live first-party Phala model catalog price per one million output tokens.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-28T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://inference.phala.com/v1/models"
+    },
+    {
+      "meter": "cached_read_text_tokens",
+      "unit": "token",
+      "unit_size": 1000000,
+      "price_per_unit": 0.075,
+      "currency": "USD",
+      "pricing_plan": "standard",
+      "note": "Live first-party Phala model catalog price per one million cached input tokens.",
+      "match": [],
+      "priority": 100,
+      "effective_from": "2026-08-28T00:00:00Z",
+      "region": null,
+      "cache_duration_seconds": null,
+      "conditions": [],
+      "source": "https://inference.phala.com/v1/models"
     }
   ],
   "regions": [],
@@ -45,14 +95,14 @@
   "sources": [
     {
       "kind": "pricing",
-      "url": "https://phala.com/models/google/gemma-4-31b-it",
-      "accessed_at": "2026-08-24T00:00:00Z",
-      "notes": "First-party model page publishes input and output token prices per one million tokens."
+      "url": "https://inference.phala.com/v1/models",
+      "accessed_at": "2026-08-28T00:00:00Z",
+      "notes": "Live first-party Phala model catalog."
     }
   ],
   "verification": {
     "status": "verified",
-    "checked_at": "2026-08-24T00:00:00Z",
-    "notes": "Pricing verified against the live first-party model detail page."
+    "checked_at": "2026-08-28T00:00:00Z",
+    "notes": "Pricing verified against the live first-party Phala catalog."
   }
 }

@@ -218,10 +218,10 @@ async function validateProviderEndpoint(
     setRequiredEnv(provider, rule.modelsEndpoint);
 
     const originalFetch = globalThis.fetch;
-    let requestedUrl = "";
+    const requestedUrls: string[] = [];
 
     globalThis.fetch = (async (input: URL | RequestInfo, init?: RequestInit) => {
-        requestedUrl = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+        requestedUrls.push(typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url);
 
         void init;
 
@@ -241,13 +241,13 @@ async function validateProviderEndpoint(
         globalThis.fetch = originalFetch;
     }
 
-    if (!requestedUrl) {
+    if (requestedUrls.length === 0) {
         errors.push(`Provider ${provider.id} did not perform an HTTP request in fetchModels.`);
         return;
     }
 
-    if (!endpointMatches(requestedUrl, rule.modelsEndpoint)) {
-        errors.push(`Provider ${provider.id} requested ${requestedUrl}, expected ${rule.modelsEndpoint}`);
+    if (!requestedUrls.some((requestedUrl) => endpointMatches(requestedUrl, rule.modelsEndpoint))) {
+        errors.push(`Provider ${provider.id} requested ${requestedUrls.join(", ")}, expected ${rule.modelsEndpoint}`);
     }
 }
 
