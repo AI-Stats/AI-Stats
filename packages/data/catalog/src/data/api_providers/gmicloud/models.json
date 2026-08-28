@@ -5330,10 +5330,10 @@
     "capabilities": [{
       "capability_id":"text.generate",
       "status":"active",
-      "params":["reasoning","include_reasoning","max_tokens","temperature","top_p","stop","frequency_penalty","presence_penalty","response_format","tools","tool_choice","reasoning_effort"],
+      "params":["reasoning","include_reasoning","max_tokens","temperature","top_p","stop","frequency_penalty","presence_penalty","response_format","tools","tool_choice"],
       "reasoning":true,
       "tool_call":true,
-      "structured_output":true,
+      "structured_output":false,
       "temperature":true,
       "attachment":false,
       "input_modalities":["text"],
