@@ -3918,5 +3918,54 @@
     "sources": [{"url":"https://docs.digitalocean.com/products/inference/details/models/","kind":"api_reference","accessed_at":"2026-08-23T00:00:00Z","notes":"Official model catalogue."}],
     "verification": {"status":"verified","checked_at":"2026-08-23T00:00:00Z","notes":"Current serverless model; gateway routing disabled pending integration."},
     "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-5.3",
+    "canonical_model_id": "z-ai/glm-5.3",
+    "provider_api_model_id": "digitalocean:glm-5.3",
+    "provider_model_slug": "glm-5.3",
+    "internal_model_id": "z-ai/glm-5.3",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-28T22:47:52Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [],
+        "reasoning": true,
+        "tool_call": null,
+        "structured_output": null,
+        "temperature": null,
+        "attachment": false,
+        "input_modalities": ["text"],
+        "output_modalities": ["text"],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": false,
+    "regions": {"execution": ["global"], "data": ["global"]},
+    "service_tiers": [],
+    "api": {"formats": [], "endpoint": null, "deployment": null},
+    "sources": [
+      {
+        "kind": "provider_models",
+        "url": "https://inference.do-ai.run/v1/models",
+        "accessed_at": "2026-08-28T22:47:52Z",
+        "notes": "DigitalOcean's authenticated live model feed lists the exact glm-5.3 serverless model slug."
+      }
+    ],
+    "verification": {
+      "status": "partial",
+      "checked_at": "2026-08-28T22:47:52Z",
+      "notes": "Exact live model slug verified from DigitalOcean's model feed. Limits, model-specific capabilities, and pricing remain unpublished, and gateway routing remains disabled pending integration."
+    },
+    "rate_limits": []
   }
 ]
