@@ -211,7 +211,7 @@ accountSettingsTeamsRouter.post("/teams", async (c) => {
 	if (![topUps.count, enterprise.count].some((count) => (count ?? 0) > 0)) return c.json({ error: "paid_workspace_required" }, 403, PRIVATE_NO_STORE_HEADERS);
 	const slugBase = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 42) || "workspace";
 	const slug = `${slugBase}-${crypto.randomUUID().replace(/-/g, "").slice(0, 8)}`.slice(0, 50);
-	const created = await client.from("workspaces").insert({ name, slug, owner_user_id: user.id }).select("id").maybeSingle();
+	const created = await client.from("workspaces").insert({ name, slug, owner_user_id: user.id, workspace_kind: "organization" }).select("id").maybeSingle();
 	if (created.error || !created.data?.id) {
 		console.error("[web-api/teams] workspace insert failed", created.error);
 		return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);

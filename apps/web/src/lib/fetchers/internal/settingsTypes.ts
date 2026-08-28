@@ -8,6 +8,16 @@ export type SettingsLayoutInitialData = {
 	signedIn: boolean;
 	workspaceId: string | null;
 	workspaceName: string | null;
+	accountContext: null | {
+		platformRole: string;
+		isInternalAdmin: boolean;
+		isProvider: boolean;
+		providerSlugs: string[];
+		workspaceRole: string | null;
+		workspaceKind: "personal" | "organization" | "enterprise" | "provider" | null;
+		workspaceExperience: "self_serve" | "enterprise" | "provider" | null;
+		experiences: Array<"self_serve" | "enterprise" | "provider" | "internal">;
+	};
 };
 
 export type SettingsBetaInitialData = {
@@ -317,6 +327,76 @@ export type SettingsCreditsInitialData = {
 		auto_top_up_amount: number | null;
 		[key: string]: unknown;
 	} | null;
+};
+
+export type ProviderOnboardingSubmission = {
+	id: string;
+	provider_slug: string;
+	provider_name: string;
+	catalog_url: string;
+	status: string;
+	model_count: number;
+	validation_summary: Record<string, unknown> | null;
+	submitted_at: string | null;
+	created_at: string;
+};
+
+export type SettingsProviderOnboardingInitialData = {
+	signedIn: boolean;
+	isAdmin: boolean;
+	linkedProviders: Array<{
+		provider_slug: string;
+		workspace_id: string;
+		role: string;
+		status: "pending" | "active";
+		verified_at: string | null;
+	}>;
+	submissions: ProviderOnboardingSubmission[];
+	syncSources: Array<{
+		provider_slug: string;
+		status: string;
+		delivery_mode: "polling" | "webhook_and_polling";
+		catalog_url: string;
+		webhookUrl: string;
+		last_success_at: string | null;
+		last_polled_at: string | null;
+		last_catalog_sha256: string | null;
+		consecutive_failures: number;
+		last_error: string | null;
+		etag: string | null;
+		last_modified: string | null;
+		next_poll_at: string | null;
+	}>;
+	reviewRevisions: Array<{
+		id: string;
+		provider_slug: string;
+		trigger: string;
+		status: string;
+		review_status: string;
+		review_summary: Record<string, number> | null;
+		model_count: number | null;
+		error_message: string | null;
+		created_at: string;
+		completed_at: string | null;
+		models: Array<{
+			model_slug: string;
+			canonical_model_slug: string | null;
+			match_type: "exact" | "alias" | "new_model" | null;
+			provider_model_slug: string;
+			name: string;
+			availability: "ready" | "not_ready" | "degraded" | "deprecated" | "retired";
+			available_from: string | null;
+			deprecated_at: string | null;
+			shutdown_at: string | null;
+			decision: "pending" | "approved" | "rejected" | "needs_changes";
+			decision_reason: string | null;
+			route_projection_status: "not_projected" | "staged" | "probe_passed" | "enabled" | "failed";
+			route_projection_error: string | null;
+			reviewed_at: string | null;
+		}>;
+	}>;
+	events: Array<{ id: string; provider_slug: string; run_id: string | null; event_type: string; title: string; message: string; payload: Record<string, unknown>; read_at: string | null; created_at: string }>;
+	contracts: { schemaUrl: string; openApiUrl: string };
 };
 
 export type NotificationDestination = {

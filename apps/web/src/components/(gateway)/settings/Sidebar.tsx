@@ -36,6 +36,7 @@ export default function SettingsSidebar({
 	showBroadcast = true,
 	showWebhooks = true,
 	showEnterprise = false,
+	showInternal = false,
 }: {
 	/**
 	 * Optional slot for lightweight, non-blocking sidebar adornments (e.g. alert counts).
@@ -45,11 +46,12 @@ export default function SettingsSidebar({
 	showBroadcast?: boolean;
 	showWebhooks?: boolean;
 	showEnterprise?: boolean;
+	showInternal?: boolean;
 }) {
 	const pathname = usePathname();
 	const { isMobile, setOpenMobile, state, toggleSidebar } = useSidebar();
 	const isCollapsed = state === "collapsed" && !isMobile;
-	const navGroups = getSettingsSidebar({ showBroadcast, showWebhooks, showEnterprise });
+	const navGroups = getSettingsSidebar({ showBroadcast, showWebhooks, showEnterprise, showInternal });
 
 	function matchScore(item: NavItem) {
 		const path = pathname ?? "";
