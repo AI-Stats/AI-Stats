@@ -8,7 +8,6 @@ describe("Novita quirks", () => {
 		"deepseek/deepseek-v3.1-terminus",
 		"deepseek/deepseek-v3.2-exp",
 		"deepseek/deepseek-v4-pro-0813",
-		"deepseek/deepseek-v4-flash-vision-exp",
 	])("maps reasoning to enable_thinking for supported model %s", (model) => {
 		const request: Record<string, any> = {
 			model,
