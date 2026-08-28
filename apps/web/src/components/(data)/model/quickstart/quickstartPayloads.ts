@@ -122,6 +122,15 @@ export function buildExamplePayload(
 				endpoint: "/responses",
 				completion_window: "24h",
 			};
+		case "parse":
+			return {
+				model,
+				document: {
+					type: "image_url",
+					image_url: "https://cohere.com/favicon-32x32.png",
+				},
+				output_format: "markdown",
+			};
 		default:
 			return {
 				model,

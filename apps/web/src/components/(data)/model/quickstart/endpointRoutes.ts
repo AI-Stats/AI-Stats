@@ -121,6 +121,13 @@ const ENDPOINT_ROUTE_META: Record<string, Omit<EndpointRoute, "value">> = {
 		description: "Generate music or audio loops from prompts.",
 		tag: "Recommended",
 	},
+	parse: {
+		method: "POST",
+		path: "/v1/parse",
+		title: "Document Parse",
+		description: "Extract ordered text, tables, images, and layout-aware blocks from a document image.",
+		tag: "Recommended",
+	},
 };
 
 export const ENDPOINT_OPTIONS: EndpointOption[] = [
@@ -139,6 +146,7 @@ export const ENDPOINT_OPTIONS: EndpointOption[] = [
 	{ value: "audio.translations", label: "Audio Translation" },
 	{ value: "batch.create", label: "Batch Create" },
 	{ value: "music.generate", label: "Music Generation" },
+	{ value: "parse", label: "Document Parse" },
 ];
 
 export const ENDPOINT_ROUTE_PREVIEW_LIMIT = 4;
