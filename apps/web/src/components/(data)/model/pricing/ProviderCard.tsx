@@ -7,6 +7,7 @@ import {
 	AlertTriangle,
 	ArrowUpRight,
 	Ban,
+	ChevronDown,
 	ChevronLeft,
 	ChevronRight,
 	CheckCircle2,
@@ -611,6 +612,21 @@ function formatPolicyValue(value: string | boolean | null | undefined): string {
 	return normalized
 		.replace(/[_-]+/g, " ")
 		.replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+const DATA_POLICY_FIELDS = [
+	"tier",
+	"confidence",
+	"zdrEligibility",
+	"retentionMode",
+	"retentionDays",
+] as const;
+
+function dataPoliciesMatch(
+	a: NonNullable<ProviderPricing["provider_models"][number]["data_policy"]>,
+	b: NonNullable<ProviderPricing["provider_models"][number]["data_policy"]>,
+): boolean {
+	return DATA_POLICY_FIELDS.every((field) => (a[field] ?? null) === (b[field] ?? null));
 }
 
 function getPlanTheme(plan: string) {
@@ -1439,7 +1455,7 @@ function parseRuleAudioMode(value: unknown): "with-audio" | "without-audio" | nu
 	return null;
 }
 
-const PROVIDER_STATUS_META: Record<
+export const PROVIDER_STATUS_META: Record<
 	CanonicalGatewayStatus,
 	{
 		label: string;
@@ -1558,6 +1574,8 @@ export default function ProviderCard({
 	variantLabels,
 	showCacheReadColumn = false,
 	isLastVisible = false,
+	serviceTiersExpanded = false,
+	onToggleServiceTiers,
 }: {
 	provider: ProviderPricing;
 	defaultPlan: string;
@@ -1572,6 +1590,8 @@ export default function ProviderCard({
 	variantLabels?: string[] | null;
 	showCacheReadColumn?: boolean;
 	isLastVisible?: boolean;
+	serviceTiersExpanded?: boolean;
+	onToggleServiceTiers?: () => void;
 }) {
 	const [selectedPlan, setSelectedPlan] = useState(defaultPlan);
 	const [expanded, setExpanded] = useState(false);
@@ -1646,6 +1666,11 @@ export default function ProviderCard({
 				}, 250);
 			}
 			if (isTargetProvider) {
+				setSelectedPlan(
+					detail.serviceTier && availablePlans.includes(detail.serviceTier)
+						? detail.serviceTier
+						: defaultPlan,
+				);
 				window[PROVIDER_INSPECTOR_STATE_KEY] = providerId;
 				window[PROVIDER_INSPECTOR_LAST_OPEN_ID_KEY] = providerId;
 				window[PROVIDER_INSPECTOR_LAST_OPEN_AT_KEY] = Date.now();
@@ -2218,7 +2243,11 @@ export default function ProviderCard({
 			: null;
 	const openInspectorForProvider = (
 		providerId: string,
-		options: { disableAnimation?: boolean; navigationProviderIds?: string[] } = {},
+		options: {
+			disableAnimation?: boolean;
+			navigationProviderIds?: string[];
+			serviceTier?: string;
+		} = {},
 	) => {
 		const currentOpenProviderId = window[PROVIDER_INSPECTOR_STATE_KEY] ?? null;
 		const suppressAnimationForProviderId =
@@ -2265,6 +2294,7 @@ export default function ProviderCard({
 			options.navigationProviderIds ?? inspectorNavigationProviderIds ?? navigationProviders.map(
 				(candidate) => candidate.provider.api_provider_id,
 			),
+			options.serviceTier,
 		);
 	};
 	const toggleExpanded = () => {
@@ -2351,8 +2381,13 @@ export default function ProviderCard({
 		providerModelSlugs: tableProviderModelSlugs,
 		apiModelIds: tableProviderApiModelIds,
 		quantizationScheme,
-		dataPolicy: [
-			{
+		dataPolicy: (() => {
+			const tierPolicy = provider.provider.service_tier_data_policies?.[selectedPlan] ?? null;
+			const capabilityPolicies = infoScope
+				.map((providerModel) => providerModel.data_policy)
+				.filter((policy): policy is NonNullable<typeof policy> => Boolean(policy));
+			const policies = tierPolicy ? [tierPolicy] : capabilityPolicies;
+			if (!policies.length) return [{
 				tier: provider.provider.data_policy_tier ?? null,
 				confidence: provider.provider.data_policy_confidence ?? null,
 				contractMode: provider.provider.data_policy_contract_mode ?? null,
@@ -2361,8 +2396,22 @@ export default function ProviderCard({
 				sourceUrl: provider.provider.prompt_training_source_url ?? null,
 				promptTrainingPolicy: provider.provider.prompt_training_policy ?? null,
 				zeroDataRetention: provider.provider.zero_data_retention ?? null,
-			},
-		],
+			}];
+			return policies.map((policy) => ({
+				tier: policy.tier ?? null,
+				confidence: policy.confidence ?? null,
+				contractMode: provider.provider.data_policy_contract_mode ?? null,
+				contractNotes: provider.provider.data_policy_contract_notes ?? null,
+				notes: policy.reason ?? provider.provider.prompt_training_notes ?? null,
+				sourceUrl: policy.evidenceUrl ?? provider.provider.prompt_training_source_url ?? null,
+				promptTrainingPolicy: provider.provider.prompt_training_policy ?? null,
+				zeroDataRetention: policy.zdrEligibility === "eligible"
+					? true
+					: policy.zdrEligibility === "ineligible"
+						? false
+						: provider.provider.zero_data_retention ?? null,
+			}));
+		})(),
 		residency: [
 			{
 				residencyMode: provider.provider.residency_mode ?? null,
@@ -2748,14 +2797,42 @@ export default function ProviderCard({
 	const availabilitySectionId = `${sheetSectionPrefix}-availability`;
 	const dataPolicySectionId = `${sheetSectionPrefix}-data-policy`;
 	const parametersSectionId = `${sheetSectionPrefix}-parameters`;
+	const selectedTierPolicy = provider.provider.service_tier_data_policies?.[selectedPlan] ?? null;
+	const scopedCapabilityPolicies = providerModelsInScope.map((providerModel) => providerModel.data_policy ?? null);
+	const selectedCapabilityPolicies = scopedCapabilityPolicies.filter(
+		(policy): policy is NonNullable<typeof policy> => Boolean(policy),
+	);
+	const firstCapabilityPolicy = selectedCapabilityPolicies[0] ?? null;
+	const hasMixedCapabilityPolicies =
+		!selectedTierPolicy &&
+		selectedCapabilityPolicies.length > 0 &&
+		(selectedCapabilityPolicies.length !== scopedCapabilityPolicies.length ||
+			(firstCapabilityPolicy
+				? !selectedCapabilityPolicies.every((policy) =>
+						dataPoliciesMatch(policy, firstCapabilityPolicy),
+					)
+				: false));
+	const selectedDataPolicy =
+		selectedTierPolicy ??
+		(hasMixedCapabilityPolicies ? null : firstCapabilityPolicy);
+	const selectedDataPolicyTier = hasMixedCapabilityPolicies
+		? null
+		: selectedDataPolicy?.tier ?? provider.provider.data_policy_tier;
+	const selectedZdr = hasMixedCapabilityPolicies
+		? null
+		: selectedDataPolicy?.zdrEligibility === "eligible"
+			? true
+			: selectedDataPolicy?.zdrEligibility === "ineligible"
+				? false
+				: provider.provider.zero_data_retention;
 	const dataPolicySummary = [
 		{
 			label: "Data Policy",
-			value: formatPolicyValue(provider.provider.data_policy_tier),
+			value: formatPolicyValue(selectedDataPolicyTier),
 		},
 		{
 			label: "ZDR",
-			value: formatPolicyValue(provider.provider.zero_data_retention),
+			value: formatPolicyValue(selectedZdr),
 		},
 		{
 			label: "Processing",
@@ -2797,7 +2874,19 @@ export default function ProviderCard({
 							}
 						/>
 					) : null}
-					<div>
+					<div className="flex items-center gap-1.5">
+						{availablePlans.length > 1 && onToggleServiceTiers ? (
+							<button
+								type="button"
+								aria-expanded={serviceTiersExpanded}
+								aria-label={`${serviceTiersExpanded ? "Collapse" : "Expand"} ${displayName} service tiers`}
+								onClick={onToggleServiceTiers}
+								className="inline-flex size-6 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+							>
+								<ChevronDown className={cn("size-3.5 transition-transform", !serviceTiersExpanded && "-rotate-90")} aria-hidden="true" />
+							</button>
+						) : null}
+						<div>
 						<div className="flex items-center gap-2.5">
 							<Link
 								href={`/api-providers/${sec.providerId}`}
@@ -2825,7 +2914,7 @@ export default function ProviderCard({
 										<button
 											type="button"
 											aria-label={`Provider status: ${tableStatusLabel}`}
-											className="inline-flex h-5 w-5 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+										className="inline-flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
 										>
 											{React.createElement(tableStatusIcon, {
 												className: cn("h-3 w-3", tableStatusClass),
@@ -2862,7 +2951,7 @@ export default function ProviderCard({
 											<button
 												type="button"
 											aria-label={isWorkspacePrivacyBlocked ? "Blocked by workspace Data Controls" : "Unavailable in Phaseo Chat"}
-												className="inline-flex h-5 w-5 items-center justify-center rounded-sm text-red-600 transition-colors hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+											className="inline-flex h-6 w-6 items-center justify-center rounded-sm text-red-600 transition-colors hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
 											>
 											{isWorkspacePrivacyBlocked ? <Ban className="h-3.5 w-3.5" /> : <ShieldBan className="h-3.5 w-3.5" />}
 											</button>
@@ -2925,6 +3014,7 @@ export default function ProviderCard({
 									) : null}
 								</div>
 							) : null}
+						</div>
 						</div>
 					</div>
 				</TableCell>

@@ -11,6 +11,10 @@ import { absoluteUrl, buildMetadata } from "@/lib/seo";
 import Script from "next/script";
 import { notFound } from "next/navigation";
 
+// Provider metadata comes from an uncached API request. Allow this route to
+// resolve it as a blocking render instead of treating it as static.
+export const instant = false;
+
 async function fetchProviderMeta(apiProviderId: string) {
 	try {
 		return await fetchFrontendAPIProviderHeader(apiProviderId);

@@ -50,8 +50,9 @@ import {
 	HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import {
-	Table,
-	TableBody,
+    Table,
+    TableBody,
+    TableCell,
 	TableHead,
 	TableHeader,
 	TableRow,
@@ -69,7 +70,10 @@ import {
 	type ProviderRuntimeStatsMap,
 } from "@/lib/fetchers/models/getModelProviderRuntimeStats";
 import type { ProviderRoutingStatusMap } from "@/lib/fetchers/models/getModelProviderRoutingHealth";
-import ProviderCard from "@/components/(data)/model/pricing/ProviderCard";
+import ProviderCard, {
+	PROVIDER_STATUS_META,
+} from "@/components/(data)/model/pricing/ProviderCard";
+import ProviderInfoHoverIcons from "@/components/(data)/model/ProviderInfoHoverIcons";
 import { cn } from "@/lib/utils";
 import { normalizeProviderPromptTrainingPolicy } from "@/lib/providers/promptTrainingPolicy";
 import { mergeProviderPricingOffers } from "@/lib/providers/providerFamilyGroups";
@@ -79,8 +83,8 @@ import {
 } from "@/components/(data)/model/pricing/providerPlanRouting";
 import { getPricingProviderVariantLabels } from "@/components/(data)/model/pricing/pricingProviderVariants";
 import {
-    buildProviderSections,
-    buildProviderTablePriceSummary,
+	buildProviderSections,
+	buildProviderTablePriceSummary,
 } from "@/components/(data)/model/pricing/pricingHelpers";
 import {
     chooseGatewayStatus,
@@ -93,6 +97,12 @@ import ModelPercentileSelect, {
 	type ModelPercentile,
 } from "@/components/(data)/models/ModelPercentileSelect";
 import { publishProviderView } from "@/components/(data)/model/pricing/providerViewSync";
+import {
+    dispatchProviderInspectorOpen,
+    subscribeProviderInspectorSelection,
+    type ProviderInspectorSelection,
+} from "@/components/(data)/model/pricing/providerInspectorSync";
+import { getTierFilterMeta } from "@/lib/models/tierFilterStyles";
 const SORT_QUERY_KEY = "sort";
 const SORT_DIRECTION_QUERY_KEY = "dir";
 const LEGACY_PROVIDER_VIEW_QUERY_KEY = "provider_view";
@@ -393,7 +403,8 @@ function UptimeHeaderHoverContent() {
 
 function getIgnoredPrivacyReasons(
     provider: ProviderPricing,
-    settings: WorkspacePrivacySettings
+    settings: WorkspacePrivacySettings,
+    plan = getProviderDefaultPlan(provider),
 ): string[] {
     const reasons: string[] = [];
     const providerId = provider.provider.api_provider_id;
@@ -415,7 +426,7 @@ function getIgnoredPrivacyReasons(
     }
 
     if (settings.privacyZdrOnly) {
-        if (provider.provider.zero_data_retention !== true) {
+        if (getPlanZdrEligibility(provider, plan) !== true) {
             reasons.push("Does not meet workspace ZDR-only requirement");
         }
     }
@@ -437,18 +448,232 @@ function matchesPrivacyFilter(
     provider: ProviderPricing,
     filter: PrivacyFilter,
     workspacePrivacySettings: WorkspacePrivacySettings | null,
+    plan = getProviderDefaultPlan(provider),
 ): boolean {
     if (filter === "all") return true;
     if (filter === "zdr") {
-        return provider.provider.zero_data_retention === true;
+        return getPlanZdrEligibility(provider, plan) === true;
     }
     if (filter === "no_training") {
         return getProviderPromptTrainingPolicy(provider) !== "may_train";
     }
     if (!workspacePrivacySettings?.isAuthenticated) return true;
-	return getIgnoredPrivacyReasons(provider, workspacePrivacySettings)
+        return getIgnoredPrivacyReasons(provider, workspacePrivacySettings, plan)
 		.filter((reason) => !reason.includes("account provider"))
 		.length === 0;
+}
+
+function getPlanZdrEligibility(
+    provider: ProviderPricing,
+    plan: string,
+): boolean | null {
+    const tierPolicy = provider.provider.service_tier_data_policies?.[plan] ?? null;
+    const tierEligibility = tierPolicy?.zdrEligibility;
+    if (tierEligibility === "eligible") return true;
+    if (tierEligibility === "ineligible") return false;
+
+    const providerModels = getProviderModelScopeForPlan(provider, plan);
+    const capabilityPolicies = providerModels.map((providerModel) => providerModel.data_policy);
+    const policiesWithData = capabilityPolicies.filter(
+        (policy): policy is NonNullable<typeof policy> => Boolean(policy),
+    );
+    if (!policiesWithData.length) return provider.provider.zero_data_retention ?? null;
+    if (policiesWithData.length !== capabilityPolicies.length) return null;
+
+    const eligibilities = new Set(
+        policiesWithData.map((policy) => policy.zdrEligibility ?? null),
+    );
+    if (eligibilities.size !== 1) return null;
+    const eligibility = policiesWithData[0]?.zdrEligibility;
+    if (eligibility === "eligible") return true;
+    if (eligibility === "ineligible") return false;
+    return provider.provider.zero_data_retention ?? null;
+}
+
+function formatServiceTierLabel(plan: string): string {
+	return plan
+		.replace(/[_-]+/g, " ")
+		.replace(/\b\w/g, (character) => character.toUpperCase());
+}
+
+function renderTierTablePrice(
+	summary: ReturnType<typeof buildProviderTablePriceSummary>,
+	accentClassName: string,
+) {
+	return summary.primary ? (
+		<div className={cn("font-medium tabular-nums", accentClassName)}>
+			{summary.primary.formattedPrice}
+		</div>
+	) : (
+		<div className="font-medium tabular-nums text-foreground">--</div>
+	);
+}
+
+function ProviderServiceTierInfoIcons({
+	provider,
+	plan,
+}: {
+	provider: ProviderPricing;
+	plan: string;
+}) {
+	const providerModels = getProviderModelScopeForPlan(provider, plan);
+	const statusKey = chooseGatewayStatus(
+		providerModels.map((providerModel) =>
+			resolveGatewayStatus({
+				isActiveGateway: providerModel.is_active_gateway,
+				providerAvailabilityStatus: providerModel.provider_availability_status,
+				phaseoStatus: providerModel.phaseo_status,
+				accessScope: providerModel.access_scope,
+				capabilityStatus: providerModel.capability_status,
+				providerStatus: provider.provider.status,
+				providerRoutingStatus: provider.provider.routing_status,
+				modelRoutingStatus: providerModel.routing_status,
+				effectiveFrom: providerModel.effective_from,
+				effectiveTo: providerModel.effective_to,
+			}),
+		),
+	);
+	const statusMeta = PROVIDER_STATUS_META[statusKey] ?? PROVIDER_STATUS_META.not_listed;
+	const tierPolicy = provider.provider.service_tier_data_policies?.[plan] ?? null;
+	const capabilityPolicies = providerModels
+		.map((providerModel) => providerModel.data_policy)
+		.filter((policy): policy is NonNullable<typeof policy> => Boolean(policy));
+	const policies = tierPolicy ? [tierPolicy] : capabilityPolicies;
+	const dataPolicy = (policies.length > 0 ? policies : [null]).map((policy) => ({
+		tier: policy?.tier ?? provider.provider.data_policy_tier ?? null,
+		confidence: policy?.confidence ?? provider.provider.data_policy_confidence ?? null,
+		contractMode: provider.provider.data_policy_contract_mode ?? null,
+		contractNotes: provider.provider.data_policy_contract_notes ?? null,
+		notes: policy?.reason ?? provider.provider.prompt_training_notes ?? null,
+		sourceUrl: policy?.evidenceUrl ?? provider.provider.prompt_training_source_url ?? null,
+		promptTrainingPolicy: provider.provider.prompt_training_policy ?? null,
+		zeroDataRetention:
+			policy?.zdrEligibility === "eligible"
+				? true
+				: policy?.zdrEligibility === "ineligible"
+					? false
+					: provider.provider.zero_data_retention ?? null,
+	}));
+
+	return (
+		<div className="flex shrink-0 items-center gap-1">
+			<HoverCard openDelay={120} closeDelay={80}>
+				<HoverCardTrigger asChild>
+					<button
+						type="button"
+						aria-label={`Provider status: ${statusMeta.label}`}
+						className="inline-flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+					>
+						{React.createElement(statusMeta.icon, {
+							className: cn("h-3 w-3", statusMeta.iconClass),
+						})}
+					</button>
+				</HoverCardTrigger>
+				<HoverCardContent align="start" className="w-auto p-2 text-xs">
+					<p className="font-semibold">{statusMeta.label}</p>
+					<p className="mt-1 text-muted-foreground">{statusMeta.description}</p>
+				</HoverCardContent>
+			</HoverCard>
+			<ProviderInfoHoverIcons
+				providerId={provider.provider.api_provider_id}
+				providerModelSlugs={providerModels.map((providerModel) => providerModel.provider_model_slug)}
+				apiModelIds={providerModels.map((providerModel) => providerModel.model_id)}
+				dataPolicy={dataPolicy}
+				residency={[
+					{
+						residencyMode: provider.provider.residency_mode ?? null,
+						executionRegions: provider.provider.default_execution_regions ?? null,
+						dataRegions: provider.provider.default_data_regions ?? null,
+						zeroDataRetention: provider.provider.zero_data_retention ?? null,
+						notes: provider.provider.residency_notes ?? null,
+						sourceUrl: provider.provider.residency_source_url ?? null,
+					},
+				]}
+				showQuantizationTrigger={false}
+				showModelMappingTrigger={false}
+			/>
+		</div>
+	);
+}
+
+function ProviderServiceTierRow({
+	provider,
+	plan,
+	pricingTimeMs,
+	showCacheReadColumn,
+	navigationProviderIds,
+	isActive,
+}: {
+	provider: ProviderPricing;
+	plan: string;
+	pricingTimeMs: number;
+	showCacheReadColumn: boolean;
+	navigationProviderIds: string[];
+	isActive: boolean;
+}) {
+	const sections = useMemo(
+		() => buildProviderSections(provider, plan, pricingTimeMs),
+		[plan, pricingTimeMs, provider],
+	);
+	const inputPrice = buildProviderTablePriceSummary(sections, "input");
+	const outputPrice = buildProviderTablePriceSummary(sections, "output");
+	const cacheReadPrice = showCacheReadColumn
+		? buildProviderTablePriceSummary(sections, "cached")
+		: null;
+	const tierMeta = getTierFilterMeta(plan);
+	const TierIcon = tierMeta.icon;
+	const providerName = provider.provider.api_provider_name || provider.provider.api_provider_id;
+	const openTier = () => {
+		dispatchProviderInspectorOpen(
+			provider.provider.api_provider_id,
+			false,
+			navigationProviderIds,
+			plan,
+		);
+	};
+
+	return (
+		<TableRow
+			role="button"
+			tabIndex={0}
+			aria-label={`Open ${providerName} ${formatServiceTierLabel(plan)} service tier`}
+			onClick={openTier}
+			onKeyDown={(event) => {
+				if (event.key !== "Enter" && event.key !== " ") return;
+				event.preventDefault();
+				openTier();
+			}}
+			className={cn(
+				"cursor-pointer bg-muted/20 hover:bg-muted/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
+				isActive && "bg-primary/[0.06]",
+			)}
+		>
+			<TableCell className="relative min-w-[280px] py-1 pl-[3.75rem] pr-2">
+				{isActive ? <span aria-hidden="true" className="absolute inset-y-0 left-0 w-0.5 bg-primary" /> : null}
+					<span className="inline-flex items-center gap-2.5 whitespace-nowrap text-xs font-medium text-foreground">
+						<span className="grid size-6 shrink-0 place-items-center rounded-md border border-border bg-background">
+							<TierIcon className={cn("size-3.5", tierMeta.iconClassName)} aria-hidden="true" />
+						</span>
+						<span>{providerName} ({formatServiceTierLabel(plan)})</span>
+						<ProviderServiceTierInfoIcons provider={provider} plan={plan} />
+					</span>
+			</TableCell>
+			<TableCell className="py-1 pl-2 pr-4 text-right tabular-nums whitespace-nowrap">
+				{renderTierTablePrice(inputPrice, tierMeta.iconClassName)}
+			</TableCell>
+			<TableCell className="py-1 pl-2 pr-4 text-right tabular-nums whitespace-nowrap">
+				{renderTierTablePrice(outputPrice, tierMeta.iconClassName)}
+			</TableCell>
+			{showCacheReadColumn ? (
+				<TableCell className="py-1 pl-2 pr-4 text-right tabular-nums whitespace-nowrap">
+					{cacheReadPrice ? renderTierTablePrice(cacheReadPrice, tierMeta.iconClassName) : "--"}
+				</TableCell>
+			) : null}
+			<TableCell className="py-1 pl-2 pr-4 text-right tabular-nums whitespace-nowrap">--</TableCell>
+			<TableCell className="py-1 pl-2 pr-4 text-right tabular-nums whitespace-nowrap">--</TableCell>
+			<TableCell className="py-1 pl-2 pr-4 text-right tabular-nums whitespace-nowrap">--</TableCell>
+		</TableRow>
+	);
 }
 
 export default function ModelPricingClient({
@@ -594,6 +819,25 @@ export default function ModelPricingClient({
         DEFAULT_PROVIDER_STATUS_FILTERS,
     );
     const [privacyFilter, setPrivacyFilter] = useState<PrivacyFilter>("workspace");
+    const [expandedProviderTiers, setExpandedProviderTiers] = useState<Set<string>>(
+        () => new Set(),
+    );
+    const [activeInspectorSelection, setActiveInspectorSelection] =
+        useState<ProviderInspectorSelection | null>(null);
+
+    useEffect(
+        () => subscribeProviderInspectorSelection(setActiveInspectorSelection),
+        [],
+    );
+
+    const toggleProviderTiers = (providerId: string) => {
+        setExpandedProviderTiers((current) => {
+            const next = new Set(current);
+            if (next.has(providerId)) next.delete(providerId);
+            else next.add(providerId);
+            return next;
+        });
+    };
 
     const sortedProviders = useMemo(() => {
         const list = displayProviders.filter((provider) =>
@@ -829,15 +1073,24 @@ export default function ModelPricingClient({
         const ignoredReasonMap = new Map<string, string[]>();
         for (const provider of sortedProviders) {
             const reasons = workspacePrivacySettings?.isAuthenticated
-                ? getIgnoredPrivacyReasons(provider, workspacePrivacySettings)
+                ? getIgnoredPrivacyReasons(
+                      provider,
+                      workspacePrivacySettings,
+                      getProviderDefaultPlan(provider),
+                  )
                 : [];
             if (reasons.length) {
                 ignoredReasonMap.set(provider.provider.api_provider_id, reasons);
             }
         }
 
-        const filteredProviders = sortedProviders.filter((provider) =>
-			matchesPrivacyFilter(provider, privacyFilter, workspacePrivacySettings),
+		const filteredProviders = sortedProviders.filter((provider) =>
+			matchesPrivacyFilter(
+				provider,
+				privacyFilter,
+				workspacePrivacySettings,
+				getProviderDefaultPlan(provider),
+			),
 		);
 		filteredProviders.sort((a, b) => {
 			const aAccountBlocked = (ignoredReasonMap.get(a.provider.api_provider_id) ?? []).some((reason) => reason.includes("account provider"));
@@ -1289,35 +1542,79 @@ export default function ModelPricingClient({
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {visibleProviders.map((prov, index) => (
-                                            <ProviderCard
-                                                key={prov.provider.api_provider_id}
-                                                provider={prov}
-                                                defaultPlan={getProviderDefaultPlan(prov)}
-                                                availablePlans={getProviderAvailablePlans(prov)}
-                                                comparisonProviders={displayProviders}
-                                                navigationProviders={visibleProviders}
-                                                privacyIgnoredReasons={
-                                                    ignoredProviderReasons.get(
-                                                        prov.provider.api_provider_id
-                                                    ) ?? null
-                                                }
-                                                runtimeStats={
-                                                    liveRuntimeStats[prov.provider.api_provider_id] ?? null
-                                                }
-                                                routingStatus={
-                                                    routingHealth[prov.provider.api_provider_id] ?? null
-                                                }
-                                                pricingTimeMs={pricingTimeMs}
-                                                variantLabels={
-                                                    providerVariantLabelsById.get(
-                                                        prov.provider.api_provider_id
-                                                    ) ?? null
-                                                }
-                                                showCacheReadColumn={showCacheReadColumn}
-                                                isLastVisible={index === visibleProviders.length - 1}
-                                            />
-                                        ))}
+                                        {visibleProviders.map((prov, index) => {
+                                            const providerId = prov.provider.api_provider_id;
+                                            const defaultPlan = getProviderDefaultPlan(prov);
+                                            const availablePlans = getProviderAvailablePlans(prov);
+                                            const alternativePlans = availablePlans.filter(
+                                                (plan) => plan !== defaultPlan,
+                                            );
+                                            const visibleAlternativePlans = alternativePlans.filter((plan) =>
+                                                matchesPrivacyFilter(
+                                                    prov,
+                                                    privacyFilter,
+                                                    workspacePrivacySettings,
+                                                    plan,
+                                                ),
+                                            );
+                                            const isTiersExpanded = expandedProviderTiers.has(providerId);
+
+                                            return (
+                                                <React.Fragment key={providerId}>
+                                                    <ProviderCard
+                                                        provider={prov}
+                                                        defaultPlan={defaultPlan}
+                                                        availablePlans={availablePlans}
+                                                        comparisonProviders={displayProviders}
+                                                        navigationProviders={visibleProviders}
+                                                        privacyIgnoredReasons={
+                                                            ignoredProviderReasons.get(providerId) ?? null
+                                                        }
+                                                        runtimeStats={
+                                                            liveRuntimeStats[providerId] ?? null
+                                                        }
+                                                        routingStatus={
+                                                            routingHealth[providerId] ?? null
+                                                        }
+                                                        pricingTimeMs={pricingTimeMs}
+                                                        variantLabels={
+                                                            providerVariantLabelsById.get(providerId) ?? null
+                                                        }
+                                                        showCacheReadColumn={showCacheReadColumn}
+                                                        isLastVisible={
+                                                            index === visibleProviders.length - 1 &&
+                                                            (!isTiersExpanded || visibleAlternativePlans.length === 0)
+                                                        }
+                                                        serviceTiersExpanded={isTiersExpanded}
+                                                        onToggleServiceTiers={
+                                                            visibleAlternativePlans.length > 0
+                                                                ? () => toggleProviderTiers(providerId)
+                                                                : undefined
+                                                        }
+                                                    />
+                                                    {isTiersExpanded
+                                                        ? visibleAlternativePlans.map((plan) => (
+                                                              <ProviderServiceTierRow
+                                                                  key={`${providerId}-${plan}`}
+                                                                  provider={prov}
+                                                                  plan={plan}
+                                                                  pricingTimeMs={pricingTimeMs}
+                                                                  showCacheReadColumn={showCacheReadColumn}
+                                                                  navigationProviderIds={visibleProviders.map(
+                                                                      (candidate) =>
+                                                                          candidate.provider.api_provider_id,
+                                                                  )}
+                                                                  isActive={
+                                                                      activeInspectorSelection?.providerId ===
+                                                                          providerId &&
+                                                                      activeInspectorSelection.serviceTier === plan
+                                                                  }
+                                                              />
+                                                          ))
+                                                        : null}
+                                                </React.Fragment>
+                                            );
+                                        })}
                                     </TableBody>
                                 </Table>
                             </ScrollArea>

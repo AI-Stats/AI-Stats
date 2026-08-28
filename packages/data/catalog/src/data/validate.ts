@@ -1038,6 +1038,97 @@ function hasProviderPolicySource(data: Record<string, any>): boolean {
     );
 }
 
+function validateCapabilityDataPolicy(
+    policy: unknown,
+    label: string,
+    errors: string[],
+): void {
+    if (!policy || typeof policy !== 'object' || Array.isArray(policy)) {
+        errors.push(`${label} must be an object`);
+        return;
+    }
+    const value = policy as Record<string, unknown>;
+    const allowed = {
+        tier: ['unknown', 'private', 'logs', 'trains'],
+        confidence: ['unknown', 'confirmed', 'inferred'],
+        zdrEligibility: ['unknown', 'eligible', 'ineligible'],
+        retentionMode: ['unknown', 'transient', 'until_deleted'],
+    } as const;
+    for (const [key, values] of Object.entries(allowed)) {
+        if (typeof value[key] !== 'string' || !values.includes(value[key] as never)) {
+            errors.push(`${label} has invalid ${key}`);
+        }
+    }
+    if (
+        value.retentionDays !== undefined &&
+        value.retentionDays !== null &&
+        (typeof value.retentionDays !== 'number' ||
+            !Number.isInteger(value.retentionDays) ||
+            value.retentionDays < 0)
+    ) {
+        errors.push(`${label} retentionDays must be a non-negative integer or null`);
+    }
+    if (value.retentionMode === 'transient' && value.retentionDays !== 0) {
+        errors.push(`${label} transient retention must set retentionDays to 0`);
+    }
+    if (value.zdrEligibility === 'eligible' && value.tier !== 'private') {
+        errors.push(`${label} eligible ZDR must use the private tier`);
+    }
+    for (const key of ['reason', 'evidenceUrl']) {
+        if (value[key] !== undefined && value[key] !== null && typeof value[key] !== 'string') {
+            errors.push(`${label} ${key} must be a string or null`);
+        }
+    }
+    if (value.evidenceUrl !== undefined && value.evidenceUrl !== null) {
+        try {
+            const url = new URL(String(value.evidenceUrl));
+            if (!['http:', 'https:'].includes(url.protocol)) throw new Error('unsupported protocol');
+        } catch {
+            errors.push(`${label} evidenceUrl must be an HTTP(S) URL`);
+        }
+    }
+}
+
+function validateProviderCapabilityPolicyConfiguration(
+    data: Record<string, any>,
+    providerId: string,
+    errors: string[],
+): void {
+    for (const field of ['capability_data_policies', 'service_tier_data_policies']) {
+        const policies = data[field];
+        if (policies === undefined) continue;
+        if (!policies || typeof policies !== 'object' || Array.isArray(policies)) {
+            errors.push(`API provider ${providerId} ${field} must be an object`);
+            continue;
+        }
+        for (const [key, policy] of Object.entries(policies)) {
+            validateCapabilityDataPolicy(policy, `API provider ${providerId} ${field}.${key}`, errors);
+        }
+    }
+    const exclusions = data.capability_data_policy_exclusions;
+    if (exclusions === undefined) return;
+    if (!Array.isArray(exclusions)) {
+        errors.push(`API provider ${providerId} capability_data_policy_exclusions must be an array`);
+        return;
+    }
+    for (const [index, exclusion] of exclusions.entries()) {
+        if (!exclusion || typeof exclusion !== 'object' || Array.isArray(exclusion)) {
+            errors.push(`API provider ${providerId} capability_data_policy_exclusions[${index}] must be an object`);
+            continue;
+        }
+        if (typeof exclusion.capability_id !== 'string' || !exclusion.capability_id.trim()) {
+            errors.push(`API provider ${providerId} capability_data_policy_exclusions[${index}] is missing capability_id`);
+        }
+        if (
+            exclusion.provider_model_slug_prefix !== undefined &&
+            exclusion.provider_model_slug_prefix !== null &&
+            (typeof exclusion.provider_model_slug_prefix !== 'string' || !exclusion.provider_model_slug_prefix.trim())
+        ) {
+            errors.push(`API provider ${providerId} capability_data_policy_exclusions[${index}] has invalid provider_model_slug_prefix`);
+        }
+    }
+}
+
 function checkApiProviders(state: ValidationState): string[] {
     const errors: string[] = [];
     const providersDir = path.join(DATA_ROOT, 'api_providers');
@@ -1054,6 +1145,7 @@ function checkApiProviders(state: ValidationState): string[] {
             errors.push(`API provider ${provider} missing api_provider_id`);
             continue;
         }
+        validateProviderCapabilityPolicyConfiguration(data, providerId, errors);
         if (data.availability !== undefined && data.availability !== null) {
             const availabilityChecks = checkApiProviderModelEntrySafety({
                 provider_model_slug: providerId,

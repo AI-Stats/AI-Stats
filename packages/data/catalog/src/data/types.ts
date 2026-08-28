@@ -110,6 +110,9 @@ export interface APIProvider {
     data_policy_confidence: "unknown" | "confirmed" | "maybe";
     data_policy_contract_mode: "none" | "customer_agreement" | "enterprise_agreement";
     data_policy_contract_notes?: string | null;
+    capability_data_policies?: Record<string, CapabilityDataPolicy>;
+    capability_data_policy_exclusions?: CapabilityDataPolicyExclusion[];
+    service_tier_data_policies?: Record<string, CapabilityDataPolicy>;
     user_identifier_policy?:
         | "unknown"
         | "sent"
@@ -136,6 +139,22 @@ export interface APIProvider {
     service_tiers?: string[];
     sources?: SourceMetadata[];
     verification?: VerificationMetadata;
+}
+
+export interface CapabilityDataPolicy {
+    tier: "unknown" | "private" | "logs" | "trains";
+    confidence: "unknown" | "confirmed" | "inferred";
+    zdrEligibility: "unknown" | "eligible" | "ineligible";
+    retentionMode: "unknown" | "transient" | "until_deleted";
+    retentionDays?: number | null;
+    reason?: string | null;
+    evidenceUrl?: string | null;
+}
+
+export interface CapabilityDataPolicyExclusion {
+    capability_id: string;
+    provider_model_slug_prefix?: string | null;
+    reason?: string | null;
 }
 
 export interface SourceMetadata {

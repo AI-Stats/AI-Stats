@@ -54,6 +54,34 @@
       },
       "additionalProperties": true
     },
+    "capabilityDataPolicy": {
+      "type": "object",
+      "required": ["tier", "confidence", "zdrEligibility", "retentionMode"],
+      "properties": {
+        "tier": { "type": "string", "enum": ["unknown", "private", "logs", "trains"] },
+        "confidence": { "type": "string", "enum": ["unknown", "confirmed", "inferred"] },
+        "zdrEligibility": { "type": "string", "enum": ["unknown", "eligible", "ineligible"] },
+        "retentionMode": { "type": "string", "enum": ["unknown", "transient", "until_deleted"] },
+        "retentionDays": { "type": ["integer", "null"], "minimum": 0 },
+        "reason": { "type": ["string", "null"] },
+        "evidenceUrl": { "type": ["string", "null"], "format": "uri" }
+      },
+      "additionalProperties": false
+    },
+    "capabilityDataPolicyMap": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/$defs/capabilityDataPolicy" }
+    },
+    "capabilityDataPolicyExclusion": {
+      "type": "object",
+      "required": ["capability_id"],
+      "properties": {
+        "capability_id": { "type": "string", "minLength": 1 },
+        "provider_model_slug_prefix": { "type": ["string", "null"], "minLength": 1 },
+        "reason": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    },
     "modalities": {
       "type": ["object", "null"],
       "properties": {
@@ -211,6 +239,12 @@
         "data_policy_tier": { "type": "string", "enum": ["unknown", "private", "logs", "trains"] },
         "data_policy_confidence": { "type": "string", "enum": ["unknown", "confirmed", "maybe"] },
         "data_policy_contract_mode": { "type": "string", "enum": ["none", "customer_agreement", "enterprise_agreement"] },
+        "capability_data_policies": { "$ref": "#/$defs/capabilityDataPolicyMap" },
+        "capability_data_policy_exclusions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/capabilityDataPolicyExclusion" }
+        },
+        "service_tier_data_policies": { "$ref": "#/$defs/capabilityDataPolicyMap" },
         "regional_pricing_mode": { "type": ["string", "null"] },
         "pricing_source_url": { "type": ["string", "null"], "format": "uri" },
         "gateway_kind": { "type": ["string", "null"] },
@@ -236,7 +270,8 @@
           "type": "string",
           "enum": ["active", "inactive", "coming_soon", "internal_testing", "disabled", "deranked_lvl1", "deranked_lvl2", "deranked_lvl3"]
         },
-        "params": { "type": "array", "items": { "type": "object" } }
+        "params": { "type": "array", "items": { "type": "object" } },
+        "data_policy": { "$ref": "#/$defs/capabilityDataPolicy" }
       },
       "additionalProperties": true
     },

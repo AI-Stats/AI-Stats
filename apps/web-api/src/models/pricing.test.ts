@@ -93,6 +93,47 @@ describe("publicPricingRouteIdentity", () => {
 });
 
 describe("composeModelPricing", () => {
+	it("carries capability and service-tier policy metadata into composed pricing", () => {
+		const capabilityPolicy = {
+			tier: "private",
+			confidence: "confirmed",
+			zdrEligibility: "eligible",
+			retentionMode: "transient",
+			retentionDays: 0,
+		};
+		const serviceTierPolicy = {
+			tier: "logs",
+			confidence: "confirmed",
+			zdrEligibility: "ineligible",
+			retentionMode: "until_deleted",
+			retentionDays: null,
+		};
+
+		const providers = composeModelPricing([
+			{
+				provider_api_model_id: "pm-policy",
+				provider_id: "mistral",
+				api_model_id: "mistral/mistral-small-4",
+				provider_model_slug: "mistral-small-4",
+				is_active_gateway: true,
+				data_api_provider_model_capabilities: [{
+					capability_id: "text.generate",
+					status: "active",
+					data_policy: capabilityPolicy,
+				}],
+				data_api_providers: {
+					api_provider_name: "Mistral",
+					service_tier_data_policies: { batch: serviceTierPolicy },
+				},
+			},
+		], []);
+
+		expect(providers[0]?.provider.service_tier_data_policies).toEqual({
+			batch: serviceTierPolicy,
+		});
+		expect(providers[0]?.provider_models[0]?.data_policy).toEqual(capabilityPolicy);
+	});
+
 	it("groups provider models and attaches active or upcoming normalized rules", () => {
 		const providers = composeModelPricing([
 			{
