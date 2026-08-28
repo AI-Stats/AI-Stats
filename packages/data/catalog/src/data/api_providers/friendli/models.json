@@ -974,6 +974,45 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "z-ai/glm-5.3",
+    "canonical_model_id": "z-ai/glm-5.3",
+    "provider_api_model_id": "friendli:zai-org/GLM-5.3",
+    "provider_model_slug": "zai-org/GLM-5.3",
+    "internal_model_id": "z-ai/glm-5.3",
+    "is_active_gateway": false,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 1048576,
+    "effective_from": "2026-08-28T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [{
+      "capability_id": "text.generate",
+      "status": "active",
+      "params": ["max_tokens", "temperature", "top_p", "stop", "response_format", "tools", "tool_choice", "reasoning_effort"],
+      "reasoning": true,
+      "tool_call": true,
+      "structured_output": true,
+      "temperature": true,
+      "attachment": false,
+      "input_modalities": ["text"],
+      "output_modalities": ["text"],
+      "modes": []
+    }],
+    "routing_status": "disabled",
+    "routable": false,
+    "regions": {"execution": null, "data": null},
+    "service_tiers": ["standard"],
+    "api": {"formats":["openai_chat_completions"],"endpoint":"https://api.friendli.ai/serverless/v1/chat/completions","deployment":"serverless"},
+    "sources": [
+      {"kind":"provider_models","url":"https://api.friendli.ai/serverless/v1/models","accessed_at":"2026-08-28T00:00:00Z","notes":"FriendliAI's live models endpoint lists exact serverless model ID zai-org/GLM-5.3 with text input and output, a 1,048,576-token context and completion limit, reasoning, tools, parallel tools, and structured output."},
+      {"kind":"pricing","url":"https://friendli.ai/pricing#model-apis-pricing","accessed_at":"2026-08-28T00:00:00Z","notes":"Official rate card lists $1.40 input, $0.26 cached input, and $4.40 output per million tokens."}
+    ],
+    "verification": {"status":"verified","checked_at":"2026-08-28T00:00:00Z","notes":"Exact model ID, serverless availability, limits, capabilities, API protocol, and token pricing verified against FriendliAI primary sources."},
+    "rate_limits": []
+  },
+  {
     "api_model_id": "z-ai/glm-5.3-flash",
     "canonical_model_id": "z-ai/glm-5.3-flash",
     "provider_api_model_id": "friendli:zai-org/GLM-5.3-Flash",
