@@ -3698,49 +3698,64 @@
   },
   {
     "api_model_id": "z-ai/glm-5.3-flash",
+    "canonical_model_id": "z-ai/glm-5.3-flash",
     "provider_api_model_id": "nebius-token-factory:zai-org/GLM-5.3-Flash",
     "provider_model_slug": "zai-org/GLM-5.3-Flash",
     "internal_model_id": "z-ai/glm-5.3-flash",
-    "is_active_gateway": false,
-    "quantization_scheme": null,
-    "input_modalities": "text,image,video",
+    "is_active_gateway": true,
+    "quantization_scheme": "FP8",
+    "input_modalities": "text",
+    "notes": "Nebius Token Factory's endpoint is text-only and intentionally differs from the canonical model's input modalities.",
     "output_modalities": "text",
     "context_length": 1048576,
-    "max_output_tokens": 131072,
-    "effective_from": null,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-29T01:31:00Z",
     "effective_to": null,
     "capabilities": [
       {
         "capability_id": "text.generate",
-        "status": "coming_soon",
+        "status": "active",
         "params": [],
-        "reasoning": null,
+        "reasoning": true,
         "tool_call": true,
         "structured_output": true,
         "temperature": null,
-        "attachment": true,
-        "input_modalities": null,
-        "output_modalities": null,
+        "attachment": false,
+        "input_modalities": ["text"],
+        "output_modalities": ["text"],
         "modes": []
       }
     ],
-    "routing_status": null,
-    "routable": false,
+    "routing_status": "active",
+    "routable": true,
     "regions": {
-      "execution": null,
-      "data": null
+      "execution": ["us-central1"],
+      "data": ["us-central1"]
     },
     "service_tiers": [],
     "api": {
-      "formats": [],
-      "endpoint": null,
-      "deployment": null
+      "formats": ["openai.chat.completions", "openai.responses"],
+      "endpoint": "https://api.tokenfactory.us-central1.nebius.com/v1/",
+      "deployment": "public"
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "api",
+        "url": "https://tokenfactory.nebius.com/api/public/models_info",
+        "accessed_at": "2026-08-29T07:23:42Z",
+        "notes": "Nebius Token Factory's first-party live catalog reports the active public route, us-central1 region, FP8 quantization, 1,024K context, 1,024,000 maximum model length, reasoning, function calling, Responses API support, and current pricing; it does not publish a separate generation limit."
+      },
+      {
+        "kind": "provider_docs",
+        "url": "https://tokenfactory.nebius.com/endpoints?modals=endpoint-details&model-id=zai-org/GLM-5.3-Flash",
+        "accessed_at": "2026-08-29T07:23:42Z",
+        "notes": "Authenticated Token Factory dashboard model details confirm routing key, public endpoint, throughput, context, quantization, tool calling, reasoning, Responses API support, and MIT license."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": "Coming-soon provider route; official Nebius Token Factory availability and pricing are not yet verified."
+      "status": "verified",
+      "checked_at": "2026-08-29T07:23:42Z",
+      "notes": "Route identity, active lifecycle, region, provider-specific text modality, context, quantization, supported APIs, capabilities, and token pricing verified against Nebius Token Factory's first-party live catalog and authenticated dashboard. No separate generation limit is published."
     },
     "rate_limits": []
   }

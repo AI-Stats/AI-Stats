@@ -119,6 +119,30 @@ describe("applyNebiusRegionalModelAllowlist", () => {
         expect(filtered.pricing["nebius-token-factory-us-central-1"]).toBeDefined();
     });
 
+	it.each([
+		["canonical model ID", null, "z-ai/glm-5.3-flash"],
+		["provider model slug", "zai-org/GLM-5.3-Flash", "z-ai/glm-5.3-flash"],
+	])("keeps GLM 5.3 Flash on Nebius US Central 1 by %s", (_label, providerModelSlug, resolvedModel) => {
+		const parsed = buildContext({
+			resolvedModel,
+			providers: [buildProvider({
+				providerId: "nebius-token-factory-us-central-1",
+				providerModelSlug,
+			})],
+			pricing: {
+				"nebius-token-factory-us-central-1": { provider: "nebius-token-factory-us-central-1" },
+			},
+		});
+
+		const filtered = applyNebiusRegionalModelAllowlist({
+			parsed,
+			requestedModel: "z-ai/glm-5.3-flash",
+		});
+
+		expect(filtered.providers).toHaveLength(1);
+		expect(filtered.pricing["nebius-token-factory-us-central-1"]).toBeDefined();
+	});
+
     it("keeps non-Nebius providers unchanged", () => {
         const parsed = buildContext({
             resolvedModel: "meta/llama-3.3-70b-instruct",
