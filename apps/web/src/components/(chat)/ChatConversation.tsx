@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { ChangeEvent } from "react";
+import type { ChangeEvent, DragEvent } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { MessageScroller } from "@shadcn/react/message-scroller";
 import { ChatConversationComposer } from "@/components/(chat)/ChatConversationComposer";
@@ -18,7 +18,14 @@ import type {
 	ChatSettings,
 	ChatThread,
 } from "@/lib/indexeddb/chats";
-import { ArrowDown } from "lucide-react";
+import {
+	ArrowDown,
+	FileAudio,
+	FileImage,
+	FileText,
+	FileVideo,
+	Upload,
+} from "lucide-react";
 import {
 	DEFAULT_CHAT_PLACEHOLDER,
 	REASONING_OPTIONS,
@@ -26,6 +33,7 @@ import {
 	extractClipboardFiles,
 	getRandomPlaceholder,
 	getSupportedRecordingMimeType,
+	normalizeAttachmentFiles,
 } from "./chatConversationHelpers";
 import { startChatSendPerformanceRun } from "@/components/(chat)/playground/chat-performance";
 import {
@@ -181,6 +189,7 @@ export function ChatConversation({
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
 	const audioInputRef = useRef<HTMLInputElement | null>(null);
 	const [attachments, setAttachments] = useState<File[]>([]);
+	const [isFileDragActive, setIsFileDragActive] = useState(false);
 	const [queuedPrompts, setQueuedPrompts] = useState<QueuedChatPrompt[]>([]);
 	const [editingQueuedPromptIndex, setEditingQueuedPromptIndex] = useState<
 		number | null
@@ -528,7 +537,9 @@ export function ChatConversation({
 			}
 			if (!pastedFiles.length && !pastedText) return;
 			if (pastedFiles.length > 0) {
-				setAttachments((prev) => prev.concat(pastedFiles));
+				setAttachments((prev) =>
+					prev.concat(normalizeAttachmentFiles(pastedFiles)),
+				);
 			}
 			if (pastedText) {
 				if (isEditableTarget) {
@@ -772,10 +783,62 @@ export function ChatConversation({
 		[],
 	);
 
+	const handleFilesAdded = useCallback((files: File[]) => {
+		const normalizedFiles = normalizeAttachmentFiles(files);
+		if (!normalizedFiles.length) return;
+		setAttachments((prev) => prev.concat(normalizedFiles));
+	}, []);
+	const hasDraggedFiles = useCallback((event: DragEvent<HTMLElement>) => {
+		return (
+			event.dataTransfer.types.includes("Files") ||
+			event.dataTransfer.files.length > 0
+		);
+	}, []);
+	const handleFileDragEnter = useCallback(
+		(event: DragEvent<HTMLElement>) => {
+			if (!hasDraggedFiles(event)) return;
+			event.preventDefault();
+			event.dataTransfer.dropEffect = "copy";
+			setIsFileDragActive(true);
+		},
+		[hasDraggedFiles],
+	);
+	const handleFileDragOver = useCallback(
+		(event: DragEvent<HTMLElement>) => {
+			if (!hasDraggedFiles(event)) return;
+			event.preventDefault();
+			event.dataTransfer.dropEffect = "copy";
+		},
+		[hasDraggedFiles],
+	);
+	const handleFileDragLeave = useCallback(
+		(event: DragEvent<HTMLElement>) => {
+			if (!hasDraggedFiles(event)) return;
+			const relatedTarget = event.relatedTarget;
+			if (
+				relatedTarget instanceof Node &&
+				event.currentTarget.contains(relatedTarget)
+			) {
+				return;
+			}
+			setIsFileDragActive(false);
+		},
+		[hasDraggedFiles],
+	);
+	const handleFileDrop = useCallback(
+		(event: DragEvent<HTMLElement>) => {
+			if (!hasDraggedFiles(event)) return;
+			event.preventDefault();
+			setIsFileDragActive(false);
+			const files = Array.from(event.dataTransfer.files ?? []);
+			if (files.length > 0) handleFilesAdded(files);
+		},
+		[handleFilesAdded, hasDraggedFiles],
+	);
+
 	const handleFileSelect = (event: ChangeEvent<HTMLInputElement>) => {
 		const files = Array.from(event.target.files ?? []);
-		if (!files.length) return;
-		setAttachments((prev) => prev.concat(files));
+		handleFilesAdded(files);
 		event.target.value = "";
 	};
 
@@ -809,7 +872,47 @@ export function ChatConversation({
 	);
 
 	return (
-		<main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+		<main
+			className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden"
+			onDragEnter={handleFileDragEnter}
+			onDragOver={handleFileDragOver}
+			onDragLeave={handleFileDragLeave}
+			onDrop={handleFileDrop}
+		>
+        {isFileDragActive ? (
+            <div
+                role="status"
+                aria-label="Drop to attach files"
+                className="pointer-events-none absolute inset-0 z-50 grid place-items-center border-2 border-dashed border-primary/60 bg-background/80 p-6 text-center backdrop-blur-[2px]"
+            >
+                <div className="rounded-2xl border border-primary/20 bg-background/95 px-8 py-7 shadow-[0_24px_80px_-32px_hsl(var(--primary)/0.45)]">
+                    <div className="flex items-center justify-center gap-3">
+                        <div className="grid size-11 place-items-center rounded-xl border border-primary/25 bg-primary/[0.08] text-primary">
+                            <Upload className="size-5" strokeWidth={1.8} />
+                        </div>
+                        <p className="text-base font-semibold tracking-tight text-foreground">
+                            Drop to attach
+                        </p>
+                    </div>
+                    <div className="mt-5 flex items-center justify-center gap-2 text-muted-foreground">
+                        {[
+                            { label: "Images", icon: FileImage },
+                            { label: "Audio", icon: FileAudio },
+                            { label: "Video", icon: FileVideo },
+                            { label: "Files", icon: FileText },
+                        ].map(({ label, icon: Icon }) => (
+                            <div
+                                key={label}
+                                aria-label={label}
+                                className="grid size-8 place-items-center rounded-lg border border-border/80 bg-background/75"
+                            >
+                                <Icon className="size-4" strokeWidth={1.8} />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        ) : null}
 			<MessageScroller.Provider
 				autoScroll
 				defaultScrollPosition="end"
