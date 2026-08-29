@@ -1925,6 +1925,23 @@ paths:
           schema:
             type: string
             format: date
+        - name: label_key
+          in: query
+          description: >-
+            Request-label key to include in the spend slice. Must be provided
+            together with label_value.
+          schema:
+            type: string
+            maxLength: 64
+            pattern: ^[A-Za-z0-9_.:-]{1,64}$
+        - name: label_value
+          in: query
+          description: >-
+            Request-label value to include in the spend slice. Must be provided
+            together with label_key.
+          schema:
+            type: string
+            maxLength: 256
       responses:
         '200':
           description: Retrieved

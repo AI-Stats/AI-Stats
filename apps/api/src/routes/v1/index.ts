@@ -18,7 +18,7 @@ const CORS_HEADERS: Record<string, string> = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
     "Access-Control-Allow-Headers":
-        "Authorization, Content-Type, traceparent, tracestate, x-title, http-referer, x-app-id, x-app-name, x-app-categories, x-phaseo-client, x-phaseo-client-version, x-gateway-debug, x-phaseo-debug, X-Phaseo-Strictness, x-phaseo-cache-revalidate",
+        "Authorization, Content-Type, traceparent, tracestate, x-title, http-referer, x-app-id, x-app-name, x-app-categories, x-phaseo-client, x-phaseo-client-version, x-phaseo-metadata, x-gateway-debug, x-phaseo-debug, X-Phaseo-Strictness, x-phaseo-cache-revalidate",
 	"Access-Control-Expose-Headers": EXPOSED_UPSTREAM_RATE_LIMIT_HEADERS.join(", "),
     "Access-Control-Max-Age": "86400",
 };

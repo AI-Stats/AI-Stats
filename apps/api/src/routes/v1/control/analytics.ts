@@ -177,28 +177,35 @@ async function loadAnalyticsFactRows(args: {
     workspaceId: string;
     startIso: string;
     endIso: string;
+    labelKey?: string | null;
+    labelValue?: string | null;
 }): Promise<AnalyticsFactRow[]> {
     const supabase = getSupabaseAdmin();
     const rows: AnalyticsFactRow[] = [];
-	const countResult = await supabase
+	const countQuery = supabase
 		.from("v2_request_facts")
-		.select("request_event_id", { count: "exact", head: true })
+		.select("request_event_id", { count: "exact", head: true });
+	countQuery
 		.eq("workspace_id", args.workspaceId)
 		.gte("occurred_at", args.startIso)
 		.lt("occurred_at", args.endIso);
-	if (countResult.error) {
-		throw new Error(countResult.error.message || "Failed to count v2 analytics request facts");
+	if (args.labelKey && args.labelValue) {
+		countQuery.contains("safe_metadata", { labels: [{ key: args.labelKey, value: args.labelValue }] });
 	}
-	if (countResult.count == null) {
+	const resolvedCountResult = await countQuery;
+	if (resolvedCountResult.error) {
+		throw new Error(resolvedCountResult.error.message || "Failed to count v2 analytics request facts");
+	}
+	if (resolvedCountResult.count == null) {
 		throw new Error("Failed to count v2 analytics request facts");
 	}
-	if (countResult.count > ANALYTICS_FACT_MAX_ROWS) {
+	if (resolvedCountResult.count > ANALYTICS_FACT_MAX_ROWS) {
 		throw new AnalyticsFactLimitError(
 			"Analytics range contains too many requests; select a single date"
 		);
 	}
     for (let offset = 0; offset < ANALYTICS_FACT_MAX_ROWS; offset += ANALYTICS_FACT_PAGE_SIZE) {
-        const { data, error } = await supabase
+        const dataQuery = supabase
             .from("v2_request_facts")
             .select(
                 "occurred_at,endpoint,requested_model_slug,routed_model_slug,provider_model_id,cost_nanos,byok,v2_request_usage(meter_key,quantity)"
@@ -206,8 +213,11 @@ async function loadAnalyticsFactRows(args: {
             .eq("workspace_id", args.workspaceId)
             .gte("occurred_at", args.startIso)
             .lt("occurred_at", args.endIso)
-            .order("occurred_at", { ascending: true })
-			.range(offset, offset + ANALYTICS_FACT_PAGE_SIZE - 1);
+            .order("occurred_at", { ascending: true });
+		if (args.labelKey && args.labelValue) {
+			dataQuery.contains("safe_metadata", { labels: [{ key: args.labelKey, value: args.labelValue }] });
+		}
+		const { data, error } = await dataQuery.range(offset, offset + ANALYTICS_FACT_PAGE_SIZE - 1);
         if (error) {
             throw new Error(error.message || "Failed to load v2 analytics request facts");
         }
@@ -263,12 +273,22 @@ async function handleAnalytics(req: Request) {
     if (range.ok === false) return range.response;
     const startIso = range.start.toISOString();
 	const endIso = range.end.toISOString();
+	const labelKey = url.searchParams.get("label_key")?.trim() || null;
+	const labelValue = url.searchParams.get("label_value")?.trim() || null;
+	if ((labelKey && !labelValue) || (!labelKey && labelValue)) {
+		return json({ ok: false, error: "invalid_request", message: "label_key and label_value must be provided together" }, 400, { "Cache-Control": "no-store" });
+	}
+	if (labelKey && (!/^[A-Za-z0-9_.:-]{1,64}$/.test(labelKey) || labelValue!.length > 256)) {
+		return json({ ok: false, error: "invalid_request", message: "label_key or label_value is invalid" }, 400, { "Cache-Control": "no-store" });
+	}
 
 	try {
 		const rows = await loadAnalyticsFactRows({
 			workspaceId,
 			startIso,
             endIso,
+			labelKey,
+			labelValue,
         });
 		const providerModelIds = Array.from(new Set(rows
 			.map((row) => row.provider_model_id)
@@ -353,8 +373,6 @@ async function handleAnalytics(req: Request) {
 export const analyticsRoutes = new Hono<Env>();
 
 analyticsRoutes.get("/", withRuntime(handleAnalytics));
-
-
 
 
 

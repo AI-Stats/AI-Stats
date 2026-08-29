@@ -366,6 +366,7 @@ export async function handleFailureAudit(
             appId: ctx.meta.appId ?? null,
             appName: ctx.meta.appName ?? null,
             appCategories: ctx.meta.appCategories ?? null,
+            labels: ctx.meta.labels ?? null,
             authMethod: ctx.meta.authMethod ?? "api_key",
             oauthClientId: ctx.meta.oauthClientId ?? null,
             oauthUserId: ctx.meta.oauthUserId ?? null,
@@ -396,6 +397,7 @@ export async function handleFailureAudit(
             providerResponse: errorDetails ?? result.rawResponse ?? null,
             detailMetadata: {
                 stage: "execute",
+                labels: ctx.meta.labels ?? [],
                 client_source: ctx.meta.clientSource ?? null,
                 routing_snapshot: sanitizeForAxiom((ctx as any).routingSnapshot ?? null),
                 routing_diagnostics: sanitizeForAxiom((ctx as any).routingDiagnostics ?? null),
@@ -627,6 +629,7 @@ export async function handleSuccessAudit(
             appId: ctx.meta.appId ?? null,
             appName: ctx.meta.appName ?? null,
             appCategories: ctx.meta.appCategories ?? null,
+            labels: ctx.meta.labels ?? null,
             authMethod: ctx.meta.authMethod ?? "api_key",
             oauthClientId: ctx.meta.oauthClientId ?? null,
             oauthUserId: ctx.meta.oauthUserId ?? null,
@@ -676,6 +679,7 @@ export async function handleSuccessAudit(
             providerResponse: result.rawResponse ?? null,
             detailMetadata: {
                 stage: "execute",
+                labels: ctx.meta.labels ?? [],
                 client_source: ctx.meta.clientSource ?? null,
                 finish_reason: finishReason ?? null,
                 plugin_executions: sanitizeForAxiom(ctx.pluginExecutions ?? null),

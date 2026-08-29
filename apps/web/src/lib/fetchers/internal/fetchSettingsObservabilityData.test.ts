@@ -93,4 +93,16 @@ describe("fetchSettingsObservabilityData", () => {
 			status: "load-failed",
 		});
 	});
+
+	it("forwards a selected request label", async () => {
+		mockResolveAccessibleWorkspaceIdFromCookie.mockResolvedValue("accessible-workspace");
+		mockFetchAccountWebApi.mockResolvedValue({ workspaceId: "accessible-workspace" });
+
+		await fetchSettingsObservabilityData({ ...request, labelKey: "team", labelValue: "support" });
+
+		expect(mockFetchAccountWebApi).toHaveBeenCalledWith(
+			expect.stringContaining("label_key=team&label_value=support"),
+			"token",
+		);
+	});
 });

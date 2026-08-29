@@ -1,6 +1,7 @@
 import { fetchAccountWebApi } from "@/lib/web-api/client";
 import { getServerAccountContext } from "./serverAccountContext";
 import { resolveAccessibleWorkspaceIdFromCookie } from "@/utils/workspaceCookie";
+import type { UsageLabelFacet, UsageLabelSummary } from "./settingsTypes";
 
 export type ObservabilityRequestRow = {
 	created_at: string;
@@ -23,6 +24,8 @@ export type SettingsObservabilityData = {
 	appNameEntries: Array<[string, string]>;
 	current: ObservabilityRequestResult;
 	keys: Array<{ id: string; name: string | null; prefix: string | null }>;
+	labelFacets: UsageLabelFacet[];
+	labelSummary: UsageLabelSummary | null;
 	modelMetadataEntries: Array<[string, { organisationId: string; organisationName: string; modelName?: string }]>;
 	previous: ObservabilityRequestResult;
 	signedIn: boolean;
@@ -40,6 +43,8 @@ export async function fetchSettingsObservabilityData(args: {
 	to: string;
 	previousFrom: string;
 	previousTo: string;
+	labelKey?: string | null;
+	labelValue?: string | null;
 }): Promise<FetchSettingsObservabilityDataResult> {
 	const context = await getServerAccountContext();
 	if (!context.accessToken) return { status: "unauthenticated" };
@@ -55,7 +60,15 @@ export async function fetchSettingsObservabilityData(args: {
 	if (!workspaceId) return { status: "no-workspace" };
 
 	try {
-		const params = new URLSearchParams({ workspaceId, ...args });
+		const params = new URLSearchParams({
+			workspaceId,
+			from: args.from,
+			to: args.to,
+			previousFrom: args.previousFrom,
+			previousTo: args.previousTo,
+		});
+		if (args.labelKey) params.set("label_key", args.labelKey);
+		if (args.labelValue) params.set("label_value", args.labelValue);
 		const data = await fetchAccountWebApi<SettingsObservabilityData>(
 			`/api/account/settings/usage/observability?${params.toString()}`,
 			context.accessToken,

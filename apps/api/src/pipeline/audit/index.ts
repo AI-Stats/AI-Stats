@@ -5,7 +5,7 @@
 
 import { getSupabaseAdmin, ensureRuntimeForBackground, isLocalTestingModeEnabled } from "@/runtime/env";
 import { ensureAppId } from "../after/apps";
-import type { Endpoint } from "@core/types";
+import type { Endpoint, RequestLabel } from "@core/types";
 import { syncWorkspaceUsageRollupForRequest } from "@core/workspace-usage-rollups";
 import {
 	buildGatewayRequestUsageColumns,
@@ -19,6 +19,10 @@ import { protectStealthAuditArgs } from "./stealth-identity";
 function supaAdmin() {
     return getSupabaseAdmin();
 }
+
+
+
+
 
 function positiveMetric(value: number | null | undefined, round = false): number | null {
     if (value == null || !Number.isFinite(value) || value <= 0) return null;
@@ -261,6 +265,7 @@ async function upsertV2RequestFact(args: {
     providerAttempts?: Array<Record<string, unknown>> | null;
     routingSnapshot?: Array<Record<string, unknown>> | null;
     routingDiagnostics?: Record<string, unknown> | null;
+    labels?: RequestLabel[] | null;
 }) {
 	const publicRoutedModel = (() => {
 		const requested = args.requestedModel.trim();
@@ -519,6 +524,7 @@ async function upsertV2RequestFact(args: {
             safe_metadata: {
                 provider: args.provider ?? null,
                 routed_model: publicRoutedModel ?? args.requestedModel,
+				labels: args.labels ?? [],
 				cached_input_tokens_are_subset_of_input: cachedInputTokensAreSubset(args.usage),
                 edge_country: args.edgeCountry ? args.edgeCountry.trim().toUpperCase() : null,
                 edge_continent: args.edgeContinent ? args.edgeContinent.trim().toUpperCase() : null,
@@ -685,6 +691,7 @@ function buildSupaRow(args: {
     edgeAsn?: number | null;
     userAgent?: string | null;
     clientSource?: { id: string; name: string; kind: string; version: string | null; detection: string } | null;
+    labels?: RequestLabel[] | null;
     detailMetadata?: Record<string, unknown> | null;
 }) {
     const usageColumns = buildGatewayRequestUsageColumns({
@@ -696,6 +703,7 @@ function buildSupaRow(args: {
 
     const detailMetadata = {
         ...(args.detailMetadata ?? {}),
+        labels: args.labels ?? args.detailMetadata?.labels ?? [],
         client_source: args.clientSource ?? null,
         request: {
             ...(
@@ -825,6 +833,7 @@ export async function auditSuccess(input: {
     providerApiModelId?: string | null;
     providerModelSlug?: string | null;
     stream: boolean; byok: boolean;
+    labels?: RequestLabel[] | null;
     nativeResponseId?: string | null;
     appTitle?: string | null; referer?: string | null;
     appId?: string | null; appName?: string | null; appCategories?: string | null;
@@ -946,6 +955,7 @@ export async function auditSuccess(input: {
             finishReason: args.finishReason ?? null,
             userAgent: args.userAgent ?? null,
             clientSource: args.clientSource ?? null,
+            labels: args.labels ?? null,
             detailMetadata: args.detailMetadata ?? null,
         });
 
@@ -1040,6 +1050,7 @@ export async function auditSuccess(input: {
                     requestPayload: args.requestPayload,
                     gatewayResponse: args.gatewayResponse,
                     providerAttempts: args.providerAttempts ?? null,
+                    labels: args.labels ?? null,
                     routingSnapshot: Array.isArray((args.detailMetadata as any)?.routing_snapshot)
                         ? (args.detailMetadata as any).routing_snapshot
                         : null,
@@ -1156,6 +1167,7 @@ type AuditFailureBefore = {
     gatewayResponse?: unknown;
     providerResponse?: unknown;
     detailMetadata?: Record<string, unknown> | null;
+    labels?: RequestLabel[] | null;
 };
 type AuditFailureExecute = {
     stage: "execute";
@@ -1207,6 +1219,7 @@ type AuditFailureExecute = {
     providerRequest?: unknown;
     providerResponse?: unknown;
     detailMetadata?: Record<string, unknown> | null;
+    labels?: RequestLabel[] | null;
     usage?: Record<string, unknown> | null;
     currency?: string | null;
     pricingLines?: unknown[] | null;
@@ -1265,6 +1278,7 @@ export async function auditFailure(input: AuditFailureBefore | AuditFailureExecu
                 edgeAsn: args.edgeAsn ?? null,
                 userAgent: args.userAgent ?? null,
                 clientSource: args.clientSource ?? null,
+                labels: args.labels ?? null,
                 detailMetadata: args.detailMetadata ?? null,
             });
 
@@ -1327,6 +1341,7 @@ export async function auditFailure(input: AuditFailureBefore | AuditFailureExecu
                             requestPayload: args.requestPayload,
                             gatewayResponse: args.gatewayResponse,
                             providerAttempts: args.providerAttempts ?? null,
+                            labels: args.labels ?? null,
                             routingSnapshot: Array.isArray((args.detailMetadata as any)?.routing_snapshot)
                                 ? (args.detailMetadata as any).routing_snapshot
                                 : null,
@@ -1442,6 +1457,7 @@ export async function auditFailure(input: AuditFailureBefore | AuditFailureExecu
             edgeAsn: args.edgeAsn ?? null,
             userAgent: args.userAgent ?? null,
             clientSource: args.clientSource ?? null,
+            labels: args.labels ?? null,
             detailMetadata: args.detailMetadata ?? null,
         });
 
@@ -1514,6 +1530,7 @@ export async function auditFailure(input: AuditFailureBefore | AuditFailureExecu
                         requestPayload: args.requestPayload,
                         gatewayResponse: args.gatewayResponse,
                         providerAttempts: args.providerAttempts ?? null,
+                        labels: args.labels ?? null,
                         routingSnapshot: Array.isArray((args.detailMetadata as any)?.routing_snapshot)
                             ? (args.detailMetadata as any).routing_snapshot
                             : null,
@@ -1583,7 +1600,3 @@ export async function auditFailure(input: AuditFailureBefore | AuditFailureExecu
         releaseRuntime();
     }
 }
-
-
-
-

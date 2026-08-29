@@ -31,7 +31,7 @@ function queryResult(
 		onSelect?.(columns);
 		return query;
 	});
-	for (const method of ["eq", "gte", "lt", "in", "order", "range"]) {
+	for (const method of ["eq", "gte", "lt", "in", "order", "range", "contains"]) {
 		query[method] = vi.fn(() => query);
 	}
 	query.then = (resolve: (value: unknown) => unknown) => Promise.resolve(result).then(resolve);
@@ -72,6 +72,7 @@ describe("analyticsRoutes", () => {
 					requested_model_slug: "openai/gpt-test",
 					routed_model_slug: "openai/gpt-test",
 					provider_model_id: "openai:gpt-test",
+					safe_metadata: { labels: [{ key: "team", value: "support" }] },
 					cost_nanos: "1500000000",
 					byok: true,
 					v2_request_usage: [
@@ -108,6 +109,30 @@ describe("analyticsRoutes", () => {
 				reasoning_tokens: 2,
 			}),
 		]);
+	});
+
+	it("filters spend by a request label", async () => {
+		let containsCalls = 0;
+		let factQueries = 0;
+		getSupabaseAdminMock.mockReturnValue({
+			from: vi.fn((table: string) => {
+				if (table !== "v2_request_facts") throw new Error(`unexpected table: ${table}`);
+				factQueries += 1;
+				const result = queryResult(factQueries === 1
+					? { data: [], error: null, count: 0 }
+					: { data: [], error: null });
+				const originalContains = result.contains;
+				result.contains = vi.fn((...args: unknown[]) => {
+					containsCalls += 1;
+					return (originalContains as (...inner: unknown[]) => unknown)(...args);
+				});
+				return result;
+			}),
+		});
+
+		const response = await analyticsRoutes.request("https://example.com/?label_key=team&label_value=support");
+		expect(response.status).toBe(200);
+		expect(containsCalls).toBe(2);
 	});
 
 	it("fails closed when a raw analytics range exceeds the row cap", async () => {

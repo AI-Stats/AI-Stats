@@ -366,6 +366,8 @@ export default function UnifiedRequestsTable({
 	const [requestFilter] = useQueryState("req");
 	const [sessionFilter] = useQueryState("session");
 	const [sourceFilter] = useQueryState("source");
+	const [labelKey] = useQueryState("label_key");
+	const [labelValue] = useQueryState("label_value");
 	const [inputTokensFilter] = useQueryState("input_tokens");
 	const [inputTokensMax] = useQueryState("input_tokens_max");
 	const [inputTokensOperator] = useQueryState("input_tokens_op");
@@ -425,7 +427,7 @@ export default function UnifiedRequestsTable({
 	const [dialogOpen, setDialogOpen] = useState(false);
 	// Build cache key from filters
 	const getCacheKey = useCallback(() => {
-		return `${timeRange.from}-${timeRange.to}-${pageSize}-${modelFilter}-${providerFilter}-${appFilter}-${endpointFilter}-${finishReasonFilter}-${streamFilter}-${errorCodeFilter}-${statusCodeFilter}-${keyFilter}-${statusFilter}-${requestFilter}-${sessionFilter}-${sourceFilter}-${inputTokensFilter}-${inputTokensMax}-${inputTokensOperator}-${outputTokensFilter}-${outputTokensMax}-${outputTokensOperator}-${totalTokensFilter}-${totalTokensMax}-${totalTokensOperator}-${JSON.stringify(filterOperators)}`;
+		return `${timeRange.from}-${timeRange.to}-${pageSize}-${modelFilter}-${providerFilter}-${appFilter}-${endpointFilter}-${finishReasonFilter}-${streamFilter}-${errorCodeFilter}-${statusCodeFilter}-${keyFilter}-${statusFilter}-${requestFilter}-${sessionFilter}-${sourceFilter}-${labelKey}-${labelValue}-${inputTokensFilter}-${inputTokensMax}-${inputTokensOperator}-${outputTokensFilter}-${outputTokensMax}-${outputTokensOperator}-${totalTokensFilter}-${totalTokensMax}-${totalTokensOperator}-${JSON.stringify(filterOperators)}`;
 	}, [
 		timeRange,
 		pageSize,
@@ -442,6 +444,8 @@ export default function UnifiedRequestsTable({
 		requestFilter,
 		sessionFilter,
 		sourceFilter,
+		labelKey,
+		labelValue,
 		inputTokensFilter, inputTokensMax, inputTokensOperator,
 		outputTokensFilter, outputTokensMax, outputTokensOperator,
 		totalTokensFilter, totalTokensMax, totalTokensOperator,
@@ -486,7 +490,9 @@ export default function UnifiedRequestsTable({
 					statusFilter: (statusFilter as any) || "all",
 					requestFilter: requestFilter || null,
 					sessionFilter: sessionFilter || null,
-					 sourceFilter: sourceFilter || null,
+					sourceFilter: sourceFilter || null,
+					labelKey: labelKey || null,
+					labelValue: labelValue || null,
 					filterOperators,
 					inputTokensFilter: inputTokensFilter || null,
 					inputTokensMax: inputTokensMax || null,
@@ -578,6 +584,8 @@ export default function UnifiedRequestsTable({
 			requestFilter,
 			sessionFilter,
 			sourceFilter,
+			labelKey,
+			labelValue,
 			pageCursors,
 			filterOperators,
 			inputTokensFilter, inputTokensMax, inputTokensOperator,

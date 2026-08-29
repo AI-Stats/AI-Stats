@@ -5036,6 +5036,8 @@ export type GetActivityAliasParams = {
   path?: Record<string, never>;
   query?: {
     date?: string;
+    label_key?: string;
+    label_value?: string;
   };
   headers?: Record<string, never>;
   body?: never;

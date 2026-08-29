@@ -38,6 +38,7 @@ import {
 } from "../requestRouting";
 import { fetchWorkspacePolicy, applyWorkspacePolicy } from "./workspacePolicy";
 import { getWebhookEndpointSigningConfig } from "@core/webhook-endpoints";
+import { parseRequestLabels } from "./request-labels";
 import {
     applyDynamicRouteToBody,
     evaluateDynamicRoute,
@@ -248,6 +249,18 @@ export async function beforeRequest(
     );
     if (!j.ok) return j as { ok: false; response: Response };
     let rawBody = j.value;
+    const requestLabels = parseRequestLabels(req);
+    if (requestLabels.ok === false) {
+        return {
+            ok: false,
+            response: err("validation_error", {
+                reason: "invalid_request_metadata",
+                description: requestLabels.message,
+                request_id: requestId,
+                workspace_id: workspaceId,
+            }),
+        };
+    }
     const requestedModel = typeof rawBody?.model === "string" && rawBody.model.trim()
         ? rawBody.model.trim()
         : null;
@@ -1066,6 +1079,7 @@ export async function beforeRequest(
         beforeContextCacheWriteMs: contextTelemetry?.cacheWriteMs ?? null,
         beforeContextFallbackRemap: contextTelemetry?.fallbackRemap ?? null,
         startedAtMs: requestStartedAtMs,
+        labels: requestLabels.labels,
     });
     const requestPath = meta.requestPath ?? null;
 
