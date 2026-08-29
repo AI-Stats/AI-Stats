@@ -7,6 +7,7 @@ import type { Protocol } from "@protocols/detect";
 import { encodeUnifiedStreamEvent, type StreamProtocol } from "@protocols/stream/encode";
 import { extractUnifiedStreamEvents, type UnifiedStreamEvent } from "../after/stream-events";
 import { getBindings } from "@/runtime/env";
+import { validateWebhookEndpointUrlForDelivery } from "@core/webhook-endpoints";
 
 export const DATETIME_SERVER_TOOL_TYPE = "phaseo:datetime";
 export const LEGACY_DATETIME_SERVER_TOOL_TYPE = "gateway:datetime";
@@ -1922,11 +1923,24 @@ function resolveFetchDomains(args: Record<string, unknown>, config: ServerToolCo
 	allowedDomains: string[];
 	blockedDomains: string[];
 } {
-	const allowedDomains = readStringArray(args.allowed_domains);
-	const blockedDomains = readStringArray(args.blocked_domains ?? args.excluded_domains);
+	const requestedAllowedDomains = readStringArray(args.allowed_domains);
+	const configuredAllowedDomains = config.webFetchAllowedDomains ?? [];
+	const allowedDomains = configuredAllowedDomains.length === 0
+		? requestedAllowedDomains
+		: requestedAllowedDomains.length === 0
+			? configuredAllowedDomains
+			: requestedAllowedDomains.filter((requested) =>
+				configuredAllowedDomains.some((configured) =>
+					hostnameMatchesDomain(requested.replace(/^\*\./, ""), configured),
+				),
+			);
+	const blockedDomains = Array.from(new Set([
+		...(config.webFetchBlockedDomains ?? []),
+		...readStringArray(args.blocked_domains ?? args.excluded_domains),
+	]));
 	return {
-		allowedDomains: allowedDomains.length > 0 ? allowedDomains : (config.webFetchAllowedDomains ?? []),
-		blockedDomains: blockedDomains.length > 0 ? blockedDomains : (config.webFetchBlockedDomains ?? []),
+		allowedDomains,
+		blockedDomains,
 	};
 }
 
@@ -2477,8 +2491,7 @@ async function executeWebFetchToolCall(
 		};
 	}
 
-	const requestedEngine = toNonEmptyString(args.engine) ? readWebFetchEngine(args.engine) : "auto";
-	const engine = requestedEngine === "auto" ? (config.webFetchEngine ?? DEFAULT_WEB_FETCH_ENGINE) : requestedEngine;
+	const engine = config.webFetchEngine ?? DEFAULT_WEB_FETCH_ENGINE;
 	if (engine === "native") {
 		return {
 			toolResult: {
@@ -2552,7 +2565,21 @@ async function executeWebFetchToolCall(
 		let currentUrl = url;
 		let response: Response | null = null;
 		for (let redirectCount = 0; redirectCount <= SERVER_TOOL_DIRECT_FETCH_MAX_REDIRECTS; redirectCount += 1) {
-			response = await fetchWithTimeout(currentUrl, {
+			const validated = await validateWebhookEndpointUrlForDelivery(currentUrl);
+			if (!validated.ok) {
+				return {
+					toolResult: {
+						toolCallId: call.id,
+						isError: true,
+						content: JSON.stringify({
+							error: "url_destination_rejected",
+							message: "url destination is not publicly routable",
+						}),
+					},
+					webFetchRequests: 0,
+				};
+			}
+			response = await fetchWithTimeout(validated.url, {
 				method: "GET",
 				headers: {
 					Accept: "text/html,text/plain,application/json;q=0.9,*/*;q=0.8",

@@ -31,8 +31,6 @@ function extractNamedStep(job, name) {
 }
 
 export function validateCiSecretBoundaries(workflow) {
-	const previewJob = extractJob(workflow, "deploy-preview-web");
-	const previewCondition = extractCondition(previewJob, "deploy-preview-web");
 	const migrationValidationJob = extractJob(workflow, "migration-validation");
 	const productionMigrationJob = extractJob(workflow, "migrate-production");
 	const productionMigrationCondition = extractCondition(
@@ -46,20 +44,8 @@ export function validateCiSecretBoundaries(workflow) {
 		throw new Error("merge_group validation must remain enabled for merge queue checks");
 	}
 
-	if (!previewJob.includes("VERCEL_TOKEN")) {
-		throw new Error("Expected deploy-preview-web to remain the Vercel credential boundary");
-	}
-
-	if (previewCondition.includes("merge_group")) {
-		throw new Error("deploy-preview-web must never run for merge_group events");
-	}
-
-	if (!previewCondition.includes("github.event.pull_request.head.repo.full_name == github.repository")) {
-		throw new Error("deploy-preview-web must require same-repository pull requests");
-	}
-
-	if (!previewCondition.includes('OWNER","MEMBER","COLLABORATOR')) {
-		throw new Error("deploy-preview-web must require a trusted pull-request author association");
+	if (workflow.includes("\n    deploy-preview-web:")) {
+		throw new Error("pull-request code must not execute in a Vercel credential-bearing deployment job");
 	}
 
 	if (migrationValidationJob.includes("secrets.")) {

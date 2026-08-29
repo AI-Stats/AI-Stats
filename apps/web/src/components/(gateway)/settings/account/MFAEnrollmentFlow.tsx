@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
 import {
     InputOTP,
     InputOTPGroup,
@@ -23,7 +24,7 @@ import { toast } from 'sonner'
 import { Loader2, QrCode, Key, CheckCircle2, Copy } from 'lucide-react'
 import Image from 'next/image'
 
-type EnrollmentStep = 'qr-code' | 'verify' | 'success'
+type EnrollmentStep = 'authenticate' | 'qr-code' | 'verify' | 'success'
 
 interface MFAEnrollmentFlowProps {
     open: boolean
@@ -36,24 +37,26 @@ export function MFAEnrollmentFlow({
     onOpenChange,
     onSuccess,
 }: MFAEnrollmentFlowProps) {
-    const [step, setStep] = React.useState<EnrollmentStep>('qr-code')
+    const [step, setStep] = React.useState<EnrollmentStep>('authenticate')
     const [loading, setLoading] = React.useState(false)
     const [qrCode, setQrCode] = React.useState<string | null>(null)
     const [secret, setSecret] = React.useState<string | null>(null)
     const [factorId, setFactorId] = React.useState<string | null>(null)
     const [verificationCode, setVerificationCode] = React.useState('')
     const [secretCopied, setSecretCopied] = React.useState(false)
+    const [currentPassword, setCurrentPassword] = React.useState('')
 
     // Reset state when dialog closes
     React.useEffect(() => {
 		if (open) return
 		const timeout = window.setTimeout(() => {
-			setStep('qr-code')
+			setStep('authenticate')
 			setQrCode(null)
 			setSecret(null)
 			setFactorId(null)
 			setVerificationCode('')
 			setSecretCopied(false)
+			setCurrentPassword('')
 		}, 300)
 		return () => window.clearTimeout(timeout)
     }, [open])
@@ -61,29 +64,17 @@ export function MFAEnrollmentFlow({
     const startEnrollment = React.useCallback(async () => {
         setLoading(true)
         try {
-            const result = await enrollMFAAction()
+            const result = await enrollMFAAction(currentPassword || undefined)
             setQrCode(result.qrCode)
             setSecret(result.secret)
             setFactorId(result.factorId)
+			setStep('qr-code')
         } catch (error: any) {
             toast.error(error.message || 'Failed to start MFA setup')
-            onOpenChange(false)
         } finally {
             setLoading(false)
         }
-    }, [onOpenChange])
-
-    // Start enrollment when dialog opens
-    React.useEffect(() => {
-        if (!open || step !== 'qr-code' || qrCode || loading) return
-        let cancelled = false
-        queueMicrotask(() => {
-            if (!cancelled) void startEnrollment()
-        })
-        return () => {
-            cancelled = true
-        }
-    }, [loading, open, qrCode, startEnrollment, step])
+    }, [currentPassword])
 
     const copySecret = async () => {
         if (!secret) return
@@ -107,7 +98,8 @@ export function MFAEnrollmentFlow({
         try {
             await verifyMFAEnrollmentAction(
                 factorId,
-                verificationCode
+				verificationCode,
+				currentPassword || undefined
             )
             setStep('success')
         } catch (error: any) {
@@ -126,6 +118,29 @@ export function MFAEnrollmentFlow({
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-md">
+				{step === 'authenticate' && (
+					<>
+						<DialogHeader>
+							<DialogTitle>Confirm your identity</DialogTitle>
+							<DialogDescription>
+								Enter your current password, or continue after a recent provider sign-in.
+							</DialogDescription>
+						</DialogHeader>
+						<div className="space-y-4">
+							<div className="space-y-2">
+								<Label htmlFor="mfa-current-password">Current password</Label>
+								<Input id="mfa-current-password" type="password" autoComplete="current-password" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} />
+							</div>
+							<div className="flex justify-end gap-2">
+								<Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+								<Button onClick={() => void startEnrollment()} disabled={loading}>
+									{loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+									Continue
+								</Button>
+							</div>
+						</div>
+					</>
+				)}
                 {/* QR Code Step */}
                 {step === 'qr-code' && (
                     <>

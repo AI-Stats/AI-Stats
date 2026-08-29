@@ -18,6 +18,7 @@ import {
 } from "./provider-catalog-sync";
 
 const providerSlugSchema = z.string().trim().toLowerCase().min(2).max(64).regex(/^[a-z0-9][a-z0-9._-]*$/);
+const MAX_PROVIDER_SOURCES_PER_USER = 5;
 const httpsUrlSchema = z.string().trim().url().refine((value) => new URL(value).protocol === "https:");
 const profileSchema = z.object({
 	providerSlug: providerSlugSchema,
@@ -74,6 +75,29 @@ function publicPreview(preview: ProviderCatalogPreview) {
 		issues: preview.issues,
 		models: preview.models,
 	};
+}
+
+async function enforceOnboardingRateLimit(c: any, userId: string) {
+	const limiter = c.env.PROVIDER_ONBOARDING_RATE_LIMITER;
+	if (!limiter) {
+		return c.env.ENV === "production"
+			? c.json({ error: "provider_onboarding_rate_limit_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS)
+			: null;
+	}
+	try {
+		if (!(await limiter.limit({ key: userId })).success) {
+			return c.json({ error: "rate_limited", message: "Too many provider catalog requests. Try again shortly." }, 429, {
+				...PRIVATE_NO_STORE_HEADERS,
+				"retry-after": "60",
+			});
+		}
+		return null;
+	} catch (error) {
+		console.error("provider_onboarding_rate_limit_failed", { userId, error: error instanceof Error ? error.message : String(error) });
+		return c.env.ENV === "production"
+			? c.json({ error: "provider_onboarding_rate_limit_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS)
+			: null;
+	}
 }
 
 async function accessibleWorkspaceIds(client: any, userId: string): Promise<string[]> {
@@ -183,6 +207,8 @@ accountSettingsProviderOnboardingRouter.get("/provider-onboarding", async (c) =>
 accountSettingsProviderOnboardingRouter.post("/provider-onboarding/preview", async (c) => {
 	const user = await requireUser(c.req.raw, c.env);
 	if (!user) return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
+	const rateLimitResponse = await enforceOnboardingRateLimit(c, user.id);
+	if (rateLimitResponse) return rateLimitResponse;
 	const body = await c.req.json<{ catalogUrl?: unknown }>().catch((): { catalogUrl?: unknown } => ({}));
 	const url = validateCatalogUrl(body.catalogUrl);
 	if (url.ok === false) return responseError(c, url.message);
@@ -198,6 +224,8 @@ accountSettingsProviderOnboardingRouter.post("/provider-onboarding/preview", asy
 accountSettingsProviderOnboardingRouter.post("/provider-onboarding/submit", async (c) => {
 	const user = await requireUser(c.req.raw, c.env);
 	if (!user) return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
+	const rateLimitResponse = await enforceOnboardingRateLimit(c, user.id);
+	if (rateLimitResponse) return rateLimitResponse;
 	const rawBody = await c.req.json().catch(() => null);
 	const parsed = profileSchema.safeParse(rawBody);
 	if (!parsed.success) return responseError(c, parsed.error.issues[0]?.message ?? "Complete all provider fields.");
@@ -208,6 +236,20 @@ accountSettingsProviderOnboardingRouter.post("/provider-onboarding/submit", asyn
 		return responseError(c, "The catalog URL must be hosted on the provider website domain or a subdomain.");
 	}
 	const client = getDataClient(c.env);
+	const existingSourcePreflight = await client.from("provider_catalog_sources")
+		.select("provider_slug,status")
+		.eq("provider_slug", input.providerSlug)
+		.maybeSingle();
+	if (existingSourcePreflight.error) return c.json({ error: "provider_sync_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	if (!existingSourcePreflight.data) {
+		const ownedSourceCount = await client.from("provider_catalog_sources")
+			.select("provider_slug", { count: "exact", head: true })
+			.eq("created_by", user.id);
+		if (ownedSourceCount.error) return c.json({ error: "provider_sync_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+		if ((ownedSourceCount.count ?? 0) >= MAX_PROVIDER_SOURCES_PER_USER) {
+			return responseError(c, `A user can manage at most ${MAX_PROVIDER_SOURCES_PER_USER} provider catalog sources.`, 409);
+		}
+	}
 
 	let catalog: Awaited<ReturnType<typeof fetchAndValidateProviderCatalog>>;
 	try {
@@ -277,10 +319,12 @@ accountSettingsProviderOnboardingRouter.post("/provider-onboarding/submit", asyn
 	}, { onConflict: "provider_slug" }).select("provider_slug,name,status,routable,routing_enabled").single();
 	if (provider.error) return c.json({ error: "provider_profile_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 
-	const existingSource = await client.from("provider_catalog_sources")
-		.select("provider_slug,status,delivery_mode,catalog_url")
-		.eq("provider_slug", input.providerSlug)
-		.maybeSingle();
+	const existingSource = existingSourcePreflight.data
+		? await client.from("provider_catalog_sources")
+			.select("provider_slug,status,delivery_mode,catalog_url")
+			.eq("provider_slug", input.providerSlug)
+			.maybeSingle()
+		: { data: null, error: null };
 	if (existingSource.error) return c.json({ error: "provider_sync_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	let webhookSecret: string | null = null;
 	if (!existingSource.data) {

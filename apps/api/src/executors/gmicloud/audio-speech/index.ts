@@ -27,11 +27,11 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	const extensions = (vendor?.gmicloud ?? raw.gmicloud ?? vendor?.minimax ?? raw.minimax ?? {}) as Record<string, any>;
 	const format = ir.responseFormat ?? ir.format ?? "mp3";
 	const payload: Record<string, unknown> = {
+		...extensions,
 		text: ir.input,
 		...(voiceName(ir.voice) ? { voice_id: voiceName(ir.voice) } : {}),
 		format,
 		...(typeof ir.speed === "number" ? { speed: String(ir.speed) } : {}),
-		...extensions,
 	};
 	const requestBody = JSON.stringify({ model, payload });
 	const mappedRequest = args.meta.echoUpstreamRequest || args.meta.returnUpstreamRequest ? requestBody : undefined;

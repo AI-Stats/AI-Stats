@@ -16,6 +16,15 @@ type EnsureAppIdCacheEntry = {
 const ensureAppIdL1 = new Map<string, EnsureAppIdCacheEntry>();
 const ensureAppIdInflight = new Map<string, Promise<string | null>>();
 
+export function normalizeAppAttributionText(
+	value: string | null | undefined,
+	maxLength = 2_048,
+): string | null {
+	const normalized = String(value ?? "").replace(/\u0000/g, "").trim();
+	if (!normalized) return null;
+	return normalized.slice(0, maxLength);
+}
+
 function ensureAppIdCacheKey(workspaceId: string, appKey: string): string {
 	return `${workspaceId}:${appKey}`;
 }
@@ -181,7 +190,12 @@ export async function ensureAppId(params: {
     appName?: string | null;
     appCategories?: string | null;
 }): Promise<string | null> {
-    const { workspaceId, appTitle, referer, appId, appName, appCategories } = params;
+    const workspaceId = params.workspaceId;
+    const appTitle = normalizeAppAttributionText(params.appTitle, 512);
+    const referer = normalizeAppAttributionText(params.referer);
+    const appId = normalizeAppAttributionText(params.appId, 256);
+    const appName = normalizeAppAttributionText(params.appName, 512);
+    const appCategories = normalizeAppAttributionText(params.appCategories, 1_024);
     if (![appTitle, referer, appId, appName].some((value) => String(value ?? "").trim().length > 0)) {
         return null;
     }
@@ -198,7 +212,7 @@ export async function ensureAppId(params: {
     const inflight = ensureAppIdInflight.get(cacheKey);
     if (inflight) {
         await inflight;
-        return ensureAppId(params);
+        return ensureAppId({ workspaceId, appTitle, referer, appId, appName, appCategories });
     }
 
     const loader = (async (): Promise<string | null> => {
@@ -313,7 +327,6 @@ export async function ensureAppId(params: {
         }
     }
 }
-
 
 
 

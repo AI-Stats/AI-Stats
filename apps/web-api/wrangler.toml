@@ -53,6 +53,16 @@ namespace_id = "42001"
 limit = 5
 period = 60
 
+# Provider catalog previews and submissions perform bounded but non-trivial
+# remote fetches. Scope this limiter by authenticated user in application code.
+[[ratelimits]]
+name = "PROVIDER_ONBOARDING_RATE_LIMITER"
+namespace_id = "42003"
+
+[ratelimits.simple]
+limit = 10
+period = 60
+
 # SCIM clients retry and burst during directory synchronization. This limit is
 # workspace-token scoped in application code and allows the documented 25 rps.
 [[ratelimits]]

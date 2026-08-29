@@ -145,7 +145,10 @@ function isIpLiteral(hostnameRaw: string): boolean {
 	return isPrivateIpv4(hostname) || /^\d+\.\d+\.\d+\.\d+$/.test(hostname) || parseIpv6Words(hostname) !== null;
 }
 
-export function validateWebhookEndpointUrl(value: unknown): WebhookEndpointUrlValidation {
+export function validateWebhookEndpointUrl(
+	value: unknown,
+	options?: { allowHttp?: boolean },
+): WebhookEndpointUrlValidation {
 	const text = normalizeText(value);
 	if (!text) return { ok: false, reason: "webhook_url_required" };
 	let parsed: URL;
@@ -154,7 +157,7 @@ export function validateWebhookEndpointUrl(value: unknown): WebhookEndpointUrlVa
 	} catch {
 		return { ok: false, reason: "webhook_url_invalid" };
 	}
-	if (parsed.protocol !== "https:") {
+	if (parsed.protocol !== "https:" && !(options?.allowHttp && parsed.protocol === "http:")) {
 		return { ok: false, reason: "webhook_url_must_use_https" };
 	}
 	if (isPrivateOrLocalhostLiteral(parsed.hostname)) {
@@ -196,9 +199,10 @@ export async function validateWebhookEndpointUrlForDelivery(
 	options?: {
 		resolveAddresses?: DnsResolver;
 		forceDns?: boolean;
+		allowHttp?: boolean;
 	},
 ): Promise<WebhookEndpointUrlValidation> {
-	const validated = validateWebhookEndpointUrl(value);
+	const validated = validateWebhookEndpointUrl(value, { allowHttp: options?.allowHttp });
 	if (!validated.ok) return validated;
 	const hostname = new URL(validated.url).hostname;
 	if (isIpLiteral(hostname)) return validated;

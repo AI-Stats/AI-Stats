@@ -1902,6 +1902,7 @@ describe("buildServerToolContinuation", () => {
 					webSearchIncludeText: false,
 					webSearchIncludeHighlights: true,
 					webFetchEnabled: true,
+					webFetchEngine: "parallel",
 					webFetchMaxChars: 12000,
 				},
 			);
@@ -1986,6 +1987,7 @@ describe("buildServerToolContinuation", () => {
 					webSearchIncludeText: false,
 					webSearchIncludeHighlights: true,
 					webFetchEnabled: true,
+					webFetchEngine: "firecrawl",
 					webFetchMaxChars: 12000,
 				},
 			);

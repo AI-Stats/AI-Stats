@@ -191,6 +191,15 @@ async function requirePasskeyStepUp(
     return { ok: true, user }
 }
 
+async function requireSensitiveAccountStepUp(
+    supabase: Awaited<ReturnType<typeof createClient>>,
+    currentPassword?: string
+) {
+    const stepUp = await requirePasskeyStepUp(supabase, currentPassword)
+    if (!stepUp.ok) throw new Error(stepUp.result.message)
+    return stepUp.user
+}
+
 export async function startPasskeyRegistrationAction(
     currentPassword?: string
 ): Promise<
@@ -342,14 +351,10 @@ export async function updateAccount(payload: {
 
     return { ok: true }
 }
-export async function deleteAccount() {
+export async function deleteAccount(confirmation: string, currentPassword?: string) {
+    if (confirmation.trim().toUpperCase() !== 'DELETE') throw new Error('Type DELETE to confirm account deletion')
     const supabase = await createClient()
-    const { data: authData } = await supabase.auth.getUser()
-    const authUser = authData.user
-
-    if (!authUser) {
-        throw new Error('Not authenticated')
-    }
+    const authUser = await requireSensitiveAccountStepUp(supabase, currentPassword)
 
     // Use admin client to delete the auth user (service role key required)
     const admin = createAdminClient()
@@ -487,14 +492,9 @@ export async function changeEmailAction(
  *
  * Uses a timestamp-based friendly name to ensure uniqueness for every enrollment attempt.
  */
-export async function enrollMFAAction() {
+export async function enrollMFAAction(currentPassword?: string) {
     const supabase = await createClient()
-    const { data: authData } = await supabase.auth.getUser()
-    const user = authData.user
-
-    if (!user) {
-        throw new Error('Not authenticated')
-    }
+    await requireSensitiveAccountStepUp(supabase, currentPassword)
 
     // Generate truly unique friendly name using timestamp
     // This ensures no conflicts even for multiple attempts in the same day
@@ -528,15 +528,17 @@ export async function enrollMFAAction() {
  */
 export async function verifyMFAEnrollmentAction(
     factorId: string,
-    code: string
+    code: string,
+    currentPassword?: string
 ) {
-    const supabase = await createClient()
-    const { data: authData } = await supabase.auth.getUser()
-    const user = authData.user
-
-    if (!user) {
-        throw new Error('Not authenticated')
+    if (!z.string().uuid().safeParse(factorId).success || !/^\d{6}$/.test(code)) {
+        throw new Error('Invalid MFA enrollment response')
     }
+    const supabase = await createClient()
+    await requireSensitiveAccountStepUp(supabase, currentPassword)
+	const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors()
+	const pendingFactor = factors?.totp?.find((factor) => factor.id === factorId && (factor as any).status === 'unverified')
+	if (factorsError || !pendingFactor) throw new Error('MFA enrollment is not bound to this account')
 
     // Create challenge
     const { data: challengeData, error: challengeError } =

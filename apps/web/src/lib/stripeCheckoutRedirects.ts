@@ -20,13 +20,14 @@ export function resolveStripeCheckoutBaseUrl(args: {
 	originHeader?: string | null;
 	refererHeader?: string | null;
 	fallbackBaseUrl?: string;
+	allowRequestHeaderFallback?: boolean;
 }): string {
 	const fallbackBaseUrl = args.fallbackBaseUrl ?? "http://localhost:3000";
 
 	return (
 		normalizeHttpOrigin(args.configuredBaseUrl) ??
-		normalizeHttpOrigin(args.originHeader) ??
-		normalizeHttpOrigin(args.refererHeader) ??
+		(args.allowRequestHeaderFallback ? normalizeHttpOrigin(args.originHeader) : null) ??
+		(args.allowRequestHeaderFallback ? normalizeHttpOrigin(args.refererHeader) : null) ??
 		normalizeHttpOrigin(fallbackBaseUrl) ??
 		"http://localhost:3000"
 	);
@@ -38,6 +39,7 @@ export function buildStripeCheckoutRedirectUrls(args: {
 	refererHeader?: string | null;
 	kind?: string | null;
 	paymentAttempt?: number | string | null;
+	allowRequestHeaderFallback?: boolean;
 }): {
 	baseUrl: string;
 	settingsCreditsUrl: string;

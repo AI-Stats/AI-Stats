@@ -102,4 +102,20 @@ describe("OAuth client ID metadata documents", () => {
 
 		await expect(loadOAuthClient(clientId)).resolves.toBeNull();
 	});
+
+	it("bounds cached metadata documents per origin", async () => {
+		const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+			const clientId = String(input);
+			return Response.json({
+				client_id: clientId,
+				client_name: `Client ${new URL(clientId).pathname}`,
+				redirect_uris: ["https://cache-limit.example/callback"],
+			});
+		});
+		vi.stubGlobal("fetch", fetchMock);
+		const ids = Array.from({ length: 17 }, (_, index) => `https://cache-limit.example/client-${index}.json`);
+		for (const id of ids) await expect(loadOAuthClient(id)).resolves.not.toBeNull();
+		await expect(loadOAuthClient(ids[0])).resolves.not.toBeNull();
+		expect(fetchMock).toHaveBeenCalledTimes(18);
+	});
 });

@@ -1,3 +1,5 @@
+import { googleOAuthTokenRequestInit, resolveGoogleOAuthTokenUri } from "./token-uri";
+
 type VertexServiceAccount = {
 	client_email: string;
 	private_key: string;
@@ -77,7 +79,7 @@ function isVertexServiceAccount(payload: Record<string, unknown>): payload is Ve
 }
 
 async function mintServiceAccountAccessToken(sa: VertexServiceAccount): Promise<string> {
-	const tokenUri = sa.token_uri || "https://oauth2.googleapis.com/token";
+	const tokenUri = resolveGoogleOAuthTokenUri(sa.token_uri);
 	const now = Math.floor(Date.now() / 1000);
 	const header = { alg: "RS256", typ: "JWT" };
 	const claimSet = {
@@ -100,13 +102,7 @@ async function mintServiceAccountAccessToken(sa: VertexServiceAccount): Promise<
 		assertion,
 	});
 
-	const res = await fetch(tokenUri, {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/x-www-form-urlencoded",
-		},
-		body,
-	});
+	const res = await fetch(tokenUri, googleOAuthTokenRequestInit(body));
 
 	if (!res.ok) {
 		throw vertexError(`google-vertex_oauth_error_${res.status}`);

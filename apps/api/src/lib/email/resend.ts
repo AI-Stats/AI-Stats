@@ -11,6 +11,7 @@ type SendEmailArgs = {
 	};
 	from?: string;
 	idempotencyKey?: string;
+	signal?: AbortSignal;
 };
 
 export async function sendEmail(args: SendEmailArgs): Promise<void> {
@@ -27,6 +28,7 @@ export async function sendEmail(args: SendEmailArgs): Promise<void> {
 
 	if (args.template?.id) {
 		const res = await fetch("https://api.resend.com/emails", {
+			signal: args.signal,
 			method: "POST",
 			headers: {
 				Authorization: `Bearer ${apiKey}`,
@@ -61,6 +63,7 @@ export async function sendEmail(args: SendEmailArgs): Promise<void> {
 	if (!args.html) throw new Error("missing_email_html");
 
 	const res = await fetch("https://api.resend.com/emails", {
+		signal: args.signal,
 		method: "POST",
 		headers: {
 			Authorization: `Bearer ${apiKey}`,
@@ -86,4 +89,3 @@ export async function sendEmail(args: SendEmailArgs): Promise<void> {
 		throw new Error(`resend_error:${res.status}:${detail || res.statusText}`);
 	}
 }
-

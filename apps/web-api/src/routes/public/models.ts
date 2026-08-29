@@ -768,6 +768,7 @@ function v2ModelPageShape(
 }
 
 export const publicModelsRouter = new Hono<{ Bindings: Env }>();
+const PUBLIC_TELEMETRY_MIN_REQUESTS = 20;
 
 /** Main models API. Deliberately excludes volatile benchmark/performance data. */
 publicModelsRouter.get("/", async (c) => {
@@ -1065,11 +1066,18 @@ publicModelsRouter.get("/:modelId/realtime", async (c) => {
 				throughputs.push((tokens * 1_000) / generationMs);
 			}
 		}
-		return withPublicCache(c.json({ stats: {
-			requestsInWindow: rows.length,
-			latencyP50Ms: median(latencies),
-			throughputP50TokPerSec: median(throughputs),
-		} }), sectionPolicy("realtime", modelId));
+		const hasPublicSample = rows.length >= PUBLIC_TELEMETRY_MIN_REQUESTS;
+		const hasPublicLatencySample = latencies.length >= PUBLIC_TELEMETRY_MIN_REQUESTS;
+		const hasPublicThroughputSample = throughputs.length >= PUBLIC_TELEMETRY_MIN_REQUESTS;
+		return withPublicCache(c.json({
+			available: hasPublicSample,
+			minimumSampleSize: PUBLIC_TELEMETRY_MIN_REQUESTS,
+			stats: {
+				requestsInWindow: hasPublicSample ? rows.length : null,
+				latencyP50Ms: hasPublicLatencySample ? median(latencies) : null,
+				throughputP50TokPerSec: hasPublicThroughputSample ? median(throughputs) : null,
+			},
+		}), sectionPolicy("realtime", modelId));
 	} catch (error) {
 		console.error("[web-api/models] realtime stats failed", { modelId, error });
 		return c.json({ error: "model_realtime_unavailable" }, 503);
@@ -1497,7 +1505,7 @@ publicModelsRouter.get("/:modelId/performance/colos", async (c) => {
 			? (result.data as Array<Record<string, unknown>>).map((row) => ({
 				colo: String(row.cloudflare_colo ?? "").trim().toUpperCase(),
 				requests: Number(row.request_count ?? 0),
-			})).filter((row) => /^[A-Z0-9]{3}$/.test(row.colo))
+			})).filter((row) => /^[A-Z0-9]{3}$/.test(row.colo) && row.requests >= PUBLIC_TELEMETRY_MIN_REQUESTS)
 			: [];
 		return withPublicCache(c.json({ modelId, colos }), sectionPolicy("performance", modelId));
 	} catch (error) {
@@ -1560,14 +1568,32 @@ publicModelsRouter.get("/:modelId/performance", async (c) => {
 			};
 		}
 		if (!performance) return withPublicCache(c.json({ modelId, performance: null, metrics: null, activity: null }), sectionPolicy("performance", modelId));
+		const totalRequests = Number(performance.last_24h?.total_requests ?? 0);
+		if (totalRequests < PUBLIC_TELEMETRY_MIN_REQUESTS) {
+			return withPublicCache(c.json({
+				modelId,
+				performance: null,
+				metrics: null,
+				activity: null,
+				minimumSampleSize: PUBLIC_TELEMETRY_MIN_REQUESTS,
+			}), sectionPolicy("performance", modelId));
+		}
 		const isKnownProvider = (value: Record<string, unknown>) => {
 			const provider = String(value.provider ?? "").trim().toLowerCase();
 			return provider.length > 0 && provider !== "unknown";
 		};
+		const rawSevenDayProviderCount = new Set(
+			(performance.provider_daily_7d ?? [])
+				.filter((row: Record<string, unknown>) => isKnownProvider(row) && Number(row.requests ?? 0) > 0)
+				.map((row: Record<string, unknown>) => String(row.provider ?? "").trim().toLowerCase()),
+		).size;
 		performance = {
 			...performance,
-			provider_uptime_24h: (performance.provider_uptime_24h ?? []).filter(isKnownProvider),
-			provider_daily_7d: (performance.provider_daily_7d ?? []).filter(isKnownProvider),
+			hourly_24h: (performance.hourly_24h ?? []).filter((row: Record<string, unknown>) => Number(row.requests ?? 0) >= PUBLIC_TELEMETRY_MIN_REQUESTS),
+			provider_uptime_24h: (performance.provider_uptime_24h ?? []).filter((row: Record<string, unknown>) => isKnownProvider(row) && Number(row.requests ?? row.health_requests ?? 0) >= PUBLIC_TELEMETRY_MIN_REQUESTS),
+			provider_daily_7d: (performance.provider_daily_7d ?? []).filter((row: Record<string, unknown>) => isKnownProvider(row) && Number(row.requests ?? 0) >= PUBLIC_TELEMETRY_MIN_REQUESTS),
+			time_of_day_5d: (performance.time_of_day_5d ?? []).filter((row: Record<string, unknown>) => Number(row.sample_count ?? 0) >= PUBLIC_TELEMETRY_MIN_REQUESTS),
+			quality_series: (performance.quality_series ?? []).filter((row: Record<string, unknown>) => Number(row.requests ?? 0) >= PUBLIC_TELEMETRY_MIN_REQUESTS),
 		};
 		const providerSlugs = [...new Set([
 			...(performance.provider_uptime_24h ?? []).map((value: Record<string, unknown>) => String(value.provider ?? "")),
@@ -1604,12 +1630,7 @@ publicModelsRouter.get("/:modelId/performance", async (c) => {
 			return { day: value.day ?? "", provider: value.provider ?? "", providerName: value.provider_name ?? value.provider ?? "", providerColor: providerColor(value.provider), avgThroughput: number(value.avg_throughput), avgOutputSpeed: number(value.output_speed_tps), avgLatencyMs: number(value.avg_latency_ms), avgGenerationMs: number(value.avg_generation_ms), avgPhaseoOverheadMs: number(value.phaseo_overhead_ms), avgTpotMs: number(value.tpot_ms), avgItlMs: number(value.itl_ms), cachedInputPct: cacheRequests >= 20 ? number(cache?.cached_input_pct) : null, cachedInputTokens: cacheRequests >= 20 ? number(cache?.cached_input_tokens) : null, effectiveInputTokens: cacheRequests >= 20 ? number(cache?.effective_input_tokens) : null, cacheTelemetryRequests: cacheRequests >= 20 ? cacheRequests : 0, requests: Number(value.requests ?? 0) };
 		});
 		const providerCount = providerPerformance.filter((provider: Record<string, unknown>) => Number(provider.requests ?? 0) > 0).length;
-		const sevenDayProviderCount = new Set(
-			providerDaily7d
-				.filter((provider) => provider.requests > 0)
-				.map((provider) => provider.provider),
-		).size;
-		const percentileSeries = sevenDayProviderCount === 1
+		const percentileSeries = rawSevenDayProviderCount === 1
 			? await client.rpc("get_v2_model_provider_percentile_series_v2", {
 				p_model_slug: modelId,
 				p_cloudflare_colo: cloudflareColo,
@@ -1640,7 +1661,7 @@ publicModelsRouter.get("/:modelId/performance", async (c) => {
 				cachedInputPct: Number(value.requests ?? 0) >= 20 ? number(value.cached_input_pct) : null,
 				requests: Number(value.requests ?? 0),
 			};
-		}).filter((value) => String(value.provider).trim().length > 0);
+		}).filter((value) => String(value.provider).trim().length > 0 && value.requests >= PUBLIC_TELEMETRY_MIN_REQUESTS);
 		const qualitySeries = (performance.quality_series ?? []).map((value: Record<string, unknown>) => ({ bucket: value.bucket ?? "", toolCallSuccessPct: number(value.tool_call_success_pct), structuredOutputSuccessPct: number(value.structured_output_success_pct), cacheHitRatePct: Number(value.requests ?? 0) >= 20 ? number(value.cache_hit_rate_pct) : null, requests: Number(value.requests ?? 0) }));
 		const metrics = { cloudflareColo: performance.cloudflare_colo ?? cloudflareColo, percentile, streamMode, contextBucket, summary: summary(performance.last_24h), prevSummary: performance.prev_24h ? summary(performance.prev_24h) : null, hourly, successSeries, timeOfDay, providerPerformance, providerDaily7d, providerPercentileDaily7d, qualitySeries, dataRange: hourly.length ? { start: hourly[0]?.bucket ?? "", end: hourly[hourly.length - 1]?.bucket ?? "" } : { start: "", end: "" }, cumulativeTokens: number(performance.cumulative_tokens?.total_tokens), releaseDate: performance.cumulative_tokens?.release_date ?? null };
 		const activity = { summary: metrics.summary, providerPerformance, cumulativeTokens: metrics.cumulativeTokens };

@@ -118,6 +118,24 @@ describe("public rankings routes", () => {
 		});
 	});
 
+	it("does not let public callers lower retention privacy floors", async () => {
+		const fetchMock = vi.fn(async () => new Response(JSON.stringify([]), { status: 200 }));
+		vi.stubGlobal("fetch", fetchMock);
+
+		const response = await app.request(
+			"https://phaseo.app/api/_web/rankings/model-retention?min_workspace_weeks=1&min_workspaces=1&min_weeks=1",
+			{},
+			env,
+		);
+
+		expect(response.status).toBe(200);
+		const rpcCall = fetchMock.mock.calls.find(([input]) => String(input).includes("get_public_model_retention_rankings"));
+		const body = String(rpcCall?.[1]?.body);
+		expect(body).toContain('"p_min_workspace_weeks":25');
+		expect(body).toContain('"p_min_workspaces":5');
+		expect(body).toContain('"p_min_weeks":2');
+	});
+
 	it("serves Fastest Models from its dedicated cached RPC", async () => {
 		const fetchMock = vi.fn(async () => new Response(JSON.stringify([
 			{ model_id: "openai/gpt-test", provider: "openai", median_throughput: 42 },

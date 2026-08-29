@@ -114,30 +114,26 @@ const DEFAULT_GATEWAY_BASE_URL = "https://api.phaseo.app/v1";
 const DEFAULT_OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1";
 const DEFAULT_LLMGATEWAY_BASE_URL = "https://api.llmgateway.io/v1";
 const DEFAULT_VERCEL_AI_GATEWAY_BASE_URL = "https://ai-gateway.vercel.sh/v1";
-const PROD_ALLOWED_BENCHMARK_HOSTS = new Set([
-	"api.phaseo.app",
-	"openrouter.ai",
-	"api.llmgateway.io",
-	"ai-gateway.vercel.sh",
-]);
+const BENCHMARK_HOST_BY_TARGET: Record<CompareTarget, string> = {
+	phaseo: "api.phaseo.app",
+	openrouter: "openrouter.ai",
+	llmgateway: "api.llmgateway.io",
+	"vercel-ai-gateway": "ai-gateway.vercel.sh",
+};
 const DEV_ALLOWED_BENCHMARK_HOSTS = new Set([
-	...PROD_ALLOWED_BENCHMARK_HOSTS,
 	"localhost",
 	"127.0.0.1",
 	"::1",
 ]);
 
-export function isAllowedBenchmarkBaseUrl(value: string, production = true): boolean {
+export function isAllowedBenchmarkBaseUrl(value: string, target: CompareTarget, production = true): boolean {
 	try {
 		const url = new URL(value);
 		if (!["https:", "http:"].includes(url.protocol)) return false;
-		const allowedHosts = production ? PROD_ALLOWED_BENCHMARK_HOSTS : DEV_ALLOWED_BENCHMARK_HOSTS;
-		if (!allowedHosts.has(url.hostname)) return false;
+		if (url.username || url.password || url.port) return false;
 		if (production && url.protocol !== "https:") return false;
-		if (url.hostname === "localhost" || url.hostname === "127.0.0.1" || url.hostname === "::1") {
-			return !production;
-		}
-		return true;
+		if (!production && DEV_ALLOWED_BENCHMARK_HOSTS.has(url.hostname)) return true;
+		return url.hostname === BENCHMARK_HOST_BY_TARGET[target];
 	} catch {
 		return false;
 	}
@@ -364,6 +360,7 @@ async function traceOne(
 		llmGatewayApiKey?: string;
 		vercelAiGatewayApiKey?: string;
 	},
+	production: boolean,
 ): Promise<CompareTraceResult> {
 	const apiKeyByTarget: Record<CompareTarget, string | undefined> = {
 		"phaseo": keys.gatewayApiKey,
@@ -380,6 +377,9 @@ async function traceOne(
 	};
 	const apiKey = apiKeyByTarget[target];
 	const baseUrl = baseUrlByTarget[target];
+	if (!isAllowedBenchmarkBaseUrl(baseUrl, target, production)) {
+		throw new Error(`Benchmark base URL does not match credential target ${target}`);
+	}
 	if (!apiKey) {
 		return {
 			target,
@@ -689,7 +689,7 @@ export type GatewayCompareKeys = {
 	vercelAiGatewayApiKey: string;
 };
 
-export async function runGatewayCompare(args: CompareArgs, keys: GatewayCompareKeys) {
+export async function runGatewayCompare(args: CompareArgs, keys: GatewayCompareKeys, production = true) {
 	const { gatewayApiKey, openRouterApiKey, llmGatewayApiKey, vercelAiGatewayApiKey } = keys;
 	if (!gatewayApiKey || !openRouterApiKey) {
 		throw new Error(
@@ -709,7 +709,7 @@ export async function runGatewayCompare(args: CompareArgs, keys: GatewayCompareK
 					openRouterApiKey,
 					llmGatewayApiKey,
 					vercelAiGatewayApiKey,
-				}),
+				}, production),
 			),
 		);
 		results.push(...runResults);

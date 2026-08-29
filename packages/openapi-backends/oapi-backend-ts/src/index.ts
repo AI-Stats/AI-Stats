@@ -263,7 +263,7 @@ function toFileName(tag: string): string {
 }
 
 function renderJsDoc(text: string): string {
-	const lines = text.split(/\r?\n/);
+	const lines = text.replace(/\*\//g, "*\\/").split(/\r?\n/);
 	return ["/**", ...lines.map((line) => ` * ${line}`), " */"].join("\n");
 }
 

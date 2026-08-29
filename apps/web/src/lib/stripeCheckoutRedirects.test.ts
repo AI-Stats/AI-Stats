@@ -17,6 +17,7 @@ describe("stripe checkout redirects", () => {
 	it("falls back to the referer origin instead of using the full referer URL", () => {
 		const redirects = buildStripeCheckoutRedirectUrls({
 			refererHeader: "https://app.example.com/settings/credits?dialog=top-up",
+			allowRequestHeaderFallback: true,
 			kind: "pay_and_save",
 			paymentAttempt: 123456,
 		});
@@ -31,6 +32,13 @@ describe("stripe checkout redirects", () => {
 		expect(redirects.cancelUrl).toBe(
 			"https://app.example.com/settings/credits?checkout=cancelled",
 		);
+	});
+
+	it("does not trust request headers unless explicitly enabled for local development", () => {
+		expect(resolveStripeCheckoutBaseUrl({
+			originHeader: "https://attacker.example",
+			refererHeader: "https://attacker.example/settings/credits",
+		})).toBe("http://localhost:3000");
 	});
 
 	it("falls back to localhost when no valid origin information is available", () => {

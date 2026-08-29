@@ -11,25 +11,25 @@ module Phaseo
 
       def self.cancelBatch(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
-        resolved_path = "/batches/#{path["batch_id"]}/cancel"
+        resolved_path = "/batches/#{URI.encode_uri_component(path["batch_id"].to_s)}/cancel"
         client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
       def self.cancelBatchAlias(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
-        resolved_path = "/batch/#{path["id"]}/cancel"
+        resolved_path = "/batch/#{URI.encode_uri_component(path["id"].to_s)}/cancel"
         client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
       def self.cancelVideo(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
-        resolved_path = "/videos/#{path["video_id"]}/cancel"
+        resolved_path = "/videos/#{URI.encode_uri_component(path["video_id"].to_s)}/cancel"
         client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
       def self.cancelVideoAlias(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
-        resolved_path = "/video/generations/#{path["video_id"]}/cancel"
+        resolved_path = "/video/generations/#{URI.encode_uri_component(path["video_id"].to_s)}/cancel"
         client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -143,13 +143,13 @@ module Phaseo
 
       def self.createVideoDownloadUrl(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
-        resolved_path = "/videos/#{path["video_id"]}/download_url"
+        resolved_path = "/videos/#{URI.encode_uri_component(path["video_id"].to_s)}/download_url"
         client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
       def self.createVideoDownloadUrlAlias(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
-        resolved_path = "/video/generations/#{path["video_id"]}/download_url"
+        resolved_path = "/video/generations/#{URI.encode_uri_component(path["video_id"].to_s)}/download_url"
         client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -161,25 +161,25 @@ module Phaseo
 
       def self.deleteApiKey(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
-        resolved_path = "/keys/#{path["id"]}"
+        resolved_path = "/keys/#{URI.encode_uri_component(path["id"].to_s)}"
         client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
       end
 
       def self.deleteVideo(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
-        resolved_path = "/videos/#{path["video_id"]}"
+        resolved_path = "/videos/#{URI.encode_uri_component(path["video_id"].to_s)}"
         client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
       end
 
       def self.deleteVideoAlias(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
-        resolved_path = "/video/generations/#{path["video_id"]}"
+        resolved_path = "/video/generations/#{URI.encode_uri_component(path["video_id"].to_s)}"
         client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
       end
 
       def self.deleteWorkspace(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
-        resolved_path = "/workspaces/#{path["id"]}"
+        resolved_path = "/workspaces/#{URI.encode_uri_component(path["id"].to_s)}"
         client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -209,7 +209,7 @@ module Phaseo
 
       def self.getApiKey(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
-        resolved_path = "/keys/#{path["id"]}"
+        resolved_path = "/keys/#{URI.encode_uri_component(path["id"].to_s)}"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -239,49 +239,49 @@ module Phaseo
 
       def self.getMusicGeneration(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
-        resolved_path = "/music/generate/#{path["music_id"]}"
+        resolved_path = "/music/generate/#{URI.encode_uri_component(path["music_id"].to_s)}"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
       def self.getMusicGenerationAlias(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
-        resolved_path = "/music/generations/#{path["music_id"]}"
+        resolved_path = "/music/generations/#{URI.encode_uri_component(path["music_id"].to_s)}"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
       def self.getProviderDerankStatus(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
-        resolved_path = "/health/providers/#{path["provider_id"]}/derank"
+        resolved_path = "/health/providers/#{URI.encode_uri_component(path["provider_id"].to_s)}/derank"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
       def self.getVideo(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
-        resolved_path = "/videos/#{path["video_id"]}"
+        resolved_path = "/videos/#{URI.encode_uri_component(path["video_id"].to_s)}"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
       def self.getVideoAlias(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
-        resolved_path = "/video/generations/#{path["video_id"]}"
+        resolved_path = "/video/generations/#{URI.encode_uri_component(path["video_id"].to_s)}"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
       def self.getVideoContent(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
-        resolved_path = "/videos/#{path["video_id"]}/content"
+        resolved_path = "/videos/#{URI.encode_uri_component(path["video_id"].to_s)}/content"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
       def self.getVideoContentAlias(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
-        resolved_path = "/video/generations/#{path["video_id"]}/content"
+        resolved_path = "/video/generations/#{URI.encode_uri_component(path["video_id"].to_s)}/content"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
       def self.getWorkspace(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
-        resolved_path = "/workspaces/#{path["id"]}"
+        resolved_path = "/workspaces/#{URI.encode_uri_component(path["id"].to_s)}"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -341,13 +341,13 @@ module Phaseo
 
       def self.listBatchRequests(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
-        resolved_path = "/batches/#{path["batch_id"]}/requests"
+        resolved_path = "/batches/#{URI.encode_uri_component(path["batch_id"].to_s)}/requests"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
       def self.listBatchRequestsAlias(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
-        resolved_path = "/batch/#{path["id"]}/requests"
+        resolved_path = "/batch/#{URI.encode_uri_component(path["id"].to_s)}/requests"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -371,7 +371,7 @@ module Phaseo
 
       def self.listModelEndpoints(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
-        resolved_path = "/models/#{path["author"]}/#{path["slug"]}/endpoints"
+        resolved_path = "/models/#{URI.encode_uri_component(path["author"].to_s)}/#{URI.encode_uri_component(path["slug"].to_s)}/endpoints"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -437,67 +437,67 @@ module Phaseo
 
       def self.openAsyncJobWebSocket(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
-        resolved_path = "/async/#{path["kind"]}/#{path["id"]}/ws"
+        resolved_path = "/async/#{URI.encode_uri_component(path["kind"].to_s)}/#{URI.encode_uri_component(path["id"].to_s)}/ws"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
       def self.retrieveBatch(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
-        resolved_path = "/batches/#{path["batch_id"]}"
+        resolved_path = "/batches/#{URI.encode_uri_component(path["batch_id"].to_s)}"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
       def self.retrieveBatchAlias(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
-        resolved_path = "/batch/#{path["id"]}"
+        resolved_path = "/batch/#{URI.encode_uri_component(path["id"].to_s)}"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
       def self.retrieveBatchFile(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
-        resolved_path = "/batches/files/#{path["file_id"]}"
+        resolved_path = "/batches/files/#{URI.encode_uri_component(path["file_id"].to_s)}"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
       def self.retrieveBatchFileAlias(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
-        resolved_path = "/batch/files/#{path["file_id"]}"
+        resolved_path = "/batch/files/#{URI.encode_uri_component(path["file_id"].to_s)}"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
       def self.retrieveBatchFileContent(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
-        resolved_path = "/batches/files/#{path["file_id"]}/content"
+        resolved_path = "/batches/files/#{URI.encode_uri_component(path["file_id"].to_s)}/content"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
       def self.retrieveBatchFileContentAlias(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
-        resolved_path = "/batch/files/#{path["file_id"]}/content"
+        resolved_path = "/batch/files/#{URI.encode_uri_component(path["file_id"].to_s)}/content"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
       def self.retrieveFile(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
-        resolved_path = "/files/#{path["file_id"]}"
+        resolved_path = "/files/#{URI.encode_uri_component(path["file_id"].to_s)}"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
       def self.retrieveFileContent(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
-        resolved_path = "/files/#{path["file_id"]}/content"
+        resolved_path = "/files/#{URI.encode_uri_component(path["file_id"].to_s)}/content"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
       def self.updateApiKey(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
-        resolved_path = "/keys/#{path["id"]}"
+        resolved_path = "/keys/#{URI.encode_uri_component(path["id"].to_s)}"
         client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
       end
 
       def self.updateWorkspace(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
-        resolved_path = "/workspaces/#{path["id"]}"
+        resolved_path = "/workspaces/#{URI.encode_uri_component(path["id"].to_s)}"
         client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
       end
 

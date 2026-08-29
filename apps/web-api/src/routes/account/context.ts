@@ -8,6 +8,7 @@ export type AccountWorkspaceContext = {
 	userClient: ReturnType<typeof getDataClient>;
 	workspaceId: string;
 	role: string;
+	isOwner: boolean;
 };
 
 function cookieValue(request: Request, name: string): string | null {
@@ -55,5 +56,6 @@ export async function requireAccountWorkspace(args: {
 		userClient,
 		workspaceId,
 		role: isOwner ? "admin" : String(membershipResult.data?.role ?? "member"),
+		isOwner,
 	};
 }

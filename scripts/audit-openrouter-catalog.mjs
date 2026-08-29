@@ -1,5 +1,6 @@
 import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { assertCatalogSegment, parseCanonicalModelId, resolveCatalogPath } from "./catalog-path-safety.mjs";
 
 const root = path.resolve("packages/data/catalog/src/data");
 const providerDir = path.join(root, "api_providers/openrouter");
@@ -67,7 +68,8 @@ function canonicalBase(id) {
 }
 
 async function ensureOrganisation(id) {
-  const file = path.join(root, "organisations", id, "organisation.json");
+  assertCatalogSegment(id, "organisation id");
+  const file = resolveCatalogPath(root, "organisations", id, "organisation.json");
   try { await readFile(file); return; } catch {}
   await mkdir(path.dirname(file), { recursive: true });
   await writeFile(file, `${JSON.stringify({
@@ -81,11 +83,11 @@ async function ensureOrganisation(id) {
 
 async function ensureCanonical(id, row) {
   if (canonicalIds.has(id)) return;
-  const organisationId = id.split("/")[0];
+  const [organisationId, modelId] = parseCanonicalModelId(id);
   await ensureOrganisation(organisationId);
   const input = (row.architecture?.input_modalities ?? ["text"]).map(modality);
   const output = (row.architecture?.output_modalities ?? ["text"]).map(modality);
-  const file = path.join(root, "models", ...id.split("/"), "model.json");
+  const file = resolveCatalogPath(root, "models", organisationId, modelId, "model.json");
   await mkdir(path.dirname(file), { recursive: true });
   await writeFile(file, `${JSON.stringify({
     model_id: id, organisation_id: organisationId, name: row.name ?? title(id.split("/").at(-1)),

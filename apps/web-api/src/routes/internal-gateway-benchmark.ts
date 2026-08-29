@@ -19,9 +19,9 @@ import {
 
 const LIVE_COMPARE_FETCH_TIMEOUT_MS = 30_000;
 function createCompareRequestSchema(production: boolean) {
-	const trustedBaseUrlSchema = z.string().url().refine(
-		(value) => isAllowedBenchmarkBaseUrl(value, production),
-		"Base URL host is not allowed",
+	const targetBaseUrlSchema = (target: CompareTarget) => z.string().url().refine(
+		(value) => isAllowedBenchmarkBaseUrl(value, target, production),
+		`Base URL does not match ${target}`,
 	);
 	return z.object({
               model: z.string().min(1).max(200),
@@ -29,10 +29,10 @@ function createCompareRequestSchema(production: boolean) {
 		  runs: z.number().int().min(1).max(10),
               maxCompletionTokens: z.number().int().min(1).max(512),
               endpoint: z.enum(["chat_completions", "responses"]),
-              gatewayBaseUrl: trustedBaseUrlSchema.optional(),
-              openRouterBaseUrl: trustedBaseUrlSchema.optional(),
-              llmGatewayBaseUrl: trustedBaseUrlSchema.optional(),
-              vercelAiGatewayBaseUrl: trustedBaseUrlSchema.optional(),
+              gatewayBaseUrl: targetBaseUrlSchema("phaseo").optional(),
+              openRouterBaseUrl: targetBaseUrlSchema("openrouter").optional(),
+              llmGatewayBaseUrl: targetBaseUrlSchema("llmgateway").optional(),
+              vercelAiGatewayBaseUrl: targetBaseUrlSchema("vercel-ai-gateway").optional(),
       });
 }
 
@@ -154,6 +154,7 @@ async function streamTarget(
                      vercelAiGatewayApiKey: string;
              },
         send: (event: LiveCompareEvent) => void,
+	production: boolean,
 ) {
         const apiKey =
                      target === "phaseo"
@@ -173,6 +174,9 @@ async function streamTarget(
                                              : args.vercelAiGatewayBaseUrl ||
                                                      DEFAULT_VERCEL_AI_GATEWAY_BASE_URL,
              );
+	if (!isAllowedBenchmarkBaseUrl(baseUrl, target, production)) {
+		throw new Error(`Benchmark base URL does not match credential target ${target}`);
+	}
 	const start = performance.now();
 	let headersMs = 0;
 	let firstContentMs: number | null = null;
@@ -299,7 +303,7 @@ internalGatewayBenchmarkRouter.post("/gateway-benchmark", async (c) => {
 	const parsed = createCompareRequestSchema(c.env.ENV === "production").safeParse(rawBody);
 	if (!parsed.success) return c.json({ error: "Invalid request body", details: parsed.error.flatten() }, 400, PRIVATE_NO_STORE_HEADERS);
 	try {
-		return c.json(await runGatewayCompare(parsed.data, compareKeys(c.env)), 200, PRIVATE_NO_STORE_HEADERS);
+		return c.json(await runGatewayCompare(parsed.data, compareKeys(c.env), c.env.ENV === "production"), 200, PRIVATE_NO_STORE_HEADERS);
 	} catch (error) {
 		return c.json({ error: "Failed to run gateway comparison", details: error instanceof Error ? error.message : String(error) }, 500, PRIVATE_NO_STORE_HEADERS);
 	}
@@ -367,7 +371,8 @@ internalGatewayBenchmarkRouter.post("/gateway-benchmark/live", async (c) => {
                                                             llmGatewayApiKey,
                                                             vercelAiGatewayApiKey,
                                                     },
-                                                    send,
+												send,
+												c.env.ENV === "production",
                                             ),
                                     ),
                         )

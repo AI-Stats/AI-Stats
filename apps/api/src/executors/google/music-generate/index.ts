@@ -13,6 +13,8 @@ import { irPartsToGeminiParts } from "../shared/media";
 import type { ProviderExecutor } from "../../types";
 
 const GOOGLE_API_BASE = "https://generativelanguage.googleapis.com";
+const MAX_INPUT_IMAGES = 4;
+const MAX_TOTAL_IMAGE_BYTES = 20 * 1024 * 1024;
 
 type InlineAudio = {
 	data?: string;
@@ -218,9 +220,23 @@ async function buildRequestBody(
 	parts.push(...extractRawInputParts(rawRequest));
 
 	if (!parts.length) return null;
+	const imageParts = parts.filter((part): part is Extract<IRContentPart, { type: "image" }> => part.type === "image");
+	if (imageParts.length > MAX_INPUT_IMAGES) return null;
+	const inlineImageBytes = imageParts
+		.filter((part) => part.source === "data")
+		.reduce((total, part) => total + Math.floor(part.data.replace(/\s+/g, "").length * 3 / 4), 0);
+	if (inlineImageBytes > MAX_TOTAL_IMAGE_BYTES) return null;
 
-	const geminiParts = await irPartsToGeminiParts(parts, { upstreamTiming });
+	const geminiParts = await irPartsToGeminiParts(parts, {
+		upstreamTiming,
+		maxRemoteAssetBytes: Math.floor(MAX_TOTAL_IMAGE_BYTES / Math.max(1, imageParts.length)),
+	});
 	if (!geminiParts.length) return null;
+	const totalInlineBytes = geminiParts.reduce((total, part) => {
+		const data = part.inline_data?.data;
+		return total + (typeof data === "string" ? Math.floor(data.replace(/\s+/g, "").length * 3 / 4) : 0);
+	}, 0);
+	if (totalInlineBytes > MAX_TOTAL_IMAGE_BYTES) return null;
 
 	const generationConfig =
 		rawRequest.google?.generationConfig &&

@@ -26,7 +26,7 @@ public static class Operations
 		object? body = null
 	)
 	{
-		var resolvedPath = "/batches/" + (path != null && path.ContainsKey("batch_id") ? path["batch_id"] : "") + "/cancel";
+		var resolvedPath = "/batches/" + Uri.EscapeDataString(path != null && path.ContainsKey("batch_id") ? path["batch_id"] : "") + "/cancel";
 		return client.SendAsync<Dictionary<string, object>>("POST", resolvedPath, query, headers, body);
 	}
 
@@ -38,7 +38,7 @@ public static class Operations
 		object? body = null
 	)
 	{
-		var resolvedPath = "/batch/" + (path != null && path.ContainsKey("id") ? path["id"] : "") + "/cancel";
+		var resolvedPath = "/batch/" + Uri.EscapeDataString(path != null && path.ContainsKey("id") ? path["id"] : "") + "/cancel";
 		return client.SendAsync<Dictionary<string, object>>("POST", resolvedPath, query, headers, body);
 	}
 
@@ -50,7 +50,7 @@ public static class Operations
 		object? body = null
 	)
 	{
-		var resolvedPath = "/videos/" + (path != null && path.ContainsKey("video_id") ? path["video_id"] : "") + "/cancel";
+		var resolvedPath = "/videos/" + Uri.EscapeDataString(path != null && path.ContainsKey("video_id") ? path["video_id"] : "") + "/cancel";
 		return client.SendAsync<object>("POST", resolvedPath, query, headers, body);
 	}
 
@@ -62,7 +62,7 @@ public static class Operations
 		object? body = null
 	)
 	{
-		var resolvedPath = "/video/generations/" + (path != null && path.ContainsKey("video_id") ? path["video_id"] : "") + "/cancel";
+		var resolvedPath = "/video/generations/" + Uri.EscapeDataString(path != null && path.ContainsKey("video_id") ? path["video_id"] : "") + "/cancel";
 		return client.SendAsync<object>("POST", resolvedPath, query, headers, body);
 	}
 
@@ -290,7 +290,7 @@ public static class Operations
 		object? body = null
 	)
 	{
-		var resolvedPath = "/videos/" + (path != null && path.ContainsKey("video_id") ? path["video_id"] : "") + "/download_url";
+		var resolvedPath = "/videos/" + Uri.EscapeDataString(path != null && path.ContainsKey("video_id") ? path["video_id"] : "") + "/download_url";
 		return client.SendAsync<Dictionary<string, object>>("POST", resolvedPath, query, headers, body);
 	}
 
@@ -302,7 +302,7 @@ public static class Operations
 		object? body = null
 	)
 	{
-		var resolvedPath = "/video/generations/" + (path != null && path.ContainsKey("video_id") ? path["video_id"] : "") + "/download_url";
+		var resolvedPath = "/video/generations/" + Uri.EscapeDataString(path != null && path.ContainsKey("video_id") ? path["video_id"] : "") + "/download_url";
 		return client.SendAsync<Dictionary<string, object>>("POST", resolvedPath, query, headers, body);
 	}
 
@@ -326,7 +326,7 @@ public static class Operations
 		object? body = null
 	)
 	{
-		var resolvedPath = "/keys/" + (path != null && path.ContainsKey("id") ? path["id"] : "");
+		var resolvedPath = "/keys/" + Uri.EscapeDataString(path != null && path.ContainsKey("id") ? path["id"] : "");
 		return client.SendAsync<Dictionary<string, object>>("DELETE", resolvedPath, query, headers, body);
 	}
 
@@ -338,7 +338,7 @@ public static class Operations
 		object? body = null
 	)
 	{
-		var resolvedPath = "/videos/" + (path != null && path.ContainsKey("video_id") ? path["video_id"] : "");
+		var resolvedPath = "/videos/" + Uri.EscapeDataString(path != null && path.ContainsKey("video_id") ? path["video_id"] : "");
 		return client.SendAsync<Dictionary<string, object>>("DELETE", resolvedPath, query, headers, body);
 	}
 
@@ -350,7 +350,7 @@ public static class Operations
 		object? body = null
 	)
 	{
-		var resolvedPath = "/video/generations/" + (path != null && path.ContainsKey("video_id") ? path["video_id"] : "");
+		var resolvedPath = "/video/generations/" + Uri.EscapeDataString(path != null && path.ContainsKey("video_id") ? path["video_id"] : "");
 		return client.SendAsync<Dictionary<string, object>>("DELETE", resolvedPath, query, headers, body);
 	}
 
@@ -362,7 +362,7 @@ public static class Operations
 		object? body = null
 	)
 	{
-		var resolvedPath = "/workspaces/" + (path != null && path.ContainsKey("id") ? path["id"] : "");
+		var resolvedPath = "/workspaces/" + Uri.EscapeDataString(path != null && path.ContainsKey("id") ? path["id"] : "");
 		return client.SendAsync<Dictionary<string, object>>("DELETE", resolvedPath, query, headers, body);
 	}
 
@@ -422,7 +422,7 @@ public static class Operations
 		object? body = null
 	)
 	{
-		var resolvedPath = "/keys/" + (path != null && path.ContainsKey("id") ? path["id"] : "");
+		var resolvedPath = "/keys/" + Uri.EscapeDataString(path != null && path.ContainsKey("id") ? path["id"] : "");
 		return client.SendAsync<Dictionary<string, object>>("GET", resolvedPath, query, headers, body);
 	}
 
@@ -482,7 +482,7 @@ public static class Operations
 		object? body = null
 	)
 	{
-		var resolvedPath = "/music/generate/" + (path != null && path.ContainsKey("music_id") ? path["music_id"] : "");
+		var resolvedPath = "/music/generate/" + Uri.EscapeDataString(path != null && path.ContainsKey("music_id") ? path["music_id"] : "");
 		return client.SendAsync<Dictionary<string, object>>("GET", resolvedPath, query, headers, body);
 	}
 
@@ -494,7 +494,7 @@ public static class Operations
 		object? body = null
 	)
 	{
-		var resolvedPath = "/music/generations/" + (path != null && path.ContainsKey("music_id") ? path["music_id"] : "");
+		var resolvedPath = "/music/generations/" + Uri.EscapeDataString(path != null && path.ContainsKey("music_id") ? path["music_id"] : "");
 		return client.SendAsync<Dictionary<string, object>>("GET", resolvedPath, query, headers, body);
 	}
 
@@ -506,7 +506,7 @@ public static class Operations
 		object? body = null
 	)
 	{
-		var resolvedPath = "/health/providers/" + (path != null && path.ContainsKey("provider_id") ? path["provider_id"] : "") + "/derank";
+		var resolvedPath = "/health/providers/" + Uri.EscapeDataString(path != null && path.ContainsKey("provider_id") ? path["provider_id"] : "") + "/derank";
 		return client.SendAsync<Dictionary<string, object>>("GET", resolvedPath, query, headers, body);
 	}
 
@@ -518,7 +518,7 @@ public static class Operations
 		object? body = null
 	)
 	{
-		var resolvedPath = "/videos/" + (path != null && path.ContainsKey("video_id") ? path["video_id"] : "");
+		var resolvedPath = "/videos/" + Uri.EscapeDataString(path != null && path.ContainsKey("video_id") ? path["video_id"] : "");
 		return client.SendAsync<Dictionary<string, object>>("GET", resolvedPath, query, headers, body);
 	}
 
@@ -530,7 +530,7 @@ public static class Operations
 		object? body = null
 	)
 	{
-		var resolvedPath = "/video/generations/" + (path != null && path.ContainsKey("video_id") ? path["video_id"] : "");
+		var resolvedPath = "/video/generations/" + Uri.EscapeDataString(path != null && path.ContainsKey("video_id") ? path["video_id"] : "");
 		return client.SendAsync<Dictionary<string, object>>("GET", resolvedPath, query, headers, body);
 	}
 
@@ -542,7 +542,7 @@ public static class Operations
 		object? body = null
 	)
 	{
-		var resolvedPath = "/videos/" + (path != null && path.ContainsKey("video_id") ? path["video_id"] : "") + "/content";
+		var resolvedPath = "/videos/" + Uri.EscapeDataString(path != null && path.ContainsKey("video_id") ? path["video_id"] : "") + "/content";
 		return client.SendAsync<object>("GET", resolvedPath, query, headers, body);
 	}
 
@@ -554,7 +554,7 @@ public static class Operations
 		object? body = null
 	)
 	{
-		var resolvedPath = "/video/generations/" + (path != null && path.ContainsKey("video_id") ? path["video_id"] : "") + "/content";
+		var resolvedPath = "/video/generations/" + Uri.EscapeDataString(path != null && path.ContainsKey("video_id") ? path["video_id"] : "") + "/content";
 		return client.SendAsync<object>("GET", resolvedPath, query, headers, body);
 	}
 
@@ -566,7 +566,7 @@ public static class Operations
 		object? body = null
 	)
 	{
-		var resolvedPath = "/workspaces/" + (path != null && path.ContainsKey("id") ? path["id"] : "");
+		var resolvedPath = "/workspaces/" + Uri.EscapeDataString(path != null && path.ContainsKey("id") ? path["id"] : "");
 		return client.SendAsync<Dictionary<string, object>>("GET", resolvedPath, query, headers, body);
 	}
 
@@ -686,7 +686,7 @@ public static class Operations
 		object? body = null
 	)
 	{
-		var resolvedPath = "/batches/" + (path != null && path.ContainsKey("batch_id") ? path["batch_id"] : "") + "/requests";
+		var resolvedPath = "/batches/" + Uri.EscapeDataString(path != null && path.ContainsKey("batch_id") ? path["batch_id"] : "") + "/requests";
 		return client.SendAsync<Dictionary<string, object>>("GET", resolvedPath, query, headers, body);
 	}
 
@@ -698,7 +698,7 @@ public static class Operations
 		object? body = null
 	)
 	{
-		var resolvedPath = "/batch/" + (path != null && path.ContainsKey("id") ? path["id"] : "") + "/requests";
+		var resolvedPath = "/batch/" + Uri.EscapeDataString(path != null && path.ContainsKey("id") ? path["id"] : "") + "/requests";
 		return client.SendAsync<Dictionary<string, object>>("GET", resolvedPath, query, headers, body);
 	}
 
@@ -746,7 +746,7 @@ public static class Operations
 		object? body = null
 	)
 	{
-		var resolvedPath = "/models/" + (path != null && path.ContainsKey("author") ? path["author"] : "") + "/" + (path != null && path.ContainsKey("slug") ? path["slug"] : "") + "/endpoints";
+		var resolvedPath = "/models/" + Uri.EscapeDataString(path != null && path.ContainsKey("author") ? path["author"] : "") + "/" + Uri.EscapeDataString(path != null && path.ContainsKey("slug") ? path["slug"] : "") + "/endpoints";
 		return client.SendAsync<Dictionary<string, object>>("GET", resolvedPath, query, headers, body);
 	}
 
@@ -878,7 +878,7 @@ public static class Operations
 		object? body = null
 	)
 	{
-		var resolvedPath = "/async/" + (path != null && path.ContainsKey("kind") ? path["kind"] : "") + "/" + (path != null && path.ContainsKey("id") ? path["id"] : "") + "/ws";
+		var resolvedPath = "/async/" + Uri.EscapeDataString(path != null && path.ContainsKey("kind") ? path["kind"] : "") + "/" + Uri.EscapeDataString(path != null && path.ContainsKey("id") ? path["id"] : "") + "/ws";
 		return client.SendAsync<object>("GET", resolvedPath, query, headers, body);
 	}
 
@@ -890,7 +890,7 @@ public static class Operations
 		object? body = null
 	)
 	{
-		var resolvedPath = "/batches/" + (path != null && path.ContainsKey("batch_id") ? path["batch_id"] : "");
+		var resolvedPath = "/batches/" + Uri.EscapeDataString(path != null && path.ContainsKey("batch_id") ? path["batch_id"] : "");
 		return client.SendAsync<Dictionary<string, object>>("GET", resolvedPath, query, headers, body);
 	}
 
@@ -902,7 +902,7 @@ public static class Operations
 		object? body = null
 	)
 	{
-		var resolvedPath = "/batch/" + (path != null && path.ContainsKey("id") ? path["id"] : "");
+		var resolvedPath = "/batch/" + Uri.EscapeDataString(path != null && path.ContainsKey("id") ? path["id"] : "");
 		return client.SendAsync<Dictionary<string, object>>("GET", resolvedPath, query, headers, body);
 	}
 
@@ -914,7 +914,7 @@ public static class Operations
 		object? body = null
 	)
 	{
-		var resolvedPath = "/batches/files/" + (path != null && path.ContainsKey("file_id") ? path["file_id"] : "");
+		var resolvedPath = "/batches/files/" + Uri.EscapeDataString(path != null && path.ContainsKey("file_id") ? path["file_id"] : "");
 		return client.SendAsync<Dictionary<string, object>>("GET", resolvedPath, query, headers, body);
 	}
 
@@ -926,7 +926,7 @@ public static class Operations
 		object? body = null
 	)
 	{
-		var resolvedPath = "/batch/files/" + (path != null && path.ContainsKey("file_id") ? path["file_id"] : "");
+		var resolvedPath = "/batch/files/" + Uri.EscapeDataString(path != null && path.ContainsKey("file_id") ? path["file_id"] : "");
 		return client.SendAsync<Dictionary<string, object>>("GET", resolvedPath, query, headers, body);
 	}
 
@@ -938,7 +938,7 @@ public static class Operations
 		object? body = null
 	)
 	{
-		var resolvedPath = "/batches/files/" + (path != null && path.ContainsKey("file_id") ? path["file_id"] : "") + "/content";
+		var resolvedPath = "/batches/files/" + Uri.EscapeDataString(path != null && path.ContainsKey("file_id") ? path["file_id"] : "") + "/content";
 		return client.SendAsync<object>("GET", resolvedPath, query, headers, body);
 	}
 
@@ -950,7 +950,7 @@ public static class Operations
 		object? body = null
 	)
 	{
-		var resolvedPath = "/batch/files/" + (path != null && path.ContainsKey("file_id") ? path["file_id"] : "") + "/content";
+		var resolvedPath = "/batch/files/" + Uri.EscapeDataString(path != null && path.ContainsKey("file_id") ? path["file_id"] : "") + "/content";
 		return client.SendAsync<object>("GET", resolvedPath, query, headers, body);
 	}
 
@@ -962,7 +962,7 @@ public static class Operations
 		object? body = null
 	)
 	{
-		var resolvedPath = "/files/" + (path != null && path.ContainsKey("file_id") ? path["file_id"] : "");
+		var resolvedPath = "/files/" + Uri.EscapeDataString(path != null && path.ContainsKey("file_id") ? path["file_id"] : "");
 		return client.SendAsync<Dictionary<string, object>>("GET", resolvedPath, query, headers, body);
 	}
 
@@ -974,7 +974,7 @@ public static class Operations
 		object? body = null
 	)
 	{
-		var resolvedPath = "/files/" + (path != null && path.ContainsKey("file_id") ? path["file_id"] : "") + "/content";
+		var resolvedPath = "/files/" + Uri.EscapeDataString(path != null && path.ContainsKey("file_id") ? path["file_id"] : "") + "/content";
 		return client.SendAsync<object>("GET", resolvedPath, query, headers, body);
 	}
 
@@ -986,7 +986,7 @@ public static class Operations
 		object? body = null
 	)
 	{
-		var resolvedPath = "/keys/" + (path != null && path.ContainsKey("id") ? path["id"] : "");
+		var resolvedPath = "/keys/" + Uri.EscapeDataString(path != null && path.ContainsKey("id") ? path["id"] : "");
 		return client.SendAsync<Dictionary<string, object>>("PATCH", resolvedPath, query, headers, body);
 	}
 
@@ -998,7 +998,7 @@ public static class Operations
 		object? body = null
 	)
 	{
-		var resolvedPath = "/workspaces/" + (path != null && path.ContainsKey("id") ? path["id"] : "");
+		var resolvedPath = "/workspaces/" + Uri.EscapeDataString(path != null && path.ContainsKey("id") ? path["id"] : "");
 		return client.SendAsync<Dictionary<string, object>>("PATCH", resolvedPath, query, headers, body);
 	}
 

@@ -10,6 +10,7 @@
 
 import { Phaseo } from "../index.js";
 import type { AppAttribution } from "../index.js";
+import { assertServerSideApiKeyUse } from "./browserSafety.js";
 import type {
   ChatCompletionsRequest,
   ChatCompletionsResponse,
@@ -105,6 +106,7 @@ export class OpenAI {
   };
 
   constructor(config: OpenAIConfig) {
+    assertServerSideApiKeyUse(config.dangerouslyAllowBrowser);
     // Map OpenAI config to Phaseo config
     this.phaseo = new Phaseo({
       apiKey: config.apiKey,

@@ -71,3 +71,21 @@ test("backend-ts parenthesizes array item unions", async () => {
 	const model = files.find((file) => file.path === "models/OrganisationIdList.ts");
 	assert.match(model?.contents ?? "", /export type OrganisationIdList = \("openai" \| "google"\)\[\];/);
 });
+
+test("backend-ts cannot terminate JSDoc from an OpenAPI description", async () => {
+	const ir: IR = {
+		version: 1,
+		info: { title: "Example", version: "1.0.0" },
+		models: [{
+			name: "Widget",
+			doc: "safe */ export const injected = true; /*",
+			schema: { kind: "object", properties: {}, required: [] },
+		}],
+		operations: [],
+	};
+
+	const files = await backendTs.generate(ir, { outDir: "ignored" });
+	const model = files.find((file) => file.path === "models/Widget.ts")?.contents ?? "";
+	assert.ok(model.includes("safe *\\/ export const injected = true; /*"));
+	assert.doesNotMatch(model, /\*\/\s*export const injected/);
+});

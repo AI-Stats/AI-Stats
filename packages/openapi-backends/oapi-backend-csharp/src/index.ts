@@ -179,7 +179,7 @@ function renderModel(model: IRModel): string {
 		for (const field of fields) {
 			const name = exportPropertyName(model.name, field);
 			const type = renderFieldType(model.schema.properties[field], required.has(field));
-			lines.push(`\t[JsonPropertyName("${field}")]`);
+			lines.push(`\t[JsonPropertyName(${JSON.stringify(field)})]`);
 			lines.push(`\tpublic ${type} ${name} { get; set; }`);
 			lines.push("");
 		}
@@ -236,7 +236,7 @@ function renderPathTemplate(path: string, params: IROperation["params"]): string
 	const parts = segments.map((segment) => {
 		if (segment.startsWith("{") && segment.endsWith("}")) {
 			const name = JSON.stringify(segment.slice(1, -1));
-			return `(path != null && path.ContainsKey(${name}) ? path[${name}] : "")`;
+			return `Uri.EscapeDataString(path != null && path.ContainsKey(${name}) ? path[${name}] : "")`;
 		}
 		return JSON.stringify(segment);
 	});

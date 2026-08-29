@@ -10,6 +10,7 @@
 
 import { Phaseo } from "../index.js";
 import type { AppAttribution } from "../index.js";
+import { assertServerSideApiKeyUse } from "./browserSafety.js";
 import type {
   ChatCompletionsRequest,
   ChatCompletionsResponse,
@@ -21,6 +22,7 @@ type AnthropicConfig = {
   baseURL?: string;
   timeout?: number;
   maxRetries?: number;
+  dangerouslyAllowBrowser?: boolean;
   defaultHeaders?: Record<string, string>;
   app?: AppAttribution;
 };
@@ -165,6 +167,7 @@ export class Anthropic {
   };
 
   constructor(config: AnthropicConfig) {
+    assertServerSideApiKeyUse(config.dangerouslyAllowBrowser);
     // Map Anthropic config to Phaseo config
     this.phaseo = new Phaseo({
       apiKey: config.apiKey,

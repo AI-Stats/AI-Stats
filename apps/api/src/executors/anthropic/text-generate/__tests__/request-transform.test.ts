@@ -596,6 +596,18 @@ describe("irToAnthropicMessages service controls", () => {
 		expect(resolveAnthropicInferenceGeo("anthropic-aws-us", request)).toBe("us");
 		expect(resolveAnthropicInferenceGeo("anthropic-aws", request)).toBeNull();
 	});
+
+	it("does not let request options override a US-scoped offer", () => {
+		const request = createBaseRequest();
+		request.geo = {
+			inferenceGeo: "global",
+			requiredExecutionRegion: "global",
+		};
+
+		expect(resolveAnthropicInferenceGeo("anthropic-aws-us", request)).toBe("us");
+		expect(resolveAnthropicInferenceGeo("anthropic-us", request)).toBe("us");
+		expect(resolveAnthropicInferenceGeo("anthropic-aws", request)).toBe("global");
+	});
 });
 
 describe("irToAnthropicMessages cache control", () => {

@@ -663,6 +663,52 @@ describe("applyServiceTierRouting", () => {
         ]);
     });
 
+	it("drops a tier sibling when final-route workspace authorization rejects it", async () => {
+		queryState.providerRows = [{
+			provider_id: "google-ai-studio",
+			api_model_id: "google/gemini-3-pro-image-flex",
+			provider_api_model_id: "provider-flex-pam",
+			provider_model_slug: "gemini-3-pro-image-flex",
+			is_active_gateway: true,
+			effective_from: "2026-05-29T00:00:00Z",
+			effective_to: null,
+		}];
+		queryState.capabilityRows = [{
+			provider_api_model_id: "provider-flex-pam",
+			params: { data_policy: { tier: "logs", zdrEligibility: "ineligible" } },
+			max_input_tokens: 2_000_000,
+			max_output_tokens: 64_000,
+			status: "active",
+			updated_at: "2026-05-29T00:00:00Z",
+			created_at: "2026-05-29T00:00:00Z",
+		}];
+		loadPriceCardMock.mockResolvedValue(makeCard({
+			provider: "google-ai-studio",
+			model: "google/gemini-3-pro-image-flex",
+			plans: ["standard"],
+		}));
+		const authorizeRemappedCandidate = vi.fn(() => false);
+
+		const result = await applyServiceTierRouting({
+			candidates: [makeCandidate({
+				providerId: "google-ai-studio",
+				apiModelId: "google/gemini-3-pro-image",
+				providerModelSlug: "gemini-3-pro-image",
+				pricingCard: makeCard({ provider: "google-ai-studio", model: "google/gemini-3-pro-image", plans: ["standard"] }),
+			})],
+			body: { service_tier: "flex" },
+			capability: "text.generate",
+			authorizeRemappedCandidate,
+		});
+
+		expect(result.candidates).toEqual([]);
+		expect(authorizeRemappedCandidate).toHaveBeenCalledWith(expect.objectContaining({
+			apiModelId: "google/gemini-3-pro-image-flex",
+			effectiveDataPolicy: expect.objectContaining({ tier: "logs", source: "capability" }),
+		}));
+		expect(result.diagnostics.droppedProviders[0]?.reason).toBe("service_tier_remap_not_authorized");
+	});
+
     it("remaps Wafer K3 priority requests to the hidden Fast slug", async () => {
         queryState.providerRows = [{
             provider_id: "wafer", api_model_id: "moonshotai/kimi-k3-fast",

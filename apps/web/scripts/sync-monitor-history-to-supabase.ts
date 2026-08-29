@@ -1,4 +1,4 @@
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import {
@@ -20,8 +20,8 @@ type MonitorSyncStateRow = {
 
 const BATCH_SIZE = 500;
 
-function sh(cmd: string): string {
-	return execSync(cmd, { encoding: "utf8" }).toString();
+function git(args: string[]): string {
+	return execFileSync("git", args, { encoding: "utf8" }).toString();
 }
 
 function loadLocalEnv() {
@@ -72,16 +72,16 @@ function humanizeSlug(value: string | null | undefined) {
 }
 
 function getHeadCommit() {
-	return sh("git rev-parse HEAD").trim();
+	return git(["rev-parse", "HEAD"]).trim();
 }
 
 function resolveCommitRef(ref: string) {
-	return sh(`git rev-parse --verify ${ref}`).trim();
+	return git(["rev-parse", "--verify", ref]).trim();
 }
 
 function gitCommitExists(commitSha: string) {
 	try {
-		sh(`git rev-parse --verify ${commitSha}`);
+		git(["rev-parse", "--verify", commitSha]);
 		return true;
 	} catch {
 		return false;

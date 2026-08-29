@@ -1,0 +1,2 @@
+alter table public.notification_delivery_attempts
+  validate constraint notification_delivery_attempts_status_check;
