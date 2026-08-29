@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { GOOGLE_OAUTH_TOKEN_URI, resolveGoogleOAuthTokenUri } from "./token-uri";
+import { GOOGLE_OAUTH_TOKEN_URI, googleOAuthTokenRequestInit, resolveGoogleOAuthTokenUri } from "./token-uri";
 
 describe("resolveGoogleOAuthTokenUri", () => {
 	it("uses Google's fixed OAuth token endpoint", () => {
@@ -13,5 +13,14 @@ describe("resolveGoogleOAuthTokenUri", () => {
 		"https://oauth2.googleapis.com/token?redirect=evil",
 	])("rejects untrusted token URI %s", (value) => {
 		expect(() => resolveGoogleOAuthTokenUri(value)).toThrow("google-vertex_invalid_oauth_token_uri");
+	});
+
+	it("blocks redirects for credential-bearing token requests", () => {
+		const body = new URLSearchParams({ assertion: "signed" });
+		expect(googleOAuthTokenRequestInit(body)).toMatchObject({
+			method: "POST",
+			body,
+			redirect: "error",
+		});
 	});
 });

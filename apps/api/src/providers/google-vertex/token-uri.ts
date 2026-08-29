@@ -4,3 +4,12 @@ export function resolveGoogleOAuthTokenUri(value: string | undefined): string {
 	if (value === undefined || value === GOOGLE_OAUTH_TOKEN_URI) return GOOGLE_OAUTH_TOKEN_URI;
 	throw new Error("google-vertex_invalid_oauth_token_uri");
 }
+
+export function googleOAuthTokenRequestInit(body: URLSearchParams): RequestInit {
+	return {
+		method: "POST",
+		headers: { "Content-Type": "application/x-www-form-urlencoded" },
+		body,
+		redirect: "error",
+	};
+}

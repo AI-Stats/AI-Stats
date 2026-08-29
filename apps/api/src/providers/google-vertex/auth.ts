@@ -1,4 +1,4 @@
-import { resolveGoogleOAuthTokenUri } from "./token-uri";
+import { googleOAuthTokenRequestInit, resolveGoogleOAuthTokenUri } from "./token-uri";
 
 type VertexServiceAccount = {
 	client_email: string;
@@ -102,13 +102,7 @@ async function mintServiceAccountAccessToken(sa: VertexServiceAccount): Promise<
 		assertion,
 	});
 
-	const res = await fetch(tokenUri, {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/x-www-form-urlencoded",
-		},
-		body,
-	});
+	const res = await fetch(tokenUri, googleOAuthTokenRequestInit(body));
 
 	if (!res.ok) {
 		throw vertexError(`google-vertex_oauth_error_${res.status}`);

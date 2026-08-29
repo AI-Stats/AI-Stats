@@ -6,7 +6,7 @@ alter table public.notification_delivery_attempts
   drop constraint if exists notification_delivery_attempts_status_check;
 alter table public.notification_delivery_attempts
   add constraint notification_delivery_attempts_status_check
-  check (status in ('pending', 'retry', 'processing', 'sent', 'failed'));
+  check (status in ('pending', 'retry', 'processing', 'sent', 'failed')) not valid;
 
 create or replace function public.claim_notification_delivery_attempts(p_limit integer default 25)
 returns table (id uuid, event_id uuid, destination_id uuid, attempts integer, claim_token uuid)
@@ -15,7 +15,7 @@ security definer
 set search_path = public
 as $$
 begin
-  if p_limit < 1 or p_limit > 100 then
+  if p_limit is null or p_limit < 1 or p_limit > 100 then
     raise exception 'invalid_notification_delivery_claim_limit';
   end if;
 

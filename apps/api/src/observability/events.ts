@@ -1310,7 +1310,7 @@ export async function emitGatewayRequestEvent(args: EventArgs) {
             status_code: args.statusCode ?? null,
             success: args.success,
             error_code: args.errorCode ?? null,
-            error_message: args.errorMessage ?? null,
+            error_message: containsParsedDocumentContent ? null : args.errorMessage ?? null,
             error_type: eventErrorType,
             error_origin: operationalError.origin,
             error_operational_kind: operationalError.kind,
@@ -1483,7 +1483,7 @@ export async function emitGatewayRequestEvent(args: EventArgs) {
             upstream_error_code: upstreamError?.code ?? null,
             upstream_error_type: upstreamError?.type ?? null,
             upstream_error_param: upstreamError?.param ?? null,
-            upstream_error_message: upstreamError?.message ?? null,
+            upstream_error_message: containsParsedDocumentContent ? null : upstreamError?.message ?? null,
             upstream_error_status: upstreamError?.status ?? null,
             upstream_error_json: includeDetailedPayloads
                 ? stringifyDetailForAxiom(sanitizeForAxiom(upstreamError?.raw ?? null))
@@ -1498,7 +1498,7 @@ export async function emitGatewayRequestEvent(args: EventArgs) {
             failure_sample_first_upstream_error_code:
                 failureSample?.upstreamErrorCode ?? null,
             failure_sample_first_upstream_error_message:
-                failureSample?.upstreamErrorMessage ?? null,
+                containsParsedDocumentContent ? null : failureSample?.upstreamErrorMessage ?? null,
             gateway_response_redacted_json: includeDetailedPayloads
                 ? stringifyDetailForAxiom(sanitizedGatewayResponse)
                 : null,

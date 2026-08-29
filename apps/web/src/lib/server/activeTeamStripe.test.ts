@@ -162,9 +162,55 @@ describe("requireActiveTeamStripeCustomer", () => {
 			customerId: "cus_new_workspace",
 		});
 		expect(list).not.toHaveBeenCalled();
-		expect(create).toHaveBeenCalledWith(expect.objectContaining({
-			metadata: { workspace_id: "ws_1", user_id: "user_1" },
-		}));
+		expect(create).toHaveBeenCalledWith(
+			{ metadata: { workspace_id: "ws_1" } },
+			{ idempotencyKey: "phaseo:workspace:ws_1:customer:v1" },
+		);
+	});
+
+	it("uses workspace-stable idempotency for concurrent customer creation", async () => {
+		const create = jest.fn(async () => ({ id: "cus_workspace" }));
+		getStripe.mockReturnValue({ customers: { search: jest.fn(async () => ({ data: [] })), create } });
+		const upsert = jest.fn(async () => ({ error: null }));
+		createAdminClient.mockReturnValue({ from: jest.fn(() => ({ upsert })) } as any);
+
+		const { ensureWorkspaceStripeWallet } = await import("./activeTeamStripe");
+		const [first, second] = await Promise.all([
+			ensureWorkspaceStripeWallet({ workspaceId: "ws_1", userId: "user_1", email: "one@example.com" }),
+			ensureWorkspaceStripeWallet({ workspaceId: "ws_1", userId: "user_2", email: "two@example.com" }),
+		]);
+
+		expect(first.customerId).toBe("cus_workspace");
+		expect(second.customerId).toBe("cus_workspace");
+		expect(create).toHaveBeenCalledTimes(2);
+		for (const call of create.mock.calls) {
+			expect(call).toEqual([
+				{ metadata: { workspace_id: "ws_1" } },
+				{ idempotencyKey: "phaseo:workspace:ws_1:customer:v1" },
+			]);
+		}
+	});
+
+	it("reuses the canonical wallet binding after an idempotency conflict", async () => {
+		const conflict: any = new Error("concurrent idempotent request");
+		conflict.code = "idempotency_error";
+		getStripe.mockReturnValue({
+			customers: {
+				search: jest.fn(async () => ({ data: [] })),
+				create: jest.fn(async () => { throw conflict; }),
+			},
+		});
+		const adminQuery: any = {
+			select: jest.fn(() => adminQuery),
+			eq: jest.fn(() => adminQuery),
+			maybeSingle: jest.fn(async () => ({ data: { stripe_customer_id: "cus_canonical" }, error: null })),
+			upsert: jest.fn(async () => ({ error: null })),
+		};
+		createAdminClient.mockReturnValue({ from: jest.fn(() => adminQuery) } as any);
+
+		const { ensureWorkspaceStripeWallet } = await import("./activeTeamStripe");
+		await expect(ensureWorkspaceStripeWallet({ workspaceId: "ws_1", userId: "user_2" }))
+			.resolves.toMatchObject({ customerId: "cus_canonical" });
 	});
 
 	it("allows members to read an existing Stripe summary without repairing bindings", async () => {

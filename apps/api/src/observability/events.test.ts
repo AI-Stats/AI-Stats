@@ -962,10 +962,11 @@ describe("emitGatewayRequestEvent", () => {
 			statusCode: 500,
 			success: false,
 			errorCode: "parse_failed",
+			errorMessage: "private parse error message",
 			requestPayload: { document: "private source document" },
 			providerResponse: { extracted: "private provider parse output" },
 			gatewayResponse: { output: "private parsed result" },
-			errorDetails: { fragment: "private error fragment" },
+			errorDetails: { error: { message: "private upstream error message" } },
 		});
 
 		const event = sendAxiomWideEventMock.mock.calls[0]?.[0] as Record<string, unknown>;
@@ -980,6 +981,9 @@ describe("emitGatewayRequestEvent", () => {
 		expect(event.provider_response_redacted_json).toBeUndefined();
 		expect(event.gateway_response_redacted_json).toBeUndefined();
 		expect(event.error_details_redacted_json).toBeUndefined();
+		expect(event.error_message).toBeUndefined();
+		expect(event.upstream_error_message).toBeUndefined();
+		expect(event.failure_sample_first_upstream_error_message).toBeUndefined();
 		expect(JSON.stringify(event)).not.toContain("private");
 	});
 });

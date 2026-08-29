@@ -172,7 +172,7 @@ function renderPathTemplate(path: string, params: IROperation["params"]): string
 	const parts = segments.map((segment) => {
 		if (segment.startsWith("{") && segment.endsWith("}")) {
 			const name = sanitizeIdentifier(segment.slice(1, -1));
-			return `#{URI.encode_www_form_component(path["${name}"].to_s)}`;
+			return `#{URI.encode_uri_component(path["${name}"].to_s)}`;
 		}
 		return escapeRubyDoubleQuoted(segment);
 	});

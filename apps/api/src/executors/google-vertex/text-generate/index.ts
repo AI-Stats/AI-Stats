@@ -26,7 +26,7 @@ import {
 } from "@executors/google/shared/thinking";
 import { sanitizeGeminiSchema } from "@executors/google/shared/schema";
 import type { ProviderExecutor } from "../../types";
-import { resolveGoogleOAuthTokenUri } from "../../../providers/google-vertex/token-uri";
+import { googleOAuthTokenRequestInit, resolveGoogleOAuthTokenUri } from "../../../providers/google-vertex/token-uri";
 
 type VertexServiceAccount = {
 	client_email: string;
@@ -701,13 +701,7 @@ async function mintServiceAccountAccessToken(sa: VertexServiceAccount, upstreamT
 		assertion,
 	});
 
-	const init: RequestInit = {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/x-www-form-urlencoded",
-		},
-		body,
-	};
+	const init = googleOAuthTokenRequestInit(body);
 	const res = await (upstreamTiming
 		? upstreamTiming.fetch(tokenUri, init, "auth")
 		: fetch(tokenUri, init));
@@ -778,5 +772,4 @@ export const executor: ProviderExecutor = buildTextExecutor({
 	postprocess,
 	transformStream,
 });
-
 

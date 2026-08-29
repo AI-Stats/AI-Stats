@@ -11,7 +11,7 @@ describe("resolveDevtoolsAssetPath", () => {
 		);
 	});
 
-	for (const value of ["../session.jsonl", "../../.env", "C:\\Windows\\win.ini", "/etc/passwd"]) {
+	for (const value of ["../session.jsonl", "../../.env", "C:\\Windows\\win.ini", "\\\\server\\share\\secret", "/etc/passwd"]) {
 		it(`rejects escaping asset path ${value}`, () => {
 			assert.equal(resolveDevtoolsAssetPath("captures", value), null);
 		});

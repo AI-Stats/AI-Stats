@@ -83,11 +83,30 @@ async function upsertWorkspaceStripeCustomer(workspaceId: string, customerId: st
     if (upsertError) throw upsertError;
 }
 
+async function readWorkspaceStripeCustomer(workspaceId: string): Promise<string | null> {
+	const admin = createAdminClient();
+	const result = await admin
+		.from("wallets")
+		.select("stripe_customer_id")
+		.eq("workspace_id", workspaceId)
+		.maybeSingle();
+	if (result.error) throw result.error;
+	return typeof result.data?.stripe_customer_id === "string"
+		? result.data.stripe_customer_id.trim() || null
+		: null;
+}
+
+function isStripeIdempotencyConflict(error: unknown): boolean {
+	if (!error || typeof error !== "object") return false;
+	const candidate = error as { code?: string; type?: string; raw?: { code?: string; type?: string } };
+	return candidate.code === "idempotency_error" ||
+		candidate.type === "StripeIdempotencyError" ||
+		candidate.raw?.code === "idempotency_error" ||
+		candidate.raw?.type === "StripeIdempotencyError";
+}
+
 async function findOrCreateStripeCustomer(args: {
     workspaceId: string;
-    userId: string;
-    email?: string | null;
-    name?: string;
 }): Promise<string> {
     const stripe = getStripe();
     let customerId: string | null = null;
@@ -105,12 +124,24 @@ async function findOrCreateStripeCustomer(args: {
     }
 
     if (!customerId) {
-        const created = await stripe.customers.create({
-            email: args.email ?? undefined,
-            name: args.name,
-            metadata: { workspace_id: args.workspaceId, user_id: args.userId },
-        });
-        customerId = created.id;
+		try {
+			const created = await stripe.customers.create(
+				{ metadata: { workspace_id: args.workspaceId } },
+				{ idempotencyKey: `phaseo:workspace:${args.workspaceId}:customer:v1` },
+			);
+			customerId = created.id;
+		} catch (error) {
+			if (!isStripeIdempotencyConflict(error)) throw error;
+			customerId = await readWorkspaceStripeCustomer(args.workspaceId);
+			if (!customerId) {
+				const search = await stripe.customers.search({
+					query: `metadata['workspace_id']:'${args.workspaceId}'`,
+					limit: 1,
+				});
+				customerId = search.data[0]?.id ?? null;
+			}
+			if (!customerId) throw error;
+		}
     }
 
     return customerId;
@@ -172,9 +203,6 @@ async function resolveWorkspaceStripeCustomer(args: {
 
     const customerId = await findOrCreateStripeCustomer({
         workspaceId: args.workspaceId,
-        userId: args.userId,
-        email: args.email ?? undefined,
-        name: args.name,
     });
 
     if (customerId !== storedCustomerId) {

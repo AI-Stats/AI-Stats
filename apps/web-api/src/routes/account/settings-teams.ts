@@ -373,7 +373,7 @@ accountSettingsTeamsRouter.put("/teams/:workspaceId/sso", async (c) => {
 accountSettingsTeamsRouter.put("/teams/:workspaceId/members/:userId", async (c) => {
 	const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId: c.req.param("workspaceId") });
 	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
-	if (context.role.toLowerCase() !== "owner") return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
+	if (!context.isOwner) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
 	const targetUserId = c.req.param("userId");
 	const body: { role?: string } = await c.req.json<{ role?: string }>().catch(() => ({}));
 	const role = String(body.role ?? "").toLowerCase();
@@ -386,6 +386,7 @@ accountSettingsTeamsRouter.put("/teams/:workspaceId/members/:userId", async (c) 
 	if (!existing.data) return c.json({ error: "member_not_found" }, 404, PRIVATE_NO_STORE_HEADERS);
 	const result = await context.client.from("workspace_members").update({ role }).eq("workspace_id", context.workspaceId).eq("user_id", targetUserId).select("workspace_id,user_id,role").maybeSingle();
 	if (result.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	if (!result.data) return c.json({ error: "member_not_found" }, 404, PRIVATE_NO_STORE_HEADERS);
 	return c.json({ workspaceId: context.workspaceId, userId: targetUserId, role: result.data?.role ?? null, ok: true }, 200, PRIVATE_NO_STORE_HEADERS);
 });
 
@@ -397,7 +398,7 @@ accountSettingsTeamsRouter.delete("/teams/:workspaceId/members/:userId", async (
 	const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId });
 	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
 	const isSelf = user.id === targetUserId;
-	if (!isSelf && context.role.toLowerCase() !== "owner") return c.json({ workspaceId, userId: targetUserId, ok: false, message: "Only the workspace owner can remove another member." }, 403, PRIVATE_NO_STORE_HEADERS);
+	if (!isSelf && !context.isOwner) return c.json({ workspaceId, userId: targetUserId, ok: false, message: "Only the workspace owner can remove another member." }, 403, PRIVATE_NO_STORE_HEADERS);
 	const [workspace, target] = await Promise.all([
 		context.client.from("workspaces").select("owner_user_id").eq("id", workspaceId).maybeSingle(),
 		context.client.from("workspace_members").select("role").eq("workspace_id", workspaceId).eq("user_id", targetUserId).maybeSingle(),
@@ -405,8 +406,9 @@ accountSettingsTeamsRouter.delete("/teams/:workspaceId/members/:userId", async (
 	if (workspace.error || target.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
 	if (workspace.data?.owner_user_id === targetUserId) return c.json({ workspaceId, userId: targetUserId, ok: false, message: "You can't remove the workspace owner." }, 409, PRIVATE_NO_STORE_HEADERS);
 	if (!target.data) return c.json({ workspaceId, userId: targetUserId, ok: false, message: "Workspace member not found." }, 404, PRIVATE_NO_STORE_HEADERS);
-	const result = await context.client.from("workspace_members").delete().eq("workspace_id", workspaceId).eq("user_id", targetUserId);
+	const result = await context.client.from("workspace_members").delete().eq("workspace_id", workspaceId).eq("user_id", targetUserId).select("workspace_id,user_id").maybeSingle();
 	if (result.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	if (!result.data) return c.json({ workspaceId, userId: targetUserId, ok: false, message: "Workspace member not found." }, 404, PRIVATE_NO_STORE_HEADERS);
 	return c.json({ workspaceId, userId: targetUserId, ok: true }, 200, PRIVATE_NO_STORE_HEADERS);
 });
 

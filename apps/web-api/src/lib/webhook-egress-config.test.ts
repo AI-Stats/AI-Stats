@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 describe("webhook egress configuration", () => {
 	it("keeps Cloudflare's connection-time public-network enforcement enabled", () => {
 		const config = readFileSync(new URL("../../wrangler.toml", import.meta.url), "utf8");
-		expect(config).toMatch(/compatibility_flags\s*=\s*\[[^\]]*"global_fetch_strictly_public"[^\]]*\]/s);
+		const flags = config.match(/^\s*compatibility_flags\s*=\s*\[([^\]]*)\]/m)?.[1] ?? "";
+		expect(flags).toMatch(/(?:^|,)\s*"global_fetch_strictly_public"\s*(?:,|$)/);
 	});
 });
