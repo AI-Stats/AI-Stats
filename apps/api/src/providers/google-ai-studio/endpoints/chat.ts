@@ -16,6 +16,7 @@ import { computeBill } from "@pipeline/pricing/engine";
 import { resolveProviderKey, type ResolvedKey } from "../../keys";
 import { normalizeGoogleUsage } from "../usage";
 import { upstreamTestHeaders } from "../../shared/testing";
+import { fetchPublicMedia } from "@core/public-media-fetch";
 
 /* ================== Config ================== */
 
@@ -91,18 +92,16 @@ async function inlineDataFromUrl(url?: string | null): Promise<{ mime_type: stri
     if (!url) return null;
     if (url.startsWith("data:")) {
         const parsed = parseDataUrl(url);
-        return parsed ? { mime_type: parsed.mimeType, data: parsed.data } : null;
+		if (!parsed || Math.floor(parsed.data.replace(/\s+/g, "").length * 3 / 4) > MAX_REMOTE_ASSET_BYTES) return null;
+        return { mime_type: parsed.mimeType, data: parsed.data };
     }
     try {
-        const res = await fetch(url);
-        if (!res.ok) return null;
-        const contentLength = Number(res.headers.get("content-length") ?? "0");
-        if (contentLength && contentLength > MAX_REMOTE_ASSET_BYTES) return null;
-        const buffer = await res.arrayBuffer();
-        if (buffer.byteLength > MAX_REMOTE_ASSET_BYTES) return null;
+		const res = await fetchPublicMedia({ url, maxBytes: MAX_REMOTE_ASSET_BYTES });
+		const copiedBytes = new Uint8Array(res.bytes.byteLength);
+		copiedBytes.set(res.bytes);
         return {
-            mime_type: res.headers.get("content-type") || "application/octet-stream",
-            data: encodeBase64(buffer),
+			mime_type: res.contentType || "application/octet-stream",
+			data: encodeBase64(copiedBytes.buffer),
         };
     } catch {
         return null;
@@ -849,8 +848,6 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
         byokKeyId: keyInfo.byokId,
     };
 }
-
-
 
 
 

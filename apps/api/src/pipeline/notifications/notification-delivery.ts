@@ -5,9 +5,11 @@ import { getSupabaseAdmin } from "@/runtime/env";
 const DELIVERABLE_KINDS = ["low_balance", "auto_top_up_failed", "payment_method_expiring", "model_deprecation", "notification_test"];
 const EVENT_PAGE_SIZE = 100;
 const WORKSPACE_PAGE_SIZE = 500;
+const DELIVERY_TIMEOUT_MS = 60_000;
 
 type EventRow = { id: string; kind: string; subject: string | null; workspace_id: string; payload: Record<string, unknown> | null; created_at: string };
 type DestinationRow = { id: string; workspace_id: string; name: string; type: string; target_ciphertext: string; target_iv: string; target_key_version: string; status: string; is_ephemeral?: boolean };
+type ClaimedAttemptRow = { id: string; event_id: string; destination_id: string; attempts: number; claim_token: string };
 
 export async function forEachPage<T>(pageSize: number, fetchPage: (from: number, to: number) => Promise<T[]>, visit: (row: T) => Promise<void>): Promise<number> {
 	let count = 0;
@@ -42,10 +44,10 @@ async function decryptTarget(destination: DestinationRow): Promise<string> {
 	return decryptWebhookSecret({ secretCiphertext: destination.target_ciphertext, secretIv: destination.target_iv, secretKeyVersion: destination.target_key_version });
 }
 
-async function postJson(url: string, body: unknown, headers?: Record<string, string>): Promise<number> {
+async function postJson(url: string, body: unknown, headers?: Record<string, string>, signal?: AbortSignal): Promise<number> {
 	const validated = await validateWebhookEndpointUrlForDelivery(url);
 	if (!validated.ok) throw new Error("reason" in validated ? validated.reason : "webhook_url_invalid");
-	const response = await fetch(validated.url, { method: "POST", headers: { "content-type": "application/json", "user-agent": "Phaseo-Notifications/1.0", ...headers }, body: JSON.stringify(body), redirect: "manual" });
+	const response = await fetch(validated.url, { method: "POST", headers: { "content-type": "application/json", "user-agent": "Phaseo-Notifications/1.0", ...headers }, body: JSON.stringify(body), redirect: "manual", signal });
 	if (!response.ok) {
 		const hostname = new URL(validated.url).hostname.toLowerCase();
 		const isDiscordWebhook = (hostname === "discord.com" || hostname === "discordapp.com") && new URL(validated.url).pathname.startsWith("/api/webhooks/");
@@ -61,16 +63,17 @@ async function postJson(url: string, body: unknown, headers?: Record<string, str
 }
 
 async function deliver(event: EventRow, destination: DestinationRow): Promise<number> {
+	const signal = AbortSignal.timeout(DELIVERY_TIMEOUT_MS);
 	const target = await decryptTarget(destination);
 	const content = eventContent(event);
 	if (destination.type === "email") {
 		let recipients: string[];
 		try { const parsed = JSON.parse(target); recipients = Array.isArray(parsed) ? parsed.map(String) : [target]; } catch { recipients = [target]; }
-		for (const [index, recipient] of recipients.entries()) await sendEmail({ to: recipient, subject: content.title, text: `${content.title}\n\n${content.message}\n\nManage notifications: ${content.settingsUrl}`, html: `<div style="font-family:ui-sans-serif,system-ui;line-height:1.5"><h2>${content.title.replaceAll("<", "&lt;")}</h2><p>${content.message.replaceAll("<", "&lt;")}</p><p><a href="${content.settingsUrl}">Manage notifications</a></p></div>`, idempotencyKey: `notification:${event.id}:${destination.id}:${index}` });
+		for (const [index, recipient] of recipients.entries()) await sendEmail({ to: recipient, subject: content.title, text: `${content.title}\n\n${content.message}\n\nManage notifications: ${content.settingsUrl}`, html: `<div style="font-family:ui-sans-serif,system-ui;line-height:1.5"><h2>${content.title.replaceAll("<", "&lt;")}</h2><p>${content.message.replaceAll("<", "&lt;")}</p><p><a href="${content.settingsUrl}">Manage notifications</a></p></div>`, idempotencyKey: `notification:${event.id}:${destination.id}:${index}`, signal });
 		return 202;
 	}
 	const request = buildProviderRequest(destination.type, target, content, event);
-	return postJson(request.url, request.body, request.headers);
+	return postJson(request.url, request.body, request.headers, signal);
 }
 
 export async function deliverNotificationTest(input: {
@@ -135,10 +138,10 @@ export async function runNotificationDeliveryJob(limit = 25): Promise<{ queued: 
 			if (snapshot.error) throw new Error(`notification_attempts_enqueue_failed:${snapshot.error.message}`);
 			queued += Number(snapshot.data ?? 0);
 	});
-	const attempts = await supabase.from("notification_delivery_attempts").select("id,event_id,destination_id,attempts").in("status", ["pending", "retry"]).lte("next_attempt_at", new Date().toISOString()).order("created_at", { ascending: true }).limit(limit);
-	if (attempts.error) throw new Error(`notification_attempts_fetch_failed:${attempts.error.message}`);
+	const attempts = await supabase.rpc("claim_notification_delivery_attempts", { p_limit: limit });
+	if (attempts.error) throw new Error(`notification_attempts_claim_failed:${attempts.error.message}`);
 	let sent = 0; let failed = 0;
-	for (const attempt of attempts.data ?? []) {
+	for (const attempt of (attempts.data ?? []) as ClaimedAttemptRow[]) {
 		try {
 			const [eventResult, destinationResult] = await Promise.all([
 				supabase.from("email_outbox").select("id,kind,subject,workspace_id,payload,created_at").eq("id", attempt.event_id).single(),
@@ -146,13 +149,16 @@ export async function runNotificationDeliveryJob(limit = 25): Promise<{ queued: 
 			]);
 			if (eventResult.error || destinationResult.error) throw new Error("notification_delivery_source_missing");
 			const responseStatus = await deliver(eventResult.data as EventRow, destinationResult.data as DestinationRow);
-			await supabase.from("notification_delivery_attempts").update({ status: "sent", attempts: Number(attempt.attempts ?? 0) + 1, response_status: responseStatus, last_error: null, sent_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq("id", attempt.id);
+			const completion = await supabase.from("notification_delivery_attempts").update({ status: "sent", attempts: Number(attempt.attempts ?? 0) + 1, response_status: responseStatus, last_error: null, sent_at: new Date().toISOString(), claim_token: null, claimed_at: null, updated_at: new Date().toISOString() }).eq("id", attempt.id).eq("claim_token", attempt.claim_token).eq("status", "processing").select("id").maybeSingle();
+			if (completion.error) throw new Error(`notification_attempt_completion_failed:${completion.error.message}`);
+			if (!completion.data) continue;
 			if ((destinationResult.data as DestinationRow).is_ephemeral) await supabase.from("notification_destinations").update({ status: "deleted", deleted_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq("id", attempt.destination_id);
 			sent += 1;
 		} catch (error) {
 			const attemptsCount = Number(attempt.attempts ?? 0) + 1;
 			const terminal = attemptsCount >= 5;
-			await supabase.from("notification_delivery_attempts").update({ status: terminal ? "failed" : "retry", attempts: attemptsCount, next_attempt_at: new Date(Date.now() + Math.min(3600, 30 * 2 ** attemptsCount) * 1000).toISOString(), last_error: String(error instanceof Error ? error.message : error).slice(0, 1000), updated_at: new Date().toISOString() }).eq("id", attempt.id);
+			const retry = await supabase.from("notification_delivery_attempts").update({ status: terminal ? "failed" : "retry", attempts: attemptsCount, next_attempt_at: new Date(Date.now() + Math.min(3600, 30 * 2 ** attemptsCount) * 1000).toISOString(), last_error: String(error instanceof Error ? error.message : error).slice(0, 1000), claim_token: null, claimed_at: null, updated_at: new Date().toISOString() }).eq("id", attempt.id).eq("claim_token", attempt.claim_token).eq("status", "processing").select("id").maybeSingle();
+			if (retry.error || !retry.data) continue;
 			if (terminal) await supabase.from("notification_destinations").update({ status: "deleted", deleted_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq("id", attempt.destination_id).eq("is_ephemeral", true);
 			failed += 1;
 		}

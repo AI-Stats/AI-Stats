@@ -3,12 +3,6 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { validateAgentSdkReleaseSecretBoundaries, validateCiSecretBoundaries } from "./validate-ci-secret-boundaries.mjs";
 
-const trustedPullRequestCondition = `
-                github.event_name == 'pull_request' &&
-                github.event.pull_request.head.repo.full_name == github.repository &&
-                contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.pull_request.author_association)
-`;
-
 const productionMigrationCondition = `
             always() &&
             github.event_name == 'push' &&
@@ -19,7 +13,6 @@ const productionMigrationCondition = `
 `;
 
 function workflowWithConditions(
-	previewCondition = trustedPullRequestCondition,
 	migrationCondition = productionMigrationCondition,
 ) {
 	return `
@@ -67,16 +60,6 @@ ${migrationCondition}
             - name: Verify stealth catalogue privacy boundary
               run: supabase db query --linked --file supabase/tests/stealth_catalogue_security_smoke.sql
 
-    deploy-preview-web:
-        if: >
-${previewCondition}
-        permissions:
-            contents: read
-        steps:
-            - name: Deploy
-              env:
-                  VERCEL_TOKEN: \${{ secrets.VERCEL_TOKEN }}
-
     deploy:
         needs:
             - check-paths
@@ -89,7 +72,7 @@ ${previewCondition}
 `;
 }
 
-test("accepts trusted pull requests and approval-gated production migrations", () => {
+test("accepts secret-free pull-request validation and approval-gated production migrations", () => {
 	assert.doesNotThrow(() => validateCiSecretBoundaries(workflowWithConditions()));
 });
 
@@ -125,11 +108,20 @@ test("tracks database smoke-test changes as migration changes", () => {
 	assert.match(workflow, /- 'supabase\/tests\/\*\*'/);
 });
 
-test("rejects merge-group access to the Vercel credential boundary", () => {
-	const vulnerableCondition = `            github.event_name == 'merge_group' ||${trustedPullRequestCondition}`;
+test("rejects any pull-request Vercel credential boundary", () => {
+	const vulnerableJob = `
+    deploy-preview-web:
+        if: >
+            github.event_name == 'pull_request'
+        steps:
+            - name: Deploy
+              env:
+                  VERCEL_TOKEN: \${{ secrets.VERCEL_TOKEN }}
+
+`;
 	assert.throws(
-		() => validateCiSecretBoundaries(workflowWithConditions(vulnerableCondition)),
-		/never run for merge_group events/,
+		() => validateCiSecretBoundaries(workflowWithConditions().replace("    deploy:\n", `${vulnerableJob}    deploy:\n`)),
+		/pull-request code must not execute/,
 	);
 });
 
@@ -188,7 +180,7 @@ test("rejects production migration secrets outside push-to-main", () => {
 		.replace("github.event_name == 'push'", "github.event_name == 'pull_request'");
 	assert.throws(
 		() => validateCiSecretBoundaries(
-			workflowWithConditions(trustedPullRequestCondition, vulnerableCondition),
+			workflowWithConditions(vulnerableCondition),
 		),
 		/only run for pushes to main/,
 	);

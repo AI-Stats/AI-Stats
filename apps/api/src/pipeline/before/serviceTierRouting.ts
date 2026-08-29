@@ -5,6 +5,7 @@ import type { PriceCard } from "../pricing/types";
 import { ROUTABLE_CAPABILITY_STATUSES, isWithinEffectiveWindow } from "./context.shared";
 import type { ProviderCandidate } from "./types";
 import { parseRouteAvailabilityPolicy } from "@/lib/config/routeAvailability";
+import { resolveEffectiveDataPolicy } from "./dataPolicy";
 
 type ServiceTierPlan = "standard" | "priority" | "batch" | "flex";
 
@@ -245,7 +246,7 @@ async function remapToTierSibling(
     }
 
     const siblingCapability = capabilityByProviderModelId.get(matchedProviderRow.provider_model_id) ?? null;
-    return {
+    const remapped: ProviderCandidate = {
         ...candidate,
         apiModelId: siblingApiModelId,
         pricingKey: `${candidate.providerId}:${siblingApiModelId}`,
@@ -269,6 +270,10 @@ async function remapToTierSibling(
                 ? candidate.maxOutputTokens
                 : Number(siblingCapability.max_output_tokens),
     };
+	return {
+		...remapped,
+		effectiveDataPolicy: resolveEffectiveDataPolicy({ endpoint: capability, provider: remapped }),
+	};
 }
 
 async function remapToHiddenTierSibling(
@@ -344,7 +349,7 @@ async function remapToHiddenTierSibling(
     if (!matchedProviderRow?.provider_model_id) return null;
 
     const siblingCapability = capabilityByProviderModelId.get(matchedProviderRow.provider_model_id) ?? null;
-    return {
+    const remapped: ProviderCandidate = {
         ...candidate,
         providerModelSlug: matchedProviderRow.provider_model_slug ?? candidate.providerModelSlug,
         quantizationScheme:
@@ -365,12 +370,17 @@ async function remapToHiddenTierSibling(
                 ? candidate.maxOutputTokens
                 : Number(siblingCapability.max_output_tokens),
     };
+	return {
+		...remapped,
+		effectiveDataPolicy: resolveEffectiveDataPolicy({ endpoint: capability, provider: remapped }),
+	};
 }
 
 export async function applyServiceTierRouting(args: {
     candidates: ProviderCandidate[];
     body: any;
     capability: string;
+	authorizeRemappedCandidate?: (candidate: ProviderCandidate) => boolean;
 }): Promise<{
     candidates: ProviderCandidate[];
     diagnostics: ServiceTierRoutingDiagnostics;
@@ -430,6 +440,15 @@ export async function applyServiceTierRouting(args: {
                 requestedPlan,
             );
             if (hiddenSiblingCandidate) {
+				if (args.authorizeRemappedCandidate && !args.authorizeRemappedCandidate(hiddenSiblingCandidate)) {
+					droppedProviders.push({
+						providerId: hiddenSiblingCandidate.providerId,
+						apiModelId: hiddenSiblingCandidate.apiModelId ?? null,
+						providerModelSlug: hiddenSiblingCandidate.providerModelSlug ?? null,
+						reason: "service_tier_remap_not_authorized",
+					});
+					continue;
+				}
                 const remappedApiModelId = candidate.apiModelId
                     ? getHiddenTierSiblingLookupApiModelId(
                         candidate.providerId,
@@ -456,6 +475,15 @@ export async function applyServiceTierRouting(args: {
         if (requestedPlan === "priority") {
             const remappedCandidate = await remapToTierSibling(candidate, args.capability, requestedPlan);
             if (remappedCandidate) {
+				if (args.authorizeRemappedCandidate && !args.authorizeRemappedCandidate(remappedCandidate)) {
+					droppedProviders.push({
+						providerId: remappedCandidate.providerId,
+						apiModelId: remappedCandidate.apiModelId ?? null,
+						providerModelSlug: remappedCandidate.providerModelSlug ?? null,
+						reason: "service_tier_remap_not_authorized",
+					});
+					continue;
+				}
                 nextCandidates.push(remappedCandidate);
                 remappedProviders.push({
                     providerId: candidate.providerId,
@@ -469,6 +497,15 @@ export async function applyServiceTierRouting(args: {
         if (requestedPlan === "flex") {
             const remappedCandidate = await remapToTierSibling(candidate, args.capability, requestedPlan);
             if (remappedCandidate) {
+				if (args.authorizeRemappedCandidate && !args.authorizeRemappedCandidate(remappedCandidate)) {
+					droppedProviders.push({
+						providerId: remappedCandidate.providerId,
+						apiModelId: remappedCandidate.apiModelId ?? null,
+						providerModelSlug: remappedCandidate.providerModelSlug ?? null,
+						reason: "service_tier_remap_not_authorized",
+					});
+					continue;
+				}
                 nextCandidates.push(remappedCandidate);
                 remappedProviders.push({
                     providerId: candidate.providerId,

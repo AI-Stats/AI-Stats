@@ -26,6 +26,7 @@ import {
 } from "@executors/google/shared/thinking";
 import { sanitizeGeminiSchema } from "@executors/google/shared/schema";
 import type { ProviderExecutor } from "../../types";
+import { resolveGoogleOAuthTokenUri } from "../../../providers/google-vertex/token-uri";
 
 type VertexServiceAccount = {
 	client_email: string;
@@ -677,7 +678,7 @@ function isVertexServiceAccount(payload: Record<string, unknown>): payload is Ve
 }
 
 async function mintServiceAccountAccessToken(sa: VertexServiceAccount, upstreamTiming?: ExecutorUpstreamTiming): Promise<string> {
-	const tokenUri = sa.token_uri || "https://oauth2.googleapis.com/token";
+	const tokenUri = resolveGoogleOAuthTokenUri(sa.token_uri);
 	const now = Math.floor(Date.now() / 1000);
 	const header = { alg: "RS256", typ: "JWT" };
 	const claimSet = {
@@ -777,6 +778,5 @@ export const executor: ProviderExecutor = buildTextExecutor({
 	postprocess,
 	transformStream,
 });
-
 
 

@@ -24,10 +24,10 @@ import { Loader2, ShieldAlert, Trash2 } from "lucide-react";
 export default function AccountDangerZoneClient() {
 	const [deleting, setDeleting] = React.useState(false);
 
-	async function handleDeleteAccount() {
+	async function handleDeleteAccount(confirmation: string, currentPassword: string) {
 		setDeleting(true);
 		try {
-			await toast.promise(deleteAccount(), {
+			await toast.promise(deleteAccount(confirmation, currentPassword || undefined), {
 				loading: "Deleting your account...",
 				success: "Account deleted.",
 				error: (err: any) => err?.message || "Could not delete account",
@@ -82,10 +82,11 @@ function ConfirmDelete({
 	onConfirm,
 	deleting,
 }: {
-	onConfirm: () => void;
+	onConfirm: (confirmation: string, currentPassword: string) => void;
 	deleting: boolean;
 }) {
 	const [text, setText] = React.useState("");
+	const [currentPassword, setCurrentPassword] = React.useState("");
 	const ok = text.trim().toUpperCase() === "DELETE";
 	return (
 		<div className="grid gap-3">
@@ -99,13 +100,18 @@ function ConfirmDelete({
 					autoFocus
 				/>
 			</div>
+			<div className="grid gap-2">
+				<Label htmlFor="deleteCurrentPassword">Current password</Label>
+				<Input id="deleteCurrentPassword" type="password" autoComplete="current-password" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} />
+				<p className="text-xs text-muted-foreground">Passwordless accounts require a recent provider sign-in.</p>
+			</div>
 			<AlertDialogFooter>
 				<div className="flex w-full items-center justify-end gap-2">
 					<AlertDialogCancel className="w-auto" disabled={deleting}>
 						Cancel
 					</AlertDialogCancel>
 
-					<Button variant="destructive" onClick={onConfirm} disabled={!ok || deleting}>
+					<Button variant="destructive" onClick={() => onConfirm(text, currentPassword)} disabled={!ok || deleting}>
 						{deleting ? (
 							<>
 								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -122,4 +128,3 @@ function ConfirmDelete({
 		</div>
 	);
 }
-

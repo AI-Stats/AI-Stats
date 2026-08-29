@@ -3,6 +3,7 @@
 // How: Converts URL/data URL/base64 strings into Blob + filename for FormData.
 
 import type { ExecutorUpstreamTiming } from "@executors/types";
+import { fetchPublicMedia } from "@core/public-media-fetch";
 
 type ResolveUploadableOptions = {
 	defaultMimeType: string;
@@ -103,24 +104,17 @@ export async function resolveUploadableFromString(
 	}
 
 	if (input.startsWith("http://") || input.startsWith("https://")) {
-		const fetched = await (
-			options.upstreamTiming
-				? options.upstreamTiming.fetch(input, undefined, "media")
-				: fetch(input)
-		);
-		if (!fetched.ok) {
-			throw new Error(`uploadable_fetch_failed_${fetched.status}`);
-		}
-		const contentLength = Number(fetched.headers.get("content-length") ?? "0");
-		if (Number.isFinite(contentLength) && contentLength > 0) {
-			assertMaxBytes(contentLength, options.maxBytes);
-		}
-		const blob = await fetched.blob();
-		assertMaxBytes(blob.size, options.maxBytes);
-		const mimeType = blob.type || options.defaultMimeType;
-		const filename = withExtension(filenameFromUrl(input), mimeType);
+		const fetched = await fetchPublicMedia({
+			url: input,
+			maxBytes: options.maxBytes ?? 25 * 1024 * 1024,
+			upstreamTiming: options.upstreamTiming,
+		});
+		const mimeType = fetched.contentType?.split(";", 1)[0]?.trim() || options.defaultMimeType;
+		const arrayBuffer = bytesToArrayBuffer(fetched.bytes);
+		const blob = new Blob([arrayBuffer], { type: mimeType });
+		const filename = withExtension(filenameFromUrl(fetched.url), mimeType);
 		return {
-			blob: blob.type ? blob : new Blob([await blob.arrayBuffer()], { type: mimeType }),
+			blob,
 			filename,
 		};
 	}

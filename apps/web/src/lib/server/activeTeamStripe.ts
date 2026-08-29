@@ -104,20 +104,6 @@ async function findOrCreateStripeCustomer(args: {
         // Ignore search failures and fallback to create path.
     }
 
-    if (!customerId && args.email) {
-        const list = await stripe.customers.list({ email: args.email, limit: 1 });
-        if (list.data.length > 0) {
-            customerId = list.data[0].id;
-            try {
-                await stripe.customers.update(customerId, {
-                    metadata: { workspace_id: args.workspaceId, user_id: args.userId },
-                });
-            } catch {
-                // Best-effort metadata patch only.
-            }
-        }
-    }
-
     if (!customerId) {
         const created = await stripe.customers.create({
             email: args.email ?? undefined,

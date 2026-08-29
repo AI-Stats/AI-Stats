@@ -783,6 +783,8 @@ export function resolveAnthropicInferenceGeo(
 	providerId: string,
 	ir?: IRChatRequest,
 ): "global" | "us" | null {
+	if (providerId === "anthropic-us" || providerId === "anthropic-aws-us") return "us";
+
 	const explicitInferenceGeo = String(ir?.geo?.inferenceGeo ?? "")
 		.trim()
 		.toLowerCase();
@@ -796,7 +798,6 @@ export function resolveAnthropicInferenceGeo(
 	if (requiredExecutionRegion === "us") return "us";
 	if (requiredExecutionRegion === "global") return "global";
 
-	if (providerId === "anthropic-us" || providerId === "anthropic-aws-us") return "us";
 	return null;
 }
 

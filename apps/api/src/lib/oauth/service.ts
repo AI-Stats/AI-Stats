@@ -66,6 +66,28 @@ const CIMD_DEFAULT_SCOPES = [
 	CAPABILITIES.GENERATIONS_READ,
 ] as const;
 const cimdClientCache = new Map<string, { expiresAt: number; client: OAuthClient }>();
+const CIMD_CACHE_MAX_ENTRIES = 256;
+const CIMD_CACHE_MAX_ENTRIES_PER_ORIGIN = 16;
+
+function pruneCimdClientCache(now: number, incomingOrigin?: string): void {
+	for (const [key, entry] of cimdClientCache) {
+		if (entry.expiresAt <= now) cimdClientCache.delete(key);
+	}
+	if (incomingOrigin) {
+		const matching = [...cimdClientCache.keys()].filter((key) => {
+			try { return new URL(key).origin === incomingOrigin; } catch { return false; }
+		});
+		while (matching.length >= CIMD_CACHE_MAX_ENTRIES_PER_ORIGIN) {
+			const oldest = matching.shift();
+			if (oldest) cimdClientCache.delete(oldest);
+		}
+	}
+	while (cimdClientCache.size >= CIMD_CACHE_MAX_ENTRIES) {
+		const oldest = cimdClientCache.keys().next().value;
+		if (typeof oldest !== "string") break;
+		cimdClientCache.delete(oldest);
+	}
+}
 
 export function isReservedOAuthClientName(value: string): boolean {
 	return /\b(?:phaseo|ai[\s_-]*stats)\b/i.test(value.normalize("NFKC"));
@@ -493,8 +515,14 @@ async function readResponseTextWithinLimit(response: Response, maximumBytes: num
 async function loadCimdClient(clientId: string): Promise<OAuthClient | null> {
 	const clientUrl = parseCimdClientId(clientId);
 	if (!clientUrl) return null;
+	const now = Date.now();
+	pruneCimdClientCache(now);
 	const cached = cimdClientCache.get(clientId);
-	if (cached && cached.expiresAt > Date.now()) return cached.client;
+	if (cached && cached.expiresAt > now) {
+		cimdClientCache.delete(clientId);
+		cimdClientCache.set(clientId, cached);
+		return cached.client;
+	}
 
 	let response: Response;
 	try {
@@ -566,6 +594,7 @@ async function loadCimdClient(clientId: string): Promise<OAuthClient | null> {
 		status: "active",
 		registration_source: "cimd",
 	};
+	pruneCimdClientCache(Date.now(), clientUrl.origin);
 	cimdClientCache.set(clientId, { expiresAt: Date.now() + CIMD_CACHE_TTL_MS, client });
 	return client;
 }

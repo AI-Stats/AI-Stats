@@ -13,28 +13,28 @@ function calculatePricing(Client $client, ?array $path = null, ?array $query = n
 function cancelBatch(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
-	$resolvedPath = "/batches/{$path["batch_id"]}/cancel";
+	$resolvedPath = "/batches/" . rawurlencode((string)($path["batch_id"] ?? "")) . "/cancel";
 	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
 function cancelBatchAlias(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
-	$resolvedPath = "/batch/{$path["id"]}/cancel";
+	$resolvedPath = "/batch/" . rawurlencode((string)($path["id"] ?? "")) . "/cancel";
 	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
 function cancelVideo(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
-	$resolvedPath = "/videos/{$path["video_id"]}/cancel";
+	$resolvedPath = "/videos/" . rawurlencode((string)($path["video_id"] ?? "")) . "/cancel";
 	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
 function cancelVideoAlias(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
-	$resolvedPath = "/video/generations/{$path["video_id"]}/cancel";
+	$resolvedPath = "/video/generations/" . rawurlencode((string)($path["video_id"] ?? "")) . "/cancel";
 	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
@@ -167,14 +167,14 @@ function createVideoAlias(Client $client, ?array $path = null, ?array $query = n
 function createVideoDownloadUrl(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
-	$resolvedPath = "/videos/{$path["video_id"]}/download_url";
+	$resolvedPath = "/videos/" . rawurlencode((string)($path["video_id"] ?? "")) . "/download_url";
 	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
 function createVideoDownloadUrlAlias(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
-	$resolvedPath = "/video/generations/{$path["video_id"]}/download_url";
+	$resolvedPath = "/video/generations/" . rawurlencode((string)($path["video_id"] ?? "")) . "/download_url";
 	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
@@ -188,28 +188,28 @@ function createWorkspace(Client $client, ?array $path = null, ?array $query = nu
 function deleteApiKey(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
-	$resolvedPath = "/keys/{$path["id"]}";
+	$resolvedPath = "/keys/" . rawurlencode((string)($path["id"] ?? ""));
 	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
 }
 
 function deleteVideo(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
-	$resolvedPath = "/videos/{$path["video_id"]}";
+	$resolvedPath = "/videos/" . rawurlencode((string)($path["video_id"] ?? ""));
 	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
 }
 
 function deleteVideoAlias(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
-	$resolvedPath = "/video/generations/{$path["video_id"]}";
+	$resolvedPath = "/video/generations/" . rawurlencode((string)($path["video_id"] ?? ""));
 	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
 }
 
 function deleteWorkspace(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
-	$resolvedPath = "/workspaces/{$path["id"]}";
+	$resolvedPath = "/workspaces/" . rawurlencode((string)($path["id"] ?? ""));
 	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
 }
 
@@ -244,7 +244,7 @@ function getActivityAlias(Client $client, ?array $path = null, ?array $query = n
 function getApiKey(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
-	$resolvedPath = "/keys/{$path["id"]}";
+	$resolvedPath = "/keys/" . rawurlencode((string)($path["id"] ?? ""));
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
@@ -279,56 +279,56 @@ function getHealth(Client $client, ?array $path = null, ?array $query = null, ?a
 function getMusicGeneration(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
-	$resolvedPath = "/music/generate/{$path["music_id"]}";
+	$resolvedPath = "/music/generate/" . rawurlencode((string)($path["music_id"] ?? ""));
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
 function getMusicGenerationAlias(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
-	$resolvedPath = "/music/generations/{$path["music_id"]}";
+	$resolvedPath = "/music/generations/" . rawurlencode((string)($path["music_id"] ?? ""));
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
 function getProviderDerankStatus(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
-	$resolvedPath = "/health/providers/{$path["provider_id"]}/derank";
+	$resolvedPath = "/health/providers/" . rawurlencode((string)($path["provider_id"] ?? "")) . "/derank";
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
 function getVideo(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
-	$resolvedPath = "/videos/{$path["video_id"]}";
+	$resolvedPath = "/videos/" . rawurlencode((string)($path["video_id"] ?? ""));
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
 function getVideoAlias(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
-	$resolvedPath = "/video/generations/{$path["video_id"]}";
+	$resolvedPath = "/video/generations/" . rawurlencode((string)($path["video_id"] ?? ""));
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
 function getVideoContent(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
-	$resolvedPath = "/videos/{$path["video_id"]}/content";
+	$resolvedPath = "/videos/" . rawurlencode((string)($path["video_id"] ?? "")) . "/content";
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
 function getVideoContentAlias(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
-	$resolvedPath = "/video/generations/{$path["video_id"]}/content";
+	$resolvedPath = "/video/generations/" . rawurlencode((string)($path["video_id"] ?? "")) . "/content";
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
 function getWorkspace(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
-	$resolvedPath = "/workspaces/{$path["id"]}";
+	$resolvedPath = "/workspaces/" . rawurlencode((string)($path["id"] ?? ""));
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
@@ -398,14 +398,14 @@ function listBatchModelsAlias(Client $client, ?array $path = null, ?array $query
 function listBatchRequests(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
-	$resolvedPath = "/batches/{$path["batch_id"]}/requests";
+	$resolvedPath = "/batches/" . rawurlencode((string)($path["batch_id"] ?? "")) . "/requests";
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
 function listBatchRequestsAlias(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
-	$resolvedPath = "/batch/{$path["id"]}/requests";
+	$resolvedPath = "/batch/" . rawurlencode((string)($path["id"] ?? "")) . "/requests";
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
@@ -433,7 +433,7 @@ function listFiles(Client $client, ?array $path = null, ?array $query = null, ?a
 function listModelEndpoints(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
-	$resolvedPath = "/models/{$path["author"]}/{$path["slug"]}/endpoints";
+	$resolvedPath = "/models/" . rawurlencode((string)($path["author"] ?? "")) . "/" . rawurlencode((string)($path["slug"] ?? "")) . "/endpoints";
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
@@ -510,77 +510,77 @@ function listWorkspaces(Client $client, ?array $path = null, ?array $query = nul
 function openAsyncJobWebSocket(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
-	$resolvedPath = "/async/{$path["kind"]}/{$path["id"]}/ws";
+	$resolvedPath = "/async/" . rawurlencode((string)($path["kind"] ?? "")) . "/" . rawurlencode((string)($path["id"] ?? "")) . "/ws";
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
 function retrieveBatch(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
-	$resolvedPath = "/batches/{$path["batch_id"]}";
+	$resolvedPath = "/batches/" . rawurlencode((string)($path["batch_id"] ?? ""));
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
 function retrieveBatchAlias(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
-	$resolvedPath = "/batch/{$path["id"]}";
+	$resolvedPath = "/batch/" . rawurlencode((string)($path["id"] ?? ""));
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
 function retrieveBatchFile(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
-	$resolvedPath = "/batches/files/{$path["file_id"]}";
+	$resolvedPath = "/batches/files/" . rawurlencode((string)($path["file_id"] ?? ""));
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
 function retrieveBatchFileAlias(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
-	$resolvedPath = "/batch/files/{$path["file_id"]}";
+	$resolvedPath = "/batch/files/" . rawurlencode((string)($path["file_id"] ?? ""));
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
 function retrieveBatchFileContent(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
-	$resolvedPath = "/batches/files/{$path["file_id"]}/content";
+	$resolvedPath = "/batches/files/" . rawurlencode((string)($path["file_id"] ?? "")) . "/content";
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
 function retrieveBatchFileContentAlias(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
-	$resolvedPath = "/batch/files/{$path["file_id"]}/content";
+	$resolvedPath = "/batch/files/" . rawurlencode((string)($path["file_id"] ?? "")) . "/content";
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
 function retrieveFile(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
-	$resolvedPath = "/files/{$path["file_id"]}";
+	$resolvedPath = "/files/" . rawurlencode((string)($path["file_id"] ?? ""));
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
 function retrieveFileContent(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
-	$resolvedPath = "/files/{$path["file_id"]}/content";
+	$resolvedPath = "/files/" . rawurlencode((string)($path["file_id"] ?? "")) . "/content";
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
 function updateApiKey(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
-	$resolvedPath = "/keys/{$path["id"]}";
+	$resolvedPath = "/keys/" . rawurlencode((string)($path["id"] ?? ""));
 	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
 }
 
 function updateWorkspace(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
-	$resolvedPath = "/workspaces/{$path["id"]}";
+	$resolvedPath = "/workspaces/" . rawurlencode((string)($path["id"] ?? ""));
 	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
 }
 

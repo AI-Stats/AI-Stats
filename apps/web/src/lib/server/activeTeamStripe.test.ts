@@ -131,6 +131,42 @@ describe("requireActiveTeamStripeCustomer", () => {
 		);
 	});
 
+	it("never adopts a Stripe customer by email when workspace metadata has no match", async () => {
+		const user = { id: "user_1", email: "shared@example.com", user_metadata: {} };
+		const walletQuery: any = {
+			select: jest.fn(() => walletQuery),
+			eq: jest.fn(() => walletQuery),
+			maybeSingle: jest.fn(async () => ({ data: null, error: null })),
+		};
+		createClient.mockResolvedValue({
+			auth: { getUser: jest.fn(async () => ({ data: { user }, error: null })) },
+			from: jest.fn(() => walletQuery),
+		} as any);
+		createAdminClient.mockReturnValue({
+			from: jest.fn(() => ({ upsert: jest.fn(async () => ({ error: null })) })),
+		} as any);
+		getWorkspaceIdFromCookie.mockResolvedValue("ws_1");
+		requireWorkspaceMembership.mockResolvedValue(undefined);
+		const list = jest.fn(async () => ({ data: [{ id: "cus_other_workspace" }] }));
+		const create = jest.fn(async () => ({ id: "cus_new_workspace" }));
+		getStripe.mockReturnValue({
+			customers: {
+				search: jest.fn(async () => ({ data: [] })),
+				list,
+				create,
+			},
+		});
+
+		const { requireActiveTeamStripeCustomer } = await import("./activeTeamStripe");
+		await expect(requireActiveTeamStripeCustomer({ createIfMissing: true })).resolves.toMatchObject({
+			customerId: "cus_new_workspace",
+		});
+		expect(list).not.toHaveBeenCalled();
+		expect(create).toHaveBeenCalledWith(expect.objectContaining({
+			metadata: { workspace_id: "ws_1", user_id: "user_1" },
+		}));
+	});
+
 	it("allows members to read an existing Stripe summary without repairing bindings", async () => {
 		const walletQuery: any = {
 			select: jest.fn(() => walletQuery),

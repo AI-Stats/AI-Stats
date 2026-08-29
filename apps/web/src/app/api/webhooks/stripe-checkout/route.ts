@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import { isSupportedTopUpSettlement } from "@/lib/server/topUpValidation";
 import { createClient } from "@supabase/supabase-js";
 import { sendBillingDiscordWebhook } from "@/lib/automations/billingDiscord";
 import {
@@ -772,6 +773,15 @@ export async function POST(req: Request) {
                     });
                     break;
                 }
+				const grossCents = Number(pi.amount_received ?? pi.amount ?? 0);
+				if (!isSupportedTopUpSettlement(pi.currency, grossCents)) {
+					console.error("[stripe-webhook] Refused unsupported top-up settlement", {
+						paymentIntentId: pi.id,
+						currency: pi.currency,
+						amount: grossCents,
+					});
+					break;
+				}
 
                 const stripeCustomerId = readCustomerIdFromPaymentIntent(pi);
                 const paymentMethodId = readPaymentMethodId(pi);
@@ -786,7 +796,6 @@ export async function POST(req: Request) {
 
                 if (!wallet?.workspace_id) break;
 
-                const grossCents = Number(pi.amount_received ?? pi.amount ?? 0);
                 // Stripe amounts are in cents; convert to nanos (1 USD = 1e9 nanos).
                 const grossNanos = grossCents * 10_000_000;
 

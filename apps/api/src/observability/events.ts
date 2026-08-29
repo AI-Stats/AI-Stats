@@ -1151,7 +1151,11 @@ export async function emitGatewayRequestEvent(args: EventArgs) {
             return;
         }
 
-        const includeDetailedPayloads = observabilityPlan.detailLevel === "full";
+        // Parse responses contain the caller's extracted document content. Keep
+        // operational telemetry, but never copy parse bodies into detailed logs.
+        const containsParsedDocumentContent = (args.endpoint ?? args.ctx?.endpoint) === "parse";
+        const includeDetailedPayloads =
+            observabilityPlan.detailLevel === "full" && !containsParsedDocumentContent;
 
         const sanitizedGatewayRequest = includeDetailedPayloads
             ? sanitizeForAxiom(args.requestPayload ?? ctx?.rawBody ?? ctx?.body ?? null)
@@ -1159,7 +1163,7 @@ export async function emitGatewayRequestEvent(args: EventArgs) {
         const sanitizedUpstreamRequest = includeDetailedPayloads
             ? sanitizeJsonStringForAxiom(args.mappedRequest ?? args.result?.mappedRequest ?? null)
             : null;
-        const sanitizedErrorDetails = includeDetailedPayloads || !args.success
+        const sanitizedErrorDetails = includeDetailedPayloads || (!args.success && !containsParsedDocumentContent)
             ? sanitizeForAxiom(args.errorDetails ?? null)
             : null;
         const sanitizedProviderResponse = includeDetailedPayloads
@@ -1508,4 +1512,3 @@ export async function emitGatewayRequestEvent(args: EventArgs) {
         releaseRuntime();
     }
 }
-

@@ -310,16 +310,12 @@ export default function CreditsPurchaseDialog({
 		try {
 			const clientUserId =
 				(window as any).__USER_ID__ || document?.body?.dataset?.userId;
-			const customerId =
-				stripeInfo?.customer?.id ?? wallet?.stripe_customer_id ?? null;
 			const workspaceId = wallet?.workspace_id ?? null;
 
 			if (selectedPm && selectedPm !== "new") {
 				const response = await ChargeSavedPayment({
-					customerId,
 					payment_method_id: selectedPm,
 					amount_pence: Math.round(total * 100),
-					currency: "usd",
 					kind: mode,
 					user_id: clientUserId ?? null,
 					event_type: "top_up",
@@ -411,10 +407,8 @@ export default function CreditsPurchaseDialog({
 				body: JSON.stringify({
 					kind: mode,
 					amount_pence: Math.round(total * 100),
-					currency: "usd",
 					charge_immediately: true,
 					save_payment_method: mode === "pay_and_save",
-					customerId,
 					user_id: clientUserId ?? null,
 					workspace_id: workspaceId,
 					country_code: countryCode,

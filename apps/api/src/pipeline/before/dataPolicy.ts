@@ -1,5 +1,13 @@
 import type { EffectiveDataPolicy, GatewayProviderSnapshot } from "./types";
 
+type DataPolicyProvider = Pick<GatewayProviderSnapshot,
+	"dataPolicyTier" |
+	"dataPolicyConfidence" |
+	"zeroDataRetention" |
+	"dataPolicyVariant" |
+	"capabilityParams"
+>;
+
 type CapabilityPolicyOverride = Partial<{
     tier: EffectiveDataPolicy["tier"];
     confidence: EffectiveDataPolicy["confidence"];
@@ -79,16 +87,24 @@ function providerZdrEligibility(
 	return value === true ? "eligible" : "ineligible";
 }
 
+function providerRetentionMode(
+	provider: DataPolicyProvider,
+): EffectiveDataPolicy["retentionMode"] {
+	return provider.zeroDataRetention === true && provider.dataPolicyVariant === "zdr"
+		? "none"
+		: "unknown";
+}
+
 export function resolveEffectiveDataPolicy(args: {
     endpoint: string;
-    provider: GatewayProviderSnapshot;
+	provider: DataPolicyProvider;
 }): EffectiveDataPolicy {
     const provider = args.provider;
     const inherited: EffectiveDataPolicy = {
         tier: provider.dataPolicyTier ?? "unknown",
         confidence: provider.dataPolicyConfidence ?? "unknown",
         zdrEligibility: providerZdrEligibility(provider.zeroDataRetention),
-		retentionMode: provider.zeroDataRetention === true ? "none" : "unknown",
+		retentionMode: providerRetentionMode(provider),
         retentionDays: null,
         source: "provider",
         reason: null,

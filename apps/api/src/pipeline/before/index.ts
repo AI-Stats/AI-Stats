@@ -903,6 +903,13 @@ export async function beforeRequest(
             candidates: enabledProviders,
             body: mergedBody,
             capability: normalizedCapability,
+			authorizeRemappedCandidate: (candidate) => applyWorkspacePolicy({
+				providers: [candidate],
+				resolvedModel: candidate.apiModelId ?? resolvedModel ?? model,
+				body: mergedBody,
+				workspacePolicy,
+				teamSettings: context.teamSettings ?? null,
+			}).ok,
         })
     );
     if (serviceTierRoutingResult.diagnostics.droppedProviders.length) {

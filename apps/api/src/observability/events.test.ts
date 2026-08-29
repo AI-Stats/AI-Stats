@@ -952,4 +952,34 @@ describe("emitGatewayRequestEvent", () => {
 			input: "[redacted 5 chars]",
 		});
 	});
+
+	it("never copies parsed document content into detailed telemetry", async () => {
+		await emitGatewayRequestEvent({
+			requestId: "req_parse_obs_123",
+			workspaceId: "ws_parse_obs_123",
+			endpoint: "parse",
+			model: "phaseo/parse",
+			statusCode: 500,
+			success: false,
+			errorCode: "parse_failed",
+			requestPayload: { document: "private source document" },
+			providerResponse: { extracted: "private provider parse output" },
+			gatewayResponse: { output: "private parsed result" },
+			errorDetails: { fragment: "private error fragment" },
+		});
+
+		const event = sendAxiomWideEventMock.mock.calls[0]?.[0] as Record<string, unknown>;
+		expect(event).toMatchObject({
+			observability_detail_level: "full",
+			endpoint: "parse",
+			status_code: 500,
+			error_code: "parse_failed",
+		});
+		expect(event.request_payload_redacted_json).toBeUndefined();
+		expect(event.upstream_request_redacted_json).toBeUndefined();
+		expect(event.provider_response_redacted_json).toBeUndefined();
+		expect(event.gateway_response_redacted_json).toBeUndefined();
+		expect(event.error_details_redacted_json).toBeUndefined();
+		expect(JSON.stringify(event)).not.toContain("private");
+	});
 });

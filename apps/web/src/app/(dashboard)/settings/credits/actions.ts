@@ -16,6 +16,9 @@ import {
 } from "@/utils/serverActionAuth";
 import { createAdminClient } from "@/utils/supabase/admin";
 import { normaliseCountryCode } from "@/lib/countryCodes";
+import { getStripe } from "@/lib/stripe";
+import { requireActiveTeamStripeCustomer } from "@/lib/server/activeTeamStripe";
+import { isValidTopUpAmountPence, TOP_UP_CURRENCY } from "@/lib/server/topUpValidation";
 
 type PurchaseLocationPreview = {
 	countryCode: string;
@@ -192,9 +195,7 @@ export async function testNotificationConfiguration(configuration: { type: impor
 }
 
 type ChargeSavedPaymentArgs = {
-    customerId: string;
     amount_pence: number;
-    currency?: string;
     event_type?: string;
     paymentMethodId?: string | null;
 	payment_method_id?: string | null;
@@ -219,6 +220,19 @@ export async function ChargeSavedPayment(args: ChargeSavedPaymentArgs) {
 	const { supabase, user } = await requireAuthenticatedUser();
 	const workspaceId = args.workspace_id ?? (await resolveWorkspaceIdFromActiveCookie());
 	await requireWorkspaceMembership(supabase, user.id, workspaceId, ["owner", "admin"]);
+	if (!isValidTopUpAmountPence(args.amount_pence)) throw new Error("Invalid top-up amount");
+	const { customerId } = await requireActiveTeamStripeCustomer({
+		workspaceId,
+		roles: ["owner", "admin"],
+	});
+	const paymentMethodId = args.paymentMethodId ?? args.payment_method_id ?? null;
+	if (paymentMethodId) {
+		const paymentMethod = await getStripe().paymentMethods.retrieve(paymentMethodId);
+		const boundCustomerId = typeof paymentMethod.customer === "string"
+			? paymentMethod.customer
+			: paymentMethod.customer?.id;
+		if (boundCustomerId !== customerId) throw new Error("Payment method does not belong to this workspace");
+	}
 	const countryCode = normaliseCountryCode(args.country_code);
 	if (!countryCode) throw new Error("Country is required before purchasing credits");
 	const { error: countryError } = await createAdminClient()
@@ -236,7 +250,15 @@ export async function ChargeSavedPayment(args: ChargeSavedPaymentArgs) {
 			"Content-Type": "application/json",
 			[INTERNAL_HEADER]: token,
 		},
-		body: JSON.stringify({ ...args, country_code: countryCode, workspace_id: workspaceId }),
+		body: JSON.stringify({
+			amount_pence: args.amount_pence,
+			currency: TOP_UP_CURRENCY,
+			event_type: args.event_type,
+			payment_method_id: paymentMethodId,
+			customerId,
+			country_code: countryCode,
+			workspace_id: workspaceId,
+		}),
 		cache: "no-store",
 	});
 

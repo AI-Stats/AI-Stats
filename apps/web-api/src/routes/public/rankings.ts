@@ -13,6 +13,11 @@ function bounded(value: string | undefined, fallback: number, max: number) {
 	return Number.isFinite(parsed) ? Math.max(1, Math.min(max, parsed)) : fallback;
 }
 
+function boundedAtLeast(value: string | undefined, fallback: number, min: number, max: number) {
+	const parsed = Math.round(Number(value));
+	return Number.isFinite(parsed) ? Math.max(min, Math.min(max, parsed)) : fallback;
+}
+
 function csv(value: string | undefined, max = 500) {
 	return [...new Set((value ?? "").split(",").map((item) => item.trim()).filter(Boolean))].slice(0, max);
 }
@@ -101,9 +106,9 @@ publicRankingsRouter.get("/rankings/unique-users", async (c) => {
 publicRankingsRouter.get("/rankings/model-retention", async (c) => {
 	const cohortWeeks = bounded(c.req.query("weeks"), 10, 52);
 	const limit = bounded(c.req.query("limit"), 20, 100);
-	const minimumWorkspaceWeeks = bounded(c.req.query("min_workspace_weeks"), 25, 10_000);
-	const minimumWorkspaces = bounded(c.req.query("min_workspaces"), 5, 10_000);
-	const minimumWeeks = bounded(c.req.query("min_weeks"), 2, 52);
+	const minimumWorkspaceWeeks = boundedAtLeast(c.req.query("min_workspace_weeks"), 25, 25, 10_000);
+	const minimumWorkspaces = boundedAtLeast(c.req.query("min_workspaces"), 5, 5, 10_000);
+	const minimumWeeks = boundedAtLeast(c.req.query("min_weeks"), 2, 2, 52);
 	try {
 		const client = getDataClient(c.env);
 		const { data, error } = await client.rpc("get_public_model_retention_rankings", {

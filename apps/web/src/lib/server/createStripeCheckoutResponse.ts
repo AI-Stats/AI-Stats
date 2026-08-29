@@ -10,6 +10,7 @@ import { getStripe } from "@/lib/stripe";
 import { requireActiveWorkspaceStripeCustomer } from "@/lib/server/activeTeamStripe";
 import { createAdminClient } from "@/utils/supabase/admin";
 import { normaliseCountryCode } from "@/lib/countryCodes";
+import { isValidTopUpAmountPence, TOP_UP_CURRENCY } from "@/lib/server/topUpValidation";
 
 type CheckoutKind = "oneoff" | "pay_and_save" | "save_only";
 type CheckoutStartedNotificationKind =
@@ -17,7 +18,6 @@ type CheckoutStartedNotificationKind =
 
 type CreateStripeCheckoutResponseArgs = {
 	amountPence?: number;
-	currency?: string;
 	countryCode?: string;
 	kind: CheckoutKind;
 	notificationCheckoutKind?: CheckoutStartedNotificationKind;
@@ -25,10 +25,6 @@ type CreateStripeCheckoutResponseArgs = {
 	refererHeader: string | null;
 	requestedWorkspaceId?: string;
 };
-
-function isPositiveCheckoutAmount(value: number | undefined): value is number {
-	return typeof value === "number" && Number.isFinite(value) && value >= 500;
-}
 
 async function sendCheckoutStartedNotifications(args: {
 	checkoutSessionId: string;
@@ -73,7 +69,6 @@ export async function createStripeCheckoutResponse(
 ): Promise<NextResponse> {
 	const {
 		amountPence,
-		currency = "usd",
 		countryCode: countryValue,
 		kind,
 		notificationCheckoutKind,
@@ -81,6 +76,10 @@ export async function createStripeCheckoutResponse(
 		refererHeader,
 		requestedWorkspaceId,
 	} = args;
+	if (process.env.NODE_ENV === "production" && !process.env.NEXT_PUBLIC_BASE_URL) {
+		return NextResponse.json({ error: "Checkout redirect base URL is not configured" }, { status: 503 });
+	}
+	const allowRequestHeaderFallback = process.env.NODE_ENV !== "production";
 	const {
 		workspaceId,
 		customerId,
@@ -91,6 +90,20 @@ export async function createStripeCheckoutResponse(
 		createIfMissing: true,
 	});
 	const firstName = deriveFirstName(userDisplayName);
+	const rateLimit = await createAdminClient().rpc("consume_checkout_rate_limit", {
+		p_workspace_id: workspaceId,
+		p_user_id: userId,
+		p_limit: 10,
+	});
+	if (rateLimit.error) {
+		return NextResponse.json({ error: "Checkout is temporarily unavailable" }, { status: 503 });
+	}
+	if (rateLimit.data !== true) {
+		return NextResponse.json({ error: "Too many checkout attempts" }, {
+			status: 429,
+			headers: { "Retry-After": "60" },
+		});
+	}
 	const countryCode = normaliseCountryCode(countryValue);
 	if (kind !== "save_only" && !countryCode) {
 		return NextResponse.json({ error: "Country is required before purchasing credits" }, { status: 400 });
@@ -114,12 +127,13 @@ export async function createStripeCheckoutResponse(
 		originHeader,
 		refererHeader,
 		kind,
+		allowRequestHeaderFallback,
 	});
 
 	const stripe = getStripe();
 
 	if (kind === "oneoff") {
-		if (!isPositiveCheckoutAmount(amountPence)) {
+		if (!isValidTopUpAmountPence(amountPence)) {
 			return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
 		}
 
@@ -130,6 +144,7 @@ export async function createStripeCheckoutResponse(
 			refererHeader,
 			kind,
 			paymentAttempt,
+			allowRequestHeaderFallback,
 		});
 
 		const session = await stripe.checkout.sessions.create({
@@ -145,7 +160,7 @@ export async function createStripeCheckoutResponse(
 				{
 					quantity: 1,
 					price_data: {
-						currency,
+						currency: TOP_UP_CURRENCY,
 						unit_amount: amountPence,
 						product_data: { name: "AI Credits top-up (one-off)" },
 					},
@@ -179,7 +194,7 @@ export async function createStripeCheckoutResponse(
 			firstName,
 			checkoutSessionId: session.id,
 			checkoutKind: checkoutKindForNotifications,
-			currency,
+			currency: TOP_UP_CURRENCY,
 			amountPence,
 			startedAtIso,
 		};
@@ -199,7 +214,7 @@ export async function createStripeCheckoutResponse(
 	}
 
 	if (kind === "pay_and_save") {
-		if (!isPositiveCheckoutAmount(amountPence)) {
+		if (!isValidTopUpAmountPence(amountPence)) {
 			return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
 		}
 
@@ -210,6 +225,7 @@ export async function createStripeCheckoutResponse(
 			refererHeader,
 			kind,
 			paymentAttempt,
+			allowRequestHeaderFallback,
 		});
 
 		const session = await stripe.checkout.sessions.create({
@@ -223,7 +239,7 @@ export async function createStripeCheckoutResponse(
 				{
 					quantity: 1,
 					price_data: {
-						currency,
+						currency: TOP_UP_CURRENCY,
 						unit_amount: amountPence,
 						product_data: { name: "AI Credits top-up (save card)" },
 					},
@@ -257,7 +273,7 @@ export async function createStripeCheckoutResponse(
 			firstName,
 			checkoutSessionId: session.id,
 			checkoutKind: checkoutKindForNotifications,
-			currency,
+			currency: TOP_UP_CURRENCY,
 			amountPence,
 			startedAtIso,
 		};

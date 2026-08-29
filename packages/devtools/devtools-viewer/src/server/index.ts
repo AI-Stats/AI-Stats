@@ -5,6 +5,7 @@ import { DevToolsWriter, type DevToolsEntry, type Stats } from "../core.js";
 import * as path from "path";
 import * as fs from "fs";
 import { fileURLToPath } from "url";
+import { DEVTOOLS_LOOPBACK_HOST, resolveDevtoolsAssetPath } from "./security.js";
 
 const app = new Hono();
 
@@ -234,9 +235,9 @@ app.get("/api/export", (c) => {
 // Serve binary assets (images, audio, video)
 app.get("/devtools-assets/*", async (c) => {
   const assetPath = c.req.path.replace("/devtools-assets/", "");
-  const fullPath = path.join(devtoolsDir, "assets", assetPath);
+  const fullPath = resolveDevtoolsAssetPath(devtoolsDir, assetPath);
 
-  if (!fs.existsSync(fullPath)) {
+  if (!fullPath || !fs.existsSync(fullPath)) {
     return c.json({ error: "Asset not found" }, 404);
   }
 
@@ -282,8 +283,8 @@ export function startServer(port: number = resolvedPort) {
   writer = new DevToolsWriter(devtoolsDir);
   console.log("Phaseo Devtools Viewer starting...");
   console.log(`Watching directory: ${path.resolve(devtoolsDir)}`);
-  console.log(`Server running at http://localhost:${port}`);
-  console.log(`View Devtools at http://localhost:${port}`);
+  console.log(`Server running at http://${DEVTOOLS_LOOPBACK_HOST}:${port}`);
+  console.log(`View Devtools at http://${DEVTOOLS_LOOPBACK_HOST}:${port}`);
   console.log("Monitor requests, responses, costs, and usage in real time.");
   if (!fs.existsSync(path.join(PUBLIC_DIR, "index.html"))) {
     console.warn("UI build not found. Run `pnpm --filter @phaseo/devtools-viewer build` or use `pnpm --filter @phaseo/devtools-viewer dev` for the UI dev server.");
@@ -291,7 +292,8 @@ export function startServer(port: number = resolvedPort) {
 
   serve({
     fetch: app.fetch,
-    port
+    port,
+	hostname: DEVTOOLS_LOOPBACK_HOST,
   });
 }
 
@@ -316,5 +318,4 @@ if (shouldStart) {
 }
 
 export { app };
-
 
