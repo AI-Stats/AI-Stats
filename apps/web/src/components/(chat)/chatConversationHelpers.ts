@@ -58,22 +58,92 @@ function extensionForMimeType(mimeType: string) {
 	if (normalized.includes("jpeg") || normalized.includes("jpg")) return "jpg";
 	if (normalized.includes("webp")) return "webp";
 	if (normalized.includes("gif")) return "gif";
+	if (normalized.includes("heic")) return "heic";
+	if (normalized.includes("heif")) return "heif";
+	if (normalized.includes("avif")) return "avif";
+	if (normalized.includes("bmp")) return "bmp";
+	if (normalized.includes("tiff")) return "tiff";
+	if (normalized.includes("tif")) return "tif";
 	if (normalized.includes("mp4")) return "mp4";
+	if (normalized.includes("quicktime") || normalized.includes("mov")) return "mov";
+	if (normalized.includes("mkv")) return "mkv";
 	if (normalized.includes("webm")) return "webm";
-	if (normalized.includes("ogg")) return "ogg";
 	if (normalized.includes("mpeg")) return "mp3";
+	if (normalized.includes("ogg")) return "ogg";
 	if (normalized.includes("wav")) return "wav";
+	if (normalized.includes("flac")) return "flac";
+	if (normalized.includes("aac")) return "aac";
 	return "bin";
+}
+
+function mimeTypeForFilename(filename: string) {
+	const extension = filename.trim().toLowerCase().split(".").pop();
+	if (!extension) return "";
+	return (
+		{
+			avif: "image/avif",
+			bmp: "image/bmp",
+			heic: "image/heic",
+			heif: "image/heif",
+			gif: "image/gif",
+			jpeg: "image/jpeg",
+			jpg: "image/jpeg",
+			png: "image/png",
+			tif: "image/tiff",
+			tiff: "image/tiff",
+			webp: "image/webp",
+			aac: "audio/aac",
+			flac: "audio/flac",
+			m4a: "audio/mp4",
+			mp3: "audio/mpeg",
+			ogg: "audio/ogg",
+			wav: "audio/wav",
+			avi: "video/x-msvideo",
+			mkv: "video/x-matroska",
+			mov: "video/quicktime",
+			webm: "video/webm",
+			mp4: "video/mp4",
+			pdf: "application/pdf",
+			csv: "text/csv",
+			json: "application/json",
+			md: "text/markdown",
+			txt: "text/plain",
+		}[extension] ?? ""
+	);
+}
+
+/**
+ * Browsers can omit the MIME type for files dragged from the OS, especially
+ * for HEIC and AVIF images. Preserve the file contents while restoring the
+ * type needed by the composer and request builder to treat them as images.
+ */
+export function normalizeAttachmentFile(file: File) {
+	const declaredType = file.type.trim().toLowerCase();
+	const inferredType = mimeTypeForFilename(file.name);
+	const shouldInferType =
+		!declaredType || declaredType === "application/octet-stream";
+	if (!shouldInferType || !inferredType || inferredType === declaredType) {
+		return file;
+	}
+	return new File([file], file.name, {
+		type: inferredType,
+		lastModified: file.lastModified,
+	});
+}
+
+export function normalizeAttachmentFiles(files: File[]) {
+	return files.map(normalizeAttachmentFile);
 }
 
 function normalizeClipboardFiles(files: File[]) {
 	return files.map((file, index) => {
-		if (file.name && file.name.trim()) return file;
-		const mimeType = file.type || "application/octet-stream";
+		const normalizedFile = normalizeAttachmentFile(file);
+		if (normalizedFile.name && normalizedFile.name.trim()) return normalizedFile;
+		const mimeType = normalizedFile.type || "application/octet-stream";
 		const extension = extensionForMimeType(mimeType);
 		const category = mimeType.split("/")[0] || "file";
 		return new File(
-			[file],
+			[normalizedFile],
 			`pasted-${category}-${Date.now()}-${index}.${extension}`,
 			{
 				type: mimeType,
