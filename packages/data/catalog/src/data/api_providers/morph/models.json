@@ -2277,5 +2277,29 @@
       "notes": "Present in Morph's official live model feed; is_ready is false, so gateway routing remains disabled."
     },
     "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-5.3",
+    "canonical_model_id": "z-ai/glm-5.3",
+    "provider_api_model_id": "morph:morph-glm53-744b",
+    "provider_model_slug": "morph-glm53-744b",
+    "internal_model_id": "z-ai/glm-5.3",
+    "is_active_gateway": true,
+    "quantization_scheme": "FP4",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 1048576,
+    "effective_from": "2026-08-29T02:15:00Z",
+    "effective_to": null,
+    "capabilities": [{"capability_id":"text.generate","status":"active","params":["max_tokens","temperature","top_p","top_k","min_p","frequency_penalty","presence_penalty","repetition_penalty","stop","seed","logit_bias","tools","json_mode","structured_outputs","include_reasoning"],"reasoning":true,"tool_call":true,"structured_output":true,"temperature":true,"attachment":false,"input_modalities":["text"],"output_modalities":["text"],"modes":[]}],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {"execution":["US"],"data":["US"]},
+    "service_tiers": ["standard"],
+    "api": {"formats":["openai-chat-completions"],"endpoint":"/v1/chat/completions","deployment":null},
+    "sources": [{"kind":"provider_models","url":"https://www.morphllm.com/api/models/json","accessed_at":"2026-08-29T07:23:42Z","notes":"Morph's official live agent catalog lists morph-glm53-744b as ready with FP4 quantization, 1M context and output limits, supported parameters, US execution, and current pricing."}],
+    "verification": {"status":"verified","checked_at":"2026-08-29T07:23:42Z","notes":"Exact route ID, active readiness, limits, quantization, capabilities, region, and pricing verified against Morph's first-party live model feed."},
+    "rate_limits": []
   }
 ]

@@ -4258,5 +4258,29 @@
       "notes": "Together's live catalog notification was received; model metadata is verified from Together's public page and endpoint capabilities are corroborated by the current endpoint catalog."
     },
     "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-5.3",
+    "canonical_model_id": "z-ai/glm-5.3",
+    "provider_api_model_id": "together:zai-org/GLM-5.3",
+    "provider_model_slug": "zai-org/GLM-5.3",
+    "internal_model_id": "z-ai/glm-5.3",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-29T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [{"capability_id":"text.generate","status":"active","params":["reasoning","include_reasoning","max_tokens","temperature","top_p","stop","frequency_penalty","presence_penalty","response_format","structured_outputs","tools","tool_choice","reasoning_effort"],"reasoning":true,"tool_call":true,"structured_output":true,"temperature":true,"attachment":false,"input_modalities":["text"],"output_modalities":["text"],"modes":[]}],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {"execution":null,"data":null},
+    "service_tiers": ["standard"],
+    "api": {"formats":[],"endpoint":null,"deployment":"serverless"},
+    "sources": [{"kind":"provider_models","url":"https://www.together.ai/models/glm-5-3","accessed_at":"2026-08-29T07:23:42Z","notes":"Together's official GLM-5.3 page verifies exact endpoint ID, serverless availability, text modality, 1M context, low/high/max reasoning levels, capabilities, and pricing."}],
+    "verification": {"status":"verified","checked_at":"2026-08-29T07:23:42Z","notes":"Exact model ID, availability, modality, context, reasoning controls, capabilities, and pricing verified against Together's first-party model page."},
+    "rate_limits": []
   }
 ]

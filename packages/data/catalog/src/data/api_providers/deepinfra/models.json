@@ -8225,5 +8225,29 @@
       "notes": "Live availability and provider limits verified in OpenRouter's endpoint catalog; direct DeepInfra model-page and pricing verification remains incomplete."
     },
     "rate_limits": []
+  },
+  {
+    "api_model_id": "z-ai/glm-5.3",
+    "canonical_model_id": "z-ai/glm-5.3",
+    "provider_api_model_id": "deepinfra:zai-org/GLM-5.3",
+    "provider_model_slug": "zai-org/GLM-5.3",
+    "internal_model_id": "z-ai/glm-5.3",
+    "is_active_gateway": true,
+    "quantization_scheme": "FP8",
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1048576,
+    "max_output_tokens": 1000000,
+    "effective_from": "2026-08-29T02:00:00Z",
+    "effective_to": null,
+    "capabilities": [{"capability_id":"text.generate","status":"active","params":["max_tokens","temperature","top_p","top_k","min_p","frequency_penalty","presence_penalty","repetition_penalty","stop","seed","response_format","prompt_cache_key","tools","tool_choice","structured_outputs","include_reasoning"],"reasoning":true,"tool_call":true,"structured_output":true,"temperature":true,"attachment":false,"input_modalities":["text"],"output_modalities":["text"],"modes":[]}],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {"execution":null,"data":null},
+    "service_tiers": ["standard","priority","flex"],
+    "api": {"formats":["openai.chat.completions"],"endpoint":null,"deployment":"serverless"},
+    "sources": [{"kind":"provider_models","url":"https://api.deepinfra.com/models/zai-org/GLM-5.3","accessed_at":"2026-08-29T07:23:42Z","notes":"DeepInfra's first-party live model endpoint reports the public FP8 route, 1M context, 1M generation ceiling, tools, JSON and structured output, reasoning, supported sampling parameters, and current token pricing."}],
+    "verification": {"status":"verified","checked_at":"2026-08-29T07:23:42Z","notes":"Exact route ID, active public lifecycle, limits, quantization, capabilities, parameters, and pricing verified against DeepInfra's first-party live model endpoint."},
+    "rate_limits": []
   }
 ]
