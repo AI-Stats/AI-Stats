@@ -1,3 +1,5 @@
+-- phaseo:allow-destructive-migration reason: removes only the caller-owned coordination lease after the mutation completes
+
 create table if not exists public.payment_method_mutation_leases (
   workspace_id uuid primary key references public.workspaces(id) on delete cascade,
   claim_token uuid not null,

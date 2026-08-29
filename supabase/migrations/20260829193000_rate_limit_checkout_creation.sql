@@ -1,3 +1,5 @@
+-- phaseo:allow-destructive-migration reason: removes only expired checkout rate-limit buckets during bounded maintenance
+
 create table if not exists public.checkout_rate_limits (
   workspace_id uuid not null references public.workspaces(id) on delete cascade,
   user_id uuid not null references auth.users(id) on delete cascade,
