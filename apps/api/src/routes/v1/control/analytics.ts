@@ -127,7 +127,6 @@ type AnalyticsFactRow = {
     provider_model_id: string | null;
     cost_nanos: number | string | null;
     byok: boolean | null;
-    safe_metadata: { labels?: Array<{ key?: string; value?: string }> } | null;
     v2_request_usage: Array<{
         meter_key: string | null;
         quantity: number | string | null;
@@ -209,7 +208,7 @@ async function loadAnalyticsFactRows(args: {
         const dataQuery = supabase
             .from("v2_request_facts")
             .select(
-                "occurred_at,endpoint,requested_model_slug,routed_model_slug,provider_model_id,cost_nanos,byok,safe_metadata,v2_request_usage(meter_key,quantity)"
+                "occurred_at,endpoint,requested_model_slug,routed_model_slug,provider_model_id,cost_nanos,byok,v2_request_usage(meter_key,quantity)"
             )
             .eq("workspace_id", args.workspaceId)
             .gte("occurred_at", args.startIso)
@@ -374,8 +373,6 @@ async function handleAnalytics(req: Request) {
 export const analyticsRoutes = new Hono<Env>();
 
 analyticsRoutes.get("/", withRuntime(handleAnalytics));
-
-
 
 
 

@@ -211,19 +211,23 @@ accountSettingsUsageRouter.get("/usage/observability", async (c) => {
 		return { rows: rows.slice(0, limit), isSampled: rows.length > limit, limit };
 	};
 	try {
-		let labelFactsQuery = context.client.from("v2_request_facts").select("safe_metadata,cost_nanos", { count: "exact" }).eq("workspace_id", workspaceId).gte("occurred_at", from!).lte("occurred_at", to!).limit(5000);
-		if (labelFilter) labelFactsQuery = labelFactsQuery.contains("safe_metadata", { labels: [{ key: labelFilter.key, value: labelFilter.value }] });
-		const [keysResult, current, previous, labelFactsResult] = await Promise.all([
+		const labelFacetFactsQuery = context.client.from("v2_request_facts").select("safe_metadata", { count: "exact" }).eq("workspace_id", workspaceId).gte("occurred_at", from!).lte("occurred_at", to!).limit(5000);
+		const labelSummaryFactsQuery = labelFilter
+			? context.client.from("v2_request_facts").select("cost_nanos", { count: "exact" }).eq("workspace_id", workspaceId).gte("occurred_at", from!).lte("occurred_at", to!).contains("safe_metadata", { labels: [{ key: labelFilter.key, value: labelFilter.value }] }).limit(5000)
+			: null;
+		const [keysResult, current, previous, labelFacetFactsResult, labelSummaryFactsResult] = await Promise.all([
 			context.client.from("keys").select("id,name,prefix").eq("workspace_id", workspaceId)
 				.neq("status", "deleted").neq("name", "__chat_route_managed_key__").order("created_at", { ascending: true }),
 			loadWindow(from!, to!),
 			loadWindow(previousFrom!, previousTo!),
-			labelFactsQuery,
+			labelFacetFactsQuery,
+			labelSummaryFactsQuery,
 		]);
 		if (keysResult.error) throw keysResult.error;
-		const labelFacts = labelFactsResult.error ? [] : (labelFactsResult.data ?? []);
+		const labelFacetFacts = labelFacetFactsResult.error ? [] : (labelFacetFactsResult.data ?? []);
+		const labelSummaryFacts = labelSummaryFactsResult?.error ? [] : (labelSummaryFactsResult?.data ?? []);
 		const labelFacetMap = new Map<string, { key: string; value: string }>();
-		for (const row of labelFacts) for (const label of extractRequestLabels(row.safe_metadata)) {
+		for (const row of labelFacetFacts) for (const label of extractRequestLabels(row.safe_metadata)) {
 			const identity = `${label.key}\u0000${label.value}`;
 			if (!labelFacetMap.has(identity)) labelFacetMap.set(identity, label);
 		}
@@ -231,9 +235,9 @@ accountSettingsUsageRouter.get("/usage/observability", async (c) => {
 		const labelSummary = labelFilter ? {
 			key: labelFilter.key,
 			value: labelFilter.value,
-			requestCount: labelFactsResult.count ?? labelFacts.length,
-			totalCostNanos: labelFacts.reduce((total, row) => total + Number(row.cost_nanos ?? 0), 0),
-			isSampled: (labelFactsResult.count ?? labelFacts.length) > labelFacts.length,
+			requestCount: labelSummaryFactsResult?.count ?? labelSummaryFacts.length,
+			totalCostNanos: labelSummaryFacts.reduce((total, row) => total + Number(row.cost_nanos ?? 0), 0),
+			isSampled: (labelSummaryFactsResult?.count ?? labelSummaryFacts.length) > labelSummaryFacts.length,
 		} : null;
 		const rows = [...current.rows, ...previous.rows];
 		const models = Array.from(new Set(rows.map((row) => String(row.model_id ?? "").trim()).filter(Boolean)));
@@ -458,9 +462,11 @@ accountSettingsUsageRouter.get("/usage/logs", async (c) => {
 	}
 	const requestsResult = await requestQuery.order("created_at", { ascending: false }).order("id", { ascending: false }).limit(pageSize + 1);
 	if (requestsResult.error) return c.json({ error: "usage_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-	let labelFactsQuery = context.client.from("v2_request_facts").select("safe_metadata,cost_nanos", { count: "exact" }).eq("workspace_id", workspaceId).gte("occurred_at", timeRange.from).lte("occurred_at", timeRange.to).limit(5000);
-	if (labelFilter) labelFactsQuery = labelFactsQuery.contains("safe_metadata", { labels: [{ key: labelFilter.key, value: labelFilter.value }] });
-	const [rollupResult, keysResult, facetsResult, labelFactsResult] = await Promise.all([
+	const labelFacetFactsQuery = context.client.from("v2_request_facts").select("safe_metadata", { count: "exact" }).eq("workspace_id", workspaceId).gte("occurred_at", timeRange.from).lte("occurred_at", timeRange.to).limit(5000);
+	const labelSummaryFactsQuery = labelFilter
+		? context.client.from("v2_request_facts").select("cost_nanos", { count: "exact" }).eq("workspace_id", workspaceId).gte("occurred_at", timeRange.from).lte("occurred_at", timeRange.to).contains("safe_metadata", { labels: [{ key: labelFilter.key, value: labelFilter.value }] }).limit(5000)
+		: null;
+	const [rollupResult, keysResult, facetsResult, labelFacetFactsResult, labelSummaryFactsResult] = await Promise.all([
 		context.client.from("v2_web_private_usage_daily").select("canonical_model_id,provider,app_id").eq("workspace_id", workspaceId).gte("bucket_15m", timeRange.from).lte("bucket_15m", timeRange.to),
 		context.client.from("keys").select("id,name,prefix").eq("workspace_id", workspaceId).neq("status", "deleted").neq("name", "__chat_route_managed_key__").order("created_at", { ascending: true }),
 		context.client.rpc("get_gateway_request_facets", {
@@ -469,7 +475,8 @@ accountSettingsUsageRouter.get("/usage/logs", async (c) => {
 			p_to: timeRange.to,
 			p_filters: {},
 		}),
-		labelFactsQuery,
+		labelFacetFactsQuery,
+		labelSummaryFactsQuery,
 	]);
 	const requestRows = requestsResult.data ?? [];
 	const hasMoreRequests = requestRows.length > pageSize;
@@ -491,9 +498,10 @@ accountSettingsUsageRouter.get("/usage/logs", async (c) => {
 	const logFinishReasons = values((row) => row.finish_reason);
 	const logErrorCodes = values((row) => row.error_code);
 	const logStatusCodes = values((row) => row.status_code).map(Number).filter(Number.isFinite).sort((a, b) => a - b);
-	const labelFacts = labelFactsResult.error ? [] : (labelFactsResult.data ?? []);
+	const labelFacetFacts = labelFacetFactsResult.error ? [] : (labelFacetFactsResult.data ?? []);
+	const labelSummaryFacts = labelSummaryFactsResult?.error ? [] : (labelSummaryFactsResult?.data ?? []);
 	const labelFacetMap = new Map<string, { key: string; value: string }>();
-	for (const row of labelFacts) for (const label of extractRequestLabels(row.safe_metadata)) {
+	for (const row of labelFacetFacts) for (const label of extractRequestLabels(row.safe_metadata)) {
 		const identity = `${label.key}\u0000${label.value}`;
 		if (!labelFacetMap.has(identity)) labelFacetMap.set(identity, label);
 	}
@@ -501,9 +509,9 @@ accountSettingsUsageRouter.get("/usage/logs", async (c) => {
 	const labelSummary = labelFilter ? {
 		key: labelFilter.key,
 		value: labelFilter.value,
-		requestCount: labelFactsResult.count ?? labelFacts.length,
-		totalCostNanos: labelFacts.reduce((total, row) => total + Number(row.cost_nanos ?? 0), 0),
-		isSampled: (labelFactsResult.count ?? labelFacts.length) > labelFacts.length,
+		requestCount: labelSummaryFactsResult?.count ?? labelSummaryFacts.length,
+		totalCostNanos: labelSummaryFacts.reduce((total, row) => total + Number(row.cost_nanos ?? 0), 0),
+		isSampled: (labelSummaryFactsResult?.count ?? labelSummaryFacts.length) > labelSummaryFacts.length,
 	} : null;
 	return c.json({ data: { appNameEntries: metadata.appNameEntries, availableKeys: keysResult.data ?? [], clientSources, dedupedModels: models, dedupedProviders: providers, labelFacets, labelSummary, logAppIds: apps, logEndpoints, logFinishReasons, logErrorCodes, logStatusCodes, initialRequestsPage: { data: visibleRequestRows, page, pageSize, hasMore: hasMoreRequests, nextCursor: nextRequestCursor }, modelMetadataEntries: metadata.modelMetadataEntries, modelProviderEntries: Array.from(providerSets.entries()).map(([id, values]) => [id, Array.from(values)]), providerMetadataEntries: metadata.providerMetadataEntries, providerNameEntries: metadata.providerNameEntries }, signedIn: true, view, workspaceId }, 200, PRIVATE_NO_STORE_HEADERS);
 });
