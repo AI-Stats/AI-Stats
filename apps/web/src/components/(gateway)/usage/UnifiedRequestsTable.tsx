@@ -584,6 +584,8 @@ export default function UnifiedRequestsTable({
 			requestFilter,
 			sessionFilter,
 			sourceFilter,
+			labelKey,
+			labelValue,
 			pageCursors,
 			filterOperators,
 			inputTokensFilter, inputTokensMax, inputTokensOperator,
