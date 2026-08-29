@@ -41,6 +41,8 @@ const NEBIUS_REGIONAL_MODEL_ALLOWLIST: Record<string, readonly string[]> = {
 		"nvidia/nemotron-3.5-lightning",
 		"nvidia/nemotron-3_5-lightning",
 		"qwen/qwen3.5-397b-a17b",
+		"z-ai/glm-5.3-flash",
+		"zai-org/glm-5.3-flash",
 	],
 };
 

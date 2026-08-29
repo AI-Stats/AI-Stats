@@ -8244,7 +8244,7 @@
     "routing_status": "active",
     "routable": true,
     "regions": {"execution":null,"data":null},
-    "service_tiers": ["standard","priority","flex"],
+    "service_tiers": ["standard"],
     "api": {"formats":["openai.chat.completions"],"endpoint":null,"deployment":"serverless"},
     "sources": [{"kind":"provider_models","url":"https://api.deepinfra.com/models/zai-org/GLM-5.3","accessed_at":"2026-08-29T07:23:42Z","notes":"DeepInfra's first-party live model endpoint reports the public FP8 route, 1M context, 1M generation ceiling, tools, JSON and structured output, reasoning, supported sampling parameters, and current token pricing."}],
     "verification": {"status":"verified","checked_at":"2026-08-29T07:23:42Z","notes":"Exact route ID, active public lifecycle, limits, quantization, capabilities, parameters, and pricing verified against DeepInfra's first-party live model endpoint."},

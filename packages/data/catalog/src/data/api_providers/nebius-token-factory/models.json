@@ -3705,9 +3705,10 @@
     "is_active_gateway": true,
     "quantization_scheme": "FP8",
     "input_modalities": "text",
+    "notes": "Nebius Token Factory's endpoint is text-only and intentionally differs from the canonical model's input modalities.",
     "output_modalities": "text",
     "context_length": 1048576,
-    "max_output_tokens": 1024000,
+    "max_output_tokens": null,
     "effective_from": "2026-08-29T01:31:00Z",
     "effective_to": null,
     "capabilities": [
@@ -3742,7 +3743,7 @@
         "kind": "api",
         "url": "https://tokenfactory.nebius.com/api/public/models_info",
         "accessed_at": "2026-08-29T07:23:42Z",
-        "notes": "Nebius Token Factory's first-party live catalog reports the active public route, us-central1 region, FP8 quantization, 1,024K context, 1,024,000 maximum model length, reasoning, function calling, Responses API support, and current pricing."
+        "notes": "Nebius Token Factory's first-party live catalog reports the active public route, us-central1 region, FP8 quantization, 1,024K context, 1,024,000 maximum model length, reasoning, function calling, Responses API support, and current pricing; it does not publish a separate generation limit."
       },
       {
         "kind": "provider_docs",
@@ -3754,7 +3755,7 @@
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-29T07:23:42Z",
-      "notes": "Route identity, active lifecycle, region, modality, context, maximum model length, quantization, supported APIs, capabilities, and token pricing verified against Nebius Token Factory's first-party live catalog and authenticated dashboard."
+      "notes": "Route identity, active lifecycle, region, provider-specific text modality, context, quantization, supported APIs, capabilities, and token pricing verified against Nebius Token Factory's first-party live catalog and authenticated dashboard. No separate generation limit is published."
     },
     "rate_limits": []
   }
