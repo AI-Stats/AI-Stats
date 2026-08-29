@@ -1933,7 +1933,7 @@ paths:
           schema:
             type: string
             maxLength: 64
-            pattern: '^[A-Za-z0-9_.:-]{1,64}$'
+            pattern: ^[A-Za-z0-9_.:-]{1,64}$
         - name: label_value
           in: query
           description: >-
