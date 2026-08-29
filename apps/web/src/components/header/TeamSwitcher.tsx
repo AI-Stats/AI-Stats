@@ -8,7 +8,8 @@ import {
 	LogOut,
 	CreditCard,
 	Key as KeyIcon,
-	BarChart2,
+	Activity,
+	ScrollText,
 	Check,
 	Settings,
 	LifeBuoy,
@@ -350,17 +351,25 @@ export default function TeamSwitcher({
 
 					<DropdownMenuSeparator />
 
-					<DropdownMenuItem
-						asChild
-						className="cursor-pointer rounded-lg"
-					>
+					<DropdownMenuItem asChild className="cursor-pointer rounded-lg">
 						<Link
-							href={`/settings/usage?workspace_id=${encodeURIComponent(
+							href={`/settings/usage/overview?workspace_id=${encodeURIComponent(
 								activeWorkspaceId ?? "",
 							)}`}
 						>
-							<BarChart2 className="h-4 w-4" />
-							<span>Usage</span>
+							<Activity className="h-4 w-4" />
+							<span>Activity</span>
+						</Link>
+					</DropdownMenuItem>
+
+					<DropdownMenuItem asChild className="cursor-pointer rounded-lg">
+						<Link
+							href={`/settings/usage/logs/requests?workspace_id=${encodeURIComponent(
+								activeWorkspaceId ?? "",
+							)}`}
+						>
+							<ScrollText className="h-4 w-4" />
+							<span>Logs</span>
 						</Link>
 					</DropdownMenuItem>
 

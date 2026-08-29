@@ -109,6 +109,7 @@ describe("audit request detail persistence", () => {
 			endpoint: "chat.completions",
 			stream: false,
 			byok: false,
+			labels: [{ key: "team", value: "support" }],
 			usagePriced: { prompt_tokens: 2, completion_tokens: 1, pricing: { lines: [] } },
 			totalCents: 0.001,
 			totalNanos: 1000000,
@@ -158,6 +159,7 @@ describe("audit request detail persistence", () => {
 				usage_output_quad_tokens: expect.any(Number),
 				usage_total_quad_tokens: expect.any(Number),
 				detail_metadata: expect.objectContaining({
+					labels: [{ key: "team", value: "support" }],
 					replay_supported: true,
 					client_source: expect.objectContaining({ id: "phaseo-typescript" }),
 					request: expect.objectContaining({ user_agent: "phaseo-typescript/2.2.0" }),

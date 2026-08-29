@@ -9,6 +9,7 @@ import AsyncJobsPanel from "@/components/(gateway)/usage/AsyncJobsPanel";
 import SessionsPanel from "@/components/(gateway)/usage/SessionsPanel";
 import UsageLogsToolbar from "@/components/(gateway)/usage/UsageLogsToolbar";
 import UsageViewFilters from "@/components/(gateway)/usage/UsageViewFilters";
+import RequestLabelFilter from "@/components/(gateway)/usage/RequestLabelFilter";
 import InvestigateGeneration from "@/components/(gateway)/usage/UsageHeader/InvestigateGeneration";
 import UpstreamRequestsTable from "@/components/(gateway)/usage/UpstreamRequestsTable";
 import {
@@ -69,6 +70,11 @@ function firstSearchParam(
 function parsePositivePage(value: string | undefined): number {
 	const parsed = Number.parseInt(value ?? "", 10);
 	return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+}
+
+function formatLabelSpend(nanos: number): string {
+	if (!Number.isFinite(nanos)) return "$0.00000";
+	return `$${(nanos / 1e9).toFixed(5)}`;
 }
 
 export default async function Page(props: {
@@ -339,41 +345,71 @@ export async function UsageLogsContent({
 			? Array.from(new Map([...SAMPLE_CLIENT_SOURCES.map((source) => [source.id, { id: source.id, name: source.name }] as const), ...data.clientSources.map((source) => [source.id, source] as const)]).values())
 			: data.clientSources;
 		filters = (
-			<UsageViewFilters
-				view="logs"
-				models={data.dedupedModels}
-				providers={data.dedupedProviders}
-				modelProviders={modelProviders}
-				providerNames={providerNames}
-				apiKeys={data.availableKeys}
-				modelMetadata={modelMetadata}
-				providerMetadata={providerMetadata}
-				appMetadata={appMetadata}
-				clientSources={clientSources}
-				logAppIds={data.logAppIds}
-				logEndpoints={data.logEndpoints}
-				logFinishReasons={data.logFinishReasons}
-				logErrorCodes={data.logErrorCodes}
-				logStatusCodes={data.logStatusCodes}
-			/>
+			<>
+				<UsageViewFilters
+					view="logs"
+					models={data.dedupedModels}
+					providers={data.dedupedProviders}
+					modelProviders={modelProviders}
+					providerNames={providerNames}
+					apiKeys={data.availableKeys}
+					modelMetadata={modelMetadata}
+					providerMetadata={providerMetadata}
+					appMetadata={appMetadata}
+					clientSources={clientSources}
+					logAppIds={data.logAppIds}
+					logEndpoints={data.logEndpoints}
+					logFinishReasons={data.logFinishReasons}
+					logErrorCodes={data.logErrorCodes}
+					logStatusCodes={data.logStatusCodes}
+				/>
+				<RequestLabelFilter facets={data.labelFacets} />
+			</>
 		);
 
 		content = (
-			<RequestsSection
-				timeRange={timeRange}
-				appNames={appNames}
-				providerNames={providerNames}
-				providerMetadata={providerMetadata}
-				modelMetadata={modelMetadata}
-				initialPage={1}
-				initialRows={requestRows}
-				initialTotal={requestRows.length}
-				initialTotalPages={data.initialRequestsPage.hasMore ? 2 : 1}
-				initialHasMore={data.initialRequestsPage.hasMore}
-				initialNextCursor={data.initialRequestsPage.nextCursor}
-				initialPageSize={data.initialRequestsPage.pageSize ?? 50}
-				detailBasePath="/settings/usage/logs/requests"
-			/>
+			<>
+				{data.labelSummary ? (
+					<Card className="ring-1 ring-primary/15">
+						<CardContent className="flex flex-wrap items-center justify-between gap-4 py-4">
+							<div className="min-w-0">
+								<p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">Filtered spend</p>
+								<p className="mt-1 truncate text-sm font-medium">
+									<span className="font-mono">{data.labelSummary.key}</span>
+									<span className="px-1.5 text-muted-foreground">=</span>
+									<span>{data.labelSummary.value}</span>
+								</p>
+							</div>
+							<div className="flex items-center gap-6 text-sm">
+								<div>
+									<p className="text-xs text-muted-foreground">Requests</p>
+									<p className="mt-1 font-mono font-medium">{new Intl.NumberFormat("en-US").format(data.labelSummary.requestCount)}</p>
+								</div>
+								<div>
+									<p className="text-xs text-muted-foreground">Spend</p>
+									<p className="mt-1 font-mono font-medium">{formatLabelSpend(data.labelSummary.totalCostNanos)}</p>
+								</div>
+							</div>
+							{data.labelSummary.isSampled ? <p className="basis-full text-xs text-muted-foreground">Spend is calculated from a 5,000-request sample.</p> : null}
+						</CardContent>
+					</Card>
+				) : null}
+				<RequestsSection
+					timeRange={timeRange}
+					appNames={appNames}
+					providerNames={providerNames}
+					providerMetadata={providerMetadata}
+					modelMetadata={modelMetadata}
+					initialPage={1}
+					initialRows={requestRows}
+					initialTotal={requestRows.length}
+					initialTotalPages={data.initialRequestsPage.hasMore ? 2 : 1}
+					initialHasMore={data.initialRequestsPage.hasMore}
+					initialNextCursor={data.initialRequestsPage.nextCursor}
+					initialPageSize={data.initialRequestsPage.pageSize ?? 50}
+					detailBasePath="/settings/usage/logs/requests"
+				/>
+			</>
 		);
 
 		if (selectedRequestId) {

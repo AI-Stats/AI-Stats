@@ -4,7 +4,7 @@
 // How: Implements guard functions that return ok/response tuples.
 
 import { z } from "zod";
-import type { Endpoint, RequestBetaOptions, RequestMeta } from "@core/types";
+import type { Endpoint, RequestBetaOptions, RequestLabel, RequestMeta } from "@core/types";
 import { getEdgeMeta } from "@core/edge";
 import { getBindings } from "@/runtime/env";
 import {
@@ -575,6 +575,7 @@ export function makeMeta(input: {
     beforeContextCacheWriteMs?: number | null;
     beforeContextFallbackRemap?: boolean | null;
     startedAtMs?: number;
+    labels?: RequestLabel[];
 }): RequestMeta {
     const { referer, appTitle, appId, appName, appCategories, sessionId: sessionIdHeader, userId: userIdHeader } = readAttributionHeaders(input.req);
     const rawBody = (input.rawBody && typeof input.rawBody === "object")
@@ -638,6 +639,7 @@ export function makeMeta(input: {
         oauthClientId: input.oauthClientId ?? null,
         oauthUserId: input.oauthUserId ?? null,
         requestId: input.requestId,
+        labels: input.labels ?? [],
         stream: input.stream,
         debug,
         echoUpstreamRequest: Boolean(debug?.return_upstream_request),

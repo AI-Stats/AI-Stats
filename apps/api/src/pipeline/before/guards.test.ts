@@ -211,4 +211,20 @@ describe("makeMeta session_id handling", () => {
 
 		expect(meta.startedAtMs).toBe(startedAtMs);
 	});
+
+	it("keeps validated request labels on the pipeline metadata", () => {
+		const req = new Request("https://gateway.local/v1/responses", { method: "POST" });
+		const meta = makeMeta({
+			endpoint: "responses",
+			apiKeyId: "key_123",
+			apiKeyRef: "kid_123",
+			apiKeyKid: "kid_123",
+			requestId: "req_123",
+			stream: false,
+			req,
+			labels: [{ key: "team", value: "support" }],
+		});
+
+		expect(meta.labels).toEqual([{ key: "team", value: "support" }]);
+	});
 });

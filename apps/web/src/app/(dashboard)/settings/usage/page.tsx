@@ -608,7 +608,9 @@ async function ObservabilityContent({
 	const previousFrom = new Date(fromDate.getTime() - windowMs).toISOString();
 	const previousTo = from;
 
-	const result = await fetchSettingsObservabilityData({ from, to, previousFrom, previousTo });
+	const labelKey = firstParam(sp.label_key)?.trim() || null;
+	const labelValue = firstParam(sp.label_value)?.trim() || null;
+	const result = await fetchSettingsObservabilityData({ from, to, previousFrom, previousTo, labelKey, labelValue });
 	if (result.status === "unauthenticated") redirect("/sign-in");
 	if (result.status === "no-workspace") {
 		return (
@@ -1014,6 +1016,8 @@ async function ObservabilityContent({
 			data={data}
 			guardrailMetrics={guardrailMetrics}
 			initialTab={initialTab}
+			labelFacets={initial.labelFacets}
+			labelSummary={initial.labelSummary}
 			preset={preset}
 			customFrom={customFrom}
 			customTo={customTo}

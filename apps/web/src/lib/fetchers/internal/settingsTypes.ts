@@ -545,7 +545,9 @@ export type TeamsSettingsData = {
 	teamSsoSettingsByTeam: Record<string, any>;
 };
 
-type UsageLogsPayload = { appNameEntries: Array<[string, string]>; availableKeys: Array<{ id: string; name: string | null; prefix: string | null }>; clientSources: Array<{ id: string; name: string }>; dedupedModels: string[]; dedupedProviders: string[]; logAppIds: string[]; logEndpoints: string[]; logFinishReasons: string[]; logErrorCodes: string[]; logStatusCodes: number[]; initialRequestsPage: any; modelMetadataEntries: Array<[string, any]>; modelProviderEntries: Array<[string, string[]]>; providerMetadataEntries: Array<[string, any]>; providerNameEntries: Array<[string, string]> };
+export type UsageLabelFacet = { key: string; value: string };
+export type UsageLabelSummary = UsageLabelFacet & { requestCount: number; totalCostNanos: number; isSampled: boolean };
+type UsageLogsPayload = { appNameEntries: Array<[string, string]>; availableKeys: Array<{ id: string; name: string | null; prefix: string | null }>; clientSources: Array<{ id: string; name: string }>; dedupedModels: string[]; dedupedProviders: string[]; labelFacets: UsageLabelFacet[]; labelSummary: UsageLabelSummary | null; logAppIds: string[]; logEndpoints: string[]; logFinishReasons: string[]; logErrorCodes: string[]; logStatusCodes: number[]; initialRequestsPage: any; modelMetadataEntries: Array<[string, any]>; modelProviderEntries: Array<[string, string[]]>; providerMetadataEntries: Array<[string, any]>; providerNameEntries: Array<[string, string]> };
 type UsageJobsPayload = { appMetadataEntries: Array<[string, any]>; jobProviders: string[]; modelMetadataEntries: Array<[string, any]>; providerNameEntries: Array<[string, string]>; recentJobs: any[] };
 type UsageSessionsPayload = { appMetadataEntries: Array<[string, any]>; modelMetadataEntries: Array<[string, any]>; providerMetadataEntries: Array<[string, any]>; providerNameEntries: Array<[string, string]>; sessionAppIds: string[]; sessionModelIds: string[]; sessionProviderIds: string[]; sessions: any[] };
 export type UsageUpstreamRequestRow = {

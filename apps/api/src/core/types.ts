@@ -24,6 +24,11 @@ export type Endpoint =
     | "files.list"
     | "files.retrieve";
 
+export type RequestLabel = {
+    key: string;
+    value: string;
+};
+
 export type RequestBetaOptions = {
     openai_websocket_mode?: boolean;
     openaiWebsocketMode?: boolean;
@@ -129,6 +134,7 @@ export type RequestMeta = {
     returnMeta?: boolean;         // Should meta block be returned to caller
     returnRoutingDiagnostics?: boolean;
     providerCapabilitiesBeta?: boolean;
+    labels?: RequestLabel[];
 };
 
 export type DebugOptions = {

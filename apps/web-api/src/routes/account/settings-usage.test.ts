@@ -51,14 +51,17 @@ describe("account usage settings routes", () => {
 
 	it("returns private logs, upstream, jobs, and session views with metadata", async () => {
 		let requestedExactFacets = false;
+		let requestedLabelFilter = false;
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = input instanceof Request ? input.url : String(input);
 			if (url.includes("/rpc/get_gateway_request_facets")) requestedExactFacets = true;
+			if (url.includes("detail_metadata=cs")) requestedLabelFilter = true;
 			if (url.includes("/auth/v1/user")) return new Response(JSON.stringify({ id: "user-1", created_at: "2025-01-01" }), { status: 200 });
 			if (url.includes("workspace_members")) return new Response(JSON.stringify([{ role: "admin" }]), { status: 200 });
 			if (url.includes("/workspaces")) return new Response(JSON.stringify([{ owner_user_id: "user-1" }]), { status: 200 });
 			if (url.includes("gateway_async_operations")) return new Response(JSON.stringify([{ kind: "video", internal_id: "job-1", request_id: "request-1", app_id: "app-1", provider: "openai", model: "openai/gpt-test", status: "completed", created_at: "2026-07-17T00:00:00Z", updated_at: "2026-07-17T00:01:00Z", meta: { webhook: { status: "delivered" } } }]), { status: 200 });
 			if (url.includes("v2_web_private_usage_daily")) return new Response(JSON.stringify([{ canonical_model_id: "openai/gpt-test", provider: "openai" }]), { status: 200 });
+			if (url.includes("select=safe_metadata")) return new Response(JSON.stringify([{ safe_metadata: { labels: [{ key: "team", value: "support" }] }, cost_nanos: 1000 }]), { status: 200, headers: { "content-range": "0-0/1" } });
 			if (url.includes("v2_request_facts")) return new Response(JSON.stringify([{ request_event_id: "gateway-1", occurred_at: "2026-07-17T00:00:00Z", request_id: "G-test", key_id: "key-1", endpoint: "chat/completions", requested_model_input: "openai/gpt-test", requested_model_slug: "openai/gpt-test", routed_model_slug: "openai/gpt-test", provider_model_id: "openai:gpt-test", status_code: 200, success: true, byok: false, generation_ms: 80, gateway_total_ms: 140, upstream_attempt_count: 2, throughput: 125, cost_nanos: 1000, currency: "USD", v2_request_attempts: [{ attempt_id: "upstream-1", attempt_number: 1, provider_model_id: "openai:gpt-test", started_at: "2026-07-17T00:00:01Z", status_code: 503, success: false, error_code: "unavailable", failure_class: "provider_error", latency_ms: 120, safe_metadata: { provider: "openai", key_source: "gateway" } }, { attempt_id: "upstream-2", attempt_number: 2, provider_model_id: "openai:gpt-test", started_at: "2026-07-17T00:00:02Z", status_code: 200, success: true, upstream_response_id: "resp-1", latency_ms: 120, safe_metadata: { provider: "openai", key_source: "gateway" } }] }]), { status: 200 });
 			if (url.includes("gateway_upstream_requests")) return new Response(JSON.stringify([{ id: "upstream-1", created_at: "2026-07-17T00:00:01Z", gateway_request_id: "gateway-1", request_id: "G-test", sequence: 1, round_number: 1, attempt_number: 1, stage: "upstream", endpoint: "chat/completions", model_id: "openai/gpt-test", provider: "openai", status_code: 200, success: true, outcome: "success", key_source: "gateway", latency_ms: 120, generation_ms: 80, usage: { output_tokens: 10 }, metadata: {} }]), { status: 200 });
 			if (url.includes("gateway_usage_rollup_15m")) return new Response(JSON.stringify([{ canonical_model_id: "openai/gpt-test", provider: "openai" }]), { status: 200 });
@@ -76,19 +79,22 @@ describe("account usage settings routes", () => {
 			return new Response(JSON.stringify([]), { status: 200 });
 		}));
 		const init = { headers: { authorization: "Bearer token" } };
-		const [logs, upstream, jobs, sessions, detail] = await Promise.all([
+		const [logs, labeledLogs, upstream, jobs, sessions, detail] = await Promise.all([
 			app.request("https://phaseo.app/api/account/settings/usage/logs?workspaceId=workspace-1&view=logs", init, env),
+			app.request("https://phaseo.app/api/account/settings/usage/logs?workspaceId=workspace-1&view=logs&label_key=team&label_value=support", init, env),
 			app.request("https://phaseo.app/api/account/settings/usage/logs?workspaceId=workspace-1&view=upstream", init, env),
 			app.request("https://phaseo.app/api/account/settings/usage/logs?workspaceId=workspace-1&view=jobs", init, env),
 			app.request("https://phaseo.app/api/account/settings/usage/logs?workspaceId=workspace-1&view=sessions", init, env),
 			app.request("https://phaseo.app/api/account/settings/usage/logs/request-1?workspaceId=workspace-1", init, env),
 		]);
-		for (const response of [logs, upstream, jobs, sessions, detail]) {
+		for (const response of [logs, labeledLogs, upstream, jobs, sessions, detail]) {
 			expect(response.status).toBe(200);
 			expect(response.headers.get("cache-control")).toBe("private, no-store");
 		}
-		await expect(logs.json()).resolves.toMatchObject({ view: "logs", data: { dedupedModels: ["openai/gpt-test"], initialRequestsPage: { data: [{ request_id: "request-1" }], pageSize: 50, hasMore: false, nextCursor: null }, providerNameEntries: [["openai", "OpenAI"]] } });
+		await expect(logs.json()).resolves.toMatchObject({ view: "logs", data: { dedupedModels: ["openai/gpt-test"], labelFacets: [{ key: "team", value: "support" }], labelSummary: null, initialRequestsPage: { data: [{ request_id: "request-1" }], pageSize: 50, hasMore: false, nextCursor: null }, providerNameEntries: [["openai", "OpenAI"]] } });
 		expect(requestedExactFacets).toBe(true);
+		expect(requestedLabelFilter).toBe(true);
+		await expect(labeledLogs.json()).resolves.toMatchObject({ view: "logs", data: { labelSummary: { key: "team", value: "support", requestCount: 1, totalCostNanos: 1000, isSampled: false } } });
 		await expect(upstream.json()).resolves.toMatchObject({ view: "upstream", data: { availableKeys: [{ id: "key-1", name: "Production" }], upstreamRequests: [{ id: "upstream-2", request_id: "G-test", attempt_number: 2 }, { id: "upstream-1", request_id: "G-test", attempt_number: 1 }], providerMetadataEntries: [["openai", { name: "OpenAI" }]], providerNameEntries: [["openai", "OpenAI"]] } });
 		await expect(jobs.json()).resolves.toMatchObject({ view: "jobs", data: { recentJobs: [{ internal_id: "job-1", webhook: { status: "delivered" } }], jobProviders: ["openai"] } });
 		await expect(sessions.json()).resolves.toMatchObject({ view: "sessions", data: { sessions: [{ session_id: "session-1", request_count: 1, total_cost_nanos: 1000 }], sessionAppIds: ["app-1"] } });
@@ -101,6 +107,7 @@ describe("account usage settings routes", () => {
 			if (url.includes("/auth/v1/user")) return new Response(JSON.stringify({ id: "user-1", created_at: "2025-01-01" }), { status: 200 });
 			if (url.includes("workspace_members")) return new Response(JSON.stringify([{ role: "admin" }]), { status: 200 });
 			if (url.includes("/workspaces")) return new Response(JSON.stringify([{ owner_user_id: "user-1" }]), { status: 200 });
+			if (url.includes("v2_request_facts")) return new Response(JSON.stringify([{ safe_metadata: { labels: [{ key: "team", value: "support" }] }, cost_nanos: 1000 }]), { status: 200, headers: { "content-range": "0-0/1" } });
 			if (url.includes("gateway_requests")) return new Response(JSON.stringify([{ created_at: "2026-07-17T00:00:00Z", model_id: "openai/gpt-test", app_id: "app-1", key_id: "key-1", usage: { total_tokens: 12 }, cost_nanos: 1000, success: true }]), { status: 200 });
 			if (url.includes("/keys")) return new Response(JSON.stringify([{ id: "key-1", name: "Production", prefix: "ph_" }]), { status: 200 });
 			if (url.includes("v2_model_provider_routes")) return new Response(JSON.stringify([]), { status: 200 });
@@ -123,6 +130,8 @@ describe("account usage settings routes", () => {
 			keys: [{ id: "key-1", name: "Production" }],
 			current: { rows: [{ model_id: "openai/gpt-test" }], isSampled: false, limit: 5000 },
 			previous: { rows: [{ model_id: "openai/gpt-test" }] },
+			labelFacets: [{ key: "team", value: "support" }],
+			labelSummary: null,
 			modelMetadataEntries: [["openai/gpt-test", { modelName: "GPT Test" }]],
 			appMetadataEntries: [["app-1", { title: "Example App", imageUrl: null }]],
 			appNameEntries: [["app-1", "Example App"]],

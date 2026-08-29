@@ -94,6 +94,30 @@ export async function metadataForIds(context: Awaited<ReturnType<typeof requireA
 
 function stringParam(url: URL, name: string) { return url.searchParams.get(name)?.trim() || null; }
 
+const REQUEST_LABEL_KEY = /^[A-Za-z0-9_.:-]+$/;
+
+function requestLabelFilter(url: URL): { key: string; value: string } | { error: string } | null {
+	const key = stringParam(url, "label_key");
+	const value = stringParam(url, "label_value");
+	if (!key && !value) return null;
+	if (!key || !value) return { error: "label_key and label_value must be provided together" };
+	if (key.length > 64 || !REQUEST_LABEL_KEY.test(key)) return { error: "label_key is invalid" };
+	if (value.length > 256) return { error: "label_value is too long" };
+	return { key, value };
+}
+
+function extractRequestLabels(value: unknown): Array<{ key: string; value: string }> {
+	if (!value || typeof value !== "object" || Array.isArray(value)) return [];
+	const labels = (value as Record<string, unknown>).labels;
+	if (!Array.isArray(labels)) return [];
+	return labels.flatMap((label) => {
+		if (!label || typeof label !== "object" || Array.isArray(label)) return [];
+		const key = (label as Record<string, unknown>).key;
+		const labelValue = (label as Record<string, unknown>).value;
+		return typeof key === "string" && typeof labelValue === "string" ? [{ key, value: labelValue }] : [];
+	});
+}
+
 const OBSERVABILITY_SELECT = "created_at,model_id,provider,app_id,key_id,usage,cost_nanos,success,error_payload,error_message,pricing_lines";
 const OBSERVABILITY_EXCLUDED_ENDPOINTS = '("video.generation","batch","music.generate")';
 
@@ -166,15 +190,19 @@ accountSettingsUsageRouter.get("/usage/observability", async (c) => {
 	if (![from, to, previousFrom, previousTo].every((value) => value && Number.isFinite(Date.parse(value)))) {
 		return c.json({ error: "invalid_time_range" }, 400, PRIVATE_NO_STORE_HEADERS);
 	}
+	const labelFilterResult = requestLabelFilter(url);
+	if (labelFilterResult && "error" in labelFilterResult) return c.json({ error: "invalid_label_filter", description: labelFilterResult.error }, 400, PRIVATE_NO_STORE_HEADERS);
+	const labelFilter = labelFilterResult && "key" in labelFilterResult ? labelFilterResult : null;
 	const limit = 5000;
 	const loadWindow = async (start: string, end: string) => {
 		const pageSize = 1000;
 		const rows: any[] = [];
 		for (let offset = 0; rows.length <= limit; offset += pageSize) {
-			const result = await context.client.from("v2_web_gateway_requests").select(OBSERVABILITY_SELECT)
+			let query = context.client.from("v2_web_gateway_requests").select(OBSERVABILITY_SELECT)
 				.eq("workspace_id", workspaceId).gte("created_at", start).lte("created_at", end)
-				.not("endpoint", "in", OBSERVABILITY_EXCLUDED_ENDPOINTS).order("created_at", { ascending: true })
-				.range(offset, offset + pageSize - 1);
+				.not("endpoint", "in", OBSERVABILITY_EXCLUDED_ENDPOINTS);
+			if (labelFilter) query = query.contains("detail_metadata", { labels: [{ key: labelFilter.key, value: labelFilter.value }] });
+			const result = await query.order("created_at", { ascending: true }).range(offset, offset + pageSize - 1);
 			if (result.error) throw result.error;
 			const page = result.data ?? [];
 			rows.push(...page);
@@ -183,13 +211,30 @@ accountSettingsUsageRouter.get("/usage/observability", async (c) => {
 		return { rows: rows.slice(0, limit), isSampled: rows.length > limit, limit };
 	};
 	try {
-		const [keysResult, current, previous] = await Promise.all([
+		let labelFactsQuery = context.client.from("v2_request_facts").select("safe_metadata,cost_nanos", { count: "exact" }).eq("workspace_id", workspaceId).gte("occurred_at", from!).lte("occurred_at", to!).limit(5000);
+		if (labelFilter) labelFactsQuery = labelFactsQuery.contains("safe_metadata", { labels: [{ key: labelFilter.key, value: labelFilter.value }] });
+		const [keysResult, current, previous, labelFactsResult] = await Promise.all([
 			context.client.from("keys").select("id,name,prefix").eq("workspace_id", workspaceId)
 				.neq("status", "deleted").neq("name", "__chat_route_managed_key__").order("created_at", { ascending: true }),
 			loadWindow(from!, to!),
 			loadWindow(previousFrom!, previousTo!),
+			labelFactsQuery,
 		]);
 		if (keysResult.error) throw keysResult.error;
+		const labelFacts = labelFactsResult.error ? [] : (labelFactsResult.data ?? []);
+		const labelFacetMap = new Map<string, { key: string; value: string }>();
+		for (const row of labelFacts) for (const label of extractRequestLabels(row.safe_metadata)) {
+			const identity = `${label.key}\u0000${label.value}`;
+			if (!labelFacetMap.has(identity)) labelFacetMap.set(identity, label);
+		}
+		const labelFacets = Array.from(labelFacetMap.values()).sort((left, right) => left.key.localeCompare(right.key) || left.value.localeCompare(right.value)).slice(0, 500);
+		const labelSummary = labelFilter ? {
+			key: labelFilter.key,
+			value: labelFilter.value,
+			requestCount: labelFactsResult.count ?? labelFacts.length,
+			totalCostNanos: labelFacts.reduce((total, row) => total + Number(row.cost_nanos ?? 0), 0),
+			isSampled: (labelFactsResult.count ?? labelFacts.length) > labelFacts.length,
+		} : null;
 		const rows = [...current.rows, ...previous.rows];
 		const models = Array.from(new Set(rows.map((row) => String(row.model_id ?? "").trim()).filter(Boolean)));
 		const apps = Array.from(new Set(rows.map((row) => String(row.app_id ?? "").trim()).filter(Boolean)));
@@ -199,6 +244,8 @@ accountSettingsUsageRouter.get("/usage/observability", async (c) => {
 			appNameEntries: metadata.appNameEntries,
 			current,
 			keys: keysResult.data ?? [],
+			labelFacets,
+			labelSummary,
 			modelMetadataEntries: metadata.modelMetadataEntries,
 			previous,
 			signedIn: true,
@@ -357,7 +404,11 @@ accountSettingsUsageRouter.get("/usage/logs", async (c) => {
 	const page = 1;
 	const requestedPageSize = Number.parseInt(stringParam(url, "per_page") ?? "50", 10);
 	const pageSize = [25, 50, 100].includes(requestedPageSize) ? requestedPageSize : 50;
+	const labelFilterResult = requestLabelFilter(url);
+	if (labelFilterResult && "error" in labelFilterResult) return c.json({ error: "invalid_label_filter", description: labelFilterResult.error }, 400, PRIVATE_NO_STORE_HEADERS);
+	const labelFilter = labelFilterResult && "key" in labelFilterResult ? labelFilterResult : null;
 	let requestQuery = context.client.from("gateway_requests").select("id,request_id,created_at,endpoint,model_id,requested_model_id,routed_model_id,provider,native_response_id,stream,session_id,app_id,usage,usage_input_tokens,usage_output_tokens,usage_total_tokens,cost_nanos,generation_ms,latency_ms,finish_reason,success,status_code,error_code,client_source_id,client_source_name,client_source_kind,client_source_version,client_source_detection,key_id,throughput").eq("workspace_id", workspaceId).gte("created_at", timeRange.from).lte("created_at", timeRange.to).not("endpoint", "in", '("video.generation","batch","music.generate")');
+	if (labelFilter) requestQuery = requestQuery.contains("detail_metadata", { labels: [{ key: labelFilter.key, value: labelFilter.value }] });
 	for (const [param, column, operatorParam = `${param}_op`] of [
 		["model", "model_id"], ["provider", "provider"], ["app", "app_id"],
 		["endpoint", "endpoint"], ["finish_reason", "finish_reason", "finish_op"],
@@ -407,7 +458,9 @@ accountSettingsUsageRouter.get("/usage/logs", async (c) => {
 	}
 	const requestsResult = await requestQuery.order("created_at", { ascending: false }).order("id", { ascending: false }).limit(pageSize + 1);
 	if (requestsResult.error) return c.json({ error: "usage_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
-	const [rollupResult, keysResult, facetsResult] = await Promise.all([
+	let labelFactsQuery = context.client.from("v2_request_facts").select("safe_metadata,cost_nanos", { count: "exact" }).eq("workspace_id", workspaceId).gte("occurred_at", timeRange.from).lte("occurred_at", timeRange.to).limit(5000);
+	if (labelFilter) labelFactsQuery = labelFactsQuery.contains("safe_metadata", { labels: [{ key: labelFilter.key, value: labelFilter.value }] });
+	const [rollupResult, keysResult, facetsResult, labelFactsResult] = await Promise.all([
 		context.client.from("v2_web_private_usage_daily").select("canonical_model_id,provider,app_id").eq("workspace_id", workspaceId).gte("bucket_15m", timeRange.from).lte("bucket_15m", timeRange.to),
 		context.client.from("keys").select("id,name,prefix").eq("workspace_id", workspaceId).neq("status", "deleted").neq("name", "__chat_route_managed_key__").order("created_at", { ascending: true }),
 		context.client.rpc("get_gateway_request_facets", {
@@ -416,6 +469,7 @@ accountSettingsUsageRouter.get("/usage/logs", async (c) => {
 			p_to: timeRange.to,
 			p_filters: {},
 		}),
+		labelFactsQuery,
 	]);
 	const requestRows = requestsResult.data ?? [];
 	const hasMoreRequests = requestRows.length > pageSize;
@@ -437,7 +491,21 @@ accountSettingsUsageRouter.get("/usage/logs", async (c) => {
 	const logFinishReasons = values((row) => row.finish_reason);
 	const logErrorCodes = values((row) => row.error_code);
 	const logStatusCodes = values((row) => row.status_code).map(Number).filter(Number.isFinite).sort((a, b) => a - b);
-	return c.json({ data: { appNameEntries: metadata.appNameEntries, availableKeys: keysResult.data ?? [], clientSources, dedupedModels: models, dedupedProviders: providers, logAppIds: apps, logEndpoints, logFinishReasons, logErrorCodes, logStatusCodes, initialRequestsPage: { data: visibleRequestRows, page, pageSize, hasMore: hasMoreRequests, nextCursor: nextRequestCursor }, modelMetadataEntries: metadata.modelMetadataEntries, modelProviderEntries: Array.from(providerSets.entries()).map(([id, values]) => [id, Array.from(values)]), providerMetadataEntries: metadata.providerMetadataEntries, providerNameEntries: metadata.providerNameEntries }, signedIn: true, view, workspaceId }, 200, PRIVATE_NO_STORE_HEADERS);
+	const labelFacts = labelFactsResult.error ? [] : (labelFactsResult.data ?? []);
+	const labelFacetMap = new Map<string, { key: string; value: string }>();
+	for (const row of labelFacts) for (const label of extractRequestLabels(row.safe_metadata)) {
+		const identity = `${label.key}\u0000${label.value}`;
+		if (!labelFacetMap.has(identity)) labelFacetMap.set(identity, label);
+	}
+	const labelFacets = Array.from(labelFacetMap.values()).sort((left, right) => left.key.localeCompare(right.key) || left.value.localeCompare(right.value)).slice(0, 500);
+	const labelSummary = labelFilter ? {
+		key: labelFilter.key,
+		value: labelFilter.value,
+		requestCount: labelFactsResult.count ?? labelFacts.length,
+		totalCostNanos: labelFacts.reduce((total, row) => total + Number(row.cost_nanos ?? 0), 0),
+		isSampled: (labelFactsResult.count ?? labelFacts.length) > labelFacts.length,
+	} : null;
+	return c.json({ data: { appNameEntries: metadata.appNameEntries, availableKeys: keysResult.data ?? [], clientSources, dedupedModels: models, dedupedProviders: providers, labelFacets, labelSummary, logAppIds: apps, logEndpoints, logFinishReasons, logErrorCodes, logStatusCodes, initialRequestsPage: { data: visibleRequestRows, page, pageSize, hasMore: hasMoreRequests, nextCursor: nextRequestCursor }, modelMetadataEntries: metadata.modelMetadataEntries, modelProviderEntries: Array.from(providerSets.entries()).map(([id, values]) => [id, Array.from(values)]), providerMetadataEntries: metadata.providerMetadataEntries, providerNameEntries: metadata.providerNameEntries }, signedIn: true, view, workspaceId }, 200, PRIVATE_NO_STORE_HEADERS);
 });
 
 accountSettingsUsageRouter.get("/usage/alerts", async (c) => {

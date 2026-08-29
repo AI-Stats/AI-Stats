@@ -87,7 +87,9 @@ import { cn } from "@/lib/utils";
 import type { GuardrailEnforcementMetricsResult } from "@/lib/gateway/usage/guardrailEnforcementMetrics";
 import type { UsageRangePreset } from "@/lib/gateway/usage/timeRange";
 import UsageLogsToolbar from "@/components/(gateway)/usage/UsageLogsToolbar";
+import RequestLabelFilter from "@/components/(gateway)/usage/RequestLabelFilter";
 import { Logo } from "@/components/Logo";
+import type { UsageLabelFacet, UsageLabelSummary } from "@/lib/fetchers/internal/settingsTypes";
 import type {
 	ObservabilityBreakdownItem,
 	ObservabilityData,
@@ -2430,6 +2432,8 @@ export default function ObservabilityHub({
 	data,
 	guardrailMetrics,
 	initialTab,
+	labelFacets = [],
+	labelSummary = null,
 	preset,
 	customFrom,
 	customTo,
@@ -2437,6 +2441,8 @@ export default function ObservabilityHub({
 	data: ObservabilityData;
 	guardrailMetrics: GuardrailEnforcementMetricsResult;
 	initialTab: ObservabilityTab;
+	labelFacets?: UsageLabelFacet[];
+	labelSummary?: UsageLabelSummary | null;
 	preset: UsageRangePreset;
 	customFrom?: string | null;
 	customTo?: string | null;
@@ -2448,7 +2454,8 @@ export default function ObservabilityHub({
 					<h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Activity</h1>
 					<p className="mt-1 text-xs text-muted-foreground sm:text-sm">Your usage across Phaseo.</p>
 				</div>
-				<div className="flex shrink-0 justify-end">
+				<div className="flex shrink-0 flex-wrap justify-end gap-2">
+					<RequestLabelFilter facets={labelFacets} />
 					<UsageLogsToolbar
 						view="logs"
 						preset={preset}
@@ -2463,6 +2470,31 @@ export default function ObservabilityHub({
 				<div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-800/70 dark:bg-amber-950/30 dark:text-amber-100">
 					This view is based on the first {formatNumber(data.sampleLimit ?? 0)} requests in the selected period.
 				</div>
+			) : null}
+			{labelSummary ? (
+				<Card className="ring-1 ring-primary/15">
+					<CardContent className="flex flex-wrap items-center justify-between gap-4 py-4">
+						<div className="min-w-0">
+							<p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">Filtered spend</p>
+							<p className="mt-1 truncate text-sm font-medium">
+								<span className="font-mono">{labelSummary.key}</span>
+								<span className="px-1.5 text-muted-foreground">=</span>
+								<span>{labelSummary.value}</span>
+							</p>
+						</div>
+						<div className="flex items-center gap-6 text-sm">
+							<div>
+								<p className="text-xs text-muted-foreground">Requests</p>
+								<p className="mt-1 font-mono font-medium">{formatNumber(labelSummary.requestCount)}</p>
+							</div>
+							<div>
+								<p className="text-xs text-muted-foreground">Spend</p>
+								<p className="mt-1 font-mono font-medium">{formatCurrency(labelSummary.totalCostNanos / 1e9)}</p>
+							</div>
+						</div>
+						{labelSummary.isSampled ? <p className="basis-full text-xs text-muted-foreground">Spend is calculated from a 5,000-request sample.</p> : null}
+					</CardContent>
+				</Card>
 			) : null}
 
 			{initialTab === "overview" ? <Overview data={data} /> : null}
