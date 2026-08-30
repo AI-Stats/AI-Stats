@@ -1190,6 +1190,8 @@ jobs:
                   pnpm --filter @phaseo/ai-sdk-provider run build
                   npm ci --prefix compat/ai-sdk-provider-v5 --ignore-scripts --audit=false
                   npm run test:release --prefix compat/ai-sdk-provider-v5
+                  npm ci --prefix compat/ai-sdk-provider-v6 --ignore-scripts --audit=false
+                  npm run test:release --prefix compat/ai-sdk-provider-v6
                   pnpm --filter @phaseo/devtools-viewer run build
 
             - name: Ensure SDK auto-release changeset
@@ -1222,23 +1224,30 @@ jobs:
                   create-github-releases: false
                   push-with-git-cli: false
 
-            - name: Publish AI SDK 5 compatibility line
+            - name: Publish legacy AI SDK compatibility lines
               shell: bash
               run: |
                   set -euo pipefail
                   package_name="@phaseo/ai-sdk-provider"
-                  package_dir="compat/ai-sdk-provider-v5"
-                  package_version="$(node -p "require('./${package_dir}/package.json').version")"
 
-                  if npm view "${package_name}@${package_version}" version --registry https://registry.npmjs.org >/dev/null 2>&1; then
-                    echo "skip: ${package_name}@${package_version} already exists on npm"
-                    exit 0
-                  fi
+                  publish_compatibility_line () {
+                    package_dir="$1"
+                    package_tag="$2"
+                    package_version="$(node -p "require('./${package_dir}/package.json').version")"
 
-                  (
-                    cd "${package_dir}"
-                    npm publish --access public --tag ai-sdk-v5
-                  )
+                    if npm view "${package_name}@${package_version}" version --registry https://registry.npmjs.org >/dev/null 2>&1; then
+                      echo "skip: ${package_name}@${package_version} already exists on npm"
+                      return 0
+                    fi
+
+                    (
+                      cd "${package_dir}"
+                      npm publish --access public --tag "${package_tag}"
+                    )
+                  }
+
+                  publish_compatibility_line "compat/ai-sdk-provider-v5" "ai-sdk-v5"
+                  publish_compatibility_line "compat/ai-sdk-provider-v6" "ai-sdk-v6"
 
             - name: Restore committed CLI release state
               run: git restore --source=HEAD --staged --worktree -- packages/cli/phaseo

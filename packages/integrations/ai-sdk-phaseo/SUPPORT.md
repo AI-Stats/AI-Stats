@@ -3,7 +3,7 @@
 | Phaseo provider line | Vercel AI SDK | Provider contract | Status |
 | --- | --- | --- | --- |
 | `2.x` | AI SDK 7 | `ProviderV4` | Active |
-| `1.x` | AI SDK 6 | `ProviderV3` | Maintenance |
+| `1.0.x` (`ai-sdk-v6`) | AI SDK 6 | `ProviderV3` | Maintenance |
 | `0.5.x` (`ai-sdk-v5`) | AI SDK 5 | `ProviderV2` | Legacy compatibility |
 
 For new projects, install the active line without a Phaseo package version:
@@ -12,16 +12,11 @@ For new projects, install the active line without a Phaseo package version:
 npm install @phaseo/ai-sdk-provider ai@^7
 ```
 
-Until the `ai-sdk-v6` npm dist-tag is configured, install the maintenance line
-with its explicit package major:
+Install the AI SDK 6 maintenance line through its compatibility tag:
 
 ```bash
-npm install @phaseo/ai-sdk-provider@^1 ai@ai-v6
+npm install @phaseo/ai-sdk-provider@ai-sdk-v6 ai@ai-v6
 ```
-
-The intended convenience selector is `@phaseo/ai-sdk-provider@ai-sdk-v6`.
-`@v6` is not used because npm dist-tags share a namespace with semantic
-versions and rejects tags that can be interpreted as version ranges.
 
 AI SDK 5 has a dedicated compatibility release:
 
@@ -29,9 +24,9 @@ AI SDK 5 has a dedicated compatibility release:
 npm install @phaseo/ai-sdk-provider@ai-sdk-v5 ai@ai-v5
 ```
 
-It covers the ProviderV2 text, streaming, tool, structured-output, embedding,
-and image surfaces. Capabilities introduced by newer provider contracts,
-including standardized reranking, require the current line.
+It covers ProviderV2 text, streaming, tool, structured-output, embedding,
+image, transcription, and speech surfaces. Standardized reranking was added in
+newer provider contracts and is available in the AI SDK 6 and 7 lines.
 
 The current major line receives new features, compatibility work, and fixes. The
 maintenance line receives compatibility, security, and critical bug fixes where

@@ -18,10 +18,10 @@ The unversioned Phaseo package follows npm's `latest` tag and therefore selects 
 
 ### AI SDK 6 maintenance line
 
-AI SDK 6 uses the previous `ProviderV3` contract. Pin Phaseo provider 1.x and AI SDK 6:
+AI SDK 6 uses the previous `ProviderV3` contract. Install its tagged compatibility release:
 
 ```bash
-npm install @phaseo/ai-sdk-provider@^1 ai@ai-v6
+npm install @phaseo/ai-sdk-provider@ai-sdk-v6 ai@ai-v6
 ```
 
 Phaseo provider 1.x remains in maintenance while AI SDK 7 is current. When AI SDK 8 reaches a stable release, Phaseo will mark the 1.x line as deprecated on npm. Deprecation will not remove existing releases; any eventual end-of-support decision will be announced separately.
@@ -44,7 +44,7 @@ const result = await generateText({
 });
 ```
 
-The v5 line supports text generation and streaming, tools, structured output, embeddings, and image generation. Standardized reranking requires the current AI SDK 7 provider contract.
+The v5 line supports text generation and streaming, tools, structured output, embeddings, images, transcription, and speech. Standardized reranking is available in the AI SDK 6 and 7 provider contracts.
 
 ## Basic usage
 
