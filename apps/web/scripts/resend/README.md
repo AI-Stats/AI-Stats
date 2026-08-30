@@ -26,6 +26,11 @@ To send lifecycle events from the app and gateway runtime, set:
 
 - `RESEND_ONBOARDING_AUTOMATIONS_ENABLED=true`
 
+Delivery hygiene also requires `RESEND_WEBHOOK_SECRET` in the web runtime. Configure the
+Resend webhook endpoint as `https://phaseo.app/api/webhooks/resend` for delivered, bounced,
+complained, failed, and suppressed events. Verified events are deduplicated by their Svix ID;
+bounced, complained, and suppressed recipients are hashed and excluded from future retries.
+
 When this flag is on:
 - signup emits `user.created`
 - checkout start emits `checkout.started`
@@ -33,3 +38,7 @@ When this flag is on:
 - low-balance threshold checks emit `workspace.low_balance` from the gateway API
 
 If this flag is disabled, low-balance notifications fall back to the legacy `email_outbox` path.
+
+Provisioning does not import contacts or replay historical users. Automations only run for
+events emitted after they are enabled. Signup welcome email is automation-only; there is no
+direct-send or database-outbox fallback.

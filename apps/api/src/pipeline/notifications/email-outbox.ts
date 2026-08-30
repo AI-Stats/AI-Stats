@@ -1,6 +1,7 @@
 import { getSupabaseAdmin } from "@/runtime/env";
 import { sendEmail } from "@/lib/email/resend";
 import { getBindings } from "@/runtime/env";
+import { getEmailSuppressionReason } from "@/pipeline/notifications/email-suppressions";
 
 type OutboxRow = {
 	id: string;
@@ -25,20 +26,6 @@ function escapeHtml(value: string): string {
 		.replaceAll(">", "&gt;")
 		.replaceAll("\"", "&quot;")
 		.replaceAll("'", "&#39;");
-}
-
-function renderWelcomeEmail(): { subject: string; html: string; text: string } {
-	return {
-		subject: "Welcome to Phaseo",
-		html: [
-			"<div style=\"font-family: ui-sans-serif, system-ui; line-height: 1.5;\">",
-			"<h2 style=\"margin: 0 0 12px;\">Welcome to Phaseo</h2>",
-			"<p style=\"margin: 0 0 12px;\">Your account is ready. You can now explore models, generate text, and manage billing from Settings.</p>",
-			"<p style=\"margin: 0;\">If you run into issues, reply to this email and we’ll help.</p>",
-			"</div>",
-		].join(""),
-		text: "Welcome to Phaseo\n\nYour account is ready. You can now explore models, generate text, and manage billing from Settings.\n\nIf you run into issues, reply to this email and we’ll help.",
-	};
 }
 
 function renderLowBalanceEmail(payload: Record<string, unknown> | null): {
@@ -250,21 +237,6 @@ function renderEmailForRow(row: OutboxRow): {
 	text?: string;
 } {
 	const bindings = getBindings();
-	if (row.template === "welcome" || row.kind === "welcome") {
-		const templateId = bindings.RESEND_TEMPLATE_WELCOME_ID?.trim() || "";
-		if (!templateId) throw new Error("missing_resend_template_welcome_id");
-
-		const payload = row.payload ?? {};
-		return {
-			subject: row.subject ?? "Welcome to Phaseo",
-			templateId,
-			variables: {
-				USER_FIRST_NAME:
-					(typeof payload.user_first_name === "string" && payload.user_first_name.trim()) ||
-					"there",
-			},
-		};
-	}
 	if (row.template === "low_balance" || row.kind === "low_balance") {
 		const templateId = bindings.RESEND_TEMPLATE_LOW_BALANCE_ID?.trim() || "";
 		if (!templateId) throw new Error("missing_resend_template_low_balance_id");
@@ -362,15 +334,28 @@ export async function drainEmailOutbox(limit = 25): Promise<{
 
 	for (const row of rows) {
 		try {
+			const suppressionReason = await getEmailSuppressionReason(row.to_email);
+			if (suppressionReason) {
+				const { error: suppressionUpdateError } = await supabase
+					.from("email_outbox")
+					.update({
+						attempts: 5,
+						last_error: `suppressed:${suppressionReason}`,
+					})
+					.eq("id", row.id);
+				if (suppressionUpdateError) {
+					throw new Error(`email_outbox_update_error:${suppressionUpdateError.message ?? "unknown"}`);
+				}
+				failed += 1;
+				continue;
+			}
+
 			// Best-effort enrichment for template variables.
-			// (We keep this at send-time so the DB trigger can stay minimal.)
+			// Keep this at send-time so event producers can stay minimal.
 			if (
-				(row.template === "welcome" ||
-					row.kind === "welcome" ||
-					row.template === "low_balance" ||
+				(row.template === "low_balance" ||
 					row.kind === "low_balance") &&
-				(bindings.RESEND_TEMPLATE_WELCOME_ID?.trim() ||
-					bindings.RESEND_TEMPLATE_LOW_BALANCE_ID?.trim())
+				bindings.RESEND_TEMPLATE_LOW_BALANCE_ID?.trim()
 			) {
 				if (!row.payload) row.payload = {};
 				if (!row.payload.user_first_name && row.user_id) {

@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { notifyAccountDeleted } from "@/auth/accountLifecycleDiscord";
+import { deleteResendContact } from "@/auth/resendContacts";
 import { requireUser } from "@/auth/requireUser";
 import { getAuthenticatedDataClient, getDataClient } from "@/data/supabase";
 import type { Env } from "@/env";
@@ -405,6 +406,15 @@ accountSettingsRouter.get("/account/danger", async (c) => {
 accountSettingsRouter.delete("/account", async (c) => {
 	const user = await requireUser(c.req.raw, c.env);
 	if (!user) return c.json({ error: "unauthorized" }, 401, PRIVATE_NO_STORE_HEADERS);
+	try {
+		await deleteResendContact(c.env, user.email);
+	} catch (cleanupError) {
+		console.error("account_resend_contact_delete_failed", {
+			userId: user.id,
+			error: cleanupError instanceof Error ? cleanupError.message : String(cleanupError),
+		});
+		return c.json({ error: "account_contact_cleanup_failed" }, 503, PRIVATE_NO_STORE_HEADERS);
+	}
 	const { error } = await getDataClient(c.env).auth.admin.deleteUser(user.id);
 	if (error) return c.json({ error: "account_delete_failed" }, 503, PRIVATE_NO_STORE_HEADERS);
 	const avatarKey = ownedProfileAvatarKey(c.env, c.req.raw, user.userMetadata.avatar_url, user.id);
