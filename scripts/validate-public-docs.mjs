@@ -1,9 +1,12 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { extname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { load } from "js-yaml";
 
 const REPOSITORY_ROOT = resolve(fileURLToPath(new URL("..", import.meta.url)));
-const TEXT_EXTENSIONS = new Set([".json", ".md", ".mdx", ".ts", ".tsx"]);
+const TEXT_EXTENSIONS = new Set([".json", ".md", ".mdx", ".ts", ".tsx", ".yaml", ".yml"]);
+const PUBLIC_OPENAPI_PATH = resolve(REPOSITORY_ROOT, "apps/docs/openapi/v1/openapi.public.yaml");
+const DOCS_CONFIG_PATH = resolve(REPOSITORY_ROOT, "apps/docs/docs.json");
 
 const ALLOWED_ENGINEERING_DOCS = new Set([
 	"apps/api/docs/database-driven-provider-adapters.md",
@@ -69,6 +72,12 @@ const PROHIBITED_PUBLIC_PATHS = [
 	/^apps\/web-api\/SCIM_PRODUCTION\.md$/,
 	/^packages\/sdk\/[^/]*(?:AUDIT|CHECKLIST|DECK|REVIEW|ROADMAP|ROLLOUT)[^/]*\.md$/i,
 ];
+const PROHIBITED_OPENAPI_PATHS = [
+	/^\/videos(?:\/|$)/,
+	/^\/video\/generations(?:\/|$)/,
+	/^\/batches(?:\/|$)/,
+	/^\/batch(?:\/|$)/,
+];
 
 function toRepositoryPath(path) {
 	return relative(REPOSITORY_ROOT, path).replaceAll("\\", "/");
@@ -96,6 +105,22 @@ const pathGuardFiles = PUBLIC_PATH_GUARD_ROOTS.flatMap((root) =>
 	listFiles(resolve(REPOSITORY_ROOT, root)),
 );
 const errors = [];
+
+const docsConfig = JSON.parse(readFileSync(DOCS_CONFIG_PATH, "utf8"));
+if (docsConfig?.api?.openapi !== "openapi/v1/openapi.public.yaml") {
+	errors.push("apps/docs/docs.json: must publish the scrubbed public OpenAPI specification");
+}
+
+if (!existsSync(PUBLIC_OPENAPI_PATH)) {
+	errors.push("apps/docs/openapi/v1/openapi.public.yaml: generated public specification is missing");
+} else {
+	const publicOpenapi = load(readFileSync(PUBLIC_OPENAPI_PATH, "utf8"));
+	for (const path of Object.keys(publicOpenapi?.paths ?? {})) {
+		if (PROHIBITED_OPENAPI_PATHS.some((pattern) => pattern.test(path))) {
+			errors.push(`apps/docs/openapi/v1/openapi.public.yaml: contains internal path ${path}`);
+		}
+	}
+}
 
 for (const path of new Set([...files, ...pathGuardFiles])) {
 	const repositoryPath = toRepositoryPath(path);
