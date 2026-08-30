@@ -81,12 +81,16 @@ export default async function PrivacyPage() {
 					</li>
 				</ul>
 				<p className="mt-2 text-foreground/80">
-					Third-party model providers (for example OpenAI, Anthropic,
-					Google, SpaceXAI and others) have their own privacy and data
-					handling practices. When we forward your requests to them,
-					they usually act as independent controllers of your data
-					under their own terms and policies. You should review those
-					policies separately.
+					Third-party model providers have their own privacy and data
+					handling practices. A provider used through Phaseo-managed
+					credentials is intended to act as our subprocessor for
+					inference where the applicable contract supports that role. A
+					provider used with your credentials or direct agreement is
+					normally a customer-directed recipient or your processor. A
+					provider may separately act as a controller where it processes
+					data for its own purposes, such as training where its terms
+					permit that use. Our current role review is published in the
+					Phaseo subprocessor schedule.
 				</p>
 			</section>
 
@@ -418,7 +422,10 @@ export default async function PrivacyPage() {
 						send requests through the Gateway, we share your Inputs
 						and necessary metadata with the model provider(s) you
 						choose or that we route to. Those providers process the
-						data under their own terms and privacy policies.
+						data under the applicable provider contract, terms, and
+						privacy policy. The provider&apos;s role depends on whether Phaseo
+						or the customer supplies the provider account and whether the
+						provider processes data for any independent purpose.
 					</li>
 					<li>
 						<strong>Connected AI-assistant or MCP providers</strong> –

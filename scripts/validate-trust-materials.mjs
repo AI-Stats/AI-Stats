@@ -11,6 +11,7 @@ const files = {
 	privacy: "apps/web/src/app/(legal)/privacy/page.tsx",
 	terms: "apps/web/src/app/(legal)/terms/page.tsx",
 	evidence: "docs/trust/evidence-inventory.md",
+	providerRegister: "docs/trust/managed-ai-provider-register.md",
 };
 
 const content = Object.fromEntries(
@@ -43,11 +44,18 @@ requireText("dpa", /It does not bind either party/, "DPA must be presented as a 
 requireText("dpa", /at least 30 days' notice/, "DPA must retain the advance subprocessor-notice commitment");
 requireText("dpa", /will not offer that deadline in an execution copy until the deletion workflow has been verified/, "DPA must disclose the unimplemented deletion workflow");
 requireText("dpa", /seven days of daily database restore points/, "DPA must state the verified production backup window");
-requireText("dpa", /classify each active Phaseo-managed AI Provider/, "DPA must disclose the incomplete AI Subprocessor annex");
+requireText("dpa", /preliminary classification of the active Phaseo-managed AI Providers/, "DPA must disclose the managed-provider review status");
+requireText("subprocessors", /Thirty-eight provider families/, "subprocessor schedule must state the managed-provider review scope");
+requireText("subprocessors", /Processor contract pending/, "subprocessor schedule must disclose provisional managed providers");
+requireText("subprocessors", /Restricted review/, "subprocessor schedule must disclose restricted managed providers");
 requireText("privacy", /Last updated: 30 August 2026/, "privacy review date is stale");
 requireText("privacy", /five minutes by/, "privacy policy must disclose the default response cache");
+requireText("privacy", /intended to act as our subprocessor for/, "privacy policy must distinguish managed provider processing");
 requireText("terms", /Last updated: 30 August 2026/, "terms review date is stale");
 requireText("evidence", /## Gaps and required review/, "evidence register must retain factual and legal gaps");
+requireText("providerRegister", /## A\. Processor terms located/, "managed-provider register must retain the processor-terms category");
+requireText("providerRegister", /## B\. Intended subprocessors pending contract evidence/, "managed-provider register must retain the contract-review category");
+requireText("providerRegister", /## C\. Restricted pending data-use resolution/, "managed-provider register must retain the restricted category");
 
 for (const [name, value] of Object.entries(content)) {
 	if (/Phaseo (?:is|is currently) (?:SOC 2|ISO 27001) certified/i.test(value)) {

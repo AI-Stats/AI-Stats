@@ -51,6 +51,7 @@ completed and qualified counsel has approved it.
 | Private object-storage location | Production buckets inspected with Wrangler on 2026-08-30 | `phaseo-gateway-io-logs` and `phaseo-data-contributions` are located in Cloudflare R2's Western Europe (`WEUR`) location | Production-verified | `WEUR` is a location, not an EU jurisdictional restriction or a guarantee that processing stays in the EU |
 | Account deletion | `apps/web/src/app/(dashboard)/settings/account/actions.ts`; workspace deletion route; R2 retention jobs | The current self-service action deletes the Supabase Auth user but does not orchestrate deletion across workspaces, database records, R2 objects, caches, or managed AI providers | Code-verified gap | Do not promise a binding 30-day active-system deletion period until an end-to-end workflow and evidence are in place |
 | Customer-selected model providers | Provider executors and the routable catalogue under `packages/data/catalog/src/data/api_providers` | Request content and necessary metadata are sent to the provider selected directly or by the customer's routing configuration | Available | Provider identity and role vary by route. The live catalogue is the maintainable source; legal counsel must confirm controller/processor classification |
+| Phaseo-managed AI provider classification | `docs/trust/managed-ai-provider-register.md`; production public provider index and Worker secret names inspected on 2026-08-30; official terms recorded in provider catalogue | 38 active provider families had both an active Gateway model and a managed credential: six had a processor framework located, 19 remained pending processor-contract evidence, and 13 required restricted review for training, opt-out, or unclear own-purpose terms | Preliminary legal/factual classification | A credential and route do not constitute legal approval. Category B and C providers require remediation before an executable DPA can present them as approved subprocessors |
 | Response and routing cache | `apps/api/src/runtime/env.ts`; `apps/api/src/core/response-cache.ts` | Upstash supplies short-lived response caching when configured | Self-attested | It is a core subprocessor whenever the production Redis binding is enabled |
 | Credentials | `apps/web/src/lib/byok/crypto.ts`; `apps/api/src/lib/oauth/service.ts`; key helpers and webhook-secret encryption | BYOK credentials use AES-256-GCM encryption before database storage; API and management keys are stored as one-way HMAC/PBKDF2-derived values; OAuth secrets use one-way derived values | Self-attested | Avoid the older oversimplification that every OAuth client secret is a plain peppered SHA-256 hash |
 | Identity and authorisation | OAuth scopes/consent routes; workspace membership and RLS migrations; SAML and SCIM code/migrations | Scoped API/OAuth permissions, revocation, workspace roles, and consent screens are implemented; SAML and SCIM are gated enterprise features | Available/gated | No claim of universal MFA enforcement or universal SSO coverage |
@@ -83,14 +84,12 @@ completed and qualified counsel has approved it.
 
 ### Legal review
 
-- Whether each model provider acts as Phaseo's subprocessor, an independent
-  controller, or another role for each route and contract.
+- Final approval of each provider in the managed AI provider register, including
+  the contracting entity, incorporated processor terms, account settings,
+  transfers, retention, and any independent-controller processing.
 - The UK/EU controller-processor allocation, international-transfer mechanism,
   audit language, liability, governing-law interaction, and deletion/return
   obligations in the DPA.
-- Whether the existing Privacy Policy's blanket statement that model providers
-  “usually act as independent controllers” is accurate for Phaseo's contracted
-  API accounts.
 - Whether the DPA should be incorporated into online Terms, executed on
   request, or both.
 

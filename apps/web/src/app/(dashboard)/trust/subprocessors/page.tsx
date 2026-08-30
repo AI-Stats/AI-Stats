@@ -33,6 +33,10 @@ const operationalProviders = [
 	{ name: "Discord", role: "Internal operational notifications and customer-configured alert delivery", data: "Masked contact data, operational or billing summaries, and customer-selected alert content" },
 ] as const;
 
+const managedProcessorTerms = ["Amazon Web Services (Bedrock)", "Anthropic", "Google Cloud (Vertex AI)", "Groq", "Mistral AI", "OpenAI"] as const;
+const managedPendingContract = ["AionLabs", "AkashML", "Alibaba Cloud", "AtlasCloud", "Baseten", "BytePlus", "Cerebras", "CrofAI", "DeepInfra", "GMICloud", "Meta Model API", "Morph", "Nebius Token Factory", "NovitaAI", "SiliconFlow", "Venice", "Wafer", "Xiaomi", "z.AI"] as const;
+const managedRestricted = ["Arcee AI", "Cohere", "DeepSeek", "ElevenLabs", "Fireworks AI", "Google AI Studio", "MiniMax", "Moonshot AI", "Poolside", "Sakana AI", "Together AI", "Voyage AI", "Weights & Biases"] as const;
+
 export default function SubprocessorsPage() {
 	return (
 		<TrustDocument
@@ -53,13 +57,22 @@ export default function SubprocessorsPage() {
 				</TrustTable>
 			</TrustSection>
 
-			<TrustSection id="ai" title="2. Customer-selected AI providers">
-				<p>Phaseo sends request content and necessary metadata to the provider selected by the customer, the requested model, or the customer's routing configuration. The available set changes as routes are added, disabled, or degraded. The live <Link href="/providers" className="text-foreground underline underline-offset-4">provider directory</Link> is the maintainable source for currently available providers.</p>
-				<p>Depending on Phaseo's contract, the customer's instructions, and the provider's terms, an AI provider may be a Phaseo subprocessor, the customer's processor, an independent controller, or another type of recipient. Phaseo does not make one blanket legal classification for every route. Customers should restrict allowed providers when provider identity, region, retention, or training policy matters.</p>
-				<p>The current Privacy Policy says model providers usually act as independent controllers. That classification is flagged for legal review because contracted API terms may allocate roles differently. The <Link href="/trust/dpa" className="text-foreground underline underline-offset-4">DPA first draft</Link> therefore treats routing to an AI provider as a documented customer instruction without prejudging every provider's role.</p>
+			<TrustSection id="managed-ai" title="2. Phaseo-managed AI providers">
+				<p>Phaseo compared the active production Gateway routes with the production Worker's managed credential bindings on 30 August 2026. Thirty-eight provider families met both conditions. The legal role is determined by the API recipient and its contract, not by the developer of a model available through that API.</p>
+				<div className="grid gap-6 lg:grid-cols-3">
+					<div><h3 className="font-medium text-foreground">Processor terms located</h3><p className="mt-2">Current processor terms or a DPA were located for the relevant business service. Account configuration, contracting entity, transfers, and feature-specific terms still require confirmation.</p><ul className="mt-3 list-disc space-y-1 pl-5">{managedProcessorTerms.map((name) => <li key={name}>{name}</li>)}</ul></div>
+					<div><h3 className="font-medium text-foreground">Processor contract pending</h3><p className="mt-2">Phaseo intends these providers to act only as subprocessors, but has not yet recorded sufficient Article 28 contract evidence. They are provisional for personal-data processing.</p><ul className="mt-3 list-disc space-y-1 pl-5">{managedPendingContract.map((name) => <li key={name}>{name}</li>)}</ul></div>
+					<div><h3 className="font-medium text-foreground">Restricted review</h3><p className="mt-2">Training, opt-out-dependent, or unclear own-purpose terms remain. These providers should not receive unrestricted Customer Personal Data through the managed pool until the issue is resolved.</p><ul className="mt-3 list-disc space-y-1 pl-5">{managedRestricted.map((name) => <li key={name}>{name}</li>)}</ul></div>
+				</div>
+				<p>This is a preliminary role register, not a representation that every listed managed route is approved for personal data. Phaseo must either complete the outstanding contract and configuration checks or remove the affected provider from the managed pool before executing the DPA.</p>
 			</TrustSection>
 
-			<TrustSection id="operations" title="3. Other service providers">
+			<TrustSection id="ai" title="3. Customer-selected AI providers">
+				<p>Phaseo sends request content and necessary metadata to the provider selected by the customer, the requested model, or the customer's routing configuration. The available set changes as routes are added, disabled, or degraded. The live <Link href="/providers" className="text-foreground underline underline-offset-4">provider directory</Link> is the maintainable source for currently available providers.</p>
+				<p>When Phaseo uses its own provider account, the provider is intended to be Phaseo's subprocessor for inference and must satisfy the managed-provider review above. When the customer supplies the credentials or holds the provider contract, the provider is normally a customer-directed recipient or the customer's own processor. A provider may separately act as a controller where it processes data for its own purposes, including training where permitted by its terms.</p>
+			</TrustSection>
+
+			<TrustSection id="operations" title="4. Other service providers">
 				<p>These vendors support Phaseo's billing, communications, product operations, documentation, or support. They may be processors for Phaseo when Phaseo acts as a controller, but are not automatically subprocessors for all Customer Data under the DPA.</p>
 				<TrustTable>
 					<table className="w-full min-w-[720px] text-left">
@@ -69,16 +82,16 @@ export default function SubprocessorsPage() {
 				</TrustTable>
 			</TrustSection>
 
-			<TrustSection id="customer" title="4. Customer-directed destinations">
+			<TrustSection id="customer" title="5. Customer-directed destinations">
 				<p>When a customer configures an observability endpoint, webhook, email recipient, Slack workspace, Microsoft Teams channel, Discord destination, OAuth application, or compatible AI assistant, Phaseo sends the selected data to that destination on the customer's instruction. Those recipients are not Phaseo-appointed subprocessors merely because Phaseo provides the connection.</p>
 			</TrustSection>
 
-			<TrustSection id="changes" title="5. Changes and objections">
+			<TrustSection id="changes" title="6. Changes and objections">
 				<p>Phaseo publishes material changes to this page with a new review date. Under the DPA review draft, Phaseo will notify the Customer's account email at least 30 days before a new Subprocessor begins processing Customer Personal Data and will accept written objections during that period.</p>
 				<p>The public product does not yet offer a general subprocessor-change subscription. Customers reviewing an execution copy should confirm the notice contact with <a href="mailto:privacy@phaseo.app" className="text-foreground underline underline-offset-4">privacy@phaseo.app</a>.</p>
 			</TrustSection>
 
-			<TrustSection id="history" title="6. Change history">
+			<TrustSection id="history" title="7. Change history">
 				<dl className="grid gap-2 border-y border-border py-4 sm:grid-cols-[10rem_1fr]"><dt className="font-medium text-foreground">30 August 2026</dt><dd>Initial evidence-backed schedule. Added the short-lived Upstash response cache, optional OpenAI data-contribution classification, and separate customer-directed and controller-operation categories.</dd></dl>
 			</TrustSection>
 		</TrustDocument>

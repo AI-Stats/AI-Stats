@@ -23,7 +23,7 @@ export default function DpaPage() {
 			status="Review draft · legal approval required"
 		>
 			<TrustCallout title="Review draft">
-				This draft is written to cover the mandatory controller-processor terms in Article 28 of the UK GDPR and EU GDPR. It still needs Phaseo's service address, confirmed transfer terms, a complete list of Phaseo-managed AI Subprocessors, a verified deletion workflow, and qualified legal approval. Request an execution copy from <a href="mailto:privacy@phaseo.app" className="text-foreground underline underline-offset-4">privacy@phaseo.app</a>.
+				This draft is written to cover the mandatory controller-processor terms in Article 28 of the UK GDPR and EU GDPR. It still needs Phaseo's service address, confirmed transfer terms, a final approved list of Phaseo-managed AI Subprocessors, a verified deletion workflow, and qualified legal approval. Request an execution copy from <a href="mailto:privacy@phaseo.app" className="text-foreground underline underline-offset-4">privacy@phaseo.app</a>.
 			</TrustCallout>
 
 			<TrustSection id="parties" title="Parties and effective date">
@@ -179,7 +179,7 @@ export default function DpaPage() {
 
 			<TrustSection id="annex-3" title="Annex 3: Subprocessors">
 				<p>The dated <Link href="/trust/subprocessors" className="text-foreground underline underline-offset-4">subprocessor schedule</Link> forms Annex 3 when this DPA is executed. Section 5 governs additions and replacements.</p>
-				<p className={reviewText}>Before execution, Phaseo must classify each active Phaseo-managed AI Provider and add every provider that acts as a Subprocessor. Customer-directed providers used under Customer's own credentials or agreement remain identified separately.</p>
+				<p className={reviewText}>Phaseo has completed a preliminary classification of the active Phaseo-managed AI Providers. Before execution, Phaseo must complete the outstanding processor-contract, account-setting, transfer, and retention checks identified in the schedule, and must remove or restrict any managed provider that is not approved for Customer Personal Data. Customer-directed providers used under Customer's own credentials or agreement remain identified separately.</p>
 			</TrustSection>
 
 			<TrustSection id="annex-4" title="Annex 4: Restricted-transfer terms">
