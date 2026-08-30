@@ -1,4 +1,4 @@
-import { getActiveSettingsNav, getSettingsSidebar } from "./Sidebar.config";
+import { getActiveSettingsNav, getSettingsSidebar, isSettingsNavChildActive } from "./Sidebar.config";
 
 describe("settings sidebar navigation", () => {
 	it("keeps personal settings focused on the account", () => {
@@ -22,6 +22,17 @@ describe("settings sidebar navigation", () => {
 		expect(getActiveSettingsNav("/settings/usage/logs/request-1")?.item.label).toBe("Logs");
 		expect(getActiveSettingsNav("/settings/usage/logs/videos")?.item.label).toBe("Logs");
 		expect(getActiveSettingsNav("/settings/usage/logs/batches")?.item.label).toBe("Logs");
+	});
+
+	it("exposes Auto Routing within the Routing section", () => {
+		const active = getActiveSettingsNav("/settings/routing/auto", { showAutoRouting: true });
+		expect(active?.item.label).toBe("Routing");
+		expect(active?.item.children?.find((child) => isSettingsNavChildActive("/settings/routing/auto", child))?.label).toBe("Auto routing");
+		expect(getSettingsSidebar({ showAutoRouting: false })
+			.flatMap((group) => group.items)
+			.find((item) => item.href === "/settings/routing")
+			?.children?.some((child) => child.href === "/settings/routing/auto"))
+			.toBe(false);
 	});
 
 	it("orders workspace settings by task", () => {

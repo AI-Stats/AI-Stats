@@ -146,6 +146,38 @@ function restriction(mode: unknown, ids: unknown) {
 	};
 }
 
+const AUTO_ROUTING_OBJECTIVES = new Set(["balanced", "quality", "cost", "latency"]);
+const AUTO_ROUTING_SPEND_PROFILES = new Set(["economy", "standard", "premium", "unrestricted", "custom"]);
+
+function cleanAutoRoutingPatterns(value: unknown): string[] {
+	if (!Array.isArray(value)) return [];
+	return [...new Set(value
+		.map((pattern) => typeof pattern === "string" ? pattern.trim().toLowerCase() : "")
+		.filter(Boolean))]
+		.slice(0, 16);
+}
+
+function priceLimit(value: unknown): number | null {
+	if (value === null || value === undefined || value === "") return null;
+	const number = Number(value);
+	return Number.isFinite(number) && number >= 0 ? number : null;
+}
+
+function autoRoutingFromRow(row: any) {
+	const objective = String(row?.auto_routing_objective ?? "balanced");
+	const spendProfile = String(row?.auto_routing_spend_profile ?? "standard");
+	return {
+		allowedPatterns: cleanAutoRoutingPatterns(row?.auto_routing_allowed_patterns),
+		spendProfile: AUTO_ROUTING_SPEND_PROFILES.has(spendProfile) ? spendProfile : "standard",
+		maxInputPricePerMillion: priceLimit(row?.auto_routing_max_input_price_per_million),
+		maxOutputPricePerMillion: priceLimit(row?.auto_routing_max_output_price_per_million),
+		objective: AUTO_ROUTING_OBJECTIVES.has(objective) ? objective : "balanced",
+		allowFallbacks: row?.auto_routing_fallbacks_enabled !== false,
+		revision: typeof row?.auto_routing_revision === "string" ? row.auto_routing_revision : null,
+		updatedAt: typeof row?.auto_routing_updated_at === "string" ? row.auto_routing_updated_at : null,
+	};
+}
+
 accountSettingsPolicyRouter.get("/chat/effective-policy", async (c) => {
 	const workspaceId = c.req.query("workspaceId")?.trim();
 	if (!workspaceId) return c.json({ account: null, guardrails: [], workspace: null, workspaceId: null }, 200, PRIVATE_NO_STORE_HEADERS);
@@ -218,6 +250,94 @@ accountSettingsPolicyRouter.put("/routing", async (c) => {
 		gatewayCacheInvalidated = false;
 	}
 	return c.json({ ok: true, gatewayCacheInvalidated }, 200, PRIVATE_NO_STORE_HEADERS);
+});
+
+accountSettingsPolicyRouter.get("/routing/auto", async (c) => {
+	const workspaceId = c.req.query("workspaceId")?.trim();
+	if (!workspaceId) {
+		return c.json({
+			autoRouting: autoRoutingFromRow(null),
+			canManage: false,
+			teamName: null,
+			workspaceId: null,
+		}, 200, PRIVATE_NO_STORE_HEADERS);
+	}
+	const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId });
+	if (!context) return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
+	const [teamResult, settingsResult] = await Promise.all([
+		context.client.from("workspaces").select("id,name").eq("id", workspaceId).maybeSingle(),
+		context.client.from("workspace_settings")
+			.select("auto_routing_allowed_patterns,auto_routing_spend_profile,auto_routing_max_input_price_per_million,auto_routing_max_output_price_per_million,auto_routing_objective,auto_routing_fallbacks_enabled,auto_routing_revision,auto_routing_updated_at")
+			.eq("workspace_id", workspaceId)
+			.maybeSingle(),
+	]);
+	if (teamResult.error || settingsResult.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	return c.json({
+		autoRouting: autoRoutingFromRow(settingsResult.data),
+		canManage: ["owner", "admin"].includes(context.role.toLowerCase()),
+		teamName: teamResult.data?.name ?? null,
+		workspaceId,
+	}, 200, PRIVATE_NO_STORE_HEADERS);
+});
+
+accountSettingsPolicyRouter.put("/routing/auto", async (c) => {
+	const body: Record<string, unknown> = await c.req.json<Record<string, unknown>>().catch(() => ({}));
+	const workspaceId = String(body.workspaceId ?? "").trim();
+	if (!workspaceId) return c.json({ error: "workspace_required" }, 400, PRIVATE_NO_STORE_HEADERS);
+	const context = await requireAccountWorkspace({ request: c.req.raw, env: c.env, workspaceId });
+	if (!context || !["owner", "admin"].includes(context.role.toLowerCase())) {
+		return c.json({ error: "forbidden" }, 403, PRIVATE_NO_STORE_HEADERS);
+	}
+
+	const rawPatterns = Array.isArray(body.allowedPatterns) ? body.allowedPatterns : [];
+	const allowedPatterns = cleanAutoRoutingPatterns(rawPatterns);
+	const invalidPatterns = rawPatterns
+		.map((pattern) => String(pattern ?? "").trim().toLowerCase())
+		.filter((pattern) => !pattern || pattern.length > 200 || !/^[a-z0-9*][a-z0-9._:/*-]*$/.test(pattern) || !pattern.includes("/"));
+	const objective = String(body.objective ?? "balanced").trim().toLowerCase();
+	const spendProfile = String(body.spendProfile ?? "standard").trim().toLowerCase();
+	const maxInputPricePerMillion = priceLimit(body.maxInputPricePerMillion);
+	const maxOutputPricePerMillion = priceLimit(body.maxOutputPricePerMillion);
+	const allowFallbacks = body.allowFallbacks !== false;
+	if (rawPatterns.length > 16 || invalidPatterns.length) {
+		return c.json({ error: "invalid_model_patterns", patterns: invalidPatterns, maximum: 16 }, 400, PRIVATE_NO_STORE_HEADERS);
+	}
+	if (!AUTO_ROUTING_OBJECTIVES.has(objective)) {
+		return c.json({ error: "invalid_objective" }, 400, PRIVATE_NO_STORE_HEADERS);
+	}
+	if (!AUTO_ROUTING_SPEND_PROFILES.has(spendProfile)) {
+		return c.json({ error: "invalid_spend_profile" }, 400, PRIVATE_NO_STORE_HEADERS);
+	}
+	if (spendProfile === "custom" && (maxInputPricePerMillion === null || maxOutputPricePerMillion === null)) {
+		return c.json({ error: "custom_price_limits_required" }, 400, PRIVATE_NO_STORE_HEADERS);
+	}
+
+	const now = new Date().toISOString();
+	const payload = {
+		workspace_id: workspaceId,
+		auto_routing_allowed_patterns: allowedPatterns,
+		auto_routing_spend_profile: spendProfile,
+		auto_routing_max_input_price_per_million: spendProfile === "custom" ? maxInputPricePerMillion : null,
+		auto_routing_max_output_price_per_million: spendProfile === "custom" ? maxOutputPricePerMillion : null,
+		auto_routing_objective: objective,
+		auto_routing_fallbacks_enabled: allowFallbacks,
+		auto_routing_revision: crypto.randomUUID(),
+		auto_routing_updated_at: now,
+		updated_at: now,
+	};
+	const result = await context.client.from("workspace_settings").upsert(payload, { onConflict: "workspace_id" }).select("auto_routing_revision,auto_routing_updated_at").maybeSingle();
+	if (result.error) return c.json({ error: "settings_unavailable" }, 503, PRIVATE_NO_STORE_HEADERS);
+	let gatewayCacheInvalidated = false;
+	try {
+		gatewayCacheInvalidated = await invalidateWorkspaceGatewayContext(context, c.env);
+	} catch {
+		gatewayCacheInvalidated = false;
+	}
+	return c.json({
+		autoRouting: autoRoutingFromRow({ ...payload, ...result.data }),
+		gatewayCacheInvalidated,
+		ok: true,
+	}, 200, PRIVATE_NO_STORE_HEADERS);
 });
 
 accountSettingsPolicyRouter.get("/presets", async (c) => {

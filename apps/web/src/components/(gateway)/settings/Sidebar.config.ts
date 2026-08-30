@@ -245,6 +245,7 @@ const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
 				match: ["/settings/routing"],
 				children: [
 					{ href: "/settings/routing", label: "Routing", exactOnly: true },
+					{ href: "/settings/routing/auto", label: "Auto routing", badge: "Alpha" },
 					{ href: "/settings/routing/dynamic", label: "Dynamic Routes", match: ["/settings/routing/demo"] },
 				],
 			},
@@ -316,10 +317,11 @@ const WORKSPACE_NAV_ORDER = [
 	"/settings/webhooks",
 ] as const;
 
-export function getSettingsSidebar(options?: { showBroadcast?: boolean; showWebhooks?: boolean; showEnterprise?: boolean; showInternal?: boolean }): NavGroup[] {
+export function getSettingsSidebar(options?: { showBroadcast?: boolean; showWebhooks?: boolean; showEnterprise?: boolean; showAutoRouting?: boolean; showInternal?: boolean }): NavGroup[] {
 	const showBroadcast = options?.showBroadcast ?? true;
 	const showWebhooks = options?.showWebhooks ?? true;
 	const showEnterprise = options?.showEnterprise ?? true;
+	const showAutoRouting = options?.showAutoRouting ?? false;
 	const showInternal = options?.showInternal ?? false;
 	const groups = BASE_SETTINGS_SIDEBAR.map((group) => ({
 		...group,
@@ -334,7 +336,8 @@ export function getSettingsSidebar(options?: { showBroadcast?: boolean; showWebh
 				...item,
 				children: item.children?.filter((child) =>
 					(showBroadcast ? true : !child.href.startsWith("/settings/broadcast")) &&
-					(showWebhooks ? true : !child.href.startsWith("/settings/webhooks")),
+					(showWebhooks ? true : !child.href.startsWith("/settings/webhooks")) &&
+					(showAutoRouting ? true : child.href !== "/settings/routing/auto"),
 				),
 			})),
 	})).filter((group) => group.items.length > 0);
@@ -368,7 +371,7 @@ export function isSettingsNavChildActive(
 
 export function getActiveSettingsNav(
 	pathname: string,
-	options?: { showBroadcast?: boolean; showWebhooks?: boolean },
+	options?: { showBroadcast?: boolean; showWebhooks?: boolean; showAutoRouting?: boolean },
 ): ResolvedSettingsNav | null {
 	const navGroups = getSettingsSidebar(options);
 

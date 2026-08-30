@@ -1041,6 +1041,9 @@ pub mod model_ids {
     /// Model ID: `perplexity/pplx-embed-v1-4b`.
     /// Model page: https://phaseo.app/models/perplexity/pplx-embed-v1-4b
     pub const PERPLEXITY_PPLX_EMBED_V1_4B: &str = "perplexity/pplx-embed-v1-4b";
+    /// Model ID: `phaseo/auto`.
+    /// Model page: https://phaseo.app/models/phaseo/auto
+    pub const PHASEO_AUTO: &str = "phaseo/auto";
     /// Model ID: `phaseo/free`.
     /// Model page: https://phaseo.app/models/phaseo/free
     pub const PHASEO_FREE: &str = "phaseo/free";
@@ -2037,6 +2040,7 @@ pub mod model_ids {
         OPENAI_WHISPER_LARGE_V3_TURBO,
         PERPLEXITY_PPLX_EMBED_V1_0_6B,
         PERPLEXITY_PPLX_EMBED_V1_4B,
+        PHASEO_AUTO,
         PHASEO_FREE,
         POOLSIDE_LAGUNA_M_1_FREE,
         POOLSIDE_LAGUNA_S_2_1_FREE,

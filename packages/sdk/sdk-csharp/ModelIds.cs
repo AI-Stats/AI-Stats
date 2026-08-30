@@ -698,6 +698,8 @@ namespace PhaseoSdk
         public const string PerplexityPplxEmbedV106b = "perplexity/pplx-embed-v1-0.6b";
         /// <summary>Model ID: <c>perplexity/pplx-embed-v1-4b</c>. Model page: https://phaseo.app/models/perplexity/pplx-embed-v1-4b</summary>
         public const string PerplexityPplxEmbedV14b = "perplexity/pplx-embed-v1-4b";
+        /// <summary>Model ID: <c>phaseo/auto</c>. Model page: https://phaseo.app/models/phaseo/auto</summary>
+        public const string PhaseoAuto = "phaseo/auto";
         /// <summary>Model ID: <c>phaseo/free</c>. Model page: https://phaseo.app/models/phaseo/free</summary>
         public const string PhaseoFree = "phaseo/free";
         /// <summary>Model ID: <c>poolside/laguna-m.1:free</c>. Model page: https://phaseo.app/models/poolside/laguna-m.1%3Afree</summary>
