@@ -3764,39 +3764,6 @@ components:
             - type: object
               additionalProperties:
                 type: number
-        auto:
-          $ref: '#/components/schemas/AutoRouterOptions'
-    AutoRouterOptions:
-      type: object
-      additionalProperties: false
-      required:
-        - allowed_models
-      description: >-
-        Model-selection controls used only when model is phaseo/auto. Phaseo
-        evaluates only the explicitly allow-listed models.
-      properties:
-        allowed_models:
-          type: array
-          minItems: 2
-          maxItems: 8
-          uniqueItems: true
-          items:
-            type: string
-          description: Exact Phaseo model IDs eligible for selection and fallback.
-        objective:
-          type: string
-          default: balanced
-          enum:
-            - balanced
-            - quality
-            - cost
-            - latency
-        allow_fallbacks:
-          type: boolean
-          default: true
-          description: >-
-            Retry the next ranked eligible model after a 429 or retryable 5xx
-            response.
     DebugOptions:
       type: object
       description: Gateway debug controls. These flags are never forwarded upstream.

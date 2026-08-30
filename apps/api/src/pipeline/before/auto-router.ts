@@ -21,6 +21,7 @@ export type AutoRouterConfig = {
 	allowedModels: string[];
 	objective: AutoRouterObjective;
 	allowFallbacks: boolean;
+	revision: string;
 };
 
 export type AutoRouterCandidateEvidence = {
@@ -57,6 +58,7 @@ export type AutoRouterCandidateDiagnostic = {
 
 export type AutoRouterEvaluation = {
 	algorithm: typeof AUTO_ROUTER_ALGORITHM_VERSION;
+	configRevision: string;
 	workload: AutoRouterWorkload;
 	objective: AutoRouterObjective;
 	selectedModel: string;
@@ -124,16 +126,29 @@ export function isAutoRouterModel(model: string | null | undefined): boolean {
 	return String(model ?? "").trim().toLowerCase() === AUTO_ROUTER_MODEL_ID;
 }
 
-export function parseAutoRouterConfig(body: any): AutoRouterConfig | null {
-	const raw = body?.routing?.auto;
-	if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
-	const allowedModels = cleanModelList(raw.allowed_models ?? raw.allowedModels);
-	const requestedObjective = String(raw.objective ?? "balanced").trim().toLowerCase() as AutoRouterObjective;
+export function workspaceAutoRouterConfigFromRow(row: any): AutoRouterConfig | null {
+	if (row?.auto_routing_enabled !== true) return null;
+	const allowedModels = cleanModelList(row?.auto_routing_model_ids);
+	if (allowedModels.length < 2) return null;
+	const requestedObjective = String(row?.auto_routing_objective ?? "balanced").trim().toLowerCase() as AutoRouterObjective;
 	return {
 		allowedModels,
 		objective: OBJECTIVES.has(requestedObjective) ? requestedObjective : "balanced",
-		allowFallbacks: raw.allow_fallbacks !== false && raw.allowFallbacks !== false,
+		allowFallbacks: row?.auto_routing_fallbacks_enabled !== false,
+		revision: typeof row?.auto_routing_revision === "string" && row.auto_routing_revision.trim()
+			? row.auto_routing_revision.trim()
+			: "unknown",
 	};
+}
+
+export async function loadWorkspaceAutoRouterConfig(workspaceId: string): Promise<AutoRouterConfig | null> {
+	const { data, error } = await getSupabaseAdmin()
+		.from("workspace_settings")
+		.select("auto_routing_enabled,auto_routing_model_ids,auto_routing_objective,auto_routing_fallbacks_enabled,auto_routing_revision")
+		.eq("workspace_id", workspaceId)
+		.maybeSingle();
+	if (error) throw new Error(error.message || "Failed to load workspace auto-routing configuration");
+	return workspaceAutoRouterConfigFromRow(data);
 }
 
 function appendText(parts: string[], value: unknown) {
@@ -319,6 +334,7 @@ export async function selectAutoRouterModel(args: SelectAutoRouterArgs): Promise
 		selected: winner.candidate,
 		evaluation: {
 			algorithm: AUTO_ROUTER_ALGORITHM_VERSION,
+			configRevision: args.config.revision,
 			workload: classification.workload,
 			objective: args.config.objective,
 			selectedModel: winner.candidate.requestedModel,

@@ -50,7 +50,7 @@ import {
 	buildAutoRouterCandidateEvidence,
 	isAutoRouterModel,
 	loadAutoRouterBenchmarks,
-	parseAutoRouterConfig,
+	loadWorkspaceAutoRouterConfig,
 	selectAutoRouterModel,
 	type AutoRouterEvaluation,
 } from "./auto-router";
@@ -444,18 +444,40 @@ export async function beforeRequest(
 
 	let c: Awaited<ReturnType<typeof guardContext>>;
 	if (isAutoRouterModel(model)) {
-		const config = parseAutoRouterConfig(body);
-		if (!config || config.allowedModels.length < 2) {
+		if (body?.routing?.auto != null || body?.provider?.auto != null) {
 			return {
 				ok: false,
 				response: err("validation_error", {
-					reason: "auto_router_allowlist_required",
-					description: "phaseo/auto requires routing.auto.allowed_models with 2 to 8 explicit model IDs",
+					reason: "auto_router_request_config_not_supported",
+					description: "phaseo/auto uses the workspace Auto Routing configuration and does not accept request-level model pools or objectives",
 					details: [{
-						message: "Provide 2 to 8 eligible model IDs in routing.auto.allowed_models",
-						path: ["routing", "auto", "allowed_models"],
-						keyword: "auto_router_allowlist_required",
+						message: "Remove the request-level auto-router configuration",
+						path: [body?.routing?.auto != null ? "routing" : "provider", "auto"],
+						keyword: "auto_router_request_config_not_supported",
 					}],
+					request_id: requestId,
+					workspace_id: workspaceId,
+				}),
+			};
+		}
+		let config: Awaited<ReturnType<typeof loadWorkspaceAutoRouterConfig>>;
+		try {
+			config = await timer.span("loadWorkspaceAutoRouterConfig", () => loadWorkspaceAutoRouterConfig(workspaceId));
+		} catch (error) {
+			console.error("[beforeRequest] auto_router_config_fetch_failed", {
+				workspaceId,
+				requestId,
+				error: error instanceof Error ? error.message : String(error),
+			});
+			return { ok: false, response: err("gateway_error", { reason: "auto_router_config_fetch_failed", request_id: requestId, workspace_id: workspaceId }) };
+		}
+		if (!config) {
+			return {
+				ok: false,
+				response: err("unsupported_model_or_endpoint", {
+					model,
+					reason: "auto_router_not_configured",
+					description: "Configure and enable Auto Routing in the workspace Routing settings before using phaseo/auto",
 					request_id: requestId,
 					workspace_id: workspaceId,
 				}),

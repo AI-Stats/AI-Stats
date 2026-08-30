@@ -52,6 +52,7 @@ export const GLOBAL_NAVIGATION_ITEMS: readonly GlobalNavigationItem[] = [
 	{ id: "nav-settings-apps", title: "Workspace Apps", subtitle: "Manage gateway applications", href: "/settings/apps", keywords: ["apps", "applications"] },
 	{ id: "nav-settings-management-keys", title: "Management Keys", subtitle: "Manage provisioning credentials", href: "/settings/management-api-keys", keywords: ["management api", "provisioning keys"] },
 	{ id: "nav-settings-routing", title: "Routing Settings", subtitle: "Configure gateway routing", href: "/settings/routing", keywords: ["routing", "providers", "fallbacks"] },
+	{ id: "nav-settings-auto-routing", title: "Auto Routing", subtitle: "Configure the workspace model pool", href: "/settings/routing/auto", keywords: ["routing", "automatic", "models", "phaseo auto"] },
 	{ id: "nav-settings-byok", title: "Bring Your Own Key", subtitle: "Manage provider API credentials", href: "/settings/byok", keywords: ["byok", "provider keys", "credentials"] },
 	{ id: "nav-settings-presets", title: "Routing Presets", subtitle: "Create reusable routing presets", href: "/settings/presets", keywords: ["presets", "routing profiles"] },
 	{ id: "nav-settings-privacy", title: "Privacy Settings", subtitle: "Configure data handling preferences", href: "/settings/privacy", keywords: ["privacy", "retention", "zdr"] },

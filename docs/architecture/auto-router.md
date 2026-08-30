@@ -3,9 +3,10 @@
 ## Scope
 
 The first auto-router release is an opt-in model-selection layer for the three
-text-generation endpoints. A request uses `model: phaseo/auto` and supplies two
-to eight exact model IDs in `routing.auto.allowed_models`. It does not discover
-or add models, route non-text endpoints, or persist workspace configuration.
+text-generation endpoints. Workspace owners and administrators configure two
+to eight exact model IDs under **Settings -> Routing -> Auto Routing**. A
+request opts in with `model: phaseo/auto`; it cannot submit or widen routing
+policy. The router does not discover or add models or route non-text endpoints.
 
 This boundary makes rollout reversible and keeps model selection separate from
 the existing provider selector. The auto-router chooses a model. The provider
@@ -14,24 +15,45 @@ latency, throughput, residency, privacy, and rollout controls.
 
 ## Request flow
 
-1. Parse and bound the explicit allow-list.
-2. Classify the workload locally from request shape and bounded text signals.
-3. Resolve every allow-listed model against the requested endpoint.
-4. Apply workspace model restrictions, guardrails, provider restrictions,
+1. Authenticate the request and load the enabled workspace configuration.
+2. Record its immutable configuration revision in routing diagnostics.
+3. Classify the workload locally from request shape and bounded text signals.
+4. Resolve every configured model against the requested endpoint.
+5. Apply workspace model restrictions, guardrails, provider restrictions,
    privacy policy, and request provider constraints.
-5. Exclude models whose remaining providers all have open circuit breakers.
-6. Load relevant non-self-reported benchmark results for eligible models.
-7. Normalize quality, combined input/output token price, recent latency, and
+6. Exclude models whose remaining providers all have open circuit breakers.
+7. Load relevant non-self-reported benchmark results for eligible models.
+8. Normalize quality, combined input/output token price, recent latency, and
    reliability within the eligible set.
-8. Apply the requested objective weights and use allow-list order as the stable
+9. Apply the configured objective weights and use model-pool order as the stable
    tie-breaker.
-9. Run the selected model through the normal provider selector.
-10. On a retryable response, rerun the complete pipeline with each ranked
+10. Run the selected model through the normal provider selector.
+11. On a retryable response, rerun the complete pipeline with each ranked
     fallback model.
 
 The algorithm version is recorded as `auto-router-v1`. Changes to workload
 classes, benchmark sets, factor definitions, or weights require a new version
 and an offline comparison against the previous version.
+
+## Workspace configuration
+
+The source of truth is one configuration on `workspace_settings`:
+
+- whether Auto Routing is enabled;
+- the ordered model pool;
+- the optimization objective;
+- whether model fallbacks are enabled; and
+- a revision UUID and update timestamp.
+
+The account management API accepts changes only from workspace owners and
+administrators. It verifies that every selected model has an active
+text-generation route, writes a fresh revision, and invalidates active Gateway
+key contexts. Gateway requests read this configuration by authenticated
+workspace ID. A missing, disabled, or invalid configuration fails closed.
+
+The public inference contract contains no auto-router configuration fields.
+This prevents an application key from widening an administrator-approved model
+pool or changing its cost and quality policy. Fixed model IDs are unaffected.
 
 ## Classification and privacy
 
@@ -51,7 +73,7 @@ queries contain model IDs and benchmark IDs only.
 
 ## Eligibility and availability
 
-The allow-list is authoritative. There is no default pool and no wildcard in
+The workspace model pool is authoritative. There is no default pool and no wildcard in
 the first release. A candidate is excluded when:
 
 - the model or endpoint cannot be resolved;
@@ -111,7 +133,7 @@ future integration must also define deletion behavior when the license ends.
 The bounded routing diagnostic records:
 
 - workload and classification signal names;
-- objective and algorithm version;
+- objective, algorithm version, and workspace configuration revision;
 - selected and fallback model IDs;
 - eligible and excluded candidates with reason codes;
 - normalized factor scores and final score;
@@ -141,10 +163,11 @@ Before widening access:
    dedicated API keys or a small deterministic traffic split.
 5. Alert on no-eligible-model rate, policy exclusions, benchmark coverage,
    selection distribution drift, cost drift, and fallback rate.
-6. Roll back by stopping requests from using `phaseo/auto`; fixed model IDs and
-   existing provider routing are unchanged.
+6. Roll back by disabling Auto Routing in workspace settings or stopping
+   requests from using `phaseo/auto`; fixed model IDs and existing provider
+   routing are unchanged.
 
 Promotion requires better cost-adjusted task success than the fixed-model
 baseline without a material regression in policy compliance, tail latency, or
-error rate. Persisted preset and dashboard controls should follow only after
-the request-scoped contract meets that bar.
+error rate. Multiple named router profiles should be added only if one
+workspace-level configuration proves too restrictive for real workloads.

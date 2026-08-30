@@ -3,7 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { fetchAccountWebApi, WebApiError } from "@/lib/web-api/client";
 import { getServerAccountContext } from "@/lib/fetchers/internal/serverAccountContext";
-import type { DynamicRouteConfig } from "@/lib/fetchers/internal/settingsTypes";
+import type {
+	AutoRoutingConfiguration,
+	AutoRoutingObjective,
+	DynamicRouteConfig,
+} from "@/lib/fetchers/internal/settingsTypes";
 
 export type RoutingMode = "balanced" | "price" | "latency" | "throughput";
 
@@ -50,6 +54,43 @@ export async function updateRoutingSettings({
 
 export async function updateRoutingMode(mode: RoutingMode) {
 	return updateRoutingSettings({ mode });
+}
+
+export async function updateAutoRoutingSettings(input: {
+	enabled: boolean;
+	allowedModels: string[];
+	objective: AutoRoutingObjective;
+	allowFallbacks: boolean;
+}) {
+	try {
+		const context = await getServerAccountContext();
+		if (!context.accessToken || !context.workspaceId) {
+			return { ok: false as const, error: "Select a workspace before changing Auto Routing." };
+		}
+		const response = await fetchAccountWebApi<{
+			autoRouting: AutoRoutingConfiguration;
+			gatewayCacheInvalidated?: boolean;
+			ok: true;
+		}>("/api/account/settings/routing/auto", context.accessToken, {
+			method: "PUT",
+			body: JSON.stringify({ workspaceId: context.workspaceId, ...input }),
+		});
+		revalidatePath("/settings/routing/auto");
+		return {
+			ok: true as const,
+			autoRouting: response.autoRouting,
+			gatewayCacheInvalidated: response.gatewayCacheInvalidated !== false,
+		};
+	} catch (error) {
+		return {
+			ok: false as const,
+			error: error instanceof WebApiError
+				? `${error.detail ?? "The routing service rejected the update."} (${error.status})`
+				: error instanceof Error
+					? error.message
+					: "Auto Routing could not be updated.",
+		};
+	}
 }
 
 async function routingContext() {

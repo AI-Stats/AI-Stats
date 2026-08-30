@@ -443,6 +443,22 @@ export type SettingsRoutingInitialData = {
 	workspaceId: string | null;
 };
 
+export type AutoRoutingObjective = "balanced" | "quality" | "cost" | "latency";
+export type AutoRoutingConfiguration = {
+	enabled: boolean;
+	allowedModels: string[];
+	objective: AutoRoutingObjective;
+	allowFallbacks: boolean;
+	revision: string | null;
+	updatedAt: string | null;
+};
+export type SettingsAutoRoutingInitialData = {
+	autoRouting: AutoRoutingConfiguration;
+	canManage: boolean;
+	teamName: string | null;
+	workspaceId: string | null;
+};
+
 export type DynamicRouteMode = "balanced" | "price" | "latency" | "throughput";
 export type DynamicRouteAction = {
 	model?: string | null;

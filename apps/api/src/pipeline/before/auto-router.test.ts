@@ -1,10 +1,15 @@
 import { describe, expect, it } from "vitest";
 import {
 	classifyAutoRouterWorkload,
-	parseAutoRouterConfig,
 	selectAutoRouterModel,
 	type AutoRouterCandidateEvidence,
+	type AutoRouterConfig,
+	workspaceAutoRouterConfigFromRow,
 } from "./auto-router";
+
+function config(overrides: Partial<AutoRouterConfig> = {}): AutoRouterConfig {
+	return { allowedModels: ["model/a", "model/b"], objective: "balanced", allowFallbacks: true, revision: "revision-1", ...overrides };
+}
 
 function evidence(model: string, overrides: Partial<AutoRouterCandidateEvidence> = {}): AutoRouterCandidateEvidence {
 	return {
@@ -20,17 +25,20 @@ function evidence(model: string, overrides: Partial<AutoRouterCandidateEvidence>
 }
 
 describe("auto router", () => {
-	it("requires an explicit bounded allow-list and normalizes request options", () => {
-		expect(parseAutoRouterConfig({ routing: { auto: {
-			allowed_models: ["model/a", "model/a", "phaseo/auto", "model/b"],
-			objective: "cost",
-			allow_fallbacks: false,
-		} } })).toEqual({
+	it("normalizes the enabled workspace configuration", () => {
+		expect(workspaceAutoRouterConfigFromRow({
+			auto_routing_enabled: true,
+			auto_routing_model_ids: ["model/a", "model/a", "phaseo/auto", "model/b"],
+			auto_routing_objective: "cost",
+			auto_routing_fallbacks_enabled: false,
+			auto_routing_revision: "revision-2",
+		})).toEqual({
 			allowedModels: ["model/a", "model/b"],
 			objective: "cost",
 			allowFallbacks: false,
+			revision: "revision-2",
 		});
-		expect(parseAutoRouterConfig({})).toBeNull();
+		expect(workspaceAutoRouterConfigFromRow({ auto_routing_enabled: false })).toBeNull();
 	});
 
 	it("classifies sensitive request text locally without retaining it in diagnostics", () => {
@@ -49,7 +57,7 @@ describe("auto router", () => {
 		const result = await selectAutoRouterModel({
 			endpoint: "responses",
 			body: { input: "Prove this theorem and derive the equation" },
-			config: { allowedModels: [...candidates.keys()], objective: "quality", allowFallbacks: true },
+			config: config({ allowedModels: [...candidates.keys()], objective: "quality" }),
 			loadCandidate: async (model) => ({ ok: true, evidence: candidates.get(model)! }),
 			loadBenchmarks: async () => [
 				{ model_slug: "model/cheap", benchmark_id: "gpqa-diamond", score_numeric: 40 },
@@ -60,6 +68,7 @@ describe("auto router", () => {
 		expect(result.ok).toBe(true);
 		if (!result.ok) return;
 		expect(result.evaluation.workload).toBe("reasoning");
+		expect(result.evaluation.configRevision).toBe("revision-1");
 		expect(result.evaluation.selectedModel).toBe("model/strong");
 		expect(result.evaluation.fallbackModels).toEqual(["model/cheap"]);
 		expect(result.evaluation.candidates[0]).toMatchObject({
@@ -77,7 +86,7 @@ describe("auto router", () => {
 		const result = await selectAutoRouterModel({
 			endpoint: "chat.completions",
 			body: { messages: [{ role: "user", content: "Hello" }] },
-			config: { allowedModels: [...candidates.keys()], objective: "cost", allowFallbacks: false },
+			config: config({ allowedModels: [...candidates.keys()], objective: "cost", allowFallbacks: false }),
 			loadCandidate: async (model) => ({ ok: true, evidence: candidates.get(model)! }),
 			loadBenchmarks: async () => [],
 		});
@@ -90,7 +99,7 @@ describe("auto router", () => {
 		const result = await selectAutoRouterModel({
 			endpoint: "messages",
 			body: { messages: [{ role: "user", content: "Use this tool" }], tools: [{ name: "lookup" }] },
-			config: { allowedModels: ["model/blocked", "model/live"], objective: "balanced", allowFallbacks: true },
+			config: config({ allowedModels: ["model/blocked", "model/live"] }),
 			loadCandidate: async (model) => model === "model/blocked"
 				? { ok: false, reason: "model_restricted_by_policy" }
 				: { ok: true, evidence: evidence(model) },
@@ -111,7 +120,7 @@ describe("auto router", () => {
 		const result = await selectAutoRouterModel({
 			endpoint: "responses",
 			body: { input: "hello" },
-			config: { allowedModels: ["model/a", "model/b"], objective: "balanced", allowFallbacks: true },
+			config: config(),
 			loadCandidate: async () => ({ ok: false, reason: "all_providers_unavailable" }),
 		});
 
@@ -122,7 +131,7 @@ describe("auto router", () => {
 		const result = await selectAutoRouterModel({
 			endpoint: "responses",
 			body: { input: "hello" },
-			config: { allowedModels: ["model/a", "model/b"], objective: "balanced", allowFallbacks: true },
+			config: config(),
 			loadCandidate: async (model) => ({ ok: true, evidence: evidence(model) }),
 			loadBenchmarks: async () => { throw new Error("catalogue unavailable"); },
 		});
@@ -137,7 +146,7 @@ describe("auto router", () => {
 		const result = await selectAutoRouterModel({
 			endpoint: "responses",
 			body: { input: "hello" },
-			config: { allowedModels: ["model/a", "model/b"], objective: "balanced", allowFallbacks: true },
+			config: config(),
 			modelOverride: "model/outside",
 			loadCandidate: async (model) => ({ ok: true, evidence: evidence(model) }),
 		});

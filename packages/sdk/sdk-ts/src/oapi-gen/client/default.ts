@@ -637,11 +637,6 @@ export type CreateAnthropicMessageParams = {
     model: string;
     provider?: {
       allow_fallbacks?: boolean | null;
-      auto?: {
-        allow_fallbacks?: boolean;
-        allowed_models: string[];
-        objective?: "balanced" | "quality" | "cost" | "latency";
-      };
       data_collection?: "allow" | "deny" | null;
       enforce_distillable_text?: boolean | null;
       ignore?: string[];
@@ -972,11 +967,6 @@ export type CreateBatchParams = {
     prompts?: string[];
     provider?: {
       allow_fallbacks?: boolean | null;
-      auto?: {
-        allow_fallbacks?: boolean;
-        allowed_models: string[];
-        objective?: "balanced" | "quality" | "cost" | "latency";
-      };
       data_collection?: "allow" | "deny" | null;
       enforce_distillable_text?: boolean | null;
       ignore?: string[];
@@ -1300,11 +1290,6 @@ export type CreateBatchAliasParams = {
     prompts?: string[];
     provider?: {
       allow_fallbacks?: boolean | null;
-      auto?: {
-        allow_fallbacks?: boolean;
-        allowed_models: string[];
-        objective?: "balanced" | "quality" | "cost" | "latency";
-      };
       data_collection?: "allow" | "deny" | null;
       enforce_distillable_text?: boolean | null;
       ignore?: string[];
@@ -1717,11 +1702,6 @@ export type CreateChatCompletionParams = {
       | "together"
       | {
           allow_fallbacks?: boolean | null;
-          auto?: {
-            allow_fallbacks?: boolean;
-            allowed_models: string[];
-            objective?: "balanced" | "quality" | "cost" | "latency";
-          };
           data_collection?: "allow" | "deny" | null;
           enforce_distillable_text?: boolean | null;
           ignore?: string[];
@@ -2200,11 +2180,6 @@ export type CreateEmbeddingParams = {
     model: string;
     provider?: {
       allow_fallbacks?: boolean | null;
-      auto?: {
-        allow_fallbacks?: boolean;
-        allowed_models: string[];
-        objective?: "balanced" | "quality" | "cost" | "latency";
-      };
       data_collection?: "allow" | "deny" | null;
       enforce_distillable_text?: boolean | null;
       ignore?: string[];
@@ -2329,11 +2304,6 @@ export type CreateImageParams = {
     prompt: string;
     provider?: {
       allow_fallbacks?: boolean | null;
-      auto?: {
-        allow_fallbacks?: boolean;
-        allowed_models: string[];
-        objective?: "balanced" | "quality" | "cost" | "latency";
-      };
       data_collection?: "allow" | "deny" | null;
       enforce_distillable_text?: boolean | null;
       ignore?: string[];
@@ -2422,11 +2392,6 @@ export type CreateImageEditParams = {
     prompt: string;
     provider?: {
       allow_fallbacks?: boolean | null;
-      auto?: {
-        allow_fallbacks?: boolean;
-        allowed_models: string[];
-        objective?: "balanced" | "quality" | "cost" | "latency";
-      };
       data_collection?: "allow" | "deny" | null;
       enforce_distillable_text?: boolean | null;
       ignore?: string[];
@@ -2530,11 +2495,6 @@ export type CreateModerationParams = {
     model: string;
     provider?: {
       allow_fallbacks?: boolean | null;
-      auto?: {
-        allow_fallbacks?: boolean;
-        allowed_models: string[];
-        objective?: "balanced" | "quality" | "cost" | "latency";
-      };
       data_collection?: "allow" | "deny" | null;
       enforce_distillable_text?: boolean | null;
       ignore?: string[];
@@ -2683,11 +2643,6 @@ export type CreateOcrParams = {
     model: string;
     provider?: {
       allow_fallbacks?: boolean | null;
-      auto?: {
-        allow_fallbacks?: boolean;
-        allowed_models: string[];
-        objective?: "balanced" | "quality" | "cost" | "latency";
-      };
       data_collection?: "allow" | "deny" | null;
       enforce_distillable_text?: boolean | null;
       ignore?: string[];
@@ -2769,11 +2724,6 @@ export type CreateParseParams = {
     output_format?: "markdown" | "blocks";
     provider?: {
       allow_fallbacks?: boolean | null;
-      auto?: {
-        allow_fallbacks?: boolean;
-        allowed_models: string[];
-        objective?: "balanced" | "quality" | "cost" | "latency";
-      };
       data_collection?: "allow" | "deny" | null;
       enforce_distillable_text?: boolean | null;
       ignore?: string[];
@@ -2811,11 +2761,6 @@ export type CreateParseParams = {
     };
     routing?: {
       allow_fallbacks?: boolean | null;
-      auto?: {
-        allow_fallbacks?: boolean;
-        allowed_models: string[];
-        objective?: "balanced" | "quality" | "cost" | "latency";
-      };
       data_collection?: "allow" | "deny" | null;
       enforce_distillable_text?: boolean | null;
       ignore?: string[];
@@ -3076,11 +3021,6 @@ export type CreateRerankParams = {
     model: string;
     provider?: {
       allow_fallbacks?: boolean | null;
-      auto?: {
-        allow_fallbacks?: boolean;
-        allowed_models: string[];
-        objective?: "balanced" | "quality" | "cost" | "latency";
-      };
       data_collection?: "allow" | "deny" | null;
       enforce_distillable_text?: boolean | null;
       ignore?: string[];
@@ -3256,11 +3196,6 @@ export type CreateResponseParams = {
     prompt_cache_key?: string | null;
     provider?: {
       allow_fallbacks?: boolean | null;
-      auto?: {
-        allow_fallbacks?: boolean;
-        allowed_models: string[];
-        objective?: "balanced" | "quality" | "cost" | "latency";
-      };
       data_collection?: "allow" | "deny" | null;
       enforce_distillable_text?: boolean | null;
       ignore?: string[];
@@ -3644,11 +3579,6 @@ export type CreateSpeechParams = {
     model: string;
     provider?: {
       allow_fallbacks?: boolean | null;
-      auto?: {
-        allow_fallbacks?: boolean;
-        allowed_models: string[];
-        objective?: "balanced" | "quality" | "cost" | "latency";
-      };
       data_collection?: "allow" | "deny" | null;
       enforce_distillable_text?: boolean | null;
       ignore?: string[];
@@ -3727,11 +3657,6 @@ export type CreateTranscriptionParams = {
     model: string;
     provider?: {
       allow_fallbacks?: boolean | null;
-      auto?: {
-        allow_fallbacks?: boolean;
-        allowed_models: string[];
-        objective?: "balanced" | "quality" | "cost" | "latency";
-      };
       data_collection?: "allow" | "deny" | null;
       enforce_distillable_text?: boolean | null;
       ignore?: string[];
@@ -3804,11 +3729,6 @@ export type CreateTranslationParams = {
     prompt?: string;
     provider?: {
       allow_fallbacks?: boolean | null;
-      auto?: {
-        allow_fallbacks?: boolean;
-        allowed_models: string[];
-        objective?: "balanced" | "quality" | "cost" | "latency";
-      };
       data_collection?: "allow" | "deny" | null;
       enforce_distillable_text?: boolean | null;
       ignore?: string[];
@@ -3909,11 +3829,6 @@ export type CreateVideoParams = {
     prompt: string;
     provider?: {
       allow_fallbacks?: boolean | null;
-      auto?: {
-        allow_fallbacks?: boolean;
-        allowed_models: string[];
-        objective?: "balanced" | "quality" | "cost" | "latency";
-      };
       data_collection?: "allow" | "deny" | null;
       enforce_distillable_text?: boolean | null;
       ignore?: string[];
@@ -4240,11 +4155,6 @@ export type CreateVideoAliasParams = {
     prompt: string;
     provider?: {
       allow_fallbacks?: boolean | null;
-      auto?: {
-        allow_fallbacks?: boolean;
-        allowed_models: string[];
-        objective?: "balanced" | "quality" | "cost" | "latency";
-      };
       data_collection?: "allow" | "deny" | null;
       enforce_distillable_text?: boolean | null;
       ignore?: string[];
@@ -4814,11 +4724,6 @@ export type GenerateMusicParams = {
     prompt?: string;
     provider?: {
       allow_fallbacks?: boolean | null;
-      auto?: {
-        allow_fallbacks?: boolean;
-        allowed_models: string[];
-        objective?: "balanced" | "quality" | "cost" | "latency";
-      };
       data_collection?: "allow" | "deny" | null;
       enforce_distillable_text?: boolean | null;
       ignore?: string[];
@@ -4954,11 +4859,6 @@ export type GenerateMusicAliasParams = {
     prompt?: string;
     provider?: {
       allow_fallbacks?: boolean | null;
-      auto?: {
-        allow_fallbacks?: boolean;
-        allowed_models: string[];
-        objective?: "balanced" | "quality" | "cost" | "latency";
-      };
       data_collection?: "allow" | "deny" | null;
       enforce_distillable_text?: boolean | null;
       ignore?: string[];

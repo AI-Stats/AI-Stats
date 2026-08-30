@@ -629,19 +629,6 @@ public sealed class AudioTranslationResponse
 
 }
 
-public sealed class AutoRouterOptions
-{
-	[JsonPropertyName("allow_fallbacks")]
-	public bool? AllowFallbacks { get; set; }
-
-	[JsonPropertyName("allowed_models")]
-	public List<string> AllowedModels { get; set; }
-
-	[JsonPropertyName("objective")]
-	public string? Objective { get; set; }
-
-}
-
 public sealed class BatchBillingSummary
 {
 	[JsonPropertyName("billed")]
@@ -2840,9 +2827,6 @@ public sealed class ProviderRoutingOptions
 {
 	[JsonPropertyName("allow_fallbacks")]
 	public bool? AllowFallbacks { get; set; }
-
-	[JsonPropertyName("auto")]
-	public Dictionary<string, object>? Auto { get; set; }
 
 	[JsonPropertyName("data_collection")]
 	public string? DataCollection { get; set; }

@@ -41,26 +41,29 @@ Inspect request outcomes through your activity logs and response metadata when d
 
 ## Select a model with the auto-router
 
-Use `phaseo/auto` when the model should change with the workload. You must
-provide an explicit allow-list of two to eight exact model IDs:
+Use `phaseo/auto` when the model should change with the workload. A workspace
+owner or administrator must first configure the model pool:
+
+1. Open **Dashboard -> Settings -> Routing -> Auto Routing**.
+2. Add two to eight text-generation models.
+3. Choose whether to optimize for balanced performance, quality, cost, or
+   latency.
+4. Choose whether Phaseo may try the remaining ranked models after a retryable
+   failure.
+5. Enable Auto Routing and save the configuration.
+
+Applications then opt in without copying workspace routing policy into every
+request:
 
 ```json
 {
   "model": "phaseo/auto",
-  "input": "Review this TypeScript function for correctness.",
-  "routing": {
-    "auto": {
-      "allowed_models": [
-        "openai/gpt-5-mini",
-        "anthropic/claude-sonnet-4.6",
-        "google/gemini-3.1-pro-preview"
-      ],
-      "objective": "balanced",
-      "allow_fallbacks": true
-    }
-  }
+  "input": "Review this TypeScript function for correctness."
 }
 ```
+
+The request cannot add models to or change the workspace configuration. Fixed
+model requests continue to bypass the auto-router.
 
 The objective changes the relative weight of model quality, provider
 reliability, latency, and price:
@@ -92,7 +95,7 @@ the workload, objective, selected model, fallback order, candidate scores,
 factor scores, benchmark IDs, exclusions, and algorithm version. Routing traces
 contain no prompt or response content.
 
-If `allow_fallbacks` is enabled, Phaseo retries the remaining ranked models on
+If model fallbacks are enabled in the workspace, Phaseo retries the remaining ranked models on
 `429`, `500`, `502`, `503`, or `504`. Each fallback passes the complete policy
 and provider-selection pipeline again. Client errors do not switch models.
 
@@ -101,9 +104,9 @@ case, request details record the override and auto-router model fallbacks are
 disabled for the request.
 
 <Warning>
-  Start with a small allow-list whose models support the request features you
-  use. The first release is request-scoped; it does not add models automatically
-  and does not replace application-specific evaluation.
+  Start with a small model pool whose models support the request features you
+  use. Auto Routing does not add models automatically and does not replace
+  application-specific evaluation.
 </Warning>
 
 ## Explain a routing decision

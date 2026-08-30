@@ -258,12 +258,6 @@ type AudioTranslationResponse struct {
 	Text *string `json:"text,omitempty"`
 }
 
-type AutoRouterOptions struct {
-	AllowFallbacks *bool `json:"allow_fallbacks,omitempty"`
-	AllowedModels []string `json:"allowed_models"`
-	Objective *string `json:"objective,omitempty"`
-}
-
 type BatchBillingSummary struct {
 	Billed *bool `json:"billed,omitempty"`
 	Charged *bool `json:"charged,omitempty"`
@@ -2518,7 +2512,6 @@ type ProviderOptions struct {
 
 type ProviderRoutingOptions struct {
 	AllowFallbacks *bool `json:"allow_fallbacks,omitempty"`
-	Auto *map[string]interface{} `json:"auto,omitempty"`
 	DataCollection *string `json:"data_collection,omitempty"`
 	EnforceDistillableText *bool `json:"enforce_distillable_text,omitempty"`
 	Ignore *[]string `json:"ignore,omitempty"`

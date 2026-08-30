@@ -33,7 +33,6 @@
     "models/AudioTranscriptionResponse.ts",
     "models/AudioTranslationRequest.ts",
     "models/AudioTranslationResponse.ts",
-    "models/AutoRouterOptions.ts",
     "models/BatchBillingSummary.ts",
     "models/BatchListResponse.ts",
     "models/BatchModelCapability.ts",

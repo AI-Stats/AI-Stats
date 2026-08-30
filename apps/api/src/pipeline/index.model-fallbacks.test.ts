@@ -125,7 +125,7 @@ describe("dynamic route model fallbacks", () => {
 		const response = await makeEndpointHandler({ endpoint: "responses", schema: null })(new Request("https://api.phaseo.app/v1/responses", {
 			method: "POST",
 			headers: { "content-type": "application/json" },
-			body: JSON.stringify({ model: "phaseo/auto", input: "hello", routing: { auto: { allowed_models: ["model/primary", "model/fallback"] } } }),
+			body: JSON.stringify({ model: "phaseo/auto", input: "hello" }),
 		}));
 
 		expect(response.status).toBe(200);

@@ -245,6 +245,7 @@ const BASE_SETTINGS_SIDEBAR: NavGroup[] = [
 				match: ["/settings/routing"],
 				children: [
 					{ href: "/settings/routing", label: "Routing", exactOnly: true },
+					{ href: "/settings/routing/auto", label: "Auto Routing" },
 					{ href: "/settings/routing/dynamic", label: "Dynamic Routes", match: ["/settings/routing/demo"] },
 				],
 			},

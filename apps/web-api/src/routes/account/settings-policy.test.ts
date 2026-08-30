@@ -94,6 +94,112 @@ describe("account policy settings routes", () => {
 		await expect(response.json()).resolves.toEqual({ ok: true, gatewayCacheInvalidated: false });
 	});
 
+	it("returns the workspace Auto Routing configuration", async () => {
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+			const url = input instanceof Request ? input.url : String(input);
+			if (url.includes("/auth/v1/user")) return new Response(JSON.stringify({ id: "user-1", email: "user@example.com", created_at: "2025-01-01" }), { status: 200 });
+			if (url.includes("workspace_members")) return new Response(JSON.stringify([{ role: "admin" }]), { status: 200 });
+			if (url.includes("/workspaces") && url.includes("owner_user_id")) return new Response(JSON.stringify([{ owner_user_id: "user-1" }]), { status: 200 });
+			if (url.includes("/workspaces")) return new Response(JSON.stringify([{ id: "workspace-1", name: "Team One" }]), { status: 200 });
+			if (url.includes("workspace_settings")) return new Response(JSON.stringify([{
+				auto_routing_enabled: true,
+				auto_routing_model_ids: ["openai/gpt-test", "anthropic/claude-test"],
+				auto_routing_objective: "quality",
+				auto_routing_fallbacks_enabled: false,
+				auto_routing_revision: "revision-1",
+				auto_routing_updated_at: "2026-08-30T12:00:00.000Z",
+			}]), { status: 200 });
+			return new Response(JSON.stringify([]), { status: 200 });
+		}));
+
+		const response = await app.request("https://phaseo.app/api/account/settings/routing/auto?workspaceId=workspace-1", {
+			headers: { authorization: "Bearer session-token" },
+		}, env);
+
+		expect(response.status).toBe(200);
+		expect(response.headers.get("cache-control")).toBe("private, no-store");
+		await expect(response.json()).resolves.toMatchObject({
+			autoRouting: {
+				enabled: true,
+				allowedModels: ["openai/gpt-test", "anthropic/claude-test"],
+				objective: "quality",
+				allowFallbacks: false,
+				revision: "revision-1",
+			},
+			canManage: true,
+			teamName: "Team One",
+		});
+	});
+
+	it("validates and saves a workspace Auto Routing model pool", async () => {
+		let settingsPayload: Record<string, unknown> | null = null;
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+			const request = input instanceof Request ? input : new Request(input, init);
+			const url = request.url;
+			if (url.includes("/auth/v1/user")) return new Response(JSON.stringify({ id: "user-1", email: "user@example.com", created_at: "2025-01-01" }), { status: 200 });
+			if (url.includes("workspace_members")) return new Response(JSON.stringify([{ role: "admin" }]), { status: 200 });
+			if (url.includes("/workspaces")) return new Response(JSON.stringify([{ owner_user_id: "user-1" }]), { status: 200 });
+			if (url.includes("v2_model_provider_routes")) return new Response(JSON.stringify([
+				{ provider_model_id: "pm-openai", model_slug: "openai/gpt-test" },
+				{ provider_model_id: "pm-anthropic", model_slug: "anthropic/claude-test" },
+			]), { status: 200 });
+			if (url.includes("v2_route_capabilities")) return new Response(JSON.stringify([
+				{ provider_model_id: "pm-openai", capability_id: "responses" },
+				{ provider_model_id: "pm-anthropic", capability_id: "messages" },
+			]), { status: 200 });
+			if (url.includes("workspace_settings") && request.method === "POST") {
+				settingsPayload = await request.json<Record<string, unknown>>();
+				return new Response(JSON.stringify([{ auto_routing_revision: "revision-2", auto_routing_updated_at: "2026-08-30T13:00:00.000Z" }]), { status: 200 });
+			}
+			if (url.includes("/keys?")) return new Response(JSON.stringify([]), { status: 200 });
+			return new Response(JSON.stringify([]), { status: 200 });
+		}));
+
+		const response = await app.request("https://phaseo.app/api/account/settings/routing/auto", {
+			method: "PUT",
+			headers: { authorization: "Bearer session-token", "content-type": "application/json" },
+			body: JSON.stringify({
+				workspaceId: "workspace-1",
+				enabled: true,
+				allowedModels: ["openai/gpt-test", "anthropic/claude-test"],
+				objective: "latency",
+				allowFallbacks: true,
+			}),
+		}, env);
+
+		expect(response.status).toBe(200);
+		expect(settingsPayload).toMatchObject({
+			auto_routing_enabled: true,
+			auto_routing_model_ids: ["openai/gpt-test", "anthropic/claude-test"],
+			auto_routing_objective: "latency",
+			auto_routing_fallbacks_enabled: true,
+		});
+		await expect(response.json()).resolves.toMatchObject({
+			autoRouting: { enabled: true, objective: "latency", revision: "revision-2" },
+			gatewayCacheInvalidated: true,
+			ok: true,
+		});
+	});
+
+	it("rejects enabling Auto Routing with fewer than two models", async () => {
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+			const url = input instanceof Request ? input.url : String(input);
+			if (url.includes("/auth/v1/user")) return new Response(JSON.stringify({ id: "user-1", email: "user@example.com", created_at: "2025-01-01" }), { status: 200 });
+			if (url.includes("workspace_members")) return new Response(JSON.stringify([{ role: "admin" }]), { status: 200 });
+			if (url.includes("/workspaces")) return new Response(JSON.stringify([{ owner_user_id: "user-1" }]), { status: 200 });
+			return new Response(JSON.stringify([]), { status: 200 });
+		}));
+
+		const response = await app.request("https://phaseo.app/api/account/settings/routing/auto", {
+			method: "PUT",
+			headers: { authorization: "Bearer session-token", "content-type": "application/json" },
+			body: JSON.stringify({ workspaceId: "workspace-1", enabled: true, allowedModels: ["openai/gpt-test"] }),
+		}, env);
+
+		expect(response.status).toBe(400);
+		await expect(response.json()).resolves.toEqual({ error: "invalid_model_count", minimum: 2, maximum: 8 });
+	});
+
 	it("does not publish a duplicate preset version without draft changes", async () => {
 		let publishRpcCalled = false;
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
