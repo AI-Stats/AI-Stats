@@ -26,6 +26,7 @@ const operationalProviders = [
 	{ name: "Google Analytics", role: "Consent-based website analytics", data: "Page, device, referrer, event, and coarse location data" },
 	{ name: "Vercel Web Analytics", role: "Consent-based website analytics", data: "Page, device, referrer, and performance telemetry" },
 	{ name: "PostHog", role: "Product analytics where the production key is enabled", data: "Product events, page, device, and usage telemetry; raw gateway content is excluded by design" },
+	{ name: "Axiom", role: "Operational observability where the production key is enabled", data: "Workspace and request telemetry; sampled best-effort-redacted request details where configured" },
 	{ name: "Mintlify", role: "Documentation hosting", data: "Documentation requests, network data, and documentation analytics" },
 	{ name: "incident.io", role: "Public status page and incident communications", data: "Status-page traffic and incident-subscription contact details when supplied" },
 	{ name: "Tawk.to", role: "Optional live support chat", data: "Contact details, chat content, device, and page context" },
@@ -68,7 +69,7 @@ export default function SubprocessorsPage() {
 			</TrustSection>
 
 			<TrustSection id="ai" title="3. Customer-selected AI providers">
-				<p>Phaseo sends request content and necessary metadata to the provider selected by the customer, the requested model, or the customer's routing configuration. The available set changes as routes are added, disabled, or degraded. The live <Link href="/providers" className="text-foreground underline underline-offset-4">provider directory</Link> is the maintainable source for currently available providers.</p>
+				<p>Phaseo sends request content and necessary metadata to the provider selected by the customer, the requested model, or the customer's routing configuration. The available set changes as routes are added, disabled, or degraded. The live <Link href="/api-providers" className="text-foreground underline underline-offset-4">provider directory</Link> is the maintainable source for currently available providers.</p>
 				<p>When Phaseo uses its own provider account, the provider is intended to be Phaseo's subprocessor for inference and must satisfy the managed-provider review above. When the customer supplies the credentials or holds the provider contract, the provider is normally a customer-directed recipient or the customer's own processor. A provider may separately act as a controller where it processes data for its own purposes, including training where permitted by its terms.</p>
 			</TrustSection>
 
