@@ -15,7 +15,7 @@ export default async function PrivacyPage() {
 		<main className="container mx-auto space-y-8 px-4 py-10 text-sm leading-relaxed text-muted-foreground">
 			<header className="space-y-3">
 				<p className="text-xs text-muted-foreground/80">
-					Last updated: 26 July 2026
+					Last updated: 30 August 2026
 				</p>
 				<h1 className="text-3xl font-semibold text-foreground">
 					Privacy Policy
@@ -160,10 +160,20 @@ export default async function PrivacyPage() {
 						Outputs in our primary database or analytics tools.
 					</li>
 					<li>
-						We may temporarily hold Inputs and Outputs in memory or
-						transient buffers while processing a request or managing
-						streaming, but these buffers are not used as long-term
-						storage or training data.
+						Eligible non-streaming text Outputs may be stored in a
+						workspace-scoped response cache for five minutes by
+						default. A configured preset may set a period between 30
+						seconds and 24 hours. The request contributes to a
+						one-way cache-key digest; the cache record stores the
+						Output and response metadata, not the raw request body.
+					</li>
+					<li>
+						If you enable private I/O logging, we may store Inputs,
+						Outputs and optional provider payloads for 90, 180 or 365
+						days. If you opt into data contribution, we may apply
+						best-effort redaction and retain eligible Inputs and
+						Outputs for no more than 30 days. These features are
+						separate from provider retention.
 					</li>
 					<li>
 						We send the necessary content from your request to the
@@ -511,6 +521,22 @@ export default async function PrivacyPage() {
 					it or irreversibly anonymise it. Telemetry that has been
 					aggregated and fully anonymised may be kept for longer for
 					statistical purposes.
+				</p>
+				<ul className="mt-2 list-disc space-y-1 pl-5 text-foreground/80">
+					<li>eligible cached model Outputs are kept for five minutes by default and no more than 24 hours under a configured cache policy;</li>
+					<li>private I/O logs, when enabled, are configured for 90, 180 or 365 days;</li>
+					<li>opted-in raw data contributions are kept for no more than 30 days, while aggregate classification statistics may be kept longer; and</li>
+					<li>AI providers and customer-configured destinations apply their own retention terms.</li>
+				</ul>
+				<p className="mt-2 text-foreground/80">
+					We have not yet consolidated every account, request-metadata,
+					billing, support, backup and operational-log category into one
+					fixed retention schedule. See the{" "}
+					<Link href="/trust/security" className="text-primary underline">
+						Security whitepaper
+					</Link>{" "}
+					for the currently verified content-handling periods and their
+					limitations.
 				</p>
 				<p className="mt-2 text-foreground/80">
 					Using the Phaseo plugin does not create a separate long-term
