@@ -2819,6 +2819,7 @@ paths:
   /health:
     get:
       x-beta: true
+      security: []
       tags:
         - Gateway
       operationId: getHealth

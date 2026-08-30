@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import {
-	useDeferredValue,
 	useEffect,
 	useMemo,
 	useRef,
@@ -77,6 +76,7 @@ import type { MonitorModelTableRow } from "@/lib/fetchers/models/table-view/type
 import { MonitorTableClient } from "@/components/monitor/MonitorTableClient";
 import { Logo } from "@/components/Logo";
 import { ActiveModelFilters, type ActiveModelFilter } from "./ActiveModelFilters";
+import { resolveDefaultGatewayStatuses } from "@/lib/models/defaultGatewayStatuses";
 import { Slider } from "@/components/ui/slider";
 
 type OptionCount = {
@@ -675,7 +675,6 @@ export default function ModelsTableDisplay({
 		clearOnDefault: true,
 		shallow: true,
 	});
-	const deferredSearch = useDeferredValue(search ?? "");
 	const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 	const toolbarRef = useRef<HTMLDivElement | null>(null);
 	const [stickyOffsets, setStickyOffsets] = useState({
@@ -731,15 +730,13 @@ export default function ModelsTableDisplay({
 	const [hasInteractedWithStatuses, setHasInteractedWithStatuses] = useState(
 		selectedStatuses.length > 0,
 	);
-	const hasSearchQuery = deferredSearch.trim().length > 0;
 	const effectiveSelectedStatuses = useMemo(
 		() =>
-			!hasInteractedWithStatuses && selectedStatuses.length === 0
-				? hasSearchQuery
-					? []
-					: ["active"]
-				: selectedStatuses,
-		[hasInteractedWithStatuses, hasSearchQuery, selectedStatuses],
+			resolveDefaultGatewayStatuses(
+				selectedStatuses,
+				hasInteractedWithStatuses,
+			),
+		[hasInteractedWithStatuses, selectedStatuses],
 	);
 	const [selectedEndpoints, setSelectedEndpoints] = useQueryState("endpoints", {
 		defaultValue: [] as string[],

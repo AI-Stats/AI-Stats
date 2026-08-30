@@ -358,6 +358,4 @@ describeIf("Some SDK Compatibility", () => {
 
 ## Related Documentation
 
-- [ID Handling Guide](../../docs/v1/developers/gateway-architecture/id-handling.mdx)
-- [Gateway Architecture](../../docs/v1/developers/gateway-architecture/)
 - [API Reference](../../docs/v1/api-reference/)

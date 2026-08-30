@@ -35,7 +35,7 @@ import {
 
 export const metadata: Metadata = {
 	...buildMetadata({
-		title: "Phaseo: The AI Gateway for Every Model and Provider",
+		title: "Phaseo: AI Gateway and Open Model Catalog",
 	description:
 			"Discover trusted model data, route requests through one open-source AI gateway, and observe cost, reliability, usage, and performance across providers.",
 		path: "/",
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
 			"AI providers",
 		],
 	}),
-	title: { absolute: "Phaseo: The AI Gateway for Every Model and Provider" },
+	title: { absolute: "Phaseo: AI Gateway and Open Model Catalog" },
 };
 
 const standardTier =
@@ -102,8 +102,8 @@ function LandingSecondarySections({ isBeta }: { isBeta: boolean }) {
 						Open model database, unified gateway
 					</h2>
 					<p className="mx-auto max-w-2xl text-base leading-7 text-zinc-600 dark:text-zinc-300 md:text-lg">
-						Track broad ecosystem coverage in the database, then ship through one
-						OpenAI-compatible gateway with 300+ production-ready models today.
+						Explore the broader model catalog, then filter to models with an active
+						Gateway route before you ship.
 					</p>
 				</div>
 				<PartnerLogos />
@@ -190,14 +190,14 @@ function LandingPage({ isBeta }: { isBeta: boolean }) {
 					<div className="mx-auto max-w-5xl space-y-8 text-center">
 						<div className="space-y-6">
 							<h1 className="text-balance mx-auto max-w-5xl text-5xl font-semibold leading-[0.96] tracking-[-0.065em] text-zinc-950 dark:text-zinc-50 md:text-7xl md:leading-[0.94] 2xl:max-w-7xl 2xl:whitespace-nowrap">
-								One Platform for Every AI Model
+								One Gateway, Backed by an Open Model Catalog
 							</h1>
 							<p className="text-balance mx-auto max-w-[44rem] text-lg leading-8 text-zinc-600 dark:text-zinc-300 2xl:max-w-5xl 2xl:text-pretty">
 								Discover trusted model data, route requests
 								through one{" "}
 								<span className="whitespace-nowrap">OpenAI-compatible</span>{" "}
 								gateway, and observe cost, reliability, usage, and performance
-								across every provider.
+								across supported providers.
 							</p>
 						</div>
 						<div

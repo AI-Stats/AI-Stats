@@ -16,7 +16,7 @@
 		"eyebrows": "section"
 	},
 	"api": {
-		"openapi": "openapi/v1/openapi.yaml",
+		"openapi": "openapi/v1/openapi.public.yaml",
 		"version": "0.1.0",
 		"playground": {
 			"display": "interactive"
@@ -213,6 +213,7 @@
 								"icon": "shield-check",
 								"expanded": false,
 								"pages": [
+									"v1/developers/reliability-and-status",
 									"v1/developers/rate-limits",
 									"v1/developers/error-handling",
 									"v1/developers/best-practices"
@@ -330,7 +331,6 @@
 									"v1/api-reference/authentication",
 									"v1/api-reference/parameters",
 									"v1/api-reference/streaming",
-									"v1/api-reference/async-lifecycle-updates",
 									"v1/api-reference/limits",
 									"v1/api-reference/errors"
 								]
@@ -396,6 +396,13 @@
 										"expanded": false,
 										"pages": [
 											"v1/api-reference/endpoint/embeddings"
+										]
+									},
+									{
+										"group": "Reranking",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/rerank"
 										]
 									},
 									{
@@ -470,6 +477,13 @@
 										]
 									},
 									{
+										"group": "Health",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/health"
+										]
+									},
+									{
 										"group": "Credits",
 										"expanded": false,
 										"pages": [
@@ -504,41 +518,6 @@
 										"expanded": false,
 										"pages": [
 											"v1/api-reference/endpoint/organisations"
-										]
-									},
-									{
-										"group": "Realtime",
-										"tag": "Internal",
-										"expanded": false,
-										"pages": [
-											"v1/api-reference/endpoint/realtime"
-										]
-									},
-									{
-										"group": "Video Generation",
-										"tag": "Internal",
-										"expanded": false,
-										"pages": [
-											"v1/api-reference/endpoint/video-generation",
-											"v1/api-reference/endpoint/video-list",
-											"v1/api-reference/endpoint/video-models",
-											"v1/api-reference/endpoint/video-status",
-											"v1/api-reference/endpoint/video-content",
-											"v1/api-reference/endpoint/video-download-url",
-											"v1/api-reference/endpoint/video-cancel",
-											"v1/api-reference/endpoint/video-delete"
-										]
-									},
-									{
-										"group": "Batches",
-										"tag": "Internal",
-										"expanded": false,
-										"pages": [
-											"v1/api-reference/endpoint/batches",
-											"v1/api-reference/endpoint/batches-list",
-											"v1/api-reference/endpoint/batches-models",
-											"v1/api-reference/endpoint/batches-status",
-											"v1/api-reference/endpoint/batches-cancel"
 										]
 									},
 									{
@@ -635,19 +614,12 @@
 										]
 									},
 									{
-										"group": "Video",
-										"icon": "video",
-										"pages": [
-											"v1/sdk-reference/typescript/video-generation"
-										]
-									},
-									{
 										"group": "Specialised",
 										"icon": "blocks",
 										"pages": [
 											"v1/sdk-reference/typescript/embeddings",
+											"v1/sdk-reference/typescript/rerank",
 											"v1/sdk-reference/typescript/moderations",
-											"v1/sdk-reference/typescript/batches",
 											"v1/sdk-reference/typescript/files"
 										]
 									},
@@ -694,8 +666,6 @@
 											"v1/sdk-reference/python/audio-speech",
 											"v1/sdk-reference/python/audio-transcriptions",
 											"v1/sdk-reference/python/audio-translations",
-											"v1/sdk-reference/python/video-generation",
-											"v1/sdk-reference/python/batches",
 											"v1/sdk-reference/python/files",
 											"v1/sdk-reference/python/generation"
 										]
@@ -741,19 +711,11 @@
 										]
 									},
 									{
-										"group": "Video",
-										"icon": "video",
-										"pages": [
-											"v1/sdk-reference/go/video-generation"
-										]
-									},
-									{
 										"group": "Specialised",
 										"icon": "blocks",
 										"pages": [
 											"v1/sdk-reference/go/embeddings",
 											"v1/sdk-reference/go/moderations",
-											"v1/sdk-reference/go/batches",
 											"v1/sdk-reference/go/files"
 										]
 									},
@@ -806,19 +768,11 @@
 										]
 									},
 									{
-										"group": "Video",
-										"icon": "video",
-										"pages": [
-											"v1/sdk-reference/csharp/video-generation"
-										]
-									},
-									{
 										"group": "Specialised",
 										"icon": "blocks",
 										"pages": [
 											"v1/sdk-reference/csharp/embeddings",
 											"v1/sdk-reference/csharp/moderations",
-											"v1/sdk-reference/csharp/batches",
 											"v1/sdk-reference/csharp/files"
 										]
 									},
@@ -871,19 +825,11 @@
 										]
 									},
 									{
-										"group": "Video",
-										"icon": "video",
-										"pages": [
-											"v1/sdk-reference/php/video-generation"
-										]
-									},
-									{
 										"group": "Specialised",
 										"icon": "blocks",
 										"pages": [
 											"v1/sdk-reference/php/embeddings",
 											"v1/sdk-reference/php/moderations",
-											"v1/sdk-reference/php/batches",
 											"v1/sdk-reference/php/files"
 										]
 									},
@@ -936,19 +882,11 @@
 										]
 									},
 									{
-										"group": "Video",
-										"icon": "video",
-										"pages": [
-											"v1/sdk-reference/ruby/video-generation"
-										]
-									},
-									{
 										"group": "Specialised",
 										"icon": "blocks",
 										"pages": [
 											"v1/sdk-reference/ruby/embeddings",
 											"v1/sdk-reference/ruby/moderations",
-											"v1/sdk-reference/ruby/batches",
 											"v1/sdk-reference/ruby/files"
 										]
 									},
@@ -1359,20 +1297,6 @@
 								]
 							},
 							{
-								"group": "Video and Async Jobs",
-								"icon": "clapperboard",
-								"expanded": false,
-								"pages": [
-									"v1/cookbook/choose-a-video-generation-model",
-									"v1/cookbook/generate-and-download-a-video-from-text",
-									"v1/cookbook/use-image-inputs-for-video-generation",
-									"v1/cookbook/generate-video-from-audio",
-									"v1/cookbook/send-provider-specific-video-options",
-									"v1/cookbook/async-video-webhooks",
-									"v1/cookbook/async-batch-webhooks"
-								]
-							},
-							{
 								"group": "Search & Structured Data",
 								"icon": "search-check",
 								"expanded": false,
@@ -1460,6 +1384,10 @@
 				"href": "https://phaseo.app/models"
 			},
 			{
+				"label": "Status",
+				"href": "https://status.phaseo.app"
+			},
+			{
 				"label": "Support",
 				"href": "https://phaseo.app/help"
 			}
@@ -1483,8 +1411,68 @@
 	},
 	"redirects": [
 		{
+			"source": "/v1/api-reference/async-lifecycle-updates",
+			"destination": "/v1/api-reference/introduction"
+		},
+		{
 			"source": "/v1/api-reference/endpoint/async-jobs-ws",
-			"destination": "/v1/api-reference/async-lifecycle-updates"
+			"destination": "/v1/api-reference/introduction"
+		},
+		{
+			"source": "/v1/api-reference/endpoint/realtime",
+			"destination": "/v1/api-reference/introduction"
+		},
+		{
+			"source": "/v1/api-reference/endpoint/video-:slug*",
+			"destination": "/v1/api-reference/introduction"
+		},
+		{
+			"source": "/v1/api-reference/endpoint/batches:slug*",
+			"destination": "/v1/api-reference/introduction"
+		},
+		{
+			"source": "/v1/sdk-reference/:language/video-generation",
+			"destination": "/v1/sdk-reference/:language/overview"
+		},
+		{
+			"source": "/v1/sdk-reference/:language/batches",
+			"destination": "/v1/sdk-reference/:language/overview"
+		},
+		{
+			"source": "/v1/cookbook/choose-a-video-generation-model",
+			"destination": "/v1/cookbook"
+		},
+		{
+			"source": "/v1/cookbook/generate-and-download-a-video-from-text",
+			"destination": "/v1/cookbook"
+		},
+		{
+			"source": "/v1/cookbook/use-image-inputs-for-video-generation",
+			"destination": "/v1/cookbook"
+		},
+		{
+			"source": "/v1/cookbook/generate-video-from-audio",
+			"destination": "/v1/cookbook"
+		},
+		{
+			"source": "/v1/cookbook/send-provider-specific-video-options",
+			"destination": "/v1/cookbook"
+		},
+		{
+			"source": "/v1/cookbook/async-video-webhooks",
+			"destination": "/v1/cookbook"
+		},
+		{
+			"source": "/v1/cookbook/async-batch-webhooks",
+			"destination": "/v1/cookbook"
+		},
+		{
+			"source": "/v1/developers/gateway-architecture/:slug*",
+			"destination": "/v1/contributing/repo-structure"
+		},
+		{
+			"source": "/v1/guides/gateway-rollout-checklists",
+			"destination": "/v1/guides"
 		},
 		{
 			"source": "/v1/:slug*.mdx",
