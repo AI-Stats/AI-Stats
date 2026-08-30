@@ -1669,6 +1669,97 @@ module Phaseo
     # @!attribute [rw] link
     #   @return [String, nil]
     Provider = Struct.new(:api_provider_id, :api_provider_name, :country_code, :description, :link, keyword_init: true)
+    # @!attribute [rw] allowed_api_key_ids
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] allowed_model_slugs
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] always_use
+    #   @return [Boolean, nil]
+    # @!attribute [rw] created_at
+    #   @return [String, nil]
+    # @!attribute [rw] created_by
+    #   @return [String, nil]
+    # @!attribute [rw] disabled
+    #   @return [Boolean]
+    # @!attribute [rw] enabled
+    #   @return [Boolean]
+    # @!attribute [rw] error_message
+    #   @return [String, nil]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] is_fallback
+    #   @return [Boolean]
+    # @!attribute [rw] last_used_at
+    #   @return [String, nil]
+    # @!attribute [rw] last_verified_at
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] prefix
+    #   @return [String, nil]
+    # @!attribute [rw] provider_id
+    #   @return [String]
+    # @!attribute [rw] routing_mode
+    #   @return [String]
+    # @!attribute [rw] sort_order
+    #   @return [Integer]
+    # @!attribute [rw] suffix
+    #   @return [String, nil]
+    # @!attribute [rw] verification_status
+    #   @return [String, nil]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    ProviderCredential = Struct.new(:allowed_api_key_ids, :allowed_model_slugs, :always_use, :created_at, :created_by, :disabled, :enabled, :error_message, :id, :is_fallback, :last_used_at, :last_verified_at, :name, :prefix, :provider_id, :routing_mode, :sort_order, :suffix, :verification_status, :workspace_id, keyword_init: true)
+    # @!attribute [rw] allowed_api_key_ids
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] allowed_models
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] key
+    #   @return [String]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] provider
+    #   @return [String]
+    # @!attribute [rw] routing_mode
+    #   @return [String, nil]
+    ProviderCredentialCreateRequest = Struct.new(:allowed_api_key_ids, :allowed_models, :enabled, :key, :name, :provider, :routing_mode, keyword_init: true)
+    # @!attribute [rw] deleted
+    #   @return [Boolean]
+    ProviderCredentialDeleteResponse = Struct.new(:deleted, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] total_count
+    #   @return [Integer]
+    ProviderCredentialListResponse = Struct.new(:data, :total_count, keyword_init: true)
+    # @!attribute [rw] key_ids
+    #   @return [Array<String>]
+    # @!attribute [rw] provider
+    #   @return [String]
+    # @!attribute [rw] routing_mode
+    #   @return [String]
+    ProviderCredentialReorderRequest = Struct.new(:key_ids, :provider, :routing_mode, keyword_init: true)
+    # @!attribute [rw] reordered
+    #   @return [Boolean]
+    ProviderCredentialReorderResponse = Struct.new(:reordered, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    ProviderCredentialResponse = Struct.new(:data, keyword_init: true)
+    ProviderCredentialRoutingMode = Object
+    # @!attribute [rw] allowed_api_key_ids
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] allowed_models
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] key
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] routing_mode
+    #   @return [String, nil]
+    ProviderCredentialUpdateRequest = Struct.new(:allowed_api_key_ids, :allowed_models, :enabled, :key, :name, :routing_mode, keyword_init: true)
     # @!attribute [rw] anthropic
     #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] google

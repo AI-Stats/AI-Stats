@@ -204,6 +204,24 @@ const SCOPE_META: Record<string, ScopeMeta> = {
 		icon: Settings2,
 		tone: "write",
 	},
+	"provider_credentials:read": {
+		label: "Read provider credentials",
+		description: "Lets the app inspect provider credential metadata without revealing secret values.",
+		icon: KeyRound,
+		tone: "read",
+	},
+	"provider_credentials:write": {
+		label: "Manage provider credentials",
+		description: "Lets the app create or update encrypted provider credentials.",
+		icon: KeyRound,
+		tone: "write",
+	},
+	"provider_credentials:delete": {
+		label: "Delete provider credentials",
+		description: "Lets the app permanently remove provider credentials.",
+		icon: KeyRound,
+		tone: "delete",
+	},
 	"guardrails:read": {
 		label: "Read guardrails",
 		description: "Lets the app inspect guardrails and policy configuration.",

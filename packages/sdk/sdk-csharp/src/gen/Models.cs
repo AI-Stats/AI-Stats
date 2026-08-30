@@ -2810,6 +2810,163 @@ public sealed class Provider
 
 }
 
+public sealed class ProviderCredential
+{
+	[JsonPropertyName("allowed_api_key_ids")]
+	public List<string>? AllowedApiKeyIds { get; set; }
+
+	[JsonPropertyName("allowed_model_slugs")]
+	public List<string>? AllowedModelSlugs { get; set; }
+
+	[JsonPropertyName("always_use")]
+	public bool? AlwaysUse { get; set; }
+
+	[JsonPropertyName("created_at")]
+	public string? CreatedAt { get; set; }
+
+	[JsonPropertyName("created_by")]
+	public string? CreatedBy { get; set; }
+
+	[JsonPropertyName("disabled")]
+	public bool Disabled { get; set; }
+
+	[JsonPropertyName("enabled")]
+	public bool Enabled { get; set; }
+
+	[JsonPropertyName("error_message")]
+	public string? ErrorMessage { get; set; }
+
+	[JsonPropertyName("id")]
+	public string Id { get; set; }
+
+	[JsonPropertyName("is_fallback")]
+	public bool IsFallback { get; set; }
+
+	[JsonPropertyName("last_used_at")]
+	public string? LastUsedAt { get; set; }
+
+	[JsonPropertyName("last_verified_at")]
+	public string? LastVerifiedAt { get; set; }
+
+	[JsonPropertyName("name")]
+	public string Name { get; set; }
+
+	[JsonPropertyName("prefix")]
+	public string? Prefix { get; set; }
+
+	[JsonPropertyName("provider_id")]
+	public string ProviderId { get; set; }
+
+	[JsonPropertyName("routing_mode")]
+	public string RoutingMode { get; set; }
+
+	[JsonPropertyName("sort_order")]
+	public int SortOrder { get; set; }
+
+	[JsonPropertyName("suffix")]
+	public string? Suffix { get; set; }
+
+	[JsonPropertyName("verification_status")]
+	public string? VerificationStatus { get; set; }
+
+	[JsonPropertyName("workspace_id")]
+	public string WorkspaceId { get; set; }
+
+}
+
+public sealed class ProviderCredentialCreateRequest
+{
+	[JsonPropertyName("allowed_api_key_ids")]
+	public List<string>? AllowedApiKeyIds { get; set; }
+
+	[JsonPropertyName("allowed_models")]
+	public List<string>? AllowedModels { get; set; }
+
+	[JsonPropertyName("enabled")]
+	public bool? Enabled { get; set; }
+
+	[JsonPropertyName("key")]
+	public string Key { get; set; }
+
+	[JsonPropertyName("name")]
+	public string Name { get; set; }
+
+	[JsonPropertyName("provider")]
+	public string Provider { get; set; }
+
+	[JsonPropertyName("routing_mode")]
+	public string? RoutingMode { get; set; }
+
+}
+
+public sealed class ProviderCredentialDeleteResponse
+{
+	[JsonPropertyName("deleted")]
+	public bool Deleted { get; set; }
+
+}
+
+public sealed class ProviderCredentialListResponse
+{
+	[JsonPropertyName("data")]
+	public List<Dictionary<string, object>> Data { get; set; }
+
+	[JsonPropertyName("total_count")]
+	public int TotalCount { get; set; }
+
+}
+
+public sealed class ProviderCredentialReorderRequest
+{
+	[JsonPropertyName("key_ids")]
+	public List<string> KeyIds { get; set; }
+
+	[JsonPropertyName("provider")]
+	public string Provider { get; set; }
+
+	[JsonPropertyName("routing_mode")]
+	public string RoutingMode { get; set; }
+
+}
+
+public sealed class ProviderCredentialReorderResponse
+{
+	[JsonPropertyName("reordered")]
+	public bool Reordered { get; set; }
+
+}
+
+public sealed class ProviderCredentialResponse
+{
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
+
+}
+
+public sealed class ProviderCredentialRoutingMode { }
+
+public sealed class ProviderCredentialUpdateRequest
+{
+	[JsonPropertyName("allowed_api_key_ids")]
+	public List<string>? AllowedApiKeyIds { get; set; }
+
+	[JsonPropertyName("allowed_models")]
+	public List<string>? AllowedModels { get; set; }
+
+	[JsonPropertyName("enabled")]
+	public bool? Enabled { get; set; }
+
+	[JsonPropertyName("key")]
+	public string? Key { get; set; }
+
+	[JsonPropertyName("name")]
+	public string? Name { get; set; }
+
+	[JsonPropertyName("routing_mode")]
+	public string? RoutingMode { get; set; }
+
+}
+
 public sealed class ProviderOptions
 {
 	[JsonPropertyName("anthropic")]

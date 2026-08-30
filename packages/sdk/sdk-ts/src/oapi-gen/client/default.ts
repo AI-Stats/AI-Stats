@@ -2997,6 +2997,85 @@ export async function createParse(
   });
 }
 
+export type CreateProviderCredentialParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    allowed_api_key_ids?: string[];
+    allowed_models?: string[];
+    enabled?: boolean;
+    key: string;
+    name: string;
+    provider: string;
+    routing_mode?: "priority" | "fallback";
+  };
+};
+
+/**
+ * Encrypts and stores a write-only provider credential for the authenticated workspace.
+ */
+export async function createProviderCredential(
+  client: Client,
+  args: CreateProviderCredentialParams = {},
+): Promise<{
+  data: {
+    allowed_api_key_ids?: string[];
+    allowed_model_slugs?: string[];
+    always_use?: boolean;
+    created_at?: string | null;
+    created_by?: string | null;
+    disabled: boolean;
+    enabled: boolean;
+    error_message?: string | null;
+    id: string;
+    is_fallback: boolean;
+    last_used_at?: string | null;
+    last_verified_at?: string | null;
+    name: string;
+    prefix?: string | null;
+    provider_id: string;
+    routing_mode: "priority" | "fallback";
+    sort_order: number;
+    suffix?: string | null;
+    verification_status?: string | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/byok";
+  return client.request<{
+    data: {
+      allowed_api_key_ids?: string[];
+      allowed_model_slugs?: string[];
+      always_use?: boolean;
+      created_at?: string | null;
+      created_by?: string | null;
+      disabled: boolean;
+      enabled: boolean;
+      error_message?: string | null;
+      id: string;
+      is_fallback: boolean;
+      last_used_at?: string | null;
+      last_verified_at?: string | null;
+      name: string;
+      prefix?: string | null;
+      provider_id: string;
+      routing_mode: "priority" | "fallback";
+      sort_order: number;
+      suffix?: string | null;
+      verification_status?: string | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type CreateRerankParams = {
   path?: Record<string, never>;
   query?: Record<string, never>;
@@ -4593,6 +4672,37 @@ export async function deleteApiKey(
   });
 }
 
+export type DeleteProviderCredentialParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Permanently removes a provider credential. Repeated deletion is safe.
+ */
+export async function deleteProviderCredential(
+  client: Client,
+  args: DeleteProviderCredentialParams = {},
+): Promise<{
+  deleted: boolean;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/byok/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    deleted: boolean;
+  }>({
+    method: "DELETE",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type DeleteVideoParams = {
   path?: {
     video_id: string;
@@ -5491,6 +5601,79 @@ export async function getMusicGenerationAlias(
       [key: string]: unknown;
     };
     [key: string]: unknown;
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type GetProviderCredentialParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns safe metadata for one provider credential without exposing encrypted fields or the raw secret.
+ */
+export async function getProviderCredential(
+  client: Client,
+  args: GetProviderCredentialParams = {},
+): Promise<{
+  data: {
+    allowed_api_key_ids?: string[];
+    allowed_model_slugs?: string[];
+    always_use?: boolean;
+    created_at?: string | null;
+    created_by?: string | null;
+    disabled: boolean;
+    enabled: boolean;
+    error_message?: string | null;
+    id: string;
+    is_fallback: boolean;
+    last_used_at?: string | null;
+    last_verified_at?: string | null;
+    name: string;
+    prefix?: string | null;
+    provider_id: string;
+    routing_mode: "priority" | "fallback";
+    sort_order: number;
+    suffix?: string | null;
+    verification_status?: string | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/byok/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    data: {
+      allowed_api_key_ids?: string[];
+      allowed_model_slugs?: string[];
+      always_use?: boolean;
+      created_at?: string | null;
+      created_by?: string | null;
+      disabled: boolean;
+      enabled: boolean;
+      error_message?: string | null;
+      id: string;
+      is_fallback: boolean;
+      last_used_at?: string | null;
+      last_verified_at?: string | null;
+      name: string;
+      prefix?: string | null;
+      provider_id: string;
+      routing_mode: "priority" | "fallback";
+      sort_order: number;
+      suffix?: string | null;
+      verification_status?: string | null;
+      workspace_id: string;
+    };
   }>({
     method: "GET",
     path: resolvedPath,
@@ -8428,6 +8611,83 @@ export async function listPricingModels(
   });
 }
 
+export type ListProviderCredentialsParams = {
+  path?: Record<string, never>;
+  query?: {
+    limit?: number;
+    offset?: number;
+    provider?: string;
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns write-only provider credential metadata for the authenticated workspace.
+ */
+export async function listProviderCredentials(
+  client: Client,
+  args: ListProviderCredentialsParams = {},
+): Promise<{
+  data: {
+    allowed_api_key_ids?: string[];
+    allowed_model_slugs?: string[];
+    always_use?: boolean;
+    created_at?: string | null;
+    created_by?: string | null;
+    disabled: boolean;
+    enabled: boolean;
+    error_message?: string | null;
+    id: string;
+    is_fallback: boolean;
+    last_used_at?: string | null;
+    last_verified_at?: string | null;
+    name: string;
+    prefix?: string | null;
+    provider_id: string;
+    routing_mode: "priority" | "fallback";
+    sort_order: number;
+    suffix?: string | null;
+    verification_status?: string | null;
+    workspace_id: string;
+  }[];
+  total_count: number;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/byok";
+  return client.request<{
+    data: {
+      allowed_api_key_ids?: string[];
+      allowed_model_slugs?: string[];
+      always_use?: boolean;
+      created_at?: string | null;
+      created_by?: string | null;
+      disabled: boolean;
+      enabled: boolean;
+      error_message?: string | null;
+      id: string;
+      is_fallback: boolean;
+      last_used_at?: string | null;
+      last_verified_at?: string | null;
+      name: string;
+      prefix?: string | null;
+      provider_id: string;
+      routing_mode: "priority" | "fallback";
+      sort_order: number;
+      suffix?: string | null;
+      verification_status?: string | null;
+      workspace_id: string;
+    }[];
+    total_count: number;
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type ListProvidersParams = {
   path?: Record<string, never>;
   query?: {
@@ -9896,6 +10156,39 @@ export async function openAsyncJobWebSocket(
   });
 }
 
+export type ReorderProviderCredentialsParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    key_ids: string[];
+    provider: string;
+    routing_mode: "priority" | "fallback";
+  };
+};
+
+/**
+ * Replaces the priority order for one provider and routing group.
+ */
+export async function reorderProviderCredentials(
+  client: Client,
+  args: ReorderProviderCredentialsParams = {},
+): Promise<{
+  reordered: boolean;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/byok/reorder";
+  return client.request<{
+    reordered: boolean;
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type RetrieveBatchParams = {
   path?: {
     batch_id: string;
@@ -10667,6 +10960,86 @@ export async function updateApiKey(
       soft_blocked: boolean;
       status: string | null;
       updated_at: string | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateProviderCredentialParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    allowed_api_key_ids?: string[];
+    allowed_models?: string[];
+    enabled?: boolean;
+    key?: string;
+    name?: string;
+    routing_mode?: "priority" | "fallback";
+  };
+};
+
+/**
+ * Updates credential metadata, filters, routing group, or replaces the write-only secret.
+ */
+export async function updateProviderCredential(
+  client: Client,
+  args: UpdateProviderCredentialParams = {},
+): Promise<{
+  data: {
+    allowed_api_key_ids?: string[];
+    allowed_model_slugs?: string[];
+    always_use?: boolean;
+    created_at?: string | null;
+    created_by?: string | null;
+    disabled: boolean;
+    enabled: boolean;
+    error_message?: string | null;
+    id: string;
+    is_fallback: boolean;
+    last_used_at?: string | null;
+    last_verified_at?: string | null;
+    name: string;
+    prefix?: string | null;
+    provider_id: string;
+    routing_mode: "priority" | "fallback";
+    sort_order: number;
+    suffix?: string | null;
+    verification_status?: string | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/byok/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    data: {
+      allowed_api_key_ids?: string[];
+      allowed_model_slugs?: string[];
+      always_use?: boolean;
+      created_at?: string | null;
+      created_by?: string | null;
+      disabled: boolean;
+      enabled: boolean;
+      error_message?: string | null;
+      id: string;
+      is_fallback: boolean;
+      last_used_at?: string | null;
+      last_verified_at?: string | null;
+      name: string;
+      prefix?: string | null;
+      provider_id: string;
+      routing_mode: "priority" | "fallback";
+      sort_order: number;
+      suffix?: string | null;
+      verification_status?: string | null;
       workspace_id: string;
     };
   }>({

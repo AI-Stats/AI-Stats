@@ -502,6 +502,18 @@
 										]
 									},
 									{
+										"group": "Provider credentials",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/provider-credentials-list",
+											"v1/api-reference/endpoint/provider-credentials-create",
+											"v1/api-reference/endpoint/provider-credentials-get",
+											"v1/api-reference/endpoint/provider-credentials-update",
+											"v1/api-reference/endpoint/provider-credentials-delete",
+											"v1/api-reference/endpoint/provider-credentials-reorder"
+										]
+									},
+									{
 										"group": "Organisations",
 										"expanded": false,
 										"pages": [

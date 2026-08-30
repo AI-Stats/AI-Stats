@@ -115,6 +115,13 @@ function createParse(Client $client, ?array $path = null, ?array $query = null, 
 	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
+function createProviderCredential(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/byok";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
 function createRerank(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -189,6 +196,13 @@ function deleteApiKey(Client $client, ?array $path = null, ?array $query = null,
 {
 	$path = $path ?? [];
 	$resolvedPath = "/keys/" . rawurlencode((string)($path["id"] ?? ""));
+	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
+}
+
+function deleteProviderCredential(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/byok/" . rawurlencode((string)($path["id"] ?? ""));
 	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
 }
 
@@ -287,6 +301,13 @@ function getMusicGenerationAlias(Client $client, ?array $path = null, ?array $qu
 {
 	$path = $path ?? [];
 	$resolvedPath = "/music/generations/" . rawurlencode((string)($path["music_id"] ?? ""));
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
+function getProviderCredential(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/byok/" . rawurlencode((string)($path["id"] ?? ""));
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
@@ -458,6 +479,13 @@ function listPricingModels(Client $client, ?array $path = null, ?array $query = 
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
+function listProviderCredentials(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/byok";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
 function listProviders(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -521,6 +549,13 @@ function openAsyncJobWebSocket(Client $client, ?array $path = null, ?array $quer
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
+function reorderProviderCredentials(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/byok/reorder";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
 function retrieveBatch(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -581,6 +616,13 @@ function updateApiKey(Client $client, ?array $path = null, ?array $query = null,
 {
 	$path = $path ?? [];
 	$resolvedPath = "/keys/" . rawurlencode((string)($path["id"] ?? ""));
+	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
+}
+
+function updateProviderCredential(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/byok/" . rawurlencode((string)($path["id"] ?? ""));
 	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
 }
 

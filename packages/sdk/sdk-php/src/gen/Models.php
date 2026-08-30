@@ -2041,6 +2041,122 @@ class Provider
 	public $link;
 }
 
+class ProviderCredential
+{
+	/** @var array|null */
+	public $allowed_api_key_ids;
+	/** @var array|null */
+	public $allowed_model_slugs;
+	/** @var bool|null */
+	public $always_use;
+	/** @var string|null */
+	public $created_at;
+	/** @var string|null */
+	public $created_by;
+	/** @var bool */
+	public $disabled;
+	/** @var bool */
+	public $enabled;
+	/** @var string|null */
+	public $error_message;
+	/** @var string */
+	public $id;
+	/** @var bool */
+	public $is_fallback;
+	/** @var string|null */
+	public $last_used_at;
+	/** @var string|null */
+	public $last_verified_at;
+	/** @var string */
+	public $name;
+	/** @var string|null */
+	public $prefix;
+	/** @var string */
+	public $provider_id;
+	/** @var string */
+	public $routing_mode;
+	/** @var int */
+	public $sort_order;
+	/** @var string|null */
+	public $suffix;
+	/** @var string|null */
+	public $verification_status;
+	/** @var string */
+	public $workspace_id;
+}
+
+class ProviderCredentialCreateRequest
+{
+	/** @var array|null */
+	public $allowed_api_key_ids;
+	/** @var array|null */
+	public $allowed_models;
+	/** @var bool|null */
+	public $enabled;
+	/** @var string */
+	public $key;
+	/** @var string */
+	public $name;
+	/** @var string */
+	public $provider;
+	/** @var string|null */
+	public $routing_mode;
+}
+
+class ProviderCredentialDeleteResponse
+{
+	/** @var bool */
+	public $deleted;
+}
+
+class ProviderCredentialListResponse
+{
+	/** @var array */
+	public $data;
+	/** @var int */
+	public $total_count;
+}
+
+class ProviderCredentialReorderRequest
+{
+	/** @var array */
+	public $key_ids;
+	/** @var string */
+	public $provider;
+	/** @var string */
+	public $routing_mode;
+}
+
+class ProviderCredentialReorderResponse
+{
+	/** @var bool */
+	public $reordered;
+}
+
+class ProviderCredentialResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class ProviderCredentialRoutingMode { }
+
+class ProviderCredentialUpdateRequest
+{
+	/** @var array|null */
+	public $allowed_api_key_ids;
+	/** @var array|null */
+	public $allowed_models;
+	/** @var bool|null */
+	public $enabled;
+	/** @var string|null */
+	public $key;
+	/** @var string|null */
+	public $name;
+	/** @var string|null */
+	public $routing_mode;
+}
+
 class ProviderOptions
 {
 	/** @var array<string, mixed>|null */

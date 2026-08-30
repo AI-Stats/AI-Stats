@@ -99,6 +99,12 @@ module Phaseo
         client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.createProviderCredential(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/byok"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.createRerank(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/rerank"
@@ -162,6 +168,12 @@ module Phaseo
       def self.deleteApiKey(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/keys/#{URI.encode_uri_component(path["id"].to_s)}"
+        client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.deleteProviderCredential(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/byok/#{URI.encode_uri_component(path["id"].to_s)}"
         client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -246,6 +258,12 @@ module Phaseo
       def self.getMusicGenerationAlias(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/music/generations/#{URI.encode_uri_component(path["music_id"].to_s)}"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.getProviderCredential(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/byok/#{URI.encode_uri_component(path["id"].to_s)}"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -393,6 +411,12 @@ module Phaseo
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.listProviderCredentials(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/byok"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.listProviders(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/providers"
@@ -447,6 +471,12 @@ module Phaseo
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.reorderProviderCredentials(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/byok/reorder"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.retrieveBatch(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/batches/#{URI.encode_uri_component(path["batch_id"].to_s)}"
@@ -498,6 +528,12 @@ module Phaseo
       def self.updateApiKey(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/keys/#{URI.encode_uri_component(path["id"].to_s)}"
+        client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.updateProviderCredential(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/byok/#{URI.encode_uri_component(path["id"].to_s)}"
         client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
       end
 

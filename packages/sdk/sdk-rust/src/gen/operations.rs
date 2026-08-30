@@ -85,6 +85,11 @@ pub fn createParse<T: Transport>(client: &Client<T>, path: &HashMap<String, Stri
 	client.request("POST", &resolved_path, body)
 }
 
+pub fn createProviderCredential<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/byok");
+	client.request("POST", &resolved_path, body)
+}
+
 pub fn createRerank<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/rerank");
 	client.request("POST", &resolved_path, body)
@@ -137,6 +142,11 @@ pub fn createWorkspace<T: Transport>(client: &Client<T>, path: &HashMap<String, 
 
 pub fn deleteApiKey<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/keys/{}", path.get("id").cloned().unwrap_or_default());
+	client.request("DELETE", &resolved_path, body)
+}
+
+pub fn deleteProviderCredential<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/byok/{}", path.get("id").cloned().unwrap_or_default());
 	client.request("DELETE", &resolved_path, body)
 }
 
@@ -207,6 +217,11 @@ pub fn getMusicGeneration<T: Transport>(client: &Client<T>, path: &HashMap<Strin
 
 pub fn getMusicGenerationAlias<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/music/generations/{}", path.get("music_id").cloned().unwrap_or_default());
+	client.request("GET", &resolved_path, body)
+}
+
+pub fn getProviderCredential<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/byok/{}", path.get("id").cloned().unwrap_or_default());
 	client.request("GET", &resolved_path, body)
 }
 
@@ -330,6 +345,11 @@ pub fn listPricingModels<T: Transport>(client: &Client<T>, path: &HashMap<String
 	client.request("GET", &resolved_path, body)
 }
 
+pub fn listProviderCredentials<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/byok");
+	client.request("GET", &resolved_path, body)
+}
+
 pub fn listProviders<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/providers");
 	client.request("GET", &resolved_path, body)
@@ -375,6 +395,11 @@ pub fn openAsyncJobWebSocket<T: Transport>(client: &Client<T>, path: &HashMap<St
 	client.request("GET", &resolved_path, body)
 }
 
+pub fn reorderProviderCredentials<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/byok/reorder");
+	client.request("POST", &resolved_path, body)
+}
+
 pub fn retrieveBatch<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/batches/{}", path.get("batch_id").cloned().unwrap_or_default());
 	client.request("GET", &resolved_path, body)
@@ -417,6 +442,11 @@ pub fn retrieveFileContent<T: Transport>(client: &Client<T>, path: &HashMap<Stri
 
 pub fn updateApiKey<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/keys/{}", path.get("id").cloned().unwrap_or_default());
+	client.request("PATCH", &resolved_path, body)
+}
+
+pub fn updateProviderCredential<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/byok/{}", path.get("id").cloned().unwrap_or_default());
 	client.request("PATCH", &resolved_path, body)
 }
 

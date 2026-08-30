@@ -25,6 +25,10 @@ const ACTION_LABELS: Record<string, string> = {
 	"management_key.access_updated": "Management key access updated",
 	"management_key.limits_updated": "Management key limits updated",
 	"management_key.deleted": "Management key deleted",
+	"provider_credential.created": "Provider credential created",
+	"provider_credential.updated": "Provider credential updated",
+	"provider_credential.deleted": "Provider credential deleted",
+	"provider_credential.reordered": "Provider credentials reordered",
 };
 
 function actorLabel(event: WorkspaceAuditEvent) {
@@ -36,6 +40,7 @@ function changeSummary(event: WorkspaceAuditEvent) {
 	if (fields.length) return fields.map((field) => field.replaceAll("_", " ")).join(", ");
 	if (event.action.endsWith("limits_updated")) return "Request and spend limits";
 	if (event.action === "api_key.rotated") return "Replacement key created";
+	if (event.action === "provider_credential.reordered") return "Priority order changed";
 	const status = typeof event.metadata.status === "string" ? event.metadata.status : null;
 	return status ? `Status: ${status}` : "—";
 }

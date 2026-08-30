@@ -38,7 +38,7 @@ OpenAPI schema does not count as complete.
 | API keys | CRUD and invalidation | Partially contracted | Contract invalidation/rotation and expose creator, expiry, resettable limits, current usage, and remaining allowance consistently. |
 | Management keys | CRUD | Runtime only | Add OpenAPI, SDKs, reference docs, contract tests, and complete audit coverage. |
 | Guardrails | CRUD and key/member assignment | Runtime only | Publish the contract and cover default workspace policy, budgets, model/provider restrictions, privacy, and content controls. |
-| Provider credentials | Dashboard only | Missing | Add encrypted create/update/delete, workspace/provider filters, model/key/member restrictions, priority ordering, required-only mode, and fallback behavior. |
+| Provider credentials | CRUD, workspace/provider filters, model/key restrictions, priority ordering, required-only mode, and fallback behavior | Contracted | Add member restrictions when organisation identity is available in the request context. |
 | Routing policies | Settings and dashboard controls | Partial | Contract workspace defaults, provider ordering, fallback policy, and dynamic route/version deployment. |
 | Presets | CRUD and version publish | Runtime only | Publish the existing contract; add request-derived versions, designated-version changes, forks, and upstream/publisher operations where supported by the UI. |
 | Plugins and tools | Dashboard/request controls | Missing | Add workspace defaults and assignment APIs for durable plugin configuration. |
@@ -54,8 +54,8 @@ OpenAPI schema does not count as complete.
 
 Ship focused, end-to-end slices rather than adding route stubs:
 
-1. Provider credential lifecycle, filters, ordering, and fallback.
-2. Workspace budgets and complete key limit/usage semantics.
+1. Workspace budgets and complete key limit/usage semantics.
+2. Provider-credential member restrictions alongside organisation identity.
 3. Workspace and organisation membership, invitations, roles, and assignments.
 4. Observability destinations, logging policy, and key assignments.
 5. Routing policies, dynamic routes, versions, and deployments.

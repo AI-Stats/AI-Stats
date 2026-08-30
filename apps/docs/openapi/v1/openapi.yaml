@@ -2435,6 +2435,246 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /byok:
+    get:
+      x-beta: true
+      tags:
+        - Gateway
+      operationId: listProviderCredentials
+      summary: List provider credentials
+      description: >-
+        Returns write-only provider credential metadata for the authenticated
+        workspace.
+      parameters:
+        - name: provider
+          in: query
+          schema:
+            type: string
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+      responses:
+        '200':
+          description: Provider credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderCredentialListResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Missing capability or administrative role
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      x-beta: true
+      tags:
+        - Gateway
+      operationId: createProviderCredential
+      summary: Create a provider credential
+      description: >-
+        Encrypts and stores a write-only provider credential for the
+        authenticated workspace.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProviderCredentialCreateRequest'
+      responses:
+        '201':
+          description: Provider credential created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderCredentialResponse'
+        '400':
+          description: Invalid credential or configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Missing capability or administrative role
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /byok/reorder:
+    post:
+      x-beta: true
+      tags:
+        - Gateway
+      operationId: reorderProviderCredentials
+      summary: Reorder provider credentials
+      description: Replaces the priority order for one provider and routing group.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProviderCredentialReorderRequest'
+      responses:
+        '200':
+          description: Provider credentials reordered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderCredentialReorderResponse'
+        '400':
+          description: Invalid or incomplete credential order
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Missing capability or administrative role
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /byok/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      x-beta: true
+      tags:
+        - Gateway
+      operationId: getProviderCredential
+      summary: Get a provider credential
+      description: >-
+        Returns safe metadata for one provider credential without exposing
+        encrypted fields or the raw secret.
+      responses:
+        '200':
+          description: Provider credential metadata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderCredentialResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Missing capability or administrative role
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Provider credential not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      x-beta: true
+      tags:
+        - Gateway
+      operationId: updateProviderCredential
+      summary: Update a provider credential
+      description: >-
+        Updates credential metadata, filters, routing group, or replaces the
+        write-only secret.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProviderCredentialUpdateRequest'
+      responses:
+        '200':
+          description: Provider credential updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderCredentialResponse'
+        '400':
+          description: Invalid credential configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Missing capability or administrative role
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Provider credential not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      x-beta: true
+      tags:
+        - Gateway
+      operationId: deleteProviderCredential
+      summary: Delete a provider credential
+      description: Permanently removes a provider credential. Repeated deletion is safe.
+      responses:
+        '200':
+          description: Provider credential deleted or already absent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderCredentialDeleteResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Missing capability or administrative role
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /workspaces:
     get:
       x-beta: true
@@ -9299,6 +9539,210 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/WorkspaceActivityEntry'
+      additionalProperties: false
+    ProviderCredential:
+      type: object
+      required:
+        - id
+        - workspace_id
+        - provider_id
+        - name
+        - enabled
+        - disabled
+        - routing_mode
+        - is_fallback
+        - sort_order
+      properties:
+        id:
+          type: string
+          format: uuid
+        workspace_id:
+          type: string
+          format: uuid
+        provider_id:
+          type: string
+        name:
+          type: string
+        enabled:
+          type: boolean
+        disabled:
+          type: boolean
+        always_use:
+          type: boolean
+        routing_mode:
+          $ref: '#/components/schemas/ProviderCredentialRoutingMode'
+        is_fallback:
+          type: boolean
+        sort_order:
+          type: integer
+          minimum: 0
+        prefix:
+          type: string
+          nullable: true
+        suffix:
+          type: string
+          nullable: true
+        verification_status:
+          type: string
+          nullable: true
+        error_message:
+          type: string
+          nullable: true
+        last_verified_at:
+          type: string
+          format: date-time
+          nullable: true
+        last_used_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_by:
+          type: string
+          nullable: true
+        allowed_model_slugs:
+          type: array
+          maxItems: 256
+          items:
+            type: string
+        allowed_api_key_ids:
+          type: array
+          maxItems: 256
+          items:
+            type: string
+            format: uuid
+      additionalProperties: false
+    ProviderCredentialRoutingMode:
+      type: string
+      enum:
+        - priority
+        - fallback
+    ProviderCredentialCreateRequest:
+      type: object
+      required:
+        - provider
+        - name
+        - key
+      properties:
+        provider:
+          type: string
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        key:
+          type: string
+          minLength: 1
+          writeOnly: true
+          description: Raw provider credential. It is encrypted and never returned.
+        enabled:
+          type: boolean
+          default: true
+        routing_mode:
+          $ref: '#/components/schemas/ProviderCredentialRoutingMode'
+        allowed_models:
+          type: array
+          maxItems: 256
+          items:
+            type: string
+        allowed_api_key_ids:
+          type: array
+          maxItems: 256
+          items:
+            type: string
+            format: uuid
+      additionalProperties: false
+    ProviderCredentialUpdateRequest:
+      type: object
+      minProperties: 1
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        key:
+          type: string
+          minLength: 1
+          writeOnly: true
+          description: >-
+            Replacement raw provider credential. It is encrypted and never
+            returned.
+        enabled:
+          type: boolean
+        routing_mode:
+          $ref: '#/components/schemas/ProviderCredentialRoutingMode'
+        allowed_models:
+          type: array
+          maxItems: 256
+          items:
+            type: string
+        allowed_api_key_ids:
+          type: array
+          maxItems: 256
+          items:
+            type: string
+            format: uuid
+      additionalProperties: false
+    ProviderCredentialReorderRequest:
+      type: object
+      required:
+        - provider
+        - routing_mode
+        - key_ids
+      properties:
+        provider:
+          type: string
+        routing_mode:
+          $ref: '#/components/schemas/ProviderCredentialRoutingMode'
+        key_ids:
+          type: array
+          minItems: 1
+          maxItems: 16
+          uniqueItems: true
+          items:
+            type: string
+            format: uuid
+      additionalProperties: false
+    ProviderCredentialResponse:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/ProviderCredential'
+      additionalProperties: false
+    ProviderCredentialListResponse:
+      type: object
+      required:
+        - data
+        - total_count
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProviderCredential'
+        total_count:
+          type: integer
+          minimum: 0
+      additionalProperties: false
+    ProviderCredentialDeleteResponse:
+      type: object
+      required:
+        - deleted
+      properties:
+        deleted:
+          type: boolean
+      additionalProperties: false
+    ProviderCredentialReorderResponse:
+      type: object
+      required:
+        - reordered
+      properties:
+        reordered:
+          type: boolean
       additionalProperties: false
     WorkspaceAuditEventActor:
       type: object

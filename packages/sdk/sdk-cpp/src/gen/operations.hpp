@@ -84,6 +84,11 @@ inline Response CreateParse(Client& client, const std::map<std::string, std::str
 	return client.request("POST", resolved_path, body);
 }
 
+inline Response CreateProviderCredential(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/byok";
+	return client.request("POST", resolved_path, body);
+}
+
 inline Response CreateRerank(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/rerank";
 	return client.request("POST", resolved_path, body);
@@ -136,6 +141,11 @@ inline Response CreateWorkspace(Client& client, const std::map<std::string, std:
 
 inline Response DeleteApiKey(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/keys/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("DELETE", resolved_path, body);
+}
+
+inline Response DeleteProviderCredential(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/byok/" + (path.count("id") ? path.at("id") : std::string{});
 	return client.request("DELETE", resolved_path, body);
 }
 
@@ -206,6 +216,11 @@ inline Response GetMusicGeneration(Client& client, const std::map<std::string, s
 
 inline Response GetMusicGenerationAlias(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/music/generations/" + (path.count("music_id") ? path.at("music_id") : std::string{});
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response GetProviderCredential(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/byok/" + (path.count("id") ? path.at("id") : std::string{});
 	return client.request("GET", resolved_path, body);
 }
 
@@ -329,6 +344,11 @@ inline Response ListPricingModels(Client& client, const std::map<std::string, st
 	return client.request("GET", resolved_path, body);
 }
 
+inline Response ListProviderCredentials(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/byok";
+	return client.request("GET", resolved_path, body);
+}
+
 inline Response ListProviders(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/providers";
 	return client.request("GET", resolved_path, body);
@@ -374,6 +394,11 @@ inline Response OpenAsyncJobWebSocket(Client& client, const std::map<std::string
 	return client.request("GET", resolved_path, body);
 }
 
+inline Response ReorderProviderCredentials(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/byok/reorder";
+	return client.request("POST", resolved_path, body);
+}
+
 inline Response RetrieveBatch(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/batches/" + (path.count("batch_id") ? path.at("batch_id") : std::string{});
 	return client.request("GET", resolved_path, body);
@@ -416,6 +441,11 @@ inline Response RetrieveFileContent(Client& client, const std::map<std::string, 
 
 inline Response UpdateApiKey(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/keys/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("PATCH", resolved_path, body);
+}
+
+inline Response UpdateProviderCredential(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/byok/" + (path.count("id") ? path.at("id") : std::string{});
 	return client.request("PATCH", resolved_path, body);
 }
 

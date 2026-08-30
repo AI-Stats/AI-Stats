@@ -2502,6 +2502,79 @@ type Provider struct {
 	Link *string `json:"link,omitempty"`
 }
 
+type ProviderCredential struct {
+	AllowedApiKeyIds *[]string `json:"allowed_api_key_ids,omitempty"`
+	AllowedModelSlugs *[]string `json:"allowed_model_slugs,omitempty"`
+	AlwaysUse *bool `json:"always_use,omitempty"`
+	CreatedAt *string `json:"created_at,omitempty"`
+	CreatedBy *string `json:"created_by,omitempty"`
+	Disabled bool `json:"disabled"`
+	Enabled bool `json:"enabled"`
+	ErrorMessage *string `json:"error_message,omitempty"`
+	Id string `json:"id"`
+	IsFallback bool `json:"is_fallback"`
+	LastUsedAt *string `json:"last_used_at,omitempty"`
+	LastVerifiedAt *string `json:"last_verified_at,omitempty"`
+	Name string `json:"name"`
+	Prefix *string `json:"prefix,omitempty"`
+	ProviderId string `json:"provider_id"`
+	RoutingMode string `json:"routing_mode"`
+	SortOrder int `json:"sort_order"`
+	Suffix *string `json:"suffix,omitempty"`
+	VerificationStatus *string `json:"verification_status,omitempty"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type ProviderCredentialCreateRequest struct {
+	AllowedApiKeyIds *[]string `json:"allowed_api_key_ids,omitempty"`
+	AllowedModels *[]string `json:"allowed_models,omitempty"`
+	Enabled *bool `json:"enabled,omitempty"`
+	Key string `json:"key"`
+	Name string `json:"name"`
+	Provider string `json:"provider"`
+	RoutingMode *string `json:"routing_mode,omitempty"`
+}
+
+type ProviderCredentialDeleteResponse struct {
+	Deleted bool `json:"deleted"`
+}
+
+type ProviderCredentialListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+	TotalCount int `json:"total_count"`
+}
+
+type ProviderCredentialReorderRequest struct {
+	KeyIds []string `json:"key_ids"`
+	Provider string `json:"provider"`
+	RoutingMode string `json:"routing_mode"`
+}
+
+type ProviderCredentialReorderResponse struct {
+	Reordered bool `json:"reordered"`
+}
+
+type ProviderCredentialResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type ProviderCredentialRoutingMode string
+
+const (
+	ProviderCredentialRoutingModePriority ProviderCredentialRoutingMode = "priority"
+	ProviderCredentialRoutingModeFallback ProviderCredentialRoutingMode = "fallback"
+)
+
+
+type ProviderCredentialUpdateRequest struct {
+	AllowedApiKeyIds *[]string `json:"allowed_api_key_ids,omitempty"`
+	AllowedModels *[]string `json:"allowed_models,omitempty"`
+	Enabled *bool `json:"enabled,omitempty"`
+	Key *string `json:"key,omitempty"`
+	Name *string `json:"name,omitempty"`
+	RoutingMode *string `json:"routing_mode,omitempty"`
+}
+
 type ProviderOptions struct {
 	Anthropic *map[string]interface{} `json:"anthropic,omitempty"`
 	Google *map[string]interface{} `json:"google,omitempty"`

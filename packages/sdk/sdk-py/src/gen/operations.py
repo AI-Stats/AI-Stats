@@ -212,6 +212,19 @@ def createParse(
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
+def createProviderCredential(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> ProviderCredentialResponse:
+	path = path or {}
+	resolved_path = "/byok"
+	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
+
+
 def createRerank(
 	client: Client,
 	*,
@@ -352,6 +365,19 @@ def deleteApiKey(
 ) -> DeletedResponse:
 	path = path or {}
 	resolved_path = f"/keys/{path.get('id', '')}"
+	return client.request("DELETE", resolved_path, query=query, headers=headers, body=body)
+
+
+def deleteProviderCredential(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> ProviderCredentialDeleteResponse:
+	path = path or {}
+	resolved_path = f"/byok/{path.get('id', '')}"
 	return client.request("DELETE", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -534,6 +560,19 @@ def getMusicGenerationAlias(
 ) -> MusicGenerateResponse:
 	path = path or {}
 	resolved_path = f"/music/generations/{path.get('music_id', '')}"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
+def getProviderCredential(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> ProviderCredentialResponse:
+	path = path or {}
+	resolved_path = f"/byok/{path.get('id', '')}"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -849,6 +888,19 @@ def listPricingModels(
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
+def listProviderCredentials(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> ProviderCredentialListResponse:
+	path = path or {}
+	resolved_path = "/byok"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
 def listProviders(
 	client: Client,
 	*,
@@ -964,6 +1016,19 @@ def openAsyncJobWebSocket(
 	path = path or {}
 	resolved_path = f"/async/{path.get('kind', '')}/{path.get('id', '')}/ws"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
+def reorderProviderCredentials(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> ProviderCredentialReorderResponse:
+	path = path or {}
+	resolved_path = "/byok/reorder"
+	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
 def retrieveBatch(
@@ -1083,6 +1148,19 @@ def updateApiKey(
 	return client.request("PATCH", resolved_path, query=query, headers=headers, body=body)
 
 
+def updateProviderCredential(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> ProviderCredentialResponse:
+	path = path or {}
+	resolved_path = f"/byok/{path.get('id', '')}"
+	return client.request("PATCH", resolved_path, query=query, headers=headers, body=body)
+
+
 def updateWorkspace(
 	client: Client,
 	*,
@@ -1135,4 +1213,4 @@ def uploadFile(
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
-operations___all__ = ["calculatePricing", "cancelBatch", "cancelBatchAlias", "cancelVideo", "cancelVideoAlias", "createAnthropicMessage", "createApiKey", "createBatch", "createBatchAlias", "createChatCompletion", "createEmbedding", "createImage", "createImageEdit", "createModeration", "createOcr", "createParse", "createRerank", "createResponse", "createSpeech", "createTranscription", "createTranslation", "createVideo", "createVideoAlias", "createVideoDownloadUrl", "createVideoDownloadUrlAlias", "createWorkspace", "deleteApiKey", "deleteVideo", "deleteVideoAlias", "deleteWorkspace", "generateMusic", "generateMusicAlias", "getActivity", "getActivityAlias", "getApiKey", "getCredits", "getCurrentApiKey", "getGeneration", "getHealth", "getMusicGeneration", "getMusicGenerationAlias", "getProviderDerankStatus", "getVideo", "getVideoAlias", "getVideoContent", "getVideoContentAlias", "getWorkspace", "listApiKeys", "listBatchCapabilities", "listBatchCapabilitiesAlias", "listBatches", "listBatchesAlias", "listBatchFiles", "listBatchFilesAlias", "listBatchModels", "listBatchModelsAlias", "listBatchRequests", "listBatchRequestsAlias", "listDataModels", "listEndpoints", "listFiles", "listModelEndpoints", "listModels", "listOrganisations", "listPricingModels", "listProviders", "listTeamModels", "listVideoModels", "listVideoModelsAlias", "listVideos", "listVideosAlias", "listWorkspaceAuditEvents", "listWorkspaces", "openAsyncJobWebSocket", "retrieveBatch", "retrieveBatchAlias", "retrieveBatchFile", "retrieveBatchFileAlias", "retrieveBatchFileContent", "retrieveBatchFileContentAlias", "retrieveFile", "retrieveFileContent", "updateApiKey", "updateWorkspace", "uploadBatchFile", "uploadBatchFileAlias", "uploadFile"]
+operations___all__ = ["calculatePricing", "cancelBatch", "cancelBatchAlias", "cancelVideo", "cancelVideoAlias", "createAnthropicMessage", "createApiKey", "createBatch", "createBatchAlias", "createChatCompletion", "createEmbedding", "createImage", "createImageEdit", "createModeration", "createOcr", "createParse", "createProviderCredential", "createRerank", "createResponse", "createSpeech", "createTranscription", "createTranslation", "createVideo", "createVideoAlias", "createVideoDownloadUrl", "createVideoDownloadUrlAlias", "createWorkspace", "deleteApiKey", "deleteProviderCredential", "deleteVideo", "deleteVideoAlias", "deleteWorkspace", "generateMusic", "generateMusicAlias", "getActivity", "getActivityAlias", "getApiKey", "getCredits", "getCurrentApiKey", "getGeneration", "getHealth", "getMusicGeneration", "getMusicGenerationAlias", "getProviderCredential", "getProviderDerankStatus", "getVideo", "getVideoAlias", "getVideoContent", "getVideoContentAlias", "getWorkspace", "listApiKeys", "listBatchCapabilities", "listBatchCapabilitiesAlias", "listBatches", "listBatchesAlias", "listBatchFiles", "listBatchFilesAlias", "listBatchModels", "listBatchModelsAlias", "listBatchRequests", "listBatchRequestsAlias", "listDataModels", "listEndpoints", "listFiles", "listModelEndpoints", "listModels", "listOrganisations", "listPricingModels", "listProviderCredentials", "listProviders", "listTeamModels", "listVideoModels", "listVideoModelsAlias", "listVideos", "listVideosAlias", "listWorkspaceAuditEvents", "listWorkspaces", "openAsyncJobWebSocket", "reorderProviderCredentials", "retrieveBatch", "retrieveBatchAlias", "retrieveBatchFile", "retrieveBatchFileAlias", "retrieveBatchFileContent", "retrieveBatchFileContentAlias", "retrieveFile", "retrieveFileContent", "updateApiKey", "updateProviderCredential", "updateWorkspace", "uploadBatchFile", "uploadBatchFileAlias", "uploadFile"]
