@@ -1,9 +1,36 @@
 import {
 	calculateCachedInputAverage,
+	formatPerformanceTimeHeading,
+	formatPerformanceTimeTick,
+	getPerformanceAxisTickIndexes,
 	getHoverDateTextAnchor,
 	getSeriesEmphasis,
 	isUsableMetricValue,
 } from "./ModelProviderTrendChart";
+
+describe("hourly performance labels", () => {
+	it("formats seven-day buckets with an explicit UTC hour", () => {
+		expect(
+			formatPerformanceTimeHeading("2026-08-30T14:00:00Z", "hour"),
+		).toContain("14:00");
+		expect(
+			formatPerformanceTimeTick("2026-08-30T14:00:00Z", "hour"),
+		).toBe("30 Aug · 14:00");
+	});
+
+	it("limits a full seven-day hourly series to readable axis ticks", () => {
+		expect(getPerformanceAxisTickIndexes(168, "hour")).toEqual([
+			0,
+			24,
+			48,
+			72,
+			96,
+			120,
+			144,
+			167,
+		]);
+	});
+});
 
 describe("calculateCachedInputAverage", () => {
 	it("weights provider days by effective input token volume", () => {
@@ -61,6 +88,7 @@ describe("isUsableMetricValue", () => {
 	it("hides impossible zero-valued timing and speed samples", () => {
 		expect(isUsableMetricValue("outputSpeed", 0)).toBe(false);
 		expect(isUsableMetricValue("latency", 0)).toBe(false);
+		expect(isUsableMetricValue("endToEnd", 0)).toBe(false);
 		expect(isUsableMetricValue("tpot", 0)).toBe(false);
 		expect(isUsableMetricValue("throughput", 46.2)).toBe(true);
 	});

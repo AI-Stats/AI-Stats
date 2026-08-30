@@ -1,33 +1,61 @@
 "use client";
 
+import { Maximize2 } from "lucide-react";
 import {
-	CartesianGrid,
-	Line,
-	LineChart,
-	ResponsiveContainer,
-	Tooltip,
-	XAxis,
-	YAxis,
-} from "recharts";
-import type { ModelPerformanceQualityPoint } from "@/lib/fetchers/models/getModelPerformance";
-import { ModelMetricInfo } from "./ModelMetricInfo";
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from "@/components/ui/dialog";
+import type {
+	ModelPerformanceQualityPoint,
+	ModelProviderHourlyPoint,
+} from "@/lib/fetchers/models/getModelPerformance";
+import ModelProviderTrendChart from "./ModelProviderTrendChart";
 
-type QualityMetric = "toolCallSuccessPct" | "structuredOutputSuccessPct" | "cacheHitRatePct";
+type QualityMetric =
+	| "toolCallSuccessPct"
+	| "toolCallErrorPct"
+	| "structuredOutputSuccessPct"
+	| "structuredOutputErrorPct"
+	| "cacheHitRatePct";
 
-const METRICS: Record<QualityMetric, { label: string; description: string; color: string }> = {
+const METRICS: Record<QualityMetric, {
+	label: string;
+	description: string;
+	emptyMessage: string;
+	color: string;
+}> = {
 	toolCallSuccessPct: {
 		label: "Tool call success",
 		description: "Share of observed tool-calling requests that completed with a successful tool call.",
+		emptyMessage: "No tool-call attempts were recorded in this period.",
 		color: "hsl(221, 83%, 53%)",
+	},
+	toolCallErrorPct: {
+		label: "Tool call errors",
+		description: "Share of generated tool calls with invalid JSON arguments, a schema mismatch, or an unknown tool name. Historical traffic without response validation is shown as 0%.",
+		emptyMessage: "No validated tool-call responses were recorded in this period.",
+		color: "hsl(0, 72%, 51%)",
 	},
 	structuredOutputSuccessPct: {
 		label: "Structured output",
 		description: "Share of structured-output attempts that returned a valid structured response.",
+		emptyMessage: "No structured-response attempts were recorded in this period.",
 		color: "hsl(262, 83%, 58%)",
+	},
+	structuredOutputErrorPct: {
+		label: "Structured response errors",
+		description: "Share of requested structured responses with invalid JSON, a schema mismatch, or no structured output. Historical traffic without response validation is shown as 0%.",
+		emptyMessage: "No validated structured responses were recorded in this period.",
+		color: "hsl(25, 95%, 53%)",
 	},
 	cacheHitRatePct: {
 		label: "Cache hit rate",
-		description: "Share of eligible observed requests that reused cached input tokens.",
+		description: "Cached read tokens as a percentage of reported input tokens.",
+		emptyMessage: "Not enough input-token and cache-read telemetry was recorded in this period.",
 		color: "hsl(142, 71%, 45%)",
 	},
 };
@@ -42,37 +70,63 @@ export default function ModelQualityTrendChart({
 	metric: QualityMetric;
 }) {
 	const config = METRICS[metric];
-	const chartData = data
-		.filter((point) => point[metric] != null && Number.isFinite(point[metric]))
-		.map((point) => ({
-			bucket: point.bucket,
-			value: point[metric],
-		}));
-
-	if (!chartData.length) return null;
+	const metricData: ModelProviderHourlyPoint[] = data.map((point) => ({
+		bucket: point.bucket,
+		provider: "all-providers",
+		providerName: "All providers",
+		providerColor: config.color,
+		avgThroughput: null,
+		avgLatencyMs: null,
+		avgGenerationMs: null,
+		cachedInputPct: point[metric] ?? null,
+		requests: point.requests,
+	}));
 
 	return (
-		<div className="min-w-0 rounded-lg border border-border/70 bg-background px-4 py-4">
-			<div className="h-[228px] w-full min-w-0">
-				<div className="mb-3 flex items-center justify-between gap-3">
-					<div className="flex items-center gap-1.5">
-						<p className="text-lg font-medium leading-none text-foreground">{title}</p>
-						<ModelMetricInfo label={config.label} description={config.description} />
-					</div>
-					<span className="text-[11px] text-muted-foreground">%</span>
-				</div>
-				<div className="h-[174px] w-full">
-					<ResponsiveContainer width="100%" height="100%">
-						<LineChart data={chartData} margin={{ top: 8, right: 0, left: 0, bottom: 4 }}>
-							<CartesianGrid vertical={false} stroke="var(--border)" strokeDasharray="3 3" opacity={0.45} />
-							<XAxis dataKey="bucket" hide />
-							<YAxis domain={[0, 100]} hide />
-							<Tooltip formatter={(value) => [`${Number(value).toFixed(1)}%`, config.label]} />
-							<Line type="monotone" dataKey="value" stroke={config.color} strokeWidth={2} dot={false} connectNulls isAnimationActive={false} />
-						</LineChart>
-					</ResponsiveContainer>
-				</div>
+		<Dialog>
+			<div className="min-w-0 rounded-lg border border-border/70 bg-background px-4 py-4">
+				<ModelProviderTrendChart
+					title={title}
+					data={metricData}
+					metric="cachedInput"
+					metricInfoLabel={config.label}
+					metricDescription={config.description}
+					emptyMessage={config.emptyMessage}
+					maxSeries={1}
+					timeResolution="hour"
+					headerAction={
+						<DialogTrigger asChild>
+							<button
+								type="button"
+								className="inline-flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+								aria-label={`Expand ${title}`}
+							>
+								<Maximize2 className="size-3.5" />
+							</button>
+						</DialogTrigger>
+					}
+				/>
 			</div>
-		</div>
+			<DialogContent className="h-[min(90vh,850px)] grid-rows-[auto_minmax(0,1fr)] overflow-hidden sm:max-w-5xl">
+				<DialogHeader className="pr-10">
+					<DialogTitle className="text-xl">{title}</DialogTitle>
+					<DialogDescription>{config.description}</DialogDescription>
+				</DialogHeader>
+				<div className="h-full min-h-0 overflow-hidden rounded-lg border border-border/70 bg-background p-4">
+					<ModelProviderTrendChart
+						title={title}
+						data={metricData}
+						metric="cachedInput"
+						metricInfoLabel={config.label}
+						metricDescription={config.description}
+						emptyMessage={config.emptyMessage}
+						maxSeries={1}
+						timeResolution="hour"
+						detailed
+						showHeader={false}
+					/>
+				</div>
+			</DialogContent>
+		</Dialog>
 	);
 }

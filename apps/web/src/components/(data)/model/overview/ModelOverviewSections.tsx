@@ -46,7 +46,6 @@ import {
 	fetchFrontendModelPendingApiReleaseState,
 	fetchFrontendModelPerformance,
 	fetchFrontendModelTimeline,
-	fetchFrontendModelTokenTrajectory,
 	fetchFrontendModelUsageDailyBreakdown,
 	fetchFrontendOrganisationModels,
 } from "@/lib/fetchers/frontend/fetchPublicCatalog";
@@ -332,14 +331,12 @@ export async function ModelPerformanceSection({
 	modelId,
 	includeHidden,
 	performancePromise,
-	description = "Latency, throughput, and reliability signals from recent traffic.",
-	surface = "overview",
+	description = "Hourly latency and throughput from the past seven days.",
 }: ModelSectionSharedProps &
 	ModelPerformancePromiseProps & {
 	description?: string;
-	surface?: ModelSectionSurface;
 }) {
-	const [performanceMetrics, pendingApiRelease, tokenTrajectory, performanceColos] =
+	const [performanceMetrics, pendingApiRelease, performanceColos] =
 		await Promise.all([
 		withOptionalSectionTimeout(
 			performancePromise ?? fetchFrontendModelPerformance(modelId, 24),
@@ -350,11 +347,6 @@ export async function ModelPerformanceSection({
 			fetchFrontendModelPendingApiReleaseState(modelId, includeHidden),
 			null,
 			"pending API release state"
-		),
-		withOptionalSectionTimeout(
-			fetchFrontendModelTokenTrajectory(modelId),
-			null,
-			"token trajectory"
 		),
 		withOptionalSectionTimeout(
 			fetchFrontendModelPerformanceColos(modelId),
@@ -373,8 +365,6 @@ export async function ModelPerformanceSection({
 					metrics={performanceMetrics}
 					availableColos={performanceColos}
 					headerDescription={description}
-					tokenTrajectory={tokenTrajectory}
-					mode={surface}
 				/>
 			) : (
 				<div className="space-y-3">
@@ -390,9 +380,9 @@ export async function ModelPerformanceSection({
 							<EmptyMedia variant="icon">
 								<Activity className="size-5" />
 							</EmptyMedia>
-							<EmptyTitle>No performance telemetry yet</EmptyTitle>
+							<EmptyTitle>No performance telemetry in the past 7 days</EmptyTitle>
 							<EmptyDescription>
-								Performance telemetry is not available yet.
+								Hourly charts will appear when this model processes gateway traffic.
 							</EmptyDescription>
 						</EmptyHeader>
 					</Empty>
@@ -1463,7 +1453,6 @@ export default function ModelOverviewSections({
 						modelId={modelId}
 						includeHidden={includeHidden}
 						performancePromise={performancePromise}
-						surface="page"
 					/>
 				</Suspense>
 			</Section>

@@ -274,7 +274,7 @@ function validateStringFormat(value: string, format: string): boolean {
 	}
 }
 
-function validateJsonSchemaValue(
+export function validateJsonSchemaValue(
 	value: unknown,
 	schema: Record<string, any>,
 	path = "$",
