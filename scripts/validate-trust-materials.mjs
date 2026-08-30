@@ -10,8 +10,6 @@ const files = {
 	claims: "apps/web/src/lib/trust-centre.ts",
 	privacy: "apps/web/src/app/(legal)/privacy/page.tsx",
 	terms: "apps/web/src/app/(legal)/terms/page.tsx",
-	evidence: "docs/trust/evidence-inventory.md",
-	providerRegister: "docs/trust/managed-ai-provider-register.md",
 };
 
 const content = Object.fromEntries(
@@ -53,10 +51,10 @@ requireText("privacy", /Last updated: 30 August 2026/, "privacy review date is s
 requireText("privacy", /five minutes by/, "privacy policy must disclose the default response cache");
 requireText("privacy", /intended to act as our subprocessor for/, "privacy policy must distinguish managed provider processing");
 requireText("terms", /Last updated: 30 August 2026/, "terms review date is stale");
-requireText("evidence", /## Gaps and required review/, "evidence register must retain factual and legal gaps");
-requireText("providerRegister", /## A\. Processor terms located/, "managed-provider register must retain the processor-terms category");
-requireText("providerRegister", /## B\. Intended subprocessors pending contract evidence/, "managed-provider register must retain the contract-review category");
-requireText("providerRegister", /## C\. Restricted pending data-use resolution/, "managed-provider register must retain the restricted category");
+requireText("dpa", /legal approval required/, "DPA must retain its legal-review warning");
+requireText("subprocessors", /Processor terms located/, "subprocessor schedule must retain the processor-terms category");
+requireText("subprocessors", /Processor contract pending/, "subprocessor schedule must retain the contract-review category");
+requireText("subprocessors", /Restricted review/, "subprocessor schedule must retain the restricted category");
 
 for (const [name, value] of Object.entries(content)) {
 	if (/Phaseo (?:is|is currently) (?:SOC 2|ISO 27001) certified/i.test(value)) {
