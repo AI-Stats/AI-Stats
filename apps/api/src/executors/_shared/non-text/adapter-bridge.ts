@@ -282,7 +282,7 @@ function irToAdapterBody(endpoint: NonTextEndpoint, ir: ExecutorExecuteArgs["ir"
 				chunking_strategy: request.chunkingStrategy,
 				known_speaker_names: request.knownSpeakerNames,
 				known_speaker_references: request.knownSpeakerReferences,
-				config: { elevenlabs: raw.config?.elevenlabs },
+				config: raw.config,
 			};
 		}
 

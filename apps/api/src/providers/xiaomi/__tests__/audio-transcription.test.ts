@@ -84,4 +84,41 @@ describe("Xiaomi audio.transcription endpoint", () => {
 		expect(result.upstream.status).toBe(400);
 		expect(await result.upstream.json()).toMatchObject({ error: { param: "file" } });
 	});
+
+	it.each([
+		["file_url", "https://example.com/sample.wav"],
+		["s3_presigned_url", "https://example.com/sample.wav"],
+		["file_id", "file_123"],
+		["prompt", "Product names"],
+		["temperature", 0],
+		["response_format", "text"],
+		["timestamp_granularities", ["word"]],
+		["diarize", false],
+		["enable_diarization", false],
+		["output_content", "transcript"],
+		["session_id", "session_123"],
+		["context_bias", ["Phaseo"]],
+		["include", ["logprobs"]],
+		["chunking_strategy", "auto"],
+		["config", { xiaomi: {} }],
+	] as const)("rejects the unsupported %s parameter", async (parameter, value) => {
+		const result = await exec({
+			endpoint: "audio.transcription",
+			body: {
+				model: "xiaomi/mimo-v2.5-asr",
+				file: new File([new Uint8Array([1])], "sample.wav", { type: "audio/wav" }),
+				[parameter]: value,
+			},
+			meta: {},
+			workspaceId: "team_test",
+			providerId: "xiaomi",
+			byokMeta: [],
+			pricingCard: null,
+			providerModelSlug: "mimo-v2.5-asr",
+			stream: false,
+		} as any);
+
+		expect(result.upstream.status).toBe(400);
+		expect(await result.upstream.json()).toMatchObject({ error: { param: parameter } });
+	});
 });

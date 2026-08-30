@@ -54,6 +54,37 @@ test("buildIR resolves name collisions with numeric suffix", () => {
 	assert.equal(ir.models[1]?.name, "FooBar2");
 });
 
+test("buildIR excludes internal paths and operations", () => {
+	const doc: OpenAPIV3.Document = {
+		openapi: "3.0.3",
+		info: { title: "Public API", version: "1.0.0" },
+		paths: {
+			"/public": {
+				get: {
+					operationId: "getPublic",
+					responses: { "200": { description: "ok" } }
+				},
+				post: {
+					"x-internal": true,
+					operationId: "createInternal",
+					responses: { "200": { description: "ok" } }
+				} as OpenAPIV3.OperationObject
+			},
+			"/internal": {
+				"x-internal": true,
+				get: {
+					operationId: "getInternal",
+					responses: { "200": { description: "ok" } }
+				}
+			} as OpenAPIV3.PathItemObject
+		},
+		components: { schemas: {} }
+	};
+
+	const { ir } = buildIR(doc);
+	assert.deepEqual(ir.operations.map((operation) => operation.operationId), ["getPublic"]);
+});
+
 test("buildIR reports diagnostics for unsupported schemas", () => {
 	const doc: OpenAPIV3.Document = {
 		openapi: "3.0.3",

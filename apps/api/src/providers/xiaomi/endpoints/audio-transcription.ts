@@ -18,6 +18,23 @@ import { upstreamTestHeaders } from "@providers/shared/testing";
 
 const MAX_AUDIO_BYTES = 10 * 1024 * 1024;
 const SUPPORTED_LANGUAGES = new Set(["auto", "zh", "en"]);
+const UNSUPPORTED_PARAMETERS = [
+	"file_url",
+	"s3_presigned_url",
+	"file_id",
+	"prompt",
+	"temperature",
+	"response_format",
+	"timestamp_granularities",
+	"diarize",
+	"enable_diarization",
+	"output_content",
+	"session_id",
+	"context_bias",
+	"include",
+	"chunking_strategy",
+	"config",
+] as const satisfies readonly (keyof AudioTranscriptionRequest)[];
 
 function invalidParameterResponse(param: string, message: string): Response {
 	return new Response(JSON.stringify({ error: { type: "invalid_request_error", message, param } }), {
@@ -73,6 +90,19 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
 		...adapterPayload,
 		model: args.providerModelSlug || adapterPayload.model,
 	};
+	const unsupportedParameter = UNSUPPORTED_PARAMETERS.find((parameter) => body[parameter] != null);
+	if (unsupportedParameter) {
+		return {
+			kind: "completed",
+			upstream: invalidParameterResponse(
+				unsupportedParameter,
+				`Xiaomi speech recognition does not support ${unsupportedParameter}.`,
+			),
+			bill: emptyBill(),
+			keySource: keyInfo.source,
+			byokKeyId: keyInfo.byokId,
+		};
+	}
 
 	if (!body.file) {
 		return {

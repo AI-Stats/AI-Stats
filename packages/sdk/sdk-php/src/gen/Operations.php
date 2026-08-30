@@ -227,20 +227,6 @@ function deleteWorkspace(Client $client, ?array $path = null, ?array $query = nu
 	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
 }
 
-function extendRealtimeSession(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
-{
-	$path = $path ?? [];
-	$resolvedPath = "/audio/realtime/sessions/" . rawurlencode((string)($path["session_id"] ?? "")) . "/extend";
-	return $client->request("POST", $resolvedPath, $query, $headers, $body);
-}
-
-function finalizeRealtimeSession(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
-{
-	$path = $path ?? [];
-	$resolvedPath = "/audio/realtime/sessions/" . rawurlencode((string)($path["session_id"] ?? "")) . "/finalize";
-	return $client->request("POST", $resolvedPath, $query, $headers, $body);
-}
-
 function generateMusic(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -535,13 +521,6 @@ function listWorkspaces(Client $client, ?array $path = null, ?array $query = nul
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
-function markRealtimeSessionConnected(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
-{
-	$path = $path ?? [];
-	$resolvedPath = "/audio/realtime/sessions/" . rawurlencode((string)($path["session_id"] ?? "")) . "/connected";
-	return $client->request("POST", $resolvedPath, $query, $headers, $body);
-}
-
 function openAsyncJobWebSocket(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -610,13 +589,6 @@ function updateApiKey(Client $client, ?array $path = null, ?array $query = null,
 	$path = $path ?? [];
 	$resolvedPath = "/keys/" . rawurlencode((string)($path["id"] ?? ""));
 	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
-}
-
-function updateRealtimeSessionUsage(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
-{
-	$path = $path ?? [];
-	$resolvedPath = "/audio/realtime/sessions/" . rawurlencode((string)($path["session_id"] ?? "")) . "/usage";
-	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
 function updateWorkspace(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)

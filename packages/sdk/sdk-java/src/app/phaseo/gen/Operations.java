@@ -166,16 +166,6 @@ public final class Operations {
 		return client.request("DELETE", resolvedPath, query, headers, body);
 	}
 
-	public static Object extendRealtimeSession(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
-		String resolvedPath = "/audio/realtime/sessions/" + (path != null && path.containsKey("session_id") ? path.get("session_id") : "") + "/extend";
-		return client.request("POST", resolvedPath, query, headers, body);
-	}
-
-	public static Object finalizeRealtimeSession(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
-		String resolvedPath = "/audio/realtime/sessions/" + (path != null && path.containsKey("session_id") ? path.get("session_id") : "") + "/finalize";
-		return client.request("POST", resolvedPath, query, headers, body);
-	}
-
 	public static Object generateMusic(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/music/generate";
 		return client.request("POST", resolvedPath, query, headers, body);
@@ -386,11 +376,6 @@ public final class Operations {
 		return client.request("GET", resolvedPath, query, headers, body);
 	}
 
-	public static Object markRealtimeSessionConnected(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
-		String resolvedPath = "/audio/realtime/sessions/" + (path != null && path.containsKey("session_id") ? path.get("session_id") : "") + "/connected";
-		return client.request("POST", resolvedPath, query, headers, body);
-	}
-
 	public static Object openAsyncJobWebSocket(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/async/" + (path != null && path.containsKey("kind") ? path.get("kind") : "") + "/" + (path != null && path.containsKey("id") ? path.get("id") : "") + "/ws";
 		return client.request("GET", resolvedPath, query, headers, body);
@@ -439,11 +424,6 @@ public final class Operations {
 	public static Object updateApiKey(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/keys/" + (path != null && path.containsKey("id") ? path.get("id") : "");
 		return client.request("PATCH", resolvedPath, query, headers, body);
-	}
-
-	public static Object updateRealtimeSessionUsage(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
-		String resolvedPath = "/audio/realtime/sessions/" + (path != null && path.containsKey("session_id") ? path.get("session_id") : "") + "/usage";
-		return client.request("POST", resolvedPath, query, headers, body);
 	}
 
 	public static Object updateWorkspace(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {

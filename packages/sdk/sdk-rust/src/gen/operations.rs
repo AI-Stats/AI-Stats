@@ -165,16 +165,6 @@ pub fn deleteWorkspace<T: Transport>(client: &Client<T>, path: &HashMap<String, 
 	client.request("DELETE", &resolved_path, body)
 }
 
-pub fn extendRealtimeSession<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
-	let resolved_path = format!("/audio/realtime/sessions/{}/extend", path.get("session_id").cloned().unwrap_or_default());
-	client.request("POST", &resolved_path, body)
-}
-
-pub fn finalizeRealtimeSession<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
-	let resolved_path = format!("/audio/realtime/sessions/{}/finalize", path.get("session_id").cloned().unwrap_or_default());
-	client.request("POST", &resolved_path, body)
-}
-
 pub fn generateMusic<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/music/generate");
 	client.request("POST", &resolved_path, body)
@@ -385,11 +375,6 @@ pub fn listWorkspaces<T: Transport>(client: &Client<T>, path: &HashMap<String, S
 	client.request("GET", &resolved_path, body)
 }
 
-pub fn markRealtimeSessionConnected<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
-	let resolved_path = format!("/audio/realtime/sessions/{}/connected", path.get("session_id").cloned().unwrap_or_default());
-	client.request("POST", &resolved_path, body)
-}
-
 pub fn openAsyncJobWebSocket<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/async/{}/{}/ws", path.get("kind").cloned().unwrap_or_default(), path.get("id").cloned().unwrap_or_default());
 	client.request("GET", &resolved_path, body)
@@ -438,11 +423,6 @@ pub fn retrieveFileContent<T: Transport>(client: &Client<T>, path: &HashMap<Stri
 pub fn updateApiKey<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/keys/{}", path.get("id").cloned().unwrap_or_default());
 	client.request("PATCH", &resolved_path, body)
-}
-
-pub fn updateRealtimeSessionUsage<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
-	let resolved_path = format!("/audio/realtime/sessions/{}/usage", path.get("session_id").cloned().unwrap_or_default());
-	client.request("POST", &resolved_path, body)
 }
 
 pub fn updateWorkspace<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
