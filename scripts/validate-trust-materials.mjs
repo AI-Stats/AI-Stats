@@ -42,7 +42,8 @@ requireText("subprocessors", /Customer-selected AI providers/, "schedule must se
 requireText("subprocessors", /factual confirmation/, "schedule must expose unverified processing locations");
 requireText("dpa", /It does not bind either party/, "DPA must be presented as a non-binding review draft");
 requireText("dpa", /at least 30 days' notice/, "DPA must retain the advance subprocessor-notice commitment");
-requireText("dpa", /will not offer that deadline in an execution copy until the deletion workflow has been verified/, "DPA must disclose the unimplemented deletion workflow");
+requireText("dpa", /no later than 30 days/, "DPA must state the active-system deletion deadline");
+requireText("dpa", /Completion records retain no user or workspace identifier/, "DPA must describe deletion-job identifier scrubbing");
 requireText("dpa", /seven days of daily database restore points/, "DPA must state the verified production backup window");
 requireText("dpa", /preliminary classification of the active Phaseo-managed AI Providers/, "DPA must disclose the managed-provider review status");
 requireText("subprocessors", /Thirty-eight provider families/, "subprocessor schedule must state the managed-provider review scope");

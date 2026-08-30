@@ -23,7 +23,7 @@ export default function DpaPage() {
 			status="Review draft · legal approval required"
 		>
 			<TrustCallout title="Review draft">
-				This draft is written to cover the mandatory controller-processor terms in Article 28 of the UK GDPR and EU GDPR. It still needs Phaseo's service address, confirmed transfer terms, a final approved list of Phaseo-managed AI Subprocessors, a verified deletion workflow, and qualified legal approval. Request an execution copy from <a href="mailto:privacy@phaseo.app" className="text-foreground underline underline-offset-4">privacy@phaseo.app</a>.
+				This draft is written to cover the mandatory controller-processor terms in Article 28 of the UK GDPR and EU GDPR. It still needs Phaseo's service address, confirmed transfer terms, a final approved list of Phaseo-managed AI Subprocessors, and qualified legal approval. Request an execution copy from <a href="mailto:privacy@phaseo.app" className="text-foreground underline underline-offset-4">privacy@phaseo.app</a>.
 			</TrustCallout>
 
 			<TrustSection id="parties" title="Parties and effective date">
@@ -121,8 +121,8 @@ export default function DpaPage() {
 				<ol className={clauses}>
 					<li>Customer may retrieve or delete supported Customer Data using available product controls during the term of the Agreement.</li>
 					<li>At the end of the Services, Phaseo will, at Customer's choice, return or delete Customer Personal Data and delete existing copies unless applicable law requires retention. Customer must communicate its choice before termination or within 30 days afterward. If Customer makes no choice, Phaseo will delete the data.</li>
-					<li>Phaseo will delete Customer Personal Data from active systems without undue delay. The intended contractual deadline is 30 days after the applicable instruction or termination date, but Phaseo will not offer that deadline in an execution copy until the deletion workflow has been verified. Copies in backups will remain protected and isolated from ordinary use until deleted through the backup cycle.</li>
-					<li className={reviewText}>The production Supabase project currently has seven days of daily database restore points and point-in-time recovery is disabled. Phaseo must recheck the backup window before execution and verify deletion across its database, object storage, caches, and other active systems before making the intended 30-day commitment binding.</li>
+					<li>Phaseo will complete deletion of Customer Personal Data from its active systems without undue delay and no later than 30 days after the applicable instruction or termination date. The self-service workflow removes the Auth account and active database records, deletes linked Stripe customer profiles, and queues private R2 objects and Gateway KV entries for a retryable scheduled purge. Completion records retain no user or workspace identifier.</li>
+					<li>Copies in backups remain protected and isolated from ordinary use until deleted through the backup cycle. The production Supabase project currently has seven days of daily database restore points and point-in-time recovery is disabled. Phaseo will recheck this window before execution and after a backup-plan change.</li>
 					<li>Phaseo's deletion does not remove data held by an independent Controller or customer-directed recipient. Customer must direct those parties separately.</li>
 				</ol>
 			</TrustSection>

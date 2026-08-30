@@ -23,6 +23,7 @@ import { runRealtimeSessionReconciliationJob } from "@core/realtime-sessions";
 import { runDataContributionClassifierJob } from "@/pipeline/classification/classifier-worker";
 import { pruneExpiredDataContributions } from "@/pipeline/classification/data-contribution";
 import { drainGatewayOtlpOutbox } from "@/observability/otlp-export";
+import { runAccountDeletionPurgeJob } from "@/pipeline/privacy/account-deletion";
 
 const MODEL_DISCOVERY_TICKS_PER_DAY = Array.from({ length: 24 }, (_value, hour) =>
 	60 / getModelDiscoveryStepMinutesUtc(hour),
@@ -421,6 +422,16 @@ async function handleDataContributionRetentionScheduledEvent(env: GatewayBinding
 	}
 }
 
+async function handleAccountDeletionScheduledEvent(env: GatewayBindings): Promise<void> {
+	configureRuntime(env);
+	try {
+		const summary = await runAccountDeletionPurgeJob();
+		if (summary.claimed > 0) console.log("account_deletion_purge_completed", summary);
+	} finally {
+		clearRuntime();
+	}
+}
+
 export async function handleScheduledEvent(event: ScheduledController, env: GatewayBindings): Promise<void> {
 	if (isDailyPaymentMethodExpiryTick(event)) {
 		try {
@@ -442,6 +453,11 @@ export async function handleScheduledEvent(event: ScheduledController, env: Gate
 		}
 	}
 	if (isCoreJobsTick(event)) {
+		try {
+			await handleAccountDeletionScheduledEvent(env);
+		} catch (error) {
+			console.error("account_deletion_scheduled_failed", serializeError(error));
+		}
 		try {
 			await handleDataContributionClassifierScheduledEvent(env);
 		} catch (error) {

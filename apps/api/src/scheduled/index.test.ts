@@ -14,6 +14,7 @@ const pruneExpiredDataContributionsMock = vi.fn();
 const runPaymentMethodExpiryNotificationJobMock = vi.fn();
 const runNotificationDeliveryJobMock = vi.fn();
 const enqueueModelDeprecationNotificationsMock = vi.fn();
+const runAccountDeletionPurgeJobMock = vi.fn();
 
 vi.mock("@/runtime/env", () => ({
 	clearRuntime: (...args: unknown[]) => clearRuntimeMock(...args),
@@ -68,6 +69,10 @@ vi.mock("@/pipeline/classification/data-contribution", () => ({
 		pruneExpiredDataContributionsMock(...args),
 }));
 
+vi.mock("@/pipeline/privacy/account-deletion", () => ({
+	runAccountDeletionPurgeJob: (...args: unknown[]) => runAccountDeletionPurgeJobMock(...args),
+}));
+
 import { handleScheduledEvent } from "./index";
 
 function scheduledEventAt(iso: string): ScheduledController {
@@ -94,6 +99,14 @@ describe("handleScheduledEvent", () => {
 		runPaymentMethodExpiryNotificationJobMock.mockReset();
 		runNotificationDeliveryJobMock.mockReset().mockResolvedValue({ queued: 0, sent: 0, failed: 0 });
 		enqueueModelDeprecationNotificationsMock.mockReset().mockResolvedValue({ workspaces: 0, enqueued: 0 });
+		runAccountDeletionPurgeJobMock.mockReset().mockResolvedValue({
+			claimed: 0,
+			completed: 0,
+			failed: 0,
+			deadlineMissed: 0,
+			r2ObjectsDeleted: 0,
+			kvKeysDeleted: 0,
+		});
 		oauthCleanupRpcMock.mockResolvedValue({ error: null });
 		runAsyncWebhookRetriesJobMock.mockResolvedValue({
 			startedAt: "2026-06-10T00:05:00.000Z",

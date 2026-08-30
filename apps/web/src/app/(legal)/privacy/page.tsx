@@ -530,6 +530,7 @@ export default async function PrivacyPage() {
 					statistical purposes.
 				</p>
 				<ul className="mt-2 list-disc space-y-1 pl-5 text-foreground/80">
+					<li>verified account-deletion requests remove account access and active database records immediately, then purge private object-storage and Gateway cache data through a retryable workflow that must complete within 30 days;</li>
 					<li>eligible cached model Outputs are kept for five minutes by default and no more than 24 hours under a configured cache policy;</li>
 					<li>private I/O logs, when enabled, are configured for 90, 180 or 365 days;</li>
 					<li>opted-in raw data contributions are kept for no more than 30 days, while aggregate classification statistics may be kept longer; and</li>
