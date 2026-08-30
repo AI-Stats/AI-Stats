@@ -1,0 +1,58 @@
+{
+  "name": "@phaseo/ai-sdk-provider",
+  "version": "1.0.2",
+  "description": "Phaseo Gateway provider for Vercel AI SDK 6",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node ./test/compatibility.mjs",
+    "test:release": "npm test && npm pack --dry-run",
+    "prepublishOnly": "npm test"
+  },
+  "keywords": [
+    "ai",
+    "ai-sdk",
+    "vercel",
+    "phaseo",
+    "gateway",
+    "provider"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@ai-sdk/provider": "3.0.15",
+    "@ai-stats/ai-sdk-provider": "1.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "22.19.3",
+    "ai": "6.0.272",
+    "typescript": "5.9.3"
+  },
+  "peerDependencies": {
+    "ai": "^6.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/phaseoteam/Phaseo",
+    "directory": "compat/ai-sdk-provider-v6"
+  },
+  "publishConfig": {
+    "access": "public",
+    "tag": "ai-sdk-v6"
+  }
+}

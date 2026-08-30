@@ -9,6 +9,7 @@ Official [Vercel AI SDK](https://sdk.vercel.ai/docs) provider for [Phaseo Gatewa
 
 -   Text: `generateText`, `streamText`, `generateObject`, `streamObject`
 -   Embeddings: `embed`, `embedMany`
+-   Reranking: `rerank`
 -   Images: `generateImage`
 -   Audio: `experimental_transcribe` (STT), `experimental_generateSpeech` (TTS)
     🛠️ **Tool Calling** - Complete support for function/tool calling with parallel execution
@@ -24,16 +25,16 @@ Official [Vercel AI SDK](https://sdk.vercel.ai/docs) provider for [Phaseo Gatewa
 
 ```bash
 # AI SDK 7 / Provider v4 (default)
-npm install @phaseo/ai-sdk-provider ai
+npm install @phaseo/ai-sdk-provider
 
 # AI SDK 6 / Provider v3 maintenance line
-npm install @phaseo/ai-sdk-provider@^1 ai@ai-v6
+npm install @phaseo/ai-sdk-provider@ai-sdk-v6
 
-# AI SDK 5 compatibility (OpenAI-compatible provider)
-npm install ai@ai-v5 @ai-sdk/openai-compatible@ai-v5
+# AI SDK 5 / Provider v2 compatibility line
+npm install @phaseo/ai-sdk-provider@ai-sdk-v5
 ```
 
-Phaseo provider 2.x is the active AI SDK 7 line. Provider 1.x remains maintained for AI SDK 6 while AI SDK 7 is current, and will be marked deprecated when AI SDK 8 becomes stable. See [SUPPORT.md](./SUPPORT.md).
+The unversioned provider install follows npm's `latest` tag, which points to the active AI SDK 7-compatible line after the 2.x release. The `ai-sdk-v6` and `ai-sdk-v5` dist-tags select the maintained compatibility lines. Each release declares the matching `ai` version as a peer dependency, so npm installs the compatible AI SDK alongside the provider. See [SUPPORT.md](./SUPPORT.md).
 
 ## Quick Start
 
@@ -179,6 +180,26 @@ if (result.images[0].base64) {
 	console.log(result.images[0].base64); // Present for base64-backed gateway responses
 }
 console.log(result.providerMetadata); // Gateway request/routing metadata (under the gateway key for image calls)
+```
+
+### Reranking
+
+```typescript
+import { phaseo } from "@phaseo/ai-sdk-provider";
+import { rerank } from "ai";
+
+const result = await rerank({
+	model: phaseo.rerankingModel("voyage/rerank-2"),
+	query: "Which document best explains TypeScript?",
+	documents: [
+		"TypeScript adds static types to JavaScript.",
+		"Rust is a systems programming language.",
+	],
+	topN: 1,
+});
+
+console.log(result.rerankedDocuments);
+console.log(result.ranking);
 ```
 
 ### Audio Transcription (Speech-to-Text)
@@ -418,7 +439,7 @@ pnpm test -- --coverage
 -   `tests/language-model.test.ts` - Text generation and streaming compatibility, including response metadata, provider metadata, `generateObject()` / `streamObject()` structured output, non-stream tool calls, and streamed tool-call assembly (local, mocked gateway responses)
 -   `tests/embedding-model.test.ts` - Embeddings generation and ordering (local, mocked gateway responses)
 -   `tests/image-model.test.ts` - Image generation compatibility for base64 and URL-backed gateway responses
--   `tests/audio-model.test.ts` - Experimental speech/transcription compatibility for AI SDK v6
+-   `tests/audio-model.test.ts` - Speech and transcription compatibility for AI SDK 7
 -   `tests/gateway-test-config.test.ts` - Local regression coverage for paid/live gateway-test gating and env-resolution rules
 -   `tests/gateway-integration.test.ts` - Real gateway tests (requires API key)
 

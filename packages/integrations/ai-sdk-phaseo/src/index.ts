@@ -41,6 +41,7 @@ export { PhaseoEmbeddingModel } from './phaseo-embedding-model.js';
 export { PhaseoImageModel } from './phaseo-image-model.js';
 export { PhaseoTranscriptionModel } from './phaseo-transcription-model.js';
 export { PhaseoSpeechModel } from './phaseo-speech-model.js';
+export { PhaseoRerankingModel } from './phaseo-reranking-model.js';
 
 // Create default instance using environment variable
 import { createPhaseo } from './phaseo-provider.js';

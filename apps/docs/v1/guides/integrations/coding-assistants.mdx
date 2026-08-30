@@ -8,14 +8,14 @@ Use this guide to add Phaseo as the model provider in coding assistants that sup
 
 ## Set up with the Phaseo CLI
 
-Sign in once, then install and configure one of the primary harnesses:
+Install your coding harness from its official release, then sign in once and configure it:
 
 ```bash
 phaseo login
 phaseo codex
 ```
 
-This command installs the harness when it is missing, creates its dedicated key, and writes its Phaseo configuration. OpenCode, DeepSeek Harness, Pi, and Prime Agent also receive every active text model compatible with Chat Completions. Use `--skip-install`, `--catalog default`, or `--dry-run` when you need narrower behavior.
+This command creates a dedicated key and writes the Phaseo configuration. It stops with installation guidance when the harness is missing; Phaseo CLI does not install third-party coding tools. OpenCode, DeepSeek Harness, Pi, Prime Agent, and OpenClaw also receive every active text model compatible with Chat Completions. Use `--catalog default` or `--dry-run` when you need narrower behavior.
 
 Use the lower-level command for other integrations or when installation is managed separately:
 
@@ -136,9 +136,9 @@ Aider often expects OpenAI-compatible custom models to be prefixed with `openai/
 
 ## Pi, Prime Agent, OpenClaw, and Hermes Agent
 
-`phaseo pi` installs Pi and a dedicated provider extension that resolves its key from the Phaseo CLI at runtime. `phaseo prime-agent` installs Prime Agent on macOS or Linux and writes a command-backed provider to `~/.prime/agent/models.json`. Both receive the compatible Phaseo model catalog. `phaseo openclaw` installs OpenClaw and registers the compatible model catalog plus an exec-backed SecretRef, without placing the API key in `openclaw.json`.
+`phaseo pi` adds a dedicated provider extension that resolves its key from the Phaseo CLI at runtime. `phaseo prime-agent` writes a command-backed provider to `~/.prime/agent/models.json`. Both receive the compatible Phaseo model catalog. `phaseo openclaw` registers the compatible model catalog plus an exec-backed SecretRef, without placing the API key in `openclaw.json`.
 
-`phaseo hermes` installs and configures the current Nous Research agent. It saves the previous Hermes model settings, configures Phaseo as the custom endpoint, and uses Hermes' official `hermes config set` command to place the dedicated key in `~/.hermes/.env` as `OPENAI_API_KEY`. Hermes deliberately uses this plaintext file for provider credentials; protect it like any other API-key file. Removal restores the previous model settings, removes `OPENAI_API_KEY`, deletes Phaseo's recovery state, and revokes the key.
+`phaseo hermes` configures an installed Nous Research agent. It saves the previous Hermes model settings, configures Phaseo as the custom endpoint, and uses Hermes' official `hermes config set` command to place the dedicated key in `~/.hermes/.env` as `OPENAI_API_KEY`. Hermes deliberately uses this plaintext file for provider credentials; protect it like any other API-key file. Removal restores the previous model settings, removes `OPENAI_API_KEY`, deletes Phaseo's recovery state, and revokes the key.
 
 ## Zed
 

@@ -1,0 +1,19 @@
+{
+  "name": "phaseo-ai-sdk-v7-quickstart",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "rerank": "node rerank.js",
+    "typecheck": "node --max-old-space-size=4096 ./node_modules/typescript/bin/tsc --noEmit"
+  },
+  "dependencies": {
+    "@phaseo/ai-sdk-provider": "workspace:*",
+    "ai": "^7.0.41"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.2",
+    "typescript": "^6.0.3"
+  }
+}
