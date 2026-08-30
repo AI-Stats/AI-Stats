@@ -632,6 +632,21 @@ func DeployDynamicRouteVersion(client *Client, path map[string]string, query map
 	return out, nil
 }
 
+func ExportAnalyticsCsv(client *Client, path map[string]string, query map[string]string, headers map[string]string, body any) (string, error) {
+	resolvedPath := "/analytics/export"
+	data, err := client.Request("GET", resolvedPath, query, headers, body)
+	if err != nil {
+		var zero string
+		return zero, err
+	}
+	var out string
+	if err := DecodeJSON(data, &out); err != nil {
+		var zero string
+		return zero, err
+	}
+	return out, nil
+}
+
 func ForkPreset(client *Client, path map[string]string, query map[string]string, headers map[string]string, body any) (map[string]interface{}, error) {
 	resolvedPath := "/presets/" + url.PathEscape(path["id"]) + "/fork"
 	data, err := client.Request("POST", resolvedPath, query, headers, body)

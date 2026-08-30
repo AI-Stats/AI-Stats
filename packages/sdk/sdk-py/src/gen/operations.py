@@ -550,6 +550,19 @@ def deployDynamicRouteVersion(
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
+def exportAnalyticsCsv(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> str:
+	path = path or {}
+	resolved_path = "/analytics/export"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
 def forkPreset(
 	client: Client,
 	*,
@@ -609,7 +622,7 @@ def getActivityAlias(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> ActivityResponse:
+) -> AnalyticsResponse:
 	path = path or {}
 	resolved_path = "/analytics"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
@@ -1616,4 +1629,4 @@ def uploadFile(
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
-operations___all__ = ["addWorkspaceMembers", "applyPresetUpstreamVersion", "approveWorkspaceJoinRequest", "calculatePricing", "cancelBatch", "cancelBatchAlias", "cancelVideo", "cancelVideoAlias", "createAnthropicMessage", "createApiKey", "createBatch", "createBatchAlias", "createChatCompletion", "createDynamicRoute", "createEmbedding", "createImage", "createImageEdit", "createModeration", "createObservabilityDestination", "createOcr", "createParse", "createPreset", "createRerank", "createResponse", "createSpeech", "createTranscription", "createTranslation", "createVideo", "createVideoAlias", "createVideoDownloadUrl", "createVideoDownloadUrlAlias", "createWorkspace", "createWorkspaceInvite", "deleteApiKey", "deleteDynamicRoute", "deleteObservabilityDestination", "deletePreset", "deleteVideo", "deleteVideoAlias", "deleteWorkspace", "deleteWorkspaceInvite", "deployDynamicRouteVersion", "forkPreset", "generateMusic", "generateMusicAlias", "getActivity", "getActivityAlias", "getApiKey", "getCredits", "getCurrentApiKey", "getDynamicRoute", "getGeneration", "getHealth", "getMusicGeneration", "getMusicGenerationAlias", "getObservabilityDestination", "getObservabilityLoggingPolicy", "getPreset", "getPresetPublisher", "getProviderDerankStatus", "getVideo", "getVideoAlias", "getVideoContent", "getVideoContentAlias", "getWorkspace", "getWorkspaceSettings", "listApiKeys", "listBatchCapabilities", "listBatchCapabilitiesAlias", "listBatches", "listBatchesAlias", "listBatchFiles", "listBatchFilesAlias", "listBatchModels", "listBatchModelsAlias", "listBatchRequests", "listBatchRequestsAlias", "listDataModels", "listDynamicRoutes", "listEndpoints", "listFiles", "listModelEndpoints", "listModels", "listObservabilityDestinations", "listOrganisations", "listPresets", "listPresetVersions", "listPricingModels", "listProviders", "listTeamModels", "listVideoModels", "listVideoModelsAlias", "listVideos", "listVideosAlias", "listWorkspaceAuditEvents", "listWorkspaceInvites", "listWorkspaceJoinRequests", "listWorkspaceMembers", "listWorkspaces", "openAsyncJobWebSocket", "publishPresetVersion", "rejectWorkspaceJoinRequest", "removeWorkspaceMembers", "replaceDynamicRouteKeys", "retrieveBatch", "retrieveBatchAlias", "retrieveBatchFile", "retrieveBatchFileAlias", "retrieveBatchFileContent", "retrieveBatchFileContentAlias", "retrieveFile", "retrieveFileContent", "updateApiKey", "updateDynamicRoute", "updateObservabilityDestination", "updateObservabilityLoggingPolicy", "updatePreset", "updatePresetPublisher", "updateWorkspace", "updateWorkspaceMemberRole", "updateWorkspaceSettings", "uploadBatchFile", "uploadBatchFileAlias", "uploadFile"]
+operations___all__ = ["addWorkspaceMembers", "applyPresetUpstreamVersion", "approveWorkspaceJoinRequest", "calculatePricing", "cancelBatch", "cancelBatchAlias", "cancelVideo", "cancelVideoAlias", "createAnthropicMessage", "createApiKey", "createBatch", "createBatchAlias", "createChatCompletion", "createDynamicRoute", "createEmbedding", "createImage", "createImageEdit", "createModeration", "createObservabilityDestination", "createOcr", "createParse", "createPreset", "createRerank", "createResponse", "createSpeech", "createTranscription", "createTranslation", "createVideo", "createVideoAlias", "createVideoDownloadUrl", "createVideoDownloadUrlAlias", "createWorkspace", "createWorkspaceInvite", "deleteApiKey", "deleteDynamicRoute", "deleteObservabilityDestination", "deletePreset", "deleteVideo", "deleteVideoAlias", "deleteWorkspace", "deleteWorkspaceInvite", "deployDynamicRouteVersion", "exportAnalyticsCsv", "forkPreset", "generateMusic", "generateMusicAlias", "getActivity", "getActivityAlias", "getApiKey", "getCredits", "getCurrentApiKey", "getDynamicRoute", "getGeneration", "getHealth", "getMusicGeneration", "getMusicGenerationAlias", "getObservabilityDestination", "getObservabilityLoggingPolicy", "getPreset", "getPresetPublisher", "getProviderDerankStatus", "getVideo", "getVideoAlias", "getVideoContent", "getVideoContentAlias", "getWorkspace", "getWorkspaceSettings", "listApiKeys", "listBatchCapabilities", "listBatchCapabilitiesAlias", "listBatches", "listBatchesAlias", "listBatchFiles", "listBatchFilesAlias", "listBatchModels", "listBatchModelsAlias", "listBatchRequests", "listBatchRequestsAlias", "listDataModels", "listDynamicRoutes", "listEndpoints", "listFiles", "listModelEndpoints", "listModels", "listObservabilityDestinations", "listOrganisations", "listPresets", "listPresetVersions", "listPricingModels", "listProviders", "listTeamModels", "listVideoModels", "listVideoModelsAlias", "listVideos", "listVideosAlias", "listWorkspaceAuditEvents", "listWorkspaceInvites", "listWorkspaceJoinRequests", "listWorkspaceMembers", "listWorkspaces", "openAsyncJobWebSocket", "publishPresetVersion", "rejectWorkspaceJoinRequest", "removeWorkspaceMembers", "replaceDynamicRouteKeys", "retrieveBatch", "retrieveBatchAlias", "retrieveBatchFile", "retrieveBatchFileAlias", "retrieveBatchFileContent", "retrieveBatchFileContentAlias", "retrieveFile", "retrieveFileContent", "updateApiKey", "updateDynamicRoute", "updateObservabilityDestination", "updateObservabilityLoggingPolicy", "updatePreset", "updatePresetPublisher", "updateWorkspace", "updateWorkspaceMemberRole", "updateWorkspaceSettings", "uploadBatchFile", "uploadBatchFileAlias", "uploadFile"]

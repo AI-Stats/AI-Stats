@@ -297,6 +297,13 @@ function deployDynamicRouteVersion(Client $client, ?array $path = null, ?array $
 	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
+function exportAnalyticsCsv(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/analytics/export";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
 function forkPreset(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];

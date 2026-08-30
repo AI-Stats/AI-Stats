@@ -255,6 +255,12 @@ module Phaseo
         client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.exportAnalyticsCsv(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/analytics/export"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.forkPreset(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/presets/#{URI.encode_uri_component(path["id"].to_s)}/fork"

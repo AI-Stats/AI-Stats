@@ -71,6 +71,22 @@ public sealed class AnalyticsNotImplementedResponse
 
 }
 
+public sealed class AnalyticsResponse
+{
+	[JsonPropertyName("data")]
+	public List<Dictionary<string, object>> Data { get; set; }
+
+	[JsonPropertyName("limit")]
+	public int Limit { get; set; }
+
+	[JsonPropertyName("offset")]
+	public int Offset { get; set; }
+
+	[JsonPropertyName("total_count")]
+	public int TotalCount { get; set; }
+
+}
+
 public sealed class AnthropicContentBlock
 {
 	[JsonPropertyName("cache_control")]

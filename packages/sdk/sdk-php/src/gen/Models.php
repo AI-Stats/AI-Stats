@@ -53,6 +53,18 @@ class AnalyticsNotImplementedResponse
 	public $status;
 }
 
+class AnalyticsResponse
+{
+	/** @var array */
+	public $data;
+	/** @var int */
+	public $limit;
+	/** @var int */
+	public $offset;
+	/** @var int */
+	public $total_count;
+}
+
 class AnthropicContentBlock
 {
 	/** @var array<string, mixed>|null */

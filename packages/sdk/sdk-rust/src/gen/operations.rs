@@ -215,6 +215,11 @@ pub fn deployDynamicRouteVersion<T: Transport>(client: &Client<T>, path: &HashMa
 	client.request("POST", &resolved_path, body)
 }
 
+pub fn exportAnalyticsCsv<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/analytics/export");
+	client.request("GET", &resolved_path, body)
+}
+
 pub fn forkPreset<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/presets/{}/fork", path.get("id").cloned().unwrap_or_default());
 	client.request("POST", &resolved_path, body)

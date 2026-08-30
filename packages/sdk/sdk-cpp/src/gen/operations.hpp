@@ -214,6 +214,11 @@ inline Response DeployDynamicRouteVersion(Client& client, const std::map<std::st
 	return client.request("POST", resolved_path, body);
 }
 
+inline Response ExportAnalyticsCsv(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/analytics/export";
+	return client.request("GET", resolved_path, body);
+}
+
 inline Response ForkPreset(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/presets/" + (path.count("id") ? path.at("id") : std::string{}) + "/fork";
 	return client.request("POST", resolved_path, body);

@@ -1,7 +1,4 @@
-/**
- * Legacy unpaginated analytics response retained for SDK source compatibility.
- */
-export interface ActivityResponse {
+export interface AnalyticsResponse {
   data: {
     byok_usage_inference: number;
     completion_tokens: number;
@@ -15,4 +12,7 @@ export interface ActivityResponse {
     requests: number;
     usage: number;
   }[];
+  limit: number;
+  offset: number;
+  total_count: number;
 }

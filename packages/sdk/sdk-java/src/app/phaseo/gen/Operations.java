@@ -216,6 +216,11 @@ public final class Operations {
 		return client.request("POST", resolvedPath, query, headers, body);
 	}
 
+	public static Object exportAnalyticsCsv(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/analytics/export";
+		return client.request("GET", resolvedPath, query, headers, body);
+	}
+
 	public static Object forkPreset(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/presets/" + (path != null && path.containsKey("id") ? path.get("id") : "") + "/fork";
 		return client.request("POST", resolvedPath, query, headers, body);

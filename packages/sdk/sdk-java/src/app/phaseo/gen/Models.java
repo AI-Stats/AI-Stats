@@ -32,6 +32,13 @@ public final class Models {
 		public Object status;
 	}
 
+	public static class AnalyticsResponse {
+		public java.util.List<Object> data;
+		public Integer limit;
+		public Integer offset;
+		public Integer total_count;
+	}
+
 	public static class AnthropicContentBlock {
 		public Object cache_control;
 		public String content;

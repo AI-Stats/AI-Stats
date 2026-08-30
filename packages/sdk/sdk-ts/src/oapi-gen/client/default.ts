@@ -5566,6 +5566,42 @@ export async function deployDynamicRouteVersion(
   });
 }
 
+export type ExportAnalyticsCsvParams = {
+  path?: Record<string, never>;
+  query?: {
+    byok?: boolean;
+    date?: string;
+    end_user_id?: string;
+    endpoint?: string;
+    key_id?: string;
+    label_key?: string;
+    label_value?: string;
+    model?: string;
+    provider?: string;
+    success?: boolean;
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Exports the complete filtered analytics aggregate as spreadsheet-safe CSV.
+ */
+export async function exportAnalyticsCsv(
+  client: Client,
+  args: ExportAnalyticsCsvParams = {},
+): Promise<string> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/analytics/export";
+  return client.request<string>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type ForkPresetParams = {
   path?: {
     id: string;
@@ -5976,16 +6012,25 @@ export async function getActivity(
 export type GetActivityAliasParams = {
   path?: Record<string, never>;
   query?: {
+    byok?: boolean;
     date?: string;
+    end_user_id?: string;
+    endpoint?: string;
+    key_id?: string;
     label_key?: string;
     label_value?: string;
+    limit?: number;
+    model?: string;
+    offset?: number;
+    provider?: string;
+    success?: boolean;
   };
   headers?: Record<string, never>;
   body?: never;
 };
 
 /**
- * Alias of /activity. Returns user activity grouped by endpoint for the last 30 completed UTC days.
+ * Returns cost, request, and token aggregates grouped by date, model, provider, and endpoint for the last 30 completed UTC days.
  */
 export async function getActivityAlias(
   client: Client,
@@ -6004,6 +6049,9 @@ export async function getActivityAlias(
     requests: number;
     usage: number;
   }[];
+  limit: number;
+  offset: number;
+  total_count: number;
 }> {
   const { path, query, headers, body } = args;
   const resolvedPath = "/analytics";
@@ -6021,6 +6069,9 @@ export async function getActivityAlias(
       requests: number;
       usage: number;
     }[];
+    limit: number;
+    offset: number;
+    total_count: number;
   }>({
     method: "GET",
     path: resolvedPath,

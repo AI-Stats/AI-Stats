@@ -2,6 +2,7 @@ export type { ActivityEntry } from "./ActivityEntry.js";
 export type { ActivityResponse } from "./ActivityResponse.js";
 export type { AnalyticsAccessTokenRequiredResponse } from "./AnalyticsAccessTokenRequiredResponse.js";
 export type { AnalyticsNotImplementedResponse } from "./AnalyticsNotImplementedResponse.js";
+export type { AnalyticsResponse } from "./AnalyticsResponse.js";
 export type { AnthropicContentBlock } from "./AnthropicContentBlock.js";
 export type { AnthropicMessage } from "./AnthropicMessage.js";
 export type { AnthropicMessagesRequest } from "./AnthropicMessagesRequest.js";

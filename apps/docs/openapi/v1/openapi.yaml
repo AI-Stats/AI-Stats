@@ -1912,10 +1912,10 @@ paths:
       tags:
         - Gateway
       operationId: getActivityAlias
-      summary: Get user activity grouped by endpoint (alias)
+      summary: Get workspace analytics
       description: >-
-        Alias of /activity. Returns user activity grouped by endpoint for the
-        last 30 completed UTC days.
+        Returns cost, request, and token aggregates grouped by date, model,
+        provider, and endpoint for the last 30 completed UTC days.
       parameters:
         - name: date
           in: query
@@ -1942,13 +1942,60 @@ paths:
           schema:
             type: string
             maxLength: 256
+        - name: key_id
+          in: query
+          description: Filter by API key identifier.
+          schema:
+            type: string
+        - name: end_user_id
+          in: query
+          description: Filter by application-defined end-user identifier.
+          schema:
+            type: string
+            maxLength: 256
+        - name: model
+          in: query
+          description: Filter by requested or routed canonical model slug.
+          schema:
+            type: string
+            maxLength: 256
+        - name: provider
+          in: query
+          description: Filter by provider slug.
+          schema:
+            type: string
+            maxLength: 128
+        - name: endpoint
+          in: query
+          description: Filter by gateway endpoint identifier.
+          schema:
+            type: string
+            maxLength: 128
+        - name: byok
+          in: query
+          description: Filter managed or BYOK traffic.
+          schema:
+            type: boolean
+        - name: success
+          in: query
+          description: Filter successful or failed requests.
+          schema:
+            type: boolean
+        - $ref: '#/components/parameters/Offset'
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 1000
       responses:
         '200':
           description: Retrieved
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ActivityResponse'
+                $ref: '#/components/schemas/AnalyticsResponse'
         '400':
           description: Bad Request Error
           content:
@@ -1969,6 +2016,84 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /analytics/export:
+    get:
+      x-beta: true
+      tags: [Gateway]
+      operationId: exportAnalyticsCsv
+      summary: Export workspace analytics
+      description: Exports the complete filtered analytics aggregate as spreadsheet-safe CSV.
+      parameters:
+        - name: date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: label_key
+          in: query
+          schema:
+            type: string
+            maxLength: 64
+        - name: label_value
+          in: query
+          schema:
+            type: string
+            maxLength: 256
+        - name: key_id
+          in: query
+          schema:
+            type: string
+        - name: end_user_id
+          in: query
+          schema:
+            type: string
+            maxLength: 256
+        - name: model
+          in: query
+          schema:
+            type: string
+            maxLength: 256
+        - name: provider
+          in: query
+          schema:
+            type: string
+            maxLength: 128
+        - name: endpoint
+          in: query
+          schema:
+            type: string
+            maxLength: 128
+        - name: byok
+          in: query
+          schema:
+            type: boolean
+        - name: success
+          in: query
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: CSV analytics export
+          headers:
+            Content-Disposition:
+              schema:
+                type: string
+          content:
+            text/csv:
+              schema:
+                type: string
+        '400':
+          description: Invalid analytics filter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
           content:
             application/json:
               schema:
@@ -12226,10 +12351,30 @@ components:
           type: string
           example: Endpoint is not implemented yet.
       additionalProperties: true
+    AnalyticsResponse:
+      type: object
+      required: [data, total_count, offset, limit]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActivityEntry'
+        total_count:
+          type: integer
+          minimum: 0
+        offset:
+          type: integer
+          minimum: 0
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 1000
+      additionalProperties: false
     ActivityResponse:
       type: object
-      required:
-        - data
+      deprecated: true
+      description: Legacy unpaginated analytics response retained for SDK source compatibility.
+      required: [data]
       properties:
         data:
           type: array

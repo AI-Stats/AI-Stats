@@ -35,6 +35,13 @@ struct AnalyticsNotImplementedResponse {
 	std::any status;
 };
 
+struct AnalyticsResponse {
+	std::vector<std::map<std::string, std::any>> data;
+	int limit;
+	int offset;
+	int total_count;
+};
+
 struct AnthropicContentBlock {
 	std::map<std::string, std::any> cache_control;
 	std::string content;

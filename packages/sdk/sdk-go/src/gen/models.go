@@ -29,6 +29,13 @@ type AnalyticsNotImplementedResponse struct {
 	Status string `json:"status"`
 }
 
+type AnalyticsResponse struct {
+	Data []map[string]interface{} `json:"data"`
+	Limit int `json:"limit"`
+	Offset int `json:"offset"`
+	TotalCount int `json:"total_count"`
+}
+
 type AnthropicContentBlock struct {
 	CacheControl *map[string]interface{} `json:"cache_control,omitempty"`
 	Content *string `json:"content,omitempty"`

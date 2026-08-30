@@ -38,6 +38,15 @@ module Phaseo
     # @!attribute [rw] status
     #   @return [String]
     AnalyticsNotImplementedResponse = Struct.new(:message, :ok, :status, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] limit
+    #   @return [Integer]
+    # @!attribute [rw] offset
+    #   @return [Integer]
+    # @!attribute [rw] total_count
+    #   @return [Integer]
+    AnalyticsResponse = Struct.new(:data, :limit, :offset, :total_count, keyword_init: true)
     # @!attribute [rw] cache_control
     #   @return [Hash{String => Object}, nil]
     # @!attribute [rw] content

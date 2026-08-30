@@ -45,7 +45,7 @@ OpenAPI schema does not count as complete.
 | Observability | Logs, workspace I/O logging policy, and webhook/OpenTelemetry destination CRUD with privacy, sampling, key filters, and event rules | Contracted for executable exporters | Add destination types only when their exporters are executable. |
 | Workspace budgets | Guardrail/limit primitives | Missing as a resource | Add daily, weekly, monthly, and lifetime budget CRUD with hierarchy validation and usage/remaining values. |
 | Organisation administration | Workspace-native membership and invitations | Partial | Contract SSO, SCIM, and directory administration; Phaseo currently treats each organisation workspace as the membership boundary. |
-| Usage, credits, and analytics | Read endpoints | Partially contracted | Close OpenAPI/SDK gaps and provide workspace, member, key, model, and provider filters with stable pagination/export behavior. |
+| Usage, credits, and analytics | Read endpoints with workspace/key/end-user/model/provider/endpoint/outcome filters and CSV analytics export | Contracted for queryable request facts | Add member attribution only when request facts carry a durable workspace-member identity. |
 | Activity and audit events | Read endpoints | Contracted | Expand audit producers as each mutation group becomes public. |
 | OAuth clients and webhook endpoints | CRUD | Runtime only | Publish OpenAPI, SDKs, docs, and contract tests. |
 | Billing and notifications | Dashboard controls | Missing or partial | Expose durable administrative settings; keep payment confirmation and other interactive personal flows out of scope. |

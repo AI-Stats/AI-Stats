@@ -510,6 +510,18 @@ public static class Operations
 		return client.SendAsync<Dictionary<string, object>>("POST", resolvedPath, query, headers, body);
 	}
 
+	public static Task<string?> ExportAnalyticsCsvAsync(
+		Client client,
+		Dictionary<string, string>? path = null,
+		Dictionary<string, string>? query = null,
+		Dictionary<string, string>? headers = null,
+		object? body = null
+	)
+	{
+		var resolvedPath = "/analytics/export";
+		return client.SendAsync<string>("GET", resolvedPath, query, headers, body);
+	}
+
 	public static Task<Dictionary<string, object>?> ForkPresetAsync(
 		Client client,
 		Dictionary<string, string>? path = null,

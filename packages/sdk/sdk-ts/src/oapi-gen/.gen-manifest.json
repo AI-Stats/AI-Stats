@@ -7,6 +7,7 @@
     "models/ActivityResponse.ts",
     "models/AnalyticsAccessTokenRequiredResponse.ts",
     "models/AnalyticsNotImplementedResponse.ts",
+    "models/AnalyticsResponse.ts",
     "models/AnthropicContentBlock.ts",
     "models/AnthropicMessage.ts",
     "models/AnthropicMessagesRequest.ts",

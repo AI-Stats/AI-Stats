@@ -31,6 +31,13 @@ pub struct AnalyticsNotImplementedResponse {
 	pub status: String,
 }
 
+pub struct AnalyticsResponse {
+	pub data: Vec<HashMap<String, String>>,
+	pub limit: i64,
+	pub offset: i64,
+	pub total_count: i64,
+}
+
 pub struct AnthropicContentBlock {
 	pub cache_control: Option<HashMap<String, String>>,
 	pub content: Option<String>,
