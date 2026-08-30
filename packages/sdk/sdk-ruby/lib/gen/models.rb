@@ -3084,6 +3084,9 @@ module Phaseo
     # @!attribute [rw] type
     #   @return [String]
     ToolCallContentPart = Struct.new(:function, :id, :type, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    UpdatedResponse = Struct.new(:data, keyword_init: true)
     # @!attribute [rw] completion_tokens
     #   @return [Integer, nil]
     # @!attribute [rw] prompt_tokens
@@ -3522,6 +3525,155 @@ module Phaseo
     # @!attribute [rw] slug
     #   @return [String, nil]
     WorkspaceCreateRequest = Struct.new(:name, :slug, keyword_init: true)
+    # @!attribute [rw] color
+    #   @return [String, nil]
+    # @!attribute [rw] created_at
+    #   @return [String, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] directory_name
+    #   @return [String, nil]
+    # @!attribute [rw] icon
+    #   @return [String, nil]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] name_overridden
+    #   @return [Boolean, nil]
+    # @!attribute [rw] source_id
+    #   @return [String, nil]
+    # @!attribute [rw] source_type
+    #   @return [String, nil]
+    # @!attribute [rw] updated_at
+    #   @return [String, nil]
+    WorkspaceDepartment = Struct.new(:color, :created_at, :description, :directory_name, :icon, :id, :name, :name_overridden, :source_id, :source_type, :updated_at, keyword_init: true)
+    # @!attribute [rw] color
+    #   @return [String, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] icon
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String]
+    WorkspaceDepartmentCreateRequest = Struct.new(:color, :description, :icon, :name, keyword_init: true)
+    # @!attribute [rw] color
+    #   @return [String, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] icon
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    WorkspaceDepartmentInput = Struct.new(:color, :description, :icon, :name, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    WorkspaceDepartmentListResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] department_id
+    #   @return [String]
+    # @!attribute [rw] is_primary
+    #   @return [Boolean]
+    # @!attribute [rw] position
+    #   @return [String]
+    # @!attribute [rw] user_id
+    #   @return [String]
+    WorkspaceDepartmentMember = Struct.new(:department_id, :is_primary, :position, :user_id, keyword_init: true)
+    # @!attribute [rw] position
+    #   @return [String, nil]
+    # @!attribute [rw] primary
+    #   @return [Boolean, nil]
+    WorkspaceDepartmentMemberRequest = Struct.new(:position, :primary, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceDepartmentMemberResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceDepartmentResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] color
+    #   @return [String, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] icon
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    WorkspaceDepartmentUpdateRequest = Struct.new(:color, :description, :icon, :name, keyword_init: true)
+    # @!attribute [rw] access_source
+    #   @return [String]
+    # @!attribute [rw] department
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] department_override_enabled
+    #   @return [Boolean]
+    # @!attribute [rw] department_override_id
+    #   @return [String, nil]
+    # @!attribute [rw] department_source
+    #   @return [String]
+    # @!attribute [rw] directory_department
+    #   @return [String, nil]
+    # @!attribute [rw] display_name
+    #   @return [String]
+    # @!attribute [rw] effective_role
+    #   @return [String]
+    # @!attribute [rw] email
+    #   @return [String, nil]
+    # @!attribute [rw] joined_at
+    #   @return [String, nil]
+    # @!attribute [rw] role_override
+    #   @return [String, nil]
+    # @!attribute [rw] status
+    #   @return [String]
+    # @!attribute [rw] user_id
+    #   @return [String]
+    # @!attribute [rw] workspace_role
+    #   @return [String]
+    WorkspaceDirectoryMember = Struct.new(:access_source, :department, :department_override_enabled, :department_override_id, :department_source, :directory_department, :display_name, :effective_role, :email, :joined_at, :role_override, :status, :user_id, :workspace_role, keyword_init: true)
+    # @!attribute [rw] access_role
+    #   @return [String, nil]
+    # @!attribute [rw] department_id
+    #   @return [String, nil]
+    # @!attribute [rw] department_mode
+    #   @return [String, nil]
+    # @!attribute [rw] department_position
+    #   @return [String, nil]
+    WorkspaceDirectoryMemberUpdateRequest = Struct.new(:access_role, :department_id, :department_mode, :department_position, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceDirectoryResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] access_role
+    #   @return [String]
+    # @!attribute [rw] created_at
+    #   @return [String, nil]
+    # @!attribute [rw] department_id
+    #   @return [String]
+    # @!attribute [rw] department_position
+    #   @return [String]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] scim_group_id
+    #   @return [String]
+    # @!attribute [rw] updated_at
+    #   @return [String, nil]
+    WorkspaceGroupMapping = Struct.new(:access_role, :created_at, :department_id, :department_position, :id, :scim_group_id, :updated_at, keyword_init: true)
+    # @!attribute [rw] access_role
+    #   @return [String, nil]
+    # @!attribute [rw] department_id
+    #   @return [String]
+    # @!attribute [rw] department_position
+    #   @return [String, nil]
+    # @!attribute [rw] scim_group_id
+    #   @return [String]
+    WorkspaceGroupMappingCreateRequest = Struct.new(:access_role, :department_id, :department_position, :scim_group_id, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    WorkspaceGroupMappingListResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceGroupMappingResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] access_role
+    #   @return [String, nil]
+    # @!attribute [rw] department_position
+    #   @return [String, nil]
+    WorkspaceGroupMappingUpdateRequest = Struct.new(:access_role, :department_position, keyword_init: true)
     # @!attribute [rw] created_at
     #   @return [String, nil]
     # @!attribute [rw] creator_user_id

@@ -199,6 +199,16 @@ inline Response CreateWorkspace(Client& client, const std::map<std::string, std:
 	return client.request("POST", resolved_path, body);
 }
 
+inline Response CreateWorkspaceDepartment(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/identity/departments";
+	return client.request("POST", resolved_path, body);
+}
+
+inline Response CreateWorkspaceGroupMapping(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/identity/group-mappings";
+	return client.request("POST", resolved_path, body);
+}
+
 inline Response CreateWorkspaceInvite(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/workspaces/" + (path.count("id") ? path.at("id") : std::string{}) + "/invites";
 	return client.request("POST", resolved_path, body);
@@ -266,6 +276,21 @@ inline Response DeleteWebhookEndpoint(Client& client, const std::map<std::string
 
 inline Response DeleteWorkspace(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/workspaces/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("DELETE", resolved_path, body);
+}
+
+inline Response DeleteWorkspaceDepartment(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/identity/departments/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("DELETE", resolved_path, body);
+}
+
+inline Response DeleteWorkspaceDepartmentMember(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/identity/departments/" + (path.count("departmentId") ? path.at("departmentId") : std::string{}) + "/members/" + (path.count("userId") ? path.at("userId") : std::string{});
+	return client.request("DELETE", resolved_path, body);
+}
+
+inline Response DeleteWorkspaceGroupMapping(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/identity/group-mappings/" + (path.count("id") ? path.at("id") : std::string{});
 	return client.request("DELETE", resolved_path, body);
 }
 
@@ -421,6 +446,11 @@ inline Response GetWebhookEndpoint(Client& client, const std::map<std::string, s
 
 inline Response GetWorkspace(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/workspaces/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response GetWorkspaceDirectory(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/identity/directory";
 	return client.request("GET", resolved_path, body);
 }
 
@@ -619,6 +649,16 @@ inline Response ListWorkspaceAuditEvents(Client& client, const std::map<std::str
 	return client.request("GET", resolved_path, body);
 }
 
+inline Response ListWorkspaceDepartments(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/identity/departments";
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response ListWorkspaceGroupMappings(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/identity/group-mappings";
+	return client.request("GET", resolved_path, body);
+}
+
 inline Response ListWorkspaceInvites(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/workspaces/" + (path.count("id") ? path.at("id") : std::string{}) + "/invites";
 	return client.request("GET", resolved_path, body);
@@ -744,6 +784,11 @@ inline Response RotateWebhookEndpointSecret(Client& client, const std::map<std::
 	return client.request("POST", resolved_path, body);
 }
 
+inline Response SetWorkspaceDepartmentMember(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/identity/departments/" + (path.count("departmentId") ? path.at("departmentId") : std::string{}) + "/members/" + (path.count("userId") ? path.at("userId") : std::string{});
+	return client.request("PUT", resolved_path, body);
+}
+
 inline Response UpdateApiKey(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/keys/" + (path.count("id") ? path.at("id") : std::string{});
 	return client.request("PATCH", resolved_path, body);
@@ -806,6 +851,21 @@ inline Response UpdateWebhookEndpoint(Client& client, const std::map<std::string
 
 inline Response UpdateWorkspace(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/workspaces/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("PATCH", resolved_path, body);
+}
+
+inline Response UpdateWorkspaceDepartment(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/identity/departments/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("PATCH", resolved_path, body);
+}
+
+inline Response UpdateWorkspaceDirectoryMember(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/identity/directory/members/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("PUT", resolved_path, body);
+}
+
+inline Response UpdateWorkspaceGroupMapping(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/identity/group-mappings/" + (path.count("id") ? path.at("id") : std::string{});
 	return client.request("PATCH", resolved_path, body);
 }
 

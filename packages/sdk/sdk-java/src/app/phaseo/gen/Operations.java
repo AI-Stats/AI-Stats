@@ -201,6 +201,16 @@ public final class Operations {
 		return client.request("POST", resolvedPath, query, headers, body);
 	}
 
+	public static Object createWorkspaceDepartment(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/identity/departments";
+		return client.request("POST", resolvedPath, query, headers, body);
+	}
+
+	public static Object createWorkspaceGroupMapping(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/identity/group-mappings";
+		return client.request("POST", resolvedPath, query, headers, body);
+	}
+
 	public static Object createWorkspaceInvite(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/workspaces/" + (path != null && path.containsKey("id") ? path.get("id") : "") + "/invites";
 		return client.request("POST", resolvedPath, query, headers, body);
@@ -268,6 +278,21 @@ public final class Operations {
 
 	public static Object deleteWorkspace(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/workspaces/" + (path != null && path.containsKey("id") ? path.get("id") : "");
+		return client.request("DELETE", resolvedPath, query, headers, body);
+	}
+
+	public static Object deleteWorkspaceDepartment(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/identity/departments/" + (path != null && path.containsKey("id") ? path.get("id") : "");
+		return client.request("DELETE", resolvedPath, query, headers, body);
+	}
+
+	public static Object deleteWorkspaceDepartmentMember(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/identity/departments/" + (path != null && path.containsKey("departmentId") ? path.get("departmentId") : "") + "/members/" + (path != null && path.containsKey("userId") ? path.get("userId") : "");
+		return client.request("DELETE", resolvedPath, query, headers, body);
+	}
+
+	public static Object deleteWorkspaceGroupMapping(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/identity/group-mappings/" + (path != null && path.containsKey("id") ? path.get("id") : "");
 		return client.request("DELETE", resolvedPath, query, headers, body);
 	}
 
@@ -423,6 +448,11 @@ public final class Operations {
 
 	public static Object getWorkspace(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/workspaces/" + (path != null && path.containsKey("id") ? path.get("id") : "");
+		return client.request("GET", resolvedPath, query, headers, body);
+	}
+
+	public static Object getWorkspaceDirectory(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/identity/directory";
 		return client.request("GET", resolvedPath, query, headers, body);
 	}
 
@@ -621,6 +651,16 @@ public final class Operations {
 		return client.request("GET", resolvedPath, query, headers, body);
 	}
 
+	public static Object listWorkspaceDepartments(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/identity/departments";
+		return client.request("GET", resolvedPath, query, headers, body);
+	}
+
+	public static Object listWorkspaceGroupMappings(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/identity/group-mappings";
+		return client.request("GET", resolvedPath, query, headers, body);
+	}
+
 	public static Object listWorkspaceInvites(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/workspaces/" + (path != null && path.containsKey("id") ? path.get("id") : "") + "/invites";
 		return client.request("GET", resolvedPath, query, headers, body);
@@ -746,6 +786,11 @@ public final class Operations {
 		return client.request("POST", resolvedPath, query, headers, body);
 	}
 
+	public static Object setWorkspaceDepartmentMember(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/identity/departments/" + (path != null && path.containsKey("departmentId") ? path.get("departmentId") : "") + "/members/" + (path != null && path.containsKey("userId") ? path.get("userId") : "");
+		return client.request("PUT", resolvedPath, query, headers, body);
+	}
+
 	public static Object updateApiKey(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/keys/" + (path != null && path.containsKey("id") ? path.get("id") : "");
 		return client.request("PATCH", resolvedPath, query, headers, body);
@@ -808,6 +853,21 @@ public final class Operations {
 
 	public static Object updateWorkspace(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/workspaces/" + (path != null && path.containsKey("id") ? path.get("id") : "");
+		return client.request("PATCH", resolvedPath, query, headers, body);
+	}
+
+	public static Object updateWorkspaceDepartment(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/identity/departments/" + (path != null && path.containsKey("id") ? path.get("id") : "");
+		return client.request("PATCH", resolvedPath, query, headers, body);
+	}
+
+	public static Object updateWorkspaceDirectoryMember(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/identity/directory/members/" + (path != null && path.containsKey("id") ? path.get("id") : "");
+		return client.request("PUT", resolvedPath, query, headers, body);
+	}
+
+	public static Object updateWorkspaceGroupMapping(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/identity/group-mappings/" + (path != null && path.containsKey("id") ? path.get("id") : "");
 		return client.request("PATCH", resolvedPath, query, headers, body);
 	}
 

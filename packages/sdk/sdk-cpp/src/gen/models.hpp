@@ -2166,6 +2166,10 @@ struct ToolCallContentPart {
 	std::any type;
 };
 
+struct UpdatedResponse {
+	std::map<std::string, std::any> data;
+};
+
 struct Usage {
 	std::optional<int> completion_tokens;
 	std::optional<int> prompt_tokens;
@@ -2456,6 +2460,123 @@ struct WorkspaceAuditEventMetadata {
 struct WorkspaceCreateRequest {
 	std::string name;
 	std::string slug;
+};
+
+struct WorkspaceDepartment {
+	std::string color;
+	std::optional<std::string> created_at;
+	std::optional<std::string> description;
+	std::optional<std::string> directory_name;
+	std::string icon;
+	std::string id;
+	std::string name;
+	std::optional<bool> name_overridden;
+	std::optional<std::string> source_id;
+	std::any source_type;
+	std::optional<std::string> updated_at;
+};
+
+struct WorkspaceDepartmentCreateRequest {
+	std::any color;
+	std::optional<std::string> description;
+	std::any icon;
+	std::string name;
+};
+
+struct WorkspaceDepartmentInput {
+	std::any color;
+	std::optional<std::string> description;
+	std::any icon;
+	std::string name;
+};
+
+struct WorkspaceDepartmentListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+};
+
+struct WorkspaceDepartmentMember {
+	std::string department_id;
+	bool is_primary;
+	std::any position;
+	std::string user_id;
+};
+
+struct WorkspaceDepartmentMemberRequest {
+	std::any position;
+	std::optional<bool> primary;
+};
+
+struct WorkspaceDepartmentMemberResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct WorkspaceDepartmentResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct WorkspaceDepartmentUpdateRequest {
+	std::any color;
+	std::optional<std::string> description;
+	std::any icon;
+	std::string name;
+};
+
+struct WorkspaceDirectoryMember {
+	std::string access_source;
+	std::optional<std::map<std::string, std::any>> department;
+	bool department_override_enabled;
+	std::optional<std::string> department_override_id;
+	std::string department_source;
+	std::optional<std::string> directory_department;
+	std::string display_name;
+	std::any effective_role;
+	std::optional<std::string> email;
+	std::optional<std::string> joined_at;
+	std::optional<std::any> role_override;
+	std::any status;
+	std::string user_id;
+	std::string workspace_role;
+};
+
+struct WorkspaceDirectoryMemberUpdateRequest {
+	std::optional<std::any> access_role;
+	std::optional<std::string> department_id;
+	std::any department_mode;
+	std::any department_position;
+};
+
+struct WorkspaceDirectoryResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct WorkspaceGroupMapping {
+	std::any access_role;
+	std::optional<std::string> created_at;
+	std::string department_id;
+	std::any department_position;
+	std::string id;
+	std::string scim_group_id;
+	std::optional<std::string> updated_at;
+};
+
+struct WorkspaceGroupMappingCreateRequest {
+	std::any access_role;
+	std::string department_id;
+	std::any department_position;
+	std::string scim_group_id;
+};
+
+struct WorkspaceGroupMappingListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+};
+
+struct WorkspaceGroupMappingResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct WorkspaceGroupMappingUpdateRequest {
+	std::any access_role;
+	std::any department_position;
 };
 
 struct WorkspaceInvite {

@@ -5708,6 +5708,150 @@ export async function createWorkspace(
   });
 }
 
+export type CreateWorkspaceDepartmentParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    color?:
+      | "blue"
+      | "emerald"
+      | "amber"
+      | "rose"
+      | "violet"
+      | "slate"
+      | "cyan"
+      | "teal"
+      | "lime"
+      | "yellow"
+      | "orange"
+      | "red"
+      | "pink"
+      | "fuchsia"
+      | "indigo"
+      | "sky"
+      | "green"
+      | "purple";
+    description?: string | null;
+    icon?:
+      | "users"
+      | "briefcase"
+      | "megaphone"
+      | "code"
+      | "palette"
+      | "headphones"
+      | "landmark"
+      | "scale"
+      | "heart-pulse"
+      | "globe"
+      | "flask"
+      | "graduation-cap"
+      | "shield-check"
+      | "shopping-bag"
+      | "wrench"
+      | "truck"
+      | "handshake"
+      | "chart";
+    name: string;
+  };
+};
+
+/**
+ * Creates a manually managed department. Requires `settings:write`.
+ */
+export async function createWorkspaceDepartment(
+  client: Client,
+  args: CreateWorkspaceDepartmentParams = {},
+): Promise<{
+  data: {
+    color?: string;
+    created_at?: string | null;
+    description?: string | null;
+    directory_name?: string | null;
+    icon?: string;
+    id: string;
+    name: string;
+    name_overridden?: boolean;
+    source_id?: string | null;
+    source_type?: "manual" | "scim_group";
+    updated_at?: string | null;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/identity/departments";
+  return client.request<{
+    data: {
+      color?: string;
+      created_at?: string | null;
+      description?: string | null;
+      directory_name?: string | null;
+      icon?: string;
+      id: string;
+      name: string;
+      name_overridden?: boolean;
+      source_id?: string | null;
+      source_type?: "manual" | "scim_group";
+      updated_at?: string | null;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type CreateWorkspaceGroupMappingParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    access_role?: "member" | "admin";
+    department_id: string;
+    department_position?: "member" | "lead";
+    scim_group_id: string;
+  };
+};
+
+/**
+ * Maps a provisioned group to a workspace department and access role.
+ */
+export async function createWorkspaceGroupMapping(
+  client: Client,
+  args: CreateWorkspaceGroupMappingParams = {},
+): Promise<{
+  data: {
+    access_role: "member" | "admin";
+    created_at?: string | null;
+    department_id: string;
+    department_position: "member" | "lead";
+    id: string;
+    scim_group_id: string;
+    updated_at?: string | null;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/identity/group-mappings";
+  return client.request<{
+    data: {
+      access_role: "member" | "admin";
+      created_at?: string | null;
+      department_id: string;
+      department_position: "member" | "lead";
+      id: string;
+      scim_group_id: string;
+      updated_at?: string | null;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type CreateWorkspaceInviteParams = {
   path?: {
     id: string;
@@ -6204,6 +6348,100 @@ export async function deleteWorkspace(
 }> {
   const { path, query, headers, body } = args;
   const resolvedPath = `/workspaces/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    deleted: true;
+  }>({
+    method: "DELETE",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type DeleteWorkspaceDepartmentParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Deletes a manually managed department. Directory-synchronized departments cannot be deleted here.
+ */
+export async function deleteWorkspaceDepartment(
+  client: Client,
+  args: DeleteWorkspaceDepartmentParams = {},
+): Promise<{
+  deleted: true;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/identity/departments/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    deleted: true;
+  }>({
+    method: "DELETE",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type DeleteWorkspaceDepartmentMemberParams = {
+  path?: {
+    departmentId: string;
+    userId: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Removes a manual department membership without changing directory-synchronized membership.
+ */
+export async function deleteWorkspaceDepartmentMember(
+  client: Client,
+  args: DeleteWorkspaceDepartmentMemberParams = {},
+): Promise<{
+  deleted: true;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/identity/departments/${encodeURIComponent(String(path?.["departmentId"]))}/members/${encodeURIComponent(String(path?.["userId"]))}`;
+  return client.request<{
+    deleted: true;
+  }>({
+    method: "DELETE",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type DeleteWorkspaceGroupMappingParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Removes a provisioned-group mapping from the workspace.
+ */
+export async function deleteWorkspaceGroupMapping(
+  client: Client,
+  args: DeleteWorkspaceGroupMappingParams = {},
+): Promise<{
+  deleted: true;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/identity/group-mappings/${encodeURIComponent(String(path?.["id"]))}`;
   return client.request<{
     deleted: true;
   }>({
@@ -8691,6 +8929,119 @@ export async function getWorkspace(
       name: string | null;
       slug: string | null;
       updated_at: string | null;
+    };
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type GetWorkspaceDirectoryParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns enterprise departments and effective member entitlements. Requires the identity add-on, `settings:read`, and an owner or admin identity.
+ */
+export async function getWorkspaceDirectory(
+  client: Client,
+  args: GetWorkspaceDirectoryParams = {},
+): Promise<{
+  data: {
+    departments: {
+      color?: string;
+      created_at?: string | null;
+      description?: string | null;
+      directory_name?: string | null;
+      icon?: string;
+      id: string;
+      name: string;
+      name_overridden?: boolean;
+      source_id?: string | null;
+      source_type?: "manual" | "scim_group";
+      updated_at?: string | null;
+    }[];
+    members: {
+      access_source: string;
+      department: {
+        color?: string;
+        created_at?: string | null;
+        description?: string | null;
+        directory_name?: string | null;
+        icon?: string;
+        id: string;
+        name: string;
+        name_overridden?: boolean;
+        source_id?: string | null;
+        source_type?: "manual" | "scim_group";
+        updated_at?: string | null;
+      } | null;
+      department_override_enabled: boolean;
+      department_override_id: string | null;
+      department_source: string;
+      directory_department?: string | null;
+      display_name: string;
+      effective_role: "owner" | "admin" | "member";
+      email?: string | null;
+      joined_at?: string | null;
+      role_override: "admin" | "member" | null;
+      status: "active" | "suspended";
+      user_id: string;
+      workspace_role: string;
+    }[];
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/identity/directory";
+  return client.request<{
+    data: {
+      departments: {
+        color?: string;
+        created_at?: string | null;
+        description?: string | null;
+        directory_name?: string | null;
+        icon?: string;
+        id: string;
+        name: string;
+        name_overridden?: boolean;
+        source_id?: string | null;
+        source_type?: "manual" | "scim_group";
+        updated_at?: string | null;
+      }[];
+      members: {
+        access_source: string;
+        department: {
+          color?: string;
+          created_at?: string | null;
+          description?: string | null;
+          directory_name?: string | null;
+          icon?: string;
+          id: string;
+          name: string;
+          name_overridden?: boolean;
+          source_id?: string | null;
+          source_type?: "manual" | "scim_group";
+          updated_at?: string | null;
+        } | null;
+        department_override_enabled: boolean;
+        department_override_id: string | null;
+        department_source: string;
+        directory_department?: string | null;
+        display_name: string;
+        effective_role: "owner" | "admin" | "member";
+        email?: string | null;
+        joined_at?: string | null;
+        role_override: "admin" | "member" | null;
+        status: "active" | "suspended";
+        user_id: string;
+        workspace_role: string;
+      }[];
     };
   }>({
     method: "GET",
@@ -13499,6 +13850,104 @@ export async function listWorkspaceAuditEvents(
   });
 }
 
+export type ListWorkspaceDepartmentsParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists manually managed and directory-synchronized departments.
+ */
+export async function listWorkspaceDepartments(
+  client: Client,
+  args: ListWorkspaceDepartmentsParams = {},
+): Promise<{
+  data: {
+    color?: string;
+    created_at?: string | null;
+    description?: string | null;
+    directory_name?: string | null;
+    icon?: string;
+    id: string;
+    name: string;
+    name_overridden?: boolean;
+    source_id?: string | null;
+    source_type?: "manual" | "scim_group";
+    updated_at?: string | null;
+  }[];
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/identity/departments";
+  return client.request<{
+    data: {
+      color?: string;
+      created_at?: string | null;
+      description?: string | null;
+      directory_name?: string | null;
+      icon?: string;
+      id: string;
+      name: string;
+      name_overridden?: boolean;
+      source_id?: string | null;
+      source_type?: "manual" | "scim_group";
+      updated_at?: string | null;
+    }[];
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ListWorkspaceGroupMappingsParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists mappings from provisioned groups to workspace roles and departments.
+ */
+export async function listWorkspaceGroupMappings(
+  client: Client,
+  args: ListWorkspaceGroupMappingsParams = {},
+): Promise<{
+  data: {
+    access_role: "member" | "admin";
+    created_at?: string | null;
+    department_id: string;
+    department_position: "member" | "lead";
+    id: string;
+    scim_group_id: string;
+    updated_at?: string | null;
+  }[];
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/identity/group-mappings";
+  return client.request<{
+    data: {
+      access_role: "member" | "admin";
+      created_at?: string | null;
+      department_id: string;
+      department_position: "member" | "lead";
+      id: string;
+      scim_group_id: string;
+      updated_at?: string | null;
+    }[];
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type ListWorkspaceInvitesParams = {
   path?: {
     id: string;
@@ -14998,6 +15447,51 @@ export async function rotateWebhookEndpointSecret(
   });
 }
 
+export type SetWorkspaceDepartmentMemberParams = {
+  path?: {
+    departmentId: string;
+    userId: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    position?: "member" | "lead";
+    primary?: boolean;
+  };
+};
+
+/**
+ * Adds or updates a manual department membership for a workspace user.
+ */
+export async function setWorkspaceDepartmentMember(
+  client: Client,
+  args: SetWorkspaceDepartmentMemberParams = {},
+): Promise<{
+  data: {
+    department_id: string;
+    is_primary: boolean;
+    position: "member" | "lead";
+    user_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/identity/departments/${encodeURIComponent(String(path?.["departmentId"]))}/members/${encodeURIComponent(String(path?.["userId"]))}`;
+  return client.request<{
+    data: {
+      department_id: string;
+      is_primary: boolean;
+      position: "member" | "lead";
+      user_id: string;
+    };
+  }>({
+    method: "PUT",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type UpdateApiKeyParams = {
   path?: {
     id: string;
@@ -16168,6 +16662,192 @@ export async function updateWorkspace(
       name: string | null;
       slug: string | null;
       updated_at: string | null;
+    };
+  }>({
+    method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateWorkspaceDepartmentParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    color?:
+      | "blue"
+      | "emerald"
+      | "amber"
+      | "rose"
+      | "violet"
+      | "slate"
+      | "cyan"
+      | "teal"
+      | "lime"
+      | "yellow"
+      | "orange"
+      | "red"
+      | "pink"
+      | "fuchsia"
+      | "indigo"
+      | "sky"
+      | "green"
+      | "purple";
+    description?: string | null;
+    icon?:
+      | "users"
+      | "briefcase"
+      | "megaphone"
+      | "code"
+      | "palette"
+      | "headphones"
+      | "landmark"
+      | "scale"
+      | "heart-pulse"
+      | "globe"
+      | "flask"
+      | "graduation-cap"
+      | "shield-check"
+      | "shopping-bag"
+      | "wrench"
+      | "truck"
+      | "handshake"
+      | "chart";
+    name?: string;
+  };
+};
+
+/**
+ * Updates department name, description, icon, or color without removing its directory mapping.
+ */
+export async function updateWorkspaceDepartment(
+  client: Client,
+  args: UpdateWorkspaceDepartmentParams = {},
+): Promise<{
+  data: {
+    color?: string;
+    created_at?: string | null;
+    description?: string | null;
+    directory_name?: string | null;
+    icon?: string;
+    id: string;
+    name: string;
+    name_overridden?: boolean;
+    source_id?: string | null;
+    source_type?: "manual" | "scim_group";
+    updated_at?: string | null;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/identity/departments/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    data: {
+      color?: string;
+      created_at?: string | null;
+      description?: string | null;
+      directory_name?: string | null;
+      icon?: string;
+      id: string;
+      name: string;
+      name_overridden?: boolean;
+      source_id?: string | null;
+      source_type?: "manual" | "scim_group";
+      updated_at?: string | null;
+    };
+  }>({
+    method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateWorkspaceDirectoryMemberParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    access_role?: "directory" | "admin" | "member" | null;
+    department_id?: string | null;
+    department_mode?: "directory" | "department" | "none";
+    department_position?: "member" | "lead";
+  };
+};
+
+/**
+ * Sets or clears effective role and department overrides for a workspace member. Requires `settings:write`.
+ */
+export async function updateWorkspaceDirectoryMember(
+  client: Client,
+  args: UpdateWorkspaceDirectoryMemberParams = {},
+): Promise<{
+  data: {
+    updated: boolean;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/identity/directory/members/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    data: {
+      updated: boolean;
+    };
+  }>({
+    method: "PUT",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateWorkspaceGroupMappingParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    access_role?: "member" | "admin";
+    department_position?: "member" | "lead";
+  };
+};
+
+/**
+ * Updates the access role or department position assigned by a mapping.
+ */
+export async function updateWorkspaceGroupMapping(
+  client: Client,
+  args: UpdateWorkspaceGroupMappingParams = {},
+): Promise<{
+  data: {
+    access_role: "member" | "admin";
+    created_at?: string | null;
+    department_id: string;
+    department_position: "member" | "lead";
+    id: string;
+    scim_group_id: string;
+    updated_at?: string | null;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/identity/group-mappings/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    data: {
+      access_role: "member" | "admin";
+      created_at?: string | null;
+      department_id: string;
+      department_position: "member" | "lead";
+      id: string;
+      scim_group_id: string;
+      updated_at?: string | null;
     };
   }>({
     method: "PATCH",

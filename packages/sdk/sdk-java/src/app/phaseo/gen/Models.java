@@ -2185,6 +2185,10 @@ public final class Models {
 		public Object type;
 	}
 
+	public static class UpdatedResponse {
+		public Object data;
+	}
+
 	public static class Usage {
 		public Integer completion_tokens;
 		public Integer prompt_tokens;
@@ -2477,6 +2481,123 @@ public final class Models {
 	public static class WorkspaceCreateRequest {
 		public String name;
 		public String slug;
+	}
+
+	public static class WorkspaceDepartment {
+		public String color;
+		public String created_at;
+		public String description;
+		public String directory_name;
+		public String icon;
+		public String id;
+		public String name;
+		public Boolean name_overridden;
+		public String source_id;
+		public Object source_type;
+		public String updated_at;
+	}
+
+	public static class WorkspaceDepartmentCreateRequest {
+		public Object color;
+		public String description;
+		public Object icon;
+		public String name;
+	}
+
+	public static class WorkspaceDepartmentInput {
+		public Object color;
+		public String description;
+		public Object icon;
+		public String name;
+	}
+
+	public static class WorkspaceDepartmentListResponse {
+		public java.util.List<Object> data;
+	}
+
+	public static class WorkspaceDepartmentMember {
+		public String department_id;
+		public Boolean is_primary;
+		public Object position;
+		public String user_id;
+	}
+
+	public static class WorkspaceDepartmentMemberRequest {
+		public Object position;
+		public Boolean primary;
+	}
+
+	public static class WorkspaceDepartmentMemberResponse {
+		public Object data;
+	}
+
+	public static class WorkspaceDepartmentResponse {
+		public Object data;
+	}
+
+	public static class WorkspaceDepartmentUpdateRequest {
+		public Object color;
+		public String description;
+		public Object icon;
+		public String name;
+	}
+
+	public static class WorkspaceDirectoryMember {
+		public String access_source;
+		public Object department;
+		public Boolean department_override_enabled;
+		public String department_override_id;
+		public String department_source;
+		public String directory_department;
+		public String display_name;
+		public Object effective_role;
+		public String email;
+		public String joined_at;
+		public Object role_override;
+		public Object status;
+		public String user_id;
+		public String workspace_role;
+	}
+
+	public static class WorkspaceDirectoryMemberUpdateRequest {
+		public Object access_role;
+		public String department_id;
+		public Object department_mode;
+		public Object department_position;
+	}
+
+	public static class WorkspaceDirectoryResponse {
+		public Object data;
+	}
+
+	public static class WorkspaceGroupMapping {
+		public Object access_role;
+		public String created_at;
+		public String department_id;
+		public Object department_position;
+		public String id;
+		public String scim_group_id;
+		public String updated_at;
+	}
+
+	public static class WorkspaceGroupMappingCreateRequest {
+		public Object access_role;
+		public String department_id;
+		public Object department_position;
+		public String scim_group_id;
+	}
+
+	public static class WorkspaceGroupMappingListResponse {
+		public java.util.List<Object> data;
+	}
+
+	public static class WorkspaceGroupMappingResponse {
+		public Object data;
+	}
+
+	public static class WorkspaceGroupMappingUpdateRequest {
+		public Object access_role;
+		public Object department_position;
 	}
 
 	public static class WorkspaceInvite {

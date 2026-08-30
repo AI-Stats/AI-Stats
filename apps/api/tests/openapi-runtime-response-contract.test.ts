@@ -227,4 +227,11 @@ describe("OpenAPI Runtime Response Contract", () => {
 		expect(validateSchema(SPEC_DOC, schema, result.body)).toEqual([]);
 	});
 
+	it("matches enterprise directory authorization errors to its public schema", async () => {
+		const result = await requestJson("/v1/identity/directory", { method: "GET" });
+		expect(result.status).toBe(401);
+		const schema = schemaForResponse("/identity/directory", "get", "default");
+		expect(validateSchema(SPEC_DOC, schema, result.body)).toEqual([]);
+	});
+
 });

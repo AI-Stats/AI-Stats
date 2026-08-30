@@ -2162,6 +2162,10 @@ pub struct ToolCallContentPart {
 	pub r#type: String,
 }
 
+pub struct UpdatedResponse {
+	pub data: HashMap<String, String>,
+}
+
 pub struct Usage {
 	pub completion_tokens: Option<i64>,
 	pub prompt_tokens: Option<i64>,
@@ -2452,6 +2456,123 @@ pub struct WorkspaceAuditEventMetadata {
 pub struct WorkspaceCreateRequest {
 	pub name: String,
 	pub slug: Option<String>,
+}
+
+pub struct WorkspaceDepartment {
+	pub color: Option<String>,
+	pub created_at: Option<Option<String>>,
+	pub description: Option<Option<String>>,
+	pub directory_name: Option<Option<String>>,
+	pub icon: Option<String>,
+	pub id: String,
+	pub name: String,
+	pub name_overridden: Option<bool>,
+	pub source_id: Option<Option<String>>,
+	pub source_type: Option<String>,
+	pub updated_at: Option<Option<String>>,
+}
+
+pub struct WorkspaceDepartmentCreateRequest {
+	pub color: Option<String>,
+	pub description: Option<Option<String>>,
+	pub icon: Option<String>,
+	pub name: String,
+}
+
+pub struct WorkspaceDepartmentInput {
+	pub color: Option<String>,
+	pub description: Option<Option<String>>,
+	pub icon: Option<String>,
+	pub name: Option<String>,
+}
+
+pub struct WorkspaceDepartmentListResponse {
+	pub data: Vec<HashMap<String, String>>,
+}
+
+pub struct WorkspaceDepartmentMember {
+	pub department_id: String,
+	pub is_primary: bool,
+	pub position: String,
+	pub user_id: String,
+}
+
+pub struct WorkspaceDepartmentMemberRequest {
+	pub position: Option<String>,
+	pub primary: Option<bool>,
+}
+
+pub struct WorkspaceDepartmentMemberResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub struct WorkspaceDepartmentResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub struct WorkspaceDepartmentUpdateRequest {
+	pub color: Option<String>,
+	pub description: Option<Option<String>>,
+	pub icon: Option<String>,
+	pub name: Option<String>,
+}
+
+pub struct WorkspaceDirectoryMember {
+	pub access_source: String,
+	pub department: Option<HashMap<String, String>>,
+	pub department_override_enabled: bool,
+	pub department_override_id: Option<String>,
+	pub department_source: String,
+	pub directory_department: Option<Option<String>>,
+	pub display_name: String,
+	pub effective_role: String,
+	pub email: Option<Option<String>>,
+	pub joined_at: Option<Option<String>>,
+	pub role_override: Option<String>,
+	pub status: String,
+	pub user_id: String,
+	pub workspace_role: String,
+}
+
+pub struct WorkspaceDirectoryMemberUpdateRequest {
+	pub access_role: Option<Option<String>>,
+	pub department_id: Option<Option<String>>,
+	pub department_mode: Option<String>,
+	pub department_position: Option<String>,
+}
+
+pub struct WorkspaceDirectoryResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub struct WorkspaceGroupMapping {
+	pub access_role: String,
+	pub created_at: Option<Option<String>>,
+	pub department_id: String,
+	pub department_position: String,
+	pub id: String,
+	pub scim_group_id: String,
+	pub updated_at: Option<Option<String>>,
+}
+
+pub struct WorkspaceGroupMappingCreateRequest {
+	pub access_role: Option<String>,
+	pub department_id: String,
+	pub department_position: Option<String>,
+	pub scim_group_id: String,
+}
+
+pub struct WorkspaceGroupMappingListResponse {
+	pub data: Vec<HashMap<String, String>>,
+}
+
+pub struct WorkspaceGroupMappingResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub struct WorkspaceGroupMappingUpdateRequest {
+	pub access_role: Option<String>,
+	pub department_position: Option<String>,
 }
 
 pub struct WorkspaceInvite {

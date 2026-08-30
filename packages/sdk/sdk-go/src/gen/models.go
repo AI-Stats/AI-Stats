@@ -3530,6 +3530,10 @@ type ToolCallContentPart struct {
 	Type string `json:"type"`
 }
 
+type UpdatedResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
 type Usage struct {
 	CompletionTokens *int `json:"completion_tokens,omitempty"`
 	PromptTokens *int `json:"prompt_tokens,omitempty"`
@@ -3826,6 +3830,123 @@ type WorkspaceAuditEventMetadata struct {
 type WorkspaceCreateRequest struct {
 	Name string `json:"name"`
 	Slug *string `json:"slug,omitempty"`
+}
+
+type WorkspaceDepartment struct {
+	Color *string `json:"color,omitempty"`
+	CreatedAt *string `json:"created_at,omitempty"`
+	Description *string `json:"description,omitempty"`
+	DirectoryName *string `json:"directory_name,omitempty"`
+	Icon *string `json:"icon,omitempty"`
+	Id string `json:"id"`
+	Name string `json:"name"`
+	NameOverridden *bool `json:"name_overridden,omitempty"`
+	SourceId *string `json:"source_id,omitempty"`
+	SourceType *string `json:"source_type,omitempty"`
+	UpdatedAt *string `json:"updated_at,omitempty"`
+}
+
+type WorkspaceDepartmentCreateRequest struct {
+	Color *string `json:"color,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Icon *string `json:"icon,omitempty"`
+	Name string `json:"name"`
+}
+
+type WorkspaceDepartmentInput struct {
+	Color *string `json:"color,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Icon *string `json:"icon,omitempty"`
+	Name *string `json:"name,omitempty"`
+}
+
+type WorkspaceDepartmentListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+}
+
+type WorkspaceDepartmentMember struct {
+	DepartmentId string `json:"department_id"`
+	IsPrimary bool `json:"is_primary"`
+	Position string `json:"position"`
+	UserId string `json:"user_id"`
+}
+
+type WorkspaceDepartmentMemberRequest struct {
+	Position *string `json:"position,omitempty"`
+	Primary *bool `json:"primary,omitempty"`
+}
+
+type WorkspaceDepartmentMemberResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceDepartmentResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceDepartmentUpdateRequest struct {
+	Color *string `json:"color,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Icon *string `json:"icon,omitempty"`
+	Name *string `json:"name,omitempty"`
+}
+
+type WorkspaceDirectoryMember struct {
+	AccessSource string `json:"access_source"`
+	Department *map[string]interface{} `json:"department"`
+	DepartmentOverrideEnabled bool `json:"department_override_enabled"`
+	DepartmentOverrideId *string `json:"department_override_id"`
+	DepartmentSource string `json:"department_source"`
+	DirectoryDepartment *string `json:"directory_department,omitempty"`
+	DisplayName string `json:"display_name"`
+	EffectiveRole string `json:"effective_role"`
+	Email *string `json:"email,omitempty"`
+	JoinedAt *string `json:"joined_at,omitempty"`
+	RoleOverride *string `json:"role_override"`
+	Status string `json:"status"`
+	UserId string `json:"user_id"`
+	WorkspaceRole string `json:"workspace_role"`
+}
+
+type WorkspaceDirectoryMemberUpdateRequest struct {
+	AccessRole *string `json:"access_role,omitempty"`
+	DepartmentId *string `json:"department_id,omitempty"`
+	DepartmentMode *string `json:"department_mode,omitempty"`
+	DepartmentPosition *string `json:"department_position,omitempty"`
+}
+
+type WorkspaceDirectoryResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceGroupMapping struct {
+	AccessRole string `json:"access_role"`
+	CreatedAt *string `json:"created_at,omitempty"`
+	DepartmentId string `json:"department_id"`
+	DepartmentPosition string `json:"department_position"`
+	Id string `json:"id"`
+	ScimGroupId string `json:"scim_group_id"`
+	UpdatedAt *string `json:"updated_at,omitempty"`
+}
+
+type WorkspaceGroupMappingCreateRequest struct {
+	AccessRole *string `json:"access_role,omitempty"`
+	DepartmentId string `json:"department_id"`
+	DepartmentPosition *string `json:"department_position,omitempty"`
+	ScimGroupId string `json:"scim_group_id"`
+}
+
+type WorkspaceGroupMappingListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+}
+
+type WorkspaceGroupMappingResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceGroupMappingUpdateRequest struct {
+	AccessRole *string `json:"access_role,omitempty"`
+	DepartmentPosition *string `json:"department_position,omitempty"`
 }
 
 type WorkspaceInvite struct {

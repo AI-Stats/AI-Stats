@@ -200,6 +200,16 @@ pub fn createWorkspace<T: Transport>(client: &Client<T>, path: &HashMap<String, 
 	client.request("POST", &resolved_path, body)
 }
 
+pub fn createWorkspaceDepartment<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/identity/departments");
+	client.request("POST", &resolved_path, body)
+}
+
+pub fn createWorkspaceGroupMapping<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/identity/group-mappings");
+	client.request("POST", &resolved_path, body)
+}
+
 pub fn createWorkspaceInvite<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/workspaces/{}/invites", path.get("id").cloned().unwrap_or_default());
 	client.request("POST", &resolved_path, body)
@@ -267,6 +277,21 @@ pub fn deleteWebhookEndpoint<T: Transport>(client: &Client<T>, path: &HashMap<St
 
 pub fn deleteWorkspace<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/workspaces/{}", path.get("id").cloned().unwrap_or_default());
+	client.request("DELETE", &resolved_path, body)
+}
+
+pub fn deleteWorkspaceDepartment<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/identity/departments/{}", path.get("id").cloned().unwrap_or_default());
+	client.request("DELETE", &resolved_path, body)
+}
+
+pub fn deleteWorkspaceDepartmentMember<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/identity/departments/{}/members/{}", path.get("departmentId").cloned().unwrap_or_default(), path.get("userId").cloned().unwrap_or_default());
+	client.request("DELETE", &resolved_path, body)
+}
+
+pub fn deleteWorkspaceGroupMapping<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/identity/group-mappings/{}", path.get("id").cloned().unwrap_or_default());
 	client.request("DELETE", &resolved_path, body)
 }
 
@@ -422,6 +447,11 @@ pub fn getWebhookEndpoint<T: Transport>(client: &Client<T>, path: &HashMap<Strin
 
 pub fn getWorkspace<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/workspaces/{}", path.get("id").cloned().unwrap_or_default());
+	client.request("GET", &resolved_path, body)
+}
+
+pub fn getWorkspaceDirectory<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/identity/directory");
 	client.request("GET", &resolved_path, body)
 }
 
@@ -620,6 +650,16 @@ pub fn listWorkspaceAuditEvents<T: Transport>(client: &Client<T>, path: &HashMap
 	client.request("GET", &resolved_path, body)
 }
 
+pub fn listWorkspaceDepartments<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/identity/departments");
+	client.request("GET", &resolved_path, body)
+}
+
+pub fn listWorkspaceGroupMappings<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/identity/group-mappings");
+	client.request("GET", &resolved_path, body)
+}
+
 pub fn listWorkspaceInvites<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/workspaces/{}/invites", path.get("id").cloned().unwrap_or_default());
 	client.request("GET", &resolved_path, body)
@@ -745,6 +785,11 @@ pub fn rotateWebhookEndpointSecret<T: Transport>(client: &Client<T>, path: &Hash
 	client.request("POST", &resolved_path, body)
 }
 
+pub fn setWorkspaceDepartmentMember<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/identity/departments/{}/members/{}", path.get("departmentId").cloned().unwrap_or_default(), path.get("userId").cloned().unwrap_or_default());
+	client.request("PUT", &resolved_path, body)
+}
+
 pub fn updateApiKey<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/keys/{}", path.get("id").cloned().unwrap_or_default());
 	client.request("PATCH", &resolved_path, body)
@@ -807,6 +852,21 @@ pub fn updateWebhookEndpoint<T: Transport>(client: &Client<T>, path: &HashMap<St
 
 pub fn updateWorkspace<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/workspaces/{}", path.get("id").cloned().unwrap_or_default());
+	client.request("PATCH", &resolved_path, body)
+}
+
+pub fn updateWorkspaceDepartment<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/identity/departments/{}", path.get("id").cloned().unwrap_or_default());
+	client.request("PATCH", &resolved_path, body)
+}
+
+pub fn updateWorkspaceDirectoryMember<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/identity/directory/members/{}", path.get("id").cloned().unwrap_or_default());
+	client.request("PUT", &resolved_path, body)
+}
+
+pub fn updateWorkspaceGroupMapping<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/identity/group-mappings/{}", path.get("id").cloned().unwrap_or_default());
 	client.request("PATCH", &resolved_path, body)
 }
 

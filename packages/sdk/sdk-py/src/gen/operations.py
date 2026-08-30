@@ -511,6 +511,32 @@ def createWorkspace(
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
+def createWorkspaceDepartment(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> WorkspaceDepartmentResponse:
+	path = path or {}
+	resolved_path = "/identity/departments"
+	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
+
+
+def createWorkspaceGroupMapping(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> WorkspaceGroupMappingResponse:
+	path = path or {}
+	resolved_path = "/identity/group-mappings"
+	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
+
+
 def createWorkspaceInvite(
 	client: Client,
 	*,
@@ -690,6 +716,45 @@ def deleteWorkspace(
 ) -> Dict[str, Any]:
 	path = path or {}
 	resolved_path = f"/workspaces/{path.get('id', '')}"
+	return client.request("DELETE", resolved_path, query=query, headers=headers, body=body)
+
+
+def deleteWorkspaceDepartment(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> Dict[str, Any]:
+	path = path or {}
+	resolved_path = f"/identity/departments/{path.get('id', '')}"
+	return client.request("DELETE", resolved_path, query=query, headers=headers, body=body)
+
+
+def deleteWorkspaceDepartmentMember(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> Dict[str, Any]:
+	path = path or {}
+	resolved_path = f"/identity/departments/{path.get('departmentId', '')}/members/{path.get('userId', '')}"
+	return client.request("DELETE", resolved_path, query=query, headers=headers, body=body)
+
+
+def deleteWorkspaceGroupMapping(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> Dict[str, Any]:
+	path = path or {}
+	resolved_path = f"/identity/group-mappings/{path.get('id', '')}"
 	return client.request("DELETE", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -1093,6 +1158,19 @@ def getWorkspace(
 ) -> WorkspaceResponse:
 	path = path or {}
 	resolved_path = f"/workspaces/{path.get('id', '')}"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
+def getWorkspaceDirectory(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> WorkspaceDirectoryResponse:
+	path = path or {}
+	resolved_path = "/identity/directory"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -1603,6 +1681,32 @@ def listWorkspaceAuditEvents(
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
+def listWorkspaceDepartments(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> WorkspaceDepartmentListResponse:
+	path = path or {}
+	resolved_path = "/identity/departments"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
+def listWorkspaceGroupMappings(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> WorkspaceGroupMappingListResponse:
+	path = path or {}
+	resolved_path = "/identity/group-mappings"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
 def listWorkspaceInvites(
 	client: Client,
 	*,
@@ -1928,6 +2032,19 @@ def rotateWebhookEndpointSecret(
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
+def setWorkspaceDepartmentMember(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> WorkspaceDepartmentMemberResponse:
+	path = path or {}
+	resolved_path = f"/identity/departments/{path.get('departmentId', '')}/members/{path.get('userId', '')}"
+	return client.request("PUT", resolved_path, query=query, headers=headers, body=body)
+
+
 def updateApiKey(
 	client: Client,
 	*,
@@ -2097,6 +2214,45 @@ def updateWorkspace(
 	return client.request("PATCH", resolved_path, query=query, headers=headers, body=body)
 
 
+def updateWorkspaceDepartment(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> WorkspaceDepartmentResponse:
+	path = path or {}
+	resolved_path = f"/identity/departments/{path.get('id', '')}"
+	return client.request("PATCH", resolved_path, query=query, headers=headers, body=body)
+
+
+def updateWorkspaceDirectoryMember(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> UpdatedResponse:
+	path = path or {}
+	resolved_path = f"/identity/directory/members/{path.get('id', '')}"
+	return client.request("PUT", resolved_path, query=query, headers=headers, body=body)
+
+
+def updateWorkspaceGroupMapping(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> WorkspaceGroupMappingResponse:
+	path = path or {}
+	resolved_path = f"/identity/group-mappings/{path.get('id', '')}"
+	return client.request("PATCH", resolved_path, query=query, headers=headers, body=body)
+
+
 def updateWorkspaceMemberRole(
 	client: Client,
 	*,
@@ -2188,4 +2344,4 @@ def uploadFile(
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
-operations___all__ = ["addGuardrailKeys", "addGuardrailMembers", "addWorkspaceMembers", "applyPresetUpstreamVersion", "approveWorkspaceJoinRequest", "calculatePricing", "cancelBatch", "cancelBatchAlias", "cancelVideo", "cancelVideoAlias", "createAnthropicMessage", "createApiKey", "createBatch", "createBatchAlias", "createChatCompletion", "createDataContributionClassifier", "createDynamicRoute", "createEmbedding", "createGuardrail", "createImage", "createImageEdit", "createManagementKey", "createModeration", "createOAuthClient", "createObservabilityDestination", "createOcr", "createParse", "createPreset", "createRerank", "createResponse", "createSpeech", "createTranscription", "createTranslation", "createVideo", "createVideoAlias", "createVideoDownloadUrl", "createVideoDownloadUrlAlias", "createWebhookEndpoint", "createWorkspace", "createWorkspaceInvite", "createWorkspaceScimToken", "deleteApiKey", "deleteDataContributionClassifier", "deleteDynamicRoute", "deleteGuardrail", "deleteManagementKey", "deleteOAuthClient", "deleteObservabilityDestination", "deletePreset", "deleteVideo", "deleteVideoAlias", "deleteWebhookEndpoint", "deleteWorkspace", "deleteWorkspaceInvite", "deployDynamicRouteVersion", "exportAnalyticsCsv", "forkPreset", "generateMusic", "generateMusicAlias", "getActivity", "getActivityAlias", "getApiKey", "getCredits", "getCurrentApiKey", "getDataContributionSettings", "getDynamicRoute", "getGeneration", "getGuardrail", "getHealth", "getManagementKey", "getMusicGeneration", "getMusicGenerationAlias", "getOAuthClient", "getObservabilityDestination", "getObservabilityLoggingPolicy", "getPreset", "getPresetPublisher", "getProviderDerankStatus", "getVideo", "getVideoAlias", "getVideoContent", "getVideoContentAlias", "getWebhookEndpoint", "getWorkspace", "getWorkspaceScim", "getWorkspaceSettings", "getWorkspaceSso", "invalidateApiKeyCache", "listApiKeys", "listBatchCapabilities", "listBatchCapabilitiesAlias", "listBatches", "listBatchesAlias", "listBatchFiles", "listBatchFilesAlias", "listBatchModels", "listBatchModelsAlias", "listBatchRequests", "listBatchRequestsAlias", "listDataModels", "listDynamicRoutes", "listEndpoints", "listFiles", "listGuardrailKeys", "listGuardrailMembers", "listGuardrails", "listManagementKeys", "listModelEndpoints", "listModels", "listOAuthClients", "listObservabilityDestinations", "listOrganisations", "listPresets", "listPresetVersions", "listPricingModels", "listProviders", "listTeamModels", "listVideoModels", "listVideoModelsAlias", "listVideos", "listVideosAlias", "listWebhookEndpoints", "listWorkspaceAuditEvents", "listWorkspaceInvites", "listWorkspaceJoinRequests", "listWorkspaceMembers", "listWorkspaces", "listWorkspaceScimAuditEvents", "openAsyncJobWebSocket", "publishPresetVersion", "regenerateOAuthClientSecret", "rejectWorkspaceJoinRequest", "removeGuardrailKeys", "removeGuardrailMembers", "removeWorkspaceMembers", "replaceDynamicRouteKeys", "replaceGuardrailKeys", "retrieveBatch", "retrieveBatchAlias", "retrieveBatchFile", "retrieveBatchFileAlias", "retrieveBatchFileContent", "retrieveBatchFileContentAlias", "retrieveFile", "retrieveFileContent", "revokeWorkspaceScimToken", "rotateApiKey", "rotateWebhookEndpointSecret", "updateApiKey", "updateDataContributionClassifier", "updateDataContributionConsent", "updateDynamicRoute", "updateGuardrail", "updateManagementKey", "updateOAuthClient", "updateObservabilityDestination", "updateObservabilityLoggingPolicy", "updatePreset", "updatePresetPublisher", "updateWebhookEndpoint", "updateWorkspace", "updateWorkspaceMemberRole", "updateWorkspaceScim", "updateWorkspaceSettings", "updateWorkspaceSso", "uploadBatchFile", "uploadBatchFileAlias", "uploadFile"]
+operations___all__ = ["addGuardrailKeys", "addGuardrailMembers", "addWorkspaceMembers", "applyPresetUpstreamVersion", "approveWorkspaceJoinRequest", "calculatePricing", "cancelBatch", "cancelBatchAlias", "cancelVideo", "cancelVideoAlias", "createAnthropicMessage", "createApiKey", "createBatch", "createBatchAlias", "createChatCompletion", "createDataContributionClassifier", "createDynamicRoute", "createEmbedding", "createGuardrail", "createImage", "createImageEdit", "createManagementKey", "createModeration", "createOAuthClient", "createObservabilityDestination", "createOcr", "createParse", "createPreset", "createRerank", "createResponse", "createSpeech", "createTranscription", "createTranslation", "createVideo", "createVideoAlias", "createVideoDownloadUrl", "createVideoDownloadUrlAlias", "createWebhookEndpoint", "createWorkspace", "createWorkspaceDepartment", "createWorkspaceGroupMapping", "createWorkspaceInvite", "createWorkspaceScimToken", "deleteApiKey", "deleteDataContributionClassifier", "deleteDynamicRoute", "deleteGuardrail", "deleteManagementKey", "deleteOAuthClient", "deleteObservabilityDestination", "deletePreset", "deleteVideo", "deleteVideoAlias", "deleteWebhookEndpoint", "deleteWorkspace", "deleteWorkspaceDepartment", "deleteWorkspaceDepartmentMember", "deleteWorkspaceGroupMapping", "deleteWorkspaceInvite", "deployDynamicRouteVersion", "exportAnalyticsCsv", "forkPreset", "generateMusic", "generateMusicAlias", "getActivity", "getActivityAlias", "getApiKey", "getCredits", "getCurrentApiKey", "getDataContributionSettings", "getDynamicRoute", "getGeneration", "getGuardrail", "getHealth", "getManagementKey", "getMusicGeneration", "getMusicGenerationAlias", "getOAuthClient", "getObservabilityDestination", "getObservabilityLoggingPolicy", "getPreset", "getPresetPublisher", "getProviderDerankStatus", "getVideo", "getVideoAlias", "getVideoContent", "getVideoContentAlias", "getWebhookEndpoint", "getWorkspace", "getWorkspaceDirectory", "getWorkspaceScim", "getWorkspaceSettings", "getWorkspaceSso", "invalidateApiKeyCache", "listApiKeys", "listBatchCapabilities", "listBatchCapabilitiesAlias", "listBatches", "listBatchesAlias", "listBatchFiles", "listBatchFilesAlias", "listBatchModels", "listBatchModelsAlias", "listBatchRequests", "listBatchRequestsAlias", "listDataModels", "listDynamicRoutes", "listEndpoints", "listFiles", "listGuardrailKeys", "listGuardrailMembers", "listGuardrails", "listManagementKeys", "listModelEndpoints", "listModels", "listOAuthClients", "listObservabilityDestinations", "listOrganisations", "listPresets", "listPresetVersions", "listPricingModels", "listProviders", "listTeamModels", "listVideoModels", "listVideoModelsAlias", "listVideos", "listVideosAlias", "listWebhookEndpoints", "listWorkspaceAuditEvents", "listWorkspaceDepartments", "listWorkspaceGroupMappings", "listWorkspaceInvites", "listWorkspaceJoinRequests", "listWorkspaceMembers", "listWorkspaces", "listWorkspaceScimAuditEvents", "openAsyncJobWebSocket", "publishPresetVersion", "regenerateOAuthClientSecret", "rejectWorkspaceJoinRequest", "removeGuardrailKeys", "removeGuardrailMembers", "removeWorkspaceMembers", "replaceDynamicRouteKeys", "replaceGuardrailKeys", "retrieveBatch", "retrieveBatchAlias", "retrieveBatchFile", "retrieveBatchFileAlias", "retrieveBatchFileContent", "retrieveBatchFileContentAlias", "retrieveFile", "retrieveFileContent", "revokeWorkspaceScimToken", "rotateApiKey", "rotateWebhookEndpointSecret", "setWorkspaceDepartmentMember", "updateApiKey", "updateDataContributionClassifier", "updateDataContributionConsent", "updateDynamicRoute", "updateGuardrail", "updateManagementKey", "updateOAuthClient", "updateObservabilityDestination", "updateObservabilityLoggingPolicy", "updatePreset", "updatePresetPublisher", "updateWebhookEndpoint", "updateWorkspace", "updateWorkspaceDepartment", "updateWorkspaceDirectoryMember", "updateWorkspaceGroupMapping", "updateWorkspaceMemberRole", "updateWorkspaceScim", "updateWorkspaceSettings", "updateWorkspaceSso", "uploadBatchFile", "uploadBatchFileAlias", "uploadFile"]

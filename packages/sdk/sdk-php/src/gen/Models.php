@@ -3811,6 +3811,12 @@ class ToolCallContentPart
 	public $type;
 }
 
+class UpdatedResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
 class Usage
 {
 	/** @var int|null */
@@ -4333,6 +4339,206 @@ class WorkspaceCreateRequest
 	public $name;
 	/** @var string|null */
 	public $slug;
+}
+
+class WorkspaceDepartment
+{
+	/** @var string|null */
+	public $color;
+	/** @var string|null */
+	public $created_at;
+	/** @var string|null */
+	public $description;
+	/** @var string|null */
+	public $directory_name;
+	/** @var string|null */
+	public $icon;
+	/** @var string */
+	public $id;
+	/** @var string */
+	public $name;
+	/** @var bool|null */
+	public $name_overridden;
+	/** @var string|null */
+	public $source_id;
+	/** @var string|null */
+	public $source_type;
+	/** @var string|null */
+	public $updated_at;
+}
+
+class WorkspaceDepartmentCreateRequest
+{
+	/** @var string|null */
+	public $color;
+	/** @var string|null */
+	public $description;
+	/** @var string|null */
+	public $icon;
+	/** @var string */
+	public $name;
+}
+
+class WorkspaceDepartmentInput
+{
+	/** @var string|null */
+	public $color;
+	/** @var string|null */
+	public $description;
+	/** @var string|null */
+	public $icon;
+	/** @var string|null */
+	public $name;
+}
+
+class WorkspaceDepartmentListResponse
+{
+	/** @var array */
+	public $data;
+}
+
+class WorkspaceDepartmentMember
+{
+	/** @var string */
+	public $department_id;
+	/** @var bool */
+	public $is_primary;
+	/** @var string */
+	public $position;
+	/** @var string */
+	public $user_id;
+}
+
+class WorkspaceDepartmentMemberRequest
+{
+	/** @var string|null */
+	public $position;
+	/** @var bool|null */
+	public $primary;
+}
+
+class WorkspaceDepartmentMemberResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class WorkspaceDepartmentResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class WorkspaceDepartmentUpdateRequest
+{
+	/** @var string|null */
+	public $color;
+	/** @var string|null */
+	public $description;
+	/** @var string|null */
+	public $icon;
+	/** @var string|null */
+	public $name;
+}
+
+class WorkspaceDirectoryMember
+{
+	/** @var string */
+	public $access_source;
+	/** @var array<string, mixed>|null */
+	public $department;
+	/** @var bool */
+	public $department_override_enabled;
+	/** @var string|null */
+	public $department_override_id;
+	/** @var string */
+	public $department_source;
+	/** @var string|null */
+	public $directory_department;
+	/** @var string */
+	public $display_name;
+	/** @var string */
+	public $effective_role;
+	/** @var string|null */
+	public $email;
+	/** @var string|null */
+	public $joined_at;
+	/** @var string|null */
+	public $role_override;
+	/** @var string */
+	public $status;
+	/** @var string */
+	public $user_id;
+	/** @var string */
+	public $workspace_role;
+}
+
+class WorkspaceDirectoryMemberUpdateRequest
+{
+	/** @var string|null */
+	public $access_role;
+	/** @var string|null */
+	public $department_id;
+	/** @var string|null */
+	public $department_mode;
+	/** @var string|null */
+	public $department_position;
+}
+
+class WorkspaceDirectoryResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class WorkspaceGroupMapping
+{
+	/** @var string */
+	public $access_role;
+	/** @var string|null */
+	public $created_at;
+	/** @var string */
+	public $department_id;
+	/** @var string */
+	public $department_position;
+	/** @var string */
+	public $id;
+	/** @var string */
+	public $scim_group_id;
+	/** @var string|null */
+	public $updated_at;
+}
+
+class WorkspaceGroupMappingCreateRequest
+{
+	/** @var string|null */
+	public $access_role;
+	/** @var string */
+	public $department_id;
+	/** @var string|null */
+	public $department_position;
+	/** @var string */
+	public $scim_group_id;
+}
+
+class WorkspaceGroupMappingListResponse
+{
+	/** @var array */
+	public $data;
+}
+
+class WorkspaceGroupMappingResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class WorkspaceGroupMappingUpdateRequest
+{
+	/** @var string|null */
+	public $access_role;
+	/** @var string|null */
+	public $department_position;
 }
 
 class WorkspaceInvite

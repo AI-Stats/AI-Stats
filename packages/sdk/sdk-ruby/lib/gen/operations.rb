@@ -237,6 +237,18 @@ module Phaseo
         client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.createWorkspaceDepartment(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/identity/departments"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.createWorkspaceGroupMapping(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/identity/group-mappings"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.createWorkspaceInvite(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/workspaces/#{URI.encode_uri_component(path["id"].to_s)}/invites"
@@ -318,6 +330,24 @@ module Phaseo
       def self.deleteWorkspace(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/workspaces/#{URI.encode_uri_component(path["id"].to_s)}"
+        client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.deleteWorkspaceDepartment(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/identity/departments/#{URI.encode_uri_component(path["id"].to_s)}"
+        client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.deleteWorkspaceDepartmentMember(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/identity/departments/#{URI.encode_uri_component(path["departmentId"].to_s)}/members/#{URI.encode_uri_component(path["userId"].to_s)}"
+        client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.deleteWorkspaceGroupMapping(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/identity/group-mappings/#{URI.encode_uri_component(path["id"].to_s)}"
         client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -504,6 +534,12 @@ module Phaseo
       def self.getWorkspace(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/workspaces/#{URI.encode_uri_component(path["id"].to_s)}"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.getWorkspaceDirectory(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/identity/directory"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -741,6 +777,18 @@ module Phaseo
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.listWorkspaceDepartments(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/identity/departments"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.listWorkspaceGroupMappings(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/identity/group-mappings"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.listWorkspaceInvites(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/workspaces/#{URI.encode_uri_component(path["id"].to_s)}/invites"
@@ -891,6 +939,12 @@ module Phaseo
         client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.setWorkspaceDepartmentMember(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/identity/departments/#{URI.encode_uri_component(path["departmentId"].to_s)}/members/#{URI.encode_uri_component(path["userId"].to_s)}"
+        client.request(method: "PUT", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.updateApiKey(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/keys/#{URI.encode_uri_component(path["id"].to_s)}"
@@ -966,6 +1020,24 @@ module Phaseo
       def self.updateWorkspace(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/workspaces/#{URI.encode_uri_component(path["id"].to_s)}"
+        client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.updateWorkspaceDepartment(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/identity/departments/#{URI.encode_uri_component(path["id"].to_s)}"
+        client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.updateWorkspaceDirectoryMember(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/identity/directory/members/#{URI.encode_uri_component(path["id"].to_s)}"
+        client.request(method: "PUT", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.updateWorkspaceGroupMapping(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/identity/group-mappings/#{URI.encode_uri_component(path["id"].to_s)}"
         client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
       end
 

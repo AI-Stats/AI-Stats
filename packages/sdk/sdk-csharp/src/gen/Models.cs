@@ -5226,6 +5226,13 @@ public sealed class ToolCallContentPart
 
 }
 
+public sealed class UpdatedResponse
+{
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
+
+}
+
 public sealed class Usage
 {
 	[JsonPropertyName("completion_tokens")]
@@ -5951,6 +5958,272 @@ public sealed class WorkspaceCreateRequest
 
 	[JsonPropertyName("slug")]
 	public string? Slug { get; set; }
+
+}
+
+public sealed class WorkspaceDepartment
+{
+	[JsonPropertyName("color")]
+	public string? Color { get; set; }
+
+	[JsonPropertyName("created_at")]
+	public string? CreatedAt { get; set; }
+
+	[JsonPropertyName("description")]
+	public string? Description { get; set; }
+
+	[JsonPropertyName("directory_name")]
+	public string? DirectoryName { get; set; }
+
+	[JsonPropertyName("icon")]
+	public string? Icon { get; set; }
+
+	[JsonPropertyName("id")]
+	public string Id { get; set; }
+
+	[JsonPropertyName("name")]
+	public string Name { get; set; }
+
+	[JsonPropertyName("name_overridden")]
+	public bool? NameOverridden { get; set; }
+
+	[JsonPropertyName("source_id")]
+	public string? SourceId { get; set; }
+
+	[JsonPropertyName("source_type")]
+	public string? SourceType { get; set; }
+
+	[JsonPropertyName("updated_at")]
+	public string? UpdatedAt { get; set; }
+
+}
+
+public sealed class WorkspaceDepartmentCreateRequest
+{
+	[JsonPropertyName("color")]
+	public string? Color { get; set; }
+
+	[JsonPropertyName("description")]
+	public string? Description { get; set; }
+
+	[JsonPropertyName("icon")]
+	public string? Icon { get; set; }
+
+	[JsonPropertyName("name")]
+	public string Name { get; set; }
+
+}
+
+public sealed class WorkspaceDepartmentInput
+{
+	[JsonPropertyName("color")]
+	public string? Color { get; set; }
+
+	[JsonPropertyName("description")]
+	public string? Description { get; set; }
+
+	[JsonPropertyName("icon")]
+	public string? Icon { get; set; }
+
+	[JsonPropertyName("name")]
+	public string? Name { get; set; }
+
+}
+
+public sealed class WorkspaceDepartmentListResponse
+{
+	[JsonPropertyName("data")]
+	public List<Dictionary<string, object>> Data { get; set; }
+
+}
+
+public sealed class WorkspaceDepartmentMember
+{
+	[JsonPropertyName("department_id")]
+	public string DepartmentId { get; set; }
+
+	[JsonPropertyName("is_primary")]
+	public bool IsPrimary { get; set; }
+
+	[JsonPropertyName("position")]
+	public string Position { get; set; }
+
+	[JsonPropertyName("user_id")]
+	public string UserId { get; set; }
+
+}
+
+public sealed class WorkspaceDepartmentMemberRequest
+{
+	[JsonPropertyName("position")]
+	public string? Position { get; set; }
+
+	[JsonPropertyName("primary")]
+	public bool? Primary { get; set; }
+
+}
+
+public sealed class WorkspaceDepartmentMemberResponse
+{
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
+
+}
+
+public sealed class WorkspaceDepartmentResponse
+{
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
+
+}
+
+public sealed class WorkspaceDepartmentUpdateRequest
+{
+	[JsonPropertyName("color")]
+	public string? Color { get; set; }
+
+	[JsonPropertyName("description")]
+	public string? Description { get; set; }
+
+	[JsonPropertyName("icon")]
+	public string? Icon { get; set; }
+
+	[JsonPropertyName("name")]
+	public string? Name { get; set; }
+
+}
+
+public sealed class WorkspaceDirectoryMember
+{
+	[JsonPropertyName("access_source")]
+	public string AccessSource { get; set; }
+
+	[JsonPropertyName("department")]
+	public Dictionary<string, object>? Department { get; set; }
+
+	[JsonPropertyName("department_override_enabled")]
+	public bool DepartmentOverrideEnabled { get; set; }
+
+	[JsonPropertyName("department_override_id")]
+	public string? DepartmentOverrideId { get; set; }
+
+	[JsonPropertyName("department_source")]
+	public string DepartmentSource { get; set; }
+
+	[JsonPropertyName("directory_department")]
+	public string? DirectoryDepartment { get; set; }
+
+	[JsonPropertyName("display_name")]
+	public string DisplayName { get; set; }
+
+	[JsonPropertyName("effective_role")]
+	public string EffectiveRole { get; set; }
+
+	[JsonPropertyName("email")]
+	public string? Email { get; set; }
+
+	[JsonPropertyName("joined_at")]
+	public string? JoinedAt { get; set; }
+
+	[JsonPropertyName("role_override")]
+	public string? RoleOverride { get; set; }
+
+	[JsonPropertyName("status")]
+	public string Status { get; set; }
+
+	[JsonPropertyName("user_id")]
+	public string UserId { get; set; }
+
+	[JsonPropertyName("workspace_role")]
+	public string WorkspaceRole { get; set; }
+
+}
+
+public sealed class WorkspaceDirectoryMemberUpdateRequest
+{
+	[JsonPropertyName("access_role")]
+	public string? AccessRole { get; set; }
+
+	[JsonPropertyName("department_id")]
+	public string? DepartmentId { get; set; }
+
+	[JsonPropertyName("department_mode")]
+	public string? DepartmentMode { get; set; }
+
+	[JsonPropertyName("department_position")]
+	public string? DepartmentPosition { get; set; }
+
+}
+
+public sealed class WorkspaceDirectoryResponse
+{
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
+
+}
+
+public sealed class WorkspaceGroupMapping
+{
+	[JsonPropertyName("access_role")]
+	public string AccessRole { get; set; }
+
+	[JsonPropertyName("created_at")]
+	public string? CreatedAt { get; set; }
+
+	[JsonPropertyName("department_id")]
+	public string DepartmentId { get; set; }
+
+	[JsonPropertyName("department_position")]
+	public string DepartmentPosition { get; set; }
+
+	[JsonPropertyName("id")]
+	public string Id { get; set; }
+
+	[JsonPropertyName("scim_group_id")]
+	public string ScimGroupId { get; set; }
+
+	[JsonPropertyName("updated_at")]
+	public string? UpdatedAt { get; set; }
+
+}
+
+public sealed class WorkspaceGroupMappingCreateRequest
+{
+	[JsonPropertyName("access_role")]
+	public string? AccessRole { get; set; }
+
+	[JsonPropertyName("department_id")]
+	public string DepartmentId { get; set; }
+
+	[JsonPropertyName("department_position")]
+	public string? DepartmentPosition { get; set; }
+
+	[JsonPropertyName("scim_group_id")]
+	public string ScimGroupId { get; set; }
+
+}
+
+public sealed class WorkspaceGroupMappingListResponse
+{
+	[JsonPropertyName("data")]
+	public List<Dictionary<string, object>> Data { get; set; }
+
+}
+
+public sealed class WorkspaceGroupMappingResponse
+{
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
+
+}
+
+public sealed class WorkspaceGroupMappingUpdateRequest
+{
+	[JsonPropertyName("access_role")]
+	public string? AccessRole { get; set; }
+
+	[JsonPropertyName("department_position")]
+	public string? DepartmentPosition { get; set; }
 
 }
 

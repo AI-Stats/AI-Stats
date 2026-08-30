@@ -687,7 +687,19 @@
 											"v1/api-reference/endpoint/identity-scim-update",
 											"v1/api-reference/endpoint/identity-scim-token-create",
 											"v1/api-reference/endpoint/identity-scim-token-revoke",
-											"v1/api-reference/endpoint/identity-scim-audit-list"
+											"v1/api-reference/endpoint/identity-scim-audit-list",
+											"v1/api-reference/endpoint/identity-directory-get",
+											"v1/api-reference/endpoint/identity-directory-member-update",
+											"v1/api-reference/endpoint/identity-departments-list",
+											"v1/api-reference/endpoint/identity-department-create",
+											"v1/api-reference/endpoint/identity-department-update",
+											"v1/api-reference/endpoint/identity-department-delete",
+											"v1/api-reference/endpoint/identity-department-member-set",
+											"v1/api-reference/endpoint/identity-department-member-delete",
+											"v1/api-reference/endpoint/identity-group-mappings-list",
+											"v1/api-reference/endpoint/identity-group-mapping-create",
+											"v1/api-reference/endpoint/identity-group-mapping-update",
+											"v1/api-reference/endpoint/identity-group-mapping-delete"
 										]
 									}
 								]

@@ -276,6 +276,20 @@ function createWorkspace(Client $client, ?array $path = null, ?array $query = nu
 	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
+function createWorkspaceDepartment(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/identity/departments";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
+function createWorkspaceGroupMapping(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/identity/group-mappings";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
 function createWorkspaceInvite(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -371,6 +385,27 @@ function deleteWorkspace(Client $client, ?array $path = null, ?array $query = nu
 {
 	$path = $path ?? [];
 	$resolvedPath = "/workspaces/" . rawurlencode((string)($path["id"] ?? ""));
+	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
+}
+
+function deleteWorkspaceDepartment(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/identity/departments/" . rawurlencode((string)($path["id"] ?? ""));
+	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
+}
+
+function deleteWorkspaceDepartmentMember(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/identity/departments/" . rawurlencode((string)($path["departmentId"] ?? "")) . "/members/" . rawurlencode((string)($path["userId"] ?? ""));
+	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
+}
+
+function deleteWorkspaceGroupMapping(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/identity/group-mappings/" . rawurlencode((string)($path["id"] ?? ""));
 	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
 }
 
@@ -588,6 +623,13 @@ function getWorkspace(Client $client, ?array $path = null, ?array $query = null,
 {
 	$path = $path ?? [];
 	$resolvedPath = "/workspaces/" . rawurlencode((string)($path["id"] ?? ""));
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
+function getWorkspaceDirectory(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/identity/directory";
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
@@ -864,6 +906,20 @@ function listWorkspaceAuditEvents(Client $client, ?array $path = null, ?array $q
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
+function listWorkspaceDepartments(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/identity/departments";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
+function listWorkspaceGroupMappings(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/identity/group-mappings";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
 function listWorkspaceInvites(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -1039,6 +1095,13 @@ function rotateWebhookEndpointSecret(Client $client, ?array $path = null, ?array
 	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
+function setWorkspaceDepartmentMember(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/identity/departments/" . rawurlencode((string)($path["departmentId"] ?? "")) . "/members/" . rawurlencode((string)($path["userId"] ?? ""));
+	return $client->request("PUT", $resolvedPath, $query, $headers, $body);
+}
+
 function updateApiKey(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -1127,6 +1190,27 @@ function updateWorkspace(Client $client, ?array $path = null, ?array $query = nu
 {
 	$path = $path ?? [];
 	$resolvedPath = "/workspaces/" . rawurlencode((string)($path["id"] ?? ""));
+	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
+}
+
+function updateWorkspaceDepartment(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/identity/departments/" . rawurlencode((string)($path["id"] ?? ""));
+	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
+}
+
+function updateWorkspaceDirectoryMember(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/identity/directory/members/" . rawurlencode((string)($path["id"] ?? ""));
+	return $client->request("PUT", $resolvedPath, $query, $headers, $body);
+}
+
+function updateWorkspaceGroupMapping(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/identity/group-mappings/" . rawurlencode((string)($path["id"] ?? ""));
 	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
 }
 

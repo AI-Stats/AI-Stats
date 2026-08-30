@@ -2533,6 +2533,138 @@ paths:
       responses:
         '200': {description: SCIM audit events, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceScimAuditResponse'}}}}
         default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /identity/directory:
+    get:
+      x-beta: true
+      tags: [Gateway]
+      operationId: getWorkspaceDirectory
+      summary: Get the workspace directory
+      description: Returns enterprise departments and effective member entitlements. Requires the identity add-on, `settings:read`, and an owner or admin identity.
+      responses:
+        '200': {description: Workspace directory, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceDirectoryResponse'}}}}
+        default: {description: Request failed or add-on required, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /identity/directory/members/{id}:
+    put:
+      x-beta: true
+      tags: [Gateway]
+      operationId: updateWorkspaceDirectoryMember
+      summary: Update a directory member override
+      description: Sets or clears effective role and department overrides for a workspace member. Requires `settings:write`.
+      parameters: [{name: id, in: path, required: true, schema: {type: string, format: uuid}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceDirectoryMemberUpdateRequest'}}}}
+      responses:
+        '200': {description: Member override updated, content: {application/json: {schema: {$ref: '#/components/schemas/UpdatedResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /identity/departments:
+    get:
+      x-beta: true
+      tags: [Gateway]
+      operationId: listWorkspaceDepartments
+      summary: List workspace departments
+      description: Lists manually managed and directory-synchronized departments.
+      responses:
+        '200': {description: Workspace departments, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceDepartmentListResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    post:
+      x-beta: true
+      tags: [Gateway]
+      operationId: createWorkspaceDepartment
+      summary: Create a workspace department
+      description: Creates a manually managed department. Requires `settings:write`.
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceDepartmentCreateRequest'}}}}
+      responses:
+        '201': {description: Department created, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceDepartmentResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /identity/departments/{id}:
+    patch:
+      x-beta: true
+      tags: [Gateway]
+      operationId: updateWorkspaceDepartment
+      summary: Update a workspace department
+      description: Updates department name, description, icon, or color without removing its directory mapping.
+      parameters: [{name: id, in: path, required: true, schema: {type: string, format: uuid}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceDepartmentUpdateRequest'}}}}
+      responses:
+        '200': {description: Department updated, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceDepartmentResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    delete:
+      x-beta: true
+      tags: [Gateway]
+      operationId: deleteWorkspaceDepartment
+      summary: Delete a workspace department
+      description: Deletes a manually managed department. Directory-synchronized departments cannot be deleted here.
+      parameters: [{name: id, in: path, required: true, schema: {type: string, format: uuid}}]
+      responses:
+        '200': {description: Department deleted, content: {application/json: {schema: {$ref: '#/components/schemas/DeletedResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /identity/departments/{departmentId}/members/{userId}:
+    put:
+      x-beta: true
+      tags: [Gateway]
+      operationId: setWorkspaceDepartmentMember
+      summary: Set a manual department membership
+      description: Adds or updates a manual department membership for a workspace user.
+      parameters:
+        - {name: departmentId, in: path, required: true, schema: {type: string, format: uuid}}
+        - {name: userId, in: path, required: true, schema: {type: string, format: uuid}}
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceDepartmentMemberRequest'}}}}
+      responses:
+        '200': {description: Membership updated, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceDepartmentMemberResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    delete:
+      x-beta: true
+      tags: [Gateway]
+      operationId: deleteWorkspaceDepartmentMember
+      summary: Delete a manual department membership
+      description: Removes a manual department membership without changing directory-synchronized membership.
+      parameters:
+        - {name: departmentId, in: path, required: true, schema: {type: string, format: uuid}}
+        - {name: userId, in: path, required: true, schema: {type: string, format: uuid}}
+      responses:
+        '200': {description: Membership deleted, content: {application/json: {schema: {$ref: '#/components/schemas/DeletedResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /identity/group-mappings:
+    get:
+      x-beta: true
+      tags: [Gateway]
+      operationId: listWorkspaceGroupMappings
+      summary: List directory group mappings
+      description: Lists mappings from provisioned groups to workspace roles and departments.
+      responses:
+        '200': {description: Directory group mappings, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceGroupMappingListResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    post:
+      x-beta: true
+      tags: [Gateway]
+      operationId: createWorkspaceGroupMapping
+      summary: Create a directory group mapping
+      description: Maps a provisioned group to a workspace department and access role.
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceGroupMappingCreateRequest'}}}}
+      responses:
+        '201': {description: Group mapping created, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceGroupMappingResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /identity/group-mappings/{id}:
+    patch:
+      x-beta: true
+      tags: [Gateway]
+      operationId: updateWorkspaceGroupMapping
+      summary: Update a directory group mapping
+      description: Updates the access role or department position assigned by a mapping.
+      parameters: [{name: id, in: path, required: true, schema: {type: string, format: uuid}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceGroupMappingUpdateRequest'}}}}
+      responses:
+        '200': {description: Group mapping updated, content: {application/json: {schema: {$ref: '#/components/schemas/WorkspaceGroupMappingResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    delete:
+      x-beta: true
+      tags: [Gateway]
+      operationId: deleteWorkspaceGroupMapping
+      summary: Delete a directory group mapping
+      description: Removes a provisioned-group mapping from the workspace.
+      parameters: [{name: id, in: path, required: true, schema: {type: string, format: uuid}}]
+      responses:
+        '200': {description: Group mapping deleted, content: {application/json: {schema: {$ref: '#/components/schemas/DeletedResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
   /data-contribution:
     get:
       x-beta: true
@@ -13453,6 +13585,155 @@ components:
       required: [data]
       properties:
         data: {type: array, items: {$ref: '#/components/schemas/WorkspaceScimEvent'}}
+      additionalProperties: false
+    WorkspaceDepartment:
+      type: object
+      required: [id, name]
+      properties:
+        id: {type: string, format: uuid}
+        name: {type: string}
+        description: {type: string, nullable: true}
+        icon: {type: string}
+        color: {type: string}
+        source_type: {type: string, enum: [manual, scim_group]}
+        source_id: {type: string, nullable: true}
+        directory_name: {type: string, nullable: true}
+        name_overridden: {type: boolean}
+        created_at: {type: string, format: date-time, nullable: true}
+        updated_at: {type: string, format: date-time, nullable: true}
+      additionalProperties: false
+    WorkspaceDirectoryMember:
+      type: object
+      required: [user_id, display_name, workspace_role, effective_role, access_source, department, department_source, role_override, department_override_enabled, department_override_id, status]
+      properties:
+        user_id: {type: string, format: uuid}
+        display_name: {type: string}
+        email: {type: string, format: email, nullable: true}
+        workspace_role: {type: string}
+        effective_role: {type: string, enum: [owner, admin, member]}
+        access_source: {type: string}
+        department:
+          allOf: [{$ref: '#/components/schemas/WorkspaceDepartment'}]
+          nullable: true
+        department_source: {type: string}
+        directory_department: {type: string, nullable: true}
+        role_override: {type: string, enum: [admin, member], nullable: true}
+        department_override_enabled: {type: boolean}
+        department_override_id: {type: string, format: uuid, nullable: true}
+        status: {type: string, enum: [active, suspended]}
+        joined_at: {type: string, format: date-time, nullable: true}
+      additionalProperties: false
+    WorkspaceDirectoryResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [departments, members]
+          properties:
+            departments: {type: array, items: {$ref: '#/components/schemas/WorkspaceDepartment'}}
+            members: {type: array, items: {$ref: '#/components/schemas/WorkspaceDirectoryMember'}}
+          additionalProperties: false
+      additionalProperties: false
+    WorkspaceDirectoryMemberUpdateRequest:
+      type: object
+      properties:
+        access_role: {type: string, enum: [directory, admin, member], nullable: true}
+        department_mode: {type: string, enum: [directory, department, none], default: directory}
+        department_id: {type: string, format: uuid, nullable: true}
+        department_position: {type: string, enum: [member, lead], default: member}
+      additionalProperties: false
+    UpdatedResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [updated]
+          properties: {updated: {type: boolean}}
+          additionalProperties: false
+      additionalProperties: false
+    WorkspaceDepartmentInput:
+      type: object
+      properties:
+        name: {type: string, minLength: 1, maxLength: 100}
+        description: {type: string, maxLength: 500, nullable: true}
+        icon: {type: string, enum: [users, briefcase, megaphone, code, palette, headphones, landmark, scale, heart-pulse, globe, flask, graduation-cap, shield-check, shopping-bag, wrench, truck, handshake, chart]}
+        color: {type: string, enum: [blue, emerald, amber, rose, violet, slate, cyan, teal, lime, yellow, orange, red, pink, fuchsia, indigo, sky, green, purple]}
+      additionalProperties: false
+    WorkspaceDepartmentCreateRequest:
+      allOf:
+        - $ref: '#/components/schemas/WorkspaceDepartmentInput'
+        - type: object
+          required: [name]
+    WorkspaceDepartmentUpdateRequest: {$ref: '#/components/schemas/WorkspaceDepartmentInput'}
+    WorkspaceDepartmentResponse:
+      type: object
+      required: [data]
+      properties: {data: {$ref: '#/components/schemas/WorkspaceDepartment'}}
+      additionalProperties: false
+    WorkspaceDepartmentListResponse:
+      type: object
+      required: [data]
+      properties: {data: {type: array, items: {$ref: '#/components/schemas/WorkspaceDepartment'}}}
+      additionalProperties: false
+    WorkspaceDepartmentMemberRequest:
+      type: object
+      properties:
+        position: {type: string, enum: [member, lead], default: member}
+        primary: {type: boolean, default: false}
+      additionalProperties: false
+    WorkspaceDepartmentMember:
+      type: object
+      required: [user_id, department_id, position, is_primary]
+      properties:
+        user_id: {type: string, format: uuid}
+        department_id: {type: string, format: uuid}
+        position: {type: string, enum: [member, lead]}
+        is_primary: {type: boolean}
+      additionalProperties: false
+    WorkspaceDepartmentMemberResponse:
+      type: object
+      required: [data]
+      properties: {data: {$ref: '#/components/schemas/WorkspaceDepartmentMember'}}
+      additionalProperties: false
+    WorkspaceGroupMapping:
+      type: object
+      required: [id, scim_group_id, department_id, access_role, department_position]
+      properties:
+        id: {type: string, format: uuid}
+        scim_group_id: {type: string, format: uuid}
+        department_id: {type: string, format: uuid}
+        access_role: {type: string, enum: [member, admin]}
+        department_position: {type: string, enum: [member, lead]}
+        created_at: {type: string, format: date-time, nullable: true}
+        updated_at: {type: string, format: date-time, nullable: true}
+      additionalProperties: false
+    WorkspaceGroupMappingCreateRequest:
+      type: object
+      required: [scim_group_id, department_id]
+      properties:
+        scim_group_id: {type: string, format: uuid}
+        department_id: {type: string, format: uuid}
+        access_role: {type: string, enum: [member, admin], default: member}
+        department_position: {type: string, enum: [member, lead], default: member}
+      additionalProperties: false
+    WorkspaceGroupMappingUpdateRequest:
+      type: object
+      minProperties: 1
+      properties:
+        access_role: {type: string, enum: [member, admin]}
+        department_position: {type: string, enum: [member, lead]}
+      additionalProperties: false
+    WorkspaceGroupMappingResponse:
+      type: object
+      required: [data]
+      properties: {data: {$ref: '#/components/schemas/WorkspaceGroupMapping'}}
+      additionalProperties: false
+    WorkspaceGroupMappingListResponse:
+      type: object
+      required: [data]
+      properties: {data: {type: array, items: {$ref: '#/components/schemas/WorkspaceGroupMapping'}}}
       additionalProperties: false
     DataContributionCategories:
       type: object
