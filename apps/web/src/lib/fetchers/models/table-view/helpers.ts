@@ -183,7 +183,18 @@ function normalizeSupportedParameterKey(raw: string): string | null {
 
 export const extractSupportedParameters = (params: unknown): string[] => {
     const normalized = new Set<string>();
-    collectSupportedParameterIds(params, normalized);
+    if (Array.isArray(params)) {
+        for (const item of params) {
+            if (typeof item === "string") {
+                const parameter = normalizeSupportedParameterKey(item);
+                if (parameter) normalized.add(parameter);
+                continue;
+            }
+            collectSupportedParameterIds(item, normalized);
+        }
+    } else {
+        collectSupportedParameterIds(params, normalized);
+    }
     return Array.from(normalized).sort((a, b) => a.localeCompare(b));
 };
 
