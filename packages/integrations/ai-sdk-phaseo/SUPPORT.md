@@ -11,14 +11,14 @@ For new projects, install the active line without a Phaseo package version:
 npm install @phaseo/ai-sdk-provider ai@^7
 ```
 
-Until the `ai-sdk-6` npm dist-tag is configured, install the maintenance line
+Until the `ai-sdk-v6` npm dist-tag is configured, install the maintenance line
 with its explicit package major:
 
 ```bash
 npm install @phaseo/ai-sdk-provider@^1 ai@ai-v6
 ```
 
-The intended convenience selector is `@phaseo/ai-sdk-provider@ai-sdk-6`.
+The intended convenience selector is `@phaseo/ai-sdk-provider@ai-sdk-v6`.
 `@v6` is not used because npm dist-tags share a namespace with semantic
 versions and rejects tags that can be interpreted as version ranges.
 
