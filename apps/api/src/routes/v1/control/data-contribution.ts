@@ -267,7 +267,10 @@ async function getOverview(req: Request) {
 					contributions: Number((recent.data as any)?.contributions ?? 0),
 					discountNanos: Number((recent.data as any)?.discount_nanos ?? 0),
 				},
-				classifiers: classifiers.data ?? [],
+				classifiers: (classifiers.data ?? []).map((classifier) => ({
+					...classifier,
+					kind: classifier.kind === "phaseo_task" ? "starter" : classifier.kind,
+				})),
 				analytics: analytics.data ?? [],
 				starterCategories: STARTER_TASK_CATEGORIES,
 			},

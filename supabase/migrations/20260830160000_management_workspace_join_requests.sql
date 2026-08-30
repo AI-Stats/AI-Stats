@@ -58,7 +58,7 @@ begin
 
     insert into public.workspace_members (workspace_id, user_id, role)
     values (p_workspace_id, v_request.requester_user_id, v_role)
-    on conflict (workspace_id, user_id) do update set role = excluded.role;
+    on conflict (workspace_id, user_id) do nothing;
     v_status := 'approved'::public.join_request_status;
   else
     v_status := 'denied'::public.join_request_status;

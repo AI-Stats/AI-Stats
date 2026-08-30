@@ -140,6 +140,7 @@ export type { GuardrailDeleteResponse } from "./GuardrailDeleteResponse.js";
 export type { GuardrailDetailResponse } from "./GuardrailDetailResponse.js";
 export type { GuardrailKeyAddResponse } from "./GuardrailKeyAddResponse.js";
 export type { GuardrailKeyAssignment } from "./GuardrailKeyAssignment.js";
+export type { GuardrailKeyIdsReplaceRequest } from "./GuardrailKeyIdsReplaceRequest.js";
 export type { GuardrailKeyIdsRequest } from "./GuardrailKeyIdsRequest.js";
 export type { GuardrailKeyListResponse } from "./GuardrailKeyListResponse.js";
 export type { GuardrailKeySetResponse } from "./GuardrailKeySetResponse.js";
@@ -171,6 +172,7 @@ export type { ManagementKeyDeleteResponse } from "./ManagementKeyDeleteResponse.
 export type { ManagementKeyDetailResponse } from "./ManagementKeyDetailResponse.js";
 export type { ManagementKeyListResponse } from "./ManagementKeyListResponse.js";
 export type { ManagementKeyRuntime } from "./ManagementKeyRuntime.js";
+export type { ManagementKeyRuntimeCreated } from "./ManagementKeyRuntimeCreated.js";
 export type { ManagementKeyRuntimeCreateRequest } from "./ManagementKeyRuntimeCreateRequest.js";
 export type { ManagementKeyRuntimeCreateResponse } from "./ManagementKeyRuntimeCreateResponse.js";
 export type { ManagementKeyRuntimeDeleteResponse } from "./ManagementKeyRuntimeDeleteResponse.js";

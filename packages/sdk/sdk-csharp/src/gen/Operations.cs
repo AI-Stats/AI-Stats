@@ -843,7 +843,7 @@ public static class Operations
 	)
 	{
 		var resolvedPath = "/analytics/export";
-		return client.SendAsync<string>("GET", resolvedPath, query, headers, body);
+		return client.SendTextAsync("GET", resolvedPath, query, headers, body);
 	}
 
 	public static Task<Dictionary<string, object>?> ForkPresetAsync(

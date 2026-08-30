@@ -189,6 +189,9 @@ async function updateRoute(req: Request) {
 	const access = await authorize(req, true); if ("response" in access) return access.response;
 	const id = routeId(new URL(req.url)); const body = await req.json<Record<string, unknown>>().catch(() => null);
 	if (!id || !body) return json({ error: "bad_request", message: "Route id and JSON body are required" }, 400, NO_STORE);
+	const supportedFields = new Set(["name", "description", "status", "config"]);
+	const bodyFields = Object.keys(body);
+	if (!bodyFields.length || bodyFields.some((field) => !supportedFields.has(field))) return json({ error: "bad_request", message: "At least one supported route field is required" }, 400, NO_STORE);
 	try {
 		const existing = await loadRoute(access.auth.workspaceId, id);
 		if (!existing) return json({ error: "not_found", message: "Dynamic route not found" }, 404, NO_STORE);
@@ -208,6 +211,11 @@ async function updateRoute(req: Request) {
 			if (body.config !== undefined) await getSupabaseAdmin().from("gateway_dynamic_route_versions").delete().eq("route_id", id).eq("version", nextVersion);
 			if (/unique/i.test(updated.error?.message ?? "")) return json({ error: "conflict", message: "A route with this name already exists" }, 409, NO_STORE);
 			throw new Error(updated.error?.message || "Failed to update dynamic route");
+		}
+		if (body.status !== undefined && body.status !== existing.status) {
+			const links = await getSupabaseAdmin().from("gateway_dynamic_route_keys").select("key_id").eq("route_id", id);
+			if (links.error) throw new Error(links.error.message || "Failed to load route keys");
+			await invalidateKeys((links.data ?? []).map((item) => String(item.key_id)));
 		}
 		await audit(access.auth, "routing.dynamic_route.updated", updated.data, { changed_fields: Object.keys(body), version: nextVersion });
 		return json({ data: formatRoute(updated.data, await routeRelations([id])) }, 200, NO_STORE);

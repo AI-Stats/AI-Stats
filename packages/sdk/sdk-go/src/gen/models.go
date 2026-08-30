@@ -20,12 +20,12 @@ type ActivityResponse struct {
 
 type AnalyticsAccessTokenRequiredResponse struct {
 	Error string `json:"error"`
-	Ok string `json:"ok"`
+	Ok bool `json:"ok"`
 }
 
 type AnalyticsNotImplementedResponse struct {
 	Message string `json:"message"`
-	Ok string `json:"ok"`
+	Ok bool `json:"ok"`
 	Status string `json:"status"`
 }
 
@@ -106,7 +106,7 @@ type ApiKey struct {
 	ExpiresAt *string `json:"expires_at"`
 	Hash string `json:"hash"`
 	Id string `json:"id"`
-	IncludeByokInLimit string `json:"include_byok_in_limit"`
+	IncludeByokInLimit bool `json:"include_byok_in_limit"`
 	Label *string `json:"label"`
 	LastUsedAt *string `json:"last_used_at"`
 	Limit *float64 `json:"limit"`
@@ -215,7 +215,7 @@ type ApiKeyWithValue struct {
 	ExpiresAt *string `json:"expires_at"`
 	Hash string `json:"hash"`
 	Id string `json:"id"`
-	IncludeByokInLimit string `json:"include_byok_in_limit"`
+	IncludeByokInLimit bool `json:"include_byok_in_limit"`
 	Key string `json:"key"`
 	Label *string `json:"label"`
 	LastUsedAt *string `json:"last_used_at"`
@@ -1261,7 +1261,7 @@ type ChatMessage struct {
 
 type CreditsResponse struct {
 	Credits map[string]interface{} `json:"credits"`
-	Ok string `json:"ok"`
+	Ok bool `json:"ok"`
 }
 
 type DataContributionCategories struct {
@@ -1363,7 +1363,7 @@ type DebugOptions struct {
 }
 
 type DeletedResponse struct {
-	Deleted string `json:"deleted"`
+	Deleted bool `json:"deleted"`
 }
 
 type DynamicRoute struct {
@@ -1519,7 +1519,7 @@ type EndpointCatalogueEntry struct {
 type EndpointCatalogueResponse struct {
 	Data []map[string]interface{} `json:"data"`
 	Endpoints []string `json:"endpoints"`
-	Ok string `json:"ok"`
+	Ok bool `json:"ok"`
 	SampleModels []string `json:"sample_models"`
 }
 
@@ -1862,14 +1862,14 @@ type GatewayRequestLogListResponse struct {
 	FromTime string `json:"from_time"`
 	Limit int `json:"limit"`
 	Offset int `json:"offset"`
-	Ok string `json:"ok"`
+	Ok bool `json:"ok"`
 	ToTime *string `json:"to_time"`
 	Total int `json:"total"`
 }
 
 type GatewayRequestLogResponse struct {
 	Data map[string]interface{} `json:"data"`
-	Ok string `json:"ok"`
+	Ok bool `json:"ok"`
 }
 
 type GatewayRoutingStatus string
@@ -1987,7 +1987,7 @@ type GuardrailCreateRequest struct {
 }
 
 type GuardrailDeleteResponse struct {
-	Deleted string `json:"deleted"`
+	Deleted bool `json:"deleted"`
 }
 
 type GuardrailDetailResponse struct {
@@ -2005,6 +2005,10 @@ type GuardrailKeyAssignment struct {
 	Name *string `json:"name,omitempty"`
 	Prefix *string `json:"prefix,omitempty"`
 	Status *string `json:"status,omitempty"`
+}
+
+type GuardrailKeyIdsReplaceRequest struct {
+	KeyIds []string `json:"key_ids"`
 }
 
 type GuardrailKeyIdsRequest struct {
@@ -2162,13 +2166,13 @@ type InvalidRequestResponse struct {
 	Error string `json:"error"`
 	MaxOffset *int `json:"max_offset,omitempty"`
 	Message string `json:"message"`
-	Ok string `json:"ok"`
+	Ok bool `json:"ok"`
 }
 
 type KeyInvalidateResponse struct {
 	Key map[string]interface{} `json:"key"`
 	Message string `json:"message"`
-	Ok string `json:"ok"`
+	Ok bool `json:"ok"`
 }
 
 type KnownModelId string
@@ -2757,24 +2761,24 @@ type ManagementKeyCreateRequest struct {
 
 type ManagementKeyCreateResponse struct {
 	Key map[string]interface{} `json:"key"`
-	Ok string `json:"ok"`
+	Ok bool `json:"ok"`
 }
 
 type ManagementKeyDeleteResponse struct {
 	Message string `json:"message"`
-	Ok string `json:"ok"`
+	Ok bool `json:"ok"`
 }
 
 type ManagementKeyDetailResponse struct {
 	Key map[string]interface{} `json:"key"`
-	Ok string `json:"ok"`
+	Ok bool `json:"ok"`
 }
 
 type ManagementKeyListResponse struct {
 	Keys []map[string]interface{} `json:"keys"`
 	Limit int `json:"limit"`
 	Offset int `json:"offset"`
-	Ok string `json:"ok"`
+	Ok bool `json:"ok"`
 	Total int `json:"total"`
 }
 
@@ -2785,6 +2789,28 @@ type ManagementKeyRuntime struct {
 	DailyLimitRequests *int `json:"daily_limit_requests,omitempty"`
 	ExpiresAt *string `json:"expires_at,omitempty"`
 	Id string `json:"id"`
+	LastUsedAt *string `json:"last_used_at,omitempty"`
+	MonthlyLimitCostNanos *int `json:"monthly_limit_cost_nanos,omitempty"`
+	MonthlyLimitRequests *int `json:"monthly_limit_requests,omitempty"`
+	Name string `json:"name"`
+	Prefix string `json:"prefix"`
+	Scopes []string `json:"scopes"`
+	SoftBlocked *bool `json:"soft_blocked,omitempty"`
+	Status string `json:"status"`
+	UpdatedAt *string `json:"updated_at,omitempty"`
+	WeeklyLimitCostNanos *int `json:"weekly_limit_cost_nanos,omitempty"`
+	WeeklyLimitRequests *int `json:"weekly_limit_requests,omitempty"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type ManagementKeyRuntimeCreated struct {
+	CreatedAt string `json:"created_at"`
+	CreatedBy *string `json:"created_by,omitempty"`
+	DailyLimitCostNanos *int `json:"daily_limit_cost_nanos,omitempty"`
+	DailyLimitRequests *int `json:"daily_limit_requests,omitempty"`
+	ExpiresAt *string `json:"expires_at,omitempty"`
+	Id string `json:"id"`
+	Key string `json:"key"`
 	LastUsedAt *string `json:"last_used_at,omitempty"`
 	MonthlyLimitCostNanos *int `json:"monthly_limit_cost_nanos,omitempty"`
 	MonthlyLimitRequests *int `json:"monthly_limit_requests,omitempty"`
@@ -2812,7 +2838,7 @@ type ManagementKeyRuntimeCreateResponse struct {
 }
 
 type ManagementKeyRuntimeDeleteResponse struct {
-	Deleted string `json:"deleted"`
+	Deleted bool `json:"deleted"`
 }
 
 type ManagementKeyRuntimeResponse struct {
@@ -2842,7 +2868,7 @@ type ManagementKeyUpdateRequest struct {
 
 type ManagementKeyUpdateResponse struct {
 	Message string `json:"message"`
-	Ok string `json:"ok"`
+	Ok bool `json:"ok"`
 }
 
 type MessageContentPart = interface{}
@@ -2898,7 +2924,7 @@ type ModelEndpointsResponse struct {
 	Id string `json:"id"`
 	Modalities map[string]interface{} `json:"modalities"`
 	Name string `json:"name"`
-	Ok string `json:"ok"`
+	Ok bool `json:"ok"`
 	Organization *map[string]interface{} `json:"organization"`
 }
 
@@ -4033,7 +4059,7 @@ type WebhookEndpointCreateRequest struct {
 }
 
 type WebhookEndpointDeleteResponse struct {
-	Deleted string `json:"deleted"`
+	Deleted bool `json:"deleted"`
 	Id string `json:"id"`
 	Object string `json:"object"`
 }
@@ -4095,7 +4121,7 @@ type WorkspaceActivityResponse struct {
 	Activity []map[string]interface{} `json:"activity"`
 	Limit int `json:"limit"`
 	Offset int `json:"offset"`
-	Ok string `json:"ok"`
+	Ok bool `json:"ok"`
 	PeriodDays int `json:"period_days"`
 	Total int `json:"total"`
 	TotalCostCents float64 `json:"total_cost_cents"`
@@ -4118,6 +4144,9 @@ type WorkspaceApp struct {
 
 type WorkspaceAppListResponse struct {
 	Data []map[string]interface{} `json:"data"`
+	Limit int `json:"limit"`
+	Offset int `json:"offset"`
+	TotalCount int `json:"total_count"`
 }
 
 type WorkspaceAppMergeRequest struct {
@@ -4742,7 +4771,7 @@ type WorkspaceSsoResponse struct {
 type WorkspaceSsoSettings struct {
 	Domains []string `json:"domains"`
 	Enabled bool `json:"enabled"`
-	Enforced string `json:"enforced"`
+	Enforced bool `json:"enforced"`
 	Mode string `json:"mode"`
 	ProviderIdentifier *string `json:"provider_identifier"`
 }
@@ -4750,7 +4779,7 @@ type WorkspaceSsoSettings struct {
 type WorkspaceSsoUpdateRequest struct {
 	Domains *[]string `json:"domains,omitempty"`
 	Enabled bool `json:"enabled"`
-	Enforced *string `json:"enforced,omitempty"`
+	Enforced *bool `json:"enforced,omitempty"`
 	Mode string `json:"mode"`
 	ProviderIdentifier *string `json:"provider_identifier,omitempty"`
 }

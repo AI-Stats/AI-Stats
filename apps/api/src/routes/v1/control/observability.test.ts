@@ -36,6 +36,7 @@ function chain(result: Record<string, unknown> = { data: [], error: null, count:
 
 function supabase() {
 	return {
+		rpc: async () => ({ data: true, error: null }),
 		from(table: string) {
 			if (table === "workspace_settings") {
 				const row = { workspace_id: "workspace_1", io_logging_enabled: true, io_logging_retention_days: 120, io_logging_include_provider_payloads: false, io_logging_billing_status: "active", io_logging_grace_until: null, io_logging_price_per_million_units_nanos: 0, io_logging_updated_at: "2026-08-30T00:00:00Z" };

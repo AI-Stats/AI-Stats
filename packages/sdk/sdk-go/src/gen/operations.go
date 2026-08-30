@@ -1044,12 +1044,7 @@ func ExportAnalyticsCsv(client *Client, path map[string]string, query map[string
 		var zero string
 		return zero, err
 	}
-	var out string
-	if err := DecodeJSON(data, &out); err != nil {
-		var zero string
-		return zero, err
-	}
-	return out, nil
+	return string(data), nil
 }
 
 func ForkPreset(client *Client, path map[string]string, query map[string]string, headers map[string]string, body any) (map[string]interface{}, error) {

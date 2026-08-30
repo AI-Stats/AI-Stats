@@ -1140,9 +1140,6 @@ pub mod model_ids {
     /// Model ID: `qwen/qwen2.5-7b-1m`.
     /// Model page: https://phaseo.app/models/qwen/qwen2.5-7b-1m
     pub const QWEN_QWEN2_5_7B_1M: &str = "qwen/qwen2.5-7b-1m";
-    /// Model ID: `qwen/qwen2.5-coder-7b`.
-    /// Model page: https://phaseo.app/models/qwen/qwen2.5-coder-7b
-    pub const QWEN_QWEN2_5_CODER_7B: &str = "qwen/qwen2.5-coder-7b";
     /// Model ID: `qwen/qwen2.5-vl-32b`.
     /// Model page: https://phaseo.app/models/qwen/qwen2.5-vl-32b
     pub const QWEN_QWEN2_5_VL_32B: &str = "qwen/qwen2.5-vl-32b";
@@ -2070,7 +2067,6 @@ pub mod model_ids {
         QWEN_QWEN2_5_72B,
         QWEN_QWEN2_5_7B,
         QWEN_QWEN2_5_7B_1M,
-        QWEN_QWEN2_5_CODER_7B,
         QWEN_QWEN2_5_VL_32B,
         QWEN_QWEN2_5_VL_32B_INSTRUCT,
         QWEN_QWEN2_5_VL_72B,

@@ -1526,10 +1526,6 @@ class ModelIds:
     # Model page: https://phaseo.app/models/qwen/qwen2.5-7b-1m
     QWEN_QWEN2_5_7B_1M: Final[str] = "qwen/qwen2.5-7b-1m"
 
-    # Model ID: qwen/qwen2.5-coder-7b
-    # Model page: https://phaseo.app/models/qwen/qwen2.5-coder-7b
-    QWEN_QWEN2_5_CODER_7B: Final[str] = "qwen/qwen2.5-coder-7b"
-
     # Model ID: qwen/qwen2.5-vl-32b
     # Model page: https://phaseo.app/models/qwen/qwen2.5-vl-32b
     QWEN_QWEN2_5_VL_32B: Final[str] = "qwen/qwen2.5-vl-32b"
@@ -2639,7 +2635,6 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.QWEN_QWEN2_5_72B,
         ModelIds.QWEN_QWEN2_5_7B,
         ModelIds.QWEN_QWEN2_5_7B_1M,
-        ModelIds.QWEN_QWEN2_5_CODER_7B,
         ModelIds.QWEN_QWEN2_5_VL_32B,
         ModelIds.QWEN_QWEN2_5_VL_32B_INSTRUCT,
         ModelIds.QWEN_QWEN2_5_VL_72B,

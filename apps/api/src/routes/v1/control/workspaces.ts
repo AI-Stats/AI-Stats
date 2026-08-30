@@ -622,6 +622,15 @@ async function handleAddWorkspaceMembers(req: Request) {
 			user_id: userId,
 			role: requestedRole,
 		}));
+		const { data: existingMemberships, error: existingMembershipsError } = await supabase
+			.from("workspace_members")
+			.select("user_id")
+			.eq("workspace_id", workspace.id)
+			.in("user_id", payload.map((entry) => entry.user_id));
+		if (existingMembershipsError) {
+			throw new Error(existingMembershipsError.message || "Failed to load existing workspace members");
+		}
+		const existingMemberIds = new Set((existingMemberships ?? []).map((row) => String(row.user_id)));
 		const { error: upsertError } = await supabase
 			.from("workspace_members")
 			.upsert(payload, { onConflict: "workspace_id,user_id", ignoreDuplicates: false });
@@ -630,7 +639,9 @@ async function handleAddWorkspaceMembers(req: Request) {
 		}
 
 		const { members } = await resolveWorkspaceMembers(workspace.id);
-		const added = members.filter((member) => payload.some((entry) => entry.user_id === member.user_id));
+		const added = members.filter((member) =>
+			payload.some((entry) => entry.user_id === member.user_id) && !existingMemberIds.has(String(member.user_id)),
+		);
 		for (const member of added) {
 			await recordWorkspaceAuditEvent(supabase, {
 				workspaceId: workspace.id,
@@ -717,13 +728,13 @@ async function handleRemoveWorkspaceMembers(req: Request) {
 		if (deleteError) {
 			throw new Error(deleteError.message || "Failed to remove workspace members");
 		}
-		for (const userId of userIds) {
+		for (const member of existingMembers ?? []) {
 			await recordWorkspaceAuditEvent(supabase, {
 				workspaceId: workspace.id,
 				actorUserId: auth.value.userId,
 				action: "workspace.member.removed",
 				targetType: "workspace_member",
-				targetId: userId,
+				targetId: String(member.user_id),
 				requestId: auth.value.requestId,
 			});
 		}

@@ -10,7 +10,7 @@ public sealed class ActivityEntry
 	public double ByokUsageInference { get; set; }
 
 	[JsonPropertyName("completion_tokens")]
-	public int CompletionTokens { get; set; }
+	public long CompletionTokens { get; set; }
 
 	[JsonPropertyName("date")]
 	public string Date { get; set; }
@@ -25,16 +25,16 @@ public sealed class ActivityEntry
 	public string ModelPermaslug { get; set; }
 
 	[JsonPropertyName("prompt_tokens")]
-	public int PromptTokens { get; set; }
+	public long PromptTokens { get; set; }
 
 	[JsonPropertyName("provider_name")]
 	public string ProviderName { get; set; }
 
 	[JsonPropertyName("reasoning_tokens")]
-	public int ReasoningTokens { get; set; }
+	public long ReasoningTokens { get; set; }
 
 	[JsonPropertyName("requests")]
-	public int Requests { get; set; }
+	public long Requests { get; set; }
 
 	[JsonPropertyName("usage")]
 	public double Usage { get; set; }
@@ -54,7 +54,7 @@ public sealed class AnalyticsAccessTokenRequiredResponse
 	public string Error { get; set; }
 
 	[JsonPropertyName("ok")]
-	public string Ok { get; set; }
+	public bool Ok { get; set; }
 
 }
 
@@ -64,7 +64,7 @@ public sealed class AnalyticsNotImplementedResponse
 	public string Message { get; set; }
 
 	[JsonPropertyName("ok")]
-	public string Ok { get; set; }
+	public bool Ok { get; set; }
 
 	[JsonPropertyName("status")]
 	public string Status { get; set; }
@@ -77,13 +77,13 @@ public sealed class AnalyticsResponse
 	public List<Dictionary<string, object>> Data { get; set; }
 
 	[JsonPropertyName("limit")]
-	public int Limit { get; set; }
+	public long Limit { get; set; }
 
 	[JsonPropertyName("offset")]
-	public int Offset { get; set; }
+	public long Offset { get; set; }
 
 	[JsonPropertyName("total_count")]
-	public int TotalCount { get; set; }
+	public long TotalCount { get; set; }
 
 }
 
@@ -137,7 +137,7 @@ public sealed class AnthropicMessagesRequest
 	public bool? EchoUpstreamRequest { get; set; }
 
 	[JsonPropertyName("max_tokens")]
-	public int MaxTokens { get; set; }
+	public long MaxTokens { get; set; }
 
 	[JsonPropertyName("messages")]
 	public List<Dictionary<string, object>> Messages { get; set; }
@@ -182,7 +182,7 @@ public sealed class AnthropicMessagesRequest
 	public List<object>? Tools { get; set; }
 
 	[JsonPropertyName("top_k")]
-	public int? TopK { get; set; }
+	public long? TopK { get; set; }
 
 	[JsonPropertyName("top_p")]
 	public double? TopP { get; set; }
@@ -236,10 +236,10 @@ public sealed class AnthropicTool
 public sealed class AnthropicUsage
 {
 	[JsonPropertyName("input_tokens")]
-	public int? InputTokens { get; set; }
+	public long? InputTokens { get; set; }
 
 	[JsonPropertyName("output_tokens")]
-	public int? OutputTokens { get; set; }
+	public long? OutputTokens { get; set; }
 
 }
 
@@ -267,7 +267,7 @@ public sealed class ApiKey
 	public string Id { get; set; }
 
 	[JsonPropertyName("include_byok_in_limit")]
-	public string IncludeByokInLimit { get; set; }
+	public bool IncludeByokInLimit { get; set; }
 
 	[JsonPropertyName("label")]
 	public string? Label { get; set; }
@@ -365,7 +365,7 @@ public sealed class ApiKeyLimitBucket
 	public double? Cost { get; set; }
 
 	[JsonPropertyName("requests")]
-	public int? Requests { get; set; }
+	public long? Requests { get; set; }
 
 }
 
@@ -375,7 +375,7 @@ public sealed class ApiKeyLimitInputBucket
 	public double? Cost { get; set; }
 
 	[JsonPropertyName("requests")]
-	public int? Requests { get; set; }
+	public long? Requests { get; set; }
 
 }
 
@@ -411,7 +411,7 @@ public sealed class ApiKeyListResponse
 	public List<Dictionary<string, object>> Data { get; set; }
 
 	[JsonPropertyName("total_count")]
-	public int TotalCount { get; set; }
+	public long TotalCount { get; set; }
 
 }
 
@@ -481,7 +481,7 @@ public sealed class ApiKeyUsageBucket
 	public double Cost { get; set; }
 
 	[JsonPropertyName("requests")]
-	public int Requests { get; set; }
+	public long Requests { get; set; }
 
 }
 
@@ -525,7 +525,7 @@ public sealed class ApiKeyWithValue
 	public string Id { get; set; }
 
 	[JsonPropertyName("include_byok_in_limit")]
-	public string IncludeByokInLimit { get; set; }
+	public bool IncludeByokInLimit { get; set; }
 
 	[JsonPropertyName("key")]
 	public string Key { get; set; }
@@ -620,7 +620,7 @@ public sealed class AsyncJobWebSocketUpgradeRequiredResponse
 public sealed class AsyncWebhookDeliveryAttempt
 {
 	[JsonPropertyName("attempt_number")]
-	public int? AttemptNumber { get; set; }
+	public long? AttemptNumber { get; set; }
 
 	[JsonPropertyName("delivered_at")]
 	public string? DeliveredAt { get; set; }
@@ -638,7 +638,7 @@ public sealed class AsyncWebhookDeliveryAttempt
 	public string? Id { get; set; }
 
 	[JsonPropertyName("max_attempts")]
-	public int? MaxAttempts { get; set; }
+	public long? MaxAttempts { get; set; }
 
 	[JsonPropertyName("next_retry_at")]
 	public string? NextRetryAt { get; set; }
@@ -647,7 +647,7 @@ public sealed class AsyncWebhookDeliveryAttempt
 	public string? ResponseBodyPreview { get; set; }
 
 	[JsonPropertyName("response_status")]
-	public int? ResponseStatus { get; set; }
+	public long? ResponseStatus { get; set; }
 
 	[JsonPropertyName("status")]
 	public string? Status { get; set; }
@@ -663,7 +663,7 @@ public sealed class AsyncWebhookDeliverySummary
 	public List<string>? DeliveredEventTypes { get; set; }
 
 	[JsonPropertyName("delivered_events")]
-	public int? DeliveredEvents { get; set; }
+	public long? DeliveredEvents { get; set; }
 
 	[JsonPropertyName("last_attempt_at")]
 	public string? LastAttemptAt { get; set; }
@@ -681,16 +681,16 @@ public sealed class AsyncWebhookDeliverySummary
 	public string? LastFailureAt { get; set; }
 
 	[JsonPropertyName("last_response_status")]
-	public int? LastResponseStatus { get; set; }
+	public long? LastResponseStatus { get; set; }
 
 	[JsonPropertyName("next_retry_at")]
 	public string? NextRetryAt { get; set; }
 
 	[JsonPropertyName("pending_retries")]
-	public int? PendingRetries { get; set; }
+	public long? PendingRetries { get; set; }
 
 	[JsonPropertyName("total_attempts")]
-	public int? TotalAttempts { get; set; }
+	public long? TotalAttempts { get; set; }
 
 }
 
@@ -818,7 +818,7 @@ public sealed class BatchBillingSummary
 	public bool? Charged { get; set; }
 
 	[JsonPropertyName("cost_nanos")]
-	public int? CostNanos { get; set; }
+	public long? CostNanos { get; set; }
 
 	[JsonPropertyName("cost_usd")]
 	public double? CostUsd { get; set; }
@@ -827,7 +827,7 @@ public sealed class BatchBillingSummary
 	public string? Currency { get; set; }
 
 	[JsonPropertyName("estimated_nanos")]
-	public int? EstimatedNanos { get; set; }
+	public long? EstimatedNanos { get; set; }
 
 	[JsonPropertyName("estimated_provider_cost")]
 	public string? EstimatedProviderCost { get; set; }
@@ -836,10 +836,10 @@ public sealed class BatchBillingSummary
 	public string? EstimatedUserCost { get; set; }
 
 	[JsonPropertyName("estimation_sample_size")]
-	public int? EstimationSampleSize { get; set; }
+	public long? EstimationSampleSize { get; set; }
 
 	[JsonPropertyName("estimation_total_rows")]
-	public int? EstimationTotalRows { get; set; }
+	public long? EstimationTotalRows { get; set; }
 
 	[JsonPropertyName("estimation_truncated")]
 	public bool? EstimationTruncated { get; set; }
@@ -860,7 +860,7 @@ public sealed class BatchBillingSummary
 	public string? ReservationStatus { get; set; }
 
 	[JsonPropertyName("reserved_nanos")]
-	public int? ReservedNanos { get; set; }
+	public long? ReservedNanos { get; set; }
 
 	[JsonPropertyName("settled_provider_cost")]
 	public string? SettledProviderCost { get; set; }
@@ -872,7 +872,7 @@ public sealed class BatchBillingSummary
 	public string? State { get; set; }
 
 	[JsonPropertyName("total_nanos")]
-	public int? TotalNanos { get; set; }
+	public long? TotalNanos { get; set; }
 
 }
 
@@ -1007,7 +1007,7 @@ public sealed class BatchRequest
 	public List<Dictionary<string, object>>? Items { get; set; }
 
 	[JsonPropertyName("max_tokens")]
-	public int? MaxTokens { get; set; }
+	public long? MaxTokens { get; set; }
 
 	[JsonPropertyName("metadata")]
 	public Dictionary<string, object>? Metadata { get; set; }
@@ -1044,13 +1044,13 @@ public sealed class BatchRequest
 public sealed class BatchRequestCounts
 {
 	[JsonPropertyName("completed")]
-	public int? Completed { get; set; }
+	public long? Completed { get; set; }
 
 	[JsonPropertyName("failed")]
-	public int? Failed { get; set; }
+	public long? Failed { get; set; }
 
 	[JsonPropertyName("total")]
-	public int? Total { get; set; }
+	public long? Total { get; set; }
 
 }
 
@@ -1076,7 +1076,7 @@ public sealed class BatchRequestRow
 	public string? CompletedAt { get; set; }
 
 	[JsonPropertyName("cost_nanos")]
-	public int? CostNanos { get; set; }
+	public long? CostNanos { get; set; }
 
 	[JsonPropertyName("cost_usd")]
 	public double? CostUsd { get; set; }
@@ -1115,13 +1115,13 @@ public sealed class BatchRequestRow
 	public string? RequestBodyHash { get; set; }
 
 	[JsonPropertyName("request_index")]
-	public int? RequestIndex { get; set; }
+	public long? RequestIndex { get; set; }
 
 	[JsonPropertyName("response_body")]
 	public Dictionary<string, object>? ResponseBody { get; set; }
 
 	[JsonPropertyName("response_status")]
-	public int? ResponseStatus { get; set; }
+	public long? ResponseStatus { get; set; }
 
 	[JsonPropertyName("status")]
 	public string? Status { get; set; }
@@ -1143,19 +1143,19 @@ public sealed class BatchResponse
 	public string? CancelUrl { get; set; }
 
 	[JsonPropertyName("cancelled_at")]
-	public int? CancelledAt { get; set; }
+	public long? CancelledAt { get; set; }
 
 	[JsonPropertyName("cancelling_at")]
-	public int? CancellingAt { get; set; }
+	public long? CancellingAt { get; set; }
 
 	[JsonPropertyName("completed_at")]
-	public int? CompletedAt { get; set; }
+	public long? CompletedAt { get; set; }
 
 	[JsonPropertyName("completion_window")]
 	public string? CompletionWindow { get; set; }
 
 	[JsonPropertyName("created_at")]
-	public int? CreatedAt { get; set; }
+	public long? CreatedAt { get; set; }
 
 	[JsonPropertyName("endpoint")]
 	public string? Endpoint { get; set; }
@@ -1167,25 +1167,25 @@ public sealed class BatchResponse
 	public Dictionary<string, object>? Errors { get; set; }
 
 	[JsonPropertyName("expired_at")]
-	public int? ExpiredAt { get; set; }
+	public long? ExpiredAt { get; set; }
 
 	[JsonPropertyName("expires_at")]
-	public int? ExpiresAt { get; set; }
+	public long? ExpiresAt { get; set; }
 
 	[JsonPropertyName("failed_at")]
-	public int? FailedAt { get; set; }
+	public long? FailedAt { get; set; }
 
 	[JsonPropertyName("finalized_at")]
 	public string? FinalizedAt { get; set; }
 
 	[JsonPropertyName("finalizing_at")]
-	public int? FinalizingAt { get; set; }
+	public long? FinalizingAt { get; set; }
 
 	[JsonPropertyName("id")]
 	public string? Id { get; set; }
 
 	[JsonPropertyName("in_progress_at")]
-	public int? InProgressAt { get; set; }
+	public long? InProgressAt { get; set; }
 
 	[JsonPropertyName("input_file_id")]
 	public string? InputFileId { get; set; }
@@ -1224,7 +1224,7 @@ public sealed class BatchResponse
 	public List<Dictionary<string, object>>? PricingLines { get; set; }
 
 	[JsonPropertyName("progress")]
-	public int? Progress { get; set; }
+	public long? Progress { get; set; }
 
 	[JsonPropertyName("provider")]
 	public string? Provider { get; set; }
@@ -1289,7 +1289,7 @@ public sealed class ChatChoice
 	public string? FinishReason { get; set; }
 
 	[JsonPropertyName("index")]
-	public int? Index { get; set; }
+	public long? Index { get; set; }
 
 	[JsonPropertyName("message")]
 	public Dictionary<string, object>? Message { get; set; }
@@ -1317,13 +1317,13 @@ public sealed class ChatCompletionsRequest
 	public bool? Logprobs { get; set; }
 
 	[JsonPropertyName("max_completion_tokens")]
-	public int? MaxCompletionTokens { get; set; }
+	public long? MaxCompletionTokens { get; set; }
 
 	[JsonPropertyName("max_tokens")]
-	public int? MaxTokens { get; set; }
+	public long? MaxTokens { get; set; }
 
 	[JsonPropertyName("max_tool_calls")]
-	public int? MaxToolCalls { get; set; }
+	public long? MaxToolCalls { get; set; }
 
 	[JsonPropertyName("messages")]
 	public List<Dictionary<string, object>> Messages { get; set; }
@@ -1368,7 +1368,7 @@ public sealed class ChatCompletionsRequest
 	public string? SafetyIdentifier { get; set; }
 
 	[JsonPropertyName("seed")]
-	public int? Seed { get; set; }
+	public long? Seed { get; set; }
 
 	[JsonPropertyName("service_tier")]
 	public string? ServiceTier { get; set; }
@@ -1398,7 +1398,7 @@ public sealed class ChatCompletionsRequest
 	public List<object>? Tools { get; set; }
 
 	[JsonPropertyName("top_logprobs")]
-	public int? TopLogprobs { get; set; }
+	public long? TopLogprobs { get; set; }
 
 	[JsonPropertyName("top_p")]
 	public double? TopP { get; set; }
@@ -1420,7 +1420,7 @@ public sealed class ChatCompletionsResponse
 	public List<Dictionary<string, object>>? Choices { get; set; }
 
 	[JsonPropertyName("created")]
-	public int? Created { get; set; }
+	public long? Created { get; set; }
 
 	[JsonPropertyName("id")]
 	public string? Id { get; set; }
@@ -1486,7 +1486,7 @@ public sealed class CreditsResponse
 	public Dictionary<string, object> Credits { get; set; }
 
 	[JsonPropertyName("ok")]
-	public string Ok { get; set; }
+	public bool Ok { get; set; }
 
 }
 
@@ -1524,7 +1524,7 @@ public sealed class DataContributionClassifier
 	public string Name { get; set; }
 
 	[JsonPropertyName("sample_rate_bps")]
-	public int SampleRateBps { get; set; }
+	public long SampleRateBps { get; set; }
 
 	[JsonPropertyName("service_tier")]
 	public string ServiceTier { get; set; }
@@ -1558,7 +1558,7 @@ public sealed class DataContributionClassifierCreateRequest
 	public string Name { get; set; }
 
 	[JsonPropertyName("sampleRateBps")]
-	public int? SampleRateBps { get; set; }
+	public long? SampleRateBps { get; set; }
 
 	[JsonPropertyName("serviceTier")]
 	public string? ServiceTier { get; set; }
@@ -1596,7 +1596,7 @@ public sealed class DataContributionClassifierInput
 	public string? Name { get; set; }
 
 	[JsonPropertyName("sampleRateBps")]
-	public int? SampleRateBps { get; set; }
+	public long? SampleRateBps { get; set; }
 
 	[JsonPropertyName("serviceTier")]
 	public string? ServiceTier { get; set; }
@@ -1631,7 +1631,7 @@ public sealed class DataContributionClassifierUpdateRequest
 	public string? Name { get; set; }
 
 	[JsonPropertyName("sampleRateBps")]
-	public int? SampleRateBps { get; set; }
+	public long? SampleRateBps { get; set; }
 
 	[JsonPropertyName("serviceTier")]
 	public string? ServiceTier { get; set; }
@@ -1723,7 +1723,7 @@ public sealed class DebugOptions
 public sealed class DeletedResponse
 {
 	[JsonPropertyName("deleted")]
-	public string Deleted { get; set; }
+	public bool Deleted { get; set; }
 
 }
 
@@ -1736,7 +1736,7 @@ public sealed class DynamicRoute
 	public string? CreatedAt { get; set; }
 
 	[JsonPropertyName("deployed_version")]
-	public int? DeployedVersion { get; set; }
+	public long? DeployedVersion { get; set; }
 
 	[JsonPropertyName("description")]
 	public string? Description { get; set; }
@@ -1760,7 +1760,7 @@ public sealed class DynamicRoute
 	public string? UpdatedAt { get; set; }
 
 	[JsonPropertyName("version")]
-	public int Version { get; set; }
+	public long Version { get; set; }
 
 	[JsonPropertyName("versions")]
 	public List<Dictionary<string, object>> Versions { get; set; }
@@ -1908,7 +1908,7 @@ public sealed class DynamicRouteListResponse
 	public List<Dictionary<string, object>> Data { get; set; }
 
 	[JsonPropertyName("total_count")]
-	public int TotalCount { get; set; }
+	public long TotalCount { get; set; }
 
 }
 
@@ -1982,7 +1982,7 @@ public sealed class DynamicRouteVersion
 	public string Status { get; set; }
 
 	[JsonPropertyName("version")]
-	public int Version { get; set; }
+	public long Version { get; set; }
 
 }
 
@@ -1992,7 +1992,7 @@ public sealed class Embedding
 	public List<double>? EmbeddingValue { get; set; }
 
 	[JsonPropertyName("index")]
-	public int? Index { get; set; }
+	public long? Index { get; set; }
 
 	[JsonPropertyName("object")]
 	public string? Object { get; set; }
@@ -2012,7 +2012,7 @@ public sealed class EmbeddingsRequest
 	public Dictionary<string, object>? Debug { get; set; }
 
 	[JsonPropertyName("dimensions")]
-	public int? Dimensions { get; set; }
+	public long? Dimensions { get; set; }
 
 	[JsonPropertyName("encoding_format")]
 	public string? EncodingFormat { get; set; }
@@ -2062,10 +2062,10 @@ public sealed class EndpointCatalogueEntry
 	public string Id { get; set; }
 
 	[JsonPropertyName("model_count")]
-	public int ModelCount { get; set; }
+	public long ModelCount { get; set; }
 
 	[JsonPropertyName("provider_count")]
-	public int ProviderCount { get; set; }
+	public long ProviderCount { get; set; }
 
 	[JsonPropertyName("public_path")]
 	public string PublicPath { get; set; }
@@ -2081,7 +2081,7 @@ public sealed class EndpointCatalogueResponse
 	public List<string> Endpoints { get; set; }
 
 	[JsonPropertyName("ok")]
-	public string Ok { get; set; }
+	public bool Ok { get; set; }
 
 	[JsonPropertyName("sample_models")]
 	public List<string> SampleModels { get; set; }
@@ -2097,7 +2097,7 @@ public sealed class ErrorFailureSampleItem
 	public bool? Retryable { get; set; }
 
 	[JsonPropertyName("status")]
-	public int? Status { get; set; }
+	public long? Status { get; set; }
 
 	[JsonPropertyName("type")]
 	public string? Type { get; set; }
@@ -2122,7 +2122,7 @@ public sealed class ErrorFailureSampleItem
 public sealed class ErrorProviderCandidateDiagnostics
 {
 	[JsonPropertyName("candidateCount")]
-	public int? CandidateCount { get; set; }
+	public long? CandidateCount { get; set; }
 
 	[JsonPropertyName("droppedMissingAdapter")]
 	public List<Dictionary<string, object>>? DroppedMissingAdapter { get; set; }
@@ -2131,10 +2131,10 @@ public sealed class ErrorProviderCandidateDiagnostics
 	public List<string>? DroppedUnsupportedEndpoint { get; set; }
 
 	[JsonPropertyName("supportsEndpointCount")]
-	public int? SupportsEndpointCount { get; set; }
+	public long? SupportsEndpointCount { get; set; }
 
 	[JsonPropertyName("totalProviders")]
-	public int? TotalProviders { get; set; }
+	public long? TotalProviders { get; set; }
 
 }
 
@@ -2170,7 +2170,7 @@ public sealed class ErrorProviderFailureDiagnostics
 public sealed class ErrorResponse
 {
 	[JsonPropertyName("attempt_count")]
-	public int? AttemptCount { get; set; }
+	public long? AttemptCount { get; set; }
 
 	[JsonPropertyName("description")]
 	public string? Description { get; set; }
@@ -2191,7 +2191,7 @@ public sealed class ErrorResponse
 	public List<string>? FailedProviders { get; set; }
 
 	[JsonPropertyName("failed_statuses")]
-	public List<int>? FailedStatuses { get; set; }
+	public List<long>? FailedStatuses { get; set; }
 
 	[JsonPropertyName("failure_sample")]
 	public List<Dictionary<string, object>>? FailureSample { get; set; }
@@ -2230,7 +2230,7 @@ public sealed class ErrorResponse
 	public Dictionary<string, object>? RoutingDiagnostics { get; set; }
 
 	[JsonPropertyName("status_code")]
-	public int? StatusCode { get; set; }
+	public long? StatusCode { get; set; }
 
 	[JsonPropertyName("upstream_error")]
 	public Dictionary<string, object>? UpstreamError { get; set; }
@@ -2263,10 +2263,10 @@ public sealed class ErrorUpstreamError
 public sealed class FileResponse
 {
 	[JsonPropertyName("bytes")]
-	public int? Bytes { get; set; }
+	public long? Bytes { get; set; }
 
 	[JsonPropertyName("created_at")]
-	public int? CreatedAt { get; set; }
+	public long? CreatedAt { get; set; }
 
 	[JsonPropertyName("filename")]
 	public string? Filename { get; set; }
@@ -2474,7 +2474,7 @@ public sealed class GatewayFeedbackSummaryRow
 	public double? AverageScore { get; set; }
 
 	[JsonPropertyName("count")]
-	public int Count { get; set; }
+	public long Count { get; set; }
 
 	[JsonPropertyName("last_feedback_at")]
 	public string? LastFeedbackAt { get; set; }
@@ -2486,13 +2486,13 @@ public sealed class GatewayFeedbackSummaryRow
 	public string? MetadataValue { get; set; }
 
 	[JsonPropertyName("negative")]
-	public int Negative { get; set; }
+	public long Negative { get; set; }
 
 	[JsonPropertyName("partial")]
-	public int Partial { get; set; }
+	public long Partial { get; set; }
 
 	[JsonPropertyName("positive")]
-	public int Positive { get; set; }
+	public long Positive { get; set; }
 
 	[JsonPropertyName("preset_id")]
 	public string? PresetId { get; set; }
@@ -2540,10 +2540,10 @@ public sealed class GatewayModelLifecycle
 public sealed class GatewayModelLimits
 {
 	[JsonPropertyName("input_tokens")]
-	public int? InputTokens { get; set; }
+	public long? InputTokens { get; set; }
 
 	[JsonPropertyName("output_tokens")]
-	public int? OutputTokens { get; set; }
+	public long? OutputTokens { get; set; }
 
 }
 
@@ -2592,19 +2592,19 @@ public sealed class GatewayModelsResponse
 	public string AvailabilityMode { get; set; }
 
 	[JsonPropertyName("limit")]
-	public int Limit { get; set; }
+	public long Limit { get; set; }
 
 	[JsonPropertyName("models")]
 	public List<Dictionary<string, object>> Models { get; set; }
 
 	[JsonPropertyName("offset")]
-	public int Offset { get; set; }
+	public long Offset { get; set; }
 
 	[JsonPropertyName("ok")]
 	public bool Ok { get; set; }
 
 	[JsonPropertyName("total")]
-	public int Total { get; set; }
+	public long Total { get; set; }
 
 }
 
@@ -2746,7 +2746,7 @@ public sealed class GatewayRequestLog
 	public string? CanonicalModelId { get; set; }
 
 	[JsonPropertyName("cost_nanos")]
-	public int? CostNanos { get; set; }
+	public long? CostNanos { get; set; }
 
 	[JsonPropertyName("created_at")]
 	public string? CreatedAt { get; set; }
@@ -2800,7 +2800,7 @@ public sealed class GatewayRequestLog
 	public string? RoutedModelId { get; set; }
 
 	[JsonPropertyName("status_code")]
-	public int? StatusCode { get; set; }
+	public long? StatusCode { get; set; }
 
 	[JsonPropertyName("stream")]
 	public bool? Stream { get; set; }
@@ -2825,19 +2825,19 @@ public sealed class GatewayRequestLogListResponse
 	public string FromTime { get; set; }
 
 	[JsonPropertyName("limit")]
-	public int Limit { get; set; }
+	public long Limit { get; set; }
 
 	[JsonPropertyName("offset")]
-	public int Offset { get; set; }
+	public long Offset { get; set; }
 
 	[JsonPropertyName("ok")]
-	public string Ok { get; set; }
+	public bool Ok { get; set; }
 
 	[JsonPropertyName("to_time")]
 	public string? ToTime { get; set; }
 
 	[JsonPropertyName("total")]
-	public int Total { get; set; }
+	public long Total { get; set; }
 
 }
 
@@ -2847,7 +2847,7 @@ public sealed class GatewayRequestLogResponse
 	public Dictionary<string, object> Data { get; set; }
 
 	[JsonPropertyName("ok")]
-	public string Ok { get; set; }
+	public bool Ok { get; set; }
 
 }
 
@@ -2856,7 +2856,7 @@ public sealed class GatewayRoutingStatus { }
 public sealed class GatewayWebFetchToolDefinition
 {
 	[JsonPropertyName("max_chars")]
-	public int? MaxChars { get; set; }
+	public long? MaxChars { get; set; }
 
 	[JsonPropertyName("parameters")]
 	public Dictionary<string, object>? Parameters { get; set; }
@@ -2875,7 +2875,7 @@ public sealed class GatewayWebSearchToolDefinition
 	public bool? IncludeText { get; set; }
 
 	[JsonPropertyName("max_results")]
-	public int? MaxResults { get; set; }
+	public long? MaxResults { get; set; }
 
 	[JsonPropertyName("parameters")]
 	public Dictionary<string, object>? Parameters { get; set; }
@@ -2970,10 +2970,10 @@ public sealed class Guardrail
 	public string? CreatedAt { get; set; }
 
 	[JsonPropertyName("daily_limit_cost_nanos")]
-	public int? DailyLimitCostNanos { get; set; }
+	public long? DailyLimitCostNanos { get; set; }
 
 	[JsonPropertyName("daily_limit_requests")]
-	public int? DailyLimitRequests { get; set; }
+	public long? DailyLimitRequests { get; set; }
 
 	[JsonPropertyName("description")]
 	public string? Description { get; set; }
@@ -2988,10 +2988,10 @@ public sealed class Guardrail
 	public string? ModelRestrictionMode { get; set; }
 
 	[JsonPropertyName("monthly_limit_cost_nanos")]
-	public int? MonthlyLimitCostNanos { get; set; }
+	public long? MonthlyLimitCostNanos { get; set; }
 
 	[JsonPropertyName("monthly_limit_requests")]
-	public int? MonthlyLimitRequests { get; set; }
+	public long? MonthlyLimitRequests { get; set; }
 
 	[JsonPropertyName("name")]
 	public string Name { get; set; }
@@ -3039,10 +3039,10 @@ public sealed class Guardrail
 	public string? UpdatedAt { get; set; }
 
 	[JsonPropertyName("weekly_limit_cost_nanos")]
-	public int? WeeklyLimitCostNanos { get; set; }
+	public long? WeeklyLimitCostNanos { get; set; }
 
 	[JsonPropertyName("weekly_limit_requests")]
-	public int? WeeklyLimitRequests { get; set; }
+	public long? WeeklyLimitRequests { get; set; }
 
 	[JsonPropertyName("workspace_id")]
 	public string WorkspaceId { get; set; }
@@ -3052,22 +3052,22 @@ public sealed class Guardrail
 public sealed class GuardrailBudgetInput
 {
 	[JsonPropertyName("dailyCostNanos")]
-	public int? DailyCostNanos { get; set; }
+	public long? DailyCostNanos { get; set; }
 
 	[JsonPropertyName("dailyRequests")]
-	public int? DailyRequests { get; set; }
+	public long? DailyRequests { get; set; }
 
 	[JsonPropertyName("monthlyCostNanos")]
-	public int? MonthlyCostNanos { get; set; }
+	public long? MonthlyCostNanos { get; set; }
 
 	[JsonPropertyName("monthlyRequests")]
-	public int? MonthlyRequests { get; set; }
+	public long? MonthlyRequests { get; set; }
 
 	[JsonPropertyName("weeklyCostNanos")]
-	public int? WeeklyCostNanos { get; set; }
+	public long? WeeklyCostNanos { get; set; }
 
 	[JsonPropertyName("weeklyRequests")]
-	public int? WeeklyRequests { get; set; }
+	public long? WeeklyRequests { get; set; }
 
 }
 
@@ -3135,7 +3135,7 @@ public sealed class GuardrailCreateRequest
 public sealed class GuardrailDeleteResponse
 {
 	[JsonPropertyName("deleted")]
-	public string Deleted { get; set; }
+	public bool Deleted { get; set; }
 
 }
 
@@ -3149,7 +3149,7 @@ public sealed class GuardrailDetailResponse
 public sealed class GuardrailKeyAddResponse
 {
 	[JsonPropertyName("added_count")]
-	public int AddedCount { get; set; }
+	public long AddedCount { get; set; }
 
 	[JsonPropertyName("data")]
 	public List<Dictionary<string, object>> Data { get; set; }
@@ -3175,6 +3175,13 @@ public sealed class GuardrailKeyAssignment
 
 }
 
+public sealed class GuardrailKeyIdsReplaceRequest
+{
+	[JsonPropertyName("key_ids")]
+	public List<string> KeyIds { get; set; }
+
+}
+
 public sealed class GuardrailKeyIdsRequest
 {
 	[JsonPropertyName("key_ids")]
@@ -3188,7 +3195,7 @@ public sealed class GuardrailKeyListResponse
 	public List<Dictionary<string, object>> Data { get; set; }
 
 	[JsonPropertyName("total_count")]
-	public int TotalCount { get; set; }
+	public long TotalCount { get; set; }
 
 }
 
@@ -3205,14 +3212,14 @@ public sealed class GuardrailListResponse
 	public List<Dictionary<string, object>> Data { get; set; }
 
 	[JsonPropertyName("total_count")]
-	public int TotalCount { get; set; }
+	public long TotalCount { get; set; }
 
 }
 
 public sealed class GuardrailMemberAddResponse
 {
 	[JsonPropertyName("added_count")]
-	public int AddedCount { get; set; }
+	public long AddedCount { get; set; }
 
 	[JsonPropertyName("data")]
 	public List<Dictionary<string, object>> Data { get; set; }
@@ -3241,7 +3248,7 @@ public sealed class GuardrailMemberListResponse
 	public List<Dictionary<string, object>> Data { get; set; }
 
 	[JsonPropertyName("total_count")]
-	public int TotalCount { get; set; }
+	public long TotalCount { get; set; }
 
 }
 
@@ -3309,7 +3316,7 @@ public sealed class GuardrailPolicyInput
 public sealed class GuardrailRemoveResponse
 {
 	[JsonPropertyName("removed_count")]
-	public int RemovedCount { get; set; }
+	public long RemovedCount { get; set; }
 
 }
 
@@ -3458,7 +3465,7 @@ public sealed class ImagesEditRequest
 	public string Model { get; set; }
 
 	[JsonPropertyName("n")]
-	public int? N { get; set; }
+	public long? N { get; set; }
 
 	[JsonPropertyName("prompt")]
 	public string Prompt { get; set; }
@@ -3480,7 +3487,7 @@ public sealed class ImagesEditRequest
 public sealed class ImagesEditResponse
 {
 	[JsonPropertyName("created")]
-	public int? Created { get; set; }
+	public long? Created { get; set; }
 
 	[JsonPropertyName("data")]
 	public List<Dictionary<string, object>>? Data { get; set; }
@@ -3493,7 +3500,7 @@ public sealed class ImagesGenerationRequest
 	public string Model { get; set; }
 
 	[JsonPropertyName("n")]
-	public int? N { get; set; }
+	public long? N { get; set; }
 
 	[JsonPropertyName("prompt")]
 	public string Prompt { get; set; }
@@ -3521,7 +3528,7 @@ public sealed class ImagesGenerationRequest
 public sealed class ImagesGenerationResponse
 {
 	[JsonPropertyName("created")]
-	public int? Created { get; set; }
+	public long? Created { get; set; }
 
 	[JsonPropertyName("data")]
 	public List<Dictionary<string, object>>? Data { get; set; }
@@ -3534,13 +3541,13 @@ public sealed class InvalidRequestResponse
 	public string Error { get; set; }
 
 	[JsonPropertyName("max_offset")]
-	public int? MaxOffset { get; set; }
+	public long? MaxOffset { get; set; }
 
 	[JsonPropertyName("message")]
 	public string Message { get; set; }
 
 	[JsonPropertyName("ok")]
-	public string Ok { get; set; }
+	public bool Ok { get; set; }
 
 }
 
@@ -3553,7 +3560,7 @@ public sealed class KeyInvalidateResponse
 	public string Message { get; set; }
 
 	[JsonPropertyName("ok")]
-	public string Ok { get; set; }
+	public bool Ok { get; set; }
 
 }
 
@@ -3604,7 +3611,7 @@ public sealed class ManagementKeyCreateResponse
 	public Dictionary<string, object> Key { get; set; }
 
 	[JsonPropertyName("ok")]
-	public string Ok { get; set; }
+	public bool Ok { get; set; }
 
 }
 
@@ -3614,7 +3621,7 @@ public sealed class ManagementKeyDeleteResponse
 	public string Message { get; set; }
 
 	[JsonPropertyName("ok")]
-	public string Ok { get; set; }
+	public bool Ok { get; set; }
 
 }
 
@@ -3624,7 +3631,7 @@ public sealed class ManagementKeyDetailResponse
 	public Dictionary<string, object> Key { get; set; }
 
 	[JsonPropertyName("ok")]
-	public string Ok { get; set; }
+	public bool Ok { get; set; }
 
 }
 
@@ -3634,16 +3641,16 @@ public sealed class ManagementKeyListResponse
 	public List<Dictionary<string, object>> Keys { get; set; }
 
 	[JsonPropertyName("limit")]
-	public int Limit { get; set; }
+	public long Limit { get; set; }
 
 	[JsonPropertyName("offset")]
-	public int Offset { get; set; }
+	public long Offset { get; set; }
 
 	[JsonPropertyName("ok")]
-	public string Ok { get; set; }
+	public bool Ok { get; set; }
 
 	[JsonPropertyName("total")]
-	public int Total { get; set; }
+	public long Total { get; set; }
 
 }
 
@@ -3656,10 +3663,10 @@ public sealed class ManagementKeyRuntime
 	public string? CreatedBy { get; set; }
 
 	[JsonPropertyName("daily_limit_cost_nanos")]
-	public int? DailyLimitCostNanos { get; set; }
+	public long? DailyLimitCostNanos { get; set; }
 
 	[JsonPropertyName("daily_limit_requests")]
-	public int? DailyLimitRequests { get; set; }
+	public long? DailyLimitRequests { get; set; }
 
 	[JsonPropertyName("expires_at")]
 	public string? ExpiresAt { get; set; }
@@ -3671,10 +3678,10 @@ public sealed class ManagementKeyRuntime
 	public string? LastUsedAt { get; set; }
 
 	[JsonPropertyName("monthly_limit_cost_nanos")]
-	public int? MonthlyLimitCostNanos { get; set; }
+	public long? MonthlyLimitCostNanos { get; set; }
 
 	[JsonPropertyName("monthly_limit_requests")]
-	public int? MonthlyLimitRequests { get; set; }
+	public long? MonthlyLimitRequests { get; set; }
 
 	[JsonPropertyName("name")]
 	public string Name { get; set; }
@@ -3695,10 +3702,71 @@ public sealed class ManagementKeyRuntime
 	public string? UpdatedAt { get; set; }
 
 	[JsonPropertyName("weekly_limit_cost_nanos")]
-	public int? WeeklyLimitCostNanos { get; set; }
+	public long? WeeklyLimitCostNanos { get; set; }
 
 	[JsonPropertyName("weekly_limit_requests")]
-	public int? WeeklyLimitRequests { get; set; }
+	public long? WeeklyLimitRequests { get; set; }
+
+	[JsonPropertyName("workspace_id")]
+	public string WorkspaceId { get; set; }
+
+}
+
+public sealed class ManagementKeyRuntimeCreated
+{
+	[JsonPropertyName("created_at")]
+	public string CreatedAt { get; set; }
+
+	[JsonPropertyName("created_by")]
+	public string? CreatedBy { get; set; }
+
+	[JsonPropertyName("daily_limit_cost_nanos")]
+	public long? DailyLimitCostNanos { get; set; }
+
+	[JsonPropertyName("daily_limit_requests")]
+	public long? DailyLimitRequests { get; set; }
+
+	[JsonPropertyName("expires_at")]
+	public string? ExpiresAt { get; set; }
+
+	[JsonPropertyName("id")]
+	public string Id { get; set; }
+
+	[JsonPropertyName("key")]
+	public string Key { get; set; }
+
+	[JsonPropertyName("last_used_at")]
+	public string? LastUsedAt { get; set; }
+
+	[JsonPropertyName("monthly_limit_cost_nanos")]
+	public long? MonthlyLimitCostNanos { get; set; }
+
+	[JsonPropertyName("monthly_limit_requests")]
+	public long? MonthlyLimitRequests { get; set; }
+
+	[JsonPropertyName("name")]
+	public string Name { get; set; }
+
+	[JsonPropertyName("prefix")]
+	public string Prefix { get; set; }
+
+	[JsonPropertyName("scopes")]
+	public List<string> Scopes { get; set; }
+
+	[JsonPropertyName("soft_blocked")]
+	public bool? SoftBlocked { get; set; }
+
+	[JsonPropertyName("status")]
+	public string Status { get; set; }
+
+	[JsonPropertyName("updated_at")]
+	public string? UpdatedAt { get; set; }
+
+	[JsonPropertyName("weekly_limit_cost_nanos")]
+	public long? WeeklyLimitCostNanos { get; set; }
+
+	[JsonPropertyName("weekly_limit_requests")]
+	public long? WeeklyLimitRequests { get; set; }
 
 	[JsonPropertyName("workspace_id")]
 	public string WorkspaceId { get; set; }
@@ -3734,7 +3802,7 @@ public sealed class ManagementKeyRuntimeCreateResponse
 public sealed class ManagementKeyRuntimeDeleteResponse
 {
 	[JsonPropertyName("deleted")]
-	public string Deleted { get; set; }
+	public bool Deleted { get; set; }
 
 }
 
@@ -3748,19 +3816,19 @@ public sealed class ManagementKeyRuntimeResponse
 public sealed class ManagementKeyRuntimeUpdateRequest
 {
 	[JsonPropertyName("dailyCostNanos")]
-	public int? DailyCostNanos { get; set; }
+	public long? DailyCostNanos { get; set; }
 
 	[JsonPropertyName("dailyRequests")]
-	public int? DailyRequests { get; set; }
+	public long? DailyRequests { get; set; }
 
 	[JsonPropertyName("expires_at")]
 	public string? ExpiresAt { get; set; }
 
 	[JsonPropertyName("monthlyCostNanos")]
-	public int? MonthlyCostNanos { get; set; }
+	public long? MonthlyCostNanos { get; set; }
 
 	[JsonPropertyName("monthlyRequests")]
-	public int? MonthlyRequests { get; set; }
+	public long? MonthlyRequests { get; set; }
 
 	[JsonPropertyName("name")]
 	public string? Name { get; set; }
@@ -3778,10 +3846,10 @@ public sealed class ManagementKeyRuntimeUpdateRequest
 	public string? Template { get; set; }
 
 	[JsonPropertyName("weeklyCostNanos")]
-	public int? WeeklyCostNanos { get; set; }
+	public long? WeeklyCostNanos { get; set; }
 
 	[JsonPropertyName("weeklyRequests")]
-	public int? WeeklyRequests { get; set; }
+	public long? WeeklyRequests { get; set; }
 
 }
 
@@ -3804,7 +3872,7 @@ public sealed class ManagementKeyUpdateResponse
 	public string Message { get; set; }
 
 	[JsonPropertyName("ok")]
-	public string Ok { get; set; }
+	public bool Ok { get; set; }
 
 }
 
@@ -3862,16 +3930,16 @@ public sealed class Model
 public sealed class ModelAvailability
 {
 	[JsonPropertyName("active_provider_count")]
-	public int ActiveProviderCount { get; set; }
+	public long ActiveProviderCount { get; set; }
 
 	[JsonPropertyName("coming_soon_provider_count")]
-	public int ComingSoonProviderCount { get; set; }
+	public long ComingSoonProviderCount { get; set; }
 
 	[JsonPropertyName("inactive_provider_count")]
-	public int InactiveProviderCount { get; set; }
+	public long InactiveProviderCount { get; set; }
 
 	[JsonPropertyName("provider_count")]
-	public int ProviderCount { get; set; }
+	public long ProviderCount { get; set; }
 
 	[JsonPropertyName("status")]
 	public string Status { get; set; }
@@ -3948,7 +4016,7 @@ public sealed class ModelEndpointsResponse
 	public string Name { get; set; }
 
 	[JsonPropertyName("ok")]
-	public string Ok { get; set; }
+	public bool Ok { get; set; }
 
 	[JsonPropertyName("organization")]
 	public Dictionary<string, object>? Organization { get; set; }
@@ -4165,7 +4233,7 @@ public sealed class MusicGenerateRequest
 	public Dictionary<string, object>? Debug { get; set; }
 
 	[JsonPropertyName("duration")]
-	public int? Duration { get; set; }
+	public long? Duration { get; set; }
 
 	[JsonPropertyName("echo_upstream_request")]
 	public bool? EchoUpstreamRequest { get; set; }
@@ -4236,14 +4304,14 @@ public sealed class NotImplementedResponse
 	public string Error { get; set; }
 
 	[JsonPropertyName("status_code")]
-	public int StatusCode { get; set; }
+	public long StatusCode { get; set; }
 
 }
 
 public sealed class OAuthClient
 {
 	[JsonPropertyName("active_authorizations")]
-	public int? ActiveAuthorizations { get; set; }
+	public long? ActiveAuthorizations { get; set; }
 
 	[JsonPropertyName("allowed_scopes")]
 	public List<string>? AllowedScopes { get; set; }
@@ -4279,7 +4347,7 @@ public sealed class OAuthClient
 	public List<string> RedirectUris { get; set; }
 
 	[JsonPropertyName("requests_last_30d")]
-	public int? RequestsLast30d { get; set; }
+	public long? RequestsLast30d { get; set; }
 
 	[JsonPropertyName("status")]
 	public string Status { get; set; }
@@ -4288,7 +4356,7 @@ public sealed class OAuthClient
 	public string? TermsOfServiceUrl { get; set; }
 
 	[JsonPropertyName("total_authorizations")]
-	public int? TotalAuthorizations { get; set; }
+	public long? TotalAuthorizations { get; set; }
 
 	[JsonPropertyName("updated_at")]
 	public string? UpdatedAt { get; set; }
@@ -4332,7 +4400,7 @@ public sealed class OAuthClientCreateRequest
 public sealed class OAuthClientCreateResponse
 {
 	[JsonPropertyName("active_authorizations")]
-	public int? ActiveAuthorizations { get; set; }
+	public long? ActiveAuthorizations { get; set; }
 
 	[JsonPropertyName("allowed_scopes")]
 	public List<string>? AllowedScopes { get; set; }
@@ -4371,7 +4439,7 @@ public sealed class OAuthClientCreateResponse
 	public List<string> RedirectUris { get; set; }
 
 	[JsonPropertyName("requests_last_30d")]
-	public int? RequestsLast30d { get; set; }
+	public long? RequestsLast30d { get; set; }
 
 	[JsonPropertyName("status")]
 	public string Status { get; set; }
@@ -4380,7 +4448,7 @@ public sealed class OAuthClientCreateResponse
 	public string? TermsOfServiceUrl { get; set; }
 
 	[JsonPropertyName("total_authorizations")]
-	public int? TotalAuthorizations { get; set; }
+	public long? TotalAuthorizations { get; set; }
 
 	[JsonPropertyName("updated_at")]
 	public string? UpdatedAt { get; set; }
@@ -4583,7 +4651,7 @@ public sealed class ObservabilityDestinationListResponse
 	public List<Dictionary<string, object>> Data { get; set; }
 
 	[JsonPropertyName("total_count")]
-	public int TotalCount { get; set; }
+	public long TotalCount { get; set; }
 
 }
 
@@ -4698,10 +4766,10 @@ public sealed class ObservabilityLoggingPolicy
 	public bool IncludeProviderPayloads { get; set; }
 
 	[JsonPropertyName("price_per_million_units_nanos")]
-	public int PricePerMillionUnitsNanos { get; set; }
+	public long PricePerMillionUnitsNanos { get; set; }
 
 	[JsonPropertyName("retention_days")]
-	public int RetentionDays { get; set; }
+	public long RetentionDays { get; set; }
 
 	[JsonPropertyName("updated_at")]
 	public string? UpdatedAt { get; set; }
@@ -4727,7 +4795,7 @@ public sealed class ObservabilityLoggingPolicyUpdateRequest
 	public bool? IncludeProviderPayloads { get; set; }
 
 	[JsonPropertyName("retention_days")]
-	public int? RetentionDays { get; set; }
+	public long? RetentionDays { get; set; }
 
 }
 
@@ -4971,7 +5039,7 @@ public sealed class PresetListResponse
 	public List<Dictionary<string, object>> Data { get; set; }
 
 	[JsonPropertyName("total_count")]
-	public int TotalCount { get; set; }
+	public long TotalCount { get; set; }
 
 }
 
@@ -5207,7 +5275,7 @@ public sealed class PresetVersion
 	public string VersionLabel { get; set; }
 
 	[JsonPropertyName("version_number")]
-	public int VersionNumber { get; set; }
+	public long VersionNumber { get; set; }
 
 	[JsonPropertyName("versioning_method")]
 	public string VersioningMethod { get; set; }
@@ -5315,7 +5383,7 @@ public sealed class ProviderCredential
 	public string RoutingMode { get; set; }
 
 	[JsonPropertyName("sort_order")]
-	public int SortOrder { get; set; }
+	public long SortOrder { get; set; }
 
 	[JsonPropertyName("suffix")]
 	public string? Suffix { get; set; }
@@ -5366,7 +5434,7 @@ public sealed class ProviderCredentialListResponse
 	public List<Dictionary<string, object>> Data { get; set; }
 
 	[JsonPropertyName("total_count")]
-	public int TotalCount { get; set; }
+	public long TotalCount { get; set; }
 
 }
 
@@ -5582,7 +5650,7 @@ public sealed class ReasoningConfig
 	public bool? Enabled { get; set; }
 
 	[JsonPropertyName("max_tokens")]
-	public int? MaxTokens { get; set; }
+	public long? MaxTokens { get; set; }
 
 	[JsonPropertyName("mode")]
 	public string? Mode { get; set; }
@@ -5603,7 +5671,7 @@ public sealed class RerankRequest
 	public object Documents { get; set; }
 
 	[JsonPropertyName("max_chunks_per_doc")]
-	public int? MaxChunksPerDoc { get; set; }
+	public long? MaxChunksPerDoc { get; set; }
 
 	[JsonPropertyName("metadata")]
 	public Dictionary<string, object>? Metadata { get; set; }
@@ -5627,10 +5695,10 @@ public sealed class RerankRequest
 	public bool? ReturnDocuments { get; set; }
 
 	[JsonPropertyName("top_k")]
-	public int? TopK { get; set; }
+	public long? TopK { get; set; }
 
 	[JsonPropertyName("top_n")]
-	public int? TopN { get; set; }
+	public long? TopN { get; set; }
 
 	[JsonPropertyName("user")]
 	public string? User { get; set; }
@@ -5665,7 +5733,7 @@ public sealed class RerankResult
 	public object? Document { get; set; }
 
 	[JsonPropertyName("index")]
-	public int? Index { get; set; }
+	public long? Index { get; set; }
 
 	[JsonPropertyName("relevance_score")]
 	public double? RelevanceScore { get; set; }
@@ -5781,7 +5849,7 @@ public sealed class ResponsesRequest
 	public string? Instructions { get; set; }
 
 	[JsonPropertyName("max_output_tokens")]
-	public int? MaxOutputTokens { get; set; }
+	public long? MaxOutputTokens { get; set; }
 
 	[JsonPropertyName("meta")]
 	public bool? Meta { get; set; }
@@ -5860,13 +5928,13 @@ public sealed class ResponsesResponse
 	public List<Dictionary<string, object>>? Content { get; set; }
 
 	[JsonPropertyName("cost_cents")]
-	public int? CostCents { get; set; }
+	public long? CostCents { get; set; }
 
 	[JsonPropertyName("cost_nanos")]
 	public double? CostNanos { get; set; }
 
 	[JsonPropertyName("created")]
-	public int? Created { get; set; }
+	public long? Created { get; set; }
 
 	[JsonPropertyName("currency")]
 	public string? Currency { get; set; }
@@ -5934,31 +6002,31 @@ public sealed class SearchModelsToolDefinition
 public sealed class ServerToolUsage
 {
 	[JsonPropertyName("advisor_requests")]
-	public int? AdvisorRequests { get; set; }
+	public long? AdvisorRequests { get; set; }
 
 	[JsonPropertyName("apply_patch_requests")]
-	public int? ApplyPatchRequests { get; set; }
+	public long? ApplyPatchRequests { get; set; }
 
 	[JsonPropertyName("datetime_requests")]
-	public int? DatetimeRequests { get; set; }
+	public long? DatetimeRequests { get; set; }
 
 	[JsonPropertyName("fusion_requests")]
-	public int? FusionRequests { get; set; }
+	public long? FusionRequests { get; set; }
 
 	[JsonPropertyName("image_generation_requests")]
-	public int? ImageGenerationRequests { get; set; }
+	public long? ImageGenerationRequests { get; set; }
 
 	[JsonPropertyName("search_models_requests")]
-	public int? SearchModelsRequests { get; set; }
+	public long? SearchModelsRequests { get; set; }
 
 	[JsonPropertyName("subagent_requests")]
-	public int? SubagentRequests { get; set; }
+	public long? SubagentRequests { get; set; }
 
 	[JsonPropertyName("web_fetch_requests")]
-	public int? WebFetchRequests { get; set; }
+	public long? WebFetchRequests { get; set; }
 
 	[JsonPropertyName("web_search_requests")]
-	public int? WebSearchRequests { get; set; }
+	public long? WebSearchRequests { get; set; }
 
 }
 
@@ -6036,16 +6104,16 @@ public sealed class UpdatedResponse
 public sealed class Usage
 {
 	[JsonPropertyName("completion_tokens")]
-	public int? CompletionTokens { get; set; }
+	public long? CompletionTokens { get; set; }
 
 	[JsonPropertyName("prompt_tokens")]
-	public int? PromptTokens { get; set; }
+	public long? PromptTokens { get; set; }
 
 	[JsonPropertyName("server_tool_use")]
 	public Dictionary<string, object>? ServerToolUse { get; set; }
 
 	[JsonPropertyName("total_tokens")]
-	public int? TotalTokens { get; set; }
+	public long? TotalTokens { get; set; }
 
 }
 
@@ -6067,7 +6135,7 @@ public sealed class VideoBillingSummary
 	public string? Currency { get; set; }
 
 	[JsonPropertyName("estimated_nanos")]
-	public int? EstimatedNanos { get; set; }
+	public long? EstimatedNanos { get; set; }
 
 	[JsonPropertyName("estimated_provider_cost")]
 	public string? EstimatedProviderCost { get; set; }
@@ -6082,7 +6150,7 @@ public sealed class VideoBillingSummary
 	public string? ReservationStatus { get; set; }
 
 	[JsonPropertyName("reserved_nanos")]
-	public int? ReservedNanos { get; set; }
+	public long? ReservedNanos { get; set; }
 
 	[JsonPropertyName("settled_provider_cost")]
 	public string? SettledProviderCost { get; set; }
@@ -6094,7 +6162,7 @@ public sealed class VideoBillingSummary
 	public string? State { get; set; }
 
 	[JsonPropertyName("total_nanos")]
-	public int? TotalNanos { get; set; }
+	public long? TotalNanos { get; set; }
 
 }
 
@@ -6127,10 +6195,10 @@ public sealed class VideoGenerationRequest
 	public string? AspectRatio { get; set; }
 
 	[JsonPropertyName("compression_quality")]
-	public int? CompressionQuality { get; set; }
+	public long? CompressionQuality { get; set; }
 
 	[JsonPropertyName("duration")]
-	public int? Duration { get; set; }
+	public long? Duration { get; set; }
 
 	[JsonPropertyName("enhance_prompt")]
 	public bool? EnhancePrompt { get; set; }
@@ -6175,10 +6243,10 @@ public sealed class VideoGenerationRequest
 	public string? Resolution { get; set; }
 
 	[JsonPropertyName("sample_count")]
-	public int? SampleCount { get; set; }
+	public long? SampleCount { get; set; }
 
 	[JsonPropertyName("seed")]
-	public int? Seed { get; set; }
+	public long? Seed { get; set; }
 
 	[JsonPropertyName("size")]
 	public string? Size { get; set; }
@@ -6218,7 +6286,7 @@ public sealed class VideoGenerationResponse
 	public object? Error { get; set; }
 
 	[JsonPropertyName("expires_at")]
-	public int? ExpiresAt { get; set; }
+	public long? ExpiresAt { get; set; }
 
 	[JsonPropertyName("generation_id")]
 	public string? GenerationId { get; set; }
@@ -6257,13 +6325,13 @@ public sealed class VideoGenerationResponse
 	public List<Dictionary<string, object>>? Outputs { get; set; }
 
 	[JsonPropertyName("poll_after_seconds")]
-	public int? PollAfterSeconds { get; set; }
+	public long? PollAfterSeconds { get; set; }
 
 	[JsonPropertyName("polling_url")]
 	public string? PollingUrl { get; set; }
 
 	[JsonPropertyName("progress")]
-	public int? Progress { get; set; }
+	public long? Progress { get; set; }
 
 	[JsonPropertyName("progress_source")]
 	public string? ProgressSource { get; set; }
@@ -6399,10 +6467,10 @@ public sealed class VideoOutput
 	public string? DownloadUrl { get; set; }
 
 	[JsonPropertyName("expires_at")]
-	public int? ExpiresAt { get; set; }
+	public long? ExpiresAt { get; set; }
 
 	[JsonPropertyName("index")]
-	public int? Index { get; set; }
+	public long? Index { get; set; }
 
 	[JsonPropertyName("mime_type")]
 	public string? MimeType { get; set; }
@@ -6469,7 +6537,7 @@ public sealed class WebhookEndpointCreateRequest
 public sealed class WebhookEndpointDeleteResponse
 {
 	[JsonPropertyName("deleted")]
-	public string Deleted { get; set; }
+	public bool Deleted { get; set; }
 
 	[JsonPropertyName("id")]
 	public string Id { get; set; }
@@ -6589,7 +6657,7 @@ public sealed class WorkspaceActivityEntry
 	public string? Endpoint { get; set; }
 
 	[JsonPropertyName("latency_ms")]
-	public int? LatencyMs { get; set; }
+	public long? LatencyMs { get; set; }
 
 	[JsonPropertyName("model")]
 	public string? Model { get; set; }
@@ -6614,19 +6682,19 @@ public sealed class WorkspaceActivityResponse
 	public List<Dictionary<string, object>> Activity { get; set; }
 
 	[JsonPropertyName("limit")]
-	public int Limit { get; set; }
+	public long Limit { get; set; }
 
 	[JsonPropertyName("offset")]
-	public int Offset { get; set; }
+	public long Offset { get; set; }
 
 	[JsonPropertyName("ok")]
-	public string Ok { get; set; }
+	public bool Ok { get; set; }
 
 	[JsonPropertyName("period_days")]
-	public int PeriodDays { get; set; }
+	public long PeriodDays { get; set; }
 
 	[JsonPropertyName("total")]
-	public int Total { get; set; }
+	public long Total { get; set; }
 
 	[JsonPropertyName("total_cost_cents")]
 	public double TotalCostCents { get; set; }
@@ -6677,6 +6745,15 @@ public sealed class WorkspaceAppListResponse
 {
 	[JsonPropertyName("data")]
 	public List<Dictionary<string, object>> Data { get; set; }
+
+	[JsonPropertyName("limit")]
+	public long Limit { get; set; }
+
+	[JsonPropertyName("offset")]
+	public long Offset { get; set; }
+
+	[JsonPropertyName("total_count")]
+	public long TotalCount { get; set; }
 
 }
 
@@ -6778,25 +6855,25 @@ public sealed class WorkspaceAuditEventActor
 public sealed class WorkspaceAuditEventLimits
 {
 	[JsonPropertyName("dailyCostNanos")]
-	public int? DailyCostNanos { get; set; }
+	public long? DailyCostNanos { get; set; }
 
 	[JsonPropertyName("dailyRequests")]
-	public int? DailyRequests { get; set; }
+	public long? DailyRequests { get; set; }
 
 	[JsonPropertyName("monthlyCostNanos")]
-	public int? MonthlyCostNanos { get; set; }
+	public long? MonthlyCostNanos { get; set; }
 
 	[JsonPropertyName("monthlyRequests")]
-	public int? MonthlyRequests { get; set; }
+	public long? MonthlyRequests { get; set; }
 
 	[JsonPropertyName("softBlocked")]
 	public bool? SoftBlocked { get; set; }
 
 	[JsonPropertyName("weeklyCostNanos")]
-	public int? WeeklyCostNanos { get; set; }
+	public long? WeeklyCostNanos { get; set; }
 
 	[JsonPropertyName("weeklyRequests")]
-	public int? WeeklyRequests { get; set; }
+	public long? WeeklyRequests { get; set; }
 
 }
 
@@ -6847,10 +6924,10 @@ public sealed class WorkspaceAuditEventMetadata
 public sealed class WorkspaceAutoTopUpSettings
 {
 	[JsonPropertyName("amount_nanos")]
-	public int AmountNanos { get; set; }
+	public long AmountNanos { get; set; }
 
 	[JsonPropertyName("balance_threshold_nanos")]
-	public int BalanceThresholdNanos { get; set; }
+	public long BalanceThresholdNanos { get; set; }
 
 	[JsonPropertyName("enabled")]
 	public bool Enabled { get; set; }
@@ -6863,10 +6940,10 @@ public sealed class WorkspaceAutoTopUpSettings
 public sealed class WorkspaceAutoTopUpUpdate
 {
 	[JsonPropertyName("amount_nanos")]
-	public int? AmountNanos { get; set; }
+	public long? AmountNanos { get; set; }
 
 	[JsonPropertyName("balance_threshold_nanos")]
-	public int? BalanceThresholdNanos { get; set; }
+	public long? BalanceThresholdNanos { get; set; }
 
 	[JsonPropertyName("enabled")]
 	public bool Enabled { get; set; }
@@ -6897,13 +6974,13 @@ public sealed class WorkspaceBudget
 	public double Limit { get; set; }
 
 	[JsonPropertyName("limit_nanos")]
-	public int LimitNanos { get; set; }
+	public long LimitNanos { get; set; }
 
 	[JsonPropertyName("remaining")]
 	public double Remaining { get; set; }
 
 	[JsonPropertyName("remaining_nanos")]
-	public int RemainingNanos { get; set; }
+	public long RemainingNanos { get; set; }
 
 	[JsonPropertyName("reset_at")]
 	public string? ResetAt { get; set; }
@@ -6915,7 +6992,7 @@ public sealed class WorkspaceBudget
 	public double Usage { get; set; }
 
 	[JsonPropertyName("usage_nanos")]
-	public int UsageNanos { get; set; }
+	public long UsageNanos { get; set; }
 
 	[JsonPropertyName("window_start")]
 	public string? WindowStart { get; set; }
@@ -7259,7 +7336,7 @@ public sealed class WorkspaceInvite
 	public string Id { get; set; }
 
 	[JsonPropertyName("max_uses")]
-	public int? MaxUses { get; set; }
+	public long? MaxUses { get; set; }
 
 	[JsonPropertyName("role")]
 	public string Role { get; set; }
@@ -7268,7 +7345,7 @@ public sealed class WorkspaceInvite
 	public string? TokenPreview { get; set; }
 
 	[JsonPropertyName("uses_count")]
-	public int? UsesCount { get; set; }
+	public long? UsesCount { get; set; }
 
 	[JsonPropertyName("workspace_id")]
 	public string WorkspaceId { get; set; }
@@ -7278,10 +7355,10 @@ public sealed class WorkspaceInvite
 public sealed class WorkspaceInviteCreateRequest
 {
 	[JsonPropertyName("expires_in_days")]
-	public int? ExpiresInDays { get; set; }
+	public long? ExpiresInDays { get; set; }
 
 	[JsonPropertyName("max_uses")]
-	public int? MaxUses { get; set; }
+	public long? MaxUses { get; set; }
 
 	[JsonPropertyName("role")]
 	public string? Role { get; set; }
@@ -7304,7 +7381,7 @@ public sealed class WorkspaceInviteListResponse
 	public List<Dictionary<string, object>> Data { get; set; }
 
 	[JsonPropertyName("total_count")]
-	public int TotalCount { get; set; }
+	public long TotalCount { get; set; }
 
 }
 
@@ -7342,7 +7419,7 @@ public sealed class WorkspaceJoinRequestListResponse
 	public List<Dictionary<string, object>> Data { get; set; }
 
 	[JsonPropertyName("total_count")]
-	public int TotalCount { get; set; }
+	public long TotalCount { get; set; }
 
 }
 
@@ -7361,7 +7438,7 @@ public sealed class WorkspaceListResponse
 	public List<Dictionary<string, object>> Data { get; set; }
 
 	[JsonPropertyName("total_count")]
-	public int TotalCount { get; set; }
+	public long TotalCount { get; set; }
 
 }
 
@@ -7407,7 +7484,7 @@ public sealed class WorkspaceMember
 public sealed class WorkspaceMemberAddResponse
 {
 	[JsonPropertyName("added_count")]
-	public int AddedCount { get; set; }
+	public long AddedCount { get; set; }
 
 	[JsonPropertyName("data")]
 	public List<Dictionary<string, object>> Data { get; set; }
@@ -7430,7 +7507,7 @@ public sealed class WorkspaceMemberListResponse
 	public List<Dictionary<string, object>> Data { get; set; }
 
 	[JsonPropertyName("total_count")]
-	public int TotalCount { get; set; }
+	public long TotalCount { get; set; }
 
 }
 
@@ -7444,7 +7521,7 @@ public sealed class WorkspaceMemberRemoveRequest
 public sealed class WorkspaceMemberRemoveResponse
 {
 	[JsonPropertyName("removed_count")]
-	public int RemovedCount { get; set; }
+	public long RemovedCount { get; set; }
 
 }
 
@@ -7699,7 +7776,7 @@ public sealed class WorkspaceScimEvent
 	public Dictionary<string, object>? Detail { get; set; }
 
 	[JsonPropertyName("http_status")]
-	public int? HttpStatus { get; set; }
+	public long? HttpStatus { get; set; }
 
 	[JsonPropertyName("id")]
 	public string? Id { get; set; }
@@ -7916,7 +7993,7 @@ public sealed class WorkspaceSsoSettings
 	public bool Enabled { get; set; }
 
 	[JsonPropertyName("enforced")]
-	public string Enforced { get; set; }
+	public bool Enforced { get; set; }
 
 	[JsonPropertyName("mode")]
 	public string Mode { get; set; }
@@ -7935,7 +8012,7 @@ public sealed class WorkspaceSsoUpdateRequest
 	public bool Enabled { get; set; }
 
 	[JsonPropertyName("enforced")]
-	public string? Enforced { get; set; }
+	public bool? Enforced { get; set; }
 
 	[JsonPropertyName("mode")]
 	public string Mode { get; set; }

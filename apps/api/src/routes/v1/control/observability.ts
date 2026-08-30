@@ -3,6 +3,8 @@
 // How: Stores write-only encrypted credentials and bounded key/rule filters.
 
 import { Hono } from "hono";
+import { setKeyVersion } from "@/core/kv";
+import { validateWebhookEndpointUrl } from "@/core/webhook-endpoints";
 import type { Env } from "@/runtime/types";
 import { getSupabaseAdmin } from "@/runtime/env";
 import { guardManagementAuth, type GuardErr } from "@/pipeline/before/guards";
@@ -60,8 +62,8 @@ function validateEndpoint(type: string, values: Record<string, string>) {
 	let url: URL;
 	try { url = new URL(destinationEndpoint(type, values)); } catch { throw new Error("Destination endpoint must be a valid absolute URL"); }
 	if (url.protocol !== "https:" || url.username || url.password) throw new Error("Destination endpoint must use HTTPS without URL credentials");
-	const host = url.hostname.toLowerCase();
-	if (!host || host === "localhost" || host.endsWith(".localhost") || host.endsWith(".local") || /^(0|10|127|169\.254|192\.168)\./.test(host) || /^172\.(1[6-9]|2\d|3[01])\./.test(host) || host === "::1" || /^(fc|fd|fe80:)/.test(host)) throw new Error("Private or loopback destination addresses are not allowed");
+	const validated = validateWebhookEndpointUrl(url.toString());
+	if (!validated.ok) throw new Error("Private or loopback destination addresses are not allowed");
 	if (type !== "webhook") return;
 	const method = String(values.method ?? "POST").toUpperCase();
 	if (method !== "POST" && method !== "PUT") throw new Error("Webhook method must be POST or PUT");
@@ -103,7 +105,7 @@ function ruleGroups(value: unknown): RuleGroup[] | null {
 			const condition = String(inputRule?.condition ?? "").trim();
 			const valueless = condition === "exists" || condition === "not_exists";
 			const valueText = valueless ? null : String(inputRule?.value ?? "").trim();
-			if (!FIELDS.has(field) || !CONDITIONS.has(condition) || (!valueless && (!valueText || valueText.length > 2_000))) return null;
+			if (!FIELDS.has(field) || !CONDITIONS.has(condition) || (!valueless && (!valueText || valueText.length > (condition === "matches_regex" ? 128 : 2_000)))) return null;
 			rules.push({ field, condition, value: valueText });
 		}
 		output.push({ match, rules });
@@ -187,26 +189,14 @@ async function validateKeys(workspaceId: string, filters: KeyFilter[]) {
 	if ((data ?? []).length !== ids.length) throw new Error("One or more API keys are unavailable");
 }
 
-async function replaceRelations(id: string, filters: KeyFilter[] | undefined, groups: RuleGroup[] | undefined) {
-	const client = getSupabaseAdmin();
-	if (filters) {
-		const removed = await client.from("broadcast_destination_keys").delete().eq("destination_id", id);
-		if (removed.error) throw new Error(removed.error.message || "Failed to replace key filters");
-		if (filters.length) {
-			const inserted = await client.from("broadcast_destination_keys").insert(filters.map((item) => ({ destination_id: id, key_id: item.key_id, filter_mode: item.mode })));
-			if (inserted.error) throw new Error(inserted.error.message || "Failed to write key filters");
-		}
-	}
-	if (!groups) return;
-	const removed = await client.from("broadcast_destination_rule_groups").delete().eq("destination_id", id);
-	if (removed.error) throw new Error(removed.error.message || "Failed to replace rules");
-	for (let index = 0; index < groups.length; index++) {
-		const group = groups[index];
-		const created = await client.from("broadcast_destination_rule_groups").insert({ destination_id: id, name: `Group ${index + 1}`, match_operator: group.match, position: index }).select("id").single();
-		if (created.error || !created.data?.id) throw new Error(created.error?.message || "Failed to write rule group");
-		const rules = await client.from("broadcast_destination_rules").insert(group.rules.map((rule, position) => ({ rule_group_id: created.data.id, ...rule, position })));
-		if (rules.error) throw new Error(rules.error.message || "Failed to write rules");
-	}
+async function replaceRelations(workspaceId: string, id: string, filters: KeyFilter[] | undefined, groups: RuleGroup[] | undefined) {
+	const { error } = await getSupabaseAdmin().rpc("replace_broadcast_destination_relations", {
+		p_workspace_id: workspaceId,
+		p_destination_id: id,
+		p_filters: filters === undefined ? null : filters,
+		p_groups: groups === undefined ? null : groups,
+	});
+	if (error) throw new Error(error.message || "Failed to replace destination filters");
 }
 
 async function listDestinations(req: Request) {
@@ -243,7 +233,7 @@ async function createDestination(req: Request) {
 		await validateKeys(access.auth.workspaceId, filters); const encrypted = await encryptBroadcastConfig(secretConfig); const client = getSupabaseAdmin();
 		const created = await client.from("workspace_broadcast_destinations").insert({ workspace_id: access.auth.workspaceId, destination_id: type, destination_config: {}, destination_config_ciphertext: encrypted.ciphertext, destination_config_iv: encrypted.iv, destination_config_key_version: encrypted.keyVersion, ...normalized.data }).select(COLUMNS).maybeSingle();
 		if (created.error || !created.data?.id) throw new Error(created.error?.message || "Failed to create observability destination");
-		id = String(created.data.id); await replaceRelations(id, filters, groups);
+		id = String(created.data.id); await replaceRelations(access.auth.workspaceId, id, filters, groups);
 		await recordWorkspaceAuditEvent(client, { workspaceId: access.auth.workspaceId, actorUserId: access.auth.userId, action: "observability.destination.created", targetType: "observability_destination", targetId: id, targetName: String(created.data.name), metadata: { type }, requestId: access.auth.requestId });
 		return json({ data: format(created.data, await relations([id])) }, 201, NO_STORE);
 	} catch (error) {
@@ -274,7 +264,7 @@ async function updateDestination(req: Request) {
 			const result = await client.from("workspace_broadcast_destinations").update({ ...update, updated_at: new Date().toISOString() }).eq("workspace_id", access.auth.workspaceId).eq("id", id).select(COLUMNS).maybeSingle();
 			if (result.error || !result.data) throw new Error(result.error?.message || "Failed to update observability destination"); row = result.data;
 		}
-		await replaceRelations(id, filters, groups);
+		await replaceRelations(access.auth.workspaceId, id, filters, groups);
 		await recordWorkspaceAuditEvent(client, { workspaceId: access.auth.workspaceId, actorUserId: access.auth.userId, action: "observability.destination.updated", targetType: "observability_destination", targetId: id, targetName: String(row.name), metadata: { changed_fields: Object.keys(body).filter((key) => key !== "config") }, requestId: access.auth.requestId });
 		return json({ data: format(row, await relations([id])) }, 200, NO_STORE);
 	} catch (error) { return internalServerError("observability.destinations.update", error); }
@@ -340,6 +330,9 @@ async function updateLoggingPolicy(req: Request) {
 		const now = new Date().toISOString();
 		const result = await client.from("workspace_settings").upsert({ workspace_id: access.auth.workspaceId, ...update, io_logging_updated_at: now, updated_at: now }, { onConflict: "workspace_id" }).select("workspace_id,io_logging_enabled,io_logging_retention_days,io_logging_include_provider_payloads,io_logging_billing_status,io_logging_grace_until,io_logging_price_per_million_units_nanos,io_logging_updated_at").maybeSingle();
 		if (result.error || !result.data) throw new Error(result.error?.message || "Failed to update I/O logging policy");
+		const { data: keys, error: keysError } = await client.from("keys").select("id").eq("workspace_id", access.auth.workspaceId).neq("status", "deleted");
+		if (keysError) throw new Error(keysError.message || "Failed to invalidate logging policy cache");
+		await Promise.all((keys ?? []).map((key) => setKeyVersion("id", String(key.id), Date.now())));
 		await recordWorkspaceAuditEvent(client, { workspaceId: access.auth.workspaceId, actorUserId: access.auth.userId, action: "observability.logging_policy.updated", targetType: "workspace_logging_policy", targetId: access.auth.workspaceId, metadata: { changed_fields: Object.keys(body) }, requestId: access.auth.requestId });
 		return json({ data: formatLoggingPolicy(result.data, access.auth.workspaceId) }, 200, NO_STORE);
 	} catch (error) { return internalServerError("observability.logging_policy.update", error); }

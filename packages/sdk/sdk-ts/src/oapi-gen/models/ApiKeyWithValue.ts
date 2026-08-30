@@ -6,7 +6,7 @@ export interface ApiKeyWithValue {
   expires_at: string | null;
   hash: string;
   id: string;
-  include_byok_in_limit: false;
+  include_byok_in_limit: boolean;
   key: string;
   label: string | null;
   last_used_at: string | null;

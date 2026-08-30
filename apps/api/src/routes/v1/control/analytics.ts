@@ -301,7 +301,7 @@ function meterQuantity(row: AnalyticsFactRow, keys: string[]): number {
     }, 0);
 }
 
-async function handleAnalytics(req: Request) {
+async function handleAnalytics(req: Request, options: { exportRequest?: boolean } = {}) {
 	const auth = await guardAuth(req, { allowOAuthJwt: true });
 	if (!auth.ok) {
 		return (auth as GuardErr).response;
@@ -331,7 +331,8 @@ async function handleAnalytics(req: Request) {
 		return json({ ok: false, error: "invalid_request", message: "label_key or label_value is invalid" }, 400, { "Cache-Control": "no-store" });
 	}
 	const keyId = optionalFilter(url, "key_id", 128, /^[A-Za-z0-9_-]+$/);
-	const endUserId = optionalFilter(url, "end_user_id", 256, /^[A-Za-z0-9_.:@/-]+$/);
+	const endUserIdValue = url.searchParams.get("end_user_id")?.trim() || null;
+	const endUserId = !endUserIdValue || endUserIdValue.length <= 256 ? endUserIdValue : false;
 	const model = optionalFilter(url, "model", 256, /^[A-Za-z0-9_.:/-]+$/);
 	const provider = optionalFilter(url, "provider", 128, /^[A-Za-z0-9_.-]+$/);
 	const endpoint = optionalFilter(url, "endpoint", 128, /^[A-Za-z0-9_.:/-]+$/);
@@ -341,7 +342,7 @@ async function handleAnalytics(req: Request) {
 		return json({ ok: false, error: "invalid_request", message: "One or more analytics filters are invalid" }, 400, { "Cache-Control": "no-store" });
 	}
 	const offset = Number(url.searchParams.get("offset") ?? "0");
-	const exportRequest = req.headers.get("x-phaseo-analytics-export") === "1";
+	const exportRequest = options.exportRequest === true;
 	const limit = Number(url.searchParams.get("limit") ?? (exportRequest ? "10000" : "1000"));
 	if (!Number.isInteger(offset) || offset < 0 || !Number.isInteger(limit) || limit < 1 || limit > (exportRequest ? 10_000 : 1_000)) {
 		return json({ ok: false, error: "invalid_request", message: "Invalid pagination" }, 400, { "Cache-Control": "no-store" });
@@ -455,9 +456,7 @@ async function handleAnalyticsExport(req: Request) {
 	const url = new URL(req.url);
 	url.searchParams.delete("offset");
 	url.searchParams.delete("limit");
-	const headers = new Headers(req.headers);
-	headers.set("x-phaseo-analytics-export", "1");
-	const response = await handleAnalytics(new Request(url, { method: "GET", headers }));
+	const response = await handleAnalytics(new Request(url, { method: "GET", headers: req.headers }), { exportRequest: true });
 	if (!response.ok) return response;
 	const body = await response.json() as { data?: Array<Record<string, unknown>> };
 	const columns = ["date", "model", "model_permaslug", "endpoint_id", "provider_name", "usage", "byok_usage_inference", "requests", "prompt_tokens", "completion_tokens", "reasoning_tokens"];
@@ -475,7 +474,5 @@ async function handleAnalyticsExport(req: Request) {
 export const analyticsRoutes = new Hono<Env>();
 
 analyticsRoutes.get("/export", withRuntime(handleAnalyticsExport));
-analyticsRoutes.get("/", withRuntime(handleAnalytics));
-
-
+analyticsRoutes.get("/", withRuntime((req) => handleAnalytics(req)));
 

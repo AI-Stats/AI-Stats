@@ -1145,9 +1145,6 @@ final class ModelIds
     /** Model ID: qwen/qwen2.5-7b-1m. Model page: https://phaseo.app/models/qwen/qwen2.5-7b-1m */
     public const QWEN_QWEN2_5_7B_1M = 'qwen/qwen2.5-7b-1m';
 
-    /** Model ID: qwen/qwen2.5-coder-7b. Model page: https://phaseo.app/models/qwen/qwen2.5-coder-7b */
-    public const QWEN_QWEN2_5_CODER_7B = 'qwen/qwen2.5-coder-7b';
-
     /** Model ID: qwen/qwen2.5-vl-32b. Model page: https://phaseo.app/models/qwen/qwen2.5-vl-32b */
     public const QWEN_QWEN2_5_VL_32B = 'qwen/qwen2.5-vl-32b';
 

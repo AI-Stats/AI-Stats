@@ -980,7 +980,7 @@ export async function fetchGatewayContext(args: {
     const creditCacheKey = gatewayCreditCacheKey(args.workspaceId);
     const staticCacheKey = isPreset
         ? `${PRESET_CACHE_PREFIX}:${testingModeCacheSegment}:${args.workspaceId}:${args.apiKeyId}:${versionToken}:${args.model}:${args.endpoint}`
-        : `${STATIC_CACHE_PREFIX}:${testingModeCacheSegment}:${args.workspaceId}:${args.endpoint}:${args.model}`;
+        : `${STATIC_CACHE_PREFIX}:${testingModeCacheSegment}:${args.workspaceId}:${versionToken}:${args.endpoint}:${args.model}`;
     const compositionCacheKey = `${CONTEXT_CACHE_PREFIX}:compose:${testingModeCacheSegment}:${args.workspaceId}:${args.apiKeyId}:${versionToken}:${args.endpoint}:${args.model}`;
 
     // Try split cache first (parallel read of dynamic and static segments).
@@ -1780,7 +1780,6 @@ export async function fetchGatewayContext(args: {
         }
     }
 }
-
 
 
 

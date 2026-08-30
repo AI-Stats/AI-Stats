@@ -1140,7 +1140,7 @@ export async function createApiKey(
     expires_at: string | null;
     hash: string;
     id: string;
-    include_byok_in_limit: false;
+    include_byok_in_limit: boolean;
     key: string;
     label: string | null;
     last_used_at: string | null;
@@ -1203,7 +1203,7 @@ export async function createApiKey(
       expires_at: string | null;
       hash: string;
       id: string;
-      include_byok_in_limit: false;
+      include_byok_in_limit: boolean;
       key: string;
       label: string | null;
       last_used_at: string | null;
@@ -7727,7 +7727,7 @@ export async function getApiKey(
     expires_at: string | null;
     hash: string;
     id: string;
-    include_byok_in_limit: false;
+    include_byok_in_limit: boolean;
     label: string | null;
     last_used_at: string | null;
     limit: number | null;
@@ -7789,7 +7789,7 @@ export async function getApiKey(
       expires_at: string | null;
       hash: string;
       id: string;
-      include_byok_in_limit: false;
+      include_byok_in_limit: boolean;
       label: string | null;
       last_used_at: string | null;
       limit: number | null;
@@ -7917,7 +7917,7 @@ export async function getCurrentApiKey(
     expires_at: string | null;
     hash: string;
     id: string;
-    include_byok_in_limit: false;
+    include_byok_in_limit: boolean;
     label: string | null;
     last_used_at: string | null;
     limit: number | null;
@@ -7979,7 +7979,7 @@ export async function getCurrentApiKey(
       expires_at: string | null;
       hash: string;
       id: string;
-      include_byok_in_limit: false;
+      include_byok_in_limit: boolean;
       label: string | null;
       last_used_at: string | null;
       limit: number | null;
@@ -10543,7 +10543,7 @@ export async function listApiKeys(
     expires_at: string | null;
     hash: string;
     id: string;
-    include_byok_in_limit: false;
+    include_byok_in_limit: boolean;
     label: string | null;
     last_used_at: string | null;
     limit: number | null;
@@ -10606,7 +10606,7 @@ export async function listApiKeys(
       expires_at: string | null;
       hash: string;
       id: string;
-      include_byok_in_limit: false;
+      include_byok_in_limit: boolean;
       label: string | null;
       last_used_at: string | null;
       limit: number | null;
@@ -15472,7 +15472,10 @@ export async function listWebhookEndpoints(
 
 export type ListWorkspaceAppsParams = {
   path?: Record<string, never>;
-  query?: Record<string, never>;
+  query?: {
+    limit?: number;
+    offset?: number;
+  };
   headers?: Record<string, never>;
   body?: never;
 };
@@ -15498,6 +15501,9 @@ export async function listWorkspaceApps(
     title: string;
     url: string | null;
   }[];
+  limit: number;
+  offset: number;
+  total_count: number;
 }> {
   const { path, query, headers, body } = args;
   const resolvedPath = "/apps";
@@ -15516,6 +15522,9 @@ export async function listWorkspaceApps(
       title: string;
       url: string | null;
     }[];
+    limit: number;
+    offset: number;
+    total_count: number;
   }>({
     method: "GET",
     path: resolvedPath,
@@ -17357,7 +17366,7 @@ export async function rotateApiKey(
     expires_at: string | null;
     hash: string;
     id: string;
-    include_byok_in_limit: false;
+    include_byok_in_limit: boolean;
     key: string;
     label: string | null;
     last_used_at: string | null;
@@ -17421,7 +17430,7 @@ export async function rotateApiKey(
       expires_at: string | null;
       hash: string;
       id: string;
-      include_byok_in_limit: false;
+      include_byok_in_limit: boolean;
       key: string;
       label: string | null;
       last_used_at: string | null;
@@ -17774,7 +17783,7 @@ export async function updateApiKey(
     expires_at: string | null;
     hash: string;
     id: string;
-    include_byok_in_limit: false;
+    include_byok_in_limit: boolean;
     label: string | null;
     last_used_at: string | null;
     limit: number | null;
@@ -17836,7 +17845,7 @@ export async function updateApiKey(
       expires_at: string | null;
       hash: string;
       id: string;
-      include_byok_in_limit: false;
+      include_byok_in_limit: boolean;
       label: string | null;
       last_used_at: string | null;
       limit: number | null;

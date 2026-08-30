@@ -156,7 +156,7 @@ module Phaseo
     # @!attribute [rw] id
     #   @return [String]
     # @!attribute [rw] include_byok_in_limit
-    #   @return [String]
+    #   @return [Boolean]
     # @!attribute [rw] label
     #   @return [String, nil]
     # @!attribute [rw] last_used_at
@@ -306,7 +306,7 @@ module Phaseo
     # @!attribute [rw] id
     #   @return [String]
     # @!attribute [rw] include_byok_in_limit
-    #   @return [String]
+    #   @return [Boolean]
     # @!attribute [rw] key
     #   @return [String]
     # @!attribute [rw] label
@@ -1890,6 +1890,9 @@ module Phaseo
     GuardrailKeyAssignment = Struct.new(:created_at, :key_id, :name, :prefix, :status, keyword_init: true)
     # @!attribute [rw] key_ids
     #   @return [Array<String>]
+    GuardrailKeyIdsReplaceRequest = Struct.new(:key_ids, keyword_init: true)
+    # @!attribute [rw] key_ids
+    #   @return [Array<String>]
     GuardrailKeyIdsRequest = Struct.new(:key_ids, keyword_init: true)
     # @!attribute [rw] data
     #   @return [Array<Hash{String => Object}>]
@@ -2191,6 +2194,45 @@ module Phaseo
     # @!attribute [rw] workspace_id
     #   @return [String]
     ManagementKeyRuntime = Struct.new(:created_at, :created_by, :daily_limit_cost_nanos, :daily_limit_requests, :expires_at, :id, :last_used_at, :monthly_limit_cost_nanos, :monthly_limit_requests, :name, :prefix, :scopes, :soft_blocked, :status, :updated_at, :weekly_limit_cost_nanos, :weekly_limit_requests, :workspace_id, keyword_init: true)
+    # @!attribute [rw] created_at
+    #   @return [String]
+    # @!attribute [rw] created_by
+    #   @return [String, nil]
+    # @!attribute [rw] daily_limit_cost_nanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] daily_limit_requests
+    #   @return [Integer, nil]
+    # @!attribute [rw] expires_at
+    #   @return [String, nil]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] key
+    #   @return [String]
+    # @!attribute [rw] last_used_at
+    #   @return [String, nil]
+    # @!attribute [rw] monthly_limit_cost_nanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] monthly_limit_requests
+    #   @return [Integer, nil]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] prefix
+    #   @return [String]
+    # @!attribute [rw] scopes
+    #   @return [Array<String>]
+    # @!attribute [rw] soft_blocked
+    #   @return [Boolean, nil]
+    # @!attribute [rw] status
+    #   @return [String]
+    # @!attribute [rw] updated_at
+    #   @return [String, nil]
+    # @!attribute [rw] weekly_limit_cost_nanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] weekly_limit_requests
+    #   @return [Integer, nil]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    ManagementKeyRuntimeCreated = Struct.new(:created_at, :created_by, :daily_limit_cost_nanos, :daily_limit_requests, :expires_at, :id, :key, :last_used_at, :monthly_limit_cost_nanos, :monthly_limit_requests, :name, :prefix, :scopes, :soft_blocked, :status, :updated_at, :weekly_limit_cost_nanos, :weekly_limit_requests, :workspace_id, keyword_init: true)
     # @!attribute [rw] expires_at
     #   @return [String, nil]
     # @!attribute [rw] name
@@ -3955,7 +3997,13 @@ module Phaseo
     WorkspaceApp = Struct.new(:app_key, :category, :created_at, :docs_url, :id, :image_url, :is_active, :is_managed, :is_public, :last_seen, :title, :url, keyword_init: true)
     # @!attribute [rw] data
     #   @return [Array<Hash{String => Object}>]
-    WorkspaceAppListResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] limit
+    #   @return [Integer]
+    # @!attribute [rw] offset
+    #   @return [Integer]
+    # @!attribute [rw] total_count
+    #   @return [Integer]
+    WorkspaceAppListResponse = Struct.new(:data, :limit, :offset, :total_count, keyword_init: true)
     # @!attribute [rw] target_app_id
     #   @return [String]
     WorkspaceAppMergeRequest = Struct.new(:target_app_id, keyword_init: true)

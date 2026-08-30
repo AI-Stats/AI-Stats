@@ -112,7 +112,7 @@ struct ApiKey {
 	std::optional<std::string> expires_at;
 	std::string hash;
 	std::string id;
-	std::any include_byok_in_limit;
+	bool include_byok_in_limit;
 	std::optional<std::string> label;
 	std::optional<std::string> last_used_at;
 	std::optional<double> limit;
@@ -221,7 +221,7 @@ struct ApiKeyWithValue {
 	std::optional<std::string> expires_at;
 	std::string hash;
 	std::string id;
-	std::any include_byok_in_limit;
+	bool include_byok_in_limit;
 	std::string key;
 	std::optional<std::string> label;
 	std::optional<std::string> last_used_at;
@@ -1297,6 +1297,10 @@ struct GuardrailKeyAssignment {
 	std::optional<std::string> status;
 };
 
+struct GuardrailKeyIdsReplaceRequest {
+	std::vector<std::string> key_ids;
+};
+
 struct GuardrailKeyIdsRequest {
 	std::vector<std::string> key_ids;
 };
@@ -1511,6 +1515,28 @@ struct ManagementKeyRuntime {
 	std::optional<int> daily_limit_requests;
 	std::optional<std::string> expires_at;
 	std::string id;
+	std::optional<std::string> last_used_at;
+	std::optional<int> monthly_limit_cost_nanos;
+	std::optional<int> monthly_limit_requests;
+	std::string name;
+	std::string prefix;
+	std::vector<std::string> scopes;
+	std::optional<bool> soft_blocked;
+	std::any status;
+	std::optional<std::string> updated_at;
+	std::optional<int> weekly_limit_cost_nanos;
+	std::optional<int> weekly_limit_requests;
+	std::string workspace_id;
+};
+
+struct ManagementKeyRuntimeCreated {
+	std::string created_at;
+	std::optional<std::string> created_by;
+	std::optional<int> daily_limit_cost_nanos;
+	std::optional<int> daily_limit_requests;
+	std::optional<std::string> expires_at;
+	std::string id;
+	std::string key;
 	std::optional<std::string> last_used_at;
 	std::optional<int> monthly_limit_cost_nanos;
 	std::optional<int> monthly_limit_requests;
@@ -2748,6 +2774,9 @@ struct WorkspaceApp {
 
 struct WorkspaceAppListResponse {
 	std::vector<std::map<std::string, std::any>> data;
+	int limit;
+	int offset;
+	int total_count;
 };
 
 struct WorkspaceAppMergeRequest {

@@ -1,14 +1,14 @@
 ---
 "@phaseo/gateway-api": minor
 "@phaseo/sdk": minor
-"phaseo": minor
-"@phaseo/sdk-go": minor
-"@phaseo/sdk-csharp": minor
-"@phaseo/sdk-php": minor
-"@phaseo/sdk-ruby": minor
-"@phaseo/sdk-java": minor
-"@phaseo/sdk-cpp": minor
-"@phaseo/sdk-rust": minor
+"@phaseo/py-sdk": minor
+"@phaseo/go-sdk": minor
+"@phaseo/csharp-sdk": minor
+"@phaseo/php-sdk": minor
+"@phaseo/ruby-sdk": minor
+"@phaseo/java-sdk": minor
+"@phaseo/cpp-sdk": minor
+"@phaseo/rust-sdk": minor
 ---
 
 Publish guardrail policy and key/member assignment management across the gateway, generated SDKs, reference documentation, and workspace audit log.

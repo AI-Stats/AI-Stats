@@ -103,19 +103,40 @@ begin
       end as reset_at
     from public.workspace_budgets budget
     where budget.workspace_id = p_workspace_id
-  ), usage_rows as (
+  ), request_usage as (
     select
-      configured.*,
+      configured.id,
       coalesce(sum(request.cost_nanos) filter (
         where request.success is true
           and (configured.window_start is null or request.created_at >= configured.window_start)
-      ), 0)::bigint as usage_nanos
+      ), 0)::bigint as completed_nanos
     from configured
     left join public.gateway_requests request
       on request.workspace_id = configured.workspace_id
-    group by configured.id, configured.workspace_id, configured.interval,
-      configured.limit_nanos, configured.created_by, configured.created_at,
-      configured.updated_at, configured.window_start, configured.reset_at
+    group by configured.id
+  ), reservation_usage as (
+    select
+      configured.id,
+      coalesce(sum(greatest(
+        reservation.amount_nanos
+          - coalesce(reservation.captured_nanos, 0)
+          - coalesce(reservation.released_nanos, 0),
+        0
+      )) filter (
+        where reservation.status = 'reserved'
+          and (configured.window_start is null or reservation.created_at >= configured.window_start)
+      ), 0)::bigint as held_nanos
+    from configured
+    left join public.gateway_wallet_reservations reservation
+      on reservation.workspace_id = configured.workspace_id
+    group by configured.id
+  ), usage_rows as (
+    select
+      configured.*,
+      request_usage.completed_nanos + reservation_usage.held_nanos as usage_nanos
+    from configured
+    join request_usage using (id)
+    join reservation_usage using (id)
   ), normalized as (
     select *,
       usage_nanos + coalesce(p_requested_amount_nanos, 0) as projected_usage_nanos,
@@ -346,6 +367,111 @@ $$;
 revoke all on function public.gateway_wallet_reserve_once(uuid, text, bigint, text, uuid, integer)
   from public, anon, authenticated;
 grant execute on function public.gateway_wallet_reserve_once(uuid, text, bigint, text, uuid, integer)
+  to service_role;
+
+alter function public.gateway_realtime_create_with_hold(
+  uuid, text, uuid, text, text, text, text, text, text, timestamptz,
+  text, text, bigint, text, jsonb, integer, integer, integer, integer
+) rename to gateway_realtime_create_with_hold_without_workspace_budget;
+
+create function public.gateway_realtime_create_with_hold(
+  p_workspace_id uuid,
+  p_session_id text,
+  p_key_id uuid,
+  p_user_id text,
+  p_source text,
+  p_provider text,
+  p_model_id text,
+  p_provider_model_id text,
+  p_voice text,
+  p_expires_at timestamptz,
+  p_reservation_prefix text,
+  p_reservation_id text,
+  p_hold_nanos bigint,
+  p_client_secret_hash text,
+  p_metadata jsonb default '{}'::jsonb,
+  p_max_workspace_sessions integer default 8,
+  p_max_key_sessions integer default 4,
+  p_max_user_sessions integer default 1,
+  p_max_creations_per_minute integer default 8
+)
+returns setof public.gateway_realtime_sessions
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_budget_status jsonb;
+begin
+  perform pg_advisory_xact_lock(hashtextextended(p_workspace_id::text, 0));
+  v_budget_status := public.gateway_workspace_budget_status(p_workspace_id, p_hold_nanos);
+  if not coalesce((v_budget_status->>'ok')::boolean, true) then
+    raise exception '%', v_budget_status->>'reason';
+  end if;
+
+  return query select * from public.gateway_realtime_create_with_hold_without_workspace_budget(
+    p_workspace_id, p_session_id, p_key_id, p_user_id, p_source, p_provider,
+    p_model_id, p_provider_model_id, p_voice, p_expires_at, p_reservation_prefix,
+    p_reservation_id, p_hold_nanos, p_client_secret_hash, p_metadata,
+    p_max_workspace_sessions, p_max_key_sessions, p_max_user_sessions,
+    p_max_creations_per_minute
+  );
+end;
+$$;
+
+revoke all on function public.gateway_realtime_create_with_hold(
+  uuid, text, uuid, text, text, text, text, text, text, timestamptz,
+  text, text, bigint, text, jsonb, integer, integer, integer, integer
+) from public, anon, authenticated;
+grant execute on function public.gateway_realtime_create_with_hold(
+  uuid, text, uuid, text, text, text, text, text, text, timestamptz,
+  text, text, bigint, text, jsonb, integer, integer, integer, integer
+) to service_role;
+
+alter function public.gateway_realtime_extend_hold_once(uuid, text, text, bigint, bigint)
+  rename to gateway_realtime_extend_hold_once_without_workspace_budget;
+
+create function public.gateway_realtime_extend_hold_once(
+  p_workspace_id uuid,
+  p_session_id text,
+  p_reservation_id text,
+  p_target_reserved_nanos bigint,
+  p_estimated_cost_nanos bigint default 0
+)
+returns setof public.gateway_realtime_sessions
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_current_reserved_nanos bigint;
+  v_additional_nanos bigint;
+  v_budget_status jsonb;
+begin
+  perform pg_advisory_xact_lock(hashtextextended(p_workspace_id::text, 0));
+  select reserved_nanos into v_current_reserved_nanos
+  from public.gateway_realtime_sessions
+  where workspace_id = p_workspace_id and session_id = p_session_id;
+  if not found then raise exception 'realtime_session_not_found'; end if;
+
+  v_additional_nanos := greatest(0, coalesce(p_target_reserved_nanos, 0) - coalesce(v_current_reserved_nanos, 0));
+  if v_additional_nanos > 0 then
+    v_budget_status := public.gateway_workspace_budget_status(p_workspace_id, v_additional_nanos);
+    if not coalesce((v_budget_status->>'ok')::boolean, true) then
+      raise exception '%', v_budget_status->>'reason';
+    end if;
+  end if;
+
+  return query select * from public.gateway_realtime_extend_hold_once_without_workspace_budget(
+    p_workspace_id, p_session_id, p_reservation_id, p_target_reserved_nanos,
+    p_estimated_cost_nanos
+  );
+end;
+$$;
+
+revoke all on function public.gateway_realtime_extend_hold_once(uuid, text, text, bigint, bigint)
+  from public, anon, authenticated;
+grant execute on function public.gateway_realtime_extend_hold_once(uuid, text, text, bigint, bigint)
   to service_role;
 
 comment on table public.workspace_budgets is

@@ -98,11 +98,10 @@ async function createDepartment(req: Request) {
 	const body = await requireJsonBody(req); if (isResponse(body)) return body;
 	const normalized = normalizeDepartment(body); if ("error" in normalized) return json({ error: "bad_request", message: normalized.error }, 400, NO_STORE);
 	const value: any = normalized.value;
-	const { data, error } = await getSupabaseAdmin().rpc("create_workspace_department", { p_workspace_id: access.auth.workspaceId, p_name: value.name, p_icon: value.icon ?? "users", p_color: value.color ?? "blue", p_actor_user_id: access.auth.userId, p_request_id: access.auth.requestId });
+	const { data, error } = await getSupabaseAdmin().rpc("management_create_workspace_department", { p_workspace_id: access.auth.workspaceId, p_name: value.name, p_description: value.description ?? null, p_icon: value.icon ?? "users", p_color: value.color ?? "blue", p_actor_user_id: access.auth.userId, p_request_id: access.auth.requestId });
 	if (error) return json({ error: error.code === "23505" ? "department_exists" : "directory_update_failed" }, error.code === "23505" ? 409 : 503, NO_STORE);
-	if (value.description !== undefined) await getSupabaseAdmin().from("workspace_departments").update({ description: value.description }).eq("workspace_id", access.auth.workspaceId).eq("id", data.id);
 	await audit(access.auth, "identity.department.created", "workspace_department", String(data.id), { name: value.name });
-	return json({ data: { ...data, description: value.description ?? data.description ?? null } }, 201, NO_STORE);
+	return json({ data }, 201, NO_STORE);
 }
 
 async function updateDepartment(req: Request) {
@@ -113,18 +112,17 @@ async function updateDepartment(req: Request) {
 	const current = await client.from("workspace_departments").select("id,name,description,icon,color").eq("workspace_id", access.auth.workspaceId).eq("id", id).maybeSingle();
 	if (current.error) return json({ error: "directory_unavailable" }, 503, NO_STORE); if (!current.data) return json({ error: "not_found" }, 404, NO_STORE);
 	const value: any = normalized.value; const next = { ...current.data, ...value };
-	const result = await client.rpc("update_workspace_department", { p_workspace_id: access.auth.workspaceId, p_department_id: id, p_name: next.name, p_icon: next.icon, p_color: next.color, p_actor_user_id: access.auth.userId, p_request_id: access.auth.requestId });
+	const result = await client.rpc("management_update_workspace_department", { p_workspace_id: access.auth.workspaceId, p_department_id: id, p_name: next.name, p_description: next.description ?? null, p_icon: next.icon, p_color: next.color, p_actor_user_id: access.auth.userId, p_request_id: access.auth.requestId });
 	if (result.error) return json({ error: result.error.code === "23505" ? "department_exists" : "directory_update_failed" }, result.error.code === "23505" ? 409 : 503, NO_STORE);
-	if (value.description !== undefined) await client.from("workspace_departments").update({ description: value.description }).eq("workspace_id", access.auth.workspaceId).eq("id", id);
 	await audit(access.auth, "identity.department.updated", "workspace_department", id, { fields: Object.keys(value) });
-	return json({ data: { ...result.data, ...(value.description !== undefined && { description: value.description }) } }, 200, NO_STORE);
+	return json({ data: result.data }, 200, NO_STORE);
 }
 
 async function deleteDepartment(req: Request) {
 	const access = await authorize(req, true); if ("response" in access) return access.response;
 	const id = pathParam(req, "departments");
-	const { data, error } = await getSupabaseAdmin().from("workspace_departments").delete().eq("workspace_id", access.auth.workspaceId).eq("id", id).eq("source_type", "manual").select("id,name").maybeSingle();
-	if (error) return json({ error: "directory_update_failed" }, 503, NO_STORE); if (!data) return json({ error: "not_found" }, 404, NO_STORE);
+	const { data, error } = await getSupabaseAdmin().rpc("management_delete_workspace_department", { p_workspace_id: access.auth.workspaceId, p_department_id: id, p_actor_user_id: access.auth.userId, p_request_id: access.auth.requestId });
+	if (error) return json({ error: String(error.message ?? "").includes("not found") ? "not_found" : "directory_update_failed" }, String(error.message ?? "").includes("not found") ? 404 : 503, NO_STORE);
 	await audit(access.auth, "identity.department.deleted", "workspace_department", id, { name: data.name }); return json({ deleted: true }, 200, NO_STORE);
 }
 
@@ -133,16 +131,16 @@ async function setDepartmentMember(req: Request) {
 	const body = await requireJsonBody(req); if (isResponse(body)) return body;
 	const departmentId = pathParam(req, "departments"); const userId = pathParam(req, "members"); const position = String(body.position ?? "member");
 	if (!departmentId || !userId || !["member", "lead"].includes(position)) return json({ error: "bad_request" }, 400, NO_STORE);
-	const client = getSupabaseAdmin(); if (body.primary === true) await client.from("workspace_department_grants").update({ is_primary: false }).eq("workspace_id", access.auth.workspaceId).eq("user_id", userId).eq("source_type", "manual");
-	const { data, error } = await client.from("workspace_department_grants").upsert({ workspace_id: access.auth.workspaceId, user_id: userId, department_id: departmentId, source_type: "manual", source_id: userId, position, is_primary: body.primary === true, updated_at: new Date().toISOString() }, { onConflict: "workspace_id,user_id,department_id,source_type,source_id" }).select("user_id,department_id,position,is_primary").single();
+	const client = getSupabaseAdmin();
+	const { data, error } = await client.rpc("management_set_workspace_department_member", { p_workspace_id: access.auth.workspaceId, p_department_id: departmentId, p_user_id: userId, p_position: position, p_primary: body.primary === true, p_actor_user_id: access.auth.userId, p_request_id: access.auth.requestId });
 	if (error) return json({ error: "invalid_membership" }, 400, NO_STORE); await audit(access.auth, "identity.department_member.updated", "workspace_member", userId, { department_id: departmentId, position, primary: body.primary === true }); return json({ data }, 200, NO_STORE);
 }
 
 async function deleteDepartmentMember(req: Request) {
 	const access = await authorize(req, true); if ("response" in access) return access.response;
 	const departmentId = pathParam(req, "departments"); const userId = pathParam(req, "members");
-	const { data, error } = await getSupabaseAdmin().from("workspace_department_grants").delete().eq("workspace_id", access.auth.workspaceId).eq("department_id", departmentId).eq("user_id", userId).eq("source_type", "manual").select("user_id").maybeSingle();
-	if (error) return json({ error: "directory_update_failed" }, 503, NO_STORE); if (!data) return json({ error: "not_found" }, 404, NO_STORE);
+	const { data, error } = await getSupabaseAdmin().rpc("management_delete_workspace_department_member", { p_workspace_id: access.auth.workspaceId, p_department_id: departmentId, p_user_id: userId, p_actor_user_id: access.auth.userId });
+	if (error) return json({ error: "directory_update_failed" }, 503, NO_STORE); if (data !== true) return json({ error: "not_found" }, 404, NO_STORE);
 	await audit(access.auth, "identity.department_member.deleted", "workspace_member", userId, { department_id: departmentId }); return json({ deleted: true }, 200, NO_STORE);
 }
 

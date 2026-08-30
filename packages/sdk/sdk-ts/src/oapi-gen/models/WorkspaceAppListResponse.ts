@@ -13,4 +13,7 @@ export interface WorkspaceAppListResponse {
     title: string;
     url: string | null;
   }[];
+  limit: number;
+  offset: number;
+  total_count: number;
 }

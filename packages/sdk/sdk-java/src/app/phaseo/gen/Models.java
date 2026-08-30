@@ -109,7 +109,7 @@ public final class Models {
 		public String expires_at;
 		public String hash;
 		public String id;
-		public Object include_byok_in_limit;
+		public Boolean include_byok_in_limit;
 		public String label;
 		public String last_used_at;
 		public Double limit;
@@ -219,7 +219,7 @@ public final class Models {
 		public String expires_at;
 		public String hash;
 		public String id;
-		public Object include_byok_in_limit;
+		public Boolean include_byok_in_limit;
 		public String key;
 		public String label;
 		public String last_used_at;
@@ -1302,6 +1302,10 @@ public final class Models {
 		public String status;
 	}
 
+	public static class GuardrailKeyIdsReplaceRequest {
+		public java.util.List<String> key_ids;
+	}
+
 	public static class GuardrailKeyIdsRequest {
 		public java.util.List<String> key_ids;
 	}
@@ -1517,6 +1521,28 @@ public final class Models {
 		public Integer daily_limit_requests;
 		public String expires_at;
 		public String id;
+		public String last_used_at;
+		public Integer monthly_limit_cost_nanos;
+		public Integer monthly_limit_requests;
+		public String name;
+		public String prefix;
+		public java.util.List<String> scopes;
+		public Boolean soft_blocked;
+		public Object status;
+		public String updated_at;
+		public Integer weekly_limit_cost_nanos;
+		public Integer weekly_limit_requests;
+		public String workspace_id;
+	}
+
+	public static class ManagementKeyRuntimeCreated {
+		public String created_at;
+		public String created_by;
+		public Integer daily_limit_cost_nanos;
+		public Integer daily_limit_requests;
+		public String expires_at;
+		public String id;
+		public String key;
 		public String last_used_at;
 		public Integer monthly_limit_cost_nanos;
 		public Integer monthly_limit_requests;
@@ -2769,6 +2795,9 @@ public final class Models {
 
 	public static class WorkspaceAppListResponse {
 		public java.util.List<Object> data;
+		public Integer limit;
+		public Integer offset;
+		public Integer total_count;
 	}
 
 	public static class WorkspaceAppMergeRequest {

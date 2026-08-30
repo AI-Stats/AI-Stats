@@ -193,7 +193,7 @@ class ApiKey
 	public $hash;
 	/** @var string */
 	public $id;
-	/** @var string */
+	/** @var bool */
 	public $include_byok_in_limit;
 	/** @var string|null */
 	public $label;
@@ -383,7 +383,7 @@ class ApiKeyWithValue
 	public $hash;
 	/** @var string */
 	public $id;
-	/** @var string */
+	/** @var bool */
 	public $include_byok_in_limit;
 	/** @var string */
 	public $key;
@@ -2301,6 +2301,12 @@ class GuardrailKeyAssignment
 	public $status;
 }
 
+class GuardrailKeyIdsReplaceRequest
+{
+	/** @var array */
+	public $key_ids;
+}
+
 class GuardrailKeyIdsRequest
 {
 	/** @var array */
@@ -2669,6 +2675,48 @@ class ManagementKeyRuntime
 	public $expires_at;
 	/** @var string */
 	public $id;
+	/** @var string|null */
+	public $last_used_at;
+	/** @var int|null */
+	public $monthly_limit_cost_nanos;
+	/** @var int|null */
+	public $monthly_limit_requests;
+	/** @var string */
+	public $name;
+	/** @var string */
+	public $prefix;
+	/** @var array */
+	public $scopes;
+	/** @var bool|null */
+	public $soft_blocked;
+	/** @var string */
+	public $status;
+	/** @var string|null */
+	public $updated_at;
+	/** @var int|null */
+	public $weekly_limit_cost_nanos;
+	/** @var int|null */
+	public $weekly_limit_requests;
+	/** @var string */
+	public $workspace_id;
+}
+
+class ManagementKeyRuntimeCreated
+{
+	/** @var string */
+	public $created_at;
+	/** @var string|null */
+	public $created_by;
+	/** @var int|null */
+	public $daily_limit_cost_nanos;
+	/** @var int|null */
+	public $daily_limit_requests;
+	/** @var string|null */
+	public $expires_at;
+	/** @var string */
+	public $id;
+	/** @var string */
+	public $key;
 	/** @var string|null */
 	public $last_used_at;
 	/** @var int|null */
@@ -4857,6 +4905,12 @@ class WorkspaceAppListResponse
 {
 	/** @var array */
 	public $data;
+	/** @var int */
+	public $limit;
+	/** @var int */
+	public $offset;
+	/** @var int */
+	public $total_count;
 }
 
 class WorkspaceAppMergeRequest

@@ -22,12 +22,12 @@ pub struct ActivityResponse {
 
 pub struct AnalyticsAccessTokenRequiredResponse {
 	pub error: String,
-	pub ok: String,
+	pub ok: bool,
 }
 
 pub struct AnalyticsNotImplementedResponse {
 	pub message: String,
-	pub ok: String,
+	pub ok: bool,
 	pub status: String,
 }
 
@@ -108,7 +108,7 @@ pub struct ApiKey {
 	pub expires_at: Option<String>,
 	pub hash: String,
 	pub id: String,
-	pub include_byok_in_limit: String,
+	pub include_byok_in_limit: bool,
 	pub label: Option<String>,
 	pub last_used_at: Option<String>,
 	pub limit: Option<f64>,
@@ -217,7 +217,7 @@ pub struct ApiKeyWithValue {
 	pub expires_at: Option<String>,
 	pub hash: String,
 	pub id: String,
-	pub include_byok_in_limit: String,
+	pub include_byok_in_limit: bool,
 	pub key: String,
 	pub label: Option<String>,
 	pub last_used_at: Option<String>,
@@ -592,7 +592,7 @@ pub struct ChatMessage {
 
 pub struct CreditsResponse {
 	pub credits: HashMap<String, String>,
-	pub ok: String,
+	pub ok: bool,
 }
 
 pub struct DataContributionCategories {
@@ -694,7 +694,7 @@ pub struct DebugOptions {
 }
 
 pub struct DeletedResponse {
-	pub deleted: String,
+	pub deleted: bool,
 }
 
 pub struct DynamicRoute {
@@ -850,7 +850,7 @@ pub struct EndpointCatalogueEntry {
 pub struct EndpointCatalogueResponse {
 	pub data: Vec<HashMap<String, String>>,
 	pub endpoints: Vec<String>,
-	pub ok: String,
+	pub ok: bool,
 	pub sample_models: Vec<String>,
 }
 
@@ -1157,14 +1157,14 @@ pub struct GatewayRequestLogListResponse {
 	pub from_time: String,
 	pub limit: i64,
 	pub offset: i64,
-	pub ok: String,
+	pub ok: bool,
 	pub to_time: Option<String>,
 	pub total: i64,
 }
 
 pub struct GatewayRequestLogResponse {
 	pub data: HashMap<String, String>,
-	pub ok: String,
+	pub ok: bool,
 }
 
 pub type GatewayRoutingStatus = JsonValue;
@@ -1273,7 +1273,7 @@ pub struct GuardrailCreateRequest {
 }
 
 pub struct GuardrailDeleteResponse {
-	pub deleted: String,
+	pub deleted: bool,
 }
 
 pub struct GuardrailDetailResponse {
@@ -1291,6 +1291,10 @@ pub struct GuardrailKeyAssignment {
 	pub name: Option<Option<String>>,
 	pub prefix: Option<Option<String>>,
 	pub status: Option<Option<String>>,
+}
+
+pub struct GuardrailKeyIdsReplaceRequest {
+	pub key_ids: Vec<String>,
 }
 
 pub struct GuardrailKeyIdsRequest {
@@ -1448,13 +1452,13 @@ pub struct InvalidRequestResponse {
 	pub error: String,
 	pub max_offset: Option<i64>,
 	pub message: String,
-	pub ok: String,
+	pub ok: bool,
 }
 
 pub struct KeyInvalidateResponse {
 	pub key: HashMap<String, String>,
 	pub message: String,
-	pub ok: String,
+	pub ok: bool,
 }
 
 pub type KnownModelId = JsonValue;
@@ -1479,24 +1483,24 @@ pub struct ManagementKeyCreateRequest {
 
 pub struct ManagementKeyCreateResponse {
 	pub key: HashMap<String, String>,
-	pub ok: String,
+	pub ok: bool,
 }
 
 pub struct ManagementKeyDeleteResponse {
 	pub message: String,
-	pub ok: String,
+	pub ok: bool,
 }
 
 pub struct ManagementKeyDetailResponse {
 	pub key: HashMap<String, String>,
-	pub ok: String,
+	pub ok: bool,
 }
 
 pub struct ManagementKeyListResponse {
 	pub keys: Vec<HashMap<String, String>>,
 	pub limit: i64,
 	pub offset: i64,
-	pub ok: String,
+	pub ok: bool,
 	pub total: i64,
 }
 
@@ -1507,6 +1511,28 @@ pub struct ManagementKeyRuntime {
 	pub daily_limit_requests: Option<Option<i64>>,
 	pub expires_at: Option<Option<String>>,
 	pub id: String,
+	pub last_used_at: Option<Option<String>>,
+	pub monthly_limit_cost_nanos: Option<Option<i64>>,
+	pub monthly_limit_requests: Option<Option<i64>>,
+	pub name: String,
+	pub prefix: String,
+	pub scopes: Vec<String>,
+	pub soft_blocked: Option<Option<bool>>,
+	pub status: String,
+	pub updated_at: Option<Option<String>>,
+	pub weekly_limit_cost_nanos: Option<Option<i64>>,
+	pub weekly_limit_requests: Option<Option<i64>>,
+	pub workspace_id: String,
+}
+
+pub struct ManagementKeyRuntimeCreated {
+	pub created_at: String,
+	pub created_by: Option<Option<String>>,
+	pub daily_limit_cost_nanos: Option<Option<i64>>,
+	pub daily_limit_requests: Option<Option<i64>>,
+	pub expires_at: Option<Option<String>>,
+	pub id: String,
+	pub key: String,
 	pub last_used_at: Option<Option<String>>,
 	pub monthly_limit_cost_nanos: Option<Option<i64>>,
 	pub monthly_limit_requests: Option<Option<i64>>,
@@ -1534,7 +1560,7 @@ pub struct ManagementKeyRuntimeCreateResponse {
 }
 
 pub struct ManagementKeyRuntimeDeleteResponse {
-	pub deleted: String,
+	pub deleted: bool,
 }
 
 pub struct ManagementKeyRuntimeResponse {
@@ -1564,7 +1590,7 @@ pub struct ManagementKeyUpdateRequest {
 
 pub struct ManagementKeyUpdateResponse {
 	pub message: String,
-	pub ok: String,
+	pub ok: bool,
 }
 
 pub type MessageContentPart = JsonValue;
@@ -1620,7 +1646,7 @@ pub struct ModelEndpointsResponse {
 	pub id: String,
 	pub modalities: HashMap<String, String>,
 	pub name: String,
-	pub ok: String,
+	pub ok: bool,
 	pub organization: Option<HashMap<String, String>>,
 }
 
@@ -2659,7 +2685,7 @@ pub struct WebhookEndpointCreateRequest {
 }
 
 pub struct WebhookEndpointDeleteResponse {
-	pub deleted: String,
+	pub deleted: bool,
 	pub id: String,
 	pub object: String,
 }
@@ -2721,7 +2747,7 @@ pub struct WorkspaceActivityResponse {
 	pub activity: Vec<HashMap<String, String>>,
 	pub limit: i64,
 	pub offset: i64,
-	pub ok: String,
+	pub ok: bool,
 	pub period_days: i64,
 	pub total: i64,
 	pub total_cost_cents: f64,
@@ -2744,6 +2770,9 @@ pub struct WorkspaceApp {
 
 pub struct WorkspaceAppListResponse {
 	pub data: Vec<HashMap<String, String>>,
+	pub limit: i64,
+	pub offset: i64,
+	pub total_count: i64,
 }
 
 pub struct WorkspaceAppMergeRequest {
@@ -3307,7 +3336,7 @@ pub struct WorkspaceSsoResponse {
 pub struct WorkspaceSsoSettings {
 	pub domains: Vec<String>,
 	pub enabled: bool,
-	pub enforced: String,
+	pub enforced: bool,
 	pub mode: String,
 	pub provider_identifier: Option<String>,
 }
@@ -3315,7 +3344,7 @@ pub struct WorkspaceSsoSettings {
 pub struct WorkspaceSsoUpdateRequest {
 	pub domains: Option<Vec<String>>,
 	pub enabled: bool,
-	pub enforced: Option<String>,
+	pub enforced: Option<bool>,
 	pub mode: String,
 	pub provider_identifier: Option<Option<String>>,
 }
