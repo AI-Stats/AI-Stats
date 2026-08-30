@@ -177,6 +177,29 @@ describe("openai embeddings executor", () => {
 		}))).rejects.toThrow("perplexity_embeddings_dimensions_out_of_range");
 	});
 
+	it("rejects Morpheus dimension overrides before sending an upstream request", async () => {
+		const mock = installFetchMock([]);
+		const result = await executor(buildArgs({
+			providerId: "morpheus",
+			providerModelSlug: "morpheus-embedding-v1",
+			ir: {
+				model: "morpheus/morpheus-embedding-v1",
+				dimensions: 256,
+			},
+		}));
+		mock.restore();
+
+		expect(result.kind).toBe("completed");
+		expect(result.upstream.status).toBe(400);
+		expect(await result.upstream.clone().json()).toMatchObject({
+			error: {
+				code: "unsupported_parameter",
+				param: "dimensions",
+			},
+		});
+		expect(mock.calls).toHaveLength(0);
+	});
+
 	it("preserves slash-delimited provider model slugs for OpenAI-compatible providers", async () => {
 		const mock = installFetchMock([
 			{

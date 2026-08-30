@@ -19,6 +19,34 @@ function isNebiusProvider(providerId: string): boolean {
 	return providerId.startsWith("nebius-token-factory");
 }
 
+function unsupportedParameterResult(parameter: string, message: string): ExecutorResult {
+	const rawResponse = {
+		error: {
+			type: "invalid_request_error",
+			code: "unsupported_parameter",
+			message,
+			param: parameter,
+		},
+	};
+	return {
+		kind: "completed",
+		ir: undefined,
+		bill: {
+			cost_cents: 0,
+			currency: "USD",
+			usage: undefined,
+			upstream_id: null,
+			finish_reason: null,
+		},
+		upstream: new Response(JSON.stringify(rawResponse), {
+			status: 400,
+			headers: { "Content-Type": "application/json" },
+		}),
+		keySource: "gateway",
+		rawResponse,
+	};
+}
+
 function normalizeModelName(model?: string | null): string {
 	if (!model) return "";
 	const trimmed = model.trim();
@@ -216,8 +244,6 @@ function buildRequestBody(ir: IREmbeddingsRequest, args: ExecutorExecuteArgs): R
 	if (args.providerId === "morpheus") {
 		const sessionId = ir.providerOptions?.morpheus?.sessionId;
 		if (sessionId !== undefined) encoded.session_id = sessionId;
-		// Morpheus' embeddings schema does not accept output-dimension overrides.
-		delete encoded.dimensions;
 	}
 
 	if (args.providerId === "mistral" || args.providerId === "mistral-eu") {
@@ -365,6 +391,12 @@ function usageToMeters(usage?: IREmbeddingsResponse["usage"]): Record<string, nu
 
 export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult> {
 	const ir = args.ir as IREmbeddingsRequest;
+	if (args.providerId === "morpheus" && ir.dimensions !== undefined) {
+		return unsupportedParameterResult(
+			"dimensions",
+			"Morpheus embeddings do not support the dimensions parameter.",
+		);
+	}
 	const keyInfo = await resolveOpenAICompatKey(args as any);
 	const key = keyInfo.key;
 

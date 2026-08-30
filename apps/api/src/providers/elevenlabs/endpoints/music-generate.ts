@@ -96,6 +96,19 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
     const { canonical, adapterPayload } = buildAdapterPayload(MusicGenerateSchema, args.body, []);
     const typedPayload = adapterPayload as MusicGenerateRequest;
     const elevenParams = (canonical as MusicGenerateRequest).elevenlabs ?? {};
+	if (elevenParams.with_timestamps === true) {
+		return {
+			kind: "completed",
+			upstream: invalidParameterResponse(
+				"with_timestamps",
+				"ElevenLabs Music timestamps require the detailed compose endpoint, which this gateway adapter does not support.",
+			),
+			bill: { cost_cents: 0, currency: "USD", usage: undefined, upstream_id: null, finish_reason: null },
+			normalized: undefined,
+			keySource: keyInfo.source,
+			byokKeyId: keyInfo.byokId,
+		};
+	}
 	if (typedPayload.format === "aac") {
 		return {
 			kind: "completed",
@@ -124,7 +137,6 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
         model_id: elevenParams.model_id ?? args.providerModelSlug ?? "music_v2",
         force_instrumental: elevenParams.force_instrumental ?? false,
         store_for_inpainting: elevenParams.store_for_inpainting ?? false,
-        with_timestamps: elevenParams.with_timestamps ?? false,
         sign_with_c2pa: elevenParams.sign_with_c2pa ?? false,
     };
 
@@ -136,8 +148,7 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
         elevenParams.output_format ??
         defaultOutputFormatForGatewayFormat(typedPayload.format);
     delete requestBody.output_format;
-    // `with_timestamps` belongs to the detailed endpoint, not the plain binary
-    // compose endpoint used by this adapter.
+	// The binary endpoint does not accept this field; true requests are rejected above.
     delete requestBody.with_timestamps;
     const query = outputFormat ? `?output_format=${encodeURIComponent(outputFormat)}` : "";
     const bindings = getBindings() as any;

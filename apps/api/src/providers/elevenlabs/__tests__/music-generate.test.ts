@@ -118,7 +118,6 @@ describe("ElevenLabs music.generate endpoint", () => {
 				model: "elevenlabs/music_v1",
 				prompt: "Short upbeat melody",
 				format: "mp3",
-				elevenlabs: { with_timestamps: true },
 			},
 			meta: REQUEST_META,
 			workspaceId: "team_test",
@@ -136,6 +135,33 @@ describe("ElevenLabs music.generate endpoint", () => {
 		expect(typeof result.normalized?.audio_base64).toBe("string");
 		expect(capturedBody?.model_id).toBe("music_v2");
 		expect(capturedBody?.with_timestamps).toBeUndefined();
+	});
+
+	it("rejects timestamp requests instead of silently returning plain audio", async () => {
+		const mock = installFetchMock([]);
+		const result = await exec({
+			endpoint: "music.generate",
+			model: "elevenlabs/music_v2",
+			body: {
+				model: "elevenlabs/music_v2",
+				prompt: "Ambient strings",
+				elevenlabs: { with_timestamps: true },
+			},
+			meta: REQUEST_META,
+			workspaceId: "team_test",
+			providerId: "elevenlabs",
+			byokMeta: [],
+			pricingCard: null,
+			providerModelSlug: "music_v2",
+			stream: false,
+		} as any);
+		mock.restore();
+
+		expect(result.upstream.status).toBe(400);
+		expect(await result.upstream.clone().json()).toMatchObject({
+			error: { param: "with_timestamps" },
+		});
+		expect(mock.calls).toHaveLength(0);
 	});
 
 	it("maps OGG requests to ElevenLabs Opus output", async () => {
