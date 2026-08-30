@@ -115,6 +115,11 @@ pub fn createModeration<T: Transport>(client: &Client<T>, path: &HashMap<String,
 	client.request("POST", &resolved_path, body)
 }
 
+pub fn createOAuthClient<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/oauth-clients");
+	client.request("POST", &resolved_path, body)
+}
+
 pub fn createObservabilityDestination<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/observability/destinations");
 	client.request("POST", &resolved_path, body)
@@ -180,6 +185,11 @@ pub fn createVideoDownloadUrlAlias<T: Transport>(client: &Client<T>, path: &Hash
 	client.request("POST", &resolved_path, body)
 }
 
+pub fn createWebhookEndpoint<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/webhook-endpoints");
+	client.request("POST", &resolved_path, body)
+}
+
 pub fn createWorkspace<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/workspaces");
 	client.request("POST", &resolved_path, body)
@@ -210,6 +220,11 @@ pub fn deleteManagementKey<T: Transport>(client: &Client<T>, path: &HashMap<Stri
 	client.request("DELETE", &resolved_path, body)
 }
 
+pub fn deleteOAuthClient<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/oauth-clients/{}", path.get("client_id").cloned().unwrap_or_default());
+	client.request("DELETE", &resolved_path, body)
+}
+
 pub fn deleteObservabilityDestination<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/observability/destinations/{}", path.get("id").cloned().unwrap_or_default());
 	client.request("DELETE", &resolved_path, body)
@@ -227,6 +242,11 @@ pub fn deleteVideo<T: Transport>(client: &Client<T>, path: &HashMap<String, Stri
 
 pub fn deleteVideoAlias<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/video/generations/{}", path.get("video_id").cloned().unwrap_or_default());
+	client.request("DELETE", &resolved_path, body)
+}
+
+pub fn deleteWebhookEndpoint<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/webhook-endpoints/{}", path.get("id").cloned().unwrap_or_default());
 	client.request("DELETE", &resolved_path, body)
 }
 
@@ -325,6 +345,11 @@ pub fn getMusicGenerationAlias<T: Transport>(client: &Client<T>, path: &HashMap<
 	client.request("GET", &resolved_path, body)
 }
 
+pub fn getOAuthClient<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/oauth-clients/{}", path.get("client_id").cloned().unwrap_or_default());
+	client.request("GET", &resolved_path, body)
+}
+
 pub fn getObservabilityDestination<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/observability/destinations/{}", path.get("id").cloned().unwrap_or_default());
 	client.request("GET", &resolved_path, body)
@@ -367,6 +392,11 @@ pub fn getVideoContent<T: Transport>(client: &Client<T>, path: &HashMap<String, 
 
 pub fn getVideoContentAlias<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/video/generations/{}/content", path.get("video_id").cloned().unwrap_or_default());
+	client.request("GET", &resolved_path, body)
+}
+
+pub fn getWebhookEndpoint<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/webhook-endpoints/{}", path.get("id").cloned().unwrap_or_default());
 	client.request("GET", &resolved_path, body)
 }
 
@@ -485,6 +515,11 @@ pub fn listModels<T: Transport>(client: &Client<T>, path: &HashMap<String, Strin
 	client.request("GET", &resolved_path, body)
 }
 
+pub fn listOAuthClients<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/oauth-clients");
+	client.request("GET", &resolved_path, body)
+}
+
 pub fn listObservabilityDestinations<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/observability/destinations");
 	client.request("GET", &resolved_path, body)
@@ -540,6 +575,11 @@ pub fn listVideosAlias<T: Transport>(client: &Client<T>, path: &HashMap<String, 
 	client.request("GET", &resolved_path, body)
 }
 
+pub fn listWebhookEndpoints<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/webhook-endpoints");
+	client.request("GET", &resolved_path, body)
+}
+
 pub fn listWorkspaceAuditEvents<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/audit-events");
 	client.request("GET", &resolved_path, body)
@@ -572,6 +612,11 @@ pub fn openAsyncJobWebSocket<T: Transport>(client: &Client<T>, path: &HashMap<St
 
 pub fn publishPresetVersion<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/presets/{}/versions", path.get("id").cloned().unwrap_or_default());
+	client.request("POST", &resolved_path, body)
+}
+
+pub fn regenerateOAuthClientSecret<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/oauth-clients/{}/regenerate-secret", path.get("client_id").cloned().unwrap_or_default());
 	client.request("POST", &resolved_path, body)
 }
 
@@ -645,6 +690,11 @@ pub fn retrieveFileContent<T: Transport>(client: &Client<T>, path: &HashMap<Stri
 	client.request("GET", &resolved_path, body)
 }
 
+pub fn rotateWebhookEndpointSecret<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/webhook-endpoints/{}/rotate-secret", path.get("id").cloned().unwrap_or_default());
+	client.request("POST", &resolved_path, body)
+}
+
 pub fn updateApiKey<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/keys/{}", path.get("id").cloned().unwrap_or_default());
 	client.request("PATCH", &resolved_path, body)
@@ -662,6 +712,11 @@ pub fn updateGuardrail<T: Transport>(client: &Client<T>, path: &HashMap<String, 
 
 pub fn updateManagementKey<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/management-keys/{}", path.get("id").cloned().unwrap_or_default());
+	client.request("PATCH", &resolved_path, body)
+}
+
+pub fn updateOAuthClient<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/oauth-clients/{}", path.get("client_id").cloned().unwrap_or_default());
 	client.request("PATCH", &resolved_path, body)
 }
 
@@ -683,6 +738,11 @@ pub fn updatePreset<T: Transport>(client: &Client<T>, path: &HashMap<String, Str
 pub fn updatePresetPublisher<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/presets/publisher");
 	client.request("PUT", &resolved_path, body)
+}
+
+pub fn updateWebhookEndpoint<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/webhook-endpoints/{}", path.get("id").cloned().unwrap_or_default());
+	client.request("PATCH", &resolved_path, body)
 }
 
 pub fn updateWorkspace<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {

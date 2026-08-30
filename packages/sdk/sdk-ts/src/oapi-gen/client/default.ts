@@ -3305,6 +3305,83 @@ export async function createModeration(
   });
 }
 
+export type CreateOAuthClientParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    allowed_scopes?: string[];
+    client_type?: "public" | "confidential";
+    description?: string;
+    homepage_url?: string;
+    logo_url?: string;
+    name: string;
+    privacy_policy_url?: string;
+    redirect_uris: string[];
+    terms_of_service_url?: string;
+  };
+};
+
+/**
+ * Creates a public or confidential OAuth application. Confidential secrets are returned once. Requires `oauth_clients:write` and the OAuth beta feature.
+ */
+export async function createOAuthClient(
+  client: Client,
+  args: CreateOAuthClientParams = {},
+): Promise<{
+  active_authorizations?: number;
+  allowed_scopes?: string[];
+  client_id: string;
+  client_secret?: string | null;
+  client_type: "public" | "confidential";
+  created_at?: string | null;
+  description?: string | null;
+  homepage_url?: string | null;
+  last_used_at?: string | null;
+  logo_url?: string | null;
+  name: string;
+  privacy_policy_url?: string | null;
+  redirect_uris: string[];
+  requests_last_30d?: number;
+  status: string;
+  terms_of_service_url?: string | null;
+  total_authorizations?: number;
+  updated_at?: string | null;
+  workspace_id: string;
+  [key: string]: unknown;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/oauth-clients";
+  return client.request<{
+    active_authorizations?: number;
+    allowed_scopes?: string[];
+    client_id: string;
+    client_secret?: string | null;
+    client_type: "public" | "confidential";
+    created_at?: string | null;
+    description?: string | null;
+    homepage_url?: string | null;
+    last_used_at?: string | null;
+    logo_url?: string | null;
+    name: string;
+    privacy_policy_url?: string | null;
+    redirect_uris: string[];
+    requests_last_30d?: number;
+    status: string;
+    terms_of_service_url?: string | null;
+    total_authorizations?: number;
+    updated_at?: string | null;
+    workspace_id: string;
+    [key: string]: unknown;
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type CreateObservabilityDestinationParams = {
   path?: Record<string, never>;
   query?: Record<string, never>;
@@ -5449,6 +5526,61 @@ export async function createVideoDownloadUrlAlias(
   });
 }
 
+export type CreateWebhookEndpointParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    events?: string[];
+    name?: string;
+    url: string;
+  };
+};
+
+/**
+ * Creates an HTTPS webhook endpoint and returns its signing secret once.
+ */
+export async function createWebhookEndpoint(
+  client: Client,
+  args: CreateWebhookEndpointParams = {},
+): Promise<{
+  createdAt?: string | null;
+  createdBy?: string | null;
+  deletedAt?: string | null;
+  events: string[];
+  hasSecret: boolean;
+  id: string;
+  name: string;
+  signing_secret: string;
+  status: "active" | "disabled" | "deleted";
+  updatedAt?: string | null;
+  url: string;
+  workspaceId: string;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/webhook-endpoints";
+  return client.request<{
+    createdAt?: string | null;
+    createdBy?: string | null;
+    deletedAt?: string | null;
+    events: string[];
+    hasSecret: boolean;
+    id: string;
+    name: string;
+    signing_secret: string;
+    status: "active" | "disabled" | "deleted";
+    updatedAt?: string | null;
+    url: string;
+    workspaceId: string;
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type CreateWorkspaceParams = {
   path?: Record<string, never>;
   query?: Record<string, never>;
@@ -5684,6 +5816,39 @@ export async function deleteManagementKey(
   });
 }
 
+export type DeleteOAuthClientParams = {
+  path?: {
+    client_id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Deletes the client after revoking its active authorizations.
+ */
+export async function deleteOAuthClient(
+  client: Client,
+  args: DeleteOAuthClientParams = {},
+): Promise<{
+  client_id: string;
+  message: string;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/oauth-clients/${encodeURIComponent(String(path?.["client_id"]))}`;
+  return client.request<{
+    client_id: string;
+    message: string;
+  }>({
+    method: "DELETE",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type DeleteObservabilityDestinationParams = {
   path?: {
     id: string;
@@ -5809,6 +5974,41 @@ export async function deleteVideoAlias(
     deleted?: boolean;
     id?: string;
     object?: string;
+  }>({
+    method: "DELETE",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type DeleteWebhookEndpointParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Soft-deletes a webhook endpoint and stops future delivery. Requires `settings:write`.
+ */
+export async function deleteWebhookEndpoint(
+  client: Client,
+  args: DeleteWebhookEndpointParams = {},
+): Promise<{
+  deleted: true;
+  id: string;
+  object: "webhook_endpoint";
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/webhook-endpoints/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    deleted: true;
+    id: string;
+    object: "webhook_endpoint";
   }>({
     method: "DELETE",
     path: resolvedPath,
@@ -7200,6 +7400,73 @@ export async function getMusicGenerationAlias(
   });
 }
 
+export type GetOAuthClientParams = {
+  path?: {
+    client_id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns one active OAuth application. Requires `oauth_clients:read` and the OAuth beta feature.
+ */
+export async function getOAuthClient(
+  client: Client,
+  args: GetOAuthClientParams = {},
+): Promise<{
+  active_authorizations?: number;
+  allowed_scopes?: string[];
+  client_id: string;
+  client_type: "public" | "confidential";
+  created_at?: string | null;
+  description?: string | null;
+  homepage_url?: string | null;
+  last_used_at?: string | null;
+  logo_url?: string | null;
+  name: string;
+  privacy_policy_url?: string | null;
+  redirect_uris: string[];
+  requests_last_30d?: number;
+  status: string;
+  terms_of_service_url?: string | null;
+  total_authorizations?: number;
+  updated_at?: string | null;
+  workspace_id: string;
+  [key: string]: unknown;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/oauth-clients/${encodeURIComponent(String(path?.["client_id"]))}`;
+  return client.request<{
+    active_authorizations?: number;
+    allowed_scopes?: string[];
+    client_id: string;
+    client_type: "public" | "confidential";
+    created_at?: string | null;
+    description?: string | null;
+    homepage_url?: string | null;
+    last_used_at?: string | null;
+    logo_url?: string | null;
+    name: string;
+    privacy_policy_url?: string | null;
+    redirect_uris: string[];
+    requests_last_30d?: number;
+    status: string;
+    terms_of_service_url?: string | null;
+    total_authorizations?: number;
+    updated_at?: string | null;
+    workspace_id: string;
+    [key: string]: unknown;
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type GetObservabilityDestinationParams = {
   path?: {
     id: string;
@@ -8053,6 +8320,57 @@ export async function getVideoContentAlias(
   const { path, query, headers, body } = args;
   const resolvedPath = `/video/generations/${encodeURIComponent(String(path?.["video_id"]))}/content`;
   return client.request<Blob>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type GetWebhookEndpointParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns one async webhook endpoint without its signing secret. Requires `settings:read`.
+ */
+export async function getWebhookEndpoint(
+  client: Client,
+  args: GetWebhookEndpointParams = {},
+): Promise<{
+  createdAt?: string | null;
+  createdBy?: string | null;
+  deletedAt?: string | null;
+  events: string[];
+  hasSecret: boolean;
+  id: string;
+  name: string;
+  status: "active" | "disabled" | "deleted";
+  updatedAt?: string | null;
+  url: string;
+  workspaceId: string;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/webhook-endpoints/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    createdAt?: string | null;
+    createdBy?: string | null;
+    deletedAt?: string | null;
+    events: string[];
+    hasSecret: boolean;
+    id: string;
+    name: string;
+    status: "active" | "disabled" | "deleted";
+    updatedAt?: string | null;
+    url: string;
+    workspaceId: string;
+  }>({
     method: "GET",
     path: resolvedPath,
     query,
@@ -10838,6 +11156,85 @@ export async function listModels(
   });
 }
 
+export type ListOAuthClientsParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists active OAuth applications for the workspace. Requires `oauth_clients:read` and the OAuth beta feature.
+ */
+export async function listOAuthClients(
+  client: Client,
+  args: ListOAuthClientsParams = {},
+): Promise<{
+  data: {
+    active_authorizations?: number;
+    allowed_scopes?: string[];
+    client_id: string;
+    client_type: "public" | "confidential";
+    created_at?: string | null;
+    description?: string | null;
+    homepage_url?: string | null;
+    last_used_at?: string | null;
+    logo_url?: string | null;
+    name: string;
+    privacy_policy_url?: string | null;
+    redirect_uris: string[];
+    requests_last_30d?: number;
+    status: string;
+    terms_of_service_url?: string | null;
+    total_authorizations?: number;
+    updated_at?: string | null;
+    workspace_id: string;
+    [key: string]: unknown;
+  }[];
+  pagination: {
+    page: number;
+    per_page: number;
+    total: number;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/oauth-clients";
+  return client.request<{
+    data: {
+      active_authorizations?: number;
+      allowed_scopes?: string[];
+      client_id: string;
+      client_type: "public" | "confidential";
+      created_at?: string | null;
+      description?: string | null;
+      homepage_url?: string | null;
+      last_used_at?: string | null;
+      logo_url?: string | null;
+      name: string;
+      privacy_policy_url?: string | null;
+      redirect_uris: string[];
+      requests_last_30d?: number;
+      status: string;
+      terms_of_service_url?: string | null;
+      total_authorizations?: number;
+      updated_at?: string | null;
+      workspace_id: string;
+      [key: string]: unknown;
+    }[];
+    pagination: {
+      page: number;
+      per_page: number;
+      total: number;
+    };
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type ListObservabilityDestinationsParams = {
   path?: Record<string, never>;
   query?: {
@@ -12473,6 +12870,65 @@ export async function listVideosAlias(
   });
 }
 
+export type ListWebhookEndpointsParams = {
+  path?: Record<string, never>;
+  query?: {
+    include_deleted?: boolean;
+    limit?: number;
+    offset?: number;
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists async webhook destinations. Requires `settings:read` and workspace access to async APIs.
+ */
+export async function listWebhookEndpoints(
+  client: Client,
+  args: ListWebhookEndpointsParams = {},
+): Promise<{
+  data: {
+    createdAt?: string | null;
+    createdBy?: string | null;
+    deletedAt?: string | null;
+    events: string[];
+    hasSecret: boolean;
+    id: string;
+    name: string;
+    status: "active" | "disabled" | "deleted";
+    updatedAt?: string | null;
+    url: string;
+    workspaceId: string;
+  }[];
+  object: "list";
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/webhook-endpoints";
+  return client.request<{
+    data: {
+      createdAt?: string | null;
+      createdBy?: string | null;
+      deletedAt?: string | null;
+      events: string[];
+      hasSecret: boolean;
+      id: string;
+      name: string;
+      status: "active" | "disabled" | "deleted";
+      updatedAt?: string | null;
+      url: string;
+      workspaceId: string;
+    }[];
+    object: "list";
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type ListWorkspaceAuditEventsParams = {
   path?: Record<string, never>;
   query?: {
@@ -12877,6 +13333,41 @@ export async function publishPresetVersion(
       versioning_method: "sequential" | "semver" | "date";
       visibility: "private" | "team" | "public";
     };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type RegenerateOAuthClientSecretParams = {
+  path?: {
+    client_id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Replaces a confidential client's secret and returns the new value once.
+ */
+export async function regenerateOAuthClientSecret(
+  client: Client,
+  args: RegenerateOAuthClientSecretParams = {},
+): Promise<{
+  client_id: string;
+  client_secret: string;
+  message: string;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/oauth-clients/${encodeURIComponent(String(path?.["client_id"]))}/regenerate-secret`;
+  return client.request<{
+    client_id: string;
+    client_secret: string;
+    message: string;
   }>({
     method: "POST",
     path: resolvedPath,
@@ -13823,6 +14314,59 @@ export async function retrieveFileContent(
   });
 }
 
+export type RotateWebhookEndpointSecretParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Replaces the signing secret and returns the new value once.
+ */
+export async function rotateWebhookEndpointSecret(
+  client: Client,
+  args: RotateWebhookEndpointSecretParams = {},
+): Promise<{
+  createdAt?: string | null;
+  createdBy?: string | null;
+  deletedAt?: string | null;
+  events: string[];
+  hasSecret: boolean;
+  id: string;
+  name: string;
+  signing_secret: string;
+  status: "active" | "disabled" | "deleted";
+  updatedAt?: string | null;
+  url: string;
+  workspaceId: string;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/webhook-endpoints/${encodeURIComponent(String(path?.["id"]))}/rotate-secret`;
+  return client.request<{
+    createdAt?: string | null;
+    createdBy?: string | null;
+    deletedAt?: string | null;
+    events: string[];
+    hasSecret: boolean;
+    id: string;
+    name: string;
+    signing_secret: string;
+    status: "active" | "disabled" | "deleted";
+    updatedAt?: string | null;
+    url: string;
+    workspaceId: string;
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type UpdateApiKeyParams = {
   path?: {
     id: string;
@@ -14354,6 +14898,82 @@ export async function updateManagementKey(
   });
 }
 
+export type UpdateOAuthClientParams = {
+  path?: {
+    client_id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    allowed_scopes?: string[];
+    description?: string;
+    homepage_url?: string;
+    logo_url?: string;
+    name?: string;
+    privacy_policy_url?: string;
+    redirect_uris?: string[];
+    terms_of_service_url?: string;
+  };
+};
+
+/**
+ * Updates OAuth application metadata, scopes, or redirect URIs. Requires `oauth_clients:write`.
+ */
+export async function updateOAuthClient(
+  client: Client,
+  args: UpdateOAuthClientParams = {},
+): Promise<{
+  active_authorizations?: number;
+  allowed_scopes?: string[];
+  client_id: string;
+  client_type: "public" | "confidential";
+  created_at?: string | null;
+  description?: string | null;
+  homepage_url?: string | null;
+  last_used_at?: string | null;
+  logo_url?: string | null;
+  name: string;
+  privacy_policy_url?: string | null;
+  redirect_uris: string[];
+  requests_last_30d?: number;
+  status: string;
+  terms_of_service_url?: string | null;
+  total_authorizations?: number;
+  updated_at?: string | null;
+  workspace_id: string;
+  [key: string]: unknown;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/oauth-clients/${encodeURIComponent(String(path?.["client_id"]))}`;
+  return client.request<{
+    active_authorizations?: number;
+    allowed_scopes?: string[];
+    client_id: string;
+    client_type: "public" | "confidential";
+    created_at?: string | null;
+    description?: string | null;
+    homepage_url?: string | null;
+    last_used_at?: string | null;
+    logo_url?: string | null;
+    name: string;
+    privacy_policy_url?: string | null;
+    redirect_uris: string[];
+    requests_last_30d?: number;
+    status: string;
+    terms_of_service_url?: string | null;
+    total_authorizations?: number;
+    updated_at?: string | null;
+    workspace_id: string;
+    [key: string]: unknown;
+  }>({
+    method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type UpdateObservabilityDestinationParams = {
   path?: {
     id: string;
@@ -14690,6 +15310,62 @@ export async function updatePresetPublisher(
     };
   }>({
     method: "PUT",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateWebhookEndpointParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    events?: string[];
+    name?: string;
+    status?: "active" | "disabled";
+    url?: string;
+  };
+};
+
+/**
+ * Updates endpoint delivery settings. Requires `settings:write`.
+ */
+export async function updateWebhookEndpoint(
+  client: Client,
+  args: UpdateWebhookEndpointParams = {},
+): Promise<{
+  createdAt?: string | null;
+  createdBy?: string | null;
+  deletedAt?: string | null;
+  events: string[];
+  hasSecret: boolean;
+  id: string;
+  name: string;
+  status: "active" | "disabled" | "deleted";
+  updatedAt?: string | null;
+  url: string;
+  workspaceId: string;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/webhook-endpoints/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    createdAt?: string | null;
+    createdBy?: string | null;
+    deletedAt?: string | null;
+    events: string[];
+    hasSecret: boolean;
+    id: string;
+    name: string;
+    status: "active" | "disabled" | "deleted";
+    updatedAt?: string | null;
+    url: string;
+    workspaceId: string;
+  }>({
+    method: "PATCH",
     path: resolvedPath,
     query,
     headers,

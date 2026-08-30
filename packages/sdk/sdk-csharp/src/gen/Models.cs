@@ -3519,6 +3519,245 @@ public sealed class NotImplementedResponse
 
 }
 
+public sealed class OAuthClient
+{
+	[JsonPropertyName("active_authorizations")]
+	public int? ActiveAuthorizations { get; set; }
+
+	[JsonPropertyName("allowed_scopes")]
+	public List<string>? AllowedScopes { get; set; }
+
+	[JsonPropertyName("client_id")]
+	public string ClientId { get; set; }
+
+	[JsonPropertyName("client_type")]
+	public string ClientType { get; set; }
+
+	[JsonPropertyName("created_at")]
+	public string? CreatedAt { get; set; }
+
+	[JsonPropertyName("description")]
+	public string? Description { get; set; }
+
+	[JsonPropertyName("homepage_url")]
+	public string? HomepageUrl { get; set; }
+
+	[JsonPropertyName("last_used_at")]
+	public string? LastUsedAt { get; set; }
+
+	[JsonPropertyName("logo_url")]
+	public string? LogoUrl { get; set; }
+
+	[JsonPropertyName("name")]
+	public string Name { get; set; }
+
+	[JsonPropertyName("privacy_policy_url")]
+	public string? PrivacyPolicyUrl { get; set; }
+
+	[JsonPropertyName("redirect_uris")]
+	public List<string> RedirectUris { get; set; }
+
+	[JsonPropertyName("requests_last_30d")]
+	public int? RequestsLast30d { get; set; }
+
+	[JsonPropertyName("status")]
+	public string Status { get; set; }
+
+	[JsonPropertyName("terms_of_service_url")]
+	public string? TermsOfServiceUrl { get; set; }
+
+	[JsonPropertyName("total_authorizations")]
+	public int? TotalAuthorizations { get; set; }
+
+	[JsonPropertyName("updated_at")]
+	public string? UpdatedAt { get; set; }
+
+	[JsonPropertyName("workspace_id")]
+	public string WorkspaceId { get; set; }
+
+}
+
+public sealed class OAuthClientCreateRequest
+{
+	[JsonPropertyName("allowed_scopes")]
+	public List<string>? AllowedScopes { get; set; }
+
+	[JsonPropertyName("client_type")]
+	public string? ClientType { get; set; }
+
+	[JsonPropertyName("description")]
+	public string? Description { get; set; }
+
+	[JsonPropertyName("homepage_url")]
+	public string? HomepageUrl { get; set; }
+
+	[JsonPropertyName("logo_url")]
+	public string? LogoUrl { get; set; }
+
+	[JsonPropertyName("name")]
+	public string Name { get; set; }
+
+	[JsonPropertyName("privacy_policy_url")]
+	public string? PrivacyPolicyUrl { get; set; }
+
+	[JsonPropertyName("redirect_uris")]
+	public List<string> RedirectUris { get; set; }
+
+	[JsonPropertyName("terms_of_service_url")]
+	public string? TermsOfServiceUrl { get; set; }
+
+}
+
+public sealed class OAuthClientCreateResponse
+{
+	[JsonPropertyName("active_authorizations")]
+	public int? ActiveAuthorizations { get; set; }
+
+	[JsonPropertyName("allowed_scopes")]
+	public List<string>? AllowedScopes { get; set; }
+
+	[JsonPropertyName("client_id")]
+	public string ClientId { get; set; }
+
+	[JsonPropertyName("client_secret")]
+	public string? ClientSecret { get; set; }
+
+	[JsonPropertyName("client_type")]
+	public string ClientType { get; set; }
+
+	[JsonPropertyName("created_at")]
+	public string? CreatedAt { get; set; }
+
+	[JsonPropertyName("description")]
+	public string? Description { get; set; }
+
+	[JsonPropertyName("homepage_url")]
+	public string? HomepageUrl { get; set; }
+
+	[JsonPropertyName("last_used_at")]
+	public string? LastUsedAt { get; set; }
+
+	[JsonPropertyName("logo_url")]
+	public string? LogoUrl { get; set; }
+
+	[JsonPropertyName("name")]
+	public string Name { get; set; }
+
+	[JsonPropertyName("privacy_policy_url")]
+	public string? PrivacyPolicyUrl { get; set; }
+
+	[JsonPropertyName("redirect_uris")]
+	public List<string> RedirectUris { get; set; }
+
+	[JsonPropertyName("requests_last_30d")]
+	public int? RequestsLast30d { get; set; }
+
+	[JsonPropertyName("status")]
+	public string Status { get; set; }
+
+	[JsonPropertyName("terms_of_service_url")]
+	public string? TermsOfServiceUrl { get; set; }
+
+	[JsonPropertyName("total_authorizations")]
+	public int? TotalAuthorizations { get; set; }
+
+	[JsonPropertyName("updated_at")]
+	public string? UpdatedAt { get; set; }
+
+	[JsonPropertyName("workspace_id")]
+	public string WorkspaceId { get; set; }
+
+}
+
+public sealed class OAuthClientDeleteResponse
+{
+	[JsonPropertyName("client_id")]
+	public string ClientId { get; set; }
+
+	[JsonPropertyName("message")]
+	public string Message { get; set; }
+
+}
+
+public sealed class OAuthClientInput
+{
+	[JsonPropertyName("allowed_scopes")]
+	public List<string>? AllowedScopes { get; set; }
+
+	[JsonPropertyName("description")]
+	public string? Description { get; set; }
+
+	[JsonPropertyName("homepage_url")]
+	public string? HomepageUrl { get; set; }
+
+	[JsonPropertyName("logo_url")]
+	public string? LogoUrl { get; set; }
+
+	[JsonPropertyName("name")]
+	public string? Name { get; set; }
+
+	[JsonPropertyName("privacy_policy_url")]
+	public string? PrivacyPolicyUrl { get; set; }
+
+	[JsonPropertyName("redirect_uris")]
+	public List<string>? RedirectUris { get; set; }
+
+	[JsonPropertyName("terms_of_service_url")]
+	public string? TermsOfServiceUrl { get; set; }
+
+}
+
+public sealed class OAuthClientListResponse
+{
+	[JsonPropertyName("data")]
+	public List<Dictionary<string, object>> Data { get; set; }
+
+	[JsonPropertyName("pagination")]
+	public Dictionary<string, object> Pagination { get; set; }
+
+}
+
+public sealed class OAuthClientSecretResponse
+{
+	[JsonPropertyName("client_id")]
+	public string ClientId { get; set; }
+
+	[JsonPropertyName("client_secret")]
+	public string ClientSecret { get; set; }
+
+	[JsonPropertyName("message")]
+	public string Message { get; set; }
+
+}
+
+public sealed class OAuthClientUpdateRequest
+{
+	[JsonPropertyName("allowed_scopes")]
+	public List<string>? AllowedScopes { get; set; }
+
+	[JsonPropertyName("description")]
+	public string? Description { get; set; }
+
+	[JsonPropertyName("homepage_url")]
+	public string? HomepageUrl { get; set; }
+
+	[JsonPropertyName("logo_url")]
+	public string? LogoUrl { get; set; }
+
+	[JsonPropertyName("name")]
+	public string? Name { get; set; }
+
+	[JsonPropertyName("privacy_policy_url")]
+	public string? PrivacyPolicyUrl { get; set; }
+
+	[JsonPropertyName("redirect_uris")]
+	public List<string>? RedirectUris { get; set; }
+
+	[JsonPropertyName("terms_of_service_url")]
+	public string? TermsOfServiceUrl { get; set; }
+
+}
+
 public sealed class ObservabilityDestination
 {
 	[JsonPropertyName("configured")]
@@ -5160,6 +5399,148 @@ public sealed class VideoOutputConfig
 {
 	[JsonPropertyName("access")]
 	public string? Access { get; set; }
+
+}
+
+public sealed class WebhookEndpoint
+{
+	[JsonPropertyName("createdAt")]
+	public string? CreatedAt { get; set; }
+
+	[JsonPropertyName("createdBy")]
+	public string? CreatedBy { get; set; }
+
+	[JsonPropertyName("deletedAt")]
+	public string? DeletedAt { get; set; }
+
+	[JsonPropertyName("events")]
+	public List<string> Events { get; set; }
+
+	[JsonPropertyName("hasSecret")]
+	public bool HasSecret { get; set; }
+
+	[JsonPropertyName("id")]
+	public string Id { get; set; }
+
+	[JsonPropertyName("name")]
+	public string Name { get; set; }
+
+	[JsonPropertyName("status")]
+	public string Status { get; set; }
+
+	[JsonPropertyName("updatedAt")]
+	public string? UpdatedAt { get; set; }
+
+	[JsonPropertyName("url")]
+	public string Url { get; set; }
+
+	[JsonPropertyName("workspaceId")]
+	public string WorkspaceId { get; set; }
+
+}
+
+public sealed class WebhookEndpointCreateRequest
+{
+	[JsonPropertyName("events")]
+	public List<string>? Events { get; set; }
+
+	[JsonPropertyName("name")]
+	public string? Name { get; set; }
+
+	[JsonPropertyName("url")]
+	public string Url { get; set; }
+
+}
+
+public sealed class WebhookEndpointDeleteResponse
+{
+	[JsonPropertyName("deleted")]
+	public string Deleted { get; set; }
+
+	[JsonPropertyName("id")]
+	public string Id { get; set; }
+
+	[JsonPropertyName("object")]
+	public string Object { get; set; }
+
+}
+
+public sealed class WebhookEndpointInput
+{
+	[JsonPropertyName("events")]
+	public List<string>? Events { get; set; }
+
+	[JsonPropertyName("name")]
+	public string? Name { get; set; }
+
+	[JsonPropertyName("url")]
+	public string? Url { get; set; }
+
+}
+
+public sealed class WebhookEndpointListResponse
+{
+	[JsonPropertyName("data")]
+	public List<Dictionary<string, object>> Data { get; set; }
+
+	[JsonPropertyName("object")]
+	public string Object { get; set; }
+
+}
+
+public sealed class WebhookEndpointSecretResponse
+{
+	[JsonPropertyName("createdAt")]
+	public string? CreatedAt { get; set; }
+
+	[JsonPropertyName("createdBy")]
+	public string? CreatedBy { get; set; }
+
+	[JsonPropertyName("deletedAt")]
+	public string? DeletedAt { get; set; }
+
+	[JsonPropertyName("events")]
+	public List<string> Events { get; set; }
+
+	[JsonPropertyName("hasSecret")]
+	public bool HasSecret { get; set; }
+
+	[JsonPropertyName("id")]
+	public string Id { get; set; }
+
+	[JsonPropertyName("name")]
+	public string Name { get; set; }
+
+	[JsonPropertyName("signing_secret")]
+	public string SigningSecret { get; set; }
+
+	[JsonPropertyName("status")]
+	public string Status { get; set; }
+
+	[JsonPropertyName("updatedAt")]
+	public string? UpdatedAt { get; set; }
+
+	[JsonPropertyName("url")]
+	public string Url { get; set; }
+
+	[JsonPropertyName("workspaceId")]
+	public string WorkspaceId { get; set; }
+
+}
+
+public sealed class WebhookEndpointUpdateRequest
+{
+	[JsonPropertyName("events")]
+	public List<string>? Events { get; set; }
+
+	[JsonPropertyName("name")]
+	public string? Name { get; set; }
+
+	[JsonPropertyName("status")]
+	public string? Status { get; set; }
+
+	[JsonPropertyName("url")]
+	public string? Url { get; set; }
 
 }
 

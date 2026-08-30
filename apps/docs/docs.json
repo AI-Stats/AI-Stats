@@ -635,6 +635,32 @@
 											"v1/api-reference/endpoint/guardrail-members-add",
 											"v1/api-reference/endpoint/guardrail-members-remove"
 										]
+									},
+									{
+										"group": "OAuth Applications",
+										"tag": "Beta",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/oauth-clients-list",
+											"v1/api-reference/endpoint/oauth-clients-create",
+											"v1/api-reference/endpoint/oauth-clients-get",
+											"v1/api-reference/endpoint/oauth-clients-update",
+											"v1/api-reference/endpoint/oauth-clients-delete",
+											"v1/api-reference/endpoint/oauth-clients-regenerate-secret"
+										]
+									},
+									{
+										"group": "Webhook Endpoints",
+										"tag": "Beta",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/webhook-endpoints-list",
+											"v1/api-reference/endpoint/webhook-endpoints-create",
+											"v1/api-reference/endpoint/webhook-endpoints-get",
+											"v1/api-reference/endpoint/webhook-endpoints-update",
+											"v1/api-reference/endpoint/webhook-endpoints-delete",
+											"v1/api-reference/endpoint/webhook-endpoints-rotate-secret"
+										]
 									}
 								]
 							}

@@ -1449,6 +1449,99 @@ struct NotImplementedResponse {
 	int status_code;
 };
 
+struct OAuthClient {
+	std::optional<int> active_authorizations;
+	std::vector<std::string> allowed_scopes;
+	std::string client_id;
+	std::any client_type;
+	std::optional<std::string> created_at;
+	std::optional<std::string> description;
+	std::optional<std::string> homepage_url;
+	std::optional<std::string> last_used_at;
+	std::optional<std::string> logo_url;
+	std::string name;
+	std::optional<std::string> privacy_policy_url;
+	std::vector<std::string> redirect_uris;
+	std::optional<int> requests_last_30d;
+	std::string status;
+	std::optional<std::string> terms_of_service_url;
+	std::optional<int> total_authorizations;
+	std::optional<std::string> updated_at;
+	std::string workspace_id;
+};
+
+struct OAuthClientCreateRequest {
+	std::vector<std::string> allowed_scopes;
+	std::any client_type;
+	std::string description;
+	std::string homepage_url;
+	std::string logo_url;
+	std::string name;
+	std::string privacy_policy_url;
+	std::vector<std::string> redirect_uris;
+	std::string terms_of_service_url;
+};
+
+struct OAuthClientCreateResponse {
+	std::optional<int> active_authorizations;
+	std::vector<std::string> allowed_scopes;
+	std::string client_id;
+	std::optional<std::string> client_secret;
+	std::any client_type;
+	std::optional<std::string> created_at;
+	std::optional<std::string> description;
+	std::optional<std::string> homepage_url;
+	std::optional<std::string> last_used_at;
+	std::optional<std::string> logo_url;
+	std::string name;
+	std::optional<std::string> privacy_policy_url;
+	std::vector<std::string> redirect_uris;
+	std::optional<int> requests_last_30d;
+	std::string status;
+	std::optional<std::string> terms_of_service_url;
+	std::optional<int> total_authorizations;
+	std::optional<std::string> updated_at;
+	std::string workspace_id;
+};
+
+struct OAuthClientDeleteResponse {
+	std::string client_id;
+	std::string message;
+};
+
+struct OAuthClientInput {
+	std::vector<std::string> allowed_scopes;
+	std::string description;
+	std::string homepage_url;
+	std::string logo_url;
+	std::string name;
+	std::string privacy_policy_url;
+	std::vector<std::string> redirect_uris;
+	std::string terms_of_service_url;
+};
+
+struct OAuthClientListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+	std::map<std::string, std::any> pagination;
+};
+
+struct OAuthClientSecretResponse {
+	std::string client_id;
+	std::string client_secret;
+	std::string message;
+};
+
+struct OAuthClientUpdateRequest {
+	std::vector<std::string> allowed_scopes;
+	std::string description;
+	std::string homepage_url;
+	std::string logo_url;
+	std::string name;
+	std::string privacy_policy_url;
+	std::vector<std::string> redirect_uris;
+	std::string terms_of_service_url;
+};
+
 struct ObservabilityDestination {
 	bool configured;
 	std::optional<std::string> created_at;
@@ -2131,6 +2224,65 @@ struct VideoOutput {
 
 struct VideoOutputConfig {
 	std::any access;
+};
+
+struct WebhookEndpoint {
+	std::optional<std::string> createdAt;
+	std::optional<std::string> createdBy;
+	std::optional<std::string> deletedAt;
+	std::vector<std::string> events;
+	bool hasSecret;
+	std::string id;
+	std::string name;
+	std::any status;
+	std::optional<std::string> updatedAt;
+	std::string url;
+	std::string workspaceId;
+};
+
+struct WebhookEndpointCreateRequest {
+	std::vector<std::string> events;
+	std::string name;
+	std::string url;
+};
+
+struct WebhookEndpointDeleteResponse {
+	std::any deleted;
+	std::string id;
+	std::any object;
+};
+
+struct WebhookEndpointInput {
+	std::vector<std::string> events;
+	std::string name;
+	std::string url;
+};
+
+struct WebhookEndpointListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+	std::any object;
+};
+
+struct WebhookEndpointSecretResponse {
+	std::optional<std::string> createdAt;
+	std::optional<std::string> createdBy;
+	std::optional<std::string> deletedAt;
+	std::vector<std::string> events;
+	bool hasSecret;
+	std::string id;
+	std::string name;
+	std::string signing_secret;
+	std::any status;
+	std::optional<std::string> updatedAt;
+	std::string url;
+	std::string workspaceId;
+};
+
+struct WebhookEndpointUpdateRequest {
+	std::vector<std::string> events;
+	std::string name;
+	std::any status;
+	std::string url;
 };
 
 struct Workspace {

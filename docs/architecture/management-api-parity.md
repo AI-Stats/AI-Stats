@@ -47,7 +47,7 @@ OpenAPI schema does not count as complete.
 | Organisation administration | Workspace-native membership and invitations | Partial | Contract SSO, SCIM, and directory administration; Phaseo currently treats each organisation workspace as the membership boundary. |
 | Usage, credits, and analytics | Read endpoints with workspace/key/end-user/model/provider/endpoint/outcome filters and CSV analytics export | Contracted for queryable request facts | Add member attribution only when request facts carry a durable workspace-member identity. |
 | Activity and audit events | Read endpoints | Contracted | Expand audit producers as each mutation group becomes public. |
-| OAuth clients and webhook endpoints | CRUD | Runtime only | Publish OpenAPI, SDKs, docs, and contract tests. |
+| OAuth clients and webhook endpoints | CRUD plus secret regeneration/rotation | Contracted where feature-enabled | OAuth applications remain beta-gated; async webhook endpoints remain limited to workspaces with async API access. |
 | Billing and notifications | Dashboard controls | Missing or partial | Expose durable administrative settings; keep payment confirmation and other interactive personal flows out of scope. |
 
 ## Delivery order

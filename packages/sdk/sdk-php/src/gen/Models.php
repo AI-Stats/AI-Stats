@@ -2559,6 +2559,176 @@ class NotImplementedResponse
 	public $status_code;
 }
 
+class OAuthClient
+{
+	/** @var int|null */
+	public $active_authorizations;
+	/** @var array|null */
+	public $allowed_scopes;
+	/** @var string */
+	public $client_id;
+	/** @var string */
+	public $client_type;
+	/** @var string|null */
+	public $created_at;
+	/** @var string|null */
+	public $description;
+	/** @var string|null */
+	public $homepage_url;
+	/** @var string|null */
+	public $last_used_at;
+	/** @var string|null */
+	public $logo_url;
+	/** @var string */
+	public $name;
+	/** @var string|null */
+	public $privacy_policy_url;
+	/** @var array */
+	public $redirect_uris;
+	/** @var int|null */
+	public $requests_last_30d;
+	/** @var string */
+	public $status;
+	/** @var string|null */
+	public $terms_of_service_url;
+	/** @var int|null */
+	public $total_authorizations;
+	/** @var string|null */
+	public $updated_at;
+	/** @var string */
+	public $workspace_id;
+}
+
+class OAuthClientCreateRequest
+{
+	/** @var array|null */
+	public $allowed_scopes;
+	/** @var string|null */
+	public $client_type;
+	/** @var string|null */
+	public $description;
+	/** @var string|null */
+	public $homepage_url;
+	/** @var string|null */
+	public $logo_url;
+	/** @var string */
+	public $name;
+	/** @var string|null */
+	public $privacy_policy_url;
+	/** @var array */
+	public $redirect_uris;
+	/** @var string|null */
+	public $terms_of_service_url;
+}
+
+class OAuthClientCreateResponse
+{
+	/** @var int|null */
+	public $active_authorizations;
+	/** @var array|null */
+	public $allowed_scopes;
+	/** @var string */
+	public $client_id;
+	/** @var string|null */
+	public $client_secret;
+	/** @var string */
+	public $client_type;
+	/** @var string|null */
+	public $created_at;
+	/** @var string|null */
+	public $description;
+	/** @var string|null */
+	public $homepage_url;
+	/** @var string|null */
+	public $last_used_at;
+	/** @var string|null */
+	public $logo_url;
+	/** @var string */
+	public $name;
+	/** @var string|null */
+	public $privacy_policy_url;
+	/** @var array */
+	public $redirect_uris;
+	/** @var int|null */
+	public $requests_last_30d;
+	/** @var string */
+	public $status;
+	/** @var string|null */
+	public $terms_of_service_url;
+	/** @var int|null */
+	public $total_authorizations;
+	/** @var string|null */
+	public $updated_at;
+	/** @var string */
+	public $workspace_id;
+}
+
+class OAuthClientDeleteResponse
+{
+	/** @var string */
+	public $client_id;
+	/** @var string */
+	public $message;
+}
+
+class OAuthClientInput
+{
+	/** @var array|null */
+	public $allowed_scopes;
+	/** @var string|null */
+	public $description;
+	/** @var string|null */
+	public $homepage_url;
+	/** @var string|null */
+	public $logo_url;
+	/** @var string|null */
+	public $name;
+	/** @var string|null */
+	public $privacy_policy_url;
+	/** @var array|null */
+	public $redirect_uris;
+	/** @var string|null */
+	public $terms_of_service_url;
+}
+
+class OAuthClientListResponse
+{
+	/** @var array */
+	public $data;
+	/** @var array<string, mixed> */
+	public $pagination;
+}
+
+class OAuthClientSecretResponse
+{
+	/** @var string */
+	public $client_id;
+	/** @var string */
+	public $client_secret;
+	/** @var string */
+	public $message;
+}
+
+class OAuthClientUpdateRequest
+{
+	/** @var array|null */
+	public $allowed_scopes;
+	/** @var string|null */
+	public $description;
+	/** @var string|null */
+	public $homepage_url;
+	/** @var string|null */
+	public $logo_url;
+	/** @var string|null */
+	public $name;
+	/** @var string|null */
+	public $privacy_policy_url;
+	/** @var array|null */
+	public $redirect_uris;
+	/** @var string|null */
+	public $terms_of_service_url;
+}
+
 class ObservabilityDestination
 {
 	/** @var bool */
@@ -3757,6 +3927,110 @@ class VideoOutputConfig
 {
 	/** @var string|null */
 	public $access;
+}
+
+class WebhookEndpoint
+{
+	/** @var string|null */
+	public $createdAt;
+	/** @var string|null */
+	public $createdBy;
+	/** @var string|null */
+	public $deletedAt;
+	/** @var array */
+	public $events;
+	/** @var bool */
+	public $hasSecret;
+	/** @var string */
+	public $id;
+	/** @var string */
+	public $name;
+	/** @var string */
+	public $status;
+	/** @var string|null */
+	public $updatedAt;
+	/** @var string */
+	public $url;
+	/** @var string */
+	public $workspaceId;
+}
+
+class WebhookEndpointCreateRequest
+{
+	/** @var array|null */
+	public $events;
+	/** @var string|null */
+	public $name;
+	/** @var string */
+	public $url;
+}
+
+class WebhookEndpointDeleteResponse
+{
+	/** @var string */
+	public $deleted;
+	/** @var string */
+	public $id;
+	/** @var string */
+	public $object;
+}
+
+class WebhookEndpointInput
+{
+	/** @var array|null */
+	public $events;
+	/** @var string|null */
+	public $name;
+	/** @var string|null */
+	public $url;
+}
+
+class WebhookEndpointListResponse
+{
+	/** @var array */
+	public $data;
+	/** @var string */
+	public $object;
+}
+
+class WebhookEndpointSecretResponse
+{
+	/** @var string|null */
+	public $createdAt;
+	/** @var string|null */
+	public $createdBy;
+	/** @var string|null */
+	public $deletedAt;
+	/** @var array */
+	public $events;
+	/** @var bool */
+	public $hasSecret;
+	/** @var string */
+	public $id;
+	/** @var string */
+	public $name;
+	/** @var string */
+	public $signing_secret;
+	/** @var string */
+	public $status;
+	/** @var string|null */
+	public $updatedAt;
+	/** @var string */
+	public $url;
+	/** @var string */
+	public $workspaceId;
+}
+
+class WebhookEndpointUpdateRequest
+{
+	/** @var array|null */
+	public $events;
+	/** @var string|null */
+	public $name;
+	/** @var string|null */
+	public $status;
+	/** @var string|null */
+	public $url;
 }
 
 class Workspace

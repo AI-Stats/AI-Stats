@@ -1445,6 +1445,99 @@ pub struct NotImplementedResponse {
 	pub status_code: i64,
 }
 
+pub struct OAuthClient {
+	pub active_authorizations: Option<i64>,
+	pub allowed_scopes: Option<Vec<String>>,
+	pub client_id: String,
+	pub client_type: String,
+	pub created_at: Option<Option<String>>,
+	pub description: Option<Option<String>>,
+	pub homepage_url: Option<Option<String>>,
+	pub last_used_at: Option<Option<String>>,
+	pub logo_url: Option<Option<String>>,
+	pub name: String,
+	pub privacy_policy_url: Option<Option<String>>,
+	pub redirect_uris: Vec<String>,
+	pub requests_last_30d: Option<i64>,
+	pub status: String,
+	pub terms_of_service_url: Option<Option<String>>,
+	pub total_authorizations: Option<i64>,
+	pub updated_at: Option<Option<String>>,
+	pub workspace_id: String,
+}
+
+pub struct OAuthClientCreateRequest {
+	pub allowed_scopes: Option<Vec<String>>,
+	pub client_type: Option<String>,
+	pub description: Option<String>,
+	pub homepage_url: Option<String>,
+	pub logo_url: Option<String>,
+	pub name: String,
+	pub privacy_policy_url: Option<String>,
+	pub redirect_uris: Vec<String>,
+	pub terms_of_service_url: Option<String>,
+}
+
+pub struct OAuthClientCreateResponse {
+	pub active_authorizations: Option<i64>,
+	pub allowed_scopes: Option<Vec<String>>,
+	pub client_id: String,
+	pub client_secret: Option<Option<String>>,
+	pub client_type: String,
+	pub created_at: Option<Option<String>>,
+	pub description: Option<Option<String>>,
+	pub homepage_url: Option<Option<String>>,
+	pub last_used_at: Option<Option<String>>,
+	pub logo_url: Option<Option<String>>,
+	pub name: String,
+	pub privacy_policy_url: Option<Option<String>>,
+	pub redirect_uris: Vec<String>,
+	pub requests_last_30d: Option<i64>,
+	pub status: String,
+	pub terms_of_service_url: Option<Option<String>>,
+	pub total_authorizations: Option<i64>,
+	pub updated_at: Option<Option<String>>,
+	pub workspace_id: String,
+}
+
+pub struct OAuthClientDeleteResponse {
+	pub client_id: String,
+	pub message: String,
+}
+
+pub struct OAuthClientInput {
+	pub allowed_scopes: Option<Vec<String>>,
+	pub description: Option<String>,
+	pub homepage_url: Option<String>,
+	pub logo_url: Option<String>,
+	pub name: Option<String>,
+	pub privacy_policy_url: Option<String>,
+	pub redirect_uris: Option<Vec<String>>,
+	pub terms_of_service_url: Option<String>,
+}
+
+pub struct OAuthClientListResponse {
+	pub data: Vec<HashMap<String, String>>,
+	pub pagination: HashMap<String, String>,
+}
+
+pub struct OAuthClientSecretResponse {
+	pub client_id: String,
+	pub client_secret: String,
+	pub message: String,
+}
+
+pub struct OAuthClientUpdateRequest {
+	pub allowed_scopes: Option<Vec<String>>,
+	pub description: Option<String>,
+	pub homepage_url: Option<String>,
+	pub logo_url: Option<String>,
+	pub name: Option<String>,
+	pub privacy_policy_url: Option<String>,
+	pub redirect_uris: Option<Vec<String>>,
+	pub terms_of_service_url: Option<String>,
+}
+
 pub struct ObservabilityDestination {
 	pub configured: bool,
 	pub created_at: Option<Option<String>>,
@@ -2127,6 +2220,65 @@ pub struct VideoOutput {
 
 pub struct VideoOutputConfig {
 	pub access: Option<String>,
+}
+
+pub struct WebhookEndpoint {
+	pub createdAt: Option<Option<String>>,
+	pub createdBy: Option<Option<String>>,
+	pub deletedAt: Option<Option<String>>,
+	pub events: Vec<String>,
+	pub hasSecret: bool,
+	pub id: String,
+	pub name: String,
+	pub status: String,
+	pub updatedAt: Option<Option<String>>,
+	pub url: String,
+	pub workspaceId: String,
+}
+
+pub struct WebhookEndpointCreateRequest {
+	pub events: Option<Vec<String>>,
+	pub name: Option<String>,
+	pub url: String,
+}
+
+pub struct WebhookEndpointDeleteResponse {
+	pub deleted: String,
+	pub id: String,
+	pub object: String,
+}
+
+pub struct WebhookEndpointInput {
+	pub events: Option<Vec<String>>,
+	pub name: Option<String>,
+	pub url: Option<String>,
+}
+
+pub struct WebhookEndpointListResponse {
+	pub data: Vec<HashMap<String, String>>,
+	pub object: String,
+}
+
+pub struct WebhookEndpointSecretResponse {
+	pub createdAt: Option<Option<String>>,
+	pub createdBy: Option<Option<String>>,
+	pub deletedAt: Option<Option<String>>,
+	pub events: Vec<String>,
+	pub hasSecret: bool,
+	pub id: String,
+	pub name: String,
+	pub signing_secret: String,
+	pub status: String,
+	pub updatedAt: Option<Option<String>>,
+	pub url: String,
+	pub workspaceId: String,
+}
+
+pub struct WebhookEndpointUpdateRequest {
+	pub events: Option<Vec<String>>,
+	pub name: Option<String>,
+	pub status: Option<String>,
+	pub url: Option<String>,
 }
 
 pub struct Workspace {

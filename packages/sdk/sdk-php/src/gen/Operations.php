@@ -157,6 +157,13 @@ function createModeration(Client $client, ?array $path = null, ?array $query = n
 	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
+function createOAuthClient(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/oauth-clients";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
 function createObservabilityDestination(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -248,6 +255,13 @@ function createVideoDownloadUrlAlias(Client $client, ?array $path = null, ?array
 	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
+function createWebhookEndpoint(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/webhook-endpoints";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
 function createWorkspace(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -290,6 +304,13 @@ function deleteManagementKey(Client $client, ?array $path = null, ?array $query 
 	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
 }
 
+function deleteOAuthClient(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/oauth-clients/" . rawurlencode((string)($path["client_id"] ?? ""));
+	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
+}
+
 function deleteObservabilityDestination(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -315,6 +336,13 @@ function deleteVideoAlias(Client $client, ?array $path = null, ?array $query = n
 {
 	$path = $path ?? [];
 	$resolvedPath = "/video/generations/" . rawurlencode((string)($path["video_id"] ?? ""));
+	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
+}
+
+function deleteWebhookEndpoint(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/webhook-endpoints/" . rawurlencode((string)($path["id"] ?? ""));
 	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
 }
 
@@ -451,6 +479,13 @@ function getMusicGenerationAlias(Client $client, ?array $path = null, ?array $qu
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
+function getOAuthClient(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/oauth-clients/" . rawurlencode((string)($path["client_id"] ?? ""));
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
 function getObservabilityDestination(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -511,6 +546,13 @@ function getVideoContentAlias(Client $client, ?array $path = null, ?array $query
 {
 	$path = $path ?? [];
 	$resolvedPath = "/video/generations/" . rawurlencode((string)($path["video_id"] ?? "")) . "/content";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
+function getWebhookEndpoint(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/webhook-endpoints/" . rawurlencode((string)($path["id"] ?? ""));
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
@@ -675,6 +717,13 @@ function listModels(Client $client, ?array $path = null, ?array $query = null, ?
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
+function listOAuthClients(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/oauth-clients";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
 function listObservabilityDestinations(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -752,6 +801,13 @@ function listVideosAlias(Client $client, ?array $path = null, ?array $query = nu
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
+function listWebhookEndpoints(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/webhook-endpoints";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
 function listWorkspaceAuditEvents(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -798,6 +854,13 @@ function publishPresetVersion(Client $client, ?array $path = null, ?array $query
 {
 	$path = $path ?? [];
 	$resolvedPath = "/presets/" . rawurlencode((string)($path["id"] ?? "")) . "/versions";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
+function regenerateOAuthClientSecret(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/oauth-clients/" . rawurlencode((string)($path["client_id"] ?? "")) . "/regenerate-secret";
 	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
@@ -899,6 +962,13 @@ function retrieveFileContent(Client $client, ?array $path = null, ?array $query 
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
+function rotateWebhookEndpointSecret(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/webhook-endpoints/" . rawurlencode((string)($path["id"] ?? "")) . "/rotate-secret";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
 function updateApiKey(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -924,6 +994,13 @@ function updateManagementKey(Client $client, ?array $path = null, ?array $query 
 {
 	$path = $path ?? [];
 	$resolvedPath = "/management-keys/" . rawurlencode((string)($path["id"] ?? ""));
+	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
+}
+
+function updateOAuthClient(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/oauth-clients/" . rawurlencode((string)($path["client_id"] ?? ""));
 	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
 }
 
@@ -953,6 +1030,13 @@ function updatePresetPublisher(Client $client, ?array $path = null, ?array $quer
 	$path = $path ?? [];
 	$resolvedPath = "/presets/publisher";
 	return $client->request("PUT", $resolvedPath, $query, $headers, $body);
+}
+
+function updateWebhookEndpoint(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/webhook-endpoints/" . rawurlencode((string)($path["id"] ?? ""));
+	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
 }
 
 function updateWorkspace(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)

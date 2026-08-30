@@ -2422,6 +2422,136 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /oauth-clients:
+    get:
+      x-beta: true
+      tags: [Gateway]
+      operationId: listOAuthClients
+      summary: List OAuth clients
+      description: Lists active OAuth applications for the workspace. Requires `oauth_clients:read` and the OAuth beta feature.
+      responses:
+        '200': {description: OAuth client list, content: {application/json: {schema: {$ref: '#/components/schemas/OAuthClientListResponse'}}}}
+        default: {description: Request failed or feature unavailable, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    post:
+      x-beta: true
+      tags: [Gateway]
+      operationId: createOAuthClient
+      summary: Create an OAuth client
+      description: Creates a public or confidential OAuth application. Confidential secrets are returned once. Requires `oauth_clients:write` and the OAuth beta feature.
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/OAuthClientCreateRequest'}}}}
+      responses:
+        '201': {description: OAuth client created, content: {application/json: {schema: {$ref: '#/components/schemas/OAuthClientCreateResponse'}}}}
+        default: {description: Request failed or feature unavailable, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /oauth-clients/{client_id}:
+    parameters:
+      - $ref: '#/components/parameters/OAuthClientId'
+    get:
+      x-beta: true
+      tags: [Gateway]
+      operationId: getOAuthClient
+      summary: Get an OAuth client
+      description: Returns one active OAuth application. Requires `oauth_clients:read` and the OAuth beta feature.
+      responses:
+        '200': {description: OAuth client, content: {application/json: {schema: {$ref: '#/components/schemas/OAuthClient'}}}}
+        default: {description: Request failed or feature unavailable, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    patch:
+      x-beta: true
+      tags: [Gateway]
+      operationId: updateOAuthClient
+      summary: Update an OAuth client
+      description: Updates OAuth application metadata, scopes, or redirect URIs. Requires `oauth_clients:write`.
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/OAuthClientUpdateRequest'}}}}
+      responses:
+        '200': {description: OAuth client updated, content: {application/json: {schema: {$ref: '#/components/schemas/OAuthClient'}}}}
+        default: {description: Request failed or feature unavailable, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    delete:
+      x-beta: true
+      tags: [Gateway]
+      operationId: deleteOAuthClient
+      summary: Delete an OAuth client
+      description: Deletes the client after revoking its active authorizations.
+      responses:
+        '200': {description: OAuth client deleted, content: {application/json: {schema: {$ref: '#/components/schemas/OAuthClientDeleteResponse'}}}}
+        default: {description: Request failed or feature unavailable, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /oauth-clients/{client_id}/regenerate-secret:
+    post:
+      x-beta: true
+      tags: [Gateway]
+      operationId: regenerateOAuthClientSecret
+      summary: Regenerate an OAuth client secret
+      description: Replaces a confidential client's secret and returns the new value once.
+      parameters:
+        - $ref: '#/components/parameters/OAuthClientId'
+      responses:
+        '200': {description: OAuth secret regenerated, content: {application/json: {schema: {$ref: '#/components/schemas/OAuthClientSecretResponse'}}}}
+        default: {description: Request failed or feature unavailable, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /webhook-endpoints:
+    get:
+      x-beta: true
+      tags: [Gateway]
+      operationId: listWebhookEndpoints
+      summary: List webhook endpoints
+      description: Lists async webhook destinations. Requires `settings:read` and workspace access to async APIs.
+      parameters:
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit100'
+        - {name: include_deleted, in: query, schema: {type: boolean, default: false}}
+      responses:
+        '200': {description: Webhook endpoint list, content: {application/json: {schema: {$ref: '#/components/schemas/WebhookEndpointListResponse'}}}}
+        default: {description: Request failed or feature unavailable, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    post:
+      x-beta: true
+      tags: [Gateway]
+      operationId: createWebhookEndpoint
+      summary: Create a webhook endpoint
+      description: Creates an HTTPS webhook endpoint and returns its signing secret once.
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/WebhookEndpointCreateRequest'}}}}
+      responses:
+        '201': {description: Webhook endpoint created, content: {application/json: {schema: {$ref: '#/components/schemas/WebhookEndpointSecretResponse'}}}}
+        default: {description: Request failed or feature unavailable, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /webhook-endpoints/{id}:
+    parameters:
+      - $ref: '#/components/parameters/WebhookEndpointId'
+    get:
+      x-beta: true
+      tags: [Gateway]
+      operationId: getWebhookEndpoint
+      summary: Get a webhook endpoint
+      description: Returns one async webhook endpoint without its signing secret. Requires `settings:read`.
+      responses:
+        '200': {description: Webhook endpoint, content: {application/json: {schema: {$ref: '#/components/schemas/WebhookEndpoint'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    patch:
+      x-beta: true
+      tags: [Gateway]
+      operationId: updateWebhookEndpoint
+      summary: Update a webhook endpoint
+      description: Updates endpoint delivery settings. Requires `settings:write`.
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/WebhookEndpointUpdateRequest'}}}}
+      responses:
+        '200': {description: Webhook endpoint updated, content: {application/json: {schema: {$ref: '#/components/schemas/WebhookEndpoint'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+    delete:
+      x-beta: true
+      tags: [Gateway]
+      operationId: deleteWebhookEndpoint
+      summary: Delete a webhook endpoint
+      description: Soft-deletes a webhook endpoint and stops future delivery. Requires `settings:write`.
+      responses:
+        '200': {description: Webhook endpoint deleted, content: {application/json: {schema: {$ref: '#/components/schemas/WebhookEndpointDeleteResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /webhook-endpoints/{id}/rotate-secret:
+    post:
+      x-beta: true
+      tags: [Gateway]
+      operationId: rotateWebhookEndpointSecret
+      summary: Rotate a webhook signing secret
+      description: Replaces the signing secret and returns the new value once.
+      parameters:
+        - $ref: '#/components/parameters/WebhookEndpointId'
+      responses:
+        '200': {description: Signing secret rotated, content: {application/json: {schema: {$ref: '#/components/schemas/WebhookEndpointSecretResponse'}}}}
+        default: {description: Request failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
   /guardrails:
     get:
       x-beta: true
@@ -5517,6 +5647,16 @@ components:
       schema:
         type: string
   parameters:
+    OAuthClientId:
+      name: client_id
+      in: path
+      required: true
+      schema: {type: string}
+    WebhookEndpointId:
+      name: id
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
     GuardrailId:
       name: id
       in: path
@@ -12994,6 +13134,139 @@ components:
         soft_blocked:
           type: boolean
           example: false
+    OAuthClientInput:
+      type: object
+      properties:
+        name: {type: string, minLength: 3, maxLength: 100}
+        allowed_scopes: {type: array, items: {type: string}}
+        description: {type: string}
+        homepage_url: {type: string, format: uri}
+        redirect_uris: {type: array, minItems: 1, items: {type: string, format: uri}}
+        logo_url: {type: string, format: uri}
+        privacy_policy_url: {type: string, format: uri}
+        terms_of_service_url: {type: string, format: uri}
+      additionalProperties: false
+    OAuthClientCreateRequest:
+      allOf:
+        - $ref: '#/components/schemas/OAuthClientInput'
+        - type: object
+          required: [name, redirect_uris]
+          properties:
+            client_type: {type: string, enum: [public, confidential], default: confidential}
+    OAuthClientUpdateRequest: {$ref: '#/components/schemas/OAuthClientInput'}
+    OAuthClient:
+      type: object
+      required: [client_id, workspace_id, name, client_type, redirect_uris, status]
+      properties:
+        client_id: {type: string}
+        workspace_id: {type: string}
+        name: {type: string}
+        client_type: {type: string, enum: [public, confidential]}
+        redirect_uris: {type: array, items: {type: string}}
+        allowed_scopes: {type: array, items: {type: string}}
+        description: {type: string, nullable: true}
+        homepage_url: {type: string, nullable: true}
+        logo_url: {type: string, nullable: true}
+        privacy_policy_url: {type: string, nullable: true}
+        terms_of_service_url: {type: string, nullable: true}
+        status: {type: string}
+        active_authorizations: {type: integer, minimum: 0}
+        total_authorizations: {type: integer, minimum: 0}
+        requests_last_30d: {type: integer, minimum: 0}
+        last_used_at: {type: string, format: date-time, nullable: true}
+        created_at: {type: string, format: date-time, nullable: true}
+        updated_at: {type: string, format: date-time, nullable: true}
+      additionalProperties: true
+    OAuthClientCreateResponse:
+      allOf:
+        - $ref: '#/components/schemas/OAuthClient'
+        - type: object
+          properties:
+            client_secret: {type: string, nullable: true, description: Returned once for confidential clients.}
+    OAuthClientListResponse:
+      type: object
+      required: [data, pagination]
+      properties:
+        data: {type: array, items: {$ref: '#/components/schemas/OAuthClient'}}
+        pagination:
+          type: object
+          required: [total, page, per_page]
+          properties:
+            total: {type: integer}
+            page: {type: integer}
+            per_page: {type: integer}
+      additionalProperties: false
+    OAuthClientDeleteResponse:
+      type: object
+      required: [message, client_id]
+      properties:
+        message: {type: string}
+        client_id: {type: string}
+      additionalProperties: false
+    OAuthClientSecretResponse:
+      type: object
+      required: [client_id, client_secret, message]
+      properties:
+        client_id: {type: string}
+        client_secret: {type: string}
+        message: {type: string}
+      additionalProperties: false
+    WebhookEndpointInput:
+      type: object
+      properties:
+        name: {type: string, minLength: 1, maxLength: 120}
+        url: {type: string, format: uri}
+        events: {type: array, items: {type: string}}
+      additionalProperties: false
+    WebhookEndpointCreateRequest:
+      allOf:
+        - $ref: '#/components/schemas/WebhookEndpointInput'
+        - type: object
+          required: [url]
+    WebhookEndpointUpdateRequest:
+      allOf:
+        - $ref: '#/components/schemas/WebhookEndpointInput'
+        - type: object
+          properties:
+            status: {type: string, enum: [active, disabled]}
+    WebhookEndpoint:
+      type: object
+      required: [id, workspaceId, name, url, status, events, hasSecret]
+      properties:
+        id: {type: string}
+        workspaceId: {type: string}
+        name: {type: string}
+        url: {type: string}
+        status: {type: string, enum: [active, disabled, deleted]}
+        events: {type: array, items: {type: string}}
+        hasSecret: {type: boolean}
+        createdBy: {type: string, nullable: true}
+        createdAt: {type: string, format: date-time, nullable: true}
+        updatedAt: {type: string, format: date-time, nullable: true}
+        deletedAt: {type: string, format: date-time, nullable: true}
+      additionalProperties: false
+    WebhookEndpointSecretResponse:
+      allOf:
+        - $ref: '#/components/schemas/WebhookEndpoint'
+        - type: object
+          required: [signing_secret]
+          properties:
+            signing_secret: {type: string, description: Returned only on creation or rotation.}
+    WebhookEndpointListResponse:
+      type: object
+      required: [object, data]
+      properties:
+        object: {type: string, enum: [list]}
+        data: {type: array, items: {$ref: '#/components/schemas/WebhookEndpoint'}}
+      additionalProperties: false
+    WebhookEndpointDeleteResponse:
+      type: object
+      required: [id, object, deleted]
+      properties:
+        id: {type: string}
+        object: {type: string, enum: [webhook_endpoint]}
+        deleted: {type: boolean, enum: [true]}
+      additionalProperties: false
     GuardrailBudgetInput:
       type: object
       properties:

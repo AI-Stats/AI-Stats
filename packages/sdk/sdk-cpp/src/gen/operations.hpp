@@ -114,6 +114,11 @@ inline Response CreateModeration(Client& client, const std::map<std::string, std
 	return client.request("POST", resolved_path, body);
 }
 
+inline Response CreateOAuthClient(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/oauth-clients";
+	return client.request("POST", resolved_path, body);
+}
+
 inline Response CreateObservabilityDestination(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/observability/destinations";
 	return client.request("POST", resolved_path, body);
@@ -179,6 +184,11 @@ inline Response CreateVideoDownloadUrlAlias(Client& client, const std::map<std::
 	return client.request("POST", resolved_path, body);
 }
 
+inline Response CreateWebhookEndpoint(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/webhook-endpoints";
+	return client.request("POST", resolved_path, body);
+}
+
 inline Response CreateWorkspace(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/workspaces";
 	return client.request("POST", resolved_path, body);
@@ -209,6 +219,11 @@ inline Response DeleteManagementKey(Client& client, const std::map<std::string, 
 	return client.request("DELETE", resolved_path, body);
 }
 
+inline Response DeleteOAuthClient(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/oauth-clients/" + (path.count("client_id") ? path.at("client_id") : std::string{});
+	return client.request("DELETE", resolved_path, body);
+}
+
 inline Response DeleteObservabilityDestination(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/observability/destinations/" + (path.count("id") ? path.at("id") : std::string{});
 	return client.request("DELETE", resolved_path, body);
@@ -226,6 +241,11 @@ inline Response DeleteVideo(Client& client, const std::map<std::string, std::str
 
 inline Response DeleteVideoAlias(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/video/generations/" + (path.count("video_id") ? path.at("video_id") : std::string{});
+	return client.request("DELETE", resolved_path, body);
+}
+
+inline Response DeleteWebhookEndpoint(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/webhook-endpoints/" + (path.count("id") ? path.at("id") : std::string{});
 	return client.request("DELETE", resolved_path, body);
 }
 
@@ -324,6 +344,11 @@ inline Response GetMusicGenerationAlias(Client& client, const std::map<std::stri
 	return client.request("GET", resolved_path, body);
 }
 
+inline Response GetOAuthClient(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/oauth-clients/" + (path.count("client_id") ? path.at("client_id") : std::string{});
+	return client.request("GET", resolved_path, body);
+}
+
 inline Response GetObservabilityDestination(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/observability/destinations/" + (path.count("id") ? path.at("id") : std::string{});
 	return client.request("GET", resolved_path, body);
@@ -366,6 +391,11 @@ inline Response GetVideoContent(Client& client, const std::map<std::string, std:
 
 inline Response GetVideoContentAlias(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/video/generations/" + (path.count("video_id") ? path.at("video_id") : std::string{}) + "/content";
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response GetWebhookEndpoint(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/webhook-endpoints/" + (path.count("id") ? path.at("id") : std::string{});
 	return client.request("GET", resolved_path, body);
 }
 
@@ -484,6 +514,11 @@ inline Response ListModels(Client& client, const std::map<std::string, std::stri
 	return client.request("GET", resolved_path, body);
 }
 
+inline Response ListOAuthClients(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/oauth-clients";
+	return client.request("GET", resolved_path, body);
+}
+
 inline Response ListObservabilityDestinations(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/observability/destinations";
 	return client.request("GET", resolved_path, body);
@@ -539,6 +574,11 @@ inline Response ListVideosAlias(Client& client, const std::map<std::string, std:
 	return client.request("GET", resolved_path, body);
 }
 
+inline Response ListWebhookEndpoints(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/webhook-endpoints";
+	return client.request("GET", resolved_path, body);
+}
+
 inline Response ListWorkspaceAuditEvents(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/audit-events";
 	return client.request("GET", resolved_path, body);
@@ -571,6 +611,11 @@ inline Response OpenAsyncJobWebSocket(Client& client, const std::map<std::string
 
 inline Response PublishPresetVersion(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/presets/" + (path.count("id") ? path.at("id") : std::string{}) + "/versions";
+	return client.request("POST", resolved_path, body);
+}
+
+inline Response RegenerateOAuthClientSecret(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/oauth-clients/" + (path.count("client_id") ? path.at("client_id") : std::string{}) + "/regenerate-secret";
 	return client.request("POST", resolved_path, body);
 }
 
@@ -644,6 +689,11 @@ inline Response RetrieveFileContent(Client& client, const std::map<std::string, 
 	return client.request("GET", resolved_path, body);
 }
 
+inline Response RotateWebhookEndpointSecret(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/webhook-endpoints/" + (path.count("id") ? path.at("id") : std::string{}) + "/rotate-secret";
+	return client.request("POST", resolved_path, body);
+}
+
 inline Response UpdateApiKey(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/keys/" + (path.count("id") ? path.at("id") : std::string{});
 	return client.request("PATCH", resolved_path, body);
@@ -661,6 +711,11 @@ inline Response UpdateGuardrail(Client& client, const std::map<std::string, std:
 
 inline Response UpdateManagementKey(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/management-keys/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("PATCH", resolved_path, body);
+}
+
+inline Response UpdateOAuthClient(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/oauth-clients/" + (path.count("client_id") ? path.at("client_id") : std::string{});
 	return client.request("PATCH", resolved_path, body);
 }
 
@@ -682,6 +737,11 @@ inline Response UpdatePreset(Client& client, const std::map<std::string, std::st
 inline Response UpdatePresetPublisher(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/presets/publisher";
 	return client.request("PUT", resolved_path, body);
+}
+
+inline Response UpdateWebhookEndpoint(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/webhook-endpoints/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("PATCH", resolved_path, body);
 }
 
 inline Response UpdateWorkspace(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {

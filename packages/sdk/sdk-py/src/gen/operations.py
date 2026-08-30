@@ -290,6 +290,19 @@ def createModeration(
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
+def createOAuthClient(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> OAuthClientCreateResponse:
+	path = path or {}
+	resolved_path = "/oauth-clients"
+	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
+
+
 def createObservabilityDestination(
 	client: Client,
 	*,
@@ -459,6 +472,19 @@ def createVideoDownloadUrlAlias(
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
+def createWebhookEndpoint(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> WebhookEndpointSecretResponse:
+	path = path or {}
+	resolved_path = "/webhook-endpoints"
+	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
+
+
 def createWorkspace(
 	client: Client,
 	*,
@@ -537,6 +563,19 @@ def deleteManagementKey(
 	return client.request("DELETE", resolved_path, query=query, headers=headers, body=body)
 
 
+def deleteOAuthClient(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> OAuthClientDeleteResponse:
+	path = path or {}
+	resolved_path = f"/oauth-clients/{path.get('client_id', '')}"
+	return client.request("DELETE", resolved_path, query=query, headers=headers, body=body)
+
+
 def deleteObservabilityDestination(
 	client: Client,
 	*,
@@ -586,6 +625,19 @@ def deleteVideoAlias(
 ) -> VideoDeleteResponse:
 	path = path or {}
 	resolved_path = f"/video/generations/{path.get('video_id', '')}"
+	return client.request("DELETE", resolved_path, query=query, headers=headers, body=body)
+
+
+def deleteWebhookEndpoint(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> WebhookEndpointDeleteResponse:
+	path = path or {}
+	resolved_path = f"/webhook-endpoints/{path.get('id', '')}"
 	return client.request("DELETE", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -836,6 +888,19 @@ def getMusicGenerationAlias(
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
+def getOAuthClient(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> OAuthClient:
+	path = path or {}
+	resolved_path = f"/oauth-clients/{path.get('client_id', '')}"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
 def getObservabilityDestination(
 	client: Client,
 	*,
@@ -950,6 +1015,19 @@ def getVideoContentAlias(
 ) -> Any:
 	path = path or {}
 	resolved_path = f"/video/generations/{path.get('video_id', '')}/content"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
+def getWebhookEndpoint(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> WebhookEndpoint:
+	path = path or {}
+	resolved_path = f"/webhook-endpoints/{path.get('id', '')}"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -1252,6 +1330,19 @@ def listModels(
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
+def listOAuthClients(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> OAuthClientListResponse:
+	path = path or {}
+	resolved_path = "/oauth-clients"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
 def listObservabilityDestinations(
 	client: Client,
 	*,
@@ -1395,6 +1486,19 @@ def listVideosAlias(
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
+def listWebhookEndpoints(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> WebhookEndpointListResponse:
+	path = path or {}
+	resolved_path = "/webhook-endpoints"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
 def listWorkspaceAuditEvents(
 	client: Client,
 	*,
@@ -1483,6 +1587,19 @@ def publishPresetVersion(
 ) -> PresetVersionResponse:
 	path = path or {}
 	resolved_path = f"/presets/{path.get('id', '')}/versions"
+	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
+
+
+def regenerateOAuthClientSecret(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> OAuthClientSecretResponse:
+	path = path or {}
+	resolved_path = f"/oauth-clients/{path.get('client_id', '')}/regenerate-secret"
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -1668,6 +1785,19 @@ def retrieveFileContent(
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
+def rotateWebhookEndpointSecret(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> WebhookEndpointSecretResponse:
+	path = path or {}
+	resolved_path = f"/webhook-endpoints/{path.get('id', '')}/rotate-secret"
+	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
+
+
 def updateApiKey(
 	client: Client,
 	*,
@@ -1717,6 +1847,19 @@ def updateManagementKey(
 ) -> ManagementKeyRuntimeResponse:
 	path = path or {}
 	resolved_path = f"/management-keys/{path.get('id', '')}"
+	return client.request("PATCH", resolved_path, query=query, headers=headers, body=body)
+
+
+def updateOAuthClient(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> OAuthClient:
+	path = path or {}
+	resolved_path = f"/oauth-clients/{path.get('client_id', '')}"
 	return client.request("PATCH", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -1770,6 +1913,19 @@ def updatePresetPublisher(
 	path = path or {}
 	resolved_path = "/presets/publisher"
 	return client.request("PUT", resolved_path, query=query, headers=headers, body=body)
+
+
+def updateWebhookEndpoint(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> WebhookEndpoint:
+	path = path or {}
+	resolved_path = f"/webhook-endpoints/{path.get('id', '')}"
+	return client.request("PATCH", resolved_path, query=query, headers=headers, body=body)
 
 
 def updateWorkspace(
@@ -1850,4 +2006,4 @@ def uploadFile(
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
-operations___all__ = ["addGuardrailKeys", "addGuardrailMembers", "addWorkspaceMembers", "applyPresetUpstreamVersion", "approveWorkspaceJoinRequest", "calculatePricing", "cancelBatch", "cancelBatchAlias", "cancelVideo", "cancelVideoAlias", "createAnthropicMessage", "createApiKey", "createBatch", "createBatchAlias", "createChatCompletion", "createDynamicRoute", "createEmbedding", "createGuardrail", "createImage", "createImageEdit", "createManagementKey", "createModeration", "createObservabilityDestination", "createOcr", "createParse", "createPreset", "createRerank", "createResponse", "createSpeech", "createTranscription", "createTranslation", "createVideo", "createVideoAlias", "createVideoDownloadUrl", "createVideoDownloadUrlAlias", "createWorkspace", "createWorkspaceInvite", "deleteApiKey", "deleteDynamicRoute", "deleteGuardrail", "deleteManagementKey", "deleteObservabilityDestination", "deletePreset", "deleteVideo", "deleteVideoAlias", "deleteWorkspace", "deleteWorkspaceInvite", "deployDynamicRouteVersion", "exportAnalyticsCsv", "forkPreset", "generateMusic", "generateMusicAlias", "getActivity", "getActivityAlias", "getApiKey", "getCredits", "getCurrentApiKey", "getDynamicRoute", "getGeneration", "getGuardrail", "getHealth", "getManagementKey", "getMusicGeneration", "getMusicGenerationAlias", "getObservabilityDestination", "getObservabilityLoggingPolicy", "getPreset", "getPresetPublisher", "getProviderDerankStatus", "getVideo", "getVideoAlias", "getVideoContent", "getVideoContentAlias", "getWorkspace", "getWorkspaceSettings", "listApiKeys", "listBatchCapabilities", "listBatchCapabilitiesAlias", "listBatches", "listBatchesAlias", "listBatchFiles", "listBatchFilesAlias", "listBatchModels", "listBatchModelsAlias", "listBatchRequests", "listBatchRequestsAlias", "listDataModels", "listDynamicRoutes", "listEndpoints", "listFiles", "listGuardrailKeys", "listGuardrailMembers", "listGuardrails", "listManagementKeys", "listModelEndpoints", "listModels", "listObservabilityDestinations", "listOrganisations", "listPresets", "listPresetVersions", "listPricingModels", "listProviders", "listTeamModels", "listVideoModels", "listVideoModelsAlias", "listVideos", "listVideosAlias", "listWorkspaceAuditEvents", "listWorkspaceInvites", "listWorkspaceJoinRequests", "listWorkspaceMembers", "listWorkspaces", "openAsyncJobWebSocket", "publishPresetVersion", "rejectWorkspaceJoinRequest", "removeGuardrailKeys", "removeGuardrailMembers", "removeWorkspaceMembers", "replaceDynamicRouteKeys", "replaceGuardrailKeys", "retrieveBatch", "retrieveBatchAlias", "retrieveBatchFile", "retrieveBatchFileAlias", "retrieveBatchFileContent", "retrieveBatchFileContentAlias", "retrieveFile", "retrieveFileContent", "updateApiKey", "updateDynamicRoute", "updateGuardrail", "updateManagementKey", "updateObservabilityDestination", "updateObservabilityLoggingPolicy", "updatePreset", "updatePresetPublisher", "updateWorkspace", "updateWorkspaceMemberRole", "updateWorkspaceSettings", "uploadBatchFile", "uploadBatchFileAlias", "uploadFile"]
+operations___all__ = ["addGuardrailKeys", "addGuardrailMembers", "addWorkspaceMembers", "applyPresetUpstreamVersion", "approveWorkspaceJoinRequest", "calculatePricing", "cancelBatch", "cancelBatchAlias", "cancelVideo", "cancelVideoAlias", "createAnthropicMessage", "createApiKey", "createBatch", "createBatchAlias", "createChatCompletion", "createDynamicRoute", "createEmbedding", "createGuardrail", "createImage", "createImageEdit", "createManagementKey", "createModeration", "createOAuthClient", "createObservabilityDestination", "createOcr", "createParse", "createPreset", "createRerank", "createResponse", "createSpeech", "createTranscription", "createTranslation", "createVideo", "createVideoAlias", "createVideoDownloadUrl", "createVideoDownloadUrlAlias", "createWebhookEndpoint", "createWorkspace", "createWorkspaceInvite", "deleteApiKey", "deleteDynamicRoute", "deleteGuardrail", "deleteManagementKey", "deleteOAuthClient", "deleteObservabilityDestination", "deletePreset", "deleteVideo", "deleteVideoAlias", "deleteWebhookEndpoint", "deleteWorkspace", "deleteWorkspaceInvite", "deployDynamicRouteVersion", "exportAnalyticsCsv", "forkPreset", "generateMusic", "generateMusicAlias", "getActivity", "getActivityAlias", "getApiKey", "getCredits", "getCurrentApiKey", "getDynamicRoute", "getGeneration", "getGuardrail", "getHealth", "getManagementKey", "getMusicGeneration", "getMusicGenerationAlias", "getOAuthClient", "getObservabilityDestination", "getObservabilityLoggingPolicy", "getPreset", "getPresetPublisher", "getProviderDerankStatus", "getVideo", "getVideoAlias", "getVideoContent", "getVideoContentAlias", "getWebhookEndpoint", "getWorkspace", "getWorkspaceSettings", "listApiKeys", "listBatchCapabilities", "listBatchCapabilitiesAlias", "listBatches", "listBatchesAlias", "listBatchFiles", "listBatchFilesAlias", "listBatchModels", "listBatchModelsAlias", "listBatchRequests", "listBatchRequestsAlias", "listDataModels", "listDynamicRoutes", "listEndpoints", "listFiles", "listGuardrailKeys", "listGuardrailMembers", "listGuardrails", "listManagementKeys", "listModelEndpoints", "listModels", "listOAuthClients", "listObservabilityDestinations", "listOrganisations", "listPresets", "listPresetVersions", "listPricingModels", "listProviders", "listTeamModels", "listVideoModels", "listVideoModelsAlias", "listVideos", "listVideosAlias", "listWebhookEndpoints", "listWorkspaceAuditEvents", "listWorkspaceInvites", "listWorkspaceJoinRequests", "listWorkspaceMembers", "listWorkspaces", "openAsyncJobWebSocket", "publishPresetVersion", "regenerateOAuthClientSecret", "rejectWorkspaceJoinRequest", "removeGuardrailKeys", "removeGuardrailMembers", "removeWorkspaceMembers", "replaceDynamicRouteKeys", "replaceGuardrailKeys", "retrieveBatch", "retrieveBatchAlias", "retrieveBatchFile", "retrieveBatchFileAlias", "retrieveBatchFileContent", "retrieveBatchFileContentAlias", "retrieveFile", "retrieveFileContent", "rotateWebhookEndpointSecret", "updateApiKey", "updateDynamicRoute", "updateGuardrail", "updateManagementKey", "updateOAuthClient", "updateObservabilityDestination", "updateObservabilityLoggingPolicy", "updatePreset", "updatePresetPublisher", "updateWebhookEndpoint", "updateWorkspace", "updateWorkspaceMemberRole", "updateWorkspaceSettings", "uploadBatchFile", "uploadBatchFileAlias", "uploadFile"]

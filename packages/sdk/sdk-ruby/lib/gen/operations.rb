@@ -135,6 +135,12 @@ module Phaseo
         client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.createOAuthClient(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/oauth-clients"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.createObservabilityDestination(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/observability/destinations"
@@ -213,6 +219,12 @@ module Phaseo
         client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.createWebhookEndpoint(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/webhook-endpoints"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.createWorkspace(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/workspaces"
@@ -249,6 +261,12 @@ module Phaseo
         client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.deleteOAuthClient(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/oauth-clients/#{URI.encode_uri_component(path["client_id"].to_s)}"
+        client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.deleteObservabilityDestination(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/observability/destinations/#{URI.encode_uri_component(path["id"].to_s)}"
@@ -270,6 +288,12 @@ module Phaseo
       def self.deleteVideoAlias(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/video/generations/#{URI.encode_uri_component(path["video_id"].to_s)}"
+        client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.deleteWebhookEndpoint(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/webhook-endpoints/#{URI.encode_uri_component(path["id"].to_s)}"
         client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -387,6 +411,12 @@ module Phaseo
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.getOAuthClient(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/oauth-clients/#{URI.encode_uri_component(path["client_id"].to_s)}"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.getObservabilityDestination(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/observability/destinations/#{URI.encode_uri_component(path["id"].to_s)}"
@@ -438,6 +468,12 @@ module Phaseo
       def self.getVideoContentAlias(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/video/generations/#{URI.encode_uri_component(path["video_id"].to_s)}/content"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.getWebhookEndpoint(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/webhook-endpoints/#{URI.encode_uri_component(path["id"].to_s)}"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -579,6 +615,12 @@ module Phaseo
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.listOAuthClients(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/oauth-clients"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.listObservabilityDestinations(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/observability/destinations"
@@ -645,6 +687,12 @@ module Phaseo
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.listWebhookEndpoints(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/webhook-endpoints"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.listWorkspaceAuditEvents(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/audit-events"
@@ -684,6 +732,12 @@ module Phaseo
       def self.publishPresetVersion(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/presets/#{URI.encode_uri_component(path["id"].to_s)}/versions"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.regenerateOAuthClientSecret(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/oauth-clients/#{URI.encode_uri_component(path["client_id"].to_s)}/regenerate-secret"
         client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -771,6 +825,12 @@ module Phaseo
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.rotateWebhookEndpointSecret(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/webhook-endpoints/#{URI.encode_uri_component(path["id"].to_s)}/rotate-secret"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.updateApiKey(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/keys/#{URI.encode_uri_component(path["id"].to_s)}"
@@ -792,6 +852,12 @@ module Phaseo
       def self.updateManagementKey(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/management-keys/#{URI.encode_uri_component(path["id"].to_s)}"
+        client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.updateOAuthClient(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/oauth-clients/#{URI.encode_uri_component(path["client_id"].to_s)}"
         client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -817,6 +883,12 @@ module Phaseo
         path ||= {}
         resolved_path = "/presets/publisher"
         client.request(method: "PUT", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.updateWebhookEndpoint(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/webhook-endpoints/#{URI.encode_uri_component(path["id"].to_s)}"
+        client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
       end
 
       def self.updateWorkspace(client, path: nil, query: nil, headers: nil, body: nil)

@@ -1457,6 +1457,99 @@ public final class Models {
 		public Integer status_code;
 	}
 
+	public static class OAuthClient {
+		public Integer active_authorizations;
+		public java.util.List<String> allowed_scopes;
+		public String client_id;
+		public Object client_type;
+		public String created_at;
+		public String description;
+		public String homepage_url;
+		public String last_used_at;
+		public String logo_url;
+		public String name;
+		public String privacy_policy_url;
+		public java.util.List<String> redirect_uris;
+		public Integer requests_last_30d;
+		public String status;
+		public String terms_of_service_url;
+		public Integer total_authorizations;
+		public String updated_at;
+		public String workspace_id;
+	}
+
+	public static class OAuthClientCreateRequest {
+		public java.util.List<String> allowed_scopes;
+		public Object client_type;
+		public String description;
+		public String homepage_url;
+		public String logo_url;
+		public String name;
+		public String privacy_policy_url;
+		public java.util.List<String> redirect_uris;
+		public String terms_of_service_url;
+	}
+
+	public static class OAuthClientCreateResponse {
+		public Integer active_authorizations;
+		public java.util.List<String> allowed_scopes;
+		public String client_id;
+		public String client_secret;
+		public Object client_type;
+		public String created_at;
+		public String description;
+		public String homepage_url;
+		public String last_used_at;
+		public String logo_url;
+		public String name;
+		public String privacy_policy_url;
+		public java.util.List<String> redirect_uris;
+		public Integer requests_last_30d;
+		public String status;
+		public String terms_of_service_url;
+		public Integer total_authorizations;
+		public String updated_at;
+		public String workspace_id;
+	}
+
+	public static class OAuthClientDeleteResponse {
+		public String client_id;
+		public String message;
+	}
+
+	public static class OAuthClientInput {
+		public java.util.List<String> allowed_scopes;
+		public String description;
+		public String homepage_url;
+		public String logo_url;
+		public String name;
+		public String privacy_policy_url;
+		public java.util.List<String> redirect_uris;
+		public String terms_of_service_url;
+	}
+
+	public static class OAuthClientListResponse {
+		public java.util.List<Object> data;
+		public Object pagination;
+	}
+
+	public static class OAuthClientSecretResponse {
+		public String client_id;
+		public String client_secret;
+		public String message;
+	}
+
+	public static class OAuthClientUpdateRequest {
+		public java.util.List<String> allowed_scopes;
+		public String description;
+		public String homepage_url;
+		public String logo_url;
+		public String name;
+		public String privacy_policy_url;
+		public java.util.List<String> redirect_uris;
+		public String terms_of_service_url;
+	}
+
 	public static class ObservabilityDestination {
 		public Boolean configured;
 		public String created_at;
@@ -2151,6 +2244,65 @@ public final class Models {
 
 	public static class VideoOutputConfig {
 		public Object access;
+	}
+
+	public static class WebhookEndpoint {
+		public String createdAt;
+		public String createdBy;
+		public String deletedAt;
+		public java.util.List<String> events;
+		public Boolean hasSecret;
+		public String id;
+		public String name;
+		public Object status;
+		public String updatedAt;
+		public String url;
+		public String workspaceId;
+	}
+
+	public static class WebhookEndpointCreateRequest {
+		public java.util.List<String> events;
+		public String name;
+		public String url;
+	}
+
+	public static class WebhookEndpointDeleteResponse {
+		public Object deleted;
+		public String id;
+		public Object object;
+	}
+
+	public static class WebhookEndpointInput {
+		public java.util.List<String> events;
+		public String name;
+		public String url;
+	}
+
+	public static class WebhookEndpointListResponse {
+		public java.util.List<Object> data;
+		public Object object;
+	}
+
+	public static class WebhookEndpointSecretResponse {
+		public String createdAt;
+		public String createdBy;
+		public String deletedAt;
+		public java.util.List<String> events;
+		public Boolean hasSecret;
+		public String id;
+		public String name;
+		public String signing_secret;
+		public Object status;
+		public String updatedAt;
+		public String url;
+		public String workspaceId;
+	}
+
+	public static class WebhookEndpointUpdateRequest {
+		public java.util.List<String> events;
+		public String name;
+		public Object status;
+		public String url;
 	}
 
 	public static class Workspace {

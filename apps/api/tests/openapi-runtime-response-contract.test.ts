@@ -196,4 +196,14 @@ describe("OpenAPI Runtime Response Contract", () => {
 		expect(validateSchema(SPEC_DOC, schema, result.body)).toEqual([]);
 	});
 
+	it.each(["/oauth-clients", "/webhook-endpoints"])(
+		"matches %s unauthenticated responses to its public error schema",
+		async (pathName) => {
+			const result = await requestJson(`/v1${pathName}`, { method: "GET" });
+			expect(result.status).toBe(401);
+			const schema = schemaForResponse(pathName, "get", "default");
+			expect(validateSchema(SPEC_DOC, schema, result.body)).toEqual([]);
+		},
+	);
+
 });

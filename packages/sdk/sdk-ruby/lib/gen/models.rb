@@ -2083,6 +2083,152 @@ module Phaseo
     # @!attribute [rw] status_code
     #   @return [Integer]
     NotImplementedResponse = Struct.new(:description, :error, :status_code, keyword_init: true)
+    # @!attribute [rw] active_authorizations
+    #   @return [Integer, nil]
+    # @!attribute [rw] allowed_scopes
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] client_id
+    #   @return [String]
+    # @!attribute [rw] client_type
+    #   @return [String]
+    # @!attribute [rw] created_at
+    #   @return [String, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] homepage_url
+    #   @return [String, nil]
+    # @!attribute [rw] last_used_at
+    #   @return [String, nil]
+    # @!attribute [rw] logo_url
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] privacy_policy_url
+    #   @return [String, nil]
+    # @!attribute [rw] redirect_uris
+    #   @return [Array<String>]
+    # @!attribute [rw] requests_last_30d
+    #   @return [Integer, nil]
+    # @!attribute [rw] status
+    #   @return [String]
+    # @!attribute [rw] terms_of_service_url
+    #   @return [String, nil]
+    # @!attribute [rw] total_authorizations
+    #   @return [Integer, nil]
+    # @!attribute [rw] updated_at
+    #   @return [String, nil]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    OAuthClient = Struct.new(:active_authorizations, :allowed_scopes, :client_id, :client_type, :created_at, :description, :homepage_url, :last_used_at, :logo_url, :name, :privacy_policy_url, :redirect_uris, :requests_last_30d, :status, :terms_of_service_url, :total_authorizations, :updated_at, :workspace_id, keyword_init: true)
+    # @!attribute [rw] allowed_scopes
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] client_type
+    #   @return [String, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] homepage_url
+    #   @return [String, nil]
+    # @!attribute [rw] logo_url
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] privacy_policy_url
+    #   @return [String, nil]
+    # @!attribute [rw] redirect_uris
+    #   @return [Array<String>]
+    # @!attribute [rw] terms_of_service_url
+    #   @return [String, nil]
+    OAuthClientCreateRequest = Struct.new(:allowed_scopes, :client_type, :description, :homepage_url, :logo_url, :name, :privacy_policy_url, :redirect_uris, :terms_of_service_url, keyword_init: true)
+    # @!attribute [rw] active_authorizations
+    #   @return [Integer, nil]
+    # @!attribute [rw] allowed_scopes
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] client_id
+    #   @return [String]
+    # @!attribute [rw] client_secret
+    #   @return [String, nil]
+    # @!attribute [rw] client_type
+    #   @return [String]
+    # @!attribute [rw] created_at
+    #   @return [String, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] homepage_url
+    #   @return [String, nil]
+    # @!attribute [rw] last_used_at
+    #   @return [String, nil]
+    # @!attribute [rw] logo_url
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] privacy_policy_url
+    #   @return [String, nil]
+    # @!attribute [rw] redirect_uris
+    #   @return [Array<String>]
+    # @!attribute [rw] requests_last_30d
+    #   @return [Integer, nil]
+    # @!attribute [rw] status
+    #   @return [String]
+    # @!attribute [rw] terms_of_service_url
+    #   @return [String, nil]
+    # @!attribute [rw] total_authorizations
+    #   @return [Integer, nil]
+    # @!attribute [rw] updated_at
+    #   @return [String, nil]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    OAuthClientCreateResponse = Struct.new(:active_authorizations, :allowed_scopes, :client_id, :client_secret, :client_type, :created_at, :description, :homepage_url, :last_used_at, :logo_url, :name, :privacy_policy_url, :redirect_uris, :requests_last_30d, :status, :terms_of_service_url, :total_authorizations, :updated_at, :workspace_id, keyword_init: true)
+    # @!attribute [rw] client_id
+    #   @return [String]
+    # @!attribute [rw] message
+    #   @return [String]
+    OAuthClientDeleteResponse = Struct.new(:client_id, :message, keyword_init: true)
+    # @!attribute [rw] allowed_scopes
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] homepage_url
+    #   @return [String, nil]
+    # @!attribute [rw] logo_url
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] privacy_policy_url
+    #   @return [String, nil]
+    # @!attribute [rw] redirect_uris
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] terms_of_service_url
+    #   @return [String, nil]
+    OAuthClientInput = Struct.new(:allowed_scopes, :description, :homepage_url, :logo_url, :name, :privacy_policy_url, :redirect_uris, :terms_of_service_url, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] pagination
+    #   @return [Hash{String => Object}]
+    OAuthClientListResponse = Struct.new(:data, :pagination, keyword_init: true)
+    # @!attribute [rw] client_id
+    #   @return [String]
+    # @!attribute [rw] client_secret
+    #   @return [String]
+    # @!attribute [rw] message
+    #   @return [String]
+    OAuthClientSecretResponse = Struct.new(:client_id, :client_secret, :message, keyword_init: true)
+    # @!attribute [rw] allowed_scopes
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] homepage_url
+    #   @return [String, nil]
+    # @!attribute [rw] logo_url
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] privacy_policy_url
+    #   @return [String, nil]
+    # @!attribute [rw] redirect_uris
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] terms_of_service_url
+    #   @return [String, nil]
+    OAuthClientUpdateRequest = Struct.new(:allowed_scopes, :description, :homepage_url, :logo_url, :name, :privacy_policy_url, :redirect_uris, :terms_of_service_url, keyword_init: true)
     # @!attribute [rw] configured
     #   @return [Boolean]
     # @!attribute [rw] created_at
@@ -3055,6 +3201,89 @@ module Phaseo
     # @!attribute [rw] access
     #   @return [String, nil]
     VideoOutputConfig = Struct.new(:access, keyword_init: true)
+    # @!attribute [rw] createdAt
+    #   @return [String, nil]
+    # @!attribute [rw] createdBy
+    #   @return [String, nil]
+    # @!attribute [rw] deletedAt
+    #   @return [String, nil]
+    # @!attribute [rw] events
+    #   @return [Array<String>]
+    # @!attribute [rw] hasSecret
+    #   @return [Boolean]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] status
+    #   @return [String]
+    # @!attribute [rw] updatedAt
+    #   @return [String, nil]
+    # @!attribute [rw] url
+    #   @return [String]
+    # @!attribute [rw] workspaceId
+    #   @return [String]
+    WebhookEndpoint = Struct.new(:createdAt, :createdBy, :deletedAt, :events, :hasSecret, :id, :name, :status, :updatedAt, :url, :workspaceId, keyword_init: true)
+    # @!attribute [rw] events
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] url
+    #   @return [String]
+    WebhookEndpointCreateRequest = Struct.new(:events, :name, :url, keyword_init: true)
+    # @!attribute [rw] deleted
+    #   @return [String]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] object
+    #   @return [String]
+    WebhookEndpointDeleteResponse = Struct.new(:deleted, :id, :object, keyword_init: true)
+    # @!attribute [rw] events
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] url
+    #   @return [String, nil]
+    WebhookEndpointInput = Struct.new(:events, :name, :url, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] object
+    #   @return [String]
+    WebhookEndpointListResponse = Struct.new(:data, :object, keyword_init: true)
+    # @!attribute [rw] createdAt
+    #   @return [String, nil]
+    # @!attribute [rw] createdBy
+    #   @return [String, nil]
+    # @!attribute [rw] deletedAt
+    #   @return [String, nil]
+    # @!attribute [rw] events
+    #   @return [Array<String>]
+    # @!attribute [rw] hasSecret
+    #   @return [Boolean]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] signing_secret
+    #   @return [String]
+    # @!attribute [rw] status
+    #   @return [String]
+    # @!attribute [rw] updatedAt
+    #   @return [String, nil]
+    # @!attribute [rw] url
+    #   @return [String]
+    # @!attribute [rw] workspaceId
+    #   @return [String]
+    WebhookEndpointSecretResponse = Struct.new(:createdAt, :createdBy, :deletedAt, :events, :hasSecret, :id, :name, :signing_secret, :status, :updatedAt, :url, :workspaceId, keyword_init: true)
+    # @!attribute [rw] events
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] status
+    #   @return [String, nil]
+    # @!attribute [rw] url
+    #   @return [String, nil]
+    WebhookEndpointUpdateRequest = Struct.new(:events, :name, :status, :url, keyword_init: true)
     # @!attribute [rw] created_at
     #   @return [String, nil]
     # @!attribute [rw] created_by

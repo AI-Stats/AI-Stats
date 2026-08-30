@@ -2723,6 +2723,99 @@ type NotImplementedResponse struct {
 	StatusCode int `json:"status_code"`
 }
 
+type OAuthClient struct {
+	ActiveAuthorizations *int `json:"active_authorizations,omitempty"`
+	AllowedScopes *[]string `json:"allowed_scopes,omitempty"`
+	ClientId string `json:"client_id"`
+	ClientType string `json:"client_type"`
+	CreatedAt *string `json:"created_at,omitempty"`
+	Description *string `json:"description,omitempty"`
+	HomepageUrl *string `json:"homepage_url,omitempty"`
+	LastUsedAt *string `json:"last_used_at,omitempty"`
+	LogoUrl *string `json:"logo_url,omitempty"`
+	Name string `json:"name"`
+	PrivacyPolicyUrl *string `json:"privacy_policy_url,omitempty"`
+	RedirectUris []string `json:"redirect_uris"`
+	RequestsLast30d *int `json:"requests_last_30d,omitempty"`
+	Status string `json:"status"`
+	TermsOfServiceUrl *string `json:"terms_of_service_url,omitempty"`
+	TotalAuthorizations *int `json:"total_authorizations,omitempty"`
+	UpdatedAt *string `json:"updated_at,omitempty"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type OAuthClientCreateRequest struct {
+	AllowedScopes *[]string `json:"allowed_scopes,omitempty"`
+	ClientType *string `json:"client_type,omitempty"`
+	Description *string `json:"description,omitempty"`
+	HomepageUrl *string `json:"homepage_url,omitempty"`
+	LogoUrl *string `json:"logo_url,omitempty"`
+	Name string `json:"name"`
+	PrivacyPolicyUrl *string `json:"privacy_policy_url,omitempty"`
+	RedirectUris []string `json:"redirect_uris"`
+	TermsOfServiceUrl *string `json:"terms_of_service_url,omitempty"`
+}
+
+type OAuthClientCreateResponse struct {
+	ActiveAuthorizations *int `json:"active_authorizations,omitempty"`
+	AllowedScopes *[]string `json:"allowed_scopes,omitempty"`
+	ClientId string `json:"client_id"`
+	ClientSecret *string `json:"client_secret,omitempty"`
+	ClientType string `json:"client_type"`
+	CreatedAt *string `json:"created_at,omitempty"`
+	Description *string `json:"description,omitempty"`
+	HomepageUrl *string `json:"homepage_url,omitempty"`
+	LastUsedAt *string `json:"last_used_at,omitempty"`
+	LogoUrl *string `json:"logo_url,omitempty"`
+	Name string `json:"name"`
+	PrivacyPolicyUrl *string `json:"privacy_policy_url,omitempty"`
+	RedirectUris []string `json:"redirect_uris"`
+	RequestsLast30d *int `json:"requests_last_30d,omitempty"`
+	Status string `json:"status"`
+	TermsOfServiceUrl *string `json:"terms_of_service_url,omitempty"`
+	TotalAuthorizations *int `json:"total_authorizations,omitempty"`
+	UpdatedAt *string `json:"updated_at,omitempty"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type OAuthClientDeleteResponse struct {
+	ClientId string `json:"client_id"`
+	Message string `json:"message"`
+}
+
+type OAuthClientInput struct {
+	AllowedScopes *[]string `json:"allowed_scopes,omitempty"`
+	Description *string `json:"description,omitempty"`
+	HomepageUrl *string `json:"homepage_url,omitempty"`
+	LogoUrl *string `json:"logo_url,omitempty"`
+	Name *string `json:"name,omitempty"`
+	PrivacyPolicyUrl *string `json:"privacy_policy_url,omitempty"`
+	RedirectUris *[]string `json:"redirect_uris,omitempty"`
+	TermsOfServiceUrl *string `json:"terms_of_service_url,omitempty"`
+}
+
+type OAuthClientListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+	Pagination map[string]interface{} `json:"pagination"`
+}
+
+type OAuthClientSecretResponse struct {
+	ClientId string `json:"client_id"`
+	ClientSecret string `json:"client_secret"`
+	Message string `json:"message"`
+}
+
+type OAuthClientUpdateRequest struct {
+	AllowedScopes *[]string `json:"allowed_scopes,omitempty"`
+	Description *string `json:"description,omitempty"`
+	HomepageUrl *string `json:"homepage_url,omitempty"`
+	LogoUrl *string `json:"logo_url,omitempty"`
+	Name *string `json:"name,omitempty"`
+	PrivacyPolicyUrl *string `json:"privacy_policy_url,omitempty"`
+	RedirectUris *[]string `json:"redirect_uris,omitempty"`
+	TermsOfServiceUrl *string `json:"terms_of_service_url,omitempty"`
+}
+
 type ObservabilityDestination struct {
 	Configured bool `json:"configured"`
 	CreatedAt *string `json:"created_at,omitempty"`
@@ -3495,6 +3588,65 @@ type VideoOutput struct {
 
 type VideoOutputConfig struct {
 	Access *string `json:"access,omitempty"`
+}
+
+type WebhookEndpoint struct {
+	CreatedAt *string `json:"createdAt,omitempty"`
+	CreatedBy *string `json:"createdBy,omitempty"`
+	DeletedAt *string `json:"deletedAt,omitempty"`
+	Events []string `json:"events"`
+	HasSecret bool `json:"hasSecret"`
+	Id string `json:"id"`
+	Name string `json:"name"`
+	Status string `json:"status"`
+	UpdatedAt *string `json:"updatedAt,omitempty"`
+	Url string `json:"url"`
+	WorkspaceId string `json:"workspaceId"`
+}
+
+type WebhookEndpointCreateRequest struct {
+	Events *[]string `json:"events,omitempty"`
+	Name *string `json:"name,omitempty"`
+	Url string `json:"url"`
+}
+
+type WebhookEndpointDeleteResponse struct {
+	Deleted string `json:"deleted"`
+	Id string `json:"id"`
+	Object string `json:"object"`
+}
+
+type WebhookEndpointInput struct {
+	Events *[]string `json:"events,omitempty"`
+	Name *string `json:"name,omitempty"`
+	Url *string `json:"url,omitempty"`
+}
+
+type WebhookEndpointListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+	Object string `json:"object"`
+}
+
+type WebhookEndpointSecretResponse struct {
+	CreatedAt *string `json:"createdAt,omitempty"`
+	CreatedBy *string `json:"createdBy,omitempty"`
+	DeletedAt *string `json:"deletedAt,omitempty"`
+	Events []string `json:"events"`
+	HasSecret bool `json:"hasSecret"`
+	Id string `json:"id"`
+	Name string `json:"name"`
+	SigningSecret string `json:"signing_secret"`
+	Status string `json:"status"`
+	UpdatedAt *string `json:"updatedAt,omitempty"`
+	Url string `json:"url"`
+	WorkspaceId string `json:"workspaceId"`
+}
+
+type WebhookEndpointUpdateRequest struct {
+	Events *[]string `json:"events,omitempty"`
+	Name *string `json:"name,omitempty"`
+	Status *string `json:"status,omitempty"`
+	Url *string `json:"url,omitempty"`
 }
 
 type Workspace struct {
