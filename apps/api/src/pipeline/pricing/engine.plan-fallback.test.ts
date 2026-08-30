@@ -119,11 +119,11 @@ describe("pricing engine non-standard plan fallback", () => {
 		expect(result.cost_usd_str).toBe("9.900000000");
 	});
 
-	it("does not bill an unmatched rule when no requested or standard plan condition applies", () => {
+	it("bills an unmatched interactive tier rule at its configured rate", () => {
 		const card = makeCard([
 			{
-				id: "batch-high-quality-image",
-				pricing_plan: "batch",
+				id: "priority-high-quality-image",
+				pricing_plan: "priority",
 				meter: "output_image",
 				unit: "image",
 				unit_size: 1,
@@ -138,10 +138,49 @@ describe("pricing engine non-standard plan fallback", () => {
 			{ output_image: 1 },
 			card,
 			{ image_params: { quality: "low" } },
-			"batch",
+			"priority",
 		);
 
-		expect(result.lines).toEqual([]);
-		expect(result.cost_usd_str).toBe("0.000000000");
+		expect(result.lines).toHaveLength(1);
+		expect(result.lines[0]?.rule_id).toBe("priority-high-quality-image");
+		expect(result.cost_usd_str).toBe("0.250000000");
+	});
+
+	it("bills an unmatched standard-only meter on an interactive tier", () => {
+		const card = makeCard([
+			{
+				id: "flex-input",
+				pricing_plan: "flex",
+				meter: "input_text_tokens",
+				unit: "token",
+				unit_size: 1_000_000,
+				price_per_unit: "0.5",
+				currency: "USD",
+				match: [],
+				priority: 100,
+			},
+			{
+				id: "standard-cache-read",
+				pricing_plan: "standard",
+				meter: "cached_read_text_tokens",
+				unit: "token",
+				unit_size: 1_000_000,
+				price_per_unit: "0.2",
+				currency: "USD",
+				match: [{ path: "provider_model_slug", op: "eq", value: "expected-model" }],
+				priority: 100,
+			},
+		]);
+
+		const result = computeBillSummary(
+			{ cached_read_text_tokens: 1_000_000 },
+			card,
+			{},
+			"flex",
+		);
+
+		expect(result.lines).toHaveLength(1);
+		expect(result.lines[0]?.rule_id).toBe("standard-cache-read");
+		expect(result.cost_usd_str).toBe("0.200000000");
 	});
 });

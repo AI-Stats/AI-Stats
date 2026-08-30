@@ -207,6 +207,33 @@ describe("after/pricing calculatePricing", () => {
 		expect(result.pricedUsage?.pricing?.lines?.[0]?.unit_price_usd).toBe("0.600000000");
 	});
 
+	it("conservatively bills a standard-only meter when interactive tier conditions miss", () => {
+		const card: PriceCard = {
+			...TTS_CARD,
+			rules: [
+				{
+					...TTS_CARD.rules[0],
+					pricing_plan: "flex",
+				},
+				{
+					...TTS_CARD.rules[0],
+					meter: "cached_read_text_tokens",
+					match: [{ path: "provider_model_slug", op: "eq", value: "expected-model" }],
+				},
+			],
+		};
+
+		const result = calculatePricing(
+			{ cached_read_text_tokens: 1_000 },
+			card,
+			{ service_tier: "flex" },
+		);
+
+		expect(result.totalNanos).toBe(600_000);
+		expect(result.pricedUsage?.pricing?.lines?.[0]?.dimension).toBe("cached_read_text_tokens");
+		expect(result.pricedUsage?.pricing?.lines?.[0]?.unit_price_usd).toBe("0.600000000");
+	});
+
 	it("infers image pricing qualifiers from output tokens when the request used auto defaults", () => {
 		const result = calculatePricing(
 			{
