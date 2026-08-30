@@ -30,11 +30,6 @@ pub fn cancelVideoAlias<T: Transport>(client: &Client<T>, path: &HashMap<String,
 	client.request("POST", &resolved_path, body)
 }
 
-pub fn connectRealtimeSessionRelay<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
-	let resolved_path = format!("/audio/realtime/sessions/{}/relay", path.get("session_id").cloned().unwrap_or_default());
-	client.request("GET", &resolved_path, body)
-}
-
 pub fn createAnthropicMessage<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/messages");
 	client.request("POST", &resolved_path, body)
@@ -372,11 +367,6 @@ pub fn listVideosAlias<T: Transport>(client: &Client<T>, path: &HashMap<String, 
 
 pub fn listWorkspaces<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/workspaces");
-	client.request("GET", &resolved_path, body)
-}
-
-pub fn openAsyncJobWebSocket<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
-	let resolved_path = format!("/async/{}/{}/ws", path.get("kind").cloned().unwrap_or_default(), path.get("id").cloned().unwrap_or_default());
 	client.request("GET", &resolved_path, body)
 }
 

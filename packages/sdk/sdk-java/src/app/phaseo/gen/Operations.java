@@ -31,11 +31,6 @@ public final class Operations {
 		return client.request("POST", resolvedPath, query, headers, body);
 	}
 
-	public static Object connectRealtimeSessionRelay(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
-		String resolvedPath = "/audio/realtime/sessions/" + (path != null && path.containsKey("session_id") ? path.get("session_id") : "") + "/relay";
-		return client.request("GET", resolvedPath, query, headers, body);
-	}
-
 	public static Object createAnthropicMessage(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/messages";
 		return client.request("POST", resolvedPath, query, headers, body);
@@ -373,11 +368,6 @@ public final class Operations {
 
 	public static Object listWorkspaces(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/workspaces";
-		return client.request("GET", resolvedPath, query, headers, body);
-	}
-
-	public static Object openAsyncJobWebSocket(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
-		String resolvedPath = "/async/" + (path != null && path.containsKey("kind") ? path.get("kind") : "") + "/" + (path != null && path.containsKey("id") ? path.get("id") : "") + "/ws";
 		return client.request("GET", resolvedPath, query, headers, body);
 	}
 

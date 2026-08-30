@@ -38,13 +38,6 @@ function cancelVideoAlias(Client $client, ?array $path = null, ?array $query = n
 	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
-function connectRealtimeSessionRelay(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
-{
-	$path = $path ?? [];
-	$resolvedPath = "/audio/realtime/sessions/" . rawurlencode((string)($path["session_id"] ?? "")) . "/relay";
-	return $client->request("GET", $resolvedPath, $query, $headers, $body);
-}
-
 function createAnthropicMessage(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -518,13 +511,6 @@ function listWorkspaces(Client $client, ?array $path = null, ?array $query = nul
 {
 	$path = $path ?? [];
 	$resolvedPath = "/workspaces";
-	return $client->request("GET", $resolvedPath, $query, $headers, $body);
-}
-
-function openAsyncJobWebSocket(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
-{
-	$path = $path ?? [];
-	$resolvedPath = "/async/" . rawurlencode((string)($path["kind"] ?? "")) . "/" . rawurlencode((string)($path["id"] ?? "")) . "/ws";
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 

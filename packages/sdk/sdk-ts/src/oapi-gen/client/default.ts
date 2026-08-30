@@ -590,33 +590,6 @@ export async function cancelVideoAlias(
   });
 }
 
-export type ConnectRealtimeSessionRelayParams = {
-  path?: {
-    session_id: string;
-  };
-  query?: Record<string, never>;
-  headers?: Record<string, never>;
-  body?: never;
-};
-
-/**
- * Upgrades to a WebSocket relay using the session relay secret as a subprotocol.
- */
-export async function connectRealtimeSessionRelay(
-  client: Client,
-  args: ConnectRealtimeSessionRelayParams = {},
-): Promise<unknown> {
-  const { path, query, headers, body } = args;
-  const resolvedPath = `/audio/realtime/sessions/${encodeURIComponent(String(path?.["session_id"]))}/relay`;
-  return client.request<unknown>({
-    method: "GET",
-    path: resolvedPath,
-    query,
-    headers,
-    body,
-  });
-}
-
 export type CreateAnthropicMessageParams = {
   path?: Record<string, never>;
   query?: Record<string, never>;
@@ -9814,40 +9787,6 @@ export async function listWorkspaces(
     }[];
     total_count: number;
   }>({
-    method: "GET",
-    path: resolvedPath,
-    query,
-    headers,
-    body,
-  });
-}
-
-export type OpenAsyncJobWebSocketParams = {
-  path?: {
-    id: string;
-    kind: "batch" | "video";
-  };
-  query?: {
-    close_on_terminal?: boolean;
-    interval_ms?: number;
-  };
-  headers?: Record<string, never>;
-  body?: never;
-};
-
-/**
- * Opens a persistent websocket session for owned async batch or video job updates.
- * WebSocket handshake uses HTTP GET upgrade semantics and returns `101 Switching Protocols` on success (not `200`). The socket emits a `job.snapshot` immediately after upgrade and subsequent `job.updated` envelopes when the normalized async job payload changes.
- * If `close_on_terminal` is enabled, the gateway closes the socket after a terminal `completed`, `failed`, `cancelled`, or `expired` update.
- *
- */
-export async function openAsyncJobWebSocket(
-  client: Client,
-  args: OpenAsyncJobWebSocketParams = {},
-): Promise<unknown> {
-  const { path, query, headers, body } = args;
-  const resolvedPath = `/async/${encodeURIComponent(String(path?.["kind"]))}/${encodeURIComponent(String(path?.["id"]))}/ws`;
-  return client.request<unknown>({
     method: "GET",
     path: resolvedPath,
     query,

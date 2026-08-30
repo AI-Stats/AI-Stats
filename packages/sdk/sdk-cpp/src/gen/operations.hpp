@@ -29,11 +29,6 @@ inline Response CancelVideoAlias(Client& client, const std::map<std::string, std
 	return client.request("POST", resolved_path, body);
 }
 
-inline Response ConnectRealtimeSessionRelay(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
-	const std::string resolved_path = "/audio/realtime/sessions/" + (path.count("session_id") ? path.at("session_id") : std::string{}) + "/relay";
-	return client.request("GET", resolved_path, body);
-}
-
 inline Response CreateAnthropicMessage(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/messages";
 	return client.request("POST", resolved_path, body);
@@ -371,11 +366,6 @@ inline Response ListVideosAlias(Client& client, const std::map<std::string, std:
 
 inline Response ListWorkspaces(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/workspaces";
-	return client.request("GET", resolved_path, body);
-}
-
-inline Response OpenAsyncJobWebSocket(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
-	const std::string resolved_path = "/async/" + (path.count("kind") ? path.at("kind") : std::string{}) + "/" + (path.count("id") ? path.at("id") : std::string{}) + "/ws";
 	return client.request("GET", resolved_path, body);
 }
 

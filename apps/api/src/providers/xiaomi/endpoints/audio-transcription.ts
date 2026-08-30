@@ -43,6 +43,18 @@ function invalidParameterResponse(param: string, message: string): Response {
 	});
 }
 
+function insecureEndpointResponse(): Response {
+	return new Response(JSON.stringify({
+		error: {
+			type: "configuration_error",
+			message: "Xiaomi speech recognition requires an HTTPS upstream endpoint.",
+		},
+	}), {
+		status: 500,
+		headers: { "Content-Type": "application/json" },
+	});
+}
+
 function emptyBill() {
 	return {
 		cost_cents: 0,
@@ -163,8 +175,33 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
 		}],
 		...(body.language ? { asr_options: { language: body.language.toLowerCase() } } : {}),
 	};
+	const upstreamUrl = openAICompatUrl(args.providerId, "/chat/completions");
+	try {
+		const parsedUpstreamUrl = new URL(upstreamUrl);
+		const isLoopback = parsedUpstreamUrl.hostname === "localhost" ||
+			parsedUpstreamUrl.hostname === "127.0.0.1" ||
+			parsedUpstreamUrl.hostname === "[::1]";
+		if (parsedUpstreamUrl.protocol !== "https:" && !isLoopback) {
+			return {
+				kind: "completed",
+				upstream: insecureEndpointResponse(),
+				bill: emptyBill(),
+				keySource: keyInfo.source,
+				byokKeyId: keyInfo.byokId,
+			};
+		}
+	} catch {
+		return {
+			kind: "completed",
+			upstream: insecureEndpointResponse(),
+			bill: emptyBill(),
+			keySource: keyInfo.source,
+			byokKeyId: keyInfo.byokId,
+		};
+	}
+
 	const res = await (args.upstreamTiming?.fetch ?? fetch)(
-		openAICompatUrl(args.providerId, "/chat/completions"),
+		upstreamUrl,
 		{
 			method: "POST",
 			headers: openAICompatHeaders(args.providerId, keyInfo.key, upstreamTestHeaders(args.meta)),

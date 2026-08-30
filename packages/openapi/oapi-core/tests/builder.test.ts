@@ -70,6 +70,12 @@ test("buildIR excludes internal paths and operations", () => {
 					responses: { "200": { description: "ok" } }
 				} as OpenAPIV3.OperationObject
 			},
+			"/websocket": {
+				get: {
+					operationId: "openWebSocket",
+					responses: { "101": { description: "switching protocols" } }
+				}
+			},
 			"/internal": {
 				"x-internal": true,
 				get: {

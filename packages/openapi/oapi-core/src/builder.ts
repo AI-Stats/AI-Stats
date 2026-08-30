@@ -76,7 +76,11 @@ function buildOperations(
 		const sharedParameters = (item.parameters ?? []) as OpenAPIV3.ParameterObject[];
 		for (const method of ["get", "post", "put", "patch", "delete"] as const) {
 			const operation = item[method];
-			if (!operation || (operation as Record<string, unknown>)["x-internal"] === true) {
+			if (
+				!operation ||
+				(operation as Record<string, unknown>)["x-internal"] === true ||
+				Object.prototype.hasOwnProperty.call(operation.responses ?? {}, "101")
+			) {
 				continue;
 			}
 			const rawOperationId =

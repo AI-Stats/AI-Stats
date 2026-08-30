@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { setupTestRuntime, teardownTestRuntime } from "../../../../tests/helpers/runtime";
+import { setupRuntimeFromEnv, setupTestRuntime, teardownTestRuntime } from "../../../../tests/helpers/runtime";
 import { installFetchMock, jsonResponse } from "../../../../tests/helpers/mock-fetch";
 import { exec } from "../endpoints/audio-transcription";
 
@@ -120,5 +120,46 @@ describe("Xiaomi audio.transcription endpoint", () => {
 
 		expect(result.upstream.status).toBe(400);
 		expect(await result.upstream.json()).toMatchObject({ error: { param: parameter } });
+	});
+
+	it("rejects an insecure upstream before sending credentials", async () => {
+		teardownTestRuntime();
+		setupRuntimeFromEnv({
+			XIAOMI_MIMO_API_KEY: "sensitive-test-key",
+			XIAOMI_MIMO_BASE_URL: "http://xiaomi.example",
+		});
+		let fetchCalled = false;
+
+		try {
+			const result = await exec({
+				endpoint: "audio.transcription",
+				body: {
+					model: "xiaomi/mimo-v2.5-asr",
+					file: new File([new Uint8Array([1])], "sample.wav", { type: "audio/wav" }),
+				},
+				meta: {},
+				workspaceId: "team_test",
+				providerId: "xiaomi",
+				byokMeta: [],
+				pricingCard: null,
+				providerModelSlug: "mimo-v2.5-asr",
+				stream: false,
+				upstreamTiming: {
+					fetch: async () => {
+						fetchCalled = true;
+						throw new Error("insecure upstream must not be called");
+					},
+				},
+			} as any);
+
+			expect(result.upstream.status).toBe(500);
+			expect(fetchCalled).toBe(false);
+			expect(await result.upstream.json()).toMatchObject({
+				error: { type: "configuration_error" },
+			});
+		} finally {
+			teardownTestRuntime();
+			setupTestRuntime();
+		}
 	});
 });
