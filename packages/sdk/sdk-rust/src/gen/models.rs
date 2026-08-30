@@ -548,6 +548,119 @@ pub struct DeletedResponse {
 	pub deleted: String,
 }
 
+pub struct DynamicRoute {
+	pub config: HashMap<String, String>,
+	pub created_at: Option<Option<String>>,
+	pub deployed_version: Option<Option<i64>>,
+	pub description: Option<Option<String>>,
+	pub id: String,
+	pub key_ids: Vec<String>,
+	pub name: String,
+	pub slug: String,
+	pub status: String,
+	pub updated_at: Option<Option<String>>,
+	pub version: i64,
+	pub versions: Vec<HashMap<String, String>>,
+	pub workspace_id: String,
+}
+
+pub struct DynamicRouteAction {
+	pub allowFallbacks: Option<bool>,
+	pub model: Option<String>,
+	pub modelFallbacks: Option<Vec<String>>,
+	pub providerIgnore: Option<Vec<String>>,
+	pub providerOnly: Option<Vec<String>>,
+	pub providerOrder: Option<Vec<String>>,
+	pub routingMode: Option<String>,
+}
+
+pub struct DynamicRouteCondition {
+	pub field: String,
+	pub metadataKey: Option<Option<String>>,
+	pub operator: String,
+	pub value: Option<Option<String>>,
+}
+
+pub struct DynamicRouteConfig {
+	pub cacheAwareRouting: Option<bool>,
+	pub defaultAction: Option<HashMap<String, String>>,
+	pub edges: Option<Vec<HashMap<String, String>>>,
+	pub entryNodeId: Option<Option<String>>,
+	pub nodes: Option<Vec<HashMap<String, String>>>,
+	pub rules: Option<Vec<HashMap<String, String>>>,
+	pub schemaVersion: Option<String>,
+	pub sessionAffinity: Option<bool>,
+}
+
+pub struct DynamicRouteCreateRequest {
+	pub config: HashMap<String, String>,
+	pub description: Option<Option<String>>,
+	pub name: String,
+	pub slug: Option<String>,
+	pub status: Option<String>,
+}
+
+pub struct DynamicRouteDeleteResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub struct DynamicRouteDeployResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub struct DynamicRouteEdge {
+	pub id: String,
+	pub source: String,
+	pub sourceHandle: Option<Option<String>>,
+	pub target: String,
+}
+
+pub struct DynamicRouteKeysResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub struct DynamicRouteKeysUpdateRequest {
+	pub key_ids: Vec<String>,
+}
+
+pub struct DynamicRouteListResponse {
+	pub data: Vec<HashMap<String, String>>,
+	pub total_count: i64,
+}
+
+pub struct DynamicRouteNode {
+	pub data: HashMap<String, String>,
+	pub id: String,
+	pub position: Option<Option<HashMap<String, String>>>,
+	pub r#type: String,
+}
+
+pub struct DynamicRouteResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub struct DynamicRouteRule {
+	pub action: HashMap<String, String>,
+	pub condition: HashMap<String, String>,
+	pub enabled: bool,
+	pub id: String,
+	pub name: String,
+}
+
+pub struct DynamicRouteUpdateRequest {
+	pub config: Option<HashMap<String, String>>,
+	pub description: Option<Option<String>>,
+	pub name: Option<String>,
+	pub status: Option<String>,
+}
+
+pub struct DynamicRouteVersion {
+	pub created_at: Option<Option<String>>,
+	pub created_by: Option<Option<String>>,
+	pub status: String,
+	pub version: i64,
+}
+
 pub struct Embedding {
 	pub embedding: Option<Vec<f64>>,
 	pub index: Option<i64>,
@@ -1841,11 +1954,61 @@ pub struct WorkspaceMemberRoleUpdateRequest {
 	pub role: String,
 }
 
+pub type WorkspaceProviderRestrictionMode = JsonValue;
+
 pub struct WorkspaceResponse {
 	pub data: HashMap<String, String>,
 }
 
 pub type WorkspaceRole = JsonValue;
+
+pub type WorkspaceRoutingMode = JsonValue;
+
+pub struct WorkspaceSettings {
+	pub alpha_channel_enabled: Option<Option<bool>>,
+	pub beta_channel_enabled: Option<Option<bool>>,
+	pub byok_fallback_enabled: Option<Option<bool>>,
+	pub io_logging_enabled: Option<Option<bool>>,
+	pub io_logging_include_provider_payloads: Option<Option<bool>>,
+	pub privacy_enable_free_may_publish_prompts: Option<Option<bool>>,
+	pub privacy_enable_free_may_train: Option<Option<bool>>,
+	pub privacy_enable_input_output_logging: Option<Option<bool>>,
+	pub privacy_enable_paid_may_train: Option<Option<bool>>,
+	pub privacy_zdr_only: Option<Option<bool>>,
+	pub provider_restriction_enforce_allowed: Option<Option<bool>>,
+	pub provider_restriction_mode: Option<Option<String>>,
+	pub provider_restriction_provider_ids: Option<Option<Vec<String>>>,
+	pub response_healing_enabled: Option<Option<bool>>,
+	pub response_healing_locked: Option<Option<bool>>,
+	pub response_healing_mode: Option<Option<String>>,
+	pub routing_mode: Option<Option<String>>,
+	pub updated_at: Option<Option<String>>,
+	pub workspace_id: String,
+}
+
+pub struct WorkspaceSettingsResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub struct WorkspaceSettingsUpdateRequest {
+	pub alpha_channel_enabled: Option<bool>,
+	pub beta_channel_enabled: Option<bool>,
+	pub byok_fallback_enabled: Option<bool>,
+	pub io_logging_enabled: Option<bool>,
+	pub io_logging_include_provider_payloads: Option<bool>,
+	pub privacy_enable_free_may_publish_prompts: Option<bool>,
+	pub privacy_enable_free_may_train: Option<bool>,
+	pub privacy_enable_input_output_logging: Option<bool>,
+	pub privacy_enable_paid_may_train: Option<bool>,
+	pub privacy_zdr_only: Option<bool>,
+	pub provider_restriction_enforce_allowed: Option<bool>,
+	pub provider_restriction_mode: Option<String>,
+	pub provider_restriction_provider_ids: Option<Vec<String>>,
+	pub response_healing_enabled: Option<bool>,
+	pub response_healing_locked: Option<bool>,
+	pub response_healing_mode: Option<String>,
+	pub routing_mode: Option<String>,
+}
 
 pub struct WorkspaceUpdateRequest {
 	pub name: Option<String>,

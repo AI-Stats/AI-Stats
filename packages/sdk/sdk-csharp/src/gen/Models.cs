@@ -1375,6 +1375,265 @@ public sealed class DeletedResponse
 
 }
 
+public sealed class DynamicRoute
+{
+	[JsonPropertyName("config")]
+	public Dictionary<string, object> Config { get; set; }
+
+	[JsonPropertyName("created_at")]
+	public string? CreatedAt { get; set; }
+
+	[JsonPropertyName("deployed_version")]
+	public int? DeployedVersion { get; set; }
+
+	[JsonPropertyName("description")]
+	public string? Description { get; set; }
+
+	[JsonPropertyName("id")]
+	public string Id { get; set; }
+
+	[JsonPropertyName("key_ids")]
+	public List<string> KeyIds { get; set; }
+
+	[JsonPropertyName("name")]
+	public string Name { get; set; }
+
+	[JsonPropertyName("slug")]
+	public string Slug { get; set; }
+
+	[JsonPropertyName("status")]
+	public string Status { get; set; }
+
+	[JsonPropertyName("updated_at")]
+	public string? UpdatedAt { get; set; }
+
+	[JsonPropertyName("version")]
+	public int Version { get; set; }
+
+	[JsonPropertyName("versions")]
+	public List<Dictionary<string, object>> Versions { get; set; }
+
+	[JsonPropertyName("workspace_id")]
+	public string WorkspaceId { get; set; }
+
+}
+
+public sealed class DynamicRouteAction
+{
+	[JsonPropertyName("allowFallbacks")]
+	public bool? AllowFallbacks { get; set; }
+
+	[JsonPropertyName("model")]
+	public string? Model { get; set; }
+
+	[JsonPropertyName("modelFallbacks")]
+	public List<string>? ModelFallbacks { get; set; }
+
+	[JsonPropertyName("providerIgnore")]
+	public List<string>? ProviderIgnore { get; set; }
+
+	[JsonPropertyName("providerOnly")]
+	public List<string>? ProviderOnly { get; set; }
+
+	[JsonPropertyName("providerOrder")]
+	public List<string>? ProviderOrder { get; set; }
+
+	[JsonPropertyName("routingMode")]
+	public string? RoutingMode { get; set; }
+
+}
+
+public sealed class DynamicRouteCondition
+{
+	[JsonPropertyName("field")]
+	public string Field { get; set; }
+
+	[JsonPropertyName("metadataKey")]
+	public string? MetadataKey { get; set; }
+
+	[JsonPropertyName("operator")]
+	public string Operator { get; set; }
+
+	[JsonPropertyName("value")]
+	public string? Value { get; set; }
+
+}
+
+public sealed class DynamicRouteConfig
+{
+	[JsonPropertyName("cacheAwareRouting")]
+	public bool? CacheAwareRouting { get; set; }
+
+	[JsonPropertyName("defaultAction")]
+	public Dictionary<string, object>? DefaultAction { get; set; }
+
+	[JsonPropertyName("edges")]
+	public List<Dictionary<string, object>>? Edges { get; set; }
+
+	[JsonPropertyName("entryNodeId")]
+	public string? EntryNodeId { get; set; }
+
+	[JsonPropertyName("nodes")]
+	public List<Dictionary<string, object>>? Nodes { get; set; }
+
+	[JsonPropertyName("rules")]
+	public List<Dictionary<string, object>>? Rules { get; set; }
+
+	[JsonPropertyName("schemaVersion")]
+	public string? SchemaVersion { get; set; }
+
+	[JsonPropertyName("sessionAffinity")]
+	public bool? SessionAffinity { get; set; }
+
+}
+
+public sealed class DynamicRouteCreateRequest
+{
+	[JsonPropertyName("config")]
+	public Dictionary<string, object> Config { get; set; }
+
+	[JsonPropertyName("description")]
+	public string? Description { get; set; }
+
+	[JsonPropertyName("name")]
+	public string Name { get; set; }
+
+	[JsonPropertyName("slug")]
+	public string? Slug { get; set; }
+
+	[JsonPropertyName("status")]
+	public string? Status { get; set; }
+
+}
+
+public sealed class DynamicRouteDeleteResponse
+{
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
+
+}
+
+public sealed class DynamicRouteDeployResponse
+{
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
+
+}
+
+public sealed class DynamicRouteEdge
+{
+	[JsonPropertyName("id")]
+	public string Id { get; set; }
+
+	[JsonPropertyName("source")]
+	public string Source { get; set; }
+
+	[JsonPropertyName("sourceHandle")]
+	public string? SourceHandle { get; set; }
+
+	[JsonPropertyName("target")]
+	public string Target { get; set; }
+
+}
+
+public sealed class DynamicRouteKeysResponse
+{
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
+
+}
+
+public sealed class DynamicRouteKeysUpdateRequest
+{
+	[JsonPropertyName("key_ids")]
+	public List<string> KeyIds { get; set; }
+
+}
+
+public sealed class DynamicRouteListResponse
+{
+	[JsonPropertyName("data")]
+	public List<Dictionary<string, object>> Data { get; set; }
+
+	[JsonPropertyName("total_count")]
+	public int TotalCount { get; set; }
+
+}
+
+public sealed class DynamicRouteNode
+{
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
+
+	[JsonPropertyName("id")]
+	public string Id { get; set; }
+
+	[JsonPropertyName("position")]
+	public Dictionary<string, object>? Position { get; set; }
+
+	[JsonPropertyName("type")]
+	public string Type { get; set; }
+
+}
+
+public sealed class DynamicRouteResponse
+{
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
+
+}
+
+public sealed class DynamicRouteRule
+{
+	[JsonPropertyName("action")]
+	public Dictionary<string, object> Action { get; set; }
+
+	[JsonPropertyName("condition")]
+	public Dictionary<string, object> Condition { get; set; }
+
+	[JsonPropertyName("enabled")]
+	public bool Enabled { get; set; }
+
+	[JsonPropertyName("id")]
+	public string Id { get; set; }
+
+	[JsonPropertyName("name")]
+	public string Name { get; set; }
+
+}
+
+public sealed class DynamicRouteUpdateRequest
+{
+	[JsonPropertyName("config")]
+	public Dictionary<string, object>? Config { get; set; }
+
+	[JsonPropertyName("description")]
+	public string? Description { get; set; }
+
+	[JsonPropertyName("name")]
+	public string? Name { get; set; }
+
+	[JsonPropertyName("status")]
+	public string? Status { get; set; }
+
+}
+
+public sealed class DynamicRouteVersion
+{
+	[JsonPropertyName("created_at")]
+	public string? CreatedAt { get; set; }
+
+	[JsonPropertyName("created_by")]
+	public string? CreatedBy { get; set; }
+
+	[JsonPropertyName("status")]
+	public string Status { get; set; }
+
+	[JsonPropertyName("version")]
+	public int Version { get; set; }
+
+}
+
 public sealed class Embedding
 {
 	[JsonPropertyName("embedding")]
@@ -4474,6 +4733,8 @@ public sealed class WorkspaceMemberRoleUpdateRequest
 
 }
 
+public sealed class WorkspaceProviderRestrictionMode { }
+
 public sealed class WorkspaceResponse
 {
 	[JsonPropertyName("data")]
@@ -4482,6 +4743,131 @@ public sealed class WorkspaceResponse
 }
 
 public sealed class WorkspaceRole { }
+
+public sealed class WorkspaceRoutingMode { }
+
+public sealed class WorkspaceSettings
+{
+	[JsonPropertyName("alpha_channel_enabled")]
+	public bool? AlphaChannelEnabled { get; set; }
+
+	[JsonPropertyName("beta_channel_enabled")]
+	public bool? BetaChannelEnabled { get; set; }
+
+	[JsonPropertyName("byok_fallback_enabled")]
+	public bool? ByokFallbackEnabled { get; set; }
+
+	[JsonPropertyName("io_logging_enabled")]
+	public bool? IoLoggingEnabled { get; set; }
+
+	[JsonPropertyName("io_logging_include_provider_payloads")]
+	public bool? IoLoggingIncludeProviderPayloads { get; set; }
+
+	[JsonPropertyName("privacy_enable_free_may_publish_prompts")]
+	public bool? PrivacyEnableFreeMayPublishPrompts { get; set; }
+
+	[JsonPropertyName("privacy_enable_free_may_train")]
+	public bool? PrivacyEnableFreeMayTrain { get; set; }
+
+	[JsonPropertyName("privacy_enable_input_output_logging")]
+	public bool? PrivacyEnableInputOutputLogging { get; set; }
+
+	[JsonPropertyName("privacy_enable_paid_may_train")]
+	public bool? PrivacyEnablePaidMayTrain { get; set; }
+
+	[JsonPropertyName("privacy_zdr_only")]
+	public bool? PrivacyZdrOnly { get; set; }
+
+	[JsonPropertyName("provider_restriction_enforce_allowed")]
+	public bool? ProviderRestrictionEnforceAllowed { get; set; }
+
+	[JsonPropertyName("provider_restriction_mode")]
+	public object? ProviderRestrictionMode { get; set; }
+
+	[JsonPropertyName("provider_restriction_provider_ids")]
+	public List<string>? ProviderRestrictionProviderIds { get; set; }
+
+	[JsonPropertyName("response_healing_enabled")]
+	public bool? ResponseHealingEnabled { get; set; }
+
+	[JsonPropertyName("response_healing_locked")]
+	public bool? ResponseHealingLocked { get; set; }
+
+	[JsonPropertyName("response_healing_mode")]
+	public string? ResponseHealingMode { get; set; }
+
+	[JsonPropertyName("routing_mode")]
+	public object? RoutingMode { get; set; }
+
+	[JsonPropertyName("updated_at")]
+	public string? UpdatedAt { get; set; }
+
+	[JsonPropertyName("workspace_id")]
+	public string WorkspaceId { get; set; }
+
+}
+
+public sealed class WorkspaceSettingsResponse
+{
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
+
+}
+
+public sealed class WorkspaceSettingsUpdateRequest
+{
+	[JsonPropertyName("alpha_channel_enabled")]
+	public bool? AlphaChannelEnabled { get; set; }
+
+	[JsonPropertyName("beta_channel_enabled")]
+	public bool? BetaChannelEnabled { get; set; }
+
+	[JsonPropertyName("byok_fallback_enabled")]
+	public bool? ByokFallbackEnabled { get; set; }
+
+	[JsonPropertyName("io_logging_enabled")]
+	public bool? IoLoggingEnabled { get; set; }
+
+	[JsonPropertyName("io_logging_include_provider_payloads")]
+	public bool? IoLoggingIncludeProviderPayloads { get; set; }
+
+	[JsonPropertyName("privacy_enable_free_may_publish_prompts")]
+	public bool? PrivacyEnableFreeMayPublishPrompts { get; set; }
+
+	[JsonPropertyName("privacy_enable_free_may_train")]
+	public bool? PrivacyEnableFreeMayTrain { get; set; }
+
+	[JsonPropertyName("privacy_enable_input_output_logging")]
+	public bool? PrivacyEnableInputOutputLogging { get; set; }
+
+	[JsonPropertyName("privacy_enable_paid_may_train")]
+	public bool? PrivacyEnablePaidMayTrain { get; set; }
+
+	[JsonPropertyName("privacy_zdr_only")]
+	public bool? PrivacyZdrOnly { get; set; }
+
+	[JsonPropertyName("provider_restriction_enforce_allowed")]
+	public bool? ProviderRestrictionEnforceAllowed { get; set; }
+
+	[JsonPropertyName("provider_restriction_mode")]
+	public string? ProviderRestrictionMode { get; set; }
+
+	[JsonPropertyName("provider_restriction_provider_ids")]
+	public List<string>? ProviderRestrictionProviderIds { get; set; }
+
+	[JsonPropertyName("response_healing_enabled")]
+	public bool? ResponseHealingEnabled { get; set; }
+
+	[JsonPropertyName("response_healing_locked")]
+	public bool? ResponseHealingLocked { get; set; }
+
+	[JsonPropertyName("response_healing_mode")]
+	public string? ResponseHealingMode { get; set; }
+
+	[JsonPropertyName("routing_mode")]
+	public string? RoutingMode { get; set; }
+
+}
 
 public sealed class WorkspaceUpdateRequest
 {

@@ -828,6 +828,152 @@ module Phaseo
     # @!attribute [rw] deleted
     #   @return [String]
     DeletedResponse = Struct.new(:deleted, keyword_init: true)
+    # @!attribute [rw] config
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] created_at
+    #   @return [String, nil]
+    # @!attribute [rw] deployed_version
+    #   @return [Integer, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] key_ids
+    #   @return [Array<String>]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] slug
+    #   @return [String]
+    # @!attribute [rw] status
+    #   @return [String]
+    # @!attribute [rw] updated_at
+    #   @return [String, nil]
+    # @!attribute [rw] version
+    #   @return [Integer]
+    # @!attribute [rw] versions
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    DynamicRoute = Struct.new(:config, :created_at, :deployed_version, :description, :id, :key_ids, :name, :slug, :status, :updated_at, :version, :versions, :workspace_id, keyword_init: true)
+    # @!attribute [rw] allowFallbacks
+    #   @return [Boolean, nil]
+    # @!attribute [rw] model
+    #   @return [String, nil]
+    # @!attribute [rw] modelFallbacks
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] providerIgnore
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] providerOnly
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] providerOrder
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] routingMode
+    #   @return [String, nil]
+    DynamicRouteAction = Struct.new(:allowFallbacks, :model, :modelFallbacks, :providerIgnore, :providerOnly, :providerOrder, :routingMode, keyword_init: true)
+    # @!attribute [rw] field
+    #   @return [String]
+    # @!attribute [rw] metadataKey
+    #   @return [String, nil]
+    # @!attribute [rw] operator
+    #   @return [String]
+    # @!attribute [rw] value
+    #   @return [String, nil]
+    DynamicRouteCondition = Struct.new(:field, :metadataKey, :operator, :value, keyword_init: true)
+    # @!attribute [rw] cacheAwareRouting
+    #   @return [Boolean, nil]
+    # @!attribute [rw] defaultAction
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] edges
+    #   @return [Array<Hash{String => Object}>, nil]
+    # @!attribute [rw] entryNodeId
+    #   @return [String, nil]
+    # @!attribute [rw] nodes
+    #   @return [Array<Hash{String => Object}>, nil]
+    # @!attribute [rw] rules
+    #   @return [Array<Hash{String => Object}>, nil]
+    # @!attribute [rw] schemaVersion
+    #   @return [String, nil]
+    # @!attribute [rw] sessionAffinity
+    #   @return [Boolean, nil]
+    DynamicRouteConfig = Struct.new(:cacheAwareRouting, :defaultAction, :edges, :entryNodeId, :nodes, :rules, :schemaVersion, :sessionAffinity, keyword_init: true)
+    # @!attribute [rw] config
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] slug
+    #   @return [String, nil]
+    # @!attribute [rw] status
+    #   @return [String, nil]
+    DynamicRouteCreateRequest = Struct.new(:config, :description, :name, :slug, :status, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    DynamicRouteDeleteResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    DynamicRouteDeployResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] source
+    #   @return [String]
+    # @!attribute [rw] sourceHandle
+    #   @return [String, nil]
+    # @!attribute [rw] target
+    #   @return [String]
+    DynamicRouteEdge = Struct.new(:id, :source, :sourceHandle, :target, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    DynamicRouteKeysResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] key_ids
+    #   @return [Array<String>]
+    DynamicRouteKeysUpdateRequest = Struct.new(:key_ids, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] total_count
+    #   @return [Integer]
+    DynamicRouteListResponse = Struct.new(:data, :total_count, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] position
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] type
+    #   @return [String]
+    DynamicRouteNode = Struct.new(:data, :id, :position, :type, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    DynamicRouteResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] action
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] condition
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] enabled
+    #   @return [Boolean]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] name
+    #   @return [String]
+    DynamicRouteRule = Struct.new(:action, :condition, :enabled, :id, :name, keyword_init: true)
+    # @!attribute [rw] config
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] status
+    #   @return [String, nil]
+    DynamicRouteUpdateRequest = Struct.new(:config, :description, :name, :status, keyword_init: true)
+    # @!attribute [rw] created_at
+    #   @return [String, nil]
+    # @!attribute [rw] created_by
+    #   @return [String, nil]
+    # @!attribute [rw] status
+    #   @return [String]
+    # @!attribute [rw] version
+    #   @return [Integer]
+    DynamicRouteVersion = Struct.new(:created_at, :created_by, :status, :version, keyword_init: true)
     # @!attribute [rw] embedding
     #   @return [Array<Float>, nil]
     # @!attribute [rw] index
@@ -2654,10 +2800,89 @@ module Phaseo
     # @!attribute [rw] role
     #   @return [String]
     WorkspaceMemberRoleUpdateRequest = Struct.new(:role, keyword_init: true)
+    WorkspaceProviderRestrictionMode = Object
     # @!attribute [rw] data
     #   @return [Hash{String => Object}]
     WorkspaceResponse = Struct.new(:data, keyword_init: true)
     WorkspaceRole = Object
+    WorkspaceRoutingMode = Object
+    # @!attribute [rw] alpha_channel_enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] beta_channel_enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] byok_fallback_enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] io_logging_enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] io_logging_include_provider_payloads
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacy_enable_free_may_publish_prompts
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacy_enable_free_may_train
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacy_enable_input_output_logging
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacy_enable_paid_may_train
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacy_zdr_only
+    #   @return [Boolean, nil]
+    # @!attribute [rw] provider_restriction_enforce_allowed
+    #   @return [Boolean, nil]
+    # @!attribute [rw] provider_restriction_mode
+    #   @return [Object, nil]
+    # @!attribute [rw] provider_restriction_provider_ids
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] response_healing_enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] response_healing_locked
+    #   @return [Boolean, nil]
+    # @!attribute [rw] response_healing_mode
+    #   @return [String, nil]
+    # @!attribute [rw] routing_mode
+    #   @return [Object, nil]
+    # @!attribute [rw] updated_at
+    #   @return [String, nil]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    WorkspaceSettings = Struct.new(:alpha_channel_enabled, :beta_channel_enabled, :byok_fallback_enabled, :io_logging_enabled, :io_logging_include_provider_payloads, :privacy_enable_free_may_publish_prompts, :privacy_enable_free_may_train, :privacy_enable_input_output_logging, :privacy_enable_paid_may_train, :privacy_zdr_only, :provider_restriction_enforce_allowed, :provider_restriction_mode, :provider_restriction_provider_ids, :response_healing_enabled, :response_healing_locked, :response_healing_mode, :routing_mode, :updated_at, :workspace_id, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    WorkspaceSettingsResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] alpha_channel_enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] beta_channel_enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] byok_fallback_enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] io_logging_enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] io_logging_include_provider_payloads
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacy_enable_free_may_publish_prompts
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacy_enable_free_may_train
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacy_enable_input_output_logging
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacy_enable_paid_may_train
+    #   @return [Boolean, nil]
+    # @!attribute [rw] privacy_zdr_only
+    #   @return [Boolean, nil]
+    # @!attribute [rw] provider_restriction_enforce_allowed
+    #   @return [Boolean, nil]
+    # @!attribute [rw] provider_restriction_mode
+    #   @return [String, nil]
+    # @!attribute [rw] provider_restriction_provider_ids
+    #   @return [Array<String>, nil]
+    # @!attribute [rw] response_healing_enabled
+    #   @return [Boolean, nil]
+    # @!attribute [rw] response_healing_locked
+    #   @return [Boolean, nil]
+    # @!attribute [rw] response_healing_mode
+    #   @return [String, nil]
+    # @!attribute [rw] routing_mode
+    #   @return [String, nil]
+    WorkspaceSettingsUpdateRequest = Struct.new(:alpha_channel_enabled, :beta_channel_enabled, :byok_fallback_enabled, :io_logging_enabled, :io_logging_include_provider_payloads, :privacy_enable_free_may_publish_prompts, :privacy_enable_free_may_train, :privacy_enable_input_output_logging, :privacy_enable_paid_may_train, :privacy_zdr_only, :provider_restriction_enforce_allowed, :provider_restriction_mode, :provider_restriction_provider_ids, :response_healing_enabled, :response_healing_locked, :response_healing_mode, :routing_mode, keyword_init: true)
     # @!attribute [rw] name
     #   @return [String, nil]
     # @!attribute [rw] slug

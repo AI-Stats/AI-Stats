@@ -87,6 +87,13 @@ function createChatCompletion(Client $client, ?array $path = null, ?array $query
 	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
+function createDynamicRoute(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/routing/dynamic-routes";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
 function createEmbedding(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -220,6 +227,13 @@ function deleteApiKey(Client $client, ?array $path = null, ?array $query = null,
 	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
 }
 
+function deleteDynamicRoute(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/routing/dynamic-routes/" . rawurlencode((string)($path["id"] ?? ""));
+	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
+}
+
 function deleteObservabilityDestination(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -253,6 +267,13 @@ function deleteWorkspaceInvite(Client $client, ?array $path = null, ?array $quer
 	$path = $path ?? [];
 	$resolvedPath = "/workspaces/" . rawurlencode((string)($path["id"] ?? "")) . "/invites/" . rawurlencode((string)($path["invite_id"] ?? ""));
 	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
+}
+
+function deployDynamicRouteVersion(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/routing/dynamic-routes/" . rawurlencode((string)($path["id"] ?? "")) . "/versions/" . rawurlencode((string)($path["version"] ?? "")) . "/deploy";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
 function generateMusic(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
@@ -301,6 +322,13 @@ function getCurrentApiKey(Client $client, ?array $path = null, ?array $query = n
 {
 	$path = $path ?? [];
 	$resolvedPath = "/key";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
+function getDynamicRoute(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/routing/dynamic-routes/" . rawurlencode((string)($path["id"] ?? ""));
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
@@ -388,6 +416,13 @@ function getWorkspace(Client $client, ?array $path = null, ?array $query = null,
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
+function getWorkspaceSettings(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/settings";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
 function listApiKeys(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -469,6 +504,13 @@ function listDataModels(Client $client, ?array $path = null, ?array $query = nul
 {
 	$path = $path ?? [];
 	$resolvedPath = "/data/models";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
+function listDynamicRoutes(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/routing/dynamic-routes";
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
@@ -619,6 +661,13 @@ function removeWorkspaceMembers(Client $client, ?array $path = null, ?array $que
 	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
+function replaceDynamicRouteKeys(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/routing/dynamic-routes/" . rawurlencode((string)($path["id"] ?? "")) . "/keys";
+	return $client->request("PUT", $resolvedPath, $query, $headers, $body);
+}
+
 function retrieveBatch(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -682,6 +731,13 @@ function updateApiKey(Client $client, ?array $path = null, ?array $query = null,
 	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
 }
 
+function updateDynamicRoute(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/routing/dynamic-routes/" . rawurlencode((string)($path["id"] ?? ""));
+	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
+}
+
 function updateObservabilityDestination(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -707,6 +763,13 @@ function updateWorkspaceMemberRole(Client $client, ?array $path = null, ?array $
 {
 	$path = $path ?? [];
 	$resolvedPath = "/workspaces/" . rawurlencode((string)($path["id"] ?? "")) . "/members/" . rawurlencode((string)($path["user_id"] ?? ""));
+	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
+}
+
+function updateWorkspaceSettings(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/settings";
 	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
 }
 

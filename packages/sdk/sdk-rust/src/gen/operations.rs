@@ -65,6 +65,11 @@ pub fn createChatCompletion<T: Transport>(client: &Client<T>, path: &HashMap<Str
 	client.request("POST", &resolved_path, body)
 }
 
+pub fn createDynamicRoute<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/routing/dynamic-routes");
+	client.request("POST", &resolved_path, body)
+}
+
 pub fn createEmbedding<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/embeddings");
 	client.request("POST", &resolved_path, body)
@@ -160,6 +165,11 @@ pub fn deleteApiKey<T: Transport>(client: &Client<T>, path: &HashMap<String, Str
 	client.request("DELETE", &resolved_path, body)
 }
 
+pub fn deleteDynamicRoute<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/routing/dynamic-routes/{}", path.get("id").cloned().unwrap_or_default());
+	client.request("DELETE", &resolved_path, body)
+}
+
 pub fn deleteObservabilityDestination<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/observability/destinations/{}", path.get("id").cloned().unwrap_or_default());
 	client.request("DELETE", &resolved_path, body)
@@ -183,6 +193,11 @@ pub fn deleteWorkspace<T: Transport>(client: &Client<T>, path: &HashMap<String, 
 pub fn deleteWorkspaceInvite<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/workspaces/{}/invites/{}", path.get("id").cloned().unwrap_or_default(), path.get("invite_id").cloned().unwrap_or_default());
 	client.request("DELETE", &resolved_path, body)
+}
+
+pub fn deployDynamicRouteVersion<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/routing/dynamic-routes/{}/versions/{}/deploy", path.get("id").cloned().unwrap_or_default(), path.get("version").cloned().unwrap_or_default());
+	client.request("POST", &resolved_path, body)
 }
 
 pub fn generateMusic<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
@@ -217,6 +232,11 @@ pub fn getCredits<T: Transport>(client: &Client<T>, path: &HashMap<String, Strin
 
 pub fn getCurrentApiKey<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/key");
+	client.request("GET", &resolved_path, body)
+}
+
+pub fn getDynamicRoute<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/routing/dynamic-routes/{}", path.get("id").cloned().unwrap_or_default());
 	client.request("GET", &resolved_path, body)
 }
 
@@ -280,6 +300,11 @@ pub fn getWorkspace<T: Transport>(client: &Client<T>, path: &HashMap<String, Str
 	client.request("GET", &resolved_path, body)
 }
 
+pub fn getWorkspaceSettings<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/settings");
+	client.request("GET", &resolved_path, body)
+}
+
 pub fn listApiKeys<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/keys");
 	client.request("GET", &resolved_path, body)
@@ -337,6 +362,11 @@ pub fn listBatchRequestsAlias<T: Transport>(client: &Client<T>, path: &HashMap<S
 
 pub fn listDataModels<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/data/models");
+	client.request("GET", &resolved_path, body)
+}
+
+pub fn listDynamicRoutes<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/routing/dynamic-routes");
 	client.request("GET", &resolved_path, body)
 }
 
@@ -445,6 +475,11 @@ pub fn removeWorkspaceMembers<T: Transport>(client: &Client<T>, path: &HashMap<S
 	client.request("POST", &resolved_path, body)
 }
 
+pub fn replaceDynamicRouteKeys<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/routing/dynamic-routes/{}/keys", path.get("id").cloned().unwrap_or_default());
+	client.request("PUT", &resolved_path, body)
+}
+
 pub fn retrieveBatch<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/batches/{}", path.get("batch_id").cloned().unwrap_or_default());
 	client.request("GET", &resolved_path, body)
@@ -490,6 +525,11 @@ pub fn updateApiKey<T: Transport>(client: &Client<T>, path: &HashMap<String, Str
 	client.request("PATCH", &resolved_path, body)
 }
 
+pub fn updateDynamicRoute<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/routing/dynamic-routes/{}", path.get("id").cloned().unwrap_or_default());
+	client.request("PATCH", &resolved_path, body)
+}
+
 pub fn updateObservabilityDestination<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/observability/destinations/{}", path.get("id").cloned().unwrap_or_default());
 	client.request("PATCH", &resolved_path, body)
@@ -507,6 +547,11 @@ pub fn updateWorkspace<T: Transport>(client: &Client<T>, path: &HashMap<String, 
 
 pub fn updateWorkspaceMemberRole<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/workspaces/{}/members/{}", path.get("id").cloned().unwrap_or_default(), path.get("user_id").cloned().unwrap_or_default());
+	client.request("PATCH", &resolved_path, body)
+}
+
+pub fn updateWorkspaceSettings<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/settings");
 	client.request("PATCH", &resolved_path, body)
 }
 

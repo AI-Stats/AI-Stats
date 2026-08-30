@@ -1217,6 +1217,119 @@ type DeletedResponse struct {
 	Deleted string `json:"deleted"`
 }
 
+type DynamicRoute struct {
+	Config map[string]interface{} `json:"config"`
+	CreatedAt *string `json:"created_at,omitempty"`
+	DeployedVersion *int `json:"deployed_version,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Id string `json:"id"`
+	KeyIds []string `json:"key_ids"`
+	Name string `json:"name"`
+	Slug string `json:"slug"`
+	Status string `json:"status"`
+	UpdatedAt *string `json:"updated_at,omitempty"`
+	Version int `json:"version"`
+	Versions []map[string]interface{} `json:"versions"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type DynamicRouteAction struct {
+	AllowFallbacks *bool `json:"allowFallbacks,omitempty"`
+	Model *string `json:"model,omitempty"`
+	ModelFallbacks *[]string `json:"modelFallbacks,omitempty"`
+	ProviderIgnore *[]string `json:"providerIgnore,omitempty"`
+	ProviderOnly *[]string `json:"providerOnly,omitempty"`
+	ProviderOrder *[]string `json:"providerOrder,omitempty"`
+	RoutingMode *string `json:"routingMode,omitempty"`
+}
+
+type DynamicRouteCondition struct {
+	Field string `json:"field"`
+	MetadataKey *string `json:"metadataKey,omitempty"`
+	Operator string `json:"operator"`
+	Value *string `json:"value,omitempty"`
+}
+
+type DynamicRouteConfig struct {
+	CacheAwareRouting *bool `json:"cacheAwareRouting,omitempty"`
+	DefaultAction *map[string]interface{} `json:"defaultAction,omitempty"`
+	Edges *[]map[string]interface{} `json:"edges,omitempty"`
+	EntryNodeId *string `json:"entryNodeId,omitempty"`
+	Nodes *[]map[string]interface{} `json:"nodes,omitempty"`
+	Rules *[]map[string]interface{} `json:"rules,omitempty"`
+	SchemaVersion *string `json:"schemaVersion,omitempty"`
+	SessionAffinity *bool `json:"sessionAffinity,omitempty"`
+}
+
+type DynamicRouteCreateRequest struct {
+	Config map[string]interface{} `json:"config"`
+	Description *string `json:"description,omitempty"`
+	Name string `json:"name"`
+	Slug *string `json:"slug,omitempty"`
+	Status *string `json:"status,omitempty"`
+}
+
+type DynamicRouteDeleteResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type DynamicRouteDeployResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type DynamicRouteEdge struct {
+	Id string `json:"id"`
+	Source string `json:"source"`
+	SourceHandle *string `json:"sourceHandle,omitempty"`
+	Target string `json:"target"`
+}
+
+type DynamicRouteKeysResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type DynamicRouteKeysUpdateRequest struct {
+	KeyIds []string `json:"key_ids"`
+}
+
+type DynamicRouteListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+	TotalCount int `json:"total_count"`
+}
+
+type DynamicRouteNode struct {
+	Data map[string]interface{} `json:"data"`
+	Id string `json:"id"`
+	Position *map[string]interface{} `json:"position,omitempty"`
+	Type string `json:"type"`
+}
+
+type DynamicRouteResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type DynamicRouteRule struct {
+	Action map[string]interface{} `json:"action"`
+	Condition map[string]interface{} `json:"condition"`
+	Enabled bool `json:"enabled"`
+	Id string `json:"id"`
+	Name string `json:"name"`
+}
+
+type DynamicRouteUpdateRequest struct {
+	Config *map[string]interface{} `json:"config,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Name *string `json:"name,omitempty"`
+	Status *string `json:"status,omitempty"`
+}
+
+type DynamicRouteVersion struct {
+	CreatedAt *string `json:"created_at,omitempty"`
+	CreatedBy *string `json:"created_by,omitempty"`
+	Status string `json:"status"`
+	Version int `json:"version"`
+}
+
 type Embedding struct {
 	Embedding *[]float64 `json:"embedding,omitempty"`
 	Index *int `json:"index,omitempty"`
@@ -3208,6 +3321,15 @@ type WorkspaceMemberRoleUpdateRequest struct {
 	Role string `json:"role"`
 }
 
+type WorkspaceProviderRestrictionMode string
+
+const (
+	WorkspaceProviderRestrictionModeNone WorkspaceProviderRestrictionMode = "none"
+	WorkspaceProviderRestrictionModeAllowlist WorkspaceProviderRestrictionMode = "allowlist"
+	WorkspaceProviderRestrictionModeBlocklist WorkspaceProviderRestrictionMode = "blocklist"
+)
+
+
 type WorkspaceResponse struct {
 	Data map[string]interface{} `json:"data"`
 }
@@ -3220,6 +3342,62 @@ const (
 	WorkspaceRoleMember WorkspaceRole = "member"
 )
 
+
+type WorkspaceRoutingMode string
+
+const (
+	WorkspaceRoutingModeBalanced WorkspaceRoutingMode = "balanced"
+	WorkspaceRoutingModePrice WorkspaceRoutingMode = "price"
+	WorkspaceRoutingModeLatency WorkspaceRoutingMode = "latency"
+	WorkspaceRoutingModeThroughput WorkspaceRoutingMode = "throughput"
+)
+
+
+type WorkspaceSettings struct {
+	AlphaChannelEnabled *bool `json:"alpha_channel_enabled,omitempty"`
+	BetaChannelEnabled *bool `json:"beta_channel_enabled,omitempty"`
+	ByokFallbackEnabled *bool `json:"byok_fallback_enabled,omitempty"`
+	IoLoggingEnabled *bool `json:"io_logging_enabled,omitempty"`
+	IoLoggingIncludeProviderPayloads *bool `json:"io_logging_include_provider_payloads,omitempty"`
+	PrivacyEnableFreeMayPublishPrompts *bool `json:"privacy_enable_free_may_publish_prompts,omitempty"`
+	PrivacyEnableFreeMayTrain *bool `json:"privacy_enable_free_may_train,omitempty"`
+	PrivacyEnableInputOutputLogging *bool `json:"privacy_enable_input_output_logging,omitempty"`
+	PrivacyEnablePaidMayTrain *bool `json:"privacy_enable_paid_may_train,omitempty"`
+	PrivacyZdrOnly *bool `json:"privacy_zdr_only,omitempty"`
+	ProviderRestrictionEnforceAllowed *bool `json:"provider_restriction_enforce_allowed,omitempty"`
+	ProviderRestrictionMode *interface{} `json:"provider_restriction_mode,omitempty"`
+	ProviderRestrictionProviderIds *[]string `json:"provider_restriction_provider_ids,omitempty"`
+	ResponseHealingEnabled *bool `json:"response_healing_enabled,omitempty"`
+	ResponseHealingLocked *bool `json:"response_healing_locked,omitempty"`
+	ResponseHealingMode *string `json:"response_healing_mode,omitempty"`
+	RoutingMode *interface{} `json:"routing_mode,omitempty"`
+	UpdatedAt *string `json:"updated_at,omitempty"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type WorkspaceSettingsResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type WorkspaceSettingsUpdateRequest struct {
+	AlphaChannelEnabled *bool `json:"alpha_channel_enabled,omitempty"`
+	BetaChannelEnabled *bool `json:"beta_channel_enabled,omitempty"`
+	ByokFallbackEnabled *bool `json:"byok_fallback_enabled,omitempty"`
+	IoLoggingEnabled *bool `json:"io_logging_enabled,omitempty"`
+	IoLoggingIncludeProviderPayloads *bool `json:"io_logging_include_provider_payloads,omitempty"`
+	PrivacyEnableFreeMayPublishPrompts *bool `json:"privacy_enable_free_may_publish_prompts,omitempty"`
+	PrivacyEnableFreeMayTrain *bool `json:"privacy_enable_free_may_train,omitempty"`
+	PrivacyEnableInputOutputLogging *bool `json:"privacy_enable_input_output_logging,omitempty"`
+	PrivacyEnablePaidMayTrain *bool `json:"privacy_enable_paid_may_train,omitempty"`
+	PrivacyZdrOnly *bool `json:"privacy_zdr_only,omitempty"`
+	ProviderRestrictionEnforceAllowed *bool `json:"provider_restriction_enforce_allowed,omitempty"`
+	ProviderRestrictionMode *string `json:"provider_restriction_mode,omitempty"`
+	ProviderRestrictionProviderIds *[]string `json:"provider_restriction_provider_ids,omitempty"`
+	ResponseHealingEnabled *bool `json:"response_healing_enabled,omitempty"`
+	ResponseHealingLocked *bool `json:"response_healing_locked,omitempty"`
+	ResponseHealingMode *string `json:"response_healing_mode,omitempty"`
+	RoutingMode *string `json:"routing_mode,omitempty"`
+}
 
 type WorkspaceUpdateRequest struct {
 	Name *string `json:"name,omitempty"`

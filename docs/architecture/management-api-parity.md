@@ -39,9 +39,9 @@ OpenAPI schema does not count as complete.
 | Management keys | CRUD | Runtime only | Add OpenAPI, SDKs, reference docs, contract tests, and complete audit coverage. |
 | Guardrails | CRUD and key/member assignment | Runtime only | Publish the contract and cover default workspace policy, budgets, model/provider restrictions, privacy, and content controls. |
 | Provider credentials | Dashboard only | Missing | Add encrypted create/update/delete, workspace/provider filters, model/key/member restrictions, priority ordering, required-only mode, and fallback behavior. |
-| Routing policies | Settings and dashboard controls | Partial | Contract workspace defaults, provider ordering, fallback policy, and dynamic route/version deployment. |
+| Routing policies | Workspace defaults, provider restrictions, versioned dynamic routes, key assignments, and deployments | Contracted | Add new durable routing controls to the same surface as the dashboard evolves. |
 | Presets | CRUD and version publish | Runtime only | Publish the existing contract; add request-derived versions, designated-version changes, forks, and upstream/publisher operations where supported by the UI. |
-| Plugins and tools | Dashboard/request controls | Missing | Add workspace defaults and assignment APIs for durable plugin configuration. |
+| Plugins and tools | Response-healing workspace defaults and lock policy; request-level plugin/tool controls | Contracted where durable | Add assignment APIs when another plugin gains durable dashboard configuration. |
 | Observability | Logs, workspace I/O logging policy, and webhook/OpenTelemetry destination CRUD with privacy, sampling, key filters, and event rules | Contracted for executable exporters | Add destination types only when their exporters are executable. |
 | Workspace budgets | Guardrail/limit primitives | Missing as a resource | Add daily, weekly, monthly, and lifetime budget CRUD with hierarchy validation and usage/remaining values. |
 | Organisation administration | Workspace-native membership and invitations | Partial | Contract SSO, SCIM, and directory administration; Phaseo currently treats each organisation workspace as the membership boundary. |

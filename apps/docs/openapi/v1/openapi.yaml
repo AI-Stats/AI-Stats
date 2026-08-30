@@ -4272,6 +4272,271 @@ paths:
                     type: string
                   message:
                     type: string
+  /settings:
+    get:
+      x-beta: true
+      tags: [Gateway]
+      operationId: getWorkspaceSettings
+      summary: Get workspace settings
+      description: Returns the automatable workspace routing, provider, privacy, and gateway defaults.
+      responses:
+        '200':
+          description: Workspace settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceSettingsResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      x-beta: true
+      tags: [Gateway]
+      operationId: updateWorkspaceSettings
+      summary: Update workspace settings
+      description: Updates workspace routing, provider, privacy, or gateway defaults and refreshes affected gateway policy caches.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkspaceSettingsUpdateRequest'
+      responses:
+        '200':
+          description: Updated workspace settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceSettingsResponse'
+        '400':
+          description: Invalid workspace settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /routing/dynamic-routes:
+    get:
+      x-beta: true
+      tags: [Gateway]
+      operationId: listDynamicRoutes
+      summary: List dynamic routes
+      description: Lists versioned dynamic routes and their API-key attachments for the workspace.
+      parameters:
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit100'
+      responses:
+        '200':
+          description: Dynamic route list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DynamicRouteListResponse'
+        '400':
+          description: Invalid pagination
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      x-beta: true
+      tags: [Gateway]
+      operationId: createDynamicRoute
+      summary: Create a dynamic route
+      description: Creates a dynamic route with its first immutable configuration version.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DynamicRouteCreateRequest'
+      responses:
+        '201':
+          description: Dynamic route created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DynamicRouteResponse'
+        '400':
+          description: Invalid dynamic route
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Route name or slug already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /routing/dynamic-routes/{id}:
+    parameters:
+      - $ref: '#/components/parameters/DynamicRouteId'
+    get:
+      x-beta: true
+      tags: [Gateway]
+      operationId: getDynamicRoute
+      summary: Get a dynamic route
+      description: Returns one workspace dynamic route with versions and API-key attachments.
+      responses:
+        '200':
+          description: Dynamic route
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DynamicRouteResponse'
+        '404':
+          description: Dynamic route not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      x-beta: true
+      tags: [Gateway]
+      operationId: updateDynamicRoute
+      summary: Update a dynamic route
+      description: Updates route metadata and creates a new immutable version when configuration changes.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DynamicRouteUpdateRequest'
+      responses:
+        '200':
+          description: Updated dynamic route
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DynamicRouteResponse'
+        '400':
+          description: Invalid dynamic route
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Dynamic route not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      x-beta: true
+      tags: [Gateway]
+      operationId: deleteDynamicRoute
+      summary: Delete a dynamic route
+      description: Permanently deletes a route and refreshes all previously attached API-key contexts.
+      parameters:
+        - name: confirm_name
+          in: query
+          required: false
+          description: Optional exact route-name confirmation.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Dynamic route deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DynamicRouteDeleteResponse'
+        '404':
+          description: Dynamic route not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Route-name confirmation mismatch
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /routing/dynamic-routes/{id}/keys:
+    put:
+      x-beta: true
+      tags: [Gateway]
+      operationId: replaceDynamicRouteKeys
+      summary: Replace dynamic-route API keys
+      description: Atomically replaces API-key attachments and refreshes affected gateway contexts.
+      parameters:
+        - $ref: '#/components/parameters/DynamicRouteId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DynamicRouteKeysUpdateRequest'
+      responses:
+        '200':
+          description: Updated API-key attachments
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DynamicRouteKeysResponse'
+        '400':
+          description: Invalid API-key list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Dynamic route not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: One or more API keys are unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /routing/dynamic-routes/{id}/versions/{version}/deploy:
+    post:
+      x-beta: true
+      tags: [Gateway]
+      operationId: deployDynamicRouteVersion
+      summary: Deploy a dynamic-route version
+      description: Makes an immutable route version active and refreshes attached-key contexts.
+      parameters:
+        - $ref: '#/components/parameters/DynamicRouteId'
+        - $ref: '#/components/parameters/DynamicRouteVersion'
+      responses:
+        '200':
+          description: Route version deployed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DynamicRouteDeployResponse'
+        '400':
+          description: Invalid route version
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Dynamic route or version not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /endpoints:
     get:
       x-beta: true
@@ -4338,6 +4603,22 @@ components:
       schema:
         type: string
   parameters:
+    DynamicRouteId:
+      name: id
+      in: path
+      required: true
+      description: Dynamic route identifier.
+      schema:
+        type: string
+        format: uuid
+    DynamicRouteVersion:
+      name: version
+      in: path
+      required: true
+      description: Immutable dynamic route version.
+      schema:
+        type: integer
+        minimum: 1
     ObservabilityDestinationId:
       name: id
       in: path
@@ -10072,6 +10353,468 @@ components:
         total_count:
           type: integer
           minimum: 0
+      additionalProperties: false
+    WorkspaceRoutingMode:
+      type: string
+      enum: [balanced, price, latency, throughput]
+    WorkspaceProviderRestrictionMode:
+      type: string
+      enum: [none, allowlist, blocklist]
+    WorkspaceSettings:
+      type: object
+      required: [workspace_id]
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+        routing_mode:
+          allOf:
+            - $ref: '#/components/schemas/WorkspaceRoutingMode'
+          nullable: true
+        beta_channel_enabled:
+          type: boolean
+          nullable: true
+        alpha_channel_enabled:
+          type: boolean
+          nullable: true
+        response_healing_enabled:
+          type: boolean
+          nullable: true
+        response_healing_locked:
+          type: boolean
+          nullable: true
+        response_healing_mode:
+          type: string
+          enum: [safe, strict]
+          nullable: true
+        byok_fallback_enabled:
+          type: boolean
+          nullable: true
+        privacy_enable_paid_may_train:
+          type: boolean
+          nullable: true
+        privacy_enable_free_may_train:
+          type: boolean
+          nullable: true
+        privacy_enable_free_may_publish_prompts:
+          type: boolean
+          nullable: true
+        privacy_enable_input_output_logging:
+          type: boolean
+          nullable: true
+        privacy_zdr_only:
+          type: boolean
+          nullable: true
+        io_logging_enabled:
+          type: boolean
+          nullable: true
+        io_logging_include_provider_payloads:
+          type: boolean
+          nullable: true
+        provider_restriction_mode:
+          allOf:
+            - $ref: '#/components/schemas/WorkspaceProviderRestrictionMode'
+          nullable: true
+        provider_restriction_provider_ids:
+          type: array
+          maxItems: 64
+          nullable: true
+          items:
+            type: string
+        provider_restriction_enforce_allowed:
+          type: boolean
+          nullable: true
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+      additionalProperties: false
+    WorkspaceSettingsUpdateRequest:
+      type: object
+      minProperties: 1
+      properties:
+        routing_mode:
+          $ref: '#/components/schemas/WorkspaceRoutingMode'
+        beta_channel_enabled:
+          type: boolean
+        alpha_channel_enabled:
+          type: boolean
+        response_healing_enabled:
+          type: boolean
+        response_healing_locked:
+          type: boolean
+        response_healing_mode:
+          type: string
+          enum: [safe, strict]
+        byok_fallback_enabled:
+          type: boolean
+        privacy_enable_paid_may_train:
+          type: boolean
+        privacy_enable_free_may_train:
+          type: boolean
+        privacy_enable_free_may_publish_prompts:
+          type: boolean
+        privacy_enable_input_output_logging:
+          type: boolean
+        privacy_zdr_only:
+          type: boolean
+        io_logging_enabled:
+          type: boolean
+        io_logging_include_provider_payloads:
+          type: boolean
+        provider_restriction_mode:
+          $ref: '#/components/schemas/WorkspaceProviderRestrictionMode'
+        provider_restriction_provider_ids:
+          type: array
+          maxItems: 64
+          items:
+            type: string
+            maxLength: 128
+        provider_restriction_enforce_allowed:
+          type: boolean
+      additionalProperties: false
+    WorkspaceSettingsResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/WorkspaceSettings'
+      additionalProperties: false
+    DynamicRouteAction:
+      type: object
+      properties:
+        model:
+          type: string
+          maxLength: 256
+        modelFallbacks:
+          type: array
+          maxItems: 8
+          items:
+            type: string
+            maxLength: 256
+        routingMode:
+          $ref: '#/components/schemas/WorkspaceRoutingMode'
+        providerOrder:
+          type: array
+          maxItems: 64
+          items:
+            type: string
+            maxLength: 128
+        providerOnly:
+          type: array
+          maxItems: 64
+          items:
+            type: string
+            maxLength: 128
+        providerIgnore:
+          type: array
+          maxItems: 64
+          items:
+            type: string
+            maxLength: 128
+        allowFallbacks:
+          type: boolean
+      additionalProperties: false
+    DynamicRouteCondition:
+      type: object
+      required: [field, operator]
+      properties:
+        field:
+          type: string
+          enum: [always, endpoint, model, session_id, metadata]
+        operator:
+          type: string
+          enum: [equals, not_equals, contains, starts_with, exists]
+        value:
+          type: string
+          maxLength: 512
+          nullable: true
+        metadataKey:
+          type: string
+          maxLength: 128
+          nullable: true
+      additionalProperties: false
+    DynamicRouteRule:
+      type: object
+      required: [id, name, enabled, condition, action]
+      properties:
+        id:
+          type: string
+          maxLength: 80
+        name:
+          type: string
+          maxLength: 120
+        enabled:
+          type: boolean
+        condition:
+          $ref: '#/components/schemas/DynamicRouteCondition'
+        action:
+          $ref: '#/components/schemas/DynamicRouteAction'
+      additionalProperties: false
+    DynamicRouteNode:
+      type: object
+      required: [id, type, data]
+      properties:
+        id:
+          type: string
+          maxLength: 80
+        type:
+          type: string
+          enum: [start, condition, percentage, model, rate_limit, budget_limit, end]
+        position:
+          type: object
+          nullable: true
+          required: [x, y]
+          properties:
+            x:
+              type: number
+            y:
+              type: number
+          additionalProperties: false
+        data:
+          type: object
+          additionalProperties: true
+      additionalProperties: false
+    DynamicRouteEdge:
+      type: object
+      required: [id, source, target]
+      properties:
+        id:
+          type: string
+          maxLength: 100
+        source:
+          type: string
+          maxLength: 80
+        target:
+          type: string
+          maxLength: 80
+        sourceHandle:
+          type: string
+          maxLength: 80
+          nullable: true
+      additionalProperties: false
+    DynamicRouteConfig:
+      type: object
+      properties:
+        schemaVersion:
+          type: integer
+          enum: [2]
+        entryNodeId:
+          type: string
+          maxLength: 80
+          nullable: true
+        nodes:
+          type: array
+          maxItems: 64
+          items:
+            $ref: '#/components/schemas/DynamicRouteNode'
+        edges:
+          type: array
+          maxItems: 128
+          items:
+            $ref: '#/components/schemas/DynamicRouteEdge'
+        cacheAwareRouting:
+          type: boolean
+        sessionAffinity:
+          type: boolean
+        defaultAction:
+          $ref: '#/components/schemas/DynamicRouteAction'
+        rules:
+          type: array
+          maxItems: 32
+          items:
+            $ref: '#/components/schemas/DynamicRouteRule'
+      additionalProperties: false
+    DynamicRouteVersion:
+      type: object
+      required: [version, status]
+      properties:
+        version:
+          type: integer
+          minimum: 1
+        status:
+          type: string
+          enum: [draft, deployed, superseded]
+        created_by:
+          type: string
+          format: uuid
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          nullable: true
+      additionalProperties: false
+    DynamicRoute:
+      type: object
+      required: [id, workspace_id, name, slug, status, version, config, key_ids, versions]
+      properties:
+        id:
+          type: string
+          format: uuid
+        workspace_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          minLength: 1
+          maxLength: 80
+        slug:
+          type: string
+          maxLength: 63
+        description:
+          type: string
+          maxLength: 500
+          nullable: true
+        status:
+          type: string
+          enum: [active, paused]
+        version:
+          type: integer
+          minimum: 1
+        deployed_version:
+          type: integer
+          minimum: 1
+          nullable: true
+        config:
+          $ref: '#/components/schemas/DynamicRouteConfig'
+        key_ids:
+          type: array
+          maxItems: 64
+          items:
+            type: string
+            format: uuid
+        versions:
+          type: array
+          items:
+            $ref: '#/components/schemas/DynamicRouteVersion'
+        created_at:
+          type: string
+          format: date-time
+          nullable: true
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+      additionalProperties: false
+    DynamicRouteCreateRequest:
+      type: object
+      required: [name, config]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 80
+        slug:
+          type: string
+          maxLength: 63
+        description:
+          type: string
+          maxLength: 500
+          nullable: true
+        status:
+          type: string
+          enum: [active, paused]
+        config:
+          $ref: '#/components/schemas/DynamicRouteConfig'
+      additionalProperties: false
+    DynamicRouteUpdateRequest:
+      type: object
+      minProperties: 1
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 80
+        description:
+          type: string
+          maxLength: 500
+          nullable: true
+        status:
+          type: string
+          enum: [active, paused]
+        config:
+          $ref: '#/components/schemas/DynamicRouteConfig'
+      additionalProperties: false
+    DynamicRouteResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/DynamicRoute'
+      additionalProperties: false
+    DynamicRouteListResponse:
+      type: object
+      required: [data, total_count]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/DynamicRoute'
+        total_count:
+          type: integer
+          minimum: 0
+      additionalProperties: false
+    DynamicRouteKeysUpdateRequest:
+      type: object
+      required: [key_ids]
+      properties:
+        key_ids:
+          type: array
+          maxItems: 64
+          uniqueItems: true
+          items:
+            type: string
+            format: uuid
+      additionalProperties: false
+    DynamicRouteKeysResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [id, key_ids]
+          properties:
+            id:
+              type: string
+              format: uuid
+            key_ids:
+              type: array
+              items:
+                type: string
+                format: uuid
+          additionalProperties: false
+      additionalProperties: false
+    DynamicRouteDeployResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [id, deployed_version]
+          properties:
+            id:
+              type: string
+              format: uuid
+            deployed_version:
+              type: integer
+              minimum: 1
+          additionalProperties: false
+      additionalProperties: false
+    DynamicRouteDeleteResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [id, deleted]
+          properties:
+            id:
+              type: string
+              format: uuid
+            deleted:
+              type: boolean
+              enum: [true]
+          additionalProperties: false
       additionalProperties: false
     ObservabilityLoggingPolicy:
       type: object

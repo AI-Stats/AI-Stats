@@ -64,6 +64,11 @@ inline Response CreateChatCompletion(Client& client, const std::map<std::string,
 	return client.request("POST", resolved_path, body);
 }
 
+inline Response CreateDynamicRoute(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/routing/dynamic-routes";
+	return client.request("POST", resolved_path, body);
+}
+
 inline Response CreateEmbedding(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/embeddings";
 	return client.request("POST", resolved_path, body);
@@ -159,6 +164,11 @@ inline Response DeleteApiKey(Client& client, const std::map<std::string, std::st
 	return client.request("DELETE", resolved_path, body);
 }
 
+inline Response DeleteDynamicRoute(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/routing/dynamic-routes/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("DELETE", resolved_path, body);
+}
+
 inline Response DeleteObservabilityDestination(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/observability/destinations/" + (path.count("id") ? path.at("id") : std::string{});
 	return client.request("DELETE", resolved_path, body);
@@ -182,6 +192,11 @@ inline Response DeleteWorkspace(Client& client, const std::map<std::string, std:
 inline Response DeleteWorkspaceInvite(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/workspaces/" + (path.count("id") ? path.at("id") : std::string{}) + "/invites/" + (path.count("invite_id") ? path.at("invite_id") : std::string{});
 	return client.request("DELETE", resolved_path, body);
+}
+
+inline Response DeployDynamicRouteVersion(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/routing/dynamic-routes/" + (path.count("id") ? path.at("id") : std::string{}) + "/versions/" + (path.count("version") ? path.at("version") : std::string{}) + "/deploy";
+	return client.request("POST", resolved_path, body);
 }
 
 inline Response GenerateMusic(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
@@ -216,6 +231,11 @@ inline Response GetCredits(Client& client, const std::map<std::string, std::stri
 
 inline Response GetCurrentApiKey(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/key";
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response GetDynamicRoute(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/routing/dynamic-routes/" + (path.count("id") ? path.at("id") : std::string{});
 	return client.request("GET", resolved_path, body);
 }
 
@@ -279,6 +299,11 @@ inline Response GetWorkspace(Client& client, const std::map<std::string, std::st
 	return client.request("GET", resolved_path, body);
 }
 
+inline Response GetWorkspaceSettings(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/settings";
+	return client.request("GET", resolved_path, body);
+}
+
 inline Response ListApiKeys(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/keys";
 	return client.request("GET", resolved_path, body);
@@ -336,6 +361,11 @@ inline Response ListBatchRequestsAlias(Client& client, const std::map<std::strin
 
 inline Response ListDataModels(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/data/models";
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response ListDynamicRoutes(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/routing/dynamic-routes";
 	return client.request("GET", resolved_path, body);
 }
 
@@ -444,6 +474,11 @@ inline Response RemoveWorkspaceMembers(Client& client, const std::map<std::strin
 	return client.request("POST", resolved_path, body);
 }
 
+inline Response ReplaceDynamicRouteKeys(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/routing/dynamic-routes/" + (path.count("id") ? path.at("id") : std::string{}) + "/keys";
+	return client.request("PUT", resolved_path, body);
+}
+
 inline Response RetrieveBatch(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/batches/" + (path.count("batch_id") ? path.at("batch_id") : std::string{});
 	return client.request("GET", resolved_path, body);
@@ -489,6 +524,11 @@ inline Response UpdateApiKey(Client& client, const std::map<std::string, std::st
 	return client.request("PATCH", resolved_path, body);
 }
 
+inline Response UpdateDynamicRoute(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/routing/dynamic-routes/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("PATCH", resolved_path, body);
+}
+
 inline Response UpdateObservabilityDestination(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/observability/destinations/" + (path.count("id") ? path.at("id") : std::string{});
 	return client.request("PATCH", resolved_path, body);
@@ -506,6 +546,11 @@ inline Response UpdateWorkspace(Client& client, const std::map<std::string, std:
 
 inline Response UpdateWorkspaceMemberRole(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/workspaces/" + (path.count("id") ? path.at("id") : std::string{}) + "/members/" + (path.count("user_id") ? path.at("user_id") : std::string{});
+	return client.request("PATCH", resolved_path, body);
+}
+
+inline Response UpdateWorkspaceSettings(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/settings";
 	return client.request("PATCH", resolved_path, body);
 }
 

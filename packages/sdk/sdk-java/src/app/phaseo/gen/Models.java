@@ -552,6 +552,119 @@ public final class Models {
 		public Object deleted;
 	}
 
+	public static class DynamicRoute {
+		public Object config;
+		public String created_at;
+		public Integer deployed_version;
+		public String description;
+		public String id;
+		public java.util.List<String> key_ids;
+		public String name;
+		public String slug;
+		public Object status;
+		public String updated_at;
+		public Integer version;
+		public java.util.List<Object> versions;
+		public String workspace_id;
+	}
+
+	public static class DynamicRouteAction {
+		public Boolean allowFallbacks;
+		public String model;
+		public java.util.List<String> modelFallbacks;
+		public java.util.List<String> providerIgnore;
+		public java.util.List<String> providerOnly;
+		public java.util.List<String> providerOrder;
+		public Object routingMode;
+	}
+
+	public static class DynamicRouteCondition {
+		public Object field;
+		public String metadataKey;
+		public Object operator;
+		public String value;
+	}
+
+	public static class DynamicRouteConfig {
+		public Boolean cacheAwareRouting;
+		public Object defaultAction;
+		public java.util.List<Object> edges;
+		public String entryNodeId;
+		public java.util.List<Object> nodes;
+		public java.util.List<Object> rules;
+		public Object schemaVersion;
+		public Boolean sessionAffinity;
+	}
+
+	public static class DynamicRouteCreateRequest {
+		public Object config;
+		public String description;
+		public String name;
+		public String slug;
+		public Object status;
+	}
+
+	public static class DynamicRouteDeleteResponse {
+		public Object data;
+	}
+
+	public static class DynamicRouteDeployResponse {
+		public Object data;
+	}
+
+	public static class DynamicRouteEdge {
+		public String id;
+		public String source;
+		public String sourceHandle;
+		public String target;
+	}
+
+	public static class DynamicRouteKeysResponse {
+		public Object data;
+	}
+
+	public static class DynamicRouteKeysUpdateRequest {
+		public java.util.List<String> key_ids;
+	}
+
+	public static class DynamicRouteListResponse {
+		public java.util.List<Object> data;
+		public Integer total_count;
+	}
+
+	public static class DynamicRouteNode {
+		public Object data;
+		public String id;
+		public Object position;
+		public Object type;
+	}
+
+	public static class DynamicRouteResponse {
+		public Object data;
+	}
+
+	public static class DynamicRouteRule {
+		public Object action;
+		public Object condition;
+		public Boolean enabled;
+		public String id;
+		public String name;
+	}
+
+	public static class DynamicRouteUpdateRequest {
+		public Object config;
+		public String description;
+		public String name;
+		public Object status;
+	}
+
+	public static class DynamicRouteVersion {
+		public String created_at;
+		public String created_by;
+		public Object status;
+		public Integer version;
+	}
+
 	public static class Embedding {
 		public java.util.List<Double> embedding;
 		public Integer index;
@@ -1865,11 +1978,63 @@ public final class Models {
 		public Object role;
 	}
 
+	public static class WorkspaceProviderRestrictionMode {
+	}
+
 	public static class WorkspaceResponse {
 		public Object data;
 	}
 
 	public static class WorkspaceRole {
+	}
+
+	public static class WorkspaceRoutingMode {
+	}
+
+	public static class WorkspaceSettings {
+		public Boolean alpha_channel_enabled;
+		public Boolean beta_channel_enabled;
+		public Boolean byok_fallback_enabled;
+		public Boolean io_logging_enabled;
+		public Boolean io_logging_include_provider_payloads;
+		public Boolean privacy_enable_free_may_publish_prompts;
+		public Boolean privacy_enable_free_may_train;
+		public Boolean privacy_enable_input_output_logging;
+		public Boolean privacy_enable_paid_may_train;
+		public Boolean privacy_zdr_only;
+		public Boolean provider_restriction_enforce_allowed;
+		public Object provider_restriction_mode;
+		public java.util.List<String> provider_restriction_provider_ids;
+		public Boolean response_healing_enabled;
+		public Boolean response_healing_locked;
+		public Object response_healing_mode;
+		public Object routing_mode;
+		public String updated_at;
+		public String workspace_id;
+	}
+
+	public static class WorkspaceSettingsResponse {
+		public Object data;
+	}
+
+	public static class WorkspaceSettingsUpdateRequest {
+		public Boolean alpha_channel_enabled;
+		public Boolean beta_channel_enabled;
+		public Boolean byok_fallback_enabled;
+		public Boolean io_logging_enabled;
+		public Boolean io_logging_include_provider_payloads;
+		public Boolean privacy_enable_free_may_publish_prompts;
+		public Boolean privacy_enable_free_may_train;
+		public Boolean privacy_enable_input_output_logging;
+		public Boolean privacy_enable_paid_may_train;
+		public Boolean privacy_zdr_only;
+		public Boolean provider_restriction_enforce_allowed;
+		public Object provider_restriction_mode;
+		public java.util.List<String> provider_restriction_provider_ids;
+		public Boolean response_healing_enabled;
+		public Boolean response_healing_locked;
+		public Object response_healing_mode;
+		public Object routing_mode;
 	}
 
 	public static class WorkspaceUpdateRequest {

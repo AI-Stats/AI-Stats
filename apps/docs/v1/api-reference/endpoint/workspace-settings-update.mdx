@@ -1,0 +1,10 @@
+---
+title: "Update workspace settings"
+sidebarTitle: "Update settings"
+badge: "Beta"
+openapi: "PATCH /settings"
+description: "Update workspace routing, provider, privacy, and gateway defaults."
+---
+<Note>This endpoint requires a management API key with `settings:write`.</Note>
+
+Routing and provider-policy changes refresh affected gateway caches and are recorded in the workspace audit log.

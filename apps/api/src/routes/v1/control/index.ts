@@ -29,6 +29,7 @@ import { managementKeysRoutes } from "./management-keys";
 import { dataContributionRoutes } from "./data-contribution";
 import { auditEventsRoutes } from "./audit-events";
 import { observabilityRoutes } from "./observability";
+import { routingRoutes } from "./routing";
 import {
 	feedbackRoutes,
 	observabilityEventsRoutes,
@@ -48,6 +49,7 @@ platformRouter.route("/credits", creditsRoutes);
 platformRouter.route("/activity", activityRoutes);
 platformRouter.route("/audit-events", auditEventsRoutes);
 platformRouter.route("/observability", observabilityRoutes);
+platformRouter.route("/routing", routingRoutes);
 platformRouter.route("/logs", logsRoutes);
 platformRouter.route("/security", securityRoutes);
 platformRouter.route("/key", currentKeyRoutes);

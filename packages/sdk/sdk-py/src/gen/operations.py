@@ -160,6 +160,19 @@ def createChatCompletion(
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
+def createDynamicRoute(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> DynamicRouteResponse:
+	path = path or {}
+	resolved_path = "/routing/dynamic-routes"
+	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
+
+
 def createEmbedding(
 	client: Client,
 	*,
@@ -407,6 +420,19 @@ def deleteApiKey(
 	return client.request("DELETE", resolved_path, query=query, headers=headers, body=body)
 
 
+def deleteDynamicRoute(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> DynamicRouteDeleteResponse:
+	path = path or {}
+	resolved_path = f"/routing/dynamic-routes/{path.get('id', '')}"
+	return client.request("DELETE", resolved_path, query=query, headers=headers, body=body)
+
+
 def deleteObservabilityDestination(
 	client: Client,
 	*,
@@ -470,6 +496,19 @@ def deleteWorkspaceInvite(
 	path = path or {}
 	resolved_path = f"/workspaces/{path.get('id', '')}/invites/{path.get('invite_id', '')}"
 	return client.request("DELETE", resolved_path, query=query, headers=headers, body=body)
+
+
+def deployDynamicRouteVersion(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> DynamicRouteDeployResponse:
+	path = path or {}
+	resolved_path = f"/routing/dynamic-routes/{path.get('id', '')}/versions/{path.get('version', '')}/deploy"
+	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
 def generateMusic(
@@ -560,6 +599,19 @@ def getCurrentApiKey(
 ) -> ApiKeyResponse:
 	path = path or {}
 	resolved_path = "/key"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
+def getDynamicRoute(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> DynamicRouteResponse:
+	path = path or {}
+	resolved_path = f"/routing/dynamic-routes/{path.get('id', '')}"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -719,6 +771,19 @@ def getWorkspace(
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
+def getWorkspaceSettings(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> WorkspaceSettingsResponse:
+	path = path or {}
+	resolved_path = "/settings"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
 def listApiKeys(
 	client: Client,
 	*,
@@ -872,6 +937,19 @@ def listDataModels(
 ) -> Dict[str, Any]:
 	path = path or {}
 	resolved_path = "/data/models"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
+def listDynamicRoutes(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> DynamicRouteListResponse:
+	path = path or {}
+	resolved_path = "/routing/dynamic-routes"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -1148,6 +1226,19 @@ def removeWorkspaceMembers(
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
+def replaceDynamicRouteKeys(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> DynamicRouteKeysResponse:
+	path = path or {}
+	resolved_path = f"/routing/dynamic-routes/{path.get('id', '')}/keys"
+	return client.request("PUT", resolved_path, query=query, headers=headers, body=body)
+
+
 def retrieveBatch(
 	client: Client,
 	*,
@@ -1265,6 +1356,19 @@ def updateApiKey(
 	return client.request("PATCH", resolved_path, query=query, headers=headers, body=body)
 
 
+def updateDynamicRoute(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> DynamicRouteResponse:
+	path = path or {}
+	resolved_path = f"/routing/dynamic-routes/{path.get('id', '')}"
+	return client.request("PATCH", resolved_path, query=query, headers=headers, body=body)
+
+
 def updateObservabilityDestination(
 	client: Client,
 	*,
@@ -1317,6 +1421,19 @@ def updateWorkspaceMemberRole(
 	return client.request("PATCH", resolved_path, query=query, headers=headers, body=body)
 
 
+def updateWorkspaceSettings(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> WorkspaceSettingsResponse:
+	path = path or {}
+	resolved_path = "/settings"
+	return client.request("PATCH", resolved_path, query=query, headers=headers, body=body)
+
+
 def uploadBatchFile(
 	client: Client,
 	*,
@@ -1356,4 +1473,4 @@ def uploadFile(
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
-operations___all__ = ["addWorkspaceMembers", "approveWorkspaceJoinRequest", "calculatePricing", "cancelBatch", "cancelBatchAlias", "cancelVideo", "cancelVideoAlias", "createAnthropicMessage", "createApiKey", "createBatch", "createBatchAlias", "createChatCompletion", "createEmbedding", "createImage", "createImageEdit", "createModeration", "createObservabilityDestination", "createOcr", "createParse", "createRerank", "createResponse", "createSpeech", "createTranscription", "createTranslation", "createVideo", "createVideoAlias", "createVideoDownloadUrl", "createVideoDownloadUrlAlias", "createWorkspace", "createWorkspaceInvite", "deleteApiKey", "deleteObservabilityDestination", "deleteVideo", "deleteVideoAlias", "deleteWorkspace", "deleteWorkspaceInvite", "generateMusic", "generateMusicAlias", "getActivity", "getActivityAlias", "getApiKey", "getCredits", "getCurrentApiKey", "getGeneration", "getHealth", "getMusicGeneration", "getMusicGenerationAlias", "getObservabilityDestination", "getObservabilityLoggingPolicy", "getProviderDerankStatus", "getVideo", "getVideoAlias", "getVideoContent", "getVideoContentAlias", "getWorkspace", "listApiKeys", "listBatchCapabilities", "listBatchCapabilitiesAlias", "listBatches", "listBatchesAlias", "listBatchFiles", "listBatchFilesAlias", "listBatchModels", "listBatchModelsAlias", "listBatchRequests", "listBatchRequestsAlias", "listDataModels", "listEndpoints", "listFiles", "listModelEndpoints", "listModels", "listObservabilityDestinations", "listOrganisations", "listPricingModels", "listProviders", "listTeamModels", "listVideoModels", "listVideoModelsAlias", "listVideos", "listVideosAlias", "listWorkspaceAuditEvents", "listWorkspaceInvites", "listWorkspaceJoinRequests", "listWorkspaceMembers", "listWorkspaces", "openAsyncJobWebSocket", "rejectWorkspaceJoinRequest", "removeWorkspaceMembers", "retrieveBatch", "retrieveBatchAlias", "retrieveBatchFile", "retrieveBatchFileAlias", "retrieveBatchFileContent", "retrieveBatchFileContentAlias", "retrieveFile", "retrieveFileContent", "updateApiKey", "updateObservabilityDestination", "updateObservabilityLoggingPolicy", "updateWorkspace", "updateWorkspaceMemberRole", "uploadBatchFile", "uploadBatchFileAlias", "uploadFile"]
+operations___all__ = ["addWorkspaceMembers", "approveWorkspaceJoinRequest", "calculatePricing", "cancelBatch", "cancelBatchAlias", "cancelVideo", "cancelVideoAlias", "createAnthropicMessage", "createApiKey", "createBatch", "createBatchAlias", "createChatCompletion", "createDynamicRoute", "createEmbedding", "createImage", "createImageEdit", "createModeration", "createObservabilityDestination", "createOcr", "createParse", "createRerank", "createResponse", "createSpeech", "createTranscription", "createTranslation", "createVideo", "createVideoAlias", "createVideoDownloadUrl", "createVideoDownloadUrlAlias", "createWorkspace", "createWorkspaceInvite", "deleteApiKey", "deleteDynamicRoute", "deleteObservabilityDestination", "deleteVideo", "deleteVideoAlias", "deleteWorkspace", "deleteWorkspaceInvite", "deployDynamicRouteVersion", "generateMusic", "generateMusicAlias", "getActivity", "getActivityAlias", "getApiKey", "getCredits", "getCurrentApiKey", "getDynamicRoute", "getGeneration", "getHealth", "getMusicGeneration", "getMusicGenerationAlias", "getObservabilityDestination", "getObservabilityLoggingPolicy", "getProviderDerankStatus", "getVideo", "getVideoAlias", "getVideoContent", "getVideoContentAlias", "getWorkspace", "getWorkspaceSettings", "listApiKeys", "listBatchCapabilities", "listBatchCapabilitiesAlias", "listBatches", "listBatchesAlias", "listBatchFiles", "listBatchFilesAlias", "listBatchModels", "listBatchModelsAlias", "listBatchRequests", "listBatchRequestsAlias", "listDataModels", "listDynamicRoutes", "listEndpoints", "listFiles", "listModelEndpoints", "listModels", "listObservabilityDestinations", "listOrganisations", "listPricingModels", "listProviders", "listTeamModels", "listVideoModels", "listVideoModelsAlias", "listVideos", "listVideosAlias", "listWorkspaceAuditEvents", "listWorkspaceInvites", "listWorkspaceJoinRequests", "listWorkspaceMembers", "listWorkspaces", "openAsyncJobWebSocket", "rejectWorkspaceJoinRequest", "removeWorkspaceMembers", "replaceDynamicRouteKeys", "retrieveBatch", "retrieveBatchAlias", "retrieveBatchFile", "retrieveBatchFileAlias", "retrieveBatchFileContent", "retrieveBatchFileContentAlias", "retrieveFile", "retrieveFileContent", "updateApiKey", "updateDynamicRoute", "updateObservabilityDestination", "updateObservabilityLoggingPolicy", "updateWorkspace", "updateWorkspaceMemberRole", "updateWorkspaceSettings", "uploadBatchFile", "uploadBatchFileAlias", "uploadFile"]

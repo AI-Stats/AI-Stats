@@ -512,6 +512,21 @@
 										]
 									},
 									{
+										"group": "Routing",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/workspace-settings-get",
+											"v1/api-reference/endpoint/workspace-settings-update",
+											"v1/api-reference/endpoint/dynamic-routes-list",
+											"v1/api-reference/endpoint/dynamic-routes-create",
+											"v1/api-reference/endpoint/dynamic-routes-get",
+											"v1/api-reference/endpoint/dynamic-routes-update",
+											"v1/api-reference/endpoint/dynamic-routes-keys-update",
+											"v1/api-reference/endpoint/dynamic-routes-deploy",
+											"v1/api-reference/endpoint/dynamic-routes-delete"
+										]
+									},
+									{
 										"group": "Observability",
 										"expanded": false,
 										"pages": [

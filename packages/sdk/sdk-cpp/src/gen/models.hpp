@@ -552,6 +552,119 @@ struct DeletedResponse {
 	std::any deleted;
 };
 
+struct DynamicRoute {
+	std::map<std::string, std::any> config;
+	std::optional<std::string> created_at;
+	std::optional<int> deployed_version;
+	std::optional<std::string> description;
+	std::string id;
+	std::vector<std::string> key_ids;
+	std::string name;
+	std::string slug;
+	std::any status;
+	std::optional<std::string> updated_at;
+	int version;
+	std::vector<std::map<std::string, std::any>> versions;
+	std::string workspace_id;
+};
+
+struct DynamicRouteAction {
+	std::optional<bool> allowFallbacks;
+	std::string model;
+	std::vector<std::string> modelFallbacks;
+	std::vector<std::string> providerIgnore;
+	std::vector<std::string> providerOnly;
+	std::vector<std::string> providerOrder;
+	std::any routingMode;
+};
+
+struct DynamicRouteCondition {
+	std::any field;
+	std::optional<std::string> metadataKey;
+	std::any operator;
+	std::optional<std::string> value;
+};
+
+struct DynamicRouteConfig {
+	std::optional<bool> cacheAwareRouting;
+	std::map<std::string, std::any> defaultAction;
+	std::vector<std::map<std::string, std::any>> edges;
+	std::optional<std::string> entryNodeId;
+	std::vector<std::map<std::string, std::any>> nodes;
+	std::vector<std::map<std::string, std::any>> rules;
+	std::any schemaVersion;
+	std::optional<bool> sessionAffinity;
+};
+
+struct DynamicRouteCreateRequest {
+	std::map<std::string, std::any> config;
+	std::optional<std::string> description;
+	std::string name;
+	std::string slug;
+	std::any status;
+};
+
+struct DynamicRouteDeleteResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct DynamicRouteDeployResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct DynamicRouteEdge {
+	std::string id;
+	std::string source;
+	std::optional<std::string> sourceHandle;
+	std::string target;
+};
+
+struct DynamicRouteKeysResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct DynamicRouteKeysUpdateRequest {
+	std::vector<std::string> key_ids;
+};
+
+struct DynamicRouteListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+	int total_count;
+};
+
+struct DynamicRouteNode {
+	std::map<std::string, std::any> data;
+	std::string id;
+	std::optional<std::map<std::string, std::any>> position;
+	std::any type;
+};
+
+struct DynamicRouteResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct DynamicRouteRule {
+	std::map<std::string, std::any> action;
+	std::map<std::string, std::any> condition;
+	bool enabled;
+	std::string id;
+	std::string name;
+};
+
+struct DynamicRouteUpdateRequest {
+	std::map<std::string, std::any> config;
+	std::optional<std::string> description;
+	std::string name;
+	std::any status;
+};
+
+struct DynamicRouteVersion {
+	std::optional<std::string> created_at;
+	std::optional<std::string> created_by;
+	std::any status;
+	int version;
+};
+
 struct Embedding {
 	std::vector<double> embedding;
 	std::optional<int> index;
@@ -1845,11 +1958,61 @@ struct WorkspaceMemberRoleUpdateRequest {
 	std::any role;
 };
 
+using WorkspaceProviderRestrictionMode = std::any;
+
 struct WorkspaceResponse {
 	std::map<std::string, std::any> data;
 };
 
 using WorkspaceRole = std::any;
+
+using WorkspaceRoutingMode = std::any;
+
+struct WorkspaceSettings {
+	std::optional<bool> alpha_channel_enabled;
+	std::optional<bool> beta_channel_enabled;
+	std::optional<bool> byok_fallback_enabled;
+	std::optional<bool> io_logging_enabled;
+	std::optional<bool> io_logging_include_provider_payloads;
+	std::optional<bool> privacy_enable_free_may_publish_prompts;
+	std::optional<bool> privacy_enable_free_may_train;
+	std::optional<bool> privacy_enable_input_output_logging;
+	std::optional<bool> privacy_enable_paid_may_train;
+	std::optional<bool> privacy_zdr_only;
+	std::optional<bool> provider_restriction_enforce_allowed;
+	std::optional<std::any> provider_restriction_mode;
+	std::optional<std::vector<std::string>> provider_restriction_provider_ids;
+	std::optional<bool> response_healing_enabled;
+	std::optional<bool> response_healing_locked;
+	std::optional<std::any> response_healing_mode;
+	std::optional<std::any> routing_mode;
+	std::optional<std::string> updated_at;
+	std::string workspace_id;
+};
+
+struct WorkspaceSettingsResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct WorkspaceSettingsUpdateRequest {
+	std::optional<bool> alpha_channel_enabled;
+	std::optional<bool> beta_channel_enabled;
+	std::optional<bool> byok_fallback_enabled;
+	std::optional<bool> io_logging_enabled;
+	std::optional<bool> io_logging_include_provider_payloads;
+	std::optional<bool> privacy_enable_free_may_publish_prompts;
+	std::optional<bool> privacy_enable_free_may_train;
+	std::optional<bool> privacy_enable_input_output_logging;
+	std::optional<bool> privacy_enable_paid_may_train;
+	std::optional<bool> privacy_zdr_only;
+	std::optional<bool> provider_restriction_enforce_allowed;
+	std::any provider_restriction_mode;
+	std::vector<std::string> provider_restriction_provider_ids;
+	std::optional<bool> response_healing_enabled;
+	std::optional<bool> response_healing_locked;
+	std::any response_healing_mode;
+	std::any routing_mode;
+};
 
 struct WorkspaceUpdateRequest {
 	std::string name;

@@ -2170,6 +2170,256 @@ export async function createChatCompletion(
   });
 }
 
+export type CreateDynamicRouteParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    config: {
+      cacheAwareRouting?: boolean;
+      defaultAction?: {
+        allowFallbacks?: boolean;
+        model?: string;
+        modelFallbacks?: string[];
+        providerIgnore?: string[];
+        providerOnly?: string[];
+        providerOrder?: string[];
+        routingMode?: "balanced" | "price" | "latency" | "throughput";
+      };
+      edges?: {
+        id: string;
+        source: string;
+        sourceHandle?: string | null;
+        target: string;
+      }[];
+      entryNodeId?: string | null;
+      nodes?: {
+        data: {
+          [key: string]: unknown;
+        };
+        id: string;
+        position?: {
+          x: number;
+          y: number;
+        } | null;
+        type:
+          | "start"
+          | "condition"
+          | "percentage"
+          | "model"
+          | "rate_limit"
+          | "budget_limit"
+          | "end";
+      }[];
+      rules?: {
+        action: {
+          allowFallbacks?: boolean;
+          model?: string;
+          modelFallbacks?: string[];
+          providerIgnore?: string[];
+          providerOnly?: string[];
+          providerOrder?: string[];
+          routingMode?: "balanced" | "price" | "latency" | "throughput";
+        };
+        condition: {
+          field: "always" | "endpoint" | "model" | "session_id" | "metadata";
+          metadataKey?: string | null;
+          operator:
+            "equals" | "not_equals" | "contains" | "starts_with" | "exists";
+          value?: string | null;
+        };
+        enabled: boolean;
+        id: string;
+        name: string;
+      }[];
+      schemaVersion?: 2;
+      sessionAffinity?: boolean;
+    };
+    description?: string | null;
+    name: string;
+    slug?: string;
+    status?: "active" | "paused";
+  };
+};
+
+/**
+ * Creates a dynamic route with its first immutable configuration version.
+ */
+export async function createDynamicRoute(
+  client: Client,
+  args: CreateDynamicRouteParams = {},
+): Promise<{
+  data: {
+    config: {
+      cacheAwareRouting?: boolean;
+      defaultAction?: {
+        allowFallbacks?: boolean;
+        model?: string;
+        modelFallbacks?: string[];
+        providerIgnore?: string[];
+        providerOnly?: string[];
+        providerOrder?: string[];
+        routingMode?: "balanced" | "price" | "latency" | "throughput";
+      };
+      edges?: {
+        id: string;
+        source: string;
+        sourceHandle?: string | null;
+        target: string;
+      }[];
+      entryNodeId?: string | null;
+      nodes?: {
+        data: {
+          [key: string]: unknown;
+        };
+        id: string;
+        position?: {
+          x: number;
+          y: number;
+        } | null;
+        type:
+          | "start"
+          | "condition"
+          | "percentage"
+          | "model"
+          | "rate_limit"
+          | "budget_limit"
+          | "end";
+      }[];
+      rules?: {
+        action: {
+          allowFallbacks?: boolean;
+          model?: string;
+          modelFallbacks?: string[];
+          providerIgnore?: string[];
+          providerOnly?: string[];
+          providerOrder?: string[];
+          routingMode?: "balanced" | "price" | "latency" | "throughput";
+        };
+        condition: {
+          field: "always" | "endpoint" | "model" | "session_id" | "metadata";
+          metadataKey?: string | null;
+          operator:
+            "equals" | "not_equals" | "contains" | "starts_with" | "exists";
+          value?: string | null;
+        };
+        enabled: boolean;
+        id: string;
+        name: string;
+      }[];
+      schemaVersion?: 2;
+      sessionAffinity?: boolean;
+    };
+    created_at?: string | null;
+    deployed_version?: number | null;
+    description?: string | null;
+    id: string;
+    key_ids: string[];
+    name: string;
+    slug: string;
+    status: "active" | "paused";
+    updated_at?: string | null;
+    version: number;
+    versions: {
+      created_at?: string | null;
+      created_by?: string | null;
+      status: "draft" | "deployed" | "superseded";
+      version: number;
+    }[];
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/routing/dynamic-routes";
+  return client.request<{
+    data: {
+      config: {
+        cacheAwareRouting?: boolean;
+        defaultAction?: {
+          allowFallbacks?: boolean;
+          model?: string;
+          modelFallbacks?: string[];
+          providerIgnore?: string[];
+          providerOnly?: string[];
+          providerOrder?: string[];
+          routingMode?: "balanced" | "price" | "latency" | "throughput";
+        };
+        edges?: {
+          id: string;
+          source: string;
+          sourceHandle?: string | null;
+          target: string;
+        }[];
+        entryNodeId?: string | null;
+        nodes?: {
+          data: {
+            [key: string]: unknown;
+          };
+          id: string;
+          position?: {
+            x: number;
+            y: number;
+          } | null;
+          type:
+            | "start"
+            | "condition"
+            | "percentage"
+            | "model"
+            | "rate_limit"
+            | "budget_limit"
+            | "end";
+        }[];
+        rules?: {
+          action: {
+            allowFallbacks?: boolean;
+            model?: string;
+            modelFallbacks?: string[];
+            providerIgnore?: string[];
+            providerOnly?: string[];
+            providerOrder?: string[];
+            routingMode?: "balanced" | "price" | "latency" | "throughput";
+          };
+          condition: {
+            field: "always" | "endpoint" | "model" | "session_id" | "metadata";
+            metadataKey?: string | null;
+            operator:
+              "equals" | "not_equals" | "contains" | "starts_with" | "exists";
+            value?: string | null;
+          };
+          enabled: boolean;
+          id: string;
+          name: string;
+        }[];
+        schemaVersion?: 2;
+        sessionAffinity?: boolean;
+      };
+      created_at?: string | null;
+      deployed_version?: number | null;
+      description?: string | null;
+      id: string;
+      key_ids: string[];
+      name: string;
+      slug: string;
+      status: "active" | "paused";
+      updated_at?: string | null;
+      version: number;
+      versions: {
+        created_at?: string | null;
+        created_by?: string | null;
+        status: "draft" | "deployed" | "superseded";
+        version: number;
+      }[];
+      workspace_id: string;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type CreateEmbeddingParams = {
   path?: Record<string, never>;
   query?: Record<string, never>;
@@ -4925,6 +5175,45 @@ export async function deleteApiKey(
   });
 }
 
+export type DeleteDynamicRouteParams = {
+  path?: {
+    id: string;
+  };
+  query?: {
+    confirm_name?: string;
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Permanently deletes a route and refreshes all previously attached API-key contexts.
+ */
+export async function deleteDynamicRoute(
+  client: Client,
+  args: DeleteDynamicRouteParams = {},
+): Promise<{
+  data: {
+    deleted: true;
+    id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/routing/dynamic-routes/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    data: {
+      deleted: true;
+      id: string;
+    };
+  }>({
+    method: "DELETE",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type DeleteObservabilityDestinationParams = {
   path?: {
     id: string;
@@ -5082,6 +5371,44 @@ export async function deleteWorkspaceInvite(
     deleted: true;
   }>({
     method: "DELETE",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type DeployDynamicRouteVersionParams = {
+  path?: {
+    id: string;
+    version: number;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Makes an immutable route version active and refreshes attached-key contexts.
+ */
+export async function deployDynamicRouteVersion(
+  client: Client,
+  args: DeployDynamicRouteVersionParams = {},
+): Promise<{
+  data: {
+    deployed_version: number;
+    id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/routing/dynamic-routes/${encodeURIComponent(String(path?.["id"]))}/versions/${encodeURIComponent(String(path?.["version"]))}/deploy`;
+  return client.request<{
+    data: {
+      deployed_version: number;
+      id: string;
+    };
+  }>({
+    method: "POST",
     path: resolvedPath,
     query,
     headers,
@@ -5644,6 +5971,193 @@ export async function getCurrentApiKey(
       soft_blocked: boolean;
       status: string | null;
       updated_at: string | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type GetDynamicRouteParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns one workspace dynamic route with versions and API-key attachments.
+ */
+export async function getDynamicRoute(
+  client: Client,
+  args: GetDynamicRouteParams = {},
+): Promise<{
+  data: {
+    config: {
+      cacheAwareRouting?: boolean;
+      defaultAction?: {
+        allowFallbacks?: boolean;
+        model?: string;
+        modelFallbacks?: string[];
+        providerIgnore?: string[];
+        providerOnly?: string[];
+        providerOrder?: string[];
+        routingMode?: "balanced" | "price" | "latency" | "throughput";
+      };
+      edges?: {
+        id: string;
+        source: string;
+        sourceHandle?: string | null;
+        target: string;
+      }[];
+      entryNodeId?: string | null;
+      nodes?: {
+        data: {
+          [key: string]: unknown;
+        };
+        id: string;
+        position?: {
+          x: number;
+          y: number;
+        } | null;
+        type:
+          | "start"
+          | "condition"
+          | "percentage"
+          | "model"
+          | "rate_limit"
+          | "budget_limit"
+          | "end";
+      }[];
+      rules?: {
+        action: {
+          allowFallbacks?: boolean;
+          model?: string;
+          modelFallbacks?: string[];
+          providerIgnore?: string[];
+          providerOnly?: string[];
+          providerOrder?: string[];
+          routingMode?: "balanced" | "price" | "latency" | "throughput";
+        };
+        condition: {
+          field: "always" | "endpoint" | "model" | "session_id" | "metadata";
+          metadataKey?: string | null;
+          operator:
+            "equals" | "not_equals" | "contains" | "starts_with" | "exists";
+          value?: string | null;
+        };
+        enabled: boolean;
+        id: string;
+        name: string;
+      }[];
+      schemaVersion?: 2;
+      sessionAffinity?: boolean;
+    };
+    created_at?: string | null;
+    deployed_version?: number | null;
+    description?: string | null;
+    id: string;
+    key_ids: string[];
+    name: string;
+    slug: string;
+    status: "active" | "paused";
+    updated_at?: string | null;
+    version: number;
+    versions: {
+      created_at?: string | null;
+      created_by?: string | null;
+      status: "draft" | "deployed" | "superseded";
+      version: number;
+    }[];
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/routing/dynamic-routes/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    data: {
+      config: {
+        cacheAwareRouting?: boolean;
+        defaultAction?: {
+          allowFallbacks?: boolean;
+          model?: string;
+          modelFallbacks?: string[];
+          providerIgnore?: string[];
+          providerOnly?: string[];
+          providerOrder?: string[];
+          routingMode?: "balanced" | "price" | "latency" | "throughput";
+        };
+        edges?: {
+          id: string;
+          source: string;
+          sourceHandle?: string | null;
+          target: string;
+        }[];
+        entryNodeId?: string | null;
+        nodes?: {
+          data: {
+            [key: string]: unknown;
+          };
+          id: string;
+          position?: {
+            x: number;
+            y: number;
+          } | null;
+          type:
+            | "start"
+            | "condition"
+            | "percentage"
+            | "model"
+            | "rate_limit"
+            | "budget_limit"
+            | "end";
+        }[];
+        rules?: {
+          action: {
+            allowFallbacks?: boolean;
+            model?: string;
+            modelFallbacks?: string[];
+            providerIgnore?: string[];
+            providerOnly?: string[];
+            providerOrder?: string[];
+            routingMode?: "balanced" | "price" | "latency" | "throughput";
+          };
+          condition: {
+            field: "always" | "endpoint" | "model" | "session_id" | "metadata";
+            metadataKey?: string | null;
+            operator:
+              "equals" | "not_equals" | "contains" | "starts_with" | "exists";
+            value?: string | null;
+          };
+          enabled: boolean;
+          id: string;
+          name: string;
+        }[];
+        schemaVersion?: 2;
+        sessionAffinity?: boolean;
+      };
+      created_at?: string | null;
+      deployed_version?: number | null;
+      description?: string | null;
+      id: string;
+      key_ids: string[];
+      name: string;
+      slug: string;
+      status: "active" | "paused";
+      updated_at?: string | null;
+      version: number;
+      versions: {
+        created_at?: string | null;
+        created_by?: string | null;
+        status: "draft" | "deployed" | "superseded";
+        version: number;
+      }[];
       workspace_id: string;
     };
   }>({
@@ -6689,6 +7203,75 @@ export async function getWorkspace(
       name: string | null;
       slug: string | null;
       updated_at: string | null;
+    };
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type GetWorkspaceSettingsParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns the automatable workspace routing, provider, privacy, and gateway defaults.
+ */
+export async function getWorkspaceSettings(
+  client: Client,
+  args: GetWorkspaceSettingsParams = {},
+): Promise<{
+  data: {
+    alpha_channel_enabled?: boolean | null;
+    beta_channel_enabled?: boolean | null;
+    byok_fallback_enabled?: boolean | null;
+    io_logging_enabled?: boolean | null;
+    io_logging_include_provider_payloads?: boolean | null;
+    privacy_enable_free_may_publish_prompts?: boolean | null;
+    privacy_enable_free_may_train?: boolean | null;
+    privacy_enable_input_output_logging?: boolean | null;
+    privacy_enable_paid_may_train?: boolean | null;
+    privacy_zdr_only?: boolean | null;
+    provider_restriction_enforce_allowed?: boolean | null;
+    provider_restriction_mode?: "none" | "allowlist" | "blocklist" | null;
+    provider_restriction_provider_ids?: string[] | null;
+    response_healing_enabled?: boolean | null;
+    response_healing_locked?: boolean | null;
+    response_healing_mode?: "safe" | "strict" | null;
+    routing_mode?: "balanced" | "price" | "latency" | "throughput" | null;
+    updated_at?: string | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/settings";
+  return client.request<{
+    data: {
+      alpha_channel_enabled?: boolean | null;
+      beta_channel_enabled?: boolean | null;
+      byok_fallback_enabled?: boolean | null;
+      io_logging_enabled?: boolean | null;
+      io_logging_include_provider_payloads?: boolean | null;
+      privacy_enable_free_may_publish_prompts?: boolean | null;
+      privacy_enable_free_may_train?: boolean | null;
+      privacy_enable_input_output_logging?: boolean | null;
+      privacy_enable_paid_may_train?: boolean | null;
+      privacy_zdr_only?: boolean | null;
+      provider_restriction_enforce_allowed?: boolean | null;
+      provider_restriction_mode?: "none" | "allowlist" | "blocklist" | null;
+      provider_restriction_provider_ids?: string[] | null;
+      response_healing_enabled?: boolean | null;
+      response_healing_locked?: boolean | null;
+      response_healing_mode?: "safe" | "strict" | null;
+      routing_mode?: "balanced" | "price" | "latency" | "throughput" | null;
+      updated_at?: string | null;
+      workspace_id: string;
     };
   }>({
     method: "GET",
@@ -8081,6 +8664,196 @@ export async function listDataModels(
     offset?: number;
     ok?: boolean;
     total?: number;
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ListDynamicRoutesParams = {
+  path?: Record<string, never>;
+  query?: {
+    limit?: number;
+    offset?: number;
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists versioned dynamic routes and their API-key attachments for the workspace.
+ */
+export async function listDynamicRoutes(
+  client: Client,
+  args: ListDynamicRoutesParams = {},
+): Promise<{
+  data: {
+    config: {
+      cacheAwareRouting?: boolean;
+      defaultAction?: {
+        allowFallbacks?: boolean;
+        model?: string;
+        modelFallbacks?: string[];
+        providerIgnore?: string[];
+        providerOnly?: string[];
+        providerOrder?: string[];
+        routingMode?: "balanced" | "price" | "latency" | "throughput";
+      };
+      edges?: {
+        id: string;
+        source: string;
+        sourceHandle?: string | null;
+        target: string;
+      }[];
+      entryNodeId?: string | null;
+      nodes?: {
+        data: {
+          [key: string]: unknown;
+        };
+        id: string;
+        position?: {
+          x: number;
+          y: number;
+        } | null;
+        type:
+          | "start"
+          | "condition"
+          | "percentage"
+          | "model"
+          | "rate_limit"
+          | "budget_limit"
+          | "end";
+      }[];
+      rules?: {
+        action: {
+          allowFallbacks?: boolean;
+          model?: string;
+          modelFallbacks?: string[];
+          providerIgnore?: string[];
+          providerOnly?: string[];
+          providerOrder?: string[];
+          routingMode?: "balanced" | "price" | "latency" | "throughput";
+        };
+        condition: {
+          field: "always" | "endpoint" | "model" | "session_id" | "metadata";
+          metadataKey?: string | null;
+          operator:
+            "equals" | "not_equals" | "contains" | "starts_with" | "exists";
+          value?: string | null;
+        };
+        enabled: boolean;
+        id: string;
+        name: string;
+      }[];
+      schemaVersion?: 2;
+      sessionAffinity?: boolean;
+    };
+    created_at?: string | null;
+    deployed_version?: number | null;
+    description?: string | null;
+    id: string;
+    key_ids: string[];
+    name: string;
+    slug: string;
+    status: "active" | "paused";
+    updated_at?: string | null;
+    version: number;
+    versions: {
+      created_at?: string | null;
+      created_by?: string | null;
+      status: "draft" | "deployed" | "superseded";
+      version: number;
+    }[];
+    workspace_id: string;
+  }[];
+  total_count: number;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/routing/dynamic-routes";
+  return client.request<{
+    data: {
+      config: {
+        cacheAwareRouting?: boolean;
+        defaultAction?: {
+          allowFallbacks?: boolean;
+          model?: string;
+          modelFallbacks?: string[];
+          providerIgnore?: string[];
+          providerOnly?: string[];
+          providerOrder?: string[];
+          routingMode?: "balanced" | "price" | "latency" | "throughput";
+        };
+        edges?: {
+          id: string;
+          source: string;
+          sourceHandle?: string | null;
+          target: string;
+        }[];
+        entryNodeId?: string | null;
+        nodes?: {
+          data: {
+            [key: string]: unknown;
+          };
+          id: string;
+          position?: {
+            x: number;
+            y: number;
+          } | null;
+          type:
+            | "start"
+            | "condition"
+            | "percentage"
+            | "model"
+            | "rate_limit"
+            | "budget_limit"
+            | "end";
+        }[];
+        rules?: {
+          action: {
+            allowFallbacks?: boolean;
+            model?: string;
+            modelFallbacks?: string[];
+            providerIgnore?: string[];
+            providerOnly?: string[];
+            providerOrder?: string[];
+            routingMode?: "balanced" | "price" | "latency" | "throughput";
+          };
+          condition: {
+            field: "always" | "endpoint" | "model" | "session_id" | "metadata";
+            metadataKey?: string | null;
+            operator:
+              "equals" | "not_equals" | "contains" | "starts_with" | "exists";
+            value?: string | null;
+          };
+          enabled: boolean;
+          id: string;
+          name: string;
+        }[];
+        schemaVersion?: 2;
+        sessionAffinity?: boolean;
+      };
+      created_at?: string | null;
+      deployed_version?: number | null;
+      description?: string | null;
+      id: string;
+      key_ids: string[];
+      name: string;
+      slug: string;
+      status: "active" | "paused";
+      updated_at?: string | null;
+      version: number;
+      versions: {
+        created_at?: string | null;
+        created_by?: string | null;
+        status: "draft" | "deployed" | "superseded";
+        version: number;
+      }[];
+      workspace_id: string;
+    }[];
+    total_count: number;
   }>({
     method: "GET",
     path: resolvedPath,
@@ -10845,6 +11618,45 @@ export async function removeWorkspaceMembers(
   });
 }
 
+export type ReplaceDynamicRouteKeysParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    key_ids: string[];
+  };
+};
+
+/**
+ * Atomically replaces API-key attachments and refreshes affected gateway contexts.
+ */
+export async function replaceDynamicRouteKeys(
+  client: Client,
+  args: ReplaceDynamicRouteKeysParams = {},
+): Promise<{
+  data: {
+    id: string;
+    key_ids: string[];
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/routing/dynamic-routes/${encodeURIComponent(String(path?.["id"]))}/keys`;
+  return client.request<{
+    data: {
+      id: string;
+      key_ids: string[];
+    };
+  }>({
+    method: "PUT",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type RetrieveBatchParams = {
   path?: {
     batch_id: string;
@@ -11627,6 +12439,257 @@ export async function updateApiKey(
   });
 }
 
+export type UpdateDynamicRouteParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    config?: {
+      cacheAwareRouting?: boolean;
+      defaultAction?: {
+        allowFallbacks?: boolean;
+        model?: string;
+        modelFallbacks?: string[];
+        providerIgnore?: string[];
+        providerOnly?: string[];
+        providerOrder?: string[];
+        routingMode?: "balanced" | "price" | "latency" | "throughput";
+      };
+      edges?: {
+        id: string;
+        source: string;
+        sourceHandle?: string | null;
+        target: string;
+      }[];
+      entryNodeId?: string | null;
+      nodes?: {
+        data: {
+          [key: string]: unknown;
+        };
+        id: string;
+        position?: {
+          x: number;
+          y: number;
+        } | null;
+        type:
+          | "start"
+          | "condition"
+          | "percentage"
+          | "model"
+          | "rate_limit"
+          | "budget_limit"
+          | "end";
+      }[];
+      rules?: {
+        action: {
+          allowFallbacks?: boolean;
+          model?: string;
+          modelFallbacks?: string[];
+          providerIgnore?: string[];
+          providerOnly?: string[];
+          providerOrder?: string[];
+          routingMode?: "balanced" | "price" | "latency" | "throughput";
+        };
+        condition: {
+          field: "always" | "endpoint" | "model" | "session_id" | "metadata";
+          metadataKey?: string | null;
+          operator:
+            "equals" | "not_equals" | "contains" | "starts_with" | "exists";
+          value?: string | null;
+        };
+        enabled: boolean;
+        id: string;
+        name: string;
+      }[];
+      schemaVersion?: 2;
+      sessionAffinity?: boolean;
+    };
+    description?: string | null;
+    name?: string;
+    status?: "active" | "paused";
+  };
+};
+
+/**
+ * Updates route metadata and creates a new immutable version when configuration changes.
+ */
+export async function updateDynamicRoute(
+  client: Client,
+  args: UpdateDynamicRouteParams = {},
+): Promise<{
+  data: {
+    config: {
+      cacheAwareRouting?: boolean;
+      defaultAction?: {
+        allowFallbacks?: boolean;
+        model?: string;
+        modelFallbacks?: string[];
+        providerIgnore?: string[];
+        providerOnly?: string[];
+        providerOrder?: string[];
+        routingMode?: "balanced" | "price" | "latency" | "throughput";
+      };
+      edges?: {
+        id: string;
+        source: string;
+        sourceHandle?: string | null;
+        target: string;
+      }[];
+      entryNodeId?: string | null;
+      nodes?: {
+        data: {
+          [key: string]: unknown;
+        };
+        id: string;
+        position?: {
+          x: number;
+          y: number;
+        } | null;
+        type:
+          | "start"
+          | "condition"
+          | "percentage"
+          | "model"
+          | "rate_limit"
+          | "budget_limit"
+          | "end";
+      }[];
+      rules?: {
+        action: {
+          allowFallbacks?: boolean;
+          model?: string;
+          modelFallbacks?: string[];
+          providerIgnore?: string[];
+          providerOnly?: string[];
+          providerOrder?: string[];
+          routingMode?: "balanced" | "price" | "latency" | "throughput";
+        };
+        condition: {
+          field: "always" | "endpoint" | "model" | "session_id" | "metadata";
+          metadataKey?: string | null;
+          operator:
+            "equals" | "not_equals" | "contains" | "starts_with" | "exists";
+          value?: string | null;
+        };
+        enabled: boolean;
+        id: string;
+        name: string;
+      }[];
+      schemaVersion?: 2;
+      sessionAffinity?: boolean;
+    };
+    created_at?: string | null;
+    deployed_version?: number | null;
+    description?: string | null;
+    id: string;
+    key_ids: string[];
+    name: string;
+    slug: string;
+    status: "active" | "paused";
+    updated_at?: string | null;
+    version: number;
+    versions: {
+      created_at?: string | null;
+      created_by?: string | null;
+      status: "draft" | "deployed" | "superseded";
+      version: number;
+    }[];
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/routing/dynamic-routes/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    data: {
+      config: {
+        cacheAwareRouting?: boolean;
+        defaultAction?: {
+          allowFallbacks?: boolean;
+          model?: string;
+          modelFallbacks?: string[];
+          providerIgnore?: string[];
+          providerOnly?: string[];
+          providerOrder?: string[];
+          routingMode?: "balanced" | "price" | "latency" | "throughput";
+        };
+        edges?: {
+          id: string;
+          source: string;
+          sourceHandle?: string | null;
+          target: string;
+        }[];
+        entryNodeId?: string | null;
+        nodes?: {
+          data: {
+            [key: string]: unknown;
+          };
+          id: string;
+          position?: {
+            x: number;
+            y: number;
+          } | null;
+          type:
+            | "start"
+            | "condition"
+            | "percentage"
+            | "model"
+            | "rate_limit"
+            | "budget_limit"
+            | "end";
+        }[];
+        rules?: {
+          action: {
+            allowFallbacks?: boolean;
+            model?: string;
+            modelFallbacks?: string[];
+            providerIgnore?: string[];
+            providerOnly?: string[];
+            providerOrder?: string[];
+            routingMode?: "balanced" | "price" | "latency" | "throughput";
+          };
+          condition: {
+            field: "always" | "endpoint" | "model" | "session_id" | "metadata";
+            metadataKey?: string | null;
+            operator:
+              "equals" | "not_equals" | "contains" | "starts_with" | "exists";
+            value?: string | null;
+          };
+          enabled: boolean;
+          id: string;
+          name: string;
+        }[];
+        schemaVersion?: 2;
+        sessionAffinity?: boolean;
+      };
+      created_at?: string | null;
+      deployed_version?: number | null;
+      description?: string | null;
+      id: string;
+      key_ids: string[];
+      name: string;
+      slug: string;
+      status: "active" | "paused";
+      updated_at?: string | null;
+      version: number;
+      versions: {
+        created_at?: string | null;
+        created_by?: string | null;
+        status: "draft" | "deployed" | "superseded";
+        version: number;
+      }[];
+      workspace_id: string;
+    };
+  }>({
+    method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type UpdateObservabilityDestinationParams = {
   path?: {
     id: string;
@@ -11939,6 +13002,93 @@ export async function updateWorkspaceMemberRole(
       joined_at?: string | null;
       role: "owner" | "admin" | "member";
       user_id: string;
+      workspace_id: string;
+    };
+  }>({
+    method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateWorkspaceSettingsParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    alpha_channel_enabled?: boolean;
+    beta_channel_enabled?: boolean;
+    byok_fallback_enabled?: boolean;
+    io_logging_enabled?: boolean;
+    io_logging_include_provider_payloads?: boolean;
+    privacy_enable_free_may_publish_prompts?: boolean;
+    privacy_enable_free_may_train?: boolean;
+    privacy_enable_input_output_logging?: boolean;
+    privacy_enable_paid_may_train?: boolean;
+    privacy_zdr_only?: boolean;
+    provider_restriction_enforce_allowed?: boolean;
+    provider_restriction_mode?: "none" | "allowlist" | "blocklist";
+    provider_restriction_provider_ids?: string[];
+    response_healing_enabled?: boolean;
+    response_healing_locked?: boolean;
+    response_healing_mode?: "safe" | "strict";
+    routing_mode?: "balanced" | "price" | "latency" | "throughput";
+  };
+};
+
+/**
+ * Updates workspace routing, provider, privacy, or gateway defaults and refreshes affected gateway policy caches.
+ */
+export async function updateWorkspaceSettings(
+  client: Client,
+  args: UpdateWorkspaceSettingsParams = {},
+): Promise<{
+  data: {
+    alpha_channel_enabled?: boolean | null;
+    beta_channel_enabled?: boolean | null;
+    byok_fallback_enabled?: boolean | null;
+    io_logging_enabled?: boolean | null;
+    io_logging_include_provider_payloads?: boolean | null;
+    privacy_enable_free_may_publish_prompts?: boolean | null;
+    privacy_enable_free_may_train?: boolean | null;
+    privacy_enable_input_output_logging?: boolean | null;
+    privacy_enable_paid_may_train?: boolean | null;
+    privacy_zdr_only?: boolean | null;
+    provider_restriction_enforce_allowed?: boolean | null;
+    provider_restriction_mode?: "none" | "allowlist" | "blocklist" | null;
+    provider_restriction_provider_ids?: string[] | null;
+    response_healing_enabled?: boolean | null;
+    response_healing_locked?: boolean | null;
+    response_healing_mode?: "safe" | "strict" | null;
+    routing_mode?: "balanced" | "price" | "latency" | "throughput" | null;
+    updated_at?: string | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/settings";
+  return client.request<{
+    data: {
+      alpha_channel_enabled?: boolean | null;
+      beta_channel_enabled?: boolean | null;
+      byok_fallback_enabled?: boolean | null;
+      io_logging_enabled?: boolean | null;
+      io_logging_include_provider_payloads?: boolean | null;
+      privacy_enable_free_may_publish_prompts?: boolean | null;
+      privacy_enable_free_may_train?: boolean | null;
+      privacy_enable_input_output_logging?: boolean | null;
+      privacy_enable_paid_may_train?: boolean | null;
+      privacy_zdr_only?: boolean | null;
+      provider_restriction_enforce_allowed?: boolean | null;
+      provider_restriction_mode?: "none" | "allowlist" | "blocklist" | null;
+      provider_restriction_provider_ids?: string[] | null;
+      response_healing_enabled?: boolean | null;
+      response_healing_locked?: boolean | null;
+      response_healing_mode?: "safe" | "strict" | null;
+      routing_mode?: "balanced" | "price" | "latency" | "throughput" | null;
+      updated_at?: string | null;
       workspace_id: string;
     };
   }>({

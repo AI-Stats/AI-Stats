@@ -987,6 +987,200 @@ class DeletedResponse
 	public $deleted;
 }
 
+class DynamicRoute
+{
+	/** @var array<string, mixed> */
+	public $config;
+	/** @var string|null */
+	public $created_at;
+	/** @var int|null */
+	public $deployed_version;
+	/** @var string|null */
+	public $description;
+	/** @var string */
+	public $id;
+	/** @var array */
+	public $key_ids;
+	/** @var string */
+	public $name;
+	/** @var string */
+	public $slug;
+	/** @var string */
+	public $status;
+	/** @var string|null */
+	public $updated_at;
+	/** @var int */
+	public $version;
+	/** @var array */
+	public $versions;
+	/** @var string */
+	public $workspace_id;
+}
+
+class DynamicRouteAction
+{
+	/** @var bool|null */
+	public $allowFallbacks;
+	/** @var string|null */
+	public $model;
+	/** @var array|null */
+	public $modelFallbacks;
+	/** @var array|null */
+	public $providerIgnore;
+	/** @var array|null */
+	public $providerOnly;
+	/** @var array|null */
+	public $providerOrder;
+	/** @var string|null */
+	public $routingMode;
+}
+
+class DynamicRouteCondition
+{
+	/** @var string */
+	public $field;
+	/** @var string|null */
+	public $metadataKey;
+	/** @var string */
+	public $operator;
+	/** @var string|null */
+	public $value;
+}
+
+class DynamicRouteConfig
+{
+	/** @var bool|null */
+	public $cacheAwareRouting;
+	/** @var array<string, mixed>|null */
+	public $defaultAction;
+	/** @var array|null */
+	public $edges;
+	/** @var string|null */
+	public $entryNodeId;
+	/** @var array|null */
+	public $nodes;
+	/** @var array|null */
+	public $rules;
+	/** @var string|null */
+	public $schemaVersion;
+	/** @var bool|null */
+	public $sessionAffinity;
+}
+
+class DynamicRouteCreateRequest
+{
+	/** @var array<string, mixed> */
+	public $config;
+	/** @var string|null */
+	public $description;
+	/** @var string */
+	public $name;
+	/** @var string|null */
+	public $slug;
+	/** @var string|null */
+	public $status;
+}
+
+class DynamicRouteDeleteResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class DynamicRouteDeployResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class DynamicRouteEdge
+{
+	/** @var string */
+	public $id;
+	/** @var string */
+	public $source;
+	/** @var string|null */
+	public $sourceHandle;
+	/** @var string */
+	public $target;
+}
+
+class DynamicRouteKeysResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class DynamicRouteKeysUpdateRequest
+{
+	/** @var array */
+	public $key_ids;
+}
+
+class DynamicRouteListResponse
+{
+	/** @var array */
+	public $data;
+	/** @var int */
+	public $total_count;
+}
+
+class DynamicRouteNode
+{
+	/** @var array<string, mixed> */
+	public $data;
+	/** @var string */
+	public $id;
+	/** @var array<string, mixed>|null */
+	public $position;
+	/** @var string */
+	public $type;
+}
+
+class DynamicRouteResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class DynamicRouteRule
+{
+	/** @var array<string, mixed> */
+	public $action;
+	/** @var array<string, mixed> */
+	public $condition;
+	/** @var bool */
+	public $enabled;
+	/** @var string */
+	public $id;
+	/** @var string */
+	public $name;
+}
+
+class DynamicRouteUpdateRequest
+{
+	/** @var array<string, mixed>|null */
+	public $config;
+	/** @var string|null */
+	public $description;
+	/** @var string|null */
+	public $name;
+	/** @var string|null */
+	public $status;
+}
+
+class DynamicRouteVersion
+{
+	/** @var string|null */
+	public $created_at;
+	/** @var string|null */
+	public $created_by;
+	/** @var string */
+	public $status;
+	/** @var int */
+	public $version;
+}
+
 class Embedding
 {
 	/** @var array|null */
@@ -3253,6 +3447,8 @@ class WorkspaceMemberRoleUpdateRequest
 	public $role;
 }
 
+class WorkspaceProviderRestrictionMode { }
+
 class WorkspaceResponse
 {
 	/** @var array<string, mixed> */
@@ -3260,6 +3456,94 @@ class WorkspaceResponse
 }
 
 class WorkspaceRole { }
+
+class WorkspaceRoutingMode { }
+
+class WorkspaceSettings
+{
+	/** @var bool|null */
+	public $alpha_channel_enabled;
+	/** @var bool|null */
+	public $beta_channel_enabled;
+	/** @var bool|null */
+	public $byok_fallback_enabled;
+	/** @var bool|null */
+	public $io_logging_enabled;
+	/** @var bool|null */
+	public $io_logging_include_provider_payloads;
+	/** @var bool|null */
+	public $privacy_enable_free_may_publish_prompts;
+	/** @var bool|null */
+	public $privacy_enable_free_may_train;
+	/** @var bool|null */
+	public $privacy_enable_input_output_logging;
+	/** @var bool|null */
+	public $privacy_enable_paid_may_train;
+	/** @var bool|null */
+	public $privacy_zdr_only;
+	/** @var bool|null */
+	public $provider_restriction_enforce_allowed;
+	/** @var mixed|null */
+	public $provider_restriction_mode;
+	/** @var array|null */
+	public $provider_restriction_provider_ids;
+	/** @var bool|null */
+	public $response_healing_enabled;
+	/** @var bool|null */
+	public $response_healing_locked;
+	/** @var string|null */
+	public $response_healing_mode;
+	/** @var mixed|null */
+	public $routing_mode;
+	/** @var string|null */
+	public $updated_at;
+	/** @var string */
+	public $workspace_id;
+}
+
+class WorkspaceSettingsResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class WorkspaceSettingsUpdateRequest
+{
+	/** @var bool|null */
+	public $alpha_channel_enabled;
+	/** @var bool|null */
+	public $beta_channel_enabled;
+	/** @var bool|null */
+	public $byok_fallback_enabled;
+	/** @var bool|null */
+	public $io_logging_enabled;
+	/** @var bool|null */
+	public $io_logging_include_provider_payloads;
+	/** @var bool|null */
+	public $privacy_enable_free_may_publish_prompts;
+	/** @var bool|null */
+	public $privacy_enable_free_may_train;
+	/** @var bool|null */
+	public $privacy_enable_input_output_logging;
+	/** @var bool|null */
+	public $privacy_enable_paid_may_train;
+	/** @var bool|null */
+	public $privacy_zdr_only;
+	/** @var bool|null */
+	public $provider_restriction_enforce_allowed;
+	/** @var string|null */
+	public $provider_restriction_mode;
+	/** @var array|null */
+	public $provider_restriction_provider_ids;
+	/** @var bool|null */
+	public $response_healing_enabled;
+	/** @var bool|null */
+	public $response_healing_locked;
+	/** @var string|null */
+	public $response_healing_mode;
+	/** @var string|null */
+	public $routing_mode;
+}
 
 class WorkspaceUpdateRequest
 {

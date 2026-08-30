@@ -75,6 +75,12 @@ module Phaseo
         client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.createDynamicRoute(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/routing/dynamic-routes"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.createEmbedding(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/embeddings"
@@ -189,6 +195,12 @@ module Phaseo
         client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.deleteDynamicRoute(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/routing/dynamic-routes/#{URI.encode_uri_component(path["id"].to_s)}"
+        client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.deleteObservabilityDestination(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/observability/destinations/#{URI.encode_uri_component(path["id"].to_s)}"
@@ -217,6 +229,12 @@ module Phaseo
         path ||= {}
         resolved_path = "/workspaces/#{URI.encode_uri_component(path["id"].to_s)}/invites/#{URI.encode_uri_component(path["invite_id"].to_s)}"
         client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.deployDynamicRouteVersion(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/routing/dynamic-routes/#{URI.encode_uri_component(path["id"].to_s)}/versions/#{URI.encode_uri_component(path["version"].to_s)}/deploy"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
       def self.generateMusic(client, path: nil, query: nil, headers: nil, body: nil)
@@ -258,6 +276,12 @@ module Phaseo
       def self.getCurrentApiKey(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/key"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.getDynamicRoute(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/routing/dynamic-routes/#{URI.encode_uri_component(path["id"].to_s)}"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -333,6 +357,12 @@ module Phaseo
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.getWorkspaceSettings(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/settings"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.listApiKeys(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/keys"
@@ -402,6 +432,12 @@ module Phaseo
       def self.listDataModels(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/data/models"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.listDynamicRoutes(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/routing/dynamic-routes"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -531,6 +567,12 @@ module Phaseo
         client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.replaceDynamicRouteKeys(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/routing/dynamic-routes/#{URI.encode_uri_component(path["id"].to_s)}/keys"
+        client.request(method: "PUT", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.retrieveBatch(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/batches/#{URI.encode_uri_component(path["batch_id"].to_s)}"
@@ -585,6 +627,12 @@ module Phaseo
         client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.updateDynamicRoute(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/routing/dynamic-routes/#{URI.encode_uri_component(path["id"].to_s)}"
+        client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.updateObservabilityDestination(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/observability/destinations/#{URI.encode_uri_component(path["id"].to_s)}"
@@ -606,6 +654,12 @@ module Phaseo
       def self.updateWorkspaceMemberRole(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/workspaces/#{URI.encode_uri_component(path["id"].to_s)}/members/#{URI.encode_uri_component(path["user_id"].to_s)}"
+        client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.updateWorkspaceSettings(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/settings"
         client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
       end
 
