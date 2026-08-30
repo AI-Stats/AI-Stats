@@ -4,6 +4,11 @@ This document records which public API capabilities are intentionally exposed
 through Phaseo's MCP server and CLI. It prevents route additions from silently
 creating authentication or tooling gaps.
 
+Rows below record runtime availability. A runtime route is not considered a
+complete public Management API surface until it also satisfies the OpenAPI,
+SDK, documentation, testing, and audit requirements in
+[Management API parity](../architecture/management-api-parity.md).
+
 ## Supported control-plane surfaces
 
 | Capability | API scope | MCP | CLI |
