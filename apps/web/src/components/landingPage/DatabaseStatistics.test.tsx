@@ -1,11 +1,15 @@
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
-import { fetchFrontendLandingStats } from "@/lib/fetchers/frontend/fetchPublicCatalog";
+import {
+	fetchFrontendLandingStats,
+	fetchFrontendSignInSupportedModelsStats,
+} from "@/lib/fetchers/frontend/fetchPublicCatalog";
 import DatabaseStats from "./DatabaseStatistics";
 
 jest.mock("@/lib/fetchers/frontend/fetchPublicCatalog", () => ({
 	fetchFrontendLandingStats: jest.fn(),
+	fetchFrontendSignInSupportedModelsStats: jest.fn(),
 }));
 
 jest.mock("next/link", () => ({
@@ -22,9 +26,12 @@ jest.mock("next/link", () => ({
 }));
 
 const mockFetchFrontendLandingStats = jest.mocked(fetchFrontendLandingStats);
+const mockFetchFrontendSignInSupportedModelsStats = jest.mocked(
+	fetchFrontendSignInSupportedModelsStats,
+);
 
 describe("DatabaseStats", () => {
-	it("links Monthly Tokens to the rankings page", async () => {
+	it("separates catalog models from routable models", async () => {
 		mockFetchFrontendLandingStats.mockResolvedValue({
 			db: {
 				models: 100,
@@ -35,9 +42,19 @@ describe("DatabaseStats", () => {
 			},
 			monthlyTokenTotal: 1_234,
 		});
+		mockFetchFrontendSignInSupportedModelsStats.mockResolvedValue({
+			modelsCount: 100,
+			orgsCount: 12,
+			apiCount: 75,
+			recentCount: 8,
+		});
 
 		const html = renderToStaticMarkup(await DatabaseStats());
 
-		expect(html).toMatch(/<a[^>]*href="\/rankings"[^>]*>.*Monthly Tokens/);
+		expect(html).toContain("Catalog models");
+		expect(html).toContain("Routable models");
+		expect(html).toMatch(
+			/<a[^>]*href="\/rankings"[^>]*>.*Tokens routed \(30d\)/,
+		);
 	});
 });
