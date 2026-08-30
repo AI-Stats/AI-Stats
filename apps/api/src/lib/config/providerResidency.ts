@@ -108,7 +108,7 @@ const PROVIDER_RESIDENCY_DEFAULTS: Record<string, ProviderResidencyMetadata> = {
 		dataRegions: ["eu"],
 		zeroDataRetention: true,
 		residencyNotes: "EU-hosted infrastructure with zero data retention.",
-		residencySourceUrl: "https://docs.tensorix.ai/",
+		residencySourceUrl: "https://tensorx.ai/pricing/",
 	},
 };
 

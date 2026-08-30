@@ -16,6 +16,7 @@ describe("normalizeProviderId", () => {
 		expect(normalizeProviderId("spacex-ai")).toBe("spacex-ai");
 		expect(normalizeProviderId("x-ai")).toBe("spacex-ai");
 		expect(normalizeProviderId("xai")).toBe("spacex-ai");
+		expect(normalizeProviderId("TensorX")).toBe("tensorix");
 	});
 
 	it("does not alias display/provider brand names", () => {

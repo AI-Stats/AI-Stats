@@ -312,8 +312,9 @@ export const EXECUTORS_BY_PROVIDER: Record<string, ProviderCapabilityMap> = {
 	},
 	tensorix: {
 		"text.generate": tensorixText,
+		embeddings: openaiEmbeddings,
 	},
-	tensorx: { "text.generate": tensorixText },
+	tensorx: { "text.generate": tensorixText, embeddings: openaiEmbeddings },
 	crusoe: {
 		"text.generate": crusoeText,
 	},
