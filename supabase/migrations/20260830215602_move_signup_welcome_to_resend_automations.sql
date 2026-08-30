@@ -10,29 +10,16 @@ begin
       rename to handle_auth_user_created;
   end if;
 
-  if exists (
-    select 1
-    from pg_trigger
-    where tgrelid = 'auth.users'::regclass
-      and tgname = 'on_auth_user_created_enqueue_welcome'
-      and not tgisinternal
-  ) and not exists (
-    select 1
-    from pg_trigger
-    where tgrelid = 'auth.users'::regclass
-      and tgname = 'on_auth_user_created'
-      and not tgisinternal
-  ) then
-    alter trigger on_auth_user_created_enqueue_welcome on auth.users
-      rename to on_auth_user_created;
-  end if;
-
   if to_regprocedure('public.handle_auth_user_created()') is not null then
     comment on function public.handle_auth_user_created() is
       'Provision the public user row and emit the internal Discord signup notification.';
   end if;
 end
 $migration$;
+
+-- auth.users is owned by Supabase's managed auth role, so the legacy trigger
+-- label cannot be renamed by the migration role. Renaming the public function
+-- above updates the trigger dependency and removes the obsolete behavior.
 
 -- Prevent historical rows from sending when the email outbox worker is enabled.
 -- Keeping the rows preserves operational history without marking them as delivered.
