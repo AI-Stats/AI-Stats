@@ -354,8 +354,6 @@ publicProvidersRouter.use("/:providerId/*", async (c, next) => {
 		.select("provider_model_id")
 		.eq("provider_slug", providerId)
 		.eq("is_stealth", false)
-		.eq("routing_enabled", true)
-		.in("status", ["active", "degraded"])
 		.limit(1);
 	if (visibility.error) return c.json({ error: "provider_unavailable" }, 503);
 	if (!visibility.data?.length) return c.json({ error: "provider_not_found" }, 404);

@@ -61,6 +61,30 @@ describe("public provider routes", () => {
 		expect(requestedUrls.some((url) => url.includes("get_top_models_stats_tokens"))).toBe(false);
 	});
 
+	it("keeps legitimate inactive providers addressable", async () => {
+		const requestedUrls: string[] = [];
+		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+			const url = input instanceof Request ? input.url : String(input);
+			requestedUrls.push(url);
+			if (url.includes("v2_model_provider_routes")) {
+				return new Response(JSON.stringify([{ provider_model_id: "pm-inactive" }]), { status: 200 });
+			}
+			return new Response(JSON.stringify([]), { status: 200 });
+		}));
+
+		const response = await app.request(
+			"https://phaseo.app/api/_web/api-providers/inactive-provider/top-models",
+			{},
+			env,
+		);
+
+		expect(response.status).toBe(200);
+		const visibilityUrl = requestedUrls.find((url) => url.includes("v2_model_provider_routes"));
+		expect(visibilityUrl).toContain("is_stealth=eq.false");
+		expect(visibilityUrl).not.toContain("routing_enabled");
+		expect(visibilityUrl).not.toContain("status=in.");
+	});
+
 	it("returns parity-shaped top model and app telemetry with the short edge policy", async () => {
 		vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
 			const url = input instanceof Request ? input.url : String(input);
