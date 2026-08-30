@@ -191,10 +191,16 @@ class ApiKey
 	public $hash;
 	/** @var string */
 	public $id;
+	/** @var string */
+	public $include_byok_in_limit;
 	/** @var string|null */
 	public $label;
 	/** @var string|null */
 	public $last_used_at;
+	/** @var float|null */
+	public $limit;
+	/** @var string|null */
+	public $limit_reset;
 	/** @var string|null */
 	public $name;
 	/** @var string|null */
@@ -247,6 +253,22 @@ class ApiKeyResponse
 	public $data;
 }
 
+class ApiKeyRotateRequest
+{
+	/** @var string|null */
+	public $name;
+	/** @var string|null */
+	public $previous_key_expires_at;
+}
+
+class ApiKeyRotateResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+	/** @var string|null */
+	public $previous_key_expires_at;
+}
+
 class ApiKeyScopeValue { }
 
 class ApiKeyUpdateRequest
@@ -284,11 +306,17 @@ class ApiKeyWithValue
 	/** @var string */
 	public $id;
 	/** @var string */
+	public $include_byok_in_limit;
+	/** @var string */
 	public $key;
 	/** @var string|null */
 	public $label;
 	/** @var string|null */
 	public $last_used_at;
+	/** @var float|null */
+	public $limit;
+	/** @var string|null */
+	public $limit_reset;
 	/** @var string|null */
 	public $name;
 	/** @var string|null */
@@ -2181,8 +2209,6 @@ class InvalidRequestResponse
 
 class KeyInvalidateResponse
 {
-	/** @var array<string, mixed> */
-	public $cache_version;
 	/** @var array<string, mixed> */
 	public $key;
 	/** @var string */

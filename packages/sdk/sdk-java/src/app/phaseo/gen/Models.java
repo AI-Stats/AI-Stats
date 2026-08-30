@@ -108,8 +108,11 @@ public final class Models {
 		public String expires_at;
 		public String hash;
 		public String id;
+		public Object include_byok_in_limit;
 		public String label;
 		public String last_used_at;
+		public Double limit;
+		public Object limit_reset;
 		public String name;
 		public String prefix;
 		public Object scopes;
@@ -140,6 +143,16 @@ public final class Models {
 		public Object data;
 	}
 
+	public static class ApiKeyRotateRequest {
+		public String name;
+		public String previous_key_expires_at;
+	}
+
+	public static class ApiKeyRotateResponse {
+		public Object data;
+		public String previous_key_expires_at;
+	}
+
 	public static class ApiKeyScopeValue {
 	}
 
@@ -161,9 +174,12 @@ public final class Models {
 		public String expires_at;
 		public String hash;
 		public String id;
+		public Object include_byok_in_limit;
 		public String key;
 		public String label;
 		public String last_used_at;
+		public Double limit;
+		public Object limit_reset;
 		public String name;
 		public String prefix;
 		public Object scopes;
@@ -1242,7 +1258,6 @@ public final class Models {
 	}
 
 	public static class KeyInvalidateResponse {
-		public Object cache_version;
 		public Object key;
 		public String message;
 		public Object ok;

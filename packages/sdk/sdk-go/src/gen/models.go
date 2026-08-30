@@ -105,8 +105,11 @@ type ApiKey struct {
 	ExpiresAt *string `json:"expires_at"`
 	Hash string `json:"hash"`
 	Id string `json:"id"`
+	IncludeByokInLimit string `json:"include_byok_in_limit"`
 	Label *string `json:"label"`
 	LastUsedAt *string `json:"last_used_at"`
+	Limit *float64 `json:"limit"`
+	LimitReset *string `json:"limit_reset"`
 	Name *string `json:"name"`
 	Prefix *string `json:"prefix"`
 	Scopes interface{} `json:"scopes"`
@@ -137,6 +140,16 @@ type ApiKeyResponse struct {
 	Data map[string]interface{} `json:"data"`
 }
 
+type ApiKeyRotateRequest struct {
+	Name *string `json:"name,omitempty"`
+	PreviousKeyExpiresAt *string `json:"previous_key_expires_at,omitempty"`
+}
+
+type ApiKeyRotateResponse struct {
+	Data map[string]interface{} `json:"data"`
+	PreviousKeyExpiresAt *string `json:"previous_key_expires_at"`
+}
+
 type ApiKeyScopeValue = interface{}
 
 type ApiKeyUpdateRequest struct {
@@ -157,9 +170,12 @@ type ApiKeyWithValue struct {
 	ExpiresAt *string `json:"expires_at"`
 	Hash string `json:"hash"`
 	Id string `json:"id"`
+	IncludeByokInLimit string `json:"include_byok_in_limit"`
 	Key string `json:"key"`
 	Label *string `json:"label"`
 	LastUsedAt *string `json:"last_used_at"`
+	Limit *float64 `json:"limit"`
+	LimitReset *string `json:"limit_reset"`
 	Name *string `json:"name"`
 	Prefix *string `json:"prefix"`
 	Scopes interface{} `json:"scopes"`
@@ -1947,7 +1963,6 @@ type InvalidRequestResponse struct {
 }
 
 type KeyInvalidateResponse struct {
-	CacheVersion map[string]interface{} `json:"cache_version"`
 	Key map[string]interface{} `json:"key"`
 	Message string `json:"message"`
 	Ok string `json:"ok"`

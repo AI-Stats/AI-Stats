@@ -13,6 +13,8 @@ export type { ApiKey } from "./ApiKey.js";
 export type { ApiKeyCreateRequest } from "./ApiKeyCreateRequest.js";
 export type { ApiKeyListResponse } from "./ApiKeyListResponse.js";
 export type { ApiKeyResponse } from "./ApiKeyResponse.js";
+export type { ApiKeyRotateRequest } from "./ApiKeyRotateRequest.js";
+export type { ApiKeyRotateResponse } from "./ApiKeyRotateResponse.js";
 export type { ApiKeyScopeValue } from "./ApiKeyScopeValue.js";
 export type { ApiKeyUpdateRequest } from "./ApiKeyUpdateRequest.js";
 export type { ApiKeyWithValue } from "./ApiKeyWithValue.js";

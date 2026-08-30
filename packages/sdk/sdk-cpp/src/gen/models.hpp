@@ -111,8 +111,11 @@ struct ApiKey {
 	std::optional<std::string> expires_at;
 	std::string hash;
 	std::string id;
+	std::any include_byok_in_limit;
 	std::optional<std::string> label;
 	std::optional<std::string> last_used_at;
+	std::optional<double> limit;
+	std::optional<std::any> limit_reset;
 	std::optional<std::string> name;
 	std::optional<std::string> prefix;
 	std::any scopes;
@@ -143,6 +146,16 @@ struct ApiKeyResponse {
 	std::map<std::string, std::any> data;
 };
 
+struct ApiKeyRotateRequest {
+	std::string name;
+	std::optional<std::string> previous_key_expires_at;
+};
+
+struct ApiKeyRotateResponse {
+	std::map<std::string, std::any> data;
+	std::optional<std::string> previous_key_expires_at;
+};
+
 using ApiKeyScopeValue = std::any;
 
 struct ApiKeyUpdateRequest {
@@ -163,9 +176,12 @@ struct ApiKeyWithValue {
 	std::optional<std::string> expires_at;
 	std::string hash;
 	std::string id;
+	std::any include_byok_in_limit;
 	std::string key;
 	std::optional<std::string> label;
 	std::optional<std::string> last_used_at;
+	std::optional<double> limit;
+	std::optional<std::any> limit_reset;
 	std::optional<std::string> name;
 	std::optional<std::string> prefix;
 	std::any scopes;
@@ -1237,7 +1253,6 @@ struct InvalidRequestResponse {
 };
 
 struct KeyInvalidateResponse {
-	std::map<std::string, std::any> cache_version;
 	std::map<std::string, std::any> key;
 	std::string message;
 	std::any ok;

@@ -107,8 +107,11 @@ pub struct ApiKey {
 	pub expires_at: Option<String>,
 	pub hash: String,
 	pub id: String,
+	pub include_byok_in_limit: String,
 	pub label: Option<String>,
 	pub last_used_at: Option<String>,
+	pub limit: Option<f64>,
+	pub limit_reset: Option<String>,
 	pub name: Option<String>,
 	pub prefix: Option<String>,
 	pub scopes: String,
@@ -139,6 +142,16 @@ pub struct ApiKeyResponse {
 	pub data: HashMap<String, String>,
 }
 
+pub struct ApiKeyRotateRequest {
+	pub name: Option<String>,
+	pub previous_key_expires_at: Option<Option<String>>,
+}
+
+pub struct ApiKeyRotateResponse {
+	pub data: HashMap<String, String>,
+	pub previous_key_expires_at: Option<String>,
+}
+
 pub type ApiKeyScopeValue = JsonValue;
 
 pub struct ApiKeyUpdateRequest {
@@ -159,9 +172,12 @@ pub struct ApiKeyWithValue {
 	pub expires_at: Option<String>,
 	pub hash: String,
 	pub id: String,
+	pub include_byok_in_limit: String,
 	pub key: String,
 	pub label: Option<String>,
 	pub last_used_at: Option<String>,
+	pub limit: Option<f64>,
+	pub limit_reset: Option<String>,
 	pub name: Option<String>,
 	pub prefix: Option<String>,
 	pub scopes: String,
@@ -1233,7 +1249,6 @@ pub struct InvalidRequestResponse {
 }
 
 pub struct KeyInvalidateResponse {
-	pub cache_version: HashMap<String, String>,
 	pub key: HashMap<String, String>,
 	pub message: String,
 	pub ok: String,

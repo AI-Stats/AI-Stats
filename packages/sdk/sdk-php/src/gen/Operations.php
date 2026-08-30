@@ -591,6 +591,13 @@ function getWorkspaceSettings(Client $client, ?array $path = null, ?array $query
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
+function invalidateApiKeyCache(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/keys/" . rawurlencode((string)($path["id"] ?? "")) . "/invalidate";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
 function listApiKeys(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -981,6 +988,13 @@ function retrieveFileContent(Client $client, ?array $path = null, ?array $query 
 	$path = $path ?? [];
 	$resolvedPath = "/files/" . rawurlencode((string)($path["file_id"] ?? "")) . "/content";
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
+function rotateApiKey(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/keys/" . rawurlencode((string)($path["id"] ?? "")) . "/rotate";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
 function rotateWebhookEndpointSecret(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)

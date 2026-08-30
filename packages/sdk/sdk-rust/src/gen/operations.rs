@@ -425,6 +425,11 @@ pub fn getWorkspaceSettings<T: Transport>(client: &Client<T>, path: &HashMap<Str
 	client.request("GET", &resolved_path, body)
 }
 
+pub fn invalidateApiKeyCache<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/keys/{}/invalidate", path.get("id").cloned().unwrap_or_default());
+	client.request("POST", &resolved_path, body)
+}
+
 pub fn listApiKeys<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/keys");
 	client.request("GET", &resolved_path, body)
@@ -703,6 +708,11 @@ pub fn retrieveFile<T: Transport>(client: &Client<T>, path: &HashMap<String, Str
 pub fn retrieveFileContent<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/files/{}/content", path.get("file_id").cloned().unwrap_or_default());
 	client.request("GET", &resolved_path, body)
+}
+
+pub fn rotateApiKey<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/keys/{}/rotate", path.get("id").cloned().unwrap_or_default());
+	client.request("POST", &resolved_path, body)
 }
 
 pub fn rotateWebhookEndpointSecret<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {

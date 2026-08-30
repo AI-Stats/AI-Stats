@@ -487,7 +487,9 @@
 											"v1/api-reference/endpoint/keys-create",
 											"v1/api-reference/endpoint/keys-get",
 											"v1/api-reference/endpoint/keys-delete",
-											"v1/api-reference/endpoint/keys-update"
+											"v1/api-reference/endpoint/keys-update",
+											"v1/api-reference/endpoint/keys-rotate",
+											"v1/api-reference/endpoint/keys-invalidate"
 										]
 									},
 									{

@@ -507,6 +507,12 @@ module Phaseo
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.invalidateApiKeyCache(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/keys/#{URI.encode_uri_component(path["id"].to_s)}/invalidate"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.listApiKeys(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/keys"
@@ -841,6 +847,12 @@ module Phaseo
         path ||= {}
         resolved_path = "/files/#{URI.encode_uri_component(path["file_id"].to_s)}/content"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.rotateApiKey(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/keys/#{URI.encode_uri_component(path["id"].to_s)}/rotate"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
       def self.rotateWebhookEndpointSecret(client, path: nil, query: nil, headers: nil, body: nil)

@@ -213,4 +213,11 @@ describe("OpenAPI Runtime Response Contract", () => {
 		expect(validateSchema(SPEC_DOC, schema, result.body)).toEqual([]);
 	});
 
+	it("matches API-key rotation authorization errors to its public schema", async () => {
+		const result = await requestJson("/v1/keys/key_1/rotate", { method: "POST" });
+		expect(result.status).toBe(401);
+		const schema = schemaForResponse("/keys/{id}/rotate", "post", "default");
+		expect(validateSchema(SPEC_DOC, schema, result.body)).toEqual([]);
+	});
+
 });

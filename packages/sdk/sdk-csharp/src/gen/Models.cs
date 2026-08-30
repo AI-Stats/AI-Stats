@@ -263,11 +263,20 @@ public sealed class ApiKey
 	[JsonPropertyName("id")]
 	public string Id { get; set; }
 
+	[JsonPropertyName("include_byok_in_limit")]
+	public string IncludeByokInLimit { get; set; }
+
 	[JsonPropertyName("label")]
 	public string? Label { get; set; }
 
 	[JsonPropertyName("last_used_at")]
 	public string? LastUsedAt { get; set; }
+
+	[JsonPropertyName("limit")]
+	public double? Limit { get; set; }
+
+	[JsonPropertyName("limit_reset")]
+	public string? LimitReset { get; set; }
 
 	[JsonPropertyName("name")]
 	public string? Name { get; set; }
@@ -340,6 +349,26 @@ public sealed class ApiKeyResponse
 
 }
 
+public sealed class ApiKeyRotateRequest
+{
+	[JsonPropertyName("name")]
+	public string? Name { get; set; }
+
+	[JsonPropertyName("previous_key_expires_at")]
+	public string? PreviousKeyExpiresAt { get; set; }
+
+}
+
+public sealed class ApiKeyRotateResponse
+{
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
+
+	[JsonPropertyName("previous_key_expires_at")]
+	public string? PreviousKeyExpiresAt { get; set; }
+
+}
+
 public sealed class ApiKeyScopeValue { }
 
 public sealed class ApiKeyUpdateRequest
@@ -390,6 +419,9 @@ public sealed class ApiKeyWithValue
 	[JsonPropertyName("id")]
 	public string Id { get; set; }
 
+	[JsonPropertyName("include_byok_in_limit")]
+	public string IncludeByokInLimit { get; set; }
+
 	[JsonPropertyName("key")]
 	public string Key { get; set; }
 
@@ -398,6 +430,12 @@ public sealed class ApiKeyWithValue
 
 	[JsonPropertyName("last_used_at")]
 	public string? LastUsedAt { get; set; }
+
+	[JsonPropertyName("limit")]
+	public double? Limit { get; set; }
+
+	[JsonPropertyName("limit_reset")]
+	public string? LimitReset { get; set; }
 
 	[JsonPropertyName("name")]
 	public string? Name { get; set; }
@@ -2994,9 +3032,6 @@ public sealed class InvalidRequestResponse
 
 public sealed class KeyInvalidateResponse
 {
-	[JsonPropertyName("cache_version")]
-	public Dictionary<string, object> CacheVersion { get; set; }
-
 	[JsonPropertyName("key")]
 	public Dictionary<string, object> Key { get; set; }
 

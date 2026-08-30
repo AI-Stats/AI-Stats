@@ -153,9 +153,15 @@ module Phaseo
     #   @return [String]
     # @!attribute [rw] id
     #   @return [String]
+    # @!attribute [rw] include_byok_in_limit
+    #   @return [String]
     # @!attribute [rw] label
     #   @return [String, nil]
     # @!attribute [rw] last_used_at
+    #   @return [String, nil]
+    # @!attribute [rw] limit
+    #   @return [Float, nil]
+    # @!attribute [rw] limit_reset
     #   @return [String, nil]
     # @!attribute [rw] name
     #   @return [String, nil]
@@ -171,7 +177,7 @@ module Phaseo
     #   @return [String, nil]
     # @!attribute [rw] workspace_id
     #   @return [String]
-    ApiKey = Struct.new(:created_at, :created_by, :disabled, :expires_at, :hash, :id, :label, :last_used_at, :name, :prefix, :scopes, :soft_blocked, :status, :updated_at, :workspace_id, keyword_init: true)
+    ApiKey = Struct.new(:created_at, :created_by, :disabled, :expires_at, :hash, :id, :include_byok_in_limit, :label, :last_used_at, :limit, :limit_reset, :name, :prefix, :scopes, :soft_blocked, :status, :updated_at, :workspace_id, keyword_init: true)
     # @!attribute [rw] disabled
     #   @return [Boolean, nil]
     # @!attribute [rw] expires_at
@@ -199,6 +205,16 @@ module Phaseo
     # @!attribute [rw] data
     #   @return [Hash{String => Object}]
     ApiKeyResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] previous_key_expires_at
+    #   @return [String, nil]
+    ApiKeyRotateRequest = Struct.new(:name, :previous_key_expires_at, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] previous_key_expires_at
+    #   @return [String, nil]
+    ApiKeyRotateResponse = Struct.new(:data, :previous_key_expires_at, keyword_init: true)
     ApiKeyScopeValue = Object
     # @!attribute [rw] disabled
     #   @return [Boolean, nil]
@@ -229,11 +245,17 @@ module Phaseo
     #   @return [String]
     # @!attribute [rw] id
     #   @return [String]
+    # @!attribute [rw] include_byok_in_limit
+    #   @return [String]
     # @!attribute [rw] key
     #   @return [String]
     # @!attribute [rw] label
     #   @return [String, nil]
     # @!attribute [rw] last_used_at
+    #   @return [String, nil]
+    # @!attribute [rw] limit
+    #   @return [Float, nil]
+    # @!attribute [rw] limit_reset
     #   @return [String, nil]
     # @!attribute [rw] name
     #   @return [String, nil]
@@ -249,7 +271,7 @@ module Phaseo
     #   @return [String, nil]
     # @!attribute [rw] workspace_id
     #   @return [String]
-    ApiKeyWithValue = Struct.new(:created_at, :created_by, :disabled, :expires_at, :hash, :id, :key, :label, :last_used_at, :name, :prefix, :scopes, :soft_blocked, :status, :updated_at, :workspace_id, keyword_init: true)
+    ApiKeyWithValue = Struct.new(:created_at, :created_by, :disabled, :expires_at, :hash, :id, :include_byok_in_limit, :key, :label, :last_used_at, :limit, :limit_reset, :name, :prefix, :scopes, :soft_blocked, :status, :updated_at, :workspace_id, keyword_init: true)
     # @!attribute [rw] data
     #   @return [Hash{String => Object}]
     ApiKeyWithValueResponse = Struct.new(:data, keyword_init: true)
@@ -1766,15 +1788,13 @@ module Phaseo
     # @!attribute [rw] ok
     #   @return [String]
     InvalidRequestResponse = Struct.new(:error, :max_offset, :message, :ok, keyword_init: true)
-    # @!attribute [rw] cache_version
-    #   @return [Hash{String => Object}]
     # @!attribute [rw] key
     #   @return [Hash{String => Object}]
     # @!attribute [rw] message
     #   @return [String]
     # @!attribute [rw] ok
     #   @return [String]
-    KeyInvalidateResponse = Struct.new(:cache_version, :key, :message, :ok, keyword_init: true)
+    KeyInvalidateResponse = Struct.new(:key, :message, :ok, keyword_init: true)
     KnownModelId = Object
     # @!attribute [rw] data
     #   @return [Array<Hash{String => Object}>, nil]

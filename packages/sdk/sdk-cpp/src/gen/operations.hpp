@@ -424,6 +424,11 @@ inline Response GetWorkspaceSettings(Client& client, const std::map<std::string,
 	return client.request("GET", resolved_path, body);
 }
 
+inline Response InvalidateApiKeyCache(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/keys/" + (path.count("id") ? path.at("id") : std::string{}) + "/invalidate";
+	return client.request("POST", resolved_path, body);
+}
+
 inline Response ListApiKeys(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/keys";
 	return client.request("GET", resolved_path, body);
@@ -702,6 +707,11 @@ inline Response RetrieveFile(Client& client, const std::map<std::string, std::st
 inline Response RetrieveFileContent(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/files/" + (path.count("file_id") ? path.at("file_id") : std::string{}) + "/content";
 	return client.request("GET", resolved_path, body);
+}
+
+inline Response RotateApiKey(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/keys/" + (path.count("id") ? path.at("id") : std::string{}) + "/rotate";
+	return client.request("POST", resolved_path, body);
 }
 
 inline Response RotateWebhookEndpointSecret(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {

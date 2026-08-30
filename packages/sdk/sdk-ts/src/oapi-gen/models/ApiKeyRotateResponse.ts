@@ -1,4 +1,4 @@
-export interface ApiKeyResponse {
+export interface ApiKeyRotateResponse {
   data: {
     created_at: string | null;
     created_by: string | null;
@@ -7,6 +7,7 @@ export interface ApiKeyResponse {
     hash: string;
     id: string;
     include_byok_in_limit: false;
+    key: string;
     label: string | null;
     last_used_at: string | null;
     limit: number | null;
@@ -19,4 +20,5 @@ export interface ApiKeyResponse {
     updated_at: string | null;
     workspace_id: string;
   };
+  previous_key_expires_at: string | null;
 }

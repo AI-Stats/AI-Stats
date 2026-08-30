@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+vi.mock("@/lib/audit/workspaceAudit", () => ({ recordWorkspaceAuditEvent: vi.fn(async () => true) }));
+
 type GuardOk = {
 	ok: true;
 	value: {
@@ -462,6 +464,56 @@ describe("management key routes", () => {
 			{ table: "key_guardrails", column: "key_id", value: "key_1" },
 			{ table: "broadcast_destination_keys", column: "key_id", value: "key_1" },
 		]);
+	});
+
+	it("rotates a key while preserving limits and expiring the previous key", async () => {
+		state.workspaceRows.push({ owner_user_id: "user_1" });
+		state.keyRows.push(
+			{
+				id: "key_old",
+				workspace_id: "ws_1",
+				kid: "kid_old",
+				name: "Primary Key",
+				prefix: "old_prefix",
+				status: "active",
+				scopes: "[]",
+				soft_blocked: false,
+				daily_limit_requests: 10,
+				monthly_limit_cost_nanos: 5_000_000_000,
+			},
+			{
+				id: "key_new",
+				hash: "hash_new",
+				workspace_id: "ws_1",
+				name: "Replacement",
+				prefix: "phaseo_v1_sk_kid_123",
+				status: "active",
+				scopes: "[]",
+				soft_blocked: false,
+				monthly_limit_cost_nanos: 5_000_000_000,
+			},
+		);
+
+		const { keysRoutes } = await import("./keys");
+		const response = await keysRoutes.request("https://example.com/key_old/rotate", {
+			method: "POST",
+			headers: { "content-type": "application/json" },
+			body: JSON.stringify({ name: "Replacement", previous_key_expires_at: "2026-09-01T00:00:00Z" }),
+		});
+		const body = await response.json();
+
+		expect(response.status).toBe(200);
+		expect(state.insertPayloads[0]).toMatchObject({
+			workspace_id: "ws_1",
+			name: "Replacement",
+			daily_limit_requests: 10,
+			monthly_limit_cost_nanos: 5_000_000_000,
+		});
+		expect(state.updatePayloads[0]).toEqual({ expires_at: "2026-09-01T00:00:00.000Z" });
+		expect(body).toMatchObject({
+			data: { id: "key_new", key: "phaseo_v1_sk_kid_123_secret_123", limit: 5 },
+			previous_key_expires_at: "2026-09-01T00:00:00.000Z",
+		});
 	});
 
 	it("accepts legacy control bindings while invalidating a cached key", async () => {

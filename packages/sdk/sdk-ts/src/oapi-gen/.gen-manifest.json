@@ -18,6 +18,8 @@
     "models/ApiKeyCreateRequest.ts",
     "models/ApiKeyListResponse.ts",
     "models/ApiKeyResponse.ts",
+    "models/ApiKeyRotateRequest.ts",
+    "models/ApiKeyRotateResponse.ts",
     "models/ApiKeyScopeValue.ts",
     "models/ApiKeyUpdateRequest.ts",
     "models/ApiKeyWithValue.ts",

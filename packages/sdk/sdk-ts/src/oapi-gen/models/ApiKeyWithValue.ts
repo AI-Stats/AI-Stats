@@ -5,9 +5,12 @@ export interface ApiKeyWithValue {
   expires_at: string | null;
   hash: string;
   id: string;
+  include_byok_in_limit: false;
   key: string;
   label: string | null;
   last_used_at: string | null;
+  limit: number | null;
+  limit_reset: "daily" | "weekly" | "monthly" | null;
   name: string | null;
   prefix: string | null;
   scopes: string | string[];

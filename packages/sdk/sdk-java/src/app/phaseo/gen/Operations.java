@@ -426,6 +426,11 @@ public final class Operations {
 		return client.request("GET", resolvedPath, query, headers, body);
 	}
 
+	public static Object invalidateApiKeyCache(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/keys/" + (path != null && path.containsKey("id") ? path.get("id") : "") + "/invalidate";
+		return client.request("POST", resolvedPath, query, headers, body);
+	}
+
 	public static Object listApiKeys(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/keys";
 		return client.request("GET", resolvedPath, query, headers, body);
@@ -704,6 +709,11 @@ public final class Operations {
 	public static Object retrieveFileContent(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/files/" + (path != null && path.containsKey("file_id") ? path.get("file_id") : "") + "/content";
 		return client.request("GET", resolvedPath, query, headers, body);
+	}
+
+	public static Object rotateApiKey(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/keys/" + (path != null && path.containsKey("id") ? path.get("id") : "") + "/rotate";
+		return client.request("POST", resolvedPath, query, headers, body);
 	}
 
 	public static Object rotateWebhookEndpointSecret(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {

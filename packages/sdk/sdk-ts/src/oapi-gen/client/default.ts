@@ -1125,9 +1125,12 @@ export async function createApiKey(
     expires_at: string | null;
     hash: string;
     id: string;
+    include_byok_in_limit: false;
     key: string;
     label: string | null;
     last_used_at: string | null;
+    limit: number | null;
+    limit_reset: "daily" | "weekly" | "monthly" | null;
     name: string | null;
     prefix: string | null;
     scopes: string | string[];
@@ -1147,9 +1150,12 @@ export async function createApiKey(
       expires_at: string | null;
       hash: string;
       id: string;
+      include_byok_in_limit: false;
       key: string;
       label: string | null;
       last_used_at: string | null;
+      limit: number | null;
+      limit_reset: "daily" | "weekly" | "monthly" | null;
       name: string | null;
       prefix: string | null;
       scopes: string | string[];
@@ -6767,8 +6773,11 @@ export async function getApiKey(
     expires_at: string | null;
     hash: string;
     id: string;
+    include_byok_in_limit: false;
     label: string | null;
     last_used_at: string | null;
+    limit: number | null;
+    limit_reset: "daily" | "weekly" | "monthly" | null;
     name: string | null;
     prefix: string | null;
     scopes: string | string[];
@@ -6788,8 +6797,11 @@ export async function getApiKey(
       expires_at: string | null;
       hash: string;
       id: string;
+      include_byok_in_limit: false;
       label: string | null;
       last_used_at: string | null;
+      limit: number | null;
+      limit_reset: "daily" | "weekly" | "monthly" | null;
       name: string | null;
       prefix: string | null;
       scopes: string | string[];
@@ -6875,8 +6887,11 @@ export async function getCurrentApiKey(
     expires_at: string | null;
     hash: string;
     id: string;
+    include_byok_in_limit: false;
     label: string | null;
     last_used_at: string | null;
+    limit: number | null;
+    limit_reset: "daily" | "weekly" | "monthly" | null;
     name: string | null;
     prefix: string | null;
     scopes: string | string[];
@@ -6896,8 +6911,11 @@ export async function getCurrentApiKey(
       expires_at: string | null;
       hash: string;
       id: string;
+      include_byok_in_limit: false;
       label: string | null;
       last_used_at: string | null;
+      limit: number | null;
+      limit_reset: "daily" | "weekly" | "monthly" | null;
       name: string | null;
       prefix: string | null;
       scopes: string | string[];
@@ -8702,6 +8720,51 @@ export async function getWorkspaceSettings(
   });
 }
 
+export type InvalidateApiKeyCacheParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Refreshes globally cached policy state for a workspace API key. Requires an authenticated workspace management caller.
+ */
+export async function invalidateApiKeyCache(
+  client: Client,
+  args: InvalidateApiKeyCacheParams = {},
+): Promise<{
+  key: {
+    id: string;
+    kid?: string | null;
+    status?: string | null;
+    workspace_id: string;
+  };
+  message: string;
+  ok: true;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/keys/${encodeURIComponent(String(path?.["id"]))}/invalidate`;
+  return client.request<{
+    key: {
+      id: string;
+      kid?: string | null;
+      status?: string | null;
+      workspace_id: string;
+    };
+    message: string;
+    ok: true;
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type ListApiKeysParams = {
   path?: Record<string, never>;
   query?: {
@@ -8728,8 +8791,11 @@ export async function listApiKeys(
     expires_at: string | null;
     hash: string;
     id: string;
+    include_byok_in_limit: false;
     label: string | null;
     last_used_at: string | null;
+    limit: number | null;
+    limit_reset: "daily" | "weekly" | "monthly" | null;
     name: string | null;
     prefix: string | null;
     scopes: string | string[];
@@ -8750,8 +8816,11 @@ export async function listApiKeys(
       expires_at: string | null;
       hash: string;
       id: string;
+      include_byok_in_limit: false;
       label: string | null;
       last_used_at: string | null;
+      limit: number | null;
+      limit_reset: "daily" | "weekly" | "monthly" | null;
       name: string | null;
       prefix: string | null;
       scopes: string | string[];
@@ -14523,6 +14592,82 @@ export async function retrieveFileContent(
   });
 }
 
+export type RotateApiKeyParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    name?: string;
+    previous_key_expires_at?: string | null;
+  };
+};
+
+/**
+ * Creates a replacement with the same limits and optionally sets the previous key expiry. The replacement secret is returned once. Requires `keys:write`.
+ */
+export async function rotateApiKey(
+  client: Client,
+  args: RotateApiKeyParams = {},
+): Promise<{
+  data: {
+    created_at: string | null;
+    created_by: string | null;
+    disabled: boolean;
+    expires_at: string | null;
+    hash: string;
+    id: string;
+    include_byok_in_limit: false;
+    key: string;
+    label: string | null;
+    last_used_at: string | null;
+    limit: number | null;
+    limit_reset: "daily" | "weekly" | "monthly" | null;
+    name: string | null;
+    prefix: string | null;
+    scopes: string | string[];
+    soft_blocked: boolean;
+    status: string | null;
+    updated_at: string | null;
+    workspace_id: string;
+  };
+  previous_key_expires_at: string | null;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/keys/${encodeURIComponent(String(path?.["id"]))}/rotate`;
+  return client.request<{
+    data: {
+      created_at: string | null;
+      created_by: string | null;
+      disabled: boolean;
+      expires_at: string | null;
+      hash: string;
+      id: string;
+      include_byok_in_limit: false;
+      key: string;
+      label: string | null;
+      last_used_at: string | null;
+      limit: number | null;
+      limit_reset: "daily" | "weekly" | "monthly" | null;
+      name: string | null;
+      prefix: string | null;
+      scopes: string | string[];
+      soft_blocked: boolean;
+      status: string | null;
+      updated_at: string | null;
+      workspace_id: string;
+    };
+    previous_key_expires_at: string | null;
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type RotateWebhookEndpointSecretParams = {
   path?: {
     id: string;
@@ -14608,8 +14753,11 @@ export async function updateApiKey(
     expires_at: string | null;
     hash: string;
     id: string;
+    include_byok_in_limit: false;
     label: string | null;
     last_used_at: string | null;
+    limit: number | null;
+    limit_reset: "daily" | "weekly" | "monthly" | null;
     name: string | null;
     prefix: string | null;
     scopes: string | string[];
@@ -14629,8 +14777,11 @@ export async function updateApiKey(
       expires_at: string | null;
       hash: string;
       id: string;
+      include_byok_in_limit: false;
       label: string | null;
       last_used_at: string | null;
+      limit: number | null;
+      limit_reset: "daily" | "weekly" | "monthly" | null;
       name: string | null;
       prefix: string | null;
       scopes: string | string[];

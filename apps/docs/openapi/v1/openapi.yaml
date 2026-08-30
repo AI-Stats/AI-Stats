@@ -2422,6 +2422,41 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /keys/{id}/rotate:
+    post:
+      x-beta: true
+      tags: [Gateway]
+      operationId: rotateApiKey
+      summary: Rotate an API key
+      description: Creates a replacement with the same limits and optionally sets the previous key expiry. The replacement secret is returned once. Requires `keys:write`.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: string}
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ApiKeyRotateRequest'}
+      responses:
+        '200': {description: API key rotated, content: {application/json: {schema: {$ref: '#/components/schemas/ApiKeyRotateResponse'}}}}
+        default: {description: Rotation failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
+  /keys/{id}/invalidate:
+    post:
+      x-beta: true
+      tags: [Gateway]
+      operationId: invalidateApiKeyCache
+      summary: Invalidate API key cache
+      description: Refreshes globally cached policy state for a workspace API key. Requires an authenticated workspace management caller.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        '200': {description: Cache invalidated, content: {application/json: {schema: {$ref: '#/components/schemas/KeyInvalidateResponse'}}}}
+        default: {description: Invalidation failed, content: {application/json: {schema: {$ref: '#/components/schemas/ErrorResponse'}}}}
   /data-contribution:
     get:
       x-beta: true
@@ -10953,6 +10988,9 @@ components:
         - disabled
         - soft_blocked
         - scopes
+        - include_byok_in_limit
+        - limit
+        - limit_reset
         - created_by
         - created_at
         - updated_at
@@ -11018,6 +11056,17 @@ components:
           format: date-time
           nullable: true
           example: '2027-12-31T23:59:59Z'
+        include_byok_in_limit:
+          type: boolean
+          enum: [false]
+        limit:
+          type: number
+          nullable: true
+          description: Active spend limit in USD.
+        limit_reset:
+          type: string
+          nullable: true
+          enum: [daily, weekly, monthly]
       additionalProperties: false
     ApiKeyResponse:
       type: object
@@ -11138,6 +11187,26 @@ components:
           type: boolean
         soft_blocked:
           type: boolean
+      additionalProperties: false
+    ApiKeyRotateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: Optional replacement key name.
+        previous_key_expires_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Optional expiry for the previous key. Omit to leave it unchanged.
+      additionalProperties: false
+    ApiKeyRotateResponse:
+      type: object
+      required: [data, previous_key_expires_at]
+      properties:
+        data: {$ref: '#/components/schemas/ApiKeyWithValue'}
+        previous_key_expires_at: {type: string, format: date-time, nullable: true}
       additionalProperties: false
     Workspace:
       type: object
@@ -14002,7 +14071,6 @@ components:
       required:
         - ok
         - key
-        - cache_version
         - message
       properties:
         ok:
@@ -14013,29 +14081,17 @@ components:
           type: object
           required:
             - id
-            - team_id
+            - workspace_id
           properties:
             id:
               type: string
             kid:
               type: string
               nullable: true
-            team_id:
+            workspace_id:
               type: string
             status:
               type: string
-              nullable: true
-          additionalProperties: false
-        cache_version:
-          type: object
-          required:
-            - id
-            - kid
-          properties:
-            id:
-              type: integer
-            kid:
-              type: integer
               nullable: true
           additionalProperties: false
         message:
