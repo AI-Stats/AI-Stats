@@ -79,4 +79,28 @@ describe("validateStructuredOutputResponse", () => {
 			errorReason: null,
 		});
 	});
+
+	it("accepts parsed structured output with an array root", () => {
+		const arrayRequest = {
+			response_format: {
+				type: "json_schema",
+				json_schema: {
+					schema: {
+						type: "array",
+						items: { type: "string" },
+					},
+				},
+			},
+		};
+
+		expect(
+			validateStructuredOutputResponse(arrayRequest, {
+				output_parsed: ["yes"],
+			}),
+		).toMatchObject({
+			succeeded: true,
+			basis: "schema_validation",
+			errorReason: null,
+		});
+	});
 });

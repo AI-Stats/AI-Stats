@@ -88,8 +88,17 @@ scoped_facts as (
 usage_by_request as (
   select
     usage.request_event_id,
-    sum(usage.quantity) filter (
-      where usage.meter_key in ('input_tokens', 'input_text_tokens', 'prompt_tokens')
+    coalesce(
+      sum(usage.quantity) filter (where usage.meter_key = 'input_tokens'),
+      sum(usage.quantity) filter (where usage.meter_key = 'prompt_tokens'),
+      sum(usage.quantity) filter (
+        where usage.meter_key in (
+          'input_text_tokens',
+          'input_image_tokens',
+          'input_audio_tokens',
+          'input_video_tokens'
+        )
+      )
     )::numeric input_tokens,
     sum(usage.quantity) filter (
       where usage.meter_key in ('cached_input_tokens', 'cached_read_tokens')
@@ -100,6 +109,9 @@ usage_by_request as (
   where usage.meter_key in (
     'input_tokens',
     'input_text_tokens',
+    'input_image_tokens',
+    'input_audio_tokens',
+    'input_video_tokens',
     'prompt_tokens',
     'cached_input_tokens',
     'cached_read_tokens'
