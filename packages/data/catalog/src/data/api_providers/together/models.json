@@ -3933,6 +3933,82 @@
     "rate_limits": []
   },
   {
+    "api_model_id": "qwen/qwen3.8-flash",
+    "provider_api_model_id": "together:qwen/qwen3.8-flash",
+    "provider_model_slug": "Qwen/Qwen3.8-Flash",
+    "internal_model_id": "qwen/qwen3.8-flash",
+    "is_active_gateway": true,
+    "quantization_scheme": null,
+    "input_modalities": "text",
+    "output_modalities": "text",
+    "context_length": 1000000,
+    "max_output_tokens": null,
+    "effective_from": "2026-08-30T00:00:00Z",
+    "effective_to": null,
+    "capabilities": [
+      {
+        "capability_id": "text.generate",
+        "status": "active",
+        "params": [
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "stream",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
+        "reasoning": true,
+        "tool_call": true,
+        "structured_output": null,
+        "temperature": true,
+        "attachment": false,
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "modes": []
+      }
+    ],
+    "routing_status": "active",
+    "routable": true,
+    "regions": {
+      "execution": [
+        "global"
+      ],
+      "data": [
+        "global"
+      ]
+    },
+    "service_tiers": [
+      "standard"
+    ],
+    "api": {
+      "formats": [
+        "openai"
+      ],
+      "endpoint": "https://api.together.ai/v1/chat/completions",
+      "deployment": "serverless"
+    },
+    "sources": [
+      {
+        "kind": "models",
+        "url": "https://api.together.ai/models/Qwen/Qwen3.8-Flash",
+        "accessed_at": "2026-08-30T00:00:00Z",
+        "notes": "Together's authenticated model page lists Qwen/Qwen3.8-Flash for serverless and dedicated chat inference with text input and output, a 1M-token context window, streaming, reasoning, and tool use."
+      }
+    ],
+    "verification": {
+      "status": "verified",
+      "checked_at": "2026-08-30T00:00:00Z",
+      "notes": "Verified against Together's live authenticated model page."
+    },
+    "rate_limits": []
+  },
+  {
     "api_model_id": "deepseek/deepseek-v4-pro-0813",
     "provider_api_model_id": "together:deepseek/deepseek-v4-pro-0813",
     "provider_model_slug": "deepseek-ai/DeepSeek-V4-Pro-0813",
