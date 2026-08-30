@@ -10,6 +10,13 @@ function addWorkspaceMembers(Client $client, ?array $path = null, ?array $query 
 	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
+function applyPresetUpstreamVersion(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/presets/" . rawurlencode((string)($path["id"] ?? "")) . "/upstream";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
 function approveWorkspaceJoinRequest(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -143,6 +150,13 @@ function createParse(Client $client, ?array $path = null, ?array $query = null, 
 	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
+function createPreset(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/presets";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
 function createRerank(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -241,6 +255,13 @@ function deleteObservabilityDestination(Client $client, ?array $path = null, ?ar
 	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
 }
 
+function deletePreset(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/presets/" . rawurlencode((string)($path["id"] ?? ""));
+	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
+}
+
 function deleteVideo(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -273,6 +294,13 @@ function deployDynamicRouteVersion(Client $client, ?array $path = null, ?array $
 {
 	$path = $path ?? [];
 	$resolvedPath = "/routing/dynamic-routes/" . rawurlencode((string)($path["id"] ?? "")) . "/versions/" . rawurlencode((string)($path["version"] ?? "")) . "/deploy";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
+function forkPreset(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/presets/" . rawurlencode((string)($path["id"] ?? "")) . "/fork";
 	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
@@ -371,6 +399,20 @@ function getObservabilityLoggingPolicy(Client $client, ?array $path = null, ?arr
 {
 	$path = $path ?? [];
 	$resolvedPath = "/observability/logging-policy";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
+function getPreset(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/presets/" . rawurlencode((string)($path["id"] ?? ""));
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
+function getPresetPublisher(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/presets/publisher";
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
@@ -556,6 +598,20 @@ function listOrganisations(Client $client, ?array $path = null, ?array $query = 
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
+function listPresets(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/presets";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
+function listPresetVersions(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/presets/" . rawurlencode((string)($path["id"] ?? "")) . "/versions";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
 function listPricingModels(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -645,6 +701,13 @@ function openAsyncJobWebSocket(Client $client, ?array $path = null, ?array $quer
 	$path = $path ?? [];
 	$resolvedPath = "/async/" . rawurlencode((string)($path["kind"] ?? "")) . "/" . rawurlencode((string)($path["id"] ?? "")) . "/ws";
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
+function publishPresetVersion(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/presets/" . rawurlencode((string)($path["id"] ?? "")) . "/versions";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
 function rejectWorkspaceJoinRequest(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
@@ -750,6 +813,20 @@ function updateObservabilityLoggingPolicy(Client $client, ?array $path = null, ?
 	$path = $path ?? [];
 	$resolvedPath = "/observability/logging-policy";
 	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
+}
+
+function updatePreset(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/presets/" . rawurlencode((string)($path["id"] ?? ""));
+	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
+}
+
+function updatePresetPublisher(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/presets/publisher";
+	return $client->request("PUT", $resolvedPath, $query, $headers, $body);
 }
 
 function updateWorkspace(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)

@@ -1967,6 +1967,139 @@ module Phaseo
     # @!attribute [rw] usage
     #   @return [Hash{String => Object}, nil]
     ParseResponse = Struct.new(:id, :meta, :model, :object, :pages, :provider, :usage, keyword_init: true)
+    # @!attribute [rw] active_version_id
+    #   @return [String, nil]
+    # @!attribute [rw] config
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] created_at
+    #   @return [String, nil]
+    # @!attribute [rw] created_by
+    #   @return [String, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] slug
+    #   @return [String]
+    # @!attribute [rw] source_preset_id
+    #   @return [String, nil]
+    # @!attribute [rw] source_preset_version_id
+    #   @return [String, nil]
+    # @!attribute [rw] updated_at
+    #   @return [String, nil]
+    # @!attribute [rw] upstream_version_id
+    #   @return [String, nil]
+    # @!attribute [rw] versioning_method
+    #   @return [String]
+    # @!attribute [rw] visibility
+    #   @return [String]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    Preset = Struct.new(:active_version_id, :config, :created_at, :created_by, :description, :id, :name, :slug, :source_preset_id, :source_preset_version_id, :updated_at, :upstream_version_id, :versioning_method, :visibility, :workspace_id, keyword_init: true)
+    PresetConfig = Struct.new(:_unused, keyword_init: true)
+    # @!attribute [rw] config
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] slug
+    #   @return [String, nil]
+    # @!attribute [rw] versioning_method
+    #   @return [String, nil]
+    # @!attribute [rw] visibility
+    #   @return [String, nil]
+    PresetCreateRequest = Struct.new(:config, :description, :name, :slug, :versioning_method, :visibility, keyword_init: true)
+    # @!attribute [rw] canonical_model
+    #   @return [String]
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    PresetCreateResponse = Struct.new(:canonical_model, :data, keyword_init: true)
+    # @!attribute [rw] source_version_id
+    #   @return [String, nil]
+    PresetForkRequest = Struct.new(:source_version_id, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    # @!attribute [rw] total_count
+    #   @return [Integer]
+    PresetListResponse = Struct.new(:data, :total_count, keyword_init: true)
+    # @!attribute [rw] handle
+    #   @return [String, nil]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    PresetPublisher = Struct.new(:handle, :workspace_id, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    PresetPublisherResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] handle
+    #   @return [String]
+    PresetPublisherUpdateRequest = Struct.new(:handle, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    PresetResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] config
+    #   @return [Hash{String => Object}, nil]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] replace_config
+    #   @return [Boolean, nil]
+    # @!attribute [rw] slug
+    #   @return [String, nil]
+    # @!attribute [rw] versioning_method
+    #   @return [String, nil]
+    # @!attribute [rw] visibility
+    #   @return [String, nil]
+    PresetUpdateRequest = Struct.new(:config, :description, :name, :replace_config, :slug, :versioning_method, :visibility, keyword_init: true)
+    # @!attribute [rw] version_id
+    #   @return [String]
+    PresetUpstreamApplyRequest = Struct.new(:version_id, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    PresetUpstreamApplyResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] config
+    #   @return [Hash{String => Object}]
+    # @!attribute [rw] created_at
+    #   @return [String]
+    # @!attribute [rw] created_by
+    #   @return [String]
+    # @!attribute [rw] description
+    #   @return [String, nil]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] preset_id
+    #   @return [String]
+    # @!attribute [rw] release_notes
+    #   @return [String, nil]
+    # @!attribute [rw] slug
+    #   @return [String]
+    # @!attribute [rw] version_label
+    #   @return [String]
+    # @!attribute [rw] version_number
+    #   @return [Integer]
+    # @!attribute [rw] versioning_method
+    #   @return [String]
+    # @!attribute [rw] visibility
+    #   @return [String]
+    PresetVersion = Struct.new(:config, :created_at, :created_by, :description, :id, :name, :preset_id, :release_notes, :slug, :version_label, :version_number, :versioning_method, :visibility, keyword_init: true)
+    PresetVersioningMethod = Object
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    PresetVersionListResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] release_notes
+    #   @return [String, nil]
+    # @!attribute [rw] version_label
+    #   @return [String, nil]
+    PresetVersionPublishRequest = Struct.new(:release_notes, :version_label, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    PresetVersionResponse = Struct.new(:data, keyword_init: true)
+    PresetVisibility = Object
     # @!attribute [rw] api_provider_id
     #   @return [String, nil]
     # @!attribute [rw] api_provider_name

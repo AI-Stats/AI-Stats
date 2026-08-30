@@ -40,7 +40,7 @@ OpenAPI schema does not count as complete.
 | Guardrails | CRUD and key/member assignment | Runtime only | Publish the contract and cover default workspace policy, budgets, model/provider restrictions, privacy, and content controls. |
 | Provider credentials | Dashboard only | Missing | Add encrypted create/update/delete, workspace/provider filters, model/key/member restrictions, priority ordering, required-only mode, and fallback behavior. |
 | Routing policies | Workspace defaults, provider restrictions, versioned dynamic routes, key assignments, and deployments | Contracted | Add new durable routing controls to the same surface as the dashboard evolves. |
-| Presets | CRUD and version publish | Runtime only | Publish the existing contract; add request-derived versions, designated-version changes, forks, and upstream/publisher operations where supported by the UI. |
+| Presets | CRUD, publisher identity, immutable versions, forks, upstream updates, and archival | Contracted | Add request-derived versions or designated-version changes only when those become durable dashboard actions. |
 | Plugins and tools | Response-healing workspace defaults and lock policy; request-level plugin/tool controls | Contracted where durable | Add assignment APIs when another plugin gains durable dashboard configuration. |
 | Observability | Logs, workspace I/O logging policy, and webhook/OpenTelemetry destination CRUD with privacy, sampling, key filters, and event rules | Contracted for executable exporters | Add destination types only when their exporters are executable. |
 | Workspace budgets | Guardrail/limit primitives | Missing as a resource | Add daily, weekly, monthly, and lifetime budget CRUD with hierarchy validation and usage/remaining values. |

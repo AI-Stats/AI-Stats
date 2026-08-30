@@ -17,6 +17,19 @@ def addWorkspaceMembers(
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
+def applyPresetUpstreamVersion(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> PresetUpstreamApplyResponse:
+	path = path or {}
+	resolved_path = f"/presets/{path.get('id', '')}/upstream"
+	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
+
+
 def approveWorkspaceJoinRequest(
 	client: Client,
 	*,
@@ -264,6 +277,19 @@ def createParse(
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
+def createPreset(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> PresetCreateResponse:
+	path = path or {}
+	resolved_path = "/presets"
+	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
+
+
 def createRerank(
 	client: Client,
 	*,
@@ -446,6 +472,19 @@ def deleteObservabilityDestination(
 	return client.request("DELETE", resolved_path, query=query, headers=headers, body=body)
 
 
+def deletePreset(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> DeletedResponse:
+	path = path or {}
+	resolved_path = f"/presets/{path.get('id', '')}"
+	return client.request("DELETE", resolved_path, query=query, headers=headers, body=body)
+
+
 def deleteVideo(
 	client: Client,
 	*,
@@ -508,6 +547,19 @@ def deployDynamicRouteVersion(
 ) -> DynamicRouteDeployResponse:
 	path = path or {}
 	resolved_path = f"/routing/dynamic-routes/{path.get('id', '')}/versions/{path.get('version', '')}/deploy"
+	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
+
+
+def forkPreset(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> PresetResponse:
+	path = path or {}
+	resolved_path = f"/presets/{path.get('id', '')}/fork"
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
@@ -693,6 +745,32 @@ def getObservabilityLoggingPolicy(
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
+def getPreset(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> PresetResponse:
+	path = path or {}
+	resolved_path = f"/presets/{path.get('id', '')}"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
+def getPresetPublisher(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> PresetPublisherResponse:
+	path = path or {}
+	resolved_path = "/presets/publisher"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
 def getProviderDerankStatus(
 	client: Client,
 	*,
@@ -700,7 +778,7 @@ def getProviderDerankStatus(
 	query: Optional[Dict[str, Any]] = None,
 	headers: Optional[Dict[str, str]] = None,
 	body: Optional[Any] = None,
-) -> OcrResponse:
+) -> Dict[str, Any]:
 	path = path or {}
 	resolved_path = f"/health/providers/{path.get('provider_id', '')}/derank"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
@@ -1031,6 +1109,32 @@ def listOrganisations(
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
 
 
+def listPresets(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> PresetListResponse:
+	path = path or {}
+	resolved_path = "/presets"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
+def listPresetVersions(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> PresetVersionListResponse:
+	path = path or {}
+	resolved_path = f"/presets/{path.get('id', '')}/versions"
+	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
 def listPricingModels(
 	client: Client,
 	*,
@@ -1198,6 +1302,19 @@ def openAsyncJobWebSocket(
 	path = path or {}
 	resolved_path = f"/async/{path.get('kind', '')}/{path.get('id', '')}/ws"
 	return client.request("GET", resolved_path, query=query, headers=headers, body=body)
+
+
+def publishPresetVersion(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> PresetVersionResponse:
+	path = path or {}
+	resolved_path = f"/presets/{path.get('id', '')}/versions"
+	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
 def rejectWorkspaceJoinRequest(
@@ -1395,6 +1512,32 @@ def updateObservabilityLoggingPolicy(
 	return client.request("PATCH", resolved_path, query=query, headers=headers, body=body)
 
 
+def updatePreset(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> PresetResponse:
+	path = path or {}
+	resolved_path = f"/presets/{path.get('id', '')}"
+	return client.request("PATCH", resolved_path, query=query, headers=headers, body=body)
+
+
+def updatePresetPublisher(
+	client: Client,
+	*,
+	path: Optional[Dict[str, Any]] = None,
+	query: Optional[Dict[str, Any]] = None,
+	headers: Optional[Dict[str, str]] = None,
+	body: Optional[Any] = None,
+) -> PresetPublisherResponse:
+	path = path or {}
+	resolved_path = "/presets/publisher"
+	return client.request("PUT", resolved_path, query=query, headers=headers, body=body)
+
+
 def updateWorkspace(
 	client: Client,
 	*,
@@ -1473,4 +1616,4 @@ def uploadFile(
 	return client.request("POST", resolved_path, query=query, headers=headers, body=body)
 
 
-operations___all__ = ["addWorkspaceMembers", "approveWorkspaceJoinRequest", "calculatePricing", "cancelBatch", "cancelBatchAlias", "cancelVideo", "cancelVideoAlias", "createAnthropicMessage", "createApiKey", "createBatch", "createBatchAlias", "createChatCompletion", "createDynamicRoute", "createEmbedding", "createImage", "createImageEdit", "createModeration", "createObservabilityDestination", "createOcr", "createParse", "createRerank", "createResponse", "createSpeech", "createTranscription", "createTranslation", "createVideo", "createVideoAlias", "createVideoDownloadUrl", "createVideoDownloadUrlAlias", "createWorkspace", "createWorkspaceInvite", "deleteApiKey", "deleteDynamicRoute", "deleteObservabilityDestination", "deleteVideo", "deleteVideoAlias", "deleteWorkspace", "deleteWorkspaceInvite", "deployDynamicRouteVersion", "generateMusic", "generateMusicAlias", "getActivity", "getActivityAlias", "getApiKey", "getCredits", "getCurrentApiKey", "getDynamicRoute", "getGeneration", "getHealth", "getMusicGeneration", "getMusicGenerationAlias", "getObservabilityDestination", "getObservabilityLoggingPolicy", "getProviderDerankStatus", "getVideo", "getVideoAlias", "getVideoContent", "getVideoContentAlias", "getWorkspace", "getWorkspaceSettings", "listApiKeys", "listBatchCapabilities", "listBatchCapabilitiesAlias", "listBatches", "listBatchesAlias", "listBatchFiles", "listBatchFilesAlias", "listBatchModels", "listBatchModelsAlias", "listBatchRequests", "listBatchRequestsAlias", "listDataModels", "listDynamicRoutes", "listEndpoints", "listFiles", "listModelEndpoints", "listModels", "listObservabilityDestinations", "listOrganisations", "listPricingModels", "listProviders", "listTeamModels", "listVideoModels", "listVideoModelsAlias", "listVideos", "listVideosAlias", "listWorkspaceAuditEvents", "listWorkspaceInvites", "listWorkspaceJoinRequests", "listWorkspaceMembers", "listWorkspaces", "openAsyncJobWebSocket", "rejectWorkspaceJoinRequest", "removeWorkspaceMembers", "replaceDynamicRouteKeys", "retrieveBatch", "retrieveBatchAlias", "retrieveBatchFile", "retrieveBatchFileAlias", "retrieveBatchFileContent", "retrieveBatchFileContentAlias", "retrieveFile", "retrieveFileContent", "updateApiKey", "updateDynamicRoute", "updateObservabilityDestination", "updateObservabilityLoggingPolicy", "updateWorkspace", "updateWorkspaceMemberRole", "updateWorkspaceSettings", "uploadBatchFile", "uploadBatchFileAlias", "uploadFile"]
+operations___all__ = ["addWorkspaceMembers", "applyPresetUpstreamVersion", "approveWorkspaceJoinRequest", "calculatePricing", "cancelBatch", "cancelBatchAlias", "cancelVideo", "cancelVideoAlias", "createAnthropicMessage", "createApiKey", "createBatch", "createBatchAlias", "createChatCompletion", "createDynamicRoute", "createEmbedding", "createImage", "createImageEdit", "createModeration", "createObservabilityDestination", "createOcr", "createParse", "createPreset", "createRerank", "createResponse", "createSpeech", "createTranscription", "createTranslation", "createVideo", "createVideoAlias", "createVideoDownloadUrl", "createVideoDownloadUrlAlias", "createWorkspace", "createWorkspaceInvite", "deleteApiKey", "deleteDynamicRoute", "deleteObservabilityDestination", "deletePreset", "deleteVideo", "deleteVideoAlias", "deleteWorkspace", "deleteWorkspaceInvite", "deployDynamicRouteVersion", "forkPreset", "generateMusic", "generateMusicAlias", "getActivity", "getActivityAlias", "getApiKey", "getCredits", "getCurrentApiKey", "getDynamicRoute", "getGeneration", "getHealth", "getMusicGeneration", "getMusicGenerationAlias", "getObservabilityDestination", "getObservabilityLoggingPolicy", "getPreset", "getPresetPublisher", "getProviderDerankStatus", "getVideo", "getVideoAlias", "getVideoContent", "getVideoContentAlias", "getWorkspace", "getWorkspaceSettings", "listApiKeys", "listBatchCapabilities", "listBatchCapabilitiesAlias", "listBatches", "listBatchesAlias", "listBatchFiles", "listBatchFilesAlias", "listBatchModels", "listBatchModelsAlias", "listBatchRequests", "listBatchRequestsAlias", "listDataModels", "listDynamicRoutes", "listEndpoints", "listFiles", "listModelEndpoints", "listModels", "listObservabilityDestinations", "listOrganisations", "listPresets", "listPresetVersions", "listPricingModels", "listProviders", "listTeamModels", "listVideoModels", "listVideoModelsAlias", "listVideos", "listVideosAlias", "listWorkspaceAuditEvents", "listWorkspaceInvites", "listWorkspaceJoinRequests", "listWorkspaceMembers", "listWorkspaces", "openAsyncJobWebSocket", "publishPresetVersion", "rejectWorkspaceJoinRequest", "removeWorkspaceMembers", "replaceDynamicRouteKeys", "retrieveBatch", "retrieveBatchAlias", "retrieveBatchFile", "retrieveBatchFileAlias", "retrieveBatchFileContent", "retrieveBatchFileContentAlias", "retrieveFile", "retrieveFileContent", "updateApiKey", "updateDynamicRoute", "updateObservabilityDestination", "updateObservabilityLoggingPolicy", "updatePreset", "updatePresetPublisher", "updateWorkspace", "updateWorkspaceMemberRole", "updateWorkspaceSettings", "uploadBatchFile", "uploadBatchFileAlias", "uploadFile"]

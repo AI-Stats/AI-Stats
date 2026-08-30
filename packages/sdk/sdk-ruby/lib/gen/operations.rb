@@ -9,6 +9,12 @@ module Phaseo
         client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.applyPresetUpstreamVersion(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/presets/#{URI.encode_uri_component(path["id"].to_s)}/upstream"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.approveWorkspaceJoinRequest(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/workspaces/#{URI.encode_uri_component(path["id"].to_s)}/join-requests/#{URI.encode_uri_component(path["request_id"].to_s)}/approve"
@@ -123,6 +129,12 @@ module Phaseo
         client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.createPreset(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/presets"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.createRerank(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/rerank"
@@ -207,6 +219,12 @@ module Phaseo
         client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.deletePreset(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/presets/#{URI.encode_uri_component(path["id"].to_s)}"
+        client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.deleteVideo(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/videos/#{URI.encode_uri_component(path["video_id"].to_s)}"
@@ -234,6 +252,12 @@ module Phaseo
       def self.deployDynamicRouteVersion(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/routing/dynamic-routes/#{URI.encode_uri_component(path["id"].to_s)}/versions/#{URI.encode_uri_component(path["version"].to_s)}/deploy"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.forkPreset(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/presets/#{URI.encode_uri_component(path["id"].to_s)}/fork"
         client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -318,6 +342,18 @@ module Phaseo
       def self.getObservabilityLoggingPolicy(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/observability/logging-policy"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.getPreset(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/presets/#{URI.encode_uri_component(path["id"].to_s)}"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.getPresetPublisher(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/presets/publisher"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -477,6 +513,18 @@ module Phaseo
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.listPresets(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/presets"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.listPresetVersions(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/presets/#{URI.encode_uri_component(path["id"].to_s)}/versions"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.listPricingModels(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/pricing/models"
@@ -553,6 +601,12 @@ module Phaseo
         path ||= {}
         resolved_path = "/async/#{URI.encode_uri_component(path["kind"].to_s)}/#{URI.encode_uri_component(path["id"].to_s)}/ws"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.publishPresetVersion(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/presets/#{URI.encode_uri_component(path["id"].to_s)}/versions"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
       def self.rejectWorkspaceJoinRequest(client, path: nil, query: nil, headers: nil, body: nil)
@@ -643,6 +697,18 @@ module Phaseo
         path ||= {}
         resolved_path = "/observability/logging-policy"
         client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.updatePreset(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/presets/#{URI.encode_uri_component(path["id"].to_s)}"
+        client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.updatePresetPublisher(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/presets/publisher"
+        client.request(method: "PUT", path: resolved_path, query: query, headers: headers, body: body)
       end
 
       def self.updateWorkspace(client, path: nil, query: nil, headers: nil, body: nil)

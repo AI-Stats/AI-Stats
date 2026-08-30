@@ -48,6 +48,47 @@ export async function addWorkspaceMembers(
   });
 }
 
+export type ApplyPresetUpstreamVersionParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    version_id: string;
+  };
+};
+
+/**
+ * Applies a public upstream version to a local fork draft without publishing it.
+ */
+export async function applyPresetUpstreamVersion(
+  client: Client,
+  args: ApplyPresetUpstreamVersionParams = {},
+): Promise<{
+  data: {
+    applied_to_draft: true;
+    id: string;
+    upstream_version_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/presets/${encodeURIComponent(String(path?.["id"]))}/upstream`;
+  return client.request<{
+    data: {
+      applied_to_draft: true;
+      id: string;
+      upstream_version_id: string;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type ApproveWorkspaceJoinRequestParams = {
   path?: {
     id: string;
@@ -3522,6 +3563,82 @@ export async function createParse(
   });
 }
 
+export type CreatePresetParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    config?: {
+      [key: string]: unknown;
+    };
+    description?: string | null;
+    name: string;
+    slug?: string;
+    versioning_method?: "sequential" | "semver" | "date";
+    visibility?: "private" | "team" | "public";
+  };
+};
+
+/**
+ * Creates a workspace preset with durable prompt, routing, parameter, and plugin defaults.
+ */
+export async function createPreset(
+  client: Client,
+  args: CreatePresetParams = {},
+): Promise<{
+  canonical_model: string;
+  data: {
+    active_version_id?: string | null;
+    config: {
+      [key: string]: unknown;
+    };
+    created_at?: string | null;
+    created_by?: string | null;
+    description?: string | null;
+    id: string;
+    name: string;
+    slug: string;
+    source_preset_id?: string | null;
+    source_preset_version_id?: string | null;
+    updated_at?: string | null;
+    upstream_version_id?: string | null;
+    versioning_method: "sequential" | "semver" | "date";
+    visibility: "private" | "team" | "public";
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/presets";
+  return client.request<{
+    canonical_model: string;
+    data: {
+      active_version_id?: string | null;
+      config: {
+        [key: string]: unknown;
+      };
+      created_at?: string | null;
+      created_by?: string | null;
+      description?: string | null;
+      id: string;
+      name: string;
+      slug: string;
+      source_preset_id?: string | null;
+      source_preset_version_id?: string | null;
+      updated_at?: string | null;
+      upstream_version_id?: string | null;
+      versioning_method: "sequential" | "semver" | "date";
+      visibility: "private" | "team" | "public";
+      workspace_id: string;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type CreateRerankParams = {
   path?: Record<string, never>;
   query?: Record<string, never>;
@@ -5245,6 +5362,39 @@ export async function deleteObservabilityDestination(
   });
 }
 
+export type DeletePresetParams = {
+  path?: {
+    id: string;
+  };
+  query?: {
+    confirm_name?: string;
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Soft-deletes a preset after optional exact-name confirmation.
+ */
+export async function deletePreset(
+  client: Client,
+  args: DeletePresetParams = {},
+): Promise<{
+  deleted: true;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/presets/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    deleted: true;
+  }>({
+    method: "DELETE",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type DeleteVideoParams = {
   path?: {
     video_id: string;
@@ -5406,6 +5556,75 @@ export async function deployDynamicRouteVersion(
     data: {
       deployed_version: number;
       id: string;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ForkPresetParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    source_version_id?: string;
+  };
+};
+
+/**
+ * Copies the active or selected public version into the management workspace as a private preset.
+ */
+export async function forkPreset(
+  client: Client,
+  args: ForkPresetParams = {},
+): Promise<{
+  data: {
+    active_version_id?: string | null;
+    config: {
+      [key: string]: unknown;
+    };
+    created_at?: string | null;
+    created_by?: string | null;
+    description?: string | null;
+    id: string;
+    name: string;
+    slug: string;
+    source_preset_id?: string | null;
+    source_preset_version_id?: string | null;
+    updated_at?: string | null;
+    upstream_version_id?: string | null;
+    versioning_method: "sequential" | "semver" | "date";
+    visibility: "private" | "team" | "public";
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/presets/${encodeURIComponent(String(path?.["id"]))}/fork`;
+  return client.request<{
+    data: {
+      active_version_id?: string | null;
+      config: {
+        [key: string]: unknown;
+      };
+      created_at?: string | null;
+      created_by?: string | null;
+      description?: string | null;
+      id: string;
+      name: string;
+      slug: string;
+      source_preset_id?: string | null;
+      source_preset_version_id?: string | null;
+      updated_at?: string | null;
+      upstream_version_id?: string | null;
+      versioning_method: "sequential" | "semver" | "date";
+      visibility: "private" | "team" | "public";
+      workspace_id: string;
     };
   }>({
     method: "POST",
@@ -6576,6 +6795,108 @@ export async function getObservabilityLoggingPolicy(
       price_per_million_units_nanos: number;
       retention_days: number;
       updated_at?: string | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type GetPresetParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Gets an active preset by UUID, slug, or canonical name.
+ */
+export async function getPreset(
+  client: Client,
+  args: GetPresetParams = {},
+): Promise<{
+  data: {
+    active_version_id?: string | null;
+    config: {
+      [key: string]: unknown;
+    };
+    created_at?: string | null;
+    created_by?: string | null;
+    description?: string | null;
+    id: string;
+    name: string;
+    slug: string;
+    source_preset_id?: string | null;
+    source_preset_version_id?: string | null;
+    updated_at?: string | null;
+    upstream_version_id?: string | null;
+    versioning_method: "sequential" | "semver" | "date";
+    visibility: "private" | "team" | "public";
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/presets/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    data: {
+      active_version_id?: string | null;
+      config: {
+        [key: string]: unknown;
+      };
+      created_at?: string | null;
+      created_by?: string | null;
+      description?: string | null;
+      id: string;
+      name: string;
+      slug: string;
+      source_preset_id?: string | null;
+      source_preset_version_id?: string | null;
+      updated_at?: string | null;
+      upstream_version_id?: string | null;
+      versioning_method: "sequential" | "semver" | "date";
+      visibility: "private" | "team" | "public";
+      workspace_id: string;
+    };
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type GetPresetPublisherParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns the canonical public-preset publisher handle for the workspace.
+ */
+export async function getPresetPublisher(
+  client: Client,
+  args: GetPresetPublisherParams = {},
+): Promise<{
+  data: {
+    handle: string | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/presets/publisher";
+  return client.request<{
+    data: {
+      handle: string | null;
       workspace_id: string;
     };
   }>({
@@ -9873,6 +10194,140 @@ export async function listOrganisations(
   });
 }
 
+export type ListPresetsParams = {
+  path?: Record<string, never>;
+  query?: {
+    limit?: number;
+    offset?: number;
+    visibility?: "private" | "team" | "public";
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists active presets visible to the management key workspace.
+ */
+export async function listPresets(
+  client: Client,
+  args: ListPresetsParams = {},
+): Promise<{
+  data: {
+    active_version_id?: string | null;
+    config: {
+      [key: string]: unknown;
+    };
+    created_at?: string | null;
+    created_by?: string | null;
+    description?: string | null;
+    id: string;
+    name: string;
+    slug: string;
+    source_preset_id?: string | null;
+    source_preset_version_id?: string | null;
+    updated_at?: string | null;
+    upstream_version_id?: string | null;
+    versioning_method: "sequential" | "semver" | "date";
+    visibility: "private" | "team" | "public";
+    workspace_id: string;
+  }[];
+  total_count: number;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/presets";
+  return client.request<{
+    data: {
+      active_version_id?: string | null;
+      config: {
+        [key: string]: unknown;
+      };
+      created_at?: string | null;
+      created_by?: string | null;
+      description?: string | null;
+      id: string;
+      name: string;
+      slug: string;
+      source_preset_id?: string | null;
+      source_preset_version_id?: string | null;
+      updated_at?: string | null;
+      upstream_version_id?: string | null;
+      versioning_method: "sequential" | "semver" | "date";
+      visibility: "private" | "team" | "public";
+      workspace_id: string;
+    }[];
+    total_count: number;
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ListPresetVersionsParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists immutable published snapshots for a preset in descending version order.
+ */
+export async function listPresetVersions(
+  client: Client,
+  args: ListPresetVersionsParams = {},
+): Promise<{
+  data: {
+    config: {
+      [key: string]: unknown;
+    };
+    created_at: string;
+    created_by: string;
+    description?: string | null;
+    id: string;
+    name: string;
+    preset_id: string;
+    release_notes?: string | null;
+    slug: string;
+    version_label: string;
+    version_number: number;
+    versioning_method: "sequential" | "semver" | "date";
+    visibility: "private" | "team" | "public";
+  }[];
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/presets/${encodeURIComponent(String(path?.["id"]))}/versions`;
+  return client.request<{
+    data: {
+      config: {
+        [key: string]: unknown;
+      };
+      created_at: string;
+      created_by: string;
+      description?: string | null;
+      id: string;
+      name: string;
+      preset_id: string;
+      release_notes?: string | null;
+      slug: string;
+      version_label: string;
+      version_number: number;
+      versioning_method: "sequential" | "semver" | "date";
+      visibility: "private" | "team" | "public";
+    }[];
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type ListPricingModelsParams = {
   path?: Record<string, never>;
   query?: Record<string, never>;
@@ -11535,6 +11990,72 @@ export async function openAsyncJobWebSocket(
   });
 }
 
+export type PublishPresetVersionParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    release_notes?: string;
+    version_label?: string;
+  };
+};
+
+/**
+ * Publishes the current draft as a new immutable version using the preset versioning method.
+ */
+export async function publishPresetVersion(
+  client: Client,
+  args: PublishPresetVersionParams = {},
+): Promise<{
+  data: {
+    config: {
+      [key: string]: unknown;
+    };
+    created_at: string;
+    created_by: string;
+    description?: string | null;
+    id: string;
+    name: string;
+    preset_id: string;
+    release_notes?: string | null;
+    slug: string;
+    version_label: string;
+    version_number: number;
+    versioning_method: "sequential" | "semver" | "date";
+    visibility: "private" | "team" | "public";
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/presets/${encodeURIComponent(String(path?.["id"]))}/versions`;
+  return client.request<{
+    data: {
+      config: {
+        [key: string]: unknown;
+      };
+      created_at: string;
+      created_by: string;
+      description?: string | null;
+      id: string;
+      name: string;
+      preset_id: string;
+      release_notes?: string | null;
+      slug: string;
+      version_label: string;
+      version_number: number;
+      versioning_method: "sequential" | "semver" | "date";
+      visibility: "private" | "team" | "public";
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type RejectWorkspaceJoinRequestParams = {
   path?: {
     id: string;
@@ -12912,6 +13433,120 @@ export async function updateObservabilityLoggingPolicy(
     };
   }>({
     method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdatePresetParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    config?: {
+      [key: string]: unknown;
+    };
+    description?: string | null;
+    name?: string;
+    replace_config?: boolean;
+    slug?: string;
+    versioning_method?: "sequential" | "semver" | "date";
+    visibility?: "private" | "team" | "public";
+  };
+};
+
+/**
+ * Updates draft metadata or configuration without changing the active published version.
+ */
+export async function updatePreset(
+  client: Client,
+  args: UpdatePresetParams = {},
+): Promise<{
+  data: {
+    active_version_id?: string | null;
+    config: {
+      [key: string]: unknown;
+    };
+    created_at?: string | null;
+    created_by?: string | null;
+    description?: string | null;
+    id: string;
+    name: string;
+    slug: string;
+    source_preset_id?: string | null;
+    source_preset_version_id?: string | null;
+    updated_at?: string | null;
+    upstream_version_id?: string | null;
+    versioning_method: "sequential" | "semver" | "date";
+    visibility: "private" | "team" | "public";
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/presets/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    data: {
+      active_version_id?: string | null;
+      config: {
+        [key: string]: unknown;
+      };
+      created_at?: string | null;
+      created_by?: string | null;
+      description?: string | null;
+      id: string;
+      name: string;
+      slug: string;
+      source_preset_id?: string | null;
+      source_preset_version_id?: string | null;
+      updated_at?: string | null;
+      upstream_version_id?: string | null;
+      versioning_method: "sequential" | "semver" | "date";
+      visibility: "private" | "team" | "public";
+      workspace_id: string;
+    };
+  }>({
+    method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdatePresetPublisherParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    handle: string;
+  };
+};
+
+/**
+ * Renames the workspace publisher handle while retaining its prior handle as an alias.
+ */
+export async function updatePresetPublisher(
+  client: Client,
+  args: UpdatePresetPublisherParams = {},
+): Promise<{
+  data: {
+    handle: string | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/presets/publisher";
+  return client.request<{
+    data: {
+      handle: string | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "PUT",
     path: resolvedPath,
     query,
     headers,

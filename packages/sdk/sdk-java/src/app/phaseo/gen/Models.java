@@ -1389,6 +1389,120 @@ public final class Models {
 		public Object usage;
 	}
 
+	public static class Preset {
+		public String active_version_id;
+		public Object config;
+		public String created_at;
+		public String created_by;
+		public String description;
+		public String id;
+		public String name;
+		public String slug;
+		public String source_preset_id;
+		public String source_preset_version_id;
+		public String updated_at;
+		public String upstream_version_id;
+		public Object versioning_method;
+		public Object visibility;
+		public String workspace_id;
+	}
+
+	public static class PresetConfig {
+	}
+
+	public static class PresetCreateRequest {
+		public Object config;
+		public String description;
+		public String name;
+		public String slug;
+		public Object versioning_method;
+		public Object visibility;
+	}
+
+	public static class PresetCreateResponse {
+		public String canonical_model;
+		public Object data;
+	}
+
+	public static class PresetForkRequest {
+		public String source_version_id;
+	}
+
+	public static class PresetListResponse {
+		public java.util.List<Object> data;
+		public Integer total_count;
+	}
+
+	public static class PresetPublisher {
+		public String handle;
+		public String workspace_id;
+	}
+
+	public static class PresetPublisherResponse {
+		public Object data;
+	}
+
+	public static class PresetPublisherUpdateRequest {
+		public String handle;
+	}
+
+	public static class PresetResponse {
+		public Object data;
+	}
+
+	public static class PresetUpdateRequest {
+		public Object config;
+		public String description;
+		public String name;
+		public Boolean replace_config;
+		public String slug;
+		public Object versioning_method;
+		public Object visibility;
+	}
+
+	public static class PresetUpstreamApplyRequest {
+		public String version_id;
+	}
+
+	public static class PresetUpstreamApplyResponse {
+		public Object data;
+	}
+
+	public static class PresetVersion {
+		public Object config;
+		public String created_at;
+		public String created_by;
+		public String description;
+		public String id;
+		public String name;
+		public String preset_id;
+		public String release_notes;
+		public String slug;
+		public String version_label;
+		public Integer version_number;
+		public Object versioning_method;
+		public Object visibility;
+	}
+
+	public static class PresetVersioningMethod {
+	}
+
+	public static class PresetVersionListResponse {
+		public java.util.List<Object> data;
+	}
+
+	public static class PresetVersionPublishRequest {
+		public String release_notes;
+		public String version_label;
+	}
+
+	public static class PresetVersionResponse {
+		public Object data;
+	}
+
+	public static class PresetVisibility {
+	}
+
 	public static class Provider {
 		public String api_provider_id;
 		public String api_provider_name;

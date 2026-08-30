@@ -2421,6 +2421,192 @@ class ParseResponse
 	public $usage;
 }
 
+class Preset
+{
+	/** @var string|null */
+	public $active_version_id;
+	/** @var array<string, mixed> */
+	public $config;
+	/** @var string|null */
+	public $created_at;
+	/** @var string|null */
+	public $created_by;
+	/** @var string|null */
+	public $description;
+	/** @var string */
+	public $id;
+	/** @var string */
+	public $name;
+	/** @var string */
+	public $slug;
+	/** @var string|null */
+	public $source_preset_id;
+	/** @var string|null */
+	public $source_preset_version_id;
+	/** @var string|null */
+	public $updated_at;
+	/** @var string|null */
+	public $upstream_version_id;
+	/** @var string */
+	public $versioning_method;
+	/** @var string */
+	public $visibility;
+	/** @var string */
+	public $workspace_id;
+}
+
+class PresetConfig
+{
+}
+
+class PresetCreateRequest
+{
+	/** @var array<string, mixed>|null */
+	public $config;
+	/** @var string|null */
+	public $description;
+	/** @var string */
+	public $name;
+	/** @var string|null */
+	public $slug;
+	/** @var string|null */
+	public $versioning_method;
+	/** @var string|null */
+	public $visibility;
+}
+
+class PresetCreateResponse
+{
+	/** @var string */
+	public $canonical_model;
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class PresetForkRequest
+{
+	/** @var string|null */
+	public $source_version_id;
+}
+
+class PresetListResponse
+{
+	/** @var array */
+	public $data;
+	/** @var int */
+	public $total_count;
+}
+
+class PresetPublisher
+{
+	/** @var string|null */
+	public $handle;
+	/** @var string */
+	public $workspace_id;
+}
+
+class PresetPublisherResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class PresetPublisherUpdateRequest
+{
+	/** @var string */
+	public $handle;
+}
+
+class PresetResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class PresetUpdateRequest
+{
+	/** @var array<string, mixed>|null */
+	public $config;
+	/** @var string|null */
+	public $description;
+	/** @var string|null */
+	public $name;
+	/** @var bool|null */
+	public $replace_config;
+	/** @var string|null */
+	public $slug;
+	/** @var string|null */
+	public $versioning_method;
+	/** @var string|null */
+	public $visibility;
+}
+
+class PresetUpstreamApplyRequest
+{
+	/** @var string */
+	public $version_id;
+}
+
+class PresetUpstreamApplyResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class PresetVersion
+{
+	/** @var array<string, mixed> */
+	public $config;
+	/** @var string */
+	public $created_at;
+	/** @var string */
+	public $created_by;
+	/** @var string|null */
+	public $description;
+	/** @var string */
+	public $id;
+	/** @var string */
+	public $name;
+	/** @var string */
+	public $preset_id;
+	/** @var string|null */
+	public $release_notes;
+	/** @var string */
+	public $slug;
+	/** @var string */
+	public $version_label;
+	/** @var int */
+	public $version_number;
+	/** @var string */
+	public $versioning_method;
+	/** @var string */
+	public $visibility;
+}
+
+class PresetVersioningMethod { }
+
+class PresetVersionListResponse
+{
+	/** @var array */
+	public $data;
+}
+
+class PresetVersionPublishRequest
+{
+	/** @var string|null */
+	public $release_notes;
+	/** @var string|null */
+	public $version_label;
+}
+
+class PresetVersionResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class PresetVisibility { }
+
 class Provider
 {
 	/** @var string|null */

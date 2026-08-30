@@ -4272,6 +4272,346 @@ paths:
                     type: string
                   message:
                     type: string
+  /presets:
+    get:
+      x-beta: true
+      tags: [Gateway]
+      operationId: listPresets
+      summary: List presets
+      description: Lists active presets visible to the management key workspace.
+      parameters:
+        - $ref: '#/components/parameters/Offset'
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 250
+            default: 100
+        - name: visibility
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/PresetVisibility'
+      responses:
+        '200':
+          description: Preset list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PresetListResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      x-beta: true
+      tags: [Gateway]
+      operationId: createPreset
+      summary: Create a preset
+      description: Creates a workspace preset with durable prompt, routing, parameter, and plugin defaults.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PresetCreateRequest'
+      responses:
+        '201':
+          description: Preset created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PresetCreateResponse'
+        '400':
+          description: Invalid preset
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Preset name, slug, or publishing identity conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /presets/publisher:
+    get:
+      x-beta: true
+      tags: [Gateway]
+      operationId: getPresetPublisher
+      summary: Get preset publisher handle
+      description: Returns the canonical public-preset publisher handle for the workspace.
+      responses:
+        '200':
+          description: Publisher handle
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PresetPublisherResponse'
+    put:
+      x-beta: true
+      tags: [Gateway]
+      operationId: updatePresetPublisher
+      summary: Update preset publisher handle
+      description: Renames the workspace publisher handle while retaining its prior handle as an alias.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PresetPublisherUpdateRequest'
+      responses:
+        '200':
+          description: Updated publisher handle
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PresetPublisherResponse'
+        '400':
+          description: Invalid publisher handle
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Publisher handle is unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /presets/{id}:
+    parameters:
+      - $ref: '#/components/parameters/PresetId'
+    get:
+      x-beta: true
+      tags: [Gateway]
+      operationId: getPreset
+      summary: Get a preset
+      description: Gets an active preset by UUID, slug, or canonical name.
+      responses:
+        '200':
+          description: Preset
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PresetResponse'
+        '404':
+          description: Preset not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      x-beta: true
+      tags: [Gateway]
+      operationId: updatePreset
+      summary: Update a preset draft
+      description: Updates draft metadata or configuration without changing the active published version.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PresetUpdateRequest'
+      responses:
+        '200':
+          description: Updated preset draft
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PresetResponse'
+        '400':
+          description: Invalid preset update
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Preset not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Preset name, slug, or publishing identity conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      x-beta: true
+      tags: [Gateway]
+      operationId: deletePreset
+      summary: Archive a preset
+      description: Soft-deletes a preset after optional exact-name confirmation.
+      parameters:
+        - name: confirm_name
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Preset archived
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeletedResponse'
+        '404':
+          description: Preset not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Preset-name confirmation mismatch
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /presets/{id}/versions:
+    parameters:
+      - $ref: '#/components/parameters/PresetId'
+    get:
+      x-beta: true
+      tags: [Gateway]
+      operationId: listPresetVersions
+      summary: List preset versions
+      description: Lists immutable published snapshots for a preset in descending version order.
+      responses:
+        '200':
+          description: Preset version list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PresetVersionListResponse'
+        '404':
+          description: Preset not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      x-beta: true
+      tags: [Gateway]
+      operationId: publishPresetVersion
+      summary: Publish a preset version
+      description: Publishes the current draft as a new immutable version using the preset versioning method.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PresetVersionPublishRequest'
+      responses:
+        '201':
+          description: Preset version published
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PresetVersionResponse'
+        '400':
+          description: Invalid version label
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Preset not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: No draft changes to publish
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /presets/{id}/fork:
+    post:
+      x-beta: true
+      tags: [Gateway]
+      operationId: forkPreset
+      summary: Fork a public preset
+      description: Copies the active or selected public version into the management workspace as a private preset.
+      parameters:
+        - $ref: '#/components/parameters/PresetId'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PresetForkRequest'
+      responses:
+        '201':
+          description: Preset fork created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PresetResponse'
+        '400':
+          description: Selected source version is unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Public source preset not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: A unique destination name or slug could not be generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /presets/{id}/upstream:
+    post:
+      x-beta: true
+      tags: [Gateway]
+      operationId: applyPresetUpstreamVersion
+      summary: Apply an upstream preset version
+      description: Applies a public upstream version to a local fork draft without publishing it.
+      parameters:
+        - $ref: '#/components/parameters/PresetId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PresetUpstreamApplyRequest'
+      responses:
+        '200':
+          description: Upstream version applied to draft
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PresetUpstreamApplyResponse'
+        '400':
+          description: version_id is required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Preset not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Local draft changes exist or upstream version is unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /settings:
     get:
       x-beta: true
@@ -4619,6 +4959,13 @@ components:
       schema:
         type: integer
         minimum: 1
+    PresetId:
+      name: id
+      in: path
+      required: true
+      description: Preset UUID, slug, or canonical name.
+      schema:
+        type: string
     ObservabilityDestinationId:
       name: id
       in: path
@@ -10353,6 +10700,275 @@ components:
         total_count:
           type: integer
           minimum: 0
+      additionalProperties: false
+    PresetVisibility:
+      type: string
+      enum: [private, team, public]
+    PresetVersioningMethod:
+      type: string
+      enum: [sequential, semver, date]
+    PresetConfig:
+      type: object
+      description: Bounded gateway request defaults, including prompts, parameters, routing, and plugins.
+      additionalProperties: true
+    Preset:
+      type: object
+      required: [id, workspace_id, name, slug, config, visibility, versioning_method]
+      properties:
+        id:
+          type: string
+          format: uuid
+        workspace_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          minLength: 2
+          maxLength: 100
+        slug:
+          type: string
+        description:
+          type: string
+          maxLength: 500
+          nullable: true
+        config:
+          $ref: '#/components/schemas/PresetConfig'
+        visibility:
+          $ref: '#/components/schemas/PresetVisibility'
+        active_version_id:
+          type: string
+          format: uuid
+          nullable: true
+        versioning_method:
+          $ref: '#/components/schemas/PresetVersioningMethod'
+        created_by:
+          type: string
+          format: uuid
+          nullable: true
+        source_preset_id:
+          type: string
+          format: uuid
+          nullable: true
+        source_preset_version_id:
+          type: string
+          format: uuid
+          nullable: true
+        upstream_version_id:
+          type: string
+          format: uuid
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          nullable: true
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+      additionalProperties: false
+    PresetCreateRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 100
+          pattern: '^@[a-zA-Z0-9][a-zA-Z0-9_.-]*$'
+        slug:
+          type: string
+        description:
+          type: string
+          maxLength: 500
+          nullable: true
+        config:
+          $ref: '#/components/schemas/PresetConfig'
+        visibility:
+          $ref: '#/components/schemas/PresetVisibility'
+        versioning_method:
+          $ref: '#/components/schemas/PresetVersioningMethod'
+      additionalProperties: false
+    PresetUpdateRequest:
+      type: object
+      minProperties: 1
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 100
+          pattern: '^@[a-zA-Z0-9][a-zA-Z0-9_.-]*$'
+        slug:
+          type: string
+        description:
+          type: string
+          maxLength: 500
+          nullable: true
+        config:
+          $ref: '#/components/schemas/PresetConfig'
+        replace_config:
+          type: boolean
+          description: Replace the draft config instead of merging top-level fields.
+        visibility:
+          $ref: '#/components/schemas/PresetVisibility'
+        versioning_method:
+          $ref: '#/components/schemas/PresetVersioningMethod'
+      additionalProperties: false
+    PresetResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/Preset'
+      additionalProperties: false
+    PresetCreateResponse:
+      type: object
+      required: [data, canonical_model]
+      properties:
+        data:
+          $ref: '#/components/schemas/Preset'
+        canonical_model:
+          type: string
+      additionalProperties: false
+    PresetListResponse:
+      type: object
+      required: [data, total_count]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Preset'
+        total_count:
+          type: integer
+          minimum: 0
+      additionalProperties: false
+    PresetVersion:
+      type: object
+      required: [id, preset_id, version_number, version_label, versioning_method, name, slug, config, visibility, created_by, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        preset_id:
+          type: string
+          format: uuid
+        version_number:
+          type: integer
+          minimum: 1
+        version_label:
+          type: string
+        versioning_method:
+          $ref: '#/components/schemas/PresetVersioningMethod'
+        name:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+          nullable: true
+        config:
+          $ref: '#/components/schemas/PresetConfig'
+        visibility:
+          $ref: '#/components/schemas/PresetVisibility'
+        release_notes:
+          type: string
+          maxLength: 1000
+          nullable: true
+        created_by:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+      additionalProperties: false
+    PresetVersionListResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PresetVersion'
+      additionalProperties: false
+    PresetVersionPublishRequest:
+      type: object
+      properties:
+        release_notes:
+          type: string
+          maxLength: 1000
+        version_label:
+          type: string
+          maxLength: 100
+      additionalProperties: false
+    PresetVersionResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/PresetVersion'
+      additionalProperties: false
+    PresetForkRequest:
+      type: object
+      properties:
+        source_version_id:
+          type: string
+          format: uuid
+      additionalProperties: false
+    PresetUpstreamApplyRequest:
+      type: object
+      required: [version_id]
+      properties:
+        version_id:
+          type: string
+          format: uuid
+      additionalProperties: false
+    PresetUpstreamApplyResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [id, upstream_version_id, applied_to_draft]
+          properties:
+            id:
+              type: string
+              format: uuid
+            upstream_version_id:
+              type: string
+              format: uuid
+            applied_to_draft:
+              type: boolean
+              enum: [true]
+          additionalProperties: false
+      additionalProperties: false
+    PresetPublisher:
+      type: object
+      required: [workspace_id, handle]
+      properties:
+        workspace_id:
+          type: string
+          format: uuid
+        handle:
+          type: string
+          minLength: 3
+          maxLength: 40
+          nullable: true
+      additionalProperties: false
+    PresetPublisherUpdateRequest:
+      type: object
+      required: [handle]
+      properties:
+        handle:
+          type: string
+          minLength: 3
+          maxLength: 40
+          pattern: '^[a-z0-9][a-z0-9_-]{2,39}$'
+      additionalProperties: false
+    PresetPublisherResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/PresetPublisher'
       additionalProperties: false
     WorkspaceRoutingMode:
       type: string

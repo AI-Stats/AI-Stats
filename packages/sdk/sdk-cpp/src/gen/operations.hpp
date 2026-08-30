@@ -9,6 +9,11 @@ inline Response AddWorkspaceMembers(Client& client, const std::map<std::string, 
 	return client.request("POST", resolved_path, body);
 }
 
+inline Response ApplyPresetUpstreamVersion(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/presets/" + (path.count("id") ? path.at("id") : std::string{}) + "/upstream";
+	return client.request("POST", resolved_path, body);
+}
+
 inline Response ApproveWorkspaceJoinRequest(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/workspaces/" + (path.count("id") ? path.at("id") : std::string{}) + "/join-requests/" + (path.count("request_id") ? path.at("request_id") : std::string{}) + "/approve";
 	return client.request("POST", resolved_path, body);
@@ -104,6 +109,11 @@ inline Response CreateParse(Client& client, const std::map<std::string, std::str
 	return client.request("POST", resolved_path, body);
 }
 
+inline Response CreatePreset(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/presets";
+	return client.request("POST", resolved_path, body);
+}
+
 inline Response CreateRerank(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/rerank";
 	return client.request("POST", resolved_path, body);
@@ -174,6 +184,11 @@ inline Response DeleteObservabilityDestination(Client& client, const std::map<st
 	return client.request("DELETE", resolved_path, body);
 }
 
+inline Response DeletePreset(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/presets/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("DELETE", resolved_path, body);
+}
+
 inline Response DeleteVideo(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/videos/" + (path.count("video_id") ? path.at("video_id") : std::string{});
 	return client.request("DELETE", resolved_path, body);
@@ -196,6 +211,11 @@ inline Response DeleteWorkspaceInvite(Client& client, const std::map<std::string
 
 inline Response DeployDynamicRouteVersion(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/routing/dynamic-routes/" + (path.count("id") ? path.at("id") : std::string{}) + "/versions/" + (path.count("version") ? path.at("version") : std::string{}) + "/deploy";
+	return client.request("POST", resolved_path, body);
+}
+
+inline Response ForkPreset(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/presets/" + (path.count("id") ? path.at("id") : std::string{}) + "/fork";
 	return client.request("POST", resolved_path, body);
 }
 
@@ -266,6 +286,16 @@ inline Response GetObservabilityDestination(Client& client, const std::map<std::
 
 inline Response GetObservabilityLoggingPolicy(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/observability/logging-policy";
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response GetPreset(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/presets/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response GetPresetPublisher(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/presets/publisher";
 	return client.request("GET", resolved_path, body);
 }
 
@@ -399,6 +429,16 @@ inline Response ListOrganisations(Client& client, const std::map<std::string, st
 	return client.request("GET", resolved_path, body);
 }
 
+inline Response ListPresets(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/presets";
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response ListPresetVersions(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/presets/" + (path.count("id") ? path.at("id") : std::string{}) + "/versions";
+	return client.request("GET", resolved_path, body);
+}
+
 inline Response ListPricingModels(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/pricing/models";
 	return client.request("GET", resolved_path, body);
@@ -462,6 +502,11 @@ inline Response ListWorkspaces(Client& client, const std::map<std::string, std::
 inline Response OpenAsyncJobWebSocket(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/async/" + (path.count("kind") ? path.at("kind") : std::string{}) + "/" + (path.count("id") ? path.at("id") : std::string{}) + "/ws";
 	return client.request("GET", resolved_path, body);
+}
+
+inline Response PublishPresetVersion(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/presets/" + (path.count("id") ? path.at("id") : std::string{}) + "/versions";
+	return client.request("POST", resolved_path, body);
 }
 
 inline Response RejectWorkspaceJoinRequest(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
@@ -537,6 +582,16 @@ inline Response UpdateObservabilityDestination(Client& client, const std::map<st
 inline Response UpdateObservabilityLoggingPolicy(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/observability/logging-policy";
 	return client.request("PATCH", resolved_path, body);
+}
+
+inline Response UpdatePreset(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/presets/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("PATCH", resolved_path, body);
+}
+
+inline Response UpdatePresetPublisher(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/presets/publisher";
+	return client.request("PUT", resolved_path, body);
 }
 
 inline Response UpdateWorkspace(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {

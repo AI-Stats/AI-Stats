@@ -10,6 +10,11 @@ pub fn addWorkspaceMembers<T: Transport>(client: &Client<T>, path: &HashMap<Stri
 	client.request("POST", &resolved_path, body)
 }
 
+pub fn applyPresetUpstreamVersion<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/presets/{}/upstream", path.get("id").cloned().unwrap_or_default());
+	client.request("POST", &resolved_path, body)
+}
+
 pub fn approveWorkspaceJoinRequest<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/workspaces/{}/join-requests/{}/approve", path.get("id").cloned().unwrap_or_default(), path.get("request_id").cloned().unwrap_or_default());
 	client.request("POST", &resolved_path, body)
@@ -105,6 +110,11 @@ pub fn createParse<T: Transport>(client: &Client<T>, path: &HashMap<String, Stri
 	client.request("POST", &resolved_path, body)
 }
 
+pub fn createPreset<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/presets");
+	client.request("POST", &resolved_path, body)
+}
+
 pub fn createRerank<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/rerank");
 	client.request("POST", &resolved_path, body)
@@ -175,6 +185,11 @@ pub fn deleteObservabilityDestination<T: Transport>(client: &Client<T>, path: &H
 	client.request("DELETE", &resolved_path, body)
 }
 
+pub fn deletePreset<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/presets/{}", path.get("id").cloned().unwrap_or_default());
+	client.request("DELETE", &resolved_path, body)
+}
+
 pub fn deleteVideo<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/videos/{}", path.get("video_id").cloned().unwrap_or_default());
 	client.request("DELETE", &resolved_path, body)
@@ -197,6 +212,11 @@ pub fn deleteWorkspaceInvite<T: Transport>(client: &Client<T>, path: &HashMap<St
 
 pub fn deployDynamicRouteVersion<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/routing/dynamic-routes/{}/versions/{}/deploy", path.get("id").cloned().unwrap_or_default(), path.get("version").cloned().unwrap_or_default());
+	client.request("POST", &resolved_path, body)
+}
+
+pub fn forkPreset<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/presets/{}/fork", path.get("id").cloned().unwrap_or_default());
 	client.request("POST", &resolved_path, body)
 }
 
@@ -267,6 +287,16 @@ pub fn getObservabilityDestination<T: Transport>(client: &Client<T>, path: &Hash
 
 pub fn getObservabilityLoggingPolicy<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/observability/logging-policy");
+	client.request("GET", &resolved_path, body)
+}
+
+pub fn getPreset<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/presets/{}", path.get("id").cloned().unwrap_or_default());
+	client.request("GET", &resolved_path, body)
+}
+
+pub fn getPresetPublisher<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/presets/publisher");
 	client.request("GET", &resolved_path, body)
 }
 
@@ -400,6 +430,16 @@ pub fn listOrganisations<T: Transport>(client: &Client<T>, path: &HashMap<String
 	client.request("GET", &resolved_path, body)
 }
 
+pub fn listPresets<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/presets");
+	client.request("GET", &resolved_path, body)
+}
+
+pub fn listPresetVersions<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/presets/{}/versions", path.get("id").cloned().unwrap_or_default());
+	client.request("GET", &resolved_path, body)
+}
+
 pub fn listPricingModels<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/pricing/models");
 	client.request("GET", &resolved_path, body)
@@ -463,6 +503,11 @@ pub fn listWorkspaces<T: Transport>(client: &Client<T>, path: &HashMap<String, S
 pub fn openAsyncJobWebSocket<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/async/{}/{}/ws", path.get("kind").cloned().unwrap_or_default(), path.get("id").cloned().unwrap_or_default());
 	client.request("GET", &resolved_path, body)
+}
+
+pub fn publishPresetVersion<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/presets/{}/versions", path.get("id").cloned().unwrap_or_default());
+	client.request("POST", &resolved_path, body)
 }
 
 pub fn rejectWorkspaceJoinRequest<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
@@ -538,6 +583,16 @@ pub fn updateObservabilityDestination<T: Transport>(client: &Client<T>, path: &H
 pub fn updateObservabilityLoggingPolicy<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/observability/logging-policy");
 	client.request("PATCH", &resolved_path, body)
+}
+
+pub fn updatePreset<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/presets/{}", path.get("id").cloned().unwrap_or_default());
+	client.request("PATCH", &resolved_path, body)
+}
+
+pub fn updatePresetPublisher<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/presets/publisher");
+	client.request("PUT", &resolved_path, body)
 }
 
 pub fn updateWorkspace<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {

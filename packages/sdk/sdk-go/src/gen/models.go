@@ -2726,6 +2726,132 @@ type ParseResponse struct {
 	Usage *map[string]interface{} `json:"usage,omitempty"`
 }
 
+type Preset struct {
+	ActiveVersionId *string `json:"active_version_id,omitempty"`
+	Config map[string]interface{} `json:"config"`
+	CreatedAt *string `json:"created_at,omitempty"`
+	CreatedBy *string `json:"created_by,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Id string `json:"id"`
+	Name string `json:"name"`
+	Slug string `json:"slug"`
+	SourcePresetId *string `json:"source_preset_id,omitempty"`
+	SourcePresetVersionId *string `json:"source_preset_version_id,omitempty"`
+	UpdatedAt *string `json:"updated_at,omitempty"`
+	UpstreamVersionId *string `json:"upstream_version_id,omitempty"`
+	VersioningMethod string `json:"versioning_method"`
+	Visibility string `json:"visibility"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type PresetConfig struct {
+}
+
+type PresetCreateRequest struct {
+	Config *map[string]interface{} `json:"config,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Name string `json:"name"`
+	Slug *string `json:"slug,omitempty"`
+	VersioningMethod *string `json:"versioning_method,omitempty"`
+	Visibility *string `json:"visibility,omitempty"`
+}
+
+type PresetCreateResponse struct {
+	CanonicalModel string `json:"canonical_model"`
+	Data map[string]interface{} `json:"data"`
+}
+
+type PresetForkRequest struct {
+	SourceVersionId *string `json:"source_version_id,omitempty"`
+}
+
+type PresetListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+	TotalCount int `json:"total_count"`
+}
+
+type PresetPublisher struct {
+	Handle *string `json:"handle"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type PresetPublisherResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type PresetPublisherUpdateRequest struct {
+	Handle string `json:"handle"`
+}
+
+type PresetResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type PresetUpdateRequest struct {
+	Config *map[string]interface{} `json:"config,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Name *string `json:"name,omitempty"`
+	ReplaceConfig *bool `json:"replace_config,omitempty"`
+	Slug *string `json:"slug,omitempty"`
+	VersioningMethod *string `json:"versioning_method,omitempty"`
+	Visibility *string `json:"visibility,omitempty"`
+}
+
+type PresetUpstreamApplyRequest struct {
+	VersionId string `json:"version_id"`
+}
+
+type PresetUpstreamApplyResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type PresetVersion struct {
+	Config map[string]interface{} `json:"config"`
+	CreatedAt string `json:"created_at"`
+	CreatedBy string `json:"created_by"`
+	Description *string `json:"description,omitempty"`
+	Id string `json:"id"`
+	Name string `json:"name"`
+	PresetId string `json:"preset_id"`
+	ReleaseNotes *string `json:"release_notes,omitempty"`
+	Slug string `json:"slug"`
+	VersionLabel string `json:"version_label"`
+	VersionNumber int `json:"version_number"`
+	VersioningMethod string `json:"versioning_method"`
+	Visibility string `json:"visibility"`
+}
+
+type PresetVersioningMethod string
+
+const (
+	PresetVersioningMethodSequential PresetVersioningMethod = "sequential"
+	PresetVersioningMethodSemver PresetVersioningMethod = "semver"
+	PresetVersioningMethodDate PresetVersioningMethod = "date"
+)
+
+
+type PresetVersionListResponse struct {
+	Data []map[string]interface{} `json:"data"`
+}
+
+type PresetVersionPublishRequest struct {
+	ReleaseNotes *string `json:"release_notes,omitempty"`
+	VersionLabel *string `json:"version_label,omitempty"`
+}
+
+type PresetVersionResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type PresetVisibility string
+
+const (
+	PresetVisibilityPrivate PresetVisibility = "private"
+	PresetVisibilityTeam PresetVisibility = "team"
+	PresetVisibilityPublic PresetVisibility = "public"
+)
+
+
 type Provider struct {
 	ApiProviderId *string `json:"api_provider_id,omitempty"`
 	ApiProviderName *string `json:"api_provider_name,omitempty"`

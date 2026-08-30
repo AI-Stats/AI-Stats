@@ -1376,6 +1376,118 @@ struct ParseResponse {
 	std::map<std::string, std::any> usage;
 };
 
+struct Preset {
+	std::optional<std::string> active_version_id;
+	std::map<std::string, std::any> config;
+	std::optional<std::string> created_at;
+	std::optional<std::string> created_by;
+	std::optional<std::string> description;
+	std::string id;
+	std::string name;
+	std::string slug;
+	std::optional<std::string> source_preset_id;
+	std::optional<std::string> source_preset_version_id;
+	std::optional<std::string> updated_at;
+	std::optional<std::string> upstream_version_id;
+	std::any versioning_method;
+	std::any visibility;
+	std::string workspace_id;
+};
+
+struct PresetConfig {
+};
+
+struct PresetCreateRequest {
+	std::map<std::string, std::any> config;
+	std::optional<std::string> description;
+	std::string name;
+	std::string slug;
+	std::any versioning_method;
+	std::any visibility;
+};
+
+struct PresetCreateResponse {
+	std::string canonical_model;
+	std::map<std::string, std::any> data;
+};
+
+struct PresetForkRequest {
+	std::string source_version_id;
+};
+
+struct PresetListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+	int total_count;
+};
+
+struct PresetPublisher {
+	std::optional<std::string> handle;
+	std::string workspace_id;
+};
+
+struct PresetPublisherResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct PresetPublisherUpdateRequest {
+	std::string handle;
+};
+
+struct PresetResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct PresetUpdateRequest {
+	std::map<std::string, std::any> config;
+	std::optional<std::string> description;
+	std::string name;
+	std::optional<bool> replace_config;
+	std::string slug;
+	std::any versioning_method;
+	std::any visibility;
+};
+
+struct PresetUpstreamApplyRequest {
+	std::string version_id;
+};
+
+struct PresetUpstreamApplyResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct PresetVersion {
+	std::map<std::string, std::any> config;
+	std::string created_at;
+	std::string created_by;
+	std::optional<std::string> description;
+	std::string id;
+	std::string name;
+	std::string preset_id;
+	std::optional<std::string> release_notes;
+	std::string slug;
+	std::string version_label;
+	int version_number;
+	std::any versioning_method;
+	std::any visibility;
+};
+
+using PresetVersioningMethod = std::any;
+
+struct PresetVersionListResponse {
+	std::vector<std::map<std::string, std::any>> data;
+};
+
+struct PresetVersionPublishRequest {
+	std::string release_notes;
+	std::string version_label;
+};
+
+struct PresetVersionResponse {
+	std::map<std::string, std::any> data;
+};
+
+using PresetVisibility = std::any;
+
 struct Provider {
 	std::string api_provider_id;
 	std::optional<std::string> api_provider_name;

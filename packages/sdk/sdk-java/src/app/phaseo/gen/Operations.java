@@ -11,6 +11,11 @@ public final class Operations {
 		return client.request("POST", resolvedPath, query, headers, body);
 	}
 
+	public static Object applyPresetUpstreamVersion(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/presets/" + (path != null && path.containsKey("id") ? path.get("id") : "") + "/upstream";
+		return client.request("POST", resolvedPath, query, headers, body);
+	}
+
 	public static Object approveWorkspaceJoinRequest(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/workspaces/" + (path != null && path.containsKey("id") ? path.get("id") : "") + "/join-requests/" + (path != null && path.containsKey("request_id") ? path.get("request_id") : "") + "/approve";
 		return client.request("POST", resolvedPath, query, headers, body);
@@ -106,6 +111,11 @@ public final class Operations {
 		return client.request("POST", resolvedPath, query, headers, body);
 	}
 
+	public static Object createPreset(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/presets";
+		return client.request("POST", resolvedPath, query, headers, body);
+	}
+
 	public static Object createRerank(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/rerank";
 		return client.request("POST", resolvedPath, query, headers, body);
@@ -176,6 +186,11 @@ public final class Operations {
 		return client.request("DELETE", resolvedPath, query, headers, body);
 	}
 
+	public static Object deletePreset(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/presets/" + (path != null && path.containsKey("id") ? path.get("id") : "");
+		return client.request("DELETE", resolvedPath, query, headers, body);
+	}
+
 	public static Object deleteVideo(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/videos/" + (path != null && path.containsKey("video_id") ? path.get("video_id") : "");
 		return client.request("DELETE", resolvedPath, query, headers, body);
@@ -198,6 +213,11 @@ public final class Operations {
 
 	public static Object deployDynamicRouteVersion(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/routing/dynamic-routes/" + (path != null && path.containsKey("id") ? path.get("id") : "") + "/versions/" + (path != null && path.containsKey("version") ? path.get("version") : "") + "/deploy";
+		return client.request("POST", resolvedPath, query, headers, body);
+	}
+
+	public static Object forkPreset(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/presets/" + (path != null && path.containsKey("id") ? path.get("id") : "") + "/fork";
 		return client.request("POST", resolvedPath, query, headers, body);
 	}
 
@@ -268,6 +288,16 @@ public final class Operations {
 
 	public static Object getObservabilityLoggingPolicy(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/observability/logging-policy";
+		return client.request("GET", resolvedPath, query, headers, body);
+	}
+
+	public static Object getPreset(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/presets/" + (path != null && path.containsKey("id") ? path.get("id") : "");
+		return client.request("GET", resolvedPath, query, headers, body);
+	}
+
+	public static Object getPresetPublisher(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/presets/publisher";
 		return client.request("GET", resolvedPath, query, headers, body);
 	}
 
@@ -401,6 +431,16 @@ public final class Operations {
 		return client.request("GET", resolvedPath, query, headers, body);
 	}
 
+	public static Object listPresets(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/presets";
+		return client.request("GET", resolvedPath, query, headers, body);
+	}
+
+	public static Object listPresetVersions(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/presets/" + (path != null && path.containsKey("id") ? path.get("id") : "") + "/versions";
+		return client.request("GET", resolvedPath, query, headers, body);
+	}
+
 	public static Object listPricingModels(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/pricing/models";
 		return client.request("GET", resolvedPath, query, headers, body);
@@ -464,6 +504,11 @@ public final class Operations {
 	public static Object openAsyncJobWebSocket(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/async/" + (path != null && path.containsKey("kind") ? path.get("kind") : "") + "/" + (path != null && path.containsKey("id") ? path.get("id") : "") + "/ws";
 		return client.request("GET", resolvedPath, query, headers, body);
+	}
+
+	public static Object publishPresetVersion(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/presets/" + (path != null && path.containsKey("id") ? path.get("id") : "") + "/versions";
+		return client.request("POST", resolvedPath, query, headers, body);
 	}
 
 	public static Object rejectWorkspaceJoinRequest(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
@@ -539,6 +584,16 @@ public final class Operations {
 	public static Object updateObservabilityLoggingPolicy(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
 		String resolvedPath = "/observability/logging-policy";
 		return client.request("PATCH", resolvedPath, query, headers, body);
+	}
+
+	public static Object updatePreset(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/presets/" + (path != null && path.containsKey("id") ? path.get("id") : "");
+		return client.request("PATCH", resolvedPath, query, headers, body);
+	}
+
+	public static Object updatePresetPublisher(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {
+		String resolvedPath = "/presets/publisher";
+		return client.request("PUT", resolvedPath, query, headers, body);
 	}
 
 	public static Object updateWorkspace(Client client, Map<String, String> path, Map<String, String> query, Map<String, String> headers, String body) throws IOException, InterruptedException {

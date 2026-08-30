@@ -1372,6 +1372,118 @@ pub struct ParseResponse {
 	pub usage: Option<HashMap<String, String>>,
 }
 
+pub struct Preset {
+	pub active_version_id: Option<Option<String>>,
+	pub config: HashMap<String, String>,
+	pub created_at: Option<Option<String>>,
+	pub created_by: Option<Option<String>>,
+	pub description: Option<Option<String>>,
+	pub id: String,
+	pub name: String,
+	pub slug: String,
+	pub source_preset_id: Option<Option<String>>,
+	pub source_preset_version_id: Option<Option<String>>,
+	pub updated_at: Option<Option<String>>,
+	pub upstream_version_id: Option<Option<String>>,
+	pub versioning_method: String,
+	pub visibility: String,
+	pub workspace_id: String,
+}
+
+pub struct PresetConfig {
+}
+
+pub struct PresetCreateRequest {
+	pub config: Option<HashMap<String, String>>,
+	pub description: Option<Option<String>>,
+	pub name: String,
+	pub slug: Option<String>,
+	pub versioning_method: Option<String>,
+	pub visibility: Option<String>,
+}
+
+pub struct PresetCreateResponse {
+	pub canonical_model: String,
+	pub data: HashMap<String, String>,
+}
+
+pub struct PresetForkRequest {
+	pub source_version_id: Option<String>,
+}
+
+pub struct PresetListResponse {
+	pub data: Vec<HashMap<String, String>>,
+	pub total_count: i64,
+}
+
+pub struct PresetPublisher {
+	pub handle: Option<String>,
+	pub workspace_id: String,
+}
+
+pub struct PresetPublisherResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub struct PresetPublisherUpdateRequest {
+	pub handle: String,
+}
+
+pub struct PresetResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub struct PresetUpdateRequest {
+	pub config: Option<HashMap<String, String>>,
+	pub description: Option<Option<String>>,
+	pub name: Option<String>,
+	pub replace_config: Option<bool>,
+	pub slug: Option<String>,
+	pub versioning_method: Option<String>,
+	pub visibility: Option<String>,
+}
+
+pub struct PresetUpstreamApplyRequest {
+	pub version_id: String,
+}
+
+pub struct PresetUpstreamApplyResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub struct PresetVersion {
+	pub config: HashMap<String, String>,
+	pub created_at: String,
+	pub created_by: String,
+	pub description: Option<Option<String>>,
+	pub id: String,
+	pub name: String,
+	pub preset_id: String,
+	pub release_notes: Option<Option<String>>,
+	pub slug: String,
+	pub version_label: String,
+	pub version_number: i64,
+	pub versioning_method: String,
+	pub visibility: String,
+}
+
+pub type PresetVersioningMethod = JsonValue;
+
+pub struct PresetVersionListResponse {
+	pub data: Vec<HashMap<String, String>>,
+}
+
+pub struct PresetVersionPublishRequest {
+	pub release_notes: Option<String>,
+	pub version_label: Option<String>,
+}
+
+pub struct PresetVersionResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub type PresetVisibility = JsonValue;
+
 pub struct Provider {
 	pub api_provider_id: Option<String>,
 	pub api_provider_name: Option<Option<String>>,

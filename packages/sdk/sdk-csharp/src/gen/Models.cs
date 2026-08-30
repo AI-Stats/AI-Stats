@@ -3325,6 +3325,249 @@ public sealed class ParseResponse
 
 }
 
+public sealed class Preset
+{
+	[JsonPropertyName("active_version_id")]
+	public string? ActiveVersionId { get; set; }
+
+	[JsonPropertyName("config")]
+	public Dictionary<string, object> Config { get; set; }
+
+	[JsonPropertyName("created_at")]
+	public string? CreatedAt { get; set; }
+
+	[JsonPropertyName("created_by")]
+	public string? CreatedBy { get; set; }
+
+	[JsonPropertyName("description")]
+	public string? Description { get; set; }
+
+	[JsonPropertyName("id")]
+	public string Id { get; set; }
+
+	[JsonPropertyName("name")]
+	public string Name { get; set; }
+
+	[JsonPropertyName("slug")]
+	public string Slug { get; set; }
+
+	[JsonPropertyName("source_preset_id")]
+	public string? SourcePresetId { get; set; }
+
+	[JsonPropertyName("source_preset_version_id")]
+	public string? SourcePresetVersionId { get; set; }
+
+	[JsonPropertyName("updated_at")]
+	public string? UpdatedAt { get; set; }
+
+	[JsonPropertyName("upstream_version_id")]
+	public string? UpstreamVersionId { get; set; }
+
+	[JsonPropertyName("versioning_method")]
+	public string VersioningMethod { get; set; }
+
+	[JsonPropertyName("visibility")]
+	public string Visibility { get; set; }
+
+	[JsonPropertyName("workspace_id")]
+	public string WorkspaceId { get; set; }
+
+}
+
+public sealed class PresetConfig
+{
+}
+
+public sealed class PresetCreateRequest
+{
+	[JsonPropertyName("config")]
+	public Dictionary<string, object>? Config { get; set; }
+
+	[JsonPropertyName("description")]
+	public string? Description { get; set; }
+
+	[JsonPropertyName("name")]
+	public string Name { get; set; }
+
+	[JsonPropertyName("slug")]
+	public string? Slug { get; set; }
+
+	[JsonPropertyName("versioning_method")]
+	public string? VersioningMethod { get; set; }
+
+	[JsonPropertyName("visibility")]
+	public string? Visibility { get; set; }
+
+}
+
+public sealed class PresetCreateResponse
+{
+	[JsonPropertyName("canonical_model")]
+	public string CanonicalModel { get; set; }
+
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
+
+}
+
+public sealed class PresetForkRequest
+{
+	[JsonPropertyName("source_version_id")]
+	public string? SourceVersionId { get; set; }
+
+}
+
+public sealed class PresetListResponse
+{
+	[JsonPropertyName("data")]
+	public List<Dictionary<string, object>> Data { get; set; }
+
+	[JsonPropertyName("total_count")]
+	public int TotalCount { get; set; }
+
+}
+
+public sealed class PresetPublisher
+{
+	[JsonPropertyName("handle")]
+	public string? Handle { get; set; }
+
+	[JsonPropertyName("workspace_id")]
+	public string WorkspaceId { get; set; }
+
+}
+
+public sealed class PresetPublisherResponse
+{
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
+
+}
+
+public sealed class PresetPublisherUpdateRequest
+{
+	[JsonPropertyName("handle")]
+	public string Handle { get; set; }
+
+}
+
+public sealed class PresetResponse
+{
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
+
+}
+
+public sealed class PresetUpdateRequest
+{
+	[JsonPropertyName("config")]
+	public Dictionary<string, object>? Config { get; set; }
+
+	[JsonPropertyName("description")]
+	public string? Description { get; set; }
+
+	[JsonPropertyName("name")]
+	public string? Name { get; set; }
+
+	[JsonPropertyName("replace_config")]
+	public bool? ReplaceConfig { get; set; }
+
+	[JsonPropertyName("slug")]
+	public string? Slug { get; set; }
+
+	[JsonPropertyName("versioning_method")]
+	public string? VersioningMethod { get; set; }
+
+	[JsonPropertyName("visibility")]
+	public string? Visibility { get; set; }
+
+}
+
+public sealed class PresetUpstreamApplyRequest
+{
+	[JsonPropertyName("version_id")]
+	public string VersionId { get; set; }
+
+}
+
+public sealed class PresetUpstreamApplyResponse
+{
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
+
+}
+
+public sealed class PresetVersion
+{
+	[JsonPropertyName("config")]
+	public Dictionary<string, object> Config { get; set; }
+
+	[JsonPropertyName("created_at")]
+	public string CreatedAt { get; set; }
+
+	[JsonPropertyName("created_by")]
+	public string CreatedBy { get; set; }
+
+	[JsonPropertyName("description")]
+	public string? Description { get; set; }
+
+	[JsonPropertyName("id")]
+	public string Id { get; set; }
+
+	[JsonPropertyName("name")]
+	public string Name { get; set; }
+
+	[JsonPropertyName("preset_id")]
+	public string PresetId { get; set; }
+
+	[JsonPropertyName("release_notes")]
+	public string? ReleaseNotes { get; set; }
+
+	[JsonPropertyName("slug")]
+	public string Slug { get; set; }
+
+	[JsonPropertyName("version_label")]
+	public string VersionLabel { get; set; }
+
+	[JsonPropertyName("version_number")]
+	public int VersionNumber { get; set; }
+
+	[JsonPropertyName("versioning_method")]
+	public string VersioningMethod { get; set; }
+
+	[JsonPropertyName("visibility")]
+	public string Visibility { get; set; }
+
+}
+
+public sealed class PresetVersioningMethod { }
+
+public sealed class PresetVersionListResponse
+{
+	[JsonPropertyName("data")]
+	public List<Dictionary<string, object>> Data { get; set; }
+
+}
+
+public sealed class PresetVersionPublishRequest
+{
+	[JsonPropertyName("release_notes")]
+	public string? ReleaseNotes { get; set; }
+
+	[JsonPropertyName("version_label")]
+	public string? VersionLabel { get; set; }
+
+}
+
+public sealed class PresetVersionResponse
+{
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
+
+}
+
+public sealed class PresetVisibility { }
+
 public sealed class Provider
 {
 	[JsonPropertyName("api_provider_id")]

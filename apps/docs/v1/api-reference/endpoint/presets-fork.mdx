@@ -1,0 +1,10 @@
+---
+title: "Fork public preset"
+sidebarTitle: "Fork preset"
+badge: "Beta"
+openapi: "POST /presets/{id}/fork"
+description: "Fork a public preset into the management workspace."
+---
+<Note>This endpoint requires a management API key with `presets:write` and an associated user identity.</Note>
+
+Omit `source_version_id` to fork the active version. The new preset is private and retains upstream lineage.

@@ -527,6 +527,23 @@
 										]
 									},
 									{
+										"group": "Presets",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/presets-list",
+											"v1/api-reference/endpoint/presets-create",
+											"v1/api-reference/endpoint/presets-get",
+											"v1/api-reference/endpoint/presets-update",
+											"v1/api-reference/endpoint/presets-versions-list",
+											"v1/api-reference/endpoint/presets-version-publish",
+											"v1/api-reference/endpoint/presets-fork",
+											"v1/api-reference/endpoint/presets-upstream-apply",
+											"v1/api-reference/endpoint/presets-publisher-get",
+											"v1/api-reference/endpoint/presets-publisher-update",
+											"v1/api-reference/endpoint/presets-delete"
+										]
+									},
+									{
 										"group": "Observability",
 										"expanded": false,
 										"pages": [
