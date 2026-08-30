@@ -74,7 +74,7 @@ const APP_CATEGORIES = new Set([
 const OBSERVABILITY_DESTINATIONS = new Set([
 	"otel_collector", "webhook",
 ]);
-const BYOK_MONTHLY_FREE_REQUESTS = 1_000_000;
+const BYOK_MONTHLY_FREE_REQUESTS = 100_000;
 
 function normalizeAppCategories(value: unknown): string | null {
 	if (typeof value !== "string") return null;

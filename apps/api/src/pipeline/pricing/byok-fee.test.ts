@@ -94,14 +94,14 @@ describe("applyByokServiceFee", () => {
 		expect(result.pricedUsage.pricing.lines).toEqual([]);
 	});
 
-	it("charges 2.5% fee after the one-million-request threshold", async () => {
+	it("charges 2.5% fee after the monthly threshold", async () => {
 		rpcMock.mockResolvedValue({
 			data: [{ month_start: "2026-02-01T00:00:00+00:00", request_count: BYOK_MONTHLY_FREE_REQUESTS + 1 }],
 			error: null,
 		});
 
 		const baseCost = 2_000_000_000; // $2.00
-		const expectedFeeNanos = Math.round(baseCost * BYOK_SERVICE_FEE_RATE); // $0.07
+		const expectedFeeNanos = Math.round(baseCost * BYOK_SERVICE_FEE_RATE); // $0.05
 
 		const result = await applyByokServiceFee({
 			workspaceId: "team_1",
@@ -125,6 +125,23 @@ describe("applyByokServiceFee", () => {
 		expect(result.pricedUsage.pricing.lines).toHaveLength(1);
 		expect(result.pricedUsage.pricing.lines[0].meter).toBe("byok_service_fee");
 		expect(result.pricedUsage.pricing.byok_reference_total_nanos).toBe(baseCost);
+	});
+
+	it("charges only the percentage fee for low-cost paid-tier requests", async () => {
+		rpcMock.mockResolvedValue({
+			data: [{ month_start: "2026-02-01T00:00:00+00:00", request_count: BYOK_MONTHLY_FREE_REQUESTS + 1 }],
+			error: null,
+		});
+
+		const result = await applyByokServiceFee({
+			workspaceId: "team_1",
+			isByok: true,
+			baseCostNanos: 100_000,
+			pricedUsage: { pricing: { total_nanos: 100_000, currency: "USD" } },
+		});
+
+		expect(result.byokFeeNanos).toBe(2_500);
+		expect(result.pricedUsage.byok_billing).not.toHaveProperty("minimum_paid_request_fee_nanos");
 	});
 
 	it("uses fallback read when rpc increment fails", async () => {

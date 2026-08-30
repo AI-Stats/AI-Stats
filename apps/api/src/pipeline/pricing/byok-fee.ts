@@ -5,7 +5,7 @@ const NANOS_PER_CENT = 10_000_000;
 const COUNTER_RPC_MAX_ATTEMPTS = 3;
 const COUNTER_RPC_RETRY_BASE_MS = 25;
 
-export const BYOK_MONTHLY_FREE_REQUESTS = 1_000_000;
+export const BYOK_MONTHLY_FREE_REQUESTS = 250_000;
 export const BYOK_SERVICE_FEE_RATE = 0.025;
 
 type ByokCounterRow = {
@@ -228,7 +228,8 @@ export async function applyByokServiceFee(args: ByokFeeArgs): Promise<ByokFeeRes
 	const feeApplies = requestCount == null
 		? true
 		: requestCount > BYOK_MONTHLY_FREE_REQUESTS;
-	const byokFeeNanos = feeApplies ? Math.max(0, Math.round(baseTotalNanos * BYOK_SERVICE_FEE_RATE)) : 0;
+	const percentageFeeNanos = Math.max(0, Math.round(baseTotalNanos * BYOK_SERVICE_FEE_RATE));
+	const byokFeeNanos = feeApplies ? percentageFeeNanos : 0;
 	const chargedNanos = byokFeeNanos;
 	const chargedCents = Math.trunc(chargedNanos / NANOS_PER_CENT);
 	const freeRemaining = requestCount == null

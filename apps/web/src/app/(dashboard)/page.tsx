@@ -75,7 +75,7 @@ const PRICING_POINTS: Array<{
 	},
 	{
 		title: "Managed credits or BYOK",
-		body: "BYOK includes one million fee-free requests each month, then a 2.5% service fee on provider-equivalent cost.",
+		body: "BYOK includes 250,000 fee-free requests each month, then a 2.5% service fee on provider-equivalent cost.",
 		icon: KeyRound,
 	},
 ] as const;

@@ -230,6 +230,7 @@ async function importAes(ver: number) {
 
 export async function decryptBYOK(row: {
     key_version: number | string;
+	enc_aad_version?: number | string | null;
 
     // new-format columns (preferred: bytea)
     enc_iv?: string | Uint8Array | ArrayBuffer;
@@ -287,20 +288,36 @@ export async function decryptBYOK(row: {
         throw new Error("Invalid BYOK row format: missing enc_iv/enc_value/enc_tag or legacy enc_*_b64 triplet");
     }
 
-    const aad = te.encode(`${row.workspace_id}|${row.provider_id}|v${ver}`);
+	const aadVersion = Number(row.enc_aad_version ?? 0);
+	const aad = te.encode(`${row.workspace_id}|${row.provider_id}|v${ver}`);
+	const decrypt = (useAad: boolean) => crypto.subtle.decrypt(
+		{
+			name: "AES-GCM",
+			iv: viewToArrayBuffer(ivBytes),
+			...(useAad ? { additionalData: viewToArrayBuffer(aad) } : {}),
+			tagLength: 128,
+		},
+		key,
+		viewToArrayBuffer(ctBytes),
+	);
 
-    const ptBuf = await crypto.subtle.decrypt(
-        { name: "AES-GCM", iv: viewToArrayBuffer(ivBytes), additionalData: viewToArrayBuffer(aad), tagLength: 128 },
-        key,
-        viewToArrayBuffer(ctBytes)
-    );
-    return new Uint8Array(ptBuf);
+	if (aadVersion >= 1) {
+		return new Uint8Array(await decrypt(true));
+	}
+
+	// Rows created before enc_aad_version existed may use either historical
+	// format. Prefer the bound form, then retain a narrow compatibility path for
+	// legacy ciphertext until those credentials are rotated.
+	try {
+		return new Uint8Array(await decrypt(true));
+	} catch {
+		return new Uint8Array(await decrypt(false));
+	}
 }
 
 export function bytesToString(u8: Uint8Array): string {
     return td.decode(u8);
 }
-
 
 
 
