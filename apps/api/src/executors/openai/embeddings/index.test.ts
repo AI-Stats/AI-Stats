@@ -669,6 +669,43 @@ describe("openai embeddings executor", () => {
 		expect((result as any).bill?.usage?.total_tokens).toBe(8);
 	});
 
+	it("keeps Voyage contextual queries independent and reindexes the flattened response", async () => {
+		setupRuntimeFromEnv({
+			VOYAGE_API_KEY: "test-voyage-key",
+		} as any);
+
+		const mock = installFetchMock([{
+			match: (url) => url === "https://api.voyage.example/v1/contextualizedembeddings",
+			response: jsonResponse({
+				model: "voyage-context-3",
+				data: [
+					{ index: 0, data: [{ index: 0, embedding: [0.11, 0.22], text: "First query" }] },
+					{ index: 1, data: [{ index: 0, embedding: [0.33, 0.44], text: "Second query" }] },
+				],
+				usage: { total_tokens: 6 },
+			}),
+		}]);
+
+		const result = await executor(buildArgs({
+			providerId: "voyage",
+			ir: {
+				model: "voyage/voyage-context-3",
+				input: ["First query", "Second query"],
+				providerOptions: { voyage: { inputType: "query" } },
+			},
+		}));
+		mock.restore();
+
+		expect(mock.calls[0]?.bodyJson).toMatchObject({
+			inputs: [["First query"], ["Second query"]],
+			input_type: "query",
+		});
+		expect((result as any).ir?.data).toEqual([
+			{ index: 0, embedding: [0.11, 0.22] },
+			{ index: 1, embedding: [0.33, 0.44] },
+		]);
+	});
+
 	it("rejects Voyage contextual shapes that cannot preserve document grouping", async () => {
 		setupRuntimeFromEnv({
 			VOYAGE_API_KEY: "test-voyage-key",

@@ -9194,11 +9194,24 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://developers.openai.com/api/reference/python/resources/images/methods/generate",
+        "accessed_at": "2026-08-30T00:00:00Z",
+        "notes": "Official image-generation request schema."
+      },
+      {
+        "kind": "documentation",
+        "url": "https://developers.openai.com/api/reference/python/resources/images/methods/edit",
+        "accessed_at": "2026-08-30T00:00:00Z",
+        "notes": "Official image-edit request schema."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-30T00:00:00Z",
+      "notes": "Image generation and editing parameters reconciled against OpenAI's current first-party API references."
     },
     "rate_limits": []
   },
@@ -9288,11 +9301,24 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://developers.openai.com/api/reference/python/resources/images/methods/generate",
+        "accessed_at": "2026-08-30T00:00:00Z",
+        "notes": "Official image-generation request schema."
+      },
+      {
+        "kind": "documentation",
+        "url": "https://developers.openai.com/api/reference/python/resources/images/methods/edit",
+        "accessed_at": "2026-08-30T00:00:00Z",
+        "notes": "Official image-edit request schema."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-30T00:00:00Z",
+      "notes": "Image generation and editing parameters reconciled against OpenAI's current first-party API references."
     },
     "rate_limits": []
   },
@@ -9434,11 +9460,24 @@
       "endpoint": null,
       "deployment": null
     },
-    "sources": [],
+    "sources": [
+      {
+        "kind": "documentation",
+        "url": "https://developers.openai.com/api/reference/python/resources/images/methods/generate",
+        "accessed_at": "2026-08-30T00:00:00Z",
+        "notes": "Official image-generation request schema."
+      },
+      {
+        "kind": "documentation",
+        "url": "https://developers.openai.com/api/reference/python/resources/images/methods/edit",
+        "accessed_at": "2026-08-30T00:00:00Z",
+        "notes": "Official image-edit request schema."
+      }
+    ],
     "verification": {
-      "status": "unverified",
-      "checked_at": null,
-      "notes": null
+      "status": "verified",
+      "checked_at": "2026-08-30T00:00:00Z",
+      "notes": "Image generation and editing parameters reconciled against OpenAI's current first-party API references."
     },
     "rate_limits": []
   },
@@ -9534,12 +9573,18 @@
         "url": "https://developers.openai.com/api/reference/python/resources/images/methods/generate",
         "accessed_at": "2026-08-30T00:00:00Z",
         "notes": "Official GPT Image request schema, including transparent backgrounds and format-dependent output controls."
+      },
+      {
+        "kind": "documentation",
+        "url": "https://developers.openai.com/api/reference/python/resources/images/methods/edit",
+        "accessed_at": "2026-08-30T00:00:00Z",
+        "notes": "Official GPT Image editing request schema."
       }
     ],
     "verification": {
       "status": "verified",
       "checked_at": "2026-08-30T00:00:00Z",
-      "notes": "Image generation parameters reconciled against OpenAI's current first-party API reference."
+      "notes": "Image generation and editing parameters reconciled against OpenAI's current first-party API references."
     },
     "rate_limits": []
   },

@@ -164,6 +164,34 @@ describe("ElevenLabs music.generate endpoint", () => {
 		expect(mock.calls).toHaveLength(0);
 	});
 
+	it.each([
+		{ label: "composition plan", elevenlabs: { composition_plan: { sections: [] } }, param: "composition_plan" },
+		{ label: "seed", elevenlabs: { seed: 42 }, param: "seed" },
+	])("rejects prompt combined with ElevenLabs $label", async ({ elevenlabs, param }) => {
+		const mock = installFetchMock([]);
+		const result = await exec({
+			endpoint: "music.generate",
+			model: "elevenlabs/music_v2",
+			body: {
+				model: "elevenlabs/music_v2",
+				prompt: "Ambient strings",
+				elevenlabs,
+			},
+			meta: REQUEST_META,
+			workspaceId: "team_test",
+			providerId: "elevenlabs",
+			byokMeta: [],
+			pricingCard: null,
+			providerModelSlug: "music_v2",
+			stream: false,
+		} as any);
+		mock.restore();
+
+		expect(result.upstream.status).toBe(400);
+		expect(await result.upstream.clone().json()).toMatchObject({ error: { param } });
+		expect(mock.calls).toHaveLength(0);
+	});
+
 	it("maps OGG requests to ElevenLabs Opus output", async () => {
 		const mock = installFetchMock([{
 			match: (url) => url === "https://api.elevenlabs.example/v1/music?output_format=opus_48000_128",

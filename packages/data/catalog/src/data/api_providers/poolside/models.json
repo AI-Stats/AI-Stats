@@ -10,7 +10,7 @@
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 262144,
-    "max_output_tokens": 262144,
+    "max_output_tokens": 32768,
     "effective_from": "2026-04-28T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -21,7 +21,7 @@
           {
             "param_id": "max_tokens",
             "provider_min": 1,
-            "provider_max": 262144,
+            "provider_max": 32768,
             "provider_default": 32768,
             "notes": null
           },
@@ -96,7 +96,7 @@
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 262144,
-    "max_output_tokens": 262144,
+    "max_output_tokens": 32768,
     "effective_from": "2026-07-21T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -107,7 +107,7 @@
           {
             "param_id": "max_tokens",
             "provider_min": 1,
-            "provider_max": 262144,
+            "provider_max": 32768,
             "provider_default": 32768,
             "notes": null
           },
@@ -182,7 +182,7 @@
     "input_modalities": "text",
     "output_modalities": "text",
     "context_length": 262144,
-    "max_output_tokens": 262144,
+    "max_output_tokens": 32768,
     "effective_from": "2026-07-02T00:00:00",
     "effective_to": null,
     "capabilities": [
@@ -193,7 +193,7 @@
           {
             "param_id": "max_tokens",
             "provider_min": 1,
-            "provider_max": 262144,
+            "provider_max": 32768,
             "provider_default": 32768,
             "notes": null
           },

@@ -96,6 +96,23 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
     const { canonical, adapterPayload } = buildAdapterPayload(MusicGenerateSchema, args.body, []);
     const typedPayload = adapterPayload as MusicGenerateRequest;
     const elevenParams = (canonical as MusicGenerateRequest).elevenlabs ?? {};
+	const prompt = elevenParams.prompt ?? typedPayload.prompt ?? null;
+	const compositionPlan = elevenParams.composition_plan ?? null;
+	const seed = elevenParams.seed ?? null;
+	if (prompt !== null && (compositionPlan !== null || seed !== null)) {
+		const param = compositionPlan !== null ? "composition_plan" : "seed";
+		return {
+			kind: "completed",
+			upstream: invalidParameterResponse(
+				param,
+				"ElevenLabs Music prompt cannot be combined with composition_plan or seed.",
+			),
+			bill: { cost_cents: 0, currency: "USD", usage: undefined, upstream_id: null, finish_reason: null },
+			normalized: undefined,
+			keySource: keyInfo.source,
+			byokKeyId: keyInfo.byokId,
+		};
+	}
 	if (elevenParams.with_timestamps === true) {
 		return {
 			kind: "completed",
@@ -123,9 +140,7 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
 		};
 	}
 
-    const prompt = elevenParams.prompt ?? typedPayload.prompt ?? null;
-    const compositionPlan = elevenParams.composition_plan ?? null;
-    const musicLengthMs =
+	const musicLengthMs =
         elevenParams.music_length_ms ??
         (typeof typedPayload.duration === "number" ? typedPayload.duration * 1000 : null);
 
@@ -140,9 +155,9 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
         sign_with_c2pa: elevenParams.sign_with_c2pa ?? false,
     };
 
-    if (requestBody.prompt == null && requestBody.composition_plan == null) {
-        requestBody.prompt = "";
-    }
+	if (requestBody.prompt == null && requestBody.composition_plan == null && requestBody.seed == null) {
+		requestBody.prompt = "";
+	}
 
     const outputFormat =
         elevenParams.output_format ??

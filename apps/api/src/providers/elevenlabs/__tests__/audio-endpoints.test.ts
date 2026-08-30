@@ -588,4 +588,26 @@ describe("ElevenLabs audio endpoints", () => {
 			error: { param: "timestamp_granularities" },
 		});
 	});
+
+	it("rejects unsupported native ElevenLabs timestamp granularity before fetching", async () => {
+		const mock = installFetchMock([]);
+		const result = await execTranscription({
+			endpoint: "audio.transcription",
+			model: "eleven-labs/scribe-v2",
+			body: {
+				model: "eleven-labs/scribe-v2",
+				file: makeAudioFile("native-segment.wav"),
+				config: { elevenlabs: { timestamps_granularity: "segment" } },
+			},
+			meta: REQUEST_META, workspaceId: "team_test", providerId: "elevenlabs",
+			byokMeta: [], pricingCard: null, providerModelSlug: null, stream: false,
+		} as any);
+		mock.restore();
+
+		expect(result.upstream.status).toBe(400);
+		expect(await result.upstream.clone().json()).toMatchObject({
+			error: { param: "timestamps_granularity" },
+		});
+		expect(mock.calls).toHaveLength(0);
+	});
 });

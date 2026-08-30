@@ -10,6 +10,8 @@ import { getBindings } from "@/runtime/env";
 import { computeBill } from "@pipeline/pricing/engine";
 import { estimateAudioDurationSeconds } from "../../openai/endpoints/audio-transcription-usage";
 
+const ELEVENLABS_TIMESTAMP_GRANULARITIES = new Set(["none", "word", "character"]);
+
 function invalidParameterResponse(param: string, message: string): Response {
 	return new Response(JSON.stringify({ error: { type: "invalid_request_error", message, param } }), {
 		status: 400,
@@ -50,11 +52,18 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
 	const modelId = resolveElevenLabsModelSlug(typedPayload.model, args.providerModelSlug);
 	const raw = typedPayload as AudioTranscriptionRequest & { config?: { elevenlabs?: Record<string, unknown> } };
 	const elevenlabs = raw.config?.elevenlabs ?? {};
-	if (typedPayload.timestamp_granularities?.includes("segment")) {
+	const nativeTimestampGranularity = elevenlabs.timestamps_granularity;
+	const invalidTimestampParam = typedPayload.timestamp_granularities?.includes("segment")
+		? "timestamp_granularities"
+		: typeof nativeTimestampGranularity === "string" &&
+			!ELEVENLABS_TIMESTAMP_GRANULARITIES.has(nativeTimestampGranularity)
+			? "timestamps_granularity"
+			: null;
+	if (invalidTimestampParam) {
 		return {
 			kind: "completed",
 			upstream: invalidParameterResponse(
-				"timestamp_granularities",
+				invalidTimestampParam,
 				"ElevenLabs Scribe does not support segment timestamps; use word timestamps or config.elevenlabs.timestamps_granularity with none, word, or character.",
 			),
 			bill: { cost_cents: 0, currency: "USD", usage: undefined, upstream_id: null, finish_reason: null },
@@ -100,8 +109,8 @@ export async function exec(args: ProviderExecuteArgs): Promise<AdapterResult> {
 	}
 	if (typeof typedPayload.temperature === "number") form.append("temperature", String(typedPayload.temperature));
 	if (typeof typedPayload.diarize === "boolean") form.append("diarize", String(typedPayload.diarize));
-	if (typeof elevenlabs.timestamps_granularity === "string") {
-		form.append("timestamps_granularity", elevenlabs.timestamps_granularity);
+	if (typeof nativeTimestampGranularity === "string") {
+		form.append("timestamps_granularity", nativeTimestampGranularity);
 	} else if (typedPayload.timestamp_granularities?.includes("word")) {
 		form.append("timestamps_granularity", "word");
 	}

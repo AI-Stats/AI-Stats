@@ -66,7 +66,7 @@ function isVoyageContextualModel(model?: string | null): boolean {
 	return normalizeModelName(model).toLowerCase().startsWith("voyage-context-");
 }
 
-function toVoyageContextualInputs(input: unknown): string[][] {
+function toVoyageContextualInputs(input: unknown, inputType?: string): string[][] {
 	if (typeof input === "string" && input.length > 0) {
 		return [[input]];
 	}
@@ -75,6 +75,9 @@ function toVoyageContextualInputs(input: unknown): string[][] {
 		input.length > 0 &&
 		input.every((entry) => typeof entry === "string" && entry.length > 0)
 	) {
+		if (inputType === "query") {
+			return (input as string[]).map((entry) => [entry]);
+		}
 		// The OpenAI-compatible input surface has no document-grouping field.
 		// Treat a flat list as chunks from one document so the native response
 		// can be flattened without losing document boundaries.
@@ -88,13 +91,16 @@ function decodeVoyageContextualResponse(
 	modelFallback: string,
 ): IREmbeddingsResponse {
 	const groups = Array.isArray(payload?.data) ? payload.data : [];
-	if (groups.length !== 1 || !Array.isArray(groups[0]?.data)) {
+	if (groups.length === 0 || groups.some((group: any) => !Array.isArray(group?.data))) {
 		throw new Error("voyage_contextualized_embeddings_response_shape_unsupported");
 	}
+	const data = groups
+		.flatMap((group: any) => group.data)
+		.map((entry: any, index: number) => ({ ...entry, index }));
 	return decodeOpenAIEmbeddingsResponse({
 		...payload,
 		model: payload?.model ?? modelFallback,
-		data: groups[0].data,
+		data,
 	});
 }
 
@@ -329,7 +335,7 @@ function buildRequestBody(ir: IREmbeddingsRequest, args: ExecutorExecuteArgs): R
 		if (ir.providerOptions?.voyage?.truncation !== undefined) {
 			throw new Error("voyage_contextualized_embeddings_truncation_unsupported");
 		}
-		encoded.inputs = toVoyageContextualInputs(ir.input);
+		encoded.inputs = toVoyageContextualInputs(ir.input, encoded.input_type);
 		delete encoded.input;
 		delete encoded.truncation;
 	}

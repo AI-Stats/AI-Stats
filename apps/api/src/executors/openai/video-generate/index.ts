@@ -23,11 +23,11 @@ const OPENAI_VIDEO_SIZES = new Set(["720x1280", "1280x720", "1024x1792", "1792x1
 
 function normalizePositiveSeconds(value: unknown): string | undefined {
 	if (typeof value === "number" && Number.isFinite(value) && value > 0) {
-		return String(Math.trunc(value));
+		return String(value);
 	}
 	if (typeof value === "string" && value.trim().length > 0) {
 		const parsed = Number(value.trim());
-		if (Number.isFinite(parsed) && parsed > 0) return String(Math.trunc(parsed));
+		if (Number.isFinite(parsed) && parsed > 0) return String(parsed);
 	}
 	return undefined;
 }

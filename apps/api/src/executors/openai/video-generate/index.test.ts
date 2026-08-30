@@ -160,6 +160,11 @@ describe("openai video executor", () => {
 			param: "seconds",
 		},
 		{
+			label: "fractional seconds",
+			request: { model: "sora-2", prompt: "Unsupported duration", seconds: 4.5, size: "1280x720" },
+			param: "seconds",
+		},
+		{
 			label: "size",
 			request: { model: "sora-2", prompt: "Unsupported size", seconds: 8, size: "1920x1080" },
 			param: "size",
