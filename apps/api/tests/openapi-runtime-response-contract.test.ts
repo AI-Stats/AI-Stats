@@ -182,4 +182,11 @@ describe("OpenAPI Runtime Response Contract", () => {
 		expect(validateSchema(SPEC_DOC, schema, result.body)).toEqual([]);
 	});
 
+	it("matches /management-keys 401 response schema when authorization is missing", async () => {
+		const result = await requestJson("/v1/management-keys", { method: "GET" });
+		expect(result.status).toBe(401);
+		const schema = schemaForResponse("/management-keys", "get", "401");
+		expect(validateSchema(SPEC_DOC, schema, result.body)).toEqual([]);
+	});
+
 });

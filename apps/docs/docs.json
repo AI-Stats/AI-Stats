@@ -491,6 +491,17 @@
 										]
 									},
 									{
+										"group": "Management Keys",
+										"expanded": false,
+										"pages": [
+											"v1/api-reference/endpoint/management-keys-list",
+											"v1/api-reference/endpoint/management-keys-create",
+											"v1/api-reference/endpoint/management-keys-get",
+											"v1/api-reference/endpoint/management-keys-update",
+											"v1/api-reference/endpoint/management-keys-delete"
+										]
+									},
+									{
 										"group": "Workspaces",
 										"expanded": false,
 										"pages": [

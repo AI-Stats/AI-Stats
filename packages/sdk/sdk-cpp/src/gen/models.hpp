@@ -1002,6 +1002,10 @@ struct ListFilesResponse {
 	std::string object;
 };
 
+struct ManagementKeyCollectionResponse {
+	std::vector<std::map<std::string, std::any>> data;
+};
+
 struct ManagementKeyCreateRequest {
 	std::string created_by;
 	std::string name;
@@ -1032,6 +1036,62 @@ struct ManagementKeyListResponse {
 	int offset;
 	std::any ok;
 	int total;
+};
+
+struct ManagementKeyRuntime {
+	std::string created_at;
+	std::optional<std::string> created_by;
+	std::optional<int> daily_limit_cost_nanos;
+	std::optional<int> daily_limit_requests;
+	std::optional<std::string> expires_at;
+	std::string id;
+	std::optional<std::string> last_used_at;
+	std::optional<int> monthly_limit_cost_nanos;
+	std::optional<int> monthly_limit_requests;
+	std::string name;
+	std::string prefix;
+	std::vector<std::string> scopes;
+	std::optional<bool> soft_blocked;
+	std::any status;
+	std::optional<std::string> updated_at;
+	std::optional<int> weekly_limit_cost_nanos;
+	std::optional<int> weekly_limit_requests;
+	std::string workspace_id;
+};
+
+struct ManagementKeyRuntimeCreateRequest {
+	std::optional<std::string> expires_at;
+	std::string name;
+	std::optional<bool> paused;
+	std::any scopes;
+	std::any template;
+};
+
+struct ManagementKeyRuntimeCreateResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct ManagementKeyRuntimeDeleteResponse {
+	std::any deleted;
+};
+
+struct ManagementKeyRuntimeResponse {
+	std::map<std::string, std::any> data;
+};
+
+struct ManagementKeyRuntimeUpdateRequest {
+	std::optional<int> dailyCostNanos;
+	std::optional<int> dailyRequests;
+	std::optional<std::string> expires_at;
+	std::optional<int> monthlyCostNanos;
+	std::optional<int> monthlyRequests;
+	std::string name;
+	std::optional<bool> paused;
+	std::any scopes;
+	std::optional<bool> softBlocked;
+	std::any template;
+	std::optional<int> weeklyCostNanos;
+	std::optional<int> weeklyRequests;
 };
 
 struct ManagementKeyUpdateRequest {

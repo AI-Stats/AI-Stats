@@ -2421,6 +2421,13 @@ public sealed class ListFilesResponse
 
 }
 
+public sealed class ManagementKeyCollectionResponse
+{
+	[JsonPropertyName("data")]
+	public List<Dictionary<string, object>> Data { get; set; }
+
+}
+
 public sealed class ManagementKeyCreateRequest
 {
 	[JsonPropertyName("created_by")]
@@ -2489,6 +2496,144 @@ public sealed class ManagementKeyListResponse
 
 	[JsonPropertyName("total")]
 	public int Total { get; set; }
+
+}
+
+public sealed class ManagementKeyRuntime
+{
+	[JsonPropertyName("created_at")]
+	public string CreatedAt { get; set; }
+
+	[JsonPropertyName("created_by")]
+	public string? CreatedBy { get; set; }
+
+	[JsonPropertyName("daily_limit_cost_nanos")]
+	public int? DailyLimitCostNanos { get; set; }
+
+	[JsonPropertyName("daily_limit_requests")]
+	public int? DailyLimitRequests { get; set; }
+
+	[JsonPropertyName("expires_at")]
+	public string? ExpiresAt { get; set; }
+
+	[JsonPropertyName("id")]
+	public string Id { get; set; }
+
+	[JsonPropertyName("last_used_at")]
+	public string? LastUsedAt { get; set; }
+
+	[JsonPropertyName("monthly_limit_cost_nanos")]
+	public int? MonthlyLimitCostNanos { get; set; }
+
+	[JsonPropertyName("monthly_limit_requests")]
+	public int? MonthlyLimitRequests { get; set; }
+
+	[JsonPropertyName("name")]
+	public string Name { get; set; }
+
+	[JsonPropertyName("prefix")]
+	public string Prefix { get; set; }
+
+	[JsonPropertyName("scopes")]
+	public List<string> Scopes { get; set; }
+
+	[JsonPropertyName("soft_blocked")]
+	public bool? SoftBlocked { get; set; }
+
+	[JsonPropertyName("status")]
+	public string Status { get; set; }
+
+	[JsonPropertyName("updated_at")]
+	public string? UpdatedAt { get; set; }
+
+	[JsonPropertyName("weekly_limit_cost_nanos")]
+	public int? WeeklyLimitCostNanos { get; set; }
+
+	[JsonPropertyName("weekly_limit_requests")]
+	public int? WeeklyLimitRequests { get; set; }
+
+	[JsonPropertyName("workspace_id")]
+	public string WorkspaceId { get; set; }
+
+}
+
+public sealed class ManagementKeyRuntimeCreateRequest
+{
+	[JsonPropertyName("expires_at")]
+	public string? ExpiresAt { get; set; }
+
+	[JsonPropertyName("name")]
+	public string Name { get; set; }
+
+	[JsonPropertyName("paused")]
+	public bool? Paused { get; set; }
+
+	[JsonPropertyName("scopes")]
+	public object? Scopes { get; set; }
+
+	[JsonPropertyName("template")]
+	public string? Template { get; set; }
+
+}
+
+public sealed class ManagementKeyRuntimeCreateResponse
+{
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
+
+}
+
+public sealed class ManagementKeyRuntimeDeleteResponse
+{
+	[JsonPropertyName("deleted")]
+	public string Deleted { get; set; }
+
+}
+
+public sealed class ManagementKeyRuntimeResponse
+{
+	[JsonPropertyName("data")]
+	public Dictionary<string, object> Data { get; set; }
+
+}
+
+public sealed class ManagementKeyRuntimeUpdateRequest
+{
+	[JsonPropertyName("dailyCostNanos")]
+	public int? DailyCostNanos { get; set; }
+
+	[JsonPropertyName("dailyRequests")]
+	public int? DailyRequests { get; set; }
+
+	[JsonPropertyName("expires_at")]
+	public string? ExpiresAt { get; set; }
+
+	[JsonPropertyName("monthlyCostNanos")]
+	public int? MonthlyCostNanos { get; set; }
+
+	[JsonPropertyName("monthlyRequests")]
+	public int? MonthlyRequests { get; set; }
+
+	[JsonPropertyName("name")]
+	public string? Name { get; set; }
+
+	[JsonPropertyName("paused")]
+	public bool? Paused { get; set; }
+
+	[JsonPropertyName("scopes")]
+	public object? Scopes { get; set; }
+
+	[JsonPropertyName("softBlocked")]
+	public bool? SoftBlocked { get; set; }
+
+	[JsonPropertyName("template")]
+	public string? Template { get; set; }
+
+	[JsonPropertyName("weeklyCostNanos")]
+	public int? WeeklyCostNanos { get; set; }
+
+	[JsonPropertyName("weeklyRequests")]
+	public int? WeeklyRequests { get; set; }
 
 }
 

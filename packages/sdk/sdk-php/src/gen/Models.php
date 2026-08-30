@@ -1763,6 +1763,12 @@ class ListFilesResponse
 	public $object;
 }
 
+class ManagementKeyCollectionResponse
+{
+	/** @var array */
+	public $data;
+}
+
 class ManagementKeyCreateRequest
 {
 	/** @var string|null */
@@ -1815,6 +1821,106 @@ class ManagementKeyListResponse
 	public $ok;
 	/** @var int */
 	public $total;
+}
+
+class ManagementKeyRuntime
+{
+	/** @var string */
+	public $created_at;
+	/** @var string|null */
+	public $created_by;
+	/** @var int|null */
+	public $daily_limit_cost_nanos;
+	/** @var int|null */
+	public $daily_limit_requests;
+	/** @var string|null */
+	public $expires_at;
+	/** @var string */
+	public $id;
+	/** @var string|null */
+	public $last_used_at;
+	/** @var int|null */
+	public $monthly_limit_cost_nanos;
+	/** @var int|null */
+	public $monthly_limit_requests;
+	/** @var string */
+	public $name;
+	/** @var string */
+	public $prefix;
+	/** @var array */
+	public $scopes;
+	/** @var bool|null */
+	public $soft_blocked;
+	/** @var string */
+	public $status;
+	/** @var string|null */
+	public $updated_at;
+	/** @var int|null */
+	public $weekly_limit_cost_nanos;
+	/** @var int|null */
+	public $weekly_limit_requests;
+	/** @var string */
+	public $workspace_id;
+}
+
+class ManagementKeyRuntimeCreateRequest
+{
+	/** @var string|null */
+	public $expires_at;
+	/** @var string */
+	public $name;
+	/** @var bool|null */
+	public $paused;
+	/** @var string|array|null */
+	public $scopes;
+	/** @var string|null */
+	public $template;
+}
+
+class ManagementKeyRuntimeCreateResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class ManagementKeyRuntimeDeleteResponse
+{
+	/** @var string */
+	public $deleted;
+}
+
+class ManagementKeyRuntimeResponse
+{
+	/** @var array<string, mixed> */
+	public $data;
+}
+
+class ManagementKeyRuntimeUpdateRequest
+{
+	/** @var int|null */
+	public $dailyCostNanos;
+	/** @var int|null */
+	public $dailyRequests;
+	/** @var string|null */
+	public $expires_at;
+	/** @var int|null */
+	public $monthlyCostNanos;
+	/** @var int|null */
+	public $monthlyRequests;
+	/** @var string|null */
+	public $name;
+	/** @var bool|null */
+	public $paused;
+	/** @var string|array|null */
+	public $scopes;
+	/** @var bool|null */
+	public $softBlocked;
+	/** @var string|null */
+	public $template;
+	/** @var int|null */
+	public $weeklyCostNanos;
+	/** @var int|null */
+	public $weeklyRequests;
 }
 
 class ManagementKeyUpdateRequest

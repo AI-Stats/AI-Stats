@@ -998,6 +998,10 @@ pub struct ListFilesResponse {
 	pub object: Option<String>,
 }
 
+pub struct ManagementKeyCollectionResponse {
+	pub data: Vec<HashMap<String, String>>,
+}
+
 pub struct ManagementKeyCreateRequest {
 	pub created_by: Option<String>,
 	pub name: String,
@@ -1028,6 +1032,62 @@ pub struct ManagementKeyListResponse {
 	pub offset: i64,
 	pub ok: String,
 	pub total: i64,
+}
+
+pub struct ManagementKeyRuntime {
+	pub created_at: String,
+	pub created_by: Option<Option<String>>,
+	pub daily_limit_cost_nanos: Option<Option<i64>>,
+	pub daily_limit_requests: Option<Option<i64>>,
+	pub expires_at: Option<Option<String>>,
+	pub id: String,
+	pub last_used_at: Option<Option<String>>,
+	pub monthly_limit_cost_nanos: Option<Option<i64>>,
+	pub monthly_limit_requests: Option<Option<i64>>,
+	pub name: String,
+	pub prefix: String,
+	pub scopes: Vec<String>,
+	pub soft_blocked: Option<Option<bool>>,
+	pub status: String,
+	pub updated_at: Option<Option<String>>,
+	pub weekly_limit_cost_nanos: Option<Option<i64>>,
+	pub weekly_limit_requests: Option<Option<i64>>,
+	pub workspace_id: String,
+}
+
+pub struct ManagementKeyRuntimeCreateRequest {
+	pub expires_at: Option<Option<String>>,
+	pub name: String,
+	pub paused: Option<bool>,
+	pub scopes: Option<String>,
+	pub template: Option<String>,
+}
+
+pub struct ManagementKeyRuntimeCreateResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub struct ManagementKeyRuntimeDeleteResponse {
+	pub deleted: String,
+}
+
+pub struct ManagementKeyRuntimeResponse {
+	pub data: HashMap<String, String>,
+}
+
+pub struct ManagementKeyRuntimeUpdateRequest {
+	pub dailyCostNanos: Option<Option<i64>>,
+	pub dailyRequests: Option<Option<i64>>,
+	pub expires_at: Option<Option<String>>,
+	pub monthlyCostNanos: Option<Option<i64>>,
+	pub monthlyRequests: Option<Option<i64>>,
+	pub name: Option<String>,
+	pub paused: Option<bool>,
+	pub scopes: Option<String>,
+	pub softBlocked: Option<bool>,
+	pub template: Option<String>,
+	pub weeklyCostNanos: Option<Option<i64>>,
+	pub weeklyRequests: Option<Option<i64>>,
 }
 
 pub struct ManagementKeyUpdateRequest {

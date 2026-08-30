@@ -105,6 +105,12 @@ module Phaseo
         client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
       end
 
+      def self.createManagementKey(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/management-keys"
+        client.request(method: "POST", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
       def self.createModeration(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/moderations"
@@ -210,6 +216,12 @@ module Phaseo
       def self.deleteDynamicRoute(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/routing/dynamic-routes/#{URI.encode_uri_component(path["id"].to_s)}"
+        client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.deleteManagementKey(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/management-keys/#{URI.encode_uri_component(path["id"].to_s)}"
         client.request(method: "DELETE", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -324,6 +336,12 @@ module Phaseo
       def self.getHealth(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/health"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.getManagementKey(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/management-keys/#{URI.encode_uri_component(path["id"].to_s)}"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -492,6 +510,12 @@ module Phaseo
       def self.listFiles(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/files"
+        client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.listManagementKeys(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/management-keys"
         client.request(method: "GET", path: resolved_path, query: query, headers: headers, body: body)
       end
 
@@ -690,6 +714,12 @@ module Phaseo
       def self.updateDynamicRoute(client, path: nil, query: nil, headers: nil, body: nil)
         path ||= {}
         resolved_path = "/routing/dynamic-routes/#{URI.encode_uri_component(path["id"].to_s)}"
+        client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
+      end
+
+      def self.updateManagementKey(client, path: nil, query: nil, headers: nil, body: nil)
+        path ||= {}
+        resolved_path = "/management-keys/#{URI.encode_uri_component(path["id"].to_s)}"
         client.request(method: "PATCH", path: resolved_path, query: query, headers: headers, body: body)
       end
 

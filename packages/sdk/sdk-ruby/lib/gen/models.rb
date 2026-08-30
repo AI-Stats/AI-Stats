@@ -1430,6 +1430,9 @@ module Phaseo
     # @!attribute [rw] object
     #   @return [String, nil]
     ListFilesResponse = Struct.new(:data, :object, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Array<Hash{String => Object}>]
+    ManagementKeyCollectionResponse = Struct.new(:data, keyword_init: true)
     # @!attribute [rw] created_by
     #   @return [String, nil]
     # @!attribute [rw] name
@@ -1469,6 +1472,88 @@ module Phaseo
     # @!attribute [rw] total
     #   @return [Integer]
     ManagementKeyListResponse = Struct.new(:keys, :limit, :offset, :ok, :total, keyword_init: true)
+    # @!attribute [rw] created_at
+    #   @return [String]
+    # @!attribute [rw] created_by
+    #   @return [String, nil]
+    # @!attribute [rw] daily_limit_cost_nanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] daily_limit_requests
+    #   @return [Integer, nil]
+    # @!attribute [rw] expires_at
+    #   @return [String, nil]
+    # @!attribute [rw] id
+    #   @return [String]
+    # @!attribute [rw] last_used_at
+    #   @return [String, nil]
+    # @!attribute [rw] monthly_limit_cost_nanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] monthly_limit_requests
+    #   @return [Integer, nil]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] prefix
+    #   @return [String]
+    # @!attribute [rw] scopes
+    #   @return [Array<String>]
+    # @!attribute [rw] soft_blocked
+    #   @return [Boolean, nil]
+    # @!attribute [rw] status
+    #   @return [String]
+    # @!attribute [rw] updated_at
+    #   @return [String, nil]
+    # @!attribute [rw] weekly_limit_cost_nanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] weekly_limit_requests
+    #   @return [Integer, nil]
+    # @!attribute [rw] workspace_id
+    #   @return [String]
+    ManagementKeyRuntime = Struct.new(:created_at, :created_by, :daily_limit_cost_nanos, :daily_limit_requests, :expires_at, :id, :last_used_at, :monthly_limit_cost_nanos, :monthly_limit_requests, :name, :prefix, :scopes, :soft_blocked, :status, :updated_at, :weekly_limit_cost_nanos, :weekly_limit_requests, :workspace_id, keyword_init: true)
+    # @!attribute [rw] expires_at
+    #   @return [String, nil]
+    # @!attribute [rw] name
+    #   @return [String]
+    # @!attribute [rw] paused
+    #   @return [Boolean, nil]
+    # @!attribute [rw] scopes
+    #   @return [String, Array<String>, nil]
+    # @!attribute [rw] template
+    #   @return [String, nil]
+    ManagementKeyRuntimeCreateRequest = Struct.new(:expires_at, :name, :paused, :scopes, :template, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    ManagementKeyRuntimeCreateResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] deleted
+    #   @return [String]
+    ManagementKeyRuntimeDeleteResponse = Struct.new(:deleted, keyword_init: true)
+    # @!attribute [rw] data
+    #   @return [Hash{String => Object}]
+    ManagementKeyRuntimeResponse = Struct.new(:data, keyword_init: true)
+    # @!attribute [rw] dailyCostNanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] dailyRequests
+    #   @return [Integer, nil]
+    # @!attribute [rw] expires_at
+    #   @return [String, nil]
+    # @!attribute [rw] monthlyCostNanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] monthlyRequests
+    #   @return [Integer, nil]
+    # @!attribute [rw] name
+    #   @return [String, nil]
+    # @!attribute [rw] paused
+    #   @return [Boolean, nil]
+    # @!attribute [rw] scopes
+    #   @return [String, Array<String>, nil]
+    # @!attribute [rw] softBlocked
+    #   @return [Boolean, nil]
+    # @!attribute [rw] template
+    #   @return [String, nil]
+    # @!attribute [rw] weeklyCostNanos
+    #   @return [Integer, nil]
+    # @!attribute [rw] weeklyRequests
+    #   @return [Integer, nil]
+    ManagementKeyRuntimeUpdateRequest = Struct.new(:dailyCostNanos, :dailyRequests, :expires_at, :monthlyCostNanos, :monthlyRequests, :name, :paused, :scopes, :softBlocked, :template, :weeklyCostNanos, :weeklyRequests, keyword_init: true)
     # @!attribute [rw] name
     #   @return [String, nil]
     # @!attribute [rw] soft_blocked

@@ -89,6 +89,11 @@ inline Response CreateImageEdit(Client& client, const std::map<std::string, std:
 	return client.request("POST", resolved_path, body);
 }
 
+inline Response CreateManagementKey(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/management-keys";
+	return client.request("POST", resolved_path, body);
+}
+
 inline Response CreateModeration(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/moderations";
 	return client.request("POST", resolved_path, body);
@@ -176,6 +181,11 @@ inline Response DeleteApiKey(Client& client, const std::map<std::string, std::st
 
 inline Response DeleteDynamicRoute(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/routing/dynamic-routes/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("DELETE", resolved_path, body);
+}
+
+inline Response DeleteManagementKey(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/management-keys/" + (path.count("id") ? path.at("id") : std::string{});
 	return client.request("DELETE", resolved_path, body);
 }
 
@@ -271,6 +281,11 @@ inline Response GetGeneration(Client& client, const std::map<std::string, std::s
 
 inline Response GetHealth(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/health";
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response GetManagementKey(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/management-keys/" + (path.count("id") ? path.at("id") : std::string{});
 	return client.request("GET", resolved_path, body);
 }
 
@@ -411,6 +426,11 @@ inline Response ListEndpoints(Client& client, const std::map<std::string, std::s
 
 inline Response ListFiles(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/files";
+	return client.request("GET", resolved_path, body);
+}
+
+inline Response ListManagementKeys(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/management-keys";
 	return client.request("GET", resolved_path, body);
 }
 
@@ -576,6 +596,11 @@ inline Response UpdateApiKey(Client& client, const std::map<std::string, std::st
 
 inline Response UpdateDynamicRoute(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/routing/dynamic-routes/" + (path.count("id") ? path.at("id") : std::string{});
+	return client.request("PATCH", resolved_path, body);
+}
+
+inline Response UpdateManagementKey(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/management-keys/" + (path.count("id") ? path.at("id") : std::string{});
 	return client.request("PATCH", resolved_path, body);
 }
 

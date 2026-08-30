@@ -122,6 +122,13 @@ function createImageEdit(Client $client, ?array $path = null, ?array $query = nu
 	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
+function createManagementKey(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/management-keys";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
 function createModeration(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -245,6 +252,13 @@ function deleteDynamicRoute(Client $client, ?array $path = null, ?array $query =
 {
 	$path = $path ?? [];
 	$resolvedPath = "/routing/dynamic-routes/" . rawurlencode((string)($path["id"] ?? ""));
+	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
+}
+
+function deleteManagementKey(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/management-keys/" . rawurlencode((string)($path["id"] ?? ""));
 	return $client->request("DELETE", $resolvedPath, $query, $headers, $body);
 }
 
@@ -378,6 +392,13 @@ function getHealth(Client $client, ?array $path = null, ?array $query = null, ?a
 {
 	$path = $path ?? [];
 	$resolvedPath = "/health";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
+function getManagementKey(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/management-keys/" . rawurlencode((string)($path["id"] ?? ""));
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
@@ -574,6 +595,13 @@ function listFiles(Client $client, ?array $path = null, ?array $query = null, ?a
 {
 	$path = $path ?? [];
 	$resolvedPath = "/files";
+	return $client->request("GET", $resolvedPath, $query, $headers, $body);
+}
+
+function listManagementKeys(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/management-keys";
 	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
@@ -805,6 +833,13 @@ function updateDynamicRoute(Client $client, ?array $path = null, ?array $query =
 {
 	$path = $path ?? [];
 	$resolvedPath = "/routing/dynamic-routes/" . rawurlencode((string)($path["id"] ?? ""));
+	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
+}
+
+function updateManagementKey(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/management-keys/" . rawurlencode((string)($path["id"] ?? ""));
 	return $client->request("PATCH", $resolvedPath, $query, $headers, $body);
 }
 

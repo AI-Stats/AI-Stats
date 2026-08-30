@@ -36,7 +36,7 @@ OpenAPI schema does not count as complete.
 | Workspaces | CRUD | Contracted | Add description, routing defaults, observability settings, and budget resources. |
 | Workspace members | List/add/remove, role changes, invitations, and join-request decisions | Contracted | Add cross-workspace directory assignments when a distinct organisation directory is introduced. |
 | API keys | CRUD and invalidation | Partially contracted | Contract invalidation/rotation and expose creator, expiry, resettable limits, current usage, and remaining allowance consistently. |
-| Management keys | CRUD | Runtime only | Add OpenAPI, SDKs, reference docs, contract tests, and complete audit coverage. |
+| Management keys | CRUD with templates, explicit scopes, expiry, pausing, and request/cost limits | Contracted | Add rotation only if management-key rotation becomes a durable product action. |
 | Guardrails | CRUD and key/member assignment | Runtime only | Publish the contract and cover default workspace policy, budgets, model/provider restrictions, privacy, and content controls. |
 | Provider credentials | Dashboard only | Missing | Add encrypted create/update/delete, workspace/provider filters, model/key/member restrictions, priority ordering, required-only mode, and fallback behavior. |
 | Routing policies | Workspace defaults, provider restrictions, versioned dynamic routes, key assignments, and deployments | Contracted | Add new durable routing controls to the same surface as the dashboard evolves. |

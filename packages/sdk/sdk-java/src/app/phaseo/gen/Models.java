@@ -1008,6 +1008,10 @@ public final class Models {
 		public String object;
 	}
 
+	public static class ManagementKeyCollectionResponse {
+		public java.util.List<Object> data;
+	}
+
 	public static class ManagementKeyCreateRequest {
 		public String created_by;
 		public String name;
@@ -1038,6 +1042,62 @@ public final class Models {
 		public Integer offset;
 		public Object ok;
 		public Integer total;
+	}
+
+	public static class ManagementKeyRuntime {
+		public String created_at;
+		public String created_by;
+		public Integer daily_limit_cost_nanos;
+		public Integer daily_limit_requests;
+		public String expires_at;
+		public String id;
+		public String last_used_at;
+		public Integer monthly_limit_cost_nanos;
+		public Integer monthly_limit_requests;
+		public String name;
+		public String prefix;
+		public java.util.List<String> scopes;
+		public Boolean soft_blocked;
+		public Object status;
+		public String updated_at;
+		public Integer weekly_limit_cost_nanos;
+		public Integer weekly_limit_requests;
+		public String workspace_id;
+	}
+
+	public static class ManagementKeyRuntimeCreateRequest {
+		public String expires_at;
+		public String name;
+		public Boolean paused;
+		public Object scopes;
+		public Object template;
+	}
+
+	public static class ManagementKeyRuntimeCreateResponse {
+		public Object data;
+	}
+
+	public static class ManagementKeyRuntimeDeleteResponse {
+		public Object deleted;
+	}
+
+	public static class ManagementKeyRuntimeResponse {
+		public Object data;
+	}
+
+	public static class ManagementKeyRuntimeUpdateRequest {
+		public Integer dailyCostNanos;
+		public Integer dailyRequests;
+		public String expires_at;
+		public Integer monthlyCostNanos;
+		public Integer monthlyRequests;
+		public String name;
+		public Boolean paused;
+		public Object scopes;
+		public Boolean softBlocked;
+		public Object template;
+		public Integer weeklyCostNanos;
+		public Integer weeklyRequests;
 	}
 
 	public static class ManagementKeyUpdateRequest {

@@ -90,6 +90,11 @@ pub fn createImageEdit<T: Transport>(client: &Client<T>, path: &HashMap<String, 
 	client.request("POST", &resolved_path, body)
 }
 
+pub fn createManagementKey<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/management-keys");
+	client.request("POST", &resolved_path, body)
+}
+
 pub fn createModeration<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/moderations");
 	client.request("POST", &resolved_path, body)
@@ -177,6 +182,11 @@ pub fn deleteApiKey<T: Transport>(client: &Client<T>, path: &HashMap<String, Str
 
 pub fn deleteDynamicRoute<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/routing/dynamic-routes/{}", path.get("id").cloned().unwrap_or_default());
+	client.request("DELETE", &resolved_path, body)
+}
+
+pub fn deleteManagementKey<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/management-keys/{}", path.get("id").cloned().unwrap_or_default());
 	client.request("DELETE", &resolved_path, body)
 }
 
@@ -272,6 +282,11 @@ pub fn getGeneration<T: Transport>(client: &Client<T>, path: &HashMap<String, St
 
 pub fn getHealth<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/health");
+	client.request("GET", &resolved_path, body)
+}
+
+pub fn getManagementKey<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/management-keys/{}", path.get("id").cloned().unwrap_or_default());
 	client.request("GET", &resolved_path, body)
 }
 
@@ -412,6 +427,11 @@ pub fn listEndpoints<T: Transport>(client: &Client<T>, path: &HashMap<String, St
 
 pub fn listFiles<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/files");
+	client.request("GET", &resolved_path, body)
+}
+
+pub fn listManagementKeys<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/management-keys");
 	client.request("GET", &resolved_path, body)
 }
 
@@ -577,6 +597,11 @@ pub fn updateApiKey<T: Transport>(client: &Client<T>, path: &HashMap<String, Str
 
 pub fn updateDynamicRoute<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/routing/dynamic-routes/{}", path.get("id").cloned().unwrap_or_default());
+	client.request("PATCH", &resolved_path, body)
+}
+
+pub fn updateManagementKey<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = format!("/management-keys/{}", path.get("id").cloned().unwrap_or_default());
 	client.request("PATCH", &resolved_path, body)
 }
 

@@ -2854,6 +2854,81 @@ export async function createImageEdit(
   });
 }
 
+export type CreateManagementKeyParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    expires_at?: string | null;
+    name: string;
+    paused?: boolean;
+    scopes?: string | string[];
+    template?: "read-only" | "read-write" | "full-control";
+  };
+};
+
+/**
+ * Creates a scoped management key. The raw key is returned once. Requires `management_keys:write`.
+ */
+export async function createManagementKey(
+  client: Client,
+  args: CreateManagementKeyParams = {},
+): Promise<{
+  data: {
+    created_at: string;
+    created_by?: string | null;
+    daily_limit_cost_nanos?: number | null;
+    daily_limit_requests?: number | null;
+    expires_at?: string | null;
+    id: string;
+    key: string;
+    last_used_at?: string | null;
+    monthly_limit_cost_nanos?: number | null;
+    monthly_limit_requests?: number | null;
+    name: string;
+    prefix: string;
+    scopes: string[];
+    soft_blocked?: boolean | null;
+    status: "active" | "paused";
+    updated_at?: string | null;
+    weekly_limit_cost_nanos?: number | null;
+    weekly_limit_requests?: number | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/management-keys";
+  return client.request<{
+    data: {
+      created_at: string;
+      created_by?: string | null;
+      daily_limit_cost_nanos?: number | null;
+      daily_limit_requests?: number | null;
+      expires_at?: string | null;
+      id: string;
+      key: string;
+      last_used_at?: string | null;
+      monthly_limit_cost_nanos?: number | null;
+      monthly_limit_requests?: number | null;
+      name: string;
+      prefix: string;
+      scopes: string[];
+      soft_blocked?: boolean | null;
+      status: "active" | "paused";
+      updated_at?: string | null;
+      weekly_limit_cost_nanos?: number | null;
+      weekly_limit_requests?: number | null;
+      workspace_id: string;
+    };
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type CreateModerationParams = {
   path?: Record<string, never>;
   query?: Record<string, never>;
@@ -5331,6 +5406,37 @@ export async function deleteDynamicRoute(
   });
 }
 
+export type DeleteManagementKeyParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Permanently revokes and deletes a management key. Requires `management_keys:delete`.
+ */
+export async function deleteManagementKey(
+  client: Client,
+  args: DeleteManagementKeyParams = {},
+): Promise<{
+  deleted: true;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/management-keys/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    deleted: true;
+  }>({
+    method: "DELETE",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type DeleteObservabilityDestinationParams = {
   path?: {
     id: string;
@@ -6548,6 +6654,75 @@ export async function getHealth(
   const resolvedPath = "/health";
   return client.request<{
     status?: string;
+  }>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type GetManagementKeyParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Returns management-key metadata without the secret. Requires `management_keys:read`.
+ */
+export async function getManagementKey(
+  client: Client,
+  args: GetManagementKeyParams = {},
+): Promise<{
+  data: {
+    created_at: string;
+    created_by?: string | null;
+    daily_limit_cost_nanos?: number | null;
+    daily_limit_requests?: number | null;
+    expires_at?: string | null;
+    id: string;
+    last_used_at?: string | null;
+    monthly_limit_cost_nanos?: number | null;
+    monthly_limit_requests?: number | null;
+    name: string;
+    prefix: string;
+    scopes: string[];
+    soft_blocked?: boolean | null;
+    status: "active" | "paused";
+    updated_at?: string | null;
+    weekly_limit_cost_nanos?: number | null;
+    weekly_limit_requests?: number | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/management-keys/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    data: {
+      created_at: string;
+      created_by?: string | null;
+      daily_limit_cost_nanos?: number | null;
+      daily_limit_requests?: number | null;
+      expires_at?: string | null;
+      id: string;
+      last_used_at?: string | null;
+      monthly_limit_cost_nanos?: number | null;
+      monthly_limit_requests?: number | null;
+      name: string;
+      prefix: string;
+      scopes: string[];
+      soft_blocked?: boolean | null;
+      status: "active" | "paused";
+      updated_at?: string | null;
+      weekly_limit_cost_nanos?: number | null;
+      weekly_limit_requests?: number | null;
+      workspace_id: string;
+    };
   }>({
     method: "GET",
     path: resolvedPath,
@@ -9301,6 +9476,76 @@ export async function listFiles(
   const { path, query, headers, body } = args;
   const resolvedPath = "/files";
   return client.request<unknown>({
+    method: "GET",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type ListManagementKeysParams = {
+  path?: Record<string, never>;
+  query?: {
+    limit?: number;
+    offset?: number;
+  };
+  headers?: Record<string, never>;
+  body?: never;
+};
+
+/**
+ * Lists management-key metadata for the authenticated workspace. Requires `management_keys:read`.
+ */
+export async function listManagementKeys(
+  client: Client,
+  args: ListManagementKeysParams = {},
+): Promise<{
+  data: {
+    created_at: string;
+    created_by?: string | null;
+    daily_limit_cost_nanos?: number | null;
+    daily_limit_requests?: number | null;
+    expires_at?: string | null;
+    id: string;
+    last_used_at?: string | null;
+    monthly_limit_cost_nanos?: number | null;
+    monthly_limit_requests?: number | null;
+    name: string;
+    prefix: string;
+    scopes: string[];
+    soft_blocked?: boolean | null;
+    status: "active" | "paused";
+    updated_at?: string | null;
+    weekly_limit_cost_nanos?: number | null;
+    weekly_limit_requests?: number | null;
+    workspace_id: string;
+  }[];
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/management-keys";
+  return client.request<{
+    data: {
+      created_at: string;
+      created_by?: string | null;
+      daily_limit_cost_nanos?: number | null;
+      daily_limit_requests?: number | null;
+      expires_at?: string | null;
+      id: string;
+      last_used_at?: string | null;
+      monthly_limit_cost_nanos?: number | null;
+      monthly_limit_requests?: number | null;
+      name: string;
+      prefix: string;
+      scopes: string[];
+      soft_blocked?: boolean | null;
+      status: "active" | "paused";
+      updated_at?: string | null;
+      weekly_limit_cost_nanos?: number | null;
+      weekly_limit_requests?: number | null;
+      workspace_id: string;
+    }[];
+  }>({
     method: "GET",
     path: resolvedPath,
     query,
@@ -13251,6 +13496,88 @@ export async function updateDynamicRoute(
         status: "draft" | "deployed" | "superseded";
         version: number;
       }[];
+      workspace_id: string;
+    };
+  }>({
+    method: "PATCH",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
+export type UpdateManagementKeyParams = {
+  path?: {
+    id: string;
+  };
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    dailyCostNanos?: number | null;
+    dailyRequests?: number | null;
+    expires_at?: string | null;
+    monthlyCostNanos?: number | null;
+    monthlyRequests?: number | null;
+    name?: string;
+    paused?: boolean;
+    scopes?: string | string[];
+    softBlocked?: boolean;
+    template?: "read-only" | "read-write" | "full-control";
+    weeklyCostNanos?: number | null;
+    weeklyRequests?: number | null;
+  };
+};
+
+/**
+ * Updates scopes, limits, expiry, name, or paused state. Requires `management_keys:write`.
+ */
+export async function updateManagementKey(
+  client: Client,
+  args: UpdateManagementKeyParams = {},
+): Promise<{
+  data: {
+    created_at: string;
+    created_by?: string | null;
+    daily_limit_cost_nanos?: number | null;
+    daily_limit_requests?: number | null;
+    expires_at?: string | null;
+    id: string;
+    last_used_at?: string | null;
+    monthly_limit_cost_nanos?: number | null;
+    monthly_limit_requests?: number | null;
+    name: string;
+    prefix: string;
+    scopes: string[];
+    soft_blocked?: boolean | null;
+    status: "active" | "paused";
+    updated_at?: string | null;
+    weekly_limit_cost_nanos?: number | null;
+    weekly_limit_requests?: number | null;
+    workspace_id: string;
+  };
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = `/management-keys/${encodeURIComponent(String(path?.["id"]))}`;
+  return client.request<{
+    data: {
+      created_at: string;
+      created_by?: string | null;
+      daily_limit_cost_nanos?: number | null;
+      daily_limit_requests?: number | null;
+      expires_at?: string | null;
+      id: string;
+      last_used_at?: string | null;
+      monthly_limit_cost_nanos?: number | null;
+      monthly_limit_requests?: number | null;
+      name: string;
+      prefix: string;
+      scopes: string[];
+      soft_blocked?: boolean | null;
+      status: "active" | "paused";
+      updated_at?: string | null;
+      weekly_limit_cost_nanos?: number | null;
+      weekly_limit_requests?: number | null;
       workspace_id: string;
     };
   }>({

@@ -1,0 +1,10 @@
+---
+title: "List management keys"
+sidebarTitle: "List management keys"
+badge: "Beta"
+openapi: "GET /management-keys"
+description: "List management-key metadata for the authenticated workspace."
+---
+<Note>This endpoint requires an owner or admin identity and `management_keys:read`.</Note>
+
+Raw key values are never included. Use `limit` and `offset` to paginate the result.

@@ -2276,6 +2276,10 @@ type ListFilesResponse struct {
 	Object *string `json:"object,omitempty"`
 }
 
+type ManagementKeyCollectionResponse struct {
+	Data []map[string]interface{} `json:"data"`
+}
+
 type ManagementKeyCreateRequest struct {
 	CreatedBy *string `json:"created_by,omitempty"`
 	Name string `json:"name"`
@@ -2306,6 +2310,62 @@ type ManagementKeyListResponse struct {
 	Offset int `json:"offset"`
 	Ok string `json:"ok"`
 	Total int `json:"total"`
+}
+
+type ManagementKeyRuntime struct {
+	CreatedAt string `json:"created_at"`
+	CreatedBy *string `json:"created_by,omitempty"`
+	DailyLimitCostNanos *int `json:"daily_limit_cost_nanos,omitempty"`
+	DailyLimitRequests *int `json:"daily_limit_requests,omitempty"`
+	ExpiresAt *string `json:"expires_at,omitempty"`
+	Id string `json:"id"`
+	LastUsedAt *string `json:"last_used_at,omitempty"`
+	MonthlyLimitCostNanos *int `json:"monthly_limit_cost_nanos,omitempty"`
+	MonthlyLimitRequests *int `json:"monthly_limit_requests,omitempty"`
+	Name string `json:"name"`
+	Prefix string `json:"prefix"`
+	Scopes []string `json:"scopes"`
+	SoftBlocked *bool `json:"soft_blocked,omitempty"`
+	Status string `json:"status"`
+	UpdatedAt *string `json:"updated_at,omitempty"`
+	WeeklyLimitCostNanos *int `json:"weekly_limit_cost_nanos,omitempty"`
+	WeeklyLimitRequests *int `json:"weekly_limit_requests,omitempty"`
+	WorkspaceId string `json:"workspace_id"`
+}
+
+type ManagementKeyRuntimeCreateRequest struct {
+	ExpiresAt *string `json:"expires_at,omitempty"`
+	Name string `json:"name"`
+	Paused *bool `json:"paused,omitempty"`
+	Scopes interface{} `json:"scopes,omitempty"`
+	Template *string `json:"template,omitempty"`
+}
+
+type ManagementKeyRuntimeCreateResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type ManagementKeyRuntimeDeleteResponse struct {
+	Deleted string `json:"deleted"`
+}
+
+type ManagementKeyRuntimeResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type ManagementKeyRuntimeUpdateRequest struct {
+	DailyCostNanos *int `json:"dailyCostNanos,omitempty"`
+	DailyRequests *int `json:"dailyRequests,omitempty"`
+	ExpiresAt *string `json:"expires_at,omitempty"`
+	MonthlyCostNanos *int `json:"monthlyCostNanos,omitempty"`
+	MonthlyRequests *int `json:"monthlyRequests,omitempty"`
+	Name *string `json:"name,omitempty"`
+	Paused *bool `json:"paused,omitempty"`
+	Scopes interface{} `json:"scopes,omitempty"`
+	SoftBlocked *bool `json:"softBlocked,omitempty"`
+	Template *string `json:"template,omitempty"`
+	WeeklyCostNanos *int `json:"weeklyCostNanos,omitempty"`
+	WeeklyRequests *int `json:"weeklyRequests,omitempty"`
 }
 
 type ManagementKeyUpdateRequest struct {
