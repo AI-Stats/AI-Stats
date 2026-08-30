@@ -15,7 +15,7 @@ export default async function TermsPage() {
 		<main className="container mx-auto space-y-8 px-4 py-10 text-sm leading-relaxed text-muted-foreground">
 			<header className="space-y-3">
 				<p className="text-xs text-muted-foreground/80">
-					Last updated: 7 July 2026
+					Last updated: 30 August 2026
 				</p>
 				<h1 className="text-3xl font-semibold text-foreground">
 					Terms of Service
@@ -294,11 +294,13 @@ export default async function TermsPage() {
 				</h3>
 				<p className="mt-1 text-foreground/80">
 					We route your Inputs to third-party providers via the
-					gateway and stream Outputs back to you. We do{" "}
-					<span className="font-medium">not</span> persistently store
-					the raw text of your prompts or the full text of model
-					Outputs, other than temporarily as is technically necessary
-					to process the request in flight.
+					gateway and return Outputs to you. We exclude raw Inputs and
+					full Outputs from our primary request database and analytics,
+					but limited storage exceptions apply: eligible non-streaming
+					Outputs may be cached for five minutes by default and up to 24
+					hours when configured; private I/O logging may retain Inputs
+					and Outputs for 90–365 days when enabled; and opted-in data
+					contributions may be retained for no more than 30 days.
 				</p>
 				<p className="mt-1 text-foreground/80">
 					We do, however, store high-level telemetry and billing
@@ -321,7 +323,13 @@ export default async function TermsPage() {
 				<p className="mt-1 text-foreground/80">
 					We use this telemetry to operate, maintain and improve the
 					Service, and to provide you with usage insights. We do not
-					use your prompts or Outputs to train our own models.
+					train our own models on your prompts or Outputs. If you opt
+					into data contribution, a configured sample may be sent to a
+					third-party model for classification as described in the{" "}
+					<Link href="/privacy" className="text-primary underline">
+						Privacy Policy
+					</Link>
+					.
 				</p>
 
 				<h3 className="mt-3 text-base font-semibold text-foreground">

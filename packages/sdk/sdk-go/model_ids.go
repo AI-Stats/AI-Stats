@@ -1045,6 +1045,9 @@ const (
 	// Model ID: perplexity/pplx-embed-v1-4b
 	// Model page: https://phaseo.app/models/perplexity/pplx-embed-v1-4b
 	ModelIDPerplexityPplxEmbedV14b gen.ModelId = "perplexity/pplx-embed-v1-4b"
+	// Model ID: phaseo/auto
+	// Model page: https://phaseo.app/models/phaseo/auto
+	ModelIDPhaseoAuto gen.ModelId = "phaseo/auto"
 	// Model ID: phaseo/free
 	// Model page: https://phaseo.app/models/phaseo/free
 	ModelIDPhaseoFree gen.ModelId = "phaseo/free"
@@ -1144,6 +1147,9 @@ const (
 	// Model ID: qwen/qwen2.5-7b-1m
 	// Model page: https://phaseo.app/models/qwen/qwen2.5-7b-1m
 	ModelIDQwenQwen257b1m gen.ModelId = "qwen/qwen2.5-7b-1m"
+	// Model ID: qwen/qwen2.5-coder-7b
+	// Model page: https://phaseo.app/models/qwen/qwen2.5-coder-7b
+	ModelIDQwenQwen25Coder7b gen.ModelId = "qwen/qwen2.5-coder-7b"
 	// Model ID: qwen/qwen2.5-vl-32b
 	// Model page: https://phaseo.app/models/qwen/qwen2.5-vl-32b
 	ModelIDQwenQwen25Vl32b gen.ModelId = "qwen/qwen2.5-vl-32b"
@@ -2038,6 +2044,7 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDOpenaiWhisperLargeV3Turbo,
 	ModelIDPerplexityPplxEmbedV106b,
 	ModelIDPerplexityPplxEmbedV14b,
+	ModelIDPhaseoAuto,
 	ModelIDPhaseoFree,
 	ModelIDPoolsideLagunaM1Free,
 	ModelIDPoolsideLagunaS21Free,
@@ -2071,6 +2078,7 @@ var KnownModelIDs = []gen.ModelId{
 	ModelIDQwenQwen2572b,
 	ModelIDQwenQwen257b,
 	ModelIDQwenQwen257b1m,
+	ModelIDQwenQwen25Coder7b,
 	ModelIDQwenQwen25Vl32b,
 	ModelIDQwenQwen25Vl32bInstruct,
 	ModelIDQwenQwen25Vl72b,

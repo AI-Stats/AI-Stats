@@ -124,8 +124,9 @@ describe("batch capabilities", () => {
 			"mistral",
 			"moonshotai",
 			"parasail",
+			"together",
 		]);
-		expect(resolveBatchPreviewProviderIds("xai,groq,together")).toEqual([]);
+		expect(resolveBatchPreviewProviderIds("xai,groq,together")).toEqual(["together"]);
 		expect(resolveBatchPreviewProviderIds("unknown")).toEqual([]);
 	});
 
@@ -141,7 +142,7 @@ describe("batch capabilities", () => {
 		});
 		expect(getBatchProviderCapability("x-ai")?.previewReadiness).toBe("blocked");
 		expect(getBatchProviderCapability("groq")?.previewReadiness).toBe("experimental");
-		expect(getBatchProviderCapability("together")?.previewReadiness).toBe("experimental");
+		expect(getBatchProviderCapability("together")?.previewReadiness).toBe("validated");
 		expect(getBatchProviderCapability("alibaba-cloud")?.previewReadiness).toBe("experimental");
 		expect(getBatchProviderCapability("mistral-eu")).toMatchObject({
 			status: "planned",

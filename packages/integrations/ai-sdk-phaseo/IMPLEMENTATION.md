@@ -2,11 +2,11 @@
 
 ## Overview
 
-This package provides a Vercel AI SDK v6 compatible provider for the Phaseo Gateway, enabling developers to access 30+ AI providers through a standardized interface.
+This package provides a native Vercel AI SDK 7 provider for the Phaseo Gateway, enabling developers to access Phaseo models through the ProviderV4 interface.
 
 ## Implemented Features
 
-### ✅ Language Models (LanguageModelV3)
+### ✅ Language Models (LanguageModelV4)
 
 **Supported Operations:**
 - `generateText()` - Non-streaming text generation
@@ -27,7 +27,7 @@ This package provides a Vercel AI SDK v6 compatible provider for the Phaseo Gate
 - Includes `stream_options: { include_usage: true }`
 - Maps to OpenAI-compatible format
 
-### ✅ Embedding Models (EmbeddingModelV3)
+### ✅ Embedding Models (EmbeddingModelV4)
 
 **Supported Operations:**
 - `embed()` - Generate embedding for single text
@@ -44,7 +44,7 @@ This package provides a Vercel AI SDK v6 compatible provider for the Phaseo Gate
 - Returns normalized embeddings array
 - Preserves input order
 
-### ✅ Image Models (ImageModelV3)
+### ✅ Image Models (ImageModelV4)
 
 **Supported Operations:**
 - `generateImage()` - Image generation through the public AI SDK helper
@@ -62,8 +62,8 @@ This package provides a Vercel AI SDK v6 compatible provider for the Phaseo Gate
 ### ✅ Audio Models
 
 **Supported Operations:**
-- `experimental_generateSpeech()` - Text-to-speech through `SpeechModelV3`
-- `experimental_transcribe()` - Speech-to-text through `TranscriptionModelV3`
+- `experimental_generateSpeech()` - Text-to-speech through `SpeechModelV4`
+- `experimental_transcribe()` - Speech-to-text through `TranscriptionModelV4`
 
 **Features:**
 - ✅ Binary audio output normalized to AI SDK `GeneratedAudioFile`
@@ -74,6 +74,20 @@ This package provides a Vercel AI SDK v6 compatible provider for the Phaseo Gate
 **Gateway Integration:**
 - Uses `/v1/audio/speech`
 - Uses `/v1/audio/transcriptions`
+
+### ✅ Reranking Models (RerankingModelV4)
+
+**Supported Operations:**
+- `rerank()` - Rank text or structured documents against a query
+
+**Features:**
+- ✅ `topN` result limits
+- ✅ Text and JSON-object documents
+- ✅ Phaseo provider options and response metadata
+
+**Gateway Integration:**
+- Uses `/v1/rerank`
+- Maps `relevance_score` results to the AI SDK ranking contract
 
 ## Not Yet Implemented
 
@@ -101,11 +115,12 @@ Actual AI Providers (OpenAI, Anthropic, etc.)
 ### Key Components
 
 1. **phaseo-provider.ts** - Provider factory function
-2. **phaseo-language-model.ts** - LanguageModelV3 implementation
-3. **phaseo-embedding-model.ts** - EmbeddingModelV3 implementation
-4. **convert-to-gateway-chat.ts** - AI SDK → Gateway request mapping
-5. **map-gateway-response.ts** - Gateway → AI SDK response mapping
-6. **utils/parse-sse-stream.ts** - SSE stream parser for streaming
+2. **phaseo-language-model.ts** - LanguageModelV4 implementation
+3. **phaseo-embedding-model.ts** - EmbeddingModelV4 implementation
+4. **phaseo-reranking-model.ts** - RerankingModelV4 implementation
+5. **convert-to-gateway-chat.ts** - AI SDK → Gateway request mapping
+6. **map-gateway-response.ts** - Gateway → AI SDK response mapping
+7. **utils/parse-sse-stream.ts** - SSE stream parser for streaming
 
 ## Testing Strategy
 
@@ -113,7 +128,7 @@ Actual AI Providers (OpenAI, Anthropic, etc.)
 
 **Uses:**
 - mocked gateway `fetch` responses
-- real `generateText`, `streamText`, `embed`, `embedMany`, `generateImage`, `experimental_generateSpeech`, and `experimental_transcribe` AI SDK entry points
+- real `generateText`, `streamText`, `embed`, `embedMany`, `rerank`, `generateImage`, `experimental_generateSpeech`, and `experimental_transcribe` AI SDK entry points
 - synthetic SSE payloads for streaming coverage
 
 **Coverage:**
@@ -130,6 +145,7 @@ Actual AI Providers (OpenAI, Anthropic, etc.)
 - Streaming tool-call assembly and final `toolCalls` / `steps` resolution
 - Embeddings (single and batch)
 - Embedding order preservation
+- Reranking for text and structured documents
 - Base64 image generation responses
 - URL-backed image generation responses
 - Experimental speech generation
@@ -138,6 +154,7 @@ Actual AI Providers (OpenAI, Anthropic, etc.)
 **Files:**
 - `tests/language-model.test.ts`
 - `tests/embedding-model.test.ts`
+- `tests/reranking-model.test.ts`
 - `tests/image-model.test.ts`
 - `tests/audio-model.test.ts`
 - `tests/gateway-test-config.test.ts`
@@ -172,10 +189,11 @@ Actual AI Providers (OpenAI, Anthropic, etc.)
 3. **tools.ts** - Function/tool calling
 4. **structured-output.ts** - JSON schema output
 5. **embeddings.ts** - Vector embeddings and similarity
-6. **image-generation.ts** - Image generation
-7. **audio-transcription.ts** - Experimental speech-to-text
-8. **text-to-speech.ts** - Experimental text-to-speech
-9. **multi-provider.ts** - Provider comparison
+6. **reranking.ts** - Document reranking
+7. **image-generation.ts** - Image generation
+8. **audio-transcription.ts** - Experimental speech-to-text
+9. **text-to-speech.ts** - Experimental text-to-speech
+10. **multi-provider.ts** - Provider comparison
 
 ### Usage Patterns
 
@@ -195,6 +213,15 @@ import { embed } from 'ai';
 await embed({
   model: phaseo.textEmbeddingModel('openai/text-embedding-3-small'),
   value: 'Hello!',
+});
+
+// Reranking Model
+import { rerank } from 'ai';
+
+await rerank({
+  model: phaseo.rerankingModel('voyage/rerank-2'),
+  query: 'Most relevant document',
+  documents: ['First', 'Second'],
 });
 ```
 
@@ -291,6 +318,7 @@ Errors are marked as retryable based on HTTP status:
 The provider works with existing gateway endpoints as-is:
 - ✅ `/v1/chat/completions` - Text generation
 - ✅ `/v1/embeddings` - Embeddings
+- ✅ `/v1/rerank` - Reranking
 - ✅ No schema changes
 - ✅ No new fields required
 
@@ -338,9 +366,9 @@ The provider works with existing gateway endpoints as-is:
 
 ### Version Compatibility
 
-- AI SDK: v6.x (peer dependency)
-- Node.js: >=18.0.0
-- TypeScript: >=5.0.0
+- AI SDK: v7.x (peer dependency)
+- Node.js: >=22.0.0
+- TypeScript: >=6.0.0
 
 ### Semantic Versioning
 

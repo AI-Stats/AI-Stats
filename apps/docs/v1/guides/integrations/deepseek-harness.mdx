@@ -10,7 +10,7 @@ Connect DeepSeek Harness to Phaseo to use Phaseo models and routing through the 
 
 ## Prerequisites
 
-- Phaseo CLI and a Phaseo account
+- Phaseo CLI, a Phaseo account, and an installed DeepSeek Harness release
 
 The live request in this guide uses provider credentials and may incur model usage charges.
 
@@ -23,13 +23,13 @@ phaseo login
 phaseo dsh
 ```
 
-The CLI installs DeepSeek Harness when needed, preserves unrelated entries in `$DSH_HOME/cordis.patch.yml`, and marks the Phaseo block so it can update or remove only the settings it owns. It syncs every active Phaseo text model compatible with Chat Completions. Use a different default model when needed:
+The CLI preserves unrelated entries in `$DSH_HOME/cordis.patch.yml` and marks the Phaseo block so it can update or remove only the settings it owns. It syncs every active Phaseo text model compatible with Chat Completions. Use a different default model when needed:
 
 ```bash
 phaseo dsh --model YOUR_PHASEO_MODEL_ID
 ```
 
-Setup also creates a non-expiring gateway key named `Phaseo CLI: DeepSeek Harness API Key` and writes it directly to Harness's protected `$DSH_HOME/.credentials.yaml` store. Use `--catalog default` to configure only the selected model, or `--skip-install` when Harness is managed separately.
+Setup also creates a non-expiring gateway key named `Phaseo CLI: DeepSeek Harness API Key` and writes it directly to Harness's protected `$DSH_HOME/.credentials.yaml` store. Use `--catalog default` to configure only the selected model.
 
 Removing the integration with `phaseo integrations remove deepseek-harness` removes only Phaseo-owned configuration and revokes the CLI-created key.
 

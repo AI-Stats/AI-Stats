@@ -3,7 +3,7 @@ import { selectMetricData } from "./ModelPerformanceCards";
 
 function point(
 	provider: string,
-	cachedInputPct: number | null,
+	avgEndToEndMs: number | null,
 ): ModelProviderDailyPoint {
 	return {
 		provider,
@@ -13,11 +13,12 @@ function point(
 		avgThroughput: null,
 		avgOutputSpeed: null,
 		avgLatencyMs: null,
+		avgEndToEndMs,
 		avgGenerationMs: null,
 		avgPhaseoOverheadMs: null,
 		avgTpotMs: null,
 		avgItlMs: null,
-		cachedInputPct,
+		cachedInputPct: null,
 		cachedInputTokens: null,
 		effectiveInputTokens: null,
 		cacheTelemetryRequests: 0,
@@ -32,7 +33,7 @@ describe("selectMetricData", () => {
 
 		expect(
 			selectMetricData(
-				"cachedInput",
+				"endToEnd",
 				false,
 				detailData,
 				cardData,
@@ -47,7 +48,7 @@ describe("selectMetricData", () => {
 
 		expect(
 			selectMetricData(
-				"cachedInput",
+				"endToEnd",
 				false,
 				detailData,
 				cardData,

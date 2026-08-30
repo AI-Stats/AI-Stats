@@ -4523,6 +4523,45 @@ export async function createProviderCredential(
   });
 }
 
+export type CreateRealtimeSessionParams = {
+  path?: Record<string, never>;
+  query?: Record<string, never>;
+  headers?: Record<string, never>;
+  body?: {
+    instructions?: string;
+    metadata?: {
+      [key: string]: unknown;
+    };
+    model: string;
+    provider?: string;
+    source?: "api" | "chat";
+    type?: "realtime";
+    voice?: string;
+  };
+};
+
+/**
+ * Creates a metered realtime audio session and returns relay connection details.
+ */
+export async function createRealtimeSession(
+  client: Client,
+  args: CreateRealtimeSessionParams = {},
+): Promise<{
+  [key: string]: unknown;
+}> {
+  const { path, query, headers, body } = args;
+  const resolvedPath = "/audio/realtime/sessions";
+  return client.request<{
+    [key: string]: unknown;
+  }>({
+    method: "POST",
+    path: resolvedPath,
+    query,
+    headers,
+    body,
+  });
+}
+
 export type CreateRerankParams = {
   path?: Record<string, never>;
   query?: Record<string, never>;
@@ -16196,40 +16235,6 @@ export async function mergeWorkspaceApp(
     };
   }>({
     method: "POST",
-    path: resolvedPath,
-    query,
-    headers,
-    body,
-  });
-}
-
-export type OpenAsyncJobWebSocketParams = {
-  path?: {
-    id: string;
-    kind: "batch" | "video";
-  };
-  query?: {
-    close_on_terminal?: boolean;
-    interval_ms?: number;
-  };
-  headers?: Record<string, never>;
-  body?: never;
-};
-
-/**
- * Opens a persistent websocket session for owned async batch or video job updates.
- * WebSocket handshake uses HTTP GET upgrade semantics and returns `101 Switching Protocols` on success (not `200`). The socket emits a `job.snapshot` immediately after upgrade and subsequent `job.updated` envelopes when the normalized async job payload changes.
- * If `close_on_terminal` is enabled, the gateway closes the socket after a terminal `completed`, `failed`, `cancelled`, or `expired` update.
- *
- */
-export async function openAsyncJobWebSocket(
-  client: Client,
-  args: OpenAsyncJobWebSocketParams = {},
-): Promise<unknown> {
-  const { path, query, headers, body } = args;
-  const resolvedPath = `/async/${encodeURIComponent(String(path?.["kind"]))}/${encodeURIComponent(String(path?.["id"]))}/ws`;
-  return client.request<unknown>({
-    method: "GET",
     path: resolvedPath,
     query,
     headers,

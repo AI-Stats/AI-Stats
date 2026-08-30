@@ -14,7 +14,7 @@ import { continueAdapter } from "./adapters/continue.js";
 import { applyChanges, renderPlan } from "./files.js";
 import { getIntegrationGatewayCredential, getLegacyIntegrationGatewayCredential, hasIntegrationGatewayCredential, revokeIntegrationGatewayCredential } from "./credential.js";
 import { fetchIntegrationModels, supportsModelCatalog } from "./catalog.js";
-import { harnessInstallPlan, installHarness, isPrimaryHarness, renderInstallInvocation } from "./installer.js";
+import { confirmHarnessInstall, harnessInstallPlan, installHarness, isPrimaryHarness, renderInstallInvocation } from "./installer.js";
 import { createSpinner, terminalUi } from "../output.js";
 import type { IntegrationAdapter, IntegrationId, IntegrationOptions } from "./types.js";
 
@@ -71,7 +71,12 @@ function printRemoveInstructions(adapter: IntegrationAdapter, options: { homeDir
 export async function runIntegrationCommand(
 	args: string[],
 	flags: Record<string, string | boolean>,
-	commandOptions: { installMissing?: boolean; primaryOnly?: boolean } = {},
+	commandOptions: {
+		installMissing?: boolean;
+		primaryOnly?: boolean;
+		confirmInstall?: typeof confirmHarnessInstall;
+		interactive?: boolean;
+	} = {},
 ): Promise<void> {
 	const ui = terminalUi();
 	const [command, integration, ...extra] = args;
@@ -129,7 +134,7 @@ export async function runIntegrationCommand(
 	}
 	const json = isTrue(flags.json);
 	const dryRun = isTrue(flags["dry-run"]);
-	const interactive = !json && !dryRun && Boolean(process.stderr.isTTY);
+	const interactive = commandOptions.interactive ?? (!json && !dryRun && Boolean(process.stdin.isTTY && process.stderr.isTTY));
 
 	let catalogWarning: string | undefined;
 	let models: IntegrationOptions["models"];
@@ -148,7 +153,9 @@ export async function runIntegrationCommand(
 	}
 	const options: IntegrationOptions = { homeDir: homedir(), model: stringFlag(flags, "model"), models };
 	let changes = command === "setup" ? await adapter.planSetup(options) : await adapter.planRemove(options);
-	const installPlan = command === "setup" && commandOptions.installMissing ? await harnessInstallPlan(adapter.id) : null;
+	const installPlan = command === "setup" && commandOptions.installMissing && !isTrue(flags["skip-install"])
+		? await harnessInstallPlan(adapter.id)
+		: null;
 
 	if (dryRun) {
 		if (json) {
@@ -180,6 +187,13 @@ export async function runIntegrationCommand(
 	}
 
 	if (installPlan) {
+		if (!interactive) {
+			throw new Error(
+				`${adapter.name} is not installed. Run this command in an interactive terminal to approve installation, install it manually with ${renderInstallInvocation(installPlan)}, or rerun with --skip-install after managing it separately.`,
+			);
+		}
+		const approved = await (commandOptions.confirmInstall ?? confirmHarnessInstall)(adapter.name, installPlan);
+		if (!approved) throw new Error(`${adapter.name} installation cancelled`);
 		const spinner = createSpinner(`Installing ${adapter.name}`, { enabled: interactive });
 		if (!json && !spinner.active) process.stdout.write(`${ui.progress(`Installing ${adapter.name}`)}\n  ${ui.dim(renderInstallInvocation(installPlan))}\n`);
 		try {
@@ -188,6 +202,10 @@ export async function runIntegrationCommand(
 		} catch (error) {
 			spinner.fail(`Could not install ${adapter.name}`);
 			throw error;
+		}
+		const inspection = await adapter.inspect(options);
+		if (inspection.status === "not-installed") {
+			throw new Error(`${adapter.name} was installed but is not available in this terminal yet. Open a new terminal and rerun the Phaseo setup command.`);
 		}
 	}
 

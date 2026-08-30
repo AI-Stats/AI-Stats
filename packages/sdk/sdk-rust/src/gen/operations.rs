@@ -165,6 +165,11 @@ pub fn createProviderCredential<T: Transport>(client: &Client<T>, path: &HashMap
 	client.request("POST", &resolved_path, body)
 }
 
+pub fn createRealtimeSession<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
+	let resolved_path = String::from("/audio/realtime/sessions");
+	client.request("POST", &resolved_path, body)
+}
+
 pub fn createRerank<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = String::from("/rerank");
 	client.request("POST", &resolved_path, body)
@@ -803,11 +808,6 @@ pub fn listWorkspaceScimAuditEvents<T: Transport>(client: &Client<T>, path: &Has
 pub fn mergeWorkspaceApp<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
 	let resolved_path = format!("/apps/{}/merge", path.get("id").cloned().unwrap_or_default());
 	client.request("POST", &resolved_path, body)
-}
-
-pub fn openAsyncJobWebSocket<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {
-	let resolved_path = format!("/async/{}/{}/ws", path.get("kind").cloned().unwrap_or_default(), path.get("id").cloned().unwrap_or_default());
-	client.request("GET", &resolved_path, body)
 }
 
 pub fn publishPresetVersion<T: Transport>(client: &Client<T>, path: &HashMap<String, String>, body: Option<&str>) -> Result<Response, String> {

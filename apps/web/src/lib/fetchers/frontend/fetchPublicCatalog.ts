@@ -861,7 +861,7 @@ export async function fetchFrontendAppImageUrls(
 	if (appIds.length === 0) return {};
 	const ids = [...new Set(appIds)].sort((a, b) => a.localeCompare(b));
 	return (await fetchPublicWebApi<{ images: Record<string, string | null> }>(
-		`/api/_web/apps/images?ids=${encodeURIComponent(ids.join(","))}`,
+		`/api/_web/apps/images?ids=${encodeURIComponent(ids.join(","))}&branding=3`,
 	)).images;
 }
 

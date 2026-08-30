@@ -1045,6 +1045,9 @@ public final class ModelIds {
     /** Model ID: <code>perplexity/pplx-embed-v1-4b</code>. Model page: https://phaseo.app/models/perplexity/pplx-embed-v1-4b */
     public static final String PERPLEXITY_PPLX_EMBED_V1_4B = "perplexity/pplx-embed-v1-4b";
 
+    /** Model ID: <code>phaseo/auto</code>. Model page: https://phaseo.app/models/phaseo/auto */
+    public static final String PHASEO_AUTO = "phaseo/auto";
+
     /** Model ID: <code>phaseo/free</code>. Model page: https://phaseo.app/models/phaseo/free */
     public static final String PHASEO_FREE = "phaseo/free";
 
@@ -1143,6 +1146,9 @@ public final class ModelIds {
 
     /** Model ID: <code>qwen/qwen2.5-7b-1m</code>. Model page: https://phaseo.app/models/qwen/qwen2.5-7b-1m */
     public static final String QWEN_QWEN2_5_7B_1M = "qwen/qwen2.5-7b-1m";
+
+    /** Model ID: <code>qwen/qwen2.5-coder-7b</code>. Model page: https://phaseo.app/models/qwen/qwen2.5-coder-7b */
+    public static final String QWEN_QWEN2_5_CODER_7B = "qwen/qwen2.5-coder-7b";
 
     /** Model ID: <code>qwen/qwen2.5-vl-32b</code>. Model page: https://phaseo.app/models/qwen/qwen2.5-vl-32b */
     public static final String QWEN_QWEN2_5_VL_32B = "qwen/qwen2.5-vl-32b";

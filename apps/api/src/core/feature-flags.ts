@@ -10,6 +10,7 @@ const DEFAULT_VIDEO_API_GATE = "gateway_video_api";
 const DEFAULT_REALTIME_VOICE_GATE = "gateway_realtime_voice";
 const DEFAULT_GATEWAY_IO_LOGGING_GATE = "gateway_io_logging";
 const DEFAULT_DATA_CONTRIBUTION_GATE = "gateway_data_contribution";
+const DEFAULT_AUTO_ROUTING_GATE = "gateway_auto_routing";
 const WORKSPACE_OWNER_CACHE_TTL_MS = 5 * 60 * 1000;
 
 type StatsigGateSubject = {
@@ -76,6 +77,10 @@ export function getGatewayIoLoggingFeatureGateName(bindings: Partial<GatewayBind
 
 export function getDataContributionFeatureGateName(bindings: Partial<GatewayBindings> = getBindings()): string {
 	return normalizeText(bindings.STATSIG_DATA_CONTRIBUTION_GATE) ?? DEFAULT_DATA_CONTRIBUTION_GATE;
+}
+
+export function getAutoRoutingFeatureGateName(bindings: Partial<GatewayBindings> = getBindings()): string {
+	return normalizeText(bindings.STATSIG_AUTO_ROUTING_GATE) ?? DEFAULT_AUTO_ROUTING_GATE;
 }
 
 async function resolveWorkspaceOwnerUserId(workspaceId: string): Promise<string | null> {
@@ -228,5 +233,20 @@ export async function isDataContributionAccessEnabled(
 	return isStatsigGateEnabled(getDataContributionFeatureGateName(bindings), {
 		...subject,
 		surface: "gateway_data_contribution",
+	}, bindings);
+}
+
+export async function isAutoRoutingAccessEnabled(
+	auth: AuthSuccess | Omit<AuthSuccess, "ok">,
+	bindings: Partial<GatewayBindings> = getBindings(),
+): Promise<boolean> {
+	return isStatsigGateEnabled(getAutoRoutingFeatureGateName(bindings), {
+		workspaceId: auth.workspaceId,
+		apiKeyId: auth.apiKeyId,
+		apiKeyRef: auth.apiKeyRef,
+		apiKeyKid: auth.apiKeyKid,
+		userId: auth.userId,
+		internal: auth.internal,
+		surface: "gateway_auto_routing",
 	}, bindings);
 }

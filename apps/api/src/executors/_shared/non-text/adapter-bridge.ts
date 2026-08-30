@@ -51,6 +51,7 @@ import * as byteplusImages from "@providers/byteplus/endpoints/images";
 import * as minimaxImages from "@providers/minimax/endpoints/images";
 import * as minimaxAudioSpeech from "@providers/minimax/endpoints/audio-speech";
 import * as xiaomiAudioSpeech from "@providers/xiaomi/endpoints/audio-speech";
+import * as xiaomiAudioTranscription from "@providers/xiaomi/endpoints/audio-transcription";
 import * as xAiAudioSpeech from "@providers/x-ai/endpoints/audio-speech";
 import * as xAiAudioTranscription from "@providers/x-ai/endpoints/audio-transcription";
 import * as xAiImagesEdit from "@providers/x-ai/endpoints/images-edit";
@@ -281,7 +282,7 @@ function irToAdapterBody(endpoint: NonTextEndpoint, ir: ExecutorExecuteArgs["ir"
 				chunking_strategy: request.chunkingStrategy,
 				known_speaker_names: request.knownSpeakerNames,
 				known_speaker_references: request.knownSpeakerReferences,
-				config: { elevenlabs: raw.config?.elevenlabs },
+				config: raw.config,
 			};
 		}
 
@@ -643,6 +644,9 @@ async function executeProviderEndpoint(
 			}
 			return openaiAudioSpeech.exec(providerArgs);
 		case "audio.transcription":
+			if (providerId === "xiaomi") {
+				return xiaomiAudioTranscription.exec(providerArgs);
+			}
 			if (isXAiProvider(providerId)) {
 				return xAiAudioTranscription.exec(providerArgs);
 			}

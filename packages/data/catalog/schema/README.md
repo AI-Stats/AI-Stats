@@ -38,7 +38,7 @@ codes with request-origin geolocation; provider-family defaults are inherited
 unless a route overrides them. It is deliberately separate from execution and data residency.
 Only
 `phaseo_status: "enabled"` can become publicly routable. See
-[`docs/architecture/catalogue-status-model.md`](../../../../docs/architecture/catalogue-status-model.md)
+[`apps/api/docs/catalogue-status-model.md`](../../../../apps/api/docs/catalogue-status-model.md)
 for the canonical vocabularies and compatibility mappings.
 
 Pricing rules have explicit `region`, `cache_duration_seconds`, `conditions`,

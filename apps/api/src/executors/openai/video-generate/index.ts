@@ -18,13 +18,16 @@ import { readStreamBytesWithLimit } from "@core/bounded-stream";
 import { validateWebhookEndpointUrlForDelivery } from "@core/webhook-endpoints";
 import type { ProviderExecutor } from "../../types";
 
+const OPENAI_VIDEO_SECONDS = new Set(["4", "8", "12"]);
+const OPENAI_VIDEO_SIZES = new Set(["720x1280", "1280x720", "1024x1792", "1792x1024"]);
+
 function normalizePositiveSeconds(value: unknown): string | undefined {
 	if (typeof value === "number" && Number.isFinite(value) && value > 0) {
-		return String(Math.trunc(value));
+		return String(value);
 	}
 	if (typeof value === "string" && value.trim().length > 0) {
 		const parsed = Number(value.trim());
-		if (Number.isFinite(parsed) && parsed > 0) return String(Math.trunc(parsed));
+		if (Number.isFinite(parsed) && parsed > 0) return String(parsed);
 	}
 	return undefined;
 }
@@ -256,6 +259,36 @@ export async function execute(args: ExecutorExecuteArgs): Promise<ExecutorResult
 	let reservedNanos: number | null = null;
 	let reservationGateError: { status: number; type: string; message: string } | null = null;
 	let mappedRequest: string | undefined;
+	const invalidParameter = (param: "seconds" | "size", value: string, allowedValues: string[]): ExecutorResult => ({
+		kind: "completed",
+		bill: {
+			cost_cents: 0,
+			currency: "USD",
+			usage: undefined as any,
+			upstream_id: undefined,
+			finish_reason: null,
+		},
+		upstream: new Response(
+			JSON.stringify({
+				error: {
+					type: "invalid_request_error",
+					param,
+					message: `Unsupported OpenAI video ${param} value '${value}'. Supported values: ${allowedValues.join(", ")}.`,
+				},
+			}),
+			{ status: 400, headers: { "Content-Type": "application/json" } },
+		),
+		keySource: keyInfo.source,
+		byokKeyId: keyInfo.byokId,
+		mappedRequest,
+	});
+
+	if (seconds != null && !OPENAI_VIDEO_SECONDS.has(seconds)) {
+		return invalidParameter("seconds", seconds, [...OPENAI_VIDEO_SECONDS]);
+	}
+	if (size != null && !OPENAI_VIDEO_SIZES.has(size)) {
+		return invalidParameter("size", size, [...OPENAI_VIDEO_SIZES]);
+	}
 
 	if (inputReferenceFileId && keyInfo.source === "gateway") {
 		let ownedFile;

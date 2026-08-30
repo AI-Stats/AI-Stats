@@ -4,6 +4,7 @@ import {
 	getBatchApiFeatureGateName,
 	getGatewayIoLoggingFeatureGateName,
 	getDataContributionFeatureGateName,
+	getAutoRoutingFeatureGateName,
 	getVideoApiFeatureGateName,
 	getRealtimeVoiceFeatureGateName,
 	isBatchApiAccessEnabled,
@@ -11,6 +12,7 @@ import {
 	isGatewayIoLoggingFeatureEnabled,
 	isDataContributionAccessEnabled,
 	isRealtimeVoiceAccessEnabled,
+	isAutoRoutingAccessEnabled,
 } from "./feature-flags";
 import type { AuthSuccess } from "@pipeline/before/auth";
 
@@ -40,6 +42,20 @@ describe("batch API feature gate", () => {
 		expect(getGatewayIoLoggingFeatureGateName({})).toBe("gateway_io_logging");
 		expect(getDataContributionFeatureGateName({ STATSIG_DATA_CONTRIBUTION_GATE: "custom_contribution_gate" })).toBe("custom_contribution_gate");
 		expect(getDataContributionFeatureGateName({})).toBe("gateway_data_contribution");
+		expect(getAutoRoutingFeatureGateName({ STATSIG_AUTO_ROUTING_GATE: "custom_auto_gate" })).toBe("custom_auto_gate");
+		expect(getAutoRoutingFeatureGateName({})).toBe("gateway_auto_routing");
+	});
+
+	it("checks Auto Routing against its independent workspace gate", async () => {
+		vi.stubGlobal("fetch", vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+			const body = JSON.parse(String(init?.body));
+			expect(body).toMatchObject({
+				gateName: "gateway_auto_routing",
+				user: { custom: { workspace_id: "ws_batch_admin", surface: "gateway_auto_routing" } },
+			});
+			return new Response(JSON.stringify({ value: true }));
+		}));
+		await expect(isAutoRoutingAccessEnabled(auth, { STATSIG_SERVER_KEY: "secret-statsig-key" })).resolves.toBe(true);
 	});
 
 	it("checks video access independently with the authenticated workspace", async () => {

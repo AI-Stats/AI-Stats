@@ -227,6 +227,13 @@ function createProviderCredential(Client $client, ?array $path = null, ?array $q
 	return $client->request("POST", $resolvedPath, $query, $headers, $body);
 }
 
+function createRealtimeSession(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
+{
+	$path = $path ?? [];
+	$resolvedPath = "/audio/realtime/sessions";
+	return $client->request("POST", $resolvedPath, $query, $headers, $body);
+}
+
 function createRerank(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
 {
 	$path = $path ?? [];
@@ -1121,13 +1128,6 @@ function mergeWorkspaceApp(Client $client, ?array $path = null, ?array $query = 
 	$path = $path ?? [];
 	$resolvedPath = "/apps/" . rawurlencode((string)($path["id"] ?? "")) . "/merge";
 	return $client->request("POST", $resolvedPath, $query, $headers, $body);
-}
-
-function openAsyncJobWebSocket(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)
-{
-	$path = $path ?? [];
-	$resolvedPath = "/async/" . rawurlencode((string)($path["kind"] ?? "")) . "/" . rawurlencode((string)($path["id"] ?? "")) . "/ws";
-	return $client->request("GET", $resolvedPath, $query, $headers, $body);
 }
 
 function publishPresetVersion(Client $client, ?array $path = null, ?array $query = null, ?array $headers = null, $body = null)

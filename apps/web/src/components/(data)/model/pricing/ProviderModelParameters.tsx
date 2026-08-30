@@ -17,16 +17,53 @@ export function prettifyParamName(name: string): string {
 		.join(" ");
 }
 
-export function buildSupportedParameters(models: ProviderModel[]): string[] {
-	const params = new Set<string>();
+export type ParameterMetadataStatus = "documented" | "partial" | "unknown";
+
+export interface ParameterSupportSummary {
+	parameters: string[];
+	status: ParameterMetadataStatus;
+	documentedRouteCount: number;
+	unknownRouteCount: number;
+}
+
+export function buildParameterSupportSummary(
+	models: ProviderModel[],
+): ParameterSupportSummary {
+	const parameters = new Set<string>();
+	let documentedRouteCount = 0;
+	let unknownRouteCount = 0;
 
 	for (const model of models) {
-		for (const param of extractSupportedParameters(model.params)) {
-			params.add(param);
+		const routeParameters = extractSupportedParameters(model.params);
+		if (routeParameters.length === 0) {
+			unknownRouteCount += 1;
+			continue;
 		}
+
+		documentedRouteCount += 1;
+		for (const param of routeParameters) parameters.add(param);
 	}
 
-	return Array.from(params).sort((a, b) => a.localeCompare(b));
+	const sortedParameters = Array.from(parameters).sort((a, b) =>
+		a.localeCompare(b),
+	);
+	const status: ParameterMetadataStatus =
+		sortedParameters.length === 0
+			? "unknown"
+			: unknownRouteCount > 0
+				? "partial"
+				: "documented";
+
+	return {
+		parameters: sortedParameters,
+		status,
+		documentedRouteCount,
+		unknownRouteCount,
+	};
+}
+
+export function buildSupportedParameters(models: ProviderModel[]): string[] {
+	return buildParameterSupportSummary(models).parameters;
 }
 
 export default function ProviderModelParameters({

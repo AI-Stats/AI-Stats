@@ -14,7 +14,7 @@ const makeCard = (rules: PriceCard["rules"]): PriceCard => ({
 });
 
 describe("pricing engine non-standard plan fallback", () => {
-	it("falls back to standard when requested plan is missing for a meter", () => {
+	it("keeps matching standard-meter fallback for batch pricing", () => {
 		const card = makeCard([
 			{
 				id: "standard-input",
@@ -44,7 +44,7 @@ describe("pricing engine non-standard plan fallback", () => {
 			{ input_text_tokens: 100_000, output_text_tokens: 10_000 },
 			card,
 			{},
-			"priority",
+			"batch",
 		);
 
 		expect(result.lines).toHaveLength(2);
@@ -118,5 +118,69 @@ describe("pricing engine non-standard plan fallback", () => {
 		]);
 		expect(result.cost_usd_str).toBe("9.900000000");
 	});
-});
 
+	it("bills an unmatched interactive tier rule at its configured rate", () => {
+		const card = makeCard([
+			{
+				id: "priority-high-quality-image",
+				pricing_plan: "priority",
+				meter: "output_image",
+				unit: "image",
+				unit_size: 1,
+				price_per_unit: "0.25",
+				currency: "USD",
+				match: [{ path: "image_params.quality", op: "eq", value: "high" }],
+				priority: 100,
+			},
+		]);
+
+		const result = computeBillSummary(
+			{ output_image: 1 },
+			card,
+			{ image_params: { quality: "low" } },
+			"priority",
+		);
+
+		expect(result.lines).toHaveLength(1);
+		expect(result.lines[0]?.rule_id).toBe("priority-high-quality-image");
+		expect(result.cost_usd_str).toBe("0.250000000");
+	});
+
+	it("bills an unmatched standard-only meter on an interactive tier", () => {
+		const card = makeCard([
+			{
+				id: "flex-input",
+				pricing_plan: "flex",
+				meter: "input_text_tokens",
+				unit: "token",
+				unit_size: 1_000_000,
+				price_per_unit: "0.5",
+				currency: "USD",
+				match: [],
+				priority: 100,
+			},
+			{
+				id: "standard-cache-read",
+				pricing_plan: "standard",
+				meter: "cached_read_text_tokens",
+				unit: "token",
+				unit_size: 1_000_000,
+				price_per_unit: "0.2",
+				currency: "USD",
+				match: [{ path: "provider_model_slug", op: "eq", value: "expected-model" }],
+				priority: 100,
+			},
+		]);
+
+		const result = computeBillSummary(
+			{ cached_read_text_tokens: 1_000_000 },
+			card,
+			{},
+			"flex",
+		);
+
+		expect(result.lines).toHaveLength(1);
+		expect(result.lines[0]?.rule_id).toBe("standard-cache-read");
+		expect(result.cost_usd_str).toBe("0.200000000");
+	});
+});

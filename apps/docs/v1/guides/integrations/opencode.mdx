@@ -8,7 +8,7 @@ OpenCode can call Phaseo through a custom OpenAI-compatible provider. Use this s
 
 ## 1) Configure OpenCode
 
-Use the Phaseo CLI to install OpenCode when needed, add a global provider, sync all compatible Phaseo models, and store a dedicated key in OpenCode's credential store:
+Install OpenCode from its official release, then use the Phaseo CLI to add a global provider, sync all compatible Phaseo models, and store a dedicated key in OpenCode's credential store:
 
 ```bash
 phaseo opencode --model openai/gpt-5.6-terra
@@ -16,7 +16,7 @@ phaseo opencode --model openai/gpt-5.6-terra
 
 The command creates a non-expiring `Phaseo CLI: OpenCode API Key`, preserves unrelated OpenCode settings and credentials, and supports `--dry-run`. It updates an existing global `opencode.jsonc` when present, otherwise it uses `~/.config/opencode/opencode.json`.
 
-Use `--catalog default` to configure only the selected model, or `--skip-install` when OpenCode is managed separately.
+Use `--catalog default` to configure only the selected model.
 
 The CLI retains its own copy in the OS credential store and revokes the key when you run `phaseo integrations remove opencode`.
 

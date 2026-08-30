@@ -137,6 +137,16 @@ function createOpenAIChatMount(): Mountable {
             const body = JSON.parse(await readIncomingBody(req)) as Record<string, any>;
             const headers = flattenHeaders(req.headers as Record<string, string | string[] | undefined>);
             const serialized = JSON.stringify(body);
+            const hasInputAudio =
+                Array.isArray(body.messages) &&
+                body.messages.some((message: any) =>
+                    Array.isArray(message?.content) &&
+                    message.content.some((part: any) => part?.type === "input_audio"),
+                );
+            const model = String(body.model ?? "").toLowerCase();
+            const isXiaomiTranscription =
+                hasInputAudio &&
+                (model.includes("asr") || model.includes("whisper") || body.asr_options != null);
 			if (route === "/embeddings") {
 				const response = {
 					object: "list",
@@ -158,6 +168,8 @@ function createOpenAIChatMount(): Mountable {
             const tool = prompt === "[aimock-tool] weather" ? (toolDefinition?.function ?? toolDefinition) : undefined;
             const content = prompt === "[aimock-structured] person"
                 ? JSON.stringify({ name: "Ava", city: "London" })
+                : isXiaomiTranscription
+                    ? "Deterministic transcription from AIMock."
                 : "Hello from AIMock via Phaseo.";
             const toolCalls = tool ? [{ id: "call_aimock_weather", type: "function", function: { name: tool.name, arguments: JSON.stringify({ city: "London", unit: "celsius" }) } }] : undefined;
             const response = {
@@ -167,6 +179,13 @@ function createOpenAIChatMount(): Mountable {
                 model: body.model,
                 choices: [{ index: 0, message: { role: "assistant", content: tool ? null : content, ...(toolCalls ? { tool_calls: toolCalls } : {}) }, finish_reason: tool ? "tool_calls" : "stop" }],
                 usage: { prompt_tokens: 4, completion_tokens: 3, total_tokens: 7 },
+                ...(isXiaomiTranscription
+                    ? {
+                        language: "english",
+                        duration: 1.25,
+                        segments: [{ id: 0, text: content, start: 0, end: 1.25 }],
+                    }
+                    : {}),
             };
             journal?.add({ method: req.method, path: req.url ?? pathname, headers, body, service: "chat", response: { status: 200, fixture: null } });
             if (route === "/responses") {

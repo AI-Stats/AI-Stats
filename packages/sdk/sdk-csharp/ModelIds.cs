@@ -698,6 +698,8 @@ namespace PhaseoSdk
         public const string PerplexityPplxEmbedV106b = "perplexity/pplx-embed-v1-0.6b";
         /// <summary>Model ID: <c>perplexity/pplx-embed-v1-4b</c>. Model page: https://phaseo.app/models/perplexity/pplx-embed-v1-4b</summary>
         public const string PerplexityPplxEmbedV14b = "perplexity/pplx-embed-v1-4b";
+        /// <summary>Model ID: <c>phaseo/auto</c>. Model page: https://phaseo.app/models/phaseo/auto</summary>
+        public const string PhaseoAuto = "phaseo/auto";
         /// <summary>Model ID: <c>phaseo/free</c>. Model page: https://phaseo.app/models/phaseo/free</summary>
         public const string PhaseoFree = "phaseo/free";
         /// <summary>Model ID: <c>poolside/laguna-m.1:free</c>. Model page: https://phaseo.app/models/poolside/laguna-m.1%3Afree</summary>
@@ -764,6 +766,8 @@ namespace PhaseoSdk
         public const string QwenQwen257b = "qwen/qwen2.5-7b";
         /// <summary>Model ID: <c>qwen/qwen2.5-7b-1m</c>. Model page: https://phaseo.app/models/qwen/qwen2.5-7b-1m</summary>
         public const string QwenQwen257b1m = "qwen/qwen2.5-7b-1m";
+        /// <summary>Model ID: <c>qwen/qwen2.5-coder-7b</c>. Model page: https://phaseo.app/models/qwen/qwen2.5-coder-7b</summary>
+        public const string QwenQwen25Coder7b = "qwen/qwen2.5-coder-7b";
         /// <summary>Model ID: <c>qwen/qwen2.5-vl-32b</c>. Model page: https://phaseo.app/models/qwen/qwen2.5-vl-32b</summary>
         public const string QwenQwen25Vl32b = "qwen/qwen2.5-vl-32b";
         /// <summary>Model ID: <c>qwen/qwen2.5-vl-32b-instruct</c>. Model page: https://phaseo.app/models/qwen/qwen2.5-vl-32b-instruct</summary>

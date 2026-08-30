@@ -67,7 +67,6 @@ describe("Morpheus current embeddings contract", () => {
 			model: "text-embedding-bge-m3",
 			input: ["first", "second"],
 			encoding_format: "float",
-			dimensions: 1024,
 			user: "user-123",
 			session_id: "session-123",
 		});

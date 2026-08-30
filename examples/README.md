@@ -4,7 +4,16 @@ This directory contains focused integration examples for different use cases.
 
 ## Available Examples
 
-### 1) OAuth Workbench (Next.js)
+### 1) AI SDK 7 Quickstart
+
+Path: `examples/ai-sdk-v7-quickstart`
+
+Use this when you need:
+- The native Phaseo provider for Vercel AI SDK 7
+- A minimal `generateText` request
+- An offline typecheck that CI also runs
+
+### 2) OAuth Workbench (Next.js)
 
 Path: `examples/oauth-client-nextjs`
 
@@ -14,7 +23,7 @@ Use this when you need:
 - Gateway proxying for control and generation routes
 - A browser workbench for testing multiple API surfaces
 
-### 2) Web Chat App (Next.js, API key)
+### 3) Web Chat App (Next.js, API key)
 
 Path: `examples/web-chat-nextjs`
 
@@ -23,7 +32,7 @@ Use this when you need:
 - Model discovery from `/v1/models`
 - Responses API chat flow without OAuth complexity
 
-### 3) Node Multi-Surface Quickstart (REST)
+### 4) Node Multi-Surface Quickstart (REST)
 
 Path: `examples/gateway-node-quickstart`
 
@@ -32,7 +41,7 @@ Use this when you need:
 - Fast smoke checks across control + generation surfaces
 - A reference fallback when language SDK availability differs
 
-### 4) Python Multi-Surface Quickstart (REST)
+### 5) Python Multi-Surface Quickstart (REST)
 
 Path: `examples/gateway-python-quickstart`
 
@@ -43,6 +52,7 @@ Use this when you need:
 
 ## Which Example Should You Start With?
 
+- Building with Vercel AI SDK 7: `ai-sdk-v7-quickstart`
 - Building a signed-in product with user identity: `oauth-client-nextjs`
 - Building a straightforward chat UI quickly: `web-chat-nextjs`
 - Building backend or CLI automation: `gateway-node-quickstart`

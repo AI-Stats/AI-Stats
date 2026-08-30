@@ -952,6 +952,223 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AudioTranslationResponse'
+  /audio/realtime/sessions:
+    post:
+      x-beta: true
+      tags:
+        - Gateway
+      operationId: createRealtimeSession
+      summary: Create realtime audio session
+      description: >-
+        Creates a metered realtime audio session and returns relay connection
+        details.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - model
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - realtime
+                model:
+                  type: string
+                provider:
+                  type: string
+                voice:
+                  type: string
+                instructions:
+                  type: string
+                  maxLength: 4000
+                source:
+                  type: string
+                  enum:
+                    - api
+                    - chat
+                metadata:
+                  type: object
+                  additionalProperties: true
+      responses:
+        '201':
+          description: Realtime session created
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /audio/realtime/sessions/{session_id}/relay:
+    get:
+      x-beta: true
+      tags:
+        - Gateway
+      operationId: connectRealtimeSessionRelay
+      summary: Connect realtime relay
+      description: >-
+        Upgrades to a WebSocket relay using the session relay secret as a
+        subprotocol.
+      security: []
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '101':
+          description: WebSocket connection established
+  /audio/realtime/sessions/{session_id}/connected:
+    post:
+      x-beta: true
+      x-internal: true
+      tags:
+        - Gateway
+      operationId: markRealtimeSessionConnected
+      summary: Mark realtime session connected
+      description: >-
+        Records that the upstream realtime relay connection has been
+        established.
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Updated realtime session
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /audio/realtime/sessions/{session_id}/extend:
+    post:
+      x-beta: true
+      x-internal: true
+      tags:
+        - Gateway
+      operationId: extendRealtimeSession
+      summary: Extend realtime session credit hold
+      description: Extends the reserved credit for an active realtime audio session.
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                target_reserved_nanos:
+                  type: integer
+                  minimum: 1
+                estimated_cost_nanos:
+                  type: integer
+                  minimum: 0
+      responses:
+        '200':
+          description: Updated realtime session
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /audio/realtime/sessions/{session_id}/usage:
+    post:
+      x-beta: true
+      x-internal: true
+      tags:
+        - Gateway
+      operationId: updateRealtimeSessionUsage
+      summary: Update realtime session usage
+      description: Records the latest metered usage for an active realtime audio session.
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                usage:
+                  type: object
+                  additionalProperties: true
+                estimated_cost_nanos:
+                  type: integer
+                  minimum: 0
+      responses:
+        '200':
+          description: Updated realtime session
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /audio/realtime/sessions/{session_id}/finalize:
+    post:
+      x-beta: true
+      x-internal: true
+      tags:
+        - Gateway
+      operationId: finalizeRealtimeSession
+      summary: Finalize realtime audio session
+      description: >-
+        Finalizes metering and releases any remaining credit reservation for a
+        realtime session.
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum:
+                    - completed
+                    - failed
+                    - cancelled
+                    - expired
+                usage:
+                  type: object
+                  additionalProperties: true
+                disconnect_reason:
+                  type: string
+                  maxLength: 240
+                error_code:
+                  type: string
+                  maxLength: 120
+                error_message:
+                  type: string
+                  maxLength: 1000
+      responses:
+        '200':
+          description: Finalized realtime session and settlement
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
   /images/generations:
     post:
       x-beta: true
@@ -3065,6 +3282,7 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
     patch:
       x-beta: true
+      security: []
       tags:
         - Gateway
       operationId: updateWorkspaceNotificationSettings
@@ -19777,6 +19995,7 @@ components:
         - openai/whisper-large-v3-turbo
         - perplexity/pplx-embed-v1-0.6b
         - perplexity/pplx-embed-v1-4b
+        - phaseo/auto
         - phaseo/free
         - poolside/laguna-m.1:free
         - poolside/laguna-s-2.1:free
@@ -19810,6 +20029,7 @@ components:
         - qwen/qwen2.5-72b
         - qwen/qwen2.5-7b
         - qwen/qwen2.5-7b-1m
+        - qwen/qwen2.5-coder-7b
         - qwen/qwen2.5-vl-32b
         - qwen/qwen2.5-vl-32b-instruct
         - qwen/qwen2.5-vl-72b

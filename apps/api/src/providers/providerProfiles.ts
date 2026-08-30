@@ -127,7 +127,6 @@ const PROVIDER_PROFILES: ProviderProfile[] = [
 	},
 	{
 		id: "google-vertex",
-		aliases: ["google-vertex-eu"],
 		adapterBackedOverrides: {
 			"image.generate": false,
 			"image.edit": false,
@@ -135,6 +134,17 @@ const PROVIDER_PROFILES: ProviderProfile[] = [
 			"audio.transcription": false,
 			"audio.translations": false,
 			"video.generate": true,
+		},
+	},
+	{
+		id: "google-vertex-eu",
+		adapterBackedOverrides: {
+			"image.generate": false,
+			"image.edit": false,
+			"audio.speech": false,
+			"audio.transcription": false,
+			"audio.translations": false,
+			"video.generate": false,
 		},
 	},
 	{
@@ -184,6 +194,9 @@ const PROVIDER_PROFILES: ProviderProfile[] = [
 	{
 		id: "cerebras",
 		text: {
+			paramPolicy: {
+				unsupportedParams: ["presence_penalty"],
+			},
 			normalize: {
 				maxTemperature: 2,
 				serviceTierAliases: {
@@ -956,7 +969,6 @@ const PROVIDER_PROFILES: ProviderProfile[] = [
 	{
 		id: "tensorix",
 		aliases: ["tensorx"],
-		textOnly: true,
 		text: {
 			paramPolicy: {
 				supportedParams: [

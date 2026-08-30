@@ -15,7 +15,7 @@ Use this page to find the correct API path before opening an endpoint reference.
 | Generate text or use tools | [`POST /responses`](./endpoint/responses) |
 | Keep an existing OpenAI-compatible integration | [`POST /chat/completions`](./endpoint/chat-completions) |
 | Browse models and providers | [`GET /models`](./endpoint/models) and [`GET /providers`](./endpoint/providers) |
-| Build an asynchronous media workflow | [Video](./endpoint/video-generation), music, batch, or file endpoints below |
+| Create music or manage files | [`POST /music/generations`](./endpoint/music-generate) and [`POST /files`](./endpoint/files) |
 
 ## Base URL
 
@@ -34,7 +34,7 @@ Use the OpenAPI file if you want to import the API into Postman, Hoppscotch, or 
 <Card
 	title="Phaseo Gateway OpenAPI"
 	icon="list-bullet"
-	href="https://github.com/phaseoteam/Phaseo/blob/main/apps/docs/openapi/v1/openapi.yaml"
+	href="https://github.com/phaseoteam/Phaseo/blob/main/apps/docs/openapi/v1/openapi.public.yaml"
 >
 	View the specification file
 </Card>
@@ -60,9 +60,8 @@ If authentication fails, the API returns `401`.
 | Images | Generate or edit images. |
 | Text-to-Speech | Generate spoken audio from text. |
 | Speech-to-Text | Transcribe or translate audio. |
-| Video Generation | Create video jobs, inspect status, and download completed output. |
 | Music Generation | Create music jobs and inspect their status. |
-| Batches and Files | Upload inputs and run asynchronous batch workloads. |
+| Files | Upload and retrieve inputs for supported API workflows. |
 | Models, Providers, and Endpoints | Discover what is available through the Gateway. |
 | Pricing, Activity, and Generations | Estimate cost and inspect request outcomes. |
 | API Keys and Workspaces | Manage programmatic access and workspace resources. |

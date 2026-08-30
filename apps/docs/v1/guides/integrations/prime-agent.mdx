@@ -1,7 +1,7 @@
 ---
 title: "Prime Agent"
 icon: "terminal"
-description: "Install Prime Agent and connect its custom model catalog to Phaseo."
+description: "Connect an installed Prime Agent model catalog to Phaseo."
 ---
 
 ## Set up with the Phaseo CLI
@@ -13,9 +13,9 @@ phaseo login
 phaseo prime-agent
 ```
 
-Setup uses Prime Agent's official installer on macOS and Linux, then writes a managed `phaseo` provider to `~/.prime/agent/models.json`. The provider exposes every active Phaseo text model compatible with Chat Completions and resolves its dedicated API key from the Phaseo CLI at request time.
+Install Prime Agent from its official release first. Setup writes a managed `phaseo` provider to `~/.prime/agent/models.json`. The provider exposes every active Phaseo text model compatible with Chat Completions and resolves its dedicated API key from the Phaseo CLI at request time.
 
-Prime Agent currently supports macOS and Linux. On Windows, run setup inside WSL or use `--skip-install` when the executable is managed separately.
+Prime Agent currently supports macOS and Linux. On Windows, run setup inside WSL after installing the executable there.
 
 Choose an initial catalog entry or configure only one model when needed:
 

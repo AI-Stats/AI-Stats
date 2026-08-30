@@ -482,6 +482,21 @@ func CreateProviderCredential(client *Client, path map[string]string, query map[
 	return out, nil
 }
 
+func CreateRealtimeSession(client *Client, path map[string]string, query map[string]string, headers map[string]string, body any) (map[string]interface{}, error) {
+	resolvedPath := "/audio/realtime/sessions"
+	data, err := client.Request("POST", resolvedPath, query, headers, body)
+	if err != nil {
+		var zero map[string]interface{}
+		return zero, err
+	}
+	var out map[string]interface{}
+	if err := DecodeJSON(data, &out); err != nil {
+		var zero map[string]interface{}
+		return zero, err
+	}
+	return out, nil
+}
+
 func CreateRerank(client *Client, path map[string]string, query map[string]string, headers map[string]string, body any) (map[string]interface{}, error) {
 	resolvedPath := "/rerank"
 	data, err := client.Request("POST", resolvedPath, query, headers, body)
@@ -2392,21 +2407,6 @@ func MergeWorkspaceApp(client *Client, path map[string]string, query map[string]
 	var out map[string]interface{}
 	if err := DecodeJSON(data, &out); err != nil {
 		var zero map[string]interface{}
-		return zero, err
-	}
-	return out, nil
-}
-
-func OpenAsyncJobWebSocket(client *Client, path map[string]string, query map[string]string, headers map[string]string, body any) (interface{}, error) {
-	resolvedPath := "/async/" + url.PathEscape(path["kind"]) + "/" + url.PathEscape(path["id"]) + "/ws"
-	data, err := client.Request("GET", resolvedPath, query, headers, body)
-	if err != nil {
-		var zero interface{}
-		return zero, err
-	}
-	var out interface{}
-	if err := DecodeJSON(data, &out); err != nil {
-		var zero interface{}
 		return zero, err
 	}
 	return out, nil

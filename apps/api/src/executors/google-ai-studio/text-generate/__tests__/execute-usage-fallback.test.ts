@@ -57,10 +57,17 @@ describe("google-ai-studio execute usage fallback", () => {
 			}), { status: 200, headers: { "Content-Type": "application/json" } }),
 		}]);
 
-		const result = await executor(buildArgs({
+		const args = buildArgs({
 			model: "google/gemini-2.5-flash",
 			googleCachedContent: "cachedContents/example",
-		}, { providerModelSlug: "gemini-2.5-flash" }));
+		}, { providerModelSlug: "gemini-2.5-flash" });
+		args.byokMeta = [{
+			id: "byok_google_cached_content",
+			key: "customer-google-key",
+			providerId: "google-ai-studio",
+			alwaysUse: true,
+		}] as any;
+		const result = await executor(args);
 		mock.restore();
 
 		expect(result.kind).toBe("completed");

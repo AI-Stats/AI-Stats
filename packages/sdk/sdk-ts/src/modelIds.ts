@@ -695,6 +695,8 @@ export const ModelIds = {
   PERPLEXITY_PPLX_EMBED_V1_0_6B: "perplexity/pplx-embed-v1-0.6b",
   /** Model ID: `perplexity/pplx-embed-v1-4b`. Model page: https://phaseo.app/models/perplexity/pplx-embed-v1-4b */
   PERPLEXITY_PPLX_EMBED_V1_4B: "perplexity/pplx-embed-v1-4b",
+  /** Model ID: `phaseo/auto`. Model page: https://phaseo.app/models/phaseo/auto */
+  PHASEO_AUTO: "phaseo/auto",
   /** Model ID: `phaseo/free`. Model page: https://phaseo.app/models/phaseo/free */
   PHASEO_FREE: "phaseo/free",
   /** Model ID: `poolside/laguna-m.1:free`. Model page: https://phaseo.app/models/poolside/laguna-m.1%3Afree */
@@ -761,6 +763,8 @@ export const ModelIds = {
   QWEN_QWEN2_5_7B: "qwen/qwen2.5-7b",
   /** Model ID: `qwen/qwen2.5-7b-1m`. Model page: https://phaseo.app/models/qwen/qwen2.5-7b-1m */
   QWEN_QWEN2_5_7B_1M: "qwen/qwen2.5-7b-1m",
+  /** Model ID: `qwen/qwen2.5-coder-7b`. Model page: https://phaseo.app/models/qwen/qwen2.5-coder-7b */
+  QWEN_QWEN2_5_CODER_7B: "qwen/qwen2.5-coder-7b",
   /** Model ID: `qwen/qwen2.5-vl-32b`. Model page: https://phaseo.app/models/qwen/qwen2.5-vl-32b */
   QWEN_QWEN2_5_VL_32B: "qwen/qwen2.5-vl-32b",
   /** Model ID: `qwen/qwen2.5-vl-32b-instruct`. Model page: https://phaseo.app/models/qwen/qwen2.5-vl-32b-instruct */

@@ -9,6 +9,7 @@ import {
 	VIDEO_API_GATE,
 	REALTIME_VOICE_GATE,
 	GATEWAY_IO_LOGGING_GATE,
+	AUTO_ROUTING_GATE,
 	PRESET_EXPERIMENTS_GATE,
 	SAML_SSO_GATE,
 	CATALOGUE_GAMES_PREVIEW_GATE,
@@ -70,6 +71,17 @@ export const gatewayIoLoggingFlag = statsigAdapter
 		})
 	: flag<boolean>({
 			key: GATEWAY_IO_LOGGING_GATE,
+			decide: () => false,
+		});
+
+export const autoRoutingFlag = statsigAdapter
+	? flag<boolean, StatsigUser>({
+			key: AUTO_ROUTING_GATE,
+			identify,
+			adapter: statsigAdapter.featureGate((gate) => gate.value),
+		})
+	: flag<boolean>({
+			key: AUTO_ROUTING_GATE,
 			decide: () => false,
 		});
 

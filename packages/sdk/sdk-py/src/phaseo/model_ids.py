@@ -1394,6 +1394,10 @@ class ModelIds:
     # Model page: https://phaseo.app/models/perplexity/pplx-embed-v1-4b
     PERPLEXITY_PPLX_EMBED_V1_4B: Final[str] = "perplexity/pplx-embed-v1-4b"
 
+    # Model ID: phaseo/auto
+    # Model page: https://phaseo.app/models/phaseo/auto
+    PHASEO_AUTO: Final[str] = "phaseo/auto"
+
     # Model ID: phaseo/free
     # Model page: https://phaseo.app/models/phaseo/free
     PHASEO_FREE: Final[str] = "phaseo/free"
@@ -1525,6 +1529,10 @@ class ModelIds:
     # Model ID: qwen/qwen2.5-7b-1m
     # Model page: https://phaseo.app/models/qwen/qwen2.5-7b-1m
     QWEN_QWEN2_5_7B_1M: Final[str] = "qwen/qwen2.5-7b-1m"
+
+    # Model ID: qwen/qwen2.5-coder-7b
+    # Model page: https://phaseo.app/models/qwen/qwen2.5-coder-7b
+    QWEN_QWEN2_5_CODER_7B: Final[str] = "qwen/qwen2.5-coder-7b"
 
     # Model ID: qwen/qwen2.5-vl-32b
     # Model page: https://phaseo.app/models/qwen/qwen2.5-vl-32b
@@ -2602,6 +2610,7 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.OPENAI_WHISPER_LARGE_V3_TURBO,
         ModelIds.PERPLEXITY_PPLX_EMBED_V1_0_6B,
         ModelIds.PERPLEXITY_PPLX_EMBED_V1_4B,
+        ModelIds.PHASEO_AUTO,
         ModelIds.PHASEO_FREE,
         ModelIds.POOLSIDE_LAGUNA_M_1_FREE,
         ModelIds.POOLSIDE_LAGUNA_S_2_1_FREE,
@@ -2635,6 +2644,7 @@ MODEL_IDS: Final[tuple[str, ...]] = tuple(
         ModelIds.QWEN_QWEN2_5_72B,
         ModelIds.QWEN_QWEN2_5_7B,
         ModelIds.QWEN_QWEN2_5_7B_1M,
+        ModelIds.QWEN_QWEN2_5_CODER_7B,
         ModelIds.QWEN_QWEN2_5_VL_32B,
         ModelIds.QWEN_QWEN2_5_VL_32B_INSTRUCT,
         ModelIds.QWEN_QWEN2_5_VL_72B,

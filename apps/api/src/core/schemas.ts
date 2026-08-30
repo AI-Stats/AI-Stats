@@ -1073,6 +1073,99 @@ export const AnthropicMessagesSchema = z.object({
 
 export type AnthropicMessagesRequest = z.infer<typeof AnthropicMessagesSchema>;
 
+const MINIMAX_IMAGE_ASPECT_RATIOS = new Set([
+    "1:1",
+    "16:9",
+    "4:3",
+    "3:2",
+    "2:3",
+    "3:4",
+    "9:16",
+    "21:9",
+]);
+
+type MiniMaxImageRequestShape = {
+    model?: string;
+    prompt: string;
+    size?: string;
+    n?: number;
+    response_format?: string;
+    aspect_ratio?: string;
+    width?: number;
+    height?: number;
+    subject_reference?: Array<Record<string, unknown>>;
+};
+
+function isMiniMaxImageModel(model: string | undefined): boolean {
+    const normalized = model?.trim().toLowerCase();
+    return normalized === "minimax/image-01"
+        || normalized === "minimax/image-01-live"
+        || normalized === "image-01"
+        || normalized === "image-01-live";
+}
+
+function validateMiniMaxImageRequest(
+    request: MiniMaxImageRequestShape,
+    ctx: z.RefinementCtx,
+    options: { allowSubjectReference: boolean },
+): void {
+    if (!isMiniMaxImageModel(request.model)) return;
+
+    if (request.prompt.length > 1500) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["prompt"], message: "MiniMax image prompts must be at most 1500 characters" });
+    }
+    if (request.n !== undefined && request.n > 9) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["n"], message: "MiniMax supports between 1 and 9 images" });
+    }
+    if (request.aspect_ratio !== undefined && !MINIMAX_IMAGE_ASPECT_RATIOS.has(request.aspect_ratio)) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["aspect_ratio"], message: "MiniMax aspect_ratio is not supported" });
+    }
+    if ((request.width === undefined) !== (request.height === undefined)) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: [request.width === undefined ? "width" : "height"],
+            message: "MiniMax width and height must be provided together",
+        });
+    }
+    for (const field of ["width", "height"] as const) {
+        const value = request[field];
+        if (value !== undefined && (value < 512 || value > 2048 || value % 8 !== 0)) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                path: [field],
+                message: `MiniMax ${field} must be an integer from 512 to 2048 divisible by 8`,
+            });
+        }
+    }
+    if (request.size !== undefined && !MINIMAX_IMAGE_ASPECT_RATIOS.has(request.size)) {
+        const match = /^(\d+)x(\d+)$/i.exec(request.size);
+        if (!match) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["size"], message: "MiniMax size must be a supported aspect ratio or WIDTHxHEIGHT" });
+        } else {
+            const [width, height] = [Number(match[1]), Number(match[2])];
+            if ([width, height].some((value) => value < 512 || value > 2048 || value % 8 !== 0)) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    path: ["size"],
+                    message: "MiniMax size dimensions must be from 512 to 2048 and divisible by 8",
+                });
+            }
+        }
+    }
+    if (request.response_format !== undefined && !["url", "base64", "b64_json"].includes(request.response_format)) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["response_format"], message: "MiniMax response_format must be url or b64_json" });
+    }
+    if (!options.allowSubjectReference || request.subject_reference === undefined) return;
+    request.subject_reference.forEach((reference, index) => {
+        if (reference.type !== "character") {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["subject_reference", index, "type"], message: "MiniMax subject references must use type character" });
+        }
+        if (typeof reference.image_file !== "string" || reference.image_file.trim().length === 0) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["subject_reference", index, "image_file"], message: "MiniMax subject references require a non-empty image_file" });
+        }
+    });
+}
+
 // Images Generation schema
 export const ImagesGenerationSchema = z.object({
     model: z.string().min(1),
@@ -1089,12 +1182,18 @@ export const ImagesGenerationSchema = z.object({
     moderation: z.enum(["auto", "low"]).optional(),
     style: z.string().optional(),
     user: z.string().optional(),
+    aspect_ratio: z.string().min(1).optional(),
+    width: z.number().int().optional(),
+    height: z.number().int().optional(),
+    seed: z.number().int().optional(),
+    prompt_optimizer: z.boolean().optional(),
     echo_upstream_request: z.boolean().optional(),
     debug: DebugOptionsSchema,
     beta: BetaOptionsSchema,
     provider: ProviderRoutingSchema,
     routing: ProviderRoutingSchema,
 }).superRefine((request, ctx) => {
+    validateMiniMaxImageRequest(request, ctx, { allowSubjectReference: false });
     const model = request.model.trim().toLowerCase().replace(/^openai\//, "");
     const isGptImage = model.startsWith("gpt-image-") || model === "chatgpt-image-latest";
     if (!isGptImage) return;
@@ -1120,9 +1219,6 @@ export const ImagesGenerationSchema = z.object({
 
     const isGptImage2 = /^gpt-image-2(?:$|-)/.test(model);
     if (!isGptImage2) return;
-    if (request.background === "transparent") {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["background"], message: "gpt-image-2 does not support transparent backgrounds" });
-    }
     if (!request.size || request.size === "auto") return;
     const dimensions = /^(\d+)x(\d+)$/i.exec(request.size);
     if (!dimensions) {
@@ -1190,6 +1286,21 @@ export const ImagesEditSchema = z.object({
     input_fidelity: z.enum(["high", "low"]).optional(),
     background: z.enum(["transparent", "opaque", "auto"]).optional(),
     user: z.string().optional(),
+    aspect_ratio: z.string().min(1).optional(),
+    width: z.preprocess(
+        (value) => value === null || value === "" || value === undefined ? undefined : value,
+        z.coerce.number().int().optional(),
+    ),
+    height: z.preprocess(
+        (value) => value === null || value === "" || value === undefined ? undefined : value,
+        z.coerce.number().int().optional(),
+    ),
+    seed: z.preprocess(
+        (value) => value === null || value === "" || value === undefined ? undefined : value,
+        z.coerce.number().int().optional(),
+    ),
+    prompt_optimizer: ImageEditOptionalBoolean,
+    subject_reference: z.array(z.record(z.string(), z.unknown())).min(1).optional(),
     meta: z.boolean().optional(),
     echo_upstream_request: z.boolean().optional(),
     debug: DebugOptionsSchema,
@@ -1197,6 +1308,7 @@ export const ImagesEditSchema = z.object({
     provider: ProviderRoutingSchema,
     routing: ProviderRoutingSchema,
 }).superRefine((body, ctx) => {
+    validateMiniMaxImageRequest(body, ctx, { allowSubjectReference: true });
     const model = body.model.split("/").pop()?.toLowerCase();
     const isDallE2 = model === "dall-e-2";
     const isGptImage = model?.startsWith("gpt-image-") || model === "chatgpt-image-latest";
@@ -1243,22 +1355,6 @@ export const ImagesEditSchema = z.object({
             path: ["input_fidelity"],
             message: "gpt-image-1-mini does not support input_fidelity",
         });
-    }
-    if (model === "gpt-image-2" || model === "gpt-image-2-2026-04-21") {
-        if (body.input_fidelity != null) {
-            ctx.addIssue({
-                code: "custom",
-                path: ["input_fidelity"],
-                message: "gpt-image-2 always uses high input fidelity and does not accept input_fidelity",
-            });
-        }
-        if (body.background === "transparent") {
-            ctx.addIssue({
-                code: "custom",
-                path: ["background"],
-                message: "gpt-image-2 does not support transparent backgrounds",
-            });
-        }
     }
     if (body.background === "transparent" && body.output_format === "jpeg") {
         ctx.addIssue({
@@ -1419,17 +1515,21 @@ export const AudioSpeechSchema = z.object({
 }).superRefine((body, ctx) => {
 	const isMiniMax = body.model.toLowerCase().startsWith("minimax/");
 	const isXAi = /(?:^|\/)(?:grok-tts|grok-voice)/i.test(body.model);
-	const model = body.model.split("/").pop()?.toLowerCase() ?? "";
-	const isElevenLabs = body.model.toLowerCase().startsWith("eleven-labs/");
-	const elevenLabsLimit = model.includes("flash-v2.5") || model.includes("flash-v2-5")
+	const normalizedModel = body.model.toLowerCase();
+	const model = normalizedModel.split(/[\/:]/).pop() ?? "";
+	const compactModel = model.replace(/[._-]/g, "");
+	const isElevenLabs = normalizedModel.startsWith("eleven-labs/")
+		|| normalizedModel.startsWith("elevenlabs:")
+		|| /^eleven(?:labs)?[-_]/.test(model);
+	const elevenLabsLimit = compactModel.includes("flashv25") || compactModel.includes("turbov25")
 		? 40000
-		: model.includes("flash-v2")
+		: compactModel.includes("flashv2") || compactModel.includes("turbov2")
 			? 30000
-		: model.includes("multilingual-v2")
-			? 10000
-			: model === "eleven-v3"
-				? 5000
-				: 10000;
+			: compactModel.includes("multilingualv2")
+				? 10000
+				: compactModel === "elevenv3"
+					? 5000
+					: 10000;
 	if (isElevenLabs && body.input.length > elevenLabsLimit) {
 		ctx.addIssue({ code: "custom", path: ["input"], message: `Speech input must be at most ${elevenLabsLimit} characters for this ElevenLabs model` });
 	} else if (!isElevenLabs && !isMiniMax && !isXAi && body.input.length > 4096) {

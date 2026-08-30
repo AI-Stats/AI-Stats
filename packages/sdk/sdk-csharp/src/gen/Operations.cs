@@ -390,6 +390,18 @@ public static class Operations
 		return client.SendAsync<Dictionary<string, object>>("POST", resolvedPath, query, headers, body);
 	}
 
+	public static Task<Dictionary<string, object>?> CreateRealtimeSessionAsync(
+		Client client,
+		Dictionary<string, string>? path = null,
+		Dictionary<string, string>? query = null,
+		Dictionary<string, string>? headers = null,
+		object? body = null
+	)
+	{
+		var resolvedPath = "/audio/realtime/sessions";
+		return client.SendAsync<Dictionary<string, object>>("POST", resolvedPath, query, headers, body);
+	}
+
 	public static Task<Dictionary<string, object>?> CreateRerankAsync(
 		Client client,
 		Dictionary<string, string>? path = null,
@@ -1924,18 +1936,6 @@ public static class Operations
 	{
 		var resolvedPath = "/apps/" + Uri.EscapeDataString(path != null && path.ContainsKey("id") ? path["id"] : "") + "/merge";
 		return client.SendAsync<Dictionary<string, object>>("POST", resolvedPath, query, headers, body);
-	}
-
-	public static Task<object?> OpenAsyncJobWebSocketAsync(
-		Client client,
-		Dictionary<string, string>? path = null,
-		Dictionary<string, string>? query = null,
-		Dictionary<string, string>? headers = null,
-		object? body = null
-	)
-	{
-		var resolvedPath = "/async/" + Uri.EscapeDataString(path != null && path.ContainsKey("kind") ? path["kind"] : "") + "/" + Uri.EscapeDataString(path != null && path.ContainsKey("id") ? path["id"] : "") + "/ws";
-		return client.SendAsync<object>("GET", resolvedPath, query, headers, body);
 	}
 
 	public static Task<Dictionary<string, object>?> PublishPresetVersionAsync(

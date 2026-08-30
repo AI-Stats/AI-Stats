@@ -164,6 +164,11 @@ inline Response CreateProviderCredential(Client& client, const std::map<std::str
 	return client.request("POST", resolved_path, body);
 }
 
+inline Response CreateRealtimeSession(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
+	const std::string resolved_path = "/audio/realtime/sessions";
+	return client.request("POST", resolved_path, body);
+}
+
 inline Response CreateRerank(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/rerank";
 	return client.request("POST", resolved_path, body);
@@ -802,11 +807,6 @@ inline Response ListWorkspaceScimAuditEvents(Client& client, const std::map<std:
 inline Response MergeWorkspaceApp(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
 	const std::string resolved_path = "/apps/" + (path.count("id") ? path.at("id") : std::string{}) + "/merge";
 	return client.request("POST", resolved_path, body);
-}
-
-inline Response OpenAsyncJobWebSocket(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {
-	const std::string resolved_path = "/async/" + (path.count("kind") ? path.at("kind") : std::string{}) + "/" + (path.count("id") ? path.at("id") : std::string{}) + "/ws";
-	return client.request("GET", resolved_path, body);
 }
 
 inline Response PublishPresetVersion(Client& client, const std::map<std::string, std::string>& path = {}, const std::string& body = "") {

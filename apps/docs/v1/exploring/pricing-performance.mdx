@@ -1,207 +1,127 @@
 ---
-title: "Pricing & Performance"
-description: "Understand how model pricing and performance are measured, compared, and normalised across providers on Phaseo."
+title: "Measure Pricing and Performance"
+description: "Compare provider prices and operational Gateway performance without treating observational data as a controlled benchmark."
 icon: "chart-spline"
 ---
 
-Phaseo helps you make informed decisions about which models to use by providing **transparent pricing and performance metrics** for every model and provider.
+Use this guide to compare cost and speed across routes, understand the metrics Phaseo displays, and design a workload study before you move production traffic.
 
-This page explains how Phaseo calculates, standardises, and presents cost and speed data — allowing you to identify the **best value** models for your use case.
+## Start with the decision
 
----
+Choose the metric that matches the user experience you are protecting.
 
-## Why pricing & performance matter
+| Workload | Start with | Why |
+| --- | --- | --- |
+| Chat, copilots, and voice | Gateway TTFT | Users notice how quickly useful output begins. |
+| Long answers and code generation | Output speed | Sustained generation speed dominates longer responses. |
+| Tools and structured workflows | Gateway E2E | Routing, retries, and orchestration affect the complete result. |
+| Batch or offline work | Cost and effective throughput | A slower start may be acceptable when total throughput and spend matter more. |
 
-When choosing a model, you’re balancing **three key factors**:
+No single score proves that a model is the best choice for every workload.
 
-1. 💰 **Price** — how much each request costs.
-2. ⚙️ **Performance** — how fast and efficient the model is.
-3. 🧠 **Quality** — how well it performs on benchmarks.
+## Compare pricing
 
-Phaseo gives you clear, comparable metrics for the first two, and links them with benchmark data to help you find the **sweet spot between cost, speed, and intelligence**.
+Provider price sheets use different units: per token, per million tokens, per image, per second, per minute, or per request. Phaseo keeps the underlying unit and normalizes comparable prices for catalog views and the pricing calculator.
 
----
+For text models, compare input, cached input, cache write, reasoning, and output meters separately when they are present. For media models, keep the native billing unit visible; a per-second video price should not be presented as though it were a token price.
 
-## Pricing structure
+<Note>
+Catalog pricing is evidence for estimating a request, not a quote for every possible payload. Provider tiers, regional offers, batch pricing, cache behavior, and request-specific meters can change the final amount.
+</Note>
 
-Pricing varies depending on the **provider**, **model type**, and **usage mode**.  
-Phaseo normalises all prices to **USD per 1,000 tokens** (for text models) or the equivalent unit for other modalities.
+Use the [pricing calculator](https://phaseo.app/tools/pricing-calculator) for a representative payload, then confirm the charged amount in Gateway usage after a test request.
 
-| Type             | Unit                | Example                             |
-| ---------------- | ------------------- | ----------------------------------- |
-| **Text Models**  | Per 1,000 tokens    | $0.005 input / $0.015 output        |
-| **Image Models** | Per image           | $0.02 per 1024×1024 image           |
-| **Audio Models** | Per minute or MB    | $0.006 per minute of transcription  |
-| **Video Models** | Per second or frame | $0.01 per second of generated video |
-| **Embeddings**   | Per 1,000 tokens    | $0.0001 per 1K tokens               |
+## Understand the performance metrics
 
----
+Phaseo records operational timing for requests routed through the Gateway.
 
-## Input vs Output pricing
-
-For most text-based models, you’ll see two separate costs:
-
--   **Input price** — charged per 1,000 tokens you send (the prompt).
--   **Output price** — charged per 1,000 tokens the model generates.
-
-Example:
-
-| Model             | Input (USD / 1K tokens) | Output (USD / 1K tokens) |
-| ----------------- | ----------------------- | ------------------------ |
-| GPT-4o            | $0.005                  | $0.015                   |
-| Claude 3.5 Sonnet | $0.003                  | $0.015                   |
-| Gemini 1.5 Pro    | $0.00125                | $0.005                   |
-| Mistral Large     | $0.002                  | $0.006                   |
-
-Phaseo displays both prices for full transparency and allows filtering or sorting by either.
-
----
-
-## Cost per request (E2E)
-
-Phaseo also computes an **estimated cost per complete request**, which factors in:
-
--   The **average number of input tokens** per request.
--   The **average model output length**.
--   The **current pricing structure** for that provider.
-
-This gives a more realistic “per-call” cost when comparing across models and providers.
-
----
-
-## Measuring performance
-
-Phaseo tracks the following performance metrics for routed requests:
-
-| Metric | Description |
+| Metric | Definition |
 | --- | --- |
-| **Gateway TTFT** | Gateway request start to the first content-bearing generated output. Metadata-only stream frames do not count. |
+| **Gateway TTFT** | Gateway request start to the first content-bearing generated output. |
 | **Provider TTFT** | Selected provider dispatch to the first content-bearing generated output. |
 | **Provider duration** | Selected provider dispatch to the terminal response. |
 | **Gateway E2E** | Gateway request start to completion. |
-| **Phaseo overhead** | Gateway E2E minus provider duration. |
-| **Effective throughput** | All output tokens divided by the full provider duration. |
-| **Output speed** | Output tokens after the first divided by the provider time after TTFT. |
-| **TPOT / ITL** | Request-level average time per token / inter-token latency after the first token. |
+| **Phaseo overhead** | `max(0, Gateway E2E - provider duration)`. |
+| **Effective throughput** | All output tokens divided by full provider duration. |
+| **Output speed** | Output tokens after the first divided by provider time after TTFT. |
+| **TPOT / ITL** | Request-level average time per token after the first output. |
 
-TTFT, output speed, TPOT, and ITL are only reported when a streaming response exposes a content-bearing first output. Non-streaming responses retain duration and effective-throughput measurements without inventing a TTFT.
+TTFT, output speed, TPOT, and ITL require a streaming response with a content-bearing first output. Metadata-only stream frames do not count. Non-streaming responses can still contribute provider duration, Gateway E2E, and effective throughput without an invented TTFT.
 
----
+Phaseo overhead isolates time outside the selected provider call. It can include Gateway processing, routing work, retries, and network effects. It is not a fixed platform constant and should be read as a distribution over a defined window.
 
-## How we measure it
+## Read operational data correctly
 
-Phaseo aggregates **operational requests routed through the gateway**. These are production observations, not controlled benchmark runs.
+Performance pages summarize live Gateway traffic. They are observational measurements, not controlled benchmark runs and not intrinsic properties of a model.
 
-Performance views can be segmented by:
+Results can move because of:
 
-- Streaming versus non-streaming responses.
-- Input context length buckets.
-- Provider route.
-- Cloudflare execution location.
+- provider and route selection
+- Cloudflare execution location and network path
+- provider queueing or regional load
+- prompt and output length
+- streaming versus non-streaming behavior
+- retries, cancellations, and tool calls
+- model or provider updates during the selected window
 
-Charts support P01, P05, P10, P25, P50, P75, P90, P95, and P99. P99 is the value at or below which 99% of observations fall. Lower latency is better; higher throughput is better, so lower throughput percentiles show the slow tail.
+Public charts can expose percentiles such as P50, P90, P95, and P99. For latency, lower is better. For throughput, higher is better, so a lower throughput percentile describes the slow tail.
 
----
+Always record the selected time window, route, region, sample filters, and percentile beside a result. Do not compare two screenshots with different windows as though they were the same study.
 
-## Interpreting performance
+## Run a reproducible workload study
 
-| Scenario                         | What to look for                                                                    |
-| -------------------------------- | ----------------------------------------------------------------------------------- |
-| **Interactive chatbots**         | Prioritise **low latency** (< 1s TTFT).                                             |
-| **Large document summarisation** | Focus on **high throughput** (tokens/sec).                                          |
-| **Batch processing**             | Balance throughput and cost — consider cheaper models with slightly higher latency. |
-| **Real-time streaming**          | Requires providers that support streaming APIs and sub-second TTFT.                 |
+Use public telemetry to narrow the candidates, then validate the finalists with your own prompt mix.
 
-Use Phaseo’ performance charts to visualise these trade-offs interactively.
+1. Choose two or three routable models from the default `GET /v1/models` response.
+2. Create a sanitized prompt set that represents short, typical, and long requests.
+3. Fix the endpoint, region, streaming mode, provider constraints, and concurrency.
+4. Run repeated requests for each prompt instead of relying on one sample.
+5. Capture request ID, selected provider, success or error, output tokens, Gateway TTFT, provider duration, Gateway E2E, Phaseo overhead, and cost.
+6. Compare distributions and failure modes, then keep the raw results with the test configuration.
 
----
-
-## Example performance snapshot
-
-This illustrative snapshot shows the shape of the performance data returned by the catalogue.
+Example result schema:
 
 ```json
 {
-	"model": "gpt-4o",
-	"provider": "OpenAI",
-	"input_price_usd_per_1k": 0.005,
-	"output_price_usd_per_1k": 0.015,
-	"effective_throughput_tps": 420,
-	"output_speed_tps": 510,
-	"gateway_ttft_ms": 700,
-	"provider_duration_ms": 3100,
-	"phaseo_overhead_ms": 35,
-	"tpot_ms": 1.96,
-	"itl_ms": 1.96,
-	"uptime_percent": 99.97
+  "study_id": "support-summary-v1",
+  "model": "<verified-model-id>",
+  "endpoint": "responses",
+  "stream": true,
+  "region": "<execution-region>",
+  "request_id": "req_...",
+  "gateway_ttft_ms": 0,
+  "provider_duration_ms": 0,
+  "gateway_e2e_ms": 0,
+  "phaseo_overhead_ms": 0,
+  "output_tokens": 0,
+  "cost_usd": 0,
+  "status": "completed"
 }
 ```
 
----
+The zero values are placeholders. Publish measured values only with the workload definition, sample count, time window, and permission to disclose the data.
 
-## Cost-to-performance ratio
+## What Phaseo does not claim
 
-Phaseo calculates a **cost-to-performance ratio (CPR)** — a derived metric that helps identify the most efficient models.
-
-Formula:
-
-math
-CPR = (Cost per 1K tokens) / (Throughput in tokens/sec)
-
-Lower CPR values indicate **better cost efficiency** for the same throughput.
-
----
-
-## Data refresh frequency
-
-Pricing and performance data are refreshed regularly:
-
-| Data Type       | Update Frequency          |
-| --------------- | ------------------------- |
-| **Pricing**     | Every 24 hours            |
-| **Performance** | Every 6 hours             |
-| **Benchmarks**  | Weekly or on new releases |
-
-Each update is timestamped and versioned for transparency.
-
----
-
-## Example use cases
-
-| Goal                               | Example                                                             |
-| ---------------------------------- | ------------------------------------------------------------------- |
-| Compare models by speed            | “Which model has the lowest latency?”                               |
-| Find the best cost-per-token ratio | “Which model offers the best throughput for under $0.01/1K tokens?” |
-| Identify regional variations       | “Does latency differ between EU and US endpoints?”                  |
-| Balance cost and performance       | “What’s the most efficient model for real-time summarisation?”      |
-
----
-
-## Contributing or validating data
-
-You can help by submitting verified pricing or performance updates through GitHub.  
-All submissions are reviewed before being included in the live dataset.
-
-<Card
-	title="Contribute Pricing & Performance Data"
-	icon="github"
-	href="../contributing/overview.mdx"
-	horizontal
->
-	Help maintain the accuracy of cost and performance data across providers.
-</Card>
-
----
+- Catalog presence does not mean a model is routable. Use the default active availability filter.
+- Public operational telemetry does not guarantee future latency or uptime.
+- A benchmark score does not establish production quality for your prompt mix.
+- An illustrative UI profile is not a live model measurement.
+- A customer quote, logo, or workload result should not be published without permission and supporting evidence.
 
 ## Next steps
 
-Now that you understand how pricing and performance are measured, you can explore how to integrate models programmatically via the Phaseo Gateway.
-
-<Card
-	title="Integrate with the Gateway"
-	icon="terminal"
-	href="../developers/integrating-with-the-gateway.mdx"
-	horizontal
->
-	Learn how to build using the Phaseo Gateway API.
-</Card>
+<Columns cols={2}>
+  <Card title="Check reliability and status" icon="shield-check" href="../developers/reliability-and-status">
+    Check incidents, current model routability, metric definitions, and failure triage.
+  </Card>
+  <Card title="Compare models" icon="scale" href="https://phaseo.app/compare">
+    Compare pricing, metadata, and available performance signals side by side.
+  </Card>
+  <Card title="Inspect model routes" icon="route" href="../api-reference/endpoint/model-endpoints">
+    Inspect provider routes, capabilities, availability state, and pricing for one model.
+  </Card>
+  <Card title="Review benchmark methodology" icon="microscope" href="../research/benchmark-methodology">
+    Understand how benchmark sources and scores are normalized separately from Gateway telemetry.
+  </Card>
+</Columns>

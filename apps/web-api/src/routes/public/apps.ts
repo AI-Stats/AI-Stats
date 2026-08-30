@@ -7,10 +7,6 @@ type RangeKey = "1h" | "1d" | "1w" | "4w" | "1m" | "1y";
 const VALID_RANGES = new Set<RangeKey>(["1h", "1d", "1w", "4w", "1m", "1y"]);
 const PAGE_SIZE = 1_000;
 
-function isUuid(value: string): boolean {
-	return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
-}
-
 function sumTokens(value: unknown): number {
 	if (typeof value === "number") return Number.isFinite(value) ? value : 0;
 	if (typeof value === "string") {
@@ -48,17 +44,51 @@ function missingRollup(error: unknown): boolean {
 		|| message.includes("v2_web_public_usage_hourly");
 }
 
-async function getPublicApp(env: Env, reference: string) {
-	let query = getDataClient(env).from("api_apps").select("*").eq("is_public", true);
-	query = isUuid(reference) ? query.eq("id", reference) : query.eq("slug", reference);
-	const { data, error } = await query.maybeSingle();
+type PublicAppGroup = {
+	reference: string;
+	app: Record<string, unknown>;
+	memberIds: string[];
+	publicSlug: string;
+};
+
+async function getPublicAppGroups(env: Env, references: string[]): Promise<PublicAppGroup[]> {
+	if (references.length === 0) return [];
+	const { data, error } = await getDataClient(env).rpc("get_public_app_groups", {
+		p_references: [...new Set(references)],
+	});
 	if (error) throw error;
-	return data as Record<string, unknown> | null;
+	return ((data ?? []) as Array<Record<string, unknown>>).map((row) => {
+		const publicSlug = String(row.public_slug ?? "").trim();
+		return {
+			reference: String(row.reference ?? "").trim(),
+			memberIds: Array.isArray(row.member_ids)
+				? row.member_ids.map((id) => String(id).trim()).filter(Boolean)
+				: [],
+			publicSlug,
+			app: {
+				id: String(row.app_id ?? "").trim(),
+				slug: publicSlug,
+				title: String(row.app_name ?? "").trim(),
+				url: typeof row.app_url === "string" ? row.app_url : null,
+				image_url: typeof row.app_image_url === "string" ? row.app_image_url : null,
+				category: typeof row.app_category === "string" ? row.app_category : null,
+				is_active: row.app_is_active === true,
+				is_public: row.app_is_public === true,
+				last_seen: row.app_last_seen,
+				created_at: row.app_created_at,
+				updated_at: row.app_updated_at,
+			},
+		};
+	});
+}
+
+async function getPublicApp(env: Env, reference: string): Promise<PublicAppGroup | null> {
+	return (await getPublicAppGroups(env, [reference]))[0] ?? null;
 }
 
 async function fetchGatewayUsage(
 	env: Env,
-	appId: string,
+	appIds: string[],
 	from: string,
 	to: string,
 ): Promise<Array<Record<string, unknown>>> {
@@ -67,7 +97,7 @@ async function fetchGatewayUsage(
 		const { data, error } = await getDataClient(env)
 			.from("v2_web_gateway_requests")
 			.select("created_at,usage,cost_nanos,model_id,provider,success")
-			.eq("app_id", appId)
+			.in("app_id", appIds)
 			.gte("created_at", from)
 			.lte("created_at", to)
 			.order("created_at", { ascending: true })
@@ -87,7 +117,8 @@ publicAppsRouter.get("/apps/ids", async (c) => {
 		const { data, error } = await getDataClient(c.env)
 			.from("api_apps")
 			.select("id")
-			.eq("is_public", true);
+			.eq("is_public", true)
+			.eq("is_active", true);
 		if (error) throw error;
 		const ids = (data ?? []).map((row) => String(row.id ?? "").trim()).filter(Boolean);
 		return withPublicCache(c.json({ ids }), {
@@ -105,7 +136,7 @@ publicAppsRouter.get("/apps/images", async (c) => {
 	const ids = [...new Set((c.req.query("ids") ?? "").split(",").map((id) => id.trim()).filter(Boolean))].slice(0, 500);
 	try {
 		if (ids.length === 0) return withPublicCache(c.json({ images: {} }), { edgeTtlSeconds: 24 * 60 * 60, staleWhileRevalidateSeconds: 7 * 24 * 60 * 60, cacheTags: ["web-api-app-images"] });
-		const { data, error } = await getDataClient(c.env).from("api_apps").select("id,image_url").in("id", ids).eq("is_public", true);
+		const { data, error } = await getDataClient(c.env).from("api_apps").select("id,image_url").in("id", ids).eq("is_public", true).eq("is_active", true);
 		if (error) throw error;
 		return withPublicCache(c.json({ images: Object.fromEntries((data ?? []).map((row) => [row.id, row.image_url ?? null])) }), { edgeTtlSeconds: 24 * 60 * 60, staleWhileRevalidateSeconds: 7 * 24 * 60 * 60, cacheTags: ["web-api-app-images"] });
 	} catch (error) { console.error("[web-api/apps] images failed", error); return c.json({ error: "app_images_unavailable" }, 503); }
@@ -126,14 +157,23 @@ publicAppsRouter.get("/apps/provider-model-mappings", async (c) => {
 });
 
 async function resolveAppNames(env: Env, rows: Array<Record<string, unknown>>) {
-	const unresolved = rows.filter((row) => !String(row.app_name ?? "").trim()).map((row) => String(row.app_id ?? "").trim()).filter(Boolean);
-	const names = new Map<string, string>();
-	if (unresolved.length) {
-		const { data, error } = await getDataClient(env).from("api_apps").select("id,title").in("id", [...new Set(unresolved)]).eq("is_public", true);
-		if (error) throw error;
-		for (const row of data ?? []) names.set(row.id, String(row.title ?? row.id));
-	}
-	return rows.filter((row) => String(row.app_id ?? "").trim()).map((row) => ({ ...row, app_id: String(row.app_id).trim(), app_name: String(row.app_name ?? "").trim() || names.get(String(row.app_id).trim()) || String(row.app_id).trim() }));
+	const references = rows.map((row) => String(row.app_id ?? "").trim()).filter(Boolean);
+	const groups = await getPublicAppGroups(env, references);
+	const groupsByReference = new Map(groups.map((group) => [group.reference, group]));
+	return rows
+		.filter((row) => groupsByReference.has(String(row.app_id ?? "").trim()))
+		.map((row) => {
+			const group = groupsByReference.get(String(row.app_id).trim())!;
+			const appId = String(group.app.id ?? "").trim();
+			return {
+				...row,
+				app_id: appId,
+				app_name: String(group.app.title ?? appId),
+				app_slug: group.publicSlug,
+				app_url: typeof group.app.url === "string" ? group.app.url : null,
+				app_category: typeof group.app.category === "string" ? group.app.category : null,
+			};
+		});
 }
 
 publicAppsRouter.get("/apps/top", async (c) => {
@@ -153,7 +193,7 @@ publicAppsRouter.get("/apps/trending", async (c) => {
 publicAppsRouter.get("/apps/indexability", async (c) => {
 	try {
 		const [idsResult, topResult, trendingResult] = await Promise.all([
-			getDataClient(c.env).from("api_apps").select("id").eq("is_public", true),
+			getDataClient(c.env).from("api_apps").select("id").eq("is_public", true).eq("is_active", true),
 			getDataClient(c.env).rpc("get_public_top_apps", { p_time_range: "4w", p_limit: 100 }),
 			getDataClient(c.env).rpc("get_public_trending_apps", { p_limit: 100, p_min_week_tokens: 0 }),
 		]);
@@ -170,9 +210,9 @@ publicAppsRouter.get("/apps/:appReference/usage", async (c) => {
 	const requestedRange = c.req.query("range") as RangeKey | undefined;
 	const range = requestedRange && VALID_RANGES.has(requestedRange) ? requestedRange : "4w";
 	try {
-		const app = await getPublicApp(c.env, appReference);
-		if (!app) return c.json({ error: "app_not_found" }, 404);
-		const appId = String(app.id ?? "");
+		const group = await getPublicApp(c.env, appReference);
+		if (!group) return c.json({ error: "app_not_found" }, 404);
+		const { memberIds: appIds } = group;
 		const fromDate = fromForRange(range);
 		const from = fromDate.toISOString();
 		const nowIso = new Date().toISOString();
@@ -192,7 +232,7 @@ publicAppsRouter.get("/apps/:appReference/usage", async (c) => {
 			const { data, error } = await getDataClient(c.env)
 				.from(table)
 				.select(select)
-				.eq("app_id", appId)
+				.in("app_id", appIds)
 				.gte(dateColumn, lowerBound)
 				.lte(dateColumn, upperBound)
 				.order(dateColumn, { ascending: true })
@@ -209,7 +249,7 @@ publicAppsRouter.get("/apps/:appReference/usage", async (c) => {
 			if (page.length < PAGE_SIZE) break;
 		}
 		const usage = rollupFailed
-			? await fetchGatewayUsage(c.env, appId, from, nowIso)
+			? await fetchGatewayUsage(c.env, appIds, from, nowIso)
 			: rows.map((row) => {
 				const requests = Number(row.requests ?? 0);
 				const successRequests = Number(row.success_requests ?? 0);
@@ -227,7 +267,7 @@ publicAppsRouter.get("/apps/:appReference/usage", async (c) => {
 		return withPublicCache(c.json({ usage }), {
 			edgeTtlSeconds: 15 * 60,
 			staleWhileRevalidateSeconds: 15 * 60,
-			cacheTags: ["web-api-app-usage", `web-api-app-${encodeURIComponent(appId).replace(/%/g, "")}`],
+			cacheTags: ["web-api-app-usage", `web-api-app-${encodeURIComponent(group.publicSlug).replace(/%/g, "")}`],
 		});
 	} catch (error) {
 		console.error("[web-api/apps] usage failed", { appReference, range, error });
@@ -239,20 +279,19 @@ publicAppsRouter.get("/apps/:appReference/requests/recent", async (c) => {
 	const appReference = c.req.param("appReference");
 	const limit = Math.max(1, Math.min(100, Math.round(Number(c.req.query("limit")) || 10)));
 	try {
-		const app = await getPublicApp(c.env, appReference);
-		if (!app) return c.json({ error: "app_not_found" }, 404);
-		const appId = String(app.id ?? "");
+		const group = await getPublicApp(c.env, appReference);
+		if (!group) return c.json({ error: "app_not_found" }, 404);
 		const { data, error } = await getDataClient(c.env)
 			.from("v2_web_gateway_requests")
 			.select("created_at,usage,cost_nanos,model_id,provider,success")
-			.eq("app_id", appId)
+			.in("app_id", group.memberIds)
 			.order("created_at", { ascending: false })
 			.limit(limit);
 		if (error) throw error;
 		return withPublicCache(c.json({ requests: data ?? [] }), {
 			edgeTtlSeconds: 60,
 			staleWhileRevalidateSeconds: 5 * 60,
-			cacheTags: ["web-api-app-usage", `web-api-app-${encodeURIComponent(appId).replace(/%/g, "")}`],
+			cacheTags: ["web-api-app-usage", `web-api-app-${encodeURIComponent(group.publicSlug).replace(/%/g, "")}`],
 		});
 	} catch (error) {
 		console.error("[web-api/apps] recent requests failed", { appReference, error });
@@ -263,17 +302,17 @@ publicAppsRouter.get("/apps/:appReference/requests/recent", async (c) => {
 publicAppsRouter.get("/apps/:appReference", async (c) => {
 	const appReference = c.req.param("appReference").trim();
 	try {
-		const app = await getPublicApp(c.env, appReference);
-		if (!app) return c.json({ error: "app_not_found" }, 404);
-		const appId = String(app.id ?? "");
+		const group = await getPublicApp(c.env, appReference);
+		if (!group) return c.json({ error: "app_not_found" }, 404);
+		const { app, memberIds: appIds, publicSlug } = group;
 		const { data: stats, error: statsError } = await getDataClient(c.env)
 			.from("v2_web_public_usage_daily")
 			.select("requests,success_requests,total_tokens")
-			.eq("app_id", appId);
+			.in("app_id", appIds);
 		let totalTokens = 0;
 		let totalRequests = 0;
 		if (statsError && missingRollup(statsError)) {
-			const rows = await fetchGatewayUsage(c.env, appId, "1970-01-01T00:00:00.000Z", new Date().toISOString());
+			const rows = await fetchGatewayUsage(c.env, appIds, "1970-01-01T00:00:00.000Z", new Date().toISOString());
 			for (const row of rows) {
 				totalTokens += Math.max(0, Math.round(sumTokens(row.usage)));
 				if (row.success) totalRequests += 1;
@@ -288,13 +327,14 @@ publicAppsRouter.get("/apps/:appReference", async (c) => {
 		}
 		return withPublicCache(c.json({ app: {
 			...app,
-			slug: String(app.slug ?? "").trim(),
+			slug: publicSlug,
+			member_ids: appIds,
 			total_tokens: totalTokens,
 			total_requests: totalRequests,
 		} }), {
 			edgeTtlSeconds: 15 * 60,
 			staleWhileRevalidateSeconds: 60 * 60,
-			cacheTags: ["web-api-apps", `web-api-app-${encodeURIComponent(appId).replace(/%/g, "")}`],
+			cacheTags: ["web-api-apps", `web-api-app-${encodeURIComponent(publicSlug).replace(/%/g, "")}`],
 		});
 	} catch (error) {
 		console.error("[web-api/apps] detail failed", { appReference, error });
