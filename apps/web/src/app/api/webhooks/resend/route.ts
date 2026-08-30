@@ -8,8 +8,6 @@ import {
 	type ResendWebhookPayload,
 } from "@/lib/email/resend-webhooks";
 
-export const runtime = "nodejs";
-
 export async function POST(request: Request) {
 	const webhookSecret = String(process.env.RESEND_WEBHOOK_SECRET ?? "").trim();
 	if (!webhookSecret) {
