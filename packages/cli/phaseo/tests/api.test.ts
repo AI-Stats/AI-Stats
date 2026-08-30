@@ -131,7 +131,10 @@ test("parses explicit login scopes and removes duplicates", () => {
 		"openid keys:write activity:read",
 	);
 	assert.equal(parseScopeArgument(undefined), DEFAULT_LOGIN_SCOPES.join(" "));
-	assert.equal(DEFAULT_LOGIN_SCOPES.length, 34);
+	assert.equal(DEFAULT_LOGIN_SCOPES.length, 37);
+	assert.equal(DEFAULT_LOGIN_SCOPES.includes("budgets:read"), true);
+	assert.equal(DEFAULT_LOGIN_SCOPES.includes("budgets:write"), true);
+	assert.equal(DEFAULT_LOGIN_SCOPES.includes("budgets:delete"), true);
 	assert.equal(DEFAULT_LOGIN_SCOPES.includes("provider_credentials:read"), true);
 	assert.equal(DEFAULT_LOGIN_SCOPES.includes("provider_credentials:write"), true);
 	assert.equal(DEFAULT_LOGIN_SCOPES.includes("provider_credentials:delete"), true);
